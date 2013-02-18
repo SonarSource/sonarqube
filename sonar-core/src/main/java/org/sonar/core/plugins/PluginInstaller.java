@@ -119,6 +119,8 @@ public class PluginInstaller {
       metadata.setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());
       metadata.setBasePlugin(manifest.getBasePlugin());
       metadata.setImplementationBuild(manifest.getImplementationBuild());
+      metadata.setParent(manifest.getParent());
+      metadata.setRequiredPlugins(manifest.getRequiresPlugins());
       metadata.setCore(isCore);
       return metadata;
 

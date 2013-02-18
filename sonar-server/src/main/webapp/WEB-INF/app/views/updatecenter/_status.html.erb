@@ -1,7 +1,7 @@
-<% if @center.nil? %>
+<% if @update_plugin_center.nil? %>
   <p class="error">Not connected to update center. Please check your internet connection and logs.</p>
 <% else %>
   <p class="notes">
-  Updated on <%= @matrix.getDate() -%>. <%= link_to 'Refresh', :action => action, :reload => true %>
+  Updated on <%= @update_center_referential.getDate() -%>. <%= link_to 'Refresh', :action => action, :reload => true %>
   </p>
 <% end %>

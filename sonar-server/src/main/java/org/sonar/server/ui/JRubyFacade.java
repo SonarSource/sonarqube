@@ -72,12 +72,13 @@ import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.plugins.DefaultServerPluginRepository;
+import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginDeployer;
 import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.UpdateCenterMatrix;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
+import org.sonar.updatecenter.common.PluginCenter;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
@@ -177,7 +178,7 @@ public final class JRubyFacade {
   }
 
   public void uninstallPlugin(String pluginKey) {
-    get(PluginDeployer.class).uninstall(pluginKey);
+    get(InstalledPluginReferentialFactory.class).uninstall(pluginKey);
   }
 
   public void cancelPluginUninstalls() {
@@ -188,8 +189,12 @@ public final class JRubyFacade {
     return get(PluginDeployer.class).getUninstalls();
   }
 
-  public UpdateCenterMatrix getUpdateCenterMatrix(boolean forceReload) {
-    return get(UpdateCenterMatrixFactory.class).getMatrix(forceReload);
+  public PluginCenter getUpdatePluginCenter(boolean forceReload) {
+    return get(UpdateCenterMatrixFactory.class).getPluginCenter(forceReload);
+  }
+
+  public PluginCenter getInstalledPluginCenter() {
+    return get(InstalledPluginReferentialFactory.class).getPluginCenter();
   }
 
   // PLUGINS ------------------------------------------------------------------
@@ -325,7 +330,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-      RulePriority.values()[newSeverityId], userName);
+        RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
@@ -521,10 +526,10 @@ public final class JRubyFacade {
     // notifier is null when creating the administrator in the migration script 011.
     if (notifier != null) {
       notifier.onNewUser(NewUserHandler.Context.builder()
-        .setLogin(fields.get("login"))
-        .setName(fields.get("name"))
-        .setEmail(fields.get("email"))
-        .build());
+          .setLogin(fields.get("login"))
+          .setName(fields.get("name"))
+          .setEmail(fields.get("email"))
+          .build());
     }
   }
 

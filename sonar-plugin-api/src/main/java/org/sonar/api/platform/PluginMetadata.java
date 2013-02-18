@@ -52,5 +52,9 @@ public interface PluginMetadata {
 
   String getBasePlugin();
 
+  String getParent();
+
+  String[] getRequiredPlugins();
+
   boolean isCore();
 }

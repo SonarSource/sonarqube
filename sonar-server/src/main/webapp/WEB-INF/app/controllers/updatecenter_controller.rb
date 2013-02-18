@@ -29,53 +29,55 @@ class UpdatecenterController < ApplicationController
     @uninstalls=java_facade.getPluginUninstalls()
     @downloads=java_facade.getPluginDownloads()
 
-    @user_plugins=user_plugins()
-    @core_plugins=core_plugins()
+    load_plugin_center
+    @plugins = installed_plugins
+  end
+
+  def available
+    @uninstalls=java_facade.getPluginUninstalls()
+    @downloads=java_facade.getPluginDownloads()
+    @update_center_referential=nil
+    @updates_by_category={}
+
+    load_plugin_center()
+    if @update_plugin_center
+      @update_plugin_center.findAvailablePlugins().each do |update|
+        already_download = update.plugin.releases.find {|release| @downloads.include? release.filename }
+        if !already_download
+          category = update.plugin.category||''
+          @updates_by_category[category]||=[]
+          @updates_by_category[category]<<update
+        end
+      end
+    end
   end
 
   def updates
     @uninstalls=java_facade.getPluginUninstalls()
     @downloads=java_facade.getPluginDownloads()
 
-    @center=nil
-    @matrix=nil
+    @update_center_referential=nil
+    @update_plugin_center=nil
     @updates_by_plugin={}
-    @user_plugins={}
+    @installed_plugins={}
     @last_compatible={}
 
-    user_plugins.each do |plugin|
-      @user_plugins[plugin.getKey()]=plugin.getVersion()
-    end
-
-    load_matrix()
-    if @matrix
-      @center=@matrix.getCenter()
-
-      @matrix.findPluginUpdates().each do |update|
-        plugin=update.getPlugin()
-        @updates_by_plugin[plugin]||=[]
-        @updates_by_plugin[plugin]<<update
-        if update.isCompatible
-          @last_compatible[plugin.getKey()]=update.getRelease().getVersion()
-        end
+    load_plugin_center()
+    if @update_plugin_center
+      installed_plugins.each do |plugin|
+        @installed_plugins[plugin.getKey()]=plugin.lastRelease.getVersion()
       end
-    end
-  end
 
-  def available
-    @uninstalls=java_facade.getPluginUninstalls()
-    @downloads=java_facade.getPluginDownloads()
-
-    @center=nil
-    @updates_by_category={}
-
-    load_matrix()
-    if @matrix
-      @center=@matrix.getCenter()
-      @matrix.findAvailablePlugins().each do |update|
-        category=update.getPlugin().getCategory()||''
-        @updates_by_category[category]||=[]
-        @updates_by_category[category]<<update
+      @update_plugin_center.findPluginUpdates().each do |update|
+        plugin = update.plugin
+        already_download = update.plugin.releases.find {|release| @downloads.include? release.filename }
+        if !already_download
+          @updates_by_plugin[plugin]||=[]
+          @updates_by_plugin[plugin]<<update
+          if update.isCompatible
+            @last_compatible[plugin.key]=update.release.version
+          end
+        end
       end
     end
   end
@@ -121,19 +123,23 @@ class UpdatecenterController < ApplicationController
     @uninstalls=java_facade.getPluginUninstalls()
     @downloads=java_facade.getPluginDownloads()
 
-    @center=nil
-    @matrix=nil
+    @update_center_referential=nil
+    @update_plugin_center=nil
     @sonar_updates=[]
-    load_matrix()
-    if @matrix
-      @center=@matrix.getCenter()
-      @sonar_updates=@matrix.findSonarUpdates()
+    load_plugin_center()
+    if @update_plugin_center
+      @sonar_updates=@update_plugin_center.findSonarUpdates()
     end
   end
 
   private
-  def load_matrix
-    @matrix=java_facade.getUpdateCenterMatrix(params[:reload]=='true')
+
+  def load_plugin_center
+    @update_plugin_center = java_facade.getUpdatePluginCenter(params[:reload]=='true')
+    @update_center_referential = @update_plugin_center.updateCenterPluginReferential
+
+    @installed_plugin_center = java_facade.getInstalledPluginCenter()
+    @installed_plugin_referential = @installed_plugin_center.installedPluginReferential
   end
 
   def updatecenter_activated
@@ -143,11 +149,7 @@ class UpdatecenterController < ApplicationController
     end
   end
 
-  def user_plugins
-    java_facade.getPluginsMetadata().select{|plugin| !plugin.isCore()}.sort
-  end
-
-  def core_plugins
-    java_facade.getPluginsMetadata().select{|plugin| plugin.isCore()}.sort
+  def installed_plugins
+    @installed_plugin_referential.plugins
   end
 end

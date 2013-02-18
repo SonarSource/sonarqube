@@ -19,31 +19,33 @@
  */
 package org.sonar.server.plugins;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.server.platform.DefaultServerFileSystem;
-import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Version;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class PluginDownloader implements ServerComponent {
 
-  private UpdateCenterClient center;
+  private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
+  private UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private HttpDownloader downloader;
   private File downloadDir;
 
-  public PluginDownloader(UpdateCenterClient center, HttpDownloader downloader, DefaultServerFileSystem fileSystem) {
-    this.center = center;
+  public PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader, DefaultServerFileSystem fileSystem) {
+    this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.downloader = downloader;
     this.downloadDir = fileSystem.getDownloadedPluginsDir();
     try {
@@ -57,8 +59,8 @@ public class PluginDownloader implements ServerComponent {
   /**
    * for unit tests
    */
-  PluginDownloader(UpdateCenterClient center, HttpDownloader downloader, File downloadDir) {
-    this.center = center;
+  PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader, File downloadDir) {
+    this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.downloader = downloader;
     this.downloadDir = downloadDir;
   }
@@ -80,7 +82,7 @@ public class PluginDownloader implements ServerComponent {
 
   public List<String> getDownloads() {
     List<String> names = new ArrayList<String>();
-    List<File> files = (List<File>) FileUtils.listFiles(downloadDir, new String[] { "jar" }, false);
+    List<File> files = (List<File>) FileUtils.listFiles(downloadDir, new String[]{"jar"}, false);
     for (File file : files) {
       names.add(file.getName());
     }
@@ -88,29 +90,21 @@ public class PluginDownloader implements ServerComponent {
   }
 
   public void download(String pluginKey, Version version) {
-    Plugin plugin = center.getCenter().getPlugin(pluginKey);
-    if (plugin == null) {
-      String message = "This plugin does not exist: " + pluginKey;
-      Logs.INFO.warn(message);
-      throw new SonarException(message);
-    }
+    for (Release release : updateCenterMatrixFactory.getPluginCenter(false).findInstallablePlugins(pluginKey, version)) {
+      try {
+        downloadRelease(release);
 
-    Release release = plugin.getRelease(version);
-    if (release == null || StringUtils.isBlank(release.getDownloadUrl())) {
-      String message = "This release can not be installed: " + pluginKey + ", version " + version;
-      Logs.INFO.warn(message);
-      throw new SonarException(message);
+      } catch (Exception e) {
+        String message = "Fail to download the plugin (" + release.getArtifact().getKey() + ", version " + version + ") from " + release.getDownloadUrl();
+        LOG.warn(message, e);
+        throw new SonarException(message, e);
+      }
     }
+  }
 
-    try {
-      URI uri = new URI(release.getDownloadUrl());
-      String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
-      downloader.download(uri, new File(downloadDir, filename));
-
-    } catch (Exception e) {
-      String message = "Fail to download the plugin (" + pluginKey + ", version " + version + ") from " + release.getDownloadUrl();
-      Logs.INFO.warn(message, e);
-      throw new SonarException(message, e);
-    }
+  private void downloadRelease(Release release) throws URISyntaxException {
+    URI uri = new URI(release.getDownloadUrl());
+    String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
+    downloader.download(uri, new File(downloadDir, filename));
   }
 }

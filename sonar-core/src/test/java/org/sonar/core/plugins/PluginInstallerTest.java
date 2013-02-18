@@ -100,7 +100,24 @@ public class PluginInstallerTest {
     assertThat(new File(toDir, "checkstyle-extension.xml")).exists();
   }
 
+  @Test
+  public void should_extract_parent_information() throws IOException {
+    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("fake1bis-plugin-1.0.jar"), true);
+
+    assertThat(metadata.getKey()).isEqualTo("fake1bis");
+    assertThat(metadata.getParent()).isEqualTo("fake1");
+  }
+
+  @Test
+  public void should_extract_requires_plugin_information() throws IOException {
+    DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("fake2-plugin-1.1.jar"), true);
+
+    assertThat(metadata.getKey()).isEqualTo("fake2");
+    assertThat(metadata.getRequiredPlugins()).isEqualTo(new String[]{"fake1:1.1"});
+  }
+
   static File getFile(String filename) {
     return FileUtils.toFile(PluginInstallerTest.class.getResource("/org/sonar/core/plugins/" + filename));
   }
+
 }

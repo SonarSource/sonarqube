@@ -20,10 +20,9 @@
 package org.sonar.server.plugins;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.Server;
-import org.sonar.updatecenter.common.UpdateCenter;
+import org.sonar.updatecenter.common.PluginCenter;
+import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.Version;
 
 /**
@@ -33,31 +32,25 @@ public final class UpdateCenterMatrixFactory implements ServerComponent {
 
   private UpdateCenterClient centerClient;
   private Version sonarVersion;
-  private PluginDownloader downloader;
-  private PluginRepository pluginRepository;
+  private InstalledPluginReferentialFactory installedPluginReferentialFactory;
 
-  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, PluginRepository pluginRepository, Server server, PluginDownloader downloader) {
+  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, InstalledPluginReferentialFactory installedPluginReferentialFactory, Server server) {
     this.centerClient = centerClient;
-    this.pluginRepository = pluginRepository;
+    this.installedPluginReferentialFactory = installedPluginReferentialFactory;
     this.sonarVersion = Version.create(server.getVersion());
-    this.downloader = downloader;
   }
 
-  public UpdateCenterMatrix getMatrix(boolean refresh) {
-    UpdateCenter center = centerClient.getCenter(refresh);
-    UpdateCenterMatrix matrix = null;
-    if (center != null) {
-      matrix = new UpdateCenterMatrix(center, sonarVersion);
-      matrix.setDate(centerClient.getLastRefreshDate());
-
-      for (PluginMetadata metadata : pluginRepository.getMetadata()) {
-        matrix.registerInstalledPlugin(metadata.getKey(), Version.create(metadata.getVersion()));
-      }
-      for (String filename : downloader.getDownloads()) {
-        matrix.registerPendingPluginsByFilename(filename);
-      }
+  public PluginCenter getPluginCenter(boolean refreshUpdateCenter) {
+    PluginReferential updateCenterPluginReferential = centerClient.getPlugins(refreshUpdateCenter);
+    if (updateCenterPluginReferential != null) {
+      return PluginCenter.create(updateCenterPluginReferential,
+          installedPluginReferentialFactory.getInstalledPluginReferential(),
+          sonarVersion)
+          .setDate(centerClient.getLastRefreshDate());
+    } else {
+      return null;
     }
-    return matrix;
   }
+
 }
 

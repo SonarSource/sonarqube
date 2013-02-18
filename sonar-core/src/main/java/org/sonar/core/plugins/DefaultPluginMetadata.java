@@ -29,10 +29,12 @@ import org.sonar.updatecenter.common.Version;
 import java.io.File;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginMetadata> {
   private File file;
-  private List<File> deployedFiles = Lists.newArrayList();
-  private List<File> deprecatedExtensions = Lists.newArrayList();
+  private List<File> deployedFiles = newArrayList();
+  private List<File> deprecatedExtensions = newArrayList();
   private String[] pathsToInternalDeps = new String[0];
   private String key;
   private String version;
@@ -48,6 +50,8 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   private String basePlugin;
   private boolean core;
   private String implementationBuild;
+  private String parent;
+  private String[] requiredPlugins = new String[0];
 
   private DefaultPluginMetadata() {
   }
@@ -176,6 +180,23 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   public DefaultPluginMetadata setSonarVersion(String sonarVersion) {
     this.sonarVersion = sonarVersion;
     return this;
+  }
+
+  public String getParent() {
+    return parent != null ? parent : key;
+  }
+
+  public DefaultPluginMetadata setParent(String parent) {
+    this.parent = parent;
+    return this;
+  }
+
+  public String[] getRequiredPlugins() {
+    return requiredPlugins;
+  }
+
+  public void setRequiredPlugins(String[] requiredPlugins) {
+    this.requiredPlugins = requiredPlugins;
   }
 
   /**

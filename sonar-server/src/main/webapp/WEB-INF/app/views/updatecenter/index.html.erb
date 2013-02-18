@@ -16,19 +16,42 @@
      </tr>
    </thead>
    <tbody>
-     <% if @user_plugins.empty? %>
+     <% if @plugins.empty? %>
        <tr class="even"><td colspan="5">No plugins</td></tr>
      <% else
-       @user_plugins.each do |plugin|
+          @plugins.each do |plugin|
      %>
        <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.getKey() -%>">
          <td width="1%" nowrap><b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b> <span class="note">[<%= h plugin.getKey() -%>]</span></td>
-         <td><%= plugin.getVersion() || '-' -%></td>
+         <td><%= plugin.lastRelease.getVersion() || '-' -%></td>
          <td>
          <%= plugin.getDescription() -%>
-
          <div id="detail-<%= plugin.getKey() -%>" style="display:none">
+
          <table class="spaced width100">
+           <%= render :partial => 'updatecenter/children', :locals => {:children => plugin.children}  %>
+           <% release = @installed_plugin_referential.findLatestRelease(plugin.key) %>
+           <% release.outgoingDependencies.each_with_index do |outgoing_release, index| %>
+             <tr>
+               <% if index == 0 %>
+                 <td class="thin nowrap"><b>Depends upon:</b></td>
+               <% else %>
+                 <td>&nbsp;</td>
+               <% end %>
+               <td><span><%= outgoing_release.artifact.name -%> version <%= outgoing_release.version.name -%></span></td>
+             </tr>
+           <% end %>
+           <% release.incomingDependencies.each_with_index do |incoming_release, index| %>
+             <tr>
+               <% if index == 0 %>
+                 <td class="thin nowrap"><b>Uninstalling this plugin will also uninstall:</b></td>
+               <% else %>
+                 <td>&nbsp;</td>
+               <% end %>
+               <td><span><%= incoming_release.artifact.name -%> version <%= incoming_release.version.name -%></span></td>
+             </tr>
+           <% end %>
+
            <% if plugin.getLicense() %><tr><td class="thin nowrap"><b>License:</b> </td><td><%= plugin.getLicense() -%></td></tr><% end %>
            <% if plugin.getOrganization() %>
              <tr><td class="thin nowrap"><b>Author:</b> </td>
@@ -36,10 +59,10 @@
              </tr>
            <% end %>
 
-           <% if plugin.getHomepage() %>
+           <% if plugin.getHomepageUrl() %>
              <tr>
             <td colspan="2">
-                 <%= link_to 'Homepage', plugin.getHomepage(), :class => 'external' -%>
+                 <%= link_to 'Homepage', plugin.getHomepageUrl(), :class => 'external' -%>
                </td>
              </tr>
            <% end %>
@@ -56,24 +79,6 @@
        </tr>
        <% end %>
      <% end %>
-   </tbody>
- </table>
-
- <div class="break30"> </div>
-
- <table class="data width100" id="system-plugins">
-   <thead>
-     <tr><th colspan="3"><h2>System plugins</h2></th></tr>
-   </thead>
-   <tbody>
-   <%
-     @core_plugins.each do |plugin|
-   %>
-  <tr class="<%= cycle('even','odd', :name => 'core') -%>" id="<%= u plugin.getKey() -%>">
-    <td width="1%" nowrap><b><%= plugin.getName() -%></b> <span class="note">[<%= h plugin.getKey() -%>]</span></td>
-       <td><%= plugin.getDescription() -%></td>
-     </tr>
-   <% end %>
    </tbody>
  </table>
 

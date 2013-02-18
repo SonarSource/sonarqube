@@ -20,7 +20,7 @@ function installPlugin(key) {
 
 <%= render :partial => 'updatecenter/operations' -%>
 
-<% if @center %>
+<% if @update_plugin_center %>
   <% @updates_by_category.keys.sort_by{|c| c.downcase }.each do |category|
        updates=@updates_by_category[category]
   %>
@@ -31,8 +31,9 @@ function installPlugin(key) {
         </tr>
       </thead>
       <tbody>
-    <% updates.sort_by{|c| c.getPlugin().getName()}.each do |update|
-      plugin=update.getPlugin()
+    <% updates.sort_by{|update| update.plugin.key}.each do |update|
+      children = update.plugin.children
+      plugin = update.plugin
     %>
       <tr class="<%= cycle('even','odd', :name => category) -%>">
         <td width="150" nowrap>
@@ -42,6 +43,19 @@ function installPlugin(key) {
           <%= plugin.getDescription() %>
           <div id="detail-<%= plugin.getKey() -%>" style="display:none">
           <table class="spaced width100">
+            <%= render :partial => 'updatecenter/children', :locals => {:children => children}  %>
+            <% release = @update_plugin_center.findLatestCompatibleRelease(plugin.key) %>
+              <% release.outgoingDependencies.each_with_index do |outgoing_release, index| %>
+              <tr>
+                <% if index == 0 %>
+                  <td class="thin nowrap"><b>Installing this plugin will also install:</b></td>
+                <% else %>
+                  <td>&nbsp;</td>
+                <% end %>
+                <td><span><%= outgoing_release.artifact.name -%> version <%= outgoing_release.version.name -%></span></td>
+              </tr>
+            <% end %>
+
             <% if plugin.getLicense() %>
               <tr>
                 <td class="thin nowrap"><b>License:</b> </td><td><%= h(plugin.getLicense()) %></td>

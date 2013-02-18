@@ -28,8 +28,8 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.UriReader;
-import org.sonar.updatecenter.common.UpdateCenter;
-import org.sonar.updatecenter.common.UpdateCenterDeserializer;
+import org.sonar.updatecenter.common.PluginReferential;
+import org.sonar.updatecenter.common.PluginReferentialDeserializer;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -43,29 +43,28 @@ import java.util.Date;
  * @since 2.4
  */
 @Properties({
-  @Property(
-    key = "sonar.updatecenter.activate",
-    defaultValue = "true",
-    name = "Enable Update Center",
-    project = false,
-    global = false, // hidden from UI
-    category = "Update Center",
-    type = PropertyType.BOOLEAN),
-  @Property(
-    key = UpdateCenterClient.URL_PROPERTY,
-    defaultValue = "http://update.sonarsource.org/update-center.properties",
-    name = "Update Center URL",
-    project = false,
-    global = false, // hidden from UI
-    category = "Update Center")
+    @Property(
+        key = "sonar.updatecenter.activate",
+        defaultValue = "true",
+        name = "Enable Update Center",
+        project = false,
+        global = false, // hidden from UI
+        category = "Update Center",
+        type = PropertyType.BOOLEAN),
+    @Property(
+        key = UpdateCenterClient.URL_PROPERTY,
+        defaultValue = "http://update.sonarsource.org/update-center.properties",
+        name = "Update Center URL",
+        project = false,
+        global = false, // hidden from UI
+        category = "Update Center")
 })
 public class UpdateCenterClient implements ServerComponent {
 
   public static final String URL_PROPERTY = "sonar.updatecenter.url";
   public static final int PERIOD_IN_MILLISECONDS = 60 * 60 * 1000;
-
   private URI uri;
-  private UpdateCenter center = null;
+  private PluginReferential pluginReferential = null;
   private long lastRefreshDate = 0;
   private UriReader uriReader;
 
@@ -75,16 +74,16 @@ public class UpdateCenterClient implements ServerComponent {
     LoggerFactory.getLogger(getClass()).info("Update center: " + uriReader.description(uri));
   }
 
-  public UpdateCenter getCenter() {
-    return getCenter(false);
+  public PluginReferential getPluginReferential() {
+    return getPlugins(false);
   }
 
-  public UpdateCenter getCenter(boolean forceRefresh) {
-    if (center == null || forceRefresh || needsRefresh()) {
-      center = init();
+  public PluginReferential getPlugins(boolean forceRefresh) {
+    if (pluginReferential == null || forceRefresh || needsRefresh()) {
+      pluginReferential = init();
       lastRefreshDate = System.currentTimeMillis();
     }
-    return center;
+    return pluginReferential;
   }
 
   public Date getLastRefreshDate() {
@@ -95,15 +94,14 @@ public class UpdateCenterClient implements ServerComponent {
     return lastRefreshDate + PERIOD_IN_MILLISECONDS < System.currentTimeMillis();
   }
 
-  private UpdateCenter init() {
+  private PluginReferential init() {
     InputStream input = null;
     try {
       String content = uriReader.readString(uri, Charsets.UTF_8);
       java.util.Properties properties = new java.util.Properties();
       input = IOUtils.toInputStream(content, Charsets.UTF_8.name());
       properties.load(input);
-      return UpdateCenterDeserializer.fromProperties(properties);
-
+      return PluginReferentialDeserializer.fromProperties(properties);
 
     } catch (Exception e) {
       LoggerFactory.getLogger(getClass()).error("Fail to connect to update center", e);

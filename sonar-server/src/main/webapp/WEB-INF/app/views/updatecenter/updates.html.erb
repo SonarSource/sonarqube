@@ -14,7 +14,7 @@ function upgradePlugin(key) {
 
    <%= render :partial => 'updatecenter/operations' -%>
 
-   <% if @center %>
+   <% if @update_plugin_center %>
      <table class="data width100 marginbottom10" id="plugin-updates">
        <thead>
          <tr><th colspan="2"><h2>Plugins</h2></th></tr>
@@ -32,23 +32,42 @@ function upgradePlugin(key) {
             release=update.getRelease()
        %>
         <tr class="<%= css -%>">
-        <td width="1%" nowrap><% if index==0 %><b><%= h(plugin.getName()) -%></b> <%= @user_plugins[plugin.getKey()] -%> -> <% end %></td>
-           <td width="1%" nowrap><b><%= release.getVersion() -%></b></td>
-           <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>
-           <td><%= release.getDescription() -%></td>
-           <td><%= link_to 'Release Notes', release.getChangelogUrl(), :class => 'external' if release.getChangelogUrl() %></td>
-           <td>
-             <% if update.isIncompatible() %>
-               <%= image_tag 'warning.png' -%> Incompatible
-             <% elsif update.requiresSonarUpgrade %>
-               <%= image_tag 'warning.png' -%> Incompatible, requires to upgrade system
-             <% end %>
-           </td>
+          <td width="1%" nowrap><% if index==0 %><b><%= h(plugin.getName()) -%></b> <%= @installed_plugins[plugin.getKey()] -%> -> <% end %></td>
+          <td width="1%" nowrap><b><%= release.getVersion() -%></b></td>
+          <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>
+          <td><%= release.getDescription() -%></td>
+          <td><%= link_to 'Release Notes', release.getChangelogUrl(), :class => 'external' if release.getChangelogUrl() %></td>
+          <td>
+           <% if update.isIncompatible() %>
+             <%= image_tag 'warning.png' -%> Incompatible
+           <% elsif update.requiresSonarUpgrade %>
+             <%= image_tag 'warning.png' -%> Incompatible, requires to upgrade system
+           <% end %>
+          </td>
          </tr>
        <%
           end
        %>
        <% if @last_compatible[plugin.getKey()] %>
+
+       <% release = @update_plugin_center.findLatestCompatibleRelease(plugin.key)
+          releases = release.outgoingDependencies + release.incomingDependencies
+       %>
+       <% releases.each_with_index do |outgoing_release, index| %>
+         <tr class="<%= css -%>">
+           <td> </td>
+           <td> </td>
+           <% if index == 0 %>
+             <td class="thin nowrap"><b>Updating this plugin will also update:</b></td>
+           <% else %>
+             <td >&nbsp;</td>
+           <% end %>
+           <td colspan="4">
+             <span><%= outgoing_release.artifact.name -%> version <%= outgoing_release.version.name -%></span>
+           </td>
+         </tr>
+       <% end %>
+
        <tr class="<%= css -%>">
          <td> </td>
          <td colspan="5">

@@ -1,0 +1,22 @@
+<% if release %>
+  <% release.outgoingDependencies.each_with_index do |outgoing_release, index| %>
+    <tr>
+      <% if index == 0 %>
+        <td class="thin nowrap"><b>Require plugins:</b></td>
+      <% else %>
+        <td>&nbsp;</td>
+      <% end %>
+      <td><span><%= outgoing_release.artifact.name -%> version <%= outgoing_release.version.name -%></span></td>
+    </tr>
+  <% end %>
+  <% release.incomingDependencies.each_with_index do |incoming_release, index| %>
+  <tr>
+    <% if index == 0 %>
+      <td class="thin nowrap"><b>Incoming plugins:</b></td>
+    <% else %>
+      <td>&nbsp;</td>
+    <% end %>
+    <td><span><%= incoming_release.artifact.name -%> version <%= incoming_release.version.name -%></span></td>
+  </tr>
+  <% end %>
+<% end %>

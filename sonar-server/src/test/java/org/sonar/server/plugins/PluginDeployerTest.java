@@ -45,6 +45,7 @@ public class PluginDeployerTest {
   private File deployDir;
   private PluginDeployer deployer;
   private Server server = mock(Server.class);
+  private UpdateCenterMatrixFactory updateCenterMatrixFactory;
 
   @Rule
   public TestName name = new TestName();
