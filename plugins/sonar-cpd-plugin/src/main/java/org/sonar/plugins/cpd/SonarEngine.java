@@ -19,16 +19,14 @@
  */
 package org.sonar.plugins.cpd;
 
-import org.sonar.api.CoreProperties;
-
-import org.sonar.api.config.Settings;
-
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -113,6 +111,7 @@ public class SonarEngine extends CpdEngine {
   @Override
   public void analyse(Project project, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
+    logExclusions(cpdExclusions, LOG);
     List<File> sourceFiles = fileSystem.files(FileQuery.onSource().onLanguage(project.getLanguageKey()).withExclusions(cpdExclusions));
     if (sourceFiles.isEmpty()) {
       return;

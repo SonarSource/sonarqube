@@ -83,6 +83,7 @@ public class SonarBridgeEngine extends CpdEngine {
   @Override
   public void analyse(Project project, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
+    logExclusions(cpdExclusions, LOG);
     List<File> sourceFiles = fileSystem.files(FileQuery.onSource().onLanguage(project.getLanguageKey()).withExclusions(cpdExclusions));
     if (sourceFiles.isEmpty()) {
       return;

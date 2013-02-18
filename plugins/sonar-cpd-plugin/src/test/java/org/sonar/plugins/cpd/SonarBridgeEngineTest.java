@@ -22,6 +22,7 @@ package org.sonar.plugins.cpd;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
@@ -29,6 +30,11 @@ import org.sonar.api.resources.Project;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class SonarBridgeEngineTest {
 
@@ -39,6 +45,17 @@ public class SonarBridgeEngineTest {
   public void init() {
     settings = new Settings();
     engine = new SonarBridgeEngine(null, null, null, settings);
+  }
+
+  @Test
+  public void shouldLogExclusions() {
+    Logger logger = mock(Logger.class);
+    engine.logExclusions(new String[0], logger);
+    verify(logger, never()).info(anyString());
+
+    logger = mock(Logger.class);
+    engine.logExclusions(new String[] {"Foo*", "**/Bar*"}, logger);
+    verify(logger, times(1)).info("Exclusions applied to copy-paste detection: Foo*,**/Bar*");
   }
 
   @Test
