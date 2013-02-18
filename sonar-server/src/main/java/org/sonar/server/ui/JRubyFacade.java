@@ -41,11 +41,7 @@ import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.web.Footer;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
-import org.sonar.api.web.RubyRailsWebservice;
-import org.sonar.api.web.Widget;
+import org.sonar.api.web.*;
 import org.sonar.api.workflow.Review;
 import org.sonar.api.workflow.internal.DefaultReview;
 import org.sonar.api.workflow.internal.DefaultWorkflowContext;
@@ -66,30 +62,18 @@ import org.sonar.markdown.Markdown;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
-import org.sonar.server.platform.NewUserNotifier;
-import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.platform.ServerSettings;
-import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.plugins.DefaultServerPluginRepository;
-import org.sonar.server.plugins.InstalledPluginCenterFactory;
-import org.sonar.server.plugins.PluginDeployer;
-import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.platform.*;
+import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
-import org.sonar.updatecenter.common.PluginCenter;
+import org.sonar.updatecenter.common.PluginReferential;
+import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
-
 import java.net.InetAddress;
 import java.sql.Connection;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -189,12 +173,12 @@ public final class JRubyFacade {
     return get(PluginDeployer.class).getUninstalls();
   }
 
-  public PluginCenter getUpdatePluginCenter(boolean forceReload) {
-    return get(UpdateCenterMatrixFactory.class).getPluginCenter(forceReload);
+  public UpdateCenter getUpdatePluginCenter(boolean forceReload) {
+    return get(UpdateCenterMatrixFactory.class).getUpdateCenter(forceReload);
   }
 
-  public PluginCenter getInstalledPluginCenter() {
-    return get(InstalledPluginCenterFactory.class).getPluginCenter();
+  public PluginReferential getInstalledPluginReferential() {
+    return get(InstalledPluginReferentialFactory.class).getInstalledPluginReferential();
   }
 
   // PLUGINS ------------------------------------------------------------------

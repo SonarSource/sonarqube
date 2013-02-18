@@ -21,8 +21,7 @@ package org.sonar.server.plugins;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.Server;
-import org.sonar.updatecenter.common.PluginCenter;
-import org.sonar.updatecenter.common.PluginReferential;
+import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 /**
@@ -32,20 +31,19 @@ public final class UpdateCenterMatrixFactory implements ServerComponent {
 
   private UpdateCenterClient centerClient;
   private Version sonarVersion;
-  private InstalledPluginCenterFactory installedPluginCenterFactory;
+  private InstalledPluginReferentialFactory installedPluginReferentialFactory;
 
-  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, InstalledPluginCenterFactory installedPluginCenterFactory, Server server) {
+  public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, InstalledPluginReferentialFactory installedPluginReferentialFactory, Server server) {
     this.centerClient = centerClient;
-    this.installedPluginCenterFactory = installedPluginCenterFactory;
+    this.installedPluginReferentialFactory = installedPluginReferentialFactory;
     this.sonarVersion = Version.create(server.getVersion());
   }
 
-  public PluginCenter getPluginCenter(boolean refreshUpdateCenter) {
-    PluginReferential updateCenterPluginReferential = centerClient.getPlugins(refreshUpdateCenter);
-    if (updateCenterPluginReferential != null) {
-      return PluginCenter.create(updateCenterPluginReferential,
-          installedPluginCenterFactory.getInstalledPluginReferential(),
-          sonarVersion)
+  public UpdateCenter getUpdateCenter(boolean refreshUpdateCenter) {
+    UpdateCenter updatePluginCenter = centerClient.getUpdateCenter(refreshUpdateCenter);
+    if (updatePluginCenter != null) {
+      return updatePluginCenter.setInstalledSonarVersion(sonarVersion).registerInstalledPlugins(
+          installedPluginReferentialFactory.getInstalledPluginReferential())
           .setDate(centerClient.getLastRefreshDate());
     } else {
       return null;

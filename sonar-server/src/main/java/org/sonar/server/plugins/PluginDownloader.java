@@ -90,7 +90,7 @@ public class PluginDownloader implements ServerComponent {
   }
 
   public void download(String pluginKey, Version version) {
-    for (Release release : updateCenterMatrixFactory.getPluginCenter(false).findInstallablePlugins(pluginKey, version)) {
+    for (Release release : updateCenterMatrixFactory.getUpdateCenter(false).findInstallablePlugins(pluginKey, version)) {
       try {
         downloadRelease(release);
 

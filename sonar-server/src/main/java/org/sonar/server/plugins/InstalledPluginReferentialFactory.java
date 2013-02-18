@@ -21,43 +21,24 @@ package org.sonar.server.plugins;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.PluginRepository;
-import org.sonar.api.platform.Server;
-import org.sonar.updatecenter.common.PluginCenter;
 import org.sonar.updatecenter.common.PluginReferential;
-import org.sonar.updatecenter.common.Version;
 
-import java.util.Date;
+public class InstalledPluginReferentialFactory implements ServerComponent {
 
-public class InstalledPluginCenterFactory implements ServerComponent {
-
-  private final PluginDeployer pluginDeployer;
   private final PluginReferentialMetadataConverter pluginReferentialMetadataConverter;
-  private PluginRepository pluginRepository;
-  private Version sonarVersion;
-  private PluginCenter installedPluginCenter;
+  private final PluginRepository pluginRepository;
+  private PluginReferential installedPluginReferential;
 
-  public InstalledPluginCenterFactory(PluginRepository pluginRepository, Server server, PluginDeployer pluginDeployer,
-                                      PluginReferentialMetadataConverter pluginReferentialMetadataConverter) {
+  public InstalledPluginReferentialFactory(PluginRepository pluginRepository, PluginReferentialMetadataConverter pluginReferentialMetadataConverter) {
     this.pluginRepository = pluginRepository;
-    this.pluginDeployer = pluginDeployer;
     this.pluginReferentialMetadataConverter = pluginReferentialMetadataConverter;
-    this.sonarVersion = Version.create(server.getVersion());
-  }
-
-  public PluginCenter getPluginCenter() {
-    if (installedPluginCenter == null) {
-      init();
-    }
-    return installedPluginCenter;
   }
 
   public PluginReferential getInstalledPluginReferential() {
-    return pluginReferentialMetadataConverter.getInstalledPluginReferential(pluginRepository.getMetadata());
-  }
-
-  private void init() {
-    PluginReferential installedPluginReferential = getInstalledPluginReferential();
-    installedPluginCenter = PluginCenter.createForInstalledPlugins(installedPluginReferential, sonarVersion).setDate(new Date());
+    if (installedPluginReferential == null) {
+      installedPluginReferential = pluginReferentialMetadataConverter.getInstalledPluginReferential(pluginRepository.getMetadata());
+    }
+    return installedPluginReferential;
   }
 
 }

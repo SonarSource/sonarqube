@@ -28,8 +28,8 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.UriReader;
-import org.sonar.updatecenter.common.PluginReferential;
-import org.sonar.updatecenter.common.PluginReferentialDeserializer;
+import org.sonar.updatecenter.common.UpdateCenter;
+import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -64,7 +64,7 @@ public class UpdateCenterClient implements ServerComponent {
   public static final String URL_PROPERTY = "sonar.updatecenter.url";
   public static final int PERIOD_IN_MILLISECONDS = 60 * 60 * 1000;
   private URI uri;
-  private PluginReferential pluginReferential = null;
+  private UpdateCenter pluginCenter = null;
   private long lastRefreshDate = 0;
   private UriReader uriReader;
 
@@ -74,16 +74,16 @@ public class UpdateCenterClient implements ServerComponent {
     LoggerFactory.getLogger(getClass()).info("Update center: " + uriReader.description(uri));
   }
 
-  public PluginReferential getPluginReferential() {
-    return getPlugins(false);
+  public UpdateCenter getUpdateCenter() {
+    return getUpdateCenter(false);
   }
 
-  public PluginReferential getPlugins(boolean forceRefresh) {
-    if (pluginReferential == null || forceRefresh || needsRefresh()) {
-      pluginReferential = init();
+  public UpdateCenter getUpdateCenter(boolean forceRefresh) {
+    if (pluginCenter == null || forceRefresh || needsRefresh()) {
+      pluginCenter = init();
       lastRefreshDate = System.currentTimeMillis();
     }
-    return pluginReferential;
+    return pluginCenter;
   }
 
   public Date getLastRefreshDate() {
@@ -94,14 +94,14 @@ public class UpdateCenterClient implements ServerComponent {
     return lastRefreshDate + PERIOD_IN_MILLISECONDS < System.currentTimeMillis();
   }
 
-  private PluginReferential init() {
+  private UpdateCenter init() {
     InputStream input = null;
     try {
       String content = uriReader.readString(uri, Charsets.UTF_8);
       java.util.Properties properties = new java.util.Properties();
       input = IOUtils.toInputStream(content, Charsets.UTF_8.name());
       properties.load(input);
-      return PluginReferentialDeserializer.fromProperties(properties);
+      return UpdateCenterDeserializer.fromProperties(properties);
 
     } catch (Exception e) {
       LoggerFactory.getLogger(getClass()).error("Fail to connect to update center", e);

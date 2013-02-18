@@ -25,19 +25,14 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.UriReader;
-import org.sonar.updatecenter.common.PluginReferential;
+import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class UpdateCenterClientTest {
 
@@ -55,7 +50,7 @@ public class UpdateCenterClientTest {
   @Test
   public void downloadUpdateCenter() throws URISyntaxException {
     when(reader.readString(new URI(BASE_URL), Charsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
-    PluginReferential plugins = client.getPluginReferential();
+    UpdateCenter plugins = client.getUpdateCenter();
     verify(reader, times(1)).readString(new URI(BASE_URL), Charsets.UTF_8);
     assertThat(plugins.getSonar().getVersions()).containsOnly(Version.create("2.2"), Version.create("2.3"));
     assertThat(client.getLastRefreshDate()).isNotNull();
@@ -69,15 +64,15 @@ public class UpdateCenterClientTest {
   @Test
   public void ignore_connection_errors() {
     when(reader.readString(any(URI.class), eq(Charsets.UTF_8))).thenThrow(new SonarException());
-    assertThat(client.getPluginReferential()).isNull();
+    assertThat(client.getUpdateCenter()).isNull();
   }
 
   @Test
   public void cache_data() throws Exception {
     when(reader.readString(new URI(BASE_URL), Charsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
 
-    client.getPluginReferential();
-    client.getPluginReferential();
+    client.getUpdateCenter();
+    client.getUpdateCenter();
 
     verify(reader, times(1)).readString(new URI(BASE_URL), Charsets.UTF_8);
   }
@@ -86,8 +81,8 @@ public class UpdateCenterClientTest {
   public void forceRefresh() throws Exception {
     when(reader.readString(new URI(BASE_URL), Charsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
 
-    client.getPluginReferential();
-    client.getPlugins(true);
+    client.getUpdateCenter();
+    client.getUpdateCenter(true);
 
     verify(reader, times(2)).readString(new URI(BASE_URL), Charsets.UTF_8);
   }

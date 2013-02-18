@@ -137,9 +137,7 @@ class UpdatecenterController < ApplicationController
   def load_plugin_center
     @update_plugin_center = java_facade.getUpdatePluginCenter(params[:reload]=='true')
     @update_center_referential = @update_plugin_center.updateCenterPluginReferential
-
-    @installed_plugin_center = java_facade.getInstalledPluginCenter()
-    @installed_plugin_referential = @installed_plugin_center.installedPluginReferential
+    @installed_plugin_referential = java_facade.installedPluginReferential
   end
 
   def updatecenter_activated

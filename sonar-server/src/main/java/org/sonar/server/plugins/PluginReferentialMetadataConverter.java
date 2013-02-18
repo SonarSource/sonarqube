@@ -40,16 +40,16 @@ public class PluginReferentialMetadataConverter implements ServerComponent {
     this.sonarVersion = Version.create(server.getVersion());
   }
 
-  public PluginReferential getInstalledPluginReferential(Collection<PluginMetadata> pluginMetadatas) {
-    List<PluginManifest> pluginManifestList = getPluginManifestList(pluginMetadatas);
+  public PluginReferential getInstalledPluginReferential(Collection<PluginMetadata> metadata) {
+    List<PluginManifest> pluginManifestList = getPluginManifestList(metadata);
     return PluginReferentialManifestConverter.fromPluginManifests(pluginManifestList, sonarVersion);
   }
 
-  private List<PluginManifest> getPluginManifestList(Collection<PluginMetadata> pluginMetadatas) {
+  private List<PluginManifest> getPluginManifestList(Collection<PluginMetadata> metadata) {
     List<PluginManifest> pluginManifestList = newArrayList();
-    for (PluginMetadata metadata : pluginMetadatas) {
-      if (!metadata.isCore()) {
-        pluginManifestList.add(toPluginManifest(metadata));
+    for (PluginMetadata plugin : metadata) {
+      if (!plugin.isCore()) {
+        pluginManifestList.add(toPluginManifest(plugin));
       }
     }
     return pluginManifestList;
