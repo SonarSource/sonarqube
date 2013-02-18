@@ -20,74 +20,44 @@
 package org.sonar.server.plugins;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.Server;
 import org.sonar.updatecenter.common.PluginCenter;
-import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.PluginReferential;
-import org.sonar.updatecenter.common.PluginReferentialManifestConverter;
 import org.sonar.updatecenter.common.Version;
 
 import java.util.Date;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class InstalledPluginCenterFactory implements ServerComponent {
 
   private final PluginDeployer pluginDeployer;
+  private final PluginReferentialMetadataConverter pluginReferentialMetadataConverter;
   private PluginRepository pluginRepository;
   private Version sonarVersion;
+  private PluginCenter installedPluginCenter;
 
-  public InstalledPluginCenterFactory(PluginRepository pluginRepository, Server server, PluginDeployer pluginDeployer) {
+  public InstalledPluginCenterFactory(PluginRepository pluginRepository, Server server, PluginDeployer pluginDeployer,
+                                      PluginReferentialMetadataConverter pluginReferentialMetadataConverter) {
     this.pluginRepository = pluginRepository;
     this.pluginDeployer = pluginDeployer;
+    this.pluginReferentialMetadataConverter = pluginReferentialMetadataConverter;
     this.sonarVersion = Version.create(server.getVersion());
   }
 
   public PluginCenter getPluginCenter() {
-    PluginReferential installedPluginReferential = getInstalledPluginReferential();
-    return PluginCenter.createForInstalledPlugins(installedPluginReferential, sonarVersion)
-        .setDate(new Date());
-  }
-
-  public void uninstall(String pluginKey) {
-    for (String key : getPluginCenter().findRemovableReleases(pluginKey)) {
-      pluginDeployer.uninstall(key);
+    if (installedPluginCenter == null) {
+      init();
     }
+    return installedPluginCenter;
   }
 
   public PluginReferential getInstalledPluginReferential() {
-    List<PluginManifest> pluginManifestList = getPluginManifestList();
-    return PluginReferentialManifestConverter.fromPluginManifests(pluginManifestList, sonarVersion);
+    return pluginReferentialMetadataConverter.getInstalledPluginReferential(pluginRepository.getMetadata());
   }
 
-  private List<PluginManifest> getPluginManifestList() {
-    List<PluginManifest> pluginManifestList = newArrayList();
-    for (PluginMetadata metadata : pluginRepository.getMetadata()) {
-      if (!metadata.isCore()) {
-        pluginManifestList.add(toPluginManifest(metadata));
-      }
-    }
-    return pluginManifestList;
-  }
-
-  private PluginManifest toPluginManifest(PluginMetadata metadata) {
-    PluginManifest pluginManifest = new PluginManifest();
-    pluginManifest.setKey(metadata.getKey());
-    pluginManifest.setName(metadata.getName());
-    pluginManifest.setVersion(metadata.getVersion());
-    pluginManifest.setDescription(metadata.getDescription());
-    pluginManifest.setMainClass(metadata.getMainClass());
-    pluginManifest.setOrganization(metadata.getOrganization());
-    pluginManifest.setOrganizationUrl(metadata.getOrganizationUrl());
-    pluginManifest.setLicense(metadata.getLicense());
-    pluginManifest.setHomepage(metadata.getHomepage());
-    pluginManifest.setBasePlugin(metadata.getBasePlugin());
-    pluginManifest.setParent(metadata.getParent());
-    pluginManifest.setRequiresPlugins(metadata.getRequiredPlugins());
-    return pluginManifest;
+  private void init() {
+    PluginReferential installedPluginReferential = getInstalledPluginReferential();
+    installedPluginCenter = PluginCenter.createForInstalledPlugins(installedPluginReferential, sonarVersion).setDate(new Date());
   }
 
 }

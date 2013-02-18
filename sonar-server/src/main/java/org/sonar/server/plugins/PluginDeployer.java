@@ -36,6 +36,7 @@ import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.ServerStartException;
+import org.sonar.updatecenter.common.PluginReferential;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,15 +52,17 @@ public class PluginDeployer implements ServerComponent {
   private final DefaultServerFileSystem fileSystem;
   private final PluginInstaller installer;
   private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
+  private final PluginReferentialMetadataConverter pluginReferentialMetadataConverter;
 
-  public PluginDeployer(Server server, DefaultServerFileSystem fileSystem) {
-    this(server, fileSystem, new PluginInstaller());
+  public PluginDeployer(Server server, DefaultServerFileSystem fileSystem, PluginReferentialMetadataConverter pluginReferentialMetadataConverter) {
+    this(server, fileSystem, new PluginInstaller(), pluginReferentialMetadataConverter);
   }
 
-  PluginDeployer(Server server, DefaultServerFileSystem fileSystem, PluginInstaller installer) {
+  PluginDeployer(Server server, DefaultServerFileSystem fileSystem, PluginInstaller installer, PluginReferentialMetadataConverter pluginReferentialMetadataConverter) {
     this.server = server;
     this.fileSystem = fileSystem;
     this.installer = installer;
+    this.pluginReferentialMetadataConverter = pluginReferentialMetadataConverter;
   }
 
   public void start() {
@@ -148,6 +151,12 @@ public class PluginDeployer implements ServerComponent {
     }
   }
 
+  public void uninstallPluginWithDependencies(String pluginKey) {
+    for (String key : getPluginReferential().findReleasesWithDependencies(pluginKey)) {
+      uninstall(key);
+    }
+  }
+
   public void uninstall(String pluginKey) {
     PluginMetadata metadata = pluginByKeys.get(pluginKey);
     if ((metadata != null) && !metadata.isCore()) {
@@ -222,5 +231,9 @@ public class PluginDeployer implements ServerComponent {
 
   public PluginMetadata getMetadata(String pluginKey) {
     return pluginByKeys.get(pluginKey);
+  }
+
+  private PluginReferential getPluginReferential() {
+    return pluginReferentialMetadataConverter.getInstalledPluginReferential(getMetadata());
   }
 }

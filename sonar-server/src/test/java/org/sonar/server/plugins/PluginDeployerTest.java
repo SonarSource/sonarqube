@@ -60,7 +60,8 @@ public class PluginDeployerTest {
     deployDir = TestUtils.getTestTempDir(PluginDeployerTest.class, name.getMethodName() + "/deploy");
     fileSystem = new DefaultServerFileSystem(null, homeDir, deployDir);
     extractor = new PluginInstaller();
-    deployer = new PluginDeployer(server, fileSystem, extractor);
+    // TODO
+    deployer = new PluginDeployer(server, fileSystem, extractor, null);
   }
 
   @Test

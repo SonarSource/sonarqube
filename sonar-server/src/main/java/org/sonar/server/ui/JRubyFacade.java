@@ -178,7 +178,7 @@ public final class JRubyFacade {
   }
 
   public void uninstallPlugin(String pluginKey) {
-    get(InstalledPluginCenterFactory.class).uninstall(pluginKey);
+    get(PluginDeployer.class).uninstallPluginWithDependencies(pluginKey);
   }
 
   public void cancelPluginUninstalls() {

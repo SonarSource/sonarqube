@@ -82,6 +82,7 @@ import org.sonar.server.plugins.DefaultServerPluginRepository;
 import org.sonar.server.plugins.InstalledPluginCenterFactory;
 import org.sonar.server.plugins.PluginDeployer;
 import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.PluginReferentialMetadataConverter;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
@@ -182,6 +183,7 @@ public final class Platform {
       rootContainer.addSingleton(daoClass);
     }
     rootContainer.addSingleton(PluginDeployer.class);
+    rootContainer.addSingleton(PluginReferentialMetadataConverter.class);
     rootContainer.addSingleton(InstalledPluginCenterFactory.class);
     rootContainer.addSingleton(DefaultServerPluginRepository.class);
 
