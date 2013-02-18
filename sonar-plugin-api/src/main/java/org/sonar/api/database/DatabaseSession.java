@@ -46,6 +46,13 @@ public abstract class DatabaseSession implements BatchComponent {
 
   public abstract void commit();
 
+  /**
+   * This method should be called before a long period were database will not be accessed
+   * in order to close database connection and avoid timeout. Next use of the
+   * database will automatically open a new connection.
+   */
+  public abstract void commitAndClose();
+
   public abstract void rollback();
 
   public abstract <T> T save(T entity);
@@ -65,7 +72,7 @@ public abstract class DatabaseSession implements BatchComponent {
   public abstract <T> T reattach(Class<T> entityClass, Object primaryKey);
 
   public abstract Query createQuery(String hql);
-  
+
   public abstract Query createNativeQuery(String sql);
 
   public abstract <T> T getSingleResult(Query query, T defaultValue);

@@ -47,17 +47,25 @@ public class JpaDatabaseSession extends DatabaseSession {
    */
   @Override
   public EntityManager getEntityManager() {
+    if (entityManager == null) {
+      entityManager = connector.createEntityManager();
+    }
     return entityManager;
   }
 
   @Override
   public void start() {
-    entityManager = connector.createEntityManager();
+    getEntityManager();
     index = 0;
   }
 
   @Override
   public void stop() {
+    commitAndClose();
+  }
+
+  @Override
+  public void commitAndClose() {
     commit();
     if (entityManager != null && entityManager.isOpen()) {
       entityManager.close();
@@ -67,14 +75,14 @@ public class JpaDatabaseSession extends DatabaseSession {
 
   @Override
   public void commit() {
-    if (entityManager != null && inTransaction) {
-      if (entityManager.isOpen()) {
-        if (entityManager.getTransaction().getRollbackOnly()) {
-          entityManager.getTransaction().rollback();
+    if (inTransaction) {
+      if (getEntityManager().isOpen()) {
+        if (getEntityManager().getTransaction().getRollbackOnly()) {
+          getEntityManager().getTransaction().rollback();
         } else {
-          entityManager.getTransaction().commit();
+          getEntityManager().getTransaction().commit();
         }
-        entityManager.clear();
+        getEntityManager().clear();
         index = 0;
       }
       inTransaction = false;
@@ -83,8 +91,8 @@ public class JpaDatabaseSession extends DatabaseSession {
 
   @Override
   public void rollback() {
-    if (entityManager != null && inTransaction) {
-      entityManager.getTransaction().rollback();
+    if (inTransaction) {
+      getEntityManager().getTransaction().rollback();
       inTransaction = false;
     }
   }
@@ -106,7 +114,7 @@ public class JpaDatabaseSession extends DatabaseSession {
   @Override
   public boolean contains(Object model) {
     startTransaction();
-    return entityManager.contains(model);
+    return getEntityManager().contains(model);
   }
 
   @Override
@@ -119,7 +127,7 @@ public class JpaDatabaseSession extends DatabaseSession {
 
   private void internalSave(Object model, boolean flushIfNeeded) {
     try {
-      entityManager.persist(model);
+      getEntityManager().persist(model);
     } catch (PersistenceException e) {
       /*
        * See http://jira.codehaus.org/browse/SONAR-2234
@@ -135,13 +143,13 @@ public class JpaDatabaseSession extends DatabaseSession {
   @Override
   public Object merge(Object model) {
     startTransaction();
-    return entityManager.merge(model);
+    return getEntityManager().merge(model);
   }
 
   @Override
   public void remove(Object model) {
     startTransaction();
-    entityManager.remove(model);
+    getEntityManager().remove(model);
     if (++index % BATCH_SIZE == 0) {
       commit();
     }
@@ -150,18 +158,18 @@ public class JpaDatabaseSession extends DatabaseSession {
   @Override
   public void removeWithoutFlush(Object model) {
     startTransaction();
-    entityManager.remove(model);
+    getEntityManager().remove(model);
   }
 
   @Override
   public <T> T reattach(Class<T> entityClass, Object primaryKey) {
     startTransaction();
-    return entityManager.getReference(entityClass, primaryKey);
+    return getEntityManager().getReference(entityClass, primaryKey);
   }
 
   private void startTransaction() {
     if (!inTransaction) {
-      entityManager.getTransaction().begin();
+      getEntityManager().getTransaction().begin();
       inTransaction = true;
     }
   }
@@ -173,13 +181,13 @@ public class JpaDatabaseSession extends DatabaseSession {
   @Override
   public Query createQuery(String hql) {
     startTransaction();
-    return entityManager.createQuery(hql);
+    return getEntityManager().createQuery(hql);
   }
 
   @Override
   public Query createNativeQuery(String sql) {
     startTransaction();
-    return entityManager.createNativeQuery(sql);
+    return getEntityManager().createNativeQuery(sql);
   }
 
   /**

@@ -22,6 +22,7 @@ package org.sonar.batch.scan.maven;
 import com.google.common.base.Strings;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.config.Settings;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
@@ -32,14 +33,18 @@ public class MavenPhaseExecutor implements BatchComponent {
   private final MavenPluginExecutor executor;
   private final DefaultModuleFileSystem fs;
   private final Settings settings;
+  private final DatabaseSession session;
 
-  public MavenPhaseExecutor(DefaultModuleFileSystem fs, MavenPluginExecutor executor, Settings settings) {
+  public MavenPhaseExecutor(DefaultModuleFileSystem fs, MavenPluginExecutor executor, Settings settings, DatabaseSession session) {
     this.fs = fs;
     this.executor = executor;
     this.settings = settings;
+    this.session = session;
   }
 
   public void execute(Project project) {
+    // SONAR-2965 In case the Maven phase takes too much time we close the session to not face a timeout
+    session.commitAndClose();
     String mavenPhase = settings.getString(PROP_PHASE);
     if (!Strings.isNullOrEmpty(mavenPhase)) {
       executor.execute(project, fs, mavenPhase);

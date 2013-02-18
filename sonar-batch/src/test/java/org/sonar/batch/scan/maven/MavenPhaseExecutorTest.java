@@ -21,6 +21,7 @@ package org.sonar.batch.scan.maven;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
@@ -36,8 +37,7 @@ public class MavenPhaseExecutorTest {
   public void doNothingIfNoPhase() {
     DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
     MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
-    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(fs, mavenPluginExecutor, new Settings());
-
+    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(fs, mavenPluginExecutor, new Settings(), mock(DatabaseSession.class));
 
     Project project = new Project("key");
     phaseExecutor.execute(project);
@@ -50,7 +50,7 @@ public class MavenPhaseExecutorTest {
     DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
     MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
     Settings settings = new Settings().setProperty(MavenPhaseExecutor.PROP_PHASE, "foo");
-    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(fs, mavenPluginExecutor, settings);
+    MavenPhaseExecutor phaseExecutor = new MavenPhaseExecutor(fs, mavenPluginExecutor, settings, mock(DatabaseSession.class));
 
     Project project = mock(Project.class);
     phaseExecutor.execute(project);
