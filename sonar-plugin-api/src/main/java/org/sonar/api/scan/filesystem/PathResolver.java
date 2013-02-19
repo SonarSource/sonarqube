@@ -101,7 +101,7 @@ public class PathResolver implements BatchComponent {
     private File dir;
     private String path;
 
-    private RelativePath(File dir, String path) {
+    public RelativePath(File dir, String path) {
       this.dir = dir;
       this.path = path;
     }

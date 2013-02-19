@@ -63,9 +63,8 @@ public class SonarEngineTest {
   public void testGetResource() {
     PathResolver pathResolver = mock(PathResolver.class);
     ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
-    RelativePath relativePath = mock(RelativePath.class);
+    RelativePath relativePath = new RelativePath(null, "com/foo/Bar.java");
     when(pathResolver.relativePath(anyCollection(), any(java.io.File.class))).thenReturn(relativePath);
-    when(relativePath.path()).thenReturn("com/foo/Bar.java");
 
     SonarEngine engine = new SonarEngine(null, fileSystem, pathResolver, null);
     Resource<?> resource = engine.getResource(new java.io.File(""));
