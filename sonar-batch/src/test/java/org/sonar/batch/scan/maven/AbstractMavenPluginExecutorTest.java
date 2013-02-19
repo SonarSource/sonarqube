@@ -25,7 +25,6 @@ import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.maven.AbstractMavenPluginExecutor;
 
 import java.io.File;
 
@@ -34,13 +33,19 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class AbstractMavenPluginExecutorTest {
 
   @Test
-  public void pluginVersionIsOptional() {
+  public void plugin_version_should_be_optional() {
     assertThat(AbstractMavenPluginExecutor.getGoal("group", "artifact", null, "goal"), is("group:artifact::goal"));
+  }
+
+  @Test
+  public void test_plugin_version() {
+    assertThat(AbstractMavenPluginExecutor.getGoal("group", "artifact", "3.54", "goal"), is("group:artifact:3.54:goal"));
   }
 
   /**
@@ -48,7 +53,7 @@ public class AbstractMavenPluginExecutorTest {
    * must be applied to the internal structure.
    */
   @Test
-  public void shouldUpdateProjectAfterExecution() {
+  public void should_reset_file_system_after_execution() {
     AbstractMavenPluginExecutor executor = new AbstractMavenPluginExecutor() {
       @Override
       public void concreteExecute(MavenProject pom, String goal) throws Exception {
@@ -64,6 +69,21 @@ public class AbstractMavenPluginExecutorTest {
     executor.execute(foo, fs, new AddSourceMavenPluginHandler());
 
     verify(fs).resetDirs(any(File.class), any(File.class), anyList(), anyList(), anyList());
+  }
+
+  @Test
+  public void should_ignore_non_maven_projects() {
+    AbstractMavenPluginExecutor executor = new AbstractMavenPluginExecutor() {
+      @Override
+      public void concreteExecute(MavenProject pom, String goal) throws Exception {
+        pom.addCompileSourceRoot("src/java");
+      }
+    };
+    Project foo = new Project("foo");
+    DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
+    executor.execute(foo, fs, new AddSourceMavenPluginHandler());
+
+    verify(fs, never()).resetDirs(any(File.class), any(File.class), anyList(), anyList(), anyList());
   }
 
   static class AddSourceMavenPluginHandler implements MavenPluginHandler {

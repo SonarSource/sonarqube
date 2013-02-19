@@ -134,6 +134,8 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
         case TEST:
           applyFilters(result, context, filters, testDirs);
           break;
+        default:
+          throw new IllegalArgumentException("Unknown file type: " + type);
       }
     }
     return result;

@@ -19,15 +19,24 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.resources.Project;
+
+import java.io.File;
+import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeprecatedFileSystemAdapterTest {
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
   public void should_wrap_module_file_system() {
     DefaultModuleFileSystem target = mock(DefaultModuleFileSystem.class, Mockito.RETURNS_SMART_NULLS);
@@ -47,5 +56,16 @@ public class DeprecatedFileSystemAdapterTest {
 
     assertThat(adapter.getBuildDir()).isNotNull();
     verify(target).buildDir();
+  }
+
+  @Test
+  public void should_create_default_build_dir() throws IOException {
+    File workingDir = temp.newFile("work");
+    DefaultModuleFileSystem target = mock(DefaultModuleFileSystem.class);
+    when(target.workingDir()).thenReturn(workingDir);
+    DeprecatedFileSystemAdapter adapter = new DeprecatedFileSystemAdapter(target, new Project("my-project"));
+
+    File buildDir = adapter.getBuildDir();
+    assertThat(buildDir.getParentFile().getCanonicalPath()).isEqualTo(workingDir.getCanonicalPath());
   }
 }

@@ -25,9 +25,7 @@ import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.batch.scan.maven.MavenProjectConverter;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 /**
  * Abstract implementation of {@link org.sonar.batch.scan.maven.MavenPluginExecutor} to reduce duplications in concrete implementations for different Maven versions.
@@ -38,26 +36,26 @@ public abstract class AbstractMavenPluginExecutor implements MavenPluginExecutor
     for (String goal : handler.getGoals()) {
       MavenPlugin plugin = MavenPlugin.getPlugin(project.getPom(), handler.getGroupId(), handler.getArtifactId());
       execute(project,
-          fs,
-          getGoal(handler.getGroupId(), handler.getArtifactId(), (plugin != null && plugin.getPlugin() != null ? plugin.getPlugin().getVersion() : null), goal));
+        fs,
+        getGoal(handler.getGroupId(), handler.getArtifactId(), (plugin != null && plugin.getPlugin() != null ? plugin.getPlugin().getVersion() : null), goal));
     }
     return handler;
   }
 
   public final void execute(Project project, DefaultModuleFileSystem fs, String goal) {
-    TimeProfiler profiler = new TimeProfiler().start("Execute " + goal);
-    ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-    try {
-      concreteExecute(project.getPom(), goal);
-    } catch (Exception e) {
-      throw new SonarException("Unable to execute maven plugin", e);
-    } finally {
-      // Reset original ClassLoader that may have been changed during Maven Execution (see SONAR-1800)
-      Thread.currentThread().setContextClassLoader(currentClassLoader);
-      profiler.stop();
-    }
-
     if (project.getPom() != null) {
+      TimeProfiler profiler = new TimeProfiler().start("Execute " + goal);
+      ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+      try {
+        concreteExecute(project.getPom(), goal);
+      } catch (Exception e) {
+        throw new SonarException("Unable to execute maven plugin", e);
+      } finally {
+        // Reset original ClassLoader that may have been changed during Maven Execution (see SONAR-1800)
+        Thread.currentThread().setContextClassLoader(currentClassLoader);
+        profiler.stop();
+      }
+
       MavenProjectConverter.synchronizeFileSystem(project.getPom(), fs);
     }
   }
@@ -67,12 +65,12 @@ public abstract class AbstractMavenPluginExecutor implements MavenPluginExecutor
   static String getGoal(String groupId, String artifactId, String version, String goal) {
     String defaultVersion = (version == null ? "" : version);
     return new StringBuilder()
-        .append(groupId).append(":")
-        .append(artifactId).append(":")
-        .append(defaultVersion)
-        .append(":")
-        .append(goal)
-        .toString();
+      .append(groupId).append(":")
+      .append(artifactId).append(":")
+      .append(defaultVersion)
+      .append(":")
+      .append(goal)
+      .toString();
   }
 
 }
