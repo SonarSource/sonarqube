@@ -30,25 +30,18 @@
 
          <table class="spaced width100">
            <%= render :partial => 'updatecenter/children', :locals => {:children => plugin.children}  %>
+
            <% release = @installed_plugin_referential.findLatestRelease(plugin.key) %>
-           <% release.outgoingDependencies.each_with_index do |outgoing_release, index| %>
+           <% release_dep_names = release.outgoingDependencies.collect { |dep| dep.artifact.name } %>
+           <% unless release_dep_names.empty? %>
              <tr>
-               <% if index == 0 %>
-                 <td class="thin nowrap"><b>Depends upon:</b></td>
-               <% else %>
-                 <td>&nbsp;</td>
-               <% end %>
-               <td><span><%= outgoing_release.artifact.name -%></span></td>
+               <td class="thin nowrap" colspan="2"><b>Depends upon: </b><%= release_dep_names.join(', ') -%></td>
              </tr>
            <% end %>
-           <% release.incomingDependencies.each_with_index do |incoming_release, index| %>
+           <% release_dep_names = release.incomingDependencies.collect { |dep| dep.artifact.name } %>
+           <% unless release_dep_names.empty? %>
              <tr>
-               <% if index == 0 %>
-                 <td class="thin nowrap"><b>Uninstalling this plugin will also uninstall:</b></td>
-               <% else %>
-                 <td>&nbsp;</td>
-               <% end %>
-               <td><span><%= incoming_release.artifact.name -%></span></td>
+               <td class="thin nowrap" colspan="2"><b>Uninstalling this plugin will also uninstall: </b><%= release_dep_names.join(', ') -%></td>
              </tr>
            <% end %>
 

@@ -38,45 +38,41 @@ function upgradePlugin(key) {
           <td><%= release.getDescription() -%></td>
           <td><%= link_to 'Release Notes', release.getChangelogUrl(), :class => 'external' if release.getChangelogUrl() %></td>
           <td>
-           <% if update.isIncompatible() %>
-             <%= image_tag 'warning.png' -%> Incompatible
-           <% elsif update.requiresSonarUpgrade %>
-             <%= image_tag 'warning.png' -%> Incompatible, requires to upgrade system
-           <% end %>
+            <% if update.isIncompatible() %>
+              <%= image_tag 'warning.png' -%> Incompatible
+            <% elsif update.requiresSonarUpgrade %>
+              <%= image_tag 'warning.png' -%> Incompatible, requires to upgrade system
+            <% elsif update.requiresSonarUpgradeForDependencies %>
+              <%= image_tag 'warning.png' -%> Incompatible, some dependencies requires Sonar upgrade
+            <% end %>
           </td>
          </tr>
        <%
           end
        %>
-       <% if @last_compatible[plugin.getKey()] %>
 
        <% release = @update_plugin_center.findLatestCompatibleRelease(plugin.key)
           releases = release.outgoingDependencies + release.incomingDependencies
-       %>
-       <% releases.each_with_index do |outgoing_release, index| %>
-         <tr class="<%= css -%>">
+          release_dep_names = releases.collect { |dep| dep.artifact.name } %>
+       <% unless release_dep_names.empty? %>
+         <tr>
            <td> </td>
            <td> </td>
-           <% if index == 0 %>
-             <td class="thin nowrap"><b>Updating this plugin will also update:</b></td>
-           <% else %>
-             <td >&nbsp;</td>
-           <% end %>
-           <td colspan="4">
-             <span><%= outgoing_release.artifact.name -%></span>
-           </td>
+           <td class="thin nowrap" colspan="5"><b>Updating this plugin will also update: </b><%= release_dep_names.join(', ') -%></td>
          </tr>
        <% end %>
 
-       <tr class="<%= css -%>">
-         <td> </td>
-         <td colspan="5">
-          <form method="post" id="upgrade-form-<%= plugin.getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= @last_compatible[plugin.getKey()] -%>" style="display: inline-block">
-             <input type="submit" id="upgrade-submit-<%= plugin.getKey() -%>" value="Upgrade to <%= @last_compatible[plugin.getKey()] -%>" onClick="upgradePlugin('<%= plugin.getKey() -%>');return false;"/>
-           </form>
-          </td>
-        </tr>
+       <% if @last_compatible[plugin.getKey()] %>
+         <tr class="<%= css -%>">
+           <td> </td>
+           <td colspan="5">
+            <form method="post" id="upgrade-form-<%= plugin.getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= @last_compatible[plugin.getKey()] -%>" style="display: inline-block">
+               <input type="submit" id="upgrade-submit-<%= plugin.getKey() -%>" value="Upgrade to <%= @last_compatible[plugin.getKey()] -%>" onClick="upgradePlugin('<%= plugin.getKey() -%>');return false;"/>
+             </form>
+            </td>
+          </tr>
         <% end %>
+
        <%
         end
        %>

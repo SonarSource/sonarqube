@@ -45,14 +45,10 @@ function installPlugin(key) {
           <table class="spaced width100">
             <%= render :partial => 'updatecenter/children', :locals => {:children => children}  %>
             <% release = @update_plugin_center.findLatestCompatibleRelease(plugin.key) %>
-              <% release.outgoingDependencies.each_with_index do |outgoing_release, index| %>
+            <% release_dep_names = release.outgoingDependencies.collect { |dep| dep.artifact.name } %>
+              <% unless release_dep_names.empty? %>
               <tr>
-                <% if index == 0 %>
-                  <td class="thin nowrap"><b>Installing this plugin will also install:</b></td>
-                <% else %>
-                  <td>&nbsp;</td>
-                <% end %>
-                <td><span><%= outgoing_release.artifact.name -%></span></td>
+                 <td class="thin nowrap" colspan="2"><b>Installing this plugin will also install: </b><%= release_dep_names.join(', ') -%></td>
               </tr>
             <% end %>
 

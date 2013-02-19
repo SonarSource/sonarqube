@@ -21,6 +21,7 @@ package org.sonar.server.plugins;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.PluginRepository;
+import org.sonar.server.platform.ServerStartException;
 import org.sonar.updatecenter.common.PluginReferential;
 
 public class InstalledPluginReferentialFactory implements ServerComponent {
@@ -34,15 +35,19 @@ public class InstalledPluginReferentialFactory implements ServerComponent {
     this.pluginReferentialMetadataConverter = pluginReferentialMetadataConverter;
   }
 
-  public void start(){
-    init();
+  public void start() {
+    try {
+      init();
+    } catch (Exception e) {
+      throw new ServerStartException("Unable to load installed plugins", e);
+    }
   }
 
   public PluginReferential getInstalledPluginReferential() {
     return installedPluginReferential;
   }
 
-  private void init(){
+  private void init() {
     installedPluginReferential = pluginReferentialMetadataConverter.getInstalledPluginReferential(pluginRepository.getMetadata());
   }
 
