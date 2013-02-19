@@ -102,6 +102,21 @@ public class LicenseTest {
   }
 
   @Test
+  public void trimBeforeReadingBase64() {
+    String encodedKeyWithTrailingWhiteSpaces = "Rm9vOiBiYXIKT3JnYW5pc2F0aW9uOiBBQkMgClNlcnZlcjogMTIzND  \n" +
+      "UgICAKUHJvZHVjdDogU1FBTEUKICBFeHBpcmF0aW9uOiAyMDEyLTA1    \n" +
+      "LTE4ICAKVHlwZTogIEVWQUxVQVRJT04gICAKT3RoZXI6IGZpZWxkCg==\n";
+
+    License license = License.readBase64(new String(encodedKeyWithTrailingWhiteSpaces.getBytes()));
+
+    assertThat(license.getOrganization(), Is.is("ABC"));
+    assertThat(license.getServer(), Is.is("12345"));
+    assertThat(license.getProduct(), Is.is("SQALE"));
+    assertThat(license.getExpirationDateAsString(), Is.is("2012-05-18"));
+    assertThat(license.getType(), Is.is("EVALUATION"));
+  }
+
+  @Test
   public void readBase64_not_base64() {
     License license = License.readBase64("çé '123$@");
 
