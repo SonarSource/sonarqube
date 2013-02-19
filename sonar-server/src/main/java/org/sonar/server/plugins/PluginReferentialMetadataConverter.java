@@ -21,11 +21,9 @@ package org.sonar.server.plugins;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.Server;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.PluginReferentialManifestConverter;
-import org.sonar.updatecenter.common.Version;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,15 +32,9 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class PluginReferentialMetadataConverter implements ServerComponent {
 
-  private Version sonarVersion;
-
-  public PluginReferentialMetadataConverter(Server server) {
-    this.sonarVersion = Version.create(server.getVersion());
-  }
-
   public PluginReferential getInstalledPluginReferential(Collection<PluginMetadata> metadata) {
     List<PluginManifest> pluginManifestList = getPluginManifestList(metadata);
-    return PluginReferentialManifestConverter.fromPluginManifests(pluginManifestList, sonarVersion);
+    return PluginReferentialManifestConverter.fromPluginManifests(pluginManifestList);
   }
 
   private List<PluginManifest> getPluginManifestList(Collection<PluginMetadata> metadata) {

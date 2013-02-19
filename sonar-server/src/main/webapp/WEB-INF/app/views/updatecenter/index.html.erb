@@ -38,7 +38,7 @@
                <% else %>
                  <td>&nbsp;</td>
                <% end %>
-               <td><span><%= outgoing_release.artifact.name -%> version <%= outgoing_release.version.name -%></span></td>
+               <td><span><%= outgoing_release.artifact.name -%></span></td>
              </tr>
            <% end %>
            <% release.incomingDependencies.each_with_index do |incoming_release, index| %>
@@ -48,7 +48,7 @@
                <% else %>
                  <td>&nbsp;</td>
                <% end %>
-               <td><span><%= incoming_release.artifact.name -%> version <%= incoming_release.version.name -%></span></td>
+               <td><span><%= incoming_release.artifact.name -%></span></td>
              </tr>
            <% end %>
 

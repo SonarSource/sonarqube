@@ -34,11 +34,16 @@ public class InstalledPluginReferentialFactory implements ServerComponent {
     this.pluginReferentialMetadataConverter = pluginReferentialMetadataConverter;
   }
 
+  public void start(){
+    init();
+  }
+
   public PluginReferential getInstalledPluginReferential() {
-    if (installedPluginReferential == null) {
-      installedPluginReferential = pluginReferentialMetadataConverter.getInstalledPluginReferential(pluginRepository.getMetadata());
-    }
     return installedPluginReferential;
+  }
+
+  private void init(){
+    installedPluginReferential = pluginReferentialMetadataConverter.getInstalledPluginReferential(pluginRepository.getMetadata());
   }
 
 }

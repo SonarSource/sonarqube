@@ -151,13 +151,13 @@ public class PluginDeployer implements ServerComponent {
     }
   }
 
-  public void uninstallPluginWithDependencies(String pluginKey) {
+  public void uninstall(String pluginKey) {
     for (String key : getPluginReferential().findReleasesWithDependencies(pluginKey)) {
-      uninstall(key);
+      uninstallPlugin(key);
     }
   }
 
-  public void uninstall(String pluginKey) {
+  private void uninstallPlugin(String pluginKey) {
     PluginMetadata metadata = pluginByKeys.get(pluginKey);
     if ((metadata != null) && !metadata.isCore()) {
       try {
@@ -200,9 +200,6 @@ public class PluginDeployer implements ServerComponent {
   }
 
   private void deploy(DefaultPluginMetadata plugin) {
-
-    // TODO check version, parent, dependencies, ...
-
     LOG.info("Deploy plugin {}", Joiner.on(" / ").skipNulls().join(plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
 
     Preconditions.checkState(plugin.isCompatibleWith(server.getVersion()),
