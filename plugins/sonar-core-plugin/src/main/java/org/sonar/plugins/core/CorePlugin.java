@@ -41,9 +41,9 @@ import org.sonar.plugins.core.dashboards.ProjectReviewsDashboard;
 import org.sonar.plugins.core.dashboards.ProjectTimeMachineDashboard;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
-import org.sonar.plugins.core.notifications.alerts.AlertsOnMyFavouriteProject;
+import org.sonar.plugins.core.notifications.alerts.NewAlerts;
 import org.sonar.plugins.core.notifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
-import org.sonar.plugins.core.notifications.violations.NewViolationsOnMyFavouriteProject;
+import org.sonar.plugins.core.notifications.violations.NewViolationsOnFirstDifferentialPeriod;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CheckAlertThresholds;
@@ -401,123 +401,125 @@ public final class CorePlugin extends SonarPlugin {
   @SuppressWarnings("unchecked")
   public List getExtensions() {
     return ImmutableList.of(
-      DefaultResourceTypes.class,
-      UserManagedMetrics.class,
-      Periods.class,
+        DefaultResourceTypes.class,
+        UserManagedMetrics.class,
+        Periods.class,
 
-      // languages
-      Java.class,
+        // languages
+        Java.class,
 
-      // pages
-      Lcom4Viewer.class,
-      TestsViewer.class,
+        // pages
+        Lcom4Viewer.class,
+        TestsViewer.class,
 
-      // measure filters
-      ProjectFilter.class,
-      MyFavouritesFilter.class,
+        // measure filters
+        ProjectFilter.class,
+        MyFavouritesFilter.class,
 
-      // widgets
-      AlertsWidget.class,
-      CoverageWidget.class,
-      ItCoverageWidget.class,
-      CommentsDuplicationsWidget.class,
-      DescriptionWidget.class,
-      ComplexityWidget.class,
-      RulesWidget.class,
-      SizeWidget.class,
-      EventsWidget.class,
-      CustomMeasuresWidget.class,
-      TimelineWidget.class,
-      TimeMachineWidget.class,
-      HotspotMetricWidget.class,
-      HotspotMostViolatedResourcesWidget.class,
-      HotspotMostViolatedRulesWidget.class,
-      MyReviewsWidget.class,
-      ProjectReviewsWidget.class,
-      FalsePositiveReviewsWidget.class,
-      ReviewsPerDeveloperWidget.class,
-      PlannedReviewsWidget.class,
-      UnplannedReviewsWidget.class,
-      ActionPlansWidget.class,
-      ReviewsMetricsWidget.class,
-      TreemapWidget.class,
-      MeasureFilterListWidget.class,
-      MeasureFilterTreemapWidget.class,
-      WelcomeWidget.class,
+        // widgets
+        AlertsWidget.class,
+        CoverageWidget.class,
+        ItCoverageWidget.class,
+        CommentsDuplicationsWidget.class,
+        DescriptionWidget.class,
+        ComplexityWidget.class,
+        RulesWidget.class,
+        SizeWidget.class,
+        EventsWidget.class,
+        CustomMeasuresWidget.class,
+        TimelineWidget.class,
+        TimeMachineWidget.class,
+        HotspotMetricWidget.class,
+        HotspotMostViolatedResourcesWidget.class,
+        HotspotMostViolatedRulesWidget.class,
+        MyReviewsWidget.class,
+        ProjectReviewsWidget.class,
+        FalsePositiveReviewsWidget.class,
+        ReviewsPerDeveloperWidget.class,
+        PlannedReviewsWidget.class,
+        UnplannedReviewsWidget.class,
+        ActionPlansWidget.class,
+        ReviewsMetricsWidget.class,
+        TreemapWidget.class,
+        MeasureFilterListWidget.class,
+        MeasureFilterTreemapWidget.class,
+        WelcomeWidget.class,
 
-      // dashboards
-      ProjectDefaultDashboard.class,
-      ProjectHotspotDashboard.class,
-      ProjectReviewsDashboard.class,
-      ProjectTimeMachineDashboard.class,
-      GlobalDefaultDashboard.class,
+        // dashboards
+        ProjectDefaultDashboard.class,
+        ProjectHotspotDashboard.class,
+        ProjectReviewsDashboard.class,
+        ProjectTimeMachineDashboard.class,
+        GlobalDefaultDashboard.class,
 
-      // chart
-      XradarChart.class,
-      DistributionBarChart.class,
-      DistributionAreaChart.class,
+        // chart
+        XradarChart.class,
+        DistributionBarChart.class,
+        DistributionAreaChart.class,
 
-      // colorizers
-      JavaColorizerFormat.class,
+        // colorizers
+        JavaColorizerFormat.class,
 
-      // batch
-      ProfileSensor.class,
-      ProfileEventsSensor.class,
-      ProjectLinksSensor.class,
-      UnitTestDecorator.class,
-      VersionEventsSensor.class,
-      CheckAlertThresholds.class,
-      GenerateAlertEvents.class,
-      ViolationsDecorator.class,
-      WeightedViolationsDecorator.class,
-      ViolationsDensityDecorator.class,
-      LineCoverageDecorator.class,
-      CoverageDecorator.class,
-      BranchCoverageDecorator.class,
-      ItLineCoverageDecorator.class,
-      ItCoverageDecorator.class,
-      ItBranchCoverageDecorator.class,
-      OverallLineCoverageDecorator.class,
-      OverallCoverageDecorator.class,
-      OverallBranchCoverageDecorator.class,
-      ApplyProjectRolesDecorator.class,
-      CommentDensityDecorator.class,
-      NoSonarFilter.class,
-      DirectoriesDecorator.class,
-      FilesDecorator.class,
-      ReviewNotifications.class,
-      ReviewWorkflowDecorator.class,
-      ManualMeasureDecorator.class,
-      ManualViolationInjector.class,
-      ViolationSeverityUpdater.class,
-      IndexProjectPostJob.class,
-      ReviewsMeasuresDecorator.class,
+        // batch
+        ProfileSensor.class,
+        ProfileEventsSensor.class,
+        ProjectLinksSensor.class,
+        UnitTestDecorator.class,
+        VersionEventsSensor.class,
+        CheckAlertThresholds.class,
+        GenerateAlertEvents.class,
+        ViolationsDecorator.class,
+        WeightedViolationsDecorator.class,
+        ViolationsDensityDecorator.class,
+        LineCoverageDecorator.class,
+        CoverageDecorator.class,
+        BranchCoverageDecorator.class,
+        ItLineCoverageDecorator.class,
+        ItCoverageDecorator.class,
+        ItBranchCoverageDecorator.class,
+        OverallLineCoverageDecorator.class,
+        OverallCoverageDecorator.class,
+        OverallBranchCoverageDecorator.class,
+        ApplyProjectRolesDecorator.class,
+        CommentDensityDecorator.class,
+        NoSonarFilter.class,
+        DirectoriesDecorator.class,
+        FilesDecorator.class,
+        ReviewNotifications.class,
+        ReviewWorkflowDecorator.class,
+        ManualMeasureDecorator.class,
+        ManualViolationInjector.class,
+        ViolationSeverityUpdater.class,
+        IndexProjectPostJob.class,
+        ReviewsMeasuresDecorator.class,
 
-      // time machine
-      TendencyDecorator.class,
-      VariationDecorator.class,
-      ViolationTrackingDecorator.class,
-      ViolationPersisterDecorator.class,
-      NewViolationsDecorator.class,
-      TimeMachineConfigurationPersister.class,
-      NewCoverageFileAnalyzer.class,
-      NewItCoverageFileAnalyzer.class,
-      NewOverallCoverageFileAnalyzer.class,
-      NewCoverageAggregator.class,
+        // time machine
+        TendencyDecorator.class,
+        VariationDecorator.class,
+        ViolationTrackingDecorator.class,
+        ViolationPersisterDecorator.class,
+        NewViolationsDecorator.class,
+        TimeMachineConfigurationPersister.class,
+        NewCoverageFileAnalyzer.class,
+        NewItCoverageFileAnalyzer.class,
+        NewOverallCoverageFileAnalyzer.class,
+        NewCoverageAggregator.class,
 
-      // notifications
-      // Notify incoming violations on my favourite projects
-      NewViolationsOnMyFavouriteProject.class,
-      NotificationDispatcherMetadata.create("NewViolationsOnMyFavouriteProject")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true)),
-      // Notify alerts on my favourite projects
-      AlertsOnMyFavouriteProject.class,
-      NotificationDispatcherMetadata.create("AlertsOnMyFavouriteProject")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true)),
-      // Notify reviews changes
-      ChangesInReviewAssignedToMeOrCreatedByMe.class,
-      NotificationDispatcherMetadata.create("ChangesInReviewAssignedToMeOrCreatedByMe")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
-        .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)));
+        // notifications
+        // Notify incoming violations on my favourite projects
+        NewViolationsOnFirstDifferentialPeriod.class,
+        NotificationDispatcherMetadata.create("NewViolationsOnFirstDifferentialPeriod")
+            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+            .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)),
+        // Notify alerts on my favourite projects
+        NewAlerts.class,
+        NotificationDispatcherMetadata.create("NewAlerts")
+            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+            .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)),
+        // Notify reviews changes
+        ChangesInReviewAssignedToMeOrCreatedByMe.class,
+        NotificationDispatcherMetadata.create("ChangesInReviewAssignedToMeOrCreatedByMe")
+            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+            .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)));
   }
 }

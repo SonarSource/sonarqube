@@ -19,10 +19,7 @@
  */
 package org.sonar.plugins.core.notifications.alerts;
 
-import org.sonar.plugins.core.notifications.alerts.AlertsOnMyFavouriteProject;
-
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +29,6 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.notifications.NotificationManager;
-import org.sonar.core.properties.PropertiesDao;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -40,13 +36,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class AlertsOnMyFavouriteProjectTest {
+public class NewAlertsTest {
 
   @Mock
   private NotificationManager notificationManager;
-
-  @Mock
-  private PropertiesDao propertiesDao;
 
   @Mock
   private NotificationDispatcher.Context context;
@@ -57,12 +50,12 @@ public class AlertsOnMyFavouriteProjectTest {
   @Mock
   private NotificationChannel twitterChannel;
 
-  private AlertsOnMyFavouriteProject dispatcher;
+  private NewAlerts dispatcher;
 
   @Before
   public void init() {
     MockitoAnnotations.initMocks(this);
-    dispatcher = new AlertsOnMyFavouriteProject(notificationManager, propertiesDao);
+    dispatcher = new NewAlerts(notificationManager);
   }
 
   @Test
@@ -78,12 +71,12 @@ public class AlertsOnMyFavouriteProjectTest {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, null)).thenReturn(recipients);
-    when(propertiesDao.findUserIdsForFavouriteResource(34L)).thenReturn(Lists.newArrayList("user2", "user3"));
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, 34)).thenReturn(recipients);
 
     Notification notification = new Notification("alerts").setFieldValue("projectId", "34");
     dispatcher.performDispatch(notification, context);
 
+    verify(context).addUser("user1", emailChannel);
     verify(context).addUser("user2", twitterChannel);
     verifyNoMoreInteractions(context);
   }

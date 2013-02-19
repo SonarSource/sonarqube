@@ -17,43 +17,39 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.notifications.alerts;
+package org.sonar.plugins.core.notifications.violations;
 
 import com.google.common.collect.Multimap;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.notifications.NotificationManager;
-import org.sonar.core.properties.PropertiesDao;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 /**
- * This dispatcher means: "notify me when alerts are raised on projects that I flagged as favourite".
+ * This dispatcher means: "notify me when new violations are introduced during the first differential period".
  * 
- * @since 3.5
+ * @since 2.14
  */
-public class AlertsOnMyFavouriteProject extends NotificationDispatcher {
+public class NewViolationsOnFirstDifferentialPeriod extends NotificationDispatcher {
 
   private NotificationManager notificationManager;
-  private PropertiesDao propertiesDao;
 
-  public AlertsOnMyFavouriteProject(NotificationManager notificationManager, PropertiesDao propertiesDao) {
-    super("alerts");
+  public NewViolationsOnFirstDifferentialPeriod(NotificationManager notificationManager) {
+    super("new-violations");
     this.notificationManager = notificationManager;
-    this.propertiesDao = propertiesDao;
   }
 
   @Override
   public void dispatch(Notification notification, Context context) {
-    // "null" is passed as a 2nd argument because this dispatcher is not a per-project dispatcher
-    Multimap<String, NotificationChannel> subscribedRecipients = notificationManager.findSubscribedRecipientsForDispatcher(this, null);
+    int projectId = Integer.parseInt(notification.getFieldValue("projectId"));
+    Multimap<String, NotificationChannel> subscribedRecipients = notificationManager.findSubscribedRecipientsForDispatcher(this, projectId);
 
-    List<String> userLogins = propertiesDao.findUserIdsForFavouriteResource(Long.parseLong(notification.getFieldValue("projectId")));
-    for (String userLogin : userLogins) {
-      Collection<NotificationChannel> channels = subscribedRecipients.get(userLogin);
-      for (NotificationChannel channel : channels) {
+    for (Map.Entry<String, Collection<NotificationChannel>> channelsByRecipients : subscribedRecipients.asMap().entrySet()) {
+      String userLogin = channelsByRecipients.getKey();
+      for (NotificationChannel channel : channelsByRecipients.getValue()) {
         context.addUser(userLogin, channel);
       }
     }
