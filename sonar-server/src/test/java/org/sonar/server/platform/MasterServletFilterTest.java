@@ -1,61 +1,84 @@
 /*
- * Sonar, open source software quality management tool.
- * Copyright (C) 2008-2012 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * Sonar is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * Sonar is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Sonar; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
- */
+* Sonar, open source software quality management tool.
+* Copyright (C) 2008-2012 SonarSource
+* mailto:contact AT sonarsource DOT com
+*
+* Sonar is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 3 of the License, or (at your option) any later version.
+*
+* Sonar is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with Sonar; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+*/
 package org.sonar.server.platform;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.web.ServletFilter;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class ServletFiltersTest {
+public class MasterServletFilterTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  @Before
+  public void resetSingleton() {
+    MasterServletFilter.INSTANCE = null;
+  }
+
   @Test
-  public void initAndDestroyFilters() throws Exception {
+  public void should_init_and_destroy_filters() throws Exception {
     ServletFilter filter = mock(ServletFilter.class);
     FilterConfig config = mock(FilterConfig.class);
-    ServletFilters filters = new ServletFilters();
-    filters.init(config, Arrays.asList(filter));
+    MasterServletFilter master = new MasterServletFilter();
+    master.init(config, Arrays.asList(filter));
 
-    assertThat(filters.getFilters()).containsOnly(filter);
+    assertThat(master.getFilters()).containsOnly(filter);
     verify(filter).init(config);
 
-    filters.destroy();
+    master.destroy();
     verify(filter).destroy();
   }
 
   @Test
-  public void initFilters_propagate_failure() throws Exception {
+  public void servlet_container_should_instantiate_only_a_single_master_instance() throws Exception {
+    new MasterServletFilter();
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Servlet filter org.sonar.server.platform.MasterServletFilter is already instantiated");
+    new MasterServletFilter();
+  }
+
+  @Test
+  public void should_propagate_initialization_failure() throws Exception {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("foo");
 
@@ -63,14 +86,14 @@ public class ServletFiltersTest {
     doThrow(new IllegalStateException("foo")).when(filter).init(any(FilterConfig.class));
 
     FilterConfig config = mock(FilterConfig.class);
-    ServletFilters filters = new ServletFilters();
+    MasterServletFilter filters = new MasterServletFilter();
     filters.init(config, Arrays.asList(filter));
   }
 
   @Test
-  public void doFilter_no_filters() throws Exception {
+  public void filters_should_be_optional() throws Exception {
     FilterConfig config = mock(FilterConfig.class);
-    ServletFilters filters = new ServletFilters();
+    MasterServletFilter filters = new MasterServletFilter();
     filters.init(config, Collections.<ServletFilter>emptyList());
 
     ServletRequest request = mock(HttpServletRequest.class);
@@ -82,11 +105,11 @@ public class ServletFiltersTest {
   }
 
   @Test
-  public void doFilter_keep_same_order() throws Exception {
+  public void should_keep_filter_ordering() throws Exception {
     TrueFilter filter1 = new TrueFilter();
     TrueFilter filter2 = new TrueFilter();
 
-    ServletFilters filters = new ServletFilters();
+    MasterServletFilter filters = new MasterServletFilter();
     filters.init(mock(FilterConfig.class), Arrays.<ServletFilter>asList(filter1, filter2));
 
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -102,7 +125,8 @@ public class ServletFiltersTest {
 
   private static final class TrueFilter extends ServletFilter {
     private static int globalCount = 0;
-    int count = 0;
+    private int count = 0;
+
     public void init(FilterConfig filterConfig) throws ServletException {
     }
 

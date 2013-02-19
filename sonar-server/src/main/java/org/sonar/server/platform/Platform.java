@@ -265,6 +265,7 @@ public final class Platform {
     startupContainer.addSingleton(RegisterNewDashboards.class);
     startupContainer.addSingleton(RenameDeprecatedPropertyKeys.class);
     startupContainer.addSingleton(LogServerId.class);
+    startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

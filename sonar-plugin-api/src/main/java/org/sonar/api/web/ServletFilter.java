@@ -19,7 +19,6 @@
  */
 package org.sonar.api.web;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerExtension;
@@ -29,7 +28,6 @@ import javax.servlet.Filter;
 /**
  * @since 3.1
  */
-@Beta
 public abstract class ServletFilter implements ServerExtension, Filter {
 
   /**

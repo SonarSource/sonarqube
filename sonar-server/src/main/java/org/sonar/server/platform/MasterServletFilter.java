@@ -25,8 +25,14 @@ import com.google.common.collect.Lists;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.web.ServletFilter;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -34,23 +40,37 @@ import java.util.List;
 /**
  * Inspired by http://stackoverflow.com/a/7592883/229031
  */
-public class ServletFilters implements Filter {
+public class MasterServletFilter implements Filter {
 
+  public static MasterServletFilter INSTANCE;
   private ServletFilter[] filters;
+  private FilterConfig config;
+
+  public MasterServletFilter() {
+    if (INSTANCE != null) {
+      throw new IllegalStateException("Servlet filter " + getClass().getName() + " is already instantiated");
+    }
+    INSTANCE = this;
+  }
 
   public void init(FilterConfig config) throws ServletException {
+    // Filters are already available in picocontainer unless a database migration is required. See org.sonar.server.startup.RegisterServletFilters.
     init(config, Platform.getInstance().getContainer().getComponentsByType(ServletFilter.class));
   }
 
-  @VisibleForTesting
-  void init(FilterConfig config, List<ServletFilter> extensions) throws ServletException {
+  void init(FilterConfig config, List<ServletFilter> filters) throws ServletException {
+    this.config = config;
+    initFilters(filters);
+  }
+
+  public void initFilters(List<ServletFilter> filterExtensions) throws ServletException {
     List<Filter> filterList = Lists.newArrayList();
-    for (ServletFilter extension : extensions) {
+    for (ServletFilter extension : filterExtensions) {
       try {
-        LoggerFactory.getLogger(ServletFilters.class).info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern()));
+        LoggerFactory.getLogger(MasterServletFilter.class).info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern()));
         extension.init(config);
         filterList.add(extension);
-      } catch (RuntimeException e) {
+      } catch (Exception e) {
         throw new IllegalStateException("Fail to initialize servlet filter: " + extension + ". Message: " + e.getMessage(), e);
       }
     }
