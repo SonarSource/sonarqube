@@ -62,7 +62,7 @@
             <tr class="<%= clazz -%>" id="row_<%= index -%>_<%= row_index -%>">
               <td nowrap>
                 <% if resource.source_code? %>
-                  <%= link_to(image_tag('zoom.png'), 
+                  <%= link_to(image_tag('new-window-16.gif'),
                             {:controller => 'dashboard', :action => 'index', :id => resource.key, :period => params[:period],
                              :metric => @metric ? @metric.id : nil, :rule => @rule ? @rule.id : @severity }) %>
                 <% else %>

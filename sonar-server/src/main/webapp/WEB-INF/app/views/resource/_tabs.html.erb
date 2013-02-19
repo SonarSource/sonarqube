@@ -32,7 +32,7 @@
          end %>
       <% unless @popup_mode %>
       <li class="<%= 'first' if first -%>">
-        <a href="<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key -%>?display_title=true" onclick="window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= message('new_window') -%></a>
+        <a href="<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key -%>?display_title=true" onclick="window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= image_tag 'new-window-16.gif', :alt => message('new_window') -%></a>
       </li>
       <% end %>
     </ul>

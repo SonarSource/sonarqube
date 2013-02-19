@@ -1634,9 +1634,8 @@ ul.bullet li {
 .tablinks li {
   float: left;
   text-align: right;
-  background: url("../images/sep12.png") no-repeat scroll 0 50% transparent;
-  margin-left: 7px;
-  padding: 0 0 0 7px;
+  margin-left: 5px;
+  padding: 0 0 0 5px;
 }
 
 .tablinks li.first {
