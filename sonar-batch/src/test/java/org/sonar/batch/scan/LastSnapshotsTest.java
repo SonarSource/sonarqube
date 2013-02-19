@@ -19,11 +19,14 @@
  */
 package org.sonar.batch.scan;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.resources.File;
+import org.sonar.api.resources.Project;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -41,6 +44,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class LastSnapshotsTest extends AbstractDbUnitTestCase {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void should_return_null_violations_if_no_last_snapshot() {
@@ -104,6 +110,20 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void should_fail_to_download_source_from_ws() throws URISyntaxException {
+    setupData("last_snapshot");
+    ServerClient server = mock(ServerClient.class);
+    when(server.request(anyString(), eq(false))).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
+
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.DRY_RUN, true);
+    LastSnapshots lastSnapshots = new LastSnapshots(settings, getSession(), server);
+
+    thrown.expect(HttpDownloader.HttpException.class);
+    lastSnapshots.getSource(newFile());
+  }
+
+  @Test
   public void should_return_empty_source_if_dry_run_and_no_last_snapshot() throws URISyntaxException {
     setupData("last_snapshot");
     ServerClient server = mock(ServerClient.class);
@@ -116,6 +136,17 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
     String source = lastSnapshots.getSource(newFile());
     assertThat(source).isEqualTo("");
     verify(server).request("/api/sources?resource=myproject:org/foo/Bar.c&format=txt", false);
+  }
+
+  @Test
+  public void should_not_load_source_of_non_files() throws URISyntaxException {
+    setupData("last_snapshot");
+    ServerClient server = mock(ServerClient.class);
+
+    LastSnapshots lastSnapshots = new LastSnapshots(new Settings(), getSession(), server);
+
+    String source = lastSnapshots.getSource(new Project("my-project"));
+    assertThat(source).isEqualTo("");
   }
 
   private File newFile() {
