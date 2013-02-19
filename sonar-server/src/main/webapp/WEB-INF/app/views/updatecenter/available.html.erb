@@ -99,9 +99,15 @@ function installPlugin(key) {
                 <td class="thin nowrap"><b>Last version:</b> </td>
                 <td><%= update.getRelease().getVersion() -%> (<%= image_tag 'warning.png' -%> Not compatible, requires Sonar upgrade)</td>
               </tr>
-            <%
-              end
+            <% elsif update.requiresSonarUpgradeForDependencies
             %>
+            <tr>
+              <td class="thin nowrap"><b>Last version:</b> </td>
+              <td><%= update.getRelease().getVersion() -%> (<%= image_tag 'warning.png' -%> Not compatible, some dependencies requires Sonar upgrade)</td>
+            </tr>
+      <%
+         end
+      %>
           </table>
           </div>
         </td>

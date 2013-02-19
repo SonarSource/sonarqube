@@ -95,7 +95,7 @@ public class PluginDownloader implements ServerComponent {
         downloadRelease(release);
 
       } catch (Exception e) {
-        String message = "Fail to download the plugin (" + release.getArtifact().getKey() + ", version " + version + ") from " + release.getDownloadUrl();
+        String message = "Fail to download the plugin (" + release.getArtifact().getKey() + ", version " + release.getVersion().getName() + ") from " + release.getDownloadUrl();
         LOG.warn(message, e);
         throw new SonarException(message, e);
       }
