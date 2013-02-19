@@ -63,6 +63,19 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
 
     when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.getRoot());
 
+    byte[] database = localDatabaseFactory.createDatabaseForDryRun(null);
+    dataSource = createDatabase(database);
+
+    assertThat(rowCount("metrics")).isEqualTo(2);
+    assertThat(rowCount("projects")).isZero();
+  }
+
+  @Test
+  public void should_create_database_with_project_data() throws IOException, SQLException {
+    setupData("should_create_database");
+
+    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.getRoot());
+
     byte[] database = localDatabaseFactory.createDatabaseForDryRun(123L);
     dataSource = createDatabase(database);
 

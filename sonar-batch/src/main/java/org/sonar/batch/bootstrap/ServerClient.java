@@ -60,7 +60,7 @@ public class ServerClient implements BatchComponent {
       InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash);
       Files.copy(inputSupplier, toFile);
     } catch (HttpDownloader.HttpException he) {
-      throw handleHttpException(pathStartingWithSlash, he);
+      throw handleHttpException(he);
     } catch (IOException e) {
       throw new SonarException(String.format("Unable to download '%s' to: %s", pathStartingWithSlash, toFile), e);
     }
@@ -75,7 +75,7 @@ public class ServerClient implements BatchComponent {
     try {
       return IOUtils.toString(inputSupplier.getInput(), "UTF-8");
     } catch (HttpDownloader.HttpException e) {
-      throw (wrapHttpException ? handleHttpException(pathStartingWithSlash, e) : e);
+      throw (wrapHttpException ? handleHttpException(e) : e);
     } catch (IOException e) {
       throw new SonarException(String.format("Unable to request: %s", pathStartingWithSlash), e);
     }
@@ -101,7 +101,7 @@ public class ServerClient implements BatchComponent {
     }
   }
 
-  private RuntimeException handleHttpException(String uri, HttpDownloader.HttpException he) {
+  private RuntimeException handleHttpException(HttpDownloader.HttpException he) {
     if (he.getResponseCode() == 401) {
       return new SonarException(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
     }

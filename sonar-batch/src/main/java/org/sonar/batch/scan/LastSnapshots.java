@@ -35,7 +35,6 @@ import org.sonar.batch.bootstrap.ServerClient;
 import javax.annotation.CheckForNull;
 import javax.persistence.Query;
 
-import java.util.Collections;
 import java.util.List;
 
 public class LastSnapshots implements BatchComponent {
