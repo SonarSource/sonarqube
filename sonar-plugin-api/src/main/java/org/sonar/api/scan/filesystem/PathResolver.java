@@ -24,7 +24,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.scan.filesystem.IllegalPathException;
 
 import java.io.File;
 import java.util.Collection;
@@ -42,7 +41,7 @@ public class PathResolver implements BatchComponent {
       try {
         file = new File(dir, path).getCanonicalFile();
       } catch (Exception e) {
-        throw new IllegalPathException("Fail to resolve path '" + path + "' relative to: " + dir.getAbsolutePath());
+        throw new IllegalStateException("Fail to resolve path '" + path + "' relative to: " + dir.getAbsolutePath(), e);
       }
     }
     return file;
@@ -98,11 +97,11 @@ public class PathResolver implements BatchComponent {
     return FilenameUtils.equalsNormalizedOnSystem(dir.getAbsolutePath(), cursor.getAbsolutePath());
   }
 
-  public static class RelativePath {
+  public static final class RelativePath {
     private File dir;
     private String path;
 
-    RelativePath(File dir, String path) {
+    private RelativePath(File dir, String path) {
       this.dir = dir;
       this.path = path;
     }
