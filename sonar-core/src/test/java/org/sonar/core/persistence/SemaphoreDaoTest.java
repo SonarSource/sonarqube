@@ -99,7 +99,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     SemaphoreDto semaphore = selectSemaphore("foo");
     assertThat(semaphore.getCreatedAt().getTime()).isEqualTo(semaphore.getUpdatedAt().getTime());
 
-    Thread.sleep(500);
+    Thread.sleep(1000);
 
     dao.update(lock);
 
@@ -175,7 +175,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void acquire_locked_semaphore_when_timeout_is_zeo() throws Exception {
+  public void acquire_locked_semaphore_when_timeout_is_zero() throws Exception {
     setupData("old_semaphore");
     Semaphores.Semaphore lock = dao.acquire("foo", 0);
     assertThat(lock.isLocked()).isTrue();
