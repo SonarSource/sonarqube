@@ -3,12 +3,6 @@
 
 <mapper namespace="org.sonar.core.properties.PropertiesMapper">
 
-  <select id="findUserIdsForFavouriteResource" parameterType="map" resultType="String">
-    SELECT U.login
-    FROM properties P, users U
-    WHERE P.prop_key = 'favourite' AND P.resource_id = #{id} AND P.user_id = U.id
-  </select>
-
   <select id="findUsersForNotification" parameterType="map" resultType="String">
     SELECT U.login
     FROM properties P, users U

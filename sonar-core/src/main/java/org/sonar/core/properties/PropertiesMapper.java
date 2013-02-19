@@ -27,8 +27,6 @@ import java.util.List;
 
 public interface PropertiesMapper {
 
-  List<String> findUserIdsForFavouriteResource(Long resourceId);
-
   List<String> findUsersForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("rId") Long resourceId);
 
   List<PropertyDto> selectGlobalProperties();

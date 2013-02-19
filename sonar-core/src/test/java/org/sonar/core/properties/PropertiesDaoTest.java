@@ -29,7 +29,6 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -43,14 +42,6 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   @Before
   public void createDao() {
     dao = new PropertiesDao(getMyBatis());
-  }
-
-  @Test
-  public void shouldFindUserIdsForFavouriteResource() {
-    setupData("shouldFindUserIdsForFavouriteResource");
-    List<String> userIds = dao.findUserIdsForFavouriteResource(2L);
-    assertThat(userIds.size(), is(2));
-    assertThat(userIds, hasItems("user3", "user4"));
   }
 
   @Test

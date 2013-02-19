@@ -41,22 +41,6 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
   }
 
   /**
-   * Returns the logins of users who have flagged as favourite the resource identified by the given id.
-   *
-   * @param resourceId the resource id
-   * @return the list of logins (maybe be empty - obviously)
-   */
-  public List<String> findUserIdsForFavouriteResource(Long resourceId) {
-    SqlSession session = mybatis.openSession();
-    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
-    try {
-      return mapper.findUserIdsForFavouriteResource(resourceId);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  /**
    * Returns the logins of users who have subscribed to the given notification dispatcher with the given notification channel.
    * If a resource ID is passed, the search is made on users who have specifically subscribed for the given resource.
    *
