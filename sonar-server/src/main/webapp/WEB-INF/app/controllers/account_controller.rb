@@ -34,6 +34,7 @@ class AccountController < ApplicationController
       new_project = Project.by_key params[:new_project]
       unless @per_project_notifications[new_project.id]
         @per_project_notifications[new_project.id] = init_project_notifications
+        @new_project_id = new_project.id
       end
       @selected_project_id = new_project.id
     end

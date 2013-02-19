@@ -59,7 +59,7 @@
           <td>
             <select id="<%= select_id -%>" name="notifications[<%= r_id.to_s -%>][<%= dispatcher-%>][]" multiple style="width: 100%">
               <% @channels.each do |channel| -%>
-                <option value="<%= channel.getKey() -%>" <%= 'selected' if per_project_notif[dispatcher].include?(channel.getKey()) -%>><%= message('notification.channel.' + channel.getKey()) -%></option>
+                <option value="<%= channel.getKey() -%>" <%= 'selected' if per_project_notif[dispatcher].include?(channel.getKey()) || (r_id==@new_project_id && channel.getKey()=='EmailNotificationChannel') -%>><%= message('notification.channel.' + channel.getKey()) -%></option>
               <% end %>
             </select>
             <script>
