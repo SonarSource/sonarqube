@@ -148,6 +148,6 @@ class UpdatecenterController < ApplicationController
   end
 
   def installed_plugins
-    @installed_plugin_referential.plugins
+    @installed_plugin_referential.lastMasterReleasePlugins
   end
 end
