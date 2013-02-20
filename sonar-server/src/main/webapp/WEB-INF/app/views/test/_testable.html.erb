@@ -13,6 +13,11 @@
         </a>
       </div>
       <table class="data marginbottom10">
+        <thead>
+        <tr>
+          <td colspan="3"></td>
+        </tr>
+        </thead>
         <tbody>
         <% reset_cycle %>
         <% test_cases.sort_by { |test_case| test_case.name }.each do |test_case| %>

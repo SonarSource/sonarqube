@@ -656,7 +656,6 @@ ul.operations li img {
 
 .sources2 tr.row td.plus {
   background-color: #EFEFEF;
-  border-left: 1px solid #DDD;
   padding: 0;
   width: 16px;
 }
@@ -780,7 +779,6 @@ span.rulename a:hover {
 
 .sources2 td.ind {
   border-right: 1px solid #DDD;
-  min-width: 1.5em;
   padding: 0 0.3em;
   text-align: center;
   vertical-align: middle;
