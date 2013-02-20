@@ -769,7 +769,6 @@ span.rulename a:hover {
 
 .sources2 td.line {
   width: 100%;
-  border-right: 1px solid #DDD;
 }
 
 .sources2 td.line pre {
@@ -801,7 +800,7 @@ span.rulename a:hover {
 }
 
 .sources2 td.new_section {
-  border-width: 1px;
+  border-width: 1px 0;
   border-style: solid;
   border-color: #EEE #DDD;
   height: 40px;
@@ -812,7 +811,6 @@ span.rulename a:hover {
   background-color: #FFF;
   padding: 10px;
   border-left: 1px solid #DDD;
-  border-right: 1px solid #DDD;
 }
 
 .source_title {
