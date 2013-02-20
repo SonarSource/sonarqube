@@ -1,7 +1,4 @@
 <h2><%= message('my_profile.per_project_notifications.title') -%></h2>
-
-<div class="admin marginbottom10">
-  <% form_tag({:action => 'update_per_project_notifications'}, {:method => 'post', :id => 'per_project_notif_form'}) do %>
     
     <table class="form">
       <tr>
@@ -16,7 +13,7 @@
                 var id = event.target.value;
                 if (id != null) {
                   //window.location = '<%= ApplicationController.root_context -%>/account/index?new_project=' + id;
-                  $j('#per_project_notif_form').submit();
+                  $j('#notif_form').submit();
                 }
               });
           </script>
@@ -57,7 +54,7 @@
              select_id = index.to_s + "_" + dispatcher
         %>
           <td>
-            <select id="<%= select_id -%>" name="notifications[<%= r_id.to_s -%>][<%= dispatcher-%>][]" multiple style="width: 100%">
+            <select id="<%= select_id -%>" name="project_notifs[<%= r_id.to_s -%>][<%= dispatcher-%>][]" multiple style="width: 100%">
               <% @channels.each do |channel| -%>
                 <option value="<%= channel.getKey() -%>" <%= 'selected' if per_project_notif[dispatcher].include?(channel.getKey()) || (r_id==@new_project_id && channel.getKey()=='EmailNotificationChannel') -%>><%= message('notification.channel.' + channel.getKey()) -%></option>
               <% end %>
@@ -76,11 +73,6 @@
       
            <% end %>
       
-      <tr>
-        <td style="padding-top: 10px" colspan="<%= @per_project_dispatchers.size + 1 -%>"><%= submit_tag message('my_profile.notifications.submit') %></td>
-      </tr>
       <% end %>
       
     </table>
-  <% end %>
-</div>

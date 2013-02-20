@@ -1,3 +1,11 @@
+<% content_for :style do %>
+  <style>
+    h2 {
+      padding-bottom: 10px;
+    }
+  </style>
+<% end %>
+
 <div id="content">
   <h1 class="marginbottom10"><%= message('my_profile.page') -%></h1>
 
@@ -23,9 +31,9 @@
   </div>
 
   <% if User.editable_password? %>
-    <h2><%= message('my_profile.password.title') -%></h2>
-
     <div class="admin marginbottom10">
+      <h2><%= message('my_profile.password.title') -%></h2>
+      
       <% form_tag({:action => 'change_password'}, :id => 'pass_form_tag', :name => 'pass_form_tag') do -%>
         <table class="form">
           <tr>
@@ -55,12 +63,21 @@
     </div>
   <% end -%>
 
-  <% unless @global_dispatchers.empty? -%>
-    <%= render "account/global_notifications" -%>
-  <% end %>
+  <div class="admin marginbottom10">
+    <% form_tag({:action => 'update_notifications'}, {:method => 'post', :id => 'notif_form'}) do %>
+    
+      <% unless @global_dispatchers.empty? -%>
+        <%= render "account/global_notifications" -%>
+        <br/><br/>
+      <% end %>
 
-  <% unless @per_project_dispatchers.empty? -%>
-    <%= render "account/per_project_notifications" -%>  
-  <% end %>
+      <% unless @per_project_dispatchers.empty? -%>
+        <%= render "account/per_project_notifications" -%>  
+      <% end %>
+      
+      <br/><br/>
+      <%= submit_tag message('my_profile.notifications.submit') %>
+    <% end %>
+  </div>
   
 </div>

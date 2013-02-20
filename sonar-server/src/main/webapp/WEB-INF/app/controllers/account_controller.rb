@@ -62,17 +62,16 @@ class AccountController < ApplicationController
   end
 
   def update_notifications
-    notifications = params[:notifications]
+    # Global notifs
+    global_notifs = params[:global_notifs]
     Property.delete_all(['prop_key like ? AND user_id = ? AND resource_id IS NULL', 'notification.%', current_user.id])
-    notifications.each_key { |key| current_user.add_property(:prop_key => 'notification.' + key, :text_value => 'true') } if notifications
-    redirect_to :action => 'index'
-  end
+    global_notifs.each_key { |key| current_user.add_property(:prop_key => 'notification.' + key, :text_value => 'true') } if global_notifs
 
-  def update_per_project_notifications
-    notifications = params[:notifications]
+    # Per project notifs
+    project_notifs = params[:project_notifs]
     Property.delete_all(['prop_key like ? AND user_id = ? AND resource_id IS NOT NULL', 'notification.%', current_user.id])
-    if notifications
-      notifications.each do |r_id, per_project_notif|
+    if project_notifs
+      project_notifs.each do |r_id, per_project_notif|
         per_project_notif.each do |dispatch, channels|
           channels.each do |channel|
             current_user.add_property(:prop_key => 'notification.' + dispatch + '.' + channel, :text_value => 'true', :resource_id => r_id)
@@ -81,6 +80,7 @@ class AccountController < ApplicationController
       end
     end
     
+    # New project added
     new_params = {}
     unless params[:new_project].blank?
       new_params[:new_project] = params[:new_project]
