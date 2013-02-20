@@ -73,7 +73,6 @@
       <!-- version compiled for java 5 -->
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-blueprints-core</artifactId>
-      <version>2.2.0-java5</version>
       <exclusions>
         <exclusion>
           <groupId>org.codehaus.jackson</groupId>
@@ -84,7 +83,7 @@
           <artifactId>jackson-mapper-asl</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.codehaus.jettison:jettison</groupId>
+          <groupId>org.codehaus.jettison</groupId>
           <artifactId>jettison</artifactId>
         </exclusion>
         <exclusion>
