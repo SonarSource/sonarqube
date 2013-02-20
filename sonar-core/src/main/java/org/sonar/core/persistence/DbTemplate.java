@@ -36,6 +36,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.List;
 
 public class DbTemplate implements ServerComponent {
@@ -59,21 +61,18 @@ public class DbTemplate implements ServerComponent {
       sourceResultSet = sourceStatement.executeQuery(selectQuery);
 
       if (sourceResultSet.next()) {
-        List<String> columnNames = columnNames(sourceResultSet);
-        int colCount = columnNames.size();
+        String[] columnNames = columnNames(sourceResultSet);
+        int[] columnTypes = columnTypes(sourceResultSet);
 
         destConnection = dest.getConnection();
         destConnection.setAutoCommit(false);
 
         String insertSql = new StringBuilder().append("INSERT INTO ").append(table).append("(").append(Joiner.on(",").join(columnNames))
-          .append(") VALUES(").append(StringUtils.repeat("?", ",", colCount)).append(")").toString();
+          .append(") VALUES(").append(StringUtils.repeat("?", ",", columnNames.length)).append(")").toString();
         destStatement = destConnection.prepareStatement(insertSql);
         int count = 0;
         do {
-          for (int col = 1; col <= colCount; col++) {
-            Object value = sourceResultSet.getObject(columnNames.get(col - 1));
-            destStatement.setObject(col, value);
-          }
+          copyColumns(sourceResultSet, destStatement, columnNames, columnTypes);
           count++;
           destStatement.addBatch();
           if (count % BatchSession.MAX_BATCH_SIZE == 0) {
@@ -101,13 +100,34 @@ public class DbTemplate implements ServerComponent {
     return this;
   }
 
-  private List<String> columnNames(ResultSet resultSet) throws SQLException {
+  private void copyColumns(ResultSet sourceResultSet, PreparedStatement destStatement, String[] columnNames, int[] columnTypes) throws SQLException {
+    for (int col = 1; col <= columnNames.length; col++) {
+      if (columnTypes[col - 1] == Types.TIMESTAMP) {
+        Timestamp value = sourceResultSet.getTimestamp(columnNames[col - 1]);
+        destStatement.setTimestamp(col, value);
+      } else {
+        Object value = sourceResultSet.getObject(columnNames[col - 1]);
+        destStatement.setObject(col, value);
+      }
+    }
+  }
+
+  private String[] columnNames(ResultSet resultSet) throws SQLException {
     int colCount = resultSet.getMetaData().getColumnCount();
-    List<String> columnNames = Lists.newArrayList();
+    String[] columnNames = new String[colCount];
     for (int i = 1; i <= colCount; i++) {
-      columnNames.add(resultSet.getMetaData().getColumnName(i));
+      columnNames[i - 1] = resultSet.getMetaData().getColumnName(i);
     }
     return columnNames;
+  }
+
+  private int[] columnTypes(ResultSet resultSet) throws SQLException {
+    int colCount = resultSet.getMetaData().getColumnCount();
+    int[] columnTypes = new int[colCount];
+    for (int i = 1; i <= colCount; i++) {
+      columnTypes[i - 1] = resultSet.getMetaData().getColumnType(i);
+    }
+    return columnTypes;
   }
 
   @VisibleForTesting
