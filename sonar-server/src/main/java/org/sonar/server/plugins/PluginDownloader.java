@@ -56,15 +56,6 @@ public class PluginDownloader implements ServerComponent {
     }
   }
 
-  /**
-   * for unit tests
-   */
-  PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader, File downloadDir) {
-    this.updateCenterMatrixFactory = updateCenterMatrixFactory;
-    this.downloader = downloader;
-    this.downloadDir = downloadDir;
-  }
-
   public void cancelDownloads() {
     try {
       if (downloadDir.exists()) {
@@ -102,9 +93,16 @@ public class PluginDownloader implements ServerComponent {
     }
   }
 
-  private void downloadRelease(Release release) throws URISyntaxException {
-    URI uri = new URI(release.getDownloadUrl());
-    String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
-    downloader.download(uri, new File(downloadDir, filename));
+  private void downloadRelease(Release release) throws URISyntaxException, IOException {
+    String url = release.getDownloadUrl();
+    if (!url.startsWith("file:")) {
+      URI uri = new URI(url);
+      String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
+      downloader.download(uri, new File(downloadDir, filename));
+    } else {
+      String filePath = url.replaceFirst("file:", "");
+      File file = new File(filePath);
+      FileUtils.copyFileToDirectory(file, downloadDir);
+    }
   }
 }

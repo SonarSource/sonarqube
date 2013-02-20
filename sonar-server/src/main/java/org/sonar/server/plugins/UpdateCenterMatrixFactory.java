@@ -27,7 +27,7 @@ import org.sonar.updatecenter.common.Version;
 /**
  * @since 2.4
  */
-public final class UpdateCenterMatrixFactory implements ServerComponent {
+public class UpdateCenterMatrixFactory implements ServerComponent {
 
   private UpdateCenterClient centerClient;
   private Version sonarVersion;
