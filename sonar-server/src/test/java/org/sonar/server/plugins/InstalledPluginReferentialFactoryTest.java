@@ -35,7 +35,6 @@ public class InstalledPluginReferentialFactoryTest {
   public void should_create_plugin_referential() {
     PluginMetadata metadata = mock(DefaultPluginMetadata.class);
     when(metadata.getKey()).thenReturn("foo");
-    when(metadata.getRequiredPlugins()).thenReturn(new String[]{});
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.getMetadata()).thenReturn(newArrayList(metadata));
     InstalledPluginReferentialFactory installedPluginReferentialFactory = new InstalledPluginReferentialFactory(pluginRepository);

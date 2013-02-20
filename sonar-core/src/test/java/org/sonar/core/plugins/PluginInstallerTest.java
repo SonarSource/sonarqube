@@ -113,7 +113,7 @@ public class PluginInstallerTest {
     DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("fake2-plugin-1.1.jar"), true);
 
     assertThat(metadata.getKey()).isEqualTo("fake2");
-    assertThat(metadata.getRequiredPlugins()).isEqualTo(new String[]{"fake1:1.1"});
+    assertThat(metadata.getRequiredPlugins().get(0)).isEqualTo("fake1:1.1");
   }
 
   static File getFile(String filename) {

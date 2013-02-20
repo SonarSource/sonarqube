@@ -26,6 +26,7 @@ import org.sonar.updatecenter.common.PluginManifest;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 
@@ -72,7 +73,7 @@ public class PluginInstaller {
   }
 
   private void copyDependencies(DefaultPluginMetadata metadata, File pluginFile, File pluginBasedir) throws IOException {
-    if (metadata.getPathsToInternalDeps().length > 0) {
+    if (!metadata.getPathsToInternalDeps().isEmpty()) {
       // needs to unzip the jar
       ZipUtils.unzip(pluginFile, pluginBasedir, new LibFilter());
       for (String depPath : metadata.getPathsToInternalDeps()) {
@@ -115,12 +116,12 @@ public class PluginInstaller {
       metadata.setVersion(manifest.getVersion());
       metadata.setSonarVersion(manifest.getSonarVersion());
       metadata.setHomepage(manifest.getHomepage());
-      metadata.setPathsToInternalDeps(manifest.getDependencies());
+      metadata.setPathsToInternalDeps(Arrays.asList(manifest.getDependencies()));
       metadata.setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());
       metadata.setBasePlugin(manifest.getBasePlugin());
       metadata.setImplementationBuild(manifest.getImplementationBuild());
       metadata.setParent(manifest.getParent());
-      metadata.setRequiredPlugins(manifest.getRequiresPlugins());
+      metadata.setRequiredPlugins(Arrays.asList(manifest.getRequiresPlugins()));
       metadata.setCore(isCore);
       return metadata;
 

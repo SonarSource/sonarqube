@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Ordering.natural;
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -78,7 +79,7 @@ public class DefaultPluginMetadataTest {
   @Test
   public void testInternalPathToDependencies() {
     DefaultPluginMetadata metadata = DefaultPluginMetadata.create(new File("sonar-checkstyle-plugin.jar"))
-        .setPathsToInternalDeps(new String[] {"META-INF/lib/commons-lang.jar", "META-INF/lib/commons-io.jar"});
+        .setPathsToInternalDeps(newArrayList("META-INF/lib/commons-lang.jar", "META-INF/lib/commons-io.jar"));
 
     assertThat(metadata.getPathsToInternalDeps()).containsOnly("META-INF/lib/commons-lang.jar", "META-INF/lib/commons-io.jar");
   }

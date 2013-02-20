@@ -19,6 +19,7 @@
  */
 package org.sonar.core.plugins;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -33,9 +34,9 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginMetadata> {
   private File file;
-  private List<File> deployedFiles = newArrayList();
-  private List<File> deprecatedExtensions = newArrayList();
-  private String[] pathsToInternalDeps = new String[0];
+  private List<File> deployedFiles;
+  private List<File> deprecatedExtensions;
+  private List<String> pathsToInternalDeps;
   private String key;
   private String version;
   private String sonarVersion;
@@ -51,9 +52,13 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   private boolean core;
   private String implementationBuild;
   private String parent;
-  private String[] requiredPlugins = new String[0];
+  private List<String> requiredPlugins;
 
   private DefaultPluginMetadata() {
+    deployedFiles = newArrayList();
+    deprecatedExtensions = newArrayList();
+    pathsToInternalDeps = newArrayList();
+    requiredPlugins = newArrayList();
   }
 
   public static DefaultPluginMetadata create(File file) {
@@ -92,12 +97,12 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
-  public String[] getPathsToInternalDeps() {
-    return pathsToInternalDeps;
+  public List<String> getPathsToInternalDeps() {
+    return ImmutableList.copyOf(pathsToInternalDeps);
   }
 
-  public DefaultPluginMetadata setPathsToInternalDeps(String[] pathsToInternalDeps) {
-    this.pathsToInternalDeps = pathsToInternalDeps;
+  public DefaultPluginMetadata setPathsToInternalDeps(List<String> pathsToInternalDeps) {
+    this.pathsToInternalDeps = ImmutableList.copyOf(pathsToInternalDeps);
     return this;
   }
 
@@ -191,12 +196,13 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
-  public String[] getRequiredPlugins() {
-    return requiredPlugins;
+  public List<String> getRequiredPlugins() {
+    return ImmutableList.copyOf(requiredPlugins);
   }
 
-  public void setRequiredPlugins(String[] requiredPlugins) {
-    this.requiredPlugins = requiredPlugins;
+  public DefaultPluginMetadata setRequiredPlugins(List<String> requiredPlugins) {
+    this.requiredPlugins = ImmutableList.copyOf(requiredPlugins);
+    return this;
   }
 
   /**

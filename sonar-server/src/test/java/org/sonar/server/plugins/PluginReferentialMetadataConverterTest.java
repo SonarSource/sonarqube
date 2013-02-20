@@ -35,7 +35,6 @@ public class PluginReferentialMetadataConverterTest {
   public void should_convert_metadata_to_plugin_referential() {
     PluginMetadata metadata = mock(DefaultPluginMetadata.class);
     when(metadata.getKey()).thenReturn("foo");
-    when(metadata.getRequiredPlugins()).thenReturn(new String []{});
 
     PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(metadata));
     assertThat(pluginReferential).isNotNull();
@@ -47,7 +46,6 @@ public class PluginReferentialMetadataConverterTest {
   public void should_not_add_core_plugin() {
     PluginMetadata metadata = mock(DefaultPluginMetadata.class);
     when(metadata.getKey()).thenReturn("foo");
-    when(metadata.getRequiredPlugins()).thenReturn(new String []{});
     when(metadata.isCore()).thenReturn(true);
 
     PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(metadata));
