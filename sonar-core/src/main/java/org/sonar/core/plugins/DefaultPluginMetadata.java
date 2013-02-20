@@ -188,7 +188,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   }
 
   public String getParent() {
-    return parent != null ? parent : key;
+    return parent;
   }
 
   public DefaultPluginMetadata setParent(String parent) {
