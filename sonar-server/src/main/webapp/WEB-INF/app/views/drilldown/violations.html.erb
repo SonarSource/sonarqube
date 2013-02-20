@@ -143,7 +143,8 @@
               <% if resource.source_code? %>
                 <%= link_to(image_tag('new-window-16.gif'),
                             {:controller => 'dashboard', :action => 'index', :id => resource.key, :period => params[:period],
-                             :metric => @metric ? @metric.id : nil, :rule => @rule ? @rule.id : @severity }) %>
+                             :metric => @metric ? @metric.id : nil, :rule => @rule ? @rule.id : @severity },
+                            :target => '_blank') %>
               <% else %>
                 <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
               <% end %>
