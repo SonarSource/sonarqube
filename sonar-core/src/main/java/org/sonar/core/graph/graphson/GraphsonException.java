@@ -20,10 +20,6 @@
 package org.sonar.core.graph.graphson;
 
 public class GraphsonException extends RuntimeException {
-  public GraphsonException(String message) {
-    super(message);
-  }
-
   public GraphsonException(String message, Throwable cause) {
     super(message, cause);
   }

@@ -49,4 +49,10 @@ public class ExclusionFilterTest {
 
     assertThat(filter.accept(file, context)).isTrue();
   }
+
+  @Test
+  public void test_toString() {
+    ExclusionFilter filter = new ExclusionFilter("**/*Foo.java");
+    assertThat(filter.toString()).isEqualTo("Excludes: **/*Foo.java");
+  }
 }
