@@ -63,7 +63,7 @@ public class PluginReferentialMetadataConverter {
     pluginManifest.setHomepage(metadata.getHomepage());
     pluginManifest.setBasePlugin(metadata.getBasePlugin());
     pluginManifest.setParent(metadata.getParent());
-    pluginManifest.setRequiresPlugins(metadata.getRequiredPlugins().toArray(new String []{}));
+    pluginManifest.setRequirePlugins(metadata.getRequiredPlugins().toArray(new String []{}));
     return pluginManifest;
   }
 }

@@ -121,7 +121,7 @@ public class PluginInstaller {
       metadata.setBasePlugin(manifest.getBasePlugin());
       metadata.setImplementationBuild(manifest.getImplementationBuild());
       metadata.setParent(manifest.getParent());
-      metadata.setRequiredPlugins(Arrays.asList(manifest.getRequiresPlugins()));
+      metadata.setRequiredPlugins(Arrays.asList(manifest.getRequirePlugins()));
       metadata.setCore(isCore);
       return metadata;
 
