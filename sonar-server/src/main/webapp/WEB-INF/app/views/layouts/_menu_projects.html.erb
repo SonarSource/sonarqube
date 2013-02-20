@@ -13,7 +13,7 @@
       <ul id="recent-history-list">
       </ul>
     </div>
-    
+
     <div>
       <ul>
         <% Project.root_qualifiers.sort.each do |qualifier| %>
@@ -22,7 +22,7 @@
       </ul>
     </div>
   </div>
-  
+
 </li>
 
 <script>
@@ -34,7 +34,7 @@
      if @resource && Project.root_qualifiers.include?(@resource.qualifier)
   %>
   else {
-    sonarRecentHistory.add('<%= @resource.key -%>',
+    sonarRecentHistory.add('<%= h @resource.key -%>',
                            '<%= h @resource.name -%>',
                            '<%= Api::Utils.java_facade.getResourceType(@resource.qualifier).getIconPath() -%>');
   }
