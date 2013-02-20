@@ -42,6 +42,7 @@ function installPlugin(key) {
           <%= plugin.getDescription() %>
           <div id="detail-<%= plugin.getKey() -%>" style="display:none">
           <table class="spaced width100">
+
             <% index = 0 %>
             <% plugin.lastRelease.children.each do |child|
               child_plugin = @update_center_referential.findPlugin(child.key)
@@ -58,10 +59,14 @@ function installPlugin(key) {
             <% end %>
 
             <% release = @update_plugin_center.findLatestCompatibleRelease(plugin.key) %>
-            <% release_dep_names = release.outgoingDependencies.collect { |dep| dep.artifact.name } %>
-              <% unless release_dep_names.empty? %>
+            <% release.outgoingDependencies.each_with_index do |outgoing_release, index| %>
               <tr>
-                 <td class="thin nowrap" colspan="2"><b>Installing this plugin will also install: </b><%= release_dep_names.join(', ') -%></td>
+                <% if index == 0 %>
+                  <td class="thin nowrap"><b>Installing this plugin will also install:</b></td>
+                <% else %>
+                  <td>&nbsp;</td>
+                <% end %>
+                <td><span><%= outgoing_release.artifact.name -%></span> : <span><%= @update_center_referential.findPlugin(outgoing_release.key).description -%></span></td>
               </tr>
             <% end %>
 
