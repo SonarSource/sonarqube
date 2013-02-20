@@ -36,8 +36,13 @@ class BatchBootstrapController < Api::ApiController
 
     root_project = load_project()
     if root_project
-      Project.find(:all, :select => 'id,kee', :conditions => ['enabled=? and (root_id=? or id=?)', true, root_project.id, root_project.id]).each do |project|
-        json_properties.concat(Property.find(:all, :conditions => ['user_id is null and resource_id=?', project.id]).map { |property| to_json_property(property, project.kee) })
+      properties = Property.find(:all, :conditions => ["user_id is null and resource_id in (select id from projects where enabled=? and (root_id=? or id=?))", true, root_project.id, root_project.id])
+      resource_ids = properties.map{|p| p.resource_id}.uniq.compact
+      unless resource_ids.empty?
+        resource_key_by_id = Project.find(:all, :select => 'id,kee', :conditions => {:id => resource_ids}).inject({}) {|hash, resource| hash[resource.id]=resource.key; hash}
+        properties.each do |property|
+          json_properties << to_json_property(property, resource_key_by_id[property.resource_id])
+        end
       end
     end
 
