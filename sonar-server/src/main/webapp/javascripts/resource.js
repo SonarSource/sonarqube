@@ -176,7 +176,7 @@ function sVF(elt, resource, line, gray_colspan, white_colspan) {
 
 // hide review form
 function hVF(elt, line) {
-  var row = $j(elt).closest('.createViolationRow'+ line);
+  var row = $j(elt).closest('#createViolationRow'+ line);
   if (row.length) {
     row.remove();
   }
