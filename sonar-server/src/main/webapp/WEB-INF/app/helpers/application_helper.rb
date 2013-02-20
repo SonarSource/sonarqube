@@ -233,7 +233,8 @@ module ApplicationHelper
           url=options[:url]
           link_class=''
         end
-        html="<a href='#{url}' class='#{link_class}' rel='#{link_rel}' title='#{link_rel}'>#{html}</a>"
+        # Do not put url between simple quotes to prevent problem if url contain simple quote
+        html='<a href="'+ url +'"'+ " class='#{link_class}' rel='#{link_rel}' title='#{link_rel}'>#{html}</a>"
       end
     end
     html
