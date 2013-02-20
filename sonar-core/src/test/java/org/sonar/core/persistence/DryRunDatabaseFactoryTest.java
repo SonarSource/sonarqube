@@ -58,7 +58,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_create_database() throws IOException, SQLException {
+  public void should_create_database_without_project() throws IOException, SQLException {
     setupData("should_create_database");
 
     when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.getRoot());
@@ -71,7 +71,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_create_database_with_project_data() throws IOException, SQLException {
+  public void should_create_database_with_project() throws IOException, SQLException {
     setupData("should_create_database");
 
     when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.getRoot());
@@ -80,7 +80,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
     dataSource = createDatabase(database);
 
     assertThat(rowCount("metrics")).isEqualTo(2);
-    assertThat(rowCount("projects")).isZero();
+    assertThat(rowCount("projects")).isEqualTo(1);
   }
 
   private BasicDataSource createDatabase(byte[] db) throws IOException {
