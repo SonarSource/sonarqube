@@ -263,7 +263,7 @@ h4, .h4 {
 }
 
 h1 img, .h1 img, h2 img, .h2 img, h3 img, .h3 img, h4 img, .h4 img {
-  vertical-align: sub;
+  vertical-align: middle;
 }
 
 .subtitle {
@@ -782,6 +782,10 @@ span.rulename a:hover {
   padding: 0 0.3em;
   text-align: center;
   vertical-align: middle;
+}
+
+.sources2 td.ind a,.sources2 td.ind span {
+  padding: 0 3px;
 }
 
 .sources2 td.ok {

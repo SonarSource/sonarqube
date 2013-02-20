@@ -1,8 +1,11 @@
 <div class="accordion-item">
   <div class="accordion-item-header">
-    <h3><%= message('test_viewer.files_covered_by', :params => [@test, @test_plan.component.longName]) %></h3>
+    <div class="source_title">
+      <div class="subtitle">
+        <%= message('test_viewer.files_covered_by', :params => [@test, @test_plan.component.longName]) %>
+      </div>
+    </div>
   </div>
-  <br/>
   <div class="accordion-item-body">
     <table class="data">
       <thead>
@@ -12,16 +15,16 @@
       </tr>
       </thead>
       <tbody>
-      <% @test_case.coverageBlocks.sort_by{|cover| cover.testable.component.name}.each do |cover|
+      <% @test_case.coverageBlocks.sort_by { |cover| cover.testable.component.name }.each do |cover|
       %>
-      <tr class="<%= cycle("even", "odd") -%>">
-        <td><%= cover.lines.size -%></td>
-        <td>
-          <a href="<%= ApplicationController.root_context -%>/resource/index/<%= h cover.testable.component.key -%>?display_title=true&tab=coverage&coverage_filter=lines_covered_per_test&test_case_filter=<%= @test -%>"
-             onclick="openAccordionItem(this.href, this); return false;"><%= h cover.testable.component.longName -%>
-          </a>
-        </td>
-      </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <td class="right"><%= cover.lines.size -%></td>
+          <td>
+            <a href="<%= ApplicationController.root_context -%>/resource/index/<%= h cover.testable.component.key -%>?display_title=true&tab=coverage&coverage_filter=lines_covered_per_test&test_case_filter=<%= @test -%>"
+               onclick="openAccordionItem(this.href, this); return false;"><%= h cover.testable.component.longName -%>
+            </a>
+          </td>
+        </tr>
       <% end %>
       </tbody>
     </table>
