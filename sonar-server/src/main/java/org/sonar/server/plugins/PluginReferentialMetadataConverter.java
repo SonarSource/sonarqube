@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins;
 
-import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.PluginReferential;
@@ -30,14 +29,18 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class PluginReferentialMetadataConverter implements ServerComponent {
+public class PluginReferentialMetadataConverter {
 
-  public PluginReferential getInstalledPluginReferential(Collection<PluginMetadata> metadata) {
+  private PluginReferentialMetadataConverter() {
+    // Only static call
+  }
+
+  public static PluginReferential getInstalledPluginReferential(Collection<PluginMetadata> metadata) {
     List<PluginManifest> pluginManifestList = getPluginManifestList(metadata);
     return PluginReferentialManifestConverter.fromPluginManifests(pluginManifestList);
   }
 
-  private List<PluginManifest> getPluginManifestList(Collection<PluginMetadata> metadata) {
+  private static List<PluginManifest> getPluginManifestList(Collection<PluginMetadata> metadata) {
     List<PluginManifest> pluginManifestList = newArrayList();
     for (PluginMetadata plugin : metadata) {
       if (!plugin.isCore()) {
@@ -47,7 +50,7 @@ public class PluginReferentialMetadataConverter implements ServerComponent {
     return pluginManifestList;
   }
 
-  private PluginManifest toPluginManifest(PluginMetadata metadata) {
+  private static PluginManifest toPluginManifest(PluginMetadata metadata) {
     PluginManifest pluginManifest = new PluginManifest();
     pluginManifest.setKey(metadata.getKey());
     pluginManifest.setName(metadata.getName());

@@ -29,9 +29,9 @@ import org.sonar.api.profiles.Alert;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.jpa.dao.MeasuresDao;
-import org.sonar.server.platform.ServerStartException;
 
 import javax.persistence.Query;
+
 import java.util.List;
 import java.util.Map;
 
@@ -70,11 +70,11 @@ public class RegisterMetrics {
     for (Metric metric : metrics.getMetrics()) {
       String metricKey = metric.getKey();
       if (CoreMetrics.getMetrics().contains(metric)) {
-        throw new ServerStartException("The following metric is already defined in sonar: " + metricKey);
+        throw new IllegalStateException("The following metric is already defined in sonar: " + metricKey);
       }
       Metrics anotherRepository = metricsByRepository.get(metricKey);
       if (anotherRepository != null) {
-        throw new ServerStartException("The metric '" + metricKey + "' is already defined in the extension: " + anotherRepository);
+        throw new IllegalStateException("The metric '" + metricKey + "' is already defined in the extension: " + anotherRepository);
       }
       metricsByRepository.put(metricKey, metrics);
     }

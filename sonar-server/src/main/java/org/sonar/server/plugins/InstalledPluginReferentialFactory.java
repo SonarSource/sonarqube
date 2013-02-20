@@ -21,25 +21,22 @@ package org.sonar.server.plugins;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.PluginRepository;
-import org.sonar.server.platform.ServerStartException;
 import org.sonar.updatecenter.common.PluginReferential;
 
 public class InstalledPluginReferentialFactory implements ServerComponent {
 
-  private final PluginReferentialMetadataConverter pluginReferentialMetadataConverter;
   private final PluginRepository pluginRepository;
   private PluginReferential installedPluginReferential;
 
-  public InstalledPluginReferentialFactory(PluginRepository pluginRepository, PluginReferentialMetadataConverter pluginReferentialMetadataConverter) {
+  public InstalledPluginReferentialFactory(PluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
-    this.pluginReferentialMetadataConverter = pluginReferentialMetadataConverter;
   }
 
   public void start() {
     try {
       init();
     } catch (Exception e) {
-      throw new ServerStartException("Unable to load installed plugins", e);
+      throw new IllegalStateException("Unable to load installed plugins", e);
     }
   }
 
@@ -48,7 +45,7 @@ public class InstalledPluginReferentialFactory implements ServerComponent {
   }
 
   private void init() {
-    installedPluginReferential = pluginReferentialMetadataConverter.getInstalledPluginReferential(pluginRepository.getMetadata());
+    installedPluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(pluginRepository.getMetadata());
   }
 
 }

@@ -28,7 +28,6 @@ import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.server.platform.DefaultServerFileSystem;
-import org.sonar.server.platform.ServerStartException;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
@@ -39,6 +38,10 @@ import static org.mockito.Mockito.when;
 
 public class PluginDeployerTest {
 
+  @Rule
+  public TestName name = new TestName();
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
   private PluginInstaller extractor;
   private DefaultServerFileSystem fileSystem;
   private File homeDir;
@@ -47,12 +50,6 @@ public class PluginDeployerTest {
   private Server server = mock(Server.class);
   private UpdateCenterMatrixFactory updateCenterMatrixFactory;
 
-  @Rule
-  public TestName name = new TestName();
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
-
   @Before
   public void start() {
     when(server.getVersion()).thenReturn("3.1");
@@ -60,8 +57,7 @@ public class PluginDeployerTest {
     deployDir = TestUtils.getTestTempDir(PluginDeployerTest.class, name.getMethodName() + "/deploy");
     fileSystem = new DefaultServerFileSystem(null, homeDir, deployDir);
     extractor = new PluginInstaller();
-    // TODO
-    deployer = new PluginDeployer(server, fileSystem, extractor, null);
+    deployer = new PluginDeployer(server, fileSystem, extractor);
   }
 
   @Test
@@ -118,7 +114,7 @@ public class PluginDeployerTest {
     deployer.start();
   }
 
-  @Test(expected = ServerStartException.class)
+  @Test(expected = IllegalStateException.class)
   public void failIfTwoPluginsWithSameKey() {
     deployer.start();
   }

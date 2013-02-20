@@ -71,11 +71,11 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   public void start() {
     LOGGER.info("Sonar home: " + homeDir.getAbsolutePath());
     if (!homeDir.isDirectory() || !homeDir.exists()) {
-      throw new ServerStartException("Sonar home directory does not exist");
+      throw new IllegalStateException("Sonar home directory does not exist");
     }
 
     if (deployDir == null) {
-      throw new ServerStartException("The target directory to deploy libraries is not set");
+      throw new IllegalStateException("The target directory to deploy libraries is not set");
     }
 
     try {
@@ -86,7 +86,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
       }
 
     } catch (IOException e) {
-      throw new ServerStartException("The following directory can not be created: " + deployDir.getAbsolutePath(), e);
+      throw new IllegalStateException("The following directory can not be created: " + deployDir.getAbsolutePath(), e);
     }
 
     File deprecated = getDeprecatedPluginsDir();
@@ -95,7 +95,7 @@ public class DefaultServerFileSystem implements ServerFileSystem {
       FileUtils.cleanDirectory(deprecated);
 
     } catch (IOException e) {
-      throw new ServerStartException("The following directory can not be created: " + deprecated.getAbsolutePath(), e);
+      throw new IllegalStateException("The following directory can not be created: " + deprecated.getAbsolutePath(), e);
     }
   }
 
@@ -132,10 +132,10 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     File dir = new File(getHomeDir(), "/extensions/jdbc-driver/" + dialect + "/");
     List<File> jars = getFiles(dir, "jar");
     if (jars.isEmpty()) {
-      throw new ServerStartException("No JDBC driver found in " + dir.getAbsolutePath());
+      throw new IllegalStateException("No JDBC driver found in " + dir.getAbsolutePath());
     }
     if (jars.size() > 1) {
-      throw new ServerStartException("The directory " + dir.getAbsolutePath() + " accepts only a single JAR file");
+      throw new IllegalStateException("The directory " + dir.getAbsolutePath() + " accepts only a single JAR file");
     }
     return jars.get(0);
   }

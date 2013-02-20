@@ -35,7 +35,6 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.server.platform.DefaultServerFileSystem;
-import org.sonar.server.platform.ServerStartException;
 import org.sonar.updatecenter.common.PluginReferential;
 
 import java.io.File;
@@ -52,17 +51,15 @@ public class PluginDeployer implements ServerComponent {
   private final DefaultServerFileSystem fileSystem;
   private final PluginInstaller installer;
   private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
-  private final PluginReferentialMetadataConverter pluginReferentialMetadataConverter;
 
-  public PluginDeployer(Server server, DefaultServerFileSystem fileSystem, PluginReferentialMetadataConverter pluginReferentialMetadataConverter) {
-    this(server, fileSystem, new PluginInstaller(), pluginReferentialMetadataConverter);
+  public PluginDeployer(Server server, DefaultServerFileSystem fileSystem) {
+    this(server, fileSystem, new PluginInstaller());
   }
 
-  PluginDeployer(Server server, DefaultServerFileSystem fileSystem, PluginInstaller installer, PluginReferentialMetadataConverter pluginReferentialMetadataConverter) {
+  PluginDeployer(Server server, DefaultServerFileSystem fileSystem, PluginInstaller installer) {
     this.server = server;
     this.fileSystem = fileSystem;
     this.installer = installer;
-    this.pluginReferentialMetadataConverter = pluginReferentialMetadataConverter;
   }
 
   public void start() {
@@ -105,7 +102,7 @@ public class PluginDeployer implements ServerComponent {
     PluginMetadata existing = pluginByKeys.put(metadata.getKey(), metadata);
 
     if ((existing != null) && !canDelete) {
-      throw new ServerStartException("Found two plugins with the same key '" + metadata.getKey() + "': " + metadata.getFile().getName() + " and "
+      throw new IllegalStateException("Found two plugins with the same key '" + metadata.getKey() + "': " + metadata.getFile().getName() + " and "
         + existing.getFile().getName());
     }
 
@@ -231,6 +228,6 @@ public class PluginDeployer implements ServerComponent {
   }
 
   private PluginReferential getPluginReferential() {
-    return pluginReferentialMetadataConverter.getInstalledPluginReferential(getMetadata());
+    return PluginReferentialMetadataConverter.getInstalledPluginReferential(getMetadata());
   }
 }

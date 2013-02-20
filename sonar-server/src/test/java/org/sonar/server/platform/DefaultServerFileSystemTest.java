@@ -45,7 +45,7 @@ public class DefaultServerFileSystemTest {
     assertNotNull(driver);
   }
 
-  @Test(expected = ServerStartException.class)
+  @Test(expected = IllegalStateException.class)
   public void failIfJdbcDriverNotFound() {
     Database database = mock(Database.class);
 
@@ -89,7 +89,7 @@ public class DefaultServerFileSystemTest {
     assertEquals(0, jars.size());
   }
 
-  @Test(expected = ServerStartException.class)
+  @Test(expected = IllegalStateException.class)
   public void shouldFailIfHomeDirectoryNotExists() {
     DefaultServerFileSystem fs = new DefaultServerFileSystem(null, new File("/notexists"), null);
     fs.start();

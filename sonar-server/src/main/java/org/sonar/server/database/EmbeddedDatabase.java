@@ -19,9 +19,8 @@
  */
 package org.sonar.server.database;
 
-import org.h2.Driver;
-
 import org.apache.commons.lang.StringUtils;
+import org.h2.Driver;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
-import org.sonar.server.platform.ServerStartException;
 
 import java.io.File;
 import java.sql.DriverManager;
@@ -37,12 +35,25 @@ import java.sql.SQLException;
 
 public class EmbeddedDatabase {
   private static final Logger LOG = LoggerFactory.getLogger(EmbeddedDatabase.class);
-
   private final Settings settings;
   private Server server;
 
   public EmbeddedDatabase(Settings settings) {
     this.settings = settings;
+  }
+
+  private static File getDataDirectory(Settings settings) {
+    String dirName = settings.getString(DatabaseProperties.PROP_EMBEDDED_DATA_DIR);
+    if (!StringUtils.isBlank(dirName)) {
+      return new File(dirName);
+    }
+
+    File sonarHome = new File(settings.getString(CoreProperties.SONAR_HOME));
+    if (sonarHome.isDirectory() && sonarHome.exists()) {
+      return new File(sonarHome, "data");
+    }
+
+    throw new IllegalStateException("Sonar home directory does not exist");
   }
 
   public void start() {
@@ -93,19 +104,5 @@ public class EmbeddedDatabase {
 
     DriverManager.registerDriver(new Driver());
     DriverManager.getConnection(url).close();
-  }
-
-  private static File getDataDirectory(Settings settings) {
-    String dirName = settings.getString(DatabaseProperties.PROP_EMBEDDED_DATA_DIR);
-    if (!StringUtils.isBlank(dirName)) {
-      return new File(dirName);
-    }
-
-    File sonarHome = new File(settings.getString(CoreProperties.SONAR_HOME));
-    if (sonarHome.isDirectory() && sonarHome.exists()) {
-      return new File(sonarHome, "data");
-    }
-
-    throw new ServerStartException("Sonar home directory does not exist");
   }
 }
