@@ -29,7 +29,7 @@ function upgradePlugin(key) {
        css=cycle('even','odd', :name => 'user-plugins')
           updates=@updates_by_plugin[plugin]
            updates.each_with_index do |update, index|
-            release=update.getRelease()
+            release=update.release
        %>
         <tr class="<%= css -%>">
           <td width="1%" nowrap><% if index==0 %><b><%= h(plugin.getName()) -%></b> <%= @installed_plugins[plugin.getKey()] -%> -> <% end %></td>
@@ -51,25 +51,25 @@ function upgradePlugin(key) {
           end
        %>
 
-       <% release = @update_plugin_center.findLatestCompatibleRelease(plugin.key)
-          releases = release.outgoingDependencies + release.incomingDependencies
-       %>
-       <% releases.each_with_index do |dep_release, index| %>
-         <tr class="<%= css -%>">
-           <td> </td>
-           <td> </td>
-           <% if index == 0 %>
-             <td class="thin nowrap"><b>Updating this plugin will also update:</b></td>
-           <% else %>
-             <td >&nbsp;</td>
-           <% end %>
-           <td colspan="4">
-             <span><%= dep_release.artifact.name -%></span> : <span><%= @update_center_referential.findPlugin(dep_release.key).description -%></span>
-           </td>
-         </tr>
-       <% end %>
-
        <% if @last_compatible[plugin.getKey()] %>
+
+         <% release = plugin.getRelease(@last_compatible[plugin.getKey()])
+            releases = release.outgoingDependencies + release.incomingDependencies %>
+         <% releases.each_with_index do |dep_release, index| %>
+           <tr class="<%= css -%>">
+             <td> </td>
+             <td> </td>
+             <% if index == 0 %>
+               <td class="thin nowrap"><b>Updating this plugin will also update:</b></td>
+             <% else %>
+               <td >&nbsp;</td>
+             <% end %>
+             <td colspan="4">
+               <span><%= dep_release.artifact.name -%></span> : <span><%= dep_release.artifact.description -%></span>
+             </td>
+           </tr>
+         <% end %>
+
          <tr class="<%= css -%>">
            <td> </td>
            <td colspan="5">

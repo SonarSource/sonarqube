@@ -32,7 +32,7 @@
          <table class="spaced width100">
 
            <% index = 0 %>
-           <% plugin.lastRelease.children.each do |child|
+           <% release.children.each do |child|
              child_plugin = @installed_plugin_referential.findPlugin(child.key)
            %>
              <tr>
@@ -46,16 +46,25 @@
              <% index = index + 1 %>
            <% end %>
 
-           <% release_dep_names = release.outgoingDependencies.collect { |dep| dep.artifact.name } %>
-           <% unless release_dep_names.empty? %>
+           <% release.outgoingDependencies.each_with_index do |outgoing_release, index| %>
              <tr>
-               <td class="thin nowrap" colspan="2"><b>Depends upon: </b><%= release_dep_names.join(', ') -%></td>
+               <% if index == 0 %>
+                 <td class="thin nowrap"><b>Depends upon:</b></td>
+               <% else %>
+                 <td>&nbsp;</td>
+               <% end %>
+               <td><span><%= outgoing_release.artifact.name -%></span> : <span><%= outgoing_release.artifact.description -%></span></td>
              </tr>
            <% end %>
-           <% release_dep_names = release.incomingDependencies.collect { |dep| dep.artifact.name } %>
-           <% unless release_dep_names.empty? %>
+
+           <% release.incomingDependencies.each_with_index do |incoming_release, index| %>
              <tr>
-               <td class="thin nowrap" colspan="2"><b>Uninstalling this plugin will also uninstall: </b><%= release_dep_names.join(', ') -%></td>
+               <% if index == 0 %>
+                 <td class="thin nowrap"><b>Uninstalling this plugin will also uninstall:</b></td>
+               <% else %>
+                 <td>&nbsp;</td>
+               <% end %>
+               <td><span><%= incoming_release.artifact.name -%></span> : <span><%= incoming_release.artifact.description -%></span></td>
              </tr>
            <% end %>
 

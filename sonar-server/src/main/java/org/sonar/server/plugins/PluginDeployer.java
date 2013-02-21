@@ -149,7 +149,7 @@ public class PluginDeployer implements ServerComponent {
   }
 
   public void uninstall(String pluginKey) {
-    for (String key : getPluginReferential().findReleasesWithDependencies(pluginKey)) {
+    for (String key : getPluginReferential().findLastReleasesWithDependencies(pluginKey)) {
       uninstallPlugin(key);
     }
   }
