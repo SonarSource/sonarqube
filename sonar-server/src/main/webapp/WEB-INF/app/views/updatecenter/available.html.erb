@@ -46,7 +46,7 @@ function installPlugin(key) {
 
             <% index = 0 %>
             <% release.children.each do |child|
-              child_plugin = @update_center_referential.findPlugin(child.key)
+              child_plugin = child.artifact
             %>
               <tr>
                 <% if index == 0 %>

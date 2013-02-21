@@ -36,7 +36,7 @@ class UpdatecenterController < ApplicationController
   def available
     @uninstalls=java_facade.getPluginUninstalls()
     @downloads=java_facade.getPluginDownloads()
-    @update_center_referential=nil
+    @update_plugin_center=nil
     @updates_by_category={}
 
     load_plugin_center()
@@ -56,7 +56,6 @@ class UpdatecenterController < ApplicationController
     @uninstalls=java_facade.getPluginUninstalls()
     @downloads=java_facade.getPluginDownloads()
 
-    @update_center_referential=nil
     @update_plugin_center=nil
     @updates_by_plugin={}
     @installed_plugins={}
@@ -123,7 +122,6 @@ class UpdatecenterController < ApplicationController
     @uninstalls=java_facade.getPluginUninstalls()
     @downloads=java_facade.getPluginDownloads()
 
-    @update_center_referential=nil
     @update_plugin_center=nil
     @sonar_updates=[]
     load_plugin_center()
@@ -136,7 +134,6 @@ class UpdatecenterController < ApplicationController
 
   def load_plugin_center
     @update_plugin_center = java_facade.getUpdatePluginCenter(params[:reload]=='true')
-    @update_center_referential = @update_plugin_center.updateCenterPluginReferential
     @installed_plugin_referential = java_facade.installedPluginReferential
   end
 
