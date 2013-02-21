@@ -17,42 +17,29 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.scan.filesystem;
+package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.BatchExtension;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.io.File;
+import java.io.IOException;
 
-/**
- * Extension point to exclude some files from project scan. Some use-cases :
- * <ul>
- *   <li>exclude the files that are older than x days</li>
- *   <li>exclude the files which names start with Generated</li>
- * </ul>
- * @since 3.5
- */
-public interface FileSystemFilter extends BatchExtension {
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  /**
-   * Plugins must not implement this interface. It is provided at runtime.
-   */
-  interface Context {
-    ModuleFileSystem fileSystem();
+public class FileFilterContextTest {
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
-    FileType type();
-
-    File relativeDir();
-
-    /**
-     * File path relative to source directory. Never return null.
-     */
-    String relativePath();
-
-    /**
-     * Absolute file path. Directory separator is slash, even on windows. Never return null.
-     */
-    String canonicalPath();
+  @Test
+  public void should_use_slash_for_canonical_path() throws IOException {
+    // even on windows
+    File file = temp.newFile("foo.txt");
+    FileFilterContext context = new FileFilterContext(mock(ModuleFileSystem.class));
+    context.setCanonicalPath(file.getCanonicalPath());
+    assertThat(context.canonicalPath()).doesNotContain("\\").contains("/");
   }
-
-  boolean accept(File file, Context context);
 }

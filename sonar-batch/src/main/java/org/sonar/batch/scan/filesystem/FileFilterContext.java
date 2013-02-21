@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.batch.FileFilter;
 import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
@@ -72,7 +73,7 @@ class FileFilterContext implements FileFilter.Context {
   }
 
   FileFilterContext setCanonicalPath(String s) {
-    this.fileCanonicalPath = s;
+    this.fileCanonicalPath = FilenameUtils.separatorsToUnix(s);
     return this;
   }
 }
