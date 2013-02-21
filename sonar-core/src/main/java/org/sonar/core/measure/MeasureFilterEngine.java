@@ -57,12 +57,13 @@ public class MeasureFilterEngine implements ServerComponent {
       MeasureFilter filter = factory.create(filterMap);
       List<MeasureFilterRow> rows = executor.execute(filter, context);
       result.setRows(rows);
-      result.setDurationInMs(System.currentTimeMillis() - start);
       log(context, result, logger);
 
     } catch (Exception e) {
       result.setError(MeasureFilterResult.Error.UNKNOWN);
       logger.error("Fail to execute measure filter: " + context, e);
+    } finally {
+      result.setDurationInMs(System.currentTimeMillis() - start);
     }
     return result;
   }

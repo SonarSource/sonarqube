@@ -75,5 +75,7 @@ public class MeasureFilterEngineTest {
 
     assertThat(result.isSuccess()).isFalse();
     assertThat(result.getError()).isEqualTo(MeasureFilterResult.Error.UNKNOWN);
+    assertThat(result.getDurationInMs()).isGreaterThan(0L);
+    assertThat(result.getRows()).isNull();
   }
 }
