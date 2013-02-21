@@ -89,6 +89,7 @@ public class DryRunExporterTest {
     when(violation.getMessage()).thenReturn("VIOLATION");
     when(violation.getRule()).thenReturn(rule);
     when(violation.getSeverity()).thenReturn(RulePriority.INFO);
+    when(violation.isSwitchedOff()).thenReturn(true);
     when(violation.getCreatedAt()).thenReturn(DateUtils.parseDate("2013-01-30"));
     when(ruleI18nManager.getName(rule, Locale.getDefault())).thenReturn("RULE_NAME");
     doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
@@ -99,7 +100,7 @@ public class DryRunExporterTest {
 
     assertThat(json)
       .startsWith(
-        "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_repository\":\"pmd\",\"rule_name\":\"RULE_NAME\",\"is_new\":false,\"created_at\":\"2013-01-30T00:00");
+        "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_repository\":\"pmd\",\"rule_name\":\"RULE_NAME\",\"switched_off\":true,\"is_new\":false,\"created_at\":\"2013-01-30T00:00");
   }
 
   @Test
@@ -120,7 +121,7 @@ public class DryRunExporterTest {
     String json = output.toString();
 
     assertThat(json).isEqualTo(
-      "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_repository\":\"pmd\",\"rule_name\":\"RULE_NAME\",\"is_new\":false}]}}");
+      "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_repository\":\"pmd\",\"rule_name\":\"RULE_NAME\",\"switched_off\":false,\"is_new\":false}]}}");
   }
 
   @Test

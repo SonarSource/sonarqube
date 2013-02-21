@@ -117,6 +117,7 @@ public class DryRunExporter implements BatchComponent {
             .name("rule_key").value(violation.getRule().getKey())
             .name("rule_repository").value(violation.getRule().getRepositoryKey())
             .name("rule_name").value(name(violation.getRule()))
+            .name("switched_off").value(violation.isSwitchedOff())
             .name("is_new").value(violation.isNew());
           if (violation.getCreatedAt() != null) {
             json.name("created_at").value(DateUtils.formatDateTime(violation.getCreatedAt()));
