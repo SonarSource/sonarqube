@@ -33,6 +33,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -148,7 +149,7 @@ public final class MavenTestUtils {
     }
 
     public File resolvePath(String path) {
-      throw new UnsupportedOperationException();
+      return new PathResolver().relativeFile(getBasedir(), path);
     }
 
     public List<File> getSourceFiles(Language... langs) {
