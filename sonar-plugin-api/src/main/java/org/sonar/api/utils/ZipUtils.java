@@ -22,7 +22,13 @@ package org.sonar.api.utils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -39,20 +45,22 @@ public final class ZipUtils {
 
   /**
    * Unzip a file into a new temporary directory. The directory is not deleted on JVM exit, so it
-   * must be explicitely deleted. 
+   * must be explicitely deleted.
+   *
    * @return the temporary directory
    * @since 2.2
-   * @deprecated since 3.4 use by {@link org.sonar.api.resources.ProjectFileSystem#getSonarWorkingDirectory} or {@link org.sonar.api.platform.ServerFileSystem#getTempDir}
+   * @deprecated since 3.4 use by {@link org.sonar.api.scan.filesystem.ModuleFileSystem#workingDir()} or {@link org.sonar.api.platform.ServerFileSystem#getTempDir}
    */
   @Deprecated
   public static File unzipToTempDir(File zip) throws IOException {
     File toDir = TempFileUtils.createTempDirectory();
-    unzip (zip, toDir);
+    unzip(zip, toDir);
     return toDir;
   }
 
   /**
    * Unzip a file into a directory. The directory is created if it does not exist.
+   *
    * @return the target directory
    */
   public static File unzip(File zip, File toDir) throws IOException {
@@ -99,7 +107,7 @@ public final class ZipUtils {
         }
       }
       return toDir;
-      
+
     } finally {
       zipFile.close();
     }
@@ -111,7 +119,7 @@ public final class ZipUtils {
     try {
       out = FileUtils.openOutputStream(zip);
       zout = new ZipOutputStream(out);
-      zip(dir, zout, null);
+      zip(dir, zout);
 
     } finally {
       IOUtils.closeQuietly(zout);
@@ -149,17 +157,9 @@ public final class ZipUtils {
     }
   }
 
-  private static void zip(File file, ZipOutputStream out, String prefix) throws IOException {
-    if (prefix != null) {
-      int len = prefix.length();
-      if (len == 0) {
-        prefix = null;
-      } else if (prefix.charAt(len - 1) != '/') {
-        prefix += '/';
-      }
-    }
+  private static void zip(File file, ZipOutputStream out) throws IOException {
     for (File child : file.listFiles()) {
-      String name = prefix != null ? prefix + child.getName() : child.getName();
+      String name = child.getName();
       _zip(name, child, out);
     }
   }

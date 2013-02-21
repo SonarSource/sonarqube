@@ -25,18 +25,19 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.colorizer.Tokenizer;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CodeColorizerFormatTest {
 
   @Test
   public void keyIsLanguage() {
     CodeColorizerFormat format = new FakeFormat("foo");
-    assertThat(format.getLanguageKey(), is("foo"));
+    assertThat(format.getLanguageKey()).isEqualTo("foo");
 
-    assertThat(format.equals(new FakeFormat("foo")), is(true));
-    assertThat(format.equals(new FakeFormat("bar")), is(false));
+    assertThat(format.equals(new FakeFormat("foo"))).isTrue();
+    assertThat(format.equals(new FakeFormat("bar"))).isFalse();
+    assertThat(format.hashCode()).isEqualTo(format.hashCode());
+    assertThat(format.hashCode()).isEqualTo(new FakeFormat("foo").hashCode());
   }
 
   private static class FakeFormat extends CodeColorizerFormat {

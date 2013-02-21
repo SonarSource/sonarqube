@@ -19,19 +19,21 @@
  */
 package org.sonar.api.rules;
 
-import junit.framework.Assert;
 import org.junit.Test;
+import org.sonar.check.Priority;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class RulePriorityTest {
 
   @Test
   public void testValueOfString() {
-    Assert.assertEquals(RulePriority.INFO, RulePriority.valueOfString("info"));
-    Assert.assertEquals(RulePriority.MAJOR, RulePriority.valueOfString("MAJOR"));
-    Assert.assertEquals(RulePriority.MAJOR, RulePriority.valueOfString("ERROR"));
-    Assert.assertEquals(RulePriority.INFO, RulePriority.valueOfString("WARNING"));
-    Assert.assertEquals(RulePriority.MAJOR, RulePriority.valueOfString("ErRor"));
-    Assert.assertEquals(RulePriority.INFO, RulePriority.valueOfString("WaRnInG"));
+    assertThat(RulePriority.INFO).isEqualTo(RulePriority.valueOfString("info"));
+    assertThat(RulePriority.MAJOR).isEqualTo(RulePriority.valueOfString("MAJOR"));
+    assertThat(RulePriority.MAJOR).isEqualTo(RulePriority.valueOfString("ERROR"));
+    assertThat(RulePriority.INFO).isEqualTo(RulePriority.valueOfString("WARNING"));
+    assertThat(RulePriority.MAJOR).isEqualTo(RulePriority.valueOfString("ErRor"));
+    assertThat(RulePriority.INFO).isEqualTo(RulePriority.valueOfString("WaRnInG"));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -39,4 +41,12 @@ public class RulePriorityTest {
     RulePriority.valueOfString("make me crash");
   }
 
+  @Test
+  public void test_toCheckPriority() {
+    assertThat(RulePriority.fromCheckPriority(Priority.BLOCKER)).isEqualTo(RulePriority.BLOCKER);
+    assertThat(RulePriority.fromCheckPriority(Priority.CRITICAL)).isEqualTo(RulePriority.CRITICAL);
+    assertThat(RulePriority.fromCheckPriority(Priority.MAJOR)).isEqualTo(RulePriority.MAJOR);
+    assertThat(RulePriority.fromCheckPriority(Priority.MINOR)).isEqualTo(RulePriority.MINOR);
+    assertThat(RulePriority.fromCheckPriority(Priority.INFO)).isEqualTo(RulePriority.INFO);
+  }
 }

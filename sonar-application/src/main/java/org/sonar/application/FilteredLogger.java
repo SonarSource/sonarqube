@@ -26,10 +26,6 @@ public class FilteredLogger implements Logger {
   private final String name;
   private final Logger delegate;
 
-  public FilteredLogger() {
-    this(null);
-  }
-
   private FilteredLogger(String name) {
     this.name = name;
     this.delegate = new StdErrLog(name);
@@ -45,7 +41,8 @@ public class FilteredLogger implements Logger {
 
   public void info(String msg, Object arg0, Object arg1) {
     if (msg.contains("JVM BUG(s)")) {
-      return; // Ignore, see SONAR-3866
+      // Ignore, see SONAR-3866
+      return;
     }
     delegate.info(msg, arg0, arg1);
   }

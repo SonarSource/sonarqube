@@ -70,25 +70,6 @@ public enum RulePriority {
     if (checkPriority == Priority.INFO) {
       return RulePriority.INFO;
     }
-    return null;
-  }
-
-  public Priority toCheckPriority() {
-    if (this == BLOCKER) {
-      return Priority.BLOCKER;
-    }
-    if (this == CRITICAL) {
-      return Priority.CRITICAL;
-    }
-    if (this == MAJOR) {
-      return Priority.MAJOR;
-    }
-    if (this == MINOR) {
-      return Priority.MINOR;
-    }
-    if (this == INFO) {
-      return Priority.INFO;
-    }
-    return null;
+    throw new IllegalArgumentException("Unknown priority " + checkPriority);
   }
 }
