@@ -39,6 +39,7 @@ import java.net.URI;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -62,7 +63,7 @@ public class PluginDownloaderTest {
   public void before() throws IOException {
     updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class);
     updateCenter = mock(UpdateCenter.class);
-    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(updateCenter);
+    when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
 
     httpDownloader = mock(HttpDownloader.class);
 
