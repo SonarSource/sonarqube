@@ -52,10 +52,10 @@ function upgradePlugin(key) {
        %>
 
        <% if @last_compatible[plugin.getKey()] %>
-
-         <% release = plugin.getRelease(@last_compatible[plugin.getKey()])
-            releases = release.outgoingDependencies + release.incomingDependencies %>
-         <% releases.each_with_index do |dep_release, index| %>
+         <%
+            version = @last_compatible[plugin.getKey()]
+            dependencies = @updates_by_plugin[plugin].last.dependencies.select {|dependency| dependency.master}
+            dependencies.each_with_index do |dependency, index| %>
            <tr class="<%= css -%>">
              <td> </td>
              <td> </td>
@@ -65,7 +65,7 @@ function upgradePlugin(key) {
                <td >&nbsp;</td>
              <% end %>
              <td colspan="4">
-               <span><%= dep_release.artifact.name -%></span> : <span><%= dep_release.artifact.description -%></span>
+               <span><%= dependency.artifact.name -%></span> : <span><%= dependency.artifact.description -%></span>
              </td>
            </tr>
          <% end %>
@@ -73,7 +73,7 @@ function upgradePlugin(key) {
          <tr class="<%= css -%>">
            <td> </td>
            <td colspan="5">
-            <form method="post" id="upgrade-form-<%= plugin.getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= @last_compatible[plugin.getKey()] -%>" style="display: inline-block">
+            <form method="post" id="upgrade-form-<%= plugin.getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?from=updates&key=<%= plugin.getKey() -%>&version=<%= version -%>" style="display: inline-block">
                <input type="submit" id="upgrade-submit-<%= plugin.getKey() -%>" value="Upgrade to <%= @last_compatible[plugin.getKey()] -%>" onClick="upgradePlugin('<%= plugin.getKey() -%>');return false;"/>
              </form>
             </td>
