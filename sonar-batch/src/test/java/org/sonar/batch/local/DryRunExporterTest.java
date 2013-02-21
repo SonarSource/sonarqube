@@ -32,6 +32,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.java.api.JavaClass;
@@ -88,6 +89,7 @@ public class DryRunExporterTest {
     when(violation.getMessage()).thenReturn("VIOLATION");
     when(violation.getRule()).thenReturn(rule);
     when(violation.getSeverity()).thenReturn(RulePriority.INFO);
+    when(violation.getCreatedAt()).thenReturn(DateUtils.parseDate("2013-01-30"));
     when(ruleI18nManager.getName(rule, Locale.getDefault())).thenReturn("RULE_NAME");
     doReturn(Arrays.asList(violation)).when(dryRunExporter).getViolations(resource);
 
@@ -96,8 +98,8 @@ public class DryRunExporterTest {
     String json = output.toString();
 
     assertThat(json)
-      .isEqualTo(
-        "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_repository\":\"pmd\",\"rule_name\":\"RULE_NAME\"}]}}");
+      .startsWith(
+        "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"line\":1,\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_repository\":\"pmd\",\"rule_name\":\"RULE_NAME\",\"is_new\":false,\"created_at\":\"2013-01-30T00:00");
   }
 
   @Test
@@ -118,7 +120,7 @@ public class DryRunExporterTest {
     String json = output.toString();
 
     assertThat(json).isEqualTo(
-      "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_repository\":\"pmd\",\"rule_name\":\"RULE_NAME\"}]}}");
+      "{\"version\":\"3.4\",\"violations_per_resource\":{\"KEY\":[{\"message\":\"VIOLATION\",\"severity\":\"INFO\",\"rule_key\":\"RULE_KEY\",\"rule_repository\":\"pmd\",\"rule_name\":\"RULE_NAME\",\"is_new\":false}]}}");
   }
 
   @Test

@@ -33,6 +33,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -116,7 +117,11 @@ public class DryRunExporter implements BatchComponent {
             .name("rule_key").value(violation.getRule().getKey())
             .name("rule_repository").value(violation.getRule().getRepositoryKey())
             .name("rule_name").value(name(violation.getRule()))
-            .endObject();
+            .name("is_new").value(violation.isNew());
+          if (violation.getCreatedAt() != null) {
+            json.name("created_at").value(DateUtils.formatDateTime(violation.getCreatedAt()));
+          }
+          json.endObject();
         }
 
         json.endArray();
