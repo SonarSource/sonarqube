@@ -42,9 +42,8 @@ public class MemoryDatabaseConnector extends DefaultDatabaseConnector {
   protected void setupSchemaVersion(int version) {
     SchemaMigration migration = new SchemaMigration();
     migration.setVersion(version);
-    EntityManager manager = null;
+    EntityManager manager = createEntityManager();
     try {
-      manager = createEntityManager();
       manager.getTransaction().begin();
       manager.persist(migration);
       manager.getTransaction().commit();
