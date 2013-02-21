@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.task.Task;
@@ -31,10 +32,10 @@ public class ScanTask implements Task {
 
   public static final String COMMAND = "inspect";
   public static final TaskDefinition DEFINITION = TaskDefinition.create()
-    .setDescription("Scan project and upload report to server")
-    .setName("Project Scan")
-    .setCommand(COMMAND)
-    .setTask(ScanTask.class);
+      .setDescription("Scan project and upload report to server")
+      .setName("Project Scan")
+      .setCommand(COMMAND)
+      .setTask(ScanTask.class);
 
   private final ComponentContainer container;
   private final ProjectTree projectTree;
@@ -45,13 +46,18 @@ public class ScanTask implements Task {
   }
 
   public void execute() {
-    scan(projectTree.getRootProject());
+    scanRecursively(projectTree.getRootProject());
   }
 
-  private void scan(Project project) {
+  private void scanRecursively(Project project) {
     for (Project subProject : project.getModules()) {
-      scan(subProject);
+      scanRecursively(subProject);
     }
+    scan(project);
+  }
+
+  @VisibleForTesting
+  void scan(Project project) {
     ScanContainer projectModule = new ScanContainer(project);
     try {
       ComponentContainer childContainer = container.createChild();

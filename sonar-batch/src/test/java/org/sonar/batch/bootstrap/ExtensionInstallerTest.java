@@ -32,7 +32,10 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.resources.Project;
+import org.sonar.api.task.TaskDefinition;
+import org.sonar.api.task.TaskExtension;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.tasks.RequiresProject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,12 +49,12 @@ public class ExtensionInstallerTest {
 
   private static final PluginMetadata METADATA = mock(PluginMetadata.class);
 
-  private static Map<PluginMetadata, Plugin> newPlugin(final Class... classes) {
+  private static Map<PluginMetadata, Plugin> newPlugin(final Object... extensions) {
     Map<PluginMetadata, Plugin> result = Maps.newHashMap();
     result.put(METADATA,
         new SonarPlugin() {
-          public List<Class> getExtensions() {
-            return Arrays.asList(classes);
+          public List<?> getExtensions() {
+            return Arrays.asList(extensions);
           }
         }
         );
@@ -84,6 +87,46 @@ public class ExtensionInstallerTest {
     assertThat(container.getComponentByType(BatchService.class)).isNotNull();
     assertThat(container.getComponentByType(ProjectService.class)).isNull();
     assertThat(container.getComponentByType(ServerService.class)).isNull();
+  }
+
+  @Test
+  public void shouldInstallTaskExtensions() {
+    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(SampleProjectTask.class, SampleTask.class, TaskProvider.class));
+    ComponentContainer container = new ComponentContainer();
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
+
+    installer.installTaskExtensions(container, true);
+
+    assertThat(container.getComponentByType(SampleProjectTask.class)).isNotNull();
+    assertThat(container.getComponentByType(SampleTask.class)).isNotNull();
+    assertThat(container.getComponentByType(AnotherTask.class)).isNotNull();
+  }
+
+  @Test
+  public void shouldNotInstallProjectTaskExtensionsWhenNoProject() {
+    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(SampleProjectTask.class, SampleTask.class));
+    ComponentContainer container = new ComponentContainer();
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
+
+    installer.installTaskExtensions(container, false);
+
+    assertThat(container.getComponentByType(SampleProjectTask.class)).isNull();
+    assertThat(container.getComponentByType(SampleTask.class)).isNotNull();
+  }
+
+  @Test
+  public void shouldInstallTaskDefinitions() {
+    TaskDefinition definition = TaskDefinition.create();
+    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(definition));
+    ComponentContainer container = new ComponentContainer();
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
+
+    installer.installTaskDefinitionExtensions(container);
+
+    assertThat(container.getComponentsByType(TaskDefinition.class)).containsExactly(definition);
   }
 
   @Test
@@ -153,6 +196,25 @@ public class ExtensionInstallerTest {
   @SupportedEnvironment({"maven", "ant", "gradle"})
   public static class BuildToolService implements BatchExtension {
 
+  }
+
+  @RequiresProject
+  public static class SampleProjectTask implements TaskExtension {
+
+  }
+
+  public static class SampleTask implements TaskExtension {
+  }
+
+  public static class AnotherTask implements TaskExtension {
+  }
+
+  public static class TaskProvider extends ExtensionProvider implements TaskExtension {
+
+    @Override
+    public Object provide() {
+      return Arrays.<Object> asList(AnotherTask.class);
+    }
   }
 
 }

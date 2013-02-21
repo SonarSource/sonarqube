@@ -119,12 +119,7 @@ public class ExtensionInstaller implements BatchComponent {
     if (ExtensionUtils.isTaskExtension(extension) &&
       (projectPresent || !ExtensionUtils.requiresProject(extension)) &&
       ExtensionUtils.supportsEnvironment(extension, environment)) {
-      if (plugin != null) {
-        LOG.debug("Installing task extension {} from plugin {}", extension.toString(), plugin.getKey());
-      }
-      else {
-        LOG.debug("Installing task extension {}", extension.toString());
-      }
+      logInstallExtension("task", plugin, extension);
       container.addExtension(plugin, extension);
       installed = true;
     } else {
@@ -175,12 +170,7 @@ public class ExtensionInstaller implements BatchComponent {
       (!dryRun || ExtensionUtils.supportsDryRun(extension)) &&
       ExtensionUtils.isInstantiationStrategy(extension, instantiationStrategy) &&
       !isMavenExtensionOnEmulatedMavenProject(extension, instantiationStrategy, container)) {
-      if (plugin != null) {
-        LOG.debug("Installing batch extension {} from plugin {}", extension.toString(), plugin.getKey());
-      }
-      else {
-        LOG.debug("Installing batch extension {}", extension.toString());
-      }
+      logInstallExtension("batch", plugin, extension);
       container.addExtension(plugin, extension);
       installed = true;
     } else {
@@ -202,4 +192,14 @@ public class ExtensionInstaller implements BatchComponent {
     }
     return false;
   }
+
+  private void logInstallExtension(String extensionType, PluginMetadata plugin, Object extension) {
+    if (plugin != null) {
+      LOG.debug("Installing {} extension {} from plugin {}", new String[] {extensionType, extension.toString(), plugin.getKey()});
+    }
+    else {
+      LOG.debug("Installing {} extension {}", extensionType, extension.toString());
+    }
+  }
+
 }
