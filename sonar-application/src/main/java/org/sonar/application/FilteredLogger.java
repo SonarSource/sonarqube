@@ -26,6 +26,10 @@ public class FilteredLogger implements Logger {
   private final String name;
   private final Logger delegate;
 
+  public FilteredLogger() {
+    this(null);
+  }
+
   private FilteredLogger(String name) {
     this.name = name;
     this.delegate = new StdErrLog(name);
