@@ -95,13 +95,12 @@ public class PluginDownloader implements ServerComponent {
 
   private void downloadRelease(Release release) throws URISyntaxException, IOException {
     String url = release.getDownloadUrl();
+    URI uri = new URI(url);
     if (!url.startsWith("file:")) {
-      URI uri = new URI(url);
       String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
       downloader.download(uri, new File(downloadDir, filename));
     } else {
-      String filePath = url.replaceFirst("file:", "");
-      File file = new File(filePath);
+      File file = FileUtils.toFile(uri.toURL());
       FileUtils.copyFileToDirectory(file, downloadDir);
     }
   }
