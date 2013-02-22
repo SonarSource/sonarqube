@@ -367,11 +367,17 @@ function openAccordionItem(url, elt, updateCurrentElement) {
     }
 
     if (updateCurrentElement) {
+      var currentElementOffset = currentElement.offset();
+
       // Fix the height in order to not change the position on the screen
-      var prev = $j("#accordion-panel").height();
+      var prevHeight = $j("#accordion-panel").height();
       currentElement.replaceWith(html);
-      if (prev > $j("#accordion-panel").height()) {
-        $j("#accordion-panel").height(prev);
+      $j("#accordion-panel").height('auto');
+      var newHeight = $j("#accordion-panel").height();
+      if (prevHeight > newHeight) {
+        $j("#accordion-panel").height(prevHeight);
+      } else {
+        $j("#accordion-panel").height(newHeight);
       }
     } else {
       // Add new item add the end of the panel and restore the height param
