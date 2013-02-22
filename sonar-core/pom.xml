@@ -196,11 +196,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <includes>
-                <include>org/sonar/core/persistence/DryRunDatabaseFactoryTest.java</include>
-                <include>org/sonar/core/**/*DaoTest.java</include>
-                <include>org/sonar/core/measure/MeasureFilterExecutorTest.java</include>
-              </includes>
               <systemPropertyVariables>
                 <orchestrator.configUrl>${orchestrator.configUrl}</orchestrator.configUrl>
               </systemPropertyVariables>
