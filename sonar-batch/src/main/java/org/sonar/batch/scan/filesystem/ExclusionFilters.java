@@ -36,6 +36,9 @@ public class ExclusionFilters implements FileSystemFilter, ResourceFilter, Batch
 
   public ExclusionFilters(FileExclusions exclusions) {
     this.exclusionSettings = exclusions;
+  }
+
+  public void start() {
     log("Included sources: ", sourceInclusions());
     log("Excluded sources: ", sourceExclusions());
     log("Included tests: ", testInclusions());

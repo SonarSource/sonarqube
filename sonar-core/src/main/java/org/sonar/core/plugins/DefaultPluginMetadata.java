@@ -233,14 +233,6 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
-  public boolean hasKey() {
-    return StringUtils.isNotBlank(key);
-  }
-
-  public boolean hasMainClass() {
-    return StringUtils.isNotBlank(mainClass);
-  }
-
   public DefaultPluginMetadata setUseChildFirstClassLoader(boolean use) {
     this.useChildFirstClassLoader = use;
     return this;
@@ -275,10 +267,6 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   public DefaultPluginMetadata setImplementationBuild(String implementationBuild) {
     this.implementationBuild = implementationBuild;
     return this;
-  }
-
-  public boolean isOldManifest() {
-    return !hasKey() && hasMainClass();
   }
 
   @Override

@@ -105,7 +105,12 @@ public final class RegisterNewMeasureFilters {
     if (filter.getPageSize() > 0) {
       fields.add("pageSize=" + filter.getPageSize());
     }
+    appendCriteria(filter, fields);
+    appendColumns(filter, fields);
+    return Joiner.on("|").join(fields);
+  }
 
+  private static void appendCriteria(Filter filter, List<String> fields) {
     int metricCriterionId = 1;
     for (Criterion criterion : filter.getCriteria()) {
       if ("qualifier".equals(criterion.getFamily())) {
@@ -132,6 +137,9 @@ public final class RegisterNewMeasureFilters {
         metricCriterionId += 1;
       }
     }
+  }
+
+  private static void appendColumns(Filter filter, List<String> fields) {
     List<String> columnFields = Lists.newArrayList();
     for (FilterColumn column : filter.getColumns()) {
       String columnKey = column.getFamily();
@@ -143,6 +151,5 @@ public final class RegisterNewMeasureFilters {
     if (!columnFields.isEmpty()) {
       fields.add("cols=" + Joiner.on(",").join(columnFields));
     }
-    return Joiner.on("|").join(fields);
   }
 }
