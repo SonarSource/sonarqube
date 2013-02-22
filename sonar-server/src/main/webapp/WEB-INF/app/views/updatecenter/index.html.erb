@@ -85,7 +85,7 @@
           <tr>
             <td colspan="2">
              <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= plugin.getKey() -%>" style="display: inline-block">
-               <input type="submit" value="Uninstall" class="red-button"/>
+               <input type="submit" value="Uninstall" class="red-button" id="uninstall-<%= plugin.getKey() -%>"/>
              </form>
               </td>
             </tr>

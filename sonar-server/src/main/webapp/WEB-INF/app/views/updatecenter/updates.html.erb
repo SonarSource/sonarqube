@@ -31,7 +31,7 @@ function upgradePlugin(key) {
            updates.each_with_index do |update, index|
             release=update.release
        %>
-        <tr class="<%= css -%>">
+        <tr class="<%= css -%>" id="select_<%= plugin.getKey() -%>">
           <td width="1%" nowrap><% if index==0 %><b><%= h(plugin.getName()) -%></b> <%= @installed_plugins[plugin.getKey()] -%> -> <% end %></td>
           <td width="1%" nowrap><b><%= release.getVersion() -%></b></td>
           <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>

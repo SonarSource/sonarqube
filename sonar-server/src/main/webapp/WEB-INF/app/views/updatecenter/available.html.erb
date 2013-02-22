@@ -35,7 +35,7 @@ function installPlugin(key) {
         plugin = update.plugin
         release = update.release
     %>
-      <tr class="<%= cycle('even','odd', :name => category) -%>">
+      <tr class="<%= cycle('even','odd', :name => category) -%>" id="select-<%= plugin.getKey() -%>">
         <td width="150" nowrap>
           <b><a href="#plugin" onClick="showPlugin('<%= plugin.getKey() -%>');"><%= h(plugin.getName()) -%></a></b>
         </td>
