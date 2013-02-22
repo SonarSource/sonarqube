@@ -31,7 +31,7 @@ function upgradePlugin(key) {
            updates.each_with_index do |update, index|
             release=update.release
        %>
-        <tr class="<%= css -%>" id="select_<%= plugin.getKey() -%>">
+        <tr class="<%= css -%>" id="select-<%= plugin.getKey() -%>">
           <td width="1%" nowrap><% if index==0 %><b><%= h(plugin.getName()) -%></b> <%= @installed_plugins[plugin.getKey()] -%> -> <% end %></td>
           <td width="1%" nowrap><b><%= release.getVersion() -%></b></td>
           <td width="1%" nowrap><%= release_date(release.getDate()) if release.getDate() -%></td>
@@ -56,7 +56,7 @@ function upgradePlugin(key) {
             version = @last_compatible[plugin.getKey()]
             dependencies = @updates_by_plugin[plugin].last.dependencies.select {|dependency| dependency.master}
             dependencies.each_with_index do |dependency, index| %>
-           <tr class="<%= css -%>">
+           <tr class="<%= css -%> dep-<%= plugin.getKey() -%>">
              <td> </td>
              <td> </td>
              <% if index == 0 %>
