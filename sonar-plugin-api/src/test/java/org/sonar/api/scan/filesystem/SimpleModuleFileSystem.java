@@ -19,19 +19,11 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import org.apache.commons.io.FileUtils;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.CharEncoding;
-import org.apache.commons.lang.NotImplementedException;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,9 +32,14 @@ import java.util.List;
  */
 public class SimpleModuleFileSystem implements ModuleFileSystem {
   private File baseDir;
+  private File buildDir;
+  private List<File> sourceDirs = Lists.newArrayList();
+  private List<File> testDirs = Lists.newArrayList();
+  private List<File> binaryDirs = Lists.newArrayList();
 
   public SimpleModuleFileSystem(File baseDir) {
     this.baseDir = baseDir;
+    this.buildDir = new File(baseDir, "build");
   }
 
   public File baseDir() {
@@ -50,19 +47,34 @@ public class SimpleModuleFileSystem implements ModuleFileSystem {
   }
 
   public File buildDir() {
-    return new File(baseDir, "build");
+    return buildDir;
   }
 
   public List<File> sourceDirs() {
-    return Arrays.asList(new File(baseDir, "src"));
+    return sourceDirs;
   }
 
   public List<File> testDirs() {
-    return Arrays.asList(new File(baseDir, "test"));
+    return testDirs;
   }
 
   public List<File> binaryDirs() {
-    return Arrays.asList(new File(baseDir, "binary"));
+    return binaryDirs;
+  }
+
+  public SimpleModuleFileSystem addSourceDir(File d) {
+    sourceDirs.add(d);
+    return this;
+  }
+
+  public SimpleModuleFileSystem addTestDir(File d) {
+    testDirs.add(d);
+    return this;
+  }
+
+  public SimpleModuleFileSystem addBinaryDir(File d) {
+    binaryDirs.add(d);
+    return this;
   }
 
   public List<File> files(FileQuery query) {
