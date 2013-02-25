@@ -20,6 +20,7 @@
 package org.sonar.core.persistence;
 
 import org.junit.Test;
+import org.sonar.core.persistence.dialect.Oracle;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -53,7 +54,11 @@ public class DatabaseUtilsTest extends AbstractDaoTestCase {
   public void should_close_statement_and_resultset() throws SQLException {
     Connection connection = getConnection();
     try {
-      PreparedStatement statement = connection.prepareStatement("SELECT 1");
+      String sql = "SELECT 1";
+      if (Oracle.ID.equals(getDatabase().getDialect().getId())) {
+        sql = "SELECT 1 FROM DUAL";
+      }
+      PreparedStatement statement = connection.prepareStatement(sql);
       ResultSet rs = statement.executeQuery();
 
       DatabaseUtils.closeQuietly(rs);
