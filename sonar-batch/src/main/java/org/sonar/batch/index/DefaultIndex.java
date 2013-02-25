@@ -44,6 +44,8 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.violations.ViolationQuery;
@@ -70,6 +72,7 @@ public class DefaultIndex extends SonarIndex {
   private PersistenceManager persistence;
   private DefaultResourceCreationLock lock;
   private MetricFinder metricFinder;
+  private RuleFinder ruleFinder;
   private ScanGraph graph;
 
   // filters
@@ -84,11 +87,12 @@ public class DefaultIndex extends SonarIndex {
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newHashMap();
   private ProjectTree projectTree;
 
-  public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder, ScanGraph graph) {
+  public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder, RuleFinder ruleFinder, ScanGraph graph) {
     this.persistence = persistence;
     this.lock = lock;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
+    this.ruleFinder = ruleFinder;
     this.graph = graph;
   }
 
@@ -352,9 +356,19 @@ public class DefaultIndex extends SonarIndex {
       throw new IllegalArgumentException("Violations are only supported on files, directories and project");
     }
 
-    if (violation.getRule() == null || violation.getRule().getId() == null) {
-      LOG.warn("Rule does not exist (it is null or its ID is null): ignoring violation {}", violation);
+    Rule rule = violation.getRule();
+    if (rule == null) {
+      LOG.warn("Rule is null. Ignoring violation {}", violation);
       return;
+    }
+
+    if (rule.getId()==null) {
+      Rule persistedRule = ruleFinder.findByKey(rule.getRepositoryKey(), rule.getKey());
+      if (persistedRule == null) {
+        LOG.warn("Rule does not exist. Ignoring violation {}", violation);
+        return;
+      }
+      violation.setRule(persistedRule);
     }
 
     Bucket bucket = checkIndexed(resource);

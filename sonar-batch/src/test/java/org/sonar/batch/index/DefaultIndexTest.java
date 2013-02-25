@@ -19,13 +19,8 @@
  */
 package org.sonar.batch.index;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.apache.commons.lang.StringUtils;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.ResourceFilter;
@@ -45,6 +40,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.violations.ViolationQuery;
@@ -54,19 +50,29 @@ import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
 import org.sonar.core.component.ScanGraph;
 
+import java.util.List;
+
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class DefaultIndexTest {
 
   private DefaultIndex index = null;
   private DefaultResourceCreationLock lock;
   private Rule rule;
+  private RuleFinder ruleFinder;
 
   @Before
   public void createIndex() {
     lock = new DefaultResourceCreationLock(new Settings());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
+    ruleFinder = mock(RuleFinder.class);
 
-    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, mock(ScanGraph.class));
+    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, ruleFinder, mock(ScanGraph.class));
     Project project = new Project("project");
 
     ResourceFilter filter = new ResourceFilter() {
@@ -79,7 +85,7 @@ public class DefaultIndexTest {
     rule = Rule.create("repoKey", "ruleKey", "Rule");
     rule.setId(1);
     rulesProfile.activateRule(rule, null);
-    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[] {filter}), new ViolationFilters(), rulesProfile);
+    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[]{filter}), new ViolationFilters(), rulesProfile);
     index.doStart(project);
   }
 
@@ -207,7 +213,26 @@ public class DefaultIndexTest {
    * See https://jira.codehaus.org/browse/SONAR-3583
    */
   @Test
-  public void shouldNotFailWhenSavingViolationOnRuleThatDoesNotExistInDB() {
+  public void should_support_violations_with_missing_rule_id() {
+    Rule ruleWithoutId = Rule.create("repoKey", "ruleKey", "Rule");
+    Rule ruleWithId = Rule.create("repoKey", "ruleKey", "Rule");
+    ruleWithId.setId(123);
+    when(ruleFinder.findByKey("repoKey", "ruleKey")).thenReturn(ruleWithId);
+
+    File file = new File("org/foo/Bar.java");
+    Violation violation = Violation.create(ruleWithoutId, file);
+    index.addViolation(violation);
+
+    List<Violation> violations = index.getViolations(file);
+    assertThat(violations.size(), is(1));
+    assertThat(violations.get(0).getRule().getId(), Matchers.is(123));
+  }
+
+  /**
+   * See https://jira.codehaus.org/browse/SONAR-3583
+   */
+  @Test
+  public void should_ignore_violation_on_unknown_rules() {
     Rule ruleWithoutID = Rule.create("repoKey", "ruleKey", "Rule");
 
     File file = new File("org/foo/Bar.java");
