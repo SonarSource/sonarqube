@@ -35,6 +35,7 @@ import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.core.i18n.RuleI18nManager;
 
@@ -144,6 +145,6 @@ public class DryRunExporter implements BatchComponent {
 
   @VisibleForTesting
   List<Violation> getViolations(Resource resource) {
-    return sonarIndex.getViolations(resource);
+    return sonarIndex.getViolations(ViolationQuery.create().setSwitchMode(ViolationQuery.SwitchMode.BOTH).forResource(resource));
   }
 }
