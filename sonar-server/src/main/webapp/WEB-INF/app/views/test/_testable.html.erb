@@ -9,7 +9,7 @@
       <p style="padding: 0 0 2px 5px">
         <% resource_key = test_plan.component.key %>
         <a href="<%= ApplicationController.root_context -%>/resource/index/<%= h resource_key -%>?display_title=true&tab=source"
-           onclick="openAccordionItem(this.href, this); return false;"><%= h test_plan.component.longName %>
+           class="testable-testplan-link" onclick="openAccordionItem(this.href, this); return false;"><%= h test_plan.component.longName %>
         </a>
       </p>
       <table class="data marginbottom10">
@@ -18,7 +18,7 @@
           <td colspan="3"></td>
         </tr>
         </thead>
-        <tbody>
+        <tbody class="testable-body">
         <% reset_cycle %>
         <% test_cases.sort_by { |test_case| test_case.name }.each do |test_case| %>
           <tr class="<%= cycle('even', 'odd') -%>">
@@ -28,7 +28,7 @@
             <td class="thin right" nowrap><%= test_case.durationInMs -%> ms</td>
             <td>
               <a href="<%= ApplicationController.root_context -%>/test/testcase/<%= h resource_key -%>?test=<%= test_case.name -%>"
-                 onclick="openAccordionItem(this.href, this); return false;"><%= h test_case.name -%>
+                 class="testable-testcase-link" onclick="openAccordionItem(this.href, this); return false;"><%= h test_case.name -%>
               </a>
             </td>
           </tr>

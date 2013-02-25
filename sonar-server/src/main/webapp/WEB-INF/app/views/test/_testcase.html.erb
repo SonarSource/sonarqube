@@ -8,20 +8,20 @@
   </div>
   <div class="accordion-item-body">
     <table class="data">
-      <thead>
+      <thead class="testcase-head">
       <tr>
         <th class="thin" nowrap><%= message('test_viewer.covered_lines') %></th>
         <th><%= message('file') %></th>
       </tr>
       </thead>
-      <tbody>
+      <tbody class="testcase-body">
       <% @test_case.coverageBlocks.sort_by { |cover| cover.testable.component.name }.each do |cover|
       %>
         <tr class="<%= cycle("even", "odd") -%>">
           <td class="right"><%= cover.lines.size -%></td>
           <td>
             <a href="<%= ApplicationController.root_context -%>/resource/index/<%= h cover.testable.component.key -%>?display_title=true&tab=coverage&coverage_filter=lines_covered_per_test&test_case_filter=<%= @test -%>"
-               onclick="openAccordionItem(this.href, this); return false;"><%= h cover.testable.component.longName -%>
+               class="testcase-testable-link" onclick="openAccordionItem(this.href, this); return false;"><%= h cover.testable.component.longName -%>
             </a>
           </td>
         </tr>

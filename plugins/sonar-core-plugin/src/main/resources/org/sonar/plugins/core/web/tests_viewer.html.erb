@@ -74,7 +74,7 @@
 %>
 <% if !test_cases.empty? %>
   <table class="data width100 tests_viewer" id="test_data">
-    <thead>
+    <thead class="tests-viewer-head">
     <tr>
       <th class="thin">&nbsp;</th>
       <th class="thin right"><%= message('test_viewer.duration') -%></th>
@@ -84,7 +84,7 @@
       <th><%= message('test_viewer.unit_test_name') -%></th>
     </tr>
     </thead>
-    <tbody>
+    <tbody class="tests-viewer-body">
 
     <%
        test_cases.each_with_index do |test_case, index|
@@ -95,8 +95,9 @@
         </td>
         <td id="test_time_<%= index -%>" class="thin right" nowrap><%= test_case[:time] -%> ms</td>
         <% if has_covered_lines %>
-          <td id="test_covered_lines_<%= index -%>" class="thin right" nowrap>
-            <a id="test_covered_lines_link_<%= index -%>" href="<%= ApplicationController.root_context -%>/test/testcase/<%= h @snapshot.resource.key -%>?test=<%= test_case[:name] -%>"
+          <td id="test_covered_lines_<%= index -%>" class="test-covered-lines-<%= index -%>" class="thin right" nowrap>
+            <a id="test_covered_lines_link_<%= index -%>" class="test-overed-lines-link-<%= index -%>"
+               href="<%= ApplicationController.root_context -%>/test/testcase/<%= h @snapshot.resource.key -%>?test=<%= test_case[:name] -%>"
                onclick="openAccordionItem(this.href, this); return false;"><%= number_with_precision(test_case[:covered_lines], :precision => 0) -%>
             </a>
           </td>

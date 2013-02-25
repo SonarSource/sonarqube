@@ -387,8 +387,7 @@ function openAccordionItem(url, elt, updateCurrentElement) {
       // Set the focus on the top of the current item with animation
       if (currentElement.length) {
         $j('html, body').animate({
-          scrollTop: currentElement.offset().top},
-            500
+          scrollTop: currentElement.offset().top}, 500
         );
       }
     }
