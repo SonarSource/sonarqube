@@ -54,11 +54,7 @@ public class DatabaseUtilsTest extends AbstractDaoTestCase {
   public void should_close_statement_and_resultset() throws SQLException {
     Connection connection = getConnection();
     try {
-      String sql = "SELECT 1";
-      if (Oracle.ID.equals(getDatabase().getDialect().getId())) {
-        sql = "SELECT 1 FROM DUAL";
-      }
-      PreparedStatement statement = connection.prepareStatement(sql);
+      PreparedStatement statement = connection.prepareStatement(selectDual());
       ResultSet rs = statement.executeQuery();
 
       DatabaseUtils.closeQuietly(rs);
@@ -109,7 +105,7 @@ public class DatabaseUtilsTest extends AbstractDaoTestCase {
    */
   private boolean isClosed(Connection c) {
     try {
-      c.createStatement().execute("SELECT 1");
+      c.createStatement().execute(selectDual());
       return false;
     } catch (Exception e) {
       return true;
@@ -138,5 +134,13 @@ public class DatabaseUtilsTest extends AbstractDaoTestCase {
     } catch (Exception e) {
       return true;
     }
+  }
+
+  private String selectDual() {
+    String sql = "SELECT 1";
+    if (Oracle.ID.equals(getDatabase().getDialect().getId())) {
+      sql = "SELECT 1 FROM DUAL";
+    }
+    return sql;
   }
 }
