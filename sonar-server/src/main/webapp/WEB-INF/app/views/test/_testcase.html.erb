@@ -15,7 +15,7 @@
       </tr>
       </thead>
       <tbody class="testcase-body">
-      <% @test_case.coverageBlocks.sort_by { |cover| cover.testable.component.name }.each do |cover|
+      <% @test_case.coverageBlocks.sort_by { |cover| cover.testable.component.longName }.each do |cover|
       %>
         <tr class="<%= cycle("even", "odd") -%>">
           <td class="right"><%= cover.lines.size -%></td>
