@@ -21,7 +21,6 @@ package org.sonar.api.notifications;
 
 import com.google.common.collect.Maps;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.SonarPlugin;
 
 import java.util.Map;
 

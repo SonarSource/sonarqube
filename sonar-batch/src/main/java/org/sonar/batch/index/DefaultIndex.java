@@ -87,7 +87,8 @@ public class DefaultIndex extends SonarIndex {
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newHashMap();
   private ProjectTree projectTree;
 
-  public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder, RuleFinder ruleFinder, ScanGraph graph) {
+  public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder,
+                      RuleFinder ruleFinder, ScanGraph graph) {
     this.persistence = persistence;
     this.lock = lock;
     this.projectTree = projectTree;
