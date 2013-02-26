@@ -323,7 +323,6 @@ function supports_html5_storage() {
 //******************* HANDLING OF WORKING VIEWS [BEGIN] ******************* //
 
 function openAccordionItem(url, elt, updateCurrentElement) {
-
   var htmlClass = 'accordion-item';
   var currentElement = $j(elt).closest('.'+ htmlClass);
 
@@ -367,11 +366,9 @@ function openAccordionItem(url, elt, updateCurrentElement) {
     }
 
     if (updateCurrentElement) {
-      var currentElementOffset = currentElement.offset();
-
       // Fix the height in order to not change the position on the screen
       var prevHeight = $j("#accordion-panel").height();
-      currentElement.replaceWith(html);
+      currentElement.html(html);
       $j("#accordion-panel").height('auto');
       var newHeight = $j("#accordion-panel").height();
       if (prevHeight > newHeight) {
@@ -381,7 +378,11 @@ function openAccordionItem(url, elt, updateCurrentElement) {
       }
     } else {
       // Add new item add the end of the panel and restore the height param
-      $j("#accordion-panel").append(html);
+      var nbElement = $j("."+htmlClass).size();
+      var newElement = $j('<div id="'+ htmlClass + nbElement +'" class="'+ htmlClass +'">');
+      newElement.html(html);
+
+      $j("#accordion-panel").append(newElement);
       $j("#accordion-panel").height('auto');
 
       // Set the focus on the top of the current item with animation

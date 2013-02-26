@@ -404,6 +404,11 @@ h1 img, .h1 img, h2 img, .h2 img, h3 img, .h3 img, h4 img, .h4 img {
   color: #fff;
 }
 
+table.data {
+  /* Fix an issue on Google Chrome to prevent the horizontal scroll to appear */
+  border-collapse : separate;
+}
+
 table.data > thead > tr > th {
   font-size: 93%;
   padding: 4px 7px 4px 3px;
@@ -803,7 +808,7 @@ span.rulename a:hover {
   border-width: 1px 0;
   border-style: solid;
   border-color: #EEE #DDD;
-  height: 40px;
+  height: 30px;
   background: url('../images/gray-stripes.png');
 }
 
@@ -2387,4 +2392,5 @@ textarea.width100 {
   max-height: 200px;
   overflow: auto;
 }
+
 
