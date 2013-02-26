@@ -70,7 +70,7 @@
          value=(@period ? blocker_violations.variation(@period) : blocker_violations.value)
          if value && value>0
     %>
-        <option value="<%= Sonar::RulePriority::BLOCKER.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::BLOCKER.to_s -%>><%= message('severity.BLOCKER') -%>
+        <option value="<%= Sonar::RulePriority::BLOCKER.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::BLOCKER.to_s -%>><%= message('severity.BLOCKER') %>
           (<%= blocker_violations.format_numeric_value(value) -%>)
         </option>
       <% end
@@ -80,7 +80,7 @@
          value=(@period ? critical_violations.variation(@period) : critical_violations.value)
          if value && value>0
     %>
-        <option value="<%= Sonar::RulePriority::CRITICAL.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::CRITICAL.to_s -%>><%= message('severity.CRITICAL') -%>
+        <option value="<%= Sonar::RulePriority::CRITICAL.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::CRITICAL.to_s -%>><%= message('severity.CRITICAL') %>
           (<%= critical_violations.format_numeric_value(value) -%>)
         </option>
       <% end
@@ -91,7 +91,7 @@
          value=(@period ? major_violations.variation(@period) : major_violations.value)
          if value && value>0
     %>
-        <option value="<%= Sonar::RulePriority::MAJOR.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::MAJOR.to_s -%>><%= message('severity.MAJOR') -%>
+        <option value="<%= Sonar::RulePriority::MAJOR.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::MAJOR.to_s -%>><%= message('severity.MAJOR') %>
           (<%= major_violations.format_numeric_value(value) -%>)
         </option>
       <% end
@@ -102,7 +102,7 @@
          value=(@period ? minor_violations.variation(@period) : minor_violations.value)
          if value && value>0
     %>
-        <option value="<%= Sonar::RulePriority::MINOR.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::MINOR.to_s -%>><%= message('severity.MINOR') -%>
+        <option value="<%= Sonar::RulePriority::MINOR.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::MINOR.to_s -%>><%= message('severity.MINOR') %>
           (<%= minor_violations.format_numeric_value(value) -%>)
         </option>
       <% end
@@ -113,7 +113,7 @@
          value=(@period ? info_violations.variation(@period) : info_violations.value)
          if value && value>0
     %>
-        <option value="<%= Sonar::RulePriority::INFO.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::INFO.to_s -%>><%= message('severity.INFO') -%>
+        <option value="<%= Sonar::RulePriority::INFO.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::INFO.to_s -%>><%= message('severity.INFO') %>
           (<%= info_violations.format_numeric_value(value) -%>)
         </option>
       <% end
