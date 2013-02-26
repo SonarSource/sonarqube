@@ -22,9 +22,8 @@ package org.sonar.api.measures;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.task.TaskExtension;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,8 +41,7 @@ import javax.persistence.Transient;
  */
 @Table(name = "metrics")
 @Entity(name = "Metric")
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class Metric implements ServerExtension, BatchExtension {
+public class Metric implements ServerExtension, TaskExtension {
 
   /**
    * A metric bigger value means a degradation

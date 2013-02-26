@@ -44,7 +44,7 @@ public class TaskBootstrapContainerTest {
       }
     };
     bootstrapModule.init();
-    TaskBootstrapContainer module = new TaskBootstrapContainer("inspect");
+    TaskBootstrapContainer module = new TaskBootstrapContainer("inspect", null);
     bootstrapModule.installChild(module);
 
     thrown.expect(SonarException.class);

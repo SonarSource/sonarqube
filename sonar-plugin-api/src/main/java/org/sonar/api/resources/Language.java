@@ -19,15 +19,15 @@
  */
 package org.sonar.api.resources;
 
-import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
+import org.sonar.api.task.TaskExtension;
 
 /**
  * The extension point to define a new language
  *
  * @since 1.10
  */
-public interface Language extends BatchExtension, ServerExtension {
+public interface Language extends TaskExtension, ServerExtension {
 
   /**
    * For example "java". Should not be more than 20 chars.

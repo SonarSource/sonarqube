@@ -1,0 +1,111 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2012 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.batch.bootstrap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.task.Task;
+import org.sonar.api.task.TaskDefinition;
+import org.sonar.api.utils.SonarException;
+import org.sonar.batch.DefaultFileLinesContextFactory;
+import org.sonar.batch.ProjectConfigurator;
+import org.sonar.batch.ProjectTree;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.scan.ScanTask;
+import org.sonar.core.component.ScanGraph;
+import org.sonar.core.component.ScanGraphStore;
+import org.sonar.core.component.ScanPerspectives;
+import org.sonar.core.test.TestPlanBuilder;
+import org.sonar.core.test.TestableBuilder;
+
+/**
+ * Level-4 components. Task-level components that depends on project.
+ */
+public class ProjectTaskContainer extends Container {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectTaskContainer.class);
+
+  private TaskDefinition taskDefinition;
+
+  private ProjectReactor reactor;
+
+  public ProjectTaskContainer(TaskDefinition task, ProjectReactor reactor) {
+    this.taskDefinition = task;
+    this.reactor = reactor;
+  }
+
+  @Override
+  protected void configure() {
+    container.addSingleton(reactor);
+    registerCoreProjectTasks();
+    registerCoreComponentsRequiringProject();
+    registerProjectTaskExtensions();
+  }
+
+  private void registerCoreProjectTasks() {
+    container.addSingleton(ScanTask.class);
+  }
+
+  private void registerProjectTaskExtensions() {
+    ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
+    installer.installTaskExtensions(container, true);
+  }
+
+  /**
+   * Used by views plugin to emulate a project
+   */
+  private void registerCoreComponentsRequiringProject() {
+    container.addSingleton(ProjectExclusions.class);
+    container.addSingleton(ProjectReactorReady.class);
+    container.addSingleton(ProjectTree.class);
+    container.addSingleton(ProjectConfigurator.class);
+    container.addSingleton(DefaultIndex.class);
+    container.addSingleton(DefaultFileLinesContextFactory.class);
+    container.addSingleton(ProjectLock.class);
+    container.addSingleton(DryRunDatabase.class);
+
+    // graphs
+    container.addSingleton(ScanGraph.create());
+    container.addSingleton(TestPlanBuilder.class);
+    container.addSingleton(TestableBuilder.class);
+    container.addSingleton(ScanPerspectives.class);
+    container.addSingleton(ScanGraphStore.class);
+  }
+
+  private void logSettings() {
+    LOG.info("-------------  Executing {}", taskDefinition.getName());
+  }
+
+  /**
+   * Execute task
+   */
+  @Override
+  protected void doStart() {
+    Task task = container.getComponentByType(taskDefinition.getTask());
+    if (task != null) {
+      logSettings();
+      task.execute();
+    } else {
+      throw new SonarException("Extension " + taskDefinition.getTask() + " was not found in declared extensions.");
+    }
+  }
+
+}

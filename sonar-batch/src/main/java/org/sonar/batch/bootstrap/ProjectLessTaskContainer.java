@@ -21,15 +21,14 @@ package org.sonar.batch.bootstrap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
-import org.sonar.batch.ProjectConfigurator;
-import org.sonar.batch.ProjectTree;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.components.PastSnapshotFinderByDate;
@@ -37,7 +36,6 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultPersistenceManager;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.index.DependencyPersister;
@@ -46,11 +44,7 @@ import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.MemoryOptimizer;
 import org.sonar.batch.index.SourcePersister;
-import org.sonar.batch.scan.ScanTask;
 import org.sonar.batch.tasks.ListTasksTask;
-import org.sonar.core.component.ScanGraph;
-import org.sonar.core.component.ScanGraphStore;
-import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.CacheMetricFinder;
@@ -60,40 +54,38 @@ import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.SemaphoreUpdater;
 import org.sonar.core.persistence.SemaphoresImpl;
+import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.CacheRuleFinder;
-import org.sonar.core.test.TestPlanBuilder;
-import org.sonar.core.test.TestableBuilder;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 
+import javax.annotation.Nullable;
+
 /**
  * Level-3 components. Task-level components that don't depends on project.
  */
-public class TaskContainer extends Container {
+public class ProjectLessTaskContainer extends Container {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TaskContainer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectLessTaskContainer.class);
 
   private TaskDefinition taskDefinition;
-  private boolean projectPresent;
 
-  public TaskContainer(TaskDefinition task, boolean projectPresent) {
+  private ProjectReactor reactor;
+
+  public ProjectLessTaskContainer(TaskDefinition task, @Nullable ProjectReactor reactor) {
     this.taskDefinition = task;
-    this.projectPresent = projectPresent;
+    this.reactor = reactor;
   }
 
   @Override
   protected void configure() {
-    logSettings();
     registerCoreComponents();
     registerDatabaseComponents();
-    registerCoreTasks();
-    if (projectPresent) {
-      registerCoreComponentsRequiringProject();
-    }
-    registerTaskExtensions();
+    registerCoreProjectLessTasks();
+    registerProjectLessTaskExtensions();
   }
 
   private void registerCoreComponents() {
@@ -114,6 +106,21 @@ public class TaskContainer extends Container {
     container.addSingleton(PastSnapshotFinderByPreviousVersion.class);
     container.addSingleton(PastMeasuresLoader.class);
     container.addSingleton(PastSnapshotFinder.class);
+    container.addSingleton(Languages.class);
+    container.addSingleton(DefaultModelFinder.class);
+    container.addSingleton(MetricProvider.class);
+    container.addSingleton(DefaultResourceCreationLock.class);
+    container.addSingleton(DefaultPersistenceManager.class);
+    container.addSingleton(DependencyPersister.class);
+    container.addSingleton(EventPersister.class);
+    container.addSingleton(LinkPersister.class);
+    container.addSingleton(MeasurePersister.class);
+    container.addSingleton(MemoryOptimizer.class);
+    container.addSingleton(DefaultResourcePermissions.class);
+    container.addSingleton(DefaultResourcePersister.class);
+    container.addSingleton(SourcePersister.class);
+    container.addSingleton(DefaultNotificationManager.class);
+
   }
 
   private void registerDatabaseComponents() {
@@ -132,46 +139,13 @@ public class TaskContainer extends Container {
     container.addSingleton(BatchDatabaseSessionFactory.class);
   }
 
-  private void registerCoreTasks() {
+  private void registerCoreProjectLessTasks() {
     container.addSingleton(ListTasksTask.class);
-    if (projectPresent) {
-      container.addSingleton(ScanTask.class);
-    }
   }
 
-  private void registerTaskExtensions() {
+  private void registerProjectLessTaskExtensions() {
     ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
-    installer.installTaskExtensions(container, projectPresent);
-  }
-
-  private void registerCoreComponentsRequiringProject() {
-    container.addSingleton(DefaultResourceCreationLock.class);
-    container.addSingleton(DefaultPersistenceManager.class);
-    container.addSingleton(DependencyPersister.class);
-    container.addSingleton(EventPersister.class);
-    container.addSingleton(LinkPersister.class);
-    container.addSingleton(MeasurePersister.class);
-    container.addSingleton(MemoryOptimizer.class);
-    container.addSingleton(DefaultResourcePermissions.class);
-    container.addSingleton(DefaultResourcePersister.class);
-    container.addSingleton(SourcePersister.class);
-    container.addSingleton(DefaultNotificationManager.class);
-    container.addSingleton(MetricProvider.class);
-    container.addSingleton(ProjectExclusions.class);
-    container.addSingleton(ProjectReactorReady.class);
-    container.addSingleton(ProjectTree.class);
-    container.addSingleton(ProjectConfigurator.class);
-    container.addSingleton(DefaultIndex.class);
-    container.addSingleton(DefaultFileLinesContextFactory.class);
-    container.addSingleton(ProjectLock.class);
-    container.addSingleton(DryRunDatabase.class);
-
-    // graphs
-    container.addSingleton(ScanGraph.create());
-    container.addSingleton(TestPlanBuilder.class);
-    container.addSingleton(TestableBuilder.class);
-    container.addSingleton(ScanPerspectives.class);
-    container.addSingleton(ScanGraphStore.class);
+    installer.installTaskExtensions(container, false);
   }
 
   private void logSettings() {
@@ -183,11 +157,29 @@ public class TaskContainer extends Container {
    */
   @Override
   protected void doStart() {
-    Task task = container.getComponentByType(taskDefinition.getTask());
-    if (task != null) {
-      task.execute();
-    } else {
-      throw new SonarException("Extension " + taskDefinition.getTask() + " was not found in declared extensions.");
+    boolean projectPresent = (reactor != null);
+    if (ExtensionUtils.requiresProject(taskDefinition.getTask())) {
+      if (!projectPresent) {
+        throw new SonarException("Task '" + taskDefinition.getName() + "' requires to be run on a project");
+      }
+      // Create a new child container to put project specific components
+      Container childModule = new ProjectTaskContainer(taskDefinition, reactor);
+      try {
+        installChild(childModule);
+        childModule.start();
+      } finally {
+        childModule.stop();
+        uninstallChild();
+      }
+    }
+    else {
+      Task task = container.getComponentByType(taskDefinition.getTask());
+      if (task != null) {
+        logSettings();
+        task.execute();
+      } else {
+        throw new SonarException("Extension " + taskDefinition.getTask() + " was not found in declared extensions.");
+      }
     }
   }
 

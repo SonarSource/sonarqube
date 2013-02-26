@@ -58,9 +58,6 @@ public class BootstrapContainer extends Container {
   @Override
   protected void configure() {
     container.addSingleton(globalProperties);
-    if (reactor != null) {
-      container.addSingleton(reactor);
-    }
     container.addSingleton(new PropertiesConfiguration());
     container.addSingleton(BootstrapSettings.class);
     container.addSingleton(ServerClient.class);
@@ -98,7 +95,13 @@ public class BootstrapContainer extends Container {
 
   @Override
   protected void doStart() {
-    Container taskBootstrap = installChild(new TaskBootstrapContainer(taskCommand));
-    taskBootstrap.start();
+    Container childModule = new TaskBootstrapContainer(taskCommand, reactor);
+    try {
+      installChild(childModule);
+      childModule.start();
+    } finally {
+      childModule.stop();
+      uninstallChild();
+    }
   }
 }

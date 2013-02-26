@@ -21,8 +21,8 @@ package org.sonar.api.resources;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.task.TaskComponent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,10 +31,10 @@ import java.util.Map;
 
 /**
  * A class to store the list of languages
- * 
+ *
  * @since 1.10
  */
-public class Languages implements BatchComponent, ServerComponent {
+public class Languages implements TaskComponent, ServerComponent {
 
   private final Map<String, Language> map = Maps.newHashMap();
 

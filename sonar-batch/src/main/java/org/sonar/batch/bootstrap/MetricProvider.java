@@ -21,17 +21,15 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.api.task.TaskExtension;
 
 import java.util.List;
 
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class MetricProvider extends ExtensionProvider implements BatchExtension {
+public class MetricProvider extends ExtensionProvider implements TaskExtension {
 
   private Metrics[] factories;
 
