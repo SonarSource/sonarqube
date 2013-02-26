@@ -65,7 +65,7 @@ class MeasuresController < ApplicationController
     else
       @filter = MeasureFilter.new
     end
-    @filter.criteria=(criteria_params)
+    @filter.criteria=criteria_params_without_page_id
     @filter.convert_criteria_to_data
     render :partial => 'measures/save_as_form'
   end
@@ -102,7 +102,7 @@ class MeasuresController < ApplicationController
     access_denied unless logged_in?
 
     @filter = find_filter(params[:id])
-    @filter.criteria=criteria_params
+    @filter.criteria=criteria_params_without_page_id
     @filter.convert_criteria_to_data
     unless @filter.save
       flash[:error]='Error'
@@ -220,7 +220,13 @@ class MeasuresController < ApplicationController
     filter
   end
 
+  def criteria_params_without_page_id
+    params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})
+    params.delete(:page)
+    params
+  end
+
   def criteria_params
-    params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil, :page => nil})
+    params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})
   end
 end
