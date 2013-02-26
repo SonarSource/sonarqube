@@ -14,25 +14,26 @@ complexity=measure('complexity')
          <h3><%= message('widget.complexity.name') -%></h3>
          <% if function_complexity %>
            <p>
-             <span class="big"><%= format_measure(function_complexity, :suffix => '', :url => url_for_drilldown(function_complexity)) %></span><%= message('widget.complexity.per_method.suffix') -%>
-             <%= dashboard_configuration.selected_period? ? format_variation(function_complexity) : trend_icon(function_complexity) -%>
+             <span class="big"><%= format_measure(function_complexity, :suffix => '', :url => url_for_drilldown(function_complexity)) %></span><%= message('widget.complexity.per_method.suffix') %>
+             <%= dashboard_configuration.selected_period? ? format_variation(function_complexity) : trend_icon(function_complexity) %>
            </p>
          <% end %>
          <% if class_complexity %>
            <p>
-             <span class="big"><%= format_measure(class_complexity, :suffix => '', :url => url_for_drilldown(class_complexity)) %></span></span><%= message('widget.complexity.per_class.suffix') -%>
-             <%= dashboard_configuration.selected_period? ? format_variation(class_complexity) : trend_icon(class_complexity) -%>
+             <span class="big"><%= format_measure(class_complexity, :suffix => '', :url => url_for_drilldown(class_complexity)) %></span></span><%= message('widget.complexity.per_class.suffix') %>
+             <%= dashboard_configuration.selected_period? ? format_variation(class_complexity) : trend_icon(class_complexity) %>
            </p>
          <% end %>
          <% if file_complexity %>
            <p>
-              <span class="big"><%= format_measure(file_complexity, :suffix => '', :url => url_for_drilldown(file_complexity)) %></span></span><%= message('widget.complexity.per_file.suffix') -%>
-              <%= dashboard_configuration.selected_period? ? format_variation(file_complexity) : trend_icon(file_complexity) -%>
+              <span class="big"><%= format_measure(file_complexity, :suffix => '', :url => url_for_drilldown(file_complexity)) %></span></span><%= message('widget.complexity.per_file.suffix') %>
+              <%= dashboard_configuration.selected_period? ? format_variation(file_complexity) : trend_icon(file_complexity) %>
            </p>
          <% end %>
          <% if complexity %>
          <p>
-           <%= message('widget.complexity.total') -%>: <%= format_measure(complexity, :url => url_for_drilldown(complexity)) -%> <%= dashboard_configuration.selected_period? ? format_variation(complexity) : trend_icon(complexity) -%>
+           <%= message('widget.complexity.total') -%>: <%= format_measure(complexity, :url => url_for_drilldown(complexity)) %>
+           <%= dashboard_configuration.selected_period? ? format_variation(complexity) : trend_icon(complexity) %>
          </p>
          <% end %>
         </div>
