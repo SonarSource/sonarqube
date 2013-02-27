@@ -24,12 +24,11 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import static org.fest.assertions.Assertions.assertThat;
-
 
 public class BootstrapContainerTest {
 
@@ -59,7 +58,6 @@ public class BootstrapContainerTest {
 
     assertThat(module.container).isNotNull();
     assertThat(module.container.getComponentByType(FakeComponent.class)).isNotNull();
-    assertThat(module.container.getComponentByType(ProjectReactor.class)).isSameAs(reactor);
   }
 
   @Test
@@ -68,7 +66,6 @@ public class BootstrapContainerTest {
     module.init();
 
     assertThat(module.container).isNotNull();
-    assertThat(module.container.getComponentByType(ProjectReactor.class)).isSameAs(reactor);
   }
 
   public static class FakeComponent {
@@ -79,7 +76,7 @@ public class BootstrapContainerTest {
     public void execute(Project project, DefaultModuleFileSystem fs, String goal) {
     }
 
-    public MavenPluginHandler execute(Project project, DefaultModuleFileSystem  fs, MavenPluginHandler handler) {
+    public MavenPluginHandler execute(Project project, DefaultModuleFileSystem fs, MavenPluginHandler handler) {
       return handler;
     }
   }
