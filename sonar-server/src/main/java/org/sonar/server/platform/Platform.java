@@ -210,6 +210,7 @@ public final class Platform {
     coreContainer.addSingleton(ServerExtensionInstaller.class);
     coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.addPicoAdapter(new DatabaseSessionProvider());
+    coreContainer.addSingleton(ServerMetadataPersister.class);
     coreContainer.startComponents();
   }
 
@@ -287,7 +288,6 @@ public final class Platform {
     startupContainer.addSingleton(RegisterRules.class);
     startupContainer.addSingleton(RegisterNewProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);
-    startupContainer.addSingleton(ServerMetadataPersister.class);
     startupContainer.addSingleton(RegisterQualityModels.class);
     startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);
