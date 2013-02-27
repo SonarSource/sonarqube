@@ -17,11 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -88,6 +90,7 @@ public abstract class ModuleContainer extends Container {
 
     container.addSingleton(RulesDao.class);
     container.addSingleton(LastSnapshots.class);
+    container.addSingleton(Languages.class);
 
     // file system
     container.addSingleton(PathResolver.class);

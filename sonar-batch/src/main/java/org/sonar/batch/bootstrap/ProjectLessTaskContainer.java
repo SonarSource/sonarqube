@@ -17,13 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.batch.bootstrap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
@@ -106,7 +106,6 @@ public class ProjectLessTaskContainer extends Container {
     container.addSingleton(PastSnapshotFinderByPreviousVersion.class);
     container.addSingleton(PastMeasuresLoader.class);
     container.addSingleton(PastSnapshotFinder.class);
-    container.addSingleton(Languages.class);
     container.addSingleton(DefaultModelFinder.class);
     container.addSingleton(MetricProvider.class);
     container.addSingleton(DefaultResourceCreationLock.class);

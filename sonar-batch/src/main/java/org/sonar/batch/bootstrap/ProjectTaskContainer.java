@@ -17,6 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.batch.bootstrap;
 
 import org.slf4j.Logger;
@@ -69,9 +70,6 @@ public class ProjectTaskContainer extends Container {
     installer.installTaskExtensions(container, true);
   }
 
-  /**
-   * Used by views plugin to emulate a project
-   */
   private void registerCoreComponentsRequiringProject() {
     container.addSingleton(ProjectExclusions.class);
     container.addSingleton(ProjectReactorReady.class);
