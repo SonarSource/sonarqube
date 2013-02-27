@@ -22,13 +22,13 @@ package org.sonar.batch.bootstrap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultResourceCreationLock;
+import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.components.PastSnapshotFinderByDate;
@@ -62,8 +62,6 @@ import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 
-import javax.annotation.Nullable;
-
 /**
  * Level-3 components. Task-level components that don't depends on project.
  */
@@ -73,11 +71,11 @@ public class ProjectLessTaskContainer extends Container {
 
   private TaskDefinition taskDefinition;
 
-  private ProjectReactor reactor;
+  private boolean projectPresent;
 
-  public ProjectLessTaskContainer(TaskDefinition task, @Nullable ProjectReactor reactor) {
+  public ProjectLessTaskContainer(TaskDefinition task, boolean projectPresent) {
     this.taskDefinition = task;
-    this.reactor = reactor;
+    this.projectPresent = projectPresent;
   }
 
   @Override
@@ -86,6 +84,11 @@ public class ProjectLessTaskContainer extends Container {
     registerDatabaseComponents();
     registerCoreProjectLessTasks();
     registerProjectLessTaskExtensions();
+    if (projectPresent && ExtensionUtils.requiresProject(taskDefinition.getTask())) {
+      container.addSingleton(ProjectExclusions.class);
+      container.addSingleton(ProjectReactorReady.class);
+      container.addSingleton(DryRunDatabase.class);
+    }
   }
 
   private void registerCoreComponents() {
@@ -119,7 +122,7 @@ public class ProjectLessTaskContainer extends Container {
     container.addSingleton(DefaultResourcePersister.class);
     container.addSingleton(SourcePersister.class);
     container.addSingleton(DefaultNotificationManager.class);
-
+    container.addSingleton(ProjectConfigurator.class);
   }
 
   private void registerDatabaseComponents() {
@@ -156,13 +159,12 @@ public class ProjectLessTaskContainer extends Container {
    */
   @Override
   protected void doStart() {
-    boolean projectPresent = (reactor != null);
     if (ExtensionUtils.requiresProject(taskDefinition.getTask())) {
       if (!projectPresent) {
         throw new SonarException("Task '" + taskDefinition.getName() + "' requires to be run on a project");
       }
       // Create a new child container to put project specific components
-      Container childModule = new ProjectTaskContainer(taskDefinition, reactor);
+      Container childModule = new ProjectTaskContainer(taskDefinition);
       try {
         installChild(childModule);
         childModule.start();

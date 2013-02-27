@@ -34,11 +34,9 @@ import javax.annotation.Nullable;
 public class TaskBootstrapContainer extends Container {
 
   private String taskCommand;
-  private ProjectReactor reactor;
 
-  public TaskBootstrapContainer(@Nullable String taskCommand, @Nullable ProjectReactor reactor) {
+  public TaskBootstrapContainer(@Nullable String taskCommand) {
     this.taskCommand = taskCommand;
-    this.reactor = reactor;
   }
 
   @Override
@@ -65,11 +63,11 @@ public class TaskBootstrapContainer extends Container {
   }
 
   private void executeTask(TaskDefinition taskDefinition) {
-    boolean projectPresent = (reactor != null);
+    boolean projectPresent = (container.getComponentByType(ProjectReactor.class) != null);
     if (ExtensionUtils.requiresProject(taskDefinition.getTask()) && !projectPresent) {
       throw new SonarException("Task '" + taskDefinition.getName() + "' requires to be run on a project");
     }
-    Container childModule = new ProjectLessTaskContainer(taskDefinition, reactor);
+    Container childModule = new ProjectLessTaskContainer(taskDefinition, projectPresent);
     try {
       installChild(childModule);
       childModule.start();

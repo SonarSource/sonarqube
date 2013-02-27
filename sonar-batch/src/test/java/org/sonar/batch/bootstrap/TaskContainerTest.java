@@ -20,8 +20,6 @@
 package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.TaskDefinition;
 
@@ -42,7 +40,7 @@ public class TaskContainerTest {
       }
     };
     bootstrapModule.init();
-    ProjectTaskContainer module = new ProjectTaskContainer(TaskDefinition.create(), new ProjectReactor(ProjectDefinition.create()));
+    ProjectTaskContainer module = new ProjectTaskContainer(TaskDefinition.create());
     bootstrapModule.installChild(module);
 
     verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(true));
@@ -59,7 +57,7 @@ public class TaskContainerTest {
       }
     };
     bootstrapModule.init();
-    ProjectLessTaskContainer module = new ProjectLessTaskContainer(TaskDefinition.create(), null);
+    ProjectLessTaskContainer module = new ProjectLessTaskContainer(TaskDefinition.create(), false);
     bootstrapModule.installChild(module);
 
     verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(false));

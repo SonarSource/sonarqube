@@ -22,12 +22,10 @@ package org.sonar.batch.bootstrap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultFileLinesContextFactory;
-import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.scan.ScanTask;
@@ -46,16 +44,12 @@ public class ProjectTaskContainer extends Container {
 
   private TaskDefinition taskDefinition;
 
-  private ProjectReactor reactor;
-
-  public ProjectTaskContainer(TaskDefinition task, ProjectReactor reactor) {
+  public ProjectTaskContainer(TaskDefinition task) {
     this.taskDefinition = task;
-    this.reactor = reactor;
   }
 
   @Override
   protected void configure() {
-    container.addSingleton(reactor);
     registerCoreProjectTasks();
     registerCoreComponentsRequiringProject();
     registerProjectTaskExtensions();
@@ -71,14 +65,10 @@ public class ProjectTaskContainer extends Container {
   }
 
   private void registerCoreComponentsRequiringProject() {
-    container.addSingleton(ProjectExclusions.class);
-    container.addSingleton(ProjectReactorReady.class);
     container.addSingleton(ProjectTree.class);
-    container.addSingleton(ProjectConfigurator.class);
     container.addSingleton(DefaultIndex.class);
     container.addSingleton(DefaultFileLinesContextFactory.class);
     container.addSingleton(ProjectLock.class);
-    container.addSingleton(DryRunDatabase.class);
 
     // graphs
     container.addSingleton(ScanGraph.create());
