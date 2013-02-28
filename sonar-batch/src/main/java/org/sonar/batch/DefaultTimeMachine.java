@@ -21,6 +21,7 @@ package org.sonar.batch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.database.DatabaseSession;
@@ -31,19 +32,23 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.batch.index.DefaultIndex;
 
 import javax.persistence.Query;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultTimeMachine implements TimeMachine {
 
   private DatabaseSession session;
-  private DefaultIndex index;
+  private SonarIndex index;
   private MetricFinder metricFinder;
 
-  public DefaultTimeMachine(DatabaseSession session, DefaultIndex index, MetricFinder metricFinder) {
+  public DefaultTimeMachine(DatabaseSession session, SonarIndex index, MetricFinder metricFinder) {
     this.session = session;
     this.index = index;
     this.metricFinder = metricFinder;

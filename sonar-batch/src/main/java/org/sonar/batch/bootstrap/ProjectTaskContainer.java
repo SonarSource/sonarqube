@@ -53,6 +53,7 @@ public class ProjectTaskContainer extends Container {
     registerCoreProjectTasks();
     registerCoreComponentsRequiringProject();
     registerProjectTaskExtensions();
+    registerOverrideAbleComponents();
   }
 
   private void registerCoreProjectTasks() {
@@ -76,6 +77,14 @@ public class ProjectTaskContainer extends Container {
     container.addSingleton(TestableBuilder.class);
     container.addSingleton(ScanPerspectives.class);
     container.addSingleton(ScanGraphStore.class);
+  }
+
+  /**
+   * In order for instance for the plugin Views to override some components
+   */
+  protected void registerOverrideAbleComponents(){
+    container.addSingleton(DefaultIndex.class);
+    container.addSingleton(ProjectLock.class);
   }
 
   private void logSettings() {
