@@ -68,7 +68,6 @@ public class ProjectTaskContainer extends Container {
   private void registerCoreComponentsRequiringProject() {
     container.addSingleton(ProjectTree.class);
     container.addSingleton(DefaultFileLinesContextFactory.class);
-    container.addSingleton(ProjectLock.class);
 
     // graphs
     container.addSingleton(ScanGraph.create());
