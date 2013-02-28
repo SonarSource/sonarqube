@@ -37,15 +37,15 @@
       <% form_tag({:action => 'change_password'}, :id => 'pass_form_tag', :name => 'pass_form_tag') do -%>
         <table class="form">
           <tr>
-            <td class="keyCell"><label for="old_password"><b><%= message('my_profile.password.old') -%>:</b></label></td>
+            <td class="keyCell"><label for="old_password"><%= message('my_profile.password.old') -%>:</label></td>
             <td><%= password_field_tag 'old_password' %></td>
           </tr>
           <tr>
-            <td class="keyCell"><label for="password"><b><%= message('my_profile.password.new') -%>:</b></label></td>
+            <td class="keyCell"><label for="password"><%= message('my_profile.password.new') -%>:</label></td>
             <td><%= password_field_tag 'password' %></td>
           </tr>
           <tr>
-            <td class="keyCell"><label for="password_confirmation"><b><%= message('my_profile.password.confirm') -%>:</b></label></td>
+            <td class="keyCell"><label for="password_confirmation"><%= message('my_profile.password.confirm') -%>:</label></td>
             <td><%= password_field_tag 'password_confirmation' %></td>
           </tr>
           <tr>
