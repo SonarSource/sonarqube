@@ -48,8 +48,13 @@ public class SemaphoreUpdater {
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     Runnable updater = new Runnable() {
       public void run() {
-        LOG.debug("Updating semaphore " + semaphore.getName());
-        dao.update(semaphore);
+        try {
+          LOG.debug("Updating semaphore " + semaphore.getName());
+          dao.update(semaphore);
+        } catch (Exception e) {
+          LOG.error("Unable to update semaphore", e);
+        }
+
       }
     };
     scheduler.scheduleWithFixedDelay(updater, updatePeriodInSeconds, updatePeriodInSeconds, TimeUnit.SECONDS);
@@ -58,7 +63,16 @@ public class SemaphoreUpdater {
 
   public void stopUpdate(final String name) {
     if (handlers.containsKey(name)) {
-      handlers.get(name).shutdownNow();
+      handlers.get(name).shutdown();
+      try {
+        if (!handlers.get(name).awaitTermination(1, TimeUnit.SECONDS)) {
+          LOG.error("Unable to cancel semaphore updater in 1 second");
+        }
+      } catch (InterruptedException e) {
+        LOG.error("Unable to cancel semaphore updater", e);
+      } finally {
+        handlers.remove(name);
+      }
     }
   }
 }

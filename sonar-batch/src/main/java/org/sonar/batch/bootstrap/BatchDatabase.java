@@ -54,5 +54,7 @@ public class BatchDatabase extends DefaultDatabase {
     // Note that Hibernate will be removed soon
     properties.setProperty("sonar.jdbc.initialSize", "3");
     properties.setProperty("sonar.jdbc.maxActive", "3");
+    // SONAR-2965
+    properties.setProperty("sonar.jdbc.defaultAutoCommit", "false");
   }
 }
