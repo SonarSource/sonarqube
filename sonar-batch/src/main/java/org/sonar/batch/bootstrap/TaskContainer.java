@@ -17,7 +17,6 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.batch.bootstrap;
 
 import org.slf4j.Logger;
@@ -27,8 +26,10 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
+import org.sonar.batch.ProjectTree;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.components.PastSnapshotFinderByDate;
@@ -36,6 +37,7 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DefaultPersistenceManager;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.index.DependencyPersister;
@@ -44,7 +46,11 @@ import org.sonar.batch.index.LinkPersister;
 import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.MemoryOptimizer;
 import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.scan.ScanTask;
 import org.sonar.batch.tasks.ListTasksTask;
+import org.sonar.core.component.ScanGraph;
+import org.sonar.core.component.ScanGraphStore;
+import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.CacheMetricFinder;
@@ -54,9 +60,10 @@ import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.SemaphoreUpdater;
 import org.sonar.core.persistence.SemaphoresImpl;
-import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.CacheRuleFinder;
+import org.sonar.core.test.TestPlanBuilder;
+import org.sonar.core.test.TestableBuilder;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
@@ -65,30 +72,28 @@ import org.sonar.jpa.session.JpaDatabaseSession;
 /**
  * Level-3 components. Task-level components that don't depends on project.
  */
-public class ProjectLessTaskContainer extends Container {
+public class TaskContainer extends Container {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectLessTaskContainer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TaskContainer.class);
 
   private TaskDefinition taskDefinition;
-
   private boolean projectPresent;
 
-  public ProjectLessTaskContainer(TaskDefinition task, boolean projectPresent) {
+  public TaskContainer(TaskDefinition task, boolean projectPresent) {
     this.taskDefinition = task;
     this.projectPresent = projectPresent;
   }
 
   @Override
   protected void configure() {
+    logSettings();
     registerCoreComponents();
     registerDatabaseComponents();
-    registerCoreProjectLessTasks();
-    registerProjectLessTaskExtensions();
-    if (projectPresent && ExtensionUtils.requiresProject(taskDefinition.getTask())) {
-      container.addSingleton(ProjectExclusions.class);
-      container.addSingleton(ProjectReactorReady.class);
-      container.addSingleton(DryRunDatabase.class);
+    registerCoreTasks();
+    if (projectPresent) {
+      registerCoreComponentsRequiringProject();
     }
+    registerTaskExtensions();
   }
 
   private void registerCoreComponents() {
@@ -109,20 +114,6 @@ public class ProjectLessTaskContainer extends Container {
     container.addSingleton(PastSnapshotFinderByPreviousVersion.class);
     container.addSingleton(PastMeasuresLoader.class);
     container.addSingleton(PastSnapshotFinder.class);
-    container.addSingleton(DefaultModelFinder.class);
-    container.addSingleton(MetricProvider.class);
-    container.addSingleton(DefaultResourceCreationLock.class);
-    container.addSingleton(DefaultPersistenceManager.class);
-    container.addSingleton(DependencyPersister.class);
-    container.addSingleton(EventPersister.class);
-    container.addSingleton(LinkPersister.class);
-    container.addSingleton(MeasurePersister.class);
-    container.addSingleton(MemoryOptimizer.class);
-    container.addSingleton(DefaultResourcePermissions.class);
-    container.addSingleton(DefaultResourcePersister.class);
-    container.addSingleton(SourcePersister.class);
-    container.addSingleton(DefaultNotificationManager.class);
-    container.addSingleton(ProjectConfigurator.class);
   }
 
   private void registerDatabaseComponents() {
@@ -141,13 +132,46 @@ public class ProjectLessTaskContainer extends Container {
     container.addSingleton(BatchDatabaseSessionFactory.class);
   }
 
-  private void registerCoreProjectLessTasks() {
+  private void registerCoreTasks() {
     container.addSingleton(ListTasksTask.class);
+    if (projectPresent) {
+      container.addSingleton(ScanTask.class);
+    }
   }
 
-  private void registerProjectLessTaskExtensions() {
+  private void registerTaskExtensions() {
     ExtensionInstaller installer = container.getComponentByType(ExtensionInstaller.class);
-    installer.installTaskExtensions(container, false);
+    installer.installTaskExtensions(container, projectPresent);
+  }
+
+  private void registerCoreComponentsRequiringProject() {
+    container.addSingleton(DefaultResourceCreationLock.class);
+    container.addSingleton(DefaultPersistenceManager.class);
+    container.addSingleton(DependencyPersister.class);
+    container.addSingleton(EventPersister.class);
+    container.addSingleton(LinkPersister.class);
+    container.addSingleton(MeasurePersister.class);
+    container.addSingleton(MemoryOptimizer.class);
+    container.addSingleton(DefaultResourcePermissions.class);
+    container.addSingleton(DefaultResourcePersister.class);
+    container.addSingleton(SourcePersister.class);
+    container.addSingleton(DefaultNotificationManager.class);
+    container.addSingleton(MetricProvider.class);
+    container.addSingleton(ProjectExclusions.class);
+    container.addSingleton(ProjectReactorReady.class);
+    container.addSingleton(ProjectTree.class);
+    container.addSingleton(ProjectConfigurator.class);
+    container.addSingleton(DefaultIndex.class);
+    container.addSingleton(DefaultFileLinesContextFactory.class);
+    container.addSingleton(ProjectLock.class);
+    container.addSingleton(DryRunDatabase.class);
+
+    // graphs
+    container.addSingleton(ScanGraph.create());
+    container.addSingleton(TestPlanBuilder.class);
+    container.addSingleton(TestableBuilder.class);
+    container.addSingleton(ScanPerspectives.class);
+    container.addSingleton(ScanGraphStore.class);
   }
 
   private void logSettings() {
@@ -159,28 +183,11 @@ public class ProjectLessTaskContainer extends Container {
    */
   @Override
   protected void doStart() {
-    if (ExtensionUtils.requiresProject(taskDefinition.getTask())) {
-      if (!projectPresent) {
-        throw new SonarException("Task '" + taskDefinition.getName() + "' requires to be run on a project");
-      }
-      // Create a new child container to put project specific components
-      Container childModule = new ProjectTaskContainer(taskDefinition);
-      try {
-        installChild(childModule);
-        childModule.start();
-      } finally {
-        childModule.stop();
-        uninstallChild();
-      }
-    }
-    else {
-      Task task = container.getComponentByType(taskDefinition.getTask());
-      if (task != null) {
-        logSettings();
-        task.execute();
-      } else {
-        throw new SonarException("Extension " + taskDefinition.getTask() + " was not found in declared extensions.");
-      }
+    Task task = container.getComponentByType(taskDefinition.getTask());
+    if (task != null) {
+      task.execute();
+    } else {
+      throw new SonarException("Extension " + taskDefinition.getTask() + " was not found in declared extensions.");
     }
   }
 

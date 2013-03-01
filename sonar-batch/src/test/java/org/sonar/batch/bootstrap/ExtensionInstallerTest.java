@@ -90,7 +90,7 @@ public class ExtensionInstallerTest {
   }
 
   @Test
-  public void shouldInstallProjectTaskExtensions() {
+  public void shouldInstallTaskExtensions() {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
     when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(SampleProjectTask.class, SampleTask.class, TaskProvider.class));
     ComponentContainer container = new ComponentContainer();
@@ -99,14 +99,14 @@ public class ExtensionInstallerTest {
     installer.installTaskExtensions(container, true);
 
     assertThat(container.getComponentByType(SampleProjectTask.class)).isNotNull();
-    assertThat(container.getComponentByType(SampleTask.class)).isNull();
-    assertThat(container.getComponentByType(AnotherTask.class)).isNull();
+    assertThat(container.getComponentByType(SampleTask.class)).isNotNull();
+    assertThat(container.getComponentByType(AnotherTask.class)).isNotNull();
   }
 
   @Test
-  public void shouldInstallProjectLessTaskExtensions() {
+  public void shouldNotInstallProjectTaskExtensionsWhenNoProject() {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(SampleProjectTask.class, SampleTask.class, TaskProvider.class));
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(SampleProjectTask.class, SampleTask.class));
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
@@ -114,7 +114,6 @@ public class ExtensionInstallerTest {
 
     assertThat(container.getComponentByType(SampleProjectTask.class)).isNull();
     assertThat(container.getComponentByType(SampleTask.class)).isNotNull();
-    assertThat(container.getComponentByType(AnotherTask.class)).isNotNull();
   }
 
   @Test

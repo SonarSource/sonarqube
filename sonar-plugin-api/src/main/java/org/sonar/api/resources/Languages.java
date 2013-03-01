@@ -31,7 +31,7 @@ import java.util.Map;
 
 /**
  * A class to store the list of languages
- *
+ * 
  * @since 1.10
  */
 public class Languages implements BatchComponent, ServerComponent {

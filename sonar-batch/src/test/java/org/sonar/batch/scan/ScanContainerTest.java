@@ -22,18 +22,23 @@ package org.sonar.batch.scan;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.fest.assertions.Assertions;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.batch.ProjectTree;
 import org.sonar.batch.bootstrap.BatchSettings;
 import org.sonar.batch.bootstrap.Container;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ProjectSettings;
+import org.sonar.batch.index.ResourcePersister;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ScanContainerTest {
   @Test
@@ -41,18 +46,24 @@ public class ScanContainerTest {
     // components injected in the parent container
     final Project project = new Project("foo");
     project.setConfiguration(new PropertiesConfiguration());
+    final ProjectTree projectTree = mock(ProjectTree.class);
+    when(projectTree.getProjectDefinition(project)).thenReturn(ProjectDefinition.create());
+    final ResourcePersister resourcePersister = mock(ResourcePersister.class);
+    when(resourcePersister.getSnapshot(Matchers.<Resource>any())).thenReturn(new Snapshot());
 
     final ExtensionInstaller extensionInstaller = mock(ExtensionInstaller.class);
     Container batchModule = new Container() {
       @Override
       protected void configure() {
         container.addSingleton(extensionInstaller);
+        container.addSingleton(projectTree);
+        container.addSingleton(resourcePersister);
         container.addSingleton(new BatchSettings());
       }
     };
 
     batchModule.init();
-    ScanContainer projectModule = new ScanContainer(project, ProjectDefinition.create(), new Snapshot());
+    ScanContainer projectModule = new ScanContainer(project);
     batchModule.installChild(projectModule);
 
     verify(extensionInstaller).installInspectionExtensions(any(ComponentContainer.class));

@@ -28,7 +28,6 @@ import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
-import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
 
@@ -81,7 +80,7 @@ public class BatchExtensionDictionnary {
     return handlers;
   }
 
-  private List<BatchExtension> getBatchExtensions() {
+  private List<BatchExtension> getExtensions() {
     List<BatchExtension> extensions = Lists.newArrayList();
     completeBatchExtensions(componentContainer, extensions);
     return extensions;
@@ -94,27 +93,9 @@ public class BatchExtensionDictionnary {
     }
   }
 
-  private List<TaskExtension> getTaskExtensions() {
-    List<TaskExtension> extensions = Lists.newArrayList();
-    completeTaskExtensions(componentContainer, extensions);
-    return extensions;
-  }
-
-  private static void completeTaskExtensions(ComponentContainer container, List<TaskExtension> extensions) {
-    if (container != null) {
-      extensions.addAll(container.getComponentsByType(TaskExtension.class));
-      completeTaskExtensions(container.getParent(), extensions);
-    }
-  }
-
   private <T> List<T> getFilteredExtensions(Class<T> type, Project project) {
     List<T> result = Lists.newArrayList();
-    for (BatchExtension extension : getBatchExtensions()) {
-      if (shouldKeep(type, extension, project)) {
-        result.add((T) extension);
-      }
-    }
-    for (TaskExtension extension : getTaskExtensions()) {
+    for (BatchExtension extension : getExtensions()) {
       if (shouldKeep(type, extension, project)) {
         result.add((T) extension);
       }
@@ -174,6 +155,7 @@ public class BatchExtensionDictionnary {
     }
   }
 
+
   protected List evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
     List<Object> results = Lists.newArrayList();
     Class aClass = extension.getClass();
@@ -221,7 +203,7 @@ public class BatchExtensionDictionnary {
     try {
       Object result = method.invoke(extension);
       if (result != null) {
-        // TODO add arrays/collections of objects/classes
+        //TODO add arrays/collections of objects/classes
         if (result instanceof Class<?>) {
           results.addAll(componentContainer.getComponentsByType((Class<?>) result));
 

@@ -63,11 +63,11 @@ public class TaskBootstrapContainer extends Container {
   }
 
   private void executeTask(TaskDefinition taskDefinition) {
-    boolean projectPresent = (container.getComponentByType(ProjectReactor.class) != null);
+    boolean projectPresent = container.getComponentByType(ProjectReactor.class) != null;
     if (ExtensionUtils.requiresProject(taskDefinition.getTask()) && !projectPresent) {
       throw new SonarException("Task '" + taskDefinition.getName() + "' requires to be run on a project");
     }
-    Container childModule = new ProjectLessTaskContainer(taskDefinition, projectPresent);
+    Container childModule = new TaskContainer(taskDefinition, projectPresent);
     try {
       installChild(childModule);
       childModule.start();

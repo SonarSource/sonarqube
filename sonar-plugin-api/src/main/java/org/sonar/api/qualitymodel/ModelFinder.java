@@ -19,13 +19,13 @@
  */
 package org.sonar.api.qualitymodel;
 
+import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.task.TaskComponent;
 
 /**
  * @since 2.3
  */
-public interface ModelFinder extends TaskComponent, ServerComponent {
+public interface ModelFinder extends BatchComponent, ServerComponent {
 
   /**
    * @return null if the name is not found

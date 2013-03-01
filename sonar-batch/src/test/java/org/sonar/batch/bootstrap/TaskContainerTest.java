@@ -40,7 +40,7 @@ public class TaskContainerTest {
       }
     };
     bootstrapModule.init();
-    ProjectTaskContainer module = new ProjectTaskContainer(TaskDefinition.create());
+    TaskContainer module = new TaskContainer(TaskDefinition.create(), true);
     bootstrapModule.installChild(module);
 
     verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(true));
@@ -57,7 +57,7 @@ public class TaskContainerTest {
       }
     };
     bootstrapModule.init();
-    ProjectLessTaskContainer module = new ProjectLessTaskContainer(TaskDefinition.create(), false);
+    TaskContainer module = new TaskContainer(TaskDefinition.create(), false);
     bootstrapModule.installChild(module);
 
     verify(extensionInstaller).installTaskExtensions(any(ComponentContainer.class), eq(false));

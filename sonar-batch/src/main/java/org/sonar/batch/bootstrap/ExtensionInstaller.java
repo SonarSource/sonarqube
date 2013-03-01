@@ -79,7 +79,7 @@ public class ExtensionInstaller implements BatchComponent {
     return installed;
   }
 
-  public void installTaskExtensions(ComponentContainer container, boolean requiringProject) {
+  public void installTaskExtensions(ComponentContainer container, boolean projectPresent) {
     boolean dryRun = settings.getBoolean(CoreProperties.DRY_RUN);
     for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
       PluginMetadata metadata = entry.getKey();
@@ -87,8 +87,8 @@ public class ExtensionInstaller implements BatchComponent {
 
       container.addExtension(metadata, plugin);
       for (Object extension : plugin.getExtensions()) {
-        installTaskExtension(container, metadata, extension, requiringProject);
-        if (requiringProject) {
+        installTaskExtension(container, metadata, extension, projectPresent);
+        if (projectPresent) {
           installBatchExtension(container, metadata, extension, dryRun, InstantiationStrategy.PER_BATCH);
         }
       }
@@ -96,8 +96,8 @@ public class ExtensionInstaller implements BatchComponent {
 
     List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
     for (ExtensionProvider provider : providers) {
-      executeTaskExtensionProvider(container, provider, requiringProject);
-      if (requiringProject) {
+      executeTaskExtensionProvider(container, provider, projectPresent);
+      if (projectPresent) {
         executeBatchExtensionProvider(container, InstantiationStrategy.PER_BATCH, dryRun, provider);
       }
     }
@@ -114,10 +114,10 @@ public class ExtensionInstaller implements BatchComponent {
     }
   }
 
-  boolean installTaskExtension(ComponentContainer container, @Nullable PluginMetadata plugin, Object extension, boolean requiringProject) {
+  boolean installTaskExtension(ComponentContainer container, @Nullable PluginMetadata plugin, Object extension, boolean projectPresent) {
     boolean installed;
     if (ExtensionUtils.isTaskExtension(extension) &&
-      (requiringProject == ExtensionUtils.requiresProject(extension)) &&
+      (projectPresent || !ExtensionUtils.requiresProject(extension)) &&
       ExtensionUtils.supportsEnvironment(extension, environment)) {
       logInstallExtension("task", plugin, extension);
       container.addExtension(plugin, extension);

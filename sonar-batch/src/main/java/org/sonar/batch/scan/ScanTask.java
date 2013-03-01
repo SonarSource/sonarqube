@@ -20,14 +20,11 @@
 package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.tasks.RequiresProject;
 
 @RequiresProject
@@ -61,9 +58,7 @@ public class ScanTask implements Task {
 
   @VisibleForTesting
   void scan(Project project) {
-    ProjectDefinition projectDefinition = container.getComponentByType(ProjectTree.class).getProjectDefinition(project);
-    Snapshot snapshot = container.getComponentByType(ResourcePersister.class).getSnapshot(project);
-    ScanContainer projectModule = new ScanContainer(project, projectDefinition, snapshot);
+    ScanContainer projectModule = new ScanContainer(project);
     try {
       ComponentContainer childContainer = container.createChild();
       projectModule.init(childContainer);
