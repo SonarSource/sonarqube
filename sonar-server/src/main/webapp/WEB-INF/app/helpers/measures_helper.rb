@@ -40,9 +40,9 @@ module MeasuresHelper
       if column.period
         format_variation(measure, :index => column.period, :style => 'light')
       elsif column.metric.numeric?
-        format_measure(measure) + trend_icon(measure, :empty => true)
+        format_measure(measure) + '&nbsp;' + trend_icon(measure, :empty => true)
       else
-        format_measure(measure)
+        format_measure(measure) + '&nbsp;'
       end
 
     elsif column.key=='name'

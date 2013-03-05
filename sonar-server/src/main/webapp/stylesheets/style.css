@@ -1502,7 +1502,9 @@ option.sev_BLOCKER {
   color: #cc0000 !important;
 }
 .trendIcon {
-  padding: 0 2px;
+  padding: 0;
+  width: 10px;
+  height: 10px;
 }
 
 /* ------------------- HELP ------------------- */
@@ -1518,9 +1520,7 @@ option.sev_BLOCKER {
   color: #444;
   vertical-align: bottom;
   font-weight: bold;
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-image: url('../images/information.png');
+  background: url('../images/information.png') no-repeat left center;
 }
 
 .help p {
