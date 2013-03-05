@@ -21,7 +21,7 @@ package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.batch.tasks.TaskDefinition;
+import org.sonar.api.task.TaskDefinition;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.tasks.TaskDefinition;
+import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.ScanTask;
 import org.sonar.batch.tasks.ListTasksTask;

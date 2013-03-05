@@ -19,13 +19,11 @@
  */
 package org.sonar.api.task;
 
-import com.google.common.annotations.Beta;
-
 /**
- * EXPERIMENTAL - DO NOT USE
+ * Dependency Injection : all the classes implementing this interface are available in the task IoC container.
+ * Just add a parameter to the constructor of your component.
  *
  * @since 3.5
  */
-@Beta
 public interface TaskComponent {
 }

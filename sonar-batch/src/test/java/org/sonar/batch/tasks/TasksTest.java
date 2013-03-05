@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.task.Task;
+import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.ScanTask;
 

@@ -31,7 +31,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.tasks.TaskDefinition;
+import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import javax.annotation.Nullable;

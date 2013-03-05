@@ -20,6 +20,7 @@
 package org.sonar.batch.tasks;
 
 import org.junit.Test;
+import org.sonar.api.task.TaskDefinition;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;

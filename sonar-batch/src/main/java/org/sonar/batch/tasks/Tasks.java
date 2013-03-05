@@ -24,7 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskComponent;
+import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.ScanTask;
 

@@ -17,10 +17,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.tasks;
+package org.sonar.api.task;
 
-
-import org.sonar.api.task.TaskExtension;
 
 /**
  * Implement this interface to provide the behavior of a task.

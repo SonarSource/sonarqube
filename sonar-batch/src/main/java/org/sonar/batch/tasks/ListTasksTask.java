@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.tasks;
 
+import org.sonar.api.task.Task;
+import org.sonar.api.task.TaskDefinition;
+
 public class ListTasksTask implements Task {
 
   public static final String COMMAND = "list-tasks";
