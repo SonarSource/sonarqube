@@ -49,7 +49,6 @@ public class FileSystemLogger {
     logDirs(logger, "Source dirs: ", fs.sourceDirs());
     logDirs(logger, "Test dirs: ", fs.testDirs());
     logDirs(logger, "Binary dirs: ", fs.binaryDirs());
-    logFilters(logger, fs.filters());
     logEncoding(logger, fs.sourceCharset());
   }
 
@@ -58,12 +57,6 @@ public class FileSystemLogger {
       logger.info("Source encoding: " + charset.displayName() + ", default locale: " + Locale.getDefault());
     } else {
       logger.warn("Source encoding is platform dependent (" + charset.displayName() + "), default locale: " + Locale.getDefault());
-    }
-  }
-
-  private void logFilters(Logger logger, List<FileSystemFilter> filters) {
-    for (FileSystemFilter filter : filters) {
-      logger.info(filter.toString());
     }
   }
 
