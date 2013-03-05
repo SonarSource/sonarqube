@@ -22,8 +22,8 @@ package org.sonar.batch.scan;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
-import org.sonar.api.task.Task;
-import org.sonar.api.task.TaskDefinition;
+import org.sonar.batch.tasks.Task;
+import org.sonar.batch.tasks.TaskDefinition;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.tasks.RequiresProject;
 

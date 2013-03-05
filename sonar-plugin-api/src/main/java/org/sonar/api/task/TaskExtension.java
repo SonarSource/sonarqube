@@ -19,12 +19,14 @@
  */
 package org.sonar.api.task;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.Extension;
 
 /**
- * Task extension point.
+ * EXPERIMENTAL - DO NOT USE
  *
  * @since 3.5
  */
+@Beta
 public interface TaskExtension extends Extension, TaskComponent {
 }
