@@ -47,7 +47,7 @@
                   <% if snapshot.display_dashboard? %>
                     <%= link_to image_tag('zoom.png'), {:controller => 'dashboard', :id => snapshot.project.id} %>
                   <% else %>
-                    <%= link_to_resource(project, image_tag('zoom.png')) %>
+                    <%= link_to_resource(project, image_tag('new-window-16.gif')) %>
                   <% end %>
                 </td>
                 <td class="left" x="<%= u(snapshot.project.name) -%>">
