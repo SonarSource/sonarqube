@@ -63,7 +63,9 @@
               <td nowrap>
                 <% if resource.source_code? %>
                   <a href="<%= url_for :controller => 'resource', :action => 'index', :id => resource.key, :period => params[:period], :metric => @metric ? @metric.id : nil, :rule => @rule ? @rule.id : @severity, :display_title => 'true' -%>" 
-                     onclick="window.open(this.href,'resource-<%= resource.key.parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;" id="popup-<%= resource.key.parameterize -%>"><%= image_tag 'new-window-16.gif', :alt => message('new_window') -%></a>
+                     onclick="window.open(this.href,'resource-<%= resource.key.parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"
+                     id="popup-<%= resource.key.parameterize -%>"
+                     target="_blank"><%= image_tag 'new-window-16.gif', :alt => message('new_window') -%></a>
                 <% else %>
                   <%= link_to(image_tag('zoom.png'), {:id => resource.id, :metric => @metric.id}, {:class => 'nolink'}) -%>
                 <% end %>
