@@ -354,52 +354,54 @@ function openAccordionItem(url, elt, updateCurrentElement) {
   }
 
   // Get content from url
-  var ajaxRequest = $j.get(url,function (html) {
-    if (currentElement.length) {
-      var body = currentElement.find('.accordion-item-body');
-      if (!updateCurrentElement && !body.hasClass('accordion-item-body-medium')) {
-        body.addClass("accordion-item-body-medium");
-        elt.scrollIntoView(false);
-      }
-    } else {
-      $j("#accordion-panel").height('auto');
-    }
-
-    if (updateCurrentElement) {
-      // Fix the height in order to not change the position on the screen
-      var prevHeight = $j("#accordion-panel").height();
-      currentElement.html(html);
-      $j("#accordion-panel").height('auto');
-      var newHeight = $j("#accordion-panel").height();
-      if (prevHeight > newHeight) {
-        $j("#accordion-panel").height(prevHeight);
-      } else {
-        $j("#accordion-panel").height(newHeight);
-      }
-    } else {
-      // Add new item add the end of the panel and restore the height param
-      var nbElement = $j("."+htmlClass).size();
-      var newElement = $j('<div id="'+ htmlClass + nbElement +'" class="'+ htmlClass +'">');
-      newElement.html(html);
-
-      $j("#accordion-panel").append(newElement);
-      $j("#accordion-panel").height('auto');
-
-      // Set the focus on the top of the current item with animation
-      if (currentElement.length) {
-        $j('html, body').animate({
-          scrollTop: currentElement.offset().top}, 500
-        );
-      }
-    }
-  }).fail(function (jqXHR, textStatus) {
+  var ajaxRequest = $j.ajax({
+      url: url
+      }).fail(function (jqXHR, textStatus) {
         alert("Server error. Please contact your administrator. The status of the error is : "+ jqXHR.status);
-      }).done(function () {
+      }).done(function (html) {
+        if (currentElement.length) {
+          var body = currentElement.find('.accordion-item-body');
+          if (!updateCurrentElement && !body.hasClass('accordion-item-body-medium')) {
+            body.addClass("accordion-item-body-medium");
+            elt.scrollIntoView(false);
+          }
+        } else {
+          $j("#accordion-panel").height('auto');
+        }
+
+        if (updateCurrentElement) {
+          // Fix the height in order to not change the position on the screen
+          var prevHeight = $j("#accordion-panel").height();
+          currentElement.html(html);
+          $j("#accordion-panel").height('auto');
+          var newHeight = $j("#accordion-panel").height();
+          if (prevHeight > newHeight) {
+            $j("#accordion-panel").height(prevHeight);
+          } else {
+            $j("#accordion-panel").height(newHeight);
+          }
+        } else {
+          // Add new item add the end of the panel and restore the height param
+          var nbElement = $j("."+htmlClass).size();
+          var newElement = $j('<div id="'+ htmlClass + nbElement +'" class="'+ htmlClass +'">');
+          $j("#accordion-panel").append(newElement);
+
+          // Add html after having adding the new element in the page in order to scripts (for instance for GWT) to be well executed
+          newElement.append(html);
+          $j("#accordion-panel").height('auto');
+
+          // Set the focus on the top of the current item with animation
+          if (currentElement.length) {
+            $j('html, body').animate({
+                  scrollTop: currentElement.offset().top}, 500
+            );
+          }
+        }
         loading.remove();
       });
-
   return ajaxRequest;
 }
+
 
 function expandAccordionItem(elt) {
   var currentElement = $j(elt).closest('.accordion-item');
