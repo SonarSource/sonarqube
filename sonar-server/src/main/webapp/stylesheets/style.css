@@ -1501,11 +1501,6 @@ option.sev_BLOCKER {
   /* worst */
   color: #cc0000 !important;
 }
-.trendIcon {
-  padding: 0;
-  width: 10px;
-  height: 10px;
-}
 
 /* ------------------- HELP ------------------- */
 .help {
