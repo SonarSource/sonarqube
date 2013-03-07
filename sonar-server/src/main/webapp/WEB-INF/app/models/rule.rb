@@ -278,7 +278,7 @@ class Rule < ActiveRecord::Base
     end
 
     includes=(options[:include_parameters_and_notes] ? [:rules_parameters, :rule_note] : nil)
-    rules = Rule.find(:all, :include => includes, :conditions => [conditions.join(" AND "), values]).sort
+    rules = Rule.all(:include => includes, :conditions => [conditions.join(" AND "), values]).sort
     filter(rules, options)
   end
 
@@ -317,7 +317,7 @@ class Rule < ActiveRecord::Base
           active_rule = profile.active_by_rule_id(rule.id)
           (active_rule.nil? || active_rule.inheritance.blank?)
         end
-      elsif inheritance.present?
+      elsif inheritance.present? && inheritance != 'any'
         rules = rules.select do |rule|
           active_rule = profile.active_by_rule_id(rule.id)
           (active_rule && active_rule.inheritance==inheritance)

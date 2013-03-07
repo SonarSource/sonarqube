@@ -52,8 +52,8 @@
          <%= select_tag "priorities", options_for_select(@select_priority, @priorities), :id => 'search_priority', :multiple => true, :size => 6 %>
        </td>
        <td class="left" valign="top" width="1%" nowrap>
-         <span class="note"><%= message('status') -%></span><br/>
-         <%= select_tag "rule_status", options_for_select(@select_status, @status), :id => 'search_status', :size => 6 %>
+         <span class="note"><%= message('activation') -%></span><br/>
+         <%= select_tag "rule_activation", options_for_select(@select_activation, @activation), :id => 'search_activation', :size => 6 %>
        </td>
        <% if @profile.inherited? %>
        <td class="left" valign="top" width="1%" nowrap>
@@ -73,7 +73,9 @@
   <ul style="float: right" class="horizontal">
     <li class="marginleft10">
       <div class="csv">
-      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @plugins.join(','), :status => @status, :inheritance => @inheritance, :searchtext => @searchtext, :priorities => @priorities.join(','), :format => 'csv') -%>" onClick="return downloadCsv()" id="download-link" class=""><%= message('download_verb') -%></a>
+      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @plugins.join(','),
+                           :activation => @activation, :inheritance => @inheritance, :searchtext => @searchtext, :priorities => @priorities.join(','), :format => 'csv') -%>"
+         onClick="return downloadCsv()" id="download-link" class=""><%= message('download_verb') -%></a>
       </div>
     </li>
     <% if enable_modification %>
@@ -93,8 +95,8 @@
     <% end %>
   </ul>
   <h2>
-     <% if @hidden_actives && @hidden_actives>0 %><span class="small"><a href="<%= url_for params.merge({:rule_status => ''}) -%>" id="active-rules-link">+<%= message('rules_configuration.x_found_in_active_rules', :params => @hidden_actives) -%></a></span><% end %>
-     <% if @hidden_inactives && @hidden_inactives>0 %><span class="small"><a href="<%= url_for params.merge({:rule_status => ''}) -%>" id="inactive-rules-link">+<%= message('rules_configuration.x_found_in_inactive_rules', :params => @hidden_inactives) -%></a></span><% end %>
+     <% if @hidden_actives && @hidden_actives>0 %><span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>" id="active-rules-link">+<%= message('rules_configuration.x_found_in_active_rules', :params => @hidden_actives) -%></a></span><% end %>
+     <% if @hidden_inactives && @hidden_inactives>0 %><span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>" id="inactive-rules-link">+<%= message('rules_configuration.x_found_in_inactive_rules', :params => @hidden_inactives) -%></a></span><% end %>
   </h2>
 </div>
 <table class="table table-bordered width100 spacer-bottom" id="result_table">
@@ -125,9 +127,29 @@
 </table>
 
 <script type="text/javascript">
-    function replaceTextField(span_id, key) {
-      var text_field_value = $F(key);
-      var text_area = '<textarea cols="100" id="' + key + '" name="value" rows="10">' + text_field_value + '</textarea><br/>';
-      $(span_id).replace(text_area);
-    }
+
+  function replaceTextField(span_id, key) {
+    var text_field_value = $F(key);
+    var text_area = '<textarea cols="100" id="' + key + '" name="value" rows="10">' + text_field_value + '</textarea><br/>';
+    $(span_id).replace(text_area);
+  }
+
+  $j('#search_plugin').select2({
+    width: '250px'
+  });
+
+  $j('#search_priority').select2({
+    width: '250px'
+  });
+
+  $j('#search_activation').select2({
+    width: '100px',
+    minimumResultsForSearch: <%= (@select_activation.size + 1).to_s %>
+  });
+
+  $j('#search_inheritance').select2({
+    width: '100px',
+    minimumResultsForSearch: <%= (@select_inheritance.size + 1).to_s %>
+  });
+
 </script>
