@@ -173,12 +173,12 @@ class ProjectController < ApplicationController
     @project = get_current_project(params[:id])
 
     # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
-    unless java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view? || @project.subview?
+    unless java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view?
       redirect_to :action => 'index', :id => params[:id]
     end
 
     @snapshot=@project.last_snapshot
-    @snapshots = Snapshot.find(:all, :conditions => ["status='P' AND project_id=?", @project.id],
+    @snapshots = Snapshot.all(:conditions => ["status='P' AND project_id=?", @project.id],
                                :include => 'events', :order => 'snapshots.created_at DESC')
   end
 
