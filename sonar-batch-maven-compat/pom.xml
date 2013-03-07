@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>3.5-RC4</version>
+    <version>3.5-SNAPSHOT</version>
   </parent>
 
   <artifactId>sonar-batch-maven-compat</artifactId>
