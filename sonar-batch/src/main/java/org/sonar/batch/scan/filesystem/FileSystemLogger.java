@@ -23,7 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.scan.filesystem.FileSystemFilter;
 
 import java.io.File;
 import java.nio.charset.Charset;
