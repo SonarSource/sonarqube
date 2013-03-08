@@ -2373,6 +2373,8 @@ textarea.width100 {
   vertical-align: top;
 }
 
+/* ------------------- Accordion navigation styles ------------------- */
+
 .accordion-item {
   border: 1px solid #DDD;
   margin-bottom: 20px;
@@ -2386,4 +2388,12 @@ textarea.width100 {
 .accordion-item-body-medium {
   max-height: 200px;
   overflow: auto;
+}
+
+
+/* Rules search styles for rules configuration page */
+.rule-search {
+  display: inline-block;
+  line-height: 16px;
+  padding: 4px 2px;
 }
