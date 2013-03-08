@@ -27,9 +27,22 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.check.Cardinality;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -73,6 +86,9 @@ public final class Rule {
   @Column(name = "cardinality", updatable = true, nullable = false)
   private Cardinality cardinality = Cardinality.SINGLE;
 
+  @Column(name = "status", updatable = true, nullable = true)
+  private String status;
+
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "parent_id", updatable = true, nullable = true)
   private Rule parent = null;
@@ -80,6 +96,14 @@ public final class Rule {
   @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
   @OneToMany(mappedBy = "rule")
   private List<RuleParam> params = new ArrayList<RuleParam>();
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "created_at", updatable = true, nullable = true)
+  private Date createdAt;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "updated_at", updatable = true, nullable = true)
+  private Date updatedAt;
 
   /**
    * @deprecated since 2.3. Use the factory method {@link #create()}
@@ -356,6 +380,33 @@ public final class Rule {
     return this;
   }
 
+  public String getStatus() {
+    return status;
+  }
+
+  public Rule setStatus(String status) {
+    this.status = status;
+    return this;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public Rule setCreatedAt(Date created_at) {
+    this.createdAt = created_at;
+    return this;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public Rule setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof Rule)) {
@@ -391,6 +442,7 @@ public final class Rule {
       .append("enabled", enabled)
       .append("severity", priority)
       .append("cardinality", cardinality)
+      .append("status", status)
       .toString();
   }
 

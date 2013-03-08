@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
+import org.sonar.check.Status;
 
 import java.io.File;
 import java.io.StringReader;
@@ -39,7 +40,7 @@ import static org.junit.Assert.assertThat;
 public class XMLRuleParserTest {
 
   @Test
-  public void parseXml() throws Exception {
+  public void should_parse_xml() throws Exception {
     File file = new File(getClass().getResource("/org/sonar/api/rules/XMLRuleParserTest/rules.xml").toURI());
     List<Rule> rules = new XMLRuleParser().parse(file);
     assertThat(rules.size(), is(2));
@@ -50,6 +51,7 @@ public class XMLRuleParserTest {
     assertThat(rule.getSeverity(), Is.is(RulePriority.BLOCKER));
     assertThat(rule.getCardinality(), Is.is(Cardinality.MULTIPLE));
     assertThat(rule.getConfigKey(), is("Checker/TreeWalker/LocalVariableName"));
+    assertThat(rule.getStatus(), is(Status.NORMAL.name()));
 
     assertThat(rule.getParams().size(), is(2));
     RuleParam prop = rule.getParam("ignore");
@@ -64,18 +66,18 @@ public class XMLRuleParserTest {
   }
 
   @Test(expected = SonarException.class)
-  public void failIfMissingRuleKey() {
+  public void should_fail_if_missing_rule_key() {
     new XMLRuleParser().parse(new StringReader("<rules><rule><name>Foo</name></rule></rules>"));
   }
 
   @Test
-  public void ruleNameShouldBeOptional() {
+  public void should_rule_name_should_be_optional() {
     List<Rule> rules = new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key></rule></rules>"));
     assertThat(rules.get(0).getName(), nullValue());
   }
 
   @Test(expected = SonarException.class)
-  public void failIfMissingPropertyKey() {
+  public void should_fail_if_missing_property_key() {
     new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"));
   }
 
@@ -94,12 +96,12 @@ public class XMLRuleParserTest {
   }
 
   @Test(expected = SonarException.class)
-  public void fail_on_invalid_rule_parameter_type() {
+  public void should_fail_on_invalid_rule_parameter_type() {
     new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>INVALID</type></param></rule></rules>"));
   }
 
   @Test
-  public void testUtf8Encoding() {
+  public void test_utf8_encoding() {
     List<Rule> rules = new XMLRuleParser().parse(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/utf8.xml"));
     assertThat(rules.size(), is(1));
     Rule rule = rules.get(0);
@@ -111,7 +113,7 @@ public class XMLRuleParserTest {
   }
 
   @Test
-  public void shouldSupportDeprecatedFormat() {
+  public void should_support_deprecated_format() {
     // the deprecated format uses some attributes instead of nodes
     List<Rule> rules = new XMLRuleParser().parse(getClass().getResourceAsStream("/org/sonar/api/rules/XMLRuleParserTest/deprecated.xml"));
     assertThat(rules.size(), is(1));
@@ -119,5 +121,23 @@ public class XMLRuleParserTest {
     assertThat(rule.getSeverity(), Is.is(RulePriority.CRITICAL));
     assertThat(rule.getKey(), is("org.sonar.it.checkstyle.MethodsCountCheck"));
     assertThat(rule.getParam("minMethodsCount"), not(nullValue()));
+  }
+
+  @Test(expected = SonarException.class)
+  public void should_fail_if_status_is_unknown() {
+    new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key><name>Foo</name><status>UNKNOWN</status></rule></rules>"));
+  }
+
+  @Test
+  public void should_read_rule_status() {
+    List<Rule> rules = new XMLRuleParser().parse(new StringReader(
+        "<rules>"+
+            "<rule><key>foo</key><status>NORMAL</status></rule>"+
+            "<rule><key>foo</key><status>BETA</status></rule>"+
+            "<rule><key>foo</key><status>DEPRECATED</status></rule>"+
+            "</rules>"));
+    assertThat(rules.get(0).getStatus(), is(Status.NORMAL.name()));
+    assertThat(rules.get(1).getStatus(), is(Status.BETA.name()));
+    assertThat(rules.get(2).getStatus(), is(Status.DEPRECATED.name()));
   }
 }

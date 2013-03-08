@@ -20,6 +20,7 @@
 package org.sonar.api.rules;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
@@ -32,6 +33,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
+import org.sonar.check.Status;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -146,11 +148,15 @@ public final class XMLRuleParser implements ServerComponent {
       } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
         rule.setCardinality(Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
 
+      } else if (StringUtils.equalsIgnoreCase("status", nodeName)) {
+        String value = StringUtils.trim(cursor.collectDescendantText(false));
+        processStatus(rule, value);
+
       } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
         processParameter(rule, cursor);
       }
     }
-    if (StringUtils.isEmpty(rule.getKey())) {
+    if (Strings.isNullOrEmpty(rule.getKey())) {
       throw new SonarException("Node <key> is missing in <rule>");
     }
   }
@@ -187,7 +193,7 @@ public final class XMLRuleParser implements ServerComponent {
         param.setDefaultValue(propText);
       }
     }
-    if (StringUtils.isEmpty(param.getKey())) {
+    if (Strings.isNullOrEmpty(param.getKey())) {
       throw new SonarException("Node <key> is missing in <param>");
     }
   }
@@ -217,5 +223,18 @@ public final class XMLRuleParser implements ServerComponent {
       return type;
     }
     throw new SonarException("Invalid property type [" + type + "]");
+  }
+
+  private static void processStatus(Rule rule, String value) {
+    try {
+      if (!Strings.isNullOrEmpty(value)) {
+        Status status = Status.valueOf(value);
+        rule.setStatus(status.name());
+      } else {
+        rule.setStatus(Status.NORMAL.name());
+      }
+    } catch (IllegalArgumentException e) {
+      throw new SonarException("Node <status> can only contains : "+ Status.values(), e);
+    }
   }
 }

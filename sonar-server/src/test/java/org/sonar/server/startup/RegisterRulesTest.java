@@ -28,6 +28,7 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.SonarException;
+import org.sonar.check.Status;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -38,6 +39,7 @@ import java.util.Locale;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -69,6 +71,8 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(first.getKey(), is("rule1"));
     assertThat(first.getRepositoryKey(), is("fake"));
     assertThat(first.isEnabled(), is(true));
+    assertThat(first.getCreatedAt(), notNullValue());
+    assertThat(first.getStatus(), is(Status.NORMAL.name()));
     assertThat(first.getParams().size(), is(2));
   }
 
@@ -130,11 +134,14 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     // fields have been updated with new values
-    Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.getName(), is("One"));
-    assertThat(rule.getDescription(), is("Description of One"));
-    assertThat(rule.getSeverity(), is(RulePriority.BLOCKER));
-    assertThat(rule.getConfigKey(), is("config1"));
+    Rule rule1 = getSession().getSingleResult(Rule.class, "id", 1);
+    assertThat(rule1.getName(), is("One"));
+    assertThat(rule1.getDescription(), is("Description of One"));
+    assertThat(rule1.getSeverity(), is(RulePriority.BLOCKER));
+    assertThat(rule1.getConfigKey(), is("config1"));
+
+    Rule rule2 = getSession().getSingleResult(Rule.class, "id", 2);
+    assertThat(rule2.getStatus(), is(Status.DEPRECATED.name()));
   }
 
   @Test
@@ -293,6 +300,7 @@ class FakeRepository extends RuleRepository {
     Rule rule2 = Rule.create("fake", "rule2", "Two");
     rule2.setDescription("Description of Two");
     rule2.setSeverity(RulePriority.INFO);
+    rule2.setStatus(Status.DEPRECATED.name());
 
     return Arrays.asList(rule1, rule2);
   }

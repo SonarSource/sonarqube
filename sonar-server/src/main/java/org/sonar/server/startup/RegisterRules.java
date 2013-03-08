@@ -19,28 +19,34 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.check.Status;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 public final class RegisterRules {
+
+  private static final Logger LOG = LoggerFactory.getLogger(RegisterRules.class);
 
   private final DatabaseSessionFactory sessionFactory;
   private final List<RuleRepository> repositories;
@@ -104,7 +110,7 @@ public final class RegisterRules {
       rule.setRepositoryKey(repository.getKey());
       rulesByKey.put(rule.getKey(), rule);
     }
-    Logs.INFO.info(rulesByKey.size() + " rules");
+    LOG.info(rulesByKey.size() + " rules");
 
     List<Rule> persistedRules = session.getResults(Rule.class, "pluginName", repository.getKey());
     for (Rule persistedRule : persistedRules) {
@@ -140,6 +146,8 @@ public final class RegisterRules {
     persistedRule.setSeverity(rule.getSeverity());
     persistedRule.setEnabled(true);
     persistedRule.setCardinality(rule.getCardinality());
+    persistedRule.setStatus(!Strings.isNullOrEmpty(rule.getStatus()) ? rule.getStatus() : Status.NORMAL.name());
+    persistedRule.setUpdatedAt(new Date());
 
     // delete deprecated params
     deleteDeprecatedParameters(persistedRule, rule, session);
@@ -182,7 +190,10 @@ public final class RegisterRules {
   private void saveNewRules(Collection<Rule> rules, DatabaseSession session) {
     for (Rule rule : rules) {
       rule.setEnabled(true);
+      rule.setStatus(Status.NORMAL.name());
+      rule.setCreatedAt(new Date());
       session.saveWithoutFlush(rule);
     }
   }
+
 }
