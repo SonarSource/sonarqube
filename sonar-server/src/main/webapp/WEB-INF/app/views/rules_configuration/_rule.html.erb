@@ -29,10 +29,20 @@
 </td>
 
 <td class="left">
-  <div class="h3"><%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
+  <div class="h3 rule-title"><%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
     page.toggle "desc_#{rule.id}"
   end
   %></div>
+
+  <div class="rule-status">
+  <% if rule.beta? %>
+    <div class="status-beta"><%= message('beta') %></div>
+  <% elsif rule.deprecated? %>
+    <div class="status-deprecated"><%= message('deprecated') %></div>
+  <% elsif rule.disabled? %>
+    <div class="status-disabled"><%= message('disabled') %></div>
+  <% end %>
+  </div>
 
   <div id="desc_<%= rule.id -%>" class="rule_detail" style="<%= 'display:none' -%>">
     <a name="rule<%= rule.id -%>"></a>

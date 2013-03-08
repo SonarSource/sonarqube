@@ -21,6 +21,10 @@ class Rule < ActiveRecord::Base
 
   MANUAL_REPOSITORY_KEY = 'manual'
 
+  STATUS_BETA = "BETA"
+  STATUS_DEPRECATED = "DEPRECATED"
+  STATUS_DISABLED = "DISABLED"
+
   validates_presence_of :name, :description, :plugin_name
   validates_presence_of :plugin_rule_key, :if => 'name.present?'
 
@@ -61,6 +65,18 @@ class Rule < ActiveRecord::Base
 
   def editable?
     !parent_id.nil?
+  end
+
+  def disabled?
+    !enabled
+  end
+
+  def deprecated?
+    enabled && status == STATUS_DEPRECATED
+  end
+
+  def beta?
+    enabled && status == STATUS_BETA
   end
 
   def <=>(other)
@@ -238,10 +254,18 @@ class Rule < ActiveRecord::Base
   end
 
 
-  # options :language => nil, :plugins => [], :searchtext => '', :profile => nil, :priorities => [], :status =>
+  # options :language => nil, :plugins => [], :searchtext => '', :profile => nil, :priorities => [], :activation => '', :status => []
   def self.search(java_facade, options={})
     conditions = ['enabled=:enabled']
     values = {:enabled => true}
+
+    status = options[:status]
+    if status && !status.empty?
+      values[:enabled] = !status.include?(STATUS_DISABLED)
+
+      conditions << "status IN (:status)"
+      values[:status] = status
+    end
 
     plugins=nil
     if remove_blank(options[:plugins])
@@ -297,8 +321,8 @@ class Rule < ActiveRecord::Base
     inheritance = options[:inheritance]
 
     if profile
-      inactive = (options[:status]=='INACTIVE')
-      active = (options[:status]=='ACTIVE')
+      inactive = (options[:activation]=='INACTIVE')
+      active = (options[:activation]=='ACTIVE')
 
       rules = rules.reject do |rule|
         active_rule = profile.active_by_rule_id(rule.id)

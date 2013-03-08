@@ -55,6 +55,10 @@
         <span class="note"><%= message('activation') -%></span><br/>
         <%= select_tag "rule_activation", options_for_select(@select_activation, @activation), :id => 'search_activation', :size => 6 %>
       </div>
+      <div class="rule-search top">
+        <span class="note"><%= message('rules_configuration.status_filters') -%></span><br/>
+        <%= select_tag "status", options_for_select(@select_status, @status), :id => 'search_status', :multiple => true, :size => 6 %>
+      </div>
       <% if @profile.inherited? %>
         <div class="rule-search top">
           <span class="note"><%= message('inheritance') -%></span><br/>
@@ -152,6 +156,11 @@
   $j('#search_inheritance').select2({
     width: '120px',
     minimumResultsForSearch: <%= (@select_inheritance.size + 1).to_s %>
+  });
+
+  $j('#search_status').select2({
+    width: '120px',
+    placeholder: "<%= message('rules_configuration.available_rules') -%>"
   });
 
 </script>

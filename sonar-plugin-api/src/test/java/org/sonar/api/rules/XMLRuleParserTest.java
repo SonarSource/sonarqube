@@ -51,7 +51,7 @@ public class XMLRuleParserTest {
     assertThat(rule.getSeverity(), Is.is(RulePriority.BLOCKER));
     assertThat(rule.getCardinality(), Is.is(Cardinality.MULTIPLE));
     assertThat(rule.getConfigKey(), is("Checker/TreeWalker/LocalVariableName"));
-    assertThat(rule.getStatus(), is(Status.NORMAL.name()));
+    assertThat(rule.getStatus(), nullValue());
 
     assertThat(rule.getParams().size(), is(2));
     RuleParam prop = rule.getParam("ignore");

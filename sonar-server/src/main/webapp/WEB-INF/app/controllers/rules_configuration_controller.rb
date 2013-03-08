@@ -25,6 +25,7 @@ class RulesConfigurationController < ApplicationController
   
   STATUS_ACTIVE = "ACTIVE"
   STATUS_INACTIVE = "INACTIVE"
+
   ANY_SELECTION = []
   RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
 
@@ -39,30 +40,26 @@ class RulesConfigurationController < ApplicationController
     require_parameters :id
 
     @profile = Profile.find(params[:id])
-    add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
+    add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language),
+                    {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
 
     init_params()
 
     @select_plugins = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()] }.sort
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_activation = [[message('any'), 'any'], [message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
-    @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'], [message('rules_configuration.overrides'), 'OVERRIDES']]
+    @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],
+                           [message('rules_configuration.overrides'), 'OVERRIDES']]
+    @select_status = ANY_SELECTION + [[message('beta'), Rule::STATUS_BETA], [message('deprecated'), Rule::STATUS_DEPRECATED], [message('disabled'), Rule::STATUS_DISABLED]]
 
     @rules = Rule.search(java_facade, {
-        :profile => @profile, :status => @activation, :priorities => @priorities, :inheritance => @inheritance,
+        :profile => @profile, :activation => @activation, :priorities => @priorities, :inheritance => @inheritance, :status => @status,
         :plugins => @plugins, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language})
 
     unless @searchtext.blank?
-      if @activation==STATUS_ACTIVE
-        @hidden_inactives=Rule.search(java_facade, {
-            :profile => @profile, :status => STATUS_INACTIVE, :priorities => @priorities,
-            :plugins => @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
-
-      elsif @activation==STATUS_INACTIVE
-        @hidden_actives=Rule.search(java_facade, {
-            :profile => @profile, :status => STATUS_ACTIVE, :priorities => @priorities,
-            :plugins => @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
-      end
+      @hidden_inactives = Rule.search(java_facade, {
+          :profile => @profile, :activation => @activation==STATUS_ACTIVE ? STATUS_INACTIVE : STATUS_ACTIVE, :priorities => @priorities, :status => @status,
+          :plugins => @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
     end
 
     @pagination = Api::Pagination.new(params)
@@ -379,6 +376,7 @@ class RulesConfigurationController < ApplicationController
     @plugins=filter_any(params[:plugins]) || ['']
     @activation=params[:rule_activation] || STATUS_ACTIVE
     @inheritance=params[:inheritance] || 'any'
+    @status=params[:status]
     @searchtext=params[:searchtext]
   end
 

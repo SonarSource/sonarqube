@@ -2391,9 +2391,34 @@ textarea.width100 {
 }
 
 
-/* Rules search styles for rules configuration page */
+/* ------------------- Rule styles ------------------- */
+
 .rule-search {
   display: inline-block;
   line-height: 16px;
   padding: 4px 2px;
+}
+
+.rule-title {
+  display: inline-block;
+}
+
+.rule-status {
+  display: inline-block;
+  margin-left: 10px;
+  float: right;
+  background-color: #e7e7e7;
+  padding: 3px;
+}
+
+.rule-status .status-beta {
+  color: #5e8790;
+}
+
+.rule-status .status-deprecated {
+  color: #906947;
+}
+
+.rule-status .status-disabled {
+  color: #904553;
 }
