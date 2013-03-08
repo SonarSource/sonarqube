@@ -25,7 +25,7 @@ class RulesConfigurationController < ApplicationController
   
   STATUS_ACTIVE = "ACTIVE"
   STATUS_INACTIVE = "INACTIVE"
-  ANY_SELECTION = [["Any", '']]
+  ANY_SELECTION = []
   RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
 
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
