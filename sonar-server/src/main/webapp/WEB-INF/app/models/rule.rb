@@ -21,9 +21,14 @@ class Rule < ActiveRecord::Base
 
   MANUAL_REPOSITORY_KEY = 'manual'
 
+  STATUS_READY = "READY"
   STATUS_BETA = "BETA"
   STATUS_DEPRECATED = "DEPRECATED"
-  STATUS_DISABLED = "DISABLED"
+  STATUS_REMOVED = "REMOVED"
+
+  SORT_BY_RULE_NAME = "SORT_BY_RULE_NAME"
+  SORT_BY_CREATION_DATE = "SORT_BY_CREATION_DATE"
+  SORT_BY_REMOVAL_DATE = "SORT_BY_REMOVAL_DATE"
 
   validates_presence_of :name, :description, :plugin_name
   validates_presence_of :plugin_rule_key, :if => 'name.present?'
@@ -61,6 +66,10 @@ class Rule < ActiveRecord::Base
 
   def template?
     cardinality=='MULTIPLE'
+  end
+
+  def ready?
+    enabled && status == STATUS_READY
   end
 
   def editable?
@@ -254,33 +263,32 @@ class Rule < ActiveRecord::Base
   end
 
 
-  # options :language => nil, :plugins => [], :searchtext => '', :profile => nil, :priorities => [], :activation => '', :status => []
+  # options :language => nil, :plugins => [], :searchtext => '', :profile => nil, :priorities => [], :activation => '', :status => [], :sort_by => nil
   def self.search(java_facade, options={})
-    conditions = ['enabled=:enabled']
-    values = {:enabled => true}
+    conditions = []
+    values = {}
 
     status = options[:status]
-    if status && !status.empty?
-      values[:enabled] = !status.include?(STATUS_DISABLED)
-    end
-
-    plugins=nil
-    if remove_blank(options[:plugins])
-      plugins = options[:plugins]
-      unless options[:language].blank?
-        plugins = plugins & java_facade.getRuleRepositoriesByLanguage(options[:language]).collect { |repo| repo.getKey() }
-      end
-    elsif !options[:language].blank?
-      plugins = java_facade.getRuleRepositoriesByLanguage(options[:language]).collect { |repo| repo.getKey() }
-    end
-
-    if plugins
-      if plugins.empty?
-        conditions << "plugin_name IS NULL"
+    if status.blank?
+      conditions << ['enabled=:enabled']
+      values[:enabled] = true
+    else
+      if !status.include?(STATUS_REMOVED)
+        conditions << ['enabled=:enabled']
+        values[:enabled] = true
       else
-        conditions << "plugin_name IN (:plugin_names)"
-        values[:plugin_names] = plugins
+        # As we want the enabled and disabled rules, we do not filter on the enabled column
       end
+    end
+
+    unless options[:language].blank?
+      conditions << ['language=:language']
+      values[:language] = options[:language]
+    end
+
+    if remove_blank(options[:plugins])
+      conditions << "plugin_name IN (:plugin_names)"
+      values[:plugin_names] = options[:plugins]
     end
 
     unless options[:searchtext].blank?
@@ -299,7 +307,8 @@ class Rule < ActiveRecord::Base
     end
 
     includes=(options[:include_parameters_and_notes] ? [:rules_parameters, :rule_note] : nil)
-    rules = Rule.all(:include => includes, :conditions => [conditions.join(" AND "), values]).sort
+    rules = Rule.all(:include => includes, :conditions => [conditions.join(" AND "), values])
+    rules = Rule.sort_by(rules, options[:sort_by])
     filter(rules, options)
   end
 
@@ -320,12 +329,11 @@ class Rule < ActiveRecord::Base
 
     # The status cannot be filter in the SQL query because the disabled state is not set in the status column but in the disabled column.
     # For instance, a rule can be disabled and in status BETA in database, but in real it has to be considered only as disabled and must be returned when searching only for DISABLED.
-    if status && !status.empty?
-      status_list = status.split(',')
+    if status
       rules = rules.reject do |rule|
-        include_rule = rule.beta? && !status_list.include?(STATUS_BETA) ||
-           rule.deprecated? && !status_list.include?(STATUS_DEPRECATED) ||
-           rule.disabled? && !status_list.include?(STATUS_DISABLED)
+        include_rule = rule.beta? && status.include?(STATUS_BETA) ||
+           rule.deprecated? && status.include?(STATUS_DEPRECATED) ||
+           rule.disabled? && status.include?(STATUS_REMOVED)
         !include_rule
       end
     end
@@ -365,4 +373,17 @@ class Rule < ActiveRecord::Base
     end
     rules
   end
+
+  def self.sort_by(rules, sort_by)
+    case sort_by
+      when SORT_BY_CREATION_DATE
+        rules = rules.sort_by {|rule| rule.created_at}.reverse
+      when SORT_BY_REMOVAL_DATE
+        rules = rules.sort {|rule1, rule2| (rule1.updated_at && rule2.updated_at) ? rule1.updated_at <=> rule2.updated_at : 0}
+      else
+        rules = rules.sort
+    end
+    rules
+  end
+
 end

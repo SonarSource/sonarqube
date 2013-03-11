@@ -62,7 +62,7 @@ public @interface Rule {
   Cardinality cardinality() default Cardinality.SINGLE;
 
   /**
-   * The rule status. Can be Normal, Beta or Deprecated
+   * The rule status. Can be READY, BETA or DEPRECATED
    * @since 3.6
    */
   Status status() default Status.READY;

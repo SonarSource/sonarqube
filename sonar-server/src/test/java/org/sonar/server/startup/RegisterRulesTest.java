@@ -88,6 +88,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(rules.size(), greaterThan(0));
     for (Rule rule : rules) {
       assertThat(rule.isEnabled(), is(false));
+      assertThat(rule.getUpdatedAt(), notNullValue());
     }
   }
 
@@ -102,6 +103,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     Rule deprecated = result.get(0);
     assertThat(deprecated.getKey(), is("deprecated"));
     assertThat(deprecated.isEnabled(), is(false));
+    assertThat(deprecated.getUpdatedAt(), notNullValue());
 
     assertThat(result.get(1).isEnabled(), is(true));
     assertThat(result.get(2).isEnabled(), is(true));
@@ -124,9 +126,11 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
     assertThat(rule.isEnabled(), is(false));
+    assertThat(rule.getUpdatedAt(), notNullValue());
 
     rule = getSession().getSingleResult(Rule.class, "id", 2);
     assertThat(rule.isEnabled(), is(false));
+    assertThat(rule.getUpdatedAt(), notNullValue());
   }
 
   @Test
@@ -140,9 +144,11 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(rule1.getDescription(), is("Description of One"));
     assertThat(rule1.getSeverity(), is(RulePriority.BLOCKER));
     assertThat(rule1.getConfigKey(), is("config1"));
+    assertThat(rule1.getUpdatedAt(), notNullValue());
 
     Rule rule2 = getSession().getSingleResult(Rule.class, "id", 2);
     assertThat(rule2.getStatus(), is(Status.DEPRECATED.name()));
+    assertThat(rule2.getUpdatedAt(), notNullValue());
   }
 
   @Test
@@ -184,6 +190,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
     assertThat(rule.isEnabled(), is(false));
+    assertThat(rule.getUpdatedAt(), notNullValue());
   }
 
   @Test

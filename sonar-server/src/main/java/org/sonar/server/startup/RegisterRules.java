@@ -93,6 +93,7 @@ public final class RegisterRules {
     for (Integer deprecatedUserRuleId : deprecatedUserRuleIds) {
       Rule rule = session.getSingleResult(Rule.class, "id", deprecatedUserRuleId);
       rule.setEnabled(false);
+      rule.setUpdatedAt(new Date());
       session.saveWithoutFlush(rule);
     }
 
@@ -100,7 +101,7 @@ public final class RegisterRules {
 
   private void disableAllRules(DatabaseSession session) {
     // the hardcoded repository "manual" is used for manual violations
-    session.createQuery("UPDATE " + Rule.class.getSimpleName() + " SET enabled=false WHERE parent IS NULL AND pluginName<>'manual'").executeUpdate();
+    session.createQuery("UPDATE " + Rule.class.getSimpleName() + " SET enabled=false, updated_at=current_timestamp WHERE parent IS NULL AND pluginName<>'manual' AND enabled=true").executeUpdate();
   }
 
   private void registerRepository(RuleRepository repository, DatabaseSession session) {

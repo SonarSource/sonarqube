@@ -50,11 +50,14 @@ class RulesConfigurationController < ApplicationController
     @select_activation = [[message('any'), 'any'], [message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
     @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],
                            [message('rules_configuration.overrides'), 'OVERRIDES']]
-    @select_status = ANY_SELECTION + [[message('beta'), Rule::STATUS_BETA], [message('deprecated'), Rule::STATUS_DEPRECATED], [message('disabled'), Rule::STATUS_DISABLED]]
+    @select_status = ANY_SELECTION + [[message('beta'), Rule::STATUS_BETA], [message('deprecated'), Rule::STATUS_DEPRECATED], [message('removed'), Rule::STATUS_REMOVED]]
+    @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME]]
+    @select_sort_by << [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE] if !status_include_removed?
+    @select_sort_by << [message('rules_configuration.removal_date'), Rule::SORT_BY_REMOVAL_DATE] if status_include_removed?
 
     @rules = Rule.search(java_facade, {
         :profile => @profile, :activation => @activation, :priorities => @priorities, :inheritance => @inheritance, :status => @status,
-        :plugins => @plugins, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language})
+        :plugins => @plugins, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language, :sort_by => @sort_by})
 
     unless @searchtext.blank?
       @hidden_inactives = Rule.search(java_facade, {
@@ -373,11 +376,16 @@ class RulesConfigurationController < ApplicationController
   def init_params
     @id = params[:id]
     @priorities = filter_any(params[:priorities]) || ['']
-    @plugins=filter_any(params[:plugins]) || ['']
-    @activation=params[:rule_activation] || STATUS_ACTIVE
-    @inheritance=params[:inheritance] || 'any'
-    @status=params[:status]
-    @searchtext=params[:searchtext]
+    @plugins = filter_any(params[:plugins]) || ['']
+    @activation = params[:rule_activation] || STATUS_ACTIVE
+    @inheritance = params[:inheritance] || 'any'
+    @status = params[:status]
+    @sort_by = params[:sort_by]
+    # Force sort by removal date when status contains REMOVED
+    @sort_by = Rule::SORT_BY_REMOVAL_DATE if status_include_removed?
+    @sort_by = Rule::SORT_BY_RULE_NAME if !status_include_removed? and @sort_by == Rule::SORT_BY_REMOVAL_DATE
+    @sort_by ||= Rule::SORT_BY_RULE_NAME
+    @searchtext = params[:searchtext]
   end
 
   def filter_any(array)
@@ -385,6 +393,10 @@ class RulesConfigurationController < ApplicationController
       array=[''] #keep only 'any'
     end
     array
+  end
+
+  def status_include_removed?
+    !params[:status].blank? and params[:status].include?(Rule::STATUS_REMOVED)
   end
 
 end

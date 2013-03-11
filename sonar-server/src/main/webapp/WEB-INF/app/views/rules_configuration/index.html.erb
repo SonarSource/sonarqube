@@ -35,8 +35,8 @@
 <% enable_modification = is_admin? %>
 <div class="tabs-panel marginbottom10 background-gray">
 
-<% form_tag({:action => 'index'}, {:method => 'get'}) do %>
-    <% hidden_field_tag "id", @id %>
+<% form_tag({:action => 'index'}, {:id => 'rules-search-form', :method => 'get'}) do %>
+    <%= hidden_field_tag "sort_by", @sort_by, :id => 'sort_by' %>
 
     <div class="table" id="search_table">
       <div class="rule-search top">
@@ -99,19 +99,30 @@
     <% end %>
   </ul>
   <h2>
-     <% if @hidden_actives && @hidden_actives>0 %><span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>" id="active-rules-link">+<%= message('rules_configuration.x_found_in_active_rules', :params => @hidden_actives) -%></a></span><% end %>
-     <% if @hidden_inactives && @hidden_inactives>0 %><span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>" id="inactive-rules-link">+<%= message('rules_configuration.x_found_in_inactive_rules', :params => @hidden_inactives) -%></a></span><% end %>
+     <% if @hidden_actives && @hidden_actives>0 %>
+      <span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>"
+        id="active-rules-link">+<%= message('rules_configuration.x_found_in_active_rules', :params => @hidden_actives) -%></a></span><% end %>
+     <% if @hidden_inactives && @hidden_inactives>0 %>
+      <span class="small"><a href="<%= url_for params.merge({:rule_activation => ''}) -%>"
+        id="inactive-rules-link">+<%= message('rules_configuration.x_found_in_inactive_rules', :params => @hidden_inactives) -%></a></span><% end %>
   </h2>
 </div>
 <table class="table table-bordered width100 spacer-bottom" id="result_table">
   <thead>
     <tr>
-        <th class="left" nowrap><%= message('active') -%>/<%= message('severity') -%></th>
-        <th class="left"><%= message('name') -%> <span style="font-weight: normal">[<%= link_to_function(message('rules_configuration.expand'), "expand_rules()") %> / <%= link_to_function(message('rules_configuration.collapse'), "collapse_rules()") %>]</span></th>
+      <th class="left" nowrap><%= message('active') -%>/<%= message('severity') -%></th>
+      <th class="left"><%= message('name') -%> <span style="font-weight: normal">
+        [<%= link_to_function(message('rules_configuration.expand'), "expand_rules()") %> / <%= link_to_function(message('rules_configuration.collapse'), "collapse_rules()") %>]</span></th>
+      <th class="right thin" nowrap>
+        <% form_tag({:action => 'index'}) do %>
+          <%= message('rules_configuration.sort_by') -%>
+          <%= select_tag "sort_by", options_for_select(@select_sort_by, @sort_by), :id => 'select-rules-sort-by', :onChange => 'submitSortBy();' %>
+        <% end %>
+      </th>
     </tr>
 </thead>
 
-  <%= table_pagination(@pagination, :colspan => 2) { |label, page_id| link_to(label, params.merge({:page => page_id}))} -%>
+<%= table_pagination(@pagination, :colspan => 2) { |label, page_id| link_to(label, params.merge({:page => page_id}))} -%>
 
 <tbody>
 <% if @current_rules.empty? %>
@@ -136,6 +147,11 @@
     var text_field_value = $F(key);
     var text_area = '<textarea cols="100" id="' + key + '" name="value" rows="10">' + text_field_value + '</textarea><br/>';
     $(span_id).replace(text_area);
+  }
+
+  function submitSortBy(){
+    $j('#sort_by').val($j('#select-rules-sort-by').val());
+    $j("#rules-search-form").submit();
   }
 
   $j('#search_plugin').select2({
