@@ -89,6 +89,9 @@ public final class Rule {
   @Column(name = "status", updatable = true, nullable = true)
   private String status;
 
+  @Column(name = "language", updatable = true, nullable = true)
+  private String language;
+
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "parent_id", updatable = true, nullable = true)
   private Rule parent = null;
@@ -380,31 +383,65 @@ public final class Rule {
     return this;
   }
 
+  /**
+   * @since 3.6
+   */
   public String getStatus() {
     return status;
   }
 
+  /**
+   * @since 3.6
+   */
   public Rule setStatus(String status) {
     this.status = status;
     return this;
   }
 
+  /**
+   * @since 3.6
+   */
   public Date getCreatedAt() {
     return createdAt;
   }
 
+  /**
+   * @since 3.6
+   */
   public Rule setCreatedAt(Date created_at) {
     this.createdAt = created_at;
     return this;
   }
 
+  /**
+   * @since 3.6
+   */
   public Date getUpdatedAt() {
     return updatedAt;
   }
 
+  /**
+   * @since 3.6
+   */
   public Rule setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
+  }
+
+
+  /**
+   * @since 3.6
+   */
+  public String getLanguage() {
+    return language;
+  }
+
+  /**
+   * For internal use only.
+   * @since 3.6
+   */
+  public void setLanguage(String language) {
+    this.language = language;
   }
 
   @Override
@@ -443,6 +480,7 @@ public final class Rule {
       .append("severity", priority)
       .append("cardinality", cardinality)
       .append("status", status)
+      .append("language", language)
       .toString();
   }
 

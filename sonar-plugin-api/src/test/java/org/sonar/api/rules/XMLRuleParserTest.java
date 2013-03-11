@@ -123,20 +123,15 @@ public class XMLRuleParserTest {
     assertThat(rule.getParam("minMethodsCount"), not(nullValue()));
   }
 
-  @Test(expected = SonarException.class)
-  public void should_fail_if_status_is_unknown() {
-    new XMLRuleParser().parse(new StringReader("<rules><rule><key>foo</key><name>Foo</name><status>UNKNOWN</status></rule></rules>"));
-  }
-
   @Test
   public void should_read_rule_status() {
     List<Rule> rules = new XMLRuleParser().parse(new StringReader(
         "<rules>"+
-            "<rule><key>foo</key><status>NORMAL</status></rule>"+
+            "<rule><key>foo</key><status>READY</status></rule>"+
             "<rule><key>foo</key><status>BETA</status></rule>"+
             "<rule><key>foo</key><status>DEPRECATED</status></rule>"+
             "</rules>"));
-    assertThat(rules.get(0).getStatus(), is(Status.NORMAL.name()));
+    assertThat(rules.get(0).getStatus(), is(Status.READY.name()));
     assertThat(rules.get(1).getStatus(), is(Status.BETA.name()));
     assertThat(rules.get(2).getStatus(), is(Status.DEPRECATED.name()));
   }

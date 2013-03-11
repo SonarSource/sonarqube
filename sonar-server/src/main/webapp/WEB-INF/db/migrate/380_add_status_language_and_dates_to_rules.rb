@@ -21,9 +21,10 @@
 #
 # Sonar 3.6
 #
-class AddStatusAndDatesToRules < ActiveRecord::Migration
+class AddStatusLanguageAndDatesToRules < ActiveRecord::Migration
   def self.up
     add_column 'rules', 'status', :string, :null => true, :limit => 40
+    add_column 'rules', 'language', :string, :null => true, :limit => 20
     add_column 'rules', 'created_at', :datetime, :null => true
     add_column 'rules', 'updated_at', :datetime, :null => true
   end

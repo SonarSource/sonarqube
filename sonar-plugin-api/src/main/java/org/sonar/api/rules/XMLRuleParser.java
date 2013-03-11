@@ -33,7 +33,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
-import org.sonar.check.Status;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -149,8 +148,7 @@ public final class XMLRuleParser implements ServerComponent {
         rule.setCardinality(Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
 
       } else if (StringUtils.equalsIgnoreCase("status", nodeName)) {
-        String value = StringUtils.trim(cursor.collectDescendantText(false));
-        processStatus(rule, value);
+        rule.setStatus(StringUtils.trim(cursor.collectDescendantText(false)));
 
       } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
         processParameter(rule, cursor);
@@ -225,16 +223,4 @@ public final class XMLRuleParser implements ServerComponent {
     throw new SonarException("Invalid property type [" + type + "]");
   }
 
-  private static void processStatus(Rule rule, String value) {
-    try {
-      if (!Strings.isNullOrEmpty(value)) {
-        Status status = Status.valueOf(value);
-        rule.setStatus(status.name());
-      } else {
-        rule.setStatus(Status.NORMAL.name());
-      }
-    } catch (IllegalArgumentException e) {
-      throw new SonarException("Node <status> can only contains : "+ Status.values(), e);
-    }
-  }
 }

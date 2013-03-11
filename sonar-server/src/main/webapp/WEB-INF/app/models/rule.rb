@@ -262,9 +262,6 @@ class Rule < ActiveRecord::Base
     status = options[:status]
     if status && !status.empty?
       values[:enabled] = !status.include?(STATUS_DISABLED)
-
-      conditions << "status IN (:status)"
-      values[:status] = status
     end
 
     plugins=nil
@@ -319,6 +316,19 @@ class Rule < ActiveRecord::Base
     priorities = remove_blank(options[:priorities])
     profile = options[:profile]
     inheritance = options[:inheritance]
+    status = options[:status]
+
+    # The status cannot be filter in the SQL query because the disabled state is not set in the status column but in the disabled column.
+    # For instance, a rule can be disabled and in status BETA in database, but in real it has to be considered only as disabled and must be returned when searching only for DISABLED.
+    if status && !status.empty?
+      status_list = status.split(',')
+      rules = rules.reject do |rule|
+        include_rule = rule.beta? && !status_list.include?(STATUS_BETA) ||
+           rule.deprecated? && !status_list.include?(STATUS_DEPRECATED) ||
+           rule.disabled? && !status_list.include?(STATUS_DISABLED)
+        !include_rule
+      end
+    end
 
     if profile
       inactive = (options[:activation]=='INACTIVE')

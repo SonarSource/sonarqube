@@ -24,5 +24,9 @@ package org.sonar.check;
  * @since 3.6
  */
 public enum Status {
-  NORMAL, BETA, DEPRECATED
+  READY, BETA, DEPRECATED;
+
+  public static Status defaultValue() {
+    return Status.READY;
+  }
 }
