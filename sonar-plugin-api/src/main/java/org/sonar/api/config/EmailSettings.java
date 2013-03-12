@@ -23,7 +23,6 @@ import com.google.common.base.Objects;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.config.Settings;
 
 /**
  * If batch extensions use this component, then batch must be executed with administrator rights (see properties sonar.login and sonar.password)
@@ -45,6 +44,8 @@ public class EmailSettings implements BatchComponent, ServerComponent {
   public static final String FROM_DEFAULT = "noreply@nowhere";
   public static final String PREFIX = "email.prefix";
   public static final String PREFIX_DEFAULT = "[SONAR]";
+  public static final String DEFAULT_ADDRESS_SUFFIX = "email.default_address_suffix";
+  public static final String DEFAULT_ADDRESS_SUFFIX_DEFAULT = "";
 
   private final Settings settings;
 
@@ -82,6 +83,10 @@ public class EmailSettings implements BatchComponent, ServerComponent {
 
   public String getServerBaseURL() {
     return get(CoreProperties.SERVER_BASE_URL, CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
+  }
+
+  public String getDefaultAddressSuffix() {
+    return get(DEFAULT_ADDRESS_SUFFIX, DEFAULT_ADDRESS_SUFFIX_DEFAULT);
   }
 
   private String get(String key, String defaultValue) {

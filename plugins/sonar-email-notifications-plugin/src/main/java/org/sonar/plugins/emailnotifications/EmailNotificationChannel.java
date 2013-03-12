@@ -96,13 +96,18 @@ public class EmailNotificationChannel extends NotificationChannel {
   @Override
   public void deliver(Notification notification, String username) {
     User user = userFinder.findByLogin(username);
-    if (StringUtils.isBlank(user.getEmail())) {
-      LOG.debug("Email not defined for user: " + username);
-      return;
+    String email = user.getEmail();
+    if (StringUtils.isBlank(email)) {
+      String defaultSuffix = configuration.getDefaultAddressSuffix();
+      if (StringUtils.isBlank(defaultSuffix)) {
+        LOG.debug("Email not defined for user {}", username);
+        return;
+      }
+      email = username + defaultSuffix;
     }
     EmailMessage emailMessage = format(notification);
     if (emailMessage != null) {
-      emailMessage.setTo(user.getEmail());
+      emailMessage.setTo(email);
       deliver(emailMessage);
     }
   }

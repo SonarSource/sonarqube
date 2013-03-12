@@ -24,7 +24,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.database.model.User;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.security.UserFinder;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
+import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
@@ -39,6 +43,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +53,8 @@ public class EmailNotificationChannelTest {
   private Wiser server;
   private EmailSettings configuration;
   private EmailNotificationChannel channel;
+  private EmailTemplate template;
+  private UserFinder finder;
 
   private static int getNextAvailablePort() {
     try {
@@ -68,7 +75,10 @@ public class EmailNotificationChannelTest {
     server.start();
 
     configuration = mock(EmailSettings.class);
-    channel = new EmailNotificationChannel(configuration, null, null);
+    template = mock(EmailTemplate.class);
+    finder = mock(UserFinder.class);
+    EmailTemplate[] templates = { template };
+    channel = new EmailNotificationChannel(configuration, templates, finder);
   }
 
   @After
@@ -185,12 +195,38 @@ public class EmailNotificationChannelTest {
     channel.deliver(emailMessage);
   }
 
+  @Test
+  public void shouldSendEmailWithAutoSuffix() throws Exception {
+    configure();
+    when(configuration.getDefaultAddressSuffix()).thenReturn("@nowhere");
+    channel.deliver(new Notification("test"), "user");
+    List<WiserMessage> messages = server.getMessages();
+    assertThat(messages.size(), is(1));
+    MimeMessage email = messages.get(0).getMimeMessage();
+    assertThat(email.getHeader("To", null), is("<user@nowhere>"));
+    assertThat(email.getHeader("Subject", null), is("[SONAR] Test"));
+    assertThat((String) email.getContent(), startsWith("Hi"));
+  }
+
+  @Test
+  public void shouldNotSendEmailWithoutAutoSuffix() throws Exception {
+    configure();
+    channel.deliver(new Notification("test"), "user");
+    List<WiserMessage> messages = server.getMessages();
+    assertThat(messages.size(), is(0));
+  }
+
   private void configure() {
     when(configuration.getSmtpHost()).thenReturn("localhost");
     when(configuration.getSmtpPort()).thenReturn(port);
     when(configuration.getFrom()).thenReturn("server@nowhere");
     when(configuration.getPrefix()).thenReturn("[SONAR]");
     when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
+    when(finder.findByLogin("user")).thenReturn(new User().setLogin("user"));
+    EmailMessage message = new EmailMessage()
+      .setSubject("Test").setMessage("Hi")
+      .setFrom("nobody@nowhere").setTo("user@nowhere");
+    when(template.format(any(Notification.class))).thenReturn(message);
   }
 
 }
