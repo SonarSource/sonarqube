@@ -351,7 +351,7 @@ class RulesConfigurationController < ApplicationController
     count=0
     rule_ids_to_activate=(rule_ids - profile.active_rules.map { |ar| ar.rule_id })
     unless rule_ids_to_activate.empty?
-      rules_to_activate=Rule.find(:all, :conditions => {:enabled => true, :id => rule_ids_to_activate})
+      rules_to_activate=Rule.all(:conditions => ["status <> ? AND id IN (?)", Rule::STATUS_REMOVED, rule_ids_to_activate])
       count = rules_to_activate.size
       rules_to_activate.each do |rule|
         active_rule = profile.active_rules.create(:rule => rule, :failure_level => rule.priority)

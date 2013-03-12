@@ -4,6 +4,7 @@
   function get_level_for_rule(rule_select_box,rule_check_box) {
     return rule_check_box.checked ? rule_select_box.value : '';
   }
+
   function submitBulkForm() {
     if (localModifications) {
       alert("Please refresh the search results before.");
@@ -13,12 +14,14 @@
     }
     return !localModifications;
   }
+
   function downloadCsv() {
     if (localModifications) {
       alert("Please refresh the search results before.");
     }
     return !localModifications;
   }
+
   function expand_rules(){
     $$('.rule_detail').each(function(element) {
         element.show();
@@ -28,6 +31,17 @@
     $$('.rule_detail').each(function(element) {
       element.hide();
     });
+  }
+
+  function replaceTextField(span_id, key) {
+    var text_field_value = $F(key);
+    var text_area = '<textarea cols="100" id="' + key + '" name="value" rows="10">' + text_field_value + '</textarea><br/>';
+    $(span_id).replace(text_area);
+  }
+
+  function submitSortBy(){
+    $j('#sort_by').val($j('#select-rules-sort-by').val());
+    $j("#rules-search-form").submit();
   }
 </script>
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Coding rules'} %>
@@ -46,47 +60,39 @@
       <div class="rule-search top">
         <span class="note"><%= message('rules_configuration.repository') -%></span><br/>
         <%= dropdown_tag "repositories", options_for_select(@select_repositories, @repositories), {
-            :html_id => 'search_repository',
-            :multiple => true,
             :show_search_box => true,
             :width => '120px',
             :placeholder => message('any')
-        } -%>
+        }, {:id => 'search_repository', :multiple => true} -%>
       </div>
       <div class="rule-search top">
         <span class="note"><%= message('severity') -%></span><br/>
         <%= dropdown_tag "priorities", options_for_select(@select_priority, @priorities), {
-            :html_id => 'search_priority',
-            :multiple => true,
             :show_search_box => true,
             :width => '90px',
             :placeholder => message('any')
-        } -%>
+        }, {:id => 'search_priority', :multiple => true} -%>
       </div>
       <div class="rule-search top">
         <span class="note"><%= message('activation') -%></span><br/>
         <%= dropdown_tag "rule_activation", options_for_select(@select_activation, @activation), {
-            :html_id => 'search_activation',
             :width => '100px'
-        } -%>
+        }, {:id => 'search_activation'} -%>
       </div>
       <div class="rule-search top">
         <span class="note"><%= message('rules_configuration.status_filters') -%></span><br/>
         <%= dropdown_tag "status", options_for_select(@select_status, @status), {
-            :html_id => 'search_status',
-            :multiple => true,
             :show_search_box => true,
             :width => '120px',
             :placeholder => message('rules_configuration.available_rules')
-        } -%>
+        }, {:id => 'search_status', :multiple => true} -%>
       </div>
       <% if @profile.inherited? %>
         <div class="rule-search top">
           <span class="note"><%= message('inheritance') -%></span><br/>
           <%= dropdown_tag "inheritance", options_for_select(@select_inheritance, @inheritance), {
-              :html_id => 'search_inheritance',
               :width => '120px'
-          } -%>
+          }, {:id => 'search_inheritance'} -%>
         </div>
       <% end %>
       <div class="rule-search">
@@ -112,11 +118,10 @@
         <form action="<%= ApplicationController.root_context -%>/rules_configuration/bulk_edit" method="POST" style="display: inline;vertical-align: middle" id="bulk-form">
           <input type="hidden" name="id" value="<%= @profile.id -%>"/>
           <input type="hidden" name="bulk_rule_ids" value="<%= @rules.map{|r| r.id}.join(',') -%>"/>
-          <select name="bulk_action" onChange="submitBulkForm()" style="height: 16px;margin: 0; padding: 0;vertical-align: top">
-            <option value="" selected></option>
-            <option value="activate"><%= message('activate_all') -%></option>
-            <option value="deactivate"><%= message('deactivate_all') -%></option>
-          </select>
+          <%= dropdown_tag "bulk_action", options_for_select([ ["", ""], [message('activate_all'), "activate"], [message('deactivate_all'), "deactivate"] ], ''), {
+              :width => '110px',
+              :placeholder => ''
+          }, {:onChange => 'submitBulkForm()'} -%>
         </form>
         </div>
       </li>
@@ -140,7 +145,10 @@
       <th class="right thin" nowrap>
         <% form_tag({:action => 'index'}) do %>
           <%= message('rules_configuration.sort_by') -%>
-          <%= select_tag "sort_by", options_for_select(@select_sort_by, @sort_by), :id => 'select-rules-sort-by', :onChange => 'submitSortBy();' %>
+          <%= dropdown_tag "sort_by", options_for_select(@select_sort_by, @sort_by), {
+              :width => '120px',
+              :placeholder => ''
+          }, {:id => 'select-rules-sort-by', :onChange => 'submitSortBy()'} -%>
         <% end %>
       </th>
     </tr>
@@ -164,16 +172,3 @@
 <% end %>
 </tbody>
 </table>
-
-<script type="text/javascript">
-  function replaceTextField(span_id, key) {
-    var text_field_value = $F(key);
-    var text_area = '<textarea cols="100" id="' + key + '" name="value" rows="10">' + text_field_value + '</textarea><br/>';
-    $(span_id).replace(text_area);
-  }
-
-  function submitSortBy(){
-    $j('#sort_by').val($j('#select-rules-sort-by').val());
-    $j("#rules-search-form").submit();
-  }
-</script>
