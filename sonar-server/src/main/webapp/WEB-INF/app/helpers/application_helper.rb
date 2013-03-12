@@ -666,6 +666,40 @@ module ApplicationHelper
   end
 
   #
+  # Creates a dropdown selection box.
+  # ==== Options
+  # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
+  # * <tt>:html_id</tt> - The id of the HTML element. Default is the name.
+  # * <tt>:html_class</tt> - The class of the HTML element. Default is empty.
+  # * <tt>:placeholder</tt> - the label to display when nothing is selected
+  # * <tt>:allow_clear</tt> - true if value can be de-selected. Default is false.
+  # * <tt>:show_search_box</tt> - true to display the search box. Default is false.
+  # * <tt>:select2_options</tt> - hash of select2 options
+  #
+  def dropdown_tag(name, option_tags, options={})
+    width=options[:width]
+    html_id=options[:html_id]||name
+    html_class=options[:html_class]||''
+    show_search_box=options[:show_search_box]||false
+    minimumResultsForSearch=show_search_box ? 0 : option_tags.size + 1;
+
+    js_options={
+        'minimumResultsForSearch' => minimumResultsForSearch,
+        'allowClear' => options[:allow_clear]||false,
+    }
+    js_options['placeholder']= "'#{options[:placeholder]}'" if options.has_key?(:placeholder)
+    js_options['width']= "'#{width}'" if width
+    js_options.merge!(options[:select2_options]) if options[:select2_options]
+
+    html = select_tag(name, option_tags,
+                      :multiple => options[:multiple],
+                      :disabled => options[:disabled],
+                      :id => html_id, :class => html_class)
+    js = "$j('##{html_id}').select2({#{js_options.map { |k, v| "#{k}:#{v}" }.join(',')}});"
+    "#{html}<script>#{js}</script>"
+  end
+
+  #
   # Creates a link linked to a POST action. A confirmation popup is opened when user clicks on the button.
   # ==== Options
   # * <tt>:id</tt> - HTML ID of the button

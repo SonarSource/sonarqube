@@ -45,24 +45,47 @@
       </div>
       <div class="rule-search top">
         <span class="note"><%= message('rules_configuration.repository') -%></span><br/>
-        <%= select_tag "repositories", options_for_select(@select_repositories, @repositories), :id => 'search_repository', :multiple => true, :size => 6 %>
+        <%= dropdown_tag "repositories", options_for_select(@select_repositories, @repositories), {
+            :html_id => 'search_repository',
+            :multiple => true,
+            :width => '120px',
+            :placeholder => message('any')
+        } -%>
       </div>
       <div class="rule-search top">
         <span class="note"><%= message('severity') -%></span><br/>
-        <%= select_tag "priorities", options_for_select(@select_priority, @priorities), :id => 'search_priority', :multiple => true, :size => 6 %>
+        <%= dropdown_tag "priorities", options_for_select(@select_priority, @priorities), {
+            :html_id => 'search_priority',
+            :multiple => true,
+            :width => '90px',
+            :placeholder => message('any')
+        } -%>
       </div>
       <div class="rule-search top">
         <span class="note"><%= message('activation') -%></span><br/>
-        <%= select_tag "rule_activation", options_for_select(@select_activation, @activation), :id => 'search_activation', :size => 6 %>
+        <%= dropdown_tag "rule_activation", options_for_select(@select_activation, @activation), {
+            :html_id => 'search_activation',
+            :show_search_box => false,
+            :width => '100px'
+        } -%>
       </div>
       <div class="rule-search top">
         <span class="note"><%= message('rules_configuration.status_filters') -%></span><br/>
-        <%= select_tag "status", options_for_select(@select_status, @status), :id => 'search_status', :multiple => true, :size => 6 %>
+        <%= dropdown_tag "status", options_for_select(@select_status, @status), {
+            :html_id => 'search_status',
+            :multiple => true,
+            :width => '120px',
+            :placeholder => message('rules_configuration.available_rules')
+        } -%>
       </div>
       <% if @profile.inherited? %>
         <div class="rule-search top">
           <span class="note"><%= message('inheritance') -%></span><br/>
-          <%= select_tag "inheritance", options_for_select(@select_inheritance, @inheritance), :id => 'search_inheritance', :size => 6 %>
+          <%= dropdown_tag "inheritance", options_for_select(@select_inheritance, @inheritance), {
+              :html_id => 'search_inheritance',
+              :show_search_box => false,
+              :width => '120px'
+          } -%>
         </div>
       <% end %>
       <div class="rule-search">
@@ -142,7 +165,6 @@
 </table>
 
 <script type="text/javascript">
-
   function replaceTextField(span_id, key) {
     var text_field_value = $F(key);
     var text_area = '<textarea cols="100" id="' + key + '" name="value" rows="10">' + text_field_value + '</textarea><br/>';
@@ -153,30 +175,4 @@
     $j('#sort_by').val($j('#select-rules-sort-by').val());
     $j("#rules-search-form").submit();
   }
-
-  $j('#search_repository').select2({
-    width: '120px',
-    placeholder: "<%= message('any') -%>"
-  });
-
-  $j('#search_priority').select2({
-    width: '90px',
-    placeholder: "<%= message('any') -%>"
-  });
-
-  $j('#search_activation').select2({
-    width: '100px',
-    minimumResultsForSearch: <%= (@select_activation.size + 1).to_s %>
-  });
-
-  $j('#search_inheritance').select2({
-    width: '120px',
-    minimumResultsForSearch: <%= (@select_inheritance.size + 1).to_s %>
-  });
-
-  $j('#search_status').select2({
-    width: '120px',
-    placeholder: "<%= message('rules_configuration.available_rules') -%>"
-  });
-
 </script>
