@@ -69,23 +69,31 @@ class Rule < ActiveRecord::Base
   end
 
   def ready?
-    enabled && status == STATUS_READY
+    status == STATUS_READY
   end
 
   def editable?
     !parent_id.nil?
   end
 
+  def enabled?
+    !removed?
+  end
+
   def disabled?
-    !enabled
+    removed?
+  end
+
+  def removed?
+    status == STATUS_REMOVED
   end
 
   def deprecated?
-    enabled && status == STATUS_DEPRECATED
+    status == STATUS_DEPRECATED
   end
 
   def beta?
-    enabled && status == STATUS_BETA
+    status == STATUS_BETA
   end
 
   def <=>(other)
@@ -139,7 +147,7 @@ class Rule < ActiveRecord::Base
     if id<=0 && key_or_id
       parts=key_or_id.split(':')
       if parts.size==2
-        rule=Rule.find(:first, :conditions => {:plugin_name => parts[0], :plugin_rule_key => parts[1]})
+        rule=Rule.first(:conditions => {:plugin_name => parts[0], :plugin_rule_key => parts[1]})
         id=rule.id if rule
       end
     end
@@ -153,7 +161,7 @@ class Rule < ActiveRecord::Base
       if id<=0
         parts=key_or_id.split(':')
         if parts.size==2
-          rule=Rule.find(:first, :conditions => {:plugin_name => parts[0], :plugin_rule_key => parts[1]})
+          rule=Rule.first(:conditions => {:plugin_name => parts[0], :plugin_rule_key => parts[1]})
         end
       else
         rule=Rule.find(id)
@@ -163,23 +171,23 @@ class Rule < ActiveRecord::Base
   end
 
   def self.manual_rules
-    rules = Rule.find(:all, :conditions => ['enabled=? and plugin_name=?', true, MANUAL_REPOSITORY_KEY])
+    rules = Rule.all(:conditions => ['status=? and plugin_name=?', STATUS_READY, MANUAL_REPOSITORY_KEY])
     Api::Utils.insensitive_sort(rules) { |rule| rule.name }
   end
 
   def self.manual_rule(id)
-    Rule.find(:first, :conditions => ['enabled=? and plugin_name=? and id=?', true, MANUAL_REPOSITORY_KEY, id])
+    Rule.first(:conditions => ['status=? and plugin_name=? and id=?', STATUS_READY, MANUAL_REPOSITORY_KEY, id])
   end
 
   def self.find_or_create_manual_rule(rule_id_or_name, create_if_not_found=false, options={})
     if Api::Utils.is_integer?(rule_id_or_name)
-      rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :id => rule_id_or_name.to_i})
+      rule = Rule.first(:conditions => {:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :id => rule_id_or_name.to_i})
     else
       key = rule_id_or_name.strip.downcase.sub(/\s+/, '_')
-      rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key})
+      rule = Rule.first(:conditions => {:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key})
       if rule==nil && create_if_not_found
         description = options[:description] || Api::Utils.message('manual_rules.should_provide_real_description')
-        rule = Rule.create!(:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key,
+        rule = Rule.create!(:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key,
                             :name => rule_id_or_name, :description => description)
       end
     end
@@ -263,32 +271,28 @@ class Rule < ActiveRecord::Base
   end
 
 
-  # options :language => nil, :plugins => [], :searchtext => '', :profile => nil, :priorities => [], :activation => '', :status => [], :sort_by => nil
+  # options :language => nil, :repositories => [], :searchtext => '', :profile => nil, :priorities => [], :activation => '', :status => [], :sort_by => nil
   def self.search(java_facade, options={})
     conditions = []
     values = {}
 
     status = options[:status]
     if status.blank?
-      conditions << ['enabled=:enabled']
-      values[:enabled] = true
+      conditions << ['status <> :status']
+      values[:status] = STATUS_REMOVED
     else
-      if !status.include?(STATUS_REMOVED)
-        conditions << ['enabled=:enabled']
-        values[:enabled] = true
-      else
-        # As we want the enabled and disabled rules, we do not filter on the enabled column
-      end
+      conditions << "status IN (:status)"
+      values[:status] = options[:status]
     end
 
     unless options[:language].blank?
-      conditions << ['language=:language']
+      conditions << ['language = :language']
       values[:language] = options[:language]
     end
 
-    if remove_blank(options[:plugins])
+    if remove_blank(options[:repositories])
       conditions << "plugin_name IN (:plugin_names)"
-      values[:plugin_names] = options[:plugins]
+      values[:plugin_names] = options[:repositories]
     end
 
     unless options[:searchtext].blank?
@@ -325,18 +329,6 @@ class Rule < ActiveRecord::Base
     priorities = remove_blank(options[:priorities])
     profile = options[:profile]
     inheritance = options[:inheritance]
-    status = options[:status]
-
-    # The status cannot be filter in the SQL query because the disabled state is not set in the status column but in the disabled column.
-    # For instance, a rule can be disabled and in status BETA in database, but in real it has to be considered only as disabled and must be returned when searching only for DISABLED.
-    if status
-      rules = rules.reject do |rule|
-        include_rule = rule.beta? && status.include?(STATUS_BETA) ||
-           rule.deprecated? && status.include?(STATUS_DEPRECATED) ||
-           rule.disabled? && status.include?(STATUS_REMOVED)
-        !include_rule
-      end
-    end
 
     if profile
       inactive = (options[:activation]=='INACTIVE')

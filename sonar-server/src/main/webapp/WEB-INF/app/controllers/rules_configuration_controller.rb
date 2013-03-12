@@ -45,7 +45,7 @@ class RulesConfigurationController < ApplicationController
 
     init_params()
 
-    @select_plugins = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()] }.sort
+    @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()] }.sort
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
     @select_activation = [[message('any'), 'any'], [message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
     @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],
@@ -57,12 +57,12 @@ class RulesConfigurationController < ApplicationController
 
     @rules = Rule.search(java_facade, {
         :profile => @profile, :activation => @activation, :priorities => @priorities, :inheritance => @inheritance, :status => @status,
-        :plugins => @plugins, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language, :sort_by => @sort_by})
+        :repositories => @repositories, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language, :sort_by => @sort_by})
 
     unless @searchtext.blank?
       @hidden_inactives = Rule.search(java_facade, {
           :profile => @profile, :activation => @activation==STATUS_ACTIVE ? STATUS_INACTIVE : STATUS_ACTIVE, :priorities => @priorities, :status => @status,
-          :plugins => @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
+          :repositories => @repositories, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
     end
 
     @pagination = Api::Pagination.new(params)
@@ -376,7 +376,7 @@ class RulesConfigurationController < ApplicationController
   def init_params
     @id = params[:id]
     @priorities = filter_any(params[:priorities]) || ['']
-    @plugins = filter_any(params[:plugins]) || ['']
+    @repositories = filter_any(params[:repositories]) || ['']
     @activation = params[:rule_activation] || STATUS_ACTIVE
     @inheritance = params[:inheritance] || 'any'
     @status = params[:status]

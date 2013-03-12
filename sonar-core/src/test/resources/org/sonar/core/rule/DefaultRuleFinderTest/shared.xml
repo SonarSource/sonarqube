@@ -2,17 +2,17 @@
   <!-- CHECKSTYLE -->
 
   <rules id="1" name="Check Header" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"
-         plugin_config_key="Checker/Treewalker/HeaderCheck" plugin_name="checkstyle" description="[null]" priority="4" enabled="true"  cardinality="SINGLE" parent_id="[null]"/>
+         plugin_config_key="Checker/Treewalker/HeaderCheck" plugin_name="checkstyle" description="[null]" priority="4" status="READY"  cardinality="SINGLE" parent_id="[null]"/>
 
   <!-- disabled rule -->
   <rules id="2" name="Disabled checked" plugin_rule_key="DisabledCheck"
-         plugin_config_key="Checker/Treewalker/DisabledCheck" plugin_name="checkstyle" description="[null]" priority="4" enabled="false" cardinality="SINGLE" parent_id="[null]" />
+         plugin_config_key="Checker/Treewalker/DisabledCheck" plugin_name="checkstyle" description="[null]" priority="4" status="REMOVED" cardinality="SINGLE" parent_id="[null]" />
 
   <rules id="3" name="Check Annotation" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck"
-         plugin_config_key="Checker/Treewalker/AnnotationUseStyleCheck" plugin_name="checkstyle" description="[null]" priority="4" enabled="true" cardinality="SINGLE" parent_id="[null]" />
+         plugin_config_key="Checker/Treewalker/AnnotationUseStyleCheck" plugin_name="checkstyle" description="[null]" priority="4" status="READY" cardinality="SINGLE" parent_id="[null]" />
 
 
   <!-- PMD -->
   <rules id="4" name="Call Super First" plugin_rule_key="CallSuperFirst"
-         plugin_config_key="rulesets/android.xml/CallSuperFirst" plugin_name="pmd" description="[null]" priority="2" enabled="true" cardinality="SINGLE" parent_id="[null]" />
+         plugin_config_key="rulesets/android.xml/CallSuperFirst" plugin_name="pmd" description="[null]" priority="2" status="READY" cardinality="SINGLE" parent_id="[null]" />
 </dataset>

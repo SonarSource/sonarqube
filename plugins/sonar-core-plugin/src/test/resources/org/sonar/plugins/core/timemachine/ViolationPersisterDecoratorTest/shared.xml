@@ -1,11 +1,11 @@
 <dataset>
 
   <rules id="30" name="Check Header" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"
-         plugin_config_key="Checker/Treewalker/HeaderCheck" plugin_name="checkstyle" description="[null]" priority="4" enabled="true"
+         plugin_config_key="Checker/Treewalker/HeaderCheck" plugin_name="checkstyle" description="[null]" priority="4" status="READY"
          cardinality="SINGLE" parent_id="[null]"/>
 
   <rules id="31" name="Equals Avoid Null" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck"
-         plugin_config_key="Checker/TreeWalker/EqualsAvoidNull" plugin_name="checkstyle" description="[null]" priority="4" enabled="true"
+         plugin_config_key="Checker/TreeWalker/EqualsAvoidNull" plugin_name="checkstyle" description="[null]" priority="4" status="READY"
          cardinality="SINGLE" parent_id="[null]"/>
 
   <projects id="200" scope="FIL" qualifier="CLA" kee="project:org.foo.Bar" root_id="[null]"

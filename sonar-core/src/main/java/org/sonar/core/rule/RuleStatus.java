@@ -17,11 +17,12 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.check;
+package org.sonar.core.rule;
 
-/**
- * @since 3.6
- */
-public enum Status {
-  READY, BETA, DEPRECATED;
+public enum RuleStatus {
+  READY, BETA, DEPRECATED, REMOVED;
+
+  public static RuleStatus defaultValue() {
+    return RuleStatus.READY;
+  }
 }

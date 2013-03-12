@@ -65,9 +65,6 @@ public final class Rule {
   @Column(name = "plugin_rule_key", updatable = false, nullable = true, length = 200)
   private String key;
 
-  @Column(name = "enabled", updatable = true, nullable = true)
-  private Boolean enabled = Boolean.TRUE;
-
   @Column(name = "plugin_config_key", updatable = true, nullable = true, length = 500)
   private String configKey;
 
@@ -87,7 +84,7 @@ public final class Rule {
   private Cardinality cardinality = Cardinality.SINGLE;
 
   @Column(name = "status", updatable = true, nullable = true)
-  private String status;
+  private String status = "READY";
 
   @Column(name = "language", updatable = true, nullable = true)
   private String language;
@@ -255,15 +252,7 @@ public final class Rule {
   }
 
   public Boolean isEnabled() {
-    return enabled;
-  }
-
-  /**
-   * Do not call. Used only by sonar.
-   */
-  public Rule setEnabled(Boolean b) {
-    this.enabled = b;
-    return this;
+    return !status.equals("REMOVED");
   }
 
   public List<RuleParam> getParams() {
@@ -476,7 +465,6 @@ public final class Rule {
       .append("key", key)
       .append("configKey", configKey)
       .append("plugin", pluginName)
-      .append("enabled", enabled)
       .append("severity", priority)
       .append("cardinality", cardinality)
       .append("status", status)

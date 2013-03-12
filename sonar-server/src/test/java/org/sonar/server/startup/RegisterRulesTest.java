@@ -30,6 +30,7 @@ import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Status;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.ArrayList;
@@ -209,7 +210,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("shared");
     task.start();
 
-    List<Rule> result = getSession().getResults(Rule.class, "enabled", true);
+    List<Rule> result = getSession().getResults(Rule.class, "status", RuleStatus.READY.name());
     assertThat(result.size(), is(VolumeRepository.SIZE));
   }
 

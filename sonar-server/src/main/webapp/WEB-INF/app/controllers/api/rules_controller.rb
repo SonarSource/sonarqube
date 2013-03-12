@@ -27,10 +27,10 @@ class Api::RulesController < Api::RestController
     language = params[:language] || ''
     options= {}
 
-    options[:plugins]=params[:plugins].split(',') if params[:plugins]
+    options[:repositories]=params[:plugins].split(',') if params[:plugins]
     options[:language]=language
     options[:priorities]=params[:priorities].split(',') if params[:priorities]
-    options[:status]=params[:status]
+    options[:activation]=params[:status]
     options[:searchtext]=params[:searchtext]
     options[:include_parameters_and_notes]=true
     options[:inheritance]=params[:inheritance]

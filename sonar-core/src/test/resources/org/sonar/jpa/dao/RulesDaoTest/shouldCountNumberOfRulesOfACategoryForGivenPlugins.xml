@@ -1,14 +1,14 @@
 <dataset>
 
   <rules id="1" name="rule one" description="desc" plugin_config_key="config"
-         plugin_rule_key="rule_one" plugin_name="plugin1" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+         plugin_rule_key="rule_one" plugin_name="plugin1" status="READY" cardinality="SINGLE" parent_id="[null]"/>
 
   <rules id="2" name="rule two" description="desc" plugin_config_key="config"
-         plugin_rule_key="rule_two" plugin_name="plugin2" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+         plugin_rule_key="rule_two" plugin_name="plugin2" status="READY" cardinality="SINGLE" parent_id="[null]"/>
   <rules id="3" name="rule three" description="desc" plugin_config_key="config"
-         plugin_rule_key="rule_three" plugin_name="plugin2" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+         plugin_rule_key="rule_three" plugin_name="plugin2" status="READY" cardinality="SINGLE" parent_id="[null]"/>
 
   <rules id="4" name="rule 4" description="desc" plugin_config_key="config"
-         plugin_rule_key="rule_4" plugin_name="plugin2" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+         plugin_rule_key="rule_4" plugin_name="plugin2" status="READY" cardinality="SINGLE" parent_id="[null]"/>
 
 </dataset>

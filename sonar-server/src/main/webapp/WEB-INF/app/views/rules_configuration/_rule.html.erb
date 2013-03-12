@@ -40,7 +40,7 @@
       <div class="status-beta"><%= message('beta') %></div>
     <% elsif rule.deprecated? %>
       <div class="status-deprecated"><%= message('deprecated') %></div>
-    <% elsif rule.disabled? %>
+    <% elsif rule.removed? %>
       <div class="status-removed"><%= message('removed') %></div>
     <% end %>
     </div>
@@ -114,7 +114,7 @@
       <div style="float: left">
         <div style="color: #888" id="rule_repository_<%= rule.id -%>"><%= message('rules_configuration.repository')%> : <%= rule.repository_key %></div>
         <div style="color: #888" id="rule_key_<%= rule.id -%>"><%= message('key')%> : <%= rule.plugin_rule_key %></div>
-        <% if !rule.disabled? %>
+        <% if !rule.removed? %>
           <div style="color: #888" id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.available_since')%> : <%= human_short_date(rule.created_at) %></div>
         <% else %>
           <div style="color: #888" id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.removed_since')%> : <%= human_short_date(rule.updated_at) %></div>

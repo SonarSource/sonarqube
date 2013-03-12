@@ -35,7 +35,10 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.check.Status;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.session.DatabaseSessionFactory;
+
+import javax.persistence.Query;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -88,20 +91,23 @@ public final class RegisterRules {
 
     deprecatedUserRuleIds.addAll(session.createQuery(
         "SELECT r.id FROM " + Rule.class.getSimpleName() +
-            " r WHERE r.parent IS NOT NULL AND EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p and p.enabled=false)").getResultList());
+            " r WHERE r.parent IS NOT NULL AND EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p and p.status=:status)")
+        .setParameter("status", RuleStatus.REMOVED.name())
+        .getResultList());
 
     for (Integer deprecatedUserRuleId : deprecatedUserRuleIds) {
       Rule rule = session.getSingleResult(Rule.class, "id", deprecatedUserRuleId);
-      rule.setEnabled(false);
+      rule.setStatus(RuleStatus.REMOVED.name());
       rule.setUpdatedAt(new Date());
       session.saveWithoutFlush(rule);
     }
-
   }
 
   private void disableAllRules(DatabaseSession session) {
     // the hardcoded repository "manual" is used for manual violations
-    session.createQuery("UPDATE " + Rule.class.getSimpleName() + " SET enabled=false, updated_at=current_timestamp WHERE parent IS NULL AND pluginName<>'manual' AND enabled=true").executeUpdate();
+    Query query = session.createQuery("UPDATE " + Rule.class.getSimpleName() + " SET status=:status, updated_at=current_timestamp WHERE parent IS NULL AND pluginName<>'manual' AND status<>:status");
+    query.setParameter("status", RuleStatus.REMOVED.name());
+    query.executeUpdate();
   }
 
   private void registerRepository(RuleRepository repository, DatabaseSession session) {
@@ -110,7 +116,7 @@ public final class RegisterRules {
       validateRule(rule, repository.getKey());
       rule.setRepositoryKey(repository.getKey());
       rule.setLanguage(repository.getLanguage());
-      rule.setStatus(!Strings.isNullOrEmpty(rule.getStatus()) ? rule.getStatus() : Status.defaultValue().name());
+      rule.setStatus(!Strings.isNullOrEmpty(rule.getStatus()) ? rule.getStatus() : RuleStatus.defaultValue().name());
       rulesByKey.put(rule.getKey(), rule);
     }
     LOG.info(rulesByKey.size() + " rules");
@@ -154,7 +160,6 @@ public final class RegisterRules {
     persistedRule.setConfigKey(rule.getConfigKey());
     persistedRule.setDescription(rule.getDescription());
     persistedRule.setSeverity(rule.getSeverity());
-    persistedRule.setEnabled(true);
     persistedRule.setCardinality(rule.getCardinality());
     persistedRule.setStatus(rule.getStatus());
     persistedRule.setLanguage(rule.getLanguage());
@@ -200,7 +205,6 @@ public final class RegisterRules {
 
   private void saveNewRules(Collection<Rule> rules, DatabaseSession session) {
     for (Rule rule : rules) {
-      rule.setEnabled(true);
       rule.setCreatedAt(new Date());
       session.saveWithoutFlush(rule);
     }

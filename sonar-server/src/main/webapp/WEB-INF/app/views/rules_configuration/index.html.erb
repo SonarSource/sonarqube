@@ -45,7 +45,7 @@
       </div>
       <div class="rule-search top">
         <span class="note"><%= message('rules_configuration.repository') -%></span><br/>
-        <%= select_tag "plugins", options_for_select(@select_plugins, @plugins), :id => 'search_plugin', :multiple => true, :size => 6 %>
+        <%= select_tag "repositories", options_for_select(@select_repositories, @repositories), :id => 'search_repository', :multiple => true, :size => 6 %>
       </div>
       <div class="rule-search top">
         <span class="note"><%= message('severity') -%></span><br/>
@@ -77,8 +77,8 @@
   <ul style="float: right" class="horizontal">
     <li class="marginleft10">
       <div class="csv">
-      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @plugins.join(','),
-                           :activation => @activation, :inheritance => @inheritance, :searchtext => @searchtext, :priorities => @priorities.join(','), :format => 'csv') -%>"
+      <a href="<%= url_for(:controller => 'api/rules', :action => 'index', :language => @profile.language, :profile => @profile.name, :plugins => @repositories.join(','),
+                           :status => @activation, :inheritance => @inheritance, :searchtext => @searchtext, :priorities => @priorities.join(','), :format => 'csv') -%>"
          onClick="return downloadCsv()" id="download-link" class=""><%= message('download_verb') -%></a>
       </div>
     </li>
@@ -154,7 +154,7 @@
     $j("#rules-search-form").submit();
   }
 
-  $j('#search_plugin').select2({
+  $j('#search_repository').select2({
     width: '120px',
     placeholder: "<%= message('any') -%>"
   });
