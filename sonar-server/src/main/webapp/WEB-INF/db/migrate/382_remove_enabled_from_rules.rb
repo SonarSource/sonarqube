@@ -21,16 +21,13 @@
 #
 # Sonar 3.6
 #
-class AddStatusLanguageAndDatesToRules < ActiveRecord::Migration
+class RemoveEnabledFromRules < ActiveRecord::Migration
 
   class Rule < ActiveRecord::Base
   end
 
   def self.up
-    add_column 'rules', 'status', :string, :null => true, :limit => 40
-    add_column 'rules', 'language', :string, :null => true, :limit => 20
-    add_column 'rules', 'created_at', :datetime, :null => true
-    add_column 'rules', 'updated_at', :datetime, :null => true
+    remove_column('rules', 'enabled')
   end
 
 end
