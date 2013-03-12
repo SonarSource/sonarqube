@@ -320,7 +320,7 @@ function supports_html5_storage() {
   }
 }
 
-//******************* HANDLING OF WORKING VIEWS [BEGIN] ******************* //
+//******************* HANDLING OF ACCORDION NAVIGATION [BEGIN] ******************* //
 
 function openAccordionItem(url, elt, updateCurrentElement) {
   var htmlClass = 'accordion-item';
@@ -408,7 +408,7 @@ function expandAccordionItem(elt) {
   currentElement.find('.accordion-item-body').removeClass("accordion-item-body-medium");
 }
 
-//******************* HANDLING OF WORKING VIEWS [END] ******************* //
+//******************* HANDLING OF ACCORDION NAVIGATION [END] ******************* //
 
 
 //******************* HANDLING OF DROPDOWN MENUS [BEGIN] ******************* //
@@ -450,3 +450,4 @@ function showDropdownMenu(menuId) {
 }
 
 //******************* HANDLING OF DROPDOWN MENUS [END] ******************* //
+

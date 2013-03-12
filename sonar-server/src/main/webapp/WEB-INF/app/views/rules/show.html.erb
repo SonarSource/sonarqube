@@ -5,7 +5,7 @@
 
 <div class="doc">
   <% if @rule.description.strip.start_with?('<p>') %>
-    <%= @rule.description %>
+    <%= process_rule_description @rule %>
   <% else %>
     <p><%= @rule.description %></p>
   <% end %>

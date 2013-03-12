@@ -757,4 +757,9 @@ module ApplicationHelper
     html += '</div></td></tr></tfoot>'
     html
   end
+
+  def process_rule_description(rule)
+    description = rule.description
+    description.gsub(/\{toRule (.+):(.+)\}/, "<a class='open-modal' href='#{ApplicationController.root_context}/rules/show/"+ '\1:\2' +"?layout=false'>"+ '\1:\2' +"</a>")
+  end
 end
