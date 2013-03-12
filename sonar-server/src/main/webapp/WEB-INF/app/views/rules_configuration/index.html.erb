@@ -48,6 +48,7 @@
         <%= dropdown_tag "repositories", options_for_select(@select_repositories, @repositories), {
             :html_id => 'search_repository',
             :multiple => true,
+            :show_search_box => true,
             :width => '120px',
             :placeholder => message('any')
         } -%>
@@ -57,6 +58,7 @@
         <%= dropdown_tag "priorities", options_for_select(@select_priority, @priorities), {
             :html_id => 'search_priority',
             :multiple => true,
+            :show_search_box => true,
             :width => '90px',
             :placeholder => message('any')
         } -%>
@@ -65,7 +67,6 @@
         <span class="note"><%= message('activation') -%></span><br/>
         <%= dropdown_tag "rule_activation", options_for_select(@select_activation, @activation), {
             :html_id => 'search_activation',
-            :show_search_box => false,
             :width => '100px'
         } -%>
       </div>
@@ -74,6 +75,7 @@
         <%= dropdown_tag "status", options_for_select(@select_status, @status), {
             :html_id => 'search_status',
             :multiple => true,
+            :show_search_box => true,
             :width => '120px',
             :placeholder => message('rules_configuration.available_rules')
         } -%>
@@ -83,7 +85,6 @@
           <span class="note"><%= message('inheritance') -%></span><br/>
           <%= dropdown_tag "inheritance", options_for_select(@select_inheritance, @inheritance), {
               :html_id => 'search_inheritance',
-              :show_search_box => false,
               :width => '120px'
           } -%>
         </div>
