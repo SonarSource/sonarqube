@@ -2,9 +2,9 @@
 
   <!-- Rules -->
   <rules id="1" name="new1" description="test1" plugin_config_key="checker/new1"
-         plugin_rule_key="checkstyle.new1" plugin_name="PLUGIN_KEY" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+         plugin_rule_key="checkstyle.new1" plugin_name="PLUGIN_KEY" status="READY" cardinality="SINGLE" parent_id="[null]"/>
   <rules id="2" name="new2" description="test2" plugin_config_key="checker/new2"
-         plugin_rule_key="checkstyle.new2" plugin_name="PLUGIN_KEY" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+         plugin_rule_key="checkstyle.new2" plugin_name="PLUGIN_KEY" status="READY" cardinality="SINGLE" parent_id="[null]"/>
 
   <!-- Rules parameters -->
   <rules_parameters id="1" rule_id="1" name="rule1_param1" description="rule1_desc1" param_type="REGULAR_EXPRESSION"

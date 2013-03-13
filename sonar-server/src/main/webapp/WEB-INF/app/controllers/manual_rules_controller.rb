@@ -62,7 +62,7 @@ class ManualRulesController < ApplicationController
     access_denied unless is_admin?
     rule=Rule.manual_rule(params['id'].to_i)
     bad_request('Missing rule id') unless rule
-    rule.enabled=false
+    rule.status=Rule::STATUS_REMOVED
     unless rule.save
       flash[:error]=rule.errors.to_s
     end

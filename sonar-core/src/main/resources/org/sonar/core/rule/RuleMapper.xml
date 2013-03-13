@@ -3,11 +3,11 @@
 
 <mapper namespace="org.sonar.core.rule.RuleMapper">
   <select id="selectAll" resultType="Rule">
-    select id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, enabled, name from rules
+    select id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, status, name from rules
   </select>
 
   <select id="selectById" parameterType="long" resultType="Rule">
-    select id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, enabled, name from rules WHERE id=#{id}
+    select id, plugin_rule_key as "ruleKey", plugin_name as "repositoryKey", description, status, name from rules WHERE id=#{id}
   </select>
 </mapper>
 

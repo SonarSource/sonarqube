@@ -2,28 +2,28 @@
   <input type="hidden" name="id" value="<%= @filter.id -%>">
   <input type="hidden" name="data" value="<%= u(@filter.data) -%>">
   <fieldset>
-    <div class="form-head">
+    <div class="modal-head">
       <h2>Save Filter</h2>
     </div>
 
-    <div class="form-body">
+    <div class="modal-body">
       <% @filter.errors.each do |attr, msg| %>
         <p class="error"><%= h msg -%></p>
       <% end %>
-      <div class="form-field">
+      <div class="modal-field">
         <label for="name">Name <em class="mandatory">*</em></label>
         <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h @filter.name -%>" autofocus="autofocus"/>
       </div>
-      <div class="form-field">
+      <div class="modal-field">
         <label for="description">Description</label>
         <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @filter.description -%>"/>
       </div>
-      <div class="form-field">
+      <div class="modal-field">
         <label for="shared">Shared with all users</label>
         <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @filter.shared -%>/>
       </div>
     </div>
-    <div class="form-foot">
+    <div class="modal-foot">
       <input type="submit" value="<%= h message('save') -%>" id="save-as-submit"/>
       <a href="#" onclick="return closeModalWindow()" id="save-as-cancel"><%= h message('cancel') -%></a>
     </div>

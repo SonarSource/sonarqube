@@ -1,0 +1,37 @@
+<% if @rule %>
+<div class="modal-head">
+  <h2>
+    <%= @rule.name %>
+  </h2>
+  <ul class="modal-head-metadata">
+    <li><%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%></li>
+  </ul>
+</div>
+
+<div class="modal-body">
+  <% if @rule.description.strip.start_with?('<p>') %>
+    <%= interpret_macro @rule.description %>
+  <% else %>
+    <p><%= @rule.description %></p>
+  <% end %>
+
+  <% if @rule.note && !@rule.note.text.strip.blank? %>
+    <p><%= @rule.note.html_text -%></p>
+  <% end %>
+</div>
+
+<% else %>
+<div class="modal-body">
+  <p class="error"><%= message('rules.not_found', :params => @key) %>
+</div>
+<% end %>
+
+<div class="modal-foot">
+  <a href="#" onclick="return closeModalWindow()"><%= h message('close') -%></a>
+</div>
+
+<script type="text/javascript">
+  $j(document).ready(function () {
+    $j('.rule-modal').modal()
+  });
+</script>

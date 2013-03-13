@@ -24,7 +24,7 @@ public final class RuleDto {
   private String repositoryKey;
   private String ruleKey;
   private String description;
-  private boolean enabled;
+  private String status;
   private String name;
 
   public Long getId() {
@@ -59,12 +59,12 @@ public final class RuleDto {
     this.description = description;
   }
 
-  public boolean isEnabled() {
-    return enabled;
+  public String getStatus() {
+    return status;
   }
 
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+  public void setStatus(String status) {
+    this.status = status;
   }
 
   public String getName() {

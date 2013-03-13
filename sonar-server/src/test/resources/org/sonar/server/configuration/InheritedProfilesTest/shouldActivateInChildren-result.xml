@@ -1,7 +1,7 @@
 <dataset>
 
   <rules id="1" name="foo" description="test" plugin_config_key="checker/foo"
-         plugin_rule_key="checkstyle.rule1" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+         plugin_rule_key="checkstyle.rule1" plugin_name="plugin" status="READY" cardinality="SINGLE" parent_id="[null]"/>
   
   <rules_parameters id="1" rule_id="1" name="param1" description="[null]" param_type="REGULAR_EXPRESSION"/>
 

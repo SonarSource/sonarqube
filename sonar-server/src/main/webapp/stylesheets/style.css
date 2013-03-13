@@ -1,3 +1,23 @@
+/*
+ * Sonar, open source software quality management tool.
+ * Copyright (C) 2008-2012 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * Sonar is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+
 /* CSS optimized by http://www.cleancss.com */
 
 /* ------------------- PROJECTS SEARCH FORM ------------------- */
@@ -2294,25 +2314,45 @@ select.medium-width {
   width: 175px;
 }
 
-.form-head {
-  padding: 2px 10px;
+/*
+
+ MODAL WINDOWS
+
+*/
+.modal-head {
+  padding: 0 10px;
   background-color: #EFEFEF;
-  line-height: 30px;
-  height: 30px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #DDD;
 }
 
-.form-body {
+.modal-head h1, .modal-head h2 {
+  line-height: 30px;
+  height: 30px;
+}
+
+ul.modal-head-metadata {
+  overflow: hidden;
+  padding: 0 0 5px 0;
+}
+
+ul.modal-head-metadata li {
+  float: left;
+  position: relative;
+  font-size: 85%;
+  color: #777;
+}
+
+.modal-body {
   padding: 10px;
 }
 
-.form-field {
+.modal-field {
   clear: both;
   display: block;
-  padding: 5px 0 5px 140px;
+  padding: 5px 0 5px 130px;
 }
 
-.form-field label {
+.modal-field label {
   display: block;
   float: left;
   text-align: right;
@@ -2325,7 +2365,7 @@ select.medium-width {
   padding-top: 5px;
 }
 
-.form-foot {
+.modal-foot {
   text-align: right;
   padding: 2px 10px;
   border-top: 1px solid #CCC;
@@ -2333,11 +2373,11 @@ select.medium-width {
   height: 30px;
 }
 
-.form-foot input {
+.modal-foot input {
   margin-right: 10px;
 }
 
-.form-field-description {
+.modal-field-description {
   clear: both;
   font-size: 93%;
   color: #777;
@@ -2373,6 +2413,8 @@ textarea.width100 {
   vertical-align: top;
 }
 
+/* ------------------- Accordion navigation styles ------------------- */
+
 .accordion-item {
   border: 1px solid #DDD;
   margin-bottom: 20px;
@@ -2386,4 +2428,29 @@ textarea.width100 {
 .accordion-item-body-medium {
   max-height: 200px;
   overflow: auto;
+}
+
+
+/* ------------------- Rule styles ------------------- */
+
+.rule-search {
+  display: inline-block;
+  line-height: 16px;
+  padding: 4px 2px;
+}
+
+.rule-title {
+  display: inline-block;
+}
+
+.rule-status {
+  margin-left: 10px;
+  float: right;
+  padding: 3px 5px 0 0;
+}
+
+.rule-status span {
+  text-transform: uppercase;
+  font-size: 85%;
+  color: #777;
 }

@@ -28,8 +28,18 @@
   </form>
 </td>
 
-<td class="left">
-  <div class="h3"><%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
+<td class="left" colspan="2">
+  <% unless rule.ready? %>
+    <div class="rule-status">
+      <% if rule.beta? %>
+        <span><%= message('rules_configuration.status.beta') %></span>
+      <% elsif rule.deprecated? %>
+        <span><%= message('rules_configuration.status.deprecated') %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="h3 rule-title"><%= link_to_function("#{h rule.name}", nil, :class => "") do |page|
     page.toggle "desc_#{rule.id}"
   end
   %></div>
@@ -100,8 +110,13 @@
 
     <div style="height: 17px;line-height: 17px;font-size: 11px;">
       <div style="float: left">
-        <div style="color: #888" id="rule_repository_<%= rule.id -%>"><%= message('rules_configuration.repository')%> : <%= rule.repository_key %></div>
-        <div style="color: #888" id="rule_key_<%= rule.id -%>"><%= message('key')%> : <%= rule.plugin_rule_key %></div>
+        <div style="color: #888" id="rule_repository_<%= rule.id -%>"><%= message('rules_configuration.repository') %> : <%= rule.repository_key %></div>
+        <div style="color: #888" id="rule_key_<%= rule.id -%>"><%= message('key') %> : <%= rule.plugin_rule_key %></div>
+        <% if !rule.removed? %>
+          <div style="color: #888" id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.available_since') %> : <%= human_short_date(rule.created_at) %></div>
+        <% else %>
+          <div style="color: #888" id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.removed_since') %> : <%= human_short_date(rule.updated_at) %></div>
+        <% end %>
       </div>
     </div>
   </div>

@@ -1,10 +1,10 @@
 <form id="copy-profile-form" method="post" action="profiles/copy">
   <input type="hidden" name="id" value="<%= @profile.id -%>"/>
   <fieldset>
-    <div class="form-head">
+    <div class="modal-head">
       <h2> <%= message('quality_profiles.copy_x_title', :params => [h @profile.name]) -%></h2>
     </div>
-    <div class="form-body">
+    <div class="modal-body">
       <% if @errors
           @errors.each do |error|
       %>
@@ -12,12 +12,12 @@
       <% end
       end
       %>
-      <div class="form-field">
+      <div class="modal-field">
         <label for="name"><%= message 'quality_profiles.copy_new_name' -%> <em class="mandatory">*</em></label>
         <input id="copy-name" name="name" type="text" size="50" maxlength="100" autofocus="autofocus"/>
       </div>
     </div>
-    <div class="form-foot">
+    <div class="modal-foot">
       <input type="submit" value="<%= h message('copy') -%>" id="copy-submit"/>
       <a href="#" onclick="return closeModalWindow()" id="copy-cancel"><%= h message('cancel') -%></a>
     </div>

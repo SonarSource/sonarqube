@@ -65,6 +65,7 @@ import org.sonar.core.workflow.WorkflowEngine;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
+import org.sonar.server.macro.MacroInterpreter;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.NewUserNotifier;
 import org.sonar.server.platform.Platform;
@@ -564,5 +565,9 @@ public final class JRubyFacade {
 
   public Testable testable(String componentKey) {
     return get(SnapshotPerspectives.class).as(MutableTestable.class, componentKey);
+  }
+
+  public MacroInterpreter getMacroInterpreter(){
+    return get(MacroInterpreter.class);
   }
 }

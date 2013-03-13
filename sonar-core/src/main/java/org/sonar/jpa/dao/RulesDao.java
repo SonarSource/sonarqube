@@ -22,6 +22,7 @@ package org.sonar.jpa.dao;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
+import org.sonar.core.rule.RuleStatus;
 
 import java.util.List;
 
@@ -32,11 +33,16 @@ public class RulesDao extends BaseDao {
   }
 
   public List<Rule> getRules() {
-    return getSession().getResults(Rule.class, "enabled", true);
+    return getSession().createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.status<>:status")
+        .setParameter("status", RuleStatus.REMOVED.name())
+        .getResultList();
   }
 
   public List<Rule> getRulesByRepository(String repositoryKey) {
-    return getSession().getResults(Rule.class, "pluginName", repositoryKey, "enabled", true);
+    return getSession().createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.pluginName=:pluginName and r.status<>:status")
+        .setParameter("pluginName", repositoryKey)
+        .setParameter("status", RuleStatus.REMOVED.name())
+        .getResultList();
   }
 
   /**
@@ -48,7 +54,13 @@ public class RulesDao extends BaseDao {
   }
 
   public Rule getRuleByKey(String repositoryKey, String ruleKey) {
-    return getSession().getSingleResult(Rule.class, "key", ruleKey, "pluginName", repositoryKey, "enabled", true);
+    DatabaseSession session = getSession();
+    return (Rule) session.getSingleResult(
+        session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.key=:key and r.pluginName=:pluginName and r.status<>:status")
+            .setParameter("key", ruleKey)
+            .setParameter("pluginName", repositoryKey)
+            .setParameter("status", RuleStatus.REMOVED.name()
+            ), null);
   }
 
 

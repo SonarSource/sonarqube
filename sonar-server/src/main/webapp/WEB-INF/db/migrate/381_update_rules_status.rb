@@ -17,23 +17,26 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class RulesController < ApplicationController
 
-  SECTION=Navigation::SECTION_CONFIGURATION
-  
-  def show
-    @key=params[:id]
-    if @key.to_i==0
-      parts=@key.split(':')
-      @rule=Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', parts[0], parts[1]])
-    else
-      @rule=Rule.find(@key)
-    end
-    @page_title=@rule.name if @rule
+#
+# Sonar 3.6
+#
+class UpdateRulesStatus < ActiveRecord::Migration
 
-    if params[:modal] == 'true'
-      render :partial => 'show'
-    end
+  class Rule < ActiveRecord::Base
+  end
+
+  def self.up
+    set_rule_status
+  end
+
+  private
+
+  def self.set_rule_status
+    Rule.reset_column_information
+    Rule.update_all({:status => 'READY', :created_at => Time.now}, ['enabled=?', true])
+    Rule.update_all({:status => 'REMOVED', :updated_at => Time.now}, ['enabled=?', false])
   end
 
 end
+

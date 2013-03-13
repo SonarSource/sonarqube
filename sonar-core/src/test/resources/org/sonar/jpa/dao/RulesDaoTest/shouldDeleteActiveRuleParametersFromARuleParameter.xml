@@ -1,7 +1,7 @@
 <dataset>
 
   <rules id="1" name="rule1" description="desc" plugin_config_key="config"
-         plugin_rule_key="key1" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+         plugin_rule_key="key1" plugin_name="plugin" status="READY" cardinality="SINGLE" parent_id="[null]"/>
 
   <rules_parameters id="1" rule_id="1" name="param1" description="foo" param_type="REGULAR_EXPRESSION"/>
   <rules_parameters id="2" rule_id="1" name="param2" description="foo" param_type="REGULAR_EXPRESSION"/>

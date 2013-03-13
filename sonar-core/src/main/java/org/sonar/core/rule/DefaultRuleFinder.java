@@ -27,6 +27,7 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import javax.persistence.Query;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,12 @@ public class DefaultRuleFinder implements RuleFinder {
   }
 
   protected final Rule doFindById(int ruleId) {
-    return sessionFactory.getSession().getSingleResult(Rule.class, "id", ruleId, "enabled", true);
+    DatabaseSession session = sessionFactory.getSession();
+    return (Rule) session.getSingleResult(
+        session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.id=:id and r.status<>:status")
+            .setParameter("id", ruleId)
+            .setParameter("status", RuleStatus.REMOVED.name()
+            ), null);
   }
 
   public Rule findByKey(String repositoryKey, String key) {
@@ -52,7 +58,13 @@ public class DefaultRuleFinder implements RuleFinder {
   }
 
   protected final Rule doFindByKey(String repositoryKey, String key) {
-    return sessionFactory.getSession().getSingleResult(Rule.class, "pluginName", repositoryKey, "key", key, "enabled", true);
+    DatabaseSession session = sessionFactory.getSession();
+    return (Rule) session.getSingleResult(
+        session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.key=:key and r.pluginName=:pluginName and r.status<>:status")
+            .setParameter("key", key)
+            .setParameter("pluginName", repositoryKey)
+            .setParameter("status", RuleStatus.REMOVED.name()
+            ), null);
   }
 
   public final Rule find(RuleQuery query) {
@@ -67,9 +79,9 @@ public class DefaultRuleFinder implements RuleFinder {
   }
 
   private Query createHqlQuery(DatabaseSession session, RuleQuery query) {
-    StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" where enabled=:enabled ");
+    StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" where status<>:status ");
     Map<String,Object> params = new HashMap<String,Object>();
-    params.put("enabled", Boolean.TRUE);
+    params.put("status", RuleStatus.REMOVED.name());
     if (StringUtils.isNotBlank(query.getRepositoryKey())) {
       hql.append("AND pluginName=:repositoryKey ");
       params.put("repositoryKey", query.getRepositoryKey());

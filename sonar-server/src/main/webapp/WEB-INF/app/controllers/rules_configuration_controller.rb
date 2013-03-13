@@ -25,7 +25,8 @@ class RulesConfigurationController < ApplicationController
   
   STATUS_ACTIVE = "ACTIVE"
   STATUS_INACTIVE = "INACTIVE"
-  ANY_SELECTION = [["Any", '']]
+
+  ANY_SELECTION = []
   RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
 
   # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
@@ -39,29 +40,35 @@ class RulesConfigurationController < ApplicationController
     require_parameters :id
 
     @profile = Profile.find(params[:id])
-    add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
+    add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language),
+                    {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
 
     init_params()
 
-    @select_plugins = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()] }.sort
+    @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.getName(true), repo.getKey()] }.sort
     @select_priority = ANY_SELECTION + RULE_PRIORITIES
-    @select_status = [[message('any'), ''], [message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
-    @select_inheritance = [[message('any'), ''], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'], [message('rules_configuration.overrides'), 'OVERRIDES']]
+    @select_activation = [[message('any'), 'any'], [message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
+    @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],
+                           [message('rules_configuration.overrides'), 'OVERRIDES']]
+    @select_status = ANY_SELECTION + [[message('rules_configuration.status.beta'), Rule::STATUS_BETA],
+                      [message('rules_configuration.status.deprecated'), Rule::STATUS_DEPRECATED],
+                      [message('rules_configuration.status.ready'), Rule::STATUS_READY]]
+    @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
 
     @rules = Rule.search(java_facade, {
-        :profile => @profile, :status => @status, :priorities => @priorities, :inheritance => @inheritance,
-        :plugins => @plugins, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language})
+        :profile => @profile, :activation => @activation, :priorities => @priorities, :inheritance => @inheritance, :status => @status,
+        :repositories => @repositories, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language, :sort_by => @sort_by})
 
     unless @searchtext.blank?
-      if @status==STATUS_ACTIVE
-        @hidden_inactives=Rule.search(java_facade, {
-            :profile => @profile, :status => STATUS_INACTIVE, :priorities => @priorities,
-            :plugins => @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
+      if @activation==STATUS_ACTIVE
+        @hidden_inactives = Rule.search(java_facade, {
+            :profile => @profile, :activation => STATUS_INACTIVE, :priorities => @priorities, :status => @status,
+            :repositories => @repositories, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
 
-      elsif @status==STATUS_INACTIVE
-        @hidden_actives=Rule.search(java_facade, {
-            :profile => @profile, :status => STATUS_ACTIVE, :priorities => @priorities,
-            :plugins => @plugins, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
+      elsif @activation==STATUS_INACTIVE
+        @hidden_actives = Rule.search(java_facade, {
+            :profile => @profile, :activation => STATUS_ACTIVE, :priorities => @priorities, :status => @status,
+            :repositories => @repositories, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
       end
     end
 
@@ -171,7 +178,7 @@ class RulesConfigurationController < ApplicationController
     end
 
     if rule.save
-      redirect_to :action => 'index', :id => params[:id], :searchtext => rule.name, :rule_status => 'INACTIVE', "plugins[]" => rule.plugin_name
+      redirect_to :action => 'index', :id => params[:id], :searchtext => rule.name, :rule_activation => 'INACTIVE', "plugins[]" => rule.plugin_name
 
     else
       flash[:error]=message('rules_configuration.rule_not_valid_message_x', :params => rule.errors.full_messages.join('<br/>'))
@@ -215,7 +222,7 @@ class RulesConfigurationController < ApplicationController
         parameter.save
       end
       if rule.save
-        redirect_to :action => 'index', :id => params[:id], :searchtext => rule.name, :rule_status => '', "plugins[]" => rule.plugin_name
+        redirect_to :action => 'index', :id => params[:id], :searchtext => rule.name, :rule_activation => '', "plugins[]" => rule.plugin_name
       else
         flash[:error]=message('rules_configuration.rule_not_valid_message_x', :params => rule.errors.full_messages.join('<br/>'))
         redirect_to :action => 'new', :id => params[:id], :rule_id => params[:rule_id]
@@ -260,21 +267,21 @@ class RulesConfigurationController < ApplicationController
   def bulk_edit
     profile = Profile.find(params[:id].to_i)
     rule_ids = params[:bulk_rule_ids].split(',').map { |id| id.to_i }
-    status=params[:rule_status]
+    activation=params[:rule_activation]
 
     case params[:bulk_action]
       when 'activate'
         count=activate_rules(profile, rule_ids)
         flash[:notice]=message('rules_configuration.x_rules_have_been_activated', :params => count)
-        status=STATUS_ACTIVE if status==STATUS_INACTIVE
+        activation=STATUS_ACTIVE if activation==STATUS_INACTIVE
 
       when 'deactivate'
         count=deactivate_rules(profile, rule_ids)
         flash[:notice]=message('rules_configuration.x_rules_have_been_deactivated', :params => count)
-        status=STATUS_INACTIVE if status==STATUS_ACTIVE
+        activation=STATUS_INACTIVE if activation==STATUS_ACTIVE
     end
 
-    url_parameters=request.query_parameters.merge({:action => 'index', :bulk_action => nil, :bulk_rule_ids => nil, :id => profile.id, :rule_status => status})
+    url_parameters=request.query_parameters.merge({:action => 'index', :bulk_action => nil, :bulk_rule_ids => nil, :id => profile.id, :rule_activation => activation})
     redirect_to url_parameters
   end
 
@@ -351,7 +358,7 @@ class RulesConfigurationController < ApplicationController
     count=0
     rule_ids_to_activate=(rule_ids - profile.active_rules.map { |ar| ar.rule_id })
     unless rule_ids_to_activate.empty?
-      rules_to_activate=Rule.find(:all, :conditions => {:enabled => true, :id => rule_ids_to_activate})
+      rules_to_activate=Rule.all(:conditions => ["status <> ? AND id IN (?)", Rule::STATUS_REMOVED, rule_ids_to_activate])
       count = rules_to_activate.size
       rules_to_activate.each do |rule|
         active_rule = profile.active_rules.create(:rule => rule, :failure_level => rule.priority)
@@ -376,10 +383,12 @@ class RulesConfigurationController < ApplicationController
   def init_params
     @id = params[:id]
     @priorities = filter_any(params[:priorities]) || ['']
-    @plugins=filter_any(params[:plugins]) || ['']
-    @status=params[:rule_status] || STATUS_ACTIVE
-    @inheritance=params[:inheritance] || ''
-    @searchtext=params[:searchtext]
+    @repositories = filter_any(params[:repositories]) || ['']
+    @activation = params[:rule_activation] || STATUS_ACTIVE
+    @inheritance = params[:inheritance] || 'any'
+    @status = params[:status]
+    @sort_by = !params[:sort_by].blank? ? params[:sort_by] : Rule::SORT_BY_RULE_NAME
+    @searchtext = params[:searchtext]
   end
 
   def filter_any(array)

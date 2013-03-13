@@ -47,7 +47,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId(), Is.is(1L));
     assertThat(ruleDto.getName(), Is.is("Avoid Null"));
     assertThat(ruleDto.getDescription(), Is.is("Should avoid NULL"));
-    assertThat(ruleDto.isEnabled(), Is.is(true));
+    assertThat(ruleDto.getStatus(), Is.is(RuleStatus.READY.name()));
     assertThat(ruleDto.getRepositoryKey(), Is.is("checkstyle"));
   }
 
@@ -59,7 +59,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId(), Is.is(2L));
     assertThat(ruleDto.getName(), Is.is("Avoid Null"));
     assertThat(ruleDto.getDescription(), Is.is("Should avoid NULL"));
-    assertThat(ruleDto.isEnabled(), Is.is(true));
+    assertThat(ruleDto.getStatus(), Is.is(RuleStatus.READY.name()));
     assertThat(ruleDto.getRepositoryKey(), Is.is("checkstyle"));
   }
 

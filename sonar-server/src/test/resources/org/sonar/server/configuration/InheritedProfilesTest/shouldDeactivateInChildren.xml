@@ -1,7 +1,7 @@
 <dataset>
 
   <rules id="1" name="foo" description="test" plugin_config_key="checker/foo"
-         plugin_rule_key="checkstyle.rule1" plugin_name="plugin" enabled="true" cardinality="SINGLE" parent_id="[null]"/>
+         plugin_rule_key="checkstyle.rule1" plugin_name="plugin" status="READY" cardinality="SINGLE" parent_id="[null]"/>
 
   <rules_profiles id="1" version="1" used_profile="true" name="parent" language="java" parent_name="[null]" />
   

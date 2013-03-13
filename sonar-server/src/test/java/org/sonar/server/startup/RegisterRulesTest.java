@@ -28,7 +28,9 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.SonarException;
+import org.sonar.check.Status;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ import java.util.Locale;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -58,7 +61,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void saveNewRepositories() {
+  public void should_save_new_repositories() {
     setupData("shared");
     task.start();
 
@@ -69,11 +72,14 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(first.getKey(), is("rule1"));
     assertThat(first.getRepositoryKey(), is("fake"));
     assertThat(first.isEnabled(), is(true));
+    assertThat(first.getCreatedAt(), notNullValue());
+    assertThat(first.getStatus(), is(Status.READY.name()));
+    assertThat(first.getLanguage(), is("java"));
     assertThat(first.getParams().size(), is(2));
   }
 
   @Test
-  public void disableDeprecatedRepositories() {
+  public void should_disable_deprecated_repositories() {
     setupData("shared");
     task.start();
 
@@ -83,11 +89,12 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(rules.size(), greaterThan(0));
     for (Rule rule : rules) {
       assertThat(rule.isEnabled(), is(false));
+      assertThat(rule.getUpdatedAt(), notNullValue());
     }
   }
 
   @Test
-  public void disableDeprecatedActiveRules() {
+  public void should_disable_deprecated_active_rules() {
     setupData("disableDeprecatedActiveRules");
     task.start();
 
@@ -97,13 +104,14 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     Rule deprecated = result.get(0);
     assertThat(deprecated.getKey(), is("deprecated"));
     assertThat(deprecated.isEnabled(), is(false));
+    assertThat(deprecated.getUpdatedAt(), notNullValue());
 
     assertThat(result.get(1).isEnabled(), is(true));
     assertThat(result.get(2).isEnabled(), is(true));
   }
 
   @Test
-  public void disableDeprecatedActiveRuleParameters() {
+  public void should_disable_Deprecated_Active_Rule_Parameters() {
     setupData("disableDeprecatedActiveRuleParameters");
     task.start();
 
@@ -113,32 +121,39 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void disableDeprecatedRules() {
+  public void should_disable_deprecated_rules() {
     setupData("disableDeprecatedRules");
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
     assertThat(rule.isEnabled(), is(false));
+    assertThat(rule.getUpdatedAt(), notNullValue());
 
     rule = getSession().getSingleResult(Rule.class, "id", 2);
     assertThat(rule.isEnabled(), is(false));
+    assertThat(rule.getUpdatedAt(), notNullValue());
   }
 
   @Test
-  public void updateRuleFields() {
+  public void should_update_rule_fields() {
     setupData("updadeRuleFields");
     task.start();
 
     // fields have been updated with new values
-    Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.getName(), is("One"));
-    assertThat(rule.getDescription(), is("Description of One"));
-    assertThat(rule.getSeverity(), is(RulePriority.BLOCKER));
-    assertThat(rule.getConfigKey(), is("config1"));
+    Rule rule1 = getSession().getSingleResult(Rule.class, "id", 1);
+    assertThat(rule1.getName(), is("One"));
+    assertThat(rule1.getDescription(), is("Description of One"));
+    assertThat(rule1.getSeverity(), is(RulePriority.BLOCKER));
+    assertThat(rule1.getConfigKey(), is("config1"));
+    assertThat(rule1.getUpdatedAt(), notNullValue());
+
+    Rule rule2 = getSession().getSingleResult(Rule.class, "id", 2);
+    assertThat(rule2.getStatus(), is(Status.DEPRECATED.name()));
+    assertThat(rule2.getUpdatedAt(), notNullValue());
   }
 
   @Test
-  public void updateRuleParameters() {
+  public void should_update_rule_parameters() {
     setupData("updateRuleParameters");
     task.start();
 
@@ -161,7 +176,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void doNotDisableUserRulesIfParentIsEnabled() {
+  public void should_not_disable_user_rules_if_parent_is_enabled() {
     setupData("doNotDisableUserRulesIfParentIsEnabled");
     task.start();
 
@@ -170,16 +185,17 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void disableUserRulesIfParentIsDisabled() {
+  public void should_disable_user_rules_if_parent_is_disabled() {
     setupData("disableUserRulesIfParentIsDisabled");
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
     assertThat(rule.isEnabled(), is(false));
+    assertThat(rule.getUpdatedAt(), notNullValue());
   }
 
   @Test
-  public void shouldNotDisableManualRules() {
+  public void should_not_disable_manual_rules() {
     // the hardcoded repository "manual" is used for manual violations
     setupData("shouldNotDisableManualRules");
     task.start();
@@ -189,18 +205,18 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void volumeTesting() {
+  public void volume_testing() {
     task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new VolumeRepository()}, null);
     setupData("shared");
     task.start();
 
-    List<Rule> result = getSession().getResults(Rule.class, "enabled", true);
+    List<Rule> result = getSession().getResults(Rule.class, "status", RuleStatus.READY.name());
     assertThat(result.size(), is(VolumeRepository.SIZE));
   }
 
   // SONAR-3305
   @Test
-  public void shouldFailRuleWithoutName() throws Exception {
+  public void should_fail_with_rule_without_name() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
     task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager);
     setupData("shared");
@@ -221,7 +237,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   // SONAR-3769
   @Test
-  public void shouldFailRuleWithBlankName() throws Exception {
+  public void should_fail_with_rule_with_blank_name() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
     when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("");
     task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager);
@@ -238,7 +254,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   // SONAR-3305
   @Test
-  public void shouldFailRuleWithoutDescription() throws Exception {
+  public void should_fail_with_rule_without_description() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
     when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
     task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager);
@@ -260,7 +276,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   // http://jira.codehaus.org/browse/SONAR-3722
   @Test
-  public void shouldFailRuleWithoutNameInBundle() throws Exception {
+  public void should_fail_with_rule_without_name_in_bundle() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
     task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager);
     setupData("shared");
@@ -272,6 +288,18 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     } catch (SonarException e) {
       assertThat(e.getMessage(), containsString("No description found for the rule 'Rule 1' (repository: rule-without-description-repo) " +
         "because the entry 'rule.rule-without-description-repo.rule1.name' is missing from the bundle."));
+    }
+  }
+
+  // http://jira.codehaus.org/browse/SONAR-3879
+  @Test
+  public void should_fail_with_rule_with_unknown_status() throws Exception {
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithUnkownStatusRepository()}, null);
+    try {
+      task.start();
+      fail("Rule status must be unknown");
+    } catch (SonarException e) {
+      assertThat(e.getMessage(), containsString("The status of a rule can only contains : "));
     }
   }
 }
@@ -293,6 +321,7 @@ class FakeRepository extends RuleRepository {
     Rule rule2 = Rule.create("fake", "rule2", "Two");
     rule2.setDescription("Description of Two");
     rule2.setSeverity(RulePriority.INFO);
+    rule2.setStatus(Status.DEPRECATED.name());
 
     return Arrays.asList(rule1, rule2);
   }
@@ -344,5 +373,17 @@ class VolumeRepository extends RuleRepository {
       rules.add(rule);
     }
     return rules;
+  }
+}
+
+class RuleWithUnkownStatusRepository extends RuleRepository {
+  public RuleWithUnkownStatusRepository() {
+    super("rule-with-unknwon-status-repo", "java");
+  }
+
+  @Override
+  public List<Rule> createRules() {
+    Rule rule1 = Rule.create("fake", "rule1", "rule1").setDescription("Description").setStatus("UNKNOWN");
+    return Arrays.asList(rule1);
   }
 }

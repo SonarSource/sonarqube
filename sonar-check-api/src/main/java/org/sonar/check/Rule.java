@@ -60,4 +60,10 @@ public @interface Rule {
   IsoCategory isoCategory() default IsoCategory.NONE;
 
   Cardinality cardinality() default Cardinality.SINGLE;
+
+  /**
+   * The rule status. Can be READY, BETA or DEPRECATED
+   * @since 3.6
+   */
+  Status status() default Status.READY;
 }

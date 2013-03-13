@@ -21,6 +21,14 @@ class Rule < ActiveRecord::Base
 
   MANUAL_REPOSITORY_KEY = 'manual'
 
+  STATUS_READY = "READY"
+  STATUS_BETA = "BETA"
+  STATUS_DEPRECATED = "DEPRECATED"
+  STATUS_REMOVED = "REMOVED"
+
+  SORT_BY_RULE_NAME = "SORT_BY_RULE_NAME"
+  SORT_BY_CREATION_DATE = "SORT_BY_CREATION_DATE"
+
   validates_presence_of :name, :description, :plugin_name
   validates_presence_of :plugin_rule_key, :if => 'name.present?'
 
@@ -59,8 +67,32 @@ class Rule < ActiveRecord::Base
     cardinality=='MULTIPLE'
   end
 
+  def ready?
+    status == STATUS_READY
+  end
+
   def editable?
     !parent_id.nil?
+  end
+
+  def enabled?
+    !removed?
+  end
+
+  def disabled?
+    removed?
+  end
+
+  def removed?
+    status == STATUS_REMOVED
+  end
+
+  def deprecated?
+    status == STATUS_DEPRECATED
+  end
+
+  def beta?
+    status == STATUS_BETA
   end
 
   def <=>(other)
@@ -114,7 +146,7 @@ class Rule < ActiveRecord::Base
     if id<=0 && key_or_id
       parts=key_or_id.split(':')
       if parts.size==2
-        rule=Rule.find(:first, :conditions => {:plugin_name => parts[0], :plugin_rule_key => parts[1]})
+        rule=Rule.first(:conditions => {:plugin_name => parts[0], :plugin_rule_key => parts[1]})
         id=rule.id if rule
       end
     end
@@ -128,7 +160,7 @@ class Rule < ActiveRecord::Base
       if id<=0
         parts=key_or_id.split(':')
         if parts.size==2
-          rule=Rule.find(:first, :conditions => {:plugin_name => parts[0], :plugin_rule_key => parts[1]})
+          rule=Rule.first(:conditions => {:plugin_name => parts[0], :plugin_rule_key => parts[1]})
         end
       else
         rule=Rule.find(id)
@@ -138,23 +170,23 @@ class Rule < ActiveRecord::Base
   end
 
   def self.manual_rules
-    rules = Rule.find(:all, :conditions => ['enabled=? and plugin_name=?', true, MANUAL_REPOSITORY_KEY])
+    rules = Rule.all(:conditions => ['status=? and plugin_name=?', STATUS_READY, MANUAL_REPOSITORY_KEY])
     Api::Utils.insensitive_sort(rules) { |rule| rule.name }
   end
 
   def self.manual_rule(id)
-    Rule.find(:first, :conditions => ['enabled=? and plugin_name=? and id=?', true, MANUAL_REPOSITORY_KEY, id])
+    Rule.first(:conditions => ['status=? and plugin_name=? and id=?', STATUS_READY, MANUAL_REPOSITORY_KEY, id])
   end
 
   def self.find_or_create_manual_rule(rule_id_or_name, create_if_not_found=false, options={})
     if Api::Utils.is_integer?(rule_id_or_name)
-      rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :id => rule_id_or_name.to_i})
+      rule = Rule.first(:conditions => {:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :id => rule_id_or_name.to_i})
     else
       key = rule_id_or_name.strip.downcase.sub(/\s+/, '_')
-      rule = Rule.find(:first, :conditions => {:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key})
+      rule = Rule.first(:conditions => {:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key})
       if rule==nil && create_if_not_found
         description = options[:description] || Api::Utils.message('manual_rules.should_provide_real_description')
-        rule = Rule.create!(:enabled => true, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key,
+        rule = Rule.create!(:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key,
                             :name => rule_id_or_name, :description => description)
       end
     end
@@ -238,28 +270,28 @@ class Rule < ActiveRecord::Base
   end
 
 
-  # options :language => nil, :plugins => [], :searchtext => '', :profile => nil, :priorities => [], :status =>
+  # options :language => nil, :repositories => [], :searchtext => '', :profile => nil, :priorities => [], :activation => '', :status => [], :sort_by => nil
   def self.search(java_facade, options={})
-    conditions = ['enabled=:enabled']
-    values = {:enabled => true}
+    conditions = []
+    values = {}
 
-    plugins=nil
-    if remove_blank(options[:plugins])
-      plugins = options[:plugins]
-      unless options[:language].blank?
-        plugins = plugins & java_facade.getRuleRepositoriesByLanguage(options[:language]).collect { |repo| repo.getKey() }
-      end
-    elsif !options[:language].blank?
-      plugins = java_facade.getRuleRepositoriesByLanguage(options[:language]).collect { |repo| repo.getKey() }
+    status = options[:status]
+    if status.blank?
+      conditions << ['status <> :status']
+      values[:status] = STATUS_REMOVED
+    else
+      conditions << "status IN (:status)"
+      values[:status] = options[:status]
     end
 
-    if plugins
-      if plugins.empty?
-        conditions << "plugin_name IS NULL"
-      else
-        conditions << "plugin_name IN (:plugin_names)"
-        values[:plugin_names] = plugins
-      end
+    unless options[:language].blank?
+      conditions << ['language = :language']
+      values[:language] = options[:language]
+    end
+
+    if remove_blank(options[:repositories])
+      conditions << "plugin_name IN (:plugin_names)"
+      values[:plugin_names] = options[:repositories]
     end
 
     unless options[:searchtext].blank?
@@ -278,7 +310,8 @@ class Rule < ActiveRecord::Base
     end
 
     includes=(options[:include_parameters_and_notes] ? [:rules_parameters, :rule_note] : nil)
-    rules = Rule.find(:all, :include => includes, :conditions => [conditions.join(" AND "), values]).sort
+    rules = Rule.all(:include => includes, :conditions => [conditions.join(" AND "), values])
+    rules = Rule.sort_by(rules, options[:sort_by])
     filter(rules, options)
   end
 
@@ -297,8 +330,8 @@ class Rule < ActiveRecord::Base
     inheritance = options[:inheritance]
 
     if profile
-      inactive = (options[:status]=='INACTIVE')
-      active = (options[:status]=='ACTIVE')
+      inactive = (options[:activation]=='INACTIVE')
+      active = (options[:activation]=='ACTIVE')
 
       rules = rules.reject do |rule|
         active_rule = profile.active_by_rule_id(rule.id)
@@ -317,7 +350,7 @@ class Rule < ActiveRecord::Base
           active_rule = profile.active_by_rule_id(rule.id)
           (active_rule.nil? || active_rule.inheritance.blank?)
         end
-      elsif inheritance.present?
+      elsif inheritance.present? && inheritance != 'any'
         rules = rules.select do |rule|
           active_rule = profile.active_by_rule_id(rule.id)
           (active_rule && active_rule.inheritance==inheritance)
@@ -331,4 +364,15 @@ class Rule < ActiveRecord::Base
     end
     rules
   end
+
+  def self.sort_by(rules, sort_by)
+    case sort_by
+      when SORT_BY_CREATION_DATE
+        rules = rules.sort_by {|rule| rule.created_at}.reverse
+      else
+        rules = rules.sort
+    end
+    rules
+  end
+
 end

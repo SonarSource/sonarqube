@@ -20,6 +20,7 @@
 package org.sonar.api.rules;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
@@ -146,11 +147,14 @@ public final class XMLRuleParser implements ServerComponent {
       } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
         rule.setCardinality(Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false))));
 
+      } else if (StringUtils.equalsIgnoreCase("status", nodeName)) {
+        rule.setStatus(StringUtils.trim(cursor.collectDescendantText(false)));
+
       } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
         processParameter(rule, cursor);
       }
     }
-    if (StringUtils.isEmpty(rule.getKey())) {
+    if (Strings.isNullOrEmpty(rule.getKey())) {
       throw new SonarException("Node <key> is missing in <rule>");
     }
   }
@@ -187,7 +191,7 @@ public final class XMLRuleParser implements ServerComponent {
         param.setDefaultValue(propText);
       }
     }
-    if (StringUtils.isEmpty(param.getKey())) {
+    if (Strings.isNullOrEmpty(param.getKey())) {
       throw new SonarException("Node <key> is missing in <param>");
     }
   }
@@ -218,4 +222,5 @@ public final class XMLRuleParser implements ServerComponent {
     }
     throw new SonarException("Invalid property type [" + type + "]");
   }
+
 }

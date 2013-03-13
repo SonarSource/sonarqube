@@ -17,23 +17,21 @@
 # License along with Sonar; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
-class RulesController < ApplicationController
 
-  SECTION=Navigation::SECTION_CONFIGURATION
-  
-  def show
-    @key=params[:id]
-    if @key.to_i==0
-      parts=@key.split(':')
-      @rule=Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', parts[0], parts[1]])
-    else
-      @rule=Rule.find(@key)
-    end
-    @page_title=@rule.name if @rule
+#
+# Sonar 3.6
+#
+class AddStatusLanguageAndDatesToRules < ActiveRecord::Migration
 
-    if params[:modal] == 'true'
-      render :partial => 'show'
-    end
+  class Rule < ActiveRecord::Base
+  end
+
+  def self.up
+    add_column 'rules', 'status', :string, :null => true, :limit => 40
+    add_column 'rules', 'language', :string, :null => true, :limit => 20
+    add_column 'rules', 'created_at', :datetime, :null => true
+    add_column 'rules', 'updated_at', :datetime, :null => true
   end
 
 end
+

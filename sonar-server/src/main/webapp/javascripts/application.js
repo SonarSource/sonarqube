@@ -248,10 +248,10 @@ Treemap.prototype.initNodes = function () {
       return this.each(function () {
         var obj = $j(this);
         var $link = obj.bind('click', function () {
-          if ($j('#modal').length) {
-            return; // another window is already opening
+          var $dialog = $j('#modal');
+          if (!$dialog.length) {
+            $dialog = $j('<div id="modal" class="ui-widget-overlay"></div>').appendTo('body');
           }
-          var $dialog = $j('<div id="modal" class="ui-widget-overlay"></div>').appendTo('body');
           var url = $link.attr('modal-url') || $link.attr('href');
           $j.get(url,function (html) {
             $dialog.removeClass('ui-widget-overlay');
@@ -320,7 +320,7 @@ function supports_html5_storage() {
   }
 }
 
-//******************* HANDLING OF WORKING VIEWS [BEGIN] ******************* //
+//******************* HANDLING OF ACCORDION NAVIGATION [BEGIN] ******************* //
 
 function openAccordionItem(url, elt, updateCurrentElement) {
   var htmlClass = 'accordion-item';
@@ -408,7 +408,7 @@ function expandAccordionItem(elt) {
   currentElement.find('.accordion-item-body').removeClass("accordion-item-body-medium");
 }
 
-//******************* HANDLING OF WORKING VIEWS [END] ******************* //
+//******************* HANDLING OF ACCORDION NAVIGATION [END] ******************* //
 
 
 //******************* HANDLING OF DROPDOWN MENUS [BEGIN] ******************* //
@@ -450,3 +450,4 @@ function showDropdownMenu(menuId) {
 }
 
 //******************* HANDLING OF DROPDOWN MENUS [END] ******************* //
+

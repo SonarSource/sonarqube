@@ -27,9 +27,22 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.check.Cardinality;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -52,9 +65,6 @@ public final class Rule {
   @Column(name = "plugin_rule_key", updatable = false, nullable = true, length = 200)
   private String key;
 
-  @Column(name = "enabled", updatable = true, nullable = true)
-  private Boolean enabled = Boolean.TRUE;
-
   @Column(name = "plugin_config_key", updatable = true, nullable = true, length = 500)
   private String configKey;
 
@@ -73,6 +83,12 @@ public final class Rule {
   @Column(name = "cardinality", updatable = true, nullable = false)
   private Cardinality cardinality = Cardinality.SINGLE;
 
+  @Column(name = "status", updatable = true, nullable = true)
+  private String status = "READY";
+
+  @Column(name = "language", updatable = true, nullable = true)
+  private String language;
+
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "parent_id", updatable = true, nullable = true)
   private Rule parent = null;
@@ -80,6 +96,14 @@ public final class Rule {
   @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
   @OneToMany(mappedBy = "rule")
   private List<RuleParam> params = new ArrayList<RuleParam>();
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "created_at", updatable = true, nullable = true)
+  private Date createdAt;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "updated_at", updatable = true, nullable = true)
+  private Date updatedAt;
 
   /**
    * @deprecated since 2.3. Use the factory method {@link #create()}
@@ -228,15 +252,7 @@ public final class Rule {
   }
 
   public Boolean isEnabled() {
-    return enabled;
-  }
-
-  /**
-   * Do not call. Used only by sonar.
-   */
-  public Rule setEnabled(Boolean b) {
-    this.enabled = b;
-    return this;
+    return !status.equals("REMOVED");
   }
 
   public List<RuleParam> getParams() {
@@ -356,6 +372,67 @@ public final class Rule {
     return this;
   }
 
+  /**
+   * @since 3.6
+   */
+  public String getStatus() {
+    return status;
+  }
+
+  /**
+   * @since 3.6
+   */
+  public Rule setStatus(String status) {
+    this.status = status;
+    return this;
+  }
+
+  /**
+   * @since 3.6
+   */
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  /**
+   * @since 3.6
+   */
+  public Rule setCreatedAt(Date created_at) {
+    this.createdAt = created_at;
+    return this;
+  }
+
+  /**
+   * @since 3.6
+   */
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  /**
+   * @since 3.6
+   */
+  public Rule setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
+
+  /**
+   * @since 3.6
+   */
+  public String getLanguage() {
+    return language;
+  }
+
+  /**
+   * For internal use only.
+   * @since 3.6
+   */
+  public void setLanguage(String language) {
+    this.language = language;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof Rule)) {
@@ -388,9 +465,10 @@ public final class Rule {
       .append("key", key)
       .append("configKey", configKey)
       .append("plugin", pluginName)
-      .append("enabled", enabled)
       .append("severity", priority)
       .append("cardinality", cardinality)
+      .append("status", status)
+      .append("language", language)
       .toString();
   }
 
