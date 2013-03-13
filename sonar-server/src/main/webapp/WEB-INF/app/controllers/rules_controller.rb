@@ -22,14 +22,18 @@ class RulesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
   
   def show
-    key=params[:id]
-    if key.to_i==0
-      parts=key.split(':')
-      @rule=Rule.find(:first, :conditions => ['plugin_name=? and plugin_rule_key=?', parts[0], parts[1]])
+    @key=params[:id]
+    if @key.to_i==0
+      parts=@key.split(':')
+      @rule=Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', parts[0], parts[1]])
     else
-      @rule=Rule.find(key)
+      @rule=Rule.find(@key)
     end
-    @page_title=@rule.name
+    @page_title=@rule.name if @rule
+
+    if params[:modal] == 'true'
+      render :partial => 'show'
+    end
   end
 
 end
