@@ -28,7 +28,6 @@ class Rule < ActiveRecord::Base
 
   SORT_BY_RULE_NAME = "SORT_BY_RULE_NAME"
   SORT_BY_CREATION_DATE = "SORT_BY_CREATION_DATE"
-  SORT_BY_REMOVAL_DATE = "SORT_BY_REMOVAL_DATE"
 
   validates_presence_of :name, :description, :plugin_name
   validates_presence_of :plugin_rule_key, :if => 'name.present?'
@@ -370,8 +369,6 @@ class Rule < ActiveRecord::Base
     case sort_by
       when SORT_BY_CREATION_DATE
         rules = rules.sort_by {|rule| rule.created_at}.reverse
-      when SORT_BY_REMOVAL_DATE
-        rules = rules.sort {|rule1, rule2| (rule1.updated_at && rule2.updated_at) ? rule1.updated_at <=> rule2.updated_at : 0}
       else
         rules = rules.sort
     end

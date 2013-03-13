@@ -40,7 +40,6 @@
   }
 
   function submitSearch() {
-    $j('#sort_by').val("");
     $j("#rules-search-form").submit();
   }
 
@@ -89,7 +88,7 @@
         <%= dropdown_tag "status", options_for_select(@select_status, @status), {
             :show_search_box => true,
             :width => '120px',
-            :placeholder => message('rules_configuration.available_rules')
+            :placeholder => message('any')
         }, {:id => 'search_status', :multiple => true} -%>
       </div>
       <% if @profile.inherited? %>

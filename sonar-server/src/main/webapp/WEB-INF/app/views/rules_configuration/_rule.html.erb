@@ -37,11 +37,9 @@
   <% if !rule.ready? %>
     <div class="rule-status">
     <% if rule.beta? %>
-      <div class="status-beta"><%= message('beta') %></div>
+      <div class="status-beta"><%= message('rules_configuration.status.beta') %></div>
     <% elsif rule.deprecated? %>
-      <div class="status-deprecated"><%= message('deprecated') %></div>
-    <% elsif rule.removed? %>
-      <div class="status-removed"><%= message('removed') %></div>
+      <div class="status-deprecated"><%= message('rules_configuration.status.deprecated') %></div>
     <% end %>
     </div>
   <% end %>
