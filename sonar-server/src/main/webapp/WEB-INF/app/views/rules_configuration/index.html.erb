@@ -39,6 +39,11 @@
     $(span_id).replace(text_area);
   }
 
+  function submitSearch() {
+    $j('#sort_by').val("");
+    $j("#rules-search-form").submit();
+  }
+
   function submitSortBy(){
     $j('#sort_by').val($j('#select-rules-sort-by').val());
     $j("#rules-search-form").submit();
@@ -97,7 +102,7 @@
       <% end %>
       <div class="rule-search">
         <br/>
-        <%= submit_tag message('search_verb'), :id => 'submit_search' %>
+        <%= submit_tag message('search_verb'), :id => 'submit_search', :onclick => 'submitSearch();' %>
       </div>
     </div>
 

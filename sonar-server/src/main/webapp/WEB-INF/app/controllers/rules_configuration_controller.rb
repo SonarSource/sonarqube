@@ -380,10 +380,9 @@ class RulesConfigurationController < ApplicationController
     @activation = params[:rule_activation] || STATUS_ACTIVE
     @inheritance = params[:inheritance] || 'any'
     @status = params[:status]
-    @sort_by = params[:sort_by]
+    @sort_by = !params[:sort_by].blank? ? params[:sort_by] : nil
     # Force sort by removal date when status contains REMOVED
-    @sort_by = Rule::SORT_BY_REMOVAL_DATE if status_include_removed?
-    @sort_by = Rule::SORT_BY_RULE_NAME if !status_include_removed? and @sort_by == Rule::SORT_BY_REMOVAL_DATE
+    @sort_by ||= Rule::SORT_BY_REMOVAL_DATE if status_include_removed?
     @sort_by ||= Rule::SORT_BY_RULE_NAME
     @searchtext = params[:searchtext]
   end
