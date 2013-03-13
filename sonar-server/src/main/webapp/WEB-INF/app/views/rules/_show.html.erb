@@ -1,36 +1,32 @@
-<div style="padding:5px;">
+<% if @rule %>
+<div class="form-head" style="height:40px">
+  <h2>
+    <%= @rule.name %>
+  </h2>
+  <div class="subtitle" style="line-height:0px;">
+    <%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%>
+  </div>
+</div>
+<% end %>
 
+<div class="form-body">
   <% if @rule %>
-  <div class="form-head" style="height:40px">
-    <h2>
-      <%= @rule.name %>
-    </h2>
-    <div class="subtitle" style="line-height:0px;">
-      <%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%>
-    </div>
-  </div>
-  <% end %>
-
-  <div class="form-body">
-    <% if @rule %>
-      <% if @rule.description.strip.start_with?('<p>') %>
-        <%= process_rule_description @rule %>
-      <% else %>
-        <p><%= process_rule_description @rule %></p>
-      <% end %>
-
-      <% if @rule.note && !@rule.note.text.strip.blank? %>
-        <p><%= @rule.note.html_text -%></p>
-      <% end %>
+    <% if @rule.description.strip.start_with?('<p>') %>
+      <%= interpret_macro @rule.description %>
     <% else %>
-      <p class="error"><%= message('rules.not_found', :params => @key) %>
+      <p><%= @rule.description %></p>
     <% end %>
-  </div>
 
-  <div class="form-foot">
-    <a href="#" onclick="return closeModalWindow()"><%= h message('close') -%></a>
-  </div>
+    <% if @rule.note && !@rule.note.text.strip.blank? %>
+      <p><%= @rule.note.html_text -%></p>
+    <% end %>
+  <% else %>
+    <p class="error"><%= message('rules.not_found', :params => @key) %>
+  <% end %>
+</div>
 
+<div class="form-foot">
+  <a href="#" onclick="return closeModalWindow()"><%= h message('close') -%></a>
 </div>
 
 <script type="text/javascript">

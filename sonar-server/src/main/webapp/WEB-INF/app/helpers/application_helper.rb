@@ -787,10 +787,7 @@ module ApplicationHelper
     html
   end
 
-  def process_rule_description(rule)
-    description = rule.description
-    description.gsub(
-        /\{toRule (.+):(.+)\}/,
-        "<a class='open-modal rule-modal' href='#{ApplicationController.root_context}/rules/show/"+ '\1:\2' +"?modal=true&layout=false'>" + '\1:\2' +"</a>")
+  def interpret_macro(text)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getMacroInterpreter().interpret(text)
   end
 end
