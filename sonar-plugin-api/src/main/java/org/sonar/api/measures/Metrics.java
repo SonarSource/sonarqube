@@ -19,16 +19,14 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.task.TaskExtension;
 
 import java.util.List;
 
 /**
  * @since 1.10
  */
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public interface Metrics extends BatchExtension, ServerExtension {
+public interface Metrics extends TaskExtension, ServerExtension {
   List<Metric> getMetrics();
 }

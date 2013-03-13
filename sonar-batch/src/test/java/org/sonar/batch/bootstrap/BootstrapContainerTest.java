@@ -19,68 +19,40 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.batch.maven.MavenPluginHandler;
-import org.sonar.api.resources.Project;
-import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
-import org.sonar.batch.scan.maven.MavenPluginExecutor;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.config.Settings;
+import org.sonar.core.config.Logback;
+
+import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-
 public class BootstrapContainerTest {
-
-  private ProjectReactor reactor = new ProjectReactor(ProjectDefinition.create());
-
   @Test
-  public void should_register_fake_maven_executor_if_not_maven_env() {
-    BootstrapContainer module = new BootstrapContainer(reactor, null, MyMavenPluginExecutor.class);
-    module.init();
+  public void should_add_components() {
+    BootstrapContainer container = BootstrapContainer.create(Collections.emptyList());
+    container.doBeforeStart();
 
-    assertThat(module.isMavenPluginExecutorRegistered()).isTrue();
-    assertThat(module.container.getComponentByType(MavenPluginExecutor.class)).isInstanceOf(MyMavenPluginExecutor.class);
+    assertThat(container.get(Logback.class)).isNotNull();
+    assertThat(container.get(TempDirectories.class)).isNotNull();
   }
 
   @Test
-  public void should_use_plugin_executor_provided_by_maven() {
-    BootstrapContainer module = new BootstrapContainer(reactor);
-    module.init();
-    assertThat(module.isMavenPluginExecutorRegistered()).isFalse();
-    assertThat(module.container.getComponentByType(MavenPluginExecutor.class)).isInstanceOf(FakeMavenPluginExecutor.class);
+  public void should_add_bootstrap_extensions() {
+    BootstrapContainer container = BootstrapContainer.create(Lists.newArrayList(Foo.class, new Bar()));
+    container.doBeforeStart();
+
+    assertThat(container.get(Foo.class)).isNotNull();
+    assertThat(container.get(Bar.class)).isNotNull();
   }
 
-  @Test
-  public void should_register_bootstrap_components() {
-    BootstrapContainer module = new BootstrapContainer(reactor, new FakeComponent());
-    module.init();
-
-    assertThat(module.container).isNotNull();
-    assertThat(module.container.getComponentByType(FakeComponent.class)).isNotNull();
-    assertThat(module.container.getComponentByType(ProjectReactor.class)).isSameAs(reactor);
-  }
-
-  @Test
-  public void should_not_fail_if_no_bootstrap_components() {
-    BootstrapContainer module = new BootstrapContainer(reactor);
-    module.init();
-
-    assertThat(module.container).isNotNull();
-    assertThat(module.container.getComponentByType(ProjectReactor.class)).isSameAs(reactor);
-  }
-
-  public static class FakeComponent {
+  public static class Foo implements BatchExtension {
 
   }
 
-  public static class MyMavenPluginExecutor implements MavenPluginExecutor {
-    public void execute(Project project, DefaultModuleFileSystem fs, String goal) {
+  public static class Bar implements BatchExtension {
+
     }
-
-    public MavenPluginHandler execute(Project project, DefaultModuleFileSystem  fs, MavenPluginHandler handler) {
-      return handler;
-    }
-  }
 }

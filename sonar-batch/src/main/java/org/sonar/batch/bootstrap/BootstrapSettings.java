@@ -23,6 +23,8 @@ import com.google.common.collect.Maps;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 
+import javax.annotation.Nullable;
+
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,21 +34,17 @@ import java.util.Properties;
 public class BootstrapSettings {
   private Map<String, String> properties;
 
-  public BootstrapSettings(GlobalBatchProperties globalProperties) {
-    init(null, globalProperties);
+  public BootstrapSettings(BootstrapProperties bootstrapProperties) {
+    this(bootstrapProperties, null);
   }
 
-  public BootstrapSettings(ProjectReactor reactor, GlobalBatchProperties globalProperties) {
-    init(reactor, globalProperties);
-  }
-
-  private void init(ProjectReactor reactor, GlobalBatchProperties globalProperties) {
+  public BootstrapSettings(BootstrapProperties bootstrapProperties, @Nullable ProjectReactor projectReactor) {
     properties = Maps.newHashMap();
 
     // order is important -> bottom-up. The last one overrides all the others.
-    properties.putAll(globalProperties.getProperties());
-    if (reactor != null) {
-      addProperties(reactor.getRoot().getProperties());
+    properties.putAll(bootstrapProperties.properties());
+    if (projectReactor != null) {
+      addProperties(projectReactor.getRoot().getProperties());
     }
     properties.putAll(System.getenv());
     addProperties(System.getProperties());
@@ -60,15 +58,15 @@ public class BootstrapSettings {
     }
   }
 
-  public Map<String, String> getProperties() {
+  public Map<String, String> properties() {
     return properties;
   }
 
-  public String getProperty(String key) {
+  public String property(String key) {
     return properties.get(key);
   }
 
-  public String getProperty(String key, String defaultValue) {
+  public String property(String key, String defaultValue) {
     return StringUtils.defaultString(properties.get(key), defaultValue);
   }
 }

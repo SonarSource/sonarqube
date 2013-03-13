@@ -32,8 +32,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * @since 3.4. Replaces the deprecated org.sonar.batch.ServerMetadata
+ * @deprecated in 3.4. Replaced by {@link org.sonar.batch.bootstrap.ServerClient}
  */
+@Deprecated
 public class ServerMetadata extends Server implements BatchComponent {
 
   private Settings settings;

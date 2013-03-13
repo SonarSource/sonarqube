@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
@@ -43,39 +42,34 @@ public class BatchSettings extends Settings {
   private Map<String, Map<String, String>> moduleProperties = Maps.newHashMap();
 
   public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
-      ServerClient client, Configuration deprecatedConfiguration, GlobalBatchProperties globalProperties) {
-    this(bootstrapSettings, propertyDefinitions, null, client, deprecatedConfiguration, globalProperties);
+                       ServerClient client, Configuration deprecatedConfiguration, BootstrapProperties globalProperties) {
+    this(bootstrapSettings, propertyDefinitions, client, deprecatedConfiguration, globalProperties, null);
   }
 
-  public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions, @Nullable ProjectReactor reactor,
-      ServerClient client, Configuration deprecatedConfiguration, GlobalBatchProperties globalProperties) {
+  public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
+                       ServerClient client, Configuration deprecatedConfiguration, BootstrapProperties bootstrapProperties,
+                       @Nullable ProjectReactor projectReactor) {
     super(propertyDefinitions);
     this.deprecatedConfiguration = deprecatedConfiguration;
-    init(bootstrapSettings, reactor, client, globalProperties);
+    init(bootstrapSettings, client, bootstrapProperties, projectReactor);
   }
 
-  @VisibleForTesting
-  public BatchSettings() {
-  }
-
-  private void init(BootstrapSettings bootstrapSettings, @Nullable ProjectReactor reactor, ServerClient client,
-      GlobalBatchProperties globalProperties) {
+  private void init(BootstrapSettings bootstrapSettings, ServerClient client, BootstrapProperties bootstrapProperties, @Nullable ProjectReactor reactor) {
     LoggerFactory.getLogger(BatchSettings.class).info("Load batch settings");
 
     if (reactor != null) {
-      String branch = bootstrapSettings.getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
+      String branch = bootstrapSettings.property(CoreProperties.PROJECT_BRANCH_PROPERTY);
       String projectKey = reactor.getRoot().getKey();
       if (StringUtils.isNotBlank(branch)) {
         projectKey = String.format("%s:%s", projectKey, branch);
       }
       downloadSettings(client, projectKey);
-    }
-    else {
+    } else {
       downloadSettings(client, null);
     }
 
     // order is important -> bottom-up. The last one overrides all the others.
-    addProperties(globalProperties.getProperties());
+    addProperties(bootstrapProperties.properties());
     if (reactor != null) {
       addProperties(reactor.getRoot().getProperties());
     }
@@ -87,8 +81,7 @@ public class BatchSettings extends Settings {
     String url;
     if (StringUtils.isNotBlank(projectKey)) {
       url = "/batch_bootstrap/properties?project=" + projectKey;
-    }
-    else {
+    } else {
       url = "/batch_bootstrap/properties";
     }
     String jsonText = client.request(url);
@@ -97,7 +90,7 @@ public class BatchSettings extends Settings {
       String key = jsonProperty.get("k");
       String value = jsonProperty.get("v");
       String moduleKey = jsonProperty.get("p");
-      if (moduleKey == null || projectKey.equals(moduleKey)) {
+      if (moduleKey == null || projectKey == null || moduleKey.equals(projectKey)) {
         setProperty(key, value);
       }
       if (moduleKey != null) {

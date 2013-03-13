@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.net.URI;
 
 /**
+ * Replace the deprecated org.sonar.batch.ServerMetadata
  * TODO extends Server when removing the deprecated org.sonar.batch.ServerMetadata
  *
  * @since 3.4
@@ -48,11 +49,11 @@ public class ServerClient implements BatchComponent {
 
   public ServerClient(BootstrapSettings settings, EnvironmentInformation env) {
     this.settings = settings;
-    this.downloader = new HttpDownloader.BaseHttpDownloader(settings.getProperties(), env.toString());
+    this.downloader = new HttpDownloader.BaseHttpDownloader(settings.properties(), env.toString());
   }
 
   public String getURL() {
-    return StringUtils.removeEnd(settings.getProperty("sonar.host.url", "http://localhost:9000"), "/");
+    return StringUtils.removeEnd(settings.property("sonar.host.url", "http://localhost:9000"), "/");
   }
 
   public void download(String pathStartingWithSlash, File toFile) {
@@ -86,14 +87,14 @@ public class ServerClient implements BatchComponent {
     String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
 
     URI uri = URI.create(getURL() + path);
-    String login = settings.getProperty(CoreProperties.LOGIN);
+    String login = settings.property(CoreProperties.LOGIN);
 
     try {
       InputSupplier<InputStream> inputSupplier;
       if (Strings.isNullOrEmpty(login)) {
         inputSupplier = downloader.newInputSupplier(uri);
       } else {
-        inputSupplier = downloader.newInputSupplier(uri, login, settings.getProperty(CoreProperties.PASSWORD));
+        inputSupplier = downloader.newInputSupplier(uri, login, settings.property(CoreProperties.PASSWORD));
       }
       return inputSupplier;
     } catch (Exception e) {
@@ -109,8 +110,8 @@ public class ServerClient implements BatchComponent {
   }
 
   private String getMessageWhenNotAuthorized() {
-    String login = settings.getProperty(CoreProperties.LOGIN);
-    String password = settings.getProperty(CoreProperties.PASSWORD);
+    String login = settings.property(CoreProperties.LOGIN);
+    String password = settings.property(CoreProperties.PASSWORD);
     if (StringUtils.isEmpty(login) && StringUtils.isEmpty(password)) {
       return "Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties %s and %s.";
     }

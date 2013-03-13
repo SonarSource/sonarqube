@@ -30,7 +30,7 @@ class BatchBootstrapController < Api::ApiController
     send_data String.from_java_bytes(db_content)
   end
 
-  # GET /batch_bootstrap/properties?project=<key or id>
+  # GET /batch_bootstrap/properties?[project=<key or id>]
   def properties
     json_properties=Property.find(:all, :conditions => ['user_id is null and resource_id is null']).map { |property| to_json_property(property) }
 
@@ -61,9 +61,13 @@ class BatchBootstrapController < Api::ApiController
   private
 
   def load_project
-    project = Project.by_key(params[:project])
-    return access_denied if project && !has_role?(:user, project)
-    project
+    if params[:project].present?
+      project = Project.by_key(params[:project])
+      return access_denied if project && !has_role?(:user, project)
+      project
+    else
+      nil
+    end
   end
 
   def to_json_property(property, project_key=nil)

@@ -20,22 +20,17 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.ClassUtils;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
-import org.sonar.api.ServerExtension;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.resources.Project;
-import org.sonar.api.task.TaskDefinition;
-import org.sonar.api.task.TaskExtension;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.tasks.RequiresProject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,173 +42,123 @@ import static org.mockito.Mockito.when;
 
 public class ExtensionInstallerTest {
 
-  private static final PluginMetadata METADATA = mock(PluginMetadata.class);
+  PluginMetadata metadata = mock(PluginMetadata.class);
 
-  private static Map<PluginMetadata, Plugin> newPlugin(final Object... extensions) {
+  Map<PluginMetadata, Plugin> newPlugin(final Object... extensions) {
     Map<PluginMetadata, Plugin> result = Maps.newHashMap();
-    result.put(METADATA,
+    result.put(metadata,
         new SonarPlugin() {
           public List<?> getExtensions() {
             return Arrays.asList(extensions);
           }
         }
-        );
+    );
     return result;
   }
 
   @Test
-  public void shouldInstallExtensionsWithBatchInstantiationStrategy() {
+  public void should_filter_extensions_to_install() {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(BatchService.class, ProjectService.class, ServerService.class));
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(Foo.class, Bar.class));
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
+    installer.install(container, new FooMatcher());
 
-    installer.installBatchExtensions(container, InstantiationStrategy.PER_BATCH);
-
-    assertThat(container.getComponentByType(BatchService.class)).isNotNull();
-    assertThat(container.getComponentByType(ProjectService.class)).isNull();
-    assertThat(container.getComponentByType(ServerService.class)).isNull();
+    assertThat(container.get(Foo.class)).isNotNull();
+    assertThat(container.get(Bar.class)).isNull();
   }
 
   @Test
-  public void shouldInstallProvidersWithBatchInstantiationStrategy() {
+  public void should_execute_extension_provider() {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(BatchServiceProvider.class, ProjectServiceProvider.class));
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(new FooProvider(), new BarProvider()));
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
-    installer.installBatchExtensions(container, InstantiationStrategy.PER_BATCH);
+    installer.install(container, new FooMatcher());
 
-    assertThat(container.getComponentByType(BatchService.class)).isNotNull();
-    assertThat(container.getComponentByType(ProjectService.class)).isNull();
-    assertThat(container.getComponentByType(ServerService.class)).isNull();
+    assertThat(container.get(Foo.class)).isNotNull();
+    assertThat(container.get(Bar.class)).isNull();
   }
 
   @Test
-  public void shouldInstallTaskExtensions() {
+  public void should_provide_list_of_extensions() {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(SampleProjectTask.class, SampleTask.class, TaskProvider.class));
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(new FooBarProvider()));
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
-    installer.installTaskExtensions(container, true);
+    installer.install(container, new TrueMatcher());
 
-    assertThat(container.getComponentByType(SampleProjectTask.class)).isNotNull();
-    assertThat(container.getComponentByType(SampleTask.class)).isNotNull();
-    assertThat(container.getComponentByType(AnotherTask.class)).isNotNull();
+    assertThat(container.get(Foo.class)).isNotNull();
+    assertThat(container.get(Bar.class)).isNotNull();
   }
 
   @Test
-  public void shouldNotInstallProjectTaskExtensionsWhenNoProject() {
+  public void should_not_install_on_unsupported_environment() {
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(SampleProjectTask.class, SampleTask.class));
-    ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
-
-    installer.installTaskExtensions(container, false);
-
-    assertThat(container.getComponentByType(SampleProjectTask.class)).isNull();
-    assertThat(container.getComponentByType(SampleTask.class)).isNotNull();
-  }
-
-  @Test
-  public void shouldInstallTaskDefinitions() {
-    TaskDefinition definition = TaskDefinition.create();
-    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(definition));
-    ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
-
-    installer.installTaskDefinitionExtensions(container);
-
-    assertThat(container.getComponentsByType(TaskDefinition.class)).containsExactly(definition);
-  }
-
-  @Test
-  public void shouldNotInstallPluginsOnNonSupportedEnvironment() {
-    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(MavenService.class, BuildToolService.class));
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(Foo.class, MavenExtension.class, AntExtension.class, new BarProvider()));
 
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
 
-    installer.installInspectionExtensions(container);
+    installer.install(container, new TrueMatcher());
 
-    assertThat(container.getComponentByType(MavenService.class)).isNull();
-    assertThat(container.getComponentByType(BuildToolService.class)).isNotNull();
+    assertThat(container.get(MavenExtension.class)).isNull();
+    assertThat(container.get(AntExtension.class)).isNotNull();
+    assertThat(container.get(Foo.class)).isNotNull();
+    assertThat(container.get(Bar.class)).isNotNull();
   }
 
-  @Test
-  public void should_disable_maven_extensions_if_virtual_module_in_maven_project() {
-    Project project = mock(Project.class);
-    when(project.getPom()).thenReturn(null);
-    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(MavenService.class));
-
-    ComponentContainer container = new ComponentContainer();
-    container.addSingleton(project);
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("maven", "2.2.1"), new Settings());
-
-    installer.installInspectionExtensions(container);
-
-    assertThat(container.getComponentByType(MavenService.class)).isNull();
-  }
-
-  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-  public static class BatchService implements BatchExtension {
-
-  }
-
-  public static class ProjectService implements BatchExtension {
-
-  }
-
-  public static class ServerService implements ServerExtension {
-
-  }
-
-  @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-  public static class BatchServiceProvider extends ExtensionProvider implements BatchExtension {
-
-    @Override
-    public Object provide() {
-      return Arrays.<Object> asList(BatchService.class, ServerService.class);
+  private static class FooMatcher implements ExtensionInstaller.ComponentFilter {
+    public boolean accept(Object extension) {
+      return extension.equals(Foo.class) || ClassUtils.isAssignable(Foo.class, extension.getClass()) || ClassUtils.isAssignable(FooProvider.class, extension.getClass());
     }
   }
 
-  public static class ProjectServiceProvider extends ExtensionProvider implements BatchExtension {
-    @Override
-    public Object provide() {
-      return ProjectService.class;
+  private static class TrueMatcher implements ExtensionInstaller.ComponentFilter {
+    public boolean accept(Object extension) {
+      return true;
     }
+  }
+
+
+  public static class Foo implements BatchExtension {
+
+  }
+
+  public static class Bar implements BatchExtension {
+
   }
 
   @SupportedEnvironment("maven")
-  public static class MavenService implements BatchExtension {
+  public static class MavenExtension implements BatchExtension {
 
   }
 
-  @SupportedEnvironment({"maven", "ant", "gradle"})
-  public static class BuildToolService implements BatchExtension {
+  @SupportedEnvironment("ant")
+  public static class AntExtension implements BatchExtension {
 
   }
 
-  @RequiresProject
-  public static class SampleProjectTask implements TaskExtension {
-
-  }
-
-  public static class SampleTask implements TaskExtension {
-  }
-
-  public static class AnotherTask implements TaskExtension {
-  }
-
-  public static class TaskProvider extends ExtensionProvider implements TaskExtension {
-
+  public static class FooProvider extends ExtensionProvider implements BatchExtension {
     @Override
     public Object provide() {
-      return Arrays.<Object> asList(AnotherTask.class);
+      return new Foo();
+    }
+  }
+
+  public static class BarProvider extends ExtensionProvider implements BatchExtension {
+    @Override
+    public Object provide() {
+      return new Bar();
+    }
+  }
+
+  public static class FooBarProvider extends ExtensionProvider implements BatchExtension {
+    @Override
+    public Object provide() {
+      return Arrays.asList(new Foo(), new Bar());
     }
   }
 

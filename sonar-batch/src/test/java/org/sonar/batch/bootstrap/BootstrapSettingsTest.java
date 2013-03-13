@@ -19,35 +19,58 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+
+import java.util.Collections;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class BootstrapSettingsTest {
 
   @Test
-  public void shouldLoadBuildModel() {
-    // this is the project as defined in the build tool
-    ProjectDefinition project = ProjectDefinition.create();
-    project.setProperty("foo", "bar");
+  public void project_settings_should_be_optional() {
+    Map<String, String> props = ImmutableMap.of("foo", "bar");
+    BootstrapSettings settings = new BootstrapSettings(new BootstrapProperties(props));
 
-    ProjectReactor reactor = new ProjectReactor(project);
-    BootstrapSettings settings = new BootstrapSettings(reactor, new GlobalBatchProperties());
-
-    assertThat(settings.getProperty("foo")).isEqualTo("bar");
+    assertThat(settings.property("foo")).isEqualTo("bar");
   }
 
   @Test
-  public void environmentShouldOverrideBuildModel() {
+  public void should_load_project_settings() {
+    // this is the project as defined in the bootstrapper
+    ProjectDefinition project = ProjectDefinition.create();
+    project.setProperty("foo", "bar");
+    ProjectReactor reactor = new ProjectReactor(project);
+    BootstrapSettings settings = new BootstrapSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
+
+    assertThat(settings.property("foo")).isEqualTo("bar");
+    assertThat(settings.properties().size()).isGreaterThan(1);
+  }
+
+  @Test
+  public void environment_should_override_project_settings() {
     ProjectDefinition project = ProjectDefinition.create();
     project.setProperty("BootstrapSettingsTest.testEnv", "build");
     System.setProperty("BootstrapSettingsTest.testEnv", "env");
 
     ProjectReactor reactor = new ProjectReactor(project);
-    BootstrapSettings settings = new BootstrapSettings(reactor, new GlobalBatchProperties());
+    BootstrapSettings settings = new BootstrapSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
 
-    assertThat(settings.getProperty("BootstrapSettingsTest.testEnv")).isEqualTo("env");
+    assertThat(settings.property("BootstrapSettingsTest.testEnv")).isEqualTo("env");
+  }
+
+  @Test
+  public void should_get_default_value_of_missing_property() {
+    ProjectDefinition project = ProjectDefinition.create();
+    project.setProperty("foo", "bar");
+    ProjectReactor reactor = new ProjectReactor(project);
+    BootstrapSettings settings = new BootstrapSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
+
+    assertThat(settings.property("foo", "default_value")).isEqualTo("bar");
+    assertThat(settings.property("missing", "default_value")).isEqualTo("default_value");
   }
 }

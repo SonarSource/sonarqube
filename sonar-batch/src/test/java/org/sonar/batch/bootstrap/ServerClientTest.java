@@ -23,7 +23,6 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -53,7 +52,7 @@ import static org.mockito.Mockito.when;
 public class ServerClientTest {
 
   MockHttpServer server = null;
-  BootstrapSettings settings;
+  BootstrapSettings settings = mock(BootstrapSettings.class);
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -68,15 +67,10 @@ public class ServerClientTest {
     }
   }
 
-  @Before
-  public void before(){
-    settings = mock(BootstrapSettings.class);
-  }
-
   @Test
   public void should_remove_url_ending_slash() throws Exception {
     BootstrapSettings settings = mock(BootstrapSettings.class);
-    when(settings.getProperty(eq("sonar.host.url"), anyString())).thenReturn("http://localhost:8080/sonar/");
+    when(settings.property(eq("sonar.host.url"), anyString())).thenReturn("http://localhost:8080/sonar/");
 
     ServerClient client = new ServerClient(settings, new EnvironmentInformation("Junit", "4"));
 
@@ -128,8 +122,8 @@ public class ServerClientTest {
     server.start();
     server.setMockResponseStatus(401);
 
-    when(settings.getProperty(eq("sonar.login"))).thenReturn("login");
-    when(settings.getProperty(eq("sonar.password"))).thenReturn("password");
+    when(settings.property(eq("sonar.login"))).thenReturn("login");
+    when(settings.property(eq("sonar.password"))).thenReturn("password");
 
     thrown.expectMessage("Not authorized. Please check the properties sonar.login and sonar.password");
     newServerClient().request("/foo");
@@ -146,7 +140,7 @@ public class ServerClientTest {
   }
 
   private ServerClient newServerClient() {
-    when(settings.getProperty(eq("sonar.host.url"), anyString())).thenReturn("http://localhost:" + server.getPort());
+    when(settings.property(eq("sonar.host.url"), anyString())).thenReturn("http://localhost:" + server.getPort());
     return new ServerClient(settings, new EnvironmentInformation("Junit", "4"));
   }
 

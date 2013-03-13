@@ -20,12 +20,18 @@
 package org.sonar.api.platform;
 
 import org.junit.Test;
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.Property;
 import org.sonar.api.config.PropertyDefinitions;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class ComponentContainerTest {
 
@@ -38,12 +44,14 @@ public class ComponentContainerTest {
 
   @Test
   public void testStartAndStop() {
-    ComponentContainer container = new ComponentContainer();
+    ComponentContainer container = spy(new ComponentContainer());
     container.addSingleton(StartableComponent.class);
     container.startComponents();
 
     assertThat(container.getComponentByType(StartableComponent.class).started).isTrue();
     assertThat(container.getComponentByType(StartableComponent.class).stopped).isFalse();
+    verify(container).doBeforeStart();
+    verify(container).doAfterStart();
 
     container.stopComponents();
     assertThat(container.getComponentByType(StartableComponent.class).stopped).isTrue();
@@ -128,6 +136,29 @@ public class ComponentContainerTest {
     assertThat(container.getComponentByType(ComponentWithProperty.class)).isNotNull();
   }
 
+  @Test
+  public void test_add_class() {
+    ComponentContainer container = new ComponentContainer();
+    container.add(ComponentWithProperty.class, SimpleComponent.class);
+    assertThat(container.get(ComponentWithProperty.class)).isNotNull();
+    assertThat(container.get(SimpleComponent.class)).isNotNull();
+  }
+
+  @Test
+  public void test_add_collection() {
+    ComponentContainer container = new ComponentContainer();
+    container.add(Arrays.asList(ComponentWithProperty.class, SimpleComponent.class));
+    assertThat(container.get(ComponentWithProperty.class)).isNotNull();
+    assertThat(container.get(SimpleComponent.class)).isNotNull();
+  }
+
+  @Test
+  public void test_add_adapter() {
+    ComponentContainer container = new ComponentContainer();
+    container.add(new SimpleComponentProvider());
+    assertThat(container.get(SimpleComponent.class)).isNotNull();
+  }
+
   public static class StartableComponent {
     public boolean started = false, stopped = false;
 
@@ -143,5 +174,15 @@ public class ComponentContainerTest {
   @Property(key = "foo", defaultValue = "bar", name = "Foo")
   public static class ComponentWithProperty {
 
+  }
+
+  public static class SimpleComponent {
+
+  }
+
+  public static class SimpleComponentProvider extends ProviderAdapter {
+    public SimpleComponent provide() {
+      return new SimpleComponent();
+    }
   }
 }

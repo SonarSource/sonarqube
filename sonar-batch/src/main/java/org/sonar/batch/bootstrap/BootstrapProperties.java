@@ -19,29 +19,23 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
 /**
  * Batch properties that are not specific to a project (for example
  * coming from global configuration file of sonar-runner).
- * @author Julien HENRY
- *
  */
-public class GlobalBatchProperties {
+public class BootstrapProperties {
 
-  protected final Map<String, String> properties;
+  private final Map<String, String> properties;
 
-  public GlobalBatchProperties() {
-    this.properties = Maps.newHashMap();
+  public BootstrapProperties(Map<String, String> properties) {
+    this.properties = ImmutableMap.copyOf(properties);
   }
 
-  public GlobalBatchProperties(Map<String, String> properties) {
-    this.properties = Maps.newHashMap(properties);
-  }
-
-  public Map<String, String> getProperties() {
+  Map<String, String> properties() {
     return properties;
   }
 

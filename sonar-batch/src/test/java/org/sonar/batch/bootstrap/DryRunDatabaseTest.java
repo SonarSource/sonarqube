@@ -19,10 +19,12 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -32,6 +34,7 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
@@ -52,12 +55,15 @@ public class DryRunDatabaseTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Before
-  public void setUp() {
-    databaseFile = new File("/tmp/dryrun.h2.db");
+  public void setUp() throws Exception {
+    databaseFile = temp.newFile("dryrun.h2.db");
     when(tempDirectories.getFile("", "dryrun.h2.db")).thenReturn(databaseFile);
     settings.setProperty(CoreProperties.DRY_RUN, true);
-    dryRunDatabase = new DryRunDatabase(settings, server, tempDirectories, projectReactor, mock(ProjectReactorReady.class));
+    dryRunDatabase = new DryRunDatabase(settings, server, tempDirectories, projectReactor);
   }
 
   @Test
@@ -83,7 +89,7 @@ public class DryRunDatabaseTest {
     assertThat(settings.getString(DatabaseProperties.PROP_DRIVER)).isEqualTo("org.h2.Driver");
     assertThat(settings.getString(DatabaseProperties.PROP_USER)).isEqualTo("sonar");
     assertThat(settings.getString(DatabaseProperties.PROP_PASSWORD)).isEqualTo("sonar");
-    assertThat(settings.getString(DatabaseProperties.PROP_URL)).isEqualTo("jdbc:h2:/tmp/dryrun");
+    assertThat(settings.getString(DatabaseProperties.PROP_URL)).isEqualTo("jdbc:h2:" + StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db"));
   }
 
   @Test

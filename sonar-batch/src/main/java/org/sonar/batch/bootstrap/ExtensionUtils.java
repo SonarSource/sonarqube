@@ -23,19 +23,17 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.SupportedEnvironment;
-import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.tasks.RequiresProject;
 import org.sonar.core.DryRunIncompatible;
 
-final class ExtensionUtils {
+public class ExtensionUtils {
 
   private ExtensionUtils() {
     // only static methods
   }
 
-  static boolean isInstantiationStrategy(Object extension, String strategy) {
+  public static boolean isInstantiationStrategy(Object extension, String strategy) {
     InstantiationStrategy annotation = AnnotationUtils.getAnnotation(extension, InstantiationStrategy.class);
     if (annotation != null) {
       return strategy.equals(annotation.value());
@@ -43,15 +41,11 @@ final class ExtensionUtils {
     return InstantiationStrategy.PER_PROJECT.equals(strategy);
   }
 
-  static boolean isTaskExtension(Object extension) {
-    return isType(extension, TaskExtension.class);
-  }
-
-  static boolean isBatchExtension(Object extension) {
+  public static boolean isBatchExtension(Object extension) {
     return isType(extension, BatchExtension.class);
   }
 
-  static boolean supportsEnvironment(Object extension, EnvironmentInformation environment) {
+  public static boolean supportsEnvironment(Object extension, EnvironmentInformation environment) {
     SupportedEnvironment env = AnnotationUtils.getAnnotation(extension, SupportedEnvironment.class);
     if (env == null) {
       return true;
@@ -64,20 +58,16 @@ final class ExtensionUtils {
     return false;
   }
 
-  static boolean supportsDryRun(Object extension) {
+  public static boolean supportsDryRun(Object extension) {
     return AnnotationUtils.getAnnotation(extension, DryRunIncompatible.class) == null;
   }
 
-  static boolean requiresProject(Object extension) {
-    return AnnotationUtils.getAnnotation(extension, RequiresProject.class) != null;
-  }
-
-  static boolean isMavenExtensionOnly(Object extension) {
+  public static boolean isMavenExtensionOnly(Object extension) {
     SupportedEnvironment env = AnnotationUtils.getAnnotation(extension, SupportedEnvironment.class);
     return env != null && env.value().length == 1 && StringUtils.equalsIgnoreCase("maven", env.value()[0]);
   }
 
-  static boolean isType(Object extension, Class<?> extensionClass) {
+  public static boolean isType(Object extension, Class<?> extensionClass) {
     Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
     return extensionClass.isAssignableFrom(clazz);
   }

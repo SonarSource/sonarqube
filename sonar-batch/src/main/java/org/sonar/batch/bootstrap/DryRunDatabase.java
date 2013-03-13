@@ -31,6 +31,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.Nullable;
+
 import java.io.File;
 
 import static org.sonar.api.utils.HttpDownloader.HttpException;
@@ -50,22 +52,25 @@ public class DryRunDatabase implements BatchComponent {
   private final Settings settings;
   private final ServerClient server;
   private final TempDirectories tempDirectories;
-  private final ProjectReactor reactor;
+  private ProjectReactor reactor;
 
-  public DryRunDatabase(Settings settings, ServerClient server, TempDirectories tempDirectories, ProjectReactor reactor,
-      // project reactor must be completely built
-      ProjectReactorReady reactorReady) {
+  public DryRunDatabase(Settings settings, ServerClient server, TempDirectories tempDirectories, @Nullable ProjectReactor reactor) {
     this.settings = settings;
     this.server = server;
     this.tempDirectories = tempDirectories;
     this.reactor = reactor;
   }
 
+  public DryRunDatabase(Settings settings, ServerClient server, TempDirectories tempDirectories) {
+    this(settings, server, tempDirectories, null);
+  }
+
   public void start() {
     if (settings.getBoolean(CoreProperties.DRY_RUN)) {
       LOG.info("Dry run");
       File databaseFile = tempDirectories.getFile("", "dryrun.h2.db");
-      downloadDatabase(reactor.getRoot().getKey(), databaseFile);
+      String projectKey = reactor != null ? StringUtils.defaultString(reactor.getRoot().getKey()) : "";
+      downloadDatabase(projectKey, databaseFile);
 
       String databasePath = StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db");
       replaceSettings(databasePath);

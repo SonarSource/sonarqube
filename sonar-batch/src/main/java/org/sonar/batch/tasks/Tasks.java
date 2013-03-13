@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.tasks;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,6 @@ import org.sonar.batch.scan.ScanTask;
 
 import javax.annotation.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -44,8 +44,8 @@ public class Tasks implements TaskComponent {
   private final TaskDefinition[] taskDefinitions;
   private final Settings settings;
 
-  private final Map<String, TaskDefinition> taskDefByCommand = new HashMap<String, TaskDefinition>();
-  private final Map<Class<? extends Task>, TaskDefinition> taskDefByTask = new HashMap<Class<? extends Task>, TaskDefinition>();
+  private final Map<String, TaskDefinition> taskDefByCommand = Maps.newHashMap();
+  private final Map<Class<? extends Task>, TaskDefinition> taskDefByTask = Maps.newHashMap();
 
   public Tasks(Settings settings, TaskDefinition[] taskDefinitions) {
     this.settings = settings;
@@ -53,13 +53,9 @@ public class Tasks implements TaskComponent {
   }
 
   public TaskDefinition getTaskDefinition(@Nullable String command) {
-    String finalCommand = command;
-    if (StringUtils.isBlank(finalCommand)) {
-      // Try with a property
-      finalCommand = settings.getString(CoreProperties.TASK);
-    }
-    // Default to inspection task
-    finalCommand = StringUtils.isNotBlank(finalCommand) ? finalCommand : ScanTask.COMMAND;
+    String finalCommand = StringUtils.defaultIfBlank(command, settings.getString(CoreProperties.TASK));
+    finalCommand = StringUtils.defaultIfBlank(finalCommand, ScanTask.COMMAND);
+
     if (taskDefByCommand.containsKey(finalCommand)) {
       return taskDefByCommand.get(finalCommand);
     }
@@ -71,7 +67,7 @@ public class Tasks implements TaskComponent {
   }
 
   /**
-   * Perform validation of tasks definitions
+   * Perform validation of task definitions
    */
   public void start() {
     for (TaskDefinition def : taskDefinitions) {
@@ -117,7 +113,7 @@ public class Tasks implements TaskComponent {
     }
     if (taskDefByTask.containsKey(taskClass)) {
       throw new SonarException("Task '" + def.getTask().getName() + "' is defined twice: first by '" + taskDefByTask.get(taskClass).getName() + "' and then by '" + def.getName()
-        + "'");
+          + "'");
     }
     taskDefByTask.put(taskClass, def);
   }

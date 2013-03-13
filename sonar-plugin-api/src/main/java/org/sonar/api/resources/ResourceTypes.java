@@ -32,6 +32,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.task.TaskComponent;
 
 import javax.annotation.Nullable;
 
@@ -44,7 +45,7 @@ import java.util.Map;
  * @since 2.14
  */
 @Beta
-public final class ResourceTypes implements BatchComponent, ServerComponent {
+public final class ResourceTypes implements TaskComponent, ServerComponent {
 
   public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = new Predicate<ResourceType>() {
     public boolean apply(@Nullable ResourceType input) {

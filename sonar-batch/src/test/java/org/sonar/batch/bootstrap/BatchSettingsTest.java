@@ -27,6 +27,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 
+import java.util.Collections;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -35,56 +36,55 @@ import static org.mockito.Mockito.when;
 
 public class BatchSettingsTest {
 
-  Configuration deprecatedConf;
-  ServerClient client;
-  ProjectDefinition project;
-  ProjectReactor reactor;
-  BootstrapSettings bootstrapSettings;
+  ServerClient client = mock(ServerClient.class);
+  ProjectDefinition project = ProjectDefinition.create().setKey("struts");
+  ProjectReactor reactor = new ProjectReactor(project);
+  Configuration deprecatedConf = new BaseConfiguration();
+  BootstrapSettings bootstrapSettings= new BootstrapSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
 
   @Before
   public void before() {
-    project = ProjectDefinition.create();
-    project.setKey("struts");
-    reactor = new ProjectReactor(project);
-    deprecatedConf = new BaseConfiguration();
-    client = mock(ServerClient.class);
     when(client.request("/batch_bootstrap/properties?project=struts")).thenReturn(
         "[{\"k\":\"sonar.cpd.cross\",\"v\":\"true\"}," +
           "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\",\"p\":\"struts\"}," +
           "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"cobertura\",\"p\":\"struts-core\"}]"
         );
-    bootstrapSettings = new BootstrapSettings(reactor, new GlobalBatchProperties());
   }
 
   @Test
   public void should_load_system_props() {
     System.setProperty("BatchSettingsTest.testSystemProp", "system");
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), reactor, client, deprecatedConf, new GlobalBatchProperties());
+    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf,
+        new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
     assertThat(batchSettings.getString("BatchSettingsTest.testSystemProp")).isEqualTo("system");
   }
 
   @Test
-  public void should_load_build_props() {
-    project.setProperty("build.prop", "build");
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), reactor, client, deprecatedConf, new GlobalBatchProperties());
-    assertThat(batchSettings.getString("build.prop")).isEqualTo("build");
+  public void should_load_project_props() {
+    project.setProperty("project.prop", "project");
+    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf,
+        new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
+    assertThat(batchSettings.getString("project.prop")).isEqualTo("project");
   }
 
   @Test
   public void should_load_global_settings() {
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), reactor, client, deprecatedConf, new GlobalBatchProperties());
+    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf,
+        new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
     assertThat(batchSettings.getBoolean("sonar.cpd.cross")).isTrue();
   }
 
   @Test
   public void should_load_project_root_settings() {
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), reactor, client, deprecatedConf, new GlobalBatchProperties());
+    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf,
+        new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
 
   @Test
   public void should_keep_module_settings_for_later() {
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), reactor, client, deprecatedConf, new GlobalBatchProperties());
+    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf,
+        new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
     Map<String, String> moduleSettings = batchSettings.getModuleProperties("struts-core");
     assertThat(moduleSettings).hasSize(1);
     assertThat(moduleSettings.get("sonar.java.coveragePlugin")).isEqualTo("cobertura");
@@ -94,13 +94,15 @@ public class BatchSettingsTest {
   public void system_props_should_override_build_props() {
     System.setProperty("BatchSettingsTest.testSystemProp", "system");
     project.setProperty("BatchSettingsTest.testSystemProp", "build");
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), reactor, client, deprecatedConf, new GlobalBatchProperties());
+    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf,
+        new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
     assertThat(batchSettings.getString("BatchSettingsTest.testSystemProp")).isEqualTo("system");
   }
 
   @Test
   public void should_forward_to_deprecated_commons_configuration() {
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), reactor, client, deprecatedConf, new GlobalBatchProperties());
+    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf,
+        new BootstrapProperties(Collections.<String, String>emptyMap()), reactor);
 
     assertThat(deprecatedConf.getString("sonar.cpd.cross")).isEqualTo("true");
     assertThat(deprecatedConf.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");

@@ -19,53 +19,33 @@
  */
 package org.sonar.batch.scan;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.resources.Project;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
-import org.sonar.batch.ProjectTree;
-import org.sonar.batch.tasks.RequiresProject;
+import org.sonar.batch.bootstrap.TaskContainer;
 
-@RequiresProject
 public class ScanTask implements Task {
-
   public static final String COMMAND = "inspect";
+
   public static final TaskDefinition DEFINITION = TaskDefinition.create()
       .setDescription("Scan project and upload report to server")
       .setName("Project Scan")
       .setCommand(COMMAND)
       .setTask(ScanTask.class);
 
-  private final ComponentContainer container;
-  private final ProjectTree projectTree;
+  private final ComponentContainer taskContainer;
 
-  public ScanTask(ProjectTree projectTree, ComponentContainer container) {
-    this.container = container;
-    this.projectTree = projectTree;
+  public ScanTask(TaskContainer taskContainer) {
+    this.taskContainer = taskContainer;
   }
 
   public void execute() {
-    scanRecursively(projectTree.getRootProject());
-  }
-
-  private void scanRecursively(Project project) {
-    for (Project subProject : project.getModules()) {
-      scanRecursively(subProject);
-    }
-    scan(project);
-  }
-
-  @VisibleForTesting
-  void scan(Project project) {
-    ScanContainer projectModule = new ScanContainer(project);
+    ProjectScanContainer projectScanContainer = new ProjectScanContainer(taskContainer);
     try {
-      ComponentContainer childContainer = container.createChild();
-      projectModule.init(childContainer);
-      projectModule.start();
+      projectScanContainer.startComponents();
     } finally {
-      projectModule.stop();
-      container.removeChild();
+      projectScanContainer.stopComponents();
+      taskContainer.removeChild();
     }
   }
 

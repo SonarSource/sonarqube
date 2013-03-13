@@ -22,56 +22,38 @@ package org.sonar.batch;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.BootstrapContainer;
-import org.sonar.batch.bootstrap.Container;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.Reactor;
 
 import java.util.Iterator;
 import java.util.Properties;
 
 /**
- * @deprecated Replaced by {@link org.sonar.batch.bootstrapper.Batch} since version 2.14.
+ * @deprecated in 2.14. Replaced by {@link org.sonar.batch.bootstrapper.Batch}.
  */
 @Deprecated
 public final class Batch {
 
-  private Container bootstrapModule;
+  private Object[] bootstrapExtensions;
+  private ProjectReactor reactor;
 
   public Batch(ProjectReactor reactor, Object... bootstrapperComponents) {
-    this.bootstrapModule = new BootstrapContainer(reactor, bootstrapperComponents);
-    this.bootstrapModule.init();
+    this.reactor = reactor;
+    this.bootstrapExtensions = bootstrapperComponents;
   }
 
   /**
    * @deprecated since 2.9 because commons-configuration is replaced by ProjectDefinition#properties. Used by Ant Task 1.1
    */
   @Deprecated
-  public Batch(Configuration configuration, Object... bootstrapperComponents) {//NOSONAR configuration is not needed
+  public Batch(Configuration configuration, Object... bootstrapperComponents) {
+    // configuration is not needed
     // because it's already included in ProjectDefinition.
-    this.bootstrapModule = new BootstrapContainer(extractProjectReactor(bootstrapperComponents), bootstrapperComponents);
-    this.bootstrapModule.init();
-  }
-
-  static ProjectReactor extractProjectReactor(Object[] components) {
-    Reactor deprecatedReactor = null;
-    for (Object component : components) {
-      if (component instanceof ProjectReactor) {
-        return (ProjectReactor) component;
-      }
-      if (component instanceof Reactor) {
-        deprecatedReactor = (Reactor) component;
-      }
-    }
-
-    if (deprecatedReactor == null) {
-      throw new IllegalArgumentException("Project reactor is not defined");
-    }
-    return deprecatedReactor.toProjectReactor();
+    this.bootstrapExtensions = bootstrapperComponents;
+    this.reactor = extractProjectReactor(bootstrapperComponents);
   }
 
   /**
-   * Used by Gradle 1.0
-   *
    * @deprecated in version 2.12
    */
   @Deprecated
@@ -94,18 +76,27 @@ public final class Batch {
     return props;
   }
 
-  /**
-   * for unit tests
-   */
-  Batch(Container bootstrapModule) {
-    this.bootstrapModule = bootstrapModule;
+  static ProjectReactor extractProjectReactor(Object[] components) {
+    Reactor deprecatedReactor = null;
+    for (Object component : components) {
+      if (component instanceof ProjectReactor) {
+        return (ProjectReactor) component;
+      }
+      if (component instanceof Reactor) {
+        deprecatedReactor = (Reactor) component;
+      }
+    }
+
+    if (deprecatedReactor == null) {
+      throw new IllegalArgumentException("Project reactor is not defined");
+    }
+    return deprecatedReactor.toProjectReactor();
   }
 
   public void execute() {
-    try {
-      bootstrapModule.start();
-    } finally {
-      bootstrapModule.stop();
-    }
+    org.sonar.batch.bootstrapper.Batch.Builder builder = org.sonar.batch.bootstrapper.Batch.builder();
+    builder.setProjectReactor(reactor);
+    builder.addComponents(bootstrapExtensions);
+    builder.build().execute();
   }
 }

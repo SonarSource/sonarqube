@@ -19,6 +19,7 @@
  */
 package org.sonar.api.platform;
 
+import com.google.common.collect.Iterables;
 import org.picocontainer.Characteristics;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.DefaultPicoContainer;
@@ -56,7 +57,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
   /**
    * Create child container
    */
-  private ComponentContainer(ComponentContainer parent) {
+  protected ComponentContainer(ComponentContainer parent) {
     this.parent = parent;
     this.pico = parent.pico.makeChildContainer();
     this.parent.child = this;
@@ -69,8 +70,18 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
    * a component twice is not authorized.
    */
   public final ComponentContainer startComponents() {
+    doBeforeStart();
     pico.start();
+    doAfterStart();
     return this;
+  }
+
+  protected void doBeforeStart() {
+
+  }
+
+  protected void doAfterStart() {
+
   }
 
   /**
@@ -79,6 +90,22 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
    */
   public final ComponentContainer stopComponents() {
     pico.stop();
+    return this;
+  }
+
+  /**
+   * @since 3.5
+   */
+  public final ComponentContainer add(Object... objects) {
+    for (Object object : objects) {
+      if (object instanceof ComponentAdapter) {
+        addPicoAdapter((ComponentAdapter) object);
+      } else if (object instanceof Iterable) {
+        add(Iterables.toArray((Iterable) object, Object.class));
+      } else {
+        addSingleton(object);
+      }
+    }
     return this;
   }
 
@@ -103,12 +130,16 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
   }
 
   public final void declareExtension(@Nullable PluginMetadata plugin, Object extension) {
-    propertyDefinitions.addComponent(extension, plugin!=null ? plugin.getName() : "");
+    propertyDefinitions.addComponent(extension, plugin != null ? plugin.getName() : "");
   }
 
   public final ComponentContainer addPicoAdapter(ComponentAdapter adapter) {
     pico.addAdapter(adapter);
     return this;
+  }
+
+  public <T> T get(Class<T> key) {
+    return pico.getComponent(key);
   }
 
   public final <T> T getComponentByType(Class<T> tClass) {

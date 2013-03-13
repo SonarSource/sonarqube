@@ -20,18 +20,15 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.api.task.TaskComponent;
 
 import java.util.List;
 
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class MetricProvider extends ExtensionProvider implements BatchExtension {
+public class MetricProvider extends ExtensionProvider implements TaskComponent {
 
   private Metrics[] factories;
 
@@ -45,7 +42,6 @@ public class MetricProvider extends ExtensionProvider implements BatchExtension 
 
   @Override
   public List<Metric> provide() {
-    LoggerFactory.getLogger(MetricProvider.class).debug("Load metrics");
     List<Metric> metrics = Lists.newArrayList(CoreMetrics.getMetrics());
     for (Metrics factory : factories) {
       metrics.addAll(factory.getMetrics());

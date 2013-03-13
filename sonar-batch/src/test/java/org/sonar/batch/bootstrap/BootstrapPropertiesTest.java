@@ -17,23 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.tasks;
+package org.sonar.batch.bootstrap;
 
-import com.google.common.annotations.Beta;
+import com.google.common.collect.Maps;
+import org.junit.Test;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Map;
 
-/**
- * The presence of this annotation on a task extension class indicates that the extension
- * will be disabled when there is no project available.
- *
- * @since 3.5
- */
-@Beta
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface RequiresProject {
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.MapAssert.entry;
+
+public class BootstrapPropertiesTest {
+  @Test
+  public void test_copy_of_properties() {
+    Map<String, String> map = Maps.newHashMap();
+    map.put("foo", "bar");
+
+    BootstrapProperties wrapper = new BootstrapProperties(map);
+    assertThat(wrapper.properties()).hasSize(1).includes(entry("foo", "bar"));
+    assertThat(wrapper.properties()).isNotSameAs(map);
+
+    map.put("put", "after_copy");
+    assertThat(wrapper.properties()).hasSize(1);
+  }
 }

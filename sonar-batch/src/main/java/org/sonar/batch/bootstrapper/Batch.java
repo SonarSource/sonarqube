@@ -24,8 +24,10 @@ import com.google.common.collect.Maps;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapContainer;
-import org.sonar.batch.bootstrap.GlobalBatchProperties;
-import org.sonar.batch.bootstrap.Container;
+import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.TaskContainer;
+import org.sonar.batch.scan.ScanTask;
+import org.sonar.batch.tasks.ListTasksTask;
 import org.sonar.core.PicoUtils;
 
 import java.util.Collections;
@@ -48,11 +50,12 @@ public final class Batch {
   private Batch(Builder builder) {
     components = Lists.newArrayList();
     components.addAll(builder.components);
-    components.add(builder.environment);
+    if (builder.environment != null) {
+      components.add(builder.environment);
+    }
     if (builder.globalProperties != null) {
       globalProperties.putAll(builder.globalProperties);
-    }
-    else {
+    } else {
       // For backward compatibility, previously all properties were set in root project
       globalProperties.putAll(Maps.fromProperties(builder.projectReactor.getRoot().getProperties()));
     }
@@ -80,18 +83,29 @@ public final class Batch {
   }
 
   private void startBatch() {
-    Container bootstrapModule = null;
+    BootstrapContainer bootstrapModule = null;
     try {
-      bootstrapModule = new BootstrapContainer(new GlobalBatchProperties(globalProperties), taskCommand,
-          projectReactor, components.toArray(new Object[components.size()]));
-      bootstrapModule.init();
-      bootstrapModule.start();
+      List all = Lists.newArrayList(components);
+      all.add(new BootstrapProperties(globalProperties));
+      all.add(projectReactor);
+
+      bootstrapModule = BootstrapContainer.create(all);
+      bootstrapModule.startComponents();
+
+      TaskContainer taskContainer = new TaskContainer(bootstrapModule);
+      taskContainer.add(
+        ScanTask.DEFINITION, ScanTask.class,
+        ListTasksTask.DEFINITION, ListTasksTask.class
+      );
+
+      taskContainer.executeTask(taskCommand);
+
     } catch (RuntimeException e) {
       PicoUtils.propagateStartupException(e);
     } finally {
       try {
         if (bootstrapModule != null) {
-          bootstrapModule.stop();
+          bootstrapModule.stopComponents();
         }
       } catch (Exception e) {
         // never throw exceptions in a finally block
@@ -164,9 +178,6 @@ public final class Batch {
     }
 
     public Batch build() {
-      if (environment == null) {
-        throw new IllegalStateException("EnvironmentInfo is not set");
-      }
       if (components == null) {
         throw new IllegalStateException("Batch components are not set");
       }

@@ -31,6 +31,7 @@ import com.google.common.collect.Lists;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.task.TaskExtension;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -43,8 +44,7 @@ import java.util.List;
  */
 @Beta
 @Immutable
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public final class ResourceTypeTree implements BatchExtension, ServerExtension {
+public final class ResourceTypeTree implements TaskExtension, ServerExtension {
 
   private List<ResourceType> types;
   private ListMultimap<String, String> relations;

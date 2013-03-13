@@ -89,11 +89,11 @@ public final class Phases {
   /**
    * Executed on each module
    */
-  public void execute(Project project) {
-    pi.execute(project);
-    eventBus.fireEvent(new ProjectAnalysisEvent(project, true));
-    mavenPluginsConfigurator.execute(project);
-    mavenPhaseExecutor.execute(project);
+  public void execute(Project module) {
+    pi.execute(module);
+    eventBus.fireEvent(new ProjectAnalysisEvent(module, true));
+    mavenPluginsConfigurator.execute(module);
+    mavenPhaseExecutor.execute(module);
     initializersExecutor.execute();
     fsLogger.log();
 
@@ -103,7 +103,7 @@ public final class Phases {
     persistenceManager.dump();
     persistenceManager.setDelayedMode(false);
 
-    if (project.isRoot()) {
+    if (module.isRoot()) {
       graphStorage.save();
       if (updateStatusJob != null) {
         updateStatusJob.execute();
@@ -111,7 +111,7 @@ public final class Phases {
       postJobsExecutor.execute(sensorContext);
     }
     cleanMemory();
-    eventBus.fireEvent(new ProjectAnalysisEvent(project, false));
+    eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
   }
 
   private void cleanMemory() {

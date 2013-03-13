@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 
@@ -41,17 +42,11 @@ public class BatchTest {
         .build();
   }
 
+  @Ignore
   @Test(expected = IllegalStateException.class)
   public void shouldFailIfNoEnvironment() {
     Batch.builder()
         .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
-        .addComponent("fake")
-        .build();
-  }
-
-  public void shouldNotFailIfNoProjectReactor() {
-    Batch.builder()
-        .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
         .addComponent("fake")
         .build();
   }
