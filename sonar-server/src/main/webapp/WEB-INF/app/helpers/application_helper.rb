@@ -669,14 +669,14 @@ module ApplicationHelper
   # Creates a dropdown selection box.
   # ==== Options
   # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
-  # * <tt>:placeholder</tt> - the label to display when nothing is selected
+  # * <tt>:placeholder</tt> - the label to display when nothing is selected. Default is ''.
   # * <tt>:allow_clear</tt> - true if value can be de-selected. Default is false.
   # * <tt>:show_search_box</tt> - true to display the search box. Default is false.
   # * <tt>:html_options</tt> - hash for html options (id, class, onchange, ...)
   # * <tt>:select2_options</tt> - hash of select2 options
   #
   def dropdown_tag(name, option_tags, options={}, html_options={})
-    width=options[:width]
+    width=options[:width]||'250px'
     html_id=html_options[:id]||name
     show_search_box=options[:show_search_box]||false
     minimumResultsForSearch=show_search_box ? 0 : option_tags.size + 1;
@@ -685,7 +685,7 @@ module ApplicationHelper
         'minimumResultsForSearch' => minimumResultsForSearch,
         'allowClear' => options[:allow_clear]||false,
     }
-    js_options['placeholder']= "'#{options[:placeholder]}'" if options.has_key?(:placeholder)
+    js_options['placeholder']= options.has_key?(:placeholder) ? "'#{options[:placeholder]}'" : "''"
     js_options['width']= "'#{width}'" if width
     js_options.merge!(options[:select2_options]) if options[:select2_options]
 

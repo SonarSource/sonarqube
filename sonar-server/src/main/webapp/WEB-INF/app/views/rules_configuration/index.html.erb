@@ -124,8 +124,7 @@
           <input type="hidden" name="id" value="<%= @profile.id -%>"/>
           <input type="hidden" name="bulk_rule_ids" value="<%= @rules.map{|r| r.id}.join(',') -%>"/>
           <%= dropdown_tag "bulk_action", options_for_select([ ["", ""], [message('activate_all'), "activate"], [message('deactivate_all'), "deactivate"] ], ''), {
-              :width => '110px',
-              :placeholder => ''
+              :width => '110px'
           }, {:onChange => 'submitBulkForm()'} -%>
         </form>
         </div>
@@ -151,8 +150,7 @@
         <% form_tag({:action => 'index'}) do %>
           <%= message('rules_configuration.sort_by') -%>
           <%= dropdown_tag "sort_by", options_for_select(@select_sort_by, @sort_by), {
-              :width => '120px',
-              :placeholder => ''
+              :width => '120px'
           }, {:id => 'select-rules-sort-by', :onChange => 'submitSortBy()'} -%>
         <% end %>
       </th>
