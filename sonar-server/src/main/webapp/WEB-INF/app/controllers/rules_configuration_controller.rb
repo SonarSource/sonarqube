@@ -60,9 +60,16 @@ class RulesConfigurationController < ApplicationController
         :repositories => @repositories, :searchtext => @searchtext, :include_parameters_and_notes => true, :language => @profile.language, :sort_by => @sort_by})
 
     unless @searchtext.blank?
-      @hidden_inactives = Rule.search(java_facade, {
-          :profile => @profile, :activation => @activation==STATUS_ACTIVE ? STATUS_INACTIVE : STATUS_ACTIVE, :priorities => @priorities, :status => @status,
-          :repositories => @repositories, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
+      if @activation==STATUS_ACTIVE
+        @hidden_inactives = Rule.search(java_facade, {
+            :profile => @profile, :activation => STATUS_INACTIVE, :priorities => @priorities, :status => @status,
+            :repositories => @repositories, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
+
+      elsif @activation==STATUS_INACTIVE
+        @hidden_actives = Rule.search(java_facade, {
+            :profile => @profile, :activation => STATUS_ACTIVE, :priorities => @priorities, :status => @status,
+            :repositories => @repositories, :language => @profile.language, :searchtext => @searchtext, :include_parameters_and_notes => false}).size
+      end
     end
 
     @pagination = Api::Pagination.new(params)
