@@ -70,8 +70,8 @@
   </prerequisites>
 
   <properties>
-    <sonarUpdateCenter.version>1.5-RC1</sonarUpdateCenter.version>
-    <sonarJava.version>1.2-RC2</sonarJava.version>
+    <sonarUpdateCenter.version>1.5</sonarUpdateCenter.version>
+    <sonarJava.version>1.2</sonarJava.version>
     <sonarGwt.version>3.3.1</sonarGwt.version>
     <h2.version>1.3.167</h2.version>
     <jetty.version>6.1.25</jetty.version>
