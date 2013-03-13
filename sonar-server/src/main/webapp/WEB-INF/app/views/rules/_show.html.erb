@@ -1,5 +1,5 @@
 <% if @rule %>
-<div class="form-head" style="height:40px">
+<div class="modal-head" style="height:40px">
   <h2>
     <%= @rule.name %>
   </h2>
@@ -9,7 +9,7 @@
 </div>
 <% end %>
 
-<div class="form-body">
+<div class="modal-body">
   <% if @rule %>
     <% if @rule.description.strip.start_with?('<p>') %>
       <%= interpret_macro @rule.description %>
@@ -25,7 +25,7 @@
   <% end %>
 </div>
 
-<div class="form-foot">
+<div class="modal-foot">
   <a href="#" onclick="return closeModalWindow()"><%= h message('close') -%></a>
 </div>
 

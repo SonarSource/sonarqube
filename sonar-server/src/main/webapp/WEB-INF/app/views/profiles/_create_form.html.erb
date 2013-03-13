@@ -6,27 +6,27 @@
   <fieldset>
     <input type="hidden" name="language" value="<%= language_key -%>"/>
 
-    <div class="form-head">
+    <div class="modal-head">
       <h2><%= h message('quality_profiles.create_x_language_profile', :params => language.getName()) -%></h2>
     </div>
 
-    <div class="form-body">
+    <div class="modal-body">
 
-      <div class="form-field">
+      <div class="modal-field">
         <label for="name"><%= message('name') -%> <em class="mandatory">*</em></label>
         <input id="create-profile-name" name="name" type="text" size="50" maxlength="100" autofocus="autofocus"/>
       </div>
 
       <% importers.to_a.sort { |x, y| x.getName() <=> y.getName() }.each do |importer| %>
-        <div class="form-field">
+        <div class="modal-field">
           <label for="backup[<%= importer.getKey() -%>]"><%= h importer.getName() -%></label>
           <%= file_field_tag "backup[#{importer.getKey()}]" %>
-          <div class="form-field-description"><%= h message('quality_profiles.optional_configuration_file') -%></div>
+          <div class="modal-field-description"><%= h message('quality_profiles.optional_configuration_file') -%></div>
         </div>
       <% end %>
     </div>
 
-    <div class="form-foot">
+    <div class="modal-foot">
       <input type="submit" value="<%= h message('create') -%>" id="create-profile-submit"/>
       <a href="#" onclick="return closeModalWindow()" id="create-profile-cancel"><%= h message('cancel') -%></a>
     </div>

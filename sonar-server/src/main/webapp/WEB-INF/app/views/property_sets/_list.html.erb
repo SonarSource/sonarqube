@@ -1,9 +1,9 @@
 <form id="edit-property-set-form" method="post" action="property-sets/update">
   <fieldset>
-    <div class="form-head">
+    <div class="modal-head">
     </div>
 
-    <div class="form-body">
+    <div class="modal-body">
       <% @property_sets.each do |property_set| -%>
         <% property_set.fields.each do |field| -%>
           <%= field.name %> (<%= field.type %>)<br/>
@@ -11,7 +11,7 @@
       <% end -%>
     </div>
 
-    <div class="form-foot">
+    <div class="modal-foot">
       <a href="#" onclick="return closeModalWindow();" id="rename-cancel"><%= h message('cancel') -%></a>
     </div>
   </fieldset>
