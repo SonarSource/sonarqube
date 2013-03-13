@@ -145,9 +145,9 @@
       <th class="left" nowrap><%= message('active') -%>/<%= message('severity') -%></th>
       <th class="left"><%= message('name') -%> <span style="font-weight: normal">
         [<%= link_to_function(message('rules_configuration.expand'), "expand_rules()") %> / <%= link_to_function(message('rules_configuration.collapse'), "collapse_rules()") %>]</span></th>
-      <th class="right thin" nowrap>
-        <% form_tag({:action => 'index'}) do %>
-          <%= message('rules_configuration.sort_by') -%>
+      <th class="right" nowrap>
+        <span class="middle"><%= message('rules_configuration.sort_by') -%></span>
+        <% form_tag({:action => 'index'}, :class=> 'middle', :style => 'display:inline-block') do %>
           <%= dropdown_tag "sort_by", options_for_select(@select_sort_by, @sort_by), {
               :width => '120px'
           }, {:id => 'select-rules-sort-by', :onChange => 'submitSortBy()'} -%>

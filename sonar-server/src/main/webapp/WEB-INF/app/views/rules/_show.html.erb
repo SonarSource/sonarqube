@@ -1,29 +1,30 @@
 <% if @rule %>
-<div class="modal-head" style="height:40px">
+<div class="modal-head">
   <h2>
     <%= @rule.name %>
   </h2>
-  <div class="subtitle" style="line-height:0px;">
-    <%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%>
-  </div>
+  <ul class="modal-head-metadata">
+    <li><%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%></li>
+  </ul>
 </div>
-<% end %>
 
 <div class="modal-body">
-  <% if @rule %>
-    <% if @rule.description.strip.start_with?('<p>') %>
-      <%= interpret_macro @rule.description %>
-    <% else %>
-      <p><%= @rule.description %></p>
-    <% end %>
-
-    <% if @rule.note && !@rule.note.text.strip.blank? %>
-      <p><%= @rule.note.html_text -%></p>
-    <% end %>
+  <% if @rule.description.strip.start_with?('<p>') %>
+    <%= interpret_macro @rule.description %>
   <% else %>
-    <p class="error"><%= message('rules.not_found', :params => @key) %>
+    <p><%= @rule.description %></p>
+  <% end %>
+
+  <% if @rule.note && !@rule.note.text.strip.blank? %>
+    <p><%= @rule.note.html_text -%></p>
   <% end %>
 </div>
+
+<% else %>
+<div class="modal-body">
+  <p class="error"><%= message('rules.not_found', :params => @key) %>
+</div>
+<% end %>
 
 <div class="modal-foot">
   <a href="#" onclick="return closeModalWindow()"><%= h message('close') -%></a>
