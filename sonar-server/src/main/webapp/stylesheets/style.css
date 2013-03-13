@@ -2444,17 +2444,13 @@ textarea.width100 {
 }
 
 .rule-status {
-  display: inline-block;
   margin-left: 10px;
   float: right;
-  background-color: #e7e7e7;
-  padding: 3px;
+  padding: 3px 5px 0 0;
 }
 
-.rule-status .status-beta {
-  color: #5e8790;
-}
-
-.rule-status .status-deprecated {
-  color: #906947;
+.rule-status span {
+  text-transform: uppercase;
+  font-size: 85%;
+  color: #777;
 }
