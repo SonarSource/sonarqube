@@ -77,7 +77,7 @@ public class BatchSettings extends Settings {
     addSystemProperties();
   }
 
-  private void downloadSettings(ServerClient client, String projectKey) {
+  private void downloadSettings(ServerClient client, @Nullable String projectKey) {
     String url;
     if (StringUtils.isNotBlank(projectKey)) {
       url = "/batch_bootstrap/properties?project=" + projectKey;

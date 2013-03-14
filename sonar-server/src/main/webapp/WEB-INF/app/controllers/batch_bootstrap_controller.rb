@@ -23,7 +23,6 @@ class BatchBootstrapController < Api::ApiController
 
   # GET /batch_bootstrap/db?project=<key or id>
   def db
-    require_parameters :project
     project = load_project()
     db_content = java_facade.createDatabaseForDryRun(project ? project.id : nil)
 

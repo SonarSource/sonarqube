@@ -69,23 +69,26 @@ public class DryRunDatabase implements BatchComponent {
     if (settings.getBoolean(CoreProperties.DRY_RUN)) {
       LOG.info("Dry run");
       File databaseFile = tempDirectories.getFile("", "dryrun.h2.db");
-      String projectKey = reactor != null ? StringUtils.defaultString(reactor.getRoot().getKey()) : "";
-      downloadDatabase(projectKey, databaseFile);
+      downloadDatabase(databaseFile);
 
       String databasePath = StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db");
       replaceSettings(databasePath);
     }
   }
 
-  private void downloadDatabase(String projectKey, File toFile) {
+  private void downloadDatabase(File toFile) {
+    String projectKey = null;
     try {
-      server.download("/batch_bootstrap/db?project=" + projectKey, toFile);
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Dry Run database size: {}", FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(toFile)));
+      if (reactor == null) {
+        server.download("/batch_bootstrap/db", toFile);
+      } else {
+        projectKey = StringUtils.defaultString(reactor.getRoot().getKey());
+        server.download("/batch_bootstrap/db?project=" + projectKey, toFile);
       }
+      LOG.debug("Dry Run database size: {}", FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(toFile)));
     } catch (SonarException e) {
       Throwable rootCause = Throwables.getRootCause(e);
-      if ((rootCause instanceof HttpException) && (((HttpException) rootCause).getResponseCode() == 401)) {
+      if (projectKey != null && (rootCause instanceof HttpException) && (((HttpException) rootCause).getResponseCode() == 401)) {
         throw new SonarException(String.format("You don't have access rights to project [%s]", projectKey), e);
       }
       throw e;
@@ -94,11 +97,11 @@ public class DryRunDatabase implements BatchComponent {
 
   private void replaceSettings(String databasePath) {
     settings
-        .removeProperty("sonar.jdbc.schema")
-        .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
-        .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
-        .setProperty(DatabaseProperties.PROP_USER, USER)
-        .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
-        .setProperty(DatabaseProperties.PROP_URL, URL + databasePath);
+      .removeProperty("sonar.jdbc.schema")
+      .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
+      .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
+      .setProperty(DatabaseProperties.PROP_USER, USER)
+      .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
+      .setProperty(DatabaseProperties.PROP_URL, URL + databasePath);
   }
 }

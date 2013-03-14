@@ -19,15 +19,22 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.config.Settings;
+import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
+import org.sonar.api.platform.PluginMetadata;
 import org.sonar.core.config.Logback;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BootstrapContainerTest {
   @Test
@@ -48,11 +55,33 @@ public class BootstrapContainerTest {
     assertThat(container.get(Bar.class)).isNotNull();
   }
 
+  @Test
+  public void should_install_plugins() {
+    PluginMetadata metadata = mock(PluginMetadata.class);
+    FakePlugin plugin = new FakePlugin();
+    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(ImmutableMap.<PluginMetadata, Plugin>of(
+      metadata, plugin
+    ));
+
+    BootstrapContainer container = BootstrapContainer.create(Lists.newArrayList(pluginRepository));
+    container.doAfterStart();
+
+    assertThat(container.getComponentsByType(Plugin.class)).containsOnly(plugin);
+  }
+
   public static class Foo implements BatchExtension {
 
   }
 
   public static class Bar implements BatchExtension {
 
+  }
+
+  public static class FakePlugin extends SonarPlugin {
+
+    public List getExtensions() {
+      return Arrays.asList(Foo.class, Bar.class);
     }
+  }
 }

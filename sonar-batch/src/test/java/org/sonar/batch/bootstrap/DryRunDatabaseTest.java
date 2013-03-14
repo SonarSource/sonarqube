@@ -34,7 +34,6 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
@@ -44,8 +43,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class DryRunDatabaseTest {
-  DryRunDatabase dryRunDatabase;
-
   Settings settings = new Settings();
   ServerClient server = mock(ServerClient.class);
   TempDirectories tempDirectories = mock(TempDirectories.class);
@@ -63,27 +60,26 @@ public class DryRunDatabaseTest {
     databaseFile = temp.newFile("dryrun.h2.db");
     when(tempDirectories.getFile("", "dryrun.h2.db")).thenReturn(databaseFile);
     settings.setProperty(CoreProperties.DRY_RUN, true);
-    dryRunDatabase = new DryRunDatabase(settings, server, tempDirectories, projectReactor);
   }
 
   @Test
   public void should_be_disabled_if_not_dry_run() {
     settings.setProperty(CoreProperties.DRY_RUN, false);
-    dryRunDatabase.start();
+    new DryRunDatabase(settings, server, tempDirectories, projectReactor).start();
 
     verifyZeroInteractions(tempDirectories, server);
   }
 
   @Test
   public void should_download_database() {
-    dryRunDatabase.start();
+    new DryRunDatabase(settings, server, tempDirectories, projectReactor).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
   }
 
   @Test
   public void should_replace_database_settings() {
-    dryRunDatabase.start();
+    new DryRunDatabase(settings, server, tempDirectories, projectReactor).start();
 
     assertThat(settings.getString(DatabaseProperties.PROP_DIALECT)).isEqualTo("h2");
     assertThat(settings.getString(DatabaseProperties.PROP_DRIVER)).isEqualTo("org.h2.Driver");
@@ -99,7 +95,7 @@ public class DryRunDatabaseTest {
     thrown.expect(SonarException.class);
     thrown.expectMessage("You don't have access rights to project [group:project]");
 
-    dryRunDatabase.start();
+    new DryRunDatabase(settings, server, tempDirectories, projectReactor).start();
   }
 
   @Test
@@ -109,6 +105,13 @@ public class DryRunDatabaseTest {
     thrown.expect(SonarException.class);
     thrown.expectMessage("BUG");
 
-    dryRunDatabase.start();
+    new DryRunDatabase(settings, server, tempDirectories, projectReactor).start();
+  }
+
+  @Test
+  public void project_should_be_optional() {
+    // on non-scan tasks
+    new DryRunDatabase(settings, server, tempDirectories).start();
+    verify(server).download("/batch_bootstrap/db", databaseFile);
   }
 }
