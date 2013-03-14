@@ -252,6 +252,14 @@ public final class Rule {
     return this;
   }
 
+  /**
+   * @deprecated in 3.6
+   */
+  @Deprecated
+  public void setEnabled(boolean enabled) {
+    throw new UnsupportedOperationException("No more supported since version 3.6. Please use setStatus() instead.");
+  }
+
   public Boolean isEnabled() {
     return !"REMOVED".equals(status);
   }
