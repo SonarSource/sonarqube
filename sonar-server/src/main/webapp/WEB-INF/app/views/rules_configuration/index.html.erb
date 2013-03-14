@@ -119,7 +119,8 @@
     <% if enable_modification %>
       <li class="marginleft10">
         <div class="bulk-edit"><%= message('bulk_change') -%>:
-        <form action="<%= ApplicationController.root_context -%>/rules_configuration/bulk_edit" method="POST" style="display: inline;vertical-align: middle" id="bulk-form">
+        <form action="<%= ApplicationController.root_context -%>/rules_configuration/bulk_edit" method="POST" id="bulk-form"
+              style="display: inline; vertical-align: middle; padding-right:5px">
           <input type="hidden" name="id" value="<%= @profile.id -%>"/>
           <input type="hidden" name="bulk_rule_ids" value="<%= @rules.map{|r| r.id}.join(',') -%>"/>
           <%= dropdown_tag "bulk_action", options_for_select([ ["", ""], [message('activate_all'), "activate"], [message('deactivate_all'), "deactivate"] ], ''), {

@@ -101,7 +101,7 @@ class RulesConfigurationController < ApplicationController
   def activate_rule
     profile = Profile.find(params[:id].to_i)
     if profile
-      rule=Rule.find(:first, :conditions => {:id => params[:rule_id].to_i, :enabled => true})
+      rule=Rule.first(:conditions => ["id = ? and status <> ?", params[:rule_id].to_i, Rule::STATUS_REMOVED])
       priority=params[:level]
 
       active_rule=profile.active_by_rule_id(rule.id)
@@ -161,6 +161,7 @@ class RulesConfigurationController < ApplicationController
   #
   #
   def create
+    profile = Profile.find(params[:id].to_i)
     template=Rule.find(params[:rule_id])
     rule=Rule.create(params[:rule].merge(
                          {
@@ -170,7 +171,10 @@ class RulesConfigurationController < ApplicationController
                              :cardinality => 'SINGLE',
                              :plugin_rule_key => "#{template.plugin_rule_key}_#{Time.now.to_i}",
                              :plugin_config_key => template.plugin_config_key,
-                             :enabled => true}))
+                             :status => Rule::STATUS_READY,
+                             :language => profile.language
+                         }
+                     ))
 
     template.parameters.each do |template_parameter|
       rule.rules_parameters.build(:name => template_parameter.name, :param_type => template_parameter.param_type, :description => template_parameter.description,
@@ -178,11 +182,11 @@ class RulesConfigurationController < ApplicationController
     end
 
     if rule.save
-      redirect_to :action => 'index', :id => params[:id], :searchtext => rule.name, :rule_activation => 'INACTIVE', "plugins[]" => rule.plugin_name
+      redirect_to :action => 'index', :id => profile.id, :searchtext => rule.name, :rule_activation => 'INACTIVE', "plugins[]" => rule.plugin_name
 
     else
       flash[:error]=message('rules_configuration.rule_not_valid_message_x', :params => rule.errors.full_messages.join('<br/>'))
-      redirect_to :action => 'new', :id => params[:id], :rule_id => params[:rule_id]
+      redirect_to :action => 'new', :id => profile.id, :rule_id => params[:rule_id]
     end
   end
 
@@ -242,7 +246,7 @@ class RulesConfigurationController < ApplicationController
   def delete
     rule=Rule.find(params[:rule_id])
     if rule.editable?
-      rule.enabled=false
+      rule.status=RULE::STATUS_REMOVED
       rule.save
 
       # it's mandatory to execute 'destroy_all' but not 'delete_all' because active_rule_parameters must
