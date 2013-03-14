@@ -12,7 +12,7 @@
   <% if @rule.description.strip.start_with?('<p>') %>
     <%= interpret_macro @rule.description %>
   <% else %>
-    <p><%= @rule.description %></p>
+    <p><%= interpret_macro @rule.description %></p>
   <% end %>
 
   <% if @rule.note && !@rule.note.text.strip.blank? %>

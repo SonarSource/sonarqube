@@ -11,7 +11,7 @@
   <% if rule.description.strip.start_with?('<p>') %>
     <%= interpret_macro rule.description %>
   <% else %>
-    <p><%= rule.description %></p>
+    <p><%= interpret_macro rule.description %></p>
   <% end %>
   
   <% if note && !note.text.strip.blank? %>

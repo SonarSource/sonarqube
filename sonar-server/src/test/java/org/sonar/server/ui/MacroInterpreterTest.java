@@ -68,4 +68,13 @@ public class MacroInterpreterTest {
     String result = interpreter.interpret(origin);
     assertThat(result).isEqualTo("See <a class='open-modal rule-modal' href='"+ path + "/rules/show/"+ ruleKey + "?modal=true&layout=false'>" + ruleKey +"</a> for detail.");
   }
+
+  @Test
+  public void should_replace_rule_macro_containing_digit_and_dash() {
+    String ruleKey = "my-repo1:key";
+    String origin = "See {rule:"+ ruleKey + "} for detail.";
+    interpreter.start();
+    String result = interpreter.interpret(origin);
+    assertThat(result).isEqualTo("See <a class='open-modal rule-modal' href='"+ path + "/rules/show/"+ ruleKey + "?modal=true&layout=false'>" + ruleKey +"</a> for detail.");
+  }
 }
