@@ -17,9 +17,10 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
 import org.junit.Test;
+import org.sonar.batch.scan.DurationLabel;
 
 import java.text.MessageFormat;
 
@@ -27,12 +28,23 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DurationLabelTest {
 
-  private static final long SECOND = 1000; // One second in milliseconds
-  private static final long MINUTE = 60 * SECOND; // One minute in milliseconds
-  private static final long HOUR = 60 * MINUTE; // One hour in milliseconds
-  private static final long DAY = 24 * HOUR; // One day in milliseconds
-  private static final long MONTH = 30 * DAY; // 30 days in milliseconds
-  private static final long YEAR = 365 * DAY; // 365 days in milliseconds
+  // One second in milliseconds
+  private static final long SECOND = 1000;
+
+  // One minute in milliseconds
+  private static final long MINUTE = 60 * SECOND;
+
+  // One hour in milliseconds
+  private static final long HOUR = 60 * MINUTE;
+
+  // One day in milliseconds
+  private static final long DAY = 24 * HOUR;
+
+  // 30 days in milliseconds
+  private static final long MONTH = 30 * DAY;
+
+  // 365 days in milliseconds
+  private static final long YEAR = 365 * DAY;
 
   @Test
   public void testAgoSeconds() {

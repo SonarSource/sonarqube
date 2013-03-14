@@ -41,8 +41,6 @@ import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionUtils;
-import org.sonar.batch.bootstrap.ProjectSettings;
-import org.sonar.batch.bootstrap.UnsupportedProperties;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
@@ -78,10 +76,10 @@ public class ModuleScanContainer extends ComponentContainer {
         moduleDefinition,
         module.getConfiguration(),
         module,
-        ProjectSettings.class);
+        ModuleSettings.class);
 
     // hack to initialize commons-configuration before ExtensionProviders
-    get(ProjectSettings.class);
+    get(ModuleSettings.class);
 
     add(
         EventBus.class,

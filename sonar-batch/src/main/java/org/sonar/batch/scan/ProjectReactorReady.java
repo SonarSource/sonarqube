@@ -17,24 +17,30 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
-import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 
-import static org.mockito.Mockito.mock;
+/**
+ * Barrier to control the project lifecycle :
+ * <p/>
+ * <ul>
+ * <li>initialize the project configuration by executing ProjectBuilder extensions</li>
+ * <li>apply sub-project exclusions (sonar.skippedModules, ...)</li>
+ * <li>---- this barrier ----</li>
+ * <li>run optional dry run database</li>
+ * <li>connect to dry-run or remote database</li>
+ * </ul>
+ */
+public class ProjectReactorReady {
 
-public class ProjectReactorReadyTest {
-  @Test
-  public void should_do_nothing() {
-    // it's only a barrier
-    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class), new ProjectBuilder[]{mock(ProjectBuilder.class)});
-    barrier.start();
+  public ProjectReactorReady(ProjectExclusions exclusions, ProjectBuilder[] projectBuilders) {
   }
 
-  @Test
-  public void project_builders_should_be_optional() {
-    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class));
-    barrier.start();
+  public ProjectReactorReady(ProjectExclusions exclusions) {
+  }
+
+  public void start() {
+
   }
 }

@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

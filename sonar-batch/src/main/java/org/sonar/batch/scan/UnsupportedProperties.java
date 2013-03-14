@@ -17,31 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.bootstrap.UnsupportedProperties;
 
-public class UnsupportedPropertiesTest {
+public class UnsupportedProperties implements BatchComponent {
+  private final Settings settings;
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  @Test
-  public void should_fail_if_sonar_light_is_set() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.light", true);
-
-    thrown.expect(IllegalArgumentException.class);
-    new UnsupportedProperties(settings).start();
+  public UnsupportedProperties(Settings settings) {
+    this.settings = settings;
   }
 
-  @Test
-  public void should_not_fail_if_sonar_light_is_not_set() {
-    Settings settings = new Settings();
-    new UnsupportedProperties(settings).start();
+  public void start() {
+    verify("sonar.light", "The property 'sonar.light' is no longer supported. Please use 'sonar.dynamicAnalysis'");
+  }
+
+  private void verify(String key, String message) {
+    if (settings.hasKey(key)) {
+      throw new IllegalArgumentException(message);
+    }
   }
 }

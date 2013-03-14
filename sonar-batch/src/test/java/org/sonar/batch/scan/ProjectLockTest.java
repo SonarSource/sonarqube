@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,19 +37,14 @@ import static org.mockito.Mockito.when;
 
 public class ProjectLockTest {
 
-  private ProjectLock projectLock;
-
-  private Semaphores semaphores;
-  private ProjectTree projectTree;
-  private Settings settings;
-
-  private Project project;
+  ProjectLock projectLock;
+  Semaphores semaphores = mock(Semaphores.class);
+  ProjectTree projectTree = mock(ProjectTree.class);
+  Settings settings;
+  Project project;
 
   @Before
   public void setUp() {
-    semaphores = mock(Semaphores.class);
-
-    projectTree = mock(ProjectTree.class);
     settings = new Settings();
     setDryRunMode(false);
     project = new Project("my-project-key");

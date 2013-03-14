@@ -17,31 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.scan;
 
-import org.sonar.api.batch.bootstrap.ProjectBuilder;
-
-/**
- * Barrier to control the project lifecycle :
- * <p/>
- * <ul>
- * <li>initialize the project configuration by executing ProjectBuilder extensions</li>
- * <li>apply sub-project exclusions (sonar.skippedModules, ...)</li>
- * <li>---- this barrier ----</li>
- * <li>run optional dry run database</li>
- * <li>connect to dry-run or remote database</li>
- * </ul>
- */
-public class ProjectReactorReady {
-
-  public ProjectReactorReady(ProjectExclusions exclusions, ProjectBuilder[] projectBuilders) {
-  }
-
-  public ProjectReactorReady(ProjectExclusions exclusions) {
-    this(exclusions, new ProjectBuilder[0]);
-  }
-
-  public void start() {
-
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

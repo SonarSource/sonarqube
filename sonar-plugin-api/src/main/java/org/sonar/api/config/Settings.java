@@ -22,6 +22,7 @@ package org.sonar.api.config;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
@@ -50,9 +51,9 @@ import java.util.Properties;
  */
 public class Settings implements BatchComponent, ServerComponent {
 
-  protected final Map<String, String> properties;
-  protected final PropertyDefinitions definitions;
-  private final Encryption encryption;
+  protected Map<String, String> properties;
+  protected PropertyDefinitions definitions;
+  private Encryption encryption;
 
   public Settings() {
     this(new PropertyDefinitions());
@@ -75,23 +76,23 @@ public class Settings implements BatchComponent, ServerComponent {
     this.encryption = other.encryption;
   }
 
-  public final Encryption getEncryption() {
+  public Encryption getEncryption() {
     return encryption;
   }
 
-  public final String getDefaultValue(String key) {
+  public String getDefaultValue(String key) {
     return definitions.getDefaultValue(key);
   }
 
-  public final boolean hasKey(String key) {
+  public boolean hasKey(String key) {
     return properties.containsKey(key);
   }
 
-  public final boolean hasDefaultValue(String key) {
+  public boolean hasDefaultValue(String key) {
     return StringUtils.isNotEmpty(getDefaultValue(key));
   }
 
-  public final String getString(String key) {
+  public String getString(String key) {
     String value = getClearString(key);
     if (value != null && encryption.isEncrypted(value)) {
       try {
@@ -115,7 +116,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return value;
   }
 
-  public final boolean getBoolean(String key) {
+  public boolean getBoolean(String key) {
     String value = getString(key);
     return StringUtils.isNotEmpty(value) && Boolean.parseBoolean(value);
   }
@@ -123,7 +124,7 @@ public class Settings implements BatchComponent, ServerComponent {
   /**
    * @return the value as int. If the property does not exist and has no default value, then 0 is returned.
    */
-  public final int getInt(String key) {
+  public int getInt(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
       return Integer.parseInt(value);
@@ -131,7 +132,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return 0;
   }
 
-  public final long getLong(String key) {
+  public long getLong(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
       return Long.parseLong(value);
@@ -139,7 +140,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return 0L;
   }
 
-  public final Date getDate(String key) {
+  public Date getDate(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
       return DateUtils.parseDate(value);
@@ -147,7 +148,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return null;
   }
 
-  public final Date getDateTime(String key) {
+  public Date getDateTime(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
       return DateUtils.parseDateTime(value);
@@ -155,7 +156,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return null;
   }
 
-  public final Float getFloat(String key) {
+  public Float getFloat(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
       try {
@@ -167,7 +168,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return null;
   }
 
-  public final Double getDouble(String key) {
+  public Double getDouble(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
       try {
@@ -189,7 +190,7 @@ public class Settings implements BatchComponent, ServerComponent {
    * <li>"one, , three" -> ["one", "", "three"]</li>
    * </ul>
    */
-  public final String[] getStringArray(String key) {
+  public String[] getStringArray(String key) {
     PropertyDefinition property = getDefinitions().get(key);
     if ((null != property) && (property.isMultiValues())) {
       String value = getString(key);
@@ -213,7 +214,7 @@ public class Settings implements BatchComponent, ServerComponent {
    * @return non-null array of lines. The line termination characters are excluded.
    * @since 3.2
    */
-  public final String[] getStringLines(String key) {
+  public String[] getStringLines(String key) {
     String value = getString(key);
     if (Strings.isNullOrEmpty(value)) {
       return ArrayUtils.EMPTY_STRING_ARRAY;
@@ -224,7 +225,7 @@ public class Settings implements BatchComponent, ServerComponent {
   /**
    * Value is splitted and trimmed.
    */
-  public final String[] getStringArrayBySeparator(String key, String separator) {
+  public String[] getStringArrayBySeparator(String key, String separator) {
     String value = getString(key);
     if (value != null) {
       String[] strings = StringUtils.splitByWholeSeparator(value, separator);
@@ -237,7 +238,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return ArrayUtils.EMPTY_STRING_ARRAY;
   }
 
-  public final List<String> getKeysStartingWith(String prefix) {
+  public List<String> getKeysStartingWith(String prefix) {
     List<String> result = Lists.newArrayList();
     for (String key : properties.keySet()) {
       if (StringUtils.startsWith(key, prefix)) {
@@ -247,7 +248,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return result;
   }
 
-  public final Settings appendProperty(String key, String value) {
+  public Settings appendProperty(String key, String value) {
     String newValue = properties.get(definitions.validKey(key));
     if (StringUtils.isEmpty(newValue)) {
       newValue = StringUtils.trim(value);
@@ -257,7 +258,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return setProperty(key, newValue);
   }
 
-  public final Settings setProperty(String key, @Nullable String[] values) {
+  public Settings setProperty(String key, @Nullable String[] values) {
     PropertyDefinition property = getDefinitions().get(key);
     if ((null == property) || (!property.isMultiValues())) {
       throw new IllegalStateException("Fail to set multiple values on a single value property " + key);
@@ -280,7 +281,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return setProperty(key, text);
   }
 
-  public final Settings setProperty(String key, @Nullable String value) {
+  public Settings setProperty(String key, @Nullable String value) {
     String validKey = definitions.validKey(key);
     if (value == null) {
       properties.remove(validKey);
@@ -292,79 +293,79 @@ public class Settings implements BatchComponent, ServerComponent {
     return this;
   }
 
-  public final Settings setProperty(String key, @Nullable Boolean value) {
+  public Settings setProperty(String key, @Nullable Boolean value) {
     return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
-  public final Settings setProperty(String key, @Nullable Integer value) {
+  public Settings setProperty(String key, @Nullable Integer value) {
     return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
-  public final Settings setProperty(String key, @Nullable Long value) {
+  public Settings setProperty(String key, @Nullable Long value) {
     return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
-  public final Settings setProperty(String key, @Nullable Double value) {
+  public Settings setProperty(String key, @Nullable Double value) {
     return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
-  public final Settings setProperty(String key, @Nullable Float value) {
+  public Settings setProperty(String key, @Nullable Float value) {
     return setProperty(key, value == null ? null : String.valueOf(value));
   }
 
-  public final Settings setProperty(String key, @Nullable Date date) {
+  public Settings setProperty(String key, @Nullable Date date) {
     return setProperty(key, date, false);
   }
 
-  public final Settings addProperties(Map<String, String> props) {
+  public Settings addProperties(Map<String, String> props) {
     for (Map.Entry<String, String> entry : props.entrySet()) {
       setProperty(entry.getKey(), entry.getValue());
     }
     return this;
   }
 
-  public final Settings addProperties(Properties props) {
+  public Settings addProperties(Properties props) {
     for (Map.Entry<Object, Object> entry : props.entrySet()) {
       setProperty(entry.getKey().toString(), entry.getValue().toString());
     }
     return this;
   }
 
-  public final Settings addSystemProperties() {
+  public Settings addSystemProperties() {
     return addProperties(System.getProperties());
   }
 
-  public final Settings addEnvironmentVariables() {
+  public Settings addEnvironmentVariables() {
     return addProperties(System.getenv());
   }
 
-  public final Settings setProperties(Map<String, String> props) {
+  public Settings setProperties(Map<String, String> props) {
     clear();
     return addProperties(props);
   }
 
-  public final Settings setProperty(String key, @Nullable Date date, boolean includeTime) {
+  public Settings setProperty(String key, @Nullable Date date, boolean includeTime) {
     return setProperty(key, includeTime ? DateUtils.formatDateTime(date) : DateUtils.formatDate(date));
   }
 
-  public final Settings removeProperty(String key) {
+  public Settings removeProperty(String key) {
     return setProperty(key, (String) null);
   }
 
-  public final Settings clear() {
+  public Settings clear() {
     properties.clear();
     doOnClearProperties();
     return this;
   }
 
   /**
-   * @return unmodifiable properties
+   * @return immutable properties
    */
-  public final Map<String, String> getProperties() {
-    return Collections.unmodifiableMap(properties);
+  public Map<String, String> getProperties() {
+    return ImmutableMap.copyOf(properties);
   }
 
-  public final PropertyDefinitions getDefinitions() {
+  public PropertyDefinitions getDefinitions() {
     return definitions;
   }
 

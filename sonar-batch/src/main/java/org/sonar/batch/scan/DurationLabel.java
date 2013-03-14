@@ -11,20 +11,20 @@
  * Sonar is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * Lesser General License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 
-public class DurationLabel {
+class DurationLabel {
 
   private String suffixAgo = "ago";
   private String seconds = "less than a minute";
@@ -39,7 +39,7 @@ public class DurationLabel {
   private String year = "about a year";
   private String years = "{0} years";
 
-  public String label(long durationInMillis) {
+  String label(long durationInMillis) {
     double nbSeconds = durationInMillis / 1000.0;
     double nbMinutes = nbSeconds / 60;
     double nbHours = nbMinutes / 60;
@@ -85,51 +85,51 @@ public class DurationLabel {
     return joined.toString();
   }
 
-  public String getSuffixAgo() {
+  String getSuffixAgo() {
     return suffixAgo;
   }
 
-  public String getSeconds() {
+  String getSeconds() {
     return seconds;
   }
 
-  public String getMinute() {
+  String getMinute() {
     return minute;
   }
 
-  public String getMinutes() {
+  String getMinutes() {
     return minutes;
   }
 
-  public String getHour() {
+  String getHour() {
     return hour;
   }
 
-  public String getHours() {
+  String getHours() {
     return hours;
   }
 
-  public String getDay() {
+  String getDay() {
     return day;
   }
 
-  public String getDays() {
+  String getDays() {
     return days;
   }
 
-  public String getMonth() {
+  String getMonth() {
     return month;
   }
 
-  public String getMonths() {
+  String getMonths() {
     return months;
   }
 
-  public String getYear() {
+  String getYear() {
     return year;
   }
 
-  public String getYears() {
+  String getYears() {
     return years;
   }
 

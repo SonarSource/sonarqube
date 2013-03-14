@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
+import org.sonar.batch.bootstrap.BatchSettings;
 
 import javax.annotation.Nullable;
 
@@ -35,19 +36,19 @@ import java.util.Map;
 /**
  * @since 2.12
  */
-public class ProjectSettings extends Settings {
+public class ModuleSettings extends Settings {
 
-  private Configuration deprecatedCommonsConf;
+  private final Configuration deprecatedCommonsConf;
 
-  public ProjectSettings(BatchSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf) {
+  public ModuleSettings(BatchSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf) {
     super(batchSettings.getDefinitions());
 
-    LoggerFactory.getLogger(ProjectSettings.class).info("Load module settings");
+    LoggerFactory.getLogger(ModuleSettings.class).info("Load module settings");
     this.deprecatedCommonsConf = deprecatedCommonsConf;
     init(project, batchSettings);
   }
 
-  private ProjectSettings init(ProjectDefinition project, BatchSettings batchSettings) {
+  private ModuleSettings init(ProjectDefinition project, BatchSettings batchSettings) {
     addProjectProperties(project, batchSettings);
     addBuildProperties(project);
     addEnvironmentVariables();

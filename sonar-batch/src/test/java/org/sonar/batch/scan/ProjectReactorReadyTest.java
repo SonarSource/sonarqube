@@ -17,31 +17,24 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.batch.bootstrap.ProjectSettings;
+import org.sonar.api.batch.bootstrap.ProjectBuilder;
 
-import java.util.List;
+import static org.mockito.Mockito.mock;
 
-import static org.junit.Assert.assertThat;
-
-public class ProjectSettingsTest {
+public class ProjectReactorReadyTest {
+  @Test
+  public void should_do_nothing() {
+    // it's only a barrier
+    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class), new ProjectBuilder[]{mock(ProjectBuilder.class)});
+    barrier.start();
+  }
 
   @Test
-  public void testOrderedProjects() {
-    ProjectDefinition grandParent = ProjectDefinition.create();
-    ProjectDefinition parent = ProjectDefinition.create();
-    ProjectDefinition child = ProjectDefinition.create();
-    grandParent.addSubProject(parent);
-    parent.addSubProject(child);
-
-    List<ProjectDefinition> hierarchy = ProjectSettings.getTopDownParentProjects(child);
-    assertThat(hierarchy.get(0), Is.is(grandParent));
-    assertThat(hierarchy.get(1), Is.is(parent));
-    assertThat(hierarchy.get(2), Is.is(child));
-
+  public void project_builders_should_be_optional() {
+    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class));
+    barrier.start();
   }
 }

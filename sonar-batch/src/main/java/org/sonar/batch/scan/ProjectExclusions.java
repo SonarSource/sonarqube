@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
 import org.sonar.api.task.TaskComponent;
 
@@ -30,6 +30,8 @@ import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
+
+import javax.annotation.Nullable;
 
 /**
  * Exclude the sub-projects as defined by the properties sonar.skippedModules and sonar.includedModules
@@ -45,7 +47,7 @@ public class ProjectExclusions implements TaskComponent {
 
   public ProjectExclusions(Settings settings, ProjectReactor reactor,
       // exclusions are applied when the project is completely defined by extensions
-      ProjectBuilder[] projectBuilders) {
+      @Nullable ProjectBuilder[] projectBuilders) {
     this.settings = settings;
     this.reactor = reactor;
   }

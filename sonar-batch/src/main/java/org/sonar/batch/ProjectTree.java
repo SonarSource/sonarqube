@@ -25,7 +25,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrap.ProjectReactorReady;
+import org.sonar.batch.scan.ProjectReactorReady;
 
 import java.util.List;
 import java.util.Map;
