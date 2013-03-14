@@ -43,6 +43,7 @@ public final class Batch {
   }
 
   /**
+   * Used by sonar-runner 1.x and ant-task 1.x
    * @deprecated since 2.9 because commons-configuration is replaced by ProjectDefinition#properties. Used by Ant Task 1.1
    */
   @Deprecated
@@ -54,7 +55,8 @@ public final class Batch {
   }
 
   /**
-   * @deprecated in version 2.12
+   * Used by sonar-runner 2.0.
+   * @deprecated in version 2.12.
    */
   @Deprecated
   public static Batch create(ProjectReactor projectReactor, Configuration configuration, Object... bootstrapperComponents) {

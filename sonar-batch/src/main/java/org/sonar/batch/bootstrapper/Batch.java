@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Entry point for sonar-runner.
+ * Entry point for sonar-runner 2.1.
  *
  * @since 2.14
  */
