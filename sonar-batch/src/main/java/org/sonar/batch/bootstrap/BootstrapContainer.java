@@ -33,6 +33,8 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.scan.ScanTask;
+import org.sonar.batch.tasks.ListTask;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -60,6 +62,12 @@ public class BootstrapContainer extends ComponentContainer {
     super();
   }
 
+  public static BootstrapContainer create(List objects) {
+    BootstrapContainer container = new BootstrapContainer();
+    container.add(objects);
+    return container;
+  }
+
   @Override
   protected void doBeforeStart() {
     addBootstrapComponents();
@@ -69,36 +77,36 @@ public class BootstrapContainer extends ComponentContainer {
 
   private void addBootstrapComponents() {
     add(
-        new PropertiesConfiguration(),
-        BootstrapSettings.class,
-        PluginDownloader.class,
-        BatchPluginRepository.class,
-        BatchSettings.class,
-        ServerClient.class,
-        ExtensionInstaller.class,
-        Logback.class,
-        ServerMetadata.class,
-        org.sonar.batch.ServerMetadata.class,
-        TempDirectories.class,
-        HttpDownloader.class,
-        UriReader.class,
-        new FileCacheProvider()
+      new PropertiesConfiguration(),
+      BootstrapSettings.class,
+      PluginDownloader.class,
+      BatchPluginRepository.class,
+      BatchSettings.class,
+      ServerClient.class,
+      ExtensionInstaller.class,
+      Logback.class,
+      ServerMetadata.class,
+      org.sonar.batch.ServerMetadata.class,
+      TempDirectories.class,
+      HttpDownloader.class,
+      UriReader.class,
+      new FileCacheProvider()
     );
   }
 
   private void addDatabaseComponents() {
     add(
-        DryRunDatabase.class,
-        JdbcDriverHolder.class,
-        BatchDatabase.class,
-        MyBatis.class,
-        DatabaseVersion.class,
-        //TODO check that it still works (see @Freddy)
-        DatabaseCompatibility.class,
-        DefaultDatabaseConnector.class,
-        JpaDatabaseSession.class,
-        BatchDatabaseSessionFactory.class,
-        DaoUtils.getDaoClasses()
+      DryRunDatabase.class,
+      JdbcDriverHolder.class,
+      BatchDatabase.class,
+      MyBatis.class,
+      DatabaseVersion.class,
+      //TODO check that it still works (see @Freddy)
+      DatabaseCompatibility.class,
+      DefaultDatabaseConnector.class,
+      JpaDatabaseSession.class,
+      BatchDatabaseSessionFactory.class,
+      DaoUtils.getDaoClasses()
     );
   }
 
@@ -107,44 +115,43 @@ public class BootstrapContainer extends ComponentContainer {
    */
   private void addCoreComponents() {
     add(
-        EmailSettings.class,
-        I18nManager.class,
-        RuleI18nManager.class,
-        MeasuresDao.class,
-        RulesDao.class,
-        ProfilesDao.class,
-        CacheRuleFinder.class,
-        CacheMetricFinder.class,
-        DefaultUserFinder.class,
-        SemaphoreUpdater.class,
-        SemaphoresImpl.class,
-        PastSnapshotFinderByDate.class,
-        PastSnapshotFinderByDays.class,
-        PastSnapshotFinderByPreviousAnalysis.class,
-        PastSnapshotFinderByVersion.class,
-        PastSnapshotFinderByPreviousVersion.class,
-        PastMeasuresLoader.class,
-        PastSnapshotFinder.class,
-        DefaultModelFinder.class
+      EmailSettings.class,
+      I18nManager.class,
+      RuleI18nManager.class,
+      MeasuresDao.class,
+      RulesDao.class,
+      ProfilesDao.class,
+      CacheRuleFinder.class,
+      CacheMetricFinder.class,
+      DefaultUserFinder.class,
+      SemaphoreUpdater.class,
+      SemaphoresImpl.class,
+      PastSnapshotFinderByDate.class,
+      PastSnapshotFinderByDays.class,
+      PastSnapshotFinderByPreviousAnalysis.class,
+      PastSnapshotFinderByVersion.class,
+      PastSnapshotFinderByPreviousVersion.class,
+      PastMeasuresLoader.class,
+      PastSnapshotFinder.class,
+      DefaultModelFinder.class
     );
   }
 
   @Override
   protected void doAfterStart() {
     installPlugins();
+    executeTask();
   }
 
   private void installPlugins() {
-    for (Map.Entry<PluginMetadata, Plugin> entry : get(BatchPluginRepository.class).getPluginsByMetadata().entrySet()) {
+    for (Map.Entry<PluginMetadata, Plugin> entry : getComponentByType(BatchPluginRepository.class).getPluginsByMetadata().entrySet()) {
       PluginMetadata metadata = entry.getKey();
       Plugin plugin = entry.getValue();
       addExtension(metadata, plugin);
     }
   }
 
-  public static BootstrapContainer create(List objects) {
-    BootstrapContainer container = new BootstrapContainer();
-    container.add(objects);
-    return container;
+  void executeTask() {
+    new TaskContainer(this).execute();
   }
 }

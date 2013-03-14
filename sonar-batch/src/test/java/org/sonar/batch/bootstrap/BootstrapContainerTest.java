@@ -33,7 +33,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class BootstrapContainerTest {
@@ -42,8 +44,8 @@ public class BootstrapContainerTest {
     BootstrapContainer container = BootstrapContainer.create(Collections.emptyList());
     container.doBeforeStart();
 
-    assertThat(container.get(Logback.class)).isNotNull();
-    assertThat(container.get(TempDirectories.class)).isNotNull();
+    assertThat(container.getComponentByType(Logback.class)).isNotNull();
+    assertThat(container.getComponentByType(TempDirectories.class)).isNotNull();
   }
 
   @Test
@@ -51,8 +53,8 @@ public class BootstrapContainerTest {
     BootstrapContainer container = BootstrapContainer.create(Lists.newArrayList(Foo.class, new Bar()));
     container.doBeforeStart();
 
-    assertThat(container.get(Foo.class)).isNotNull();
-    assertThat(container.get(Bar.class)).isNotNull();
+    assertThat(container.getComponentByType(Foo.class)).isNotNull();
+    assertThat(container.getComponentByType(Bar.class)).isNotNull();
   }
 
   @Test
@@ -64,7 +66,8 @@ public class BootstrapContainerTest {
       metadata, plugin
     ));
 
-    BootstrapContainer container = BootstrapContainer.create(Lists.newArrayList(pluginRepository));
+    BootstrapContainer container = spy(BootstrapContainer.create(Lists.newArrayList(pluginRepository)));
+    doNothing().when(container).executeTask();
     container.doAfterStart();
 
     assertThat(container.getComponentsByType(Plugin.class)).containsOnly(plugin);

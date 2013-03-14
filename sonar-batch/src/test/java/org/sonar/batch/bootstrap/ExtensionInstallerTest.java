@@ -47,11 +47,11 @@ public class ExtensionInstallerTest {
   Map<PluginMetadata, Plugin> newPlugin(final Object... extensions) {
     Map<PluginMetadata, Plugin> result = Maps.newHashMap();
     result.put(metadata,
-        new SonarPlugin() {
-          public List<?> getExtensions() {
-            return Arrays.asList(extensions);
-          }
+      new SonarPlugin() {
+        public List<?> getExtensions() {
+          return Arrays.asList(extensions);
         }
+      }
     );
     return result;
   }
@@ -64,8 +64,8 @@ public class ExtensionInstallerTest {
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), new Settings());
     installer.install(container, new FooMatcher());
 
-    assertThat(container.get(Foo.class)).isNotNull();
-    assertThat(container.get(Bar.class)).isNull();
+    assertThat(container.getComponentByType(Foo.class)).isNotNull();
+    assertThat(container.getComponentByType(Bar.class)).isNull();
   }
 
   @Test
@@ -77,8 +77,8 @@ public class ExtensionInstallerTest {
 
     installer.install(container, new FooMatcher());
 
-    assertThat(container.get(Foo.class)).isNotNull();
-    assertThat(container.get(Bar.class)).isNull();
+    assertThat(container.getComponentByType(Foo.class)).isNotNull();
+    assertThat(container.getComponentByType(Bar.class)).isNull();
   }
 
   @Test
@@ -90,8 +90,8 @@ public class ExtensionInstallerTest {
 
     installer.install(container, new TrueMatcher());
 
-    assertThat(container.get(Foo.class)).isNotNull();
-    assertThat(container.get(Bar.class)).isNotNull();
+    assertThat(container.getComponentByType(Foo.class)).isNotNull();
+    assertThat(container.getComponentByType(Bar.class)).isNotNull();
   }
 
   @Test
@@ -104,10 +104,10 @@ public class ExtensionInstallerTest {
 
     installer.install(container, new TrueMatcher());
 
-    assertThat(container.get(MavenExtension.class)).isNull();
-    assertThat(container.get(AntExtension.class)).isNotNull();
-    assertThat(container.get(Foo.class)).isNotNull();
-    assertThat(container.get(Bar.class)).isNotNull();
+    assertThat(container.getComponentByType(MavenExtension.class)).isNull();
+    assertThat(container.getComponentByType(AntExtension.class)).isNotNull();
+    assertThat(container.getComponentByType(Foo.class)).isNotNull();
+    assertThat(container.getComponentByType(Bar.class)).isNotNull();
   }
 
   private static class FooMatcher implements ExtensionInstaller.ComponentFilter {

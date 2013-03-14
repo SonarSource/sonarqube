@@ -19,13 +19,15 @@
  */
 package org.sonar.api.platform;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.picocontainer.Startable;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.Property;
 import org.sonar.api.config.PropertyDefinitions;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
 import static org.fest.assertions.Assertions.assertThat;
@@ -34,6 +36,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class ComponentContainerTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void shouldRegisterItself() {
@@ -134,29 +139,72 @@ public class ComponentContainerTest {
     PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
     assertThat(propertyDefinitions.get("foo")).isNotNull();
     assertThat(container.getComponentByType(ComponentWithProperty.class)).isNotNull();
+    assertThat(container.getComponentByKey(ComponentWithProperty.class)).isNotNull();
   }
 
   @Test
   public void test_add_class() {
     ComponentContainer container = new ComponentContainer();
     container.add(ComponentWithProperty.class, SimpleComponent.class);
-    assertThat(container.get(ComponentWithProperty.class)).isNotNull();
-    assertThat(container.get(SimpleComponent.class)).isNotNull();
+    assertThat(container.getComponentByType(ComponentWithProperty.class)).isNotNull();
+    assertThat(container.getComponentByType(SimpleComponent.class)).isNotNull();
   }
 
   @Test
   public void test_add_collection() {
     ComponentContainer container = new ComponentContainer();
     container.add(Arrays.asList(ComponentWithProperty.class, SimpleComponent.class));
-    assertThat(container.get(ComponentWithProperty.class)).isNotNull();
-    assertThat(container.get(SimpleComponent.class)).isNotNull();
+    assertThat(container.getComponentByType(ComponentWithProperty.class)).isNotNull();
+    assertThat(container.getComponentByType(SimpleComponent.class)).isNotNull();
   }
 
   @Test
   public void test_add_adapter() {
     ComponentContainer container = new ComponentContainer();
     container.add(new SimpleComponentProvider());
-    assertThat(container.get(SimpleComponent.class)).isNotNull();
+    assertThat(container.getComponentByType(SimpleComponent.class)).isNotNull();
+  }
+
+  @Test
+  public void should_fail_to_start_execution() {
+    ComponentContainer container = new ComponentContainer();
+    container.add(UnstartableComponent.class);
+
+    // do not expect a PicoException
+    thrown.expect(IllegalStateException.class);
+    container.startComponents();
+  }
+
+  @Test
+  public void stop_exception_should_not_hide_start_exception() {
+    ComponentContainer container = new ComponentContainer();
+    container.add(UnstartableComponent.class, UnstoppableComponent.class);
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Fail to start");
+    container.execute();
+  }
+
+  @Test
+  public void should_fail_to_stop_execution() {
+    ComponentContainer container = new ComponentContainer();
+    container.add(UnstoppableComponent.class);
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Fail to stop");
+    container.execute();
+  }
+
+  @Test
+  public void should_execute_components() {
+    ComponentContainer container = new ComponentContainer();
+    Startable component = mock(Startable.class);
+    container.add(component);
+
+    container.execute();
+
+    verify(component).start();
+    verify(component).stop();
   }
 
   public static class StartableComponent {
@@ -168,6 +216,25 @@ public class ComponentContainerTest {
 
     public void stop() {
       stopped = true;
+    }
+  }
+
+  public static class UnstartableComponent {
+    public void start() {
+      throw new IllegalStateException("Fail to start");
+    }
+
+    public void stop() {
+
+    }
+  }
+
+  public static class UnstoppableComponent {
+    public void start() {
+    }
+
+    public void stop() {
+      throw new IllegalStateException("Fail to stop");
     }
   }
 

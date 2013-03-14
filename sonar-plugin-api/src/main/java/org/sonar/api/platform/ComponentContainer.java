@@ -27,11 +27,14 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.PropertyDefinitions;
 
 import javax.annotation.Nullable;
+
+import java.util.List;
 
 /**
  * @since 2.12
@@ -65,21 +68,42 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
     addSingleton(this);
   }
 
+  public void execute() {
+    boolean threw = true;
+    try {
+      startComponents();
+      threw = false;
+    } finally {
+      stopComponents(threw);
+    }
+  }
+
   /**
    * This method MUST NOT be renamed start() because the container is registered itself in picocontainer. Starting
    * a component twice is not authorized.
    */
-  public final ComponentContainer startComponents() {
-    doBeforeStart();
-    pico.start();
-    doAfterStart();
-    return this;
+  public ComponentContainer startComponents() {
+    try {
+      doBeforeStart();
+      pico.start();
+      doAfterStart();
+      return this;
+    } catch (Exception e) {
+      throw PicoUtils.propagate(e);
+    }
   }
+
+  /**
+   * This method aims to be overridden
+   */
 
   protected void doBeforeStart() {
 
   }
 
+  /**
+   * This method aims to be overridden
+   */
   protected void doAfterStart() {
 
   }
@@ -88,15 +112,29 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
    * This method MUST NOT be renamed stop() because the container is registered itself in picocontainer. Starting
    * a component twice is not authorized.
    */
-  public final ComponentContainer stopComponents() {
-    pico.stop();
+  public ComponentContainer stopComponents() {
+    return stopComponents(false);
+  }
+
+  public ComponentContainer stopComponents(boolean swallowException) {
+    try {
+      pico.stop();
+      if (parent != null) {
+        parent.removeChild();
+      }
+    } catch (RuntimeException e) {
+      if (!swallowException) {
+        throw PicoUtils.propagate(e);
+      }
+      LoggerFactory.getLogger(getClass()).error("Fail to stop container", e);
+    }
     return this;
   }
 
   /**
    * @since 3.5
    */
-  public final ComponentContainer add(Object... objects) {
+  public ComponentContainer add(Object... objects) {
     for (Object object : objects) {
       if (object instanceof ComponentAdapter) {
         addPicoAdapter((ComponentAdapter) object);
@@ -109,7 +147,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
     return this;
   }
 
-  public final ComponentContainer addSingleton(Object component) {
+  public ComponentContainer addSingleton(Object component) {
     return addComponent(component, true);
   }
 
@@ -117,44 +155,40 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
    * @param singleton return always the same instance if true, else a new instance
    *                  is returned each time the component is requested
    */
-  public final ComponentContainer addComponent(Object component, boolean singleton) {
+  public ComponentContainer addComponent(Object component, boolean singleton) {
     pico.as(singleton ? Characteristics.CACHE : Characteristics.NO_CACHE).addComponent(getComponentKey(component), component);
     declareExtension(null, component);
     return this;
   }
 
-  public final ComponentContainer addExtension(@Nullable PluginMetadata plugin, Object extension) {
+  public ComponentContainer addExtension(@Nullable PluginMetadata plugin, Object extension) {
     pico.as(Characteristics.CACHE).addComponent(getComponentKey(extension), extension);
     declareExtension(plugin, extension);
     return this;
   }
 
-  public final void declareExtension(@Nullable PluginMetadata plugin, Object extension) {
+  public void declareExtension(@Nullable PluginMetadata plugin, Object extension) {
     propertyDefinitions.addComponent(extension, plugin != null ? plugin.getName() : "");
   }
 
-  public final ComponentContainer addPicoAdapter(ComponentAdapter adapter) {
+  public ComponentContainer addPicoAdapter(ComponentAdapter adapter) {
     pico.addAdapter(adapter);
     return this;
   }
 
-  public <T> T get(Class<T> key) {
-    return pico.getComponent(key);
-  }
-
-  public final <T> T getComponentByType(Class<T> tClass) {
+  public <T> T getComponentByType(Class<T> tClass) {
     return pico.getComponent(tClass);
   }
 
-  public final Object getComponentByKey(Object key) {
+  public Object getComponentByKey(Object key) {
     return pico.getComponent(key);
   }
 
-  public final <T> java.util.List<T> getComponentsByType(java.lang.Class<T> tClass) {
+  public <T> List<T> getComponentsByType(Class<T> tClass) {
     return pico.getComponents(tClass);
   }
 
-  public final ComponentContainer removeChild() {
+  public ComponentContainer removeChild() {
     if (child != null) {
       pico.removeChildContainer(child.pico);
       child = null;
@@ -162,7 +196,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
     return this;
   }
 
-  public final ComponentContainer createChild() {
+  public ComponentContainer createChild() {
     return new ComponentContainer(this);
   }
 

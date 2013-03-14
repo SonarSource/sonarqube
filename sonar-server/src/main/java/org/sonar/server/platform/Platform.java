@@ -35,7 +35,6 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.workflow.internal.DefaultWorkflow;
-import org.sonar.core.PicoUtils;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.GwtI18n;
@@ -141,9 +140,8 @@ public final class Platform {
 
       } catch (RuntimeException e) {
         // full stacktrace is lost by jruby. It must be logged now.
-        Throwable initialException = PicoUtils.sanitize(e);
-        LoggerFactory.getLogger(getClass()).error(initialException.getMessage(), initialException);
-        PicoUtils.propagateStartupException(initialException);
+        LoggerFactory.getLogger(getClass()).error(e.getMessage(), e);
+        throw e;
       }
     }
   }
@@ -159,9 +157,8 @@ public final class Platform {
         profiler.stop();
       } catch (RuntimeException e) {
         // full stacktrace is lost by jruby. It must be logged now.
-        Throwable initialException = PicoUtils.sanitize(e);
-        LoggerFactory.getLogger(getClass()).error(initialException.getMessage(), initialException);
-        PicoUtils.propagateStartupException(initialException);
+        LoggerFactory.getLogger(getClass()).error(e.getMessage(), e);
+        throw e;
       }
     }
   }

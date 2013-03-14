@@ -21,14 +21,9 @@ package org.sonar.batch.bootstrapper;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapContainer;
 import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.TaskContainer;
-import org.sonar.batch.scan.ScanTask;
-import org.sonar.batch.tasks.ListTask;
-import org.sonar.core.PicoUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -81,37 +76,14 @@ public final class Batch {
   }
 
   private void startBatch() {
-    BootstrapContainer bootstrapContainer = null;
-    try {
-      List all = Lists.newArrayList(components);
-      all.add(new BootstrapProperties(bootstrapProperties));
-      if (projectReactor != null) {
-        all.add(projectReactor);
-      }
-
-      bootstrapContainer = BootstrapContainer.create(all);
-      bootstrapContainer.startComponents();
-
-      TaskContainer taskContainer = new TaskContainer(bootstrapContainer);
-      taskContainer.add(
-        ScanTask.DEFINITION, ScanTask.class,
-        ListTask.DEFINITION, ListTask.class
-      );
-
-      taskContainer.execute();
-
-    } catch (RuntimeException e) {
-      PicoUtils.propagateStartupException(e);
-    } finally {
-      try {
-        if (bootstrapContainer != null) {
-          bootstrapContainer.stopComponents();
-        }
-      } catch (Exception e) {
-        // never throw exceptions in a finally block
-        LoggerFactory.getLogger(Batch.class).error("Error while stopping batch", e);
-      }
+    List all = Lists.newArrayList(components);
+    all.add(new BootstrapProperties(bootstrapProperties));
+    if (projectReactor != null) {
+      all.add(projectReactor);
     }
+
+    BootstrapContainer bootstrapContainer = BootstrapContainer.create(all);
+    bootstrapContainer.execute();
   }
 
   public static Builder builder() {

@@ -17,17 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core;
+package org.sonar.api.platform;
 
 import com.google.common.base.Throwables;
 import org.picocontainer.PicoLifecycleException;
 
-public final class PicoUtils {
+class PicoUtils {
 
   private PicoUtils() {
   }
 
-  public static Throwable sanitize(Throwable t) {
+  static Throwable sanitize(Throwable t) {
     Throwable result = t;
     Throwable cause = t.getCause();
     if (t instanceof PicoLifecycleException && cause != null) {
@@ -36,12 +36,11 @@ public final class PicoUtils {
       } else {
         result = cause;
       }
-
     }
     return result;
   }
 
-  public static void propagateStartupException(Throwable t) {
+  static RuntimeException propagate(Throwable t) {
     throw Throwables.propagate(sanitize(t));
   }
 }

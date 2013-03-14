@@ -63,52 +63,52 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addBatchComponents() {
     add(
-        DefaultResourceCreationLock.class,
-        DefaultPersistenceManager.class,
-        DependencyPersister.class,
-        EventPersister.class,
-        LinkPersister.class,
-        MeasurePersister.class,
-        MemoryOptimizer.class,
-        DefaultResourcePermissions.class,
-        DefaultResourcePersister.class,
-        SourcePersister.class,
-        DefaultNotificationManager.class,
-        MetricProvider.class,
-        ProjectExclusions.class,
-        ProjectReactorReady.class,
-        ProjectTree.class,
-        ProjectConfigurator.class,
-        DefaultIndex.class,
-        DefaultFileLinesContextFactory.class,
-        ProjectLock.class,
-        LastSnapshots.class,
-        ScanGraph.create(),
-        TestPlanBuilder.class,
-        TestableBuilder.class,
-        ScanPerspectives.class,
-        ScanGraphStore.class
+      DefaultResourceCreationLock.class,
+      DefaultPersistenceManager.class,
+      DependencyPersister.class,
+      EventPersister.class,
+      LinkPersister.class,
+      MeasurePersister.class,
+      MemoryOptimizer.class,
+      DefaultResourcePermissions.class,
+      DefaultResourcePersister.class,
+      SourcePersister.class,
+      DefaultNotificationManager.class,
+      MetricProvider.class,
+      ProjectExclusions.class,
+      ProjectReactorReady.class,
+      ProjectTree.class,
+      ProjectConfigurator.class,
+      DefaultIndex.class,
+      DefaultFileLinesContextFactory.class,
+      ProjectLock.class,
+      LastSnapshots.class,
+      ScanGraph.create(),
+      TestPlanBuilder.class,
+      TestableBuilder.class,
+      ScanPerspectives.class,
+      ScanGraphStore.class
     );
   }
 
   private void fixMavenExecutor() {
-    if (get(MavenPluginExecutor.class) == null) {
+    if (getComponentByType(MavenPluginExecutor.class) == null) {
       add(FakeMavenPluginExecutor.class);
     }
   }
 
   private void addBatchExtensions() {
-    get(ExtensionInstaller.class).install(this, new ExtensionInstaller.ComponentFilter() {
+    getComponentByType(ExtensionInstaller.class).install(this, new ExtensionInstaller.ComponentFilter() {
       public boolean accept(Object extension) {
         return ExtensionUtils.isType(extension, BatchExtension.class)
-            && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH);
+          && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH);
       }
     });
   }
 
   @Override
   protected void doAfterStart() {
-    ProjectTree tree = get(ProjectTree.class);
+    ProjectTree tree = getComponentByType(ProjectTree.class);
     scanRecursively(tree.getRootProject());
   }
 
@@ -120,13 +120,7 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private void scan(Project module) {
-    ModuleScanContainer moduleContainer = new ModuleScanContainer(this, module);
-    try {
-      moduleContainer.startComponents();
-    } finally {
-      moduleContainer.stopComponents();
-      removeChild();
-    }
+    new ModuleScanContainer(this, module).execute();
   }
 
 

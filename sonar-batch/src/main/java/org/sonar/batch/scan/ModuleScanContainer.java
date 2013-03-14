@@ -71,54 +71,54 @@ public class ModuleScanContainer extends ComponentContainer {
   }
 
   private void addCoreComponents() {
-    ProjectDefinition moduleDefinition = get(ProjectTree.class).getProjectDefinition(module);
+    ProjectDefinition moduleDefinition = getComponentByType(ProjectTree.class).getProjectDefinition(module);
     add(
-        moduleDefinition,
-        module.getConfiguration(),
-        module,
-        ModuleSettings.class);
+      moduleDefinition,
+      module.getConfiguration(),
+      module,
+      ModuleSettings.class);
 
     // hack to initialize commons-configuration before ExtensionProviders
-    get(ModuleSettings.class);
+    getComponentByType(ModuleSettings.class);
 
     add(
-        EventBus.class,
-        Phases.class,
-        PhasesTimeProfiler.class,
-        UnsupportedProperties.class,
-        Phases.getPhaseClasses(),
-        moduleDefinition.getContainerExtensions(),
+      EventBus.class,
+      Phases.class,
+      PhasesTimeProfiler.class,
+      UnsupportedProperties.class,
+      Phases.getPhaseClasses(),
+      moduleDefinition.getContainerExtensions(),
 
-        // TODO move outside project, but not possible yet because of dependency of project settings (cf plsql)
-        Languages.class,
+      // TODO move outside project, but not possible yet because of dependency of project settings (cf plsql)
+      Languages.class,
 
-        // file system
-        PathResolver.class,
-        FileExclusions.class,
-        LanguageFilters.class,
-        ExclusionFilters.class,
-        DefaultProjectClasspath.class,
-        new ModuleFileSystemProvider(),
-        DeprecatedFileSystemAdapter.class,
-        FileSystemLogger.class,
+      // file system
+      PathResolver.class,
+      FileExclusions.class,
+      LanguageFilters.class,
+      ExclusionFilters.class,
+      DefaultProjectClasspath.class,
+      new ModuleFileSystemProvider(),
+      DeprecatedFileSystemAdapter.class,
+      FileSystemLogger.class,
 
-        // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-        get(ResourcePersister.class).getSnapshot(module),
+      // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
+      getComponentByType(ResourcePersister.class).getSnapshot(module),
 
-        TimeMachineConfiguration.class,
-        org.sonar.api.database.daos.MeasuresDao.class,
-        DefaultSensorContext.class,
-        BatchExtensionDictionnary.class,
-        DefaultTimeMachine.class,
-        ViolationFilters.class,
-        ResourceFilters.class,
-        DefaultProfileLoader.class,
-        DryRunExporter.class,
-        new ProfileProvider());
+      TimeMachineConfiguration.class,
+      org.sonar.api.database.daos.MeasuresDao.class,
+      DefaultSensorContext.class,
+      BatchExtensionDictionnary.class,
+      DefaultTimeMachine.class,
+      ViolationFilters.class,
+      ResourceFilters.class,
+      DefaultProfileLoader.class,
+      DryRunExporter.class,
+      new ProfileProvider());
   }
 
   private void addExtensions() {
-    ExtensionInstaller installer = get(ExtensionInstaller.class);
+    ExtensionInstaller installer = getComponentByType(ExtensionInstaller.class);
     installer.install(this, new ExtensionInstaller.ComponentFilter() {
       public boolean accept(Object extension) {
         if (ExtensionUtils.isType(extension, BatchExtension.class) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT)) {
@@ -134,14 +134,13 @@ public class ModuleScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    DefaultIndex index = get(DefaultIndex.class);
+    DefaultIndex index = getComponentByType(DefaultIndex.class);
     index.setCurrentProject(module,
-        get(ResourceFilters.class),
-        get(ViolationFilters.class),
-        get(RulesProfile.class));
+      getComponentByType(ResourceFilters.class),
+      getComponentByType(ViolationFilters.class),
+      getComponentByType(RulesProfile.class));
 
-    get(Phases.class).execute(module);
+    getComponentByType(Phases.class).execute(module);
   }
-
 
 }

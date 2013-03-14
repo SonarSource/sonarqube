@@ -27,6 +27,8 @@ import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.scan.ScanTask;
+import org.sonar.batch.tasks.ListTask;
 import org.sonar.batch.tasks.Tasks;
 
 public class TaskContainer extends ComponentContainer {
@@ -37,30 +39,20 @@ public class TaskContainer extends ComponentContainer {
 
   @Override
   protected void doBeforeStart() {
+    installCoreTasks();
     installTaskExtensions();
     installComponentsUsingTaskExtensions();
   }
 
-  public void execute() {
-    startComponents();
-
-    // default value is declared in CorePlugin
-    String taskKey = get(Settings.class).getString(CoreProperties.TASK);
-
-    TaskDefinition def = get(Tasks.class).definition(taskKey);
-    if (def == null) {
-      throw new SonarException("Task " + taskKey + " does not exist.");
-    }
-    Task task = get(def.taskClass());
-    if (task != null) {
-      task.execute();
-    } else {
-      throw new IllegalStateException("Task " + taskKey + " is badly defined.");
-    }
+  private void installCoreTasks() {
+    add(
+      ScanTask.DEFINITION, ScanTask.class,
+      ListTask.DEFINITION, ListTask.class
+    );
   }
 
   private void installTaskExtensions() {
-    get(ExtensionInstaller.class).install(this, new ExtensionInstaller.ComponentFilter() {
+    getComponentByType(ExtensionInstaller.class).install(this, new ExtensionInstaller.ComponentFilter() {
       public boolean accept(Object extension) {
         return ExtensionUtils.isType(extension, TaskExtension.class);
       }
@@ -69,5 +61,22 @@ public class TaskContainer extends ComponentContainer {
 
   private void installComponentsUsingTaskExtensions() {
     add(ResourceTypes.class, MetricProvider.class, Tasks.class);
+  }
+
+  @Override
+  public void doAfterStart() {
+    // default value is declared in CorePlugin
+    String taskKey = getComponentByType(Settings.class).getString(CoreProperties.TASK);
+
+    TaskDefinition def = getComponentByType(Tasks.class).definition(taskKey);
+    if (def == null) {
+      throw new SonarException("Task " + taskKey + " does not exist");
+    }
+    Task task = getComponentByType(def.taskClass());
+    if (task != null) {
+      task.execute();
+    } else {
+      throw new IllegalStateException("Task " + taskKey + " is badly defined");
+    }
   }
 }
