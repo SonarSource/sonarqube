@@ -3,11 +3,11 @@
 "en-US":
   date:
     formats:
-      default: "%d %b %Y"
+      default: "%b %d %Y"
 
   time:
     formats:
-      default: "%d %b %Y %H:%M"
+      default: "%b %d %Y %H:%M"
     am: "am"
     pm: "pm"
 
