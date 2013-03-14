@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
@@ -26,8 +28,6 @@ import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.tasks.Tasks;
-
-import javax.annotation.Nullable;
 
 public class TaskContainer extends ComponentContainer {
 
@@ -41,22 +41,23 @@ public class TaskContainer extends ComponentContainer {
     installComponentsUsingTaskExtensions();
   }
 
-  public void executeTask(@Nullable String key) {
+  public void execute() {
     startComponents();
-    TaskDefinition taskDef = get(Tasks.class).getTaskDefinition(key);
-    if (taskDef != null) {
-      Task task = get(taskDef.getTask());
-      if (task != null) {
-        task.execute();
-      } else {
-        throw new IllegalStateException("Command " + key + " is badly defined.");
-      }
 
+    // default value is declared in CorePlugin
+    String taskKey = get(Settings.class).getString(CoreProperties.TASK);
+
+    TaskDefinition def = get(Tasks.class).definition(taskKey);
+    if (def == null) {
+      throw new SonarException("Task " + taskKey + " does not exist.");
+    }
+    Task task = get(def.taskClass());
+    if (task != null) {
+      task.execute();
     } else {
-      throw new SonarException("Command " + key + " does not exist.");
+      throw new IllegalStateException("Task " + taskKey + " is badly defined.");
     }
   }
-
 
   private void installTaskExtensions() {
     get(ExtensionInstaller.class).install(this, new ExtensionInstaller.ComponentFilter() {

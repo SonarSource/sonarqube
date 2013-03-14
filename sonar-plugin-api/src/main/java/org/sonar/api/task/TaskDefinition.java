@@ -19,64 +19,104 @@
  */
 package org.sonar.api.task;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
+import java.util.regex.Pattern;
+
 /**
- * Implement this interface to provide a new task.
- * @since 3.5
+ * Register and describe a {@link TaskExtension}.
+ *
+ * @since 3.6
  */
-public class TaskDefinition implements TaskComponent {
+public class TaskDefinition implements TaskExtension, Comparable<TaskDefinition> {
+  static final String KEY_PATTERN = "[a-zA-Z0-9\\-\\_]+";
 
-  private String name;
-  private String description;
-  private String command;
-  private Class<? extends Task> task;
+  private final String key;
+  private final String description;
+  private final Class<? extends Task> taskClass;
 
-  private TaskDefinition() {
-
+  private TaskDefinition(Builder builder) {
+    this.key = builder.key;
+    this.description = builder.description;
+    this.taskClass = builder.taskClass;
   }
 
-  public static TaskDefinition create() {
-    return new TaskDefinition();
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public TaskDefinition setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public String getDescription() {
+  public String description() {
     return description;
   }
 
-  public TaskDefinition setDescription(String description) {
-    this.description = description;
-    return this;
+  public String key() {
+    return key;
   }
 
-  public String getCommand() {
-    return command;
-  }
-
-  public TaskDefinition setCommand(String command) {
-    this.command = command;
-    return this;
-  }
-
-  public Class<? extends Task> getTask() {
-    return task;
-  }
-
-  public TaskDefinition setTask(Class<? extends Task> task) {
-    this.task = task;
-    return this;
+  public Class<? extends Task> taskClass() {
+    return taskClass;
   }
 
   @Override
   public String toString() {
-    return "Definition of task " + task + " with command " + command;
+    return "Task " + key + "[class=" + taskClass.getName() + ", desc=" + description + "]";
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    TaskDefinition that = (TaskDefinition) o;
+    if (!key.equals(that.key)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return key.hashCode();
+  }
+
+  public int compareTo(TaskDefinition o) {
+    return key.compareTo(o.key);
+  }
+
+  public static class Builder {
+    private String key;
+    private String description;
+    private Class<? extends Task> taskClass;
+
+    private Builder() {
+    }
+
+    public Builder key(String key) {
+      this.key = key;
+      return this;
+    }
+
+    public Builder description(String s) {
+      this.description = s;
+      return this;
+    }
+
+    public Builder taskClass(Class<? extends Task> taskClass) {
+      this.taskClass = taskClass;
+      return this;
+    }
+
+    public TaskDefinition build() {
+      Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Task key must be set");
+      Preconditions.checkArgument(Pattern.matches(KEY_PATTERN, key), "Task key '" + key + "' must match " + KEY_PATTERN);
+      Preconditions.checkArgument(!Strings.isNullOrEmpty(description), "Description must be set for task '" + key + "'");
+      Preconditions.checkArgument(taskClass != null, "Class must be set for task '" + key + "'");
+      return new TaskDefinition(this);
+    }
+  }
 }

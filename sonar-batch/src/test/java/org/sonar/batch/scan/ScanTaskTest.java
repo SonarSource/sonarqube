@@ -19,34 +19,15 @@
  */
 package org.sonar.batch.scan;
 
+import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.task.Task;
-import org.sonar.api.task.TaskDefinition;
-import org.sonar.batch.bootstrap.TaskContainer;
 
-public class ScanTask implements Task {
+import static org.fest.assertions.Assertions.assertThat;
 
-  public static final TaskDefinition DEFINITION = TaskDefinition.builder()
-    .description("Scan project")
-    .key(CoreProperties.SCAN_TASK)
-    .taskClass(ScanTask.class)
-    .build();
-
-  private final ComponentContainer taskContainer;
-
-  public ScanTask(TaskContainer taskContainer) {
-    this.taskContainer = taskContainer;
+public class ScanTaskTest {
+  @Test
+  public void test_definition() {
+    assertThat(ScanTask.DEFINITION).isNotNull();
+    assertThat(ScanTask.DEFINITION.key()).isEqualTo(CoreProperties.SCAN_TASK);
   }
-
-  public void execute() {
-    ProjectScanContainer projectScanContainer = new ProjectScanContainer(taskContainer);
-    try {
-      projectScanContainer.startComponents();
-    } finally {
-      projectScanContainer.stopComponents();
-      taskContainer.removeChild();
-    }
-  }
-
 }

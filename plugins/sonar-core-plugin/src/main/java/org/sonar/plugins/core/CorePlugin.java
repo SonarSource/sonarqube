@@ -117,6 +117,13 @@ import java.util.List;
 
 @Properties({
   @Property(
+      key = CoreProperties.TASK,
+      name = "Task to be executed",
+      defaultValue = CoreProperties.SCAN_TASK,
+      module = false,
+      project = false,
+      global = false),
+  @Property(
     key = CoreProperties.SERVER_BASE_URL,
     defaultValue = CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE,
     name = "Server base URL",

@@ -22,28 +22,28 @@ package org.sonar.batch.tasks;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 
-public class ListTasksTask implements Task {
+public class ListTask implements Task {
 
-  public static final String COMMAND = "list-tasks";
+  public static final String KEY = "list";
 
-  public static final TaskDefinition DEFINITION = TaskDefinition.create()
-    .setDescription("List available tasks")
-    .setName("List Tasks")
-    .setCommand(COMMAND)
-    .setTask(ListTasksTask.class);
+  public static final TaskDefinition DEFINITION = TaskDefinition.builder()
+    .key(KEY)
+    .description("List available tasks")
+    .taskClass(ListTask.class)
+    .build();
 
-  private final Tasks taskManager;
+  private final Tasks tasks;
 
-  public ListTasksTask(Tasks taskManager) {
-    this.taskManager = taskManager;
+  public ListTask(Tasks tasks) {
+    this.tasks = tasks;
   }
 
   public void execute() {
     logBlankLine();
     log("Available tasks:");
     logBlankLine();
-    for (TaskDefinition taskDef : taskManager.getTaskDefinitions()) {
-      log("  - " + taskDef.getCommand() + ": " + taskDef.getDescription());
+    for (TaskDefinition def : tasks.definitions()) {
+      log("  - " + def.key() + ": " + def.description());
     }
     logBlankLine();
   }

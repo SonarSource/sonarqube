@@ -20,10 +20,9 @@
 package org.sonar.api.task;
 
 /**
- * Dependency Injection : all the classes implementing this interface are available in the task IoC container.
- * Just add a parameter to the constructor of your component.
+ * All the classes implementing this interface can be injected in public constructors of {@link TaskExtension}.
  *
- * @since 3.5
+ * @since 3.6
  */
 public interface TaskComponent {
 }

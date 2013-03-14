@@ -20,7 +20,10 @@
 package org.sonar.batch.tasks;
 
 import org.junit.Test;
+import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
+
+import java.util.Arrays;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -28,17 +31,31 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ListTasksTaskTest {
+public class ListTaskTest {
   @Test
   public void should_list_available_tasks() {
-    TaskDefinition def = TaskDefinition.create().setCommand("purge").setName("Purge").setDescription("Purge database");
     Tasks tasks = mock(Tasks.class);
-    when(tasks.getTaskDefinitions()).thenReturn(new TaskDefinition[]{def});
-    ListTasksTask task = spy(new ListTasksTask(tasks));
+    when(tasks.definitions()).thenReturn(Arrays.asList(
+      TaskDefinition.builder().key("foo").description("Foo").taskClass(FooTask.class).build(),
+      TaskDefinition.builder().key("purge").description("Purge database").taskClass(FakePurgeTask.class).build()
+    ));
+
+    ListTask task = spy(new ListTask(tasks));
 
     task.execute();
 
     verify(task, times(1)).log("Available tasks:");
+    verify(task, times(1)).log("  - foo: Foo");
     verify(task, times(1)).log("  - purge: Purge database");
+  }
+
+  private static class FakePurgeTask implements Task {
+    public void execute() {
+    }
+  }
+
+  private static class FooTask implements Task {
+    public void execute() {
+    }
   }
 }

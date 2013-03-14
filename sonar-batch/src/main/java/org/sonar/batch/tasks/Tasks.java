@@ -19,103 +19,56 @@
  */
 package org.sonar.batch.tasks;
 
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskComponent;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.scan.ScanTask;
 
-import javax.annotation.Nullable;
-
+import java.util.Collection;
 import java.util.Map;
-import java.util.regex.Pattern;
+import java.util.SortedMap;
 
 public class Tasks implements TaskComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(Tasks.class);
-  private static final String COMMAND_PATTERN = "[a-zA-Z0-9\\-\\_]+";
+  private final SortedMap<String, TaskDefinition> byKey;
 
-  private final TaskDefinition[] taskDefinitions;
-  private final Settings settings;
-
-  private final Map<String, TaskDefinition> taskDefByCommand = Maps.newHashMap();
-  private final Map<Class<? extends Task>, TaskDefinition> taskDefByTask = Maps.newHashMap();
-
-  public Tasks(Settings settings, TaskDefinition[] taskDefinitions) {
-    this.settings = settings;
-    this.taskDefinitions = taskDefinitions;
-  }
-
-  public TaskDefinition getTaskDefinition(@Nullable String command) {
-    String finalCommand = StringUtils.defaultIfBlank(command, settings.getString(CoreProperties.TASK));
-    finalCommand = StringUtils.defaultIfBlank(finalCommand, ScanTask.COMMAND);
-
-    if (taskDefByCommand.containsKey(finalCommand)) {
-      return taskDefByCommand.get(finalCommand);
+  public Tasks(TaskDefinition[] definitions) {
+    SortedMap<String, TaskDefinition> map = Maps.newTreeMap();
+    for (TaskDefinition definition : definitions) {
+      if (map.containsKey(definition.key())) {
+        throw new SonarException("Task '" + definition.key() + "' is declared twice");
+      }
+      map.put(definition.key(), definition);
     }
-    throw new SonarException("No task found for command: " + finalCommand);
+    this.byKey = ImmutableSortedMap.copyOf(map);
   }
 
-  public TaskDefinition[] getTaskDefinitions() {
-    return taskDefinitions;
+  public TaskDefinition definition(String taskKey) {
+    return byKey.get(taskKey);
+  }
+
+  public Collection<TaskDefinition> definitions() {
+    return byKey.values();
   }
 
   /**
    * Perform validation of task definitions
    */
   public void start() {
-    for (TaskDefinition def : taskDefinitions) {
-      validateTask(def);
-      validateName(def);
-      validateCommand(def);
-      validateDescription(def);
-    }
+    checkDuplicatedClasses();
   }
 
-  private void validateName(TaskDefinition def) {
-    if (StringUtils.isBlank(def.getName())) {
-      throw new SonarException("Task definition for task '" + def.getTask().getName() + "' doesn't define task name");
-    }
-
-  }
-
-  private void validateCommand(TaskDefinition def) {
-    String command = def.getCommand();
-    if (StringUtils.isBlank(command)) {
-      throw new SonarException("Task definition '" + def.getName() + "' doesn't define task command");
-    }
-    if (!Pattern.matches(COMMAND_PATTERN, command)) {
-      throw new SonarException("Command '" + command + "' for task definition '" + def.getName() + "' is not valid and should match " + COMMAND_PATTERN);
-    }
-    if (taskDefByCommand.containsKey(command)) {
-      throw new SonarException("Task '" + def.getName() + "' uses the same command than task '" + taskDefByCommand.get(command).getName() + "'");
-    }
-    taskDefByCommand.put(command, def);
-  }
-
-  private void validateDescription(TaskDefinition def) {
-    if (StringUtils.isBlank(def.getDescription())) {
-      LOG.warn("Task definition {} doesn't define a description. Using name as description.", def.getName());
-      def.setDescription(def.getName());
+  private void checkDuplicatedClasses() {
+    Map<Class<? extends Task>, TaskDefinition> byClass = Maps.newHashMap();
+    for (TaskDefinition def : definitions()) {
+      TaskDefinition other = byClass.get(def.taskClass());
+      if (other == null) {
+        byClass.put(def.taskClass(), def);
+      } else {
+        throw new SonarException("Task '" + def.taskClass().getName() + "' is defined twice: first by '" + other.key() + "' and then by '" + def.key() + "'");
+      }
     }
   }
-
-  private void validateTask(TaskDefinition def) {
-    Class<? extends Task> taskClass = def.getTask();
-    if (taskClass == null) {
-      throw new SonarException("Task definition '" + def.getName() + "' doesn't define the associated task class");
-    }
-    if (taskDefByTask.containsKey(taskClass)) {
-      throw new SonarException("Task '" + def.getTask().getName() + "' is defined twice: first by '" + taskDefByTask.get(taskClass).getName() + "' and then by '" + def.getName()
-          + "'");
-    }
-    taskDefByTask.put(taskClass, def);
-  }
-
 }

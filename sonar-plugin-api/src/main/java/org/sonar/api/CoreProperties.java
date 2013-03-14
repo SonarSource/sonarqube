@@ -344,8 +344,13 @@ public interface CoreProperties {
   String TASK = "sonar.task";
 
   /**
+   * @since 3.6
+   */
+  String SCAN_TASK = "scan";
+
+  /**
    * @deprecated replaced in v3.4 by properties specific to languages, for example sonar.java.coveragePlugin
-   * See http://jira.codehaus.org/browse/SONARJAVA-39 for more details.
+   *             See http://jira.codehaus.org/browse/SONARJAVA-39 for more details.
    */
   @Deprecated
   String CORE_COVERAGE_PLUGIN_PROPERTY = "sonar.core.codeCoveragePlugin";

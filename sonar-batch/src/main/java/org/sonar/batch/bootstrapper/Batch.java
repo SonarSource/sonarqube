@@ -27,7 +27,7 @@ import org.sonar.batch.bootstrap.BootstrapContainer;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.TaskContainer;
 import org.sonar.batch.scan.ScanTask;
-import org.sonar.batch.tasks.ListTasksTask;
+import org.sonar.batch.tasks.ListTask;
 import org.sonar.core.PicoUtils;
 
 import java.util.Collections;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Entry point for batch bootstrappers.
+ * Entry point for sonar-runner.
  *
  * @since 2.14
  */
@@ -43,8 +43,7 @@ public final class Batch {
 
   private LoggingConfiguration logging;
   private List<Object> components;
-  private Map<String, String> globalProperties = Maps.newHashMap();
-  private String taskCommand;
+  private Map<String, String> bootstrapProperties = Maps.newHashMap();
   private ProjectReactor projectReactor;
 
   private Batch(Builder builder) {
@@ -53,16 +52,15 @@ public final class Batch {
     if (builder.environment != null) {
       components.add(builder.environment);
     }
-    if (builder.globalProperties != null) {
-      globalProperties.putAll(builder.globalProperties);
+    if (builder.bootstrapProperties != null) {
+      bootstrapProperties.putAll(builder.bootstrapProperties);
     } else {
       // For backward compatibility, previously all properties were set in root project
-      globalProperties.putAll(Maps.fromProperties(builder.projectReactor.getRoot().getProperties()));
+      bootstrapProperties.putAll(Maps.fromProperties(builder.projectReactor.getRoot().getProperties()));
     }
-    this.taskCommand = builder.taskCommand;
     projectReactor = builder.projectReactor;
     if (builder.isEnableLoggingConfiguration()) {
-      logging = LoggingConfiguration.create().setProperties(globalProperties);
+      logging = LoggingConfiguration.create().setProperties(bootstrapProperties);
     }
   }
 
@@ -83,29 +81,31 @@ public final class Batch {
   }
 
   private void startBatch() {
-    BootstrapContainer bootstrapModule = null;
+    BootstrapContainer bootstrapContainer = null;
     try {
       List all = Lists.newArrayList(components);
-      all.add(new BootstrapProperties(globalProperties));
-      all.add(projectReactor);
+      all.add(new BootstrapProperties(bootstrapProperties));
+      if (projectReactor != null) {
+        all.add(projectReactor);
+      }
 
-      bootstrapModule = BootstrapContainer.create(all);
-      bootstrapModule.startComponents();
+      bootstrapContainer = BootstrapContainer.create(all);
+      bootstrapContainer.startComponents();
 
-      TaskContainer taskContainer = new TaskContainer(bootstrapModule);
+      TaskContainer taskContainer = new TaskContainer(bootstrapContainer);
       taskContainer.add(
         ScanTask.DEFINITION, ScanTask.class,
-        ListTasksTask.DEFINITION, ListTasksTask.class
+        ListTask.DEFINITION, ListTask.class
       );
 
-      taskContainer.executeTask(taskCommand);
+      taskContainer.execute();
 
     } catch (RuntimeException e) {
       PicoUtils.propagateStartupException(e);
     } finally {
       try {
-        if (bootstrapModule != null) {
-          bootstrapModule.stopComponents();
+        if (bootstrapContainer != null) {
+          bootstrapContainer.stopComponents();
         }
       } catch (Exception e) {
         // never throw exceptions in a finally block
@@ -119,8 +119,7 @@ public final class Batch {
   }
 
   public static final class Builder {
-    private Map<String, String> globalProperties;
-    private String taskCommand;
+    private Map<String, String> bootstrapProperties;
     private ProjectReactor projectReactor;
     private EnvironmentInformation environment;
     private List<Object> components = Lists.newArrayList();
@@ -145,12 +144,7 @@ public final class Batch {
     }
 
     public Builder setGlobalProperties(Map<String, String> globalProperties) {
-      this.globalProperties = globalProperties;
-      return this;
-    }
-
-    public Builder setTaskCommand(String taskCommand) {
-      this.taskCommand = taskCommand;
+      this.bootstrapProperties = globalProperties;
       return this;
     }
 

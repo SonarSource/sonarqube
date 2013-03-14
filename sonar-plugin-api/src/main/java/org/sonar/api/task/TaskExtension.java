@@ -22,9 +22,9 @@ package org.sonar.api.task;
 import org.sonar.api.Extension;
 
 /**
- * Task extension point.
+ * Task extension point
  *
- * @since 3.5
+ * @since 3.6
  */
 public interface TaskExtension extends Extension, TaskComponent {
 }

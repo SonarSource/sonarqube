@@ -22,7 +22,7 @@ package org.sonar.api.task;
 
 /**
  * Implement this interface to provide the behavior of a task.
- * @since 3.5
+ * @since 3.6
  */
 public interface Task extends TaskExtension {
 
