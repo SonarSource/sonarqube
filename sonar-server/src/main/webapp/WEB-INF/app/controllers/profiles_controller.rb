@@ -29,7 +29,7 @@ class ProfilesController < ApplicationController
   # GET /profiles/index
   def index
     add_breadcrumbs ROOT_BREADCRUMB
-    @profiles = Profile.find(:all)
+    @profiles = Profile.all
     Api::Utils.insensitive_sort!(@profiles){|profile| profile.name}
   end
 

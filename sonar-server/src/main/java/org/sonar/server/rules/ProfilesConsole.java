@@ -17,13 +17,18 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.server.rules;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.profiles.*;
+import org.sonar.api.profiles.ProfileExporter;
+import org.sonar.api.profiles.ProfileImporter;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.profiles.XMLProfileParser;
+import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.ValidationMessages;
@@ -36,20 +41,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public final class ProfilesConsole implements ServerComponent {
 
   private DatabaseSessionFactory sessionFactory;
   private XMLProfileParser xmlProfileParser;
   private XMLProfileSerializer xmlProfileSerializer;
-  private List<ProfileExporter> exporters = new ArrayList<ProfileExporter>();
-  private List<ProfileImporter> importers = new ArrayList<ProfileImporter>();
+  private List<ProfileExporter> exporters = newArrayList();
+  private List<ProfileImporter> importers = newArrayList();
+
+  public ProfilesConsole(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer) {
+    this.sessionFactory = sessionFactory;
+    this.xmlProfileParser = xmlProfileParser;
+    this.xmlProfileSerializer = xmlProfileSerializer;
+    this.exporters = newArrayList();
+    this.importers = newArrayList();
+  }
 
   public ProfilesConsole(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer,
                          ProfileExporter[] exporters,
                          ProfileImporter[] importers) {
-    this.xmlProfileParser = xmlProfileParser;
-    this.xmlProfileSerializer = xmlProfileSerializer;
-    this.sessionFactory = sessionFactory;
+    this(sessionFactory, xmlProfileParser, xmlProfileSerializer);
     this.exporters.addAll(Arrays.asList(exporters));
     this.importers.addAll(Arrays.asList(importers));
   }

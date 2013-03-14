@@ -17,6 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.plugins.cpd;
 
 import com.google.common.collect.Iterables;
@@ -97,7 +98,7 @@ public class SonarEngine extends CpdEngine {
 
   @Override
   public boolean isLanguageSupported(Language language) {
-    return Java.INSTANCE.equals(language);
+    return Java.KEY.equals(language.getKey());
   }
 
   static String getFullKey(Project project, Resource<?> resource) {

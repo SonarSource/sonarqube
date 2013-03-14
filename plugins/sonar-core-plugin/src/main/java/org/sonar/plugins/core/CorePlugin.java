@@ -17,6 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.plugins.core;
 
 import com.google.common.collect.ImmutableList;
@@ -411,9 +412,6 @@ public final class CorePlugin extends SonarPlugin {
         DefaultResourceTypes.class,
         UserManagedMetrics.class,
         Periods.class,
-
-        // languages
-        Java.class,
 
         // pages
         Lcom4Viewer.class,

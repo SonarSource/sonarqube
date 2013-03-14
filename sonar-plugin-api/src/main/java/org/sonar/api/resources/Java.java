@@ -17,6 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.api.resources;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -24,9 +25,12 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Java language implementation
+ * This class have been moved in the plugin sonar-java
  *
  * @since 1.10
+ * @deprecated in 3.6
  */
+@Deprecated
 public class Java extends AbstractLanguage {
 
   public static final Java INSTANCE = new Java();
