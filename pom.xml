@@ -5,7 +5,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar</artifactId>
   <packaging>pom</packaging>
-  <version>3.5</version>
+  <version>3.5.1-SNAPSHOT</version>
   <name>Sonar</name>
   <url>http://www.sonarsource.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
