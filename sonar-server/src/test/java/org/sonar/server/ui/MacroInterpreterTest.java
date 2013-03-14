@@ -71,7 +71,7 @@ public class MacroInterpreterTest {
 
   @Test
   public void should_replace_rule_macro_containing_digit_and_dash() {
-    String ruleKey = "my-repo1:key";
+    String ruleKey = "my-repo1:my-key1";
     String origin = "See {rule:"+ ruleKey + "} for detail.";
     interpreter.start();
     String result = interpreter.interpret(origin);
