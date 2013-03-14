@@ -121,7 +121,7 @@ public final class RegisterRules {
       rule.setStatus(!Strings.isNullOrEmpty(rule.getStatus()) ? rule.getStatus() : RuleStatus.defaultValue().name());
       rulesByKey.put(rule.getKey(), rule);
     }
-    LOG.info(rulesByKey.size() + " rules");
+    LOG.debug(rulesByKey.size() + " rules");
 
     List<Rule> persistedRules = session.getResults(Rule.class, "pluginName", repository.getKey());
     for (Rule persistedRule : persistedRules) {
