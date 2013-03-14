@@ -20,8 +20,10 @@
 package org.sonar.application;
 
 import org.apache.commons.io.FileUtils;
+import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.NCSARequestLog;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.HandlerList;
 import org.mortbay.jetty.handler.RequestLogHandler;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
@@ -89,7 +91,18 @@ public class JettyEmbedder {
   private Server configureProgrammatically() throws URISyntaxException {
     configureServer();
     WebAppContext context = new WebAppContext(getPath("/war/sonar-server"), contextPath);
-    server.addHandler(context);
+    String shutdownCookie = System.getProperty("sonar.shutdownToken");
+    if (shutdownCookie != null && !"".equals(shutdownCookie)) {
+      System.out.println("Registering shutdown handler");
+      ShutdownHandler shutdownHandler = new ShutdownHandler(server, shutdownCookie);
+      shutdownHandler.setExitJvm(true);
+      HandlerList handlers = new HandlerList();
+      handlers.setHandlers(new Handler[] {shutdownHandler, context});
+      server.setHandler(handlers);
+    }
+    else {
+      server.addHandler(context);
+    }
     return server;
   }
 
