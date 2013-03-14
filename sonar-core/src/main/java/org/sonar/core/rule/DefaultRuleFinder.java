@@ -17,6 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.core.rule;
 
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +51,8 @@ public class DefaultRuleFinder implements RuleFinder {
         session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.id=:id and r.status<>:status")
             .setParameter("id", ruleId)
             .setParameter("status", RuleStatus.REMOVED.name()
-            ), null);
+            ),
+        null);
   }
 
   public Rule findByKey(String repositoryKey, String key) {
@@ -64,12 +66,13 @@ public class DefaultRuleFinder implements RuleFinder {
             .setParameter("key", key)
             .setParameter("pluginName", repositoryKey)
             .setParameter("status", RuleStatus.REMOVED.name()
-            ), null);
+            ),
+        null);
   }
 
   public final Rule find(RuleQuery query) {
     DatabaseSession session = sessionFactory.getSession();
-    return (Rule)session.getSingleResult(createHqlQuery(session, query), null);
+    return (Rule) session.getSingleResult(createHqlQuery(session, query), null);
 
   }
 
@@ -80,7 +83,7 @@ public class DefaultRuleFinder implements RuleFinder {
 
   private Query createHqlQuery(DatabaseSession session, RuleQuery query) {
     StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" where status<>:status ");
-    Map<String,Object> params = new HashMap<String,Object>();
+    Map<String, Object> params = new HashMap<String, Object>();
     params.put("status", RuleStatus.REMOVED.name());
     if (StringUtils.isNotBlank(query.getRepositoryKey())) {
       hql.append("AND pluginName=:repositoryKey ");

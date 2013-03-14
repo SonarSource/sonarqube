@@ -17,6 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.server.startup;
 
 import com.google.common.base.Joiner;
@@ -105,7 +106,8 @@ public final class RegisterRules {
 
   private void disableAllRules(DatabaseSession session) {
     // the hardcoded repository "manual" is used for manual violations
-    Query query = session.createQuery("UPDATE " + Rule.class.getSimpleName() + " SET status=:status, updated_at=current_timestamp WHERE parent IS NULL AND pluginName<>'manual' AND status<>:status");
+    Query query = session.createQuery(
+        "UPDATE " + Rule.class.getSimpleName() + " SET status=:status, updated_at=current_timestamp WHERE parent IS NULL AND pluginName<>'manual' AND status<>:status");
     query.setParameter("status", RuleStatus.REMOVED.name());
     query.executeUpdate();
   }
@@ -134,11 +136,20 @@ public final class RegisterRules {
   }
 
   private void validateRule(Rule rule, String repositoryKey) {
-    if (StringUtils.isBlank(rule.getName()) && StringUtils.isBlank(ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
+    validateRuleRepositoryName(rule, repositoryKey);
+    validateRuleDescription(rule, repositoryKey);
+    validateStatus(rule);
+  }
+
+  private void validateRuleRepositoryName(Rule rule, String repositoryKey){
+    if (Strings.isNullOrEmpty(rule.getName()) && Strings.isNullOrEmpty(ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
       throw new SonarException("The following rule (repository: " + repositoryKey + ") must have a name: " + rule);
     }
-    if (StringUtils.isBlank(rule.getDescription()) && StringUtils.isBlank(ruleI18nManager.getDescription(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
-      if (StringUtils.isNotBlank(rule.getName()) && StringUtils.isBlank(ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
+  }
+
+  private void validateRuleDescription(Rule rule, String repositoryKey){
+    if (Strings.isNullOrEmpty(rule.getDescription()) && Strings.isNullOrEmpty(ruleI18nManager.getDescription(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
+      if (!Strings.isNullOrEmpty(rule.getName()) && Strings.isNullOrEmpty(ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
         // specific case
         throw new SonarException("No description found for the rule '" + rule.getName() + "' (repository: " + repositoryKey + ") because the entry 'rule."
             + repositoryKey + "." + rule.getKey() + ".name' is missing from the bundle.");
@@ -146,6 +157,9 @@ public final class RegisterRules {
         throw new SonarException("The following rule (repository: " + repositoryKey + ") must have a description: " + rule);
       }
     }
+  }
+
+  private void validateStatus(Rule rule) {
     if (!Strings.isNullOrEmpty(rule.getStatus())) {
       try {
         Status.valueOf(rule.getStatus());
