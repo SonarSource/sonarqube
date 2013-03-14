@@ -32,7 +32,7 @@ public class RuleMacro implements Macro{
    * First parameter is the repository, second one is the rule key
    */
   public String getRegex() {
-    return "\\{rule:([a-zA-Z0-9._-]++):([a-zA-Z0-9._]++)\\}";
+    return "\\{rule:([a-zA-Z0-9._-]++):([a-zA-Z0-9._-]++)\\}";
   }
 
   public String getReplacement(){
