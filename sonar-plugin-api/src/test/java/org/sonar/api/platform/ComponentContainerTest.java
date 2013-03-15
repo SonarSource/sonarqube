@@ -22,7 +22,6 @@ package org.sonar.api.platform;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.picocontainer.Startable;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.Property;
 import org.sonar.api.config.PropertyDefinitions;
@@ -30,6 +29,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import java.util.Arrays;
 
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -166,13 +166,47 @@ public class ComponentContainerTest {
   }
 
   @Test
-  public void should_fail_to_start_execution() {
+  public void should_sanitize_pico_exception_on_start_failure() {
     ComponentContainer container = new ComponentContainer();
     container.add(UnstartableComponent.class);
 
     // do not expect a PicoException
     thrown.expect(IllegalStateException.class);
     container.startComponents();
+  }
+
+  @Test
+  public void test_start_failure() {
+    ComponentContainer container = new ComponentContainer();
+    StartableComponent startable = new StartableComponent();
+    container.add(startable, UnstartableComponent.class);
+
+    try {
+      container.execute();
+      fail();
+    } catch (Exception e) {
+      assertThat(startable.started).isTrue();
+
+      // container stops the components that have already been started
+      assertThat(startable.stopped).isTrue();
+    }
+  }
+
+  @Test
+  public void test_stop_failure() {
+    ComponentContainer container = new ComponentContainer();
+    StartableComponent startable = new StartableComponent();
+    container.add(startable, UnstoppableComponent.class);
+
+    try {
+      container.execute();
+      fail();
+    } catch (Exception e) {
+      assertThat(startable.started).isTrue();
+
+      // container should stop the components that have already been started
+      // ... but that's not the case
+    }
   }
 
   @Test
@@ -186,25 +220,15 @@ public class ComponentContainerTest {
   }
 
   @Test
-  public void should_fail_to_stop_execution() {
-    ComponentContainer container = new ComponentContainer();
-    container.add(UnstoppableComponent.class);
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to stop");
-    container.execute();
-  }
-
-  @Test
   public void should_execute_components() {
     ComponentContainer container = new ComponentContainer();
-    Startable component = mock(Startable.class);
+    StartableComponent component = new StartableComponent();
     container.add(component);
 
     container.execute();
 
-    verify(component).start();
-    verify(component).stop();
+    assertThat(component.started).isTrue();
+    assertThat(component.stopped).isTrue();
   }
 
   public static class StartableComponent {

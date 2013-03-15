@@ -27,7 +27,6 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.PropertyDefinitions;
@@ -119,14 +118,15 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
   public ComponentContainer stopComponents(boolean swallowException) {
     try {
       pico.stop();
-      if (parent != null) {
-        parent.removeChild();
-      }
+
     } catch (RuntimeException e) {
       if (!swallowException) {
         throw PicoUtils.propagate(e);
       }
-      LoggerFactory.getLogger(getClass()).error("Fail to stop container", e);
+    } finally {
+      if (parent != null) {
+        parent.removeChild();
+      }
     }
     return this;
   }
