@@ -28,11 +28,10 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeSnapshotQuery;
 import org.sonar.core.purge.PurgeableSnapshotDto;
-import org.sonar.plugins.dbcleaner.api.PeriodCleaner;
 
 import java.util.List;
 
-public class DefaultPeriodCleaner implements PeriodCleaner {
+public class DefaultPeriodCleaner {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodCleaner.class);
   private PurgeDao purgeDao;
