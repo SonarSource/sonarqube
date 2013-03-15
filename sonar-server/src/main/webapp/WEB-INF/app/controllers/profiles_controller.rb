@@ -326,18 +326,18 @@ class ProfilesController < ApplicationController
 
   # GET /profiles/compare?id1=<profile1 id>&id2=<profile2 id>
   def compare
-    @profiles = Profile.find(:all, :order => 'language asc, name')
+    @profiles = Profile.all(:order => 'language asc, name')
     if params[:id1].present? && params[:id2].present?
       @profile1 = Profile.find(params[:id1])
       @profile2 = Profile.find(params[:id2])
 
-      arules1 = ActiveRule.find(:all, :include => [{:active_rule_parameters => :rules_parameter}, :rule],
+      arules1 = ActiveRule.all(:include => [{:active_rule_parameters => :rules_parameter}, :rule],
                                 :conditions => ['active_rules.profile_id=?', @profile1.id])
-      arules2 = ActiveRule.find(:all, :order => 'rules.plugin_name, rules.plugin_rule_key', :include => [{:active_rule_parameters => :rules_parameter}, :rule],
+      arules2 = ActiveRule.all(:order => 'rules.plugin_name, rules.plugin_rule_key', :include => [{:active_rule_parameters => :rules_parameter}, :rule],
                                 :conditions => ['active_rules.profile_id=?', @profile2.id])
 
-      arules1.reject! { |arule| !arule.rule.enabled }
-      arules2.reject! { |arule| !arule.rule.enabled }
+      arules1.reject! { |arule| arule.rule.removed? }
+      arules2.reject! { |arule| arule.rule.removed? }
 
       diffs_by_rule={}
       arules1.each do |arule1|
