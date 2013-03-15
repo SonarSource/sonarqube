@@ -40,13 +40,7 @@ public class ScanTask implements Task {
   }
 
   public void execute() {
-    ProjectScanContainer projectScanContainer = new ProjectScanContainer(taskContainer);
-    try {
-      projectScanContainer.startComponents();
-    } finally {
-      projectScanContainer.stopComponents();
-      taskContainer.removeChild();
-    }
+    new ProjectScanContainer(taskContainer).execute();
   }
 
 }

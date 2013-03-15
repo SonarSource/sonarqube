@@ -24,7 +24,7 @@ import org.sonar.api.BatchComponent;
 import java.util.Date;
 
 /**
- * @deprecated replaced by org.sonar.batch.bootstrap.ServerMetadata since version 3.4. Plugins should use org.sonar.api.platform.Server.
+ * @deprecated in 3.4. Replaced by {@link org.sonar.batch.bootstrap.ServerMetadata}. Plugins should use {@link org.sonar.api.platform.Server}.
  */
 @Deprecated
 public class ServerMetadata implements BatchComponent {
