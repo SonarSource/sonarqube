@@ -54,7 +54,7 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public final class RegisterRules {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RegisterRules2.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RegisterRules.class);
   private final DatabaseSessionFactory sessionFactory;
   private final List<RuleRepository> repositories;
   private final RuleI18nManager ruleI18nManager;
