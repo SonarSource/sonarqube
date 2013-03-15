@@ -21,14 +21,36 @@ package org.sonar.batch.phases;
 
 import org.junit.Test;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class PhasesTest {
-
   @Test
-  public void shouldDefinePhaseClasses() {
-    assertThat(Phases.getPhaseClasses().size(), greaterThan(4));
+  public void no_phase_should_be_enabled_by_default() {
+    Phases phases = new Phases();
+    assertThat(phases.isEnabled(Phases.Phase.DECORATOR)).isFalse();
   }
 
+  @Test
+  public void phase_should_be_enabled() {
+    Phases phases = new Phases();
+    phases.enable(Phases.Phase.SENSOR, Phases.Phase.DECORATOR);
+
+    assertThat(phases.isEnabled(Phases.Phase.DECORATOR)).isTrue();
+    assertThat(phases.isEnabled(Phases.Phase.SENSOR)).isTrue();
+    assertThat(phases.isEnabled(Phases.Phase.POSTJOB)).isFalse();
+    assertThat(phases.isFullyEnabled()).isFalse();
+  }
+
+  @Test
+  public void all_phases_should_be_enabled() {
+    Phases phases = new Phases();
+    phases.enable(Phases.Phase.values());
+
+    assertThat(phases.isEnabled(Phases.Phase.INIT)).isTrue();
+    assertThat(phases.isEnabled(Phases.Phase.MAVEN)).isTrue();
+    assertThat(phases.isEnabled(Phases.Phase.DECORATOR)).isTrue();
+    assertThat(phases.isEnabled(Phases.Phase.SENSOR)).isTrue();
+    assertThat(phases.isEnabled(Phases.Phase.POSTJOB)).isTrue();
+    assertThat(phases.isFullyEnabled()).isTrue();
+  }
 }

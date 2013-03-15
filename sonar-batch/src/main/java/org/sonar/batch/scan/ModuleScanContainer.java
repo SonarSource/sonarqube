@@ -46,7 +46,7 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.local.DryRunExporter;
-import org.sonar.batch.phases.Phases;
+import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.scan.filesystem.DeprecatedFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.ExclusionFilters;
@@ -83,10 +83,10 @@ public class ModuleScanContainer extends ComponentContainer {
 
     add(
       EventBus.class,
-      Phases.class,
+      PhaseExecutor.class,
       PhasesTimeProfiler.class,
       UnsupportedProperties.class,
-      Phases.getPhaseClasses(),
+      PhaseExecutor.getPhaseClasses(),
       moduleDefinition.getContainerExtensions(),
 
       // TODO move outside project, but not possible yet because of dependency of project settings (cf plsql)
@@ -140,7 +140,7 @@ public class ModuleScanContainer extends ComponentContainer {
       getComponentByType(ViolationFilters.class),
       getComponentByType(RulesProfile.class));
 
-    getComponentByType(Phases.class).execute(module);
+    getComponentByType(PhaseExecutor.class).execute(module);
   }
 
 }

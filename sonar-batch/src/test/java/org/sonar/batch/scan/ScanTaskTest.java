@@ -21,13 +21,27 @@ package org.sonar.batch.scan;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.platform.ComponentContainer;
+import org.sonar.batch.bootstrap.TaskContainer;
+import org.sonar.batch.phases.Phases;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ScanTaskTest {
   @Test
   public void test_definition() {
     assertThat(ScanTask.DEFINITION).isNotNull();
     assertThat(ScanTask.DEFINITION.key()).isEqualTo(CoreProperties.SCAN_TASK);
+  }
+
+  @Test
+  public void should_enable_all_phases() {
+    ScanTask task = new ScanTask(mock(TaskContainer.class));
+    ComponentContainer projectScanContainer = new ComponentContainer();
+    task.scan(projectScanContainer);
+
+    Phases phases = projectScanContainer.getComponentByType(Phases.class);
+    assertThat(phases.isFullyEnabled()).isTrue();
   }
 }

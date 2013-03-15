@@ -19,29 +19,15 @@
  */
 package org.sonar.batch.phases;
 
-import com.google.common.collect.Sets;
+import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Set;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class Phases {
+public class PhaseExecutorTest {
 
-  public static enum Phase {
-    MAVEN, INIT, SENSOR, DECORATOR, POSTJOB
+  @Test
+  public void shouldDefinePhaseClasses() {
+    assertThat(PhaseExecutor.getPhaseClasses().size()).isGreaterThan(4);
   }
 
-  private final Set<Phase> enabled = Sets.newHashSet();
-
-  public Phases enable(Phase... phases) {
-    enabled.addAll(Arrays.asList(phases));
-    return this;
-  }
-
-  public boolean isEnabled(Phase phase) {
-    return enabled.contains(phase);
-  }
-
-  public boolean isFullyEnabled() {
-    return enabled.containsAll(Arrays.asList(Phase.values()));
-  }
 }

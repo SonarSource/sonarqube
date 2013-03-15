@@ -24,9 +24,9 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.bootstrap.TaskContainer;
+import org.sonar.batch.phases.Phases;
 
 public class ScanTask implements Task {
-
   public static final TaskDefinition DEFINITION = TaskDefinition.builder()
     .description("Scan project")
     .key(CoreProperties.SCAN_TASK)
@@ -40,7 +40,11 @@ public class ScanTask implements Task {
   }
 
   public void execute() {
-    new ProjectScanContainer(taskContainer).execute();
+    scan(new ProjectScanContainer(taskContainer));
   }
 
+  void scan(ComponentContainer scanContainer) {
+    scanContainer.add(new Phases().enable(Phases.Phase.values()));
+    scanContainer.execute();
+  }
 }
