@@ -43,7 +43,6 @@ public class ComponentContainerTest {
   @Test
   public void shouldRegisterItself() {
     ComponentContainer container = new ComponentContainer();
-
     assertThat(container.getComponentByType(ComponentContainer.class)).isSameAs(container);
   }
 

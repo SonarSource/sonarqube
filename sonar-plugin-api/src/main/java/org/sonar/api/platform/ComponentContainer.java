@@ -124,9 +124,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
         throw PicoUtils.propagate(e);
       }
     } finally {
-      if (parent != null) {
-        parent.removeChild();
-      }
+      removeChild();
     }
     return this;
   }
