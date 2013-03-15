@@ -19,8 +19,8 @@
  */
 package org.sonar.api.utils;
 
-import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.task.TaskComponent;
 
 import java.util.Date;
 
@@ -30,7 +30,7 @@ import java.util.Date;
  *
  * @since 3.4
  */
-public interface Semaphores extends BatchComponent, ServerComponent {
+public interface Semaphores extends TaskComponent, ServerComponent {
 
   /**
    * Try to acquire a semaphore for a given duration.
@@ -39,9 +39,9 @@ public interface Semaphores extends BatchComponent, ServerComponent {
    * server to update the semaphore and avoid it to be considered as
    * outdated.
    *
-   * @param name                 the key of the semaphore
-   * @param maxAgeInSeconds the max duration in seconds the semaphore will be considered unlocked if
-   *                        it was not updated. The value zero forces the semaphore to be acquired, whatever its status.
+   * @param name                  the key of the semaphore
+   * @param maxAgeInSeconds       the max duration in seconds the semaphore will be considered unlocked if
+   *                              it was not updated. The value zero forces the semaphore to be acquired, whatever its status.
    * @param updatePeriodInSeconds the period in seconds the semaphore will be updated.
    * @return the semaphore, whatever its status (locked or unlocked). Can't be null.
    */

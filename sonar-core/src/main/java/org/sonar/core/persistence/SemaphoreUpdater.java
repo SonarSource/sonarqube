@@ -22,6 +22,8 @@ package org.sonar.core.persistence;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.task.TaskComponent;
 import org.sonar.api.utils.Semaphores;
 
 import java.util.Map;
@@ -32,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @since 3.5
  */
-public class SemaphoreUpdater {
+public class SemaphoreUpdater implements TaskComponent, ServerComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(SemaphoreUpdater.class);
 
