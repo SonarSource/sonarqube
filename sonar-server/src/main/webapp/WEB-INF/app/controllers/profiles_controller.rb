@@ -180,7 +180,7 @@ class ProfilesController < ApplicationController
     require_parameters 'id'
     @profile = Profile.find(params[:id])
 
-    profiles=Profile.find(:all, :conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?)', @profile.language, @profile.id, @profile.name], :order => 'name')
+    profiles=Profile.all(:conditions => ['language=? and id<>? and (parent_name is null or parent_name<>?)', @profile.language, @profile.id, @profile.name], :order => 'name')
     @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name, profile.name] }
 
     set_profile_breadcrumbs
@@ -191,7 +191,7 @@ class ProfilesController < ApplicationController
     require_parameters 'id'
     @profile = Profile.find(params[:id])
 
-    versions = ActiveRuleChange.find(:all, :select => 'profile_version, MAX(change_date) AS change_date', :conditions => ['profile_id=?', @profile.id], :group => 'profile_version')
+    versions = ActiveRuleChange.all(:select => 'profile_version, MAX(change_date) AS change_date', :conditions => ['profile_id=?', @profile.id], :group => 'profile_version')
     versions.sort! { |a, b| b.profile_version <=> a.profile_version }
 
     if !versions.empty?
@@ -209,7 +209,7 @@ class ProfilesController < ApplicationController
       if @since_version > @to_version
         @since_version, @to_version = @to_version, @since_version
       end
-      @changes = ActiveRuleChange.find(:all, :conditions => ['profile_id=? and ?<profile_version and profile_version<=?', @profile.id, @since_version, @to_version], :order => 'id desc')
+      @changes = ActiveRuleChange.all(:conditions => ['profile_id=? and ?<profile_version and profile_version<=?', @profile.id, @since_version, @to_version], :order => 'id desc')
 
       @select_versions = versions.map { |u| [message(u.profile_version == last_version ? 'quality_profiles.last_version_x_with_date' : 'quality_profiles.version_x_with_date', :params => [u.profile_version.to_s, l(u.change_date)]), u.profile_version] } | [[message('quality_profiles.no_version'), 0]];
     end

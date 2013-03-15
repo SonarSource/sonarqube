@@ -21,6 +21,6 @@
 <dataset>
 
   <rules id="1" plugin_rule_key="deprecated-key" plugin_name="deprecated-repo" plugin_config_key="[null]" name="Deprecated" description="[null]"
-                   status="READY" priority="4" cardinality="SINGLE" parent_id="[null]"/>
+         status="REMOVED" priority="4" cardinality="SINGLE" parent_id="[null]"/>
 
 </dataset>

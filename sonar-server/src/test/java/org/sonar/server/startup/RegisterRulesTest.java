@@ -17,6 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.server.startup;
 
 import org.junit.Before;
@@ -41,6 +42,7 @@ import java.util.Locale;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -91,6 +93,26 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
       assertThat(rule.isEnabled(), is(false));
       assertThat(rule.getUpdatedAt(), notNullValue());
     }
+  }
+
+  @Test
+  public void should_reactivate_disabled_rules() {
+    setupData("reactivateDisabledRules");
+    task.start();
+
+    Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
+    assertThat(rule.getStatus(), is(RuleStatus.READY.name()));
+    assertThat(rule.getUpdatedAt(), notNullValue());
+  }
+
+  @Test
+  public void should_not_update_already_disabled_rules() {
+    setupData("notUpdateAlreadyDisabledRule");
+    task.start();
+
+    Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
+    assertThat(rule.getStatus(), is(RuleStatus.REMOVED.name()));
+    assertThat(rule.getUpdatedAt(), nullValue());
   }
 
   @Test

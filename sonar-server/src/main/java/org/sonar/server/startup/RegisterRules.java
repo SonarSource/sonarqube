@@ -21,9 +21,12 @@
 package org.sonar.server.startup;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +42,6 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
-import javax.persistence.Query;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -49,16 +49,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+
 public final class RegisterRules {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RegisterRules.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RegisterRules2.class);
   private final DatabaseSessionFactory sessionFactory;
   private final List<RuleRepository> repositories;
   private final RuleI18nManager ruleI18nManager;
 
   public RegisterRules(DatabaseSessionFactory sessionFactory, RuleRepository[] repos, RuleI18nManager ruleI18nManager) {
     this.sessionFactory = sessionFactory;
-    this.repositories = Arrays.asList(repos);
+    this.repositories = newArrayList(repos);
     this.ruleI18nManager = ruleI18nManager;
   }
 
@@ -68,71 +71,54 @@ public final class RegisterRules {
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler();
-
     DatabaseSession session = sessionFactory.getSession();
-    disableAllRules(session);
-    for (RuleRepository repository : repositories) {
-      profiler.start("Register rules [" + repository.getKey() + "/" + StringUtils.defaultString(repository.getLanguage(), "-") + "]");
-      registerRepository(repository, session);
-      profiler.stop();
-    }
+    RulesByRepository existingRules = new RulesByRepository(findAllRules(session));
 
-    profiler.start("Disable deprecated user rules");
-    disableDeprecatedUserRules(session);
-    profiler.stop();
+    registerRules(existingRules, profiler, session);
+    disableDeprecatedRepositories(existingRules, repositories, session);
+    disableDeprecatedUserRules(profiler, session);
 
     session.commit();
   }
 
-  private void disableDeprecatedUserRules(DatabaseSession session) {
-    List<Integer> deprecatedUserRuleIds = Lists.newLinkedList();
-    deprecatedUserRuleIds.addAll(session.createQuery(
-        "SELECT r.id FROM " + Rule.class.getSimpleName() +
-            " r WHERE r.parent IS NOT NULL AND NOT EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p)").getResultList());
-
-    deprecatedUserRuleIds.addAll(session.createQuery(
-        "SELECT r.id FROM " + Rule.class.getSimpleName() +
-            " r WHERE r.parent IS NOT NULL AND EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p and p.status=:status)")
-        .setParameter("status", RuleStatus.REMOVED.name())
-        .getResultList());
-
-    for (Integer deprecatedUserRuleId : deprecatedUserRuleIds) {
-      Rule rule = session.getSingleResult(Rule.class, "id", deprecatedUserRuleId);
-      rule.setStatus(RuleStatus.REMOVED.name());
-      rule.setUpdatedAt(new Date());
-      session.saveWithoutFlush(rule);
+  private void registerRules(RulesByRepository existingRules, TimeProfiler profiler, DatabaseSession session){
+    for (RuleRepository repository : repositories) {
+      profiler.start("Register rules [" + repository.getKey() + "/" + StringUtils.defaultString(repository.getLanguage(), "-") + "]");
+      registerRepository(repository, existingRules, session);
+      profiler.stop();
     }
   }
 
-  private void disableAllRules(DatabaseSession session) {
+  private List<Rule> findAllRules(DatabaseSession session) {
     // the hardcoded repository "manual" is used for manual violations
-    Query query = session.createQuery(
-        "UPDATE " + Rule.class.getSimpleName() + " SET status=:status, updated_at=current_timestamp WHERE parent IS NULL AND pluginName<>'manual' AND status<>:status");
-    query.setParameter("status", RuleStatus.REMOVED.name());
-    query.executeUpdate();
+    return session.createQuery("from " + Rule.class.getSimpleName() + " r WHERE r.parent IS NULL AND r.pluginName<>:repository")
+        .setParameter("repository", "manual")
+      .getResultList();
   }
 
-  private void registerRepository(RuleRepository repository, DatabaseSession session) {
-    Map<String, Rule> rulesByKey = Maps.newHashMap();
+  private void registerRepository(RuleRepository repository, RulesByRepository existingRules, DatabaseSession session) {
+    Map<String, Rule> ruleByKey = newHashMap();
     for (Rule rule : repository.createRules()) {
-      validateRule(rule, repository.getKey());
       rule.setRepositoryKey(repository.getKey());
       rule.setLanguage(repository.getLanguage());
       rule.setStatus(!Strings.isNullOrEmpty(rule.getStatus()) ? rule.getStatus() : RuleStatus.defaultValue().name());
-      rulesByKey.put(rule.getKey(), rule);
+      validateRule(rule, repository.getKey());
+      ruleByKey.put(rule.getKey(), rule);
     }
-    LOG.debug(rulesByKey.size() + " rules");
+    LOG.debug(ruleByKey.size() + " rules");
 
-    List<Rule> persistedRules = session.getResults(Rule.class, "pluginName", repository.getKey());
-    for (Rule persistedRule : persistedRules) {
-      Rule rule = rulesByKey.get(persistedRule.getKey());
+    for (Rule persistedRule : existingRules.get(repository.getKey())) {
+      Rule rule = ruleByKey.get(persistedRule.getKey());
       if (rule != null) {
         updateRule(persistedRule, rule, session);
-        rulesByKey.remove(rule.getKey());
+        ruleByKey.remove(rule.getKey());
+      } else {
+        disable(persistedRule);
       }
+      session.saveWithoutFlush(persistedRule);
     }
 
-    saveNewRules(rulesByKey.values(), session);
+    saveNewRules(ruleByKey.values(), session);
   }
 
   private void validateRule(Rule rule, String repositoryKey) {
@@ -141,13 +127,13 @@ public final class RegisterRules {
     validateStatus(rule);
   }
 
-  private void validateRuleRepositoryName(Rule rule, String repositoryKey){
+  private void validateRuleRepositoryName(Rule rule, String repositoryKey) {
     if (Strings.isNullOrEmpty(rule.getName()) && Strings.isNullOrEmpty(ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
       throw new SonarException("The following rule (repository: " + repositoryKey + ") must have a name: " + rule);
     }
   }
 
-  private void validateRuleDescription(Rule rule, String repositoryKey){
+  private void validateRuleDescription(Rule rule, String repositoryKey) {
     if (Strings.isNullOrEmpty(rule.getDescription()) && Strings.isNullOrEmpty(ruleI18nManager.getDescription(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
       if (!Strings.isNullOrEmpty(rule.getName()) && Strings.isNullOrEmpty(ruleI18nManager.getName(repositoryKey, rule.getKey(), Locale.ENGLISH))) {
         // specific case
@@ -160,16 +146,16 @@ public final class RegisterRules {
   }
 
   private void validateStatus(Rule rule) {
-    if (!Strings.isNullOrEmpty(rule.getStatus())) {
-      try {
-        Status.valueOf(rule.getStatus());
-      } catch (IllegalArgumentException e) {
-        throw new SonarException("The status of a rule can only contains : " + Joiner.on(", ").join(Status.values()), e);
-      }
+    try {
+      Status.valueOf(rule.getStatus());
+    } catch (IllegalArgumentException e) {
+      throw new SonarException("The status of a rule can only contains : " + Joiner.on(", ").join(Status.values()), e);
     }
   }
 
   private void updateRule(Rule persistedRule, Rule rule, DatabaseSession session) {
+    LOG.debug("Update rule " + rule);
+
     persistedRule.setName(rule.getName());
     persistedRule.setConfigKey(rule.getConfigKey());
     persistedRule.setDescription(rule.getDescription());
@@ -184,8 +170,6 @@ public final class RegisterRules {
 
     // add new params and update existing params
     updateParameters(persistedRule, rule);
-
-    session.saveWithoutFlush(persistedRule);
   }
 
   private void updateParameters(Rule persistedRule, Rule rule) {
@@ -219,9 +203,74 @@ public final class RegisterRules {
 
   private void saveNewRules(Collection<Rule> rules, DatabaseSession session) {
     for (Rule rule : rules) {
+      LOG.debug("Save new rule " + rule);
       rule.setCreatedAt(new Date());
       session.saveWithoutFlush(rule);
     }
+  }
+
+  private void disableDeprecatedRepositories(RulesByRepository existingRules, List<RuleRepository> repositories, DatabaseSession session) {
+    for(final String repositoryKey : existingRules.repositories()) {
+      if (!Iterables.any(repositories, new Predicate<RuleRepository>() {
+        public boolean apply(RuleRepository input) {
+          return input.getKey().equals(repositoryKey);
+        }
+      })) {
+        for (Rule rule : existingRules.get(repositoryKey)) {
+          disable(rule);
+          session.saveWithoutFlush(rule);
+        }
+      }
+    }
+  }
+
+  private void disableDeprecatedUserRules(TimeProfiler profiler, DatabaseSession session) {
+    profiler.start("Disable deprecated user rules");
+    List<Integer> deprecatedUserRuleIds = Lists.newLinkedList();
+    deprecatedUserRuleIds.addAll(session.createQuery(
+        "SELECT r.id FROM " + Rule.class.getSimpleName() +
+            " r WHERE r.parent IS NOT NULL AND NOT EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p)").getResultList());
+
+    deprecatedUserRuleIds.addAll(session.createQuery(
+        "SELECT r.id FROM " + Rule.class.getSimpleName() +
+            " r WHERE r.parent IS NOT NULL AND EXISTS(FROM " + Rule.class.getSimpleName() + " p WHERE r.parent=p and p.status=:status)")
+        .setParameter("status", RuleStatus.REMOVED.name())
+        .getResultList());
+
+    for (Integer deprecatedUserRuleId : deprecatedUserRuleIds) {
+      Rule rule = session.getSingleResult(Rule.class, "id", deprecatedUserRuleId);
+      disable(rule);
+      session.saveWithoutFlush(rule);
+    }
+    profiler.stop();
+  }
+
+  private void disable(Rule rule){
+    if (!rule.getStatus().equals(RuleStatus.REMOVED.name())) {
+      LOG.debug("Disable rule " + rule);
+      rule.setStatus(RuleStatus.REMOVED.name());
+      rule.setUpdatedAt(new Date());
+    }
+  }
+
+  class RulesByRepository {
+    Multimap<String, Rule> ruleRepositoryList;
+
+    public RulesByRepository(List<Rule> rules){
+      ruleRepositoryList = ArrayListMultimap.create();
+      for (Rule rule :rules) {
+        ruleRepositoryList.put(rule.getRepositoryKey(), rule);
+      }
+    }
+
+    public Collection<Rule> get(String repositoryKey) {
+      return ruleRepositoryList.get(repositoryKey);
+    }
+
+    public Collection<String> repositories(){
+      return ruleRepositoryList.keySet();
+    }
+
   }
 
 }
