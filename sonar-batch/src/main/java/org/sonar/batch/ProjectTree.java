@@ -19,80 +19,18 @@
  */
 package org.sonar.batch;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.scan.ProjectReactorReady;
 
-import java.util.List;
-import java.util.Map;
+/**
+ * TODO Maybe it should be moved in Sonar API?
+ * @author julien
+ *
+ */
+public interface ProjectTree {
 
-public class ProjectTree {
+  Project getRootProject();
 
-  private final ProjectConfigurator configurator;
-  private ProjectReactor projectReactor;
+  ProjectDefinition getProjectDefinition(Project module);
 
-  private List<Project> projects;
-  private Map<ProjectDefinition, Project> projectsByDef;
-
-  public ProjectTree(ProjectReactor projectReactor,
-                     ProjectConfigurator projectConfigurator,
-                     ProjectReactorReady reactorReady) {
-    this.projectReactor = projectReactor;
-    this.configurator = projectConfigurator;
-  }
-
-  public void start() {
-    doStart(projectReactor.getProjects());
-  }
-
-  void doStart(List<ProjectDefinition> definitions) {
-    projects = Lists.newArrayList();
-    projectsByDef = Maps.newHashMap();
-
-    for (ProjectDefinition def : definitions) {
-      Project project = configurator.create(def);
-      projectsByDef.put(def, project);
-      projects.add(project);
-    }
-
-    for (Map.Entry<ProjectDefinition, Project> entry : projectsByDef.entrySet()) {
-      ProjectDefinition def = entry.getKey();
-      Project project = entry.getValue();
-      for (ProjectDefinition module : def.getSubProjects()) {
-        projectsByDef.get(module).setParent(project);
-      }
-    }
-
-    // Configure
-    for (Project project : projects) {
-      configurator.configure(project);
-    }
-  }
-
-
-  public List<Project> getProjects() {
-    return projects;
-  }
-
-  public Project getRootProject() {
-    for (Project project : projects) {
-      if (project.getParent() == null) {
-        return project;
-      }
-    }
-    throw new IllegalStateException("Can not find the root project from the list of Maven modules");
-  }
-
-  public ProjectDefinition getProjectDefinition(Project project) {
-    for (Map.Entry<ProjectDefinition, Project> entry : projectsByDef.entrySet()) {
-      if (ObjectUtils.equals(entry.getValue(), project)) {
-        return entry.getKey();
-      }
-    }
-    throw new IllegalStateException("Can not find ProjectDefinition for " + project);
-  }
 }
