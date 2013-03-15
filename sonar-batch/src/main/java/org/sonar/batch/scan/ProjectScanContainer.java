@@ -69,30 +69,30 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addBatchComponents() {
     add(
-        DefaultResourceCreationLock.class,
-        DefaultPersistenceManager.class,
-        DependencyPersister.class,
-        EventPersister.class,
-        LinkPersister.class,
-        MeasurePersister.class,
-        MemoryOptimizer.class,
-        DefaultResourcePermissions.class,
-        DefaultResourcePersister.class,
-        SourcePersister.class,
-        DefaultNotificationManager.class,
-        MetricProvider.class,
-        ProjectExclusions.class,
-        ProjectReactorReady.class,
-        ProjectConfigurator.class,
-        DefaultIndex.class,
-        DefaultFileLinesContextFactory.class,
-        ProjectLock.class,
-        LastSnapshots.class,
-        ScanGraph.create(),
-        TestPlanBuilder.class,
-        TestableBuilder.class,
-        ScanPerspectives.class,
-        ScanGraphStore.class);
+      DefaultResourceCreationLock.class,
+      DefaultPersistenceManager.class,
+      DependencyPersister.class,
+      EventPersister.class,
+      LinkPersister.class,
+      MeasurePersister.class,
+      MemoryOptimizer.class,
+      DefaultResourcePermissions.class,
+      DefaultResourcePersister.class,
+      SourcePersister.class,
+      DefaultNotificationManager.class,
+      MetricProvider.class,
+      ProjectExclusions.class,
+      ProjectReactorReady.class,
+      ProjectConfigurator.class,
+      DefaultIndex.class,
+      DefaultFileLinesContextFactory.class,
+      ProjectLock.class,
+      LastSnapshots.class,
+      ScanGraph.create(),
+      TestPlanBuilder.class,
+      TestableBuilder.class,
+      ScanPerspectives.class,
+      ScanGraphStore.class);
   }
 
   private void fixMavenExecutor() {
@@ -102,12 +102,7 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private void addBatchExtensions() {
-    getComponentByType(ExtensionInstaller.class).install(this, new ExtensionInstaller.ComponentFilter() {
-      public boolean accept(Object extension) {
-        return ExtensionUtils.isType(extension, BatchExtension.class)
-          && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH);
-      }
-    });
+    getComponentByType(ExtensionInstaller.class).install(this, new BatchExtensionFilter());
   }
 
   @Override
@@ -127,4 +122,10 @@ public class ProjectScanContainer extends ComponentContainer {
     new ModuleScanContainer(this, module).execute();
   }
 
+  static class BatchExtensionFilter implements ExtensionInstaller.ComponentFilter {
+    public boolean accept(Object extension) {
+      return ExtensionUtils.isType(extension, BatchExtension.class)
+        && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH);
+    }
+  }
 }

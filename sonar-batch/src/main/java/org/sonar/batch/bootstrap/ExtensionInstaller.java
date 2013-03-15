@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-// TODO rename ExtensionInstaller
 public class ExtensionInstaller {
 
   private final BatchPluginRepository pluginRepository;
