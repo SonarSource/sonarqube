@@ -256,7 +256,7 @@ public final class Rule {
    * @deprecated in 3.6
    */
   @Deprecated
-  public void setEnabled(Boolean enabled) {
+  public Rule setEnabled(Boolean enabled) {
     throw new UnsupportedOperationException("No more supported since version 3.6. Please use setStatus() instead.");
   }
 
