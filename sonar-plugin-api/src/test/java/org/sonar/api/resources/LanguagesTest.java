@@ -47,6 +47,13 @@ public class LanguagesTest {
     assertThat(languages.getSuffixes("xxx")).isEmpty();
   }
 
+  @Test
+  public void test_no_languages() {
+    Languages languages = new Languages();
+    assertThat(languages.get("foo")).isNull();
+    assertThat(languages.getSuffixes("foo")).isEmpty();
+  }
+
   static Language language(String key, String... suffixes) {
     Language lang = mock(Language.class);
     when(lang.getKey()).thenReturn(key);
