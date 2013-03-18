@@ -93,7 +93,7 @@
          if dashboard_configuration.selected_period? || (skipped_measure && skipped_measure.value && skipped_measure.value>0)
       %>
       <p>
-        <%= format_measure(skipped_measure, :suffix => message('widget.code_coverage.skipped.suffix'), :url => url_for_drilldown(Metric::SKIPPED_TESTS), :default => '0') %>
+        <%= format_measure(skipped_measure, :suffix => message('widget.code_coverage.skipped.suffix'), :url => url_for_drilldown(Metric::SKIPPED_TESTS)) %>
         <%= dashboard_configuration.selected_period? ? format_variation(skipped_measure) : trend_icon(skipped_measure) -%>
       </p>
       <% end %>
