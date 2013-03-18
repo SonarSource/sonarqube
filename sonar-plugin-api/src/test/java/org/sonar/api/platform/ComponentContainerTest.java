@@ -47,7 +47,7 @@ public class ComponentContainerTest {
   }
 
   @Test
-  public void testStartAndStop() {
+  public void should_start_and_stop() {
     ComponentContainer container = spy(new ComponentContainer());
     container.addSingleton(StartableComponent.class);
     container.startComponents();
@@ -59,6 +59,52 @@ public class ComponentContainerTest {
 
     container.stopComponents();
     assertThat(container.getComponentByType(StartableComponent.class).stopped).isTrue();
+  }
+
+  @Test
+  public void should_start_and_stop_hierarchy_of_containers() {
+    StartableComponent parentComponent = new StartableComponent();
+    final StartableComponent childComponent = new StartableComponent();
+    ComponentContainer parentContainer = new ComponentContainer() {
+      @Override
+      public void doAfterStart() {
+        ComponentContainer childContainer = new ComponentContainer(this);
+        childContainer.add(childComponent);
+        childContainer.execute();
+      }
+    };
+    parentContainer.add(parentComponent);
+    parentContainer.execute();
+    assertThat(parentComponent.started).isTrue();
+    assertThat(parentComponent.stopped).isTrue();
+    assertThat(childComponent.started).isTrue();
+    assertThat(childComponent.stopped).isTrue();
+  }
+
+  @Test
+  public void should_stop_hierarchy_of_containers_on_failure() {
+    StartableComponent parentComponent = new StartableComponent();
+    final StartableComponent childComponent1 = new StartableComponent();
+    final UnstartableComponent childComponent2 = new UnstartableComponent();
+    ComponentContainer parentContainer = new ComponentContainer() {
+      @Override
+      public void doAfterStart() {
+        ComponentContainer childContainer = new ComponentContainer(this);
+        childContainer.add(childComponent1);
+        childContainer.add(childComponent2);
+        childContainer.execute();
+      }
+    };
+    parentContainer.add(parentComponent);
+    try {
+      parentContainer.execute();
+      fail();
+    } catch (Exception e) {
+      assertThat(parentComponent.started).isTrue();
+      assertThat(parentComponent.stopped).isTrue();
+      assertThat(childComponent1.started).isTrue();
+      assertThat(childComponent1.stopped).isTrue();
+    }
   }
 
   @Test

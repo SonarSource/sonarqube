@@ -117,17 +117,17 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
 
   public ComponentContainer stopComponents(boolean swallowException) {
     try {
-      if (!pico.getLifecycleState().isStopped()) {
-        pico.stop();
-      }
-      removeChild();
-      if (parent!=null) {
-        parent.removeChild();
-      }
+      pico.stop();
+
 
     } catch (RuntimeException e) {
       if (!swallowException) {
         throw PicoUtils.propagate(e);
+      }
+    } finally {
+      removeChild();
+      if (parent != null) {
+        parent.removeChild();
       }
     }
     return this;
