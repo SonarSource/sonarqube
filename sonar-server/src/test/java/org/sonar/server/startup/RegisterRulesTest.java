@@ -33,6 +33,7 @@ import org.sonar.check.Status;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.server.configuration.ProfilesManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,10 +57,12 @@ import static org.mockito.Mockito.when;
 public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   private RegisterRules task;
+  private ProfilesManager profilesManager;
 
   @Before
   public void init() {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new FakeRepository()}, null);
+    profilesManager = mock(ProfilesManager.class);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new FakeRepository()}, null, profilesManager);
   }
 
   @Test
@@ -133,7 +136,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void should_disable_Deprecated_Active_Rule_Parameters() {
+  public void should_disable_deprecated_active_rule_parameters() {
     setupData("disableDeprecatedActiveRuleParameters");
     task.start();
 
@@ -228,7 +231,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
   @Test
   public void volume_testing() {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new VolumeRepository()}, null);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new VolumeRepository()}, null, profilesManager);
     setupData("shared");
     task.start();
 
@@ -240,7 +243,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void should_fail_with_rule_without_name() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -262,7 +265,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   public void should_fail_with_rule_with_blank_name() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
     when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("");
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutNameRepository()}, ruleI18nManager, profilesManager);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -279,7 +282,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   public void should_fail_with_rule_without_description() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
     when(ruleI18nManager.getName(anyString(), anyString(), any(Locale.class))).thenReturn("Name");
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -300,7 +303,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   @Test
   public void should_fail_with_rule_without_name_in_bundle() throws Exception {
     RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithoutDescriptionRepository()}, ruleI18nManager, profilesManager);
     setupData("shared");
 
     // the rule has no name, it should fail
@@ -316,7 +319,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   // http://jira.codehaus.org/browse/SONAR-3879
   @Test
   public void should_fail_with_rule_with_unknown_status() throws Exception {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithUnkownStatusRepository()}, null);
+    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithUnkownStatusRepository()}, null, profilesManager);
     try {
       task.start();
       fail("Rule status must be unknown");

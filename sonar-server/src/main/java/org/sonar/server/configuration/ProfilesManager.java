@@ -23,7 +23,11 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleChange;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
@@ -153,6 +157,28 @@ public class ProfilesManager extends BaseDao {
     ruleDisabled(profile, parentActiveRule, userName);
     for (RulesProfile child : getChildren(parentProfileId)) {
       deactivate(child, parentActiveRule.getRule(), userName);
+    }
+    getSession().commit();
+  }
+
+  /**
+   * Rule was removed
+   */
+  public void ruleRemoved(int ruleId) {
+    Rule rule = getSession().getEntity(Rule.class, ruleId);
+    List<RulesProfile> profiles = getSession().createQuery("FROM " + RulesProfile.class.getSimpleName()).getResultList();
+    String user = "admin";
+    for (RulesProfile profile : profiles) {
+      for (ActiveRule activeRule : profile.getActiveRules()) {
+        if (activeRule.getRule().equals(rule)) {
+          incrementProfileVersionIfNeeded(profile);
+          deactivate(profile, activeRule.getRule(), user);
+
+          ActiveRuleChange rc = new ActiveRuleChange(user, profile, rule);
+          rc.setEnabled(false);
+          getSession().saveWithoutFlush(rc);
+        }
+      }
     }
     getSession().commit();
   }

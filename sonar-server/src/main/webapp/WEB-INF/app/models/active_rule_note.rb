@@ -28,7 +28,7 @@ class ActiveRuleNote < ActiveRecord::Base
   def user
     @user ||=
         begin
-          user_login ? User.find(:first, :conditions => ['login=?', user_login]) : nil
+          user_login ? User.first(:conditions => ['login=?', user_login]) : nil
         end
   end
 
