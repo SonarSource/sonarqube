@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.core.resource.DefaultResourcePermissions;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
@@ -60,7 +62,11 @@ public class TaskContainer extends ComponentContainer {
   }
 
   private void installComponentsUsingTaskExtensions() {
-    add(ResourceTypes.class, MetricProvider.class, Tasks.class);
+    add(
+        ResourceTypes.class,
+        DefaultResourcePermissions.class,
+        MetricProvider.class,
+        Tasks.class);
   }
 
   @Override

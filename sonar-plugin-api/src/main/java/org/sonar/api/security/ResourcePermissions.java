@@ -19,9 +19,9 @@
  */
 package org.sonar.api.security;
 
-import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.task.TaskComponent;
 
 /**
  * Grant access to newly created projects.
@@ -30,7 +30,7 @@ import org.sonar.api.resources.Resource;
  *
  * @since 3.2
  */
-public interface ResourcePermissions extends BatchComponent, ServerComponent {
+public interface ResourcePermissions extends TaskComponent, ServerComponent {
 
   /**
    * Limitation - the resource id is used instead of logical key.

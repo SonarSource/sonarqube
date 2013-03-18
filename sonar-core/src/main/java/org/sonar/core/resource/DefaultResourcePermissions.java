@@ -20,12 +20,12 @@
 package org.sonar.core.resource;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.security.ResourcePermissions;
+import org.sonar.api.task.TaskExtension;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.GroupDto;
@@ -38,7 +38,7 @@ import org.sonar.core.user.UserRoleDto;
 /**
  * @since 3.2
  */
-public class DefaultResourcePermissions implements ResourcePermissions, BatchExtension, ServerExtension {
+public class DefaultResourcePermissions implements ResourcePermissions, TaskExtension, ServerExtension {
 
   private final Settings settings;
   private final MyBatis myBatis;
@@ -70,9 +70,9 @@ public class DefaultResourcePermissions implements ResourcePermissions, BatchExt
         UserDto user = session.getMapper(UserMapper.class).selectUserByLogin(login);
         if (user != null) {
           UserRoleDto userRole = new UserRoleDto()
-            .setRole(role)
-            .setUserId(user.getId())
-            .setResourceId(Long.valueOf(resource.getId()));
+              .setRole(role)
+              .setUserId(user.getId())
+              .setResourceId(Long.valueOf(resource.getId()));
           RoleMapper roleMapper = session.getMapper(RoleMapper.class);
           roleMapper.deleteUserRole(userRole);
           roleMapper.insertUserRole(userRole);
@@ -89,8 +89,8 @@ public class DefaultResourcePermissions implements ResourcePermissions, BatchExt
       SqlSession session = myBatis.openSession();
       try {
         GroupRoleDto groupRole = new GroupRoleDto()
-          .setRole(role)
-          .setResourceId(Long.valueOf(resource.getId()));
+            .setRole(role)
+            .setResourceId(Long.valueOf(resource.getId()));
         RoleMapper roleMapper = session.getMapper(RoleMapper.class);
         if (DefaultGroups.isAnyone(groupName)) {
           roleMapper.deleteGroupRole(groupRole);

@@ -76,7 +76,6 @@ public class ProjectScanContainer extends ComponentContainer {
       LinkPersister.class,
       MeasurePersister.class,
       MemoryOptimizer.class,
-      DefaultResourcePermissions.class,
       DefaultResourcePersister.class,
       SourcePersister.class,
       DefaultNotificationManager.class,
