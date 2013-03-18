@@ -77,24 +77,24 @@ class ProjectMeasure < ActiveRecord::Base
     end
 
     case metric().val_type
-    when Metric::VALUE_TYPE_INT
-      number_with_precision(value(), :precision => 0)
-    when Metric::VALUE_TYPE_FLOAT
-      number_with_precision(value(), :precision => 1)
-    when Metric::VALUE_TYPE_PERCENT
-      number_to_percentage(value(), {:precision => 1})
-    when Metric::VALUE_TYPE_MILLISEC
-      millisecs_formatted_value( value() )
-    when Metric::VALUE_TYPE_BOOLEAN
-      value() == 1 ? 'Yes' : 'No'
-    when Metric::VALUE_TYPE_LEVEL
-      text_value
-    when Metric::VALUE_TYPE_STRING
-      text_value
-    when Metric::VALUE_TYPE_RATING
-      text_value || value.to_i.to_s
-    else
-      value().to_s
+      when Metric::VALUE_TYPE_INT
+        number_with_precision(value(), :precision => 0)
+      when Metric::VALUE_TYPE_FLOAT
+        number_with_precision(value(), :precision => 1)
+      when Metric::VALUE_TYPE_PERCENT
+        number_to_percentage(value(), {:precision => 1})
+      when Metric::VALUE_TYPE_MILLISEC
+        millisecs_formatted_value( value() )
+      when Metric::VALUE_TYPE_BOOLEAN
+        value() == 1 ? 'Yes' : 'No'
+      when Metric::VALUE_TYPE_LEVEL
+        text_value
+      when Metric::VALUE_TYPE_STRING
+        text_value
+      when Metric::VALUE_TYPE_RATING
+        text_value || value.to_i.to_s
+      else
+        value().to_s
     end
   end
 
@@ -104,20 +104,20 @@ class ProjectMeasure < ActiveRecord::Base
     end
 
     case metric().val_type
-    when Metric::VALUE_TYPE_INT
-      number_with_precision(val, :precision => 0)
-    when Metric::VALUE_TYPE_FLOAT
-      number_with_precision(val, :precision => 1)
-    when Metric::VALUE_TYPE_PERCENT
+      when Metric::VALUE_TYPE_INT
+        number_with_precision(val, :precision => 0)
+      when Metric::VALUE_TYPE_FLOAT
+        number_with_precision(val, :precision => 1)
+      when Metric::VALUE_TYPE_PERCENT
         if (options[:variation]==true)
           number_with_precision(val, :precision => 1)
         else
           number_to_percentage(val, {:precision => 1})
         end
-    when Metric::VALUE_TYPE_MILLISEC
-      millisecs_formatted_value(val)
-    else
-      val.to_s
+      when Metric::VALUE_TYPE_MILLISEC
+        millisecs_formatted_value(val)
+      else
+        val.to_s
     end
   end
 
