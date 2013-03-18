@@ -82,9 +82,9 @@ public final class RegisterRules {
     disableDeprecatedRepositories(existingRules, session);
     disableDeprecatedUserRules(profiler, existingRules, session);
 
-    session.commit();
+    notifyForRemovedRules(existingRules);
 
-//    notifyForRemovedRules(existingRules);
+    session.commit();
   }
 
   private List<Rule> findAllRules(DatabaseSession session) {
@@ -272,7 +272,7 @@ public final class RegisterRules {
 
   private void notifyForRemovedRules(RulesByRepository existingRules) {
     for (Rule rule : existingRules.getRulesToRemove()) {
-      profilesManager.ruleRemoved(rule.getId());
+      profilesManager.removeActivatedRules(rule.getId());
     }
   }
 

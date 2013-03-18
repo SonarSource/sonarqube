@@ -89,10 +89,10 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void testRuleRemoved() {
+  public void testRemoveActivatedRules() {
     setupData("initialData");
-    profilesManager.ruleRemoved(1);
-    checkTables("ruleRemoved", new String[]{"change_date"}, "active_rule_changes");
+    profilesManager.removeActivatedRules(1);
+    checkTables("removeActivatedRules", new String[]{"change_date"}, "active_rule_changes", "active_rules");
   }
 
 

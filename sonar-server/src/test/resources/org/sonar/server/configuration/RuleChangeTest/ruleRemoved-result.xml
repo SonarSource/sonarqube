@@ -1,7 +1,0 @@
-<dataset>
-
-  <active_rule_changes id="1" user_name="admin" profile_id="1" profile_version="2" rule_id="1" enabled="false" old_severity="[null]" new_severity="[null]"/>
-  <active_rule_changes id="2" user_name="admin" profile_id="2" profile_version="2" rule_id="1" enabled="false" old_severity="2" new_severity="[null]"/>
-  <active_rule_changes id="3" user_name="admin" profile_id="2" profile_version="2" rule_id="1" enabled="false" old_severity="[null]" new_severity="[null]"/>
-
-</dataset>

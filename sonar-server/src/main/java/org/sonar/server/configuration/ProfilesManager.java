@@ -34,6 +34,8 @@ import org.sonar.jpa.dao.RulesDao;
 
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class ProfilesManager extends BaseDao {
 
   private RulesDao rulesDao;
@@ -51,7 +53,6 @@ public class ProfilesManager extends BaseDao {
     pb.importProfile(rulesDao, toImport);
     getSession().commit();
   }
-
 
   public void deleteAllProfiles() {
     // Remove history of rule changes
@@ -94,6 +95,30 @@ public class ProfilesManager extends BaseDao {
       getSession().commit();
     }
     return messages;
+  }
+
+  /**
+   * Deactivate all active rules from profiles using a rule, then remove then.
+   * @param ruleId
+   */
+  public void removeActivatedRules(int ruleId) {
+    Rule rule = getSession().getEntity(Rule.class, ruleId);
+    List<RulesProfile> profiles = getSession().createQuery("FROM " + RulesProfile.class.getSimpleName()).getResultList();
+    for (RulesProfile profile : profiles) {
+      List<ActiveRule> activeRulesToRemove = newArrayList();
+      for (ActiveRule activeRule : profile.getActiveRules(true)) {
+        if (activeRule.getRule().equals(rule) && !activeRule.isInherited()) {
+          incrementProfileVersionIfNeeded(profile);
+          deactivated(profile.getId(), activeRule.getId(), "System");
+          activeRulesToRemove.add(activeRule);
+        }
+      }
+      for (ActiveRule activeRule : activeRulesToRemove) {
+        ActiveRule activeRuleToRemove = getSession().getSingleResult(ActiveRule.class, "id", activeRule.getId());
+        removeActiveRule(profile, activeRuleToRemove);
+      }
+    }
+    getSession().commit();
   }
 
   /**
@@ -157,28 +182,6 @@ public class ProfilesManager extends BaseDao {
     ruleDisabled(profile, parentActiveRule, userName);
     for (RulesProfile child : getChildren(parentProfileId)) {
       deactivate(child, parentActiveRule.getRule(), userName);
-    }
-    getSession().commit();
-  }
-
-  /**
-   * Rule was removed
-   */
-  public void ruleRemoved(int ruleId) {
-    Rule rule = getSession().getEntity(Rule.class, ruleId);
-    List<RulesProfile> profiles = getSession().createQuery("FROM " + RulesProfile.class.getSimpleName()).getResultList();
-    String user = "admin";
-    for (RulesProfile profile : profiles) {
-      for (ActiveRule activeRule : profile.getActiveRules()) {
-        if (activeRule.getRule().equals(rule)) {
-          incrementProfileVersionIfNeeded(profile);
-          deactivate(profile, activeRule.getRule(), user);
-
-          ActiveRuleChange rc = new ActiveRuleChange(user, profile, rule);
-          rc.setEnabled(false);
-          getSession().saveWithoutFlush(rc);
-        }
-      }
     }
     getSession().commit();
   }
