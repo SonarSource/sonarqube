@@ -36,6 +36,7 @@ import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.dao.RulesDao;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -110,6 +111,7 @@ public class RulesBackup implements Backupable {
       }
 
       rule.setParent(matchingParentRuleInDb);
+      rule.setLanguage(matchingParentRuleInDb.getLanguage());
       Rule matchingRuleInDb = session.getSingleResult(Rule.class,
         "pluginName", rule.getRepositoryKey(),
         "key", rule.getKey());
@@ -122,9 +124,12 @@ public class RulesBackup implements Backupable {
         matchingRuleInDb.setSeverity(rule.getSeverity());
         matchingRuleInDb.setParams(rule.getParams());
         matchingRuleInDb.setStatus(Status.READY.name());
+        matchingRuleInDb.setLanguage(rule.getLanguage());
+        matchingRuleInDb.setUpdatedAt(new Date());
         session.save(matchingRuleInDb);
       } else {
         rule.setStatus(Status.READY.name());
+        rule.setCreatedAt(new Date());
         session.save(rule);
       }
     }

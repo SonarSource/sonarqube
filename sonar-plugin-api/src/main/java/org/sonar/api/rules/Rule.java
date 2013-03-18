@@ -438,8 +438,9 @@ public final class Rule {
    * For internal use only.
    * @since 3.6
    */
-  public void setLanguage(String language) {
+  public Rule setLanguage(String language) {
     this.language = language;
+    return this;
   }
 
   @Override

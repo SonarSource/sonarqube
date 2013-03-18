@@ -47,16 +47,8 @@ public class RulesBackupTest extends AbstractDbUnitTestCase {
     rulesBackup = new RulesBackup(getSession());
     sonarConfig = new SonarConfig();
 
-    rule = Rule.create("repo", "key", "name").setDescription("description");
+    rule = Rule.create("repo", "key", "name").setDescription("description").setLanguage("language");
     rule.createParameter("param").setDefaultValue("value");
-  }
-
-  private Rule createUserRule() {
-    Rule userRule = Rule.create("repo", "key2", "name2").setDescription("description2");
-    userRule.setParent(rule);
-    userRule.setSeverity(RulePriority.INFO);
-    userRule.createParameter("param").setDefaultValue("value");
-    return userRule;
   }
 
   @Test
@@ -76,20 +68,6 @@ public class RulesBackupTest extends AbstractDbUnitTestCase {
     rulesBackup.importXml(sonarConfig);
 
     verify();
-  }
-
-  private void verify() {
-    assertThat(getSession().getResults(Rule.class).size(), is(2));
-    Rule importedRule = new RulesDao(getSession()).getRuleByKey("repo", "key2");
-    assertThat(importedRule.getParent(), is(rule));
-    assertThat(importedRule.isEnabled(), is(true));
-    assertThat(importedRule.getName(), is("name2"));
-    assertThat(importedRule.getDescription(), is("description2"));
-    assertThat(importedRule.getSeverity(), is(RulePriority.INFO));
-    assertThat(importedRule.getParams().size(), is(1));
-    RuleParam param = importedRule.getParams().get(0);
-    assertThat(param.getKey(), is("param"));
-    assertThat(param.getDefaultValue(), is("value"));
   }
 
   @Test
@@ -123,5 +101,28 @@ public class RulesBackupTest extends AbstractDbUnitTestCase {
     Rule importedRule = rulesDao.getRuleByKey("repo", "key2");
     assertThat(importedRule, notNullValue());
     assertThat(rulesDao.getRuleParam(importedRule, "param"), nullValue());
+  }
+
+  private Rule createUserRule() {
+    Rule userRule = Rule.create("repo", "key2", "name2").setDescription("description2");
+    userRule.setParent(rule);
+    userRule.setSeverity(RulePriority.INFO);
+    userRule.createParameter("param").setDefaultValue("value");
+    return userRule;
+  }
+
+  private void verify() {
+    assertThat(getSession().getResults(Rule.class).size(), is(2));
+    Rule importedRule = new RulesDao(getSession()).getRuleByKey("repo", "key2");
+    assertThat(importedRule.getParent(), is(rule));
+    assertThat(importedRule.isEnabled(), is(true));
+    assertThat(importedRule.getName(), is("name2"));
+    assertThat(importedRule.getDescription(), is("description2"));
+    assertThat(importedRule.getSeverity(), is(RulePriority.INFO));
+    assertThat(importedRule.getParams().size(), is(1));
+    assertThat(importedRule.getLanguage(), is("language"));
+    RuleParam param = importedRule.getParams().get(0);
+    assertThat(param.getKey(), is("param"));
+    assertThat(param.getDefaultValue(), is("value"));
   }
 }
