@@ -44,13 +44,16 @@ import static org.mockito.Mockito.when;
 
 public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
-  private Project singleProject, multiModuleProject, moduleA, moduleB, moduleB1;
+  private Project singleProject, singleCopyProject, multiModuleProject, moduleA, moduleB, moduleB1;
 
   @Before
   public void before() throws ParseException {
     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
     singleProject = newProject("foo", "java");
     singleProject.setName("Foo").setDescription("some description").setAnalysisDate(format.parse("25/12/2010"));
+
+    singleCopyProject = newCopyProject("foo", "java", 10);
+    singleCopyProject.setName("Foo").setDescription("some description").setAnalysisDate(format.parse("25/12/2010"));
 
     multiModuleProject = newProject("root", "java");
     multiModuleProject.setName("Root").setAnalysisDate(format.parse("25/12/2010"));
@@ -75,11 +78,21 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class));
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldSaveNewProject", new String[]{"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
 
     // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
     ResourceModel model = getSession().getSingleResult(ResourceModel.class, "key", singleProject.getKey());
     assertThat(model.getCreatedAt()).isNotNull();
+  }
+
+  @Test
+  public void shouldSaveCopyProject() {
+    setupData("shared");
+
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class));
+    persister.saveProject(singleCopyProject, null);
+
+    checkTables("shouldSaveCopyProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -92,7 +105,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(moduleB, multiModuleProject);
     persister.saveProject(moduleB1, moduleB);
 
-    checkTables("shouldSaveNewMultiModulesProject", new String[]{"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewMultiModulesProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -104,7 +117,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveResource(singleProject, new JavaPackage("org.foo").setEffectiveKey("foo:org.foo"));
 
     // check that the directory is attached to the project
-    checkTables("shouldSaveNewDirectory", new String[]{"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -117,7 +130,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do nothing, already saved
     persister.saveResource(singleProject, new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"));
 
-    checkTables("shouldSaveNewLibrary", new String[]{"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewLibrary", new String[] {"build_date", "created_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -145,7 +158,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     singleProject.setDescription("new description");
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldUpdateExistingResource", new String[]{"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldUpdateExistingResource", new String[] {"build_date", "created_at"}, "projects", "snapshots");
   }
 
   // SONAR-1700
@@ -156,7 +169,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class));
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldRemoveRootIndexIfResourceIsProject", new String[]{"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldRemoveRootIndexIfResourceIsProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -189,6 +202,27 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     PropertiesConfiguration configuration = new PropertiesConfiguration();
     configuration.setProperty("sonar.language", language);
     return new Project(key).setConfiguration(configuration).setAnalysisType(Project.AnalysisType.DYNAMIC);
+  }
+
+  private static Project newCopyProject(String key, String language, int copyResourceId) {
+    PropertiesConfiguration configuration = new PropertiesConfiguration();
+    configuration.setProperty("sonar.language", language);
+    return new CopyProject(key, copyResourceId).setConfiguration(configuration).setAnalysisType(Project.AnalysisType.DYNAMIC);
+  }
+
+  private static class CopyProject extends Project implements ResourceCopy {
+
+    private int copyResourceId;
+
+    public CopyProject(String key, int copyResourceId) {
+      super(key);
+      this.copyResourceId = copyResourceId;
+    }
+
+    public int getCopyResourceId() {
+      return copyResourceId;
+    }
+
   }
 
 }

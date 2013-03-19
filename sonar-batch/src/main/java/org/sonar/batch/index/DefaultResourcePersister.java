@@ -76,6 +76,11 @@ public final class DefaultResourcePersister implements ResourcePersister {
     ResourceModel model = findOrCreateModel(project);
     model.setLanguageKey(project.getLanguageKey());// ugly, only for projects
 
+    // For views
+    if (project instanceof ResourceCopy) {
+      model.setCopyResourceId(((ResourceCopy) project).getCopyResourceId());
+    }
+
     Snapshot parentSnapshot = null;
     if (parent != null) {
       // assume that the parent project has already been saved
@@ -120,7 +125,6 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshotsByResource;
   }
 
-
   public Snapshot saveResource(Project project, Resource resource) {
     return saveResource(project, resource, null);
   }
@@ -133,7 +137,6 @@ public final class DefaultResourcePersister implements ResourcePersister {
     }
     return snapshot;
   }
-
 
   private Snapshot persist(Project project, Resource resource, Resource parent) {
     Snapshot snapshot;
@@ -150,7 +153,6 @@ public final class DefaultResourcePersister implements ResourcePersister {
 
     return snapshot;
   }
-
 
   private Snapshot persistLibrary(Project project, Library library) {
     ResourceModel model = findOrCreateModel(library);
@@ -224,7 +226,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
 
   public void clear() {
     // we keep cache of projects
-    for (Iterator<Map.Entry<Resource, Snapshot>> it = snapshotsByResource.entrySet().iterator(); it.hasNext(); ) {
+    for (Iterator<Map.Entry<Resource, Snapshot>> it = snapshotsByResource.entrySet().iterator(); it.hasNext();) {
       Map.Entry<Resource, Snapshot> entry = it.next();
       if (!ResourceUtils.isSet(entry.getKey())) {
         it.remove();
