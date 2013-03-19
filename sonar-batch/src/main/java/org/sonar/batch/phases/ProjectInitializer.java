@@ -41,7 +41,9 @@ public class ProjectInitializer implements BatchComponent {
   }
 
   public void execute(Project project) {
-    initLanguage(project);
+    if (project.getLanguage() == null) {
+      initLanguage(project);
+    }
   }
 
   private void initLanguage(Project project) {

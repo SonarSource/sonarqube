@@ -29,18 +29,16 @@ import org.sonar.jpa.dao.ProfilesDao;
 
 public class DefaultProfileLoader implements ProfileLoader {
   private ProfilesDao dao;
-  private Settings settings;
 
-  public DefaultProfileLoader(ProfilesDao dao, Settings settings) {
+  public DefaultProfileLoader(ProfilesDao dao) {
     this.dao = dao;
-    this.settings = settings;
   }
 
-  public RulesProfile load(Project project) {
+  public RulesProfile load(Project project, Settings settings) {
     String profileName = StringUtils.defaultIfBlank(
-      settings.getString("sonar.profile"),
-      settings.getString("sonar.profile." + project.getLanguageKey())
-    );
+        settings.getString("sonar.profile"),
+        settings.getString("sonar.profile." + project.getLanguageKey())
+        );
 
     if (StringUtils.isBlank(profileName)) {
       // This means that the current language is not supported by any installed plugin, otherwise at least a

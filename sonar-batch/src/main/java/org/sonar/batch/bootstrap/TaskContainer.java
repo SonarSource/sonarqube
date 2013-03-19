@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.core.resource.DefaultResourcePermissions;
-
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
@@ -32,6 +30,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.ScanTask;
 import org.sonar.batch.tasks.ListTask;
 import org.sonar.batch.tasks.Tasks;
+import org.sonar.core.resource.DefaultResourcePermissions;
 
 public class TaskContainer extends ComponentContainer {
 
@@ -48,9 +47,8 @@ public class TaskContainer extends ComponentContainer {
 
   private void installCoreTasks() {
     add(
-      ScanTask.DEFINITION, ScanTask.class,
-      ListTask.DEFINITION, ListTask.class
-    );
+        ScanTask.DEFINITION, ScanTask.class,
+        ListTask.DEFINITION, ListTask.class);
   }
 
   private void installTaskExtensions() {

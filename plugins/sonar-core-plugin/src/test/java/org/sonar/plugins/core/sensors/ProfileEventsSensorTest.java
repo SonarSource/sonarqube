@@ -29,7 +29,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,11 +37,9 @@ import java.util.Date;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -59,20 +56,23 @@ public class ProfileEventsSensorTest {
   }
 
   @Test
-  public void shouldExecute() {
-    ProfileEventsSensor sensor = new ProfileEventsSensor(null, null);
+  public void shouldExecuteWhenProfileWithId() {
+    RulesProfile profile = mock(RulesProfile.class);
+    when(profile.getId()).thenReturn(123);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, null);
 
     assertThat(sensor.shouldExecuteOnProject(project), is(true));
     verifyZeroInteractions(project);
   }
 
   @Test
-  public void shouldDoNothingIfNoProfile() {
-    ProfileEventsSensor sensor = new ProfileEventsSensor(null, null);
+  public void shouldNotExecuteIfProfileWithoutId() {
+    RulesProfile profile = mock(RulesProfile.class);
+    when(profile.getId()).thenReturn(null);
+    ProfileEventsSensor sensor = new ProfileEventsSensor(profile, null);
 
-    sensor.analyse(project, context);
-
-    verify(context, never()).createEvent(any(Resource.class), anyString(), anyString(), anyString(), any(Date.class));
+    assertThat(sensor.shouldExecuteOnProject(project), is(false));
+    verifyZeroInteractions(project);
   }
 
   @Test

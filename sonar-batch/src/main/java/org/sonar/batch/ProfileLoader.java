@@ -19,6 +19,7 @@
  */
 package org.sonar.batch;
 
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
@@ -27,6 +28,6 @@ public interface ProfileLoader {
   /**
    * Loads quality profile for specified project.
    */
-  RulesProfile load(Project project);
+  RulesProfile load(Project project, Settings settings);
 
 }

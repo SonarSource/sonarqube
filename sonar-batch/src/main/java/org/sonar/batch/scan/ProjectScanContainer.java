@@ -24,7 +24,6 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.DefaultFileLinesContextFactory;
-import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
@@ -57,40 +56,33 @@ public class ProjectScanContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     addBatchComponents();
-    addProjectComponents();
     fixMavenExecutor();
     addBatchExtensions();
   }
 
-  protected void addProjectComponents() {
-    add(DefaultProjectTree.class);
-  }
-
   private void addBatchComponents() {
     add(
-      DefaultResourceCreationLock.class,
-      DefaultPersistenceManager.class,
-      DependencyPersister.class,
-      EventPersister.class,
-      LinkPersister.class,
-      MeasurePersister.class,
-      MemoryOptimizer.class,
-      DefaultResourcePersister.class,
-      SourcePersister.class,
-      DefaultNotificationManager.class,
-      MetricProvider.class,
-      ProjectExclusions.class,
-      ProjectReactorReady.class,
-      ProjectConfigurator.class,
-      DefaultIndex.class,
-      DefaultFileLinesContextFactory.class,
-      ProjectLock.class,
-      LastSnapshots.class,
-      ScanGraph.create(),
-      TestPlanBuilder.class,
-      TestableBuilder.class,
-      ScanPerspectives.class,
-      ScanGraphStore.class);
+        DefaultResourceCreationLock.class,
+        DefaultPersistenceManager.class,
+        DependencyPersister.class,
+        EventPersister.class,
+        LinkPersister.class,
+        MeasurePersister.class,
+        MemoryOptimizer.class,
+        DefaultResourcePersister.class,
+        SourcePersister.class,
+        DefaultNotificationManager.class,
+        MetricProvider.class,
+        ProjectConfigurator.class,
+        DefaultIndex.class,
+        DefaultFileLinesContextFactory.class,
+        ProjectLock.class,
+        LastSnapshots.class,
+        ScanGraph.create(),
+        TestPlanBuilder.class,
+        TestableBuilder.class,
+        ScanPerspectives.class,
+        ScanGraphStore.class);
   }
 
   private void fixMavenExecutor() {

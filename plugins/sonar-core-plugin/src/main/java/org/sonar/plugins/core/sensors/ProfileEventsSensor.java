@@ -19,7 +19,11 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Event;
+import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.TimeMachine;
+import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -39,14 +43,11 @@ public class ProfileEventsSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    // Views will define a fake profile with a null id
+    return profile.getId() != null;
   }
 
   public void analyse(Project project, SensorContext context) {
-    if (profile == null) {
-      return;
-    }
-
     Measure pastProfileMeasure = getPreviousMeasure(project, CoreMetrics.PROFILE);
     if (pastProfileMeasure == null) {
       // first analysis

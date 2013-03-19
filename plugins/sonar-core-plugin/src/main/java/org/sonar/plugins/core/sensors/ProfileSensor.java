@@ -38,22 +38,21 @@ public class ProfileSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    // Views will define a fake profile with a null id
+    return profile.getId() != null;
   }
 
   public void analyse(Project project, SensorContext context) {
-    if (profile != null) {
-      Measure measure = new Measure(CoreMetrics.PROFILE, profile.getName());
-      Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, Integer.valueOf(profile.getVersion()).doubleValue());
-      if (profile.getId() != null) {
-        measure.setValue(profile.getId().doubleValue());
-        
-        profile.setUsed(true);
-        session.merge(profile);
-      }
-      context.saveMeasure(measure);
-      context.saveMeasure(measureVersion);
+    Measure measure = new Measure(CoreMetrics.PROFILE, profile.getName());
+    Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, Integer.valueOf(profile.getVersion()).doubleValue());
+    if (profile.getId() != null) {
+      measure.setValue(profile.getId().doubleValue());
+
+      profile.setUsed(true);
+      session.merge(profile);
     }
+    context.saveMeasure(measure);
+    context.saveMeasure(measureVersion);
   }
 
   @Override

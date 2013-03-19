@@ -19,16 +19,19 @@
  */
 package org.sonar.batch;
 
+import org.junit.Test;
+import org.sonar.api.config.Settings;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Project;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-
-import org.junit.Test;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Project;
 
 public class ProfileProviderTest {
   @Test
@@ -37,11 +40,11 @@ public class ProfileProviderTest {
     ProfileLoader loader = mock(ProfileLoader.class);
     Project project = new Project("project");
     RulesProfile profile = RulesProfile.create();
-    when(loader.load(project)).thenReturn(profile);
+    when(loader.load(eq(project), any(Settings.class))).thenReturn(profile);
 
-    assertThat(provider.provide(project, loader), is(profile));
-    assertThat(provider.provide(project, loader), is(profile));
-    verify(loader).load(project);
+    assertThat(provider.provide(project, loader, new Settings()), is(profile));
+    assertThat(provider.provide(project, loader, new Settings()), is(profile));
+    verify(loader).load(eq(project), any(Settings.class));
     verifyNoMoreInteractions(loader);
   }
 }

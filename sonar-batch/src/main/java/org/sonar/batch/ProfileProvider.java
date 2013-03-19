@@ -22,6 +22,7 @@ package org.sonar.batch;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
@@ -31,9 +32,9 @@ public class ProfileProvider extends ProviderAdapter {
 
   private RulesProfile profile;
 
-  public RulesProfile provide(Project project, ProfileLoader profileLoader) {
+  public RulesProfile provide(Project project, ProfileLoader profileLoader, Settings settings) {
     if (profile == null) {
-      profile = profileLoader.load(project);
+      profile = profileLoader.load(project, settings);
       LOG.info("Quality profile : {}", profile);
     }
     return profile;
