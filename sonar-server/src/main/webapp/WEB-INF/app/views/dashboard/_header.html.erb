@@ -22,7 +22,6 @@
             <input type="hidden" name="did" value="<%= @dashboard.id -%>"/>
             <%= dropdown_tag "period", period_select_option_tags(@snapshot, 'small'), {
                 :width => '200px',
-                :placeholder => message('time_changes') + '...'
             }, {:id => 'select-comparison', :onchange => 'submit()'} -%>
           </form>
         <% end %>

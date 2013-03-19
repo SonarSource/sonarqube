@@ -43,8 +43,8 @@ module DashboardHelper
   end
 
   def period_select_option_tags(snapshot, html_class = '')
-    options = ""
-    options = '<option selected="selected" value=""/>' unless params[:period]
+    selected=(!params[:period] || params[:period] == '0' ? 'selected' : '')
+    options = "<option #{selected} value='0' class='#{html_class}'/>#{message('time_changes')}...</option>"
     (1..5).each { |index|
       option = period_select_options(snapshot, index, html_class)
       if option
