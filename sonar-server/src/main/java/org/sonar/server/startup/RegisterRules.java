@@ -288,7 +288,7 @@ public final class RegisterRules {
     public RulesByRepository(List<Rule> rules){
       this();
       for (Rule rule :rules) {
-        add(rule);
+        ruleRepositoryList.put(rule.getRepositoryKey(), rule);
       }
     }
 
