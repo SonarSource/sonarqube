@@ -42,11 +42,23 @@ module DashboardHelper
     @snapshot.measure(metric_key)
   end
 
-  def period_select_options(snapshot, index)
+  def period_select_option_tags(snapshot, html_class = '')
+    options = ""
+    options = '<option selected="selected" value=""/>' unless params[:period]
+    (1..5).each { |index|
+      option = period_select_options(snapshot, index, html_class)
+      if option
+        options += option
+      end
+    }
+    options
+  end
+
+  def period_select_options(snapshot, index, html_class = '')
     label=snapshot.period_label(index)
     if label
       selected=(params[:period]==index.to_s ? 'selected' : '')
-      "<option value='#{index}' #{selected}>&Delta; #{label}</option>"
+      "<option value='#{index}' #{selected} class='#{html_class}'>&Delta; #{label}</option>"
     else
       nil
     end
