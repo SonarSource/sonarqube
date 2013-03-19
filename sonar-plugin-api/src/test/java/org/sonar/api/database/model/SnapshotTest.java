@@ -24,10 +24,12 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class SnapshotTest {
-
 
   @Test
   public void testGetDate() {
@@ -86,24 +88,4 @@ public class SnapshotTest {
     assertThat(snapshot.getRootProjectId(), is(3));
   }
 
-  @Test
-  public void testRootProjectIdOfViews() {
-    ResourceModel view = new ResourceModel();
-    view.setId(3);
-    view.setQualifier("VW");
-    Snapshot viewSnapshot = new Snapshot(view, null);
-
-    ResourceModel subview = new ResourceModel();
-    subview.setId(4);
-    subview.setQualifier("SVW");
-    Snapshot subviewSnapshot = new Snapshot(subview, viewSnapshot);
-    assertThat(subviewSnapshot.getRootProjectId(), is(4));
-
-    ResourceModel project = new ResourceModel();
-    project.setId(5);
-    project.setQualifier("TRK");
-    project.setCopyResourceId(66);
-    Snapshot projectSnapshot = new Snapshot(project, subviewSnapshot);
-    assertThat(projectSnapshot.getRootProjectId(), is(66));
-  }
 }

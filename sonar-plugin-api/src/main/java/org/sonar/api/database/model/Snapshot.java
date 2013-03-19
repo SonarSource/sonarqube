@@ -26,7 +26,11 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.database.DatabaseSession;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import java.util.Date;
 
@@ -156,24 +160,18 @@ public class Snapshot extends BaseIdentifiable {
       this.createdAt = parent.getCreatedAt();
       this.depth = parent.getDepth() + 1;
       this.path = new StringBuilder()
-        .append(parent.getPath())
-        .append(parent.getId())
-        .append(".")
-        .toString();
+          .append(parent.getPath())
+          .append(parent.getId())
+          .append(".")
+          .toString();
     }
     this.rootProjectId = guessRootProjectId(resource, parent);
   }
 
   private static Integer guessRootProjectId(ResourceModel resource, Snapshot parent) {
     Integer result;
-
-    // design problem : constants are defined in the Resource class, that should not be used by this class...
-    if ("TRK".equals(resource.getQualifier()) || "VW".equals(resource.getQualifier()) || "SVW".equals(resource.getQualifier())) {
-      result = resource.getCopyResourceId() != null ? resource.getCopyResourceId() : resource.getId();
-
-    } else if (parent == null) {
-      result = resource.getCopyResourceId() != null ? resource.getCopyResourceId() : resource.getId();
-
+    if (parent == null) {
+      result = resource.getId();
     } else {
       result = (parent.getRootProjectId() == null ? parent.getResourceId() : parent.getRootProjectId());
     }
@@ -703,17 +701,17 @@ public class Snapshot extends BaseIdentifiable {
     }
     Snapshot other = (Snapshot) obj;
     return new EqualsBuilder()
-      .append(resourceId, other.getResourceId())
-      .append(createdAt, other.getCreatedAt())
-      .isEquals();
+        .append(resourceId, other.getResourceId())
+        .append(createdAt, other.getCreatedAt())
+        .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-      .append(resourceId)
-      .append(createdAt)
-      .toHashCode();
+        .append(resourceId)
+        .append(createdAt)
+        .toHashCode();
   }
 
   @Override
