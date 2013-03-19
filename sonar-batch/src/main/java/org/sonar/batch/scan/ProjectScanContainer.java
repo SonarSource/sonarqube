@@ -46,7 +46,6 @@ import org.sonar.core.component.ScanGraph;
 import org.sonar.core.component.ScanGraphStore;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestableBuilder;
 
