@@ -536,6 +536,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setDeleteHistoricalData(true)
+      .setHidden(true)
       .create();
 
   public static final String UNCOVERED_CONDITIONS_KEY = "uncovered_conditions";
@@ -809,6 +810,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_INTEGRATION_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setDeleteHistoricalData(true)
+      .setHidden(true)
       .create();
 
   /**
@@ -1092,6 +1094,7 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_OVERALL_TESTS)
       .setFormula(new SumChildValuesFormula(false))
       .setDeleteHistoricalData(true)
+      .setHidden(true)
       .create();
 
   /**
@@ -1502,6 +1505,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
       .create();
 
   public static final String INSTABILITY_KEY = "instability";
@@ -1510,6 +1514,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
       .create();
 
   public static final String DISTANCE_KEY = "distance";
@@ -1518,6 +1523,7 @@ public final class CoreMetrics {
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
       .create();
 
   public static final String DEPTH_IN_TREE_KEY = "dit";
