@@ -105,7 +105,7 @@ class ResourceController < ApplicationController
 
     assignee=nil
     if params[:assignee_login].present?
-      assignee = User.find(:first, :conditions => ["login = ?", params[:assignee_login]])
+      assignee = User.first(:conditions => ["login = ?", params[:assignee_login]])
       bad_request(message('code_viewer.create_violation.bad_assignee')) unless assignee
     end
     violation = nil
