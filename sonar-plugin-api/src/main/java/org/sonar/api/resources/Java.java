@@ -90,9 +90,4 @@ public class Java extends AbstractLanguage {
     return !(getKey() != null ? !getKey().equals(language.getKey()) : language.getKey() != null);
   }
 
-  @Override
-  public int hashCode() {
-    return super.hashCode();
-  }
-
 }
