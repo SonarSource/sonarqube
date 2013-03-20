@@ -38,7 +38,11 @@ module MeasuresHelper
     if column.metric
       measure = row.measure(column.metric)
       if column.period
-        format_variation(measure, :index => column.period, :style => 'light', :variation => false)
+        if measure && measure.metric.on_new_code?
+          format_new_metric_measure(measure, column.period)
+        else
+          format_variation(measure, :index => column.period, :style => 'light')
+        end
       elsif column.metric.numeric?
         format_measure(measure) + ' ' + trend_icon(measure, :empty => true)
       else
@@ -95,6 +99,42 @@ module MeasuresHelper
 
   def period_labels
     [Api::Utils.period_label(1), Api::Utils.period_label(2), Api::Utils.period_label(3)]
+  end
+
+
+  private
+
+  #
+  # This method is a inspired by ApplicationHelper#format_variation for measure where metrics key begin with 'new_'
+  # It will display measure in color, without operand (+/-), and prefix with a %.
+  #
+  def format_new_metric_measure(metric_or_measure, index)
+    if metric_or_measure.is_a?(ProjectMeasure)
+      m = metric_or_measure
+    elsif @snapshot
+      m = @snapshot.measure(metric_or_measure)
+    end
+    html=nil
+    if m
+      val=variation_value(m, :index => index)
+      if val
+        formatted_val= m.format_numeric_value(val, :variation => false)
+        css_class='var'
+        if m.metric.qualitative?
+          factor=m.metric.direction * val
+          if factor>0
+            # better
+            css_class='varb'
+          elsif factor<0
+            # worst
+            css_class='varw'
+          end
+        end
+
+        html="<span class='#{css_class}'>#{formatted_val}</span>"
+      end
+    end
+    html
   end
 
 end

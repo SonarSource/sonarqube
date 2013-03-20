@@ -427,7 +427,6 @@ module ApplicationHelper
     end
   end
 
-
   #
   #
   # Format variation value
@@ -436,7 +435,6 @@ module ApplicationHelper
   # * color: true|false. Default is true.
   # * period: integer between 1 and 5. By default the index is defined by the dashboard variation select-box
   # * style: light|normal|none. Default is normal (parenthesis + bold)
-  # * variation: true|false. Default is true.
   #
   # === Examples
   # format_variation('ncloc')
@@ -456,8 +454,7 @@ module ApplicationHelper
           return m.format_numeric_value(val)
         end
 
-        variation = !options[:variation].nil? ? options[:variation] : true
-        formatted_val= m.format_numeric_value(val, :variation => variation)
+        formatted_val= m.format_numeric_value(val, :variation => true)
         css_class=''
         if options[:color]||true
           css_class='var'
@@ -472,6 +469,7 @@ module ApplicationHelper
             end
           end
         end
+
         if options[:style]!='light'
           formatted_val=(val>=0 ? "+" : "") + formatted_val
           formatted_val="<b>(#{formatted_val})</b>"
