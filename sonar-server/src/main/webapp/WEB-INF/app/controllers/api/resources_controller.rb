@@ -192,7 +192,7 @@ class Api::ResourcesController < Api::ApiController
           measures_by_sid[measure.snapshot_id]<<measure
         end
 
-        if measures_limit
+        if measures_limit && !measures.empty?
           snapshots_conditions << 'snapshots.id IN (:sids)'
           # Derby does not support empty lists, that's why a fake value is set
           snapshots_values[:sids] = (measures_by_sid.empty? ? [-1] : measures_by_sid.keys)
