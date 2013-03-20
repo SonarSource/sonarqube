@@ -74,11 +74,12 @@
                  <td><%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class=>'external' -%></td>
              </tr>
            <% end %>
-
-           <% if plugin.getHomepageUrl() %>
+           <% if !plugin.getHomepageUrl().blank? || !plugin.getIssueTrackerUrl().blank? %>
              <tr>
-            <td colspan="2">
-                 <%= link_to 'Homepage', plugin.getHomepageUrl(), :class => 'external' -%>
+               <td class="thin nowrap"><b>Links:</b> </td>
+               <td>
+                 <%= link_to 'Homepage', plugin.getHomepageUrl(), :class=>'external' unless plugin.getHomepageUrl().blank? -%>
+                 <%= link_to 'Issue Tracker', plugin.getIssueTrackerUrl(), :class=>'external' unless plugin.getIssueTrackerUrl().blank? -%>
                </td>
              </tr>
            <% end %>

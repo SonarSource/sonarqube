@@ -80,12 +80,12 @@ function installPlugin(key) {
                 <td class="thin nowrap"><b>Author:</b> </td><td><%= link_to_if plugin.getOrganizationUrl(), plugin.getOrganization(), plugin.getOrganizationUrl(), :class=>'external'  %></td>
               </tr>
             <% end %>
-            <% if plugin.getHomepageUrl() || plugin.getIssueTrackerUrl() %>
+            <% if !plugin.getHomepageUrl().blank? || !plugin.getIssueTrackerUrl().blank? %>
             <tr>
               <td class="thin nowrap"><b>Links:</b> </td>
               <td>
-                <%= link_to 'Homepage', plugin.getHomepageUrl(), :class=>'external' if plugin.getHomepageUrl() -%>
-                <%= link_to "Issue Tracker", plugin.getIssueTrackerUrl(), :class=>'external' if plugin.getIssueTrackerUrl() -%>
+                <%= link_to 'Homepage', plugin.getHomepageUrl(), :class=>'external' unless plugin.getHomepageUrl().blank? -%>
+                <%= link_to 'Issue Tracker', plugin.getIssueTrackerUrl(), :class=>'external' unless plugin.getIssueTrackerUrl().blank? -%>
               </td>
             </tr>
             <% end %>

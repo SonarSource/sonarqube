@@ -47,6 +47,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   private String organizationUrl;
   private String license;
   private String homepage;
+  private String issueTrackerUrl;
   private boolean useChildFirstClassLoader;
   private String basePlugin;
   private boolean core;
@@ -230,6 +231,15 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
 
   public DefaultPluginMetadata setHomepage(String homepage) {
     this.homepage = homepage;
+    return this;
+  }
+
+  public String getIssueTrackerUrl() {
+    return issueTrackerUrl;
+  }
+
+  public DefaultPluginMetadata setIssueTrackerUrl(String issueTrackerUrl) {
+    this.issueTrackerUrl = issueTrackerUrl;
     return this;
   }
 

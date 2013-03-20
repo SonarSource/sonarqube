@@ -40,6 +40,7 @@ public class DefaultPluginMetadataTest {
         .setLicense("LGPL")
         .setDescription("description")
         .setHomepage("http://home")
+        .setIssueTrackerUrl("http://jira.codehuas.org")
         .setMainClass("org.Main")
         .setOrganization("SonarSource")
         .setOrganizationUrl("http://sonarsource.org")
@@ -54,6 +55,7 @@ public class DefaultPluginMetadataTest {
     assertThat(metadata.getLicense()).isEqualTo("LGPL");
     assertThat(metadata.getDescription()).isEqualTo("description");
     assertThat(metadata.getHomepage()).isEqualTo("http://home");
+    assertThat(metadata.getIssueTrackerUrl()).isEqualTo("http://jira.codehuas.org");
     assertThat(metadata.getMainClass()).isEqualTo("org.Main");
     assertThat(metadata.getOrganization()).isEqualTo("SonarSource");
     assertThat(metadata.getOrganizationUrl()).isEqualTo("http://sonarsource.org");

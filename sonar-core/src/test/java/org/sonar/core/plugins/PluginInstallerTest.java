@@ -37,7 +37,7 @@ public class PluginInstallerTest {
   public static TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Test
-  public void shouldExtractMetadata() {
+  public void should_extract_metadata() {
     DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-cobertura-plugin-3.1.1.jar"), true);
 
     assertThat(metadata.getKey()).isEqualTo("cobertura");
@@ -47,6 +47,8 @@ public class PluginInstallerTest {
     assertThat(metadata.getFile().getName()).isEqualTo("sonar-cobertura-plugin-3.1.1.jar");
     assertThat(metadata.getVersion()).isEqualTo("3.1.1");
     assertThat(metadata.getImplementationBuild()).isEqualTo("b9283404030db9ce1529b1fadfb98331686b116d");
+    assertThat(metadata.getHomepage()).isEqualTo("http://www.sonarsource.org/plugins/sonar-cobertura-plugin");
+    assertThat(metadata.getIssueTrackerUrl()).isEqualTo("http://jira.codehaus.org/browse/SONAR");
   }
 
   @Test
@@ -58,7 +60,7 @@ public class PluginInstallerTest {
   }
 
   @Test
-  public void shouldExtractExtensionMetadata() {
+  public void should_extract_extension_metadata() {
     DefaultPluginMetadata metadata = extractor.extractMetadata(getFile("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"), true);
 
     assertThat(metadata.getKey()).isEqualTo("checkstyleextensions");
@@ -66,7 +68,7 @@ public class PluginInstallerTest {
   }
 
   @Test
-  public void shouldCopyAndExtractDependencies() throws IOException {
+  public void should_copy_and_extract_dependencies() throws IOException {
     File toDir = temporaryFolder.newFolder();
 
     DefaultPluginMetadata metadata = extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, null, toDir);
@@ -77,7 +79,7 @@ public class PluginInstallerTest {
   }
 
   @Test
-  public void shouldExtractOnlyDependencies() throws IOException {
+  public void should_extract_only_dependencies() throws IOException {
     File toDir = temporaryFolder.newFolder();
 
     extractor.install(getFile("sonar-checkstyle-plugin-2.8.jar"), true, null, toDir);
@@ -88,7 +90,7 @@ public class PluginInstallerTest {
   }
 
   @Test
-  public void shouldCopyRuleExtensionsOnServerSide() throws IOException {
+  public void should_copy_rule_extensions_on_server_side() throws IOException {
     File toDir = temporaryFolder.newFolder();
 
     DefaultPluginMetadata metadata = DefaultPluginMetadata.create(getFile("sonar-checkstyle-plugin-2.8.jar"))

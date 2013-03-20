@@ -61,6 +61,7 @@ public class PluginReferentialMetadataConverter {
     pluginManifest.setOrganizationUrl(metadata.getOrganizationUrl());
     pluginManifest.setLicense(metadata.getLicense());
     pluginManifest.setHomepage(metadata.getHomepage());
+    pluginManifest.setIssueTrackerUrl(metadata.getIssueTrackerUrl());
     pluginManifest.setBasePlugin(metadata.getBasePlugin());
     pluginManifest.setParent(metadata.getParent());
     pluginManifest.setRequirePlugins(metadata.getRequiredPlugins().toArray(new String []{}));
