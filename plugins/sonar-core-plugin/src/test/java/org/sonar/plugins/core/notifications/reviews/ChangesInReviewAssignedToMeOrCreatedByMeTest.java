@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.core.notifications.reviews;
 
-import org.sonar.plugins.core.notifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.junit.Before;
@@ -55,14 +53,14 @@ public class ChangesInReviewAssignedToMeOrCreatedByMeTest {
   private ChangesInReviewAssignedToMeOrCreatedByMe dispatcher;
 
   @Before
-  public void setUp() {
+  public void before() {
     MockitoAnnotations.initMocks(this);
 
     dispatcher = new ChangesInReviewAssignedToMeOrCreatedByMe(notificationManager);
   }
 
   @Test
-  public void shouldNotDispatchIfNotNewViolationsNotification() throws Exception {
+  public void should_not_dispatch_if_not_new_violations_notification() throws Exception {
     Notification notification = new Notification("other-notif");
     dispatcher.performDispatch(notification, context);
 
@@ -70,7 +68,7 @@ public class ChangesInReviewAssignedToMeOrCreatedByMeTest {
   }
 
   @Test
-  public void dispatchToCreatorAndAssignee() {
+  public void should_dispatch_to_creator_and_assignee() {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
@@ -92,7 +90,7 @@ public class ChangesInReviewAssignedToMeOrCreatedByMeTest {
   }
 
   @Test
-  public void doNotDispatchToAuthorOfChanges() {
+  public void should_not_dispatch_to_author_of_changes() {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
@@ -110,7 +108,7 @@ public class ChangesInReviewAssignedToMeOrCreatedByMeTest {
   }
 
   @Test
-  public void shouldNotDispatch() {
+  public void should_not_dispatch_when_other_notification_type() {
     Notification notification = new Notification("other");
     dispatcher.performDispatch(notification, context);
 

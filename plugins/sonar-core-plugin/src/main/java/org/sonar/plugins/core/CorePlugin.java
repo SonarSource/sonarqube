@@ -44,6 +44,7 @@ import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
 import org.sonar.plugins.core.notifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
+import org.sonar.plugins.core.notifications.reviews.NewFalsePositiveReview;
 import org.sonar.plugins.core.notifications.violations.NewViolationsOnFirstDifferentialPeriod;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
@@ -525,6 +526,12 @@ public final class CorePlugin extends SonarPlugin {
         ChangesInReviewAssignedToMeOrCreatedByMe.class,
         NotificationDispatcherMetadata.create("ChangesInReviewAssignedToMeOrCreatedByMe")
             .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
-            .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)));
+            .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)),
+        // Notify new false positive resolution
+        NewFalsePositiveReview.class,
+        NotificationDispatcherMetadata.create("NewFalsePositiveReview")
+            .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+            .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true))
+    );
   }
 }

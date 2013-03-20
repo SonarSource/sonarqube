@@ -17,7 +17,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.notifications.alerts;
+
+package org.sonar.plugins.core.notifications.reviews;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class NewAlertsTest {
+public class NewFalsePositiveReviewTest {
 
   @Mock
   private NotificationManager notificationManager;
@@ -50,16 +51,17 @@ public class NewAlertsTest {
   @Mock
   private NotificationChannel twitterChannel;
 
-  private NewAlerts dispatcher;
+  private NotificationDispatcher dispatcher;
 
   @Before
-  public void init() {
+  public void before() {
     MockitoAnnotations.initMocks(this);
-    dispatcher = new NewAlerts(notificationManager);
+
+    dispatcher = new NewFalsePositiveReview(notificationManager);
   }
 
   @Test
-  public void should_not_dispatch_if_not_alerts_notification() throws Exception {
+  public void should_not_dispatch_if_not_reviews_notification() throws Exception {
     Notification notification = new Notification("other-notif");
     dispatcher.performDispatch(notification, context);
 
@@ -67,18 +69,52 @@ public class NewAlertsTest {
   }
 
   @Test
-  public void should_dispatch_to_users_who_have_subscribed() {
+  public void should_dispatch_false_positive_resolution_to_every_subscribers() {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, 34)).thenReturn(recipients);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, 42)).thenReturn(recipients);
 
-    Notification notification = new Notification("alerts").setFieldValue("projectId", "34");
-    dispatcher.performDispatch(notification, context);
+    dispatcher.performDispatch(new Notification("review-changed")
+        .setFieldValue("projectId", "42")
+        .setFieldValue("author", "user3")
+        .setFieldValue("new.resolution", "FALSE-POSITIVE"),
+        context);
 
     verify(context).addUser("user1", emailChannel);
     verify(context).addUser("user2", twitterChannel);
     verifyNoMoreInteractions(context);
   }
 
+  @Test
+  public void should_not_dispatch_to_author_of_changes() {
+    Multimap<String, NotificationChannel> recipients = HashMultimap.create();
+    recipients.put("user1", emailChannel);
+    recipients.put("user2", twitterChannel);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, 42)).thenReturn(recipients);
+
+    dispatcher.performDispatch(new Notification("review-changed")
+        .setFieldValue("projectId", "42")
+        .setFieldValue("author", "user1")
+        .setFieldValue("new.resolution", "FALSE-POSITIVE"),
+        context);
+
+    verify(context).addUser("user2", twitterChannel);
+    verify(context, never()).addUser("user1", emailChannel);
+    verifyNoMoreInteractions(context);
+  }
+
+  @Test
+  public void should_not_dispatch_other_than_false_positive_resolution() {
+    Multimap<String, NotificationChannel> recipients = HashMultimap.create();
+    recipients.put("user", emailChannel);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, 42)).thenReturn(recipients);
+
+    dispatcher.performDispatch(new Notification("review-changed")
+        .setFieldValue("projectId", "42")
+        .setFieldValue("author", "user2")
+        .setFieldValue("new.assignee", "user"), context);
+
+    verify(context, never()).addUser(any(String.class), any(NotificationChannel.class));
+  }
 }
