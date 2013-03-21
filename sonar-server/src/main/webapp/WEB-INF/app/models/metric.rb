@@ -38,6 +38,7 @@ class Metric < ActiveRecord::Base
 
   ORIGIN_GUI='GUI'
   ORIGIN_JAVA='JAV'
+  ORIGIN_WS='WS'
 
   CACHE_KEY='metrics'
   I18N_DOMAIN_CACHE_KEY='i18n_domains'

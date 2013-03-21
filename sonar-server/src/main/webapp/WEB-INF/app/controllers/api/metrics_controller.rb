@@ -55,7 +55,8 @@ class Api::MetricsController < Api::RestController
 
     begin
       metric.attributes = params.merge({:name => params[:id], :short_name => params[:name], :enabled => true})
-      metric.origin = 'WS'
+      metric.origin = Metric::ORIGIN_WS
+      metric.user_managed = true
       metric.save!
       Metric.clear_cache
       rest_status_ok
@@ -65,7 +66,7 @@ class Api::MetricsController < Api::RestController
   end
 
   def update
-    metric = Metric.first(:conditions => ['(name=? OR id=?) AND enabled=? AND origin<>?', params[:id], params[:id].to_i, true, Metric::ORIGIN_JAVA])
+    metric = Metric.first(:conditions => ['(name=? OR id=?) AND enabled=? AND user_managed=?', params[:id], params[:id].to_i, true, true])
     if metric
       begin
         metric.attributes = params.merge({:name => params[:id], :short_name => params[:name], :enabled => true})
@@ -81,7 +82,7 @@ class Api::MetricsController < Api::RestController
   end
 
   def destroy
-    metric = Metric.first(:conditions => ['(name=? OR id=?) AND enabled=? AND origin<>?', params[:id], params[:id].to_i, true, Metric::ORIGIN_JAVA])
+    metric = Metric.first(:conditions => ['(name=? OR id=?) AND enabled=? AND user_managed=?', params[:id], params[:id].to_i, true, true])
     if !metric
       rest_status_ko('Unable to delete : Metric [' + params[:id] + '] does not exist', 404)
     else
