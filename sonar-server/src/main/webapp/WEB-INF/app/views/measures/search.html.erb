@@ -47,18 +47,18 @@
             <% if @filter.id && @filter.name.present? %>
               <p>
                 <span class="h3"><%= h @filter.name -%></span>
-              <span class="note">
-                <% if !@filter.shared %>
-                  [<%= message 'measure_filter.private' -%>]
-                <% elsif logged_in? && @filter.user_id==current_user.id %>
-                  [<%= message 'measure_filter.shared_with_all_users' -%>]
-                <% elsif @filter.user_id %>
-                  [<%= message 'shared_by' -%> <%= @filter.user.name -%>]
-                <% else %>
-                  [<%= message 'shared_by' -%> Sonar]
-                <% end %>
-              </span>
-                <% if @filter.owner?(current_user) %>
+                <span class="note">
+                  <% if !@filter.shared %>
+                    [<%= message 'measure_filter.private' -%>]
+                  <% elsif logged_in? && @filter.user_id==current_user.id %>
+                    [<%= message 'measure_filter.shared_with_all_users' -%>]
+                  <% elsif @filter.user_id %>
+                    [<%= message 'shared_by' -%> <%= @filter.user.name -%>]
+                  <% else %>
+                    [<%= message 'shared_by' -%> Sonar]
+                  <% end %>
+                </span>
+                <% if @filter.owner?(current_user) && !edit_mode %>
                   &nbsp;<a href="<%= url_for :action => 'edit_form', :id => @filter.id -%>" class="open-modal" id="edit-filter"><%= image_tag 'pencil-small.png', :alt => message('edit') -%></a>
                 <% end %>
               </p>
