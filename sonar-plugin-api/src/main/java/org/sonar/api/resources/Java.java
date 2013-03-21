@@ -82,7 +82,7 @@ public class Java extends AbstractLanguage {
       return true;
     }
     // We replace the test equality on classes by test on Language instance in order to keep backward compatibility between this deprecated class and the new one in sonar-java
-    if (o == null || !(o instanceof Language)) {
+    if (!(o instanceof Language)) {
       return false;
     }
 
