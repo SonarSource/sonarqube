@@ -28,7 +28,7 @@ class DashboardsController < ApplicationController
     @global = !params[:resource]
 
     @actives=ActiveDashboard.user_dashboards(current_user, @global)
-    @shared_dashboards=Dashboard.find(:all, :conditions => ['(shared=? or user_id=?) and is_global=?', true, current_user.id, @global])
+    @shared_dashboards=Dashboard.all(:conditions => ['(shared=? or user_id=?) and is_global=?', true, current_user.id, @global])
     active_ids=@actives.map(&:dashboard_id)
     @shared_dashboards.reject! { |d| active_ids.include?(d.id) }
     @shared_dashboards=Api::Utils.insensitive_sort(@shared_dashboards, &:name)
@@ -83,11 +83,7 @@ class DashboardsController < ApplicationController
     if dashboard.editable_by?(current_user)
       load_dashboard_from_params(dashboard)
 
-      if dashboard.save
-        unless dashboard.shared?
-          ActiveDashboard.destroy_all(:dashboard_id => dashboard.id)
-        end
-      else
+      unless dashboard.save
         flash[:error]=dashboard.errors.full_messages.join('<br/>')
       end
     end
