@@ -44,7 +44,7 @@ class Api::MetricsController < Api::RestController
   end
 
   def create
-    metric_test = Metric.find(:first, :conditions => ['name=? OR id=?', params[:id], params[:id].to_i])
+    metric_test = Metric.first(:conditions => ['name=? OR id=?', params[:id], params[:id].to_i])
 
     exist_and_is_disable = !metric_test.nil? && !metric_test.enabled?
     if exist_and_is_disable
@@ -65,7 +65,7 @@ class Api::MetricsController < Api::RestController
   end
 
   def update
-    metric = Metric.find(:first, :conditions => ['(name=? OR id=?) AND enabled=? AND origin<>?', params[:id], params[:id].to_i, true, Metric::ORIGIN_JAVA])
+    metric = Metric.first(:conditions => ['(name=? OR id=?) AND enabled=? AND origin<>?', params[:id], params[:id].to_i, true, Metric::ORIGIN_JAVA])
     if metric
       begin
         metric.attributes = params.merge({:name => params[:id], :short_name => params[:name], :enabled => true})
@@ -81,7 +81,7 @@ class Api::MetricsController < Api::RestController
   end
 
   def destroy
-    metric = Metric.find(:first, :conditions => ['(name=? OR id=?) AND enabled=? AND origin<>?', params[:id], params[:id].to_i, true, Metric::ORIGIN_JAVA])
+    metric = Metric.first(:conditions => ['(name=? OR id=?) AND enabled=? AND origin<>?', params[:id], params[:id].to_i, true, Metric::ORIGIN_JAVA])
     if !metric
       rest_status_ko('Unable to delete : Metric [' + params[:id] + '] does not exist', 404)
     else

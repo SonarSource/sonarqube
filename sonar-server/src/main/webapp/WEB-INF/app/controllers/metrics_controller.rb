@@ -42,7 +42,7 @@ class MetricsController < ApplicationController
     if params[:id]
       metric = Metric.find(params[:id].to_i)
     else
-      metric = Metric.find(:first, :conditions => ["name = ?", metric_name])
+      metric = Metric.first(:conditions => ["name = ?", metric_name])
       if metric
         @reactivate_metric = metric
       else
