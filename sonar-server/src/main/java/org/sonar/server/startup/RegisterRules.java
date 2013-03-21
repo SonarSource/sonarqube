@@ -82,9 +82,9 @@ public final class RegisterRules {
     disableDeprecatedRepositories(existingRules, session);
     disableDeprecatedUserRules(profiler, existingRules, session);
 
-    notifyForRemovedRules(existingRules);
-
     session.commit();
+
+    notifyForRemovedRules(existingRules);
   }
 
   private List<Rule> findAllRules(DatabaseSession session) {

@@ -50,8 +50,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RegisterRulesTest extends AbstractDbUnitTestCase {
@@ -96,6 +98,14 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
       assertThat(rule.isEnabled(), is(false));
       assertThat(rule.getUpdatedAt(), notNullValue());
     }
+  }
+
+  @Test
+  public void should_notify_for_removed_rules() {
+    setupData("shared");
+    task.start();
+
+    verify(profilesManager).removeActivatedRules(anyInt());
   }
 
   @Test

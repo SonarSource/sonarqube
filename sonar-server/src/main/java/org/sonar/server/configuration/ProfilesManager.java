@@ -102,6 +102,7 @@ public class ProfilesManager extends BaseDao {
    * @param ruleId
    */
   public void removeActivatedRules(int ruleId) {
+    String user = "System";
     Rule rule = getSession().getEntity(Rule.class, ruleId);
     List<RulesProfile> profiles = getSession().createQuery("FROM " + RulesProfile.class.getSimpleName()).getResultList();
     for (RulesProfile profile : profiles) {
@@ -109,7 +110,10 @@ public class ProfilesManager extends BaseDao {
       for (ActiveRule activeRule : profile.getActiveRules(true)) {
         if (activeRule.getRule().equals(rule) && !activeRule.isInherited()) {
           incrementProfileVersionIfNeeded(profile);
-          deactivated(profile.getId(), activeRule.getId(), "System");
+          ruleDisabled(profile, activeRule, user);
+          for (RulesProfile child : getChildren(profile.getId())) {
+            deactivate(child, activeRule.getRule(), user);
+          }
           activeRulesToRemove.add(activeRule);
         }
       }
