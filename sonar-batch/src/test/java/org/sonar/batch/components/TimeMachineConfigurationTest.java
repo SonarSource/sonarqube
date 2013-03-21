@@ -22,13 +22,10 @@ package org.sonar.batch.components;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -38,24 +35,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldSkipTendencies() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty(CoreProperties.SKIP_TENDENCIES_PROPERTY, true);
-    assertThat(
-        new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, mock(PastSnapshotFinder.class)).skipTendencies(),
-        is(true));
-  }
-
-  @Test
-  public void shouldNotSkipTendenciesByDefault() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    assertThat(
-        new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, mock(PastSnapshotFinder.class)).skipTendencies(),
-        is(false));
-  }
-
-  @Test
-  public void shouldInitPastSnapshots() {
+  public void should_init_past_snapshots() {
     setupData("shared");
     PropertiesConfiguration conf = new PropertiesConfiguration();
     PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);
@@ -71,7 +51,7 @@ public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldNotInitPastSnapshotsIfFirstAnalysis() {
+  public void should_not_init_past_snapshots_if_first_analysis() {
     setupData("shared");
     PropertiesConfiguration conf = new PropertiesConfiguration();
     PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);

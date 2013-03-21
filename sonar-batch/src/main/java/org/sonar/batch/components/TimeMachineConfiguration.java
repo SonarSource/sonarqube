@@ -24,7 +24,6 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
@@ -39,6 +38,7 @@ import java.util.List;
 public class TimeMachineConfiguration implements BatchExtension {
 
   private static final int NUMBER_OF_VARIATION_SNAPSHOTS = 5;
+  private static final int CORE_TENDENCY_DEPTH_DEFAULT_VALUE = 30;
 
   private Project project;
   private final Configuration configuration;
@@ -97,12 +97,8 @@ public class TimeMachineConfiguration implements BatchExtension {
     }
   }
 
-  public boolean skipTendencies() {
-    return configuration.getBoolean(CoreProperties.SKIP_TENDENCIES_PROPERTY, CoreProperties.SKIP_TENDENCIES_DEFAULT_VALUE);
-  }
-
   public int getTendencyPeriodInDays() {
-    return configuration.getInt(CoreProperties.CORE_TENDENCY_DEPTH_PROPERTY, CoreProperties.CORE_TENDENCY_DEPTH_DEFAULT_VALUE);
+    return CORE_TENDENCY_DEPTH_DEFAULT_VALUE;
   }
 
   public List<PastSnapshot> getProjectPastSnapshots() {

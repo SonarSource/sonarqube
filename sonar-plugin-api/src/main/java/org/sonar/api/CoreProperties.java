@@ -134,8 +134,6 @@ public interface CoreProperties {
   String CORE_SKIPPED_MODULES_PROPERTY = "sonar.skippedModules";
   String CORE_RULE_WEIGHTS_PROPERTY = "sonar.core.rule.weight";
   String CORE_RULE_WEIGHTS_DEFAULT_VALUE = "INFO=0;MINOR=1;MAJOR=3;CRITICAL=5;BLOCKER=10";
-  String CORE_TENDENCY_DEPTH_PROPERTY = "tendency.depth";
-  int CORE_TENDENCY_DEPTH_DEFAULT_VALUE = 30;
   String CORE_FORCE_AUTHENTICATION_PROPERTY = "sonar.forceAuthentication";
   boolean CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE = false;
   String CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY = "sonar.allowUsersToSignUp";
@@ -148,8 +146,6 @@ public interface CoreProperties {
   String SERVER_VERSION = "sonar.core.version";
   String SERVER_ID = "sonar.core.id";
   String SERVER_STARTTIME = "sonar.core.startTime"; // format is yyyy-MM-dd'T'HH:mm:ssZ
-  String SKIP_TENDENCIES_PROPERTY = "sonar.skipTendencies";
-  boolean SKIP_TENDENCIES_DEFAULT_VALUE = false;
   String BATCH_INCLUDE_PLUGINS = "sonar.includePlugins";
   String BATCH_EXCLUDE_PLUGINS = "sonar.excludePlugins";
 
