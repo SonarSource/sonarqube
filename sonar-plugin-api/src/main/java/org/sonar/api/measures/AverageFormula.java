@@ -36,6 +36,7 @@ public class AverageFormula implements Formula {
 
   private Metric mainMetric;
   private Metric byMetric;
+  private Metric fallbackMetric;
 
   /**
    * This method should be private but it kep package-protected because of AverageComplexityFormula.
@@ -53,6 +54,16 @@ public class AverageFormula implements Formula {
    */
   public static AverageFormula create(Metric main, Metric by) {
     return new AverageFormula(main, by);
+  }
+
+  /**
+   * Set a fallback metric if no measures found for the main metric.
+   *
+   * @param fallbackMetric The fallback metric
+   */
+  public AverageFormula setFallbackForMainMetric(Metric fallbackMetric) {
+    this.fallbackMetric = fallbackMetric;
+    return this;
   }
 
   /**
@@ -87,8 +98,9 @@ public class AverageFormula implements Formula {
     boolean hasApplicableChildren = false;
 
     for (FormulaData childrenData : data.getChildren()) {
+      Double fallbackMeasure = fallbackMetric != null ? MeasureUtils.getValue(childrenData.getMeasure(fallbackMetric), null) : null;
       Double childrenByMeasure = MeasureUtils.getValue(childrenData.getMeasure(byMetric), null);
-      Double childrenMainMeasure = MeasureUtils.getValue(childrenData.getMeasure(mainMetric), null);
+      Double childrenMainMeasure = MeasureUtils.getValue(childrenData.getMeasure(mainMetric), fallbackMeasure);
       if (childrenMainMeasure != null && childrenByMeasure != null && childrenByMeasure > 0.0) {
         totalByMeasure += childrenByMeasure;
         totalMainMeasure += childrenMainMeasure;
@@ -104,8 +116,9 @@ public class AverageFormula implements Formula {
   private Measure calculateForFile(FormulaData data, FormulaContext context) {
     Measure result = null;
 
+    Double fallbackMeasure = fallbackMetric != null ? MeasureUtils.getValue(data.getMeasure(fallbackMetric), null) : null;
     Double byMeasure = MeasureUtils.getValue(data.getMeasure(byMetric), null);
-    Double mainMeasure = MeasureUtils.getValue(data.getMeasure(mainMetric), null);
+    Double mainMeasure = MeasureUtils.getValue(data.getMeasure(mainMetric), fallbackMeasure);
     if (mainMeasure != null && byMeasure != null && byMeasure > 0.0) {
       result = new Measure(context.getTargetMetric(), (mainMeasure / byMeasure));
     }

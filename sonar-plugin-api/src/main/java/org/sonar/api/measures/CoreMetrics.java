@@ -275,24 +275,6 @@ public final class CoreMetrics {
       .setFormula(new SumChildValuesFormula(false))
       .create();
 
-  public static final String CLASS_COMPLEXITY_KEY = "class_complexity";
-  public static final Metric CLASS_COMPLEXITY = new Metric.Builder(CLASS_COMPLEXITY_KEY, "Complexity /class", Metric.ValueType.FLOAT)
-      .setDescription("Complexity average by class")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setDomain(DOMAIN_COMPLEXITY)
-      .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.CLASSES))
-      .create();
-
-  public static final String FUNCTION_COMPLEXITY_KEY = "function_complexity";
-  public static final Metric FUNCTION_COMPLEXITY = new Metric.Builder(FUNCTION_COMPLEXITY_KEY, "Complexity /method", Metric.ValueType.FLOAT)
-      .setDescription("Complexity average by method")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setDomain(DOMAIN_COMPLEXITY)
-      .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS))
-      .create();
-
   public static final String FILE_COMPLEXITY_KEY = "file_complexity";
   public static final Metric FILE_COMPLEXITY = new Metric.Builder(FILE_COMPLEXITY_KEY, "Complexity /file", Metric.ValueType.FLOAT)
       .setDescription("Complexity average by file")
@@ -301,6 +283,43 @@ public final class CoreMetrics {
       .setDomain(DOMAIN_COMPLEXITY)
       .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FILES))
       .create();
+
+  public static final String COMPLEXITY_IN_CLASSES_KEY = "complexity_in_classes";
+  public static final Metric COMPLEXITY_IN_CLASSES = new Metric.Builder(COMPLEXITY_IN_CLASSES_KEY, "Complexity in classes", Metric.ValueType.INT)
+      .setDescription("Cyclomatic complexity in classes")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  public static final String CLASS_COMPLEXITY_KEY = "class_complexity";
+  public static final Metric CLASS_COMPLEXITY = new Metric.Builder(CLASS_COMPLEXITY_KEY, "Complexity /class", Metric.ValueType.FLOAT)
+      .setDescription("Complexity average by class")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY_IN_CLASSES, CoreMetrics.CLASSES).setFallbackForMainMetric(CoreMetrics.COMPLEXITY))
+      .create();
+
+  public static final String COMPLEXITY_IN_FUNCTIONS_KEY = "complexity_in_functions";
+  public static final Metric COMPLEXITY_IN_FUNCTIONS = new Metric.Builder(COMPLEXITY_IN_FUNCTIONS_KEY, "Complexity in functions", Metric.ValueType.INT)
+      .setDescription("Cyclomatic complexity in methods")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(new SumChildValuesFormula(false))
+      .create();
+
+  public static final String FUNCTION_COMPLEXITY_KEY = "function_complexity";
+  public static final Metric FUNCTION_COMPLEXITY = new Metric.Builder(FUNCTION_COMPLEXITY_KEY, "Complexity /method", Metric.ValueType.FLOAT)
+      .setDescription("Complexity average by method")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.FUNCTIONS).setFallbackForMainMetric(CoreMetrics.COMPLEXITY))
+      .create();
+
 
   /**
    * @deprecated in 3.0 - see SONAR-3289
