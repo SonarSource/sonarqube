@@ -37,6 +37,8 @@ public @interface NavigationSection {
   String RESOURCE = "resource";
   String RESOURCE_TAB = "resource_tab";
   String CONFIGURATION = "configuration";
+  // @since 3.6
+  String PROJECT_CONFIGURATION = "project_configuration";
 
   String[] value() default { HOME };
 
