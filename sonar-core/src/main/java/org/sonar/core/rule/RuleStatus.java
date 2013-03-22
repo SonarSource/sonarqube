@@ -19,10 +19,19 @@
  */
 package org.sonar.core.rule;
 
+import java.util.EnumSet;
+
 public enum RuleStatus {
   READY, BETA, DEPRECATED, REMOVED;
 
-  public static RuleStatus defaultValue() {
-    return RuleStatus.READY;
+  public static String defaultValue() {
+    return RuleStatus.READY.name();
   }
+
+  public static final EnumSet<RuleStatus> STATUS_FOR_PLUGIN = EnumSet.range(READY, DEPRECATED);
+
+  public final boolean isAvailableForPlugin() {
+    return STATUS_FOR_PLUGIN.contains(this);
+  }
+
 }

@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
-import org.sonar.check.Status;
 
 import java.io.File;
 import java.io.StringReader;
@@ -131,8 +130,8 @@ public class XMLRuleParserTest {
             "<rule><key>foo</key><status>BETA</status></rule>"+
             "<rule><key>foo</key><status>DEPRECATED</status></rule>"+
             "</rules>"));
-    assertThat(rules.get(0).getStatus(), is(Status.READY.name()));
-    assertThat(rules.get(1).getStatus(), is(Status.BETA.name()));
-    assertThat(rules.get(2).getStatus(), is(Status.DEPRECATED.name()));
+    assertThat(rules.get(0).getStatus(), is("READY"));
+    assertThat(rules.get(1).getStatus(), is("BETA"));
+    assertThat(rules.get(2).getStatus(), is("DEPRECATED"));
   }
 }

@@ -31,7 +31,6 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.check.Status;
 import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.dao.RulesDao;
 
@@ -123,12 +122,12 @@ public class RulesBackup implements Backupable {
         matchingRuleInDb.setDescription(rule.getDescription());
         matchingRuleInDb.setSeverity(rule.getSeverity());
         matchingRuleInDb.setParams(rule.getParams());
-        matchingRuleInDb.setStatus(Status.READY.name());
+        matchingRuleInDb.setStatus(RuleStatus.defaultValue());
         matchingRuleInDb.setLanguage(rule.getLanguage());
         matchingRuleInDb.setUpdatedAt(new Date());
         session.save(matchingRuleInDb);
       } else {
-        rule.setStatus(Status.READY.name());
+        rule.setStatus(RuleStatus.defaultValue());
         rule.setCreatedAt(new Date());
         session.save(rule);
       }

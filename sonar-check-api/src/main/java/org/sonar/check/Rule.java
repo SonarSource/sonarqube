@@ -65,5 +65,5 @@ public @interface Rule {
    * The rule status. Can be READY, BETA or DEPRECATED
    * @since 3.6
    */
-  Status status() default Status.READY;
+  String status() default "READY";
 }

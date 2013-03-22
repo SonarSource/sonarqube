@@ -69,7 +69,7 @@ public final class AnnotationRuleParser implements ServerComponent {
     rule.setDescription(description);
     rule.setSeverity(RulePriority.fromCheckPriority(ruleAnnotation.priority()));
     rule.setCardinality(ruleAnnotation.cardinality());
-    rule.setStatus(ruleAnnotation.status().name());
+    rule.setStatus(ruleAnnotation.status());
 
     List<Field> fields = FieldUtils2.getFields(clazz, true);
     for (Field field : fields) {

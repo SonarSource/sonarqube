@@ -37,7 +37,6 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.check.Status;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.session.DatabaseSessionFactory;
@@ -111,7 +110,7 @@ public final class RegisterRules {
     for (Rule rule : repository.createRules()) {
       rule.setRepositoryKey(repository.getKey());
       rule.setLanguage(repository.getLanguage());
-      rule.setStatus(!Strings.isNullOrEmpty(rule.getStatus()) ? rule.getStatus() : RuleStatus.defaultValue().name());
+      rule.setStatus(!Strings.isNullOrEmpty(rule.getStatus()) ? rule.getStatus() : RuleStatus.defaultValue());
       validateRule(rule, repository.getKey());
       ruleByKey.put(rule.getKey(), rule);
       registeredRules.add(rule);
@@ -156,9 +155,12 @@ public final class RegisterRules {
 
   private void validateStatus(Rule rule) {
     try {
-      Status.valueOf(rule.getStatus());
+      RuleStatus ruleStatus = RuleStatus.valueOf(rule.getStatus());
+      if (!ruleStatus.isAvailableForPlugin()) {
+        throw new IllegalArgumentException();
+      }
     } catch (IllegalArgumentException e) {
-      throw new SonarException("The status of a rule can only contains : " + Joiner.on(", ").join(Status.values()), e);
+      throw new SonarException("The status of a rule can only contains : " + Joiner.on(", ").join(RuleStatus.STATUS_FOR_PLUGIN), e);
     }
   }
 

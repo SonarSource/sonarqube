@@ -29,7 +29,6 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.SonarException;
-import org.sonar.check.Status;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -80,7 +79,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(first.getRepositoryKey(), is("fake"));
     assertThat(first.isEnabled(), is(true));
     assertThat(first.getCreatedAt(), notNullValue());
-    assertThat(first.getStatus(), is(Status.READY.name()));
+    assertThat(first.getStatus(), is(RuleStatus.READY.name()));
     assertThat(first.getLanguage(), is("java"));
     assertThat(first.getParams().size(), is(2));
   }
@@ -183,7 +182,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(rule1.getUpdatedAt(), notNullValue());
 
     Rule rule2 = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule2.getStatus(), is(Status.DEPRECATED.name()));
+    assertThat(rule2.getStatus(), is(RuleStatus.DEPRECATED.name()));
     assertThat(rule2.getUpdatedAt(), notNullValue());
   }
 
@@ -356,7 +355,7 @@ class FakeRepository extends RuleRepository {
     Rule rule2 = Rule.create("fake", "rule2", "Two");
     rule2.setDescription("Description of Two");
     rule2.setSeverity(RulePriority.INFO);
-    rule2.setStatus(Status.DEPRECATED.name());
+    rule2.setStatus(RuleStatus.DEPRECATED.name());
 
     return Arrays.asList(rule1, rule2);
   }

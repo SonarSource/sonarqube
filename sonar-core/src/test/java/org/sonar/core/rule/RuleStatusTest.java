@@ -17,11 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.check;
 
-/**
- * @since 3.6
- */
-public enum Status {
-  READY, BETA, DEPRECATED;
+package org.sonar.core.rule;
+
+import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
+
+public class RuleStatusTest {
+
+  @Test
+  public void should_validate_status_for_user() {
+    assertThat(RuleStatus.READY.isAvailableForPlugin()).isTrue();
+    assertThat(RuleStatus.BETA.isAvailableForPlugin()).isTrue();
+    assertThat(RuleStatus.DEPRECATED.isAvailableForPlugin()).isTrue();
+
+    assertThat(RuleStatus.REMOVED.isAvailableForPlugin()).isFalse();
+  }
+
+  @Test
+  public void should_return_ready_as_default_value() {
+    assertThat(RuleStatus.defaultValue()).isEqualTo("READY");
+  }
+
 }

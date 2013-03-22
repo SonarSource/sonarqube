@@ -31,11 +31,12 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class AnnotationRuleParserTest {
+
   @org.junit.Rule
   public final ExpectedException exception = ExpectedException.none();
 
   @Test
-  public void ruleWithProperty() {
+  public void rule_with_property() {
     List<Rule> rules = parseAnnotatedClass(RuleWithProperty.class);
     assertThat(rules).hasSize(1);
     Rule rule = rules.get(0);
@@ -43,7 +44,9 @@ public class AnnotationRuleParserTest {
     assertThat(rule.getName()).isEqualTo("bar");
     assertThat(rule.getDescription()).isEqualTo("Foo Bar");
     assertThat(rule.getSeverity()).isEqualTo(RulePriority.BLOCKER);
+    assertThat(rule.getStatus()).isEqualTo("READY");
     assertThat(rule.getParams()).hasSize(1);
+
     RuleParam prop = rule.getParam("property");
     assertThat(prop.getKey()).isEqualTo("property");
     assertThat(prop.getDescription()).isEqualTo("Ignore ?");
@@ -52,7 +55,7 @@ public class AnnotationRuleParserTest {
   }
 
   @Test
-  public void ruleWithIntegerProperty() {
+  public void rule_with_integer_property() {
     List<Rule> rules = parseAnnotatedClass(RuleWithIntegerProperty.class);
 
     RuleParam prop = rules.get(0).getParam("property");
@@ -62,7 +65,7 @@ public class AnnotationRuleParserTest {
   }
 
   @Test
-  public void ruleWithTextProperty() {
+  public void rule_with_text_property() {
     List<Rule> rules = parseAnnotatedClass(RuleWithTextProperty.class);
 
     RuleParam prop = rules.get(0).getParam("property");
@@ -92,7 +95,7 @@ public class AnnotationRuleParserTest {
   }
 
   @Test
-  public void ruleWithoutNameNorDescription() {
+  public void rule_without_name_nor_description() {
     List<Rule> rules = parseAnnotatedClass(RuleWithoutNameNorDescription.class);
     assertThat(rules).hasSize(1);
     Rule rule = rules.get(0);
@@ -103,7 +106,7 @@ public class AnnotationRuleParserTest {
   }
 
   @Test
-  public void ruleWithoutKey() {
+  public void rule_without_key() {
     List<Rule> rules = parseAnnotatedClass(RuleWithoutKey.class);
     assertThat(rules).hasSize(1);
     Rule rule = rules.get(0);
@@ -137,7 +140,7 @@ public class AnnotationRuleParserTest {
   static class RuleWithoutNameNorDescription {
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = "READY", priority = Priority.BLOCKER)
   static class RuleWithProperty {
     @org.sonar.check.RuleProperty(description = "Ignore ?", defaultValue = "false")
     private String property;
@@ -149,19 +152,19 @@ public class AnnotationRuleParserTest {
     private String additionalProperty;
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = "READY", priority = Priority.BLOCKER)
   static class RuleWithIntegerProperty {
     @org.sonar.check.RuleProperty(description = "Max", defaultValue = "12")
     private Integer property;
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = "READY", priority = Priority.BLOCKER)
   static class RuleWithTextProperty {
     @org.sonar.check.RuleProperty(description = "text", defaultValue = "Long text", type = "TEXT")
     protected String property;
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", priority = Priority.BLOCKER)
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = "READY", priority = Priority.BLOCKER)
   static class RuleWithInvalidPropertyType {
     @org.sonar.check.RuleProperty(description = "text", defaultValue = "Long text", type = "INVALID")
     public String property;
