@@ -49,7 +49,7 @@ public class CpdSensor implements Sensor {
     }
 
     if (!getEngine(project).isLanguageSupported(project.getLanguage())) {
-      LOG.info("Detection of duplicated code is not supported for {}.", project.getLanguage());
+      LOG.debug("Detection of duplicated code is not supported for {}.", project.getLanguage());
       return false;
     }
 
