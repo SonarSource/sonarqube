@@ -50,9 +50,9 @@ class RulesConfigurationController < ApplicationController
     @select_activation = [[message('any'), 'any'], [message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
     @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],
                            [message('rules_configuration.overrides'), 'OVERRIDES']]
-    @select_status = ANY_SELECTION + [[message('rules_configuration.status.beta'), Rule::STATUS_BETA],
-                      [message('rules_configuration.status.deprecated'), Rule::STATUS_DEPRECATED],
-                      [message('rules_configuration.status.ready'), Rule::STATUS_READY]]
+    @select_status = ANY_SELECTION + [[message('rules.status.beta'), Rule::STATUS_BETA],
+                      [message('rules.status.deprecated'), Rule::STATUS_DEPRECATED],
+                      [message('rules.status.ready'), Rule::STATUS_READY]]
     @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
 
     @rules = Rule.search(java_facade, {

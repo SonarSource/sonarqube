@@ -1,4 +1,16 @@
-<h1><%= @rule.name %></h1>
+<div>
+  <h1 class="rule-title"><%= @rule.name %></h1>
+  <% unless @rule.ready? %>
+    <div class="rule-status">
+      <% if @rule.beta? %>
+        <span><%= message('rules.status.beta') %></span>
+      <% elsif @rule.deprecated? %>
+        <span><%= message('rules.status.deprecated') %></span>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
 <div class="subtitle">
 <%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%>
 </div>

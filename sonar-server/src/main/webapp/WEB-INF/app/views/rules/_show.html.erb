@@ -1,8 +1,17 @@
 <% if @rule %>
 <div class="modal-head">
-  <h2>
+  <h2 class="rule-title">
     <%= @rule.name %>
   </h2>
+  <% unless @rule.ready? %>
+    <div class="rule-status">
+      <% if @rule.beta? %>
+        <span><%= message('rules.status.beta') %></span>
+      <% elsif @rule.deprecated? %>
+        <span><%= message('rules.status.deprecated') %></span>
+      <% end %>
+    </div>
+  <% end %>
   <ul class="modal-head-metadata">
     <li><%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%></li>
   </ul>

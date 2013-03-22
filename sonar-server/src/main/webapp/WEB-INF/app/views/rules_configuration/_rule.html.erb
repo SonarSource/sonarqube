@@ -29,12 +29,12 @@
 </td>
 
 <td class="left" colspan="2">
-  <% unless rule.ready? %>
+  <% unless false %>
     <div class="rule-status">
-      <% if rule.beta? %>
-        <span><%= message('rules_configuration.status.beta') %></span>
+      <% if true %>
+        <span><%= message('rules.status.beta') %></span>
       <% elsif rule.deprecated? %>
-        <span><%= message('rules_configuration.status.deprecated') %></span>
+        <span><%= message('rules.status.deprecated') %></span>
       <% end %>
     </div>
   <% end %>
