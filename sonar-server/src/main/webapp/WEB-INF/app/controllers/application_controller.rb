@@ -189,8 +189,8 @@ class ApplicationController < ActionController::Base
     init_resource_for_role :admin
   end
 
-  def init_resource_for_role(role)
-    @resource=Project.by_key(params[:id])
+  def init_resource_for_role(role, resource_param=:id)
+    @resource=Project.by_key(params[resource_param])
     not_found("Project not found") unless @resource
     @resource=@resource.permanent_resource
 

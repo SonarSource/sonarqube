@@ -158,7 +158,9 @@ public interface CoreProperties {
   String CORE_AUTHENTICATOR_CREATE_USERS = "sonar.authenticator.createUsers";
   String SERVER_VERSION = "sonar.core.version";
   String SERVER_ID = "sonar.core.id";
-  String SERVER_STARTTIME = "sonar.core.startTime"; // format is yyyy-MM-dd'T'HH:mm:ssZ
+
+  // format is yyyy-MM-dd'T'HH:mm:ssZ
+  String SERVER_STARTTIME = "sonar.core.startTime";
 
   /**
    * @deprecated since 3.6. See http://jira.codehaus.org/browse/SONAR-4145

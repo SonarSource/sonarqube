@@ -39,7 +39,7 @@ public @interface NavigationSection {
   String CONFIGURATION = "configuration";
 
   /**
-   * Only Ruby and rails application. See {@linktourl http://docs.codehaus.org/display/SONAR/Extend+Web+Application}
+   * Only Ruby and rails application. See http://docs.codehaus.org/display/SONAR/Extend+Web+Application.
    * Use the resource parameter in order to get the current resource.
    *
    * @since 3.6
