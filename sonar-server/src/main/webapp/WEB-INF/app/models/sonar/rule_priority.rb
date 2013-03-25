@@ -18,9 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 
-require 'java'
-include_class "org.sonar.api.rules.RulePriority"
-
 class Sonar::RulePriority
 
   INFO = Java::OrgSonarApiRules::RulePriority::INFO
