@@ -22,12 +22,14 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ExtensionProvider;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
 import java.util.List;
 
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class MetricProvider extends ExtensionProvider implements BatchComponent {
 
   private Metrics[] factories;
