@@ -43,7 +43,7 @@ class Metric < ActiveRecord::Base
   CACHE_KEY='metrics'
   I18N_DOMAIN_CACHE_KEY='i18n_domains'
   I18N_SHORT_NAME_CACHE_KEY='i18n_metric_short_names'
-  
+
   validates_length_of       :name, :within => 1..64
   validates_uniqueness_of   :name
   validates_length_of       :short_name, :within => 1..64
@@ -132,7 +132,7 @@ class Metric < ActiveRecord::Base
   end
  
   def description(translate=true)
-    default_string = read_attribute(:description)
+    default_string = read_attribute(:description) || ''
     return default_string unless translate
 
     metric_name = read_attribute(:name)

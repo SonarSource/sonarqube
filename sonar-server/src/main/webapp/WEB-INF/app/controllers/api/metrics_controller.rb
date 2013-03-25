@@ -44,6 +44,8 @@ class Api::MetricsController < Api::RestController
   end
 
   def create
+    bad_request('Name is required') unless params[:name].present?
+
     metric_test = Metric.first(:conditions => ['name=? OR id=?', params[:id], params[:id].to_i])
 
     exist_and_is_disable = !metric_test.nil? && !metric_test.enabled?
@@ -54,9 +56,13 @@ class Api::MetricsController < Api::RestController
     end
 
     begin
-      metric.attributes = params.merge({:name => params[:id], :short_name => params[:name], :enabled => true})
+      metric.attributes = params.merge({:name => params[:id], :short_name => params[:name]})
+      if metric.short_name(false)
+        metric.name = metric.short_name(false).downcase.gsub(/\s/, '_')[0..59] unless params[:id]
+      end
       metric.origin = Metric::ORIGIN_WS
       metric.user_managed = true
+      metric.enabled = true
       metric.save!
       Metric.clear_cache
       rest_status_ok
@@ -69,7 +75,7 @@ class Api::MetricsController < Api::RestController
     metric = Metric.first(:conditions => ['(name=? OR id=?) AND enabled=? AND user_managed=?', params[:id], params[:id].to_i, true, true])
     if metric
       begin
-        metric.attributes = params.merge({:name => params[:id], :short_name => params[:name], :enabled => true})
+        metric.attributes = params.merge({:name => params[:id], :short_name => params[:name]})
         metric.save!
         Metric.clear_cache
         rest_status_ok
@@ -77,14 +83,14 @@ class Api::MetricsController < Api::RestController
         rest_status_ko(metric.errors.full_messages.join("."), 400)
       end
     else
-      rest_status_ko('Unable to update : Metric [' + params[:id] + '] does not exist', 404)
+      rest_status_ko('Unable to update manual metric: '+ params[:id], 404)
     end
   end
 
   def destroy
     metric = Metric.first(:conditions => ['(name=? OR id=?) AND enabled=? AND user_managed=?', params[:id], params[:id].to_i, true, true])
     if !metric
-      rest_status_ko('Unable to delete : Metric [' + params[:id] + '] does not exist', 404)
+      rest_status_ko('Unable to delete manual metric which does not exist: ' + params[:id], 404)
     else
       metric.enabled = false
       begin
