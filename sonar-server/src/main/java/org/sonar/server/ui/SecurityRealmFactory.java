@@ -39,17 +39,15 @@ public class SecurityRealmFactory implements ServerComponent {
   private final boolean ignoreStartupFailure;
   private final SecurityRealm realm;
 
-  static final String REALM_PROPERTY = "sonar.security.realm";
-
   public SecurityRealmFactory(Settings settings, SecurityRealm[] realms, LoginPasswordAuthenticator[] authenticators) {
     ignoreStartupFailure = settings.getBoolean(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE);
-    String realmName = settings.getString(REALM_PROPERTY);
+    String realmName = settings.getString(CoreProperties.CORE_AUTHENTICATOR_REALM);
     String className = settings.getString(CoreProperties.CORE_AUTHENTICATOR_CLASS);
     SecurityRealm selectedRealm = null;
     if (!StringUtils.isEmpty(realmName)) {
       selectedRealm = selectRealm(realms, realmName);
       if (selectedRealm == null) {
-        throw new SonarException("Realm '" + realmName + "' not found. Please check the property '" + REALM_PROPERTY + "' in conf/sonar.properties");
+        throw new SonarException("Realm '" + realmName + "' not found. Please check the property '" + CoreProperties.CORE_AUTHENTICATOR_REALM + "' in conf/sonar.properties");
       }
     }
     if (selectedRealm == null && !StringUtils.isEmpty(className)) {

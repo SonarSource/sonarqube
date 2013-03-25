@@ -153,7 +153,18 @@ public interface CoreProperties {
   String CORE_DEFAULT_GROUP = "sonar.defaultGroup";
   String CORE_DEFAULT_GROUP_DEFAULT_VALUE = "sonar-users";
   boolean CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE = false;
+
+  /**
+   * @deprecated since 2.14. See http://jira.codehaus.org/browse/SONAR-3153
+   */
+  @Deprecated
   String CORE_AUTHENTICATOR_CLASS = "sonar.authenticator.class";
+
+  /**
+   * @since 2.14
+   */
+  String CORE_AUTHENTICATOR_REALM = "sonar.security.realm";
+
   String CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE = "sonar.authenticator.ignoreStartupFailure";
   String CORE_AUTHENTICATOR_CREATE_USERS = "sonar.authenticator.createUsers";
   String SERVER_VERSION = "sonar.core.version";

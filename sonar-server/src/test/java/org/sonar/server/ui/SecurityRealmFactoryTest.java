@@ -27,7 +27,10 @@ import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.utils.SonarException;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.spy;
@@ -46,26 +49,26 @@ public class SecurityRealmFactoryTest {
    * Typical usage.
    */
   @Test
-  public void shouldSelectRealmAndStart() {
+  public void should_select_realm_and_start() {
     SecurityRealm realm = spy(new FakeRealm());
-    settings.setProperty(SecurityRealmFactory.REALM_PROPERTY, realm.getName());
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
 
-    SecurityRealmFactory factory = new SecurityRealmFactory(settings, new SecurityRealm[] {realm});
+    SecurityRealmFactory factory = new SecurityRealmFactory(settings, new SecurityRealm[]{realm});
     factory.start();
     assertThat(factory.getRealm(), is(realm));
     verify(realm).init();
   }
 
   @Test
-  public void doNotFailIfNoRealms() {
+  public void do_not_fail_if_no_realms() {
     SecurityRealmFactory factory = new SecurityRealmFactory(settings);
     factory.start();
     assertThat(factory.getRealm(), nullValue());
   }
 
   @Test
-  public void realmNotFound() {
-    settings.setProperty(SecurityRealmFactory.REALM_PROPERTY, "Fake");
+  public void realm_not_found() {
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, "Fake");
 
     try {
       new SecurityRealmFactory(settings);
@@ -76,29 +79,29 @@ public class SecurityRealmFactoryTest {
   }
 
   @Test
-  public void shouldProvideCompatibilityForAuthenticator() {
+  public void should_provide_compatibility_for_authenticator() {
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
     LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
 
-    SecurityRealmFactory factory = new SecurityRealmFactory(settings, new LoginPasswordAuthenticator[] {authenticator});
+    SecurityRealmFactory factory = new SecurityRealmFactory(settings, new LoginPasswordAuthenticator[]{authenticator});
     SecurityRealm realm = factory.getRealm();
     assertThat(realm, instanceOf(CompatibilityRealm.class));
   }
 
   @Test
-  public void shouldTakePrecedenceOverAuthenticator() {
+  public void should_take_precedence_over_authenticator() {
     SecurityRealm realm = new FakeRealm();
-    settings.setProperty(SecurityRealmFactory.REALM_PROPERTY, realm.getName());
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
     LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
 
-    SecurityRealmFactory factory = new SecurityRealmFactory(settings, new SecurityRealm[] {realm},
-        new LoginPasswordAuthenticator[] {authenticator});
+    SecurityRealmFactory factory = new SecurityRealmFactory(settings, new SecurityRealm[]{realm},
+        new LoginPasswordAuthenticator[]{authenticator});
     assertThat(factory.getRealm(), is(realm));
   }
 
   @Test
-  public void authenticatorNotFound() {
+  public void authenticator_not_found() {
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, "Fake");
 
     try {
@@ -110,22 +113,22 @@ public class SecurityRealmFactoryTest {
   }
 
   @Test
-  public void ignoreStartupFailure() {
+  public void ignore_startup_failure() {
     SecurityRealm realm = spy(new AlwaysFailsRealm());
-    settings.setProperty(SecurityRealmFactory.REALM_PROPERTY, realm.getName());
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE, true);
 
-    new SecurityRealmFactory(settings, new SecurityRealm[] {realm}).start();
+    new SecurityRealmFactory(settings, new SecurityRealm[]{realm}).start();
     verify(realm).init();
   }
 
   @Test
-  public void shouldFail() {
+  public void should_fail() {
     SecurityRealm realm = spy(new AlwaysFailsRealm());
-    settings.setProperty(SecurityRealmFactory.REALM_PROPERTY, realm.getName());
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
 
     try {
-      new SecurityRealmFactory(settings, new SecurityRealm[] {realm}).start();
+      new SecurityRealmFactory(settings, new SecurityRealm[]{realm}).start();
       fail();
     } catch (SonarException e) {
       assertThat(e.getCause(), instanceOf(IllegalStateException.class));

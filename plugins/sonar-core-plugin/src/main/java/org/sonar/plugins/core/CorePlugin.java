@@ -351,7 +351,7 @@ import java.util.List;
   // SERVER-SIDE TECHNICAL PROPERTIES
 
   @Property(
-    key = "sonar.security.realm",
+    key = CoreProperties.CORE_AUTHENTICATOR_REALM,
     name = "Security Realm",
     project = false,
     global = false
