@@ -44,7 +44,7 @@ public class AnnotationRuleParserTest {
     assertThat(rule.getName()).isEqualTo("bar");
     assertThat(rule.getDescription()).isEqualTo("Foo Bar");
     assertThat(rule.getSeverity()).isEqualTo(RulePriority.BLOCKER);
-    assertThat(rule.getStatus()).isEqualTo("READY");
+    assertThat(rule.getStatus()).isEqualTo(org.sonar.check.Rule.STATUS_READY);
     assertThat(rule.getParams()).hasSize(1);
 
     RuleParam prop = rule.getParam("property");
@@ -140,7 +140,7 @@ public class AnnotationRuleParserTest {
   static class RuleWithoutNameNorDescription {
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = "READY", priority = Priority.BLOCKER)
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = org.sonar.check.Rule.STATUS_READY, priority = Priority.BLOCKER)
   static class RuleWithProperty {
     @org.sonar.check.RuleProperty(description = "Ignore ?", defaultValue = "false")
     private String property;
@@ -152,19 +152,19 @@ public class AnnotationRuleParserTest {
     private String additionalProperty;
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = "READY", priority = Priority.BLOCKER)
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = org.sonar.check.Rule.STATUS_READY, priority = Priority.BLOCKER)
   static class RuleWithIntegerProperty {
     @org.sonar.check.RuleProperty(description = "Max", defaultValue = "12")
     private Integer property;
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = "READY", priority = Priority.BLOCKER)
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = org.sonar.check.Rule.STATUS_READY, priority = Priority.BLOCKER)
   static class RuleWithTextProperty {
     @org.sonar.check.RuleProperty(description = "text", defaultValue = "Long text", type = "TEXT")
     protected String property;
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = "READY", priority = Priority.BLOCKER)
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Foo Bar", status = org.sonar.check.Rule.STATUS_READY, priority = Priority.BLOCKER)
   static class RuleWithInvalidPropertyType {
     @org.sonar.check.RuleProperty(description = "text", defaultValue = "Long text", type = "INVALID")
     public String property;

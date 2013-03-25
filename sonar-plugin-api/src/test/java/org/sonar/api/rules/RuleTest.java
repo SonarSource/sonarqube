@@ -33,7 +33,7 @@ import static org.junit.Assert.assertThat;
 public class RuleTest {
 
   @Test
-  public void descriptionShouldBeCleaned() {
+  public void description_should_be_cleaned() {
     Rule rule = new Rule();
     rule.setDescription("    my description         ");
     Assert.assertEquals("my description", rule.getDescription());
@@ -43,7 +43,7 @@ public class RuleTest {
   }
 
   @Test
-  public void shouldRemoveNewLineCharactersInNameWithSetter() {
+  public void should_remove_new_line_characters_in_name_with_setter() {
     Rule rule = new Rule();
     for (String example : getExamplesContainingNewLineCharacter()) {
       rule.setName(example);
@@ -52,7 +52,7 @@ public class RuleTest {
   }
 
   @Test
-  public void shouldRemoveNewLineCharactersInNameWithfirstConstructor() {
+  public void should_remove_new_line_characters_in_name_with_first_constructor() {
     Rule rule;
     for (String example : getExamplesContainingNewLineCharacter()) {
       rule = new Rule(null, null).setName(example);
@@ -61,7 +61,7 @@ public class RuleTest {
   }
 
   @Test
-  public void shouldRemoveNewLineCharactersInNameWithSecondConstructor() {
+  public void should_remove_new_line_characters_in_name_with_second_constructor() {
     Rule rule;
     for (String example : getExamplesContainingNewLineCharacter()) {
       rule = new Rule(null, null).setName(example);
@@ -70,7 +70,7 @@ public class RuleTest {
   }
 
   @Test
-  public void defaultPriorityIsMajor() {
+  public void default_priority_is_major() {
     Rule rule = new Rule();
     assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
 
