@@ -22,7 +22,7 @@ class Navigation
   SECTION_HOME = 'home'
   SECTION_RESOURCE = 'resource'
   SECTION_CONFIGURATION = 'configuration'
-  SECTION_PROJECT_CONFIGURATION = 'project_configuration'
+  SECTION_RESOURCE_CONFIGURATION = 'resource_configuration'
   SECTION_SESSION = 'session'
 
 end

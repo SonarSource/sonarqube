@@ -107,7 +107,7 @@ public class ViewsTest {
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.RESOURCE)).isEqualTo(true);
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.HOME)).isEqualTo(false);
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.CONFIGURATION)).isEqualTo(false);
-    assertThat(Views.acceptNavigationSection(proxy, NavigationSection.PROJECT_CONFIGURATION)).isEqualTo(false);
+    assertThat(Views.acceptNavigationSection(proxy, NavigationSection.RESOURCE_CONFIGURATION)).isEqualTo(false);
     assertThat(Views.acceptNavigationSection(proxy, null)).isEqualTo(true);
   }
 
@@ -134,7 +134,7 @@ public class ViewsTest {
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.RESOURCE)).isEqualTo(true);
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.HOME)).isEqualTo(true);
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.CONFIGURATION)).isEqualTo(true);
-    assertThat(Views.acceptNavigationSection(proxy, NavigationSection.PROJECT_CONFIGURATION)).isEqualTo(true);
+    assertThat(Views.acceptNavigationSection(proxy, NavigationSection.RESOURCE_CONFIGURATION)).isEqualTo(true);
     assertThat(Views.acceptNavigationSection(proxy, null)).isEqualTo(true);
   }
 
