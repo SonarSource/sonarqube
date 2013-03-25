@@ -19,16 +19,28 @@
  */
 package org.sonar.api.rules;
 
-import org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.profiles.RulesProfile;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.*;
 
 /**
  * A class to map a RuleChange to the hibernate model
@@ -39,7 +51,7 @@ import javax.persistence.*;
 @Table(name = "active_rule_changes")
 public class ActiveRuleChange extends BaseIdentifiable {
 
-  @Column(name = "user_name", updatable = false, nullable = false)
+  @Column(name = "user_name", updatable = false, nullable = true)
   private String userName;
 
   @ManyToOne(fetch = FetchType.EAGER)

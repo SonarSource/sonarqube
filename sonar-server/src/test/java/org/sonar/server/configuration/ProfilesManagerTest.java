@@ -24,30 +24,30 @@ import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.junit.Assert.assertEquals;
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class ProfilesManagerTest extends AbstractDbUnitTestCase {
 
   private ProfilesManager manager;
 
   @Before
-  public void setup() {
+  public void before() {
     manager = new ProfilesManager(getSession(), null);
   }
 
   @Test
-  public void testDeleteAllProfiles() {
+  public void test_delete_all_profiles() {
     RulesProfile test1 = RulesProfile.create("test1", "java");
     test1.setDefaultProfile(true);
-    test1.setProvided(true);
     RulesProfile test2 = RulesProfile.create("test2", "java");
 
     getSession().save(test1, test2);
 
-    assertEquals(new Long(2), getHQLCount(RulesProfile.class));
+    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(new Long(2));
 
     manager.deleteAllProfiles();
 
-    assertEquals(new Long(0), getHQLCount(RulesProfile.class));
+    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(new Long(0));
   }
 }
