@@ -50,7 +50,7 @@ public class DefaultRuleFinder implements RuleFinder {
     return (Rule) session.getSingleResult(
         session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.id=:id and r.status<>:status")
             .setParameter("id", ruleId)
-            .setParameter("status", RuleStatus.REMOVED.name()
+            .setParameter("status", Rule.STATUS_REMOVED
             ),
         null);
   }
@@ -65,7 +65,7 @@ public class DefaultRuleFinder implements RuleFinder {
         session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.key=:key and r.pluginName=:pluginName and r.status<>:status")
             .setParameter("key", key)
             .setParameter("pluginName", repositoryKey)
-            .setParameter("status", RuleStatus.REMOVED.name()
+            .setParameter("status", Rule.STATUS_REMOVED
             ),
         null);
   }
@@ -84,7 +84,7 @@ public class DefaultRuleFinder implements RuleFinder {
   private Query createHqlQuery(DatabaseSession session, RuleQuery query) {
     StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" where status<>:status ");
     Map<String, Object> params = new HashMap<String, Object>();
-    params.put("status", RuleStatus.REMOVED.name());
+    params.put("status", Rule.STATUS_REMOVED);
     if (StringUtils.isNotBlank(query.getRepositoryKey())) {
       hql.append("AND pluginName=:repositoryKey ");
       params.put("repositoryKey", query.getRepositoryKey());

@@ -22,6 +22,7 @@ package org.sonar.core.rule;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rules.Rule;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId(), Is.is(1L));
     assertThat(ruleDto.getName(), Is.is("Avoid Null"));
     assertThat(ruleDto.getDescription(), Is.is("Should avoid NULL"));
-    assertThat(ruleDto.getStatus(), Is.is(RuleStatus.READY.name()));
+    assertThat(ruleDto.getStatus(), Is.is(Rule.STATUS_READY));
     assertThat(ruleDto.getRepositoryKey(), Is.is("checkstyle"));
   }
 
@@ -59,7 +60,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId(), Is.is(2L));
     assertThat(ruleDto.getName(), Is.is("Avoid Null"));
     assertThat(ruleDto.getDescription(), Is.is("Should avoid NULL"));
-    assertThat(ruleDto.getStatus(), Is.is(RuleStatus.READY.name()));
+    assertThat(ruleDto.getStatus(), Is.is(Rule.STATUS_READY));
     assertThat(ruleDto.getRepositoryKey(), Is.is("checkstyle"));
   }
 

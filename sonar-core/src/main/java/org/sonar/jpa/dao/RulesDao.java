@@ -22,7 +22,6 @@ package org.sonar.jpa.dao;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
-import org.sonar.core.rule.RuleStatus;
 
 import java.util.List;
 
@@ -34,14 +33,14 @@ public class RulesDao extends BaseDao {
 
   public List<Rule> getRules() {
     return getSession().createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.status<>:status")
-        .setParameter("status", RuleStatus.REMOVED.name())
+        .setParameter("status", Rule.STATUS_REMOVED)
         .getResultList();
   }
 
   public List<Rule> getRulesByRepository(String repositoryKey) {
     return getSession().createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.pluginName=:pluginName and r.status<>:status")
         .setParameter("pluginName", repositoryKey)
-        .setParameter("status", RuleStatus.REMOVED.name())
+        .setParameter("status", Rule.STATUS_REMOVED)
         .getResultList();
   }
 
@@ -59,7 +58,7 @@ public class RulesDao extends BaseDao {
         session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.key=:key and r.pluginName=:pluginName and r.status<>:status")
             .setParameter("key", ruleKey)
             .setParameter("pluginName", repositoryKey)
-            .setParameter("status", RuleStatus.REMOVED.name()
+            .setParameter("status", Rule.STATUS_REMOVED
             ), null);
   }
 

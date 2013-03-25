@@ -76,18 +76,4 @@ public class Java extends AbstractLanguage {
     return ArrayUtils.contains(SUFFIXES, suffix);
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    // We replace the test equality on classes by test on Language instance in order to keep backward compatibility between this deprecated class and the new one in sonar-java
-    if (!(o instanceof Language)) {
-      return false;
-    }
-
-    Language language = (Language) o;
-    return !(getKey() != null ? !getKey().equals(language.getKey()) : language.getKey() != null);
-  }
-
 }

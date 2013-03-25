@@ -31,7 +31,6 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.dao.RulesDao;
 
 import java.util.Collection;
@@ -85,7 +84,7 @@ public class RulesBackup implements Backupable {
   private void disableUserRules() {
     LoggerFactory.getLogger(getClass()).info("Disable rules created by user");
     for (Rule rule : getUserRules()) {
-      rule.setStatus(RuleStatus.REMOVED.name());
+      rule.setStatus(Rule.STATUS_REMOVED);
       session.save(rule);
     }
   }
@@ -122,12 +121,12 @@ public class RulesBackup implements Backupable {
         matchingRuleInDb.setDescription(rule.getDescription());
         matchingRuleInDb.setSeverity(rule.getSeverity());
         matchingRuleInDb.setParams(rule.getParams());
-        matchingRuleInDb.setStatus(RuleStatus.defaultValue());
+        matchingRuleInDb.setStatus(Rule.STATUS_READY);
         matchingRuleInDb.setLanguage(rule.getLanguage());
         matchingRuleInDb.setUpdatedAt(new Date());
         session.save(matchingRuleInDb);
       } else {
-        rule.setStatus(RuleStatus.defaultValue());
+        rule.setStatus(Rule.STATUS_READY);
         rule.setCreatedAt(new Date());
         session.save(rule);
       }

@@ -79,7 +79,7 @@ public abstract class AbstractLanguage implements Language {
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (!(o instanceof Language)) {
       return false;
     }
 

@@ -31,10 +31,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Rule {
 
-  public static final String STATUS_BETA = "BETA";
-  public static final String STATUS_DEPRECATED = "DEPRECATED";
-  public static final String STATUS_READY = "READY";
-
   /**
    * The default key is the class name.
    */
@@ -66,7 +62,7 @@ public @interface Rule {
   Cardinality cardinality() default Cardinality.SINGLE;
 
   /**
-   * The rule status. Can be READY, BETA or DEPRECATED
+   * The status. Can be READY, BETA or DEPRECATED
    * @since 3.6
    */
   String status() default "READY";

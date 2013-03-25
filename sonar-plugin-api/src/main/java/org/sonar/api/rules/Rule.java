@@ -20,12 +20,15 @@
 
 package org.sonar.api.rules;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
 
 import javax.persistence.Column;
@@ -45,10 +48,31 @@ import javax.persistence.TemporalType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "rules")
 public final class Rule {
+
+  /**
+   * @since 3.6
+   */
+  public static final String STATUS_BETA = "BETA";
+  /**
+   * @since 3.6
+   */
+  public static final String STATUS_DEPRECATED = "DEPRECATED";
+  /**
+   * @since 3.6
+   */
+  public static final String STATUS_READY = "READY";
+
+  /**
+   * For internal use only.
+   * @since 3.6
+   */
+  public static final String STATUS_REMOVED = "REMOVED";
+
 
   @Id
   @Column(name = "id")
@@ -85,7 +109,7 @@ public final class Rule {
   private Cardinality cardinality = Cardinality.SINGLE;
 
   @Column(name = "status", updatable = true, nullable = true)
-  private String status = "READY";
+  private String status = STATUS_READY;
 
   @Column(name = "language", updatable = true, nullable = true)
   private String language;
@@ -253,11 +277,11 @@ public final class Rule {
   }
 
   /**
-   * @deprecated in 3.6
+   * @deprecated in 3.6. Replaced by {@link #setStatus(String status)}.
    */
   @Deprecated
   public Rule setEnabled(Boolean enabled) {
-    throw new UnsupportedOperationException("No more supported since version 3.6. Please use setStatus() instead.");
+    throw new UnsupportedOperationException("No more supported since version 3.6.");
   }
 
   public Boolean isEnabled() {
@@ -305,7 +329,7 @@ public final class Rule {
   }
 
   /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
+   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
    */
   @Deprecated
   public Integer getCategoryId() {
@@ -392,6 +416,9 @@ public final class Rule {
    * @since 3.6
    */
   public Rule setStatus(String status) {
+    if (!getStatusList().contains(status)) {
+      throw new SonarException("The status of a rule can only contain : " + Joiner.on(", ").join(getStatusList()));
+    }
     this.status = status;
     return this;
   }
@@ -508,5 +535,12 @@ public final class Rule {
    */
   public static Rule create(String repositoryKey, String key) {
     return new Rule().setUniqueKey(repositoryKey, key);
+  }
+
+  /**
+   * @since 3.6
+   */
+  public static Set<String> getStatusList() {
+    return ImmutableSet.of(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED);
   }
 }

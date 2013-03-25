@@ -30,7 +30,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.rule.RuleStatus;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import org.sonar.server.configuration.ProfilesManager;
 
@@ -79,7 +78,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(first.getRepositoryKey(), is("fake"));
     assertThat(first.isEnabled(), is(true));
     assertThat(first.getCreatedAt(), notNullValue());
-    assertThat(first.getStatus(), is(RuleStatus.READY.name()));
+    assertThat(first.getStatus(), is(Rule.STATUS_READY));
     assertThat(first.getLanguage(), is("java"));
     assertThat(first.getParams().size(), is(2));
   }
@@ -113,7 +112,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.getStatus(), is(RuleStatus.READY.name()));
+    assertThat(rule.getStatus(), is(Rule.STATUS_READY));
     assertThat(rule.getUpdatedAt(), notNullValue());
   }
 
@@ -123,7 +122,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
-    assertThat(rule.getStatus(), is(RuleStatus.REMOVED.name()));
+    assertThat(rule.getStatus(), is(Rule.STATUS_REMOVED));
     assertThat(rule.getUpdatedAt(), nullValue());
   }
 
@@ -182,7 +181,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     assertThat(rule1.getUpdatedAt(), notNullValue());
 
     Rule rule2 = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule2.getStatus(), is(RuleStatus.DEPRECATED.name()));
+    assertThat(rule2.getStatus(), is(Rule.STATUS_DEPRECATED));
     assertThat(rule2.getUpdatedAt(), notNullValue());
   }
 
@@ -244,7 +243,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("shared");
     task.start();
 
-    List<Rule> result = getSession().getResults(Rule.class, "status", RuleStatus.READY.name());
+    List<Rule> result = getSession().getResults(Rule.class, "status", Rule.STATUS_READY);
     assertThat(result.size(), is(VolumeRepository.SIZE));
   }
 
@@ -325,17 +324,6 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     }
   }
 
-  // http://jira.codehaus.org/browse/SONAR-3879
-  @Test
-  public void should_fail_with_rule_with_unknown_status() throws Exception {
-    task = new RegisterRules(getSessionFactory(), new RuleRepository[] {new RuleWithUnkownStatusRepository()}, null, profilesManager);
-    try {
-      task.start();
-      fail("Rule status must be unknown");
-    } catch (SonarException e) {
-      assertThat(e.getMessage(), containsString("The status of a rule can only contains : "));
-    }
-  }
 }
 
 class FakeRepository extends RuleRepository {
@@ -355,7 +343,7 @@ class FakeRepository extends RuleRepository {
     Rule rule2 = Rule.create("fake", "rule2", "Two");
     rule2.setDescription("Description of Two");
     rule2.setSeverity(RulePriority.INFO);
-    rule2.setStatus(RuleStatus.DEPRECATED.name());
+    rule2.setStatus(Rule.STATUS_DEPRECATED);
 
     return Arrays.asList(rule1, rule2);
   }

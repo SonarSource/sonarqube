@@ -19,35 +19,32 @@
  */
 package org.sonar.api.rules;
 
-import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
+import org.sonar.api.utils.SonarException;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class RuleTest {
 
   @Test
   public void description_should_be_cleaned() {
-    Rule rule = new Rule();
-    rule.setDescription("    my description         ");
+    Rule rule = Rule.create().setDescription("    my description         ");
     Assert.assertEquals("my description", rule.getDescription());
 
     rule.setDescription(null);
-    assertNull(rule.getDescription());
+    assertThat(rule.getDescription()).isNull();
   }
 
   @Test
   public void should_remove_new_line_characters_in_name_with_setter() {
-    Rule rule = new Rule();
+    Rule rule = Rule.create();
     for (String example : getExamplesContainingNewLineCharacter()) {
       rule.setName(example);
-      assertThat(rule.getName(), is("test"));
+      assertThat(rule.getName()).isEqualTo("test");
     }
   }
 
@@ -56,7 +53,7 @@ public class RuleTest {
     Rule rule;
     for (String example : getExamplesContainingNewLineCharacter()) {
       rule = new Rule(null, null).setName(example);
-      assertThat(rule.getName(), is("test"));
+      assertThat(rule.getName()).isEqualTo("test");
     }
   }
 
@@ -65,23 +62,43 @@ public class RuleTest {
     Rule rule;
     for (String example : getExamplesContainingNewLineCharacter()) {
       rule = new Rule(null, null).setName(example);
-      assertThat(rule.getName(), is("test"));
+      assertThat(rule.getName()).isEqualTo("test");
     }
   }
 
   @Test
   public void default_priority_is_major() {
-    Rule rule = new Rule();
-    assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
+    Rule rule = Rule.create();
+    assertThat(rule.getSeverity()).isEqualTo(RulePriority.MAJOR);
 
     rule = new Rule("name", "key");
-    assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
+    assertThat(rule.getSeverity()).isEqualTo(RulePriority.MAJOR);
 
     rule.setSeverity(RulePriority.BLOCKER);
-    assertThat(rule.getSeverity(), Is.is(RulePriority.BLOCKER));
+    assertThat(rule.getSeverity()).isEqualTo(RulePriority.BLOCKER);
 
     rule.setSeverity(null);
-    assertThat(rule.getSeverity(), Is.is(RulePriority.MAJOR));
+    assertThat(rule.getSeverity()).isEqualTo(RulePriority.MAJOR);
+  }
+
+  @Test(expected = SonarException.class)
+  public void should_not_authorize_unkown_status() {
+    Rule.create().setStatus("Unknown");
+  }
+
+  @Test
+  public void should_set_valid_status() {
+    Rule rule = Rule.create().setStatus(Rule.STATUS_DEPRECATED);
+    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_DEPRECATED);
+
+    rule = Rule.create().setStatus(Rule.STATUS_REMOVED);
+    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_REMOVED);
+
+    rule = Rule.create().setStatus(Rule.STATUS_BETA);
+    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_BETA);
+
+    rule = Rule.create().setStatus(Rule.STATUS_READY);
+    assertThat(rule.getStatus()).isEqualTo(Rule.STATUS_READY);
   }
 
   private List<String> getExamplesContainingNewLineCharacter() {
