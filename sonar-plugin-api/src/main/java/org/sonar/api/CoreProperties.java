@@ -155,7 +155,7 @@ public interface CoreProperties {
   boolean CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE = false;
 
   /**
-   * @deprecated since 2.14. See http://jira.codehaus.org/browse/SONAR-3153
+   * @deprecated since 2.14. See http://jira.codehaus.org/browse/SONAR-3153. Replaced by {@link #CORE_AUTHENTICATOR_REALM}.
    */
   @Deprecated
   String CORE_AUTHENTICATOR_CLASS = "sonar.authenticator.class";
