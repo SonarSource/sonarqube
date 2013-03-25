@@ -21,6 +21,9 @@
 # Since 3.4
 class BatchBootstrapController < Api::ApiController
 
+  # SONAR-4211 Access to index should not require authentication
+  skip_before_filter :check_authentication, :only => 'index'
+
   # GET /batch_bootstrap/db?project=<key or id>
   def db
     require_parameters :project
@@ -52,7 +55,7 @@ class BatchBootstrapController < Api::ApiController
 
     render :json => JSON(json_properties)
   end
-  
+
   # GET /batch_bootstrap/index
   def index
     redirect_to "/deploy/bootstrap/index.txt"
