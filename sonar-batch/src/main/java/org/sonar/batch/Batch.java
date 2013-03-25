@@ -22,7 +22,6 @@ package org.sonar.batch;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.Reactor;
 
 import java.util.Iterator;
@@ -44,6 +43,7 @@ public final class Batch {
 
   /**
    * Used by sonar-runner 1.x and ant-task 1.x
+   *
    * @deprecated since 2.9 because commons-configuration is replaced by ProjectDefinition#properties. Used by Ant Task 1.1
    */
   @Deprecated
@@ -56,6 +56,7 @@ public final class Batch {
 
   /**
    * Used by sonar-runner 2.0.
+   *
    * @deprecated in version 2.12.
    */
   @Deprecated

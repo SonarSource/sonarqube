@@ -33,7 +33,6 @@ import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

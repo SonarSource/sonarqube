@@ -33,8 +33,6 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.scan.ScanTask;
-import org.sonar.batch.tasks.ListTask;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
