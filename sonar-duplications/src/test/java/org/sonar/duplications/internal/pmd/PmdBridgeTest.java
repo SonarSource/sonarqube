@@ -33,8 +33,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class PmdBridgeTest {
 
@@ -53,17 +52,17 @@ public class PmdBridgeTest {
     addToIndex(file);
 
     List<CloneGroup> duplications = detect(file);
-    assertThat(duplications.size(), is(1));
+    assertThat(duplications.size()).isEqualTo(1);
 
     CloneGroup duplication = duplications.get(0);
-    assertThat(duplication.getOriginPart().getResourceId(), is(file.getAbsolutePath()));
-    assertThat(duplication.getCloneParts().size(), is(2));
-    assertThat("length in tokens", duplication.getLengthInUnits(), is(157));
+    assertThat(duplication.getOriginPart().getResourceId()).isEqualTo(file.getAbsolutePath());
+    assertThat(duplication.getCloneParts().size()).isEqualTo(2);
+    assertThat(duplication.getLengthInUnits()).as("length in tokens").isEqualTo(157);
 
     ClonePart part = duplication.getCloneParts().get(0);
-    assertThat(part.getResourceId(), is(file.getAbsolutePath()));
-    assertThat(part.getStartLine(), is(30));
-    assertThat(part.getEndLine(), is(44));
+    assertThat(part.getResourceId()).isEqualTo(file.getAbsolutePath());
+    assertThat(part.getStartLine()).isEqualTo(30);
+    assertThat(part.getEndLine()).isEqualTo(44);
   }
 
   @Test
@@ -74,17 +73,14 @@ public class PmdBridgeTest {
     addToIndex(file2);
 
     List<CloneGroup> duplications = detect(file1);
-    assertThat(duplications.size(), is(1));
+    assertThat(duplications.size()).isEqualTo(1);
 
     CloneGroup duplication = duplications.get(0);
-    assertThat(duplication.getOriginPart().getResourceId(), is(file1.getAbsolutePath()));
-    assertThat(duplication.getCloneParts().size(), is(2));
-    assertThat("length in tokens", duplication.getLengthInUnits(), is(115));
-
-    ClonePart part = duplication.getCloneParts().get(0);
-    assertThat(part.getResourceId(), is(file1.getAbsolutePath()));
-    assertThat(part.getStartLine(), is(18));
-    assertThat(part.getEndLine(), is(41));
+    assertThat(duplication.getOriginPart().getResourceId()).isEqualTo(file1.getAbsolutePath());
+    ClonePart part1 = new ClonePart(file1.getAbsolutePath(), 1, 18, 41);
+    ClonePart part2 = new ClonePart(file2.getAbsolutePath(), 1, 18, 41);
+    assertThat(duplication.getCloneParts()).containsOnly(part1, part2);
+    assertThat(duplication.getLengthInUnits()).as("length in tokens").isEqualTo(115);
   }
 
   private List<CloneGroup> detect(File file) {
