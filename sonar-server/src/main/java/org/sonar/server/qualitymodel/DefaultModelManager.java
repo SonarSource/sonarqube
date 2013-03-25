@@ -52,6 +52,7 @@ public final class DefaultModelManager implements ServerComponent, ModelManager 
   /**
    * Executed when the server starts
    */
+  @Override
   public ModelManager registerDefinitions() {
     DatabaseSession session = sessionFactory.getSession();
     for (ModelDefinition definition : definitions) {
@@ -68,6 +69,7 @@ public final class DefaultModelManager implements ServerComponent, ModelManager 
     return this;
   }
 
+  @Override
   public Model reset(String name) {
     ModelDefinition definition = findDefinitionByName(name);
     if (definition == null) {
@@ -93,7 +95,7 @@ public final class DefaultModelManager implements ServerComponent, ModelManager 
       throw e;
     }
   }
-
+  @Override
   public ModelDefinition findDefinitionByName(String name) {
     for (ModelDefinition definition : definitions) {
       if (StringUtils.equals(name, definition.getName())) {

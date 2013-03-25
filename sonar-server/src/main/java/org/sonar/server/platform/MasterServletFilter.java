@@ -53,6 +53,7 @@ public class MasterServletFilter implements Filter {
     INSTANCE = this;
   }
 
+  @Override
   public void init(FilterConfig config) throws ServletException {
     // Filters are already available in picocontainer unless a database migration is required. See org.sonar.server.startup.RegisterServletFilters.
     init(config, Platform.getInstance().getContainer().getComponentsByType(ServletFilter.class));
@@ -77,6 +78,7 @@ public class MasterServletFilter implements Filter {
     filters = filterList.toArray(new ServletFilter[filterList.size()]);
   }
 
+  @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
     HttpServletRequest hsr = (HttpServletRequest) request;
     if (filters.length == 0) {
@@ -94,6 +96,7 @@ public class MasterServletFilter implements Filter {
     }
   }
 
+  @Override
   public void destroy() {
     for (ServletFilter filter : filters) {
       filter.destroy();

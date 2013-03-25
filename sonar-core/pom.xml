@@ -69,9 +69,8 @@
       <artifactId>json-simple</artifactId>
     </dependency>
     <dependency>
-      <!-- version compiled for java 5 -->
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-blueprints-core</artifactId>
+      <groupId>com.tinkerpop.blueprints</groupId>
+      <artifactId>blueprints-core</artifactId>
       <exclusions>
         <exclusion>
           <groupId>org.codehaus.jackson</groupId>
