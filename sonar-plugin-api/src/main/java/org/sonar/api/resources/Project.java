@@ -439,6 +439,10 @@ public class Project extends Resource {
     return this;
   }
 
+  /**
+   * @deprecated since 3.6. Replaced by {@link org.sonar.api.config.Settings}.
+   */
+  @Deprecated
   public Object getProperty(String key) {
     return configuration != null ? configuration.getProperty(key) : null;
   }
