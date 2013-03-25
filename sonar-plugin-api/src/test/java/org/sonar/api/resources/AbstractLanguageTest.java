@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class AbstractLanguageTest {
@@ -31,12 +32,17 @@ public class AbstractLanguageTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void aLanguageShouldEqualItselft() {
-    assertEquals(new Java(), new Java());
+  public void a_language_should_equal_itself() {
+    assertEquals(new Language1(), new Language1());
   }
 
   @Test
-  public void shouldNotDefineLanguageWithTooLongKey() {
+  public void should_be_equal_to_another_language_implementation_having_same_key() {
+    assertThat(new Language1()).isEqualTo(new Language2());
+  }
+
+  @Test
+  public void should_not_define_language_with_too_long_key() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("The following language key exceeds 20 characters: 'aKeyWhichIsVeryVeryVeryVeryVeryLong'");
 
@@ -51,6 +57,26 @@ public class AbstractLanguageTest {
     public String[] getFileSuffixes() {
       // TODO Auto-generated method stub
       return null;
+    }
+  }
+
+  static class Language1 extends AbstractLanguage {
+    public Language1() {
+      super("language_key");
+    }
+
+    public String[] getFileSuffixes() {
+      return new String[0];
+    }
+  }
+
+  static class Language2 extends AbstractLanguage {
+    public Language2() {
+      super("language_key");
+    }
+
+    public String[] getFileSuffixes() {
+      return new String[0];
     }
   }
 

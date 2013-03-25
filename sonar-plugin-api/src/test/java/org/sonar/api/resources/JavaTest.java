@@ -35,21 +35,5 @@ public class JavaTest {
     assertThat(Java.isJavaFile(new java.io.File("Example.notjava"))).isFalse();
   }
 
-  @Test
-  public void should_be_equal_to_another_java_language_implementation() {
-    Java java = new Java();
-    Java2 otherJavaLanguage = new Java2();
 
-    assertThat(java).isEqualTo(otherJavaLanguage);
-  }
-
-  static class Java2 extends AbstractLanguage {
-    public Java2() {
-      super("java");
-    }
-
-    public String[] getFileSuffixes() {
-      return new String[0];
-    }
-  }
 }
