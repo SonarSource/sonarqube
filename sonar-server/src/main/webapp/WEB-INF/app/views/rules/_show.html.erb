@@ -19,9 +19,9 @@
 
 <div class="modal-body">
   <% if @rule.description.strip.start_with?('<p>') %>
-    <%= interpret_macro @rule.description %>
+    <%= MacroInterpreter.interpret_macro @rule.description %>
   <% else %>
-    <p><%= interpret_macro @rule.description %></p>
+    <p><%= MacroInterpreter.interpret_macro @rule.description %></p>
   <% end %>
 
   <% if @rule.note && !@rule.note.text.strip.blank? %>

@@ -58,7 +58,7 @@ class Api::ManualMeasuresController < Api::ApiController
     value=params[:val]
     bad_request("Not a numeric value: #{value}") if value && !Api::Utils.is_number?(value)
 
-    measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', resource.id, metric.id])
+    measure=ManualMeasure.first(:conditions => ['resource_id=? and metric_id=?', resource.id, metric.id])
     if measure.nil?
       measure=ManualMeasure.new(:resource => resource, :user_login => current_user.login, :metric_id => metric.id)
     end

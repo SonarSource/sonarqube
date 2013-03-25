@@ -9,9 +9,9 @@
 
 <div id="<%= note_detail_div_id -%>">
   <% if rule.description.strip.start_with?('<p>') %>
-    <%= interpret_macro rule.description %>
+    <%= MacroInterpreter.interpret_macro rule.description %>
   <% else %>
-    <p><%= interpret_macro rule.description %></p>
+    <p><%= MacroInterpreter.interpret_macro rule.description %></p>
   <% end %>
   
   <% if note && !note.text.strip.blank? %>

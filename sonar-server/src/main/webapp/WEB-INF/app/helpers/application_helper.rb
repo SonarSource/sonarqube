@@ -787,7 +787,4 @@ module ApplicationHelper
     html
   end
 
-  def interpret_macro(text)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getMacroInterpreter().interpret(text)
-  end
 end
