@@ -60,6 +60,7 @@ public class AverageFormula implements Formula {
    * Set a fallback metric if no measures found for the main metric.
    *
    * @param fallbackMetric The fallback metric
+   * @since 3.6
    */
   public AverageFormula setFallbackForMainMetric(Metric fallbackMetric) {
     this.fallbackMetric = fallbackMetric;

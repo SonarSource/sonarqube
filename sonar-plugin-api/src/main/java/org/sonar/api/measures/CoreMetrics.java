@@ -284,7 +284,14 @@ public final class CoreMetrics {
       .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FILES))
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String COMPLEXITY_IN_CLASSES_KEY = "complexity_in_classes";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric COMPLEXITY_IN_CLASSES = new Metric.Builder(COMPLEXITY_IN_CLASSES_KEY, "Complexity in classes", Metric.ValueType.INT)
       .setDescription("Cyclomatic complexity in classes")
       .setDirection(Metric.DIRECTION_WORST)
@@ -302,7 +309,14 @@ public final class CoreMetrics {
       .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY_IN_CLASSES, CoreMetrics.CLASSES).setFallbackForMainMetric(CoreMetrics.COMPLEXITY))
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String COMPLEXITY_IN_FUNCTIONS_KEY = "complexity_in_functions";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric COMPLEXITY_IN_FUNCTIONS = new Metric.Builder(COMPLEXITY_IN_FUNCTIONS_KEY, "Complexity in functions", Metric.ValueType.INT)
       .setDescription("Cyclomatic complexity in methods")
       .setDirection(Metric.DIRECTION_WORST)

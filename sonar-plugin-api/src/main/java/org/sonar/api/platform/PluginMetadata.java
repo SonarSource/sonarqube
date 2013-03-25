@@ -48,6 +48,9 @@ public interface PluginMetadata {
 
   String getHomepage();
 
+  /**
+   * @since 3.6
+   */
   String getIssueTrackerUrl();
 
   boolean isUseChildFirstClassLoader();
