@@ -63,7 +63,6 @@ public class TaskContainer extends ComponentContainer {
     add(
         ResourceTypes.class,
         DefaultResourcePermissions.class,
-        MetricProvider.class,
         Tasks.class);
   }
 
