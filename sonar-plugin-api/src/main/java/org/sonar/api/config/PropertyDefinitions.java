@@ -69,6 +69,15 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   }
 
   public PropertyDefinitions addComponent(Object component, String defaultCategory) {
+    addComponentFromAnnotationPropety(component, defaultCategory);
+    if (component instanceof PropertyDefinition) {
+      PropertyDefinition propertyDefinition = (PropertyDefinition) component;
+      add(propertyDefinition, defaultCategory);
+    }
+    return this;
+  }
+
+  private PropertyDefinitions addComponentFromAnnotationPropety(Object component, String defaultCategory){
     Properties annotations = AnnotationUtils.getAnnotation(component, Properties.class);
     if (annotations != null) {
       for (Property property : annotations.value()) {
@@ -88,11 +97,11 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   }
 
   private PropertyDefinitions add(PropertyDefinition definition, String defaultCategory) {
-    if (!definitions.containsKey(definition.getKey())) {
-      definitions.put(definition.getKey(), definition);
-      categories.put(definition.getKey(), StringUtils.defaultIfBlank(definition.getCategory(), defaultCategory));
-      if (!Strings.isNullOrEmpty(definition.getDeprecatedKey()) && !definition.getDeprecatedKey().equals(definition.getKey())) {
-        deprecatedKeys.put(definition.getDeprecatedKey(), definition.getKey());
+    if (!definitions.containsKey(definition.key())) {
+      definitions.put(definition.key(), definition);
+      categories.put(definition.key(), StringUtils.defaultIfBlank(definition.category(), defaultCategory));
+      if (!Strings.isNullOrEmpty(definition.deprecatedKey()) && !definition.deprecatedKey().equals(definition.key())) {
+        deprecatedKeys.put(definition.deprecatedKey(), definition.key());
       }
     }
     return this;
@@ -114,19 +123,19 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     GLOBAL {
       @Override
       boolean accept(PropertyDefinition propertyDefinition) {
-        return propertyDefinition.isGlobal();
+        return propertyDefinition.global();
       }
     },
     PROJECT {
       @Override
       boolean accept(PropertyDefinition propertyDefinition) {
-        return propertyDefinition.isOnProject();
+        return propertyDefinition.project();
       }
     },
     MODULE {
       @Override
       boolean accept(PropertyDefinition propertyDefinition) {
-        return propertyDefinition.isOnModule();
+        return propertyDefinition.module();
       }
     };
 
@@ -138,7 +147,7 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
 
     for (PropertyDefinition definition : getAll()) {
       if (filter.accept(definition)) {
-        byCategory.put(getCategory(definition.getKey()), definition);
+        byCategory.put(getCategory(definition.key()), definition);
       }
     }
 
@@ -171,7 +180,7 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     if (def == null) {
       return null;
     }
-    return StringUtils.defaultIfEmpty(def.getDefaultValue(), null);
+    return StringUtils.defaultIfEmpty(def.defaultValue(), null);
   }
 
   public String getCategory(String key) {
@@ -191,6 +200,6 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     if (def == null) {
       return null;
     }
-    return StringUtils.defaultIfEmpty(def.getDeprecatedKey(), null);
+    return StringUtils.defaultIfEmpty(def.deprecatedKey(), null);
   }
 }

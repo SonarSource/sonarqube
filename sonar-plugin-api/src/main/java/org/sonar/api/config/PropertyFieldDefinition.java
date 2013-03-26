@@ -19,13 +19,17 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.PropertyField;
 import org.sonar.api.PropertyType;
 
 import javax.annotation.Nullable;
 
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 3.3
@@ -36,50 +40,115 @@ public final class PropertyFieldDefinition {
   private final String description;
   private final int indicativeSize;
   private final PropertyType type;
-  private final String[] options;
+  private final List<String> options;
 
-  private PropertyFieldDefinition(PropertyField annotation) {
-    this.key = annotation.key();
-    this.name = annotation.name();
-    this.description = annotation.description();
-    this.indicativeSize = annotation.indicativeSize();
-    this.type = annotation.type();
-    this.options = annotation.options();
+  private PropertyFieldDefinition(Builder builder) {
+    this.key = builder.key;
+    this.name = builder.name;
+    this.description = builder.description;
+    this.indicativeSize = builder.indicativeSize;
+    this.type = builder.type;
+    this.options = builder.options;
   }
 
-  public static List<PropertyFieldDefinition> create(PropertyField[] fields) {
-    List<PropertyFieldDefinition> definitions = Lists.newArrayList();
+  static List<PropertyFieldDefinition> create(PropertyField[] fields) {
+    List<PropertyFieldDefinition> definitions = newArrayList();
     for (PropertyField field : fields) {
-      definitions.add(new PropertyFieldDefinition(field));
+      definitions.add(PropertyFieldDefinition.build(field.key())
+          .name(field.name())
+          .description(field.description())
+          .indicativeSize(field.indicativeSize())
+          .type(field.type())
+          .options(field.options())
+          .build()
+      );
     }
     return definitions;
   }
 
-  public String getKey() {
+  public static Builder build(String key) {
+    return new Builder(key);
+  }
+
+  public String key() {
     return key;
   }
 
-  public String getName() {
+  public String name() {
     return name;
   }
 
-  public String getDescription() {
+  public String description() {
     return description;
   }
 
-  public int getIndicativeSize() {
+  public int indicativeSize() {
     return indicativeSize;
   }
 
-  public PropertyType getType() {
+  public PropertyType type() {
     return type;
   }
 
-  public String[] getOptions() {
-    return options.clone();
+  public List<String> options() {
+    return options;
   }
 
   public PropertyDefinition.Result validate(@Nullable String value) {
     return PropertyDefinition.validate(type, value, options);
+  }
+
+  public static class Builder {
+    private String key;
+    private String name;
+    private String description;
+    private int indicativeSize;
+    private PropertyType type;
+    private List<String> options;
+
+    private Builder(String key) {
+      this.key = key;
+      this.name = "";
+      this.description = "";
+      this.indicativeSize = 20;
+      this.type = PropertyType.STRING;
+      this.options = newArrayList();
+    }
+
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder description(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder indicativeSize(int indicativeSize) {
+      this.indicativeSize = indicativeSize;
+      return this;
+    }
+
+    public Builder type(PropertyType type) {
+      this.type = type;
+      return this;
+    }
+
+    public Builder options(String... options) {
+      this.options.addAll(ImmutableList.copyOf(options));
+      return this;
+    }
+
+    public Builder options(List<String> options) {
+      this.options.addAll(ImmutableList.copyOf(options));
+      return this;
+    }
+
+    public PropertyFieldDefinition build() {
+      Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
+      Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must be set");
+      return new PropertyFieldDefinition(this);
+    }
   }
 }

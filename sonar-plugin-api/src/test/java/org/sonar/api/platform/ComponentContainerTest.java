@@ -161,7 +161,7 @@ public class ComponentContainerTest {
 
     PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
     assertThat(propertyDefinitions.get("foo")).isNotNull();
-    assertThat(propertyDefinitions.get("foo").getDefaultValue()).isEqualTo("bar");
+    assertThat(propertyDefinitions.get("foo").defaultValue()).isEqualTo("bar");
   }
 
   @Test

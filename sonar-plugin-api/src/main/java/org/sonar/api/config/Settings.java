@@ -191,7 +191,7 @@ public class Settings implements BatchComponent, ServerComponent {
    */
   public String[] getStringArray(String key) {
     PropertyDefinition property = getDefinitions().get(key);
-    if ((null != property) && (property.isMultiValues())) {
+    if ((null != property) && (property.multiValues())) {
       String value = getString(key);
       if (value == null) {
         return ArrayUtils.EMPTY_STRING_ARRAY;
@@ -259,7 +259,7 @@ public class Settings implements BatchComponent, ServerComponent {
 
   public Settings setProperty(String key, @Nullable String[] values) {
     PropertyDefinition property = getDefinitions().get(key);
-    if ((null == property) || (!property.isMultiValues())) {
+    if ((null == property) || (!property.multiValues())) {
       throw new IllegalStateException("Fail to set multiple values on a single value property " + key);
     }
 

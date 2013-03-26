@@ -19,121 +19,95 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.Nullable;
 
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 /**
+ * Property value can be set in different ways :
+ * <ul>
+ * <li>System property</li>
+ * <li>Maven command-line (-Dfoo=bar)</li>
+ * <li>Maven pom.xml (element <properties>)</li>
+ * <li>Maven settings.xml</li>
+ * <li>Sonar web interface</li>
+ * </ul>
+ * <p/>
+ * Value is accessible in batch extensions via the Configuration object of class <code>org.sonar.api.resources.Project</code>
+ * (see method <code>getConfiguration()</code>).
+ * <p/>
+ * <p><strong>Must be used in <code>org.sonar.api.Plugin</code> classes only.</strong></p>
+ *
  * @since 3.0
  */
-public final class PropertyDefinition {
+public final class PropertyDefinition implements BatchComponent, ServerComponent {
 
-  public static final class Result {
-    private static final Result SUCCESS = new Result(null);
+  private String key;
+  private String defaultValue;
+  private String name;
+  private PropertyType type;
+  private List<String> options;
+  private String description;
+  private String category;
+  private List<String> qualifiers;
+  private boolean global;
+  private boolean multiValues;
+  private String propertySetKey;
+  private String deprecatedKey;
+  private List<PropertyFieldDefinition> fields;
 
-    private String errorKey = null;
-
-    private static Result newError(String key) {
-      return new Result(key);
-    }
-
-    @Nullable
-    private Result(@Nullable String errorKey) {
-      this.errorKey = errorKey;
-    }
-
-    public boolean isValid() {
-      return StringUtils.isBlank(errorKey);
-    }
-
-    @Nullable
-    public String getErrorKey() {
-      return errorKey;
-    }
+  private PropertyDefinition(Builder builder) {
+    this.key = builder.key;
+    this.name = builder.name;
+    this.description = builder.description;
+    this.defaultValue = builder.defaultValue;
+    this.category = builder.category;
+    this.global = builder.global;
+    this.type = builder.type;
+    this.options = builder.options;
+    this.multiValues = builder.multiValues;
+    this.propertySetKey = builder.propertySetKey;
+    this.fields = builder.fields;
+    this.deprecatedKey = builder.deprecatedKey;
+    this.qualifiers = builder.qualifiers;
   }
 
-  private final String key;
-  private final String defaultValue;
-  private final String name;
-  private final PropertyType type;
-  private final String[] options;
-  private final String description;
-  private final String category;
-  private final boolean onProject;
-  private final boolean onModule;
-  private final boolean isGlobal;
-  private final boolean multiValues;
-  private final String propertySetKey;
-  private final String deprecatedKey;
-  private final List<PropertyFieldDefinition> fields;
-
-  private PropertyDefinition(Property annotation) {
-    this.key = annotation.key();
-    this.name = annotation.name();
-    this.defaultValue = annotation.defaultValue();
-    this.description = annotation.description();
-    this.isGlobal = annotation.global();
-    this.onProject = annotation.project();
-    this.onModule = annotation.module();
-    this.category = annotation.category();
-    this.type = fixType(annotation.key(), annotation.type());
-    this.options = annotation.options();
-    this.multiValues = annotation.multiValues();
-    this.propertySetKey = annotation.propertySetKey();
-    this.fields = ImmutableList.copyOf(PropertyFieldDefinition.create(annotation.fields()));
-    this.deprecatedKey = annotation.deprecatedKey();
+  public static Builder build(String key) {
+    return new Builder(key);
   }
 
-  private PropertyDefinition(String key, PropertyType type, String[] options) {
-    this.key = key;
-    this.name = null;
-    this.defaultValue = null;
-    this.description = null;
-    this.isGlobal = true;
-    this.onProject = false;
-    this.onModule = false;
-    this.category = null;
-    this.type = type;
-    this.options = options;
-    this.multiValues = false;
-    this.propertySetKey = null;
-    this.fields = null;
-    this.deprecatedKey = null;
+  static PropertyDefinition create(Property annotation) {
+    return PropertyDefinition.build(annotation.key())
+        .name(annotation.name())
+        .defaultValue(annotation.defaultValue())
+        .description(annotation.description())
+        .global(annotation.global())
+        .project(annotation.project())
+        .module(annotation.module())
+        .category(annotation.category())
+        .type(annotation.type())
+        .options(annotation.options())
+        .multiValues(annotation.multiValues())
+        .propertySetKey(annotation.propertySetKey())
+        .fields(PropertyFieldDefinition.create(annotation.fields()))
+        .deprecatedKey(annotation.deprecatedKey())
+        .build();
   }
 
-  private static PropertyType fixType(String key, PropertyType type) {
-    // Auto-detect passwords and licenses for old versions of plugins that
-    // do not declare property types
-    if (type == PropertyType.STRING) {
-      if (StringUtils.endsWith(key, ".password.secured")) {
-        return PropertyType.PASSWORD;
-      } else if (StringUtils.endsWith(key, ".license.secured")) {
-        return PropertyType.LICENSE;
-      }
-    }
-    return type;
-  }
-
-  public static PropertyDefinition create(Property annotation) {
-    return new PropertyDefinition(annotation);
-  }
-
-  public static PropertyDefinition create(String key, PropertyType type, String[] options) {
-    return new PropertyDefinition(key, type, options);
-  }
-
-  public Result validate(@Nullable String value) {
-    return validate(type, value, options);
-  }
-
-  static Result validate(PropertyType type, @Nullable String value, String[] options) {
+  public static Result validate(PropertyType type, @Nullable String value, List<String> options) {
     if (StringUtils.isNotBlank(value)) {
       if (type == PropertyType.BOOLEAN) {
         if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
@@ -150,7 +124,7 @@ public final class PropertyDefinition {
           return Result.newError("notFloat");
         }
       } else if (type == PropertyType.SINGLE_SELECT_LIST) {
-        if (!ArrayUtils.contains(options, value)) {
+        if (!options.contains(value)) {
           return Result.newError("notInOptions");
         }
       }
@@ -158,71 +132,273 @@ public final class PropertyDefinition {
     return Result.SUCCESS;
   }
 
-  public String getKey() {
+  public Result validate(@Nullable String value) {
+    return validate(type, value, options);
+  }
+
+  /**
+   * Unique key within all plugins. It's recommended to prefix the key by 'sonar.' and the plugin name. Examples :
+   * 'sonar.cobertura.reportPath' and 'sonar.cpd.minimumTokens'.
+   */
+  public String key() {
     return key;
   }
 
-  public String getDefaultValue() {
+  public String defaultValue() {
     return defaultValue;
   }
 
-  public String getName() {
+  public String name() {
     return name;
   }
 
-  public PropertyType getType() {
+  public PropertyType type() {
     return type;
   }
 
-  public String[] getOptions() {
-    return options.clone();
+  /**
+   * Options for *_LIST types
+   * <p/>
+   * Options for property of type PropertyType.SINGLE_SELECT_LIST</code>
+   * For example {"property_1", "property_3", "property_3"}).
+   * <p/>
+   * Options for property of type PropertyType.METRIC</code>.
+   * If no option is specified, any metric will match.
+   * If options are specified, all must match for the metric to be displayed.
+   * Three types of filter are supported <code>key:REGEXP</code>, <code>domain:REGEXP</code> and <code>type:comma_separated__list_of_types</code>.
+   * For example <code>key:new_.*</code> will match any metric which key starts by <code>new_</code>.
+   * For example <code>type:INT,FLOAT</code> will match any metric of type <code>INT</code> or <code>FLOAT</code>.
+   * For example <code>type:NUMERIC</code> will match any metric of numerictype.
+   */
+  public List<String> options() {
+    return options;
   }
 
-  public String getDescription() {
+  public String description() {
     return description;
   }
 
-  public String getCategory() {
+  public String category() {
     return category;
   }
 
-  public boolean isOnProject() {
-    return onProject;
+  /**
+   * Is the property displayed in project settings page ?
+   */
+  public boolean project() {
+    return qualifiers.contains(Qualifiers.PROJECT);
   }
 
-  public boolean isOnModule() {
-    return onModule;
+  /**
+   * Is the property displayed in module settings page ? A module is a maven sub-project.
+   */
+  public boolean module() {
+    return qualifiers.contains(Qualifiers.MODULE);
   }
 
-  public boolean isGlobal() {
-    return isGlobal;
+  /**
+   * Qualifiers that can display this property
+   *
+   * @since 3.6
+   */
+  public List<String> qualifiers() {
+    return qualifiers;
+  }
+
+  /**
+   * Is the property displayed in global settings page ?
+   */
+  public boolean global() {
+    return global;
   }
 
   /**
    * @since 3.3
    */
-  public boolean isMultiValues() {
+  public boolean multiValues() {
     return multiValues;
   }
 
   /**
    * @since 3.3
    */
-  public String getPropertySetKey() {
+  public String propertySetKey() {
     return propertySetKey;
   }
 
   /**
    * @since 3.3
    */
-  public List<PropertyFieldDefinition> getFields() {
+  public List<PropertyFieldDefinition> fields() {
     return fields;
   }
 
   /**
    * @since 3.4
    */
-  public String getDeprecatedKey() {
+  public String deprecatedKey() {
     return deprecatedKey;
   }
+
+  public static final class Result {
+    private static final Result SUCCESS = new Result(null);
+    private String errorKey = null;
+
+    @Nullable
+    private Result(@Nullable String errorKey) {
+      this.errorKey = errorKey;
+    }
+
+    private static Result newError(String key) {
+      return new Result(key);
+    }
+
+    public boolean isValid() {
+      return StringUtils.isBlank(errorKey);
+    }
+
+    @Nullable
+    public String getErrorKey() {
+      return errorKey;
+    }
+  }
+
+  public static class Builder {
+    private String key;
+    private String name;
+    private String description;
+    private String defaultValue;
+    private String category;
+    private List<String> qualifiers;
+    private boolean global;
+    private PropertyType type;
+    private List<String> options;
+    private boolean multiValues;
+    private String propertySetKey;
+    private List<PropertyFieldDefinition> fields;
+    private String deprecatedKey;
+
+    private Builder(String key) {
+      this.key = key;
+      this.name = "";
+      this.description = "";
+      this.defaultValue = "";
+      this.category = "";
+      this.propertySetKey = "";
+      this.deprecatedKey = "";
+      this.global = true;
+      this.type = PropertyType.STRING;
+      this.qualifiers = newArrayList();
+      this.options = newArrayList();
+      this.fields = newArrayList();
+    }
+
+    public Builder description(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder defaultValue(String defaultValue) {
+      this.defaultValue = defaultValue;
+      return this;
+    }
+
+    public Builder category(String category) {
+      this.category = category;
+      return this;
+    }
+
+    public Builder qualifiers(String... qualifiers) {
+      this.qualifiers.addAll(newArrayList(qualifiers));
+      return this;
+    }
+
+    public Builder project(boolean displayOnProject) {
+      if (displayOnProject) {
+        this.qualifiers.add(Qualifiers.PROJECT);
+      } else {
+        this.qualifiers.remove(Qualifiers.PROJECT);
+      }
+      return this;
+    }
+
+    public Builder module(boolean displayOnModule) {
+      if (displayOnModule) {
+        this.qualifiers.add(Qualifiers.MODULE);
+      } else {
+        this.qualifiers.remove(Qualifiers.MODULE);
+      }
+      return this;
+    }
+
+    public Builder global(boolean global) {
+      this.global = global;
+      return this;
+    }
+
+    public Builder type(PropertyType type) {
+      this.type = type;
+      return this;
+    }
+
+    public Builder options(String... options) {
+      this.options.addAll(ImmutableList.copyOf(options));
+      return this;
+    }
+
+    public Builder options(List<String> options) {
+      this.options.addAll(ImmutableList.copyOf(options));
+      return this;
+    }
+
+    public Builder multiValues(boolean multiValues) {
+      this.multiValues = multiValues;
+      return this;
+    }
+
+    public Builder propertySetKey(String propertySetKey) {
+      this.propertySetKey = propertySetKey;
+      return this;
+    }
+
+    public Builder fields(PropertyFieldDefinition... fields) {
+      this.fields.addAll(ImmutableList.copyOf(fields));
+      return this;
+    }
+
+    public Builder fields(List<PropertyFieldDefinition> fields) {
+      this.fields.addAll(ImmutableList.copyOf(fields));
+      return this;
+    }
+
+    public Builder deprecatedKey(String deprecatedKey) {
+      this.deprecatedKey = deprecatedKey;
+      return this;
+    }
+
+    public PropertyDefinition build() {
+      Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
+      Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must be set");
+      fixType(key, type);
+      return new PropertyDefinition(this);
+    }
+
+    private void fixType(String key, PropertyType type) {
+      // Auto-detect passwords and licenses for old versions of plugins that
+      // do not declare property types
+      if (type == PropertyType.STRING) {
+        if (StringUtils.endsWith(key, ".password.secured")) {
+          this.type = PropertyType.PASSWORD;
+        } else if (StringUtils.endsWith(key, ".license.secured")) {
+          this.type = PropertyType.LICENSE;
+        }
+      }
+    }
+  }
+
 }

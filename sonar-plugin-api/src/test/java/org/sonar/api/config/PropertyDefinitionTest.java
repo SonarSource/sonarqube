@@ -19,101 +19,161 @@
  */
 package org.sonar.api.config;
 
-import org.sonar.api.PropertyField;
-
 import org.junit.Test;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.PropertyField;
 import org.sonar.api.PropertyType;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.AnnotationUtils;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class PropertyDefinitionTest {
+
   @Test
-  public void createFromAnnotation() {
+  public void should_create_property() {
+    PropertyDefinition def = PropertyDefinition.build("hello")
+        .name("Hello")
+        .defaultValue("world")
+        .category("categ")
+        .options("de", "en")
+        .description("desc")
+        .type(PropertyType.FLOAT)
+        .global(false)
+        .qualifiers(Qualifiers.FILE, Qualifiers.CLASS)
+        .multiValues(true)
+        .propertySetKey("set")
+        .build();
+
+    assertThat(def.key()).isEqualTo("hello");
+    assertThat(def.name()).isEqualTo("Hello");
+    assertThat(def.defaultValue()).isEqualTo("world");
+    assertThat(def.category()).isEqualTo("categ");
+    assertThat(def.options()).containsOnly("de", "en");
+    assertThat(def.description()).isEqualTo("desc");
+    assertThat(def.type()).isEqualTo(PropertyType.FLOAT);
+    assertThat(def.global()).isFalse();
+    assertThat(def.qualifiers()).containsOnly(Qualifiers.FILE, Qualifiers.CLASS);
+    assertThat(def.multiValues()).isTrue();
+    assertThat(def.propertySetKey()).isEqualTo("set");
+    assertThat(def.fields()).isEmpty();
+  }
+
+  @Test
+  public void should_create_from_annotation() {
     Properties props = AnnotationUtils.getAnnotation(Init.class, Properties.class);
     Property prop = props.value()[0];
 
     PropertyDefinition def = PropertyDefinition.create(prop);
 
-    assertThat(def.getKey()).isEqualTo("hello");
-    assertThat(def.getName()).isEqualTo("Hello");
-    assertThat(def.getDefaultValue()).isEqualTo("world");
-    assertThat(def.getCategory()).isEqualTo("categ");
-    assertThat(def.getOptions()).hasSize(2);
-    assertThat(def.getOptions()).contains("de", "en");
-    assertThat(def.getDescription()).isEqualTo("desc");
-    assertThat(def.getType()).isEqualTo(PropertyType.FLOAT);
-    assertThat(def.isGlobal()).isFalse();
-    assertThat(def.isOnProject()).isTrue();
-    assertThat(def.isOnModule()).isTrue();
-    assertThat(def.isMultiValues()).isTrue();
-    assertThat(def.getPropertySetKey()).isEqualTo("set");
-    assertThat(def.getFields()).isEmpty();
-  }
-
-  @Properties(@Property(key = "hello", name = "Hello", defaultValue = "world", description = "desc",
-    options = {"de", "en"}, category = "categ", type = PropertyType.FLOAT, global = false, project = true, module = true, multiValues = true, propertySetKey = "set"))
-  static class Init {
+    assertThat(def.key()).isEqualTo("hello");
+    assertThat(def.name()).isEqualTo("Hello");
+    assertThat(def.defaultValue()).isEqualTo("world");
+    assertThat(def.category()).isEqualTo("categ");
+    assertThat(def.options()).containsOnly("de", "en");
+    assertThat(def.description()).isEqualTo("desc");
+    assertThat(def.type()).isEqualTo(PropertyType.FLOAT);
+    assertThat(def.global()).isFalse();
+    assertThat(def.project()).isTrue();
+    assertThat(def.module()).isTrue();
+    assertThat(def.multiValues()).isTrue();
+    assertThat(def.propertySetKey()).isEqualTo("set");
+    assertThat(def.fields()).isEmpty();
   }
 
   @Test
-  public void createFromAnnotation_default_values() {
+  public void should_create_property_with_default_values() {
+    PropertyDefinition def = PropertyDefinition.build("hello")
+        .name("Hello")
+        .build();
+
+    assertThat(def.key()).isEqualTo("hello");
+    assertThat(def.name()).isEqualTo("Hello");
+    assertThat(def.defaultValue()).isEmpty();
+    assertThat(def.category()).isEmpty();
+    assertThat(def.options()).isEmpty();
+    assertThat(def.description()).isEmpty();
+    assertThat(def.type()).isEqualTo(PropertyType.STRING);
+    assertThat(def.global()).isTrue();
+    assertThat(def.qualifiers()).isEmpty();
+    assertThat(def.project()).isFalse();
+    assertThat(def.module()).isFalse();
+    assertThat(def.multiValues()).isFalse();
+    assertThat(def.propertySetKey()).isEmpty();
+    assertThat(def.fields()).isEmpty();
+  }
+
+  @Test
+  public void should_create_from_annotation_default_values() {
     Properties props = AnnotationUtils.getAnnotation(DefaultValues.class, Properties.class);
     Property prop = props.value()[0];
 
     PropertyDefinition def = PropertyDefinition.create(prop);
 
-    assertThat(def.getKey()).isEqualTo("hello");
-    assertThat(def.getName()).isEqualTo("Hello");
-    assertThat(def.getDefaultValue()).isEmpty();
-    assertThat(def.getCategory()).isEmpty();
-    assertThat(def.getOptions()).isEmpty();
-    assertThat(def.getDescription()).isEmpty();
-    assertThat(def.getType()).isEqualTo(PropertyType.STRING);
-    assertThat(def.isGlobal()).isTrue();
-    assertThat(def.isOnProject()).isFalse();
-    assertThat(def.isOnModule()).isFalse();
-    assertThat(def.isMultiValues()).isFalse();
-    assertThat(def.getPropertySetKey()).isEmpty();
-    assertThat(def.getFields()).isEmpty();
-  }
-
-  @Properties(@Property(key = "hello", name = "Hello", fields = {
-    @PropertyField(key = "first", name = "First", description = "Description", options = {"A", "B"}),
-    @PropertyField(key = "second", name = "Second", type = PropertyType.INTEGER, indicativeSize = 5)}))
-  static class WithPropertySet {
+    assertThat(def.key()).isEqualTo("hello");
+    assertThat(def.name()).isEqualTo("Hello");
+    assertThat(def.defaultValue()).isEmpty();
+    assertThat(def.category()).isEmpty();
+    assertThat(def.options()).isEmpty();
+    assertThat(def.description()).isEmpty();
+    assertThat(def.type()).isEqualTo(PropertyType.STRING);
+    assertThat(def.global()).isTrue();
+    assertThat(def.project()).isFalse();
+    assertThat(def.module()).isFalse();
+    assertThat(def.multiValues()).isFalse();
+    assertThat(def.propertySetKey()).isEmpty();
+    assertThat(def.fields()).isEmpty();
   }
 
   @Test
   public void should_support_property_sets() {
+    PropertyDefinition def = PropertyDefinition.build("hello")
+        .name("Hello")
+        .fields(
+            PropertyFieldDefinition.build("first").name("First").description("Description").options("A", "B").build(),
+            PropertyFieldDefinition.build("second").name("Second").type(PropertyType.INTEGER).indicativeSize(5).build()
+        )
+        .build();
+
+    assertThat(def.fields()).hasSize(2);
+    assertThat(def.fields().get(0).key()).isEqualTo("first");
+    assertThat(def.fields().get(0).name()).isEqualTo("First");
+    assertThat(def.fields().get(0).description()).isEqualTo("Description");
+    assertThat(def.fields().get(0).type()).isEqualTo(PropertyType.STRING);
+    assertThat(def.fields().get(0).options()).containsOnly("A", "B");
+    assertThat(def.fields().get(0).indicativeSize()).isEqualTo(20);
+    assertThat(def.fields().get(1).key()).isEqualTo("second");
+    assertThat(def.fields().get(1).name()).isEqualTo("Second");
+    assertThat(def.fields().get(1).type()).isEqualTo(PropertyType.INTEGER);
+    assertThat(def.fields().get(1).options()).isEmpty();
+    assertThat(def.fields().get(1).indicativeSize()).isEqualTo(5);
+  }
+
+  @Test
+  public void should_support_property_sets_from_annotation() {
     Properties props = AnnotationUtils.getAnnotation(WithPropertySet.class, Properties.class);
     Property prop = props.value()[0];
 
     PropertyDefinition def = PropertyDefinition.create(prop);
 
-    assertThat(def.getFields()).hasSize(2);
-    assertThat(def.getFields().get(0).getKey()).isEqualTo("first");
-    assertThat(def.getFields().get(0).getName()).isEqualTo("First");
-    assertThat(def.getFields().get(0).getDescription()).isEqualTo("Description");
-    assertThat(def.getFields().get(0).getType()).isEqualTo(PropertyType.STRING);
-    assertThat(def.getFields().get(0).getOptions()).containsOnly("A", "B");
-    assertThat(def.getFields().get(0).getIndicativeSize()).isEqualTo(20);
-    assertThat(def.getFields().get(1).getKey()).isEqualTo("second");
-    assertThat(def.getFields().get(1).getName()).isEqualTo("Second");
-    assertThat(def.getFields().get(1).getType()).isEqualTo(PropertyType.INTEGER);
-    assertThat(def.getFields().get(1).getOptions()).isEmpty();
-    assertThat(def.getFields().get(1).getIndicativeSize()).isEqualTo(5);
-  }
-
-  @Properties(@Property(key = "hello", name = "Hello"))
-  static class DefaultValues {
+    assertThat(def.fields()).hasSize(2);
+    assertThat(def.fields().get(0).key()).isEqualTo("first");
+    assertThat(def.fields().get(0).name()).isEqualTo("First");
+    assertThat(def.fields().get(0).description()).isEqualTo("Description");
+    assertThat(def.fields().get(0).type()).isEqualTo(PropertyType.STRING);
+    assertThat(def.fields().get(0).options()).containsOnly("A", "B");
+    assertThat(def.fields().get(0).indicativeSize()).isEqualTo(20);
+    assertThat(def.fields().get(1).key()).isEqualTo("second");
+    assertThat(def.fields().get(1).name()).isEqualTo("Second");
+    assertThat(def.fields().get(1).type()).isEqualTo(PropertyType.INTEGER);
+    assertThat(def.fields().get(1).options()).isEmpty();
+    assertThat(def.fields().get(1).indicativeSize()).isEqualTo(5);
   }
 
   @Test
-  public void validate_string() {
-    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.STRING, new String[0]);
+  public void should_validate_string() {
+    PropertyDefinition def = PropertyDefinition.build("foo").name("foo").type(PropertyType.STRING).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -122,8 +182,8 @@ public class PropertyDefinitionTest {
   }
 
   @Test
-  public void validate_boolean() {
-    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.BOOLEAN, new String[0]);
+  public void should_validate_boolean() {
+    PropertyDefinition def = PropertyDefinition.build("foo").name("foo").type(PropertyType.BOOLEAN).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -136,8 +196,8 @@ public class PropertyDefinitionTest {
   }
 
   @Test
-  public void validate_integer() {
-    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.INTEGER, new String[0]);
+  public void should_validate_integer() {
+    PropertyDefinition def = PropertyDefinition.build("foo").name("foo").type(PropertyType.INTEGER).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -149,8 +209,8 @@ public class PropertyDefinitionTest {
   }
 
   @Test
-  public void validate_float() {
-    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.FLOAT, new String[0]);
+  public void should_validate_float() {
+    PropertyDefinition def = PropertyDefinition.build("foo").name("foo").type(PropertyType.FLOAT).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -163,8 +223,8 @@ public class PropertyDefinitionTest {
   }
 
   @Test
-  public void validate_single_select_list() {
-    PropertyDefinition def = PropertyDefinition.create("foo", PropertyType.SINGLE_SELECT_LIST, new String[]{"de", "en"});
+  public void should_validate_single_select_list() {
+    PropertyDefinition def = PropertyDefinition.build("foo").name("foo").type(PropertyType.SINGLE_SELECT_LIST).options("de", "en").build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -176,33 +236,35 @@ public class PropertyDefinitionTest {
     assertThat(def.validate("fr").getErrorKey()).isEqualTo("notInOptions");
   }
 
-  @Properties(@Property(key = "scm.password.secured", name = "SCM password"))
-  static class OldScmPlugin {
+  @Test
+  public void should_auto_detect_password_type() {
+    PropertyDefinition def = PropertyDefinition.build("scm.password.secured").name("SCM password").build();
+
+    assertThat(def.key()).isEqualTo("scm.password.secured");
+    assertThat(def.type()).isEqualTo(PropertyType.PASSWORD);
   }
 
   @Test
-  public void autoDetectPasswordType() {
-    Properties props = AnnotationUtils.getAnnotation(OldScmPlugin.class, Properties.class);
-    Property prop = props.value()[0];
+  public void should_auto_detect_license_type() {
+    PropertyDefinition def = PropertyDefinition.build("views.license.secured").name("Views license").build();
 
-    PropertyDefinition def = PropertyDefinition.create(prop);
-
-    assertThat(def.getKey()).isEqualTo("scm.password.secured");
-    assertThat(def.getType()).isEqualTo(PropertyType.PASSWORD);
+    assertThat(def.key()).isEqualTo("views.license.secured");
+    assertThat(def.type()).isEqualTo(PropertyType.LICENSE);
   }
 
-  @Properties(@Property(key = "views.license.secured", name = "Views license"))
-  static class ViewsPlugin {
+  @Properties(@Property(key = "hello", name = "Hello", defaultValue = "world", description = "desc",
+      options = {"de", "en"}, category = "categ", type = PropertyType.FLOAT, global = false, project = true, module = true, multiValues = true, propertySetKey = "set"))
+  static class Init {
   }
 
-  @Test
-  public void autoDetectLicenseType() {
-    Properties props = AnnotationUtils.getAnnotation(ViewsPlugin.class, Properties.class);
-    Property prop = props.value()[0];
-
-    PropertyDefinition def = PropertyDefinition.create(prop);
-
-    assertThat(def.getKey()).isEqualTo("views.license.secured");
-    assertThat(def.getType()).isEqualTo(PropertyType.LICENSE);
+  @Properties(@Property(key = "hello", name = "Hello", fields = {
+      @PropertyField(key = "first", name = "First", description = "Description", options = {"A", "B"}),
+      @PropertyField(key = "second", name = "Second", type = PropertyType.INTEGER, indicativeSize = 5)}))
+  static class WithPropertySet {
   }
+
+  @Properties(@Property(key = "hello", name = "Hello"))
+  static class DefaultValues {
+  }
+
 }

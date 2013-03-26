@@ -41,8 +41,8 @@ public class RenameDeprecatedPropertyKeys {
   public void start() {
     LoggerFactory.getLogger(RenameDeprecatedPropertyKeys.class).info("Rename deprecated property keys");
     for (PropertyDefinition definition : definitions.getAll()) {
-      if (!Strings.isNullOrEmpty(definition.getDeprecatedKey())) {
-        dao.renamePropertyKey(definition.getDeprecatedKey(), definition.getKey());
+      if (!Strings.isNullOrEmpty(definition.deprecatedKey())) {
+        dao.renamePropertyKey(definition.deprecatedKey(), definition.key());
       }
     }
   }

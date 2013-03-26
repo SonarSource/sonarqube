@@ -56,19 +56,19 @@ public class SettingsTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
-  public void initDefinitions() {
+  public void init_definitions() {
     definitions = new PropertyDefinitions();
     definitions.addComponent(Init.class);
   }
 
   @Test
-  public void defaultValuesShouldBeLoadedFromDefinitions() {
+  public void default_values_should_be_loaded_from_definitions() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getDefaultValue("hello")).isEqualTo("world");
   }
 
   @Test
-  public void setProperty_int() {
+  public void set_property_int() {
     Settings settings = new Settings();
     settings.setProperty("foo", 123);
     assertThat(settings.getInt("foo")).isEqualTo(123);
@@ -77,7 +77,7 @@ public class SettingsTest {
   }
 
   @Test
-  public void setProperty_boolean() {
+  public void set_property_boolean() {
     Settings settings = new Settings();
     settings.setProperty("foo", true);
     settings.setProperty("bar", false);
@@ -104,34 +104,34 @@ public class SettingsTest {
   }
 
   @Test
-  public void allValuesShouldBeTrimmed_set_property() {
+  public void all_values_should_be_trimmed_set_property() {
     Settings settings = new Settings();
     settings.setProperty("foo", "   FOO ");
     assertThat(settings.getString("foo")).isEqualTo("FOO");
   }
 
   @Test
-  public void allValuesShouldBeTrimmed_set_properties() {
+  public void all_values_should_be_trimmed_set_properties() {
     Settings settings = new Settings();
     settings.setProperties(ImmutableMap.of("foo", "  FOO "));
     assertThat(settings.getString("foo")).isEqualTo("FOO");
   }
 
   @Test
-  public void testGetDefaultValue() {
+  public void test_get_default_value() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getDefaultValue("unknown")).isNull();
   }
 
   @Test
-  public void testGetString() {
+  public void test_get_string() {
     Settings settings = new Settings(definitions);
     settings.setProperty("hello", "Russia");
     assertThat(settings.getString("hello")).isEqualTo("Russia");
   }
 
   @Test
-  public void testGetDate() {
+  public void test_get_date() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getDate("unknown")).isNull();
     assertThat(settings.getDate("date").getDate()).isEqualTo(18);
@@ -139,13 +139,13 @@ public class SettingsTest {
   }
 
   @Test
-  public void testGetDateNotFound() {
+  public void test_get_dat_enot_found() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getDate("unknown")).isNull();
   }
 
   @Test
-  public void testGetDateTime() {
+  public void test_get_datetime() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getDateTime("unknown")).isNull();
     assertThat(settings.getDateTime("datetime").getDate()).isEqualTo(18);
@@ -154,7 +154,7 @@ public class SettingsTest {
   }
 
   @Test
-  public void testGetDouble() {
+  public void test_get_double() {
     Settings settings = new Settings();
     settings.setProperty("from_double", 3.14159);
     settings.setProperty("from_string", "3.14159");
@@ -164,7 +164,7 @@ public class SettingsTest {
   }
 
   @Test
-  public void testGetFloat() {
+  public void test_get_float() {
     Settings settings = new Settings();
     settings.setProperty("from_float", 3.14159f);
     settings.setProperty("from_string", "3.14159");
@@ -174,7 +174,7 @@ public class SettingsTest {
   }
 
   @Test
-  public void testGetBadFloat() {
+  public void test_get_bad_float() {
     Settings settings = new Settings();
     settings.setProperty("foo", "bar");
 
@@ -184,7 +184,7 @@ public class SettingsTest {
   }
 
   @Test
-  public void testGetBadDouble() {
+  public void test_get_bad_double() {
     Settings settings = new Settings();
     settings.setProperty("foo", "bar");
 

@@ -25,7 +25,7 @@ module SettingsHelper
   end
 
   def property_name(property)
-    message("property.#{property.key}.name", :default => property.name())
+    message("property.#{property.key}.name", :default => property.name)
   end
 
   def property_description(property)
@@ -66,11 +66,11 @@ module SettingsHelper
       return 'PROPERTY_SET_DEFINITION'
     end
 
-    if property.getType().to_s=='STRING' && value && value.include?('\n')
+    if property.type.to_s=='STRING' && value && value.include?('\n')
       return 'TEXT'
     end
 
-    property.getType()
+    property.type
   end
 
   def by_property_name(properties)

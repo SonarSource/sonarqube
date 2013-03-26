@@ -126,7 +126,7 @@ class Property < ActiveRecord::Base
   end
 
   def multi_values?
-    java_definition && (java_definition.isMultiValues() || !java_definition.fields.blank?)
+    java_definition && (java_definition.multi_values? || !java_definition.fields.blank?)
   end
 
   def to_xml(xml=Builder::XmlMarkup.new(:indent => 0))
