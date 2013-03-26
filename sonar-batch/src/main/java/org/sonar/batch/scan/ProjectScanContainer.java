@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.ExtensionMatcher;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;

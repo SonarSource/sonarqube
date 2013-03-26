@@ -40,7 +40,9 @@ import java.util.List;
 
 /**
  * @since 1.11
+ * @deprecated since 2.6 was only used by views
  */
+@Deprecated
 public class BatchExtensionDictionnary {
 
   private ComponentContainer componentContainer;
@@ -54,11 +56,7 @@ public class BatchExtensionDictionnary {
   }
 
   public <T> Collection<T> select(Class<T> type, Project project, boolean sort) {
-    return select(type, project, sort, null);
-  }
-
-  public <T> Collection<T> select(Class<T> type, Project project, boolean sort, ExtensionMatcher matcher) {
-    List<T> result = getFilteredExtensions(type, project, matcher);
+    List<T> result = getFilteredExtensions(type, project);
     if (sort) {
       return sort(result);
     }
@@ -84,7 +82,7 @@ public class BatchExtensionDictionnary {
     return handlers;
   }
 
-  private List<BatchExtension> getExtensions() {
+  protected List<BatchExtension> getExtensions() {
     List<BatchExtension> extensions = Lists.newArrayList();
     completeBatchExtensions(componentContainer, extensions);
     return extensions;
@@ -97,18 +95,18 @@ public class BatchExtensionDictionnary {
     }
   }
 
-  private <T> List<T> getFilteredExtensions(Class<T> type, Project project, ExtensionMatcher matcher) {
+  private <T> List<T> getFilteredExtensions(Class<T> type, Project project) {
     List<T> result = Lists.newArrayList();
     for (BatchExtension extension : getExtensions()) {
-      if (shouldKeep(type, extension, project, matcher)) {
+      if (shouldKeep(type, extension, project)) {
         result.add((T) extension);
       }
     }
     return result;
   }
 
-  private boolean shouldKeep(Class type, Object extension, Project project, ExtensionMatcher matcher) {
-    boolean keep = ClassUtils.isAssignable(extension.getClass(), type) && (matcher == null || matcher.accept(extension));
+  private boolean shouldKeep(Class type, Object extension, Project project) {
+    boolean keep = ClassUtils.isAssignable(extension.getClass(), type);
     if (keep && project != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
       keep = ((CheckProject) extension).shouldExecuteOnProject(project);
     }

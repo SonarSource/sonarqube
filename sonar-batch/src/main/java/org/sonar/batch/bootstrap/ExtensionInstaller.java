@@ -22,11 +22,11 @@ package org.sonar.batch.bootstrap;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
-import org.sonar.api.batch.ExtensionMatcher;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.scan.ExtensionMatcher;
 
 import javax.annotation.Nullable;
 
