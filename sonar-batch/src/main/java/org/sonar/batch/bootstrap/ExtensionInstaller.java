@@ -26,7 +26,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.scan.ExtensionMatcher;
 
 import javax.annotation.Nullable;
 

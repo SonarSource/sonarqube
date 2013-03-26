@@ -25,7 +25,6 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.CheckProject;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.scan.ExtensionMatcher;
 
 import java.util.Collection;
 import java.util.List;

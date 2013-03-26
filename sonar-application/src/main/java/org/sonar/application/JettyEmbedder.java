@@ -107,7 +107,7 @@ public class JettyEmbedder {
     return server;
   }
 
-  public RequestLogHandler configureRequestLogHandler(String filenamePattern) {
+  private RequestLogHandler configureRequestLogHandler(String filenamePattern) {
     RequestLogHandler requestLogHandler = new RequestLogHandler();
     NCSARequestLog requestLog = new NCSARequestLog(filenamePattern);
     requestLog.setRetainDays(7);

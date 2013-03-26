@@ -27,7 +27,6 @@ import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.scan.ExtensionMatcher;
 import org.sonar.batch.scan.ScanTask;
 import org.sonar.batch.tasks.ListTask;
 import org.sonar.batch.tasks.Tasks;

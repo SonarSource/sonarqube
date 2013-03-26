@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.bootstrap.ExtensionMatcher;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;

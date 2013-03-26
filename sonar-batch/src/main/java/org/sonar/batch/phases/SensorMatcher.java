@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.phases;
 
+import org.sonar.batch.bootstrap.ExtensionMatcher;
+
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.Sensor;
-import org.sonar.batch.scan.ExtensionMatcher;
 
 /**
  * Allow to filter sensors that will be executed.

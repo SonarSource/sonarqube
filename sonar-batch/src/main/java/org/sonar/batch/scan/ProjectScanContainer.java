@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.bootstrap.ExtensionMatcher;
+
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.platform.ComponentContainer;
