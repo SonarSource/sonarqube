@@ -52,7 +52,8 @@ public class ScanTask implements Task {
         DefaultProjectTree.class,
         ProjectExclusions.class,
         ProjectReactorReady.class,
-        DefaultProfileLoader.class);
+        DefaultProfileLoader.class,
+        DefaultSensorMatcher.class);
     scanContainer.execute();
   }
 }
