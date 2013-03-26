@@ -369,7 +369,7 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.eclipse.jetty</groupId>
+            <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty-maven-plugin</artifactId>
             <version>${jetty.version}</version>
             <configuration>
