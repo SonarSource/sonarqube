@@ -26,6 +26,7 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.batch.ExtensionMatcher;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
@@ -47,12 +48,12 @@ public class ExtensionInstallerTest {
   Map<PluginMetadata, Plugin> newPlugin(final Object... extensions) {
     Map<PluginMetadata, Plugin> result = Maps.newHashMap();
     result.put(metadata,
-      new SonarPlugin() {
-        public List<?> getExtensions() {
-          return Arrays.asList(extensions);
+        new SonarPlugin() {
+          public List<?> getExtensions() {
+            return Arrays.asList(extensions);
+          }
         }
-      }
-    );
+        );
     return result;
   }
 
@@ -110,18 +111,17 @@ public class ExtensionInstallerTest {
     assertThat(container.getComponentByType(Bar.class)).isNotNull();
   }
 
-  private static class FooMatcher implements ExtensionInstaller.ComponentFilter {
+  private static class FooMatcher implements ExtensionMatcher {
     public boolean accept(Object extension) {
       return extension.equals(Foo.class) || ClassUtils.isAssignable(Foo.class, extension.getClass()) || ClassUtils.isAssignable(FooProvider.class, extension.getClass());
     }
   }
 
-  private static class TrueMatcher implements ExtensionInstaller.ComponentFilter {
+  private static class TrueMatcher implements ExtensionMatcher {
     public boolean accept(Object extension) {
       return true;
     }
   }
-
 
   public static class Foo implements BatchExtension {
 

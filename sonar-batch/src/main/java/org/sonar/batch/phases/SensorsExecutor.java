@@ -46,19 +46,21 @@ public class SensorsExecutor implements BatchComponent {
   private DefaultModuleFileSystem fs;
   private BatchExtensionDictionnary selector;
   private final DatabaseSession session;
+  private final SensorMatcher sensorMatcher;
 
   public SensorsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor, EventBus eventBus,
-      DatabaseSession session) {
+      DatabaseSession session, SensorMatcher sensorMatcher) {
     this.selector = selector;
     this.mavenExecutor = mavenExecutor;
     this.eventBus = eventBus;
     this.project = project;
     this.fs = fs;
     this.session = session;
+    this.sensorMatcher = sensorMatcher;
   }
 
   public void execute(SensorContext context) {
-    Collection<Sensor> sensors = selector.select(Sensor.class, project, true);
+    Collection<Sensor> sensors = selector.select(Sensor.class, project, true, sensorMatcher);
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
 
     for (Sensor sensor : sensors) {

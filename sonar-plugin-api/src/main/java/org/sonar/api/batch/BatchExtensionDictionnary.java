@@ -54,7 +54,11 @@ public class BatchExtensionDictionnary {
   }
 
   public <T> Collection<T> select(Class<T> type, Project project, boolean sort) {
-    List<T> result = getFilteredExtensions(type, project);
+    return select(type, project, sort, null);
+  }
+
+  public <T> Collection<T> select(Class<T> type, Project project, boolean sort, ExtensionMatcher matcher) {
+    List<T> result = getFilteredExtensions(type, project, matcher);
     if (sort) {
       return sort(result);
     }
@@ -93,18 +97,18 @@ public class BatchExtensionDictionnary {
     }
   }
 
-  private <T> List<T> getFilteredExtensions(Class<T> type, Project project) {
+  private <T> List<T> getFilteredExtensions(Class<T> type, Project project, ExtensionMatcher matcher) {
     List<T> result = Lists.newArrayList();
     for (BatchExtension extension : getExtensions()) {
-      if (shouldKeep(type, extension, project)) {
+      if (shouldKeep(type, extension, project, matcher)) {
         result.add((T) extension);
       }
     }
     return result;
   }
 
-  private boolean shouldKeep(Class type, Object extension, Project project) {
-    boolean keep = ClassUtils.isAssignable(extension.getClass(), type);
+  private boolean shouldKeep(Class type, Object extension, Project project, ExtensionMatcher matcher) {
+    boolean keep = ClassUtils.isAssignable(extension.getClass(), type) && (matcher == null || matcher.accept(extension));
     if (keep && project != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
       keep = ((CheckProject) extension).shouldExecuteOnProject(project);
     }
@@ -155,7 +159,6 @@ public class BatchExtensionDictionnary {
     }
   }
 
-
   protected List evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
     List<Object> results = Lists.newArrayList();
     Class aClass = extension.getClass();
@@ -203,7 +206,7 @@ public class BatchExtensionDictionnary {
     try {
       Object result = method.invoke(extension);
       if (result != null) {
-        //TODO add arrays/collections of objects/classes
+        // TODO add arrays/collections of objects/classes
         if (result instanceof Class<?>) {
           results.addAll(componentContainer.getComponentsByType((Class<?>) result));
 

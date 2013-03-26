@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.BatchExtensionDictionnary;
+import org.sonar.api.batch.ExtensionMatcher;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.platform.ComponentContainer;
@@ -117,7 +118,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
   private void addExtensions() {
     ExtensionInstaller installer = getComponentByType(ExtensionInstaller.class);
-    installer.install(this, new ExtensionInstaller.ComponentFilter() {
+    installer.install(this, new ExtensionMatcher() {
       public boolean accept(Object extension) {
         if (ExtensionUtils.isType(extension, BatchExtension.class) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT)) {
           // Special use-case: the extension point ProjectBuilder is used in a Maven environment to define some

@@ -59,6 +59,22 @@ public class BatchExtensionDictionnaryTest {
   }
 
   @Test
+  public void testGetFilteredExtensionWithExtensionMatcher() {
+    final Sensor sensor1 = new FakeSensor(), sensor2 = new FakeSensor();
+
+    BatchExtensionDictionnary selector = newSelector(sensor1, sensor2);
+    Collection<Sensor> sensors = selector.select(Sensor.class, null, true, new ExtensionMatcher() {
+      @Override
+      public boolean accept(Object extension) {
+        return extension.equals(sensor1);
+      }
+    });
+
+    assertThat(sensors, hasItem(sensor1));
+    assertEquals(1, sensors.size());
+  }
+
+  @Test
   public void shouldSearchInParentContainers() {
     BatchExtension a = new FakeSensor();
     BatchExtension b = new FakeSensor();

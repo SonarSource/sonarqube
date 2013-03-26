@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.ExtensionMatcher;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.ResourceTypes;
@@ -52,7 +53,7 @@ public class TaskContainer extends ComponentContainer {
   }
 
   private void installTaskExtensions() {
-    getComponentByType(ExtensionInstaller.class).install(this, new ExtensionInstaller.ComponentFilter() {
+    getComponentByType(ExtensionInstaller.class).install(this, new ExtensionMatcher() {
       public boolean accept(Object extension) {
         return ExtensionUtils.isType(extension, TaskExtension.class);
       }

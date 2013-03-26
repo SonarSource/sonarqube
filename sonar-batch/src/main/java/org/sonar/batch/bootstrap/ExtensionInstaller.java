@@ -22,6 +22,7 @@ package org.sonar.batch.bootstrap;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
+import org.sonar.api.batch.ExtensionMatcher;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
@@ -44,7 +45,7 @@ public class ExtensionInstaller {
     this.settings = settings;
   }
 
-  public ExtensionInstaller install(ComponentContainer container, ComponentFilter matcher) {
+  public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
     boolean dryRun = isDryRun();
     for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
       PluginMetadata metadata = entry.getKey();
@@ -67,10 +68,10 @@ public class ExtensionInstaller {
     return this;
   }
 
-  private void doInstall(ComponentContainer container, ComponentFilter matcher, @Nullable PluginMetadata metadata, boolean dryRun, Object extension) {
+  private void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginMetadata metadata, boolean dryRun, Object extension) {
     if (ExtensionUtils.supportsEnvironment(extension, env)
-        && (!dryRun || ExtensionUtils.supportsDryRun(extension))
-        && matcher.accept(extension)) {
+      && (!dryRun || ExtensionUtils.supportsDryRun(extension))
+      && matcher.accept(extension)) {
       container.addExtension(metadata, extension);
     } else {
       container.declareExtension(metadata, extension);
@@ -79,10 +80,5 @@ public class ExtensionInstaller {
 
   private boolean isDryRun() {
     return settings.getBoolean(CoreProperties.DRY_RUN);
-  }
-
-  // TODO rename ExtensionMatcher
-  public interface ComponentFilter {
-    boolean accept(Object extension);
   }
 }
