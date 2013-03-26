@@ -81,13 +81,14 @@ public class MeasuresDao extends BaseDao {
     if (metrics != null) {
       for (Metric metric : metrics) {
         metric.setEnabled(Boolean.TRUE);
-        persistMetric(metric);
+        persistMetricWithoutClear(metric);
       }
       getSession().commit();
     }
+    metricsByName.clear();
   }
 
-  public void persistMetric(Metric metric) {
+  private void persistMetricWithoutClear(Metric metric) {
     Metric dbMetric = getMetric(metric);
     if (dbMetric != null) {
       dbMetric.merge(metric);
@@ -96,7 +97,10 @@ public class MeasuresDao extends BaseDao {
     } else {
       getSession().getEntityManager().persist(metric);
     }
+  }
 
+  public void persistMetric(Metric metric) {
+    persistMetricWithoutClear(metric);
     metricsByName.clear();
   }
 
