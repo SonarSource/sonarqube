@@ -22,16 +22,15 @@ package org.sonar.batch.bootstrap;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.HttpConnection;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.AbstractHandler;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import javax.servlet.ServletException;
@@ -165,8 +164,7 @@ public class ServerClientTest {
     public Handler getMockHandler() {
       Handler handler = new AbstractHandler() {
 
-        public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) throws IOException, ServletException {
-          Request baseRequest = request instanceof Request ? (Request) request : HttpConnection.getCurrentConnection().getRequest();
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
           setResponseBody(getMockResponseData());
           setRequestBody(IOUtils.toString(baseRequest.getInputStream()));
           response.setStatus(mockResponseStatus);

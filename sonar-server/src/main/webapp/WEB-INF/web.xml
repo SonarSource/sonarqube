@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-         version="2.4">
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         metadata-complete="true"
+         version="3.0">
 
   <display-name>Sonar</display-name>
 
@@ -45,7 +46,7 @@
   </filter>
   <filter>
     <filter-name>GZIPFilter</filter-name>
-    <filter-class>org.mortbay.servlet.GzipFilter</filter-class>
+    <filter-class>org.eclipse.jetty.servlets.GzipFilter</filter-class>
     <init-param>
       <param-name>minGzipSize</param-name>
       <param-value>1024</param-value>

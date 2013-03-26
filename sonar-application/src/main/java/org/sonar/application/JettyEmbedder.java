@@ -20,15 +20,15 @@
 package org.sonar.application;
 
 import org.apache.commons.io.FileUtils;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.NCSARequestLog;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.HandlerList;
-import org.mortbay.jetty.handler.RequestLogHandler;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.webapp.WebAppContext;
-import org.mortbay.thread.QueuedThreadPool;
-import org.mortbay.xml.XmlConfiguration;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.NCSARequestLog;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.RequestLogHandler;
+import org.eclipse.jetty.server.handler.ShutdownHandler;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,29 +47,20 @@ public class JettyEmbedder {
   private final String contextPath;
   private final Properties configuration;
 
-  public JettyEmbedder(String host, int port, String contextPath, URL configurationURL, Properties configuration) throws Exception {
+  public JettyEmbedder(String host, int port, String contextPath, Properties configuration) throws Exception {
     this.host = host.trim();
     this.port = port;
     this.contextPath = contextPath;
     this.configuration = configuration;
     server = new Server();
-
-    if (configurationURL == null) {
-      configureProgrammatically();
-    } else {
-      System.setProperty("jetty.host", this.host);
-      System.setProperty("jetty.port", String.valueOf(port));
-      System.setProperty("jetty.context", contextPath);
-      XmlConfiguration xmlConfiguration = new XmlConfiguration(configurationURL);
-      xmlConfiguration.configure(server);
-    }
+    configureProgrammatically();
   }
 
   /**
    * for tests
    */
   JettyEmbedder(String host, int port) throws Exception {
-    this(host, port, null, null, new Properties());
+    this(host, port, null, new Properties());
   }
 
   public void start() throws Exception {
@@ -90,23 +81,25 @@ public class JettyEmbedder {
 
   private Server configureProgrammatically() throws URISyntaxException {
     configureServer();
+    HandlerCollection handlers = new HandlerCollection();
     WebAppContext context = new WebAppContext(getPath("/war/sonar-server"), contextPath);
+    String filenamePattern = configuration.getProperty("sonar.web.jettyRequestLogs");
+    RequestLogHandler requestLogHandler = configureRequestLogHandler(filenamePattern);
     String shutdownCookie = System.getProperty("sonar.shutdownToken");
     if (shutdownCookie != null && !"".equals(shutdownCookie)) {
       System.out.println("Registering shutdown handler");
       ShutdownHandler shutdownHandler = new ShutdownHandler(server, shutdownCookie);
       shutdownHandler.setExitJvm(true);
-      HandlerList handlers = new HandlerList();
-      handlers.setHandlers(new Handler[] {shutdownHandler, context});
-      server.setHandler(handlers);
+      handlers.setHandlers(new Handler[] {shutdownHandler, context, requestLogHandler});
     }
     else {
-      server.addHandler(context);
+      handlers.setHandlers(new Handler[] {context, requestLogHandler});
     }
+    server.setHandler(handlers);
     return server;
   }
 
-  public void configureRequestLogs(String filenamePattern) {
+  public RequestLogHandler configureRequestLogHandler(String filenamePattern) {
     RequestLogHandler requestLogHandler = new RequestLogHandler();
     NCSARequestLog requestLog = new NCSARequestLog(filenamePattern);
     requestLog.setRetainDays(7);
@@ -114,14 +107,13 @@ public class JettyEmbedder {
     requestLog.setExtended(true);
     requestLog.setLogTimeZone("GMT");
     requestLogHandler.setRequestLog(requestLog);
-    server.addHandler(requestLogHandler);
+    return requestLogHandler;
   }
 
   private void configureServer() {
     QueuedThreadPool threadPool = new QueuedThreadPool();
     threadPool.setMinThreads(getIntProperty("sonar.web.jetty.threads.min", 5));
     threadPool.setMaxThreads(getIntProperty("sonar.web.jetty.threads.max", 50));
-    threadPool.setLowThreads(getIntProperty("sonar.web.jetty.threads.low", 10));
     server.setThreadPool(threadPool);
     SelectChannelConnector connector = new SelectChannelConnector();
     connector.setHost(host);

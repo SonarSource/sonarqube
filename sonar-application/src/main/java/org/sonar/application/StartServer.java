@@ -37,14 +37,12 @@ public final class StartServer {
   public static void main(String[] args) throws Exception {
     canCreateTemporaryFiles();
     configureHome();
-    configureJettyLogger();
 
     Properties configuration = getConfiguration();
     String host = configuration.getProperty("sonar.web.host", DEFAULT_WEB_HOST);
     int port = Integer.parseInt(configuration.getProperty("sonar.web.port", "" + DEFAULT_WEB_PORT));
     String context = configuration.getProperty("sonar.web.context", DEFAULT_WEB_CONTEXT);
-    JettyEmbedder jetty = new JettyEmbedder(host, port, context, StartServer.class.getResource("/jetty.xml"), configuration);
-    configureRequestLogs(jetty, configuration);
+    JettyEmbedder jetty = new JettyEmbedder(host, port, context, configuration);
 
     jetty.start();
     Thread.currentThread().join();
@@ -64,13 +62,6 @@ public final class StartServer {
     }
   }
 
-  private static void configureRequestLogs(JettyEmbedder jetty, Properties configuration) {
-    String filenamePattern = configuration.getProperty("sonar.web.jettyRequestLogs");
-    if (filenamePattern != null) {
-      jetty.configureRequestLogs(filenamePattern);
-    }
-  }
-
   private static Properties getConfiguration() throws IOException {
     Properties properties = new Properties();
     properties.load(StartServer.class.getResourceAsStream("/conf/sonar.properties"));
@@ -80,10 +71,6 @@ public final class StartServer {
   private static void configureHome() throws URISyntaxException {
     File confFile = new File(StartServer.class.getResource("/conf/sonar.properties").toURI());
     System.setProperty("SONAR_HOME" /* see constant org.sonar.server.platform.SonarHome.PROPERTY */,
-      confFile.getParentFile().getParentFile().getAbsolutePath());
-  }
-
-  private static void configureJettyLogger() {
-    System.setProperty("org.mortbay.log.class", FilteredLogger.class.getName());
+        confFile.getParentFile().getParentFile().getAbsolutePath());
   }
 }

@@ -22,23 +22,12 @@ package org.sonar.application;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
-import java.util.Properties;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class JettyEmbedderTest {
-  @Test
-  public void xmlConfigurationShouldAccessToSomeSystemProperties() throws Exception {
-    // useful to set the port into the XML file
-    new JettyEmbedder("127.0.0.1", 9999, "/", JettyEmbedderTest.class.getResource("/org/sonar/application/jetty-test.xml"), new Properties());
-
-    assertThat(System.getProperty("jetty.host")).isEqualTo("127.0.0.1");
-    assertThat(System.getProperty("jetty.port")).isEqualTo("9999");
-    assertThat(System.getProperty("jetty.context")).isEqualTo("/");
-  }
 
   @Test
-  public void shouldUseDefaultConfigurationIfNoXml() throws Exception {
+  public void shouldConfigureProgrammatically() throws Exception {
     JettyEmbedder jetty = new JettyEmbedder("1.2.3.4", 9999);
 
     assertThat(jetty.getServer().getConnectors()).hasSize(1);

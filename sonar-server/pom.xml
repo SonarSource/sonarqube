@@ -111,7 +111,7 @@
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
+      <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -132,8 +132,8 @@
     </dependency>
     <dependency>
       <!-- GZIP filter -->
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jetty-util</artifactId>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlets</artifactId>
     </dependency>
 
     <!-- unit tests -->
@@ -369,9 +369,9 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.mortbay.jetty</groupId>
+            <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-maven-plugin</artifactId>
-            <version>7.1.0.v20100505</version>
+            <version>${jetty.version}</version>
             <configuration>
               <webAppConfig>
                 <contextPath>/dev</contextPath>
