@@ -64,7 +64,7 @@ public class ReviewEmailTemplate extends EmailTemplate {
 
     EmailMessage message = new EmailMessage()
         .setMessageId("review/" + reviewId)
-        .setSubject("Review #" + reviewId)
+        .setSubject("Review #" + reviewId + ("FALSE-POSITIVE".equals(notification.getFieldValue("new.resolution")) ? " - False Positive" : ""))
         .setMessage(sb.toString());
     if (author != null) {
       message.setFrom(getUserFullName(author));

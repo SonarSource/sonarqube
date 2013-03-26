@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.emailnotifications.templates.reviews;
 
-import org.sonar.plugins.emailnotifications.templates.reviews.ReviewEmailTemplate;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
@@ -29,9 +27,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.security.UserFinder;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -68,7 +64,7 @@ public class ReviewEmailTemplateTest {
    * </pre>
    */
   @Test
-  public void shouldFormatCommentAdded() {
+  public void should_format_comment_added() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
         .setFieldValue("project", "Sonar")
@@ -78,10 +74,10 @@ public class ReviewEmailTemplateTest {
         .setFieldValue("old.comment", null)
         .setFieldValue("new.comment", "This is my first comment");
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("review/1"));
-    assertThat(message.getSubject(), is("Review #1"));
-    assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("" +
+    assertThat(message.getMessageId()).isEqualTo("review/1");
+    assertThat(message.getSubject()).isEqualTo("Review #1");
+    assertThat(message.getFrom()).isEqualTo("Freddy Mallet");
+    assertThat(message.getMessage()).isEqualTo("" +
         "Project: Sonar\n" +
         "Resource: org.sonar.server.ui.DefaultPages\n" +
         "\n" +
@@ -90,7 +86,7 @@ public class ReviewEmailTemplateTest {
         "Comment:\n" +
         "  This is my first comment\n" +
         "\n" +
-        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n");
   }
 
   /**
@@ -112,7 +108,7 @@ public class ReviewEmailTemplateTest {
    * </pre>
    */
   @Test
-  public void shouldFormatCommentEdited() {
+  public void should_format_commentedited() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
         .setFieldValue("project", "Sonar")
@@ -122,10 +118,10 @@ public class ReviewEmailTemplateTest {
         .setFieldValue("old.comment", "This is my first comment")
         .setFieldValue("new.comment", "This is another comment");
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("review/1"));
-    assertThat(message.getSubject(), is("Review #1"));
-    assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("" +
+    assertThat(message.getMessageId()).isEqualTo("review/1");
+    assertThat(message.getSubject()).isEqualTo("Review #1");
+    assertThat(message.getFrom()).isEqualTo("Freddy Mallet");
+    assertThat(message.getMessage()).isEqualTo("" +
         "Project: Sonar\n" +
         "Resource: org.sonar.server.ui.DefaultPages\n" +
         "\n" +
@@ -136,7 +132,7 @@ public class ReviewEmailTemplateTest {
         "Was:\n" +
         "  This is my first comment\n" +
         "\n" +
-        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n");
   }
 
   /**
@@ -156,7 +152,7 @@ public class ReviewEmailTemplateTest {
    * </pre>
    */
   @Test
-  public void shouldFormatCommentDeleted() {
+  public void should_format_comment_deleted() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
         .setFieldValue("project", "Sonar")
@@ -166,10 +162,10 @@ public class ReviewEmailTemplateTest {
         .setFieldValue("new.comment", null)
         .setFieldValue("author", "freddy.mallet");
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("review/1"));
-    assertThat(message.getSubject(), is("Review #1"));
-    assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("" +
+    assertThat(message.getMessageId()).isEqualTo("review/1");
+    assertThat(message.getSubject()).isEqualTo("Review #1");
+    assertThat(message.getFrom()).isEqualTo("Freddy Mallet");
+    assertThat(message.getMessage()).isEqualTo("" +
         "Project: Sonar\n" +
         "Resource: org.sonar.server.ui.DefaultPages\n" +
         "\n" +
@@ -178,7 +174,7 @@ public class ReviewEmailTemplateTest {
         "Comment deleted, was:\n" +
         "  This is deleted comment\n" +
         "\n" +
-        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n");
   }
 
   /**
@@ -197,7 +193,7 @@ public class ReviewEmailTemplateTest {
    * </pre>
    */
   @Test
-  public void shouldFormatAssigneed() {
+  public void should_format_assigneed() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
         .setFieldValue("project", "Sonar")
@@ -207,10 +203,10 @@ public class ReviewEmailTemplateTest {
         .setFieldValue("old.assignee", null)
         .setFieldValue("new.assignee", "evgeny.mandrikov");
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("review/1"));
-    assertThat(message.getSubject(), is("Review #1"));
-    assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("" +
+    assertThat(message.getMessageId()).isEqualTo("review/1");
+    assertThat(message.getSubject()).isEqualTo("Review #1");
+    assertThat(message.getFrom()).isEqualTo("Freddy Mallet");
+    assertThat(message.getMessage()).isEqualTo("" +
         "Project: Sonar\n" +
         "Resource: org.sonar.server.ui.DefaultPages\n" +
         "\n" +
@@ -218,7 +214,7 @@ public class ReviewEmailTemplateTest {
         "\n" +
         "Assignee: Evgeny Mandrikov\n" +
         "\n" +
-        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n");
   }
 
   /**
@@ -237,7 +233,7 @@ public class ReviewEmailTemplateTest {
    * </pre>
    */
   @Test
-  public void shouldFormatAssigneedToAnotherPerson() {
+  public void should_format_assigneed_to_another_person() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
         .setFieldValue("project", "Sonar")
@@ -247,10 +243,10 @@ public class ReviewEmailTemplateTest {
         .setFieldValue("old.assignee", "evgeny.mandrikov")
         .setFieldValue("new.assignee", "simon.brandhof");
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("review/1"));
-    assertThat(message.getSubject(), is("Review #1"));
-    assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("" +
+    assertThat(message.getMessageId()).isEqualTo("review/1");
+    assertThat(message.getSubject()).isEqualTo("Review #1");
+    assertThat(message.getFrom()).isEqualTo("Freddy Mallet");
+    assertThat(message.getMessage()).isEqualTo("" +
         "Project: Sonar\n" +
         "Resource: org.sonar.server.ui.DefaultPages\n" +
         "\n" +
@@ -258,7 +254,7 @@ public class ReviewEmailTemplateTest {
         "\n" +
         "Assignee: Simon Brandhof (was Evgeny Mandrikov)\n" +
         "\n" +
-        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n");
   }
 
   /**
@@ -277,7 +273,7 @@ public class ReviewEmailTemplateTest {
    * </pre>
    */
   @Test
-  public void shouldFormatUnassigned() {
+  public void should_format_unassigned() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
         .setFieldValue("project", "Sonar")
@@ -287,10 +283,10 @@ public class ReviewEmailTemplateTest {
         .setFieldValue("old.assignee", "simon.brandhof")
         .setFieldValue("new.assignee", null);
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("review/1"));
-    assertThat(message.getSubject(), is("Review #1"));
-    assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("" +
+    assertThat(message.getMessageId()).isEqualTo("review/1");
+    assertThat(message.getSubject()).isEqualTo("Review #1");
+    assertThat(message.getFrom()).isEqualTo("Freddy Mallet");
+    assertThat(message.getMessage()).isEqualTo("" +
         "Project: Sonar\n" +
         "Resource: org.sonar.server.ui.DefaultPages\n" +
         "\n" +
@@ -298,7 +294,7 @@ public class ReviewEmailTemplateTest {
         "\n" +
         "Assignee:  (was Simon Brandhof)\n" +
         "\n" +
-        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n");
   }
 
   /**
@@ -317,7 +313,7 @@ public class ReviewEmailTemplateTest {
    * </pre>
    */
   @Test
-  public void shouldFormatClosed() {
+  public void should_format_closed() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
         .setFieldValue("project", "Sonar")
@@ -326,10 +322,10 @@ public class ReviewEmailTemplateTest {
         .setFieldValue("old.status", "OPEN")
         .setFieldValue("new.status", "CLOSED");
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("review/1"));
-    assertThat(message.getSubject(), is("Review #1"));
-    assertThat(message.getFrom(), nullValue());
-    assertThat(message.getMessage(), is("" +
+    assertThat(message.getMessageId()).isEqualTo("review/1");
+    assertThat(message.getSubject()).isEqualTo("Review #1");
+    assertThat(message.getFrom()).isNull();
+    assertThat(message.getMessage()).isEqualTo("" +
         "Project: Sonar\n" +
         "Resource: org.sonar.server.ui.DefaultPages\n" +
         "\n" +
@@ -337,7 +333,7 @@ public class ReviewEmailTemplateTest {
         "\n" +
         "Status: CLOSED (was OPEN)\n" +
         "\n" +
-        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n");
   }
 
   /**
@@ -357,7 +353,7 @@ public class ReviewEmailTemplateTest {
    * </pre>
    */
   @Test
-  public void shouldFormatReopened() {
+  public void should_format_reopened() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
         .setFieldValue("project", "Sonar")
@@ -368,10 +364,10 @@ public class ReviewEmailTemplateTest {
         .setFieldValue("old.status", "RESOLVED")
         .setFieldValue("new.status", "REOPENED");
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("review/1"));
-    assertThat(message.getSubject(), is("Review #1"));
-    assertThat(message.getFrom(), nullValue());
-    assertThat(message.getMessage(), is("" +
+    assertThat(message.getMessageId()).isEqualTo("review/1");
+    assertThat(message.getSubject()).isEqualTo("Review #1");
+    assertThat(message.getFrom()).isNull();
+    assertThat(message.getMessage()).isEqualTo("" +
         "Project: Sonar\n" +
         "Resource: org.sonar.server.ui.DefaultPages\n" +
         "\n" +
@@ -380,7 +376,7 @@ public class ReviewEmailTemplateTest {
         "Status: REOPENED (was RESOLVED)\n" +
         "Resolution:  (was FIXED)\n" +
         "\n" +
-        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n");
   }
 
   /**
@@ -400,7 +396,7 @@ public class ReviewEmailTemplateTest {
    * </pre>
    */
   @Test
-  public void shouldFormatResolvedAsFixed() {
+  public void should_format_resolved_as_fixed() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
         .setFieldValue("project", "Sonar")
@@ -412,10 +408,10 @@ public class ReviewEmailTemplateTest {
         .setFieldValue("new.status", "RESOLVED")
         .setFieldValue("new.resolution", "FIXED");
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("review/1"));
-    assertThat(message.getSubject(), is("Review #1"));
-    assertThat(message.getFrom(), is("Simon Brandhof"));
-    assertThat(message.getMessage(), is("" +
+    assertThat(message.getMessageId()).isEqualTo("review/1");
+    assertThat(message.getSubject()).isEqualTo("Review #1");
+    assertThat(message.getFrom()).isEqualTo("Simon Brandhof");
+    assertThat(message.getMessage()).isEqualTo("" +
         "Project: Sonar\n" +
         "Resource: org.sonar.server.ui.DefaultPages\n" +
         "\n" +
@@ -424,7 +420,7 @@ public class ReviewEmailTemplateTest {
         "Status: RESOLVED (was OPEN)\n" +
         "Resolution: FIXED\n" +
         "\n" +
-        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n");
   }
 
   /**
@@ -446,7 +442,7 @@ public class ReviewEmailTemplateTest {
    * </pre>
    */
   @Test
-  public void shouldFormatResolvedAsFalsePositive() {
+  public void should_format_resolved_as_false_positive() {
     Notification notification = new Notification("review-changed")
         .setFieldValue("reviewId", "1")
         .setFieldValue("project", "Sonar")
@@ -459,10 +455,10 @@ public class ReviewEmailTemplateTest {
         .setFieldValue("new.resolution", "FALSE-POSITIVE")
         .setFieldValue("new.comment", "Because!");
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("review/1"));
-    assertThat(message.getSubject(), is("Review #1"));
-    assertThat(message.getFrom(), is("Freddy Mallet"));
-    assertThat(message.getMessage(), is("" +
+    assertThat(message.getMessageId()).isEqualTo("review/1");
+    assertThat(message.getSubject()).isEqualTo("Review #1 - False Positive");
+    assertThat(message.getFrom()).isEqualTo("Freddy Mallet");
+    assertThat(message.getMessage()).isEqualTo("" +
         "Project: Sonar\n" +
         "Resource: org.sonar.server.ui.DefaultPages\n" +
         "\n" +
@@ -473,21 +469,21 @@ public class ReviewEmailTemplateTest {
         "Comment:\n" +
         "  Because!\n" +
         "\n" +
-        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n"));
+        "See it in Sonar: http://nemo.sonarsource.org/reviews/view/1\n");
   }
 
   @Test
-  public void shouldNotFormat() {
+  public void should_not_format() {
     Notification notification = new Notification("other");
     EmailMessage message = template.format(notification);
-    assertThat(message, nullValue());
+    assertThat(message).isNull();
   }
 
   @Test
-  public void shouldReturnFullNameOrLogin() {
-    assertThat(template.getUserFullName("freddy.mallet"), is("Freddy Mallet"));
-    assertThat(template.getUserFullName("deleted"), is("deleted"));
-    assertThat(template.getUserFullName(null), nullValue());
+  public void should_return_full_name_or_login() {
+    assertThat(template.getUserFullName("freddy.mallet")).isEqualTo("Freddy Mallet");
+    assertThat(template.getUserFullName("deleted")).isEqualTo("deleted");
+    assertThat(template.getUserFullName(null)).isNull();
   }
 
 }
