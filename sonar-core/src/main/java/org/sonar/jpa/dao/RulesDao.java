@@ -59,7 +59,7 @@ public class RulesDao extends BaseDao {
             .setParameter("key", ruleKey)
             .setParameter("pluginName", repositoryKey)
             .setParameter("status", Rule.STATUS_REMOVED
-            ),
+        ),
         null);
   }
 
