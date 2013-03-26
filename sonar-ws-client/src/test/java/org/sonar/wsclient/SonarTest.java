@@ -19,15 +19,20 @@
  */
 package org.sonar.wsclient;
 
+import org.eclipse.jetty.testing.ServletTester;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mortbay.jetty.testing.ServletTester;
 import org.sonar.wsclient.connectors.ConnectionException;
 import org.sonar.wsclient.connectors.HttpClient3Connector;
 import org.sonar.wsclient.connectors.HttpClient4Connector;
-import org.sonar.wsclient.services.*;
+import org.sonar.wsclient.services.Metric;
+import org.sonar.wsclient.services.MetricQuery;
+import org.sonar.wsclient.services.Query;
+import org.sonar.wsclient.services.RuleQuery;
+import org.sonar.wsclient.services.Server;
+import org.sonar.wsclient.services.ServerQuery;
 import org.sonar.wsclient.unmarshallers.UnmarshalException;
 
 import java.util.Arrays;
@@ -68,9 +73,9 @@ public class SonarTest {
     baseUrl = tester.createSocketConnector(true);
     tester.start();
 
-    return Arrays.asList(new Object[][]{
-        {new Sonar(new HttpClient4Connector(new Host(baseUrl)))},
-        {new Sonar(new HttpClient3Connector(new Host(baseUrl)))}
+    return Arrays.asList(new Object[][] {
+      {new Sonar(new HttpClient4Connector(new Host(baseUrl)))},
+      {new Sonar(new HttpClient3Connector(new Host(baseUrl)))}
     });
   }
 

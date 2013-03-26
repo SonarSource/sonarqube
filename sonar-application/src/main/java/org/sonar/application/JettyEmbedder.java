@@ -81,21 +81,29 @@ public class JettyEmbedder {
 
   private Server configureProgrammatically() throws URISyntaxException {
     configureServer();
-    HandlerCollection handlers = new HandlerCollection();
-    WebAppContext context = new WebAppContext(getPath("/war/sonar-server"), contextPath);
-    String filenamePattern = configuration.getProperty("sonar.web.jettyRequestLogs");
-    RequestLogHandler requestLogHandler = configureRequestLogHandler(filenamePattern);
+
+    List<Handler> handlers = new ArrayList<Handler>();
+
     String shutdownCookie = System.getProperty("sonar.shutdownToken");
     if (shutdownCookie != null && !"".equals(shutdownCookie)) {
       System.out.println("Registering shutdown handler");
       ShutdownHandler shutdownHandler = new ShutdownHandler(server, shutdownCookie);
       shutdownHandler.setExitJvm(true);
-      handlers.setHandlers(new Handler[] {shutdownHandler, context, requestLogHandler});
+      handlers.add(shutdownHandler);
     }
-    else {
-      handlers.setHandlers(new Handler[] {context, requestLogHandler});
+
+    WebAppContext context = new WebAppContext(getPath("/war/sonar-server"), contextPath);
+    handlers.add(context);
+
+    String filenamePattern = configuration.getProperty("sonar.web.jettyRequestLogs");
+    if (filenamePattern != null) {
+      handlers.add(configureRequestLogHandler(filenamePattern));
     }
-    server.setHandler(handlers);
+
+    HandlerCollection handler = new HandlerCollection();
+    handler.setHandlers(handlers.toArray(new Handler[handlers.size()]));
+    server.setHandler(handler);
+
     return server;
   }
 
