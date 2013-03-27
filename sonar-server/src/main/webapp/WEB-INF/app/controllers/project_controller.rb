@@ -232,19 +232,12 @@ class ProjectController < ApplicationController
     @resource = get_current_project(params[:id])
 
     @snapshot = @resource.last_snapshot
-    if !@resource.project? && !@resource.module?
+    if @resource && !java_facade.getResourceTypeBooleanProperty(@resource.qualifier, 'configurable')
       redirect_to :action => 'index', :id => params[:id]
     end
 
-    if @resource.nil?
-      definitions_per_category = java_facade.propertyDefinitions.globalPropertiesByCategory
-    elsif @resource.project?
-      definitions_per_category = java_facade.propertyDefinitions.projectPropertiesByCategory
-    elsif @resource.module?
-      definitions_per_category = java_facade.propertyDefinitions.modulePropertiesByCategory
-    end
-
-    @categories = definitions_per_category.keys
+    definitions_per_category = java_facade.propertyDefinitions.getPropertiesByCategory(@resource ? @resource.qualifier : nil)
+    @categories = definitions_per_category.keys || []
     @categories = by_category_name(@categories)
 
     default_category = nil

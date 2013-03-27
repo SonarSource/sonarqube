@@ -24,10 +24,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerExtension;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.Nullable;
@@ -53,7 +53,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @since 3.0
  */
-public final class PropertyDefinition implements BatchComponent, ServerComponent {
+public final class PropertyDefinition implements BatchExtension, ServerExtension {
 
   private String key;
   private String defaultValue;

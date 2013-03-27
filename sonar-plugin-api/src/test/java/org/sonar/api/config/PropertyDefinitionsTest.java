@@ -22,6 +22,7 @@ package org.sonar.api.config;
 import org.junit.Test;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.resources.Qualifiers;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -96,21 +97,24 @@ public class PropertyDefinitionsTest {
         PropertyDefinition.build("global2").name("Global2").category("catGlobal1").global(true).project(false).module(false).build(),
         PropertyDefinition.build("global3").name("Global3").category("catGlobal2").global(true).project(false).module(false).build(),
         PropertyDefinition.build("project").name("Project").category("catProject").global(false).project(true).module(false).build(),
-        PropertyDefinition.build("module").name("Module").category("catModule").global(false).project(false).module(true).build()
+        PropertyDefinition.build("module").name("Module").category("catModule").global(false).project(false).module(true).build(),
+        PropertyDefinition.build("view").name("View").category("catView").global(false).qualifiers(Qualifiers.VIEW).build()
     );
 
-    assertThat(def.getGlobalPropertiesByCategory().keySet()).containsOnly("catGlobal1", "catGlobal2");
-    assertThat(def.getProjectPropertiesByCategory().keySet()).containsOnly("catProject");
-    assertThat(def.getModulePropertiesByCategory().keySet()).containsOnly("catModule");
+    assertThat(def.getPropertiesByCategory(null).keySet()).containsOnly("catGlobal1", "catGlobal2");
+    assertThat(def.getPropertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly("catProject");
+    assertThat(def.getPropertiesByCategory(Qualifiers.MODULE).keySet()).containsOnly("catModule");
+    assertThat(def.getPropertiesByCategory(Qualifiers.VIEW).keySet()).containsOnly("catView");
+    assertThat(def.getPropertiesByCategory("Unkown").keySet()).isEmpty();
   }
 
   @Test
   public void should_group_by_category_on_annotation_plugin() {
     PropertyDefinitions def = new PropertyDefinitions(ByCategory.class);
 
-    assertThat(def.getGlobalPropertiesByCategory().keySet()).containsOnly("catGlobal1", "catGlobal2");
-    assertThat(def.getProjectPropertiesByCategory().keySet()).containsOnly("catProject");
-    assertThat(def.getModulePropertiesByCategory().keySet()).containsOnly("catModule");
+    assertThat(def.getPropertiesByCategory().keySet()).containsOnly("catGlobal1", "catGlobal2");
+    assertThat(def.getPropertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly("catProject");
+    assertThat(def.getPropertiesByCategory(Qualifiers.MODULE).keySet()).containsOnly("catModule");
   }
 
   private void assertProperties(PropertyDefinitions definitions) {

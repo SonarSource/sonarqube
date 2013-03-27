@@ -46,6 +46,7 @@ import java.util.Map;
  * <li>"supportsGlobalDashboards" (since 3.2): if true, this resource can be displayed in global dashboards</li>
  * <li>"hasRolePolicy" : if true, roles configuration is available in sidebar</li>
  * <li>"comparable" (since 3.4) : if true, the resource can be compared to other resources</li>
+ * <li>"configurable" (since 3.6) : if true, the settings page can be displayed on the resource</li>
  * </ul>
  *
  * @see DefaultResourceTypes in Sonar Core Plugin to see the default resource types

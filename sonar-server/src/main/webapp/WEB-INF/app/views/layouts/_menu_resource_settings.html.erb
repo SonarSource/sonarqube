@@ -1,9 +1,9 @@
 <li>
-  <a href="#" onclick="showDropdownMenu('project-settings-menu'); return false;" class="link-more"><%= message('layout.configuration') -%></a>
+  <a href="#" onclick="showDropdownMenu('project-settings-menu'); return false;" class="link-more" id="project-settings-menu-link"><%= message('layout.configuration') -%></a>
   
   <div id="project-settings-menu" class="dropdown-menu" style="display: none">
     <ul>
-      <% if (@project.project? || @project.module?) %>
+      <% if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'configurable')) %>
          <li><a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
       <% end %>
       <% if (@project.project?) %>

@@ -100,13 +100,7 @@ class SettingsController < ApplicationController
   end
 
   def load_properties
-    if @resource.nil?
-      definitions_per_category = java_facade.propertyDefinitions.globalPropertiesByCategory
-    elsif @resource.project?
-      definitions_per_category = java_facade.propertyDefinitions.projectPropertiesByCategory
-    elsif @resource.module?
-      definitions_per_category = java_facade.propertyDefinitions.modulePropertiesByCategory
-    end
+    definitions_per_category = java_facade.propertyDefinitions.getPropertiesByCategory(@resource ? @resource.qualifier : nil)
 
     @categories = definitions_per_category.keys + SPECIAL_CATEGORIES
     @categories = by_category_name(@categories)

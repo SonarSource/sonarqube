@@ -69,7 +69,7 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   }
 
   public PropertyDefinitions addComponent(Object component, String defaultCategory) {
-    addComponentFromAnnotationPropety(component, defaultCategory);
+    addComponentFromAnnotationProperty(component, defaultCategory);
     if (component instanceof PropertyDefinition) {
       PropertyDefinition propertyDefinition = (PropertyDefinition) component;
       add(propertyDefinition, defaultCategory);
@@ -77,7 +77,7 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return this;
   }
 
-  private PropertyDefinitions addComponentFromAnnotationPropety(Object component, String defaultCategory){
+  private PropertyDefinitions addComponentFromAnnotationProperty(Object component, String defaultCategory){
     Properties annotations = AnnotationUtils.getAnnotation(component, Properties.class);
     if (annotations != null) {
       for (Property property : annotations.value()) {
@@ -119,34 +119,14 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return StringUtils.defaultString(deprecatedKeys.get(key), key);
   }
 
-  static enum PropertyDefinitionFilter {
-    GLOBAL {
-      @Override
-      boolean accept(PropertyDefinition propertyDefinition) {
-        return propertyDefinition.global();
-      }
-    },
-    PROJECT {
-      @Override
-      boolean accept(PropertyDefinition propertyDefinition) {
-        return propertyDefinition.project();
-      }
-    },
-    MODULE {
-      @Override
-      boolean accept(PropertyDefinition propertyDefinition) {
-        return propertyDefinition.module();
-      }
-    };
-
-    abstract boolean accept(PropertyDefinition propertyDefinition);
-  }
-
-  private Map<String, Collection<PropertyDefinition>> getPropertiesByCategory(PropertyDefinitionFilter filter) {
+  /**
+   * @since 3.6
+   */
+  public Map<String, Collection<PropertyDefinition>> getPropertiesByCategory(String qualifier) {
     Multimap<String, PropertyDefinition> byCategory = ArrayListMultimap.create();
 
     for (PropertyDefinition definition : getAll()) {
-      if (filter.accept(definition)) {
+      if (qualifier == null ? definition.global() : definition.qualifiers().contains(qualifier)) {
         byCategory.put(getCategory(definition.key()), definition);
       }
     }
@@ -154,25 +134,8 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return byCategory.asMap();
   }
 
-  /**
-   * since 3.3
-   */
-  public Map<String, Collection<PropertyDefinition>> getGlobalPropertiesByCategory() {
-    return getPropertiesByCategory(PropertyDefinitionFilter.GLOBAL);
-  }
-
-  /**
-   * since 3.3
-   */
-  public Map<String, Collection<PropertyDefinition>> getProjectPropertiesByCategory() {
-    return getPropertiesByCategory(PropertyDefinitionFilter.PROJECT);
-  }
-
-  /**
-   * since 3.3
-   */
-  public Map<String, Collection<PropertyDefinition>> getModulePropertiesByCategory() {
-    return getPropertiesByCategory(PropertyDefinitionFilter.MODULE);
+  public Map<String, Collection<PropertyDefinition>> getPropertiesByCategory() {
+    return getPropertiesByCategory(null);
   }
 
   public String getDefaultValue(String key) {
