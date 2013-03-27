@@ -51,7 +51,7 @@ public class DefaultRuleFinder implements RuleFinder {
         session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.id=:id and r.status<>:status")
             .setParameter("id", ruleId)
             .setParameter("status", Rule.STATUS_REMOVED
-            ),
+        ),
         null);
   }
 
@@ -66,7 +66,7 @@ public class DefaultRuleFinder implements RuleFinder {
             .setParameter("key", key)
             .setParameter("pluginName", repositoryKey)
             .setParameter("status", Rule.STATUS_REMOVED
-            ),
+        ),
         null);
   }
 
