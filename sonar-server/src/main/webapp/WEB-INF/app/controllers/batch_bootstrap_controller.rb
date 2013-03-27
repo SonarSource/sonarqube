@@ -58,7 +58,7 @@ class BatchBootstrapController < Api::ApiController
 
   # GET /batch_bootstrap/index
   def index
-    redirect_to "/deploy/bootstrap/index.txt"
+    redirect_to ApplicationController.root_context.to_s + "/deploy/bootstrap/index.txt"
   end
 
   private
