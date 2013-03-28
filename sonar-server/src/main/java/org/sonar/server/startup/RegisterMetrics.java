@@ -19,14 +19,17 @@
  */
 package org.sonar.server.startup;
 
-import com.google.common.collect.Lists;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.profiles.Alert;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.jpa.dao.MeasuresDao;
 
@@ -35,7 +38,11 @@ import javax.persistence.Query;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class RegisterMetrics {
+
+  private static final Logger LOG = LoggerFactory.getLogger(RegisterMetrics.class);
 
   private final MeasuresDao measuresDao;
   private final Metrics[] metricsRepositories;
@@ -51,19 +58,34 @@ public class RegisterMetrics {
     TimeProfiler profiler = new TimeProfiler().start("Load metrics");
     measuresDao.disableAutomaticMetrics();
 
-    List<Metric> metricsToRegister = Lists.newArrayList();
+    List<Metric> metricsToRegister = newArrayList();
     metricsToRegister.addAll(CoreMetrics.getMetrics());
+    metricsToRegister.addAll(getMetricsRepositories());
+    register(metricsToRegister);
+    cleanAlerts();
+    profiler.stop();
+  }
 
+  @VisibleForTesting
+  List<Metric> getMetricsRepositories() {
+    List<Metric> metricsToRegister = newArrayList();
     Map<String, Metrics> metricsByRepository = Maps.newHashMap();
     if (metricsRepositories != null) {
       for (Metrics metrics : metricsRepositories) {
         checkMetrics(metricsByRepository, metrics);
-        metricsToRegister.addAll(metrics.getMetrics());
+        metricsToRegister.addAll(removeExistingUserManagedMetrics(metrics.getMetrics()));
       }
     }
-    register(metricsToRegister);
-    cleanAlerts();
-    profiler.stop();
+    return metricsToRegister;
+  }
+
+  private List<Metric> removeExistingUserManagedMetrics(List<Metric> metrics) {
+    return newArrayList(Iterables.filter(metrics, new Predicate<Metric>() {
+      @Override
+      public boolean apply(Metric metric) {
+        return !metric.getUserManaged() || measuresDao.getMetric(metric) == null;
+      }
+    }));
   }
 
   private void checkMetrics(Map<String, Metrics> metricsByRepository, Metrics metrics) {
@@ -81,7 +103,7 @@ public class RegisterMetrics {
   }
 
   protected void cleanAlerts() {
-    Logs.INFO.info("cleaning alert thresholds...");
+    LOG.info("cleaning alert thresholds...");
     Query query = session.createQuery("delete from " + Alert.class.getSimpleName() + " a where NOT EXISTS(FROM Metric m WHERE m=a.metric))");
     query.executeUpdate();
 

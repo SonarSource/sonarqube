@@ -1,10 +1,10 @@
 <dataset>
 
-  <metrics delete_historical_data="[null]" id="1" name="key1" val_type="INT" description="description"  domain="domain"
-           short_name="name1" qualitative="false" user_managed="false" enabled="true" origin="JAV" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
+  <metrics delete_historical_data="false" id="1" name="key1" val_type="INT" description="description"  domain="domain"
+           short_name="name1" qualitative="false" user_managed="false" enabled="true" origin="JAV" worst_value="[null]" optimized_best_value="false" best_value="[null]" direction="1" hidden="false"/>
 
-  <metrics delete_historical_data="[null]" id="2" name="disabledkey2" val_type="INT" description="description"  domain="domain"
-           short_name="name2" qualitative="false" user_managed="false" enabled="false" origin="JAV" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="1" hidden="false"/>
+  <metrics delete_historical_data="false" id="2" name="disabledkey2" val_type="INT" description="description"  domain="domain"
+           short_name="name2" qualitative="false" user_managed="false" enabled="false" origin="JAV" worst_value="[null]" optimized_best_value="false" best_value="[null]" direction="1" hidden="false"/>
 
 
   <rules_profiles id="1" version="1" used_profile="true" name="profile1" language="JAV" />

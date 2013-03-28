@@ -1,0 +1,6 @@
+<dataset>
+
+  <metrics delete_historical_data="false" id="1" name="key" val_type="INT" description="old description"  domain="old domain"
+           short_name="old short name"  qualitative="false" user_managed="true" enabled="true" origin="GUI" worst_value="[null]" optimized_best_value="false" best_value="[null]" direction="1" hidden="false"/>
+
+</dataset>

@@ -305,10 +305,6 @@ class Metric < ActiveRecord::Base
     origin==ORIGIN_GUI
   end
 
-  def updatable_online?
-    origin!=ORIGIN_JAVA
-  end
-
   # METRIC DEFINITIONS
   # WARNING if you edit this file do not forget to also change sonar-commons/src/main/java/ch/hortis/sonar/model/Metrics.java
   LINES = 'lines'

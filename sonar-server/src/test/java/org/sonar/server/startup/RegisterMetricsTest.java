@@ -22,15 +22,17 @@ package org.sonar.server.startup;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metrics;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RegisterMetricsTest extends AbstractDbUnitTestCase {
 
@@ -38,8 +40,21 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   public void shouldSaveIfNew() {
     setupData("shouldSaveIfNew");
 
-    Metric metric1 = new Metric("new1", "short1", "desc1", Metric.ValueType.FLOAT, 1, true, "domain1", false);
-    Metric metric2 = new Metric("new2", "short2", "desc2", Metric.ValueType.FLOAT, 1, true, "domain2", false);
+    Metric metric1 = new Metric.Builder("new1", "short1", Metric.ValueType.FLOAT)
+        .setDescription("desc1")
+        .setDirection(1)
+        .setQualitative(true)
+        .setDomain("domain1")
+        .setUserManaged(false)
+        .create();
+    Metric metric2 = new Metric.Builder("new2", "short2", Metric.ValueType.FLOAT)
+        .setDescription("desc2")
+        .setDirection(1)
+        .setQualitative(true)
+        .setDomain("domain2")
+        .setUserManaged(false)
+        .create();
+
     RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
     synchronizer.register(Arrays.asList(metric1, metric2));
     checkTables("shouldSaveIfNew", "metrics");
@@ -49,33 +64,75 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   public void shouldUpdateIfAlreadyExists() {
     setupData("shouldUpdateIfAlreadyExists");
 
-    final List<Metric> metrics = new ArrayList<Metric>();
-    metrics.add(new Metric("key", "new short name", "new description", Metric.ValueType.FLOAT, -1, true, "new domain", false));
     RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
-    synchronizer.register(metrics);
+    synchronizer.register(newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
+        .setDescription("new description")
+        .setDirection(-1)
+        .setQualitative(true)
+        .setDomain("new domain")
+        .setUserManaged(false)
+        .create()));
 
     checkTables("shouldUpdateIfAlreadyExists", "metrics");
   }
 
   @Test
-  public void enableOnlyLoadedMetrics() {
-    setupData("enableOnlyLoadedMetrics");
+  public void shouldAddUserManagesMetric() {
+    Metrics metrics = mock(Metrics.class);
+    when(metrics.getMetrics()).thenReturn(newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
+        .setDescription("new description")
+        .setDirection(-1)
+        .setQualitative(true)
+        .setDomain("new domain")
+        .setUserManaged(true)
+        .create()));
+
+    MeasuresDao measuresDao = new MeasuresDao(getSession());
+    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, new Metrics[]{metrics});
+    List<Metric> result = loader.getMetricsRepositories();
+
+    assertThat(result).hasSize(1);
+  }
+
+  @Test
+  public void shouldNotUpdateUserManagesMetricIfAlreadyExists() {
+    setupData("shouldNotUpdateUserManagesMetricIfAlreadyExists");
+
+    Metrics metrics = mock(Metrics.class);
+    when(metrics.getMetrics()).thenReturn(newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
+        .setDescription("new description")
+        .setDirection(-1)
+        .setQualitative(true)
+        .setDomain("new domain")
+        .setUserManaged(true)
+        .create()));
+
+    MeasuresDao measuresDao = new MeasuresDao(getSession());
+    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, new Metrics[]{metrics});
+    List<Metric> result = loader.getMetricsRepositories();
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void shouldEnableOnlyLoadedMetrics() {
+    setupData("shouldEnableOnlyLoadedMetrics");
 
     MeasuresDao measuresDao = new MeasuresDao(getSession());
     RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, null);
     loader.start();
 
-    assertFalse(measuresDao.getMetric("deprecated").getEnabled());
-    assertTrue(measuresDao.getMetric(CoreMetrics.COMPLEXITY).getEnabled());
+    assertThat(measuresDao.getMetric("deprecated").getEnabled()).isFalse();
+    assertThat(measuresDao.getMetric(CoreMetrics.COMPLEXITY).getEnabled()).isTrue();
   }
 
   @Test
-  public void cleanAlerts() {
-    setupData("cleanAlerts");
+  public void shouldCleanAlerts() {
+    setupData("shouldCleanAlerts");
 
     RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), null);
     loader.cleanAlerts();
 
-    checkTables("cleanAlerts", "metrics", "alerts");
+    checkTables("shouldCleanAlerts", "metrics", "alerts");
   }
 }

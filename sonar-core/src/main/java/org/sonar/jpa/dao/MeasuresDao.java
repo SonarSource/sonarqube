@@ -24,7 +24,12 @@ import org.apache.commons.collections.Predicate;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class MeasuresDao extends BaseDao {
 
@@ -39,7 +44,7 @@ public class MeasuresDao extends BaseDao {
   }
 
   public List<Metric> getMetrics(List<Metric> metrics) {
-    List<Metric> result = new ArrayList<Metric>();
+    List<Metric> result = newArrayList();
     for (Metric metric : metrics) {
       result.add(getMetric(metric));
     }
@@ -121,4 +126,5 @@ public class MeasuresDao extends BaseDao {
     }
     return metricsByName;
   }
+
 }

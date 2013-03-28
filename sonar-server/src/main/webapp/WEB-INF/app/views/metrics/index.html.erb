@@ -22,13 +22,11 @@
           <td class="left" id="metric_domain_<%= metric.key -%>"><%= metric.domain -%></td>
           <td class="left" id="metric_type_name<%= metric.key -%>"><%= metric.value_type_name -%></td>
           <td class="right thin nowrap">
-            <% if is_admin? && metric.updatable_online? %>
-              <%= link_to 'Edit', {:action => 'index', :id => metric.id}, {:class => 'link-action', :id => "edit_#{h(metric.short_name)}", :method => 'get'} %>
-            <% end %>
-            <% if is_admin? && metric.updatable_online? %>
-              &nbsp;
-              <%= link_to 'Delete', {:action => 'delete_from_web', :id => metric.id}, {:confirm => "Warning : all the measures will be deleted.", :class => 'link-action link-red', :id => "delete_#{h(metric.short_name)}"} %>
-            <% end %>
+          <% if is_admin? %>
+            <%= link_to 'Edit', {:action => 'index', :id => metric.id}, {:class => 'link-action', :id => "edit_#{h(metric.short_name)}", :method => 'get'} %>
+            &nbsp;
+            <%= link_to 'Delete', {:action => 'delete_from_web', :id => metric.id}, {:confirm => "Warning : all the measures will be deleted.", :class => 'link-action link-red', :id => "delete_#{h(metric.short_name)}"} %>
+          <% end %>
           </td>
         </tr>
       <% end %>
