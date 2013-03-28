@@ -302,7 +302,7 @@ import java.util.List;
     defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3,
     category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS),
   @Property(
-    key = "sonar.timemachine.period4",
+    key = "sonar.timemachine.TRK.period4",
     name = "Period 4",
     description = "Period used to compare measures and track new violations. This property is specific to the project. Values are : " +
       "<ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, " +
@@ -313,15 +313,17 @@ import java.util.List;
     project = true,
     global = false,
     defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4,
-    category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS),
+    category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS,
+    deprecatedKey = "sonar.timemachine.period4"),
   @Property(
-    key = "sonar.timemachine.period5",
+    key = "sonar.timemachine.TRK.period5",
     name = "Period 5",
     description = "See the property 'Period 4'",
     project = true,
     global = false,
     defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5,
-    category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS),
+    category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS,
+      deprecatedKey = "sonar.timemachine.period5"),
   @Property(
     key = CoreProperties.DRY_RUN,
     defaultValue = "false",
@@ -384,7 +386,13 @@ import java.util.List;
     defaultValue = "false",
     project = false,
     global = false,
-    type = PropertyType.BOOLEAN)
+    type = PropertyType.BOOLEAN),
+  @Property(
+    key = "sonar.enableFileVariation",
+    name = "Enable file variation",
+    global = false,
+    defaultValue = "false",
+    category = CoreProperties.CATEGORY_GENERAL),
 })
 public final class CorePlugin extends SonarPlugin {
 

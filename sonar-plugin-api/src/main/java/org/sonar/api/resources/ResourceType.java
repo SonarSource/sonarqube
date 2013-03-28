@@ -54,7 +54,7 @@ import java.util.Map;
  */
 @Beta
 @Immutable
-public final class ResourceType {
+public class ResourceType {
 
   /**
    * Builder used to create {@link ResourceType} objects.

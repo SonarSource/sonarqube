@@ -19,13 +19,15 @@
  */
 package org.sonar.batch.components;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -34,29 +36,31 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class TimeMachineConfigurationTest extends AbstractDbUnitTestCase {
 
+  private Settings settings;
+  private PastSnapshotFinder pastSnapshotFinder;
+
+  @Before
+  public void before() {
+    setupData("shared");
+    settings = new Settings();
+    pastSnapshotFinder = mock(PastSnapshotFinder.class);
+  }
+
   @Test
   public void should_init_past_snapshots() {
-    setupData("shared");
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);
-
-    new TimeMachineConfiguration(getSession(), new Project("my:project"), conf, pastSnapshotFinder);
+    new TimeMachineConfiguration(getSession(), new Project("my:project"), settings, pastSnapshotFinder);
 
     verify(pastSnapshotFinder).find(argThat(new ArgumentMatcher<Snapshot>() {
       @Override
       public boolean matches(Object o) {
         return ((Snapshot) o).getResourceId() == 2 /* see database in shared.xml */;
       }
-    }), eq(conf), eq(1));
+    }), anyString(), eq(settings), eq(1));
   }
 
   @Test
   public void should_not_init_past_snapshots_if_first_analysis() {
-    setupData("shared");
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    PastSnapshotFinder pastSnapshotFinder = mock(PastSnapshotFinder.class);
-
-    new TimeMachineConfiguration(getSession(), new Project("new:project"), conf, pastSnapshotFinder);
+    new TimeMachineConfiguration(getSession(), new Project("new:project"), settings, pastSnapshotFinder);
 
     verifyZeroInteractions(pastSnapshotFinder);
   }

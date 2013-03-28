@@ -20,15 +20,15 @@
 package org.sonar.batch.components;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.Logs;
 
 import javax.persistence.Query;
 
@@ -37,29 +37,38 @@ import java.util.List;
 
 public class TimeMachineConfiguration implements BatchExtension {
 
+  private static final Logger LOG = LoggerFactory.getLogger(TimeMachineConfiguration.class);
+
   private static final int NUMBER_OF_VARIATION_SNAPSHOTS = 5;
   private static final int CORE_TENDENCY_DEPTH_DEFAULT_VALUE = 30;
 
   private Project project;
-  private final Configuration configuration;
+  private final Settings settings;
   private List<PastSnapshot> projectPastSnapshots;
   private DatabaseSession session;
 
-  public TimeMachineConfiguration(DatabaseSession session, Project project, Configuration configuration,
+  public TimeMachineConfiguration(DatabaseSession session, Project project, Settings settings,
       PastSnapshotFinder pastSnapshotFinder) {
     this.session = session;
     this.project = project;
-    this.configuration = configuration;
-    initPastSnapshots(pastSnapshotFinder);
+    this.settings = settings;
+    initPastSnapshots(pastSnapshotFinder, getRootProject(project).getQualifier());
   }
 
-  private void initPastSnapshots(PastSnapshotFinder pastSnapshotFinder) {
+  private Project getRootProject(Project project){
+    if (!project.isRoot()) {
+     return getRootProject(project.getRoot());
+    }
+    return project;
+  }
+
+  private void initPastSnapshots(PastSnapshotFinder pastSnapshotFinder, String rootQualifier) {
     Snapshot projectSnapshot = buildProjectSnapshot();
 
     projectPastSnapshots = Lists.newLinkedList();
     if (projectSnapshot != null) {
       for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
-        PastSnapshot pastSnapshot = pastSnapshotFinder.find(projectSnapshot, configuration, index);
+        PastSnapshot pastSnapshot = pastSnapshotFinder.find(projectSnapshot, rootQualifier, settings, index);
         if (pastSnapshot != null) {
           log(pastSnapshot);
           projectPastSnapshots.add(pastSnapshot);
@@ -91,9 +100,9 @@ public class TimeMachineConfiguration implements BatchExtension {
     String qualifier = pastSnapshot.getQualifier();
     // hack to avoid too many logs when the views plugin is installed
     if (StringUtils.equals(Qualifiers.VIEW, qualifier) || StringUtils.equals(Qualifiers.SUBVIEW, qualifier)) {
-      LoggerFactory.getLogger(getClass()).debug(pastSnapshot.toString());
+      LOG.debug(pastSnapshot.toString());
     } else {
-      Logs.INFO.info(pastSnapshot.toString());
+      LOG.info(pastSnapshot.toString());
     }
   }
 
@@ -106,6 +115,6 @@ public class TimeMachineConfiguration implements BatchExtension {
   }
 
   public boolean isFileVariationEnabled() {
-    return configuration.getBoolean("sonar.enableFileVariation", Boolean.FALSE);
+    return settings.getBoolean("sonar.enableFileVariation");
   }
 }

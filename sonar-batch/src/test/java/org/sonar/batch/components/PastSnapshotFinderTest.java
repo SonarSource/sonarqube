@@ -19,21 +19,18 @@
  */
 package org.sonar.batch.components;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import static org.mockito.Matchers.any;
 
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.nullValue;
@@ -41,6 +38,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,12 +67,11 @@ public class PastSnapshotFinderTest {
 
   @Test
   public void shouldFind() {
-    Configuration conf = new BaseConfiguration();
-    conf.addProperty("sonar.timemachine.period5", "1.2");
+    Settings settings = new Settings().setProperty("sonar.timemachine.TRK.period5", "1.2");
 
     when(finderByVersion.findByVersion(null, "1.2")).thenReturn(new PastSnapshot("version", new Date(), new Snapshot()));
 
-    PastSnapshot variationSnapshot = finder.find(null, conf, 5);
+    PastSnapshot variationSnapshot = finder.find(null, "TRK", settings, 5);
 
     verify(finderByVersion).findByVersion(null, "1.2");
     assertThat(variationSnapshot.getIndex(), is(5));
@@ -199,27 +196,17 @@ public class PastSnapshotFinderTest {
 
   @Test
   public void shouldNotFailIfUnknownFormat() {
-    when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Date(), new Snapshot())); // should
-                                                                                                                                                                             // not
-                                                                                                                                                                             // be
-                                                                                                                                                                             // called
+    // should not be called
+    when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Date(), new Snapshot()));
+
     assertNull(finder.find(null, 2, "foooo"));
   }
 
   @Test
   public void shouldGetPropertyValue() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.timemachine.period1", "5");
+    Settings settings = new Settings().setProperty("sonar.timemachine.period1", "5");
 
-    assertThat(PastSnapshotFinder.getPropertyValue(conf, 1), is("5"));
-    assertThat(PastSnapshotFinder.getPropertyValue(conf, 999), nullValue());
-  }
-
-  @Test
-  public void shouldGetDefaultPropertyValue() {
-    PropertiesConfiguration conf = new PropertiesConfiguration();
-    conf.setProperty("sonar.timemachine.period1", "5");
-
-    assertThat(PastSnapshotFinder.getPropertyValue(conf, 2), is(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2));
+    assertThat(PastSnapshotFinder.getPropertyValue("FIL", settings, 1), is("5"));
+    assertThat(PastSnapshotFinder.getPropertyValue("FIL",settings, 999), nullValue());
   }
 }

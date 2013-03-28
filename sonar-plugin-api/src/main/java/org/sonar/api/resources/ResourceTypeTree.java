@@ -28,9 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.task.TaskExtension;
 
 import javax.annotation.concurrent.Immutable;
@@ -44,7 +42,7 @@ import java.util.List;
  */
 @Beta
 @Immutable
-public final class ResourceTypeTree implements TaskExtension, ServerExtension {
+public class ResourceTypeTree implements TaskExtension, ServerExtension {
 
   private List<ResourceType> types;
   private ListMultimap<String, String> relations;

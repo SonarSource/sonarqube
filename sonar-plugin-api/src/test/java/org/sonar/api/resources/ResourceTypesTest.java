@@ -55,35 +55,35 @@ public class ResourceTypesTest {
   }
 
   @Test
-  public void getAll() {
+  public void get_all() {
     assertThat(qualifiers(types.getAll())).containsOnly(Qualifiers.PROJECT, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   }
 
   @Test
-  public void getRoots() {
+  public void get_roots() {
     assertThat(qualifiers(types.getRoots())).containsOnly(Qualifiers.PROJECT, Qualifiers.VIEW);
   }
 
   @Test
-  public void getAll_predicate() {
+  public void get_all_predicate() {
     Collection<ResourceType> forFilters = types.getAll(ResourceTypes.AVAILABLE_FOR_FILTERS);
     assertThat(qualifiers(forFilters)).containsOnly(Qualifiers.PROJECT, Qualifiers.VIEW).doesNotHaveDuplicates();
   }
 
   @Test
-  public void getAllWithPropertyKey() {
+  public void get_all_with_property_key() {
     assertThat(qualifiers(types.getAllWithPropertyKey("supportsMeasureFilters"))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
   }
 
   @Test
-  public void getAllWithPropertyValue() {
+  public void get_all_with_property_value() {
     assertThat(qualifiers(types.getAllWithPropertyValue("supportsMeasureFilters", "true"))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
     assertThat(qualifiers(types.getAllWithPropertyValue("supportsMeasureFilters", true))).containsOnly(Qualifiers.VIEW, Qualifiers.PROJECT);
     assertThat(qualifiers(types.getAllWithPropertyValue("supportsMeasureFilters", false))).containsOnly(Qualifiers.SUBVIEW, Qualifiers.DIRECTORY, Qualifiers.FILE);
   }
 
   @Test
-  public void getChildrenQualifiers() {
+  public void get_children_qualifiers() {
     assertThat(types.getChildrenQualifiers(Qualifiers.PROJECT)).containsExactly(Qualifiers.DIRECTORY);
     assertThat(types.getChildrenQualifiers(Qualifiers.SUBVIEW)).containsExactly(Qualifiers.PROJECT);
     assertThat(types.getChildrenQualifiers("xxx")).isEmpty();
@@ -91,13 +91,13 @@ public class ResourceTypesTest {
   }
 
   @Test
-  public void getChildren() {
+  public void get_children() {
     assertThat(qualifiers(types.getChildren(Qualifiers.PROJECT))).contains(Qualifiers.DIRECTORY);
     assertThat(qualifiers(types.getChildren(Qualifiers.SUBVIEW))).contains(Qualifiers.PROJECT);
   }
 
   @Test
-  public void getLeavesQualifiers() {
+  public void get_leaves_qualifiers() {
     assertThat(types.getLeavesQualifiers(Qualifiers.PROJECT)).containsExactly(Qualifiers.FILE);
 
     assertThat(types.getLeavesQualifiers(Qualifiers.DIRECTORY)).containsExactly(Qualifiers.FILE);
@@ -108,13 +108,18 @@ public class ResourceTypesTest {
   }
 
   @Test
-  public void getTree() {
+  public void get_tree() {
     assertThat(qualifiers(types.getTree(Qualifiers.VIEW).getTypes())).containsOnly(Qualifiers.VIEW, Qualifiers.SUBVIEW).doesNotHaveDuplicates();
     assertThat(types.getTree("xxx")).isNull();
   }
 
+  @Test
+  public void get_root() {
+    assertThat(types.getRoot(Qualifiers.FILE).getQualifier()).isEqualTo(Qualifiers.PROJECT);
+  }
+
   @Test(expected = IllegalStateException.class)
-  public void failOnDuplicatedQualifier() {
+  public void fail_on_duplicated_qualifier() {
     ResourceTypeTree tree1 = ResourceTypeTree.builder()
         .addType(ResourceType.builder("foo").build())
         .build();

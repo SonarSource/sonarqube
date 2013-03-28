@@ -44,7 +44,7 @@ import java.util.Map;
  * @since 2.14
  */
 @Beta
-public final class ResourceTypes implements TaskComponent, ServerComponent {
+public class ResourceTypes implements TaskComponent, ServerComponent {
 
   public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = new Predicate<ResourceType>() {
     public boolean apply(@Nullable ResourceType input) {
@@ -173,6 +173,10 @@ public final class ResourceTypes implements TaskComponent, ServerComponent {
 
   public ResourceTypeTree getTree(String qualifier) {
     return treeByQualifier.get(qualifier);
+  }
+
+  public ResourceType getRoot(String qualifier){
+    return getTree(qualifier).getRootType();
   }
 
 }

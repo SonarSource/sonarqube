@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.components;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 
 import java.text.ParseException;
@@ -32,9 +33,8 @@ import java.util.Date;
 
 public class PastSnapshotFinder implements BatchExtension {
 
-  /**
-   * IMPORTANT : please update default values in the ruby side too. See app/helpers/FiltersHelper.rb, method period_names()
-   */
+  private static final Logger LOG = LoggerFactory.getLogger(PastSnapshotFinder.class);
+
   private PastSnapshotFinderByDays finderByDays;
   private PastSnapshotFinderByVersion finderByVersion;
   private PastSnapshotFinderByDate finderByDate;
@@ -51,35 +51,25 @@ public class PastSnapshotFinder implements BatchExtension {
     this.finderByPreviousVersion = finderByPreviousVersion;
   }
 
-  public PastSnapshot find(Snapshot projectSnapshot, Configuration conf, int index) {
-    String propertyValue = getPropertyValue(conf, index);
+  public PastSnapshot find(Snapshot projectSnapshot, String rootQualifier, Settings settings, int index) {
+    String propertyValue = getPropertyValue(rootQualifier, settings, index);
     PastSnapshot pastSnapshot = find(projectSnapshot, index, propertyValue);
     if (pastSnapshot == null && StringUtils.isNotBlank(propertyValue)) {
-      LoggerFactory.getLogger(PastSnapshotFinder.class).debug("Property " + CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index + " is not valid: " + propertyValue);
+      LOG.debug("Property " + getProperty(rootQualifier, index) + " is not valid: " + propertyValue);
     }
     return pastSnapshot;
   }
 
-  static String getPropertyValue(Configuration conf, int index) {
-    String defaultValue = null;
-    switch (index) {
-      case 1:
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1;
-        break;
-      case 2:
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2;
-        break;
-      case 3:
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3;
-        break;
-      case 4:
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4;
-        break; // NOSONAR false-positive: constant 4 is the same than 5 (empty string)
-      case 5:
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5;
-        break; // NOSONAR false-positive: constant 5 is the same than 4 (empty string)
+  static String getPropertyValue(String rootQualifier, Settings settings, int index) {
+    return settings.getString(getProperty(rootQualifier, index));
+  }
+
+  static private String getProperty(String rootQualifier, int index) {
+    if (index <= 3) {
+      return CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index;
+    } else {
+      return CoreProperties.TIMEMACHINE_PREFIX + "." + rootQualifier + "." + CoreProperties.TIMEMACHINE_PERIOD_SUFFIX + index;
     }
-    return conf.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index, defaultValue);
   }
 
   public PastSnapshot findPreviousAnalysis(Snapshot projectSnapshot) {

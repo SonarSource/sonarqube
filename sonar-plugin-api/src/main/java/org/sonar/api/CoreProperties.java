@@ -306,7 +306,9 @@ public interface CoreProperties {
   String GOOGLE_ANALYTICS_ACCOUNT_PROPERTY = "sonar.google-analytics.account";
 
   /* Time machine periods */
-  String TIMEMACHINE_PERIOD_PREFIX = "sonar.timemachine.period";
+  String TIMEMACHINE_PREFIX = "sonar.timemachine";
+  String TIMEMACHINE_PERIOD_SUFFIX = "period";
+  String TIMEMACHINE_PERIOD_PREFIX = TIMEMACHINE_PREFIX + "." + TIMEMACHINE_PERIOD_SUFFIX;
   String TIMEMACHINE_MODE_PREVIOUS_ANALYSIS = "previous_analysis";
   String TIMEMACHINE_MODE_DATE = "date";
   String TIMEMACHINE_MODE_VERSION = "version";
