@@ -30,6 +30,8 @@ import org.sonar.api.Property;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.AnnotationUtils;
 
+import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -122,7 +124,7 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   /**
    * @since 3.6
    */
-  public Map<String, Collection<PropertyDefinition>> getPropertiesByCategory(String qualifier) {
+  public Map<String, Collection<PropertyDefinition>> getPropertiesByCategory(@Nullable String qualifier) {
     Multimap<String, PropertyDefinition> byCategory = ArrayListMultimap.create();
 
     for (PropertyDefinition definition : getAll()) {
