@@ -44,6 +44,7 @@ import java.net.URI;
  * @since 3.4
  */
 public class ServerClient implements BatchComponent {
+
   private BootstrapSettings settings;
   private HttpDownloader.BaseHttpDownloader downloader;
 
@@ -87,14 +88,12 @@ public class ServerClient implements BatchComponent {
     String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
 
     URI uri = URI.create(getURL() + path);
-    String login = settings.property(CoreProperties.LOGIN);
-
     try {
       InputSupplier<InputStream> inputSupplier;
-      if (Strings.isNullOrEmpty(login)) {
+      if (Strings.isNullOrEmpty(getLogin())) {
         inputSupplier = downloader.newInputSupplier(uri);
       } else {
-        inputSupplier = downloader.newInputSupplier(uri, login, settings.property(CoreProperties.PASSWORD));
+        inputSupplier = downloader.newInputSupplier(uri, getLogin(), getPassword());
       }
       return inputSupplier;
     } catch (Exception e) {
@@ -110,12 +109,17 @@ public class ServerClient implements BatchComponent {
   }
 
   private String getMessageWhenNotAuthorized() {
-    String login = settings.property(CoreProperties.LOGIN);
-    String password = settings.property(CoreProperties.PASSWORD);
-    if (StringUtils.isEmpty(login) && StringUtils.isEmpty(password)) {
+    if (Strings.isNullOrEmpty(getLogin()) && Strings.isNullOrEmpty(getPassword())) {
       return "Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties %s and %s.";
     }
     return "Not authorized. Please check the properties %s and %s.";
   }
 
+  private String getLogin() {
+    return settings.property(CoreProperties.LOGIN) != null ? settings.property(CoreProperties.LOGIN) : "admin";
+  }
+
+  private String getPassword() {
+    return settings.property(CoreProperties.PASSWORD) != null ? settings.property(CoreProperties.PASSWORD) : "admin";
+  }
 }

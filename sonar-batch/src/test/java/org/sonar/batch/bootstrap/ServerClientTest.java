@@ -50,14 +50,12 @@ import static org.mockito.Mockito.when;
 
 public class ServerClientTest {
 
-  MockHttpServer server = null;
-  BootstrapSettings settings = mock(BootstrapSettings.class);
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+  MockHttpServer server = null;
+  BootstrapSettings settings = mock(BootstrapSettings.class);
 
   @After
   public void stopServer() {
@@ -106,10 +104,13 @@ public class ServerClientTest {
   }
 
   @Test
-  public void should_fail_if_unauthorized_with_login_password_not_provided() throws Exception {
+  public void should_fail_if_unauthorized_with_login_password_are_empty() throws Exception {
     server = new MockHttpServer();
     server.start();
     server.setMockResponseStatus(401);
+
+    when(settings.property(eq("sonar.login"))).thenReturn("");
+    when(settings.property(eq("sonar.password"))).thenReturn("");
 
     thrown.expectMessage("Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
     newServerClient().request("/foo");
@@ -186,24 +187,20 @@ public class ServerClientTest {
       }
     }
 
-    public void setResponseBody(String responseBody) {
-      this.responseBody = responseBody;
-    }
-
     public String getResponseBody() {
       return responseBody;
     }
 
-    public void setRequestBody(String requestBody) {
-      this.requestBody = requestBody;
+    public void setResponseBody(String responseBody) {
+      this.responseBody = responseBody;
     }
 
     public String getRequestBody() {
       return requestBody;
     }
 
-    public void setMockResponseData(String mockResponseData) {
-      this.mockResponseData = mockResponseData;
+    public void setRequestBody(String requestBody) {
+      this.requestBody = requestBody;
     }
 
     public void setMockResponseStatus(int status) {
@@ -214,9 +211,14 @@ public class ServerClientTest {
       return mockResponseData;
     }
 
+    public void setMockResponseData(String mockResponseData) {
+      this.mockResponseData = mockResponseData;
+    }
+
     public int getPort() {
       return server.getConnectors()[0].getLocalPort();
     }
+
   }
 
 }

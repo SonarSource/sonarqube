@@ -392,7 +392,7 @@ import java.util.List;
     name = "Enable file variation",
     global = false,
     defaultValue = "false",
-    category = CoreProperties.CATEGORY_GENERAL),
+    category = CoreProperties.CATEGORY_GENERAL)
 })
 public final class CorePlugin extends SonarPlugin {
 
