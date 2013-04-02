@@ -17,7 +17,7 @@
   </ul>
 </div>
 
-<div class="modal-body">
+<div class="modal-body rule_detail">
   <% if @rule.description.strip.start_with?('<p>') %>
     <%= MacroInterpreter.interpret_macro @rule.description %>
   <% else %>

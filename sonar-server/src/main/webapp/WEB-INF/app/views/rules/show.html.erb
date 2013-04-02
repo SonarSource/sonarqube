@@ -15,7 +15,7 @@
 <%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%>
 </div>
 
-<div class="doc">
+<div class="rule_detail">
   <% if @rule.description.strip.start_with?('<p>') %>
     <%=  MacroInterpreter.interpret_macro @rule.description %>
   <% else %>
