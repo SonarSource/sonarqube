@@ -383,7 +383,6 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
 
     public PropertyDefinition build() {
       Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must be set");
       fixType(key, type);
       return new PropertyDefinition(this);
     }
