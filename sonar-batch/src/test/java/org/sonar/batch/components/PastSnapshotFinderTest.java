@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.components;
 
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -66,8 +68,22 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldFind() {
-    Settings settings = new Settings().setProperty("sonar.timemachine.TRK.period5", "1.2");
+  public void should_find() {
+    Settings settings = new Settings().setProperty("sonar.timemachine.period5", "1.2");
+
+    when(finderByVersion.findByVersion(null, "1.2")).thenReturn(new PastSnapshot("version", new Date(), new Snapshot()));
+
+    PastSnapshot variationSnapshot = finder.find(null, null, settings, 5);
+
+    verify(finderByVersion).findByVersion(null, "1.2");
+    assertThat(variationSnapshot.getIndex(), is(5));
+    assertThat(variationSnapshot.getMode(), is("version"));
+    assertThat(variationSnapshot.getProjectSnapshot(), not(nullValue()));
+  }
+
+  @Test
+  public void should_find_with_qualifier_suffix() {
+    Settings settings = new Settings().setProperty("sonar.timemachine.period5.TRK", "1.2");
 
     when(finderByVersion.findByVersion(null, "1.2")).thenReturn(new PastSnapshot("version", new Date(), new Snapshot()));
 
@@ -80,7 +96,31 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldFindByNumberOfDays() {
+  public void should_find_with_configuration() {
+    Configuration conf = new BaseConfiguration();
+    conf.addProperty("sonar.timemachine.period1", "1.2");
+    conf.addProperty("sonar.timemachine.period2", "1.2");
+    conf.addProperty("sonar.timemachine.period3", "1.2");
+    conf.addProperty("sonar.timemachine.period4", "1.2");
+    conf.addProperty("sonar.timemachine.period5", "1.2");
+
+    when(finderByVersion.findByVersion(null, "1.2")).thenReturn(new PastSnapshot("version", new Date(), new Snapshot()));
+
+    PastSnapshot variationSnapshot = finder.find(null, conf, 1);
+
+    verify(finderByVersion).findByVersion(null, "1.2");
+    assertThat(variationSnapshot.getIndex(), is(1));
+    assertThat(variationSnapshot.getMode(), is("version"));
+    assertThat(variationSnapshot.getProjectSnapshot(), not(nullValue()));
+
+    assertThat(finder.find(null, conf, 2).getIndex(), is(2));
+    assertThat(finder.find(null, conf, 3).getIndex(), is(3));
+    assertThat(finder.find(null, conf, 4).getIndex(), is(4));
+    assertThat(finder.find(null, conf, 5).getIndex(), is(5));
+  }
+
+  @Test
+  public void should_find_by_number_of_days() {
     when(finderByDays.findFromDays(null, 30)).thenReturn(new PastSnapshot("days", null).setModeParameter("30"));
 
     PastSnapshot variationSnapshot = finder.find(null, 1, "30");
@@ -93,7 +133,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldNotFindByNumberOfDays() {
+  public void should_not_find_by_number_of_days() {
     PastSnapshot variationSnapshot = finder.find(null, 1, "30");
 
     verify(finderByDays).findFromDays(null, 30);
@@ -101,7 +141,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldFindByDate() throws ParseException {
+  public void should_find_by_date() throws ParseException {
     final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     final Date date = format.parse("2010-05-18");
     when(finderByDate.findByDate(null, date)).thenReturn(new PastSnapshot("date", date, new Snapshot()));
@@ -120,7 +160,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldNotFindByDate() {
+  public void should_not_find_by_date() {
     when(finderByDate.findByDate(any(Snapshot.class), any(Date.class))).thenReturn(null);
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "2010-05-18");
@@ -130,7 +170,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldFindByPreviousAnalysis() throws ParseException {
+  public void should_find_by_previous_analysis() throws ParseException {
     final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     final Date date = format.parse("2010-05-18");
     Snapshot snapshot = new Snapshot();
@@ -146,7 +186,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldNotFindPreviousAnalysis() {
+  public void should_not_find_previous_analysis() {
     when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(null);
 
     PastSnapshot variationSnapshot = finder.find(null, 2, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
@@ -157,7 +197,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldFindByPreviousVersion() throws ParseException {
+  public void should_find_by_previous_version() throws ParseException {
     final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     final Date date = format.parse("2010-05-18");
     Snapshot snapshot = new Snapshot();
@@ -173,7 +213,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldFindByVersion() {
+  public void should_find_by_version() {
     when(finderByVersion.findByVersion(null, "1.2")).thenReturn(new PastSnapshot("version", new Date(), new Snapshot()));
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "1.2");
@@ -185,7 +225,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldNotFindVersion() {
+  public void should_not_find_version() {
     when(finderByVersion.findByVersion(null, "1.2")).thenReturn(null);
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "1.2");
@@ -195,7 +235,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldNotFailIfUnknownFormat() {
+  public void should_not_fail_if_unknown_format() {
     // should not be called
     when(finderByPreviousAnalysis.findByPreviousAnalysis(null)).thenReturn(new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Date(), new Snapshot()));
 
@@ -203,7 +243,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void shouldGetPropertyValue() {
+  public void should_get_property_value() {
     Settings settings = new Settings().setProperty("sonar.timemachine.period1", "5");
 
     assertThat(PastSnapshotFinder.getPropertyValue("FIL", settings, 1), is("5"));

@@ -302,7 +302,7 @@ import java.util.List;
     defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3,
     category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS),
   @Property(
-    key = "sonar.timemachine.TRK.period4",
+    key = "sonar.timemachine.period4",
     name = "Period 4",
     description = "Period used to compare measures and track new violations. This property is specific to the project. Values are : " +
       "<ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, " +
@@ -313,17 +313,15 @@ import java.util.List;
     project = true,
     global = false,
     defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4,
-    category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS,
-    deprecatedKey = "sonar.timemachine.period4"),
+    category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS),
   @Property(
-    key = "sonar.timemachine.TRK.period5",
+    key = "sonar.timemachine.period5",
     name = "Period 5",
     description = "See the property 'Period 4'",
     project = true,
     global = false,
     defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5,
-    category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS,
-      deprecatedKey = "sonar.timemachine.period5"),
+    category = CoreProperties.CATEGORY_DIFFERENTIAL_VIEWS),
   @Property(
     key = CoreProperties.DRY_RUN,
     defaultValue = "false",
