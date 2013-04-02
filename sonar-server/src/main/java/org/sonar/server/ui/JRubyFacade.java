@@ -547,6 +547,10 @@ public final class JRubyFacade {
     return get(Periods.class).label(mode, param, date);
   }
 
+  public String getPeriodLabel(String mode, String param, String date) {
+    return get(Periods.class).label(mode, param, date);
+  }
+
   public String getPeriodAbbreviation(int periodIndex) {
     return get(Periods.class).abbreviation(periodIndex);
   }

@@ -62,26 +62,30 @@ public class Periods implements BatchExtension {
   }
 
   public String label(String mode, String param, Date date) {
+    return label(mode, param, convertDate(date), false);
+  }
+
+  public String label(String mode, String param, String date) {
     return label(mode, param, date, false);
   }
 
   public String abbreviation(String mode, String param, Date date) {
-    return label(mode, param, date, true);
+    return label(mode, param, convertDate(date), true);
   }
 
-  private String label(String mode, String param, Date date, boolean shortLabel) {
+  private String label(String mode, String param, String date, boolean shortLabel) {
     String label;
     if (CoreProperties.TIMEMACHINE_MODE_DAYS.equals(mode)) {
       label = label("over_x_days", shortLabel, param);
     } else if (CoreProperties.TIMEMACHINE_MODE_VERSION.equals(mode)) {
       label = label("since_version", shortLabel, param);
       if (date != null) {
-        label = label("since_version_detailed", shortLabel, param, convertDate(date));
+        label = label("since_version_detailed", shortLabel, param, date);
       }
     } else if (CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS.equals(mode)) {
       label = label("since_previous_analysis", shortLabel);
       if (date != null) {
-        label = label("since_previous_analysis_detailed", shortLabel, convertDate(date));
+        label = label("since_previous_analysis_detailed", shortLabel, date);
       }
     } else if (CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION.equals(mode)) {
       label = label("since_previous_version", shortLabel);
@@ -89,7 +93,7 @@ public class Periods implements BatchExtension {
         label = label("since_previous_version_detailed", shortLabel, param);
       }
     } else if (CoreProperties.TIMEMACHINE_MODE_DATE.equals(mode)) {
-      label = label("since_x", shortLabel, convertDate(date));
+      label = label("since_x", shortLabel, date);
     } else {
       throw new IllegalArgumentException("This mode is not supported : " + mode);
     }
@@ -105,8 +109,11 @@ public class Periods implements BatchExtension {
   }
 
   private String convertDate(Date date) {
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy MMM dd");
-    return dateFormat.format(date);
+    if (date != null) {
+      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy MMM dd");
+      return dateFormat.format(date);
+    }
+    return null;
   }
 
   private Locale getLocale() {

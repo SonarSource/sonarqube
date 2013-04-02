@@ -55,12 +55,21 @@ module DashboardHelper
   end
 
   def period_select_options(snapshot, index, html_class = '')
-    label=snapshot.period_label(index)
+    label = period_label(snapshot, index)
     if label
       selected=(params[:period]==index.to_s ? 'selected' : '')
       "<option value='#{index}' #{selected} class='#{html_class}'>&Delta; #{label}</option>"
     else
       nil
+    end
+  end
+
+  def period_label(snapshot, index)
+    if snapshot.project_snapshot
+      mode = snapshot.period_mode(index)
+      mode_param = snapshot.period_param(index)
+      date = localize(snapshot.period_datetime(index).to_date) if snapshot.period_datetime(index)
+      Api::Utils.java_facade.getPeriodLabel(mode, mode_param, date) if mode
     end
   end
 

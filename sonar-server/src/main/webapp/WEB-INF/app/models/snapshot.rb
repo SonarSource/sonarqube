@@ -252,14 +252,6 @@ class Snapshot < ActiveRecord::Base
       end
   end
 
-  def period_label(period_index)
-    if project_snapshot
-      mode = period_mode(period_index)
-      mode_param = period_param(period_index)
-      date = period_datetime(period_index)
-      Api::Utils.java_facade.getPeriodLabel(mode, mode_param, date) if mode
-    end
-  end
 
   private
 
