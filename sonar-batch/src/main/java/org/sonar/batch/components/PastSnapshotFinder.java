@@ -60,12 +60,20 @@ public class PastSnapshotFinder implements BatchExtension {
     return pastSnapshot;
   }
 
+  /**
+   * For retro compatibility for dev cockpit. It will used deprecated periods property sonar.timemachine.periods4 and sonar.timemachine.periods5
+   */
+  public PastSnapshot find(Snapshot projectSnapshot, Settings settings, int index) {
+    return find(projectSnapshot, null, settings, index);
+  }
+
   static String getPropertyValue(String rootQualifier, Settings settings, int index) {
     return settings.getString(getProperty(rootQualifier, index));
   }
 
   static private String getProperty(String rootQualifier, int index) {
-    if (index <= 3) {
+    // The check on rootQualifier is for retro compatibility
+    if (index <= 3 || rootQualifier == null) {
       return CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index;
     } else {
       return CoreProperties.TIMEMACHINE_PREFIX + "." + rootQualifier + "." + CoreProperties.TIMEMACHINE_PERIOD_SUFFIX + index;
