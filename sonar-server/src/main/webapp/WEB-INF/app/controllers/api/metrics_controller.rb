@@ -45,8 +45,10 @@ class Api::MetricsController < Api::RestController
 
   def create
     bad_request('Name is required') unless params[:name].present?
+    metric_name = params[:name].downcase.gsub(/\s/, '_')[0..59]
+    metric_id_as_text = params[:id].downcase.gsub(/\s/, '_')[0..59] if params[:id] && params[:id].to_i > 0
 
-    metric_test = Metric.first(:conditions => ['name=? OR id=?', params[:id], params[:id].to_i])
+    metric_test = Metric.first(:conditions => ['name=? OR id=?', metric_id_as_text, params[:id].to_i])
 
     exist_and_is_disable = !metric_test.nil? && !metric_test.enabled?
     if exist_and_is_disable
@@ -56,9 +58,9 @@ class Api::MetricsController < Api::RestController
     end
 
     begin
-      metric.attributes = params.merge({:name => params[:id], :short_name => params[:name]})
+      metric.attributes = params.merge({:name => metric_id_as_text, :short_name => metric_name})
       if metric.short_name(false)
-        metric.name = metric.short_name(false).downcase.gsub(/\s/, '_')[0..59] unless params[:id]
+        metric.name = metric.short_name(false) unless metric_id_as_text
       end
       metric.origin = Metric::ORIGIN_WS
       metric.user_managed = true
