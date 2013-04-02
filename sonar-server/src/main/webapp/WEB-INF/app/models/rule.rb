@@ -275,10 +275,18 @@ class Rule < ActiveRecord::Base
     conditions = []
     values = {}
 
+    # For retro compatibility for the Sqale plugin
+    unless options[:plugins].blank?
+      options[:repositories] = options[:plugins]
+    end
+
     status = options[:status]
     if status.blank?
       conditions << ['status <> :status']
       values[:status] = STATUS_REMOVED
+    elsif status == 'ACTIVE' || status == 'INACTIVE'
+      # For retro compatibility for the Sqale plugin
+      options[:activation] = status
     else
       conditions << "status IN (:status)"
       values[:status] = options[:status]
