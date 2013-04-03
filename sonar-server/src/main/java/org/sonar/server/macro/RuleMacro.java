@@ -29,13 +29,13 @@ public class RuleMacro implements Macro{
   }
 
   /**
-   * First parameter is the repository, second one is the rule key
+   * First parameter is the repository, second one is the rule key. Exemple : {rule:squid:ArchitecturalConstraint}
    */
   public String getRegex() {
     return "\\{rule:([a-zA-Z0-9._-]++):([a-zA-Z0-9._-]++)\\}";
   }
 
   public String getReplacement(){
-    return "<a class='open-modal rule-modal' href='" + contextPath + "/rules/show/$1:$2?modal=true&layout=false'>$1:$2</a>";
+    return "<a class='open-modal rule-modal' modal-width='800' href='" + contextPath + "/rules/show/$1:$2?modal=true&layout=false'>$1:$2</a>";
   }
 }

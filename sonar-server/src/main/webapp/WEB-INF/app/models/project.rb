@@ -40,7 +40,7 @@ class Project < ActiveRecord::Base
       ki=Integer(k)
       Project.find(ki)
     rescue
-      Project.find(:first, :conditions => {:kee => k})
+      Project.first(:conditions => {:kee => k})
     end
   end
 
@@ -72,7 +72,7 @@ class Project < ActiveRecord::Base
   def modules
     @modules ||=
       begin
-        Project.find(:all, :conditions => {:root_id => self.id, :scope => 'PRJ'})
+        Project.all(:conditions => {:root_id => self.id, :scope => 'PRJ'})
       end
   end
 
@@ -101,7 +101,7 @@ class Project < ActiveRecord::Base
   def last_snapshot
     @last_snapshot ||=
       begin
-        snapshot=Snapshot.find(:first, :conditions => {:islast => true, :project_id => id})
+        snapshot=Snapshot.first(:conditions => {:islast => true, :project_id => id})
         if snapshot
           snapshot.project=self
         end

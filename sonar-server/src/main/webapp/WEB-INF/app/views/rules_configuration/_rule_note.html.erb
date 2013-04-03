@@ -8,12 +8,14 @@
 %>
 
 <div id="<%= note_detail_div_id -%>">
+  <div>
   <% if rule.description.strip.start_with?('<p>') %>
     <%= MacroInterpreter.interpret_macro rule.description %>
   <% else %>
     <p><%= MacroInterpreter.interpret_macro rule.description %></p>
   <% end %>
-  
+  </div>
+
   <% if note && !note.text.strip.blank? %>
     <p><%= note.html_text -%></p>
   <% end %>
