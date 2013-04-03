@@ -88,9 +88,9 @@ class SonarAuthorizer
     group_ids=user.groups.map(&:id)
     if group_ids.empty?
       # Some databases do not support empty IN
-      global_group_roles=GroupRole.find(:all, :select => 'role', :conditions => ["resource_id is null and group_id is null"]).map{|gr| gr.role.to_sym}
+      global_group_roles=GroupRole.all(:select => 'role', :conditions => ["resource_id is null and group_id is null"]).map{|gr| gr.role.to_sym}
     else
-      global_group_roles=GroupRole.find(:all, :select => 'role', :conditions => ["resource_id is null and (group_id is null or group_id in(?))", group_ids]).map{|gr| gr.role.to_sym}
+      global_group_roles=GroupRole.all(:select => 'role', :conditions => ["resource_id is null and (group_id is null or group_id in(?))", group_ids]).map{|gr| gr.role.to_sym}
     end
     global_user_roles=user.user_roles.select{|ur| ur.resource_id.nil?}.map{|ur| ur.role.to_sym}
 
