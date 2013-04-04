@@ -56,6 +56,7 @@ import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
+import org.sonar.core.source.HighlightableBuilder;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestableBuilder;
 import org.sonar.core.timemachine.Periods;
@@ -269,9 +270,10 @@ public final class Platform {
     servicesContainer.addSingleton(DefaultNotificationManager.class);
     servicesContainer.addSingleton(ReviewsNotificationManager.class);
 
-    // graphs
+    // graphs and perspective related classes
     servicesContainer.addSingleton(TestPlanBuilder.class);
     servicesContainer.addSingleton(TestableBuilder.class);
+    servicesContainer.addSingleton(HighlightableBuilder.class);
     servicesContainer.addSingleton(SnapshotPerspectives.class);
 
     ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
