@@ -75,8 +75,7 @@ public class PropertyDefinitionTest {
     assertThat(def.description()).isEqualTo("desc");
     assertThat(def.type()).isEqualTo(PropertyType.FLOAT);
     assertThat(def.global()).isFalse();
-    assertThat(def.project()).isTrue();
-    assertThat(def.module()).isTrue();
+    assertThat(def.qualifiers()).containsOnly(Qualifiers.PROJECT, Qualifiers.MODULE);
     assertThat(def.multiValues()).isTrue();
     assertThat(def.propertySetKey()).isEqualTo("set");
     assertThat(def.fields()).isEmpty();
@@ -97,8 +96,6 @@ public class PropertyDefinitionTest {
     assertThat(def.type()).isEqualTo(PropertyType.STRING);
     assertThat(def.global()).isTrue();
     assertThat(def.qualifiers()).isEmpty();
-    assertThat(def.project()).isFalse();
-    assertThat(def.module()).isFalse();
     assertThat(def.multiValues()).isFalse();
     assertThat(def.propertySetKey()).isEmpty();
     assertThat(def.fields()).isEmpty();
@@ -119,8 +116,7 @@ public class PropertyDefinitionTest {
     assertThat(def.description()).isEmpty();
     assertThat(def.type()).isEqualTo(PropertyType.STRING);
     assertThat(def.global()).isTrue();
-    assertThat(def.project()).isFalse();
-    assertThat(def.module()).isFalse();
+    assertThat(def.qualifiers()).isEmpty();
     assertThat(def.multiValues()).isFalse();
     assertThat(def.propertySetKey()).isEmpty();
     assertThat(def.fields()).isEmpty();

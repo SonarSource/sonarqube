@@ -37,19 +37,6 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Property value can be set in different ways :
- * <ul>
- * <li>System property</li>
- * <li>Maven command-line (-Dfoo=bar)</li>
- * <li>Maven pom.xml (element <properties>)</li>
- * <li>Maven settings.xml</li>
- * <li>Sonar web interface</li>
- * </ul>
- * <p/>
- * Value is accessible in batch extensions via the Configuration object of class <code>org.sonar.api.resources.Project</code>
- * (see method <code>getConfiguration()</code>).
- * <p/>
- * <p><strong>Must be used in <code>org.sonar.api.Plugin</code> classes only.</strong></p>
  *
  * @since 3.0
  */
@@ -69,6 +56,9 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   private String deprecatedKey;
   private List<PropertyFieldDefinition> fields;
 
+  /**
+   * @since 3.6
+   */
   private PropertyDefinition(Builder builder) {
     this.key = builder.key;
     this.name = builder.name;
@@ -85,18 +75,30 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     this.qualifiers = builder.qualifiers;
   }
 
+  /**
+   * @since 3.6
+   */
   public static Builder build(String key) {
     return new Builder(key);
   }
 
+  /**
+   * @since 3.6
+   */
   static PropertyDefinition create(Property annotation) {
+    List<String> qualifiers = newArrayList();
+    if (annotation.project()) {
+      qualifiers.add(Qualifiers.PROJECT);
+    }
+    if (annotation.module()) {
+      qualifiers.add(Qualifiers.MODULE);
+    }
     return PropertyDefinition.build(annotation.key())
         .name(annotation.name())
         .defaultValue(annotation.defaultValue())
         .description(annotation.description())
         .global(annotation.global())
-        .project(annotation.project())
-        .module(annotation.module())
+        .qualifiers(qualifiers)
         .category(annotation.category())
         .type(annotation.type())
         .options(annotation.options())
@@ -183,20 +185,6 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   }
 
   /**
-   * Is the property displayed in project settings page ?
-   */
-  public boolean project() {
-    return qualifiers.contains(Qualifiers.PROJECT);
-  }
-
-  /**
-   * Is the property displayed in module settings page ? A module is a maven sub-project.
-   */
-  public boolean module() {
-    return qualifiers.contains(Qualifiers.MODULE);
-  }
-
-  /**
    * Qualifiers that can display this property
    *
    * @since 3.6
@@ -263,6 +251,9 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     }
   }
 
+  /**
+   * @since 3.6
+   */
   public static class Builder {
     private String key;
     private String name;
@@ -318,21 +309,8 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
-    public Builder project(boolean displayOnProject) {
-      if (displayOnProject) {
-        this.qualifiers.add(Qualifiers.PROJECT);
-      } else {
-        this.qualifiers.remove(Qualifiers.PROJECT);
-      }
-      return this;
-    }
-
-    public Builder module(boolean displayOnModule) {
-      if (displayOnModule) {
-        this.qualifiers.add(Qualifiers.MODULE);
-      } else {
-        this.qualifiers.remove(Qualifiers.MODULE);
-      }
+    public Builder qualifiers(List<String> qualifiers) {
+      this.qualifiers.addAll(qualifiers);
       return this;
     }
 

@@ -93,11 +93,11 @@ public class PropertyDefinitionsTest {
   @Test
   public void should_group_by_category() {
     PropertyDefinitions def = new PropertyDefinitions(
-        PropertyDefinition.build("global1").name("Global1").category("catGlobal1").global(true).project(false).module(false).build(),
-        PropertyDefinition.build("global2").name("Global2").category("catGlobal1").global(true).project(false).module(false).build(),
-        PropertyDefinition.build("global3").name("Global3").category("catGlobal2").global(true).project(false).module(false).build(),
-        PropertyDefinition.build("project").name("Project").category("catProject").global(false).project(true).module(false).build(),
-        PropertyDefinition.build("module").name("Module").category("catModule").global(false).project(false).module(true).build(),
+        PropertyDefinition.build("global1").name("Global1").category("catGlobal1").global(true).build(),
+        PropertyDefinition.build("global2").name("Global2").category("catGlobal1").global(true).build(),
+        PropertyDefinition.build("global3").name("Global3").category("catGlobal2").global(true).build(),
+        PropertyDefinition.build("project").name("Project").category("catProject").global(false).qualifiers(Qualifiers.PROJECT).build(),
+        PropertyDefinition.build("module").name("Module").category("catModule").global(false).qualifiers(Qualifiers.MODULE).build(),
         PropertyDefinition.build("view").name("View").category("catView").global(false).qualifiers(Qualifiers.VIEW).build()
     );
 

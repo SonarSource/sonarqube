@@ -119,10 +119,12 @@ public class ServerClient implements BatchComponent {
   }
 
   private String getLogin() {
-    return settings.property(CoreProperties.LOGIN) != null ? settings.property(CoreProperties.LOGIN) : DEFAULT_LOGIN;
+    String login = settings.property(CoreProperties.LOGIN);
+    return login != null ? login : DEFAULT_LOGIN;
   }
 
   private String getPassword() {
-    return settings.property(CoreProperties.PASSWORD) != null ? settings.property(CoreProperties.PASSWORD) : DEFAULT_PASSWORD;
+    String password = settings.property(CoreProperties.PASSWORD);
+    return password != null ? password : DEFAULT_PASSWORD;
   }
 }
