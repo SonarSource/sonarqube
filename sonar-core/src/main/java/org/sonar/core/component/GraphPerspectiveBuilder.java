@@ -19,41 +19,35 @@
  */
 package org.sonar.core.component;
 
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Vertex;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
-import org.sonar.core.graph.BeanVertex;
 import org.sonar.core.graph.EdgePath;
-import org.sonar.core.graph.GraphUtil;
 
 public abstract class GraphPerspectiveBuilder<T extends Perspective> extends PerspectiveBuilder<T> {
 
   protected final ScanGraph graph;
   protected final EdgePath path;
-  protected final String perspectiveKey;
+  protected final GraphPerspectiveLoader<T> perspectiveLoader;
 
-  protected GraphPerspectiveBuilder(ScanGraph graph, String perspectiveKey, Class<T> perspectiveClass, EdgePath path) {
+  protected GraphPerspectiveBuilder(ScanGraph graph, Class<T> perspectiveClass, EdgePath path,
+                                    GraphPerspectiveLoader<T> perspectiveLoader) {
     super(perspectiveClass);
     this.graph = graph;
     this.path = path;
-    this.perspectiveKey = perspectiveKey;
-  }
-
-  public T load(ComponentVertex component) {
-    Vertex perspectiveVertex = GraphUtil.singleAdjacent(component.element(), Direction.OUT, getPerspectiveKey());
-    if (perspectiveVertex != null) {
-      return (T) component.beanGraph().wrap(perspectiveVertex, getBeanClass());
-    }
-    return null;
+    this.perspectiveLoader = perspectiveLoader;
   }
 
   public T create(ComponentVertex component) {
-    return (T) component.beanGraph().createAdjacentVertex(component, getBeanClass(), getPerspectiveKey());
+    return (T) component.beanGraph().createAdjacentVertex(component, perspectiveLoader.getBeanClass(),
+            perspectiveLoader.getPerspectiveKey());
   }
 
   public EdgePath path() {
     return path;
+  }
+
+  public GraphPerspectiveLoader<T> getPerspectiveLoader() {
+    return perspectiveLoader;
   }
 
   @Override
@@ -66,7 +60,7 @@ public abstract class GraphPerspectiveBuilder<T extends Perspective> extends Per
     }
 
     if (vertex != null) {
-      T perspective = load(vertex);
+      T perspective = perspectiveLoader.load(vertex);
       if (perspective == null) {
         perspective = create(vertex);
       }
@@ -74,11 +68,4 @@ public abstract class GraphPerspectiveBuilder<T extends Perspective> extends Per
     }
     return null;
   }
-
-
-  protected String getPerspectiveKey() {
-    return perspectiveKey;
-  }
-
-  protected abstract Class<? extends BeanVertex> getBeanClass();
 }

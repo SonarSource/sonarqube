@@ -32,7 +32,8 @@ public class TestPlanBuilderTest {
   public void test_path() {
 
     ScanGraph graph = ScanGraph.create();
-    TestPlanBuilder builder = new TestPlanBuilder(graph);
+    TestPlanPerspectiveLoader loader = new TestPlanPerspectiveLoader();
+    TestPlanBuilder builder = new TestPlanBuilder(graph, loader);
 
     assertThat(builder.path().getElements()).isNotEmpty();
   }
@@ -40,21 +41,23 @@ public class TestPlanBuilderTest {
   @Test
   public void should_not_load_missing_perspective() {
     ScanGraph graph = ScanGraph.create();
-    TestPlanBuilder builder = new TestPlanBuilder(graph);
+    TestPlanPerspectiveLoader loader = new TestPlanPerspectiveLoader();
+    TestPlanBuilder builder = new TestPlanBuilder(graph, loader);
     ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
 
-    assertThat(builder.load(file)).isNull();
+    assertThat(builder.getPerspectiveLoader().load(file)).isNull();
   }
 
   @Test
   public void should_create_perspective() {
     ScanGraph graph = ScanGraph.create();
-    TestPlanBuilder builder = new TestPlanBuilder(graph);
+    TestPlanPerspectiveLoader loader = new TestPlanPerspectiveLoader();
+    TestPlanBuilder builder = new TestPlanBuilder(graph, loader);
     ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
 
     MutableTestPlan plan = builder.create(file);
     assertThat(plan).isNotNull();
     assertThat(plan.component()).isSameAs(file);
-    assertThat(builder.load(file)).isSameAs(plan);
+    assertThat(builder.getPerspectiveLoader().load(file)).isSameAs(plan);
   }
 }

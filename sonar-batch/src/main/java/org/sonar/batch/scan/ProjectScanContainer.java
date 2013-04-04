@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.bootstrap.ExtensionMatcher;
-
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.platform.ComponentContainer;
@@ -30,17 +28,10 @@ import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
-import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.DefaultPersistenceManager;
-import org.sonar.batch.index.DefaultResourcePersister;
-import org.sonar.batch.index.DependencyPersister;
-import org.sonar.batch.index.EventPersister;
-import org.sonar.batch.index.LinkPersister;
-import org.sonar.batch.index.MeasurePersister;
-import org.sonar.batch.index.MemoryOptimizer;
-import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.index.*;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.core.component.ScanGraph;
@@ -49,7 +40,9 @@ import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.source.HighlightableBuilder;
 import org.sonar.core.test.TestPlanBuilder;
+import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestableBuilder;
+import org.sonar.core.test.TestablePerspectiveLoader;
 
 public class ProjectScanContainer extends ComponentContainer {
   public ProjectScanContainer(ComponentContainer taskContainer) {
@@ -82,6 +75,8 @@ public class ProjectScanContainer extends ComponentContainer {
         ProjectLock.class,
         LastSnapshots.class,
         ScanGraph.create(),
+        TestPlanPerspectiveLoader.class,
+        TestablePerspectiveLoader.class,
         TestPlanBuilder.class,
         TestableBuilder.class,
         HighlightableBuilder.class,

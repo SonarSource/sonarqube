@@ -23,12 +23,9 @@ import com.tinkerpop.blueprints.Direction;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.core.component.GraphPerspectiveBuilder;
 import org.sonar.core.component.ScanGraph;
-import org.sonar.core.graph.BeanVertex;
 import org.sonar.core.graph.EdgePath;
 
 public class TestableBuilder extends GraphPerspectiveBuilder<MutableTestable> {
-
-  static final String PERSPECTIVE_KEY = "testable";
 
   private static final EdgePath PATH = EdgePath.create(
     Direction.OUT, "testable",
@@ -37,12 +34,7 @@ public class TestableBuilder extends GraphPerspectiveBuilder<MutableTestable> {
     Direction.IN,"testplan"
   );
 
-  public TestableBuilder(ScanGraph graph) {
-    super(graph, PERSPECTIVE_KEY, MutableTestable.class, PATH);
-  }
-
-  @Override
-  protected Class<? extends BeanVertex> getBeanClass() {
-    return DefaultTestable.class;
+  public TestableBuilder(ScanGraph graph, TestablePerspectiveLoader perspectiveLoader) {
+    super(graph, MutableTestable.class, PATH, perspectiveLoader);
   }
 }

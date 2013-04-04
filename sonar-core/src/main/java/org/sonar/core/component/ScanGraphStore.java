@@ -64,10 +64,13 @@ public class ScanGraphStore {
       for (PerspectiveBuilder builder : builders) {
         if(builder instanceof GraphPerspectiveBuilder) {
           GraphPerspectiveBuilder graphPerspectiveBuilder = (GraphPerspectiveBuilder)builder;
-          Perspective perspective = graphPerspectiveBuilder.load(component);
+          Perspective perspective = graphPerspectiveBuilder.getPerspectiveLoader().load(component);
           if (perspective != null) {
             serializePerspectiveData(mapper, component, snapshotId, graphPerspectiveBuilder);
           }
+        } else {
+          LoggerFactory.getLogger(ScanGraphStore.class).info("Received persistence request for perspective "
+                  + builder.getPerspectiveClass().toString());
         }
       }
     }
@@ -80,7 +83,7 @@ public class ScanGraphStore {
     mapper.insert(new GraphDto()
       .setData(data)
       .setFormat("graphson")
-      .setPerspective(builder.getPerspectiveKey())
+      .setPerspective(builder.getPerspectiveLoader().getPerspectiveKey())
       .setVersion(1)
       .setResourceId((Long) component.element().getProperty("rid"))
       .setSnapshotId(snapshotId)

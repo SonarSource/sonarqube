@@ -31,7 +31,8 @@ public class TestableBuilderTest {
   @Test
   public void test_path() {
     ScanGraph graph = ScanGraph.create();
-    TestableBuilder builder = new TestableBuilder(graph);
+    TestablePerspectiveLoader loader = new TestablePerspectiveLoader();
+    TestableBuilder builder = new TestableBuilder(graph, loader);
 
     assertThat(builder.path().getElements()).isNotEmpty();
   }
@@ -39,21 +40,23 @@ public class TestableBuilderTest {
   @Test
   public void should_not_load_missing_perspective() {
     ScanGraph graph = ScanGraph.create();
-    TestableBuilder builder = new TestableBuilder(graph);
+    TestablePerspectiveLoader loader = new TestablePerspectiveLoader();
+    TestableBuilder builder = new TestableBuilder(graph, loader);
     ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
 
-    assertThat(builder.load(file)).isNull();
+    assertThat(builder.getPerspectiveLoader().load(file)).isNull();
   }
 
   @Test
   public void should_create_perspective() {
     ScanGraph graph = ScanGraph.create();
-    TestableBuilder builder = new TestableBuilder(graph);
+    TestablePerspectiveLoader loader = new TestablePerspectiveLoader();
+    TestableBuilder builder = new TestableBuilder(graph, loader);
     ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
 
     MutableTestable testable = builder.create(file);
     assertThat(testable).isNotNull();
     assertThat(testable.component()).isSameAs(file);
-    assertThat(builder.load(file)).isSameAs(testable);
+    assertThat(builder.getPerspectiveLoader().load(file)).isSameAs(testable);
   }
 }

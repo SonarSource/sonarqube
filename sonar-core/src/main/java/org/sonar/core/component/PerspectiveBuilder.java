@@ -37,5 +37,4 @@ public abstract class PerspectiveBuilder<T extends Perspective> implements Batch
   }
 
   protected abstract T loadPerspective(Class<T> perspectiveClass, Component component);
-
 }

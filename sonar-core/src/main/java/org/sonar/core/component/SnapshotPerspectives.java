@@ -35,19 +35,19 @@ import java.util.Map;
 public class SnapshotPerspectives implements ServerComponent {
 
   private final GraphDao dao;
-  private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
+  private final Map<Class<?>, GraphPerspectiveLoader<?>> loaders = Maps.newHashMap();
 
-  public SnapshotPerspectives(GraphDao dao, PerspectiveBuilder[] builders) {
+  public SnapshotPerspectives(GraphDao dao, GraphPerspectiveLoader[] loaders) {
     this.dao = dao;
-    for (PerspectiveBuilder builder : builders) {
+    for (GraphPerspectiveLoader loader : loaders) {
       // TODO check duplications
-      this.builders.put(builder.getPerspectiveClass(), builder);
+      this.loaders.put(loader.getPerspectiveClass(), loader);
     }
   }
 
   @CheckForNull
   public <T extends Perspective> T as(Class<T> perspectiveClass, String componentKey) {
-    GraphPerspectiveBuilder<T> builder = (GraphPerspectiveBuilder<T>) builders.get(perspectiveClass);
+    GraphPerspectiveLoader<T> builder = (GraphPerspectiveLoader<T>) loaders.get(perspectiveClass);
     if (builder == null) {
       throw new IllegalStateException();
     }
@@ -57,7 +57,7 @@ public class SnapshotPerspectives implements ServerComponent {
 
   @CheckForNull
   public <T extends Perspective> T as(Class<T> perspectiveClass, long snapshotId) {
-    GraphPerspectiveBuilder<T> builder = (GraphPerspectiveBuilder<T>) builders.get(perspectiveClass);
+    GraphPerspectiveLoader<T> builder = (GraphPerspectiveLoader<T>) loaders.get(perspectiveClass);
     if (builder == null) {
       throw new IllegalStateException();
     }
@@ -65,11 +65,11 @@ public class SnapshotPerspectives implements ServerComponent {
     return doAs(builder, graphDto);
   }
 
-  private <T extends Perspective> T doAs(PerspectiveBuilder<T> builder, GraphDto graphDto) {
+  private <T extends Perspective> T doAs(GraphPerspectiveLoader<T> loader, GraphDto graphDto) {
     T result = null;
     if (graphDto != null) {
       SnapshotGraph graph = read(graphDto.getData(), graphDto.getRootVertexId());
-      result = ((GraphPerspectiveBuilder<T>)builder).load(graph.wrap(graph.getComponentRoot(), ComponentVertex.class));
+      result = loader.load(graph.wrap(graph.getComponentRoot(), ComponentVertex.class));
     }
     return result;
   }
