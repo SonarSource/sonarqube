@@ -50,30 +50,42 @@ public class ScanGraphStore {
     GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);
     try {
       for (ComponentVertex component : projectGraph.getComponents()) {
-        Long snapshotId = (Long) component.element().getProperty("sid");
-        if (snapshotId != null) {
-          for (PerspectiveBuilder builder : builders) {
-            Perspective perspective = builder.load(component);
-            if (perspective != null) {
-              Graph subGraph = SubGraph.extract(component.element(), builder.path());
-              String data = write(subGraph);
-              mapper.insert(new GraphDto()
-                .setData(data)
-                .setFormat("graphson")
-                .setPerspective(builder.getPerspectiveKey())
-                .setVersion(1)
-                .setResourceId((Long) component.element().getProperty("rid"))
-                .setSnapshotId(snapshotId)
-                .setRootVertexId(component.element().getId().toString())
-              );
-            }
-          }
-        }
+        persistComponentGraph(mapper, component);
       }
       session.commit();
     } finally {
       session.close();
     }
+  }
+
+  private void persistComponentGraph(GraphDtoMapper mapper, ComponentVertex component) {
+    Long snapshotId = (Long) component.element().getProperty("sid");
+    if (snapshotId != null) {
+      for (PerspectiveBuilder builder : builders) {
+        if(builder instanceof GraphPerspectiveBuilder) {
+          GraphPerspectiveBuilder graphPerspectiveBuilder = (GraphPerspectiveBuilder)builder;
+          Perspective perspective = graphPerspectiveBuilder.load(component);
+          if (perspective != null) {
+            serializePerspectiveData(mapper, component, snapshotId, graphPerspectiveBuilder);
+          }
+        }
+      }
+    }
+  }
+
+  private void serializePerspectiveData(GraphDtoMapper mapper, ComponentVertex component, Long snapshotId,
+                                        GraphPerspectiveBuilder builder) {
+    Graph subGraph = SubGraph.extract(component.element(), builder.path());
+    String data = write(subGraph);
+    mapper.insert(new GraphDto()
+      .setData(data)
+      .setFormat("graphson")
+      .setPerspective(builder.getPerspectiveKey())
+      .setVersion(1)
+      .setResourceId((Long) component.element().getProperty("rid"))
+      .setSnapshotId(snapshotId)
+      .setRootVertexId(component.element().getId().toString())
+    );
   }
 
   private String write(Graph graph) {

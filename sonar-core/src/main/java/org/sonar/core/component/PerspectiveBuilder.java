@@ -21,34 +21,21 @@ package org.sonar.core.component;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
-import org.sonar.core.graph.EdgePath;
-
-import javax.annotation.CheckForNull;
 
 public abstract class PerspectiveBuilder<T extends Perspective> implements BatchComponent, ServerComponent {
 
-  private final String perspectiveKey;
   private final Class<T> perspectiveClass;
 
-  protected PerspectiveBuilder(String perspectiveKey, Class<T> perspectiveClass) {
-    this.perspectiveKey = perspectiveKey;
+  protected PerspectiveBuilder(Class<T> perspectiveClass) {
     this.perspectiveClass = perspectiveClass;
-  }
-
-  protected String getPerspectiveKey() {
-    return perspectiveKey;
   }
 
   protected Class<T> getPerspectiveClass() {
     return perspectiveClass;
   }
 
-  @CheckForNull
-  public abstract T load(ComponentVertex component);
-
-  public abstract T create(ComponentVertex component);
-
-  public abstract EdgePath path();
+  protected abstract T loadPerspective(Class<T> perspectiveClass, Component component);
 
 }

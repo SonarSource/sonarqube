@@ -47,7 +47,7 @@ public class SnapshotPerspectives implements ServerComponent {
 
   @CheckForNull
   public <T extends Perspective> T as(Class<T> perspectiveClass, String componentKey) {
-    PerspectiveBuilder<T> builder = (PerspectiveBuilder<T>) builders.get(perspectiveClass);
+    GraphPerspectiveBuilder<T> builder = (GraphPerspectiveBuilder<T>) builders.get(perspectiveClass);
     if (builder == null) {
       throw new IllegalStateException();
     }
@@ -57,7 +57,7 @@ public class SnapshotPerspectives implements ServerComponent {
 
   @CheckForNull
   public <T extends Perspective> T as(Class<T> perspectiveClass, long snapshotId) {
-    PerspectiveBuilder<T> builder = (PerspectiveBuilder<T>) builders.get(perspectiveClass);
+    GraphPerspectiveBuilder<T> builder = (GraphPerspectiveBuilder<T>) builders.get(perspectiveClass);
     if (builder == null) {
       throw new IllegalStateException();
     }
@@ -69,7 +69,7 @@ public class SnapshotPerspectives implements ServerComponent {
     T result = null;
     if (graphDto != null) {
       SnapshotGraph graph = read(graphDto.getData(), graphDto.getRootVertexId());
-      result = builder.load(graph.wrap(graph.getComponentRoot(), ComponentVertex.class));
+      result = ((GraphPerspectiveBuilder<T>)builder).load(graph.wrap(graph.getComponentRoot(), ComponentVertex.class));
     }
     return result;
   }

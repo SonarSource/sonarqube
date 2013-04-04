@@ -30,15 +30,17 @@ import static org.fest.assertions.Assertions.assertThat;
 public class TestPlanBuilderTest {
   @Test
   public void test_path() {
-    TestPlanBuilder builder = new TestPlanBuilder();
+
+    ScanGraph graph = ScanGraph.create();
+    TestPlanBuilder builder = new TestPlanBuilder(graph);
 
     assertThat(builder.path().getElements()).isNotEmpty();
   }
 
   @Test
   public void should_not_load_missing_perspective() {
-    TestPlanBuilder builder = new TestPlanBuilder();
     ScanGraph graph = ScanGraph.create();
+    TestPlanBuilder builder = new TestPlanBuilder(graph);
     ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
 
     assertThat(builder.load(file)).isNull();
@@ -46,8 +48,8 @@ public class TestPlanBuilderTest {
 
   @Test
   public void should_create_perspective() {
-    TestPlanBuilder builder = new TestPlanBuilder();
     ScanGraph graph = ScanGraph.create();
+    TestPlanBuilder builder = new TestPlanBuilder(graph);
     ComponentVertex file = graph.addComponent(MockSourceFile.createMain("org.foo.Bar"));
 
     MutableTestPlan plan = builder.create(file);
