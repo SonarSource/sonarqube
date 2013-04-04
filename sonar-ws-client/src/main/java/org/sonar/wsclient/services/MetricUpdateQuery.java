@@ -20,7 +20,7 @@
 package org.sonar.wsclient.services;
 
 /**
- * @since 2.6
+ * @since 3.6
  */
 public class MetricUpdateQuery extends UpdateQuery<Metric> {
 
