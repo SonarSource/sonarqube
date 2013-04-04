@@ -55,26 +55,6 @@
       <param-name>bufferSize</param-name>
       <param-value>16384</param-value>
     </init-param>
-
-    <!--
-      IE6 does not correctly support GZIP compression : http://jira.codehaus.org/browse/SONAR-2191
-      Some links :
-      http://comments.gmane.org/gmane.org.google.gwt/50660
-      http://stackoverflow.com/questions/138880/ie6-freezes-due-to-server-configuration/422730#422730
-      http://sebduggan.com/posts/ie6-gzip-bug-solved-using-isapi-rewrite
-
-      To deactivate GZIP compression for IE6 browsers, the two following properties must be uncommented.
-
-    <init-param>
-      <param-name>userAgent</param-name>
-      <param-value>(?:Mozilla[^\(]*\(compatible;\s*+([^;]*);.*)|(?:.*?([^\s]+/[^\s]+).*)</param-value>
-    </init-param>
-    <init-param>
-      <param-name>excludedAgents</param-name>
-      <param-value>MSIE 6.0</param-value>
-    </init-param>
-
-    -->
   </filter>
   <filter-mapping>
     <filter-name>GZIPFilter</filter-name>

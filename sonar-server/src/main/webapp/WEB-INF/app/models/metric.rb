@@ -44,7 +44,8 @@ class Metric < ActiveRecord::Base
   I18N_DOMAIN_CACHE_KEY='i18n_domains'
   I18N_SHORT_NAME_CACHE_KEY='i18n_metric_short_names'
 
-  validates_length_of       :name, :within => 1..64
+  validates_format_of       :name,   :with => /\A\w+\z/
+  validates_length_of       :name,   :within => 1..64
   validates_uniqueness_of   :name
   validates_length_of       :short_name, :within => 1..64
   validates_inclusion_of    :val_type, :in => [VALUE_TYPE_INT,VALUE_TYPE_BOOLEAN,VALUE_TYPE_FLOAT,VALUE_TYPE_PERCENT,VALUE_TYPE_STRING,VALUE_TYPE_MILLISEC,VALUE_TYPE_LEVEL, VALUE_TYPE_DATA, VALUE_TYPE_DISTRIB], :message => "wrong value type"
@@ -303,6 +304,15 @@ class Metric < ActiveRecord::Base
 
   def created_online?
     origin==ORIGIN_GUI
+  end
+
+  HUMANIZED_ATTRIBUTES = {
+      :name => "key",
+      :short_name => "name",
+  }
+
+  def self.human_attribute_name(attr)
+    HUMANIZED_ATTRIBUTES[attr.to_sym] || super
   end
 
   # METRIC DEFINITIONS
