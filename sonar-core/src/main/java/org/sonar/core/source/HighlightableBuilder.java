@@ -17,32 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.test;
+package org.sonar.core.source;
 
-import com.tinkerpop.blueprints.Direction;
-import org.sonar.api.test.MutableTestable;
-import org.sonar.core.component.GraphPerspectiveBuilder;
-import org.sonar.core.component.ScanGraph;
-import org.sonar.core.graph.BeanVertex;
-import org.sonar.core.graph.EdgePath;
+import org.sonar.api.component.Component;
+import org.sonar.api.scan.source.Highlightable;
+import org.sonar.core.component.PerspectiveBuilder;
 
-public class TestableBuilder extends GraphPerspectiveBuilder<MutableTestable> {
+public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
-  static final String PERSPECTIVE_KEY = "testable";
-
-  private static final EdgePath PATH = EdgePath.create(
-    Direction.OUT, "testable",
-    Direction.IN,"covers",
-    Direction.IN,"testcase",
-    Direction.IN,"testplan"
-  );
-
-  public TestableBuilder(ScanGraph graph) {
-    super(graph, PERSPECTIVE_KEY, MutableTestable.class, PATH);
+  public HighlightableBuilder() {
+    super(Highlightable.class);
   }
 
   @Override
-  protected Class<? extends BeanVertex> getBeanClass() {
-    return DefaultTestable.class;
+  protected Highlightable loadPerspective(Class<Highlightable> perspectiveClass, Component component) {
+    return new DefaultHighlightable(component);
   }
 }

@@ -17,32 +17,25 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.test;
+package org.sonar.core.source;
 
-import com.tinkerpop.blueprints.Direction;
-import org.sonar.api.test.MutableTestable;
-import org.sonar.core.component.GraphPerspectiveBuilder;
-import org.sonar.core.component.ScanGraph;
-import org.sonar.core.graph.BeanVertex;
-import org.sonar.core.graph.EdgePath;
+import org.junit.Test;
+import org.sonar.api.component.Component;
+import org.sonar.api.scan.source.Highlightable;
 
-public class TestableBuilder extends GraphPerspectiveBuilder<MutableTestable> {
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  static final String PERSPECTIVE_KEY = "testable";
+public class HighlightableBuilderTest {
 
-  private static final EdgePath PATH = EdgePath.create(
-    Direction.OUT, "testable",
-    Direction.IN,"covers",
-    Direction.IN,"testcase",
-    Direction.IN,"testplan"
-  );
+  @Test
+  public void should_load_default_perspective() throws Exception {
 
-  public TestableBuilder(ScanGraph graph) {
-    super(graph, PERSPECTIVE_KEY, MutableTestable.class, PATH);
-  }
+    Component mockComponent = mock(Component.class);
 
-  @Override
-  protected Class<? extends BeanVertex> getBeanClass() {
-    return DefaultTestable.class;
+    HighlightableBuilder builder = new HighlightableBuilder();
+    Highlightable perspective = builder.loadPerspective(Highlightable.class, mockComponent);
+
+    assertThat(perspective).isInstanceOf(DefaultHighlightable.class);
   }
 }

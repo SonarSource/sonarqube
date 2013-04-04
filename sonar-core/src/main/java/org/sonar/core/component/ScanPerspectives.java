@@ -32,12 +32,11 @@ import javax.annotation.CheckForNull;
 import java.util.Map;
 
 public class ScanPerspectives implements ResourcePerspectives, BatchComponent {
-  private final ScanGraph graph;
+
   private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
   private final SonarIndex resourceIndex;
 
-  public ScanPerspectives(ScanGraph graph, PerspectiveBuilder[] builders, SonarIndex resourceIndex) {
-    this.graph = graph;
+  public ScanPerspectives(PerspectiveBuilder[] builders, SonarIndex resourceIndex) {
     this.resourceIndex = resourceIndex;
     for (PerspectiveBuilder builder : builders) {
       // TODO check duplications
@@ -50,23 +49,8 @@ public class ScanPerspectives implements ResourcePerspectives, BatchComponent {
     if (component.key() == null) {
       return null;
     }
-
-    ComponentVertex vertex;
-    if (component instanceof ComponentVertex) {
-      vertex = (ComponentVertex) component;
-    } else {
-      vertex = graph.getComponent(component.key());
-    }
-
-    if (vertex != null) {
-      PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
-      P perspective = builder.load(vertex);
-      if (perspective == null) {
-        perspective = builder.create(vertex);
-      }
-      return perspective;
-    }
-    return null;
+    PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
+    return builder.loadPerspective(perspectiveClass, component);
   }
 
   public <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource) {

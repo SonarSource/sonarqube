@@ -17,32 +17,33 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.test;
+package org.sonar.api.scan.source;
 
-import com.tinkerpop.blueprints.Direction;
-import org.sonar.api.test.MutableTestable;
-import org.sonar.core.component.GraphPerspectiveBuilder;
-import org.sonar.core.component.ScanGraph;
-import org.sonar.core.graph.BeanVertex;
-import org.sonar.core.graph.EdgePath;
+public class SyntaxHighlightingRule {
 
-public class TestableBuilder extends GraphPerspectiveBuilder<MutableTestable> {
+  private final int startPosition;
+  private final int endPosition;
+  private final String decorableCodePart;
 
-  static final String PERSPECTIVE_KEY = "testable";
-
-  private static final EdgePath PATH = EdgePath.create(
-    Direction.OUT, "testable",
-    Direction.IN,"covers",
-    Direction.IN,"testcase",
-    Direction.IN,"testplan"
-  );
-
-  public TestableBuilder(ScanGraph graph) {
-    super(graph, PERSPECTIVE_KEY, MutableTestable.class, PATH);
+  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
+    this.startPosition = startPosition;
+    this.endPosition = endPosition;
+    this.decorableCodePart = textType;
   }
 
-  @Override
-  protected Class<? extends BeanVertex> getBeanClass() {
-    return DefaultTestable.class;
+  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
+    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
+  }
+
+  public int getStartPosition() {
+    return startPosition;
+  }
+
+  public int getEndPosition() {
+    return endPosition;
+  }
+
+  public String getDecorableCodePart() {
+    return decorableCodePart;
   }
 }

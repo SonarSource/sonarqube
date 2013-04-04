@@ -47,6 +47,7 @@ import org.sonar.core.component.ScanGraph;
 import org.sonar.core.component.ScanGraphStore;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.notification.DefaultNotificationManager;
+import org.sonar.core.source.HighlightableBuilder;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestableBuilder;
 
@@ -83,6 +84,7 @@ public class ProjectScanContainer extends ComponentContainer {
         ScanGraph.create(),
         TestPlanBuilder.class,
         TestableBuilder.class,
+        HighlightableBuilder.class,
         ScanPerspectives.class,
         ScanGraphStore.class);
   }

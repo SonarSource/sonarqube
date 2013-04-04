@@ -17,32 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.test;
+package org.sonar.api.scan.source;
 
-import com.tinkerpop.blueprints.Direction;
-import org.sonar.api.test.MutableTestable;
-import org.sonar.core.component.GraphPerspectiveBuilder;
-import org.sonar.core.component.ScanGraph;
-import org.sonar.core.graph.BeanVertex;
-import org.sonar.core.graph.EdgePath;
+import com.google.common.collect.ImmutableList;
 
-public class TestableBuilder extends GraphPerspectiveBuilder<MutableTestable> {
+public final class HighlightableTextType {
 
-  static final String PERSPECTIVE_KEY = "testable";
+  public static final String ANNOTATION = "a";
+  public static final String LITERAL = "s";
+  public static final String LINE_COMMENT = "cd";
+  public static final String BLOCK_COMMENT = "cppd";
+  public static final String CONSTANT = "c";
+  public static final String KEYWORD = "k";
 
-  private static final EdgePath PATH = EdgePath.create(
-    Direction.OUT, "testable",
-    Direction.IN,"covers",
-    Direction.IN,"testcase",
-    Direction.IN,"testplan"
-  );
+  private static final ImmutableList<String> SUPPORTED_TEXT_TYPES = ImmutableList.of(
+          ANNOTATION, LITERAL, LINE_COMMENT, BLOCK_COMMENT, CONSTANT, KEYWORD);
 
-  public TestableBuilder(ScanGraph graph) {
-    super(graph, PERSPECTIVE_KEY, MutableTestable.class, PATH);
-  }
-
-  @Override
-  protected Class<? extends BeanVertex> getBeanClass() {
-    return DefaultTestable.class;
+  public static boolean supports(String textType) {
+    return SUPPORTED_TEXT_TYPES.contains(textType);
   }
 }
