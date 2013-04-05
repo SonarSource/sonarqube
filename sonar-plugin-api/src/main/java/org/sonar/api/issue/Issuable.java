@@ -20,17 +20,63 @@
 
 package org.sonar.api.issue;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 import org.sonar.api.component.Component;
-import org.sonar.api.component.Perspective;
+
+import java.util.List;
 
 /**
  * @since 3.6
  */
-public interface Issuable extends Perspective {
+public class Issuable {
 
-  Issue apply(Issue issue, IssueChangelog issueChangelog);
+  private List<Issue> issues;
+  private ListMultimap<Issue, IssueChangelog> issuesWithChangelogs;
 
-  @Override
-  Component component();
+  public Issuable(List<Issue> issues) {
+    this.issues = issues;
+    this.issuesWithChangelogs = ArrayListMultimap.create();
+  }
 
+  public Issue apply(Issue issue, IssueChangelog issueChangelog) {
+    Issue existingIssue = findIssue(issue);
+    Issue.Builder builder = new Issue.Builder(existingIssue);
+
+    if (!Objects.equal(existingIssue.severity(), issueChangelog.severity())) {
+      builder.severity(issueChangelog.severity());
+    }
+    if (!Objects.equal(existingIssue.status(), issueChangelog.status())) {
+      builder.status(issueChangelog.status());
+    }
+    if (!Objects.equal(existingIssue.resolution(), issueChangelog.resolution())) {
+      builder.resolution(issueChangelog.resolution());
+    }
+    if (!Objects.equal(existingIssue.line(), issueChangelog.line())) {
+      builder.line(issueChangelog.line());
+      // Do not add changelog if only line has changed
+    }
+
+    issuesWithChangelogs.get(issue).add(issueChangelog);
+    return builder.build();
+  }
+
+  private Issue findIssue(final Issue issue) {
+    return Iterables.find(issues, new Predicate<Issue>() {
+      public boolean apply(Issue currentIssue) {
+        return currentIssue.uuid().equals(issue.uuid());
+      }
+    });
+  }
+
+  public List<Issue> issues() {
+    return issues;
+  }
+
+  public Component component() {
+    return null;
+  }
 }

@@ -18,31 +18,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.core.issue;
+package org.sonar.api.issue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DefaultIssuableTest {
+public class IssuableTest {
 
-  private DefaultIssuable issuable;
+  private Issuable issuable;
   private List<Issue> issueList;
 
   @Before
   public void before(){
     issueList = newArrayList();
-    issuable = new DefaultIssuable(issueList);
+    issuable = new Issuable(issueList);
   }
 
   @Test
   public void should_apply_issue() throws Exception {
-    DefaultIssue issue = new DefaultIssue.Builder()
+    Issue issue = new Issue.Builder()
         .ruleKey("ruleKey")
         .ruleRepositoryKey("ruleRepositoryKey")
         .severity(Issue.SEVERITY_BLOCKER)
@@ -55,7 +54,7 @@ public class DefaultIssuableTest {
         .build();
     issueList.add(issue);
 
-    DefaultIssueChangelog issueChangelog = new DefaultIssueChangelog.Builder()
+    IssueChangelog issueChangelog = new IssueChangelog.Builder()
         .severity(Issue.SEVERITY_MAJOR)
         .status(Issue.STATUS_CLOSED)
         .resolution(Issue.RESOLUTION_FIXED)
@@ -65,6 +64,7 @@ public class DefaultIssuableTest {
 
     Issue resultIssue = issuable.apply(issue, issueChangelog);
     assertThat(resultIssue).isNotNull();
+    assertThat(resultIssue.uuid()).isNotEmpty();
     assertThat(resultIssue.severity()).isEqualTo(Issue.SEVERITY_MAJOR);
     assertThat(resultIssue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(resultIssue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
