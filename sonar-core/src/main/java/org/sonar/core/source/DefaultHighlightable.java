@@ -25,12 +25,10 @@ import org.sonar.api.scan.source.SyntaxHighlightingRuleSet;
 
 public class DefaultHighlightable implements Highlightable {
 
-  private final Component component;
   private final SyntaxHighlightingRuleSet.Builder highlightingRulesBuilder;
 
-  public DefaultHighlightable(Component component) {
+  public DefaultHighlightable() {
     highlightingRulesBuilder = new SyntaxHighlightingRuleSet.Builder();
-    this.component = component;
   }
 
   @Override

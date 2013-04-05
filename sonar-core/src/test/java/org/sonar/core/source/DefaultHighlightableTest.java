@@ -22,11 +22,9 @@ package org.sonar.core.source;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.HighlightableTextType;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class DefaultHighlightableTest {
 
@@ -36,9 +34,7 @@ public class DefaultHighlightableTest {
   @Test
   public void should_register_highlighting_rule() throws Exception {
 
-    Component mockComponent = mock(Component.class);
-
-    DefaultHighlightable highlightable = new DefaultHighlightable(mockComponent);
+    DefaultHighlightable highlightable = new DefaultHighlightable();
     highlightable.highlightText(1, 10, HighlightableTextType.KEYWORD);
 
     assertThat(highlightable.getHighlightingRules().getSyntaxHighlightingRuleSet()).hasSize(1);
@@ -47,11 +43,9 @@ public class DefaultHighlightableTest {
   @Test
   public void should_reject_any_call_to_component() throws Exception {
 
-    Component mockComponent = mock(Component.class);
-
     throwable.expect(UnsupportedOperationException.class);
 
-    DefaultHighlightable highlightable = new DefaultHighlightable(mockComponent);
+    DefaultHighlightable highlightable = new DefaultHighlightable();
     highlightable.component();
   }
 }

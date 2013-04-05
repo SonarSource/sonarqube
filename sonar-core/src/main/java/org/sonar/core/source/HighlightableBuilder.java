@@ -31,6 +31,6 @@ public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
   @Override
   protected Highlightable loadPerspective(Class<Highlightable> perspectiveClass, Component component) {
-    return new DefaultHighlightable(component);
+    return new DefaultHighlightable();
   }
 }
