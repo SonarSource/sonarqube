@@ -21,48 +21,197 @@
 package org.sonar.api.issue;
 
 import java.util.Date;
-import java.util.List;
+import java.util.UUID;
 
 /**
  * @since 3.6
  */
-public interface Issue {
+public class Issue {
 
-  String STATUS_REOPENED = "REOPENED";
-  String STATUS_RESOLVED = "RESOLVED";
-  String STATUS_CLOSED = "CLOSED";
+  public final static String STATUS_REOPENED = "REOPENED";
+  public final static String STATUS_RESOLVED = "RESOLVED";
+  public final static String STATUS_CLOSED = "CLOSED";
 
-  String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
-  String RESOLUTION_FIXED = "FIXED";
+  public final static String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
+  public final static String RESOLUTION_FIXED = "FIXED";
 
-  String SEVERITY_INFO = "INFO";
-  String SEVERITY_MINOR = "MINOR";
-  String SEVERITY_MAJOR = "MAJOR";
-  String SEVERITY_CRITICAL = "CRITICAL";
-  String SEVERITY_BLOCKER = "BLOCKER";
+  public final static String SEVERITY_INFO = "INFO";
+  public final static String SEVERITY_MINOR = "MINOR";
+  public final static String SEVERITY_MAJOR = "MAJOR";
+  public final static String SEVERITY_CRITICAL = "CRITICAL";
+  public final static String SEVERITY_BLOCKER = "BLOCKER";
 
-  String uuid();
+  private String uuid;
+  private String componentKey;
+  private String ruleKey;
+  private String ruleRepositoryKey;
+  private String severity;
+  private String message;
+  private Integer line;
+  private Double cost;
+  private String status;
+  private String resolution;
+  private Date createdAt;
 
-  String componentKey();
+  private Issue(Builder builder) {
+    this.uuid = builder.uuid;
+    this.componentKey = builder.componentKey;
+    this.ruleKey = builder.ruleKey;
+    this.ruleRepositoryKey = builder.ruleRepositoryKey;
+    this.severity = builder.severity;
+    this.message = builder.message;
+    this.line = builder.line;
+    this.cost = builder.cost;
+    this.status = builder.status;
+    this.resolution = builder.resolution;
+    this.createdAt = builder.createdAt;
+  }
 
-  String ruleKey();
+  public String uuid() {
+    return uuid;
+  }
 
-  String ruleRepositoryKey();
+  public String componentKey() {
+    return componentKey;
+  }
 
-  String severity();
+  public String ruleKey() {
+    return ruleKey;
+  }
 
-  String message();
+  public String ruleRepositoryKey() {
+    return ruleRepositoryKey;
+  }
 
-  Integer line();
+  public String severity() {
+    return severity;
+  }
 
-  Double cost();
+  public String message() {
+    return message;
+  }
 
-  String status();
+  public Integer line() {
+    return line;
+  }
 
-  String resolution();
+  public Double cost() {
+    return cost;
+  }
 
-  Date createdAt();
+  public String status() {
+    return status;
+  }
 
-  List<IssueChangelog> issueChangelogList();
 
+  public String resolution() {
+    return resolution;
+  }
+
+  public Date createdAt() {
+    return createdAt;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    Issue issue = (Issue) o;
+    return !(uuid != null ? !uuid.equals(issue.uuid()) : issue.uuid() != null);
+  }
+
+  @Override
+  public int hashCode() {
+    return uuid != null ? uuid.hashCode() : 0;
+  }
+
+  /**
+   * @since 3.6
+   */
+  public static class Builder {
+    private String uuid;
+    private String componentKey;
+    private String ruleKey;
+    private String ruleRepositoryKey;
+    private String severity;
+    private String message;
+    private Integer line;
+    private Double cost;
+    private String status;
+    private String resolution;
+    private Date createdAt;
+
+    public Builder() {
+      uuid = UUID.randomUUID().toString();
+      createdAt = new Date();
+    }
+
+    public Builder(Issue issue) {
+      uuid = issue.uuid();
+      createdAt = issue.createdAt();
+      componentKey(issue.componentKey());
+      ruleKey(issue.ruleKey());
+      ruleRepositoryKey(issue.ruleRepositoryKey());
+      severity(issue.severity());
+      message(issue.message());
+      line(issue.line());
+      cost(issue.cost());
+      status(issue.status());
+      resolution(issue.resolution());
+    }
+
+    public Builder componentKey(String componentKey) {
+      this.componentKey = componentKey;
+      return this;
+    }
+
+    public Builder ruleKey(String ruleKey) {
+      this.ruleKey = ruleKey;
+      return this;
+    }
+
+    public Builder ruleRepositoryKey(String ruleRepositoryKey) {
+      this.ruleRepositoryKey = ruleRepositoryKey;
+      return this;
+    }
+
+    public Builder severity(String severity) {
+      this.severity = severity;
+      return this;
+    }
+
+    public Builder message(String message) {
+      this.message = message;
+      return this;
+    }
+
+    public Builder line(Integer line) {
+      this.line = line;
+      return this;
+    }
+
+    public Builder cost(Double cost) {
+      this.cost = cost;
+      return this;
+    }
+
+    public Builder status(String status) {
+      this.status = status;
+      return this;
+    }
+
+    public Builder resolution(String resolution) {
+      this.resolution = resolution;
+      return this;
+    }
+
+    public Issue build() {
+      return new Issue(this);
+    }
+  }
 }

@@ -25,18 +25,92 @@ import java.util.Date;
 /**
  * @since 3.6
  */
-public interface IssueChangelog {
+public class IssueChangelog {
 
-  String severity();
+  private String severity;
+  private String status;
+  private String resolution;
+  private String message;
+  private Integer line;
 
-  String status();
+  private Date createdAt;
 
-  String resolution();
+  private IssueChangelog(Builder builder) {
+    this.severity = builder.severity;
+    this.status = builder.status;
+    this.resolution = builder.resolution;
+    this.message = builder.message;
+    this.line = builder.line;
+    this.createdAt = builder.createdAt;
+  }
 
-  String message();
+  public String severity() {
+    return severity;
+  }
 
-  Integer line();
+  public String status() {
+    return status;
+  }
 
-  Date createdAt();
+  public String resolution() {
+    return resolution;
+  }
 
+  public String message() {
+    return message;
+  }
+
+  public Integer line() {
+    return line;
+  }
+
+  public Date createdAt() {
+    return createdAt;
+  }
+
+  /**
+   * @since 3.6
+   */
+  public static class Builder {
+    private String severity;
+    private String status;
+    private String resolution;
+    private String message;
+    private Integer line;
+
+    private Date createdAt;
+
+    public Builder() {
+      createdAt = new Date();
+    }
+
+    public Builder severity(String severity) {
+      this.severity = severity;
+      return this;
+    }
+
+    public Builder status(String status) {
+      this.status = status;
+      return this;
+    }
+
+    public Builder resolution(String resolution) {
+      this.resolution = resolution;
+      return this;
+    }
+
+    public Builder message(String message) {
+      this.message = message;
+      return this;
+    }
+
+    public Builder line(Integer line) {
+      this.line = line;
+      return this;
+    }
+
+    public IssueChangelog build() {
+      return new IssueChangelog(this);
+    }
+  }
 }
