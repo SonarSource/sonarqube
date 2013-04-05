@@ -28,9 +28,9 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class SyntaxHighlightingRuleSet {
 
-  private ImmutableList<SyntaxHighlightingRule> syntaxHighlightingRuleSet;
+  private List<SyntaxHighlightingRule> syntaxHighlightingRuleSet;
 
-  private SyntaxHighlightingRuleSet(ImmutableList<SyntaxHighlightingRule> syntaxHighlightingRules) {
+  private SyntaxHighlightingRuleSet(List<SyntaxHighlightingRule> syntaxHighlightingRules) {
     syntaxHighlightingRuleSet = syntaxHighlightingRules;
   }
 
@@ -57,7 +57,7 @@ public class SyntaxHighlightingRuleSet {
     }
   }
 
-  public ImmutableList<SyntaxHighlightingRule> getSyntaxHighlightingRuleSet() {
+  public List<SyntaxHighlightingRule> getSyntaxHighlightingRuleSet() {
     return syntaxHighlightingRuleSet;
   }
 }

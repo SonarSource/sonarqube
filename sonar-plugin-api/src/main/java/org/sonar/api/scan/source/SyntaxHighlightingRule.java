@@ -23,12 +23,12 @@ public class SyntaxHighlightingRule {
 
   private final int startPosition;
   private final int endPosition;
-  private final String decorableCodePart;
+  private final String textType;
 
   private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
     this.startPosition = startPosition;
     this.endPosition = endPosition;
-    this.decorableCodePart = textType;
+    this.textType = textType;
   }
 
   public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
@@ -43,7 +43,7 @@ public class SyntaxHighlightingRule {
     return endPosition;
   }
 
-  public String getDecorableCodePart() {
-    return decorableCodePart;
+  public String getTextType() {
+    return textType;
   }
 }
