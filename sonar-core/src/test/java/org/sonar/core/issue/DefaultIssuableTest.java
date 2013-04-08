@@ -18,25 +18,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.api.issue;
+package org.sonar.core.issue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueChangelog;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
-public class IssuableTest {
+public class DefaultIssuableTest {
 
-  private Issuable issuable;
+  private org.sonar.api.issue.Issuable issuable;
   private List<Issue> issueList;
 
   @Before
   public void before(){
     issueList = newArrayList();
-    issuable = new Issuable(issueList);
+    issuable = new DefaultIssuable(issueList);
   }
 
   @Test
