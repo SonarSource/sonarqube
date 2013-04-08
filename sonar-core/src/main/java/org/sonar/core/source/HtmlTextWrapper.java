@@ -22,14 +22,13 @@ package org.sonar.core.source;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.scan.source.SyntaxHighlightingRule;
 import org.sonar.api.scan.source.SyntaxHighlightingRuleSet;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,12 +42,12 @@ public class HtmlTextWrapper {
     List<SyntaxHighlightingRule> highlightingRules = syntaxHighlighting.getSyntaxHighlightingRuleSet();
     StringBuilder decoratedText = new StringBuilder();
 
-    BufferedReader textReader = null;
+    BufferedReader stringBuffer = null;
 
     try {
-      textReader = new BufferedReader(new InputStreamReader(IOUtils.toInputStream(text)));
+      stringBuffer = new BufferedReader(new StringReader(text));
 
-      int currentCharValue = textReader.read();
+      int currentCharValue = stringBuffer.read();
       int currentCharIndex = 0;
       boolean isNewLine = true;
 
@@ -80,13 +79,13 @@ public class HtmlTextWrapper {
           }
         }
         decoratedText.append((char)currentCharValue);
-        currentCharValue = textReader.read();
+        currentCharValue = stringBuffer.read();
         currentCharIndex++;
       }
     } catch (Exception Ex) {
       //
     } finally {
-      closeReaderSilently(textReader);
+      closeReaderSilently(stringBuffer);
     }
 
     return decoratedText.toString();
@@ -128,7 +127,10 @@ public class HtmlTextWrapper {
 
     @Override
     public boolean apply(@Nullable SyntaxHighlightingRule syntaxHighlightingRule) {
-      return isStarting ? characterIndex == syntaxHighlightingRule.getStartPosition() : characterIndex == syntaxHighlightingRule.getEndPosition();
+      if(syntaxHighlightingRule != null) {
+        return isStarting ? characterIndex == syntaxHighlightingRule.getStartPosition() : characterIndex == syntaxHighlightingRule.getEndPosition();
+      }
+      return false;
     }
   }
 }
