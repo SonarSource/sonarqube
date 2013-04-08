@@ -1,6 +1,6 @@
 <dataset>
 
-  <issue_changelog
+  <issue_changes
       issue_uuid="100"
       user_id="100"
       change_type="type"

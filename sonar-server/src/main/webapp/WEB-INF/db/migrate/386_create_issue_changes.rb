@@ -21,10 +21,10 @@
 #
 # Sonar 3.6
 #
-class CreateIssueChangelog < ActiveRecord::Migration
+class CreateIssueChanges < ActiveRecord::Migration
 
   def self.up
-    create_table :issue_changelog do |t|
+    create_table :issue_changes do |t|
       t.column :issue_uuid,         :string,    :null => false,   :limit => 36
       t.column :user_id,            :integer,   :null => true
       t.column :change_type, 				:string, 	  :null => true,	  :limit => 50

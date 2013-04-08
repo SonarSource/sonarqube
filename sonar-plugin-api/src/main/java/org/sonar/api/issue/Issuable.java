@@ -30,7 +30,7 @@ import java.util.List;
  */
 public interface Issuable extends Perspective {
 
-  Issue apply(Issue issue, IssueChangelog issueChangelog);
+  Issue apply(Issue issue, IssueChange issueChangelog);
 
   List<Issue> issues();
 

@@ -27,7 +27,7 @@ import java.util.Date;
 /**
  * @since 3.6
  */
-public final class IssueChangeLogDto {
+public final class IssueChangeDto {
 
   private Long id;
   private String issueUuid;
@@ -42,7 +42,7 @@ public final class IssueChangeLogDto {
     return id;
   }
 
-  public IssueChangeLogDto setId(Long id) {
+  public IssueChangeDto setId(Long id) {
     this.id = id;
     return this;
   }
@@ -51,7 +51,7 @@ public final class IssueChangeLogDto {
     return issueUuid;
   }
 
-  public IssueChangeLogDto setIssueUuid(String issueUuid) {
+  public IssueChangeDto setIssueUuid(String issueUuid) {
     this.issueUuid = issueUuid;
     return this;
   }
@@ -60,7 +60,7 @@ public final class IssueChangeLogDto {
     return userId;
   }
 
-  public IssueChangeLogDto setUserId(Long userId) {
+  public IssueChangeDto setUserId(Long userId) {
     this.userId = userId;
     return this;
   }
@@ -69,7 +69,7 @@ public final class IssueChangeLogDto {
     return changeType;
   }
 
-  public IssueChangeLogDto setChangeType(String changeType) {
+  public IssueChangeDto setChangeType(String changeType) {
     this.changeType = changeType;
     return this;
   }
@@ -78,7 +78,7 @@ public final class IssueChangeLogDto {
     return changeData;
   }
 
-  public IssueChangeLogDto setChangeData(String changeData) {
+  public IssueChangeDto setChangeData(String changeData) {
     this.changeData = changeData;
     return this;
   }
@@ -87,7 +87,7 @@ public final class IssueChangeLogDto {
     return message;
   }
 
-  public IssueChangeLogDto setMessage(String message) {
+  public IssueChangeDto setMessage(String message) {
     this.message = message;
     return this;
   }
@@ -96,7 +96,7 @@ public final class IssueChangeLogDto {
     return createdAt;
   }
 
-  public IssueChangeLogDto setCreatedAt(Date createdAt) {
+  public IssueChangeDto setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
     return this;
   }
@@ -105,7 +105,7 @@ public final class IssueChangeLogDto {
     return updatedAt;
   }
 
-  public IssueChangeLogDto setUpdatedAt(Date updatedAt) {
+  public IssueChangeDto setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }

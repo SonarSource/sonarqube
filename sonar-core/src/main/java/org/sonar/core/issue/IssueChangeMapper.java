@@ -25,12 +25,12 @@ import java.util.Collection;
 /**
  * @since 3.6
  */
-public interface IssueChangelogMapper {
+public interface IssueChangeMapper {
 
-  void insert(IssueChangeLogDto issueChangeLogDto);
+  void insert(IssueChangeDto issueChangeDto);
 
-  IssueChangeLogDto findById(long issueChangeLogId);
+  IssueChangeDto findById(long issueChangeLogId);
 
-  Collection<IssueChangeLogDto> selectByIssue(String issueUuid);
+  Collection<IssueChangeDto> selectByIssue(String issueUuid);
 
 }

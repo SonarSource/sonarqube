@@ -44,8 +44,8 @@ import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.graph.jdbc.GraphDto;
 import org.sonar.core.graph.jdbc.GraphDtoMapper;
-import org.sonar.core.issue.IssueChangeLogDto;
-import org.sonar.core.issue.IssueChangelogMapper;
+import org.sonar.core.issue.IssueChangeDto;
+import org.sonar.core.issue.IssueChangeMapper;
 import org.sonar.core.issue.IssueDto;
 import org.sonar.core.issue.IssueMapper;
 import org.sonar.core.measure.MeasureFilterDto;
@@ -120,13 +120,13 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "MeasureModel", MeasureModel.class);
     loadAlias(conf, "MeasureData", MeasureData.class);
     loadAlias(conf, "Issue", IssueDto.class);
-    loadAlias(conf, "IssueChangelog", IssueChangeLogDto.class);
+    loadAlias(conf, "IssueChange", IssueChangeDto.class);
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class, LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class, ResourceSnapshotMapper.class, ReviewCommentMapper.class,
       ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
-      MeasureMapper.class, IssueMapper.class, IssueChangelogMapper.class};
+      MeasureMapper.class, IssueMapper.class, IssueChangeMapper.class};
     loadMappers(conf, mappers);
     configureLogback(mappers);
 

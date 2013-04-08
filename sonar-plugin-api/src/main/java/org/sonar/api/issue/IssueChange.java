@@ -25,7 +25,7 @@ import java.util.Date;
 /**
  * @since 3.6
  */
-public class IssueChangelog {
+public class IssueChange {
 
   private String severity;
   private String status;
@@ -35,7 +35,7 @@ public class IssueChangelog {
 
   private Date createdAt;
 
-  private IssueChangelog(Builder builder) {
+  private IssueChange(Builder builder) {
     this.severity = builder.severity;
     this.status = builder.status;
     this.resolution = builder.resolution;
@@ -109,8 +109,8 @@ public class IssueChangelog {
       return this;
     }
 
-    public IssueChangelog build() {
-      return new IssueChangelog(this);
+    public IssueChange build() {
+      return new IssueChange(this);
     }
   }
 }

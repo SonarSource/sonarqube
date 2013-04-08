@@ -20,7 +20,7 @@
 
 <dataset>
 
-  <issue_changelog
+  <issue_changes
       id="100"
       issue_uuid="100"
       user_id="100"
@@ -31,7 +31,7 @@
       updated_at="[null]"
       />
 
-  <issue_changelog
+  <issue_changes
       id="101"
       issue_uuid="100"
       user_id="100"

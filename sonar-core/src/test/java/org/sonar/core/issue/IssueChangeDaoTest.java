@@ -28,20 +28,20 @@ import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class IssueChangelogDaoTest extends AbstractDaoTestCase {
+public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
-  private IssueChangelogDao dao;
+  private IssueChangeDao dao;
 
   @Before
   public void createDao() {
-    dao = new IssueChangelogDao(getMyBatis());
+    dao = new IssueChangeDao(getMyBatis());
   }
 
   @Test
   public void should_insert() {
     setupData("insert");
 
-    IssueChangeLogDto dto = new IssueChangeLogDto();
+    IssueChangeDto dto = new IssueChangeDto();
     dto.setIssueUuid("100");
     dto.setUserId(100L);
     dto.setChangeType("type");
@@ -54,14 +54,14 @@ public class IssueChangelogDaoTest extends AbstractDaoTestCase {
 
     dao.insert(dto);
 
-    checkTables("insert", new String[]{"id", "created_at", "updated_at"}, "issue_changelog");
+    checkTables("insert", new String[]{"id", "created_at", "updated_at"}, "issue_changes");
   }
 
   @Test
   public void should_find_by_id() {
     setupData("shared");
 
-    IssueChangeLogDto dto = dao.findById(100L);
+    IssueChangeDto dto = dao.findById(100L);
     assertThat(dto.getId()).isEqualTo(100L);
     assertThat(dto.getIssueUuid()).isEqualTo("100");
     assertThat(dto.getUserId()).isEqualTo(100L);
@@ -76,7 +76,7 @@ public class IssueChangelogDaoTest extends AbstractDaoTestCase {
   public void should_select_by_issue() {
     setupData("shared");
 
-    Collection<IssueChangeLogDto> dtoList = dao.selectByIssue("100");
+    Collection<IssueChangeDto> dtoList = dao.selectByIssue("100");
     assertThat(dtoList).hasSize(2);
   }
 

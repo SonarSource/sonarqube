@@ -28,7 +28,7 @@ import com.google.common.collect.ListMultimap;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueChangelog;
+import org.sonar.api.issue.IssueChange;
 
 import java.util.List;
 
@@ -38,14 +38,14 @@ import java.util.List;
 public class DefaultIssuable implements Issuable {
 
   private List<Issue> issues;
-  private ListMultimap<Issue, IssueChangelog> issuesWithChangelogs;
+  private ListMultimap<Issue, IssueChange> issuesWithChangelogs;
 
   public DefaultIssuable(List<Issue> issues) {
     this.issues = issues;
     this.issuesWithChangelogs = ArrayListMultimap.create();
   }
 
-  public Issue apply(Issue issue, IssueChangelog issueChangelog) {
+  public Issue apply(Issue issue, IssueChange issueChangelog) {
     Issue existingIssue = findIssue(issue);
     Issue.Builder builder = new Issue.Builder(existingIssue);
 
@@ -70,7 +70,7 @@ public class DefaultIssuable implements Issuable {
   private Issue findIssue(final Issue issue) {
     return Iterables.find(issues, new Predicate<Issue>() {
       public boolean apply(Issue currentIssue) {
-        return currentIssue.uuid().equals(issue.uuid());
+        return currentIssue.key().equals(issue.key());
       }
     });
   }

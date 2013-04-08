@@ -23,7 +23,7 @@ package org.sonar.core.issue;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueChangelog;
+import org.sonar.api.issue.IssueChange;
 
 import java.util.List;
 
@@ -58,7 +58,7 @@ public class DefaultIssuableTest {
         .build();
     issueList.add(issue);
 
-    IssueChangelog issueChangelog = new IssueChangelog.Builder()
+    IssueChange issueChangelog = new IssueChange.Builder()
         .severity(Issue.SEVERITY_MAJOR)
         .status(Issue.STATUS_CLOSED)
         .resolution(Issue.RESOLUTION_FIXED)
@@ -68,7 +68,7 @@ public class DefaultIssuableTest {
 
     Issue resultIssue = issuable.apply(issue, issueChangelog);
     assertThat(resultIssue).isNotNull();
-    assertThat(resultIssue.uuid()).isNotEmpty();
+    assertThat(resultIssue.key()).isNotEmpty();
     assertThat(resultIssue.severity()).isEqualTo(Issue.SEVERITY_MAJOR);
     assertThat(resultIssue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(resultIssue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);

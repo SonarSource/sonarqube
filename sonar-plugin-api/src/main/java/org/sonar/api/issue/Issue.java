@@ -41,7 +41,7 @@ public class Issue {
   public static final String SEVERITY_CRITICAL = "CRITICAL";
   public static final String SEVERITY_BLOCKER = "BLOCKER";
 
-  private String uuid;
+  private String key;
   private String componentKey;
   private String ruleKey;
   private String ruleRepositoryKey;
@@ -58,7 +58,7 @@ public class Issue {
   private Date closedAt;
 
   private Issue(Builder builder) {
-    this.uuid = builder.uuid;
+    this.key = builder.key;
     this.componentKey = builder.componentKey;
     this.ruleKey = builder.ruleKey;
     this.ruleRepositoryKey = builder.ruleRepositoryKey;
@@ -75,8 +75,8 @@ public class Issue {
     this.closedAt = builder.closedAt;
   }
 
-  public String uuid() {
-    return uuid;
+  public String key() {
+    return key;
   }
 
   public String componentKey() {
@@ -145,19 +145,19 @@ public class Issue {
     }
 
     Issue issue = (Issue) o;
-    return !(uuid != null ? !uuid.equals(issue.uuid()) : issue.uuid() != null);
+    return !(key != null ? !key.equals(issue.key()) : issue.key() != null);
   }
 
   @Override
   public int hashCode() {
-    return uuid != null ? uuid.hashCode() : 0;
+    return key != null ? key.hashCode() : 0;
   }
 
   /**
    * @since 3.6
    */
   public static class Builder {
-    private String uuid;
+    private String key;
     private String componentKey;
     private String ruleKey;
     private String ruleRepositoryKey;
@@ -174,12 +174,12 @@ public class Issue {
     private Date closedAt;
 
     public Builder() {
-      uuid = UUID.randomUUID().toString();
+      key = UUID.randomUUID().toString();
       createdAt = new Date();
     }
 
     public Builder(Issue issue) {
-      this.uuid = issue.uuid();
+      this.key = issue.key();
       this.componentKey = issue.componentKey();
       this.ruleKey = issue.ruleKey();
       this.ruleRepositoryKey = issue.ruleRepositoryKey();

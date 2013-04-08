@@ -30,39 +30,39 @@ import java.util.Collection;
 /**
  * @since 3.6
  */
-public class IssueChangelogDao implements BatchComponent, ServerComponent {
+public class IssueChangeDao implements BatchComponent, ServerComponent {
 
   private final MyBatis mybatis;
 
-  public IssueChangelogDao(MyBatis mybatis) {
+  public IssueChangeDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }
 
-  public void insert(IssueChangeLogDto issueChangeLogDto) {
+  public void insert(IssueChangeDto issueChangeDto) {
     SqlSession session = mybatis.openSession();
-    IssueChangelogMapper mapper = session.getMapper(IssueChangelogMapper.class);
+    IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
     try {
-      mapper.insert(issueChangeLogDto);
+      mapper.insert(issueChangeDto);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public IssueChangeLogDto findById(long issueChangeLogId) {
+  public IssueChangeDto findById(long issueChangeLogId) {
     SqlSession session = mybatis.openSession();
     try {
-      IssueChangelogMapper mapper = session.getMapper(IssueChangelogMapper.class);
+      IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       return mapper.findById(issueChangeLogId);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public Collection<IssueChangeLogDto> selectByIssue(String issueUuid) {
+  public Collection<IssueChangeDto> selectByIssue(String issueUuid) {
     SqlSession session = mybatis.openSession();
     try {
-      IssueChangelogMapper mapper = session.getMapper(IssueChangelogMapper.class);
+      IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       return mapper.selectByIssue(issueUuid);
     } finally {
       MyBatis.closeQuietly(session);
