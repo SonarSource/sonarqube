@@ -51,7 +51,11 @@ public class Issue {
   private Double cost;
   private String status;
   private String resolution;
+  private String userLogin;
+  private String assigneeLogin;
   private Date createdAt;
+  private Date updatedAt;
+  private Date closedAt;
 
   private Issue(Builder builder) {
     this.uuid = builder.uuid;
@@ -64,7 +68,11 @@ public class Issue {
     this.cost = builder.cost;
     this.status = builder.status;
     this.resolution = builder.resolution;
+    this.userLogin = builder.userLogin;
+    this.assigneeLogin = builder.assigneeLogin;
     this.createdAt = builder.createdAt;
+    this.updatedAt = builder.updatedAt;
+    this.closedAt = builder.closedAt;
   }
 
   public String uuid() {
@@ -103,13 +111,28 @@ public class Issue {
     return status;
   }
 
-
   public String resolution() {
     return resolution;
   }
 
+  public String userLogin() {
+    return userLogin;
+  }
+
+  public String assigneeLogin() {
+    return assigneeLogin;
+  }
+
   public Date createdAt() {
     return createdAt;
+  }
+
+  public Date updatedAt() {
+    return updatedAt;
+  }
+
+  public Date closedAt() {
+    return closedAt;
   }
 
   @Override
@@ -144,7 +167,11 @@ public class Issue {
     private Double cost;
     private String status;
     private String resolution;
+    private String userLogin;
+    private String assigneeLogin;
     private Date createdAt;
+    private Date updatedAt;
+    private Date closedAt;
 
     public Builder() {
       uuid = UUID.randomUUID().toString();
@@ -152,8 +179,7 @@ public class Issue {
     }
 
     public Builder(Issue issue) {
-      this. uuid = issue.uuid();
-      this.createdAt = issue.createdAt();
+      this.uuid = issue.uuid();
       this.componentKey = issue.componentKey();
       this.ruleKey = issue.ruleKey();
       this.ruleRepositoryKey = issue.ruleRepositoryKey();
@@ -163,6 +189,9 @@ public class Issue {
       this.cost = issue.cost();
       this.status = issue.status();
       this.resolution = issue.resolution();
+      this.createdAt = issue.createdAt();
+      this.updatedAt = issue.updatedAt();
+      this.closedAt = issue.closedAt();
     }
 
     public Builder componentKey(String componentKey) {
@@ -207,6 +236,16 @@ public class Issue {
 
     public Builder resolution(String resolution) {
       this.resolution = resolution;
+      return this;
+    }
+
+    public Builder userLogin(String userLogin) {
+      this.userLogin = userLogin;
+      return this;
+    }
+
+    public Builder assigneeLogin(String assigneeLogin) {
+      this.assigneeLogin = assigneeLogin;
       return this;
     }
 

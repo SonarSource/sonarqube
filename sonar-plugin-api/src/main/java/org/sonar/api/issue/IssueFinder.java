@@ -18,25 +18,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.core.issue;
+package org.sonar.api.issue;
 
-import org.sonar.api.issue.IssueQuery;
-
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @since 3.6
  */
-public interface IssueMapper {
+public interface IssueFinder {
 
-  void insert(IssueDto issueDto);
-
-  void update(IssueDto review);
-
-  IssueDto findById(long issueId);
-
-  IssueDto findByUuid(String uuid);
-
-  Collection<IssueDto> select(IssueQuery issueQuery);
+  List<Issue> find(IssueQuery issueQuery);
 
 }

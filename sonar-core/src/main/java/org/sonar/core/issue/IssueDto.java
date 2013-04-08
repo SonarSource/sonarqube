@@ -46,9 +46,9 @@ public final class IssueDto {
   private String status;
   private String resolution;
   private String checksum;
-  private Long assigneeUserId;
+  private String userLogin;
+  private String assigneeLogin;
   private Long personId;
-  private Long userId;
   private String data;
 
   private Date createdAt;
@@ -181,12 +181,21 @@ public final class IssueDto {
     return this;
   }
 
-  public Long getAssigneeUserId() {
-    return assigneeUserId;
+  public String getUserLogin() {
+    return userLogin;
   }
 
-  public IssueDto setAssigneeUserId(@Nullable Long assigneeUserId) {
-    this.assigneeUserId = assigneeUserId;
+  public IssueDto setUserLogin(String userLogin) {
+    this.userLogin = userLogin;
+    return this;
+  }
+
+  public String getAssigneeLogin() {
+    return assigneeLogin;
+  }
+
+  public IssueDto setAssigneeLogin(String assigneeLogin) {
+    this.assigneeLogin = assigneeLogin;
     return this;
   }
 
@@ -196,15 +205,6 @@ public final class IssueDto {
 
   public IssueDto setPersonId(Long personId) {
     this.personId = personId;
-    return this;
-  }
-
-  public Long getUserId() {
-    return userId;
-  }
-
-  public IssueDto setUserId(Long userId) {
-    this.userId = userId;
     return this;
   }
 

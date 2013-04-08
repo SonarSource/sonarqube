@@ -19,43 +19,31 @@
     i.status as status,
     i.resolution as resolution,
     i.checksum as checksum,
-    i.assignee_user_id as assigneeUserId,
+    i.user_login as userLogin,
+    i.assignee_login as assigneeLogin,
     i.person_id as personId,
-    i.user_id as userId,
     i.data as data,
     i.created_at as createdAt,
     i.updated_at as updatedAt,
     i.closed_at as closedAt
   </sql>
 
-  <select id="findById" parameterType="long" resultType="Issue">
-    select <include refid="issueColumns"/>
-    from issues i
-    where i.id=#{id}
-  </select>
-
-  <select id="findByUuid" parameterType="String" resultType="Issue">
-    select <include refid="issueColumns"/>
-    from issues i
-    where i.uuid=#{uuid}
-  </select>
-
   <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty ="id">
     INSERT INTO issues (uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, message, line, cost, status,
-    resolution, checksum, assignee_user_id, person_id, user_id, data, created_at, updated_at, closed_at)
+    resolution, checksum, user_login, assignee_login, person_id, data, created_at, updated_at, closed_at)
     VALUES (#{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{message}, #{line}, #{cost}, #{status},
-    #{resolution}, #{checksum}, #{assigneeUserId}, #{personId}, #{userId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
+    #{resolution}, #{checksum}, #{userLogin}, #{assigneeLogin}, #{personId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
   </insert>
 
   <!-- Oracle -->
   <insert id="insert" databaseId="oracle" parameterType="Issue" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
     <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
-      select issue_seq.NEXTVAL from DUAL
+      select issues_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO issues (id, uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, message, line, cost, status,
-    resolution, checksum, assignee_user_id, person_id, user_id, data, created_at, updated_at, closed_at)
+    resolution, checksum, user_login, assignee_login, person_id, data, created_at, updated_at, closed_at)
     VALUES (#{id}, #{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{message}, #{line}, #{cost}, #{status},
-    #{resolution}, #{checksum}, #{assigneeUserId}, #{personId}, #{userId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
+    #{resolution}, #{checksum}, #{userLogin}, #{assigneeLogin}, #{personId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
   </insert>
 
   <update id="update" parameterType="Issue">
@@ -73,15 +61,55 @@
     status=#{status},
     resolution=#{resolution},
     checksum=#{checksum},
-    assignee_user_id=#{assigneeUserId},
+    user_login=#{userLogin},
+    assignee_login=#{assigneeLogin},
     person_id=#{personId},
-    user_id=#{userId},
     data=#{data},
     created_at=#{createdAt},
     updated_at=#{updatedAt},
     closed_at=#{closedAt}
     where id = #{id}
   </update>
+
+  <select id="findById" parameterType="long" resultType="Issue">
+    select <include refid="issueColumns"/>
+    from issues i
+    where i.id=#{id}
+  </select>
+
+  <select id="findByUuid" parameterType="String" resultType="Issue">
+    select <include refid="issueColumns"/>
+    from issues i
+    where i.uuid=#{uuid}
+  </select>
+
+  <select id="select" parameterType="map" resultType="Issue">
+    select <include refid="issueColumns"/>
+    from issues i
+    <!--where i.resolution=#{resolution}-->
+    <where>
+      <if test="severity != null">
+        and i.severity=#{severity}
+      </if>
+      <if test="status != null">
+        and i.status=#{status}
+      </if>
+      <if test="resolution != null">
+        and i.resolution=#{resolution}
+      </if>
+      <if test="userLogin != null">
+        and i.user_login=#{userLogin}
+      </if>
+      <if test="assigneeLogin != null">
+        and i.assignee_login=#{assigneeLogin}
+      </if>
+      <if test="componentKeys != null">
+        and i.resource_id in
+        <foreach item="componentKey" index="index" collection="componentKeys" open="(" separator="," close=")">#{componentKey}
+        </foreach>
+      </if>
+    </where>
+  </select>
 
 </mapper>
 

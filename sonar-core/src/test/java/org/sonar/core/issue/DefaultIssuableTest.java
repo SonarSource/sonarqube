@@ -53,6 +53,8 @@ public class DefaultIssuableTest {
         .componentKey("componentKey")
         .cost(10.0)
         .message("issue message")
+        .userLogin("user")
+        .assigneeLogin("user")
         .build();
     issueList.add(issue);
 
@@ -71,5 +73,18 @@ public class DefaultIssuableTest {
     assertThat(resultIssue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(resultIssue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(resultIssue.line()).isEqualTo(1);
+  }
+
+  @Test
+  public void should_find_issues() throws Exception {
+    Issue issue = new Issue.Builder() .build();
+    issueList.add(issue);
+
+    assertThat(issuable.issues()).hasSize(1);
+  }
+
+  @Test
+  public void should_return_null_component() throws Exception {
+    assertThat(issuable.component()).isNull();
   }
 }

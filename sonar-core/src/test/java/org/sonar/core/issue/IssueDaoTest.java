@@ -22,6 +22,7 @@ package org.sonar.core.issue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
@@ -52,7 +53,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     issueDto.setSeverity("BLOCKER");
     issueDto.setLine(200);
     issueDto.setStatus("OPEN");
-    issueDto.setAssigneeUserId(300L);
+    issueDto.setAssigneeLogin("user");
     issueDto.setMessage("message");
     issueDto.setCost(10.0);
     issueDto.setChecksum("checksum");
@@ -66,6 +67,28 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     dao.insert(issueDto);
 
     checkTables("insert", new String[] {"id", "created_at", "updated_at", "closed_at"}, "issues");
+  }
+
+  @Test
+  public void update() {
+    setupData("update");
+    Collection<IssueDto> issues = newArrayList(dao.findById(100L));
+    IssueDto issue = issues.iterator().next();
+    issue.setLine(1000);
+    issue.setResolution("NEW_RESOLUTION");
+    issue.setStatus("NEW_STATUS");
+    issue.setSeverity("NEW_SEV");
+    issue.setAssigneeLogin("new_user");
+    issue.setManualSeverity(true);
+    issue.setManualIssue(false);
+    issue.setTitle("NEW_TITLE");
+    issue.setCreatedAt(DateUtils.parseDate("2012-05-18"));
+    issue.setUpdatedAt(DateUtils.parseDate("2012-07-01"));
+    issue.setData("big=bang");
+
+    dao.update(issues);
+
+    checkTables("update", "issues");
   }
 
   @Test
@@ -87,9 +110,9 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getStatus()).isEqualTo("OPEN");
     assertThat(issue.getResolution()).isNull();
     assertThat(issue.getChecksum()).isNull();
-    assertThat(issue.getAssigneeUserId()).isEqualTo(300L);
+    assertThat(issue.getAssigneeLogin()).isEqualTo("user");
     assertThat(issue.getPersonId()).isNull();
-    assertThat(issue.getUserId()).isNull();
+    assertThat(issue.getUserLogin()).isNull();
     assertThat(issue.getData()).isNull();
     assertThat(issue.getCreatedAt()).isNull();
     assertThat(issue.getUpdatedAt()).isNull();
@@ -105,25 +128,16 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void update() {
-    setupData("update");
-    Collection<IssueDto> issues = newArrayList(dao.findById(100L));
-    IssueDto issue = issues.iterator().next();
-    issue.setLine(1000);
-    issue.setResolution("NEW_RESOLUTION");
-    issue.setStatus("NEW_STATUS");
-    issue.setSeverity("NEW_SEV");
-    issue.setAssigneeUserId(1001L);
-    issue.setManualSeverity(true);
-    issue.setManualIssue(false);
-    issue.setTitle("NEW_TITLE");
-    issue.setCreatedAt(DateUtils.parseDate("2012-05-18"));
-    issue.setUpdatedAt(DateUtils.parseDate("2012-07-01"));
-    issue.setData("big=bang");
+  public void should_select() {
+    setupData("shared");
 
-    dao.update(issues);
+    IssueQuery issueQuery = new IssueQuery.Builder().resolution("FALSE-POSITIVE").build();
+    Collection<IssueDto> issues = dao.select(issueQuery);
+    assertThat(issues).hasSize(1);
 
-    checkTables("update", "issues");
+    issueQuery = new IssueQuery.Builder().componentKeys("400").build();
+    issues = dao.select(issueQuery);
+    assertThat(issues).hasSize(2);
   }
 
 }

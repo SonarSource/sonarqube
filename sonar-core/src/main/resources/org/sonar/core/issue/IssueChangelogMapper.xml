@@ -35,18 +35,6 @@
     i.updated_at as updatedAt
   </sql>
 
-  <select id="findById" parameterType="long" resultType="IssueChangelog">
-    select <include refid="issueChangelogColumns"/>
-    from issue_changelog i
-    where i.id=#{id}
-  </select>
-
-  <select id="selectByIssue" parameterType="string" resultType="IssueChangelog">
-    select <include refid="issueChangelogColumns"/>
-    from issue_changelog i
-    where i.issue_uuid=#{issueUuid}
-  </select>
-
   <insert id="insert" parameterType="IssueChangelog" useGeneratedKeys="true" keyProperty ="id">
     INSERT INTO issue_changelog (issue_uuid, user_id, change_type, change_data, message, created_at, updated_at)
     VALUES (#{issueUuid}, #{userId}, #{changeType}, #{changeData}, #{message}, #{createdAt}, #{updatedAt})
@@ -60,6 +48,18 @@
     INSERT INTO issue_changelog (id, issue_uuid, user_id, change_type, change_data, message, created_at, updated_at)
     VALUES (#{id}, #{issueUuid}, #{userId}, #{changeType}, #{changeData}, #{message}, #{createdAt}, #{updatedAt})
   </insert>
+
+  <select id="findById" parameterType="long" resultType="IssueChangelog">
+    select <include refid="issueChangelogColumns"/>
+    from issue_changelog i
+    where i.id=#{id}
+  </select>
+
+  <select id="selectByIssue" parameterType="string" resultType="IssueChangelog">
+    select <include refid="issueChangelogColumns"/>
+    from issue_changelog i
+    where i.issue_uuid=#{issueUuid}
+  </select>
 
 </mapper>
 

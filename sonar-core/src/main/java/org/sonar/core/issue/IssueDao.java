@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
@@ -50,6 +51,23 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public IssueDao update(Collection<IssueDto> issues) {
+    Preconditions.checkNotNull(issues);
+
+    SqlSession session = mybatis.openBatchSession();
+    try {
+      IssueMapper mapper = session.getMapper(IssueMapper.class);
+      for (IssueDto issue : issues) {
+        mapper.update(issue);
+      }
+      session.commit();
+      return this;
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public IssueDto findById(long issueId) {
     SqlSession session = mybatis.openSession();
     try {
@@ -70,20 +88,15 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public IssueDao update(Collection<IssueDto> issues) {
-    Preconditions.checkNotNull(issues);
-
-    SqlSession session = mybatis.openBatchSession();
+  public Collection<IssueDto> select(IssueQuery issueQuery) {
+    SqlSession session = mybatis.openSession();
     try {
       IssueMapper mapper = session.getMapper(IssueMapper.class);
-      for (IssueDto issue : issues) {
-        mapper.update(issue);
-      }
-      session.commit();
-      return this;
-
+      return mapper.select(issueQuery);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
+
+
 }
