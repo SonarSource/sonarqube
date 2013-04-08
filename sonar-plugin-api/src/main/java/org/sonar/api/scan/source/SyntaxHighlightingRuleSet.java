@@ -34,6 +34,10 @@ public class SyntaxHighlightingRuleSet {
     syntaxHighlightingRuleSet = syntaxHighlightingRules;
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public static class Builder {
 
     private List<SyntaxHighlightingRule> syntaxHighlightingRuleSet;

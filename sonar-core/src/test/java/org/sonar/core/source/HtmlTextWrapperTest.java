@@ -28,7 +28,6 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class HtmlTextWrapperTest {
 
-  private static final String PLAIN_TEXT_FILE = "org/sonar/core/source/plain_text.txt";
   private static final String NEW_LINE = "\n";
 
   @Test
@@ -36,7 +35,7 @@ public class HtmlTextWrapperTest {
 
     String packageDeclaration = "package org.sonar.core.source;";
 
-    SyntaxHighlightingRuleSet syntaxHighlighting = new SyntaxHighlightingRuleSet.Builder()
+    SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
             .registerHighlightingRule(0, 7, HighlightableTextType.KEYWORD).build();
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
@@ -45,13 +44,14 @@ public class HtmlTextWrapperTest {
     assertThat(htmlOutput).isEqualTo("<tr><td><span class=\"k\">package</span> org.sonar.core.source;");
   }
 
+  @Test
   public void should_decorate_multiple_lines_characters_range() throws Exception {
 
     String firstCommentLine = "/*";
     String secondCommentLine = " * Test";
     String thirdCommentLine = " */";
 
-    String blockComment = firstCommentLine + NEW_LINE + secondCommentLine + NEW_LINE + thirdCommentLine;
+    String blockComment = firstCommentLine + NEW_LINE + secondCommentLine + NEW_LINE + thirdCommentLine + NEW_LINE;
 
     SyntaxHighlightingRuleSet syntaxHighlighting = new SyntaxHighlightingRuleSet.Builder()
             .registerHighlightingRule(0, 14, HighlightableTextType.BLOCK_COMMENT).build();
@@ -60,9 +60,27 @@ public class HtmlTextWrapperTest {
     String htmlOutput = htmlTextWrapper.wrapTextWithHtml(blockComment, syntaxHighlighting);
 
     assertThat(htmlOutput).isEqualTo(
-            "<tr><td><span class=\"cppd\">" + firstCommentLine + "</span></td></tr>" +
-            "<tr><td><span class=\"cppd\">" + secondCommentLine + "</span></td></tr>" +
-            "<tr><td><span class=\"cppd\">" + thirdCommentLine + "</span></td></tr>"
+            "<tr><td><span class=\"cppd\">" + firstCommentLine + "</span></td></tr>" + NEW_LINE +
+            "<tr><td><span class=\"cppd\">" + secondCommentLine + "</span></td></tr>" + NEW_LINE +
+            "<tr><td><span class=\"cppd\">" + thirdCommentLine + "</span></td></tr>" + NEW_LINE
     );
+  }
+
+  @Test
+  public void should_highlight_multiple_words_in_one_line() throws Exception {
+
+    String classDeclaration = "public class MyClass implements MyInterface {\n";
+
+    SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
+            .registerHighlightingRule(0, 6, HighlightableTextType.KEYWORD)
+            .registerHighlightingRule(7, 12, HighlightableTextType.KEYWORD)
+            .registerHighlightingRule(21, 31, HighlightableTextType.KEYWORD)
+            .build();
+
+    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
+    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(classDeclaration, syntaxHighlighting);
+
+    assertThat(htmlOutput).isEqualTo(
+            "<tr><td><span class=\"k\">public</span> <span class=\"k\">class</span> MyClass <span class=\"k\">implements</span> MyInterface {</td></tr>\n");
   }
 }

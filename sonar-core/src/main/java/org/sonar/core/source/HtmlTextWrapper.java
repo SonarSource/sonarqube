@@ -30,12 +30,22 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class HtmlTextWrapper {
 
   private static final int END_OF_STREAM = -1;
   private static final char END_OF_LINE = '\n';
+  private static final String OPEN_TABLE_LINE = "<tr><td>";
+  private static final String CLOSE_TABLE_LINE = "</td></tr>";
+
+  private Queue<String> currentOpenTags;
+
+  public HtmlTextWrapper() {
+    currentOpenTags = new LinkedList<String>();
+  }
 
   public String wrapTextWithHtml(String text, SyntaxHighlightingRuleSet syntaxHighlighting) throws IOException {
 
@@ -54,30 +64,23 @@ public class HtmlTextWrapper {
       while(currentCharValue != END_OF_STREAM) {
 
         if(isNewLine) {
-          decoratedText.append("<tr><td>");
+          decoratedText.append(OPEN_TABLE_LINE);
           reopenCurrentSyntaxTags(decoratedText);
           isNewLine = false;
         }
 
         if(currentCharValue == END_OF_LINE) {
           closeCurrentSyntaxTags(decoratedText);
-          decoratedText.append("</tr></td>");
+          decoratedText.append(CLOSE_TABLE_LINE);
           isNewLine = true;
-        }
-
-        Collection<SyntaxHighlightingRule> endingRules = Collections2.filter(highlightingRules, new RuleIsMatchingIndex(currentCharIndex, false));
-        if(!endingRules.isEmpty()) {
-          for (SyntaxHighlightingRule rule : endingRules) {
-            injectClosingHtmlForRule(rule, decoratedText);
+        } else {
+          Collection<SyntaxHighlightingRule> rulesMatchingCurrentIndex =
+                  Collections2.filter(highlightingRules, new IndexRuleFilter(currentCharIndex));
+          if(rulesMatchingCurrentIndex.size() > 0) {
+            injectHtml(currentCharIndex, rulesMatchingCurrentIndex, decoratedText);
           }
         }
 
-        Collection<SyntaxHighlightingRule> startingRules = Collections2.filter(highlightingRules, new RuleIsMatchingIndex(currentCharIndex, true));
-        if(!startingRules.isEmpty()) {
-          for (SyntaxHighlightingRule rule : startingRules) {
-            injectOpeningHtmlForRule(rule, decoratedText);
-          }
-        }
         decoratedText.append((char)currentCharValue);
         currentCharValue = stringBuffer.read();
         currentCharIndex++;
@@ -91,17 +94,40 @@ public class HtmlTextWrapper {
     return decoratedText.toString();
   }
 
+  private void injectHtml(int currentIndex, Collection<SyntaxHighlightingRule> rulesMatchingCurrentIndex,
+                          StringBuilder decoratedText) {
+    for (SyntaxHighlightingRule syntaxHighlightingRule : rulesMatchingCurrentIndex) {
+      if(currentIndex == syntaxHighlightingRule.getEndPosition()) {
+        injectClosingHtml(decoratedText);
+        currentOpenTags.remove();
+      }
+    }
+
+    for (SyntaxHighlightingRule syntaxHighlightingRule : rulesMatchingCurrentIndex) {
+      if(currentIndex == syntaxHighlightingRule.getStartPosition()) {
+        injectOpeningHtmlForRule(syntaxHighlightingRule.getTextType(), decoratedText);
+        currentOpenTags.add(syntaxHighlightingRule.getTextType());
+      }
+    }
+  }
+
   private void closeCurrentSyntaxTags(StringBuilder decoratedText) {
+    for (int i = 0; i < currentOpenTags.size(); i++) {
+      injectClosingHtml(decoratedText);
+    }
   }
 
   private void reopenCurrentSyntaxTags(StringBuilder decoratedText) {
+    for (String tags : currentOpenTags) {
+      injectOpeningHtmlForRule(tags, decoratedText);
+    }
   }
 
-  private void injectOpeningHtmlForRule(SyntaxHighlightingRule rule, StringBuilder decoratedText) {
-    decoratedText.append("<span class=\"").append(rule.getTextType()).append("\">");
+  private void injectOpeningHtmlForRule(String textType, StringBuilder decoratedText) {
+    decoratedText.append("<span class=\"").append(textType).append("\">");
   }
 
-  private void injectClosingHtmlForRule(SyntaxHighlightingRule rule, StringBuilder decoratedText) {
+  private void injectClosingHtml(StringBuilder decoratedText) {
     decoratedText.append("</span>");
   }
 
@@ -115,20 +141,18 @@ public class HtmlTextWrapper {
     }
   }
 
-  private class RuleIsMatchingIndex implements Predicate<SyntaxHighlightingRule> {
+  private class IndexRuleFilter implements Predicate<SyntaxHighlightingRule> {
 
     private final int characterIndex;
-    private final boolean isStarting;
 
-    public RuleIsMatchingIndex(int charIndex, boolean isStarting) {
-      this.isStarting = isStarting;
+    public IndexRuleFilter(int charIndex) {
       this.characterIndex = charIndex;
     }
 
     @Override
     public boolean apply(@Nullable SyntaxHighlightingRule syntaxHighlightingRule) {
       if(syntaxHighlightingRule != null) {
-        return isStarting ? characterIndex == syntaxHighlightingRule.getStartPosition() : characterIndex == syntaxHighlightingRule.getEndPosition();
+        return characterIndex == syntaxHighlightingRule.getStartPosition() || characterIndex == syntaxHighlightingRule.getEndPosition();
       }
       return false;
     }
