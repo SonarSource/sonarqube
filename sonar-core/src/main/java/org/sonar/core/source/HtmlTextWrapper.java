@@ -22,6 +22,7 @@ package org.sonar.core.source;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.io.Closeables;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.scan.source.SyntaxHighlightingRule;
 import org.sonar.api.scan.source.SyntaxHighlightingRuleSet;
@@ -78,9 +79,11 @@ public class HtmlTextWrapper {
         decoratedText.append((char)context.getCurrentValue());
       }
     } catch (IOException exception) {
-      LoggerFactory.getLogger(HtmlTextWrapper.class).error("");
+      String errorMsg = "An exception occurred while highlighting the syntax of one of the project's files";
+      LoggerFactory.getLogger(HtmlTextWrapper.class).error(errorMsg);
+      throw new IllegalStateException(errorMsg, exception);
     } finally {
-      closeReaderSilently(stringBuffer);
+      Closeables.closeQuietly(stringBuffer);
     }
 
     return decoratedText.toString();
@@ -137,16 +140,6 @@ public class HtmlTextWrapper {
 
   private void injectClosingHtml(StringBuilder decoratedText) {
     decoratedText.append("</span>");
-  }
-
-  private void closeReaderSilently(BufferedReader reader) {
-    try {
-      if(reader != null) {
-        reader.close();
-      }
-    } catch (IOException e) {
-      LoggerFactory.getLogger(HtmlTextWrapper.class).error("Could not close ");
-    }
   }
 
   private class IndexRuleFilter implements Predicate<SyntaxHighlightingRule> {

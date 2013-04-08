@@ -22,7 +22,6 @@ package org.sonar.core.source;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.scan.source.HighlightableTextType;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -35,7 +34,7 @@ public class DefaultHighlightableTest {
   public void should_register_highlighting_rule() throws Exception {
 
     DefaultHighlightable highlightable = new DefaultHighlightable();
-    highlightable.highlightText(1, 10, HighlightableTextType.KEYWORD);
+    highlightable.highlightText(1, 10, "k");
 
     assertThat(highlightable.getHighlightingRules().getSyntaxHighlightingRuleSet()).hasSize(1);
   }

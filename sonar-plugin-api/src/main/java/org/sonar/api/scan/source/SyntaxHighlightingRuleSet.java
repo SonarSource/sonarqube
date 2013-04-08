@@ -20,7 +20,6 @@
 package org.sonar.api.scan.source;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.utils.SonarException;
 
 import java.util.List;
 
@@ -47,13 +46,10 @@ public class SyntaxHighlightingRuleSet {
     }
 
     public Builder registerHighlightingRule(int startOffset, int endOffset, String typeOfText) {
-      if (HighlightableTextType.supports(typeOfText)) {
-        SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(startOffset, endOffset,
-                typeOfText);
-        this.syntaxHighlightingRuleSet.add(syntaxHighlightingRule);
-        return this;
-      }
-      throw new SonarException("Unsupported text type : " + typeOfText);
+      SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(startOffset, endOffset,
+              typeOfText);
+      this.syntaxHighlightingRuleSet.add(syntaxHighlightingRule);
+      return this;
     }
 
     public SyntaxHighlightingRuleSet build() {

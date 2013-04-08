@@ -23,7 +23,6 @@ package org.sonar.api.scan.source;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.SonarException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -36,18 +35,9 @@ public class SyntaxHighlightingRuleSetTest {
   public void should_register_supported_highlighting_rule() throws Exception {
 
     SyntaxHighlightingRuleSet.Builder highlightingRuleSet = new SyntaxHighlightingRuleSet.Builder();
-    highlightingRuleSet.registerHighlightingRule(1, 10, HighlightableTextType.LINE_COMMENT);
-    highlightingRuleSet.registerHighlightingRule(1, 10, HighlightableTextType.LINE_COMMENT);
+    highlightingRuleSet.registerHighlightingRule(1, 10, "cd");
+    highlightingRuleSet.registerHighlightingRule(1, 10, "cd");
 
     assertThat(highlightingRuleSet.build().getSyntaxHighlightingRuleSet()).hasSize(2);
-  }
-
-  @Test
-  public void should_reject_unsupported_highlighting_rule() throws Exception {
-
-    throwable.expect(SonarException.class);
-
-    SyntaxHighlightingRuleSet.Builder highlightingRuleSet = new SyntaxHighlightingRuleSet.Builder();
-    highlightingRuleSet.registerHighlightingRule(1, 10, "UnsupportedTextType");
   }
 }

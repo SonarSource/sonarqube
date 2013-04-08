@@ -21,7 +21,6 @@
 package org.sonar.core.source;
 
 import org.junit.Test;
-import org.sonar.api.scan.source.HighlightableTextType;
 import org.sonar.api.scan.source.SyntaxHighlightingRuleSet;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -36,7 +35,7 @@ public class HtmlTextWrapperTest {
     String packageDeclaration = "package org.sonar.core.source;";
 
     SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
-            .registerHighlightingRule(0, 7, HighlightableTextType.KEYWORD).build();
+            .registerHighlightingRule(0, 7, "k").build();
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
     String htmlOutput = htmlTextWrapper.wrapTextWithHtml(packageDeclaration, syntaxHighlighting);
@@ -56,7 +55,7 @@ public class HtmlTextWrapperTest {
             + thirdCommentLine + LF_END_OF_LINE;
 
     SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
-            .registerHighlightingRule(0, 14, HighlightableTextType.BLOCK_COMMENT).build();
+            .registerHighlightingRule(0, 14, "cppd").build();
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
     String htmlOutput = htmlTextWrapper.wrapTextWithHtml(blockComment, syntaxHighlighting);
@@ -74,9 +73,9 @@ public class HtmlTextWrapperTest {
     String classDeclaration = "public class MyClass implements MyInterface {\n";
 
     SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
-            .registerHighlightingRule(0, 6, HighlightableTextType.KEYWORD)
-            .registerHighlightingRule(7, 12, HighlightableTextType.KEYWORD)
-            .registerHighlightingRule(21, 31, HighlightableTextType.KEYWORD)
+            .registerHighlightingRule(0, 6, "k")
+            .registerHighlightingRule(7, 12, "k")
+            .registerHighlightingRule(21, 31, "k")
             .build();
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
@@ -99,8 +98,8 @@ public class HtmlTextWrapperTest {
             " */" + LF_END_OF_LINE;
 
     SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
-            .registerHighlightingRule(0, 184, HighlightableTextType.BLOCK_COMMENT)
-            .registerHighlightingRule(47, 53, HighlightableTextType.KEYWORD)
+            .registerHighlightingRule(0, 184, "cppd")
+            .registerHighlightingRule(47, 53, "k")
             .build();
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
@@ -130,10 +129,10 @@ public class HtmlTextWrapperTest {
             "}" + CR_END_OF_LINE + LF_END_OF_LINE;
 
     SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
-            .registerHighlightingRule(0, 52, HighlightableTextType.BLOCK_COMMENT)
-            .registerHighlightingRule(54, 67, HighlightableTextType.ANNOTATION)
-            .registerHighlightingRule(69, 75, HighlightableTextType.KEYWORD)
-            .registerHighlightingRule(106, 112, HighlightableTextType.KEYWORD)
+            .registerHighlightingRule(0, 52, "cppd")
+            .registerHighlightingRule(54, 67, "a")
+            .registerHighlightingRule(69, 75, "k")
+            .registerHighlightingRule(106, 112, "k")
             .build();
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
