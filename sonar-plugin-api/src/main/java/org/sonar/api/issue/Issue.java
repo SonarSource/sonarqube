@@ -28,18 +28,18 @@ import java.util.UUID;
  */
 public class Issue {
 
-  public final static String STATUS_REOPENED = "REOPENED";
-  public final static String STATUS_RESOLVED = "RESOLVED";
-  public final static String STATUS_CLOSED = "CLOSED";
+  public static final String STATUS_REOPENED = "REOPENED";
+  public static final String STATUS_RESOLVED = "RESOLVED";
+  public static final String STATUS_CLOSED = "CLOSED";
 
-  public final static String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
-  public final static String RESOLUTION_FIXED = "FIXED";
+  public static final String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
+  public static final String RESOLUTION_FIXED = "FIXED";
 
-  public final static String SEVERITY_INFO = "INFO";
-  public final static String SEVERITY_MINOR = "MINOR";
-  public final static String SEVERITY_MAJOR = "MAJOR";
-  public final static String SEVERITY_CRITICAL = "CRITICAL";
-  public final static String SEVERITY_BLOCKER = "BLOCKER";
+  public static final String SEVERITY_INFO = "INFO";
+  public static final String SEVERITY_MINOR = "MINOR";
+  public static final String SEVERITY_MAJOR = "MAJOR";
+  public static final String SEVERITY_CRITICAL = "CRITICAL";
+  public static final String SEVERITY_BLOCKER = "BLOCKER";
 
   private String uuid;
   private String componentKey;
@@ -152,17 +152,17 @@ public class Issue {
     }
 
     public Builder(Issue issue) {
-      uuid = issue.uuid();
-      createdAt = issue.createdAt();
-      componentKey(issue.componentKey());
-      ruleKey(issue.ruleKey());
-      ruleRepositoryKey(issue.ruleRepositoryKey());
-      severity(issue.severity());
-      message(issue.message());
-      line(issue.line());
-      cost(issue.cost());
-      status(issue.status());
-      resolution(issue.resolution());
+      this. uuid = issue.uuid();
+      this.createdAt = issue.createdAt();
+      this.componentKey = issue.componentKey();
+      this.ruleKey = issue.ruleKey();
+      this.ruleRepositoryKey = issue.ruleRepositoryKey();
+      this.severity = issue.severity();
+      this.message = issue.message();
+      this.line = issue.line();
+      this.cost = issue.cost();
+      this.status = issue.status();
+      this.resolution = issue.resolution();
     }
 
     public Builder componentKey(String componentKey) {
