@@ -24,11 +24,7 @@ import com.google.common.io.Closeables;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
@@ -38,35 +34,27 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.MeasureData;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
-import org.sonar.core.graph.jdbc.GraphDto;
-import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.config.Logback;
-import org.sonar.core.dashboard.ActiveDashboardDto;
-import org.sonar.core.dashboard.ActiveDashboardMapper;
-import org.sonar.core.dashboard.DashboardDto;
-import org.sonar.core.dashboard.DashboardMapper;
-import org.sonar.core.dashboard.WidgetDto;
-import org.sonar.core.dashboard.WidgetMapper;
-import org.sonar.core.dashboard.WidgetPropertyDto;
-import org.sonar.core.dashboard.WidgetPropertyMapper;
+import org.sonar.core.dashboard.*;
 import org.sonar.core.dependency.DependencyDto;
 import org.sonar.core.dependency.DependencyMapper;
 import org.sonar.core.dependency.ResourceSnapshotDto;
 import org.sonar.core.dependency.ResourceSnapshotMapper;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
+import org.sonar.core.graph.jdbc.GraphDto;
+import org.sonar.core.graph.jdbc.GraphDtoMapper;
+import org.sonar.core.issue.IssueChangeLogDto;
+import org.sonar.core.issue.IssueChangelogMapper;
+import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.IssueMapper;
 import org.sonar.core.measure.MeasureFilterDto;
 import org.sonar.core.measure.MeasureFilterMapper;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceIndexDto;
-import org.sonar.core.resource.ResourceIndexerMapper;
-import org.sonar.core.resource.ResourceKeyUpdaterMapper;
-import org.sonar.core.resource.ResourceMapper;
-import org.sonar.core.resource.SnapshotDto;
+import org.sonar.core.resource.*;
 import org.sonar.core.review.ReviewCommentDto;
 import org.sonar.core.review.ReviewCommentMapper;
 import org.sonar.core.review.ReviewDto;
@@ -75,14 +63,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
-import org.sonar.core.user.AuthorDto;
-import org.sonar.core.user.AuthorMapper;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.GroupRoleDto;
-import org.sonar.core.user.RoleMapper;
-import org.sonar.core.user.UserDto;
-import org.sonar.core.user.UserMapper;
-import org.sonar.core.user.UserRoleDto;
+import org.sonar.core.user.*;
 
 import java.io.InputStream;
 
@@ -138,12 +119,14 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
     loadAlias(conf, "MeasureModel", MeasureModel.class);
     loadAlias(conf, "MeasureData", MeasureData.class);
+    loadAlias(conf, "Issue", IssueDto.class);
+    loadAlias(conf, "IssueChangelog", IssueChangeLogDto.class);
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class, LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class, ResourceSnapshotMapper.class, ReviewCommentMapper.class,
       ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
-      MeasureMapper.class};
+      MeasureMapper.class, IssueMapper.class, IssueChangelogMapper.class};
     loadMappers(conf, mappers);
     configureLogback(mappers);
 

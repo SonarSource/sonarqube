@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
+
+<mapper namespace="org.sonar.core.issue.IssueMapper">
+
+  <sql id="issueColumns">
+    i.id,
+    i.uuid as uuid,
+    i.resource_id as resourceId,
+    i.rule_id as ruleId,
+    i.severity as severity,
+    i.manual_severity as manualSeverity,
+    i.manual_issue as manualIssue,
+    i.title as title,
+    i.message as message,
+    i.line as line,
+    i.cost as cost,
+    i.status as status,
+    i.resolution as resolution,
+    i.checksum as checksum,
+    i.assignee_user_id as assigneeUserId,
+    i.person_id as personId,
+    i.user_id as userId,
+    i.data as data,
+    i.created_at as createdAt,
+    i.updated_at as updatedAt,
+    i.closed_at as closedAt
+  </sql>
+
+  <select id="findById" parameterType="long" resultType="Issue">
+    select <include refid="issueColumns"/>
+    from issues i
+    where i.id=#{id}
+  </select>
+
+  <select id="findByUuid" parameterType="String" resultType="Issue">
+    select <include refid="issueColumns"/>
+    from issues i
+    where i.uuid=#{uuid}
+  </select>
+
+  <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty ="id">
+    INSERT INTO issues (uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, message, line, cost, status,
+    resolution, checksum, assignee_user_id, person_id, user_id, data, created_at, updated_at, closed_at)
+    VALUES (#{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{message}, #{line}, #{cost}, #{status},
+    #{resolution}, #{checksum}, #{assigneeUserId}, #{personId}, #{userId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
+  </insert>
+
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="Issue" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
+      select issue_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO issues (id, uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, message, line, cost, status,
+    resolution, checksum, assignee_user_id, person_id, user_id, data, created_at, updated_at, closed_at)
+    VALUES (#{id}, #{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{message}, #{line}, #{cost}, #{status},
+    #{resolution}, #{checksum}, #{assigneeUserId}, #{personId}, #{userId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
+  </insert>
+
+  <update id="update" parameterType="Issue">
+    update issues set
+    uuid=#{uuid},
+    resource_id=#{resourceId},
+    rule_id=#{ruleId},
+    severity=#{severity},
+    manual_severity=#{manualSeverity},
+    manual_issue=#{manualIssue},
+    title=#{title},
+    message=#{message},
+    line=#{line},
+    cost=#{cost},
+    status=#{status},
+    resolution=#{resolution},
+    checksum=#{checksum},
+    assignee_user_id=#{assigneeUserId},
+    person_id=#{personId},
+    user_id=#{userId},
+    data=#{data},
+    created_at=#{createdAt},
+    updated_at=#{updatedAt},
+    closed_at=#{closedAt}
+    where id = #{id}
+  </update>
+
+</mapper>
+

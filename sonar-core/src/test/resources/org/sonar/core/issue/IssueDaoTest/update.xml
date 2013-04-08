@@ -1,0 +1,27 @@
+<dataset>
+
+  <issues
+      id="100"
+      uuid="100"
+      resource_id="400"
+      rule_id="500"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      manual_issue="[false]"
+      title="[null]"
+      message="[null]"
+      line="200"
+      cost="[null]"
+      status="OPEN"
+      resolution="RESOLVE"
+      checksum="[null]"
+      assignee_user_id="300"
+      person_id="[null]"
+      user_id="300"
+      data="prop1=foo;prop2=bar"
+      created_at="[null]"
+      updated_at="[null]"
+      closed_at="[null]"
+      />
+
+</dataset>

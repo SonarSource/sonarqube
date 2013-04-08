@@ -25,7 +25,7 @@ class CreateIssueChangelog < ActiveRecord::Migration
 
   def self.up
     create_table :issue_changelog do |t|
-      t.column :issue_id,           :integer,   :null => false
+      t.column :issue_uuid,         :string,    :null => false,   :limit => 36
       t.column :user_id,            :integer,   :null => true
       t.column :change_type, 				:string, 	  :null => true,	  :limit => 50
       t.column :change_data,        :string,    :null => true,    :limit => 4000
