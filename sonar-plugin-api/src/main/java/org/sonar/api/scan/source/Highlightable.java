@@ -23,5 +23,5 @@ import org.sonar.api.component.Perspective;
 
 public interface Highlightable extends Perspective {
 
-  SyntaxHighlightingRuleSet.Builder highlightText(int startOffset, int endOffset, String typeOfText);
+  void highlightText(int startOffset, int endOffset, String typeOfText);
 }

@@ -28,12 +28,12 @@ public class DefaultHighlightable implements Highlightable {
   private final SyntaxHighlightingRuleSet.Builder highlightingRulesBuilder;
 
   public DefaultHighlightable() {
-    highlightingRulesBuilder = new SyntaxHighlightingRuleSet.Builder();
+    highlightingRulesBuilder = SyntaxHighlightingRuleSet.builder();
   }
 
   @Override
-  public SyntaxHighlightingRuleSet.Builder highlightText(int startOffset, int endOffset, String typeOfText) {
-    return highlightingRulesBuilder.registerHighlightingRule(startOffset, endOffset, typeOfText);
+  public void highlightText(int startOffset, int endOffset, String typeOfText) {
+    highlightingRulesBuilder.registerHighlightingRule(startOffset, endOffset, typeOfText);
   }
 
   @Override
