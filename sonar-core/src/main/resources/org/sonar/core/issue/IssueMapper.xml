@@ -84,9 +84,7 @@
   </select>
 
   <select id="select" parameterType="map" resultType="Issue">
-    select <include refid="issueColumns"/>
-    from issues i
-    <!--where i.resolution=#{resolution}-->
+    select <include refid="issueColumns"/> from issues i
     <where>
       <if test="severity != null">
         and i.severity=#{severity}
@@ -102,11 +100,6 @@
       </if>
       <if test="assigneeLogin != null">
         and i.assignee_login=#{assigneeLogin}
-      </if>
-      <if test="componentKeys != null">
-        and i.resource_id in
-        <foreach item="componentKey" index="index" collection="componentKeys" open="(" separator="," close=")">#{componentKey}
-        </foreach>
       </if>
     </where>
   </select>

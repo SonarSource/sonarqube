@@ -20,12 +20,15 @@
 
 package org.sonar.api.issue;
 
+import org.sonar.api.ServerComponent;
+import org.sonar.api.task.TaskComponent;
+
 import java.util.List;
 
 /**
  * @since 3.6
  */
-public interface IssueFinder {
+public interface IssueFinder extends TaskComponent, ServerComponent {
 
   List<Issue> find(IssueQuery issueQuery);
 

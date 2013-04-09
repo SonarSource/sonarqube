@@ -52,6 +52,7 @@ public class DefaultIssuableTest {
         .line(10)
         .componentKey("componentKey")
         .cost(10.0)
+        .title("title")
         .message("issue message")
         .userLogin("user")
         .assigneeLogin("user")

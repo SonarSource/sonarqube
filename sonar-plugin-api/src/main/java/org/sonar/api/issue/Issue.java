@@ -46,6 +46,7 @@ public class Issue {
   private String ruleKey;
   private String ruleRepositoryKey;
   private String severity;
+  private String title;
   private String message;
   private Integer line;
   private Double cost;
@@ -93,6 +94,10 @@ public class Issue {
 
   public String severity() {
     return severity;
+  }
+
+  public String title() {
+    return title;
   }
 
   public String message() {
@@ -162,6 +167,7 @@ public class Issue {
     private String ruleKey;
     private String ruleRepositoryKey;
     private String severity;
+    private String title;
     private String message;
     private Integer line;
     private Double cost;
@@ -184,6 +190,7 @@ public class Issue {
       this.ruleKey = issue.ruleKey();
       this.ruleRepositoryKey = issue.ruleRepositoryKey();
       this.severity = issue.severity();
+      this.title = title;
       this.message = issue.message();
       this.line = issue.line();
       this.cost = issue.cost();
@@ -211,6 +218,11 @@ public class Issue {
 
     public Builder severity(String severity) {
       this.severity = severity;
+      return this;
+    }
+
+    public Builder title(String title) {
+      this.title = title;
       return this;
     }
 

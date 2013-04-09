@@ -34,7 +34,7 @@ public class IssueQuery {
   private String severity;
   private String status;
   private String resolution;
-  private String[] componentKeys;
+  private List<String> componentKeys;
   private String userLogin;
   private String assigneeLogin;
 
@@ -42,7 +42,7 @@ public class IssueQuery {
     this.severity = builder.severity;
     this.status = builder.status;
     this.resolution = builder.resolution;
-    this.componentKeys = builder.componentKeys.isEmpty() ? null : builder.componentKeys.toArray(new String[]{});
+    this.componentKeys = builder.componentKeys;
     this.userLogin = builder.userLogin;
     this.assigneeLogin = builder.assigneeLogin;
   }
@@ -59,7 +59,7 @@ public class IssueQuery {
     return resolution;
   }
 
-  public String[] componentKeys() {
+  public List<String> componentKeys() {
     return componentKeys;
   }
 

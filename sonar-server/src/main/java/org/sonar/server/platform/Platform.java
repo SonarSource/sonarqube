@@ -40,6 +40,7 @@ import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.issue.DefaultIssueFinder;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterExecutor;
 import org.sonar.core.measure.MeasureFilterFactory;
@@ -229,6 +230,7 @@ public final class Platform {
     servicesContainer.addSingleton(DryRunDatabaseFactory.class);
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
+    servicesContainer.addSingleton(DefaultIssueFinder.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

@@ -135,9 +135,9 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     Collection<IssueDto> issues = dao.select(issueQuery);
     assertThat(issues).hasSize(1);
 
-    issueQuery = new IssueQuery.Builder().componentKeys("400").build();
+    issueQuery = new IssueQuery.Builder().build();
     issues = dao.select(issueQuery);
-    assertThat(issues).hasSize(2);
+    assertThat(issues).hasSize(5);
   }
 
 }
