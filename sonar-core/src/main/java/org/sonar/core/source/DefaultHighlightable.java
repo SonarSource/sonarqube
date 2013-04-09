@@ -21,7 +21,6 @@ package org.sonar.core.source;
 
 import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.Highlightable;
-import org.sonar.api.scan.source.SyntaxHighlightingRuleSet;
 
 /**
  * @since 3.6

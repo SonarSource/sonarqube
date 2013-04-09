@@ -31,6 +31,13 @@ public class SnapshotDataDto {
   private String data;
   private String dataType;
 
+  public SnapshotDataDto(long snapshotId, long resourceId, String data, String dataType) {
+    this.snapshotId = snapshotId;
+    this.resourceId = resourceId;
+    this.data = data;
+    this.dataType = dataType;
+  }
+
   public long getId() {
     return id;
   }

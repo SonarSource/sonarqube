@@ -21,7 +21,6 @@
 package org.sonar.core.source;
 
 import org.junit.Test;
-import org.sonar.api.scan.source.SyntaxHighlightingRuleSet;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.core.source.HtmlTextWrapper.CR_END_OF_LINE;

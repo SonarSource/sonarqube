@@ -51,11 +51,10 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_serialize_snapshot_data() throws Exception {
 
-    SnapshotDataDto dto = new SnapshotDataDto();
-    dto.setResourceId(1L);
-    dto.setSnapshotId(11L);
-    dto.setData("0,10,k");
-    dto.setDataType("highlight_syntax");
+    String data = "0,10,k;";
+    String dataType = "highlight_syntax";
+
+    SnapshotDataDto dto = new SnapshotDataDto(11L, 1L, data, dataType);
 
     dao.insert(dto);
 
@@ -63,7 +62,7 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
 
     assertThat(serializedData.getResourceId()).isEqualTo(1L);
     assertThat(serializedData.getSnapshotId()).isEqualTo(11L);
-    assertThat(serializedData.getData()).isEqualTo("0,10,k");
-    assertThat(serializedData.getDataType()).isEqualTo("highlight_syntax");
+    assertThat(serializedData.getData()).isEqualTo(data);
+    assertThat(serializedData.getDataType()).isEqualTo(dataType);
   }
 }
