@@ -22,7 +22,7 @@
 # Sonar 3.6
 #
 
-class CreateSnapshotData :: ActiveRecord::Migration
+class CreateSnapshotData < ActiveRecord::Migration
 
   def self.up
     create_table :snapshot_data do |t|
