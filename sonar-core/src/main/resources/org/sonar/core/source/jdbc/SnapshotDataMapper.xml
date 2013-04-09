@@ -3,8 +3,8 @@
 
 <mapper namespace="org.sonar.core.source.jdbc.SnapshotDataMapper">
 
-  <select id="selectBySnapshot" parameterType="map" resultType="SnapshotData">
-    SELECT id, resource_id as resourceId, snapshot_id as snapshotId, data, data_type as dataType
+  <select id="selectSnapshotData" parameterType="map" resultType="string">
+    SELECT data
     FROM snapshot_data
     WHERE snapshot_id = #{sid}
   </select>

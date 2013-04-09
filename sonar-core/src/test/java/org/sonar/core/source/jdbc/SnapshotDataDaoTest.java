@@ -39,13 +39,9 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_retrieve_snapshot_data_by_snapshot_id() throws Exception {
 
-    SnapshotDataDto dto = dao.selectBySnapshot(10L);
+    String data = dao.selectSnapshotData(10L);
 
-    assertThat(dto.getId()).isEqualTo(101L);
-    assertThat(dto.getResourceId()).isEqualTo(1L);
-    assertThat(dto.getSnapshotId()).isEqualTo(10L);
-    assertThat(dto.getData()).isEqualTo("0,10,k");
-    assertThat(dto.getDataType()).isEqualTo("highlight_syntax");
+    assertThat(data).isEqualTo("0,10,k");
   }
 
   @Test
@@ -58,11 +54,8 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
 
     dao.insert(dto);
 
-    SnapshotDataDto serializedData = dao.selectBySnapshot(11L);
+    String serializedData = dao.selectSnapshotData(11L);
 
-    assertThat(serializedData.getResourceId()).isEqualTo(1L);
-    assertThat(serializedData.getSnapshotId()).isEqualTo(11L);
-    assertThat(serializedData.getData()).isEqualTo(data);
-    assertThat(serializedData.getDataType()).isEqualTo(dataType);
+    assertThat(serializedData).isEqualTo(data);
   }
 }

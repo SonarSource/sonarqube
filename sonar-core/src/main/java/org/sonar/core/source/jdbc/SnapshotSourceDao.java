@@ -20,14 +20,30 @@
 
 package org.sonar.core.source.jdbc;
 
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.MyBatis;
 
 /**
  * @since 3.6
  */
-public interface SnapshotDataMapper {
+public class SnapshotSourceDao {
 
-  void insert(SnapshotDataDto snapshotData);
+  private final MyBatis mybatis;
 
-  String selectSnapshotData(@Param("sid") long snapshotId);
+  public SnapshotSourceDao(MyBatis myBatis) {
+    this.mybatis = myBatis;
+  }
+
+  public String selectSnapshotSource(long snapshotId) {
+
+    SqlSession session = mybatis.openBatchSession();
+
+    try {
+      SnapshotSourceMapper mapper = session.getMapper(SnapshotSourceMapper.class);
+      return mapper.selectSnapshotSource(snapshotId);
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
 }

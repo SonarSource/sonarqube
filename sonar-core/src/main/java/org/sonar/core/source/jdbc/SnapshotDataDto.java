@@ -25,11 +25,10 @@ package org.sonar.core.source.jdbc;
  */
 public class SnapshotDataDto {
 
-  private long id;
-  private long snapshotId;
-  private long resourceId;
-  private String data;
-  private String dataType;
+  private final long snapshotId;
+  private final long resourceId;
+  private final String data;
+  private final String dataType;
 
   public SnapshotDataDto(long snapshotId, long resourceId, String data, String dataType) {
     this.snapshotId = snapshotId;
@@ -38,48 +37,19 @@ public class SnapshotDataDto {
     this.dataType = dataType;
   }
 
-  public long getId() {
-    return id;
-  }
-
-  public SnapshotDataDto setId(long id) {
-    this.id = id;
-    return this;
-  }
-
   public long getSnapshotId() {
     return snapshotId;
-  }
-
-  public SnapshotDataDto setSnapshotId(long snapshotId) {
-    this.snapshotId = snapshotId;
-    return this;
   }
 
   public long getResourceId() {
     return resourceId;
   }
 
-  public SnapshotDataDto setResourceId(long resourceId) {
-    this.resourceId = resourceId;
-    return this;
-  }
-
   public String getData() {
     return data;
   }
 
-  public SnapshotDataDto setData(String data) {
-    this.data = data;
-    return this;
-  }
-
   public String getDataType() {
     return dataType;
-  }
-
-  public SnapshotDataDto setDataType(String dataType) {
-    this.dataType = dataType;
-    return this;
   }
 }

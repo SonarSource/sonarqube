@@ -20,14 +20,27 @@
 
 package org.sonar.core.source.jdbc;
 
-import org.apache.ibatis.annotations.Param;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
-/**
- * @since 3.6
- */
-public interface SnapshotDataMapper {
+import static org.fest.assertions.Assertions.assertThat;
 
-  void insert(SnapshotDataDto snapshotData);
+public class SnapshotSourceDaoTest extends AbstractDaoTestCase {
 
-  String selectSnapshotData(@Param("sid") long snapshotId);
+  private SnapshotSourceDao dao;
+
+  @Before
+  public void setUpTestData() {
+    dao = new SnapshotSourceDao(getMyBatis());
+    setupData("shared");
+  }
+
+  @Test
+  public void should_retrieve_snapshot_source() throws Exception {
+
+    String snapshotSource = dao.selectSnapshotSource(10L);
+
+    assertThat(snapshotSource).isEqualTo("public class Foo {public Foo(){}}");
+  }
 }

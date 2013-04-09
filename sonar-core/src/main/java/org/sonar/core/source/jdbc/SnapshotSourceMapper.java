@@ -25,9 +25,7 @@ import org.apache.ibatis.annotations.Param;
 /**
  * @since 3.6
  */
-public interface SnapshotDataMapper {
+public interface SnapshotSourceMapper {
 
-  void insert(SnapshotDataDto snapshotData);
-
-  String selectSnapshotData(@Param("sid") long snapshotId);
+  String selectSnapshotSource(@Param("sid") long snapshotId);
 }

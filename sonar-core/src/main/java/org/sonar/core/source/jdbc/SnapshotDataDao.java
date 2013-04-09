@@ -34,13 +34,13 @@ public class SnapshotDataDao {
     this.mybatis = mybatis;
   }
 
-  public SnapshotDataDto selectBySnapshot(long snapshotId) {
+  public String selectSnapshotData(long snapshotId) {
 
     SqlSession session = mybatis.openBatchSession();
 
     try {
       SnapshotDataMapper mapper = session.getMapper(SnapshotDataMapper.class);
-      return mapper.selectBySnapshot(snapshotId);
+      return mapper.selectSnapshotData(snapshotId);
 
     } finally {
       MyBatis.closeQuietly(session);

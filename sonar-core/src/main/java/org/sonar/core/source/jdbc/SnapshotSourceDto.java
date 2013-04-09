@@ -20,14 +20,24 @@
 
 package org.sonar.core.source.jdbc;
 
-import org.apache.ibatis.annotations.Param;
-
 /**
  * @since 3.6
  */
-public interface SnapshotDataMapper {
+public class SnapshotSourceDto {
 
-  void insert(SnapshotDataDto snapshotData);
+  private final long snapshotId;
+  private final String data;
 
-  String selectSnapshotData(@Param("sid") long snapshotId);
+  public SnapshotSourceDto(long snapshotId, String data) {
+    this.snapshotId = snapshotId;
+    this.data = data;
+  }
+
+  public long getSnapshotId() {
+    return snapshotId;
+  }
+
+  public String getData() {
+    return data;
+  }
 }
