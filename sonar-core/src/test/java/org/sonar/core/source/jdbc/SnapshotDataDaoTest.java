@@ -21,11 +21,13 @@
 package org.sonar.core.source.jdbc;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 public class SnapshotDataDaoTest extends AbstractDaoTestCase {
 
   private SnapshotDataDao dao;
