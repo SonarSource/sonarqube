@@ -86,6 +86,7 @@ public final class DatabaseUtils {
     "schema_migrations",
     "snapshots",
     "snapshot_sources",
+    "snapshot_data",
     "users",
     "user_roles",
     "widgets",
