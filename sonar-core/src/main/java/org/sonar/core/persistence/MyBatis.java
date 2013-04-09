@@ -63,7 +63,6 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 import org.sonar.core.source.jdbc.SnapshotDataMapper;
-import org.sonar.core.source.jdbc.SnapshotSourceDto;
 import org.sonar.core.source.jdbc.SnapshotSourceMapper;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
@@ -126,7 +125,6 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Issue", IssueDto.class);
     loadAlias(conf, "IssueChange", IssueChangeDto.class);
     loadAlias(conf, "SnapshotData", SnapshotDataDto.class);
-    loadAlias(conf, "SnapshotSource", SnapshotSourceDto.class);
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class, LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class,
