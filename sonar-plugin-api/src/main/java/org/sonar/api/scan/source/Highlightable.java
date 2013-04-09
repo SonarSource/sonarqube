@@ -21,6 +21,9 @@ package org.sonar.api.scan.source;
 
 import org.sonar.api.component.Perspective;
 
+/**
+ * @since 3.6
+ */
 public interface Highlightable extends Perspective {
 
   void highlightText(int startOffset, int endOffset, String typeOfText);

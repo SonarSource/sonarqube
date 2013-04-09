@@ -34,6 +34,9 @@ import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * @since 3.6
+ */
 public class HtmlTextWrapper {
 
   private static final String OPEN_TABLE_LINE = "<tr><td>";

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.source.jdbc.SnapshotDataMapper">
+
+  <select id="selectBySnapshot" parameterType="map" resultType="SnapshotData">
+    SELECT id, resource_id as resourceId, snapshot_id as snapshotId, data, data_type as dataType
+    FROM snapshot_data
+    WHERE snapshot_id = #{sid}
+  </select>
+
+  <insert id="insert" parameterType="SnapshotData" useGeneratedKeys="false">
+    insert into snapshot_data
+    (resource_id, snapshot_id, data, data_type, created_at, updated_at)
+    values (
+    #{resourceId}, #{snapshotId}, #{data}, #{dataType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+  </insert>
+
+    <!-- Oracle -->
+    <insert id="insert" databaseId="oracle" parameterType="SnapshotData" useGeneratedKeys="false" keyProperty="id">
+        <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+            select snapshot_data_seq.NEXTVAL from DUAL
+        </selectKey>
+        insert into snapshot_data
+        (id, resource_id, snapshot_id, data, data_type, created_at, updated_at)
+        values (
+        #{id}, #{resourceId}, #{snapshotId}, #{data}, #{dataType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    </insert>
+</mapper>
+

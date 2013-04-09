@@ -23,6 +23,9 @@ import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.Highlightable;
 import org.sonar.core.component.PerspectiveBuilder;
 
+/**
+ * @since 3.6
+ */
 public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
   public HighlightableBuilder() {

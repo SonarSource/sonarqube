@@ -23,6 +23,9 @@ import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.Highlightable;
 import org.sonar.api.scan.source.SyntaxHighlightingRuleSet;
 
+/**
+ * @since 3.6
+ */
 public class DefaultHighlightable implements Highlightable {
 
   private final SyntaxHighlightingRuleSet.Builder highlightingRulesBuilder;

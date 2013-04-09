@@ -17,36 +17,46 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.scan.source;
+
+package org.sonar.core.source.jdbc;
+
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.MyBatis;
 
 /**
  * @since 3.6
  */
-public class SyntaxHighlightingRule {
+public class SnapshotDataDao {
 
-  private final int startPosition;
-  private final int endPosition;
-  private final String textType;
+  private final MyBatis mybatis;
 
-  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
-    this.startPosition = startPosition;
-    this.endPosition = endPosition;
-    this.textType = textType;
+  public SnapshotDataDao(MyBatis mybatis) {
+    this.mybatis = mybatis;
   }
 
-  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
-    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
+  public SnapshotDataDto selectBySnapshot(long snapshotId) {
+
+    SqlSession session = mybatis.openBatchSession();
+
+    try {
+      SnapshotDataMapper mapper = session.getMapper(SnapshotDataMapper.class);
+      return mapper.selectBySnapshot(snapshotId);
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
-  public int getStartPosition() {
-    return startPosition;
-  }
+  public void insert(SnapshotDataDto snapshotData) {
 
-  public int getEndPosition() {
-    return endPosition;
-  }
+    SqlSession session = mybatis.openBatchSession();
 
-  public String getTextType() {
-    return textType;
+    try {
+      SnapshotDataMapper mapper = session.getMapper(SnapshotDataMapper.class);
+      mapper.insert(snapshotData);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 }
