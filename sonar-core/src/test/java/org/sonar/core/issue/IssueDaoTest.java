@@ -129,15 +129,24 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_select() {
-    setupData("shared");
+    setupData("select");
 
     IssueQuery issueQuery = new IssueQuery.Builder().resolution("FALSE-POSITIVE").build();
-    Collection<IssueDto> issues = dao.select(issueQuery);
-    assertThat(issues).hasSize(1);
+    assertThat(dao.select(issueQuery)).hasSize(1);
 
-    issueQuery = new IssueQuery.Builder().build();
-    issues = dao.select(issueQuery);
-    assertThat(issues).hasSize(5);
+    issueQuery = new IssueQuery.Builder().userLogin("user").build();
+    assertThat(dao.select(issueQuery)).hasSize(1);
+
+    issueQuery = new IssueQuery.Builder().assigneeLogin("user").build();
+    assertThat(dao.select(issueQuery)).hasSize(5);
+  }
+
+  @Test
+  public void should_select_by_components() {
+    setupData("select-with-component-children");
+
+    IssueQuery issueQuery = new IssueQuery.Builder().componentKeys("key").build();
+    assertThat(dao.select(issueQuery)).hasSize(2);
   }
 
 }

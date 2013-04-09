@@ -85,7 +85,20 @@
 
   <select id="select" parameterType="map" resultType="Issue">
     select <include refid="issueColumns"/> from issues i
+    <if test="componentKeys.size() > 0">
+      , projects p, snapshots root, snapshots s
+    </if>
     <where>
+      <if test="componentKeys.size() > 0">
+        and root.islast=true
+        and ((s.root_snapshot_id=root.id and s.path LIKE root.path || root.id || '.%' ) or s.id=root.id)
+        and root.project_id=p.id
+        and i.resource_id=s.project_id
+        and p.kee in
+        <foreach item="componentKey" index="index" collection="componentKeys" open="(" separator="," close=")">#{componentKey}
+        </foreach>
+      </if>
+
       <if test="severity != null">
         and i.severity=#{severity}
       </if>

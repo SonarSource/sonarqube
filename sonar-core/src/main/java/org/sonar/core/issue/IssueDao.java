@@ -98,5 +98,4 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-
 }
