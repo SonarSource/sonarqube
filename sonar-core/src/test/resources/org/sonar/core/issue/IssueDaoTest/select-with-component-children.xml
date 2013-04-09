@@ -72,6 +72,7 @@
   <projects
       id="400"
       kee="key"
+      enabled="[true]"
       />
 
   <snapshots
@@ -79,12 +80,13 @@
       project_id="400"
       root_snapshot_id="400"
       path=""
-      islast="true"
+      islast="[true]"
       />
 
   <projects
       id="401"
       kee="child"
+      enabled="[true]"
       />
 
   <snapshots
@@ -92,7 +94,7 @@
       project_id="401"
       root_snapshot_id="400"
       path="400."
-      islast="true"
+      islast="[true]"
       />
 
 </dataset>
