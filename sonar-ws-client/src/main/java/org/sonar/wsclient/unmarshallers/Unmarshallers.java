@@ -19,26 +19,7 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.sonar.wsclient.services.Authentication;
-import org.sonar.wsclient.services.Dependency;
-import org.sonar.wsclient.services.DependencyTree;
-import org.sonar.wsclient.services.Event;
-import org.sonar.wsclient.services.Favourite;
-import org.sonar.wsclient.services.ManualMeasure;
-import org.sonar.wsclient.services.Metric;
-import org.sonar.wsclient.services.Model;
-import org.sonar.wsclient.services.Plugin;
-import org.sonar.wsclient.services.Profile;
-import org.sonar.wsclient.services.Property;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceSearchResult;
-import org.sonar.wsclient.services.Review;
-import org.sonar.wsclient.services.Rule;
-import org.sonar.wsclient.services.Server;
-import org.sonar.wsclient.services.ServerSetup;
-import org.sonar.wsclient.services.Source;
-import org.sonar.wsclient.services.TimeMachine;
-import org.sonar.wsclient.services.Violation;
+import org.sonar.wsclient.services.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,6 +51,7 @@ public final class Unmarshallers {
     unmarshallers.put(ManualMeasure.class, new ManualMeasureUnmarshaller());
     unmarshallers.put(Authentication.class, new AuthenticationUnmarshaller());
     unmarshallers.put(ResourceSearchResult.class, new ResourceSearchUnmarshaller());
+    unmarshallers.put(Issue.class, new IssueUnmarshaller());
   }
 
   public static <M extends Model> Unmarshaller<M> forModel(Class<M> modelClass) {
