@@ -63,6 +63,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 import org.sonar.core.source.jdbc.SnapshotDataMapper;
+import org.sonar.core.source.jdbc.SnapshotSourceMapper;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
 import org.sonar.core.user.*;
@@ -126,10 +127,10 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "SnapshotData", SnapshotDataDto.class);
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
-      DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class, IssueMapper.class, LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class,
+      DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class, IssueMapper.class, IssueChangeMapper.class, LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class, ResourceSnapshotMapper.class, ReviewCommentMapper.class,
       ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
-      MeasureMapper.class, IssueMapper.class, IssueChangeMapper.class, SnapshotDataMapper.class};
+      MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class};
     loadMappers(conf, mappers);
     configureLogback(mappers);
 

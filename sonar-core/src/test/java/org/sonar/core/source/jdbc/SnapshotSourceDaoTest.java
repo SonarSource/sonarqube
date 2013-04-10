@@ -26,40 +26,21 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class SnapshotDataDaoTest extends AbstractDaoTestCase {
+public class SnapshotSourceDaoTest extends AbstractDaoTestCase {
 
-  private SnapshotDataDao dao;
+  private SnapshotSourceDao dao;
 
   @Before
-  public void createDao() {
-    dao = new SnapshotDataDao(getMyBatis());
+  public void setUpTestData() {
+    dao = new SnapshotSourceDao(getMyBatis());
     setupData("shared");
   }
 
   @Test
-  public void should_retrieve_snapshot_data_by_snapshot_id() throws Exception {
+  public void should_retrieve_snapshot_source() throws Exception {
 
-    String data = dao.selectSnapshotData(10L);
+    String snapshotSource = dao.selectSnapshotSource(10L);
 
-    assertThat(data).isEqualTo("0,10,k");
-  }
-
-  @Test
-  public void should_serialize_snapshot_data() throws Exception {
-
-    String data = "0,10,k;";
-    String dataType = "highlight_syntax";
-
-    SnapshotDataDto dto = new SnapshotDataDto();
-    dto.setResourceId(1L);
-    dto.setSnapshotId(11L);
-    dto.setData(data);
-    dto.setDataType(dataType);
-
-    dao.insert(dto);
-
-    String serializedData = dao.selectSnapshotData(11L);
-
-    assertThat(serializedData).isEqualTo(data);
+    assertThat(snapshotSource).isEqualTo("public class Foo {public Foo(){}}");
   }
 }

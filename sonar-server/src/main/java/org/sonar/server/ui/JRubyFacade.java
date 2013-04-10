@@ -41,17 +41,14 @@ import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.web.Footer;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
-import org.sonar.api.web.RubyRailsWebservice;
-import org.sonar.api.web.Widget;
+import org.sonar.api.web.*;
 import org.sonar.api.workflow.Review;
 import org.sonar.api.workflow.internal.DefaultReview;
 import org.sonar.api.workflow.internal.DefaultWorkflowContext;
 import org.sonar.api.workflow.screen.Screen;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.issue.IssueFilter;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterResult;
 import org.sonar.core.persistence.Database;
@@ -60,6 +57,7 @@ import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
+import org.sonar.core.source.SyntaxHighlighter;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.workflow.WorkflowEngine;
 import org.sonar.markdown.Markdown;
@@ -67,16 +65,8 @@ import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.macro.MacroInterpreter;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
-import org.sonar.server.platform.NewUserNotifier;
-import org.sonar.server.platform.Platform;
-import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.platform.ServerSettings;
-import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.plugins.DefaultServerPluginRepository;
-import org.sonar.server.plugins.InstalledPluginReferentialFactory;
-import org.sonar.server.plugins.PluginDeployer;
-import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.platform.*;
+import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.updatecenter.common.PluginReferential;
@@ -87,11 +77,7 @@ import javax.annotation.Nullable;
 
 import java.net.InetAddress;
 import java.sql.Connection;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -573,5 +559,13 @@ public final class JRubyFacade {
 
   public MacroInterpreter getMacroInterpreter(){
     return get(MacroInterpreter.class);
+  }
+
+  public Collection<String> getHighlightedSourceLines(long snapshotId) {
+    return get(SyntaxHighlighter.class).getHighlightedSourceAsHtml(snapshotId);
+  }
+
+  public IssueFilter getIssueFilter() {
+    return get(IssueFilter.class);
   }
 }

@@ -31,44 +31,68 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class IssueQuery {
 
-  private String severity;
-  private String status;
-  private String resolution;
+  private List<String> keys;
+  private List<String> severities;
+  private String minSeverity;
+  private List<String> status;
+  private List<String> resolutions;
   private List<String> componentKeys;
-  private String userLogin;
-  private String assigneeLogin;
+  private List<String> rules;
+  private List<String> userLogins;
+  private List<String> assigneeLogins;
+  private Integer limit;
 
   private IssueQuery(Builder builder) {
-    this.severity = builder.severity;
+    this.keys = builder.keys;
+    this.severities = builder.severities;
+    this.minSeverity = builder.minSeverity;
     this.status = builder.status;
-    this.resolution = builder.resolution;
+    this.resolutions = builder.resolutions;
     this.componentKeys = builder.componentKeys;
-    this.userLogin = builder.userLogin;
-    this.assigneeLogin = builder.assigneeLogin;
+    this.rules = builder.rules;
+    this.userLogins = builder.userLogins;
+    this.assigneeLogins = builder.assigneeLogins;
+    this.limit = builder.limit;
   }
 
-  public String severity() {
-    return severity;
+  public List<String> keys() {
+    return keys;
   }
 
-  public String status() {
+  public List<String> severities() {
+    return severities;
+  }
+
+  public String minSeverity() {
+    return minSeverity;
+  }
+
+  public List<String> status() {
     return status;
   }
 
-  public String resolution() {
-    return resolution;
+  public List<String> resolutions() {
+    return resolutions;
   }
 
   public List<String> componentKeys() {
     return componentKeys;
   }
 
-  public String userLogin() {
-    return userLogin;
+  public List<String> rules() {
+    return rules;
   }
 
-  public String assigneeLogin() {
-    return assigneeLogin;
+  public List<String> userLogins() {
+    return userLogins;
+  }
+
+  public List<String> assigneeLogins() {
+    return assigneeLogins;
+  }
+
+  public Integer limit() {
+    return limit;
   }
 
   @Override
@@ -80,29 +104,43 @@ public class IssueQuery {
    * @since 3.6
    */
   public static class Builder {
-    private String severity;
-    private String status;
-    private String resolution;
+    private List<String> keys;
+    private List<String> severities;
+    private String minSeverity;
+    private List<String> status;
+    private List<String> resolutions;
     private List<String> componentKeys;
-    private String userLogin;
-    private String assigneeLogin;
+    private List<String> rules;
+    private List<String> userLogins;
+    private List<String> assigneeLogins;
+    private Integer limit;
 
     public Builder() {
       componentKeys = newArrayList();
     }
 
-    public Builder severity(String severity) {
-      this.severity = severity;
+    public Builder keys(List<String> keys) {
+      this.keys = keys;
       return this;
     }
 
-    public Builder status(String status) {
+    public Builder severities(List<String> severities) {
+      this.severities = severities;
+      return this;
+    }
+
+    public Builder minSeverity(String minSeverity) {
+      this.minSeverity = minSeverity;
+      return this;
+    }
+
+    public Builder status(List<String> status) {
       this.status = status;
       return this;
     }
 
-    public Builder resolution(String resolution) {
-      this.resolution = resolution;
+    public Builder resolutions(List<String> resolutions) {
+      this.resolutions = resolutions;
       return this;
     }
 
@@ -111,23 +149,33 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder componentKeys(String... componentKeys) {
-      this.componentKeys.addAll(newArrayList(componentKeys));
+    public Builder rules(List<String> rules) {
+      this.rules = rules;
       return this;
     }
 
-    public Builder userLogin(String userLogin) {
-      this.userLogin = userLogin;
+    public Builder userLogins(List<String> userLogins) {
+      this.userLogins = userLogins;
       return this;
     }
 
-    public Builder assigneeLogin(String assigneeLogin) {
-      this.assigneeLogin = assigneeLogin;
+    public Builder assigneeLogins(List<String> assigneeLogins) {
+      this.assigneeLogins = assigneeLogins;
+      return this;
+    }
+
+    public Builder limit(Integer limit) {
+      this.limit = limit;
       return this;
     }
 
     public IssueQuery build() {
       return new IssueQuery(this);
+    }
+
+    @Override
+    public String toString() {
+      return ReflectionToStringBuilder.toString(this);
     }
   }
 }

@@ -45,9 +45,6 @@ import java.net.URI;
  */
 public class ServerClient implements BatchComponent {
 
-  private final static String DEFAULT_LOGIN = "admin";
-  private final static String DEFAULT_PASSWORD = "admin";
-
   private BootstrapSettings settings;
   private HttpDownloader.BaseHttpDownloader downloader;
 
@@ -119,12 +116,10 @@ public class ServerClient implements BatchComponent {
   }
 
   private String getLogin() {
-    String login = settings.property(CoreProperties.LOGIN);
-    return login != null ? login : DEFAULT_LOGIN;
+    return settings.property(CoreProperties.LOGIN);
   }
 
   private String getPassword() {
-    String password = settings.property(CoreProperties.PASSWORD);
-    return password != null ? password : DEFAULT_PASSWORD;
+    return settings.property(CoreProperties.PASSWORD);
   }
 }

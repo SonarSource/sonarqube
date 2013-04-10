@@ -41,6 +41,7 @@ import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.DefaultIssueFinder;
+import org.sonar.core.issue.IssueFilter;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterExecutor;
 import org.sonar.core.measure.MeasureFilterFactory;
@@ -50,6 +51,7 @@ import org.sonar.core.persistence.*;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
+import org.sonar.core.source.SyntaxHighlighter;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
@@ -231,6 +233,7 @@ public final class Platform {
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
     servicesContainer.addSingleton(DefaultIssueFinder.class);
+    servicesContainer.addSingleton(IssueFilter.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);
@@ -243,6 +246,7 @@ public final class Platform {
     servicesContainer.addSingleton(TestablePerspectiveLoader.class);
     servicesContainer.addSingleton(TestPlanPerspectiveLoader.class);
     servicesContainer.addSingleton(SnapshotPerspectives.class);
+    servicesContainer.addSingleton(SyntaxHighlighter.class);
 
     ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
     extensionRegistrar.registerExtensions(servicesContainer);

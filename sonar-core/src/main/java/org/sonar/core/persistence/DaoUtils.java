@@ -65,6 +65,7 @@ public final class DaoUtils {
       ReviewDao.class,
       RuleDao.class,
       SemaphoreDao.class,
-      UserDao.class);
+      UserDao.class
+    );
   }
 }

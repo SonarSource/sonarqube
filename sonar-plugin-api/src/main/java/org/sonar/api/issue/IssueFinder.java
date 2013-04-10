@@ -31,4 +31,6 @@ public interface IssueFinder extends ServerComponent {
 
   List<Issue> find(IssueQuery issueQuery);
 
+  Issue findByKey(String key);
+
 }

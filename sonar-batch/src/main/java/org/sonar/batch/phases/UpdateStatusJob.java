@@ -19,12 +19,14 @@
  */
 package org.sonar.batch.phases;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourcePersister;
@@ -40,11 +42,13 @@ public class UpdateStatusJob implements BatchComponent {
   private Snapshot snapshot; // TODO remove this component
   private ResourcePersister resourcePersister;
   private Settings settings;
+  private Project project;
 
-  public UpdateStatusJob(Settings settings, ServerClient server, DatabaseSession session, ResourcePersister resourcePersister, Snapshot snapshot) {
+  public UpdateStatusJob(Settings settings, ServerClient server, DatabaseSession session, ResourcePersister resourcePersister, Project project, Snapshot snapshot) {
     this.session = session;
     this.server = server;
     this.resourcePersister = resourcePersister;
+    this.project = project;
     this.snapshot = snapshot;
     this.settings = settings;
   }
@@ -73,7 +77,12 @@ public class UpdateStatusJob implements BatchComponent {
     boolean isLast = (previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt()));
     setFlags(snapshot, isLast, Snapshot.STATUS_PROCESSED);
     if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
-      LoggerFactory.getLogger(getClass()).info("ANALYSIS SUCCESSFUL, you can browse {}", server.getURL());
+      String baseUrl = StringUtils.defaultIfBlank(settings.getString(CoreProperties.SERVER_BASE_URL), server.getURL());
+      if (!baseUrl.endsWith("/")) {
+        baseUrl += "/";
+      }
+      String url = baseUrl + "dashboard/index/" + project.getKey();
+      LoggerFactory.getLogger(getClass()).info("ANALYSIS SUCCESSFUL, you can browse {}", url);
     }
   }
 

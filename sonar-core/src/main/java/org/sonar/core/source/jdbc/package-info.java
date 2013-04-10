@@ -17,36 +17,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.scan.source;
 
-/**
- * @since 3.6
- */
-public class SyntaxHighlightingRule {
+@ParametersAreNonnullByDefault
+package org.sonar.core.source.jdbc;
 
-  private final int startPosition;
-  private final int endPosition;
-  private final String textType;
-
-  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
-    this.startPosition = startPosition;
-    this.endPosition = endPosition;
-    this.textType = textType;
-  }
-
-  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
-    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
-  }
-
-  public int getStartPosition() {
-    return startPosition;
-  }
-
-  public int getEndPosition() {
-    return endPosition;
-  }
-
-  public String getTextType() {
-    return textType;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

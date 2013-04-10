@@ -17,33 +17,8 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.source;
 
-import org.sonar.api.component.Component;
-import org.sonar.api.scan.source.Highlightable;
+@ParametersAreNonnullByDefault
+package org.sonar.core.test;
 
-/**
- * @since 3.6
- */
-public class DefaultHighlightable implements Highlightable {
-
-  private final SyntaxHighlightingRuleSet.Builder highlightingRulesBuilder;
-
-  public DefaultHighlightable() {
-    highlightingRulesBuilder = SyntaxHighlightingRuleSet.builder();
-  }
-
-  @Override
-  public void highlightText(int startOffset, int endOffset, String typeOfText) {
-    highlightingRulesBuilder.registerHighlightingRule(startOffset, endOffset, typeOfText);
-  }
-
-  @Override
-  public Component component() {
-    throw new UnsupportedOperationException("Unexpected call to component API");
-  }
-
-  public SyntaxHighlightingRuleSet getHighlightingRules() {
-    return highlightingRulesBuilder.build();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

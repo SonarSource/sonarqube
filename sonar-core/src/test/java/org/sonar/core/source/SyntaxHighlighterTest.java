@@ -17,27 +17,38 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.scan.source;
 
+package org.sonar.core.source;
 
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.sonar.core.persistence.AbstractDaoTestCase;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class SyntaxHighlightingRuleSetTest {
+public class SyntaxHighlighterTest extends AbstractDaoTestCase {
 
-  @Rule
-  public ExpectedException throwable = ExpectedException.none();
+  @Before
+  public void setUpDatasets() {
+    setupData("shared");
+  }
 
   @Test
-  public void should_register_supported_highlighting_rule() throws Exception {
+  public void should_highlight_source_with_html() throws Exception {
 
-    SyntaxHighlightingRuleSet.Builder highlightingRuleSet = new SyntaxHighlightingRuleSet.Builder();
-    highlightingRuleSet.registerHighlightingRule(1, 10, "cd");
-    highlightingRuleSet.registerHighlightingRule(1, 10, "cd");
+    SyntaxHighlighter highlighter = new SyntaxHighlighter(getMyBatis());
 
-    assertThat(highlightingRuleSet.build().getSyntaxHighlightingRuleSet()).hasSize(2);
+    List<String> highlightedSource = (List<String>)highlighter.getHighlightedSourceAsHtml(11L);
+
+    assertThat(highlightedSource).containsExactly(
+            "<span class=\"cppd\">/*</span>",
+            "<span class=\"cppd\"> * Header</span>",
+            "<span class=\"cppd\"> */</span>",
+            "",
+            "<span class=\"k\">public </span><span class=\"k\">class </span>HelloWorld {",
+            "}"
+      );
   }
 }

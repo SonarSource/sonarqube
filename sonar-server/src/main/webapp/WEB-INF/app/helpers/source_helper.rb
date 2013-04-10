@@ -45,7 +45,8 @@ module SourceHelper
     panel.html_lines=[]
     line_range=sanitize_line_range(options[:line_range])
     highlighted_lines=options[:highlighted_lines]||[]
-    snapshot.source.syntax_highlighted_lines().each_with_index do |source, index|
+    source_lines = snapshot.highlighting_data || snapshot.source.syntax_highlighted_lines()
+    source_lines.each_with_index do |source, index|
       if line_range.include?(index+1)
         html_line=HtmlLine.new(source, index+1)
         html_line.revision=revisions_by_line[index+1]

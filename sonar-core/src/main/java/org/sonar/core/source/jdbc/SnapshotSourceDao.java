@@ -17,33 +17,33 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.source;
 
-import org.sonar.api.component.Component;
-import org.sonar.api.scan.source.Highlightable;
+package org.sonar.core.source.jdbc;
+
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.MyBatis;
 
 /**
  * @since 3.6
  */
-public class DefaultHighlightable implements Highlightable {
+public class SnapshotSourceDao {
 
-  private final SyntaxHighlightingRuleSet.Builder highlightingRulesBuilder;
+  private final MyBatis mybatis;
 
-  public DefaultHighlightable() {
-    highlightingRulesBuilder = SyntaxHighlightingRuleSet.builder();
+  public SnapshotSourceDao(MyBatis myBatis) {
+    this.mybatis = myBatis;
   }
 
-  @Override
-  public void highlightText(int startOffset, int endOffset, String typeOfText) {
-    highlightingRulesBuilder.registerHighlightingRule(startOffset, endOffset, typeOfText);
-  }
+  public String selectSnapshotSource(long snapshotId) {
 
-  @Override
-  public Component component() {
-    throw new UnsupportedOperationException("Unexpected call to component API");
-  }
+    SqlSession session = mybatis.openBatchSession();
 
-  public SyntaxHighlightingRuleSet getHighlightingRules() {
-    return highlightingRulesBuilder.build();
+    try {
+      SnapshotSourceMapper mapper = session.getMapper(SnapshotSourceMapper.class);
+      return mapper.selectSnapshotSource(snapshotId);
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 }

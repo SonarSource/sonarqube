@@ -19,31 +19,34 @@
  */
 package org.sonar.core.source;
 
-import org.sonar.api.component.Component;
-import org.sonar.api.scan.source.Highlightable;
-
 /**
  * @since 3.6
  */
-public class DefaultHighlightable implements Highlightable {
+public class SyntaxHighlightingRule {
 
-  private final SyntaxHighlightingRuleSet.Builder highlightingRulesBuilder;
+  private final int startPosition;
+  private final int endPosition;
+  private final String textType;
 
-  public DefaultHighlightable() {
-    highlightingRulesBuilder = SyntaxHighlightingRuleSet.builder();
+  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
+    this.startPosition = startPosition;
+    this.endPosition = endPosition;
+    this.textType = textType;
   }
 
-  @Override
-  public void highlightText(int startOffset, int endOffset, String typeOfText) {
-    highlightingRulesBuilder.registerHighlightingRule(startOffset, endOffset, typeOfText);
+  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
+    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
   }
 
-  @Override
-  public Component component() {
-    throw new UnsupportedOperationException("Unexpected call to component API");
+  public int getStartPosition() {
+    return startPosition;
   }
 
-  public SyntaxHighlightingRuleSet getHighlightingRules() {
-    return highlightingRulesBuilder.build();
+  public int getEndPosition() {
+    return endPosition;
+  }
+
+  public String getTextType() {
+    return textType;
   }
 }

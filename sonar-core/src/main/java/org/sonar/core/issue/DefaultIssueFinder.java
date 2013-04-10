@@ -22,12 +22,15 @@ package org.sonar.core.issue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +41,8 @@ import static com.google.common.collect.Lists.newArrayList;
  * @since 3.6
  */
 public class DefaultIssueFinder implements IssueFinder {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultIssueFinder.class);
 
   private final IssueDao issueDao;
   private final ResourceDao resourceDao;
@@ -50,6 +55,7 @@ public class DefaultIssueFinder implements IssueFinder {
   }
 
   public List<Issue> find(IssueQuery issueQuery) {
+    LOG.debug("IssueQuery : {}", issueQuery);
     Collection<IssueDto> dtoList = issueDao.select(issueQuery);
     return newArrayList(Iterables.transform(dtoList, new Function<IssueDto, Issue>() {
       @Override
@@ -59,21 +65,32 @@ public class DefaultIssueFinder implements IssueFinder {
     }));
   }
 
-  private Issue toIssue(IssueDto issueDto) {
-    // FIXME N+1 SQL requests
-    Rule rule = ruleFinder.findById(issueDto.getRuleId());
+  public Issue findByKey(String key){
+    IssueDto issueDto = issueDao.findByUuid(key);
+    return issueDto != null ? toIssue(issueDto) : null;
+  }
+
+  private Issue toIssue(IssueDto issueDto){
     DefaultIssue issue = new DefaultIssue();
     issue.setStatus(issueDto.getStatus());
     issue.setResolution(issueDto.getResolution());
     issue.setMessage(issueDto.getMessage());
+    issue.setTitle(issueDto.getTitle());
     issue.setCost(issueDto.getCost());
     issue.setLine(issueDto.getLine());
+    issue.setSeverity(issueDto.getSeverity());
     issue.setUserLogin(issueDto.getUserLogin());
     issue.setAssigneeLogin(issueDto.getAssigneeLogin());
-    // FIXME N+1 SQL requests
-    issue.setComponentKey(resourceDao.getResource(issueDto.getResourceId()).getKey());
+
+    ResourceDto resource = resourceDao.getResource(issueDto.getResourceId());
+    issue.setComponentKey(resource.getKey());
+
+    Rule rule = ruleFinder.findById(issueDto.getRuleId());
     issue.setRuleKey(rule.getKey());
     issue.setRuleRepositoryKey(rule.getRepositoryKey());
+
+    // TODO add key and dates
+
     return issue;
   }
 

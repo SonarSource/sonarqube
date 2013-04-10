@@ -45,7 +45,7 @@ class Api::MetricsController < Api::ApiController
       render_not_found('Metric [' + params[:id] + '] does not exist')
     else
       respond_to do |format|
-        format.json { render :json => jsonp(metrics_to_json(metric)) }
+        format.json { render :json => jsonp(metrics_to_json([metric])) }
         format.xml { render :xml => metrics_to_xml([metric]) }
       end
     end
@@ -70,7 +70,7 @@ class Api::MetricsController < Api::ApiController
     Metric.clear_cache
 
     respond_to do |format|
-      format.json { render :json => jsonp(metrics_to_json(metric)) }
+      format.json { render :json => jsonp(metrics_to_json([metric])) }
       format.xml { render :xml => metrics_to_xml([metric]) }
     end
   end
@@ -84,7 +84,7 @@ class Api::MetricsController < Api::ApiController
       Metric.clear_cache
 
       respond_to do |format|
-        format.json { render :json => jsonp(metrics_to_json(metric)) }
+        format.json { render :json => jsonp(metrics_to_json([metric])) }
         format.xml { render :xml => metrics_to_xml([metric]) }
       end
     else
@@ -110,14 +110,10 @@ class Api::MetricsController < Api::ApiController
 
   def metrics_to_json(metrics)
     json = []
-    metrics.each do |m|
-      json<<rest_to_json(m)
+    metrics.each do |metric|
+      json << metric.to_hash_json
     end
     json
-  end
-
-  def metrics_to_json(metric)
-    metric.to_hash_json
   end
 
   def metrics_to_xml(metrics)

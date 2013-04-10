@@ -29,5 +29,5 @@ public interface SnapshotDataMapper {
 
   void insert(SnapshotDataDto snapshotData);
 
-  SnapshotDataDto selectBySnapshot(@Param("sid") long snapshotId);
+  String selectSnapshotData(@Param("sid") long snapshotId);
 }

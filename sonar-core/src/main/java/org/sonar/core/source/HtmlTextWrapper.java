@@ -20,67 +20,69 @@
 
 package org.sonar.core.source;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.scan.source.SyntaxHighlightingRule;
-import org.sonar.api.scan.source.SyntaxHighlightingRuleSet;
 
-import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
+import static org.sonar.core.source.CharactersReader.END_OF_STREAM;
 
 /**
  * @since 3.6
  */
 public class HtmlTextWrapper {
 
-  private static final String OPEN_TABLE_LINE = "<tr><td>";
-  private static final String CLOSE_TABLE_LINE = "</td></tr>";
-
   public static final char CR_END_OF_LINE = '\r';
   public static final char LF_END_OF_LINE = '\n';
 
-  public String wrapTextWithHtml(String text, SyntaxHighlightingRuleSet syntaxHighlighting) throws IOException {
+  public List<String> wrapTextWithHtml(String text, HighlightingContext context) {
 
-    List<SyntaxHighlightingRule> highlightingRules = syntaxHighlighting.getSyntaxHighlightingRuleSet();
-    StringBuilder decoratedText = new StringBuilder();
+    StringBuilder currentHtmlLine = new StringBuilder();
+    List<String> decoratedHtmlLines = Lists.newArrayList();
 
     BufferedReader stringBuffer = null;
 
     try {
       stringBuffer = new BufferedReader(new StringReader(text));
 
-      CharactersReader context = new CharactersReader(stringBuffer);
+      CharactersReader charsReader = new CharactersReader(stringBuffer);
 
-      while(context.readNextChar()) {
+      while (charsReader.readNextChar()) {
 
-        if(shouldStartNewLine(context)) {
-          decoratedText.append(OPEN_TABLE_LINE);
-          if(shouldReopenPendingTags(context)) {
-            reopenCurrentSyntaxTags(context, decoratedText);
+        if (shouldStartNewLine(charsReader)) {
+          decoratedHtmlLines.add(currentHtmlLine.toString());
+          currentHtmlLine = new StringBuilder();
+          if (shouldReopenPendingTags(charsReader)) {
+            reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
           }
         }
 
-        Collection<SyntaxHighlightingRule> tagsToClose =
-                Collections2.filter(highlightingRules, new IndexRuleFilter(context.getCurrentIndex(), false));
-        closeCompletedTags(context, tagsToClose, decoratedText);
+        int numberOfTagsToClose = getNumberOfTagsToClose(charsReader.getCurrentIndex(), context);
+        closeCompletedTags(charsReader, numberOfTagsToClose, currentHtmlLine);
 
-        if(shouldClosePendingTags(context)) {
-          closeCurrentSyntaxTags(context, decoratedText);
-          decoratedText.append(CLOSE_TABLE_LINE);
+        if (shouldClosePendingTags(charsReader)) {
+          closeCurrentSyntaxTags(charsReader, currentHtmlLine);
         }
 
-        Collection<SyntaxHighlightingRule> tagsToOpen =
-                Collections2.filter(highlightingRules, new IndexRuleFilter(context.getCurrentIndex(), true));
-        openNewTags(context, tagsToOpen, decoratedText);
+        Collection<String> tagsToOpen = getTagsToOpen(charsReader.getCurrentIndex(), context);
+        openNewTags(charsReader, tagsToOpen, currentHtmlLine);
 
-        decoratedText.append((char)context.getCurrentValue());
+        if (shouldAppendCharToHtmlOutput(charsReader)) {
+          currentHtmlLine.append((char) charsReader.getCurrentValue());
+        }
       }
+
+      closeCurrentSyntaxTags(charsReader, currentHtmlLine);
+      if (currentHtmlLine.length() > 0) {
+        decoratedHtmlLines.add(currentHtmlLine.toString());
+      }
+
     } catch (IOException exception) {
       String errorMsg = "An exception occurred while highlighting the syntax of one of the project's files";
       LoggerFactory.getLogger(HtmlTextWrapper.class).error(errorMsg);
@@ -89,50 +91,59 @@ public class HtmlTextWrapper {
       Closeables.closeQuietly(stringBuffer);
     }
 
-    return decoratedText.toString();
+    return decoratedHtmlLines;
   }
 
-  public boolean shouldClosePendingTags(CharactersReader context) {
-    return context.getCurrentValue() == CR_END_OF_LINE
-            || (context.getCurrentValue() == LF_END_OF_LINE && context.getPreviousValue() != CR_END_OF_LINE);
+  private boolean shouldAppendCharToHtmlOutput(CharactersReader charsReader) {
+    return charsReader.getCurrentValue() != CR_END_OF_LINE && charsReader.getCurrentValue() != LF_END_OF_LINE;
   }
 
-  public boolean shouldReopenPendingTags(CharactersReader context) {
-    return context.getPreviousValue() == LF_END_OF_LINE && context.getCurrentValue() != LF_END_OF_LINE;
+  private int getNumberOfTagsToClose(int currentIndex, HighlightingContext context) {
+    return Collections.frequency(context.getUpperBoundsDefinitions(), currentIndex);
   }
 
-  public boolean shouldStartNewLine(CharactersReader context) {
-    return context.getPreviousValue() == LF_END_OF_LINE || context.getCurrentIndex() == 0;
+  private Collection<String> getTagsToOpen(int currentIndex, HighlightingContext context) {
+    return context.getLowerBoundsDefinitions().get(currentIndex);
   }
 
-  private void closeCompletedTags(CharactersReader context, Collection<SyntaxHighlightingRule> rulesMatchingCurrentIndex,
+  private boolean shouldClosePendingTags(CharactersReader charactersReader) {
+    return charactersReader.getCurrentValue() == CR_END_OF_LINE
+            || (charactersReader.getCurrentValue() == LF_END_OF_LINE && charactersReader.getPreviousValue() != CR_END_OF_LINE)
+            || (charactersReader.getCurrentValue() == END_OF_STREAM && charactersReader.getPreviousValue() != LF_END_OF_LINE);
+  }
+
+  private boolean shouldReopenPendingTags(CharactersReader charactersReader) {
+    return charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE;
+  }
+
+  private boolean shouldStartNewLine(CharactersReader charactersReader) {
+    return charactersReader.getPreviousValue() == LF_END_OF_LINE;
+  }
+
+  private void closeCompletedTags(CharactersReader charactersReader, int numberOfTagsToClose,
                                   StringBuilder decoratedText) {
-    for (SyntaxHighlightingRule syntaxHighlightingRule : rulesMatchingCurrentIndex) {
-      if(context.getCurrentIndex() == syntaxHighlightingRule.getEndPosition()) {
-        injectClosingHtml(decoratedText);
-        context.removeLastOpenTag();
-      }
+    for (int i = 0; i < numberOfTagsToClose; i++) {
+      injectClosingHtml(decoratedText);
+      charactersReader.removeLastOpenTag();
     }
   }
 
-  private void openNewTags(CharactersReader context, Collection<SyntaxHighlightingRule> rulesMatchingCurrentIndex,
+  private void openNewTags(CharactersReader charactersReader, Collection<String> tagsToOpen,
                            StringBuilder decoratedText) {
-    for (SyntaxHighlightingRule syntaxHighlightingRule : rulesMatchingCurrentIndex) {
-      if(context.getCurrentIndex() == syntaxHighlightingRule.getStartPosition()) {
-        injectOpeningHtmlForRule(syntaxHighlightingRule.getTextType(), decoratedText);
-        context.registerOpenTag(syntaxHighlightingRule.getTextType());
-      }
+    for (String tagToOpen : tagsToOpen) {
+      injectOpeningHtmlForRule(tagToOpen, decoratedText);
+      charactersReader.registerOpenTag(tagToOpen);
     }
   }
 
-  private void closeCurrentSyntaxTags(CharactersReader context, StringBuilder decoratedText) {
-    for (int i = 0; i < context.getOpenTags().size(); i++) {
+  private void closeCurrentSyntaxTags(CharactersReader charactersReader, StringBuilder decoratedText) {
+    for (int i = 0; i < charactersReader.getOpenTags().size(); i++) {
       injectClosingHtml(decoratedText);
     }
   }
 
-  private void reopenCurrentSyntaxTags(CharactersReader context, StringBuilder decoratedText) {
-    for (String tags : context.getOpenTags()) {
+  private void reopenCurrentSyntaxTags(CharactersReader charactersReader, StringBuilder decoratedText) {
+    for (String tags : charactersReader.getOpenTags()) {
       injectOpeningHtmlForRule(tags, decoratedText);
     }
   }
@@ -143,26 +154,6 @@ public class HtmlTextWrapper {
 
   private void injectClosingHtml(StringBuilder decoratedText) {
     decoratedText.append("</span>");
-  }
-
-  private class IndexRuleFilter implements Predicate<SyntaxHighlightingRule> {
-
-    private final int characterIndex;
-    private final boolean isNewCharRange;
-
-    public IndexRuleFilter(int charIndex, boolean isNewCharRange) {
-      this.characterIndex = charIndex;
-      this.isNewCharRange = isNewCharRange;
-    }
-
-    @Override
-    public boolean apply(@Nullable SyntaxHighlightingRule syntaxHighlightingRule) {
-      if(syntaxHighlightingRule != null) {
-        return (characterIndex == syntaxHighlightingRule.getStartPosition() && isNewCharRange)
-                || (characterIndex == syntaxHighlightingRule.getEndPosition() && !isNewCharRange);
-      }
-      return false;
-    }
   }
 }
 

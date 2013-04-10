@@ -85,21 +85,59 @@
 
   <select id="select" parameterType="map" resultType="Issue">
     select <include refid="issueColumns"/> from issues i
+    <if test="componentKeys.size() > 0">
+      , projects p, snapshots root, snapshots s
+    </if>
     <where>
-      <if test="severity != null">
-        and i.severity=#{severity}
+      <if test="componentKeys.size() > 0">
+        and p.enabled=${_true}
+        and p.kee in
+        <foreach item="componentKey" index="index" collection="componentKeys" open="(" separator="," close=")">#{componentKey}
+        </foreach>
+        and root.project_id=p.id
+        and root.islast=${_true}
+        and (s.id=root.id or (s.root_snapshot_id=root.id and
+        <choose>
+          <when test="_databaseId == 'mssql'">
+            s.path LIKE root.path + CAST(root.id AS varchar(15)) + '.%'
+          </when>
+          <otherwise>
+            s.path LIKE root.path || root.id || '.%'
+          </otherwise>
+        </choose>
+        ))
+        and s.islast=${_true}
+        and i.resource_id=s.project_id
+      </if>
+      <if test="keys != null">
+        and i.uuid in
+        <foreach item="key" index="index" collection="keys" open="(" separator="," close=")">#{key}
+        </foreach>
+      </if>
+      <if test="severities != null">
+        and i.severity in
+        <foreach item="severity" index="index" collection="severities" open="(" separator="," close=")">#{severity}
+        </foreach>
       </if>
       <if test="status != null">
-        and i.status=#{status}
+        and i.status in
+        <foreach item="stat" index="index" collection="status" open="(" separator="," close=")">#{stat}
+        </foreach>
       </if>
-      <if test="resolution != null">
-        and i.resolution=#{resolution}
+      <if test="resolutions != null">
+        and i.resolution in
+        <foreach item="resolution" index="index" collection="resolutions" open="(" separator="," close=")">#{resolution}
+        </foreach>
       </if>
-      <if test="userLogin != null">
-        and i.user_login=#{userLogin}
+      <if test="userLogins != null">
+        and i.user_login in
+        <foreach item="userLogin" index="index" collection="userLogins" open="(" separator="," close=")">#{userLogin}
+        </foreach>
       </if>
-      <if test="assigneeLogin != null">
-        and i.assignee_login=#{assigneeLogin}
+      <if test="assigneeLogins != null">
+        and i.assignee_login in
+        <foreach item="assigneeLogin" index="index" collection="assigneeLogins" open="(" separator="," close=")">#{assigneeLogin}
+        </foreach>
       </if>
     </where>
   </select>

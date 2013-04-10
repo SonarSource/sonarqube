@@ -31,48 +31,43 @@ public class SnapshotDataDto {
   private String data;
   private String dataType;
 
-  public long getId() {
-    return id;
-  }
-
-  public SnapshotDataDto setId(long id) {
-    this.id = id;
-    return this;
-  }
-
   public long getSnapshotId() {
     return snapshotId;
-  }
-
-  public SnapshotDataDto setSnapshotId(long snapshotId) {
-    this.snapshotId = snapshotId;
-    return this;
   }
 
   public long getResourceId() {
     return resourceId;
   }
 
-  public SnapshotDataDto setResourceId(long resourceId) {
-    this.resourceId = resourceId;
-    return this;
-  }
-
   public String getData() {
     return data;
-  }
-
-  public SnapshotDataDto setData(String data) {
-    this.data = data;
-    return this;
   }
 
   public String getDataType() {
     return dataType;
   }
 
-  public SnapshotDataDto setDataType(String dataType) {
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public void setSnapshotId(long snapshotId) {
+    this.snapshotId = snapshotId;
+  }
+
+  public void setResourceId(long resourceId) {
+    this.resourceId = resourceId;
+  }
+
+  public void setData(String data) {
+    this.data = data;
+  }
+
+  public void setDataType(String dataType) {
     this.dataType = dataType;
-    return this;
   }
 }

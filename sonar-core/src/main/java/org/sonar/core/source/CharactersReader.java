@@ -30,7 +30,7 @@ import java.util.Deque;
  */
 public class CharactersReader {
 
-  private static final int END_OF_STREAM = -1;
+  public static final int END_OF_STREAM = -1;
 
   private final BufferedReader stringBuffer;
   private final Deque<String> openTags;
