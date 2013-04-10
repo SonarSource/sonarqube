@@ -104,13 +104,10 @@ public class ServerClientTest {
   }
 
   @Test
-  public void should_fail_if_unauthorized_with_login_password_are_empty() throws Exception {
+  public void should_fail_if_unauthorized_with_no_login_password() throws Exception {
     server = new MockHttpServer();
     server.start();
     server.setMockResponseStatus(401);
-
-    when(settings.property(eq("sonar.login"))).thenReturn("");
-    when(settings.property(eq("sonar.password"))).thenReturn("");
 
     thrown.expectMessage("Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
     newServerClient().request("/foo");
