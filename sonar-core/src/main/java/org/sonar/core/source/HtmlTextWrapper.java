@@ -20,6 +20,7 @@
 
 package org.sonar.core.source;
 
+import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static org.sonar.core.source.CharactersReader.END_OF_STREAM;
 
@@ -42,9 +44,10 @@ public class HtmlTextWrapper {
   public static final char CR_END_OF_LINE = '\r';
   public static final char LF_END_OF_LINE = '\n';
 
-  public String wrapTextWithHtml(String text, HighlightingContext context) {
+  public List<String> wrapTextWithHtml(String text, HighlightingContext context) {
 
-    StringBuilder decoratedText = new StringBuilder();
+    StringBuilder currentHtmlLine = new StringBuilder();
+    List<String> decoratedHtmlLines = Lists.newArrayList();
 
     BufferedReader stringBuffer = null;
 
@@ -56,29 +59,33 @@ public class HtmlTextWrapper {
       while (charsReader.readNextChar()) {
 
         if (shouldStartNewLine(charsReader)) {
-          decoratedText.append(OPEN_TABLE_LINE);
+          decoratedHtmlLines.add(currentHtmlLine.toString());
+          currentHtmlLine = new StringBuilder();
+//          currentHtmlLine.append(OPEN_TABLE_LINE);
           if (shouldReopenPendingTags(charsReader)) {
-            reopenCurrentSyntaxTags(charsReader, decoratedText);
+            reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
           }
         }
 
         int numberOfTagsToClose = getNumberOfTagsToClose(charsReader.getCurrentIndex(), context);
-        closeCompletedTags(charsReader, numberOfTagsToClose, decoratedText);
+        closeCompletedTags(charsReader, numberOfTagsToClose, currentHtmlLine);
 
         if (shouldClosePendingTags(charsReader)) {
-          closeCurrentSyntaxTags(charsReader, decoratedText);
-          decoratedText.append(CLOSE_TABLE_LINE);
+          closeCurrentSyntaxTags(charsReader, currentHtmlLine);
+//          currentHtmlLine.append(CLOSE_TABLE_LINE);
         }
 
         Collection<String> tagsToOpen = getTagsToOpen(charsReader.getCurrentIndex(), context);
-        openNewTags(charsReader, tagsToOpen, decoratedText);
+        openNewTags(charsReader, tagsToOpen, currentHtmlLine);
 
-        decoratedText.append((char) charsReader.getCurrentValue());
+        if (shouldAppendCharToHtmlOutput(charsReader)) {
+          currentHtmlLine.append((char) charsReader.getCurrentValue());
+        }
       }
 
-      if(shouldClosePendingTags(charsReader)) {
-        closeCurrentSyntaxTags(charsReader, decoratedText);
-        decoratedText.append(CLOSE_TABLE_LINE);
+      closeCurrentSyntaxTags(charsReader, currentHtmlLine);
+      if (currentHtmlLine.length() > 0) {
+        decoratedHtmlLines.add(currentHtmlLine.toString());
       }
 
     } catch (IOException exception) {
@@ -89,7 +96,11 @@ public class HtmlTextWrapper {
       Closeables.closeQuietly(stringBuffer);
     }
 
-    return decoratedText.toString();
+    return decoratedHtmlLines;
+  }
+
+  private boolean shouldAppendCharToHtmlOutput(CharactersReader charsReader) {
+    return charsReader.getCurrentValue() != CR_END_OF_LINE && charsReader.getCurrentValue() != LF_END_OF_LINE;
   }
 
   private int getNumberOfTagsToClose(int currentIndex, HighlightingContext context) {
@@ -100,18 +111,18 @@ public class HtmlTextWrapper {
     return context.getLowerBoundsDefinitions().get(currentIndex);
   }
 
-  private boolean shouldClosePendingTags(CharactersReader context) {
-    return context.getCurrentValue() == CR_END_OF_LINE
-            || (context.getCurrentValue() == LF_END_OF_LINE && context.getPreviousValue() != CR_END_OF_LINE)
-            || (context.getCurrentValue() == END_OF_STREAM && context.getPreviousValue() != LF_END_OF_LINE);
+  private boolean shouldClosePendingTags(CharactersReader charactersReader) {
+    return charactersReader.getCurrentValue() == CR_END_OF_LINE
+            || (charactersReader.getCurrentValue() == LF_END_OF_LINE && charactersReader.getPreviousValue() != CR_END_OF_LINE)
+            || (charactersReader.getCurrentValue() == END_OF_STREAM && charactersReader.getPreviousValue() != LF_END_OF_LINE);
   }
 
-  private boolean shouldReopenPendingTags(CharactersReader context) {
-    return context.getPreviousValue() == LF_END_OF_LINE && context.getCurrentValue() != LF_END_OF_LINE;
+  private boolean shouldReopenPendingTags(CharactersReader charactersReader) {
+    return charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE;
   }
 
-  private boolean shouldStartNewLine(CharactersReader context) {
-    return context.getPreviousValue() == LF_END_OF_LINE || context.getCurrentIndex() == 0;
+  private boolean shouldStartNewLine(CharactersReader charactersReader) {
+    return charactersReader.getPreviousValue() == LF_END_OF_LINE;
   }
 
   private void closeCompletedTags(CharactersReader charactersReader, int numberOfTagsToClose,

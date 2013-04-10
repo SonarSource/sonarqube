@@ -24,6 +24,8 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.source.jdbc.SnapshotSourceDao;
 
+import java.util.Collection;
+
 /**
  * @since 3.6
  */
@@ -37,7 +39,7 @@ public class SyntaxHighlighter {
     snapshotDataDao = new SnapshotDataDao(myBatis);
   }
 
-  public String getHighlightedSourceAsHtml(long snapshotId) {
+  public Collection<String> getHighlightedSourceAsHtml(long snapshotId) {
 
     String snapshotSource = snapshotSourceDao.selectSnapshotSource(snapshotId);
     String highlightingRules = snapshotDataDao.selectSnapshotData(snapshotId);

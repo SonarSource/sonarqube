@@ -22,6 +22,8 @@ package org.sonar.core.source;
 
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.core.source.HtmlTextWrapper.CR_END_OF_LINE;
 import static org.sonar.core.source.HtmlTextWrapper.LF_END_OF_LINE;
@@ -36,9 +38,9 @@ public class HtmlTextWrapperTest {
     HighlightingContext context = HighlightingContext.buildFrom("0,7,k;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(packageDeclaration, context);
+    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(packageDeclaration, context);
 
-    assertThat(htmlOutput).isEqualTo("<tr><td><span class=\"k\">package</span> org.sonar.core.source;</td></tr>");
+    assertThat(htmlOutput).containsOnly("<span class=\"k\">package</span> org.sonar.core.source;");
   }
 
   @Test
@@ -55,12 +57,12 @@ public class HtmlTextWrapperTest {
     HighlightingContext context = HighlightingContext.buildFrom("0,14,cppd;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(blockComment, context);
+    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(blockComment, context);
 
-    assertThat(htmlOutput).isEqualTo(
-            "<tr><td><span class=\"cppd\">" + firstCommentLine + "</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\">" + secondCommentLine + "</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\">" + thirdCommentLine + "</span></td></tr>" + LF_END_OF_LINE
+    assertThat(htmlOutput).containsExactly(
+            "<span class=\"cppd\">" + firstCommentLine + "</span>",
+            "<span class=\"cppd\">" + secondCommentLine + "</span>",
+            "<span class=\"cppd\">" + thirdCommentLine + "</span>"
     );
   }
 
@@ -72,10 +74,12 @@ public class HtmlTextWrapperTest {
     HighlightingContext context = HighlightingContext.buildFrom("0,6,k;7,12,k;21,31,k;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(classDeclaration, context);
+    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(classDeclaration, context);
 
-    assertThat(htmlOutput).isEqualTo(
-            "<tr><td><span class=\"k\">public</span> <span class=\"k\">class</span> MyClass <span class=\"k\">implements</span> MyInterface {</td></tr>\n");
+    assertThat(htmlOutput).containsOnly(
+            "<span class=\"k\">public</span> " +
+            "<span class=\"k\">class</span> MyClass " +
+            "<span class=\"k\">implements</span> MyInterface {");
   }
 
   @Test
@@ -93,16 +97,16 @@ public class HtmlTextWrapperTest {
     HighlightingContext context = HighlightingContext.buildFrom("0,184,cppd;47,53,k;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(javaDocSample, context);
+    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(javaDocSample, context);
 
-    assertThat(htmlOutput).isEqualTo(
-            "<tr><td><span class=\"cppd\">/**</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\"> * Creates a FormulaDecorator</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\"> *</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\"> * @param <span class=\"k\">metric</span> the metric should have an associated formula</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\"> * </span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\"> * @throws IllegalArgumentException if no formula is associated to the metric</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\"> */</span></td></tr>" + LF_END_OF_LINE
+    assertThat(htmlOutput).containsExactly(
+            "<span class=\"cppd\">/**</span>",
+            "<span class=\"cppd\"> * Creates a FormulaDecorator</span>",
+            "<span class=\"cppd\"> *</span>",
+            "<span class=\"cppd\"> * @param <span class=\"k\">metric</span> the metric should have an associated formula</span>",
+            "<span class=\"cppd\"> * </span>",
+            "<span class=\"cppd\"> * @throws IllegalArgumentException if no formula is associated to the metric</span>",
+            "<span class=\"cppd\"> */</span>"
           );
   }
 
@@ -121,16 +125,16 @@ public class HtmlTextWrapperTest {
     HighlightingContext context = HighlightingContext.buildFrom("0,52,cppd;54,67,a;69,75,k;106,112,k;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(crlfCodeSample, context);
+    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(crlfCodeSample, context);
 
-    assertThat(htmlOutput).isEqualTo(
-            "<tr><td><span class=\"cppd\">/**</span></td></tr>" + CR_END_OF_LINE + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\">* @return metric generated by the decorator</span></td></tr>" + CR_END_OF_LINE + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\">*/</span></td></tr>" + CR_END_OF_LINE + LF_END_OF_LINE +
-            "<tr><td><span class=\"a\">@DependedUpon</span></td></tr>" + CR_END_OF_LINE + LF_END_OF_LINE +
-            "<tr><td><span class=\"k\">public</span> Metric generatesMetric() {</td></tr>" + CR_END_OF_LINE + LF_END_OF_LINE +
-            "<tr><td>  <span class=\"k\">return</span> metric;</td></tr>" + CR_END_OF_LINE + LF_END_OF_LINE +
-            "<tr><td>}</td></tr>" + CR_END_OF_LINE + LF_END_OF_LINE
+    assertThat(htmlOutput).containsExactly(
+            "<span class=\"cppd\">/**</span>",
+            "<span class=\"cppd\">* @return metric generated by the decorator</span>",
+            "<span class=\"cppd\">*/</span>",
+            "<span class=\"a\">@DependedUpon</span>",
+            "<span class=\"k\">public</span> Metric generatesMetric() {",
+            "  <span class=\"k\">return</span> metric;",
+            "}"
           );
   }
 
@@ -148,15 +152,15 @@ public class HtmlTextWrapperTest {
     HighlightingContext context = HighlightingContext.buildFrom("0,16,cppd;18,25,k;25,31,k;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(classDeclarationSample, context);
+    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(classDeclarationSample, context);
 
-    assertThat(htmlOutput).isEqualTo(
-            "<tr><td><span class=\"cppd\">/*</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\"> * Header</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\"> */</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"k\">public </span><span class=\"k\">class </span>HelloWorld {</td></tr>" + LF_END_OF_LINE +
-            "<tr><td>}</td></tr>"
+    assertThat(htmlOutput).containsExactly(
+            "<span class=\"cppd\">/*</span>",
+            "<span class=\"cppd\"> * Header</span>",
+            "<span class=\"cppd\"> */</span>",
+            "",
+            "<span class=\"k\">public </span><span class=\"k\">class </span>HelloWorld {",
+            "}"
     );
   }
 }

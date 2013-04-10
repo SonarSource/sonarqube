@@ -24,8 +24,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
+import java.util.List;
+
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.core.source.HtmlTextWrapper.LF_END_OF_LINE;
 
 public class SyntaxHighlighterTest extends AbstractDaoTestCase {
 
@@ -39,16 +40,15 @@ public class SyntaxHighlighterTest extends AbstractDaoTestCase {
 
     SyntaxHighlighter highlighter = new SyntaxHighlighter(getMyBatis());
 
-    String highlightedSource = highlighter.getHighlightedSourceAsHtml(11L);
+    List<String> highlightedSource = (List<String>)highlighter.getHighlightedSourceAsHtml(11L);
 
-    assertThat(highlightedSource).isEqualTo(
-            "<tr><td><span class=\"cppd\">/*</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\"> * Header</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"cppd\"> */</span></td></tr>" + LF_END_OF_LINE +
-            "<tr><td></td></tr>" + LF_END_OF_LINE +
-            "<tr><td><span class=\"k\">public </span><span class=\"k\">class </span>HelloWorld {</td></tr>" + LF_END_OF_LINE +
-            "<tr><td>}</td></tr>"
+    assertThat(highlightedSource).containsExactly(
+            "<span class=\"cppd\">/*</span>",
+            "<span class=\"cppd\"> * Header</span>",
+            "<span class=\"cppd\"> */</span>",
+            "",
+            "<span class=\"k\">public </span><span class=\"k\">class </span>HelloWorld {",
+            "}"
       );
   }
-
 }
