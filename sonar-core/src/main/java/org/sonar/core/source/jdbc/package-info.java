@@ -18,56 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
+@ParametersAreNonnullByDefault
 package org.sonar.core.source.jdbc;
 
-/**
- * @since 3.6
- */
-public class SnapshotDataDto {
-
-  private long id;
-  private long snapshotId;
-  private long resourceId;
-  private String data;
-  private String dataType;
-
-  public long getSnapshotId() {
-    return snapshotId;
-  }
-
-  public long getResourceId() {
-    return resourceId;
-  }
-
-  public String getData() {
-    return data;
-  }
-
-  public String getDataType() {
-    return dataType;
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  public void setId(long id) {
-    this.id = id;
-  }
-
-  public void setSnapshotId(long snapshotId) {
-    this.snapshotId = snapshotId;
-  }
-
-  public void setResourceId(long resourceId) {
-    this.resourceId = resourceId;
-  }
-
-  public void setData(String data) {
-    this.data = data;
-  }
-
-  public void setDataType(String dataType) {
-    this.dataType = dataType;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
