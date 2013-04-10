@@ -134,6 +134,13 @@
       <!-- GZIP filter -->
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlets</artifactId>
+      <exclusions>
+        <!-- Not needed fo GZIP filter -->
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-client</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- unit tests -->
