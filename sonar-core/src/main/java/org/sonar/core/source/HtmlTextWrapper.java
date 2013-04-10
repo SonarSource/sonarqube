@@ -38,9 +38,6 @@ import static org.sonar.core.source.CharactersReader.END_OF_STREAM;
  */
 public class HtmlTextWrapper {
 
-  private static final String OPEN_TABLE_LINE = "<tr><td>";
-  private static final String CLOSE_TABLE_LINE = "</td></tr>";
-
   public static final char CR_END_OF_LINE = '\r';
   public static final char LF_END_OF_LINE = '\n';
 
@@ -61,7 +58,6 @@ public class HtmlTextWrapper {
         if (shouldStartNewLine(charsReader)) {
           decoratedHtmlLines.add(currentHtmlLine.toString());
           currentHtmlLine = new StringBuilder();
-//          currentHtmlLine.append(OPEN_TABLE_LINE);
           if (shouldReopenPendingTags(charsReader)) {
             reopenCurrentSyntaxTags(charsReader, currentHtmlLine);
           }
@@ -72,7 +68,6 @@ public class HtmlTextWrapper {
 
         if (shouldClosePendingTags(charsReader)) {
           closeCurrentSyntaxTags(charsReader, currentHtmlLine);
-//          currentHtmlLine.append(CLOSE_TABLE_LINE);
         }
 
         Collection<String> tagsToOpen = getTagsToOpen(charsReader.getCurrentIndex(), context);

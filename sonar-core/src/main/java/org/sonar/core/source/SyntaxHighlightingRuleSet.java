@@ -95,7 +95,7 @@ public class SyntaxHighlightingRuleSet {
                   return false;
                 }
               });
-      return conflictingRules.size() > 0;
+      return !conflictingRules.isEmpty();
     }
   }
 

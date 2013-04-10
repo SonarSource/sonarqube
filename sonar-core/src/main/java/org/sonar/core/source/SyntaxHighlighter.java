@@ -44,10 +44,11 @@ public class SyntaxHighlighter {
     String snapshotSource = snapshotSourceDao.selectSnapshotSource(snapshotId);
     String highlightingRules = snapshotDataDao.selectSnapshotData(snapshotId);
 
-    HighlightingContext highlightingContext = HighlightingContext.buildFrom(highlightingRules);
-
-    HtmlTextWrapper textWrapper = new HtmlTextWrapper();
-
-    return textWrapper.wrapTextWithHtml(snapshotSource, highlightingContext);
+    if(snapshotSource != null && highlightingRules != null) {
+      HighlightingContext highlightingContext = HighlightingContext.buildFrom(highlightingRules);
+      HtmlTextWrapper textWrapper = new HtmlTextWrapper();
+      return textWrapper.wrapTextWithHtml(snapshotSource, highlightingContext);
+    }
+    return null;
   }
 }

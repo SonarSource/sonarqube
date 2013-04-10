@@ -158,7 +158,7 @@ class ResourceController < ApplicationController
     @expanded=(params[:expand]=='true')
     @display_manual_violation_form=(current_user && has_role?(:user, @snapshot))
     if @snapshot.source
-      source_lines=@snapshot.source.syntax_highlighted_lines()
+      source_lines = @snapshot.highlighting_data || @snapshot.source.syntax_highlighted_lines()
       init_scm()
 
       @lines=[]
