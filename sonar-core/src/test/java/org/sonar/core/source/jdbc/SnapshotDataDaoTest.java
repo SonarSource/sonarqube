@@ -50,7 +50,11 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
     String data = "0,10,k;";
     String dataType = "highlight_syntax";
 
-    SnapshotDataDto dto = new SnapshotDataDto(11L, 1L, data, dataType);
+    SnapshotDataDto dto = new SnapshotDataDto();
+    dto.setResourceId(1L);
+    dto.setSnapshotId(11L);
+    dto.setData(data);
+    dto.setDataType(dataType);
 
     dao.insert(dto);
 

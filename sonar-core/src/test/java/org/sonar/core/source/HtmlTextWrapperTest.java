@@ -33,11 +33,10 @@ public class HtmlTextWrapperTest {
 
     String packageDeclaration = "package org.sonar.core.source;";
 
-    SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
-            .registerHighlightingRule(0, 7, "k").build();
+    HighlightingContext context = HighlightingContext.buildFrom("0,7,k;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(packageDeclaration, syntaxHighlighting);
+    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(packageDeclaration, context);
 
     assertThat(htmlOutput).isEqualTo("<tr><td><span class=\"k\">package</span> org.sonar.core.source;");
   }
@@ -53,11 +52,10 @@ public class HtmlTextWrapperTest {
             + secondCommentLine + LF_END_OF_LINE
             + thirdCommentLine + LF_END_OF_LINE;
 
-    SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
-            .registerHighlightingRule(0, 14, "cppd").build();
+    HighlightingContext context = HighlightingContext.buildFrom("0,14,cppd;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(blockComment, syntaxHighlighting);
+    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(blockComment, context);
 
     assertThat(htmlOutput).isEqualTo(
             "<tr><td><span class=\"cppd\">" + firstCommentLine + "</span></td></tr>" + LF_END_OF_LINE +
@@ -71,14 +69,10 @@ public class HtmlTextWrapperTest {
 
     String classDeclaration = "public class MyClass implements MyInterface {\n";
 
-    SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
-            .registerHighlightingRule(0, 6, "k")
-            .registerHighlightingRule(7, 12, "k")
-            .registerHighlightingRule(21, 31, "k")
-            .build();
+    HighlightingContext context = HighlightingContext.buildFrom("0,6,k;7,12,k;21,31,k;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(classDeclaration, syntaxHighlighting);
+    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(classDeclaration, context);
 
     assertThat(htmlOutput).isEqualTo(
             "<tr><td><span class=\"k\">public</span> <span class=\"k\">class</span> MyClass <span class=\"k\">implements</span> MyInterface {</td></tr>\n");
@@ -96,13 +90,10 @@ public class HtmlTextWrapperTest {
             " * @throws IllegalArgumentException if no formula is associated to the metric" + LF_END_OF_LINE +
             " */" + LF_END_OF_LINE;
 
-    SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
-            .registerHighlightingRule(0, 184, "cppd")
-            .registerHighlightingRule(47, 53, "k")
-            .build();
+    HighlightingContext context = HighlightingContext.buildFrom("0,184,cppd;47,53,k;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(javaDocSample, syntaxHighlighting);
+    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(javaDocSample, context);
 
     assertThat(htmlOutput).isEqualTo(
             "<tr><td><span class=\"cppd\">/**</span></td></tr>" + LF_END_OF_LINE +
@@ -127,15 +118,10 @@ public class HtmlTextWrapperTest {
             "  return metric;" + CR_END_OF_LINE + LF_END_OF_LINE +
             "}" + CR_END_OF_LINE + LF_END_OF_LINE;
 
-    SyntaxHighlightingRuleSet syntaxHighlighting = SyntaxHighlightingRuleSet.builder()
-            .registerHighlightingRule(0, 52, "cppd")
-            .registerHighlightingRule(54, 67, "a")
-            .registerHighlightingRule(69, 75, "k")
-            .registerHighlightingRule(106, 112, "k")
-            .build();
+    HighlightingContext context = HighlightingContext.buildFrom("0,52,cppd;54,67,a;69,75,k;106,112,k;");
 
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(crlfCodeSample, syntaxHighlighting);
+    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(crlfCodeSample, context);
 
     assertThat(htmlOutput).isEqualTo(
             "<tr><td><span class=\"cppd\">/**</span></td></tr>" + CR_END_OF_LINE + LF_END_OF_LINE +
