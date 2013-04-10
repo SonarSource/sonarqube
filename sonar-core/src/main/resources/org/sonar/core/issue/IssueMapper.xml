@@ -102,7 +102,7 @@
             s.path LIKE root.path + root.id + '.%'
           </when>
           <otherwise>
-            s.path LIKE root.path || root.id || '.%'
+            s.path LIKE root.path || CAST(root.id AS varchar(15)) || '.%'
           </otherwise>
         </choose>
         ))
