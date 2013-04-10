@@ -76,12 +76,21 @@
       />
 
   <snapshots
-      id="400"
+      id="100"
       project_id="400"
-      root_snapshot_id="400"
+      root_snapshot_id="[null]"
+      path=""
+      islast="[false]"
+      />
+
+  <snapshots
+      id="101"
+      project_id="400"
+      root_snapshot_id="[null]"
       path=""
       islast="[true]"
       />
+
 
   <projects
       id="401"
@@ -90,11 +99,12 @@
       />
 
   <snapshots
-      id="401"
+      id="102"
       project_id="401"
-      root_snapshot_id="400"
-      path="400."
+      root_snapshot_id="101"
+      path="101."
       islast="[true]"
       />
+
 
 </dataset>

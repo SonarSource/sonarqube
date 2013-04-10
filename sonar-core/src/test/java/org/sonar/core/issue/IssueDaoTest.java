@@ -28,6 +28,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -146,7 +147,10 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("select-with-component-children");
 
     IssueQuery issueQuery = new IssueQuery.Builder().componentKeys("key").build();
-    assertThat(dao.select(issueQuery)).hasSize(2);
+    List<IssueDto> issues = newArrayList(dao.select(issueQuery));
+    assertThat(issues).hasSize(2);
+    assertThat(issues.get(0).getId()).isEqualTo(100);
+    assertThat(issues.get(1).getId()).isEqualTo(101);
   }
 
 }
