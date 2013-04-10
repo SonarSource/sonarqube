@@ -99,10 +99,10 @@
         and (s.id=root.id or (s.root_snapshot_id=root.id and
         <choose>
           <when test="_databaseId == 'mssql'">
-            s.path LIKE root.path + root.id + '.%'
+            s.path LIKE root.path + CAST(root.id AS varchar(15)) + '.%'
           </when>
           <otherwise>
-            s.path LIKE root.path || CAST(root.id AS varchar(15)) || '.%'
+            s.path LIKE root.path || root.id || '.%'
           </otherwise>
         </choose>
         ))
