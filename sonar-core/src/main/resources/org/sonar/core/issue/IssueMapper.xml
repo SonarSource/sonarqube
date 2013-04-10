@@ -97,13 +97,16 @@
         and root.project_id=p.id
         and root.islast=${_true}
         and (s.id=root.id or (s.root_snapshot_id=root.id and
-        <if test="_databaseId != 'mssql'">
-        s.path LIKE root.path || root.id || '.%'
-        </if>
-        <if test="_databaseId == 'mssql'">
-          s.path LIKE root.path + root.id + '.%'
-        </if>
+        <choose>
+          <when test="_databaseId == 'mssql'">
+            s.path LIKE root.path + root.id + '.%'
+          </when>
+          <otherwise>
+            s.path LIKE root.path || root.id || '.%'
+          </otherwise>
+        </choose>
         ))
+        and s.islast=${_true}
         and i.resource_id=s.project_id
       </if>
 
