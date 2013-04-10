@@ -38,7 +38,7 @@ public class HtmlTextWrapperTest {
     HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
     String htmlOutput = htmlTextWrapper.wrapTextWithHtml(packageDeclaration, context);
 
-    assertThat(htmlOutput).isEqualTo("<tr><td><span class=\"k\">package</span> org.sonar.core.source;");
+    assertThat(htmlOutput).isEqualTo("<tr><td><span class=\"k\">package</span> org.sonar.core.source;</td></tr>");
   }
 
   @Test
@@ -132,5 +132,31 @@ public class HtmlTextWrapperTest {
             "<tr><td>  <span class=\"k\">return</span> metric;</td></tr>" + CR_END_OF_LINE + LF_END_OF_LINE +
             "<tr><td>}</td></tr>" + CR_END_OF_LINE + LF_END_OF_LINE
           );
+  }
+
+  @Test
+  public void should_close_tags_at_end_of_file() throws Exception {
+
+    String classDeclarationSample =
+            "/*" + LF_END_OF_LINE +
+            " * Header" + LF_END_OF_LINE +
+            " */" + LF_END_OF_LINE +
+            LF_END_OF_LINE +
+            "public class HelloWorld {" + LF_END_OF_LINE +
+            "}";
+
+    HighlightingContext context = HighlightingContext.buildFrom("0,16,cppd;18,25,k;25,31,k;");
+
+    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
+    String htmlOutput = htmlTextWrapper.wrapTextWithHtml(classDeclarationSample, context);
+
+    assertThat(htmlOutput).isEqualTo(
+            "<tr><td><span class=\"cppd\">/*</span></td></tr>" + LF_END_OF_LINE +
+            "<tr><td><span class=\"cppd\"> * Header</span></td></tr>" + LF_END_OF_LINE +
+            "<tr><td><span class=\"cppd\"> */</span></td></tr>" + LF_END_OF_LINE +
+            "<tr><td></td></tr>" + LF_END_OF_LINE +
+            "<tr><td><span class=\"k\">public </span><span class=\"k\">class </span>HelloWorld {</td></tr>" + LF_END_OF_LINE +
+            "<tr><td>}</td></tr>"
+    );
   }
 }

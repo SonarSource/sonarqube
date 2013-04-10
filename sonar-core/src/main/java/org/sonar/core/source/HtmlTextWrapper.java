@@ -29,6 +29,8 @@ import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
 
+import static org.sonar.core.source.CharactersReader.END_OF_STREAM;
+
 /**
  * @since 3.6
  */
@@ -40,7 +42,7 @@ public class HtmlTextWrapper {
   public static final char CR_END_OF_LINE = '\r';
   public static final char LF_END_OF_LINE = '\n';
 
-  public String wrapTextWithHtml(String text, HighlightingContext context) throws IOException {
+  public String wrapTextWithHtml(String text, HighlightingContext context) {
 
     StringBuilder decoratedText = new StringBuilder();
 
@@ -73,6 +75,12 @@ public class HtmlTextWrapper {
 
         decoratedText.append((char) charsReader.getCurrentValue());
       }
+
+      if(shouldClosePendingTags(charsReader)) {
+        closeCurrentSyntaxTags(charsReader, decoratedText);
+        decoratedText.append(CLOSE_TABLE_LINE);
+      }
+
     } catch (IOException exception) {
       String errorMsg = "An exception occurred while highlighting the syntax of one of the project's files";
       LoggerFactory.getLogger(HtmlTextWrapper.class).error(errorMsg);
@@ -92,16 +100,17 @@ public class HtmlTextWrapper {
     return context.getLowerBoundsDefinitions().get(currentIndex);
   }
 
-  public boolean shouldClosePendingTags(CharactersReader context) {
+  private boolean shouldClosePendingTags(CharactersReader context) {
     return context.getCurrentValue() == CR_END_OF_LINE
-            || (context.getCurrentValue() == LF_END_OF_LINE && context.getPreviousValue() != CR_END_OF_LINE);
+            || (context.getCurrentValue() == LF_END_OF_LINE && context.getPreviousValue() != CR_END_OF_LINE)
+            || (context.getCurrentValue() == END_OF_STREAM && context.getPreviousValue() != LF_END_OF_LINE);
   }
 
-  public boolean shouldReopenPendingTags(CharactersReader context) {
+  private boolean shouldReopenPendingTags(CharactersReader context) {
     return context.getPreviousValue() == LF_END_OF_LINE && context.getCurrentValue() != LF_END_OF_LINE;
   }
 
-  public boolean shouldStartNewLine(CharactersReader context) {
+  private boolean shouldStartNewLine(CharactersReader context) {
     return context.getPreviousValue() == LF_END_OF_LINE || context.getCurrentIndex() == 0;
   }
 
