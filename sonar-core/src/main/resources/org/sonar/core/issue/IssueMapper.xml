@@ -90,12 +90,12 @@
     </if>
     <where>
       <if test="componentKeys.size() > 0">
-        and p.enabled=true
+        and p.enabled=${_true}
         and p.kee in
         <foreach item="componentKey" index="index" collection="componentKeys" open="(" separator="," close=")">#{componentKey}
         </foreach>
         and root.project_id=p.id
-        and root.islast=true
+        and root.islast=${_true}
         and (s.id=root.id or (s.root_snapshot_id=root.id and
         <if test="_databaseId != 'mssql'">
         s.path LIKE root.path || root.id || '.%'
