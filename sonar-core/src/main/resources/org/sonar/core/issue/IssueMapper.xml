@@ -121,7 +121,7 @@
       </if>
       <if test="status != null">
         and i.status in
-        <foreach item="statu" index="index" collection="status" open="(" separator="," close=")">#{statu}
+        <foreach item="stat" index="index" collection="status" open="(" separator="," close=")">#{stat}
         </foreach>
       </if>
       <if test="resolutions != null">
