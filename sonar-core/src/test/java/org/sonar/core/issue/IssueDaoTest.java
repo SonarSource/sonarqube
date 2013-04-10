@@ -129,28 +129,51 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select() {
+  public void should_select_by_parameter() {
     setupData("select");
 
-    IssueQuery issueQuery = new IssueQuery.Builder().resolution("FALSE-POSITIVE").build();
+    IssueQuery issueQuery = new IssueQuery.Builder().keys(newArrayList("100")).build();
     assertThat(dao.select(issueQuery)).hasSize(1);
 
-    issueQuery = new IssueQuery.Builder().userLogin("user").build();
+    issueQuery = new IssueQuery.Builder().componentKeys(newArrayList("key")).build();
+    assertThat(dao.select(issueQuery)).hasSize(2);
+
+    issueQuery = new IssueQuery.Builder().resolutions(newArrayList("FALSE-POSITIVE")).build();
     assertThat(dao.select(issueQuery)).hasSize(1);
 
-    issueQuery = new IssueQuery.Builder().assigneeLogin("user").build();
+    issueQuery = new IssueQuery.Builder().status(newArrayList("OPEN")).build();
+    assertThat(dao.select(issueQuery)).hasSize(2);
+
+    issueQuery = new IssueQuery.Builder().severities(newArrayList("BLOCKER")).build();
+    assertThat(dao.select(issueQuery)).hasSize(4);
+
+    issueQuery = new IssueQuery.Builder().userLogins(newArrayList("user")).build();
+    assertThat(dao.select(issueQuery)).hasSize(1);
+
+    issueQuery = new IssueQuery.Builder().assigneeLogins(newArrayList("user")).build();
     assertThat(dao.select(issueQuery)).hasSize(5);
+
+    issueQuery = new IssueQuery.Builder().userLogins(newArrayList("user")).status(newArrayList("OPEN")).build();
+    assertThat(dao.select(issueQuery)).hasSize(1);
   }
 
   @Test
-  public void should_select_by_components() {
+  public void should_return_issues_from_resource_tree() {
     setupData("select-with-component-children");
 
-    IssueQuery issueQuery = new IssueQuery.Builder().componentKeys("key").build();
+    IssueQuery issueQuery = new IssueQuery.Builder().componentKeys(newArrayList("key")).build();
     List<IssueDto> issues = newArrayList(dao.select(issueQuery));
     assertThat(issues).hasSize(2);
     assertThat(issues.get(0).getId()).isEqualTo(100);
     assertThat(issues.get(1).getId()).isEqualTo(101);
+  }
+
+  @Test
+  public void should_select_without_parameter_return_all_issues() {
+    setupData("select");
+
+    IssueQuery issueQuery = new IssueQuery.Builder().build();
+    assertThat(dao.select(issueQuery)).hasSize(5);
   }
 
 }

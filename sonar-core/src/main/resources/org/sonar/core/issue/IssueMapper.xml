@@ -109,21 +109,35 @@
         and s.islast=${_true}
         and i.resource_id=s.project_id
       </if>
-
-      <if test="severity != null">
-        and i.severity=#{severity}
+      <if test="keys != null">
+        and i.uuid in
+        <foreach item="key" index="index" collection="keys" open="(" separator="," close=")">#{key}
+        </foreach>
+      </if>
+      <if test="severities != null">
+        and i.severity in
+        <foreach item="severity" index="index" collection="severities" open="(" separator="," close=")">#{severity}
+        </foreach>
       </if>
       <if test="status != null">
-        and i.status=#{status}
+        and i.status in
+        <foreach item="statu" index="index" collection="status" open="(" separator="," close=")">#{statu}
+        </foreach>
       </if>
-      <if test="resolution != null">
-        and i.resolution=#{resolution}
+      <if test="resolutions != null">
+        and i.resolution in
+        <foreach item="resolution" index="index" collection="resolutions" open="(" separator="," close=")">#{resolution}
+        </foreach>
       </if>
-      <if test="userLogin != null">
-        and i.user_login=#{userLogin}
+      <if test="userLogins != null">
+        and i.user_login in
+        <foreach item="userLogin" index="index" collection="userLogins" open="(" separator="," close=")">#{userLogin}
+        </foreach>
       </if>
-      <if test="assigneeLogin != null">
-        and i.assignee_login=#{assigneeLogin}
+      <if test="assigneeLogins != null">
+        and i.assignee_login in
+        <foreach item="assigneeLogin" index="index" collection="assigneeLogins" open="(" separator="," close=")">#{assigneeLogin}
+        </foreach>
       </if>
     </where>
   </select>

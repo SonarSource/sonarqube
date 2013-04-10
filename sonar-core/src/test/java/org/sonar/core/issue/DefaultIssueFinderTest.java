@@ -56,18 +56,32 @@ public class DefaultIssueFinderTest {
   public void should_find_issues() {
     IssueQuery issueQuery = mock(IssueQuery.class);
 
-    IssueDto issueDto = new IssueDto().setId(1L).setRuleId(1).setResourceId(1);
-    Collection<IssueDto> dtoList = newArrayList(issueDto);
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(1).setResourceId(1);
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(1).setResourceId(1);
+    Collection<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.select(issueQuery)).thenReturn(dtoList);
     when(ruleFinder.findById(anyInt())).thenReturn(Rule.create("repo", "key"));
     when(resourceDao.getResource(anyInt())).thenReturn(new ResourceDto().setKey("componentKey"));
 
     Collection<Issue> issues = finder.find(issueQuery);
-    assertThat(issues).hasSize(1);
+    assertThat(issues).hasSize(2);
     Issue issue = issues.iterator().next();
     assertThat(issue.componentKey()).isEqualTo("componentKey");
     assertThat(issue.ruleKey()).isEqualTo("key");
     assertThat(issue.ruleRepositoryKey()).isEqualTo("repo");
+  }
 
+  @Test
+  public void should_find_by_key() {
+    IssueDto issueDto = new IssueDto().setId(1L).setRuleId(1).setResourceId(1);
+    when(issueDao.findByUuid("key")).thenReturn(issueDto);
+    when(ruleFinder.findById(anyInt())).thenReturn(Rule.create("repo", "key"));
+    when(resourceDao.getResource(anyInt())).thenReturn(new ResourceDto().setKey("componentKey"));
+
+    Issue issue = finder.findByKey("key");
+    assertThat(issue).isNotNull();
+    assertThat(issue.componentKey()).isEqualTo("componentKey");
+    assertThat(issue.ruleKey()).isEqualTo("key");
+    assertThat(issue.ruleRepositoryKey()).isEqualTo("repo");
   }
 }

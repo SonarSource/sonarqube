@@ -22,12 +22,15 @@ package org.sonar.core.issue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +41,8 @@ import static com.google.common.collect.Lists.newArrayList;
  * @since 3.6
  */
 public class DefaultIssueFinder implements IssueFinder {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultIssueFinder.class);
 
   private final IssueDao issueDao;
   private final ResourceDao resourceDao;
@@ -50,6 +55,7 @@ public class DefaultIssueFinder implements IssueFinder {
   }
 
   public List<Issue> find(IssueQuery issueQuery) {
+    LOG.debug("IssueQuery : {}", issueQuery);
     Collection<IssueDto> dtoList = issueDao.select(issueQuery);
     return newArrayList(Iterables.transform(dtoList, new Function<IssueDto, Issue>() {
       @Override
@@ -59,21 +65,32 @@ public class DefaultIssueFinder implements IssueFinder {
     }));
   }
 
-  private Issue toIssue(IssueDto issueDto){
-    Rule rule = ruleFinder.findById(issueDto.getRuleId());
+  public Issue findByKey(String key){
+    IssueDto issueDto = issueDao.findByUuid(key);
+    return issueDto != null ? toIssue(issueDto) : null;
+  }
 
-    Issue.Builder issueBuilder =  new Issue.Builder();
+  private Issue toIssue(IssueDto issueDto){
+    Issue.Builder issueBuilder = new Issue.Builder();
     issueBuilder.status(issueDto.getStatus());
     issueBuilder.resolution(issueDto.getResolution());
     issueBuilder.message(issueDto.getMessage());
+    issueBuilder.title(issueDto.getTitle());
     issueBuilder.cost(issueDto.getCost());
     issueBuilder.line(issueDto.getLine());
-    issueBuilder.line(issueDto.getLine());
+    issueBuilder.severity(issueDto.getSeverity());
     issueBuilder.userLogin(issueDto.getUserLogin());
     issueBuilder.assigneeLogin(issueDto.getAssigneeLogin());
-    issueBuilder.componentKey(resourceDao.getResource(issueDto.getResourceId()).getKey());
+
+    ResourceDto resource = resourceDao.getResource(issueDto.getResourceId());
+    issueBuilder.componentKey(resource.getKey());
+
+    Rule rule = ruleFinder.findById(issueDto.getRuleId());
     issueBuilder.ruleKey(rule.getKey());
     issueBuilder.ruleRepositoryKey(rule.getRepositoryKey());
+
+    // TODO add key and dates
+
     return issueBuilder.build();
   }
 

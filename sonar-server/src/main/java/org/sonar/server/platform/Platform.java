@@ -41,6 +41,7 @@ import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.DefaultIssueFinder;
+import org.sonar.core.issue.IssueFilter;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterExecutor;
 import org.sonar.core.measure.MeasureFilterFactory;
@@ -232,6 +233,7 @@ public final class Platform {
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
     servicesContainer.addSingleton(DefaultIssueFinder.class);
+    servicesContainer.addSingleton(IssueFilter.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

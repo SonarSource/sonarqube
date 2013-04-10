@@ -143,4 +143,18 @@
       closed_at="[null]"
       />
 
+  <projects
+      id="400"
+      kee="key"
+      enabled="[true]"
+      />
+
+  <snapshots
+      id="100"
+      project_id="400"
+      root_snapshot_id="[null]"
+      path=""
+      islast="[true]"
+      />
+
 </dataset>
