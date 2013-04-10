@@ -28,7 +28,6 @@ import org.sonar.batch.index.PersistenceManager;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.maven.MavenPhaseExecutor;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
-import org.sonar.core.component.ScanGraphStore;
 
 import java.util.Collection;
 
@@ -53,7 +52,7 @@ public final class PhaseExecutor {
   private SensorContext sensorContext;
   private DefaultIndex index;
   private ProjectInitializer pi;
-  private ScanGraphStore graphStorage;
+  private ScanPersister[] persisters;
   private FileSystemLogger fsLogger;
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
@@ -61,7 +60,7 @@ public final class PhaseExecutor {
                        PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                        PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
                        EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
-                       ScanGraphStore graphStorage, FileSystemLogger fsLogger) {
+                       ScanPersister[] persisters, FileSystemLogger fsLogger) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
@@ -75,7 +74,7 @@ public final class PhaseExecutor {
     this.eventBus = eventBus;
     this.updateStatusJob = updateStatusJob;
     this.pi = pi;
-    this.graphStorage = graphStorage;
+    this.persisters = persisters;
     this.fsLogger = fsLogger;
   }
 
@@ -83,9 +82,9 @@ public final class PhaseExecutor {
                        MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
                        PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
                        PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-                       EventBus eventBus, ProjectInitializer pi, ScanGraphStore graphStorage, FileSystemLogger fsLogger) {
+                       EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger) {
     this(phases, decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, graphStorage, fsLogger);
+      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger);
   }
 
   /**
@@ -114,7 +113,9 @@ public final class PhaseExecutor {
     persistenceManager.setDelayedMode(false);
 
     if (module.isRoot()) {
-      graphStorage.save();
+      for (ScanPersister persister : persisters) {
+        persister.persist();
+      }
       if (updateStatusJob != null) {
         updateStatusJob.execute();
       }

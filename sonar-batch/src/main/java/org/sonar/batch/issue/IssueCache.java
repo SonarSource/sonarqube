@@ -17,18 +17,34 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.batch.issue;
 
-package org.sonar.api.issue;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.issue.Issue;
 
-import org.sonar.api.ServerComponent;
-
-import java.util.List;
+import java.util.Collection;
 
 /**
- * @since 3.6
+ * Shared issues among all project modules
  */
-public interface IssueFinder extends ServerComponent {
+public class IssueCache implements BatchComponent {
 
-  List<Issue> find(IssueQuery issueQuery);
+  // issues by component key
+  private final ListMultimap<String, Issue> componentIssues = ArrayListMultimap.create();
 
+  public Collection<Issue> issues() {
+    return componentIssues.values();
+  }
+
+  public Collection<Issue> componentIssues(String componentKey) {
+    return componentIssues.get(componentKey);
+  }
+
+  public IssueCache add(Issue issue) {
+    System.out.println("Cache issue = " + issue.key() + " on " + issue.componentKey());
+    componentIssues.put(issue.componentKey(), issue);
+    return this;
+  }
 }

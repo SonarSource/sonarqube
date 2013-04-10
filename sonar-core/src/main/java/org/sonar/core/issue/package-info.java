@@ -17,18 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+@ParametersAreNonnullByDefault
+package org.sonar.core.issue;
 
-package org.sonar.api.issue;
-
-import org.sonar.api.ServerComponent;
-
-import java.util.List;
-
-/**
- * @since 3.6
- */
-public interface IssueFinder extends ServerComponent {
-
-  List<Issue> find(IssueQuery issueQuery);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

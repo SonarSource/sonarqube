@@ -17,44 +17,47 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
-package org.sonar.api.issue;
+package org.sonar.batch.issue;
 
 import org.sonar.api.component.Component;
-import org.sonar.api.component.Perspective;
+import org.sonar.api.issue.Issuable;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueAction;
+import org.sonar.core.issue.DefaultIssueBuilder;
 
 import java.util.Collection;
 
 /**
  * @since 3.6
  */
-public interface Issuable extends Perspective {
+public class ScanIssuable implements Issuable {
 
-  interface IssueBuilder {
-    IssueBuilder rule(String repository, String key);
+  private final ModuleIssues moduleIssues;
+  private final Component component;
 
-    IssueBuilder line(Integer line);
 
-    IssueBuilder message(String message);
-
-    IssueBuilder title(String title);
-
-    IssueBuilder severity(String severity);
-
-    IssueBuilder cost(Double cost);
-
-    IssueBuilder manual(boolean b);
-
-    Issue create();
+  ScanIssuable(Component component, ModuleIssues moduleIssues) {
+    this.component = component;
+    this.moduleIssues = moduleIssues;
   }
 
-  IssueBuilder newIssue();
-
-  Issue apply(Issue issue, IssueAction action);
-
-  Collection<Issue> issues();
+  @Override
+  public IssueBuilder newIssue() {
+    return new DefaultIssueBuilder(moduleIssues, component.key());
+  }
 
   @Override
-  Component component();
+  public Issue apply(Issue issue, IssueAction action) {
+    return null;
+  }
 
+  @Override
+  public Collection<Issue> issues() {
+    return moduleIssues.issues(component.key());
+  }
+
+  @Override
+  public Component component() {
+    return component;
+  }
 }

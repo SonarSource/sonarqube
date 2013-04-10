@@ -20,10 +20,11 @@
 package org.sonar.core.persistence;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.core.graph.jdbc.GraphDao;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
 import org.sonar.core.duplication.DuplicationDao;
+import org.sonar.core.graph.jdbc.GraphDao;
+import org.sonar.core.issue.IssueDao;
 import org.sonar.core.measure.MeasureFilterDao;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.purge.PurgeDao;
@@ -52,6 +53,7 @@ public final class DaoUtils {
       DashboardDao.class,
       DuplicationDao.class,
       GraphDao.class,
+      IssueDao.class,
       LoadedTemplateDao.class,
       MeasureFilterDao.class,
       PropertiesDao.class,

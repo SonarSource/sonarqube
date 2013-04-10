@@ -53,6 +53,7 @@ import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
+import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.core.component.ScanGraph;
 
 import java.util.Collection;
@@ -86,15 +87,17 @@ public class DefaultIndex extends SonarIndex {
   private Map<Resource, Map<Resource, Dependency>> outgoingDependenciesByResource = Maps.newHashMap();
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newHashMap();
   private ProjectTree projectTree;
+  private final DeprecatedViolations deprecatedViolations;
 
   public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder,
-                      RuleFinder ruleFinder, ScanGraph graph) {
+                      RuleFinder ruleFinder, ScanGraph graph, DeprecatedViolations deprecatedViolations) {
     this.persistence = persistence;
     this.lock = lock;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
     this.ruleFinder = ruleFinder;
     this.graph = graph;
+    this.deprecatedViolations = deprecatedViolations;
   }
 
   public void start() {
@@ -386,6 +389,7 @@ public class DefaultIndex extends SonarIndex {
       return;
     }
 
+    deprecatedViolations.add(violation);
     // TODO this code is not the responsibility of this index. It should be moved somewhere else.
     if (!violation.isManual()) {
       ActiveRule activeRule = profile.getActiveRule(violation.getRule());

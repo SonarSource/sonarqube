@@ -32,13 +32,14 @@ import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.index.*;
+import org.sonar.batch.issue.DeprecatedViolations;
+import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.IssuePersister;
+import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.core.component.ScanGraph;
-import org.sonar.core.component.ScanGraphStore;
-import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.core.source.HighlightableBuilder;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestableBuilder;
@@ -58,30 +59,33 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addBatchComponents() {
     add(
-        DefaultResourceCreationLock.class,
-        DefaultPersistenceManager.class,
-        DependencyPersister.class,
-        EventPersister.class,
-        LinkPersister.class,
-        MeasurePersister.class,
-        MemoryOptimizer.class,
-        DefaultResourcePersister.class,
-        SourcePersister.class,
-        DefaultNotificationManager.class,
-        MetricProvider.class,
-        ProjectConfigurator.class,
-        DefaultIndex.class,
-        DefaultFileLinesContextFactory.class,
-        ProjectLock.class,
-        LastSnapshots.class,
-        ScanGraph.create(),
-        TestPlanPerspectiveLoader.class,
-        TestablePerspectiveLoader.class,
-        TestPlanBuilder.class,
-        TestableBuilder.class,
-        HighlightableBuilder.class,
-        ScanPerspectives.class,
-        ScanGraphStore.class);
+      DefaultResourceCreationLock.class,
+      DefaultPersistenceManager.class,
+      DependencyPersister.class,
+      EventPersister.class,
+      LinkPersister.class,
+      MeasurePersister.class,
+      MemoryOptimizer.class,
+      DefaultResourcePersister.class,
+      SourcePersister.class,
+      DefaultNotificationManager.class,
+      MetricProvider.class,
+      ProjectConfigurator.class,
+      DefaultIndex.class,
+      DefaultFileLinesContextFactory.class,
+      ProjectLock.class,
+      LastSnapshots.class,
+
+      DeprecatedViolations.class,
+      IssueCache.class,
+      IssuePersister.class,
+
+      TestPlanPerspectiveLoader.class,
+      TestablePerspectiveLoader.class,
+      TestPlanBuilder.class,
+      TestableBuilder.class,
+      ScanGraph.create(),
+      GraphPersister.class);
   }
 
   private void fixMavenExecutor() {

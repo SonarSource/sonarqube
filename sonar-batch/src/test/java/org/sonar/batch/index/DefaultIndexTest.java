@@ -48,6 +48,7 @@ import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.ViolationFilters;
+import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.core.component.ScanGraph;
 
 import java.util.List;
@@ -72,7 +73,7 @@ public class DefaultIndexTest {
     when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
     ruleFinder = mock(RuleFinder.class);
 
-    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, ruleFinder, mock(ScanGraph.class));
+    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, ruleFinder, mock(ScanGraph.class), mock(DeprecatedViolations.class));
     Project project = new Project("project");
 
     ResourceFilter filter = new ResourceFilter() {

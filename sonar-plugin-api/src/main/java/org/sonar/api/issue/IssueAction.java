@@ -20,15 +20,9 @@
 
 package org.sonar.api.issue;
 
-import org.sonar.api.ServerComponent;
-
-import java.util.List;
-
 /**
  * @since 3.6
  */
-public interface IssueFinder extends ServerComponent {
-
-  List<Issue> find(IssueQuery issueQuery);
-
+public interface IssueAction {
+  // TO BE DEFINED
 }

@@ -17,18 +17,16 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.api.scan.event;
 
-package org.sonar.api.issue;
+import org.sonar.api.batch.events.EventHandler;
 
-import org.sonar.api.ServerComponent;
+public interface ProjectScanHandler extends EventHandler {
+  interface ProjectScanEvent {
+    boolean isStart();
 
-import java.util.List;
+    boolean isEnd();
+  }
 
-/**
- * @since 3.6
- */
-public interface IssueFinder extends ServerComponent {
-
-  List<Issue> find(IssueQuery issueQuery);
-
+  void onProjectScan(ProjectScanEvent event);
 }

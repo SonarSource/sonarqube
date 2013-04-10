@@ -59,22 +59,22 @@ public class DefaultIssueFinder implements IssueFinder {
     }));
   }
 
-  private Issue toIssue(IssueDto issueDto){
+  private Issue toIssue(IssueDto issueDto) {
+    // FIXME N+1 SQL requests
     Rule rule = ruleFinder.findById(issueDto.getRuleId());
-
-    Issue.Builder issueBuilder =  new Issue.Builder();
-    issueBuilder.status(issueDto.getStatus());
-    issueBuilder.resolution(issueDto.getResolution());
-    issueBuilder.message(issueDto.getMessage());
-    issueBuilder.cost(issueDto.getCost());
-    issueBuilder.line(issueDto.getLine());
-    issueBuilder.line(issueDto.getLine());
-    issueBuilder.userLogin(issueDto.getUserLogin());
-    issueBuilder.assigneeLogin(issueDto.getAssigneeLogin());
-    issueBuilder.componentKey(resourceDao.getResource(issueDto.getResourceId()).getKey());
-    issueBuilder.ruleKey(rule.getKey());
-    issueBuilder.ruleRepositoryKey(rule.getRepositoryKey());
-    return issueBuilder.build();
+    DefaultIssue issue = new DefaultIssue();
+    issue.setStatus(issueDto.getStatus());
+    issue.setResolution(issueDto.getResolution());
+    issue.setMessage(issueDto.getMessage());
+    issue.setCost(issueDto.getCost());
+    issue.setLine(issueDto.getLine());
+    issue.setUserLogin(issueDto.getUserLogin());
+    issue.setAssigneeLogin(issueDto.getAssigneeLogin());
+    // FIXME N+1 SQL requests
+    issue.setComponentKey(resourceDao.getResource(issueDto.getResourceId()).getKey());
+    issue.setRuleKey(rule.getKey());
+    issue.setRuleRepositoryKey(rule.getRepositoryKey());
+    return issue;
   }
 
 }

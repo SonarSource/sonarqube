@@ -43,7 +43,7 @@ public abstract class GraphPerspectiveLoader<T extends Perspective> {
     return null;
   }
 
-  protected String getPerspectiveKey() {
+  public String getPerspectiveKey() {
     return perspectiveKey;
   }
 

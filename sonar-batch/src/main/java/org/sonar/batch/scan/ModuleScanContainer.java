@@ -46,6 +46,7 @@ import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.local.DryRunExporter;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
@@ -54,6 +55,13 @@ import org.sonar.batch.scan.filesystem.ExclusionFilters;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.filesystem.LanguageFilters;
 import org.sonar.batch.scan.filesystem.ModuleFileSystemProvider;
+import org.sonar.core.component.ScanPerspectives;
+import org.sonar.batch.issue.ScanIssuableFactory;
+import org.sonar.core.source.HighlightableBuilder;
+import org.sonar.core.test.TestPlanBuilder;
+import org.sonar.core.test.TestPlanPerspectiveLoader;
+import org.sonar.core.test.TestableBuilder;
+import org.sonar.core.test.TestablePerspectiveLoader;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
@@ -114,7 +122,14 @@ public class ModuleScanContainer extends ComponentContainer {
         ViolationFilters.class,
         ResourceFilters.class,
         DryRunExporter.class,
-        new ProfileProvider());
+        new ProfileProvider(),
+
+        ModuleIssues.class,
+        ScanIssuableFactory.class,
+
+        HighlightableBuilder.class,
+        ScanPerspectives.class
+      );
   }
 
   private void addExtensions() {

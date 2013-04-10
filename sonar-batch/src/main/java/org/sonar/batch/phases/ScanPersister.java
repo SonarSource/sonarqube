@@ -17,18 +17,12 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.batch.phases;
 
-package org.sonar.api.issue;
+import org.sonar.api.BatchComponent;
 
-import org.sonar.api.ServerComponent;
+public interface ScanPersister extends BatchComponent {
 
-import java.util.List;
-
-/**
- * @since 3.6
- */
-public interface IssueFinder extends ServerComponent {
-
-  List<Issue> find(IssueQuery issueQuery);
+  void persist();
 
 }

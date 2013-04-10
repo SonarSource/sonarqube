@@ -17,252 +17,69 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.api.issue;
 
 import java.util.Date;
-import java.util.UUID;
+import java.util.Map;
 
 /**
  * @since 3.6
  */
-public class Issue {
+public interface Issue {
 
-  public static final String STATUS_REOPENED = "REOPENED";
-  public static final String STATUS_RESOLVED = "RESOLVED";
-  public static final String STATUS_CLOSED = "CLOSED";
+  String STATUS_OPEN = "OPEN";
+  String STATUS_REOPENED = "REOPENED";
+  String STATUS_RESOLVED = "RESOLVED";
+  String STATUS_CLOSED = "CLOSED";
 
-  public static final String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
-  public static final String RESOLUTION_FIXED = "FIXED";
+  String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
+  String RESOLUTION_FIXED = "FIXED";
 
-  public static final String SEVERITY_INFO = "INFO";
-  public static final String SEVERITY_MINOR = "MINOR";
-  public static final String SEVERITY_MAJOR = "MAJOR";
-  public static final String SEVERITY_CRITICAL = "CRITICAL";
-  public static final String SEVERITY_BLOCKER = "BLOCKER";
-
-  private String key;
-  private String componentKey;
-  private String ruleKey;
-  private String ruleRepositoryKey;
-  private String severity;
-  private String title;
-  private String message;
-  private Integer line;
-  private Double cost;
-  private String status;
-  private String resolution;
-  private String userLogin;
-  private String assigneeLogin;
-  private Date createdAt;
-  private Date updatedAt;
-  private Date closedAt;
-
-  private Issue(Builder builder) {
-    this.key = builder.key;
-    this.componentKey = builder.componentKey;
-    this.ruleKey = builder.ruleKey;
-    this.ruleRepositoryKey = builder.ruleRepositoryKey;
-    this.severity = builder.severity;
-    this.message = builder.message;
-    this.line = builder.line;
-    this.cost = builder.cost;
-    this.status = builder.status;
-    this.resolution = builder.resolution;
-    this.userLogin = builder.userLogin;
-    this.assigneeLogin = builder.assigneeLogin;
-    this.createdAt = builder.createdAt;
-    this.updatedAt = builder.updatedAt;
-    this.closedAt = builder.closedAt;
-  }
-
-  public String key() {
-    return key;
-  }
-
-  public String componentKey() {
-    return componentKey;
-  }
-
-  public String ruleKey() {
-    return ruleKey;
-  }
-
-  public String ruleRepositoryKey() {
-    return ruleRepositoryKey;
-  }
-
-  public String severity() {
-    return severity;
-  }
-
-  public String title() {
-    return title;
-  }
-
-  public String message() {
-    return message;
-  }
-
-  public Integer line() {
-    return line;
-  }
-
-  public Double cost() {
-    return cost;
-  }
-
-  public String status() {
-    return status;
-  }
-
-  public String resolution() {
-    return resolution;
-  }
-
-  public String userLogin() {
-    return userLogin;
-  }
-
-  public String assigneeLogin() {
-    return assigneeLogin;
-  }
-
-  public Date createdAt() {
-    return createdAt;
-  }
-
-  public Date updatedAt() {
-    return updatedAt;
-  }
-
-  public Date closedAt() {
-    return closedAt;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    Issue issue = (Issue) o;
-    return !(key != null ? !key.equals(issue.key()) : issue.key() != null);
-  }
-
-  @Override
-  public int hashCode() {
-    return key != null ? key.hashCode() : 0;
-  }
+  String SEVERITY_INFO = "INFO";
+  String SEVERITY_MINOR = "MINOR";
+  String SEVERITY_MAJOR = "MAJOR";
+  String SEVERITY_CRITICAL = "CRITICAL";
+  String SEVERITY_BLOCKER = "BLOCKER";
 
   /**
-   * @since 3.6
+   * Unique key
    */
-  public static class Builder {
-    private String key;
-    private String componentKey;
-    private String ruleKey;
-    private String ruleRepositoryKey;
-    private String severity;
-    private String title;
-    private String message;
-    private Integer line;
-    private Double cost;
-    private String status;
-    private String resolution;
-    private String userLogin;
-    private String assigneeLogin;
-    private Date createdAt;
-    private Date updatedAt;
-    private Date closedAt;
+  String key();
 
-    public Builder() {
-      key = UUID.randomUUID().toString();
-      createdAt = new Date();
-    }
+  String componentKey();
 
-    public Builder(Issue issue) {
-      this.key = issue.key();
-      this.componentKey = issue.componentKey();
-      this.ruleKey = issue.ruleKey();
-      this.ruleRepositoryKey = issue.ruleRepositoryKey();
-      this.severity = issue.severity();
-      this.title = title;
-      this.message = issue.message();
-      this.line = issue.line();
-      this.cost = issue.cost();
-      this.status = issue.status();
-      this.resolution = issue.resolution();
-      this.createdAt = issue.createdAt();
-      this.updatedAt = issue.updatedAt();
-      this.closedAt = issue.closedAt();
-    }
+  String ruleKey();
 
-    public Builder componentKey(String componentKey) {
-      this.componentKey = componentKey;
-      return this;
-    }
+  String ruleRepositoryKey();
 
-    public Builder ruleKey(String ruleKey) {
-      this.ruleKey = ruleKey;
-      return this;
-    }
+  String severity();
 
-    public Builder ruleRepositoryKey(String ruleRepositoryKey) {
-      this.ruleRepositoryKey = ruleRepositoryKey;
-      return this;
-    }
+  String title();
 
-    public Builder severity(String severity) {
-      this.severity = severity;
-      return this;
-    }
+  String message();
 
-    public Builder title(String title) {
-      this.title = title;
-      return this;
-    }
+  Integer line();
 
-    public Builder message(String message) {
-      this.message = message;
-      return this;
-    }
+  Double cost();
 
-    public Builder line(Integer line) {
-      this.line = line;
-      return this;
-    }
+  String status();
 
-    public Builder cost(Double cost) {
-      this.cost = cost;
-      return this;
-    }
+  String resolution();
 
-    public Builder status(String status) {
-      this.status = status;
-      return this;
-    }
+  String userLogin();
 
-    public Builder resolution(String resolution) {
-      this.resolution = resolution;
-      return this;
-    }
+  String assigneeLogin();
 
-    public Builder userLogin(String userLogin) {
-      this.userLogin = userLogin;
-      return this;
-    }
+  Date createdAt();
 
-    public Builder assigneeLogin(String assigneeLogin) {
-      this.assigneeLogin = assigneeLogin;
-      return this;
-    }
+  Date updatedAt();
 
-    public Issue build() {
-      return new Issue(this);
-    }
-  }
+  Date closedAt();
+
+  String attribute(String key);
+
+  /**
+   * Used only during project scan.
+   */
+  boolean isNew();
 }

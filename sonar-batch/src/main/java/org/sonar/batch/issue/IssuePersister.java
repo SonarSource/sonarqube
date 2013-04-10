@@ -17,18 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.batch.issue;
 
-package org.sonar.api.issue;
+import org.sonar.api.issue.Issue;
+import org.sonar.batch.phases.ScanPersister;
+import org.sonar.core.issue.IssueDao;
 
-import org.sonar.api.ServerComponent;
+public class IssuePersister implements ScanPersister {
 
-import java.util.List;
+  private final IssueDao dao;
+  private final IssueCache cache;
 
-/**
- * @since 3.6
- */
-public interface IssueFinder extends ServerComponent {
+  public IssuePersister(IssueDao dao, IssueCache cache) {
+    this.dao = dao;
+    this.cache = cache;
+  }
 
-  List<Issue> find(IssueQuery issueQuery);
-
+  @Override
+  public void persist() {
+    for (Issue issue : cache.issues()) {
+      System.out.println("Persist issue " + issue.key() + " on " + issue.componentKey());
+    }
+  }
 }

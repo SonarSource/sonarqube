@@ -17,12 +17,16 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+package org.sonar.batch.phases;
 
 import com.tinkerpop.blueprints.Graph;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Perspective;
+import org.sonar.core.component.ComponentVertex;
+import org.sonar.core.component.GraphPerspectiveBuilder;
+import org.sonar.core.component.PerspectiveBuilder;
+import org.sonar.core.component.ScanGraph;
 import org.sonar.core.graph.SubGraph;
 import org.sonar.core.graph.graphson.GraphsonMode;
 import org.sonar.core.graph.graphson.GraphsonWriter;
@@ -33,19 +37,19 @@ import org.sonar.core.persistence.MyBatis;
 
 import java.io.StringWriter;
 
-public class ScanGraphStore {
+public class GraphPersister implements ScanPersister {
   private final MyBatis myBatis;
   private final ScanGraph projectGraph;
-  private final PerspectiveBuilder[] builders;
+  private final GraphPerspectiveBuilder[] builders;
 
-  public ScanGraphStore(MyBatis myBatis, ScanGraph projectGraph, PerspectiveBuilder[] builders) {
+  public GraphPersister(MyBatis myBatis, ScanGraph projectGraph, GraphPerspectiveBuilder[] builders) {
     this.myBatis = myBatis;
     this.projectGraph = projectGraph;
     this.builders = builders;
   }
 
-  public void save() {
-    LoggerFactory.getLogger(ScanGraphStore.class).info("Persist graphs of components");
+  public void persist() {
+    LoggerFactory.getLogger(GraphPersister.class).info("Persist graphs of components");
     BatchSession session = myBatis.openBatchSession();
     GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);
     try {
@@ -62,15 +66,10 @@ public class ScanGraphStore {
     Long snapshotId = (Long) component.element().getProperty("sid");
     if (snapshotId != null) {
       for (PerspectiveBuilder builder : builders) {
-        if(builder instanceof GraphPerspectiveBuilder) {
-          GraphPerspectiveBuilder graphPerspectiveBuilder = (GraphPerspectiveBuilder)builder;
-          Perspective perspective = graphPerspectiveBuilder.getPerspectiveLoader().load(component);
-          if (perspective != null) {
-            serializePerspectiveData(mapper, component, snapshotId, graphPerspectiveBuilder);
-          }
-        } else {
-          LoggerFactory.getLogger(ScanGraphStore.class).info("Received persistence request for perspective "
-                  + builder.getPerspectiveClass().toString());
+        GraphPerspectiveBuilder graphPerspectiveBuilder = (GraphPerspectiveBuilder) builder;
+        Perspective perspective = graphPerspectiveBuilder.getPerspectiveLoader().load(component);
+        if (perspective != null) {
+          serializePerspectiveData(mapper, component, snapshotId, graphPerspectiveBuilder);
         }
       }
     }
@@ -81,13 +80,13 @@ public class ScanGraphStore {
     Graph subGraph = SubGraph.extract(component.element(), builder.path());
     String data = write(subGraph);
     mapper.insert(new GraphDto()
-      .setData(data)
-      .setFormat("graphson")
-      .setPerspective(builder.getPerspectiveLoader().getPerspectiveKey())
-      .setVersion(1)
-      .setResourceId((Long) component.element().getProperty("rid"))
-      .setSnapshotId(snapshotId)
-      .setRootVertexId(component.element().getId().toString())
+        .setData(data)
+        .setFormat("graphson")
+        .setPerspective(builder.getPerspectiveLoader().getPerspectiveKey())
+        .setVersion(1)
+        .setResourceId((Long) component.element().getProperty("rid"))
+        .setSnapshotId(snapshotId)
+        .setRootVertexId(component.element().getId().toString())
     );
   }
 

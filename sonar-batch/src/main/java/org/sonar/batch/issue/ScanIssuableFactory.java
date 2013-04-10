@@ -17,18 +17,23 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.batch.issue;
 
-package org.sonar.api.issue;
+import org.sonar.api.component.Component;
+import org.sonar.api.issue.Issuable;
+import org.sonar.core.component.PerspectiveBuilder;
 
-import org.sonar.api.ServerComponent;
+public class ScanIssuableFactory extends PerspectiveBuilder<Issuable> {
 
-import java.util.List;
+  private final ModuleIssues moduleIssues;
 
-/**
- * @since 3.6
- */
-public interface IssueFinder extends ServerComponent {
+  public ScanIssuableFactory(ModuleIssues moduleIssues) {
+    super(Issuable.class);
+    this.moduleIssues = moduleIssues;
+  }
 
-  List<Issue> find(IssueQuery issueQuery);
-
+  @Override
+  protected Issuable loadPerspective(Class<Issuable> perspectiveClass, Component component) {
+    return new ScanIssuable(component, moduleIssues);
+  }
 }
