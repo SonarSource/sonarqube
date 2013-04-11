@@ -26,11 +26,7 @@ class SnapshotSource < ActiveRecord::Base
     from = (options[:from] ? options[:from].to_i - 1 : 0)
     to = (options[:to] ? options[:to].to_i - 2 : -1)
 
-    if (options[:color]=='true')
-      lines=syntax_highlighted_lines()
-    else
-      lines=lines(false)
-    end
+    lines=lines(false)
 
     json = {}
     lines[from..to].each_with_index do |line, id|

@@ -38,7 +38,7 @@ public class SnapshotDataDao implements BatchComponent, ServerComponent {
 
   public String selectSnapshotData(long snapshotId) {
 
-    SqlSession session = mybatis.openBatchSession();
+    SqlSession session = mybatis.openSession();
 
     try {
       SnapshotDataMapper mapper = session.getMapper(SnapshotDataMapper.class);
