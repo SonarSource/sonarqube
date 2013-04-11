@@ -32,17 +32,19 @@ public class DefaultIssueBuilderTest {
 
   @Test
   public void should_create_issue() throws Exception {
-    DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder(callback, "org.apache.struts")
+    String componentKey = "org.apache.struts:struts-core:Action.java";
+    DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder(callback, componentKey)
       .message("msg")
       .line(123)
       .cost(10000.0)
       .rule("squid", "NullDereference")
       .severity(Issue.SEVERITY_CRITICAL)
-      .create();
+      .done();
 
     assertThat(issue).isNotNull();
     assertThat(issue.key()).isNotEmpty();
     assertThat(issue.cost()).isEqualTo(10000.0);
+    assertThat(issue.componentKey()).isEqualTo(componentKey);
     assertThat(issue.message()).isEqualTo("msg");
     assertThat(issue.line()).isEqualTo(123);
     assertThat(issue.ruleRepositoryKey()).isEqualTo("squid");

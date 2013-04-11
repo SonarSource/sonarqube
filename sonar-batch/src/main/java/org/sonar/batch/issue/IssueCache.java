@@ -43,7 +43,6 @@ public class IssueCache implements BatchComponent {
   }
 
   public IssueCache add(Issue issue) {
-    System.out.println("Cache issue = " + issue.key() + " on " + issue.componentKey());
     componentIssues.put(issue.componentKey(), issue);
     return this;
   }

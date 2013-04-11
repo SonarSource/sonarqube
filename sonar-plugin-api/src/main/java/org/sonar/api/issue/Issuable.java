@@ -45,7 +45,7 @@ public interface Issuable extends Perspective {
 
     IssueBuilder manual(boolean b);
 
-    Issue create();
+    Issue done();
   }
 
   IssueBuilder newIssue();

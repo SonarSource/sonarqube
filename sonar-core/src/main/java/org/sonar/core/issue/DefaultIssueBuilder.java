@@ -88,7 +88,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issue create() {
+  public Issue done() {
     Preconditions.checkNotNull(componentKey, "Component key must be set");
     Preconditions.checkNotNull(ruleRepository, "Rule repository must be set");
     Preconditions.checkNotNull(ruleKey, "Rule key must be set");
