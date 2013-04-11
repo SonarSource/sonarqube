@@ -213,6 +213,10 @@
     ap.project_id=#{id})
   </delete>
 
+  <delete id="deleteSnapshotData" parameterType="long">
+    delete from snapshot_data where snapshot_id=#{id}
+  </delete>
+
   <!-- Mssql -->
   <delete id="deleteResourceReviewComments" databaseId="mssql" parameterType="long">
     delete review_comments from review_comments

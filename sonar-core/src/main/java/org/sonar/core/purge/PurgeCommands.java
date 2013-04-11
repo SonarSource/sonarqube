@@ -173,6 +173,11 @@ class PurgeCommands {
     session.commit();
 
     for (Long snapshotId : snapshotIds) {
+      purgeMapper.deleteSnapshotData(snapshotId);
+    }
+    session.commit();
+
+    for (Long snapshotId : snapshotIds) {
       purgeMapper.deleteSnapshot(snapshotId);
     }
 
@@ -207,6 +212,11 @@ class PurgeCommands {
 
     for (Long snapshotId : snapshotIds) {
       purgeMapper.deleteSnapshotGraphs(snapshotId);
+    }
+    session.commit();
+
+    for (Long snapshotId : snapshotIds) {
+      purgeMapper.deleteSnapshotData(snapshotId);
     }
     session.commit();
 
