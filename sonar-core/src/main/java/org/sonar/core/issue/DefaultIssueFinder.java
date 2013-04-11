@@ -72,6 +72,7 @@ public class DefaultIssueFinder implements IssueFinder {
 
   private Issue toIssue(IssueDto issueDto){
     DefaultIssue issue = new DefaultIssue();
+    issue.setKey(issueDto.getUuid());
     issue.setStatus(issueDto.getStatus());
     issue.setResolution(issueDto.getResolution());
     issue.setMessage(issueDto.getMessage());
@@ -82,14 +83,18 @@ public class DefaultIssueFinder implements IssueFinder {
     issue.setUserLogin(issueDto.getUserLogin());
     issue.setAssigneeLogin(issueDto.getAssigneeLogin());
 
+    // FIXME
     ResourceDto resource = resourceDao.getResource(issueDto.getResourceId());
     issue.setComponentKey(resource.getKey());
 
+    // FIXME
     Rule rule = ruleFinder.findById(issueDto.getRuleId());
     issue.setRuleKey(rule.getKey());
     issue.setRuleRepositoryKey(rule.getRepositoryKey());
 
-    // TODO add key and dates
+    issue.setCreatedAt(issueDto.getCreatedAt());
+    issue.setUpdatedAt(issueDto.getCreatedAt());
+    issue.setClosedAt(issueDto.getUpdatedAt());
 
     return issue;
   }
