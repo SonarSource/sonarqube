@@ -19,10 +19,10 @@
  */
 package org.sonar.wsclient.services;
 
+import org.junit.Test;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
 
 public class SourceQueryTest extends QueryTestCase {
 
@@ -30,13 +30,6 @@ public class SourceQueryTest extends QueryTestCase {
   public void create() {
     assertThat(SourceQuery.create("myproject:org.foo.Bar").getUrl(), is("/api/sources?resource=myproject%3Aorg.foo.Bar&"));
     assertThat(SourceQuery.create("myproject:org.foo.Bar").getModelClass().getName(), is(Source.class.getName()));
-  }
-
-  @Test
-  public void createWithHighlightedSyntax() {
-    assertThat(SourceQuery.createWithHighlightedSyntax("myproject:org.foo.Bar").getUrl(),
-        is("/api/sources?resource=myproject%3Aorg.foo.Bar&color=true&"));
-    assertThat(SourceQuery.createWithHighlightedSyntax("myproject:org.foo.Bar").getModelClass().getName(), is(Source.class.getName()));
   }
 
   @Test

@@ -25,7 +25,6 @@ public class SourceQuery extends Query<Source> {
   private String resourceKeyOrId;
   private int from = 0;
   private int to = 0;
-  private boolean highlightedSyntax = false;
 
   public SourceQuery(String resourceKeyOrId) {
     this.resourceKeyOrId = resourceKeyOrId;
@@ -66,15 +65,6 @@ public class SourceQuery extends Query<Source> {
     return to;
   }
 
-  public boolean isHighlightedSyntax() {
-    return highlightedSyntax;
-  }
-
-  public SourceQuery setHighlightedSyntax(boolean b) {
-    this.highlightedSyntax = b;
-    return this;
-  }
-
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
@@ -82,9 +72,6 @@ public class SourceQuery extends Query<Source> {
     appendUrlParameter(url, "resource", resourceKeyOrId);
     if (from > 0 && to > 0) {
       url.append("from=").append(from).append("&to=").append(to).append("&");
-    }
-    if (highlightedSyntax) {
-      url.append("color=true&");
     }
     return url.toString();
   }
@@ -96,9 +83,5 @@ public class SourceQuery extends Query<Source> {
 
   public static SourceQuery create(String resourceKeyOrId) {
     return new SourceQuery(resourceKeyOrId);
-  }
-
-  public static SourceQuery createWithHighlightedSyntax(String resourceKeyOrId) {
-    return new SourceQuery(resourceKeyOrId).setHighlightedSyntax(true);
   }
 }
