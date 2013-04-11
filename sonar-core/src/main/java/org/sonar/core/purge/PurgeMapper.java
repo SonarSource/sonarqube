@@ -98,4 +98,6 @@ public interface PurgeMapper {
   void deleteResourceReviewComments(long resourceId);
 
   void deleteResourceActionPlansReviews(long resourceId);
+
+  void deleteSnapshotData(long snapshotId);
 }
