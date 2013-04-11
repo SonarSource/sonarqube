@@ -17,25 +17,21 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.api.issue;
 
-package org.sonar.batch.scan.source;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 
-import org.sonar.batch.index.ScanPersister;
-import org.sonar.core.source.jdbc.SnapshotDataDao;
+import javax.annotation.Nullable;
 
-public class SyntaxHighlightingPersister implements ScanPersister {
+public interface IssueActions extends BatchComponent, ServerComponent {
 
-  private final SnapshotDataDao snapshotDataDao;
+  IssueActions comment(Issue issue, String userLogin, String comment);
+  IssueActions setSeverity(Issue issue, String severity);
+  IssueActions setMessage(Issue issue, String message);
+  IssueActions setCost(Issue issue, @Nullable Double cost);
+  IssueActions setResolution(Issue issue, String resolution);
+  IssueActions assign(Issue issue, String userLogin);
+  IssueActions setAttribute(Issue issue, String key, @Nullable String value);
 
-  public SyntaxHighlightingPersister(SnapshotDataDao snapshotDataDao) {
-    this.snapshotDataDao = snapshotDataDao;
-  }
-
-  @Override
-  public void persist() {
-
-
-
-
-  }
 }

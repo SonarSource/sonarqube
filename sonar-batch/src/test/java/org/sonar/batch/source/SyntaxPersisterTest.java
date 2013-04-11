@@ -17,12 +17,21 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.source;
 
-import org.sonar.api.BatchComponent;
+import org.junit.Test;
+import org.sonar.batch.index.SnapshotCache;
 
-public interface ScanPersister extends BatchComponent {
+import static org.mockito.Mockito.mock;
 
-  void persist();
+public class SyntaxPersisterTest {
 
+  SnapshotCache snapshots = mock(SnapshotCache.class);
+
+  @Test
+  public void should_persist() throws Exception {
+    SyntaxPersister persister = new SyntaxPersister(snapshots);
+    persister.persist();
+    // TODO
+  }
 }

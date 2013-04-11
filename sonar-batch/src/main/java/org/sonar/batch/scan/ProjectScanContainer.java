@@ -75,6 +75,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultFileLinesContextFactory.class,
       ProjectLock.class,
       LastSnapshots.class,
+      SnapshotCache.class,
 
       DeprecatedViolations.class,
       IssueCache.class,

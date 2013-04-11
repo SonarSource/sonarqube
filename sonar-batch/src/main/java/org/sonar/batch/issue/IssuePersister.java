@@ -20,7 +20,7 @@
 package org.sonar.batch.issue;
 
 import org.sonar.api.issue.Issue;
-import org.sonar.batch.phases.ScanPersister;
+import org.sonar.batch.index.ScanPersister;
 import org.sonar.core.issue.IssueDao;
 
 public class IssuePersister implements ScanPersister {

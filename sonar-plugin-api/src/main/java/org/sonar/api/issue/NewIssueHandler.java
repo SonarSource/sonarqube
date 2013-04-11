@@ -17,12 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.api.issue;
 
+import org.sonar.api.BatchExtension;
+
 /**
- * @since 3.6
+ * Observe issues considered as new during project scan. Note that it does not observe manual
+ * issues created by end-users
  */
-public interface IssueAction {
-  // TO BE DEFINED
+public interface NewIssueHandler extends BatchExtension {
+
+  interface NewIssueEvent {
+    Issue issue();
+  }
+
+  void onNewIssue(NewIssueEvent event);
+
 }

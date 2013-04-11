@@ -73,7 +73,7 @@ public class DefaultIndexTest {
     when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
     ruleFinder = mock(RuleFinder.class);
 
-    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, ruleFinder, mock(ScanGraph.class), mock(DeprecatedViolations.class));
+    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, ruleFinder, mock(ScanGraph.class), mock(DeprecatedViolations.class), mock(SnapshotCache.class));
     Project project = new Project("project");
 
     ResourceFilter filter = new ResourceFilter() {

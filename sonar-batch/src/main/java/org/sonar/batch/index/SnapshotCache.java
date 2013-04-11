@@ -17,25 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.batch.index;
 
-package org.sonar.batch.scan.source;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.database.model.Snapshot;
 
-import org.sonar.batch.index.ScanPersister;
-import org.sonar.core.source.jdbc.SnapshotDataDao;
+import java.util.Map;
 
-public class SyntaxHighlightingPersister implements ScanPersister {
+public class SnapshotCache implements BatchComponent {
+  // snapshots by component key
+  private final Map<String, Snapshot> snapshots = Maps.newHashMap();
 
-  private final SnapshotDataDao snapshotDataDao;
-
-  public SyntaxHighlightingPersister(SnapshotDataDao snapshotDataDao) {
-    this.snapshotDataDao = snapshotDataDao;
+  public Snapshot get(String componentKey) {
+    return snapshots.get(componentKey);
   }
 
-  @Override
-  public void persist() {
-
-
-
-
+  public SnapshotCache put(String componentKey, Snapshot snapshot) {
+    Preconditions.checkState(!snapshots.containsKey(componentKey), "Component is already registered: " + componentKey);
+    snapshots.put(componentKey, snapshot);
+    return this;
   }
 }

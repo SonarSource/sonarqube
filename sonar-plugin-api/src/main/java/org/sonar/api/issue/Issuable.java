@@ -50,8 +50,6 @@ public interface Issuable extends Perspective {
 
   IssueBuilder newIssue();
 
-  Issue apply(Issue issue, IssueAction action);
-
   Collection<Issue> issues();
 
   @Override

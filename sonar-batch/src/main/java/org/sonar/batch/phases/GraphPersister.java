@@ -23,6 +23,7 @@ import com.tinkerpop.blueprints.Graph;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Perspective;
+import org.sonar.batch.index.ScanPersister;
 import org.sonar.core.component.ComponentVertex;
 import org.sonar.core.component.GraphPerspectiveBuilder;
 import org.sonar.core.component.PerspectiveBuilder;

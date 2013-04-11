@@ -17,25 +17,20 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
-package org.sonar.batch.scan.source;
+package org.sonar.batch.source;
 
 import org.sonar.batch.index.ScanPersister;
-import org.sonar.core.source.jdbc.SnapshotDataDao;
+import org.sonar.batch.index.SnapshotCache;
 
-public class SyntaxHighlightingPersister implements ScanPersister {
+public class SyntaxPersister implements ScanPersister {
+  private final SnapshotCache snapshots;
 
-  private final SnapshotDataDao snapshotDataDao;
-
-  public SyntaxHighlightingPersister(SnapshotDataDao snapshotDataDao) {
-    this.snapshotDataDao = snapshotDataDao;
+  public SyntaxPersister(SnapshotCache snapshots) {
+    this.snapshots = snapshots;
   }
 
   @Override
   public void persist() {
-
-
-
 
   }
 }
