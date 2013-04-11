@@ -38,8 +38,8 @@ public class DefaultHighlightable implements Highlightable {
   }
 
   @Override
-  public SyntaxHighlighter createHighlighter() {
-    return new DefaultSyntaxHighlighter();
+  public HighlightingBuilder newHighlighting() {
+    return new DefaultHighlightingBuilder();
   }
 
   @Override
@@ -56,16 +56,16 @@ public class DefaultHighlightable implements Highlightable {
     return highlightingRulesBuilder.build();
   }
 
-  private class DefaultSyntaxHighlighter implements SyntaxHighlighter {
+  private class DefaultHighlightingBuilder implements HighlightingBuilder {
 
     @Override
-    public SyntaxHighlighter highlightText(int startOffset, int endOffset, String typeOfText) {
+    public HighlightingBuilder highlight(int startOffset, int endOffset, String typeOfText) {
       highlightingRulesBuilder.registerHighlightingRule(startOffset, endOffset, typeOfText);
       return this;
     }
 
     @Override
-    public void applyHighlighting() {
+    public void done() {
       String serializedHighlightingRules = highlightingRulesBuilder.build().serializeAsString();
       syntaxHighlightingCache.registerSourceHighlighting(component().key(), serializedHighlightingRules);
     }

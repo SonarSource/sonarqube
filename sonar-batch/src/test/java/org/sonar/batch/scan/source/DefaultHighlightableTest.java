@@ -48,7 +48,7 @@ public class DefaultHighlightableTest {
   public void should_store_highlighting_rules() throws Exception {
 
     DefaultHighlightable highlightablePerspective = new DefaultHighlightable(null, null);
-    highlightablePerspective.createHighlighter().highlightText(0, 10, "k").highlightText(20, 30, "cppd");
+    highlightablePerspective.newHighlighting().highlight(0, 10, "k").highlight(20, 30, "cppd");
 
     assertThat(highlightablePerspective.getHighlightingRules().getSyntaxHighlightingRuleSet()).hasSize(2);
   }
@@ -62,10 +62,10 @@ public class DefaultHighlightableTest {
     SyntaxHighlightingCache highlightingCache = mock(SyntaxHighlightingCache.class);
 
     DefaultHighlightable highlightablePerspective = new DefaultHighlightable(component, highlightingCache);
-    highlightablePerspective.createHighlighter()
-            .highlightText(0, 10, "k")
-            .highlightText(20, 30, "cppd")
-            .applyHighlighting();
+    highlightablePerspective.newHighlighting()
+            .highlight(0, 10, "k")
+            .highlight(20, 30, "cppd")
+            .done();
 
     verify(highlightingCache).registerSourceHighlighting("myComponent", "0,10,k;20,30,cppd;");
   }

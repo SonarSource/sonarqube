@@ -26,14 +26,14 @@ import org.sonar.api.component.Perspective;
  */
 public interface Highlightable extends Perspective {
 
-  interface SyntaxHighlighter {
+  interface HighlightingBuilder {
 
-    SyntaxHighlighter highlightText(int startOffset, int endOffset, String typeOfText);
+    HighlightingBuilder highlight(int startOffset, int endOffset, String typeOfText);
 
-    void applyHighlighting();
+    void done();
   }
 
-  SyntaxHighlighter createHighlighter();
+  HighlightingBuilder newHighlighting();
 
   /*
   * @deprecated in favor of the provided builder-based api
