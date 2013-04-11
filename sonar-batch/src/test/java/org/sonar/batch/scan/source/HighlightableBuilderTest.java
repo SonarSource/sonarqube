@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.source;
+package org.sonar.batch.scan.source;
 
 import org.junit.Test;
 import org.sonar.api.component.Component;
@@ -32,8 +32,9 @@ public class HighlightableBuilderTest {
   public void should_load_default_perspective() throws Exception {
 
     Component mockComponent = mock(Component.class);
+    SyntaxHighlightingCache highlightingCache = mock(SyntaxHighlightingCache.class);
 
-    HighlightableBuilder builder = new HighlightableBuilder();
+    HighlightableBuilder builder = new HighlightableBuilder(highlightingCache);
     Highlightable perspective = builder.loadPerspective(Highlightable.class, mockComponent);
 
     assertThat(perspective).isInstanceOf(DefaultHighlightable.class);

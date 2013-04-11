@@ -17,23 +17,27 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.source;
 
-import org.sonar.api.component.Component;
-import org.sonar.api.scan.source.Highlightable;
-import org.sonar.core.component.PerspectiveBuilder;
+package org.sonar.batch.scan.source;
 
-/**
- * @since 3.6
- */
-public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
+import com.google.common.collect.Maps;
+import org.sonar.api.BatchComponent;
 
-  public HighlightableBuilder() {
-    super(Highlightable.class);
+import java.util.Map;
+
+public class SyntaxHighlightingCache implements BatchComponent {
+
+  private final Map<String, String> highlightingCache;
+
+  public SyntaxHighlightingCache() {
+    highlightingCache = Maps.newHashMap();
   }
 
-  @Override
-  protected Highlightable loadPerspective(Class<Highlightable> perspectiveClass, Component component) {
-    return new DefaultHighlightable();
+  public void registerSourceHighlighting(String componentKey, String serializedHighlightingRules) {
+    highlightingCache.put(componentKey, serializedHighlightingRules);
+  }
+
+  public Map<String, String> getHighlightingRulesByComponent() {
+    return highlightingCache;
   }
 }

@@ -17,21 +17,36 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.source;
+package org.sonar.batch.scan.source;
 
-import org.junit.Test;
-import org.sonar.batch.index.SnapshotCache;
+/**
+ * @since 3.6
+ */
+public class SyntaxHighlightingRule {
 
-import static org.mockito.Mockito.mock;
+  private final int startPosition;
+  private final int endPosition;
+  private final String textType;
 
-public class SyntaxPersisterTest {
+  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
+    this.startPosition = startPosition;
+    this.endPosition = endPosition;
+    this.textType = textType;
+  }
 
-  SnapshotCache snapshots = mock(SnapshotCache.class);
+  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
+    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
+  }
 
-  @Test
-  public void should_persist() throws Exception {
-    SyntaxPersister persister = new SyntaxPersister(snapshots);
-    persister.persist();
-    // TODO
+  public int getStartPosition() {
+    return startPosition;
+  }
+
+  public int getEndPosition() {
+    return endPosition;
+  }
+
+  public String getTextType() {
+    return textType;
   }
 }

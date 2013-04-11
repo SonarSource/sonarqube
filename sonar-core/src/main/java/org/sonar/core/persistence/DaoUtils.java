@@ -34,6 +34,7 @@ import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.review.ReviewCommentDao;
 import org.sonar.core.review.ReviewDao;
 import org.sonar.core.rule.RuleDao;
+import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorDao;
 import org.sonar.core.user.UserDao;
@@ -65,6 +66,7 @@ public final class DaoUtils {
       ReviewDao.class,
       RuleDao.class,
       SemaphoreDao.class,
+      SnapshotDataDao.class,
       UserDao.class
     );
   }

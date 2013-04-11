@@ -17,13 +17,17 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.source;
+package org.sonar.batch.scan.source;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.component.Component;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultHighlightableTest {
 
@@ -33,18 +37,36 @@ public class DefaultHighlightableTest {
   @Test
   public void should_register_highlighting_rule() throws Exception {
 
-    DefaultHighlightable highlightable = new DefaultHighlightable();
+    DefaultHighlightable highlightable = new DefaultHighlightable(null, null);
     highlightable.highlightText(1, 10, "k");
 
     assertThat(highlightable.getHighlightingRules().getSyntaxHighlightingRuleSet()).hasSize(1);
   }
 
+
   @Test
-  public void should_reject_any_call_to_component() throws Exception {
+  public void should_store_highlighting_rules() throws Exception {
 
-    throwable.expect(UnsupportedOperationException.class);
+    DefaultHighlightable highlightablePerspective = new DefaultHighlightable(null, null);
+    highlightablePerspective.createHighlighter().highlightText(0, 10, "k").highlightText(20, 30, "cppd");
 
-    DefaultHighlightable highlightable = new DefaultHighlightable();
-    highlightable.component();
+    assertThat(highlightablePerspective.getHighlightingRules().getSyntaxHighlightingRuleSet()).hasSize(2);
+  }
+
+  @Test
+  public void should_apply_registered_highlighting() throws Exception {
+
+    Component component = mock(Component.class);
+    when(component.key()).thenReturn("myComponent");
+
+    SyntaxHighlightingCache highlightingCache = mock(SyntaxHighlightingCache.class);
+
+    DefaultHighlightable highlightablePerspective = new DefaultHighlightable(component, highlightingCache);
+    highlightablePerspective.createHighlighter()
+            .highlightText(0, 10, "k")
+            .highlightText(20, 30, "cppd")
+            .applyHighlighting();
+
+    verify(highlightingCache).registerSourceHighlighting("myComponent", "0,10,k;20,30,cppd;");
   }
 }

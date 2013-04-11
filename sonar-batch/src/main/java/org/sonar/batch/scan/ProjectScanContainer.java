@@ -38,6 +38,8 @@ import org.sonar.batch.issue.IssuePersister;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
+import org.sonar.batch.scan.source.SyntaxHighlightingCache;
+import org.sonar.batch.scan.source.SyntaxHighlightingPersister;
 import org.sonar.core.component.ScanGraph;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.test.TestPlanBuilder;
@@ -86,7 +88,11 @@ public class ProjectScanContainer extends ComponentContainer {
       TestPlanBuilder.class,
       TestableBuilder.class,
       ScanGraph.create(),
-      GraphPersister.class);
+      GraphPersister.class,
+
+      SyntaxHighlightingCache.class,
+      SyntaxHighlightingPersister.class
+    );
   }
 
   private void fixMavenExecutor() {

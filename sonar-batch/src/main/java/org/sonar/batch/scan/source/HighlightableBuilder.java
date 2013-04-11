@@ -17,36 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.source;
+package org.sonar.batch.scan.source;
+
+import org.sonar.api.component.Component;
+import org.sonar.api.scan.source.Highlightable;
+import org.sonar.core.component.PerspectiveBuilder;
 
 /**
  * @since 3.6
  */
-public class SyntaxHighlightingRule {
+public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
-  private final int startPosition;
-  private final int endPosition;
-  private final String textType;
+  private final SyntaxHighlightingCache syntaxHighlightingCache;
 
-  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
-    this.startPosition = startPosition;
-    this.endPosition = endPosition;
-    this.textType = textType;
+  public HighlightableBuilder(SyntaxHighlightingCache syntaxHighlightingCache) {
+    super(Highlightable.class);
+    this.syntaxHighlightingCache = syntaxHighlightingCache;
   }
 
-  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
-    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
-  }
-
-  public int getStartPosition() {
-    return startPosition;
-  }
-
-  public int getEndPosition() {
-    return endPosition;
-  }
-
-  public String getTextType() {
-    return textType;
+  @Override
+  protected Highlightable loadPerspective(Class<Highlightable> perspectiveClass, Component component) {
+    return new DefaultHighlightable(component, syntaxHighlightingCache);
   }
 }

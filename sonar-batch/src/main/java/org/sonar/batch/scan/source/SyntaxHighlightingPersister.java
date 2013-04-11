@@ -20,22 +20,44 @@
 
 package org.sonar.batch.scan.source;
 
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.batch.index.ScanPersister;
+import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
+import org.sonar.core.source.jdbc.SnapshotDataDto;
+
+import java.util.Map;
 
 public class SyntaxHighlightingPersister implements ScanPersister {
 
-  private final SnapshotDataDao snapshotDataDao;
+  public static final String DATA_TYPE = "highlight_syntax";
 
-  public SyntaxHighlightingPersister(SnapshotDataDao snapshotDataDao) {
+  private final SnapshotDataDao snapshotDataDao;
+  private final SyntaxHighlightingCache highlightingCache;
+  private final SnapshotCache snapshots;
+
+  public SyntaxHighlightingPersister(SnapshotDataDao snapshotDataDao, SyntaxHighlightingCache highlightingCache, SnapshotCache snapshots) {
     this.snapshotDataDao = snapshotDataDao;
+    this.highlightingCache = highlightingCache;
+    this.snapshots = snapshots;
   }
 
   @Override
   public void persist() {
 
+    Map<String, String> highlightingRules = highlightingCache.getHighlightingRulesByComponent();
 
+    for (String component : highlightingRules.keySet()) {
 
+      Snapshot snapshotForComponent = snapshots.get(component);
 
+      SnapshotDataDto snapshotDataDto = new SnapshotDataDto();
+      snapshotDataDto.setSnapshotId(snapshotForComponent.getId());
+      snapshotDataDto.setResourceId(snapshotForComponent.getResourceId());
+      snapshotDataDto.setDataType(DATA_TYPE);
+      snapshotDataDto.setData(highlightingRules.get(component));
+
+      snapshotDataDao.insert(snapshotDataDto);
+    }
   }
 }

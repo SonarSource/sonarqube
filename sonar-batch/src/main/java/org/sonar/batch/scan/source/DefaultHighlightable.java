@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.source;
+package org.sonar.batch.scan.source;
 
 import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.Highlightable;
@@ -27,10 +27,19 @@ import org.sonar.api.scan.source.Highlightable;
  */
 public class DefaultHighlightable implements Highlightable {
 
+  private final Component component;
+  private final SyntaxHighlightingCache syntaxHighlightingCache;
   private final SyntaxHighlightingRuleSet.Builder highlightingRulesBuilder;
 
-  public DefaultHighlightable() {
-    highlightingRulesBuilder = SyntaxHighlightingRuleSet.builder();
+  public DefaultHighlightable(Component component, SyntaxHighlightingCache syntaxHighlightingCache) {
+    this.component = component;
+    this.syntaxHighlightingCache = syntaxHighlightingCache;
+    this.highlightingRulesBuilder = SyntaxHighlightingRuleSet.builder();
+  }
+
+  @Override
+  public SyntaxHighlighter createHighlighter() {
+    return new DefaultSyntaxHighlighter();
   }
 
   @Override
@@ -40,10 +49,25 @@ public class DefaultHighlightable implements Highlightable {
 
   @Override
   public Component component() {
-    throw new UnsupportedOperationException("Unexpected call to component API");
+    return component;
   }
 
   public SyntaxHighlightingRuleSet getHighlightingRules() {
     return highlightingRulesBuilder.build();
+  }
+
+  private class DefaultSyntaxHighlighter implements SyntaxHighlighter {
+
+    @Override
+    public SyntaxHighlighter highlightText(int startOffset, int endOffset, String typeOfText) {
+      highlightingRulesBuilder.registerHighlightingRule(startOffset, endOffset, typeOfText);
+      return this;
+    }
+
+    @Override
+    public void applyHighlighting() {
+      String serializedHighlightingRules = highlightingRulesBuilder.build().serializeAsString();
+      syntaxHighlightingCache.registerSourceHighlighting(component().key(), serializedHighlightingRules);
+    }
   }
 }

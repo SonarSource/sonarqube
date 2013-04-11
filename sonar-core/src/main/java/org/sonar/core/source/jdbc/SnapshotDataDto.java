@@ -70,4 +70,30 @@ public class SnapshotDataDto {
   public void setDataType(String dataType) {
     this.dataType = dataType;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    SnapshotDataDto that = (SnapshotDataDto) o;
+
+    if (id != that.id) return false;
+    if (resourceId != that.resourceId) return false;
+    if (snapshotId != that.snapshotId) return false;
+    if (data != null ? !data.equals(that.data) : that.data != null) return false;
+    if (dataType != null ? !dataType.equals(that.dataType) : that.dataType != null) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + (int) (snapshotId ^ (snapshotId >>> 32));
+    result = 31 * result + (int) (resourceId ^ (resourceId >>> 32));
+    result = 31 * result + (data != null ? data.hashCode() : 0);
+    result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
+    return result;
+  }
 }

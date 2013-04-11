@@ -21,12 +21,14 @@
 package org.sonar.core.source.jdbc;
 
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
 /**
  * @since 3.6
  */
-public class SnapshotDataDao {
+public class SnapshotDataDao implements BatchComponent, ServerComponent {
 
   private final MyBatis mybatis;
 

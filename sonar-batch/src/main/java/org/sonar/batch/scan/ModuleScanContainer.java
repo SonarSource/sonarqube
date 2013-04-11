@@ -57,11 +57,7 @@ import org.sonar.batch.scan.filesystem.LanguageFilters;
 import org.sonar.batch.scan.filesystem.ModuleFileSystemProvider;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.batch.issue.ScanIssuableFactory;
-import org.sonar.core.source.HighlightableBuilder;
-import org.sonar.core.test.TestPlanBuilder;
-import org.sonar.core.test.TestPlanPerspectiveLoader;
-import org.sonar.core.test.TestableBuilder;
-import org.sonar.core.test.TestablePerspectiveLoader;
+import org.sonar.batch.scan.source.HighlightableBuilder;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
