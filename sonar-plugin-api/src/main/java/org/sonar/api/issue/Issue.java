@@ -30,8 +30,10 @@ public interface Issue {
   String STATUS_REOPENED = "REOPENED";
   String STATUS_RESOLVED = "RESOLVED";
   String STATUS_CLOSED = "CLOSED";
+
   String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
   String RESOLUTION_FIXED = "FIXED";
+
   String SEVERITY_INFO = "INFO";
   String SEVERITY_MINOR = "MINOR";
   String SEVERITY_MAJOR = "MAJOR";
@@ -39,7 +41,7 @@ public interface Issue {
   String SEVERITY_BLOCKER = "BLOCKER";
 
   /**
-   * Unique key
+   * Unique generated key
    */
   String key();
 

@@ -17,29 +17,29 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.issue;
+package org.sonar.batch.issue;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.junit.Test;
+import org.sonar.api.issue.Issue;
+import org.sonar.core.issue.DefaultIssue;
 
-import javax.annotation.Nullable;
+import static org.fest.assertions.Assertions.assertThat;
 
-public interface IssueActions extends BatchComponent, ServerComponent {
+public class ScanIssueActionsTest {
 
-  Issue comment(Issue issue, String userLogin, String comment);
+  ScanIssueActions actions = new ScanIssueActions();
 
-  Issue setSeverity(Issue issue, String severity);
+  @Test
+  public void should_set_severity() throws Exception {
+    Issue issue = new DefaultIssue();
+    issue = actions.setSeverity(issue, Issue.SEVERITY_INFO);
+    assertThat(issue.severity()).isEqualTo(Issue.SEVERITY_INFO);
+  }
 
-  Issue setManualSeverity(Issue issue, String severity);
-
-  Issue setMessage(Issue issue, String message);
-
-  Issue setCost(Issue issue, @Nullable Double cost);
-
-  Issue setResolution(Issue issue, String resolution);
-
-  Issue assign(Issue issue, String userLogin);
-
-  Issue setAttribute(Issue issue, String key, @Nullable String value);
-
+  @Test
+  public void should_set_cost() throws Exception {
+    Issue issue = new DefaultIssue();
+    issue = actions.setCost(issue, 123.0);
+    assertThat(issue.cost()).isEqualTo(123.0);
+  }
 }

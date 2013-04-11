@@ -50,11 +50,7 @@ public class DeprecatedViolations implements BatchComponent {
   Issue toIssue(Violation violation) {
     DefaultIssue issue = new DefaultIssue();
     issue.setComponentKey(violation.getResource().getEffectiveKey());
-    if (violation.getPermanentId() != null) {
-      issue.setKey(violation.getPermanentId().toString());
-    } else {
-      issue.setKey(UUID.randomUUID().toString());
-    }
+    issue.setKey(UUID.randomUUID().toString());
     issue.setRuleRepositoryKey(violation.getRule().getRepositoryKey());
     issue.setRuleKey(violation.getRule().getKey());
     issue.setCost(violation.getCost());

@@ -32,12 +32,15 @@ import java.util.Set;
 public class DefaultIssue implements Issue {
 
   private static final Set<String> SEVERITIES = ImmutableSet.of(SEVERITY_BLOCKER, SEVERITY_CRITICAL, SEVERITY_MAJOR, SEVERITY_MINOR, SEVERITY_INFO);
+  private static final Set<String> RESOLUTIONS = ImmutableSet.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED);
+  private static final Set<String> STATUSES = ImmutableSet.of(STATUS_OPEN, STATUS_CLOSED, STATUS_REOPENED, STATUS_RESOLVED);
 
   private String key;
   private String componentKey;
   private String ruleKey;
   private String ruleRepositoryKey;
   private String severity;
+  private boolean manualSeverity = false;
   private String title;
   private String message;
   private Integer line;
@@ -67,8 +70,8 @@ public class DefaultIssue implements Issue {
     return componentKey;
   }
 
-  public DefaultIssue setComponentKey(String componentKey) {
-    this.componentKey = componentKey;
+  public DefaultIssue setComponentKey(String s) {
+    this.componentKey = s;
     return this;
   }
 
@@ -97,6 +100,15 @@ public class DefaultIssue implements Issue {
   public DefaultIssue setSeverity(@Nullable String s) {
     Preconditions.checkArgument(s == null || SEVERITIES.contains(s), "Not a valid severity: " + s);
     this.severity = s;
+    return this;
+  }
+
+  public boolean isManualSeverity() {
+    return manualSeverity;
+  }
+
+  public DefaultIssue setManualSeverity(boolean b) {
+    this.manualSeverity = b;
     return this;
   }
 
@@ -142,8 +154,9 @@ public class DefaultIssue implements Issue {
     return status;
   }
 
-  public DefaultIssue setStatus(@Nullable String status) {
-    this.status = status;
+  public DefaultIssue setStatus(@Nullable String s) {
+    Preconditions.checkArgument(s == null || STATUSES.contains(s), "Not a valid status: " + s);
+    this.status = s;
     return this;
   }
 
@@ -151,8 +164,9 @@ public class DefaultIssue implements Issue {
     return resolution;
   }
 
-  public DefaultIssue setResolution(@Nullable String resolution) {
-    this.resolution = resolution;
+  public DefaultIssue setResolution(@Nullable String s) {
+    Preconditions.checkArgument(s == null || RESOLUTIONS.contains(s), "Not a valid resolution: " + s);
+    this.resolution = s;
     return this;
   }
 
@@ -232,11 +246,15 @@ public class DefaultIssue implements Issue {
     return attributes == null ? null : attributes.get(key);
   }
 
-  public DefaultIssue setAttribute(String key, String value) {
+  public DefaultIssue setAttribute(String key, @Nullable String value) {
     if (attributes == null) {
       attributes = Maps.newHashMap();
     }
-    attributes.put(key, value);
+    if (value == null) {
+      attributes.remove(key);
+    } else {
+      attributes.put(key, value);
+    }
     return this;
   }
 

@@ -35,6 +35,7 @@ import org.sonar.batch.index.*;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.IssuePersister;
+import org.sonar.batch.issue.ScanIssueActions;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -79,6 +80,7 @@ public class ProjectScanContainer extends ComponentContainer {
       LastSnapshots.class,
       SnapshotCache.class,
 
+      ScanIssueActions.class,
       DeprecatedViolations.class,
       IssueCache.class,
       IssuePersister.class,
