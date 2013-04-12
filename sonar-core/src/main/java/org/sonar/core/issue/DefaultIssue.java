@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issue;
 
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;

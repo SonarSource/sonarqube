@@ -20,6 +20,7 @@
 package org.sonar.core.issue;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -31,6 +32,8 @@ import java.util.Date;
  * @since 3.6
  */
 public final class IssueDto {
+
+  public static final int MESSAGE_MAX_SIZE = 4000;
 
   private Long id;
   private String uuid;
@@ -132,7 +135,7 @@ public final class IssueDto {
   }
 
   public IssueDto setMessage(String message) {
-    this.message = message;
+    this.message = abbreviateMessage(message);
     return this;
   }
 
@@ -244,6 +247,10 @@ public final class IssueDto {
   public IssueDto setClosedAt(Date closedAt) {
     this.closedAt = closedAt;
     return this;
+  }
+
+  public static String abbreviateMessage(String message) {
+    return message!= null ? StringUtils.abbreviate(StringUtils.trim(message), MESSAGE_MAX_SIZE) : null;
   }
 
   @Override

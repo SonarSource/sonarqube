@@ -42,7 +42,7 @@ public class DefaultIssueBuilderTest {
       .done();
 
     assertThat(issue).isNotNull();
-    assertThat(issue.key()).isNotEmpty();
+    assertThat(issue.key()).isNull();
     assertThat(issue.cost()).isEqualTo(10000.0);
     assertThat(issue.componentKey()).isEqualTo(componentKey);
     assertThat(issue.message()).isEqualTo("msg");

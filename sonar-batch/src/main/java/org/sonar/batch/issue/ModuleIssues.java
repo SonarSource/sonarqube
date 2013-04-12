@@ -20,24 +20,29 @@
 package org.sonar.batch.issue;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.OnIssueCreation;
 
 import java.util.Collection;
-import java.util.Date;
+import java.util.UUID;
 
 public class ModuleIssues implements OnIssueCreation, BatchComponent {
 
   private final RulesProfile qProfile;
   private final IssueCache cache;
+  private final Project project;
 
-  public ModuleIssues(RulesProfile qProfile, IssueCache cache) {
+  public ModuleIssues(RulesProfile qProfile, IssueCache cache, Project project) {
     this.qProfile = qProfile;
     this.cache = cache;
+    this.project = project;
   }
 
   public Collection<Issue> issues(String componentKey) {
@@ -53,9 +58,11 @@ public class ModuleIssues implements OnIssueCreation, BatchComponent {
       return;
     }
 
-    // TODO date of scan
-    issue.setCreatedAt(new Date());
-
+    String key = UUID.randomUUID().toString();
+    Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
+    issue.setKey(key);
+    issue.setCreatedAt(project.getAnalysisDate());
+    issue.setStatus(Issue.STATUS_OPEN);
     if (issue.severity() == null) {
       issue.setSeverity(Objects.firstNonNull(activeRule.getSeverity().name(), Issue.SEVERITY_MAJOR));
     }

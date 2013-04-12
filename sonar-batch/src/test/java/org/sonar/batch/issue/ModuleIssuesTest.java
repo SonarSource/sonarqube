@@ -17,33 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.timemachine;
 
+package org.sonar.batch.issue;
+
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+public class ModuleIssuesTest {
 
-public class ViolationTrackingBlocksRecognizerTest {
+  private ModuleIssues moduleIssues;
+
+  @Before
+  public void setUp() throws Exception {
+
+
+  }
 
   @Test
-  public void test() {
-    assertThat(compute(t("abcde"), t("abcde"), 3, 3)).isEqualTo(5);
-    assertThat(compute(t("abcde"), t("abcd"), 3, 3)).isEqualTo(4);
-    assertThat(compute(t("bcde"), t("abcde"), 3, 3)).isEqualTo(0);
-    assertThat(compute(t("bcde"), t("abcde"), 2, 3)).isEqualTo(4);
-  }
+  public void testName() throws Exception {
+    // TODO
 
-  private static int compute(String a, String b, int ai, int bi) {
-    ViolationTrackingBlocksRecognizer rec = new ViolationTrackingBlocksRecognizer(a, b);
-    return rec.computeLengthOfMaximalBlock(ai, bi);
-  }
 
-  private static String t(String text) {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < text.length(); i++) {
-      sb.append(text.charAt(i)).append('\n');
-    }
-    return sb.toString();
   }
-
 }

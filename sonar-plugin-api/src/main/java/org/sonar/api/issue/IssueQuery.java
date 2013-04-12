@@ -117,6 +117,7 @@ public class IssueQuery {
 
     public Builder() {
       componentKeys = newArrayList();
+      status = newArrayList();
     }
 
     public Builder keys(List<String> keys) {
@@ -135,7 +136,12 @@ public class IssueQuery {
     }
 
     public Builder status(List<String> status) {
-      this.status = status;
+      this.status.addAll(status);
+      return this;
+    }
+
+    public Builder status(String... status) {
+      this.status.addAll(newArrayList(status));
       return this;
     }
 
@@ -146,6 +152,11 @@ public class IssueQuery {
 
     public Builder componentKeys(List<String> componentKeys) {
       this.componentKeys = componentKeys;
+      return this;
+    }
+
+    public Builder componentKeys(String... componentKeys) {
+      this.componentKeys.addAll(newArrayList(componentKeys));
       return this;
     }
 
