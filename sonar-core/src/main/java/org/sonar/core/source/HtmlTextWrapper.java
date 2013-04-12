@@ -42,8 +42,10 @@ public class HtmlTextWrapper {
   public static final char LF_END_OF_LINE = '\n';
   public static final char HTML_OPENING = '<';
   public static final char HTML_CLOSING = '>';
+  public static final char AMPERSAND = '&';
   public static final String ENCODED_HTML_OPENING = "&lt;";
   public static final String ENCODED_HTML_CLOSING = "&gt;";
+  public static final String ENCODED_AMPERSAND = "&amp;";
 
   public List<String> wrapTextWithHtml(String text, HighlightingContext context) {
 
@@ -100,12 +102,17 @@ public class HtmlTextWrapper {
   }
 
   private char[] normalize(char currentChar) {
+    char[] normalizedChars;
     if(currentChar == HTML_OPENING) {
-      return ENCODED_HTML_OPENING.toCharArray();
+      normalizedChars = ENCODED_HTML_OPENING.toCharArray();
     } else if(currentChar == HTML_CLOSING) {
-      return ENCODED_HTML_CLOSING.toCharArray();
+      normalizedChars = ENCODED_HTML_CLOSING.toCharArray();
+    } else if(currentChar == AMPERSAND) {
+      normalizedChars = ENCODED_AMPERSAND.toCharArray();
+    } else {
+      normalizedChars = new char[]{currentChar};
     }
-    return new char[]{currentChar};
+    return normalizedChars;
   }
 
   private boolean shouldAppendCharToHtmlOutput(CharactersReader charsReader) {

@@ -165,7 +165,7 @@ public class HtmlTextWrapperTest {
   }
 
   @Test
-  public void should_encode_markup_chars() throws Exception {
+  public void should_escape_markup_chars() throws Exception {
 
     String javadocWithHtml =
             "/**\n" +
@@ -198,5 +198,37 @@ public class HtmlTextWrapperTest {
             "<span class=\"cppd\"> *   &lt;li&gt;...&lt;/li&gt;</span>",
             "<span class=\"cppd\"> * &lt;/ul&gt;</span>",
             "<span class=\"cppd\"> */</span>");
+  }
+
+  @Test
+  public void should_escape_ampersand_char() throws Exception {
+
+    String javadocWithAmpersandChar =
+            "/**\n" +
+            " * Definition of a dashboard.\n" +
+            " * <p/>\n" +
+            " * Its name and description can be retrieved using the i18n mechanism, using the keys \"dashboard.&lt;id&gt;.name\" and\n" +
+            " * \"dashboard.&lt;id&gt;.description\".\n" +
+            " *\n" +
+            " * @since 2.13\n" +
+            " */\n";
+
+    HighlightingContext context = HighlightingContext.buildFrom("0,220,cppd;");
+
+    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
+    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(javadocWithAmpersandChar, context);
+
+    assertThat(htmlOutput).containsExactly(
+            "<span class=\"cppd\">/**</span>",
+            "<span class=\"cppd\"> * Definition of a dashboard.</span>",
+            "<span class=\"cppd\"> * &lt;p/&gt;</span>",
+            "<span class=\"cppd\"> * Its name and description can be retrieved using the i18n mechanism, using the keys \"dashboard.&amp;lt;id&amp;gt;.name\" and</span>",
+            "<span class=\"cppd\"> * \"dashboard.&amp;lt;id&amp;gt;.description\".</span>",
+            "<span class=\"cppd\"> *</span>",
+            "<span class=\"cppd\"> * @since 2.13</span>",
+            "<span class=\"cppd\"> */</span>");
+
+
+
   }
 }
