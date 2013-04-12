@@ -87,13 +87,13 @@
           <%= h(issue.message) %>
         </td>
         <td>
-          <span class="nowrap"><%= h issue.component_key -%></span>
+          <%= h issue.component_key -%>
         </td>
         <td>
           <%= issue.rule_repository_key + ":" + issue.rule_key %>
         </td>
         <td>
-          <%= issue.cost -%>
+          <%= issue.line -%>
         </td>
         <td>
           <%= issue.cost -%>

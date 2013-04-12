@@ -29,7 +29,7 @@ public class IssueQueryTest extends QueryTestCase {
   @Test
   public void get_all_issues() {
     IssueQuery query = IssueQuery.create();
-    assertThat(query.getUrl()).isEqualTo("/api/issues?");
+    assertThat(query.getUrl()).isEqualTo("/api/issues/search?");
   }
 
   @Test
@@ -45,16 +45,9 @@ public class IssueQueryTest extends QueryTestCase {
         .setStatus("status1", "status2")
         .setSeverities("sev1", "sev2")
         .setUserLogins("userLogin1", "userLogin2");
-    assertThat(query.getUrl()).isEqualTo("/api/issues?keys=key1,key2&severities=sev1,sev2&minSeverity=minSev&status=status1,status2&" +
+    assertThat(query.getUrl()).isEqualTo("/api/issues/search?keys=key1,key2&severities=sev1,sev2&minSeverity=minSev&status=status1,status2&" +
         "resolutions=resoltion1,resolution2&components=component1,component2&rules=rule1,rule2&userLogins=userLogin1,userLogin2&" +
         "assigneeLogins=assigneeLogin1,assigneeLogin2&limit=1&");
-  }
-
-  @Test
-  public void get_issue_by_key() {
-    IssueQuery query = IssueQuery.byKey("issue_key");
-    assertThat(query.getUrl()).isEqualTo("/api/issues/issue_key?");
-    assertThat(query.getKey()).isEqualTo("issue_key");
   }
 
 }

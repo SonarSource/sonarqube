@@ -24,9 +24,8 @@ package org.sonar.wsclient.services;
  */
 public final class IssueQuery extends Query<Issue> {
 
-  public static final String BASE_URL = "/api/issues";
+  public static final String BASE_URL = "/api/issues/search";
 
-  private String key;
   private String[] keys;
   private String[] severities;
   private String minSeverity;
@@ -47,19 +46,6 @@ public final class IssueQuery extends Query<Issue> {
 
   public static IssueQuery create() {
     return new IssueQuery();
-  }
-
-  public static IssueQuery byKey(String key) {
-    return new IssueQuery().setKey(key);
-  }
-
-  public String getKey() {
-    return key;
-  }
-
-  public IssueQuery setKey(String key) {
-    this.key = key;
-    return this;
   }
 
   public String[] getKeys() {
@@ -155,10 +141,6 @@ public final class IssueQuery extends Query<Issue> {
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
-    if (key != null && !"".equals(key)) {
-      url.append("/");
-      url.append(encode(key));
-    }
     url.append('?');
     appendUrlParameter(url, "keys", keys);
     appendUrlParameter(url, "severities", severities);
