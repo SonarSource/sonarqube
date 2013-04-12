@@ -134,11 +134,15 @@ public class HtmlTextWrapper {
   }
 
   private boolean shouldReopenPendingTags(CharactersReader charactersReader) {
-    return charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE;
+    return (charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE)
+            || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != CR_END_OF_LINE
+                && charactersReader.getCurrentValue() != LF_END_OF_LINE
+    );
   }
 
   private boolean shouldStartNewLine(CharactersReader charactersReader) {
-    return charactersReader.getPreviousValue() == LF_END_OF_LINE;
+    return charactersReader.getPreviousValue() == LF_END_OF_LINE
+            || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE);
   }
 
   private void closeCompletedTags(CharactersReader charactersReader, int numberOfTagsToClose,
