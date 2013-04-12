@@ -35,16 +35,6 @@ public class DefaultHighlightableTest {
   public ExpectedException throwable = ExpectedException.none();
 
   @Test
-  public void should_register_highlighting_rule() throws Exception {
-
-    DefaultHighlightable highlightable = new DefaultHighlightable(null, null);
-    highlightable.highlightText(1, 10, "k");
-
-    assertThat(highlightable.getHighlightingRules().getSyntaxHighlightingRuleSet()).hasSize(1);
-  }
-
-
-  @Test
   public void should_store_highlighting_rules() throws Exception {
 
     DefaultHighlightable highlightablePerspective = new DefaultHighlightable(null, null);

@@ -47,17 +47,18 @@ public class SyntaxHighlightingPersister implements ScanPersister {
 
     Map<String, String> highlightingRules = highlightingCache.getHighlightingRulesByComponent();
 
-    for (String component : highlightingRules.keySet()) {
+    for (Map.Entry<String, String> componentRules : highlightingRules.entrySet()) {
 
-      Snapshot snapshotForComponent = snapshots.get(component);
+      Snapshot snapshotForComponent = snapshots.get(componentRules.getKey());
 
       SnapshotDataDto snapshotDataDto = new SnapshotDataDto();
-      snapshotDataDto.setSnapshotId(snapshotForComponent.getId());
-      snapshotDataDto.setResourceId(snapshotForComponent.getResourceId());
-      snapshotDataDto.setDataType(DATA_TYPE);
-      snapshotDataDto.setData(highlightingRules.get(component));
-
-      snapshotDataDao.insert(snapshotDataDto);
+      if(snapshotForComponent != null) {
+        snapshotDataDto.setSnapshotId(snapshotForComponent.getId());
+        snapshotDataDto.setResourceId(snapshotForComponent.getResourceId());
+        snapshotDataDto.setDataType(DATA_TYPE);
+        snapshotDataDto.setData(highlightingRules.get(componentRules.getValue()));
+        snapshotDataDao.insert(snapshotDataDto);
+      }
     }
   }
 }
