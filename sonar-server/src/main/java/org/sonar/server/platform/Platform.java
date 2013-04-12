@@ -105,11 +105,7 @@ import org.sonar.server.startup.RegisterRules;
 import org.sonar.server.startup.RegisterServletFilters;
 import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
 import org.sonar.server.startup.ServerMetadataPersister;
-import org.sonar.server.ui.CodeColorizers;
-import org.sonar.server.ui.JRubyI18n;
-import org.sonar.server.ui.PageDecorations;
-import org.sonar.server.ui.SecurityRealmFactory;
-import org.sonar.server.ui.Views;
+import org.sonar.server.ui.*;
 
 import javax.servlet.ServletContext;
 
@@ -263,7 +259,9 @@ public final class Platform {
     servicesContainer.addSingleton(DryRunDatabaseFactory.class);
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
+    servicesContainer.addSingleton(JRubyFacades.class);
     servicesContainer.addSingleton(DefaultIssueFinder.class);
+    servicesContainer.addSingleton(DefaultJRubyIssues.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

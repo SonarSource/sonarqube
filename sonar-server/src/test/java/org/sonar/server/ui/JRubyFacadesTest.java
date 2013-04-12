@@ -17,30 +17,19 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.issue;
+package org.sonar.server.ui;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-public class IssueQueryTest {
+public class JRubyFacadesTest {
 
   @Test
-  public void should_build_query() throws Exception {
-    IssueQuery query = IssueQuery.builder()
-      .keys(Lists.newArrayList("ABCDE"))
-      .severities(Lists.newArrayList(Issue.SEVERITY_BLOCKER))
-      .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
-      .assigneeLogins(Lists.newArrayList("gargantua"))
-      .limit(125)
-      .offset(33)
-      .build();
-    assertThat(query.keys()).containsExactly("ABCDE");
-    assertThat(query.severities()).containsExactly(Issue.SEVERITY_BLOCKER);
-    assertThat(query.statuses()).containsExactly(Issue.STATUS_RESOLVED);
-    assertThat(query.assigneeLogins()).containsExactly("gargantua");
-    assertThat(query.limit()).isEqualTo(125);
-    assertThat(query.offset()).isEqualTo(33);
+  public void register_issues_facade_on_creation() throws Exception {
+    DefaultJRubyIssues issues = mock(DefaultJRubyIssues.class);
+    JRubyFacades.setIssues(issues);
+    assertThat(JRubyFacades.issues()).isSameAs(issues);
   }
 }
