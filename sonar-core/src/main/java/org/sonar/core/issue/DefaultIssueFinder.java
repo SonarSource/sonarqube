@@ -32,6 +32,7 @@ import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
@@ -120,8 +121,9 @@ public class DefaultIssueFinder implements IssueFinder {
     issue.setUserLogin(dto.getUserLogin());
     issue.setAssigneeLogin(dto.getAssigneeLogin());
     issue.setCreatedAt(dto.getCreatedAt());
-    issue.setUpdatedAt(dto.getCreatedAt());
-    issue.setClosedAt(dto.getUpdatedAt());
+    issue.setUpdatedAt(dto.getUpdatedAt());
+    issue.setClosedAt(dto.getClosedAt());
+    issue.setAttributes(KeyValueFormat.parse(dto.getData()));
     if (resource != null) {
       issue.setComponentKey(resource.getKey());
     }

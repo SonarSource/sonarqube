@@ -1,0 +1,131 @@
+<%
+   if @issues && !@issues.empty?
+%>
+  <table id="issues-list" class="data width100">
+    <thead>
+    <tr>
+      <th width="1%" nowrap>
+        <%= message('identifier_abbreviated') -%>
+      </th>
+      <th width="1%" nowrap>
+        <%= message('status_abbreviated') -%>
+      </th>
+      <th width="1%" nowrap>
+        <%= message('severity_abbreviated') -%>
+      </th>
+      <th>
+        Resolution
+      </th>
+      <th>
+        <%= message('title') -%>
+      </th>
+      <th>
+        Message
+      </th>
+      <th width="1%">
+        <%= message('project') -%>
+      </th>
+      <th>
+        Rule
+      </th>
+      <th width="1%">
+        Line
+      </th>
+      <th width="1%">
+        Cost
+      </th>
+      <th>
+        User
+      </th>
+      <th>
+        Assignee
+      </th>
+      <th>
+        Attr
+      </th>
+      <th>
+        Created at
+      </th>
+      <th>
+        Updated at
+      </th>
+      <th>
+        Closed at
+      </th>
+    </tr>
+    </thead>
+    <tfoot>
+    <tr>
+      <td colspan="6">
+        <%= paginate(@issues) -%>
+      </td>
+    </tr>
+    </tfoot>
+    <tbody>
+    <%
+       @issues.each do |issue|
+    %>
+      <tr class="<%= cycle('even', 'odd') -%>">
+        <td>
+          <%= h(issue.key) %>
+        </td>
+        <td>
+          <img src="<%= ApplicationController.root_context -%>/images/status/<%= issue.status -%>.png" title="<%= message(issue.status.downcase).capitalize -%>"/>
+        </td>
+        <td>
+          <% if issue.severity %>
+            <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= message(issue.severity.downcase).capitalize -%>"/>
+          <% end %>
+        </td>
+        <td>
+          <%= h(issue.resolution) %>
+        </td>
+        <td>
+          <%= h(issue.title) %>
+        </td>
+        <td>
+          <%= h(issue.message) %>
+        </td>
+        <td>
+          <span class="nowrap"><%= h issue.component_key -%></span>
+        </td>
+        <td>
+          <%= issue.rule_repository_key + ":" + issue.rule_key %>
+        </td>
+        <td>
+          <%= issue.cost -%>
+        </td>
+        <td>
+          <%= issue.cost -%>
+        </td>
+        <td>
+          <%= issue.user_login -%>
+        </td>
+        <td>
+          <%= issue.assignee_login -%>
+        </td>
+        <td>
+          <%= issue.attributes -%>
+        </td>
+        <td>
+          <%= issue.created_at -%>
+        </td>
+        <td>
+          <%= issue.updated_at -%>
+        </td>
+        <td>
+          <%= issue.closed_at -%>
+        </td>
+      </tr>
+    <%
+       end
+    %>
+    </tbody>
+  </table>
+<%
+   elsif @issues
+%>
+  <p><%= message('no_results') -%></p>
+<%
+   end
+%>

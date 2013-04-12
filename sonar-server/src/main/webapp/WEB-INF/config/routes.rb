@@ -26,8 +26,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'api/resoures', :controller => 'api/resources', :action => 'index'
   map.connect 'api/sources', :controller => 'api/sources', :action => 'index'
   map.connect 'api/violations', :controller => 'api/violations', :action => 'index'
-  map.connect 'api/issues', :controller => 'api/issues', :action => 'index', :conditions => { :method => :get }
-  map.connect 'api/issues/:key', :controller => 'api/issues', :action => 'show', :conditions => { :method => :get }
 
   map.resources 'rules', :path_prefix => 'api', :controller => 'api/rules'
   map.resources 'properties', :path_prefix => 'api', :controller => 'api/properties', :requirements => { :id => /.*/ }

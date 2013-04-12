@@ -227,7 +227,7 @@ public final class KeyValueFormat {
     return map;
   }
 
-  public static Map parse(String data) {
+  public static Map<String, String> parse(String data) {
     return parse(data, newStringConverter(), newStringConverter());
   }
 

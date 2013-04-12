@@ -23,6 +23,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.ScanPersister;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.issue.DefaultIssue;
@@ -76,6 +77,7 @@ public class IssuePersister implements ScanPersister {
         .setCost(issue.cost())
         .setResolution(issue.resolution())
         .setStatus(issue.status())
+        .setSeverity(issue.severity())
         .setChecksum(issue.getChecksum())
         .setManualIssue(issue.isManual())
         .setManualSeverity(issue.isManualSeverity())
@@ -86,9 +88,8 @@ public class IssuePersister implements ScanPersister {
         .setClosedAt(issue.closedAt())
         .setRuleId(ruleId)
         .setResourceId(componentId)
-
-            // TODO
-//        .setData(null)
+        .setData(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : null)
+        // TODO
 //        .setPersonId()
         ;
   }

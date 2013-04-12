@@ -20,6 +20,7 @@
 package org.sonar.api.issue;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @since 3.6
@@ -76,6 +77,8 @@ public interface Issue {
   Date closedAt();
 
   String attribute(String key);
+
+  Map<String, String> attributes();
 
   /**
    * Used only during project scan.

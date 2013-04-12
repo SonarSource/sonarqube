@@ -20,8 +20,11 @@
 package org.sonar.core.issue;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.Issue;
 
 import javax.annotation.Nullable;
@@ -259,6 +262,15 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  public Map<String, String> attributes() {
+    return attributes == null ? null : ImmutableMap.copyOf(attributes);
+  }
+
+  public DefaultIssue setAttributes(Map<String, String> attributes){
+    this.attributes = attributes;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -278,4 +290,10 @@ public class DefaultIssue implements Issue {
   public int hashCode() {
     return key != null ? key.hashCode() : 0;
   }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
 }

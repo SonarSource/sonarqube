@@ -56,10 +56,9 @@ public class DeprecatedViolations implements BatchComponent {
         .setCost(violation.getCost())
         .setLine(violation.getLineId())
         .setMessage(violation.getMessage())
-        .setStatus(Issue.STATUS_OPEN);
-    if (violation.getSeverity() != null) {
-      issue.setSeverity(violation.getSeverity().name());
-    }
+        .setStatus(Issue.STATUS_OPEN)
+        .setSeverity(violation.getSeverity() != null ? violation.getSeverity().name() : null);
+
     // FIXME
     //issue.setPerson(violation.getPersonId());
     return issue;

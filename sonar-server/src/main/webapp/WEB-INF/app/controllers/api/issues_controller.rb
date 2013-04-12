@@ -32,6 +32,14 @@ class Api::IssuesController < Api::ApiController
     Api.issues.find(map)
   end
 
+  def issues_to_json(issues)
+    json = []
+    issues.each do |issue|
+      json << issue_to_json(issue) if issue
+    end
+    json
+  end
+
   def issue_to_json(issue)
     json = {
         :key => issue.key,
