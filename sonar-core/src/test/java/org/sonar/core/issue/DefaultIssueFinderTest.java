@@ -17,19 +17,19 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.core.issue;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
-import java.util.Collection;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -56,16 +56,18 @@ public class DefaultIssueFinderTest {
   public void should_find_issues() {
     IssueQuery issueQuery = mock(IssueQuery.class);
 
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(1).setResourceId(1);
-    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(1).setResourceId(1);
-    Collection<IssueDto> dtoList = newArrayList(issue1, issue2);
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123);
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123);
+    List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.select(issueQuery)).thenReturn(dtoList);
-    when(ruleFinder.findById(anyInt())).thenReturn(Rule.create("repo", "key"));
-    when(resourceDao.getResource(anyInt())).thenReturn(new ResourceDto().setKey("componentKey"));
+    Rule rule = Rule.create("repo", "key");
+    rule.setId(50);
+    when(ruleFinder.findById(anyInt())).thenReturn(rule);
+    when(resourceDao.getResource(anyInt())).thenReturn(new ResourceDto().setKey("componentKey").setId(123L));
 
-    Collection<Issue> issues = finder.find(issueQuery);
-    assertThat(issues).hasSize(2);
-    Issue issue = issues.iterator().next();
+    IssueFinder.Results results = finder.find(issueQuery);
+    assertThat(results.issues()).hasSize(2);
+    Issue issue = results.issues().iterator().next();
     assertThat(issue.componentKey()).isEqualTo("componentKey");
     assertThat(issue.ruleKey()).isEqualTo("key");
     assertThat(issue.ruleRepositoryKey()).isEqualTo("repo");
@@ -74,7 +76,7 @@ public class DefaultIssueFinderTest {
   @Test
   public void should_find_by_key() {
     IssueDto issueDto = new IssueDto().setId(1L).setRuleId(1).setResourceId(1);
-    when(issueDao.findByUuid("key")).thenReturn(issueDto);
+    when(issueDao.selectByKey("key")).thenReturn(issueDto);
     when(ruleFinder.findById(anyInt())).thenReturn(Rule.create("repo", "key"));
     when(resourceDao.getResource(anyInt())).thenReturn(new ResourceDto().setKey("componentKey"));
 

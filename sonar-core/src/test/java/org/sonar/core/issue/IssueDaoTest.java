@@ -36,10 +36,10 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueDaoTest extends AbstractDaoTestCase {
 
-  private IssueDao dao;
+  IssueDao dao;
 
   @Before
-  public void createDao() {
+  public void setUp() {
     dao = new IssueDao(getMyBatis());
   }
 
@@ -67,13 +67,13 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     dao.insert(issueDto);
 
-    checkTables("insert", new String[] {"id", "created_at", "updated_at", "closed_at"}, "issues");
+    checkTables("insert", new String[]{"id", "created_at", "updated_at", "closed_at"}, "issues");
   }
 
   @Test
   public void update() {
     setupData("update");
-    Collection<IssueDto> issues = newArrayList(dao.findById(100L));
+    Collection<IssueDto> issues = newArrayList(dao.selectById(100L));
     IssueDto issue = issues.iterator().next();
     issue.setLine(1000);
     issue.setResolution("NEW_RESOLUTION");
@@ -96,7 +96,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_find_issue_by_id() {
     setupData("shared");
 
-    IssueDto issue = dao.findById(100L);
+    IssueDto issue = dao.selectById(100L);
     assertThat(issue.getId()).isEqualTo(100L);
     assertThat(issue.getUuid()).isEqualTo("100");
     assertThat(issue.getResourceId()).isEqualTo(400);
@@ -124,7 +124,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_find_issue_by_uuid() {
     setupData("shared");
 
-    IssueDto issue = dao.findByUuid("100");
+    IssueDto issue = dao.selectByKey("100");
     assertThat(issue).isNotNull();
   }
 
@@ -132,36 +132,36 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_by_parameter() {
     setupData("select");
 
-    IssueQuery issueQuery = new IssueQuery.Builder().keys(newArrayList("100")).build();
-    assertThat(dao.select(issueQuery)).hasSize(1);
+    IssueQuery query = IssueQuery.builder().keys(newArrayList("100")).build();
+    assertThat(dao.select(query)).hasSize(1);
 
-    issueQuery = new IssueQuery.Builder().componentKeys(newArrayList("key")).build();
-    assertThat(dao.select(issueQuery)).hasSize(2);
+    query = IssueQuery.builder().components(newArrayList("key")).build();
+    assertThat(dao.select(query)).hasSize(2);
 
-    issueQuery = new IssueQuery.Builder().resolutions(newArrayList("FALSE-POSITIVE")).build();
-    assertThat(dao.select(issueQuery)).hasSize(1);
+    query = IssueQuery.builder().resolutions(newArrayList("FALSE-POSITIVE")).build();
+    assertThat(dao.select(query)).hasSize(1);
 
-    issueQuery = new IssueQuery.Builder().status(newArrayList("OPEN")).build();
-    assertThat(dao.select(issueQuery)).hasSize(2);
+    query = IssueQuery.builder().statuses(newArrayList("OPEN")).build();
+    assertThat(dao.select(query)).hasSize(2);
 
-    issueQuery = new IssueQuery.Builder().severities(newArrayList("BLOCKER")).build();
-    assertThat(dao.select(issueQuery)).hasSize(4);
+    query = IssueQuery.builder().severities(newArrayList("BLOCKER")).build();
+    assertThat(dao.select(query)).hasSize(4);
 
-    issueQuery = new IssueQuery.Builder().userLogins(newArrayList("user")).build();
-    assertThat(dao.select(issueQuery)).hasSize(1);
+    query = IssueQuery.builder().userLogins(newArrayList("user")).build();
+    assertThat(dao.select(query)).hasSize(1);
 
-    issueQuery = new IssueQuery.Builder().assigneeLogins(newArrayList("user")).build();
-    assertThat(dao.select(issueQuery)).hasSize(5);
+    query = IssueQuery.builder().assigneeLogins(newArrayList("user")).build();
+    assertThat(dao.select(query)).hasSize(5);
 
-    issueQuery = new IssueQuery.Builder().userLogins(newArrayList("user")).status(newArrayList("OPEN")).build();
-    assertThat(dao.select(issueQuery)).hasSize(1);
+    query = IssueQuery.builder().userLogins(newArrayList("user")).statuses(newArrayList("OPEN")).build();
+    assertThat(dao.select(query)).hasSize(1);
   }
 
   @Test
   public void should_return_issues_from_resource_tree() {
     setupData("select-with-component-children");
 
-    IssueQuery issueQuery = new IssueQuery.Builder().componentKeys(newArrayList("key")).build();
+    IssueQuery issueQuery = IssueQuery.builder().components(newArrayList("key")).build();
     List<IssueDto> issues = newArrayList(dao.select(issueQuery));
     assertThat(issues).hasSize(2);
     assertThat(issues.get(0).getId()).isEqualTo(100);
@@ -172,7 +172,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_without_parameter_return_all_issues() {
     setupData("select");
 
-    IssueQuery issueQuery = new IssueQuery.Builder().build();
+    IssueQuery issueQuery = IssueQuery.builder().build();
     assertThat(dao.select(issueQuery)).hasSize(5);
   }
 

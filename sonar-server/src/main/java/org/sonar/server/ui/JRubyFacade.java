@@ -48,7 +48,6 @@ import org.sonar.api.workflow.internal.DefaultWorkflowContext;
 import org.sonar.api.workflow.screen.Screen;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.issue.IssueFilter;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterResult;
 import org.sonar.core.persistence.Database;
@@ -565,7 +564,7 @@ public final class JRubyFacade {
     return get(SyntaxHighlighter.class).getHighlightedSourceAsHtml(snapshotId);
   }
 
-  public IssueFilter getIssueFilter() {
-    return get(IssueFilter.class);
-  }
+//  public IssueFilter getIssueFilter() {
+//    return get(IssueFilter.class);
+//  }
 }

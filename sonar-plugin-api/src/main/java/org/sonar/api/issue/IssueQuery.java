@@ -20,39 +20,36 @@
 
 package org.sonar.api.issue;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.Map;
 
 /**
  * @since 3.6
  */
 public class IssueQuery {
 
-  private List<String> keys;
-  private List<String> severities;
-  private String minSeverity;
-  private List<String> status;
-  private List<String> resolutions;
-  private List<String> componentKeys;
-  private List<String> rules;
-  private List<String> userLogins;
-  private List<String> assigneeLogins;
-  private Integer limit;
+  private final List<String> keys;
+  private final List<String> severities;
+  private final List<String> statuses;
+  private final List<String> resolutions;
+  private final List<String> components;
+  private final List<String> userLogins;
+  private final List<String> assigneeLogins;
+  private final int limit, offset;
 
   private IssueQuery(Builder builder) {
     this.keys = builder.keys;
     this.severities = builder.severities;
-    this.minSeverity = builder.minSeverity;
-    this.status = builder.status;
+    this.statuses = builder.statuses;
     this.resolutions = builder.resolutions;
-    this.componentKeys = builder.componentKeys;
-    this.rules = builder.rules;
+    this.components = builder.components;
     this.userLogins = builder.userLogins;
     this.assigneeLogins = builder.assigneeLogins;
     this.limit = builder.limit;
+    this.offset = builder.offset;
   }
 
   public List<String> keys() {
@@ -63,24 +60,16 @@ public class IssueQuery {
     return severities;
   }
 
-  public String minSeverity() {
-    return minSeverity;
-  }
-
-  public List<String> status() {
-    return status;
+  public List<String> statuses() {
+    return statuses;
   }
 
   public List<String> resolutions() {
     return resolutions;
   }
 
-  public List<String> componentKeys() {
-    return componentKeys;
-  }
-
-  public List<String> rules() {
-    return rules;
+  public List<String> components() {
+    return components;
   }
 
   public List<String> userLogins() {
@@ -91,8 +80,12 @@ public class IssueQuery {
     return assigneeLogins;
   }
 
-  public Integer limit() {
+  public int limit() {
     return limit;
+  }
+
+  public int offset() {
+    return offset;
   }
 
   @Override
@@ -100,82 +93,96 @@ public class IssueQuery {
     return ReflectionToStringBuilder.toString(this);
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
+
   /**
    * @since 3.6
    */
   public static class Builder {
+    private static final int DEFAULT_LIMIT = 100;
+    private static final int MAX_LIMIT = 5000;
+    private static final int DEFAULT_OFFSET = 0;
+
     private List<String> keys;
     private List<String> severities;
-    private String minSeverity;
-    private List<String> status;
+    private List<String> statuses;
     private List<String> resolutions;
-    private List<String> componentKeys;
-    private List<String> rules;
+    private List<String> components;
     private List<String> userLogins;
     private List<String> assigneeLogins;
-    private Integer limit;
+    private int limit = DEFAULT_LIMIT;
+    private int offset = DEFAULT_OFFSET;
 
-    public Builder() {
-      componentKeys = newArrayList();
+    private Builder() {
     }
 
-    public Builder keys(List<String> keys) {
-      this.keys = keys;
+    public Builder keys(List<String> l) {
+      this.keys = l;
       return this;
     }
 
-    public Builder severities(List<String> severities) {
-      this.severities = severities;
+    public Builder severities(List<String> l) {
+      this.severities = l;
       return this;
     }
 
-    public Builder minSeverity(String minSeverity) {
-      this.minSeverity = minSeverity;
+    public Builder statuses(List<String> l) {
+      this.statuses = l;
       return this;
     }
 
-    public Builder status(List<String> status) {
-      this.status = status;
+    public Builder resolutions(List<String> l) {
+      this.resolutions = l;
       return this;
     }
 
-    public Builder resolutions(List<String> resolutions) {
-      this.resolutions = resolutions;
+    public Builder components(List<String> l) {
+      this.components = l;
       return this;
     }
 
-    public Builder componentKeys(List<String> componentKeys) {
-      this.componentKeys = componentKeys;
+    public Builder userLogins(List<String> l) {
+      this.userLogins = l;
       return this;
     }
 
-    public Builder rules(List<String> rules) {
-      this.rules = rules;
+    public Builder assigneeLogins(List<String> l) {
+      this.assigneeLogins = l;
       return this;
     }
 
-    public Builder userLogins(List<String> userLogins) {
-      this.userLogins = userLogins;
+    public Builder limit(Integer i) {
+      Preconditions.checkArgument(i == null || i.intValue() > 0, "Limit must be greater than 0 (got " + i + ")");
+      Preconditions.checkArgument(i == null || i.intValue() < MAX_LIMIT, "Limit must be less than " + MAX_LIMIT + " (got " + i + ")");
+      this.limit = (i == null ? DEFAULT_LIMIT : i.intValue());
       return this;
     }
 
-    public Builder assigneeLogins(List<String> assigneeLogins) {
-      this.assigneeLogins = assigneeLogins;
-      return this;
-    }
-
-    public Builder limit(Integer limit) {
-      this.limit = limit;
+    public Builder offset(Integer i) {
+      Preconditions.checkArgument(i == null || i.intValue() >= 0, "Offset must be greater than or equal to 0 (got " + i + ")");
+      this.offset = (i == null ? DEFAULT_OFFSET : i.intValue());
       return this;
     }
 
     public IssueQuery build() {
       return new IssueQuery(this);
     }
+  }
 
-    @Override
-    public String toString() {
-      return ReflectionToStringBuilder.toString(this);
-    }
+  public static IssueQuery from(Map<String, Object> props) {
+    IssueQuery.Builder builder = new IssueQuery.Builder();
+    builder.keys((List<String>) props.get("keys"));
+    builder.severities((List<String>) props.get("severities"));
+    builder.statuses((List<String>) props.get("statuses"));
+    builder.resolutions((List<String>) props.get("resolutions"));
+    builder.components((List<String>) props.get("components"));
+    builder.userLogins((List<String>) props.get("userLogins"));
+    builder.assigneeLogins((List<String>) props.get("assigneeLogins"));
+    builder.limit((Integer) props.get("limit"));
+    builder.offset((Integer) props.get("offset"));
+    return builder.build();
   }
 }

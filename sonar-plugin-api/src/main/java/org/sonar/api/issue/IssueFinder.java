@@ -21,7 +21,10 @@
 package org.sonar.api.issue;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.component.Component;
+import org.sonar.api.rules.Rule;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -29,7 +32,11 @@ import java.util.List;
  */
 public interface IssueFinder extends ServerComponent {
 
-  List<Issue> find(IssueQuery issueQuery);
+  interface Results {
+    List<Issue> issues();
+  }
+
+  Results find(IssueQuery issueQuery);
 
   Issue findByKey(String key);
 

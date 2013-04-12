@@ -20,7 +20,7 @@
 
 package org.sonar.core.issue;
 
-import com.google.common.base.Preconditions;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -28,6 +28,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -42,9 +43,9 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   public void insert(IssueDto issueDto) {
     SqlSession session = mybatis.openSession();
-    IssueMapper mapper = session.getMapper(IssueMapper.class);
     try {
-      mapper.insert(issueDto);
+      // TODO bulk insert
+      session.insert("org.sonar.core.issue.IssueMapper.insert", issueDto);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -52,13 +53,11 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   public IssueDao update(Collection<IssueDto> issues) {
-    Preconditions.checkNotNull(issues);
-
     SqlSession session = mybatis.openBatchSession();
     try {
-      IssueMapper mapper = session.getMapper(IssueMapper.class);
+      // TODO bulk update
       for (IssueDto issue : issues) {
-        mapper.update(issue);
+        session.update("org.sonar.core.issue.IssueMapper.update", issue);
       }
       session.commit();
       return this;
@@ -68,31 +67,29 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public IssueDto findById(long issueId) {
+  public IssueDto selectById(long id) {
     SqlSession session = mybatis.openSession();
     try {
-      IssueMapper mapper = session.getMapper(IssueMapper.class);
-      return mapper.findById(issueId);
+      return session.selectOne("org.sonar.core.issue.IssueMapper.selectById", id);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public IssueDto findByUuid(String uuid) {
+  public IssueDto selectByKey(String key) {
     SqlSession session = mybatis.openSession();
     try {
-      IssueMapper mapper = session.getMapper(IssueMapper.class);
-      return mapper.findByUuid(uuid);
+      return session.selectOne("org.sonar.core.issue.IssueMapper.selectByKey", key);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public Collection<IssueDto> select(IssueQuery issueQuery) {
+  public List<IssueDto> select(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {
-      IssueMapper mapper = session.getMapper(IssueMapper.class);
-      return mapper.select(issueQuery);
+      return session.selectList("org.sonar.core.issue.IssueMapper.select", query, new RowBounds(query.offset(), query.limit()));
+
     } finally {
       MyBatis.closeQuietly(session);
     }

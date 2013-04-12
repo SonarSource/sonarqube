@@ -71,13 +71,13 @@
     where id = #{id}
   </update>
 
-  <select id="findById" parameterType="long" resultType="Issue">
+  <select id="selectById" parameterType="long" resultType="Issue">
     select <include refid="issueColumns"/>
     from issues i
     where i.id=#{id}
   </select>
 
-  <select id="findByUuid" parameterType="String" resultType="Issue">
+  <select id="selectByKey" parameterType="String" resultType="Issue">
     select <include refid="issueColumns"/>
     from issues i
     where i.uuid=#{uuid}
@@ -85,14 +85,15 @@
 
   <select id="select" parameterType="map" resultType="Issue">
     select <include refid="issueColumns"/> from issues i
-    <if test="componentKeys.size() > 0">
+    <if test="components != null and components.size() > 0">
       , projects p, snapshots root, snapshots s
     </if>
     <where>
-      <if test="componentKeys.size() > 0">
+      <if test="components != null and components.size() > 0">
         and p.enabled=${_true}
         and p.kee in
-        <foreach item="componentKey" index="index" collection="componentKeys" open="(" separator="," close=")">#{componentKey}
+        <foreach item="component" index="index" collection="components" open="(" separator="," close=")">
+          #{component}
         </foreach>
         and root.project_id=p.id
         and root.islast=${_true}
@@ -119,9 +120,9 @@
         <foreach item="severity" index="index" collection="severities" open="(" separator="," close=")">#{severity}
         </foreach>
       </if>
-      <if test="status != null">
+      <if test="statuses != null">
         and i.status in
-        <foreach item="stat" index="index" collection="status" open="(" separator="," close=")">#{stat}
+        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">#{status}
         </foreach>
       </if>
       <if test="resolutions != null">

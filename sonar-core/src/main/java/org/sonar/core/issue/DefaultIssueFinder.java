@@ -21,7 +21,10 @@
 package org.sonar.core.issue;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
@@ -32,10 +35,9 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
-import java.util.Collection;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @since 3.6
@@ -54,49 +56,92 @@ public class DefaultIssueFinder implements IssueFinder {
     this.ruleFinder = ruleFinder;
   }
 
-  public List<Issue> find(IssueQuery issueQuery) {
-    LOG.debug("IssueQuery : {}", issueQuery);
-    Collection<IssueDto> dtoList = issueDao.select(issueQuery);
-    return newArrayList(Iterables.transform(dtoList, new Function<IssueDto, Issue>() {
+  public Results find(IssueQuery query) {
+    LOG.debug("IssueQuery : {}", query);
+    List<IssueDto> dtoList = issueDao.select(query);
+
+    final Set<Integer> componentIds = Sets.newLinkedHashSet();
+    final Set<Integer> ruleIds = Sets.newLinkedHashSet();
+    for (IssueDto dto : dtoList) {
+      componentIds.add(dto.getResourceId());
+      ruleIds.add(dto.getRuleId());
+    }
+    final Map<Integer, Rule> rules = Maps.newHashMap();
+    for (Integer ruleId : ruleIds) {
+      Rule rule = ruleFinder.findById(ruleId);
+      if (rule != null) {
+        rules.put(rule.getId(), rule);
+      }
+    }
+    final Map<Integer, ResourceDto> resources = Maps.newHashMap();
+    for (Integer componentId : componentIds) {
+      ResourceDto resource = resourceDao.getResource(componentId);
+      if (resource != null) {
+        resources.put(resource.getId().intValue(), resource);
+      }
+    }
+
+    // TODO verify authorization
+
+    List<Issue> issues = ImmutableList.copyOf(Iterables.transform(dtoList, new Function<IssueDto, Issue>() {
       @Override
-      public Issue apply(IssueDto input) {
-        return toIssue(input);
+      public Issue apply(IssueDto dto) {
+        Rule rule = rules.get(dto.getRuleId());
+        ResourceDto resource = resources.get(dto.getResourceId());
+        return toIssue(dto, rule, resource);
       }
     }));
+
+
+    return new DefaultResults(issues);
   }
 
-  public Issue findByKey(String key){
-    IssueDto issueDto = issueDao.findByUuid(key);
-    return issueDto != null ? toIssue(issueDto) : null;
-  }
-
-  private Issue toIssue(IssueDto issueDto){
-    DefaultIssue issue = new DefaultIssue();
-    issue.setKey(issueDto.getUuid());
-    issue.setStatus(issueDto.getStatus());
-    issue.setResolution(issueDto.getResolution());
-    issue.setMessage(issueDto.getMessage());
-    issue.setTitle(issueDto.getTitle());
-    issue.setCost(issueDto.getCost());
-    issue.setLine(issueDto.getLine());
-    issue.setSeverity(issueDto.getSeverity());
-    issue.setUserLogin(issueDto.getUserLogin());
-    issue.setAssigneeLogin(issueDto.getAssigneeLogin());
-
-    // FIXME
-    ResourceDto resource = resourceDao.getResource(issueDto.getResourceId());
-    issue.setComponentKey(resource.getKey());
-
-    // FIXME
-    Rule rule = ruleFinder.findById(issueDto.getRuleId());
-    issue.setRuleKey(rule.getKey());
-    issue.setRuleRepositoryKey(rule.getRepositoryKey());
-
-    issue.setCreatedAt(issueDto.getCreatedAt());
-    issue.setUpdatedAt(issueDto.getCreatedAt());
-    issue.setClosedAt(issueDto.getUpdatedAt());
-
+  public Issue findByKey(String key) {
+    IssueDto dto = issueDao.selectByKey(key);
+    Issue issue = null;
+    if (dto != null) {
+      Rule rule = ruleFinder.findById(dto.getRuleId());
+      ResourceDto resource = resourceDao.getResource(dto.getResourceId());
+      issue = toIssue(dto, rule, resource);
+    }
     return issue;
   }
 
+  private Issue toIssue(IssueDto dto, Rule rule, ResourceDto resource) {
+    DefaultIssue issue = new DefaultIssue();
+    issue.setKey(dto.getUuid());
+    issue.setStatus(dto.getStatus());
+    issue.setResolution(dto.getResolution());
+    issue.setMessage(dto.getMessage());
+    issue.setTitle(dto.getTitle());
+    issue.setCost(dto.getCost());
+    issue.setLine(dto.getLine());
+    issue.setSeverity(dto.getSeverity());
+    issue.setUserLogin(dto.getUserLogin());
+    issue.setAssigneeLogin(dto.getAssigneeLogin());
+    issue.setCreatedAt(dto.getCreatedAt());
+    issue.setUpdatedAt(dto.getCreatedAt());
+    issue.setClosedAt(dto.getUpdatedAt());
+    if (resource != null) {
+      issue.setComponentKey(resource.getKey());
+    }
+    if (rule != null) {
+      issue.setRuleKey(rule.getKey());
+      issue.setRuleRepositoryKey(rule.getRepositoryKey());
+    }
+    return issue;
+  }
+
+  static class DefaultResults implements Results {
+    private final List<Issue> issues;
+
+    DefaultResults(List<Issue> issues) {
+      this.issues = issues;
+    }
+
+    @Override
+    public List<Issue> issues() {
+      return issues;
+    }
+  }
 }
