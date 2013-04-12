@@ -88,6 +88,8 @@ public class IssueDao implements BatchComponent, ServerComponent {
   public List<IssueDto> select(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {
+      // TODO support ordering
+
       return session.selectList("org.sonar.core.issue.IssueMapper.select", query, new RowBounds(query.offset(), query.limit()));
 
     } finally {
