@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.issue;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.sonar.api.BatchComponent;
@@ -64,7 +63,7 @@ public class ModuleIssues implements OnIssueCreation, BatchComponent {
     issue.setCreatedAt(project.getAnalysisDate());
     issue.setStatus(Issue.STATUS_OPEN);
     if (issue.severity() == null) {
-      issue.setSeverity(Objects.firstNonNull(activeRule.getSeverity().name(), Issue.SEVERITY_MAJOR));
+      issue.setSeverity(activeRule.getSeverity().name());
     }
 
     cache.add(issue);

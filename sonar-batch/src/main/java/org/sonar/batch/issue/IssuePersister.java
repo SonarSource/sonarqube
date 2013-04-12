@@ -34,20 +34,20 @@ import static com.google.common.collect.Lists.newArrayList;
 public class IssuePersister implements ScanPersister {
 
   private final IssueDao dao;
-  private final IssueCache cache;
+  private final IssueCache issueCache;
   private final SnapshotCache snapshotCache;
   private final RuleFinder ruleFinder;
 
-  public IssuePersister(IssueDao dao, IssueCache cache, SnapshotCache snapshotCache, RuleFinder ruleFinder) {
+  public IssuePersister(IssueDao dao, IssueCache issueCache, SnapshotCache snapshotCache, RuleFinder ruleFinder) {
     this.dao = dao;
-    this.cache = cache;
+    this.issueCache = issueCache;
     this.snapshotCache = snapshotCache;
     this.ruleFinder = ruleFinder;
   }
 
   @Override
   public void persist() {
-    for (Issue issue : cache.issues()) {
+    for (Issue issue : issueCache.issues()) {
       Snapshot snapshot = snapshotCache.get(issue.componentKey());
       if (snapshot == null) {
         throw new IllegalStateException("Snapshot should not be null");
@@ -61,7 +61,7 @@ public class IssuePersister implements ScanPersister {
       if (issue.isNew()) {
         dao.insert(issueDto);
       } else {
-        // TODO do a batch update to get modified
+        // TODO do a batch update to get modified issues by user during the analysis
         dao.update(newArrayList(issueDto));
       }
     }
@@ -88,7 +88,7 @@ public class IssuePersister implements ScanPersister {
         .setResourceId(componentId)
 
             // TODO
-        .setData(null)
+//        .setData(null)
 //        .setPersonId()
         ;
   }

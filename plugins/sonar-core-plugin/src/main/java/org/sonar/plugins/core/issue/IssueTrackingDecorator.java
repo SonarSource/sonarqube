@@ -144,7 +144,7 @@ public class IssueTrackingDecorator implements Decorator {
 
       // Try first to match issues on same rule with same line and with same checksum (but not necessarily with same message)
       for (DefaultIssue newIssue : newIssues) {
-        if (isNewIssueNotAlreadyMapped(newIssue)) {
+        if (isNotAlreadyMapped(newIssue)) {
           mapIssue(newIssue,
               findLastIssueWithSameLineAndChecksum(newIssue, lastIssuesByRule.get(getRule(newIssue))),
               lastIssuesByRule, referenceIssuesMap);
@@ -224,7 +224,7 @@ public class IssueTrackingDecorator implements Decorator {
 
       // Try then to match issues on same rule with same message and with same checksum
       for (DefaultIssue newIssue : newIssues) {
-        if (isNewIssueNotAlreadyMapped(newIssue)) {
+        if (isNotAlreadyMapped(newIssue)) {
           mapIssue(newIssue,
               findLastIssueWithSameChecksumAndMessage(newIssue, lastIssuesByRule.get(getRule(newIssue))),
               lastIssuesByRule, referenceIssuesMap);
@@ -233,7 +233,7 @@ public class IssueTrackingDecorator implements Decorator {
 
       // Try then to match issues on same rule with same line and with same message
       for (DefaultIssue newIssue : newIssues) {
-        if (isNewIssueNotAlreadyMapped(newIssue)) {
+        if (isNotAlreadyMapped(newIssue)) {
           mapIssue(newIssue,
               findLastIssueWithSameLineAndMessage(newIssue, lastIssuesByRule.get(getRule(newIssue))),
               lastIssuesByRule, referenceIssuesMap);
@@ -243,7 +243,7 @@ public class IssueTrackingDecorator implements Decorator {
       // Last check: match issue if same rule and same checksum but different line and different message
       // See SONAR-2812
       for (DefaultIssue newIssue : newIssues) {
-        if (isNewIssueNotAlreadyMapped(newIssue)) {
+        if (isNotAlreadyMapped(newIssue)) {
           mapIssue(newIssue,
               findLastIssueWithSameChecksum(newIssue, lastIssuesByRule.get(getRule(newIssue))),
               lastIssuesByRule, referenceIssuesMap);
@@ -279,9 +279,9 @@ public class IssueTrackingDecorator implements Decorator {
 
   private void map(Collection<DefaultIssue> newIssues, Collection<IssueDto> lastIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
     for (DefaultIssue newIssue : newIssues) {
-      if (isNewIssueNotAlreadyMapped(newIssue)) {
+      if (isNotAlreadyMapped(newIssue)) {
         for (IssueDto pastIssue : lastIssues) {
-          if (isPastIssueNotAlreadyMapped(pastIssue) && Objects.equal(getRule(newIssue), getRule(pastIssue))) {
+          if (isNotAlreadyMapped(pastIssue) && Objects.equal(getRule(newIssue), getRule(pastIssue))) {
             mapIssue(newIssue, pastIssue, lastIssuesByRule, referenceIssuesMap);
             break;
           }
@@ -293,10 +293,8 @@ public class IssueTrackingDecorator implements Decorator {
   private Multimap<Integer, DefaultIssue> newIssuesByLines(Collection<DefaultIssue> newIssues, ViolationTrackingBlocksRecognizer rec) {
     Multimap<Integer, DefaultIssue> newIssuesByLines = LinkedHashMultimap.create();
     for (DefaultIssue newIssue : newIssues) {
-      if (isNewIssueNotAlreadyMapped(newIssue)) {
-        if (rec.isValidLineInSource(newIssue.line())) {
-          newIssuesByLines.put(newIssue.line(), newIssue);
-        }
+      if (isNotAlreadyMapped(newIssue) && rec.isValidLineInSource(newIssue.line())) {
+        newIssuesByLines.put(newIssue.line(), newIssue);
       }
     }
     return newIssuesByLines;
@@ -357,11 +355,11 @@ public class IssueTrackingDecorator implements Decorator {
     return null;
   }
 
-  private boolean isPastIssueNotAlreadyMapped(IssueDto pastIssue) {
+  private boolean isNotAlreadyMapped(IssueDto pastIssue) {
     return !unmappedLastIssues.contains(pastIssue);
   }
 
-  private boolean isNewIssueNotAlreadyMapped(DefaultIssue newIssue) {
+  private boolean isNotAlreadyMapped(DefaultIssue newIssue) {
     return !referenceIssuesMap.containsKey(newIssue);
   }
 

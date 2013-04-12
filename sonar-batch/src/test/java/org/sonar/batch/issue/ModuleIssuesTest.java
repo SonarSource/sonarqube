@@ -22,21 +22,107 @@ package org.sonar.batch.issue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.core.issue.DefaultIssue;
+
+import java.util.Date;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class ModuleIssuesTest {
 
   private ModuleIssues moduleIssues;
+  private RulesProfile qProfile;
+  private IssueCache cache;
+  private Project project;
 
   @Before
-  public void setUp() throws Exception {
+  public void before() throws Exception {
+    qProfile = mock(RulesProfile.class);
+    cache = mock(IssueCache.class);
+    project = mock(Project.class);
 
-
+    moduleIssues = new ModuleIssues(qProfile, cache, project);
   }
 
   @Test
-  public void testName() throws Exception {
-    // TODO
-
-
+  public void should_get_issues() throws Exception {
+    moduleIssues.issues("key");
+    verify(cache).componentIssues("key");
   }
+
+  @Test
+  public void should_ignore_null_active_rule() throws Exception {
+    when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(null);
+
+    DefaultIssue issue = new DefaultIssue().setRuleRepositoryKey("repoKey").setRuleKey("ruleKey");
+    moduleIssues.onIssueCreation(issue);
+
+    verifyZeroInteractions(cache);
+  }
+
+  @Test
+  public void should_ignore_null_rule_of_active_rule() throws Exception {
+    ActiveRule activeRule = mock(ActiveRule.class);
+    when(activeRule.getRule()).thenReturn(null);
+    when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
+
+    DefaultIssue issue = new DefaultIssue().setRuleRepositoryKey("repoKey").setRuleKey("ruleKey");
+    moduleIssues.onIssueCreation(issue);
+
+    verifyZeroInteractions(cache);
+  }
+
+  @Test
+  public void should_add_issue_to_cache() throws Exception {
+    Rule rule = Rule.create("repoKey", "ruleKey");
+    ActiveRule activeRule = mock(ActiveRule.class);
+    when(activeRule.getRule()).thenReturn(rule);
+    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
+    when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
+
+    Date analysisDate = new Date();
+    when(project.getAnalysisDate()).thenReturn(analysisDate);
+
+    DefaultIssue issue = new DefaultIssue().setRuleRepositoryKey("repoKey").setRuleKey("ruleKey").setSeverity(Issue.SEVERITY_CRITICAL);
+    moduleIssues.onIssueCreation(issue);
+
+    ArgumentCaptor<Issue> argument = ArgumentCaptor.forClass(Issue.class);
+    verify(cache).add(argument.capture());
+    assertThat(argument.getValue().key()).isNotNull();
+    assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(argument.getValue().severity()).isEqualTo(Issue.SEVERITY_CRITICAL);
+    assertThat(argument.getValue().createdAt()).isEqualTo(analysisDate);
+  }
+
+  @Test
+  public void should_use_severity_from_active_rule_if_no_severity() throws Exception {
+    Rule rule = Rule.create("repoKey", "ruleKey");
+    ActiveRule activeRule = mock(ActiveRule.class);
+    when(activeRule.getRule()).thenReturn(rule);
+    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
+    when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
+
+    Date analysisDate = new Date();
+    when(project.getAnalysisDate()).thenReturn(analysisDate);
+
+    DefaultIssue issue = new DefaultIssue().setRuleRepositoryKey("repoKey").setRuleKey("ruleKey").setSeverity(null);
+    moduleIssues.onIssueCreation(issue);
+
+    ArgumentCaptor<Issue> argument = ArgumentCaptor.forClass(Issue.class);
+    verify(cache).add(argument.capture());
+    assertThat(argument.getValue().key()).isNotNull();
+    assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(argument.getValue().severity()).isEqualTo(Issue.SEVERITY_INFO);
+    assertThat(argument.getValue().createdAt()).isEqualTo(analysisDate);
+  }
+
 }
