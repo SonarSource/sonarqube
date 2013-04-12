@@ -93,7 +93,6 @@ public class DefaultIssueFinder implements IssueFinder {
       }
     }));
 
-
     return new DefaultResults(issues);
   }
 

@@ -28,14 +28,22 @@ import java.util.Map;
  * <p>
  * Reference from Ruby code : <code>Api.issues</code>
  * </p>
+ *
+ * @since 3.6
  */
 public interface JRubyIssues extends ServerComponent {
 
   /**
-   * <code>Api.issues.find(hash)</code>
+   * Search for issues.
    *
-   * TODO document parameters
+   * <p>
+   *   Ruby: <code>Api.issues.find(hash)</code>
+   * </p>
    *
+   * <p>Parameters</p>
+   * <ul>
+   *   TODO document parameters
+   * </ul>
    */
   IssueFinder.Results find(Map<String, Object> parameters);
 
