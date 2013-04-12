@@ -26,7 +26,6 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -73,8 +72,11 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   @Test
   public void update() {
     setupData("update");
-    Collection<IssueDto> issues = newArrayList(dao.findById(100L));
-    IssueDto issue = issues.iterator().next();
+
+    IssueDto issue = new IssueDto();
+    issue.setUuid("100");
+    issue.setResourceId(400);
+    issue.setRuleId(500);
     issue.setLine(1000);
     issue.setResolution("NEW_RESOLUTION");
     issue.setStatus("NEW_STATUS");
@@ -83,11 +85,12 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     issue.setManualSeverity(true);
     issue.setManualIssue(false);
     issue.setTitle("NEW_TITLE");
+    issue.setUserLogin("user");
     issue.setCreatedAt(DateUtils.parseDate("2012-05-18"));
     issue.setUpdatedAt(DateUtils.parseDate("2012-07-01"));
     issue.setData("big=bang");
 
-    dao.update(issues);
+    dao.update(newArrayList(issue));
 
     checkTables("update", "issues");
   }

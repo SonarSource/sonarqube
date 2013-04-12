@@ -31,7 +31,7 @@ public interface IssueMapper {
 
   void insert(IssueDto issueDto);
 
-  void update(IssueDto review);
+  void update(IssueDto issueDto);
 
   IssueDto findById(long issueId);
 

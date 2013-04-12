@@ -48,7 +48,6 @@
 
   <update id="update" parameterType="Issue">
     update issues set
-    uuid=#{uuid},
     resource_id=#{resourceId},
     rule_id=#{ruleId},
     severity=#{severity},
@@ -68,7 +67,7 @@
     created_at=#{createdAt},
     updated_at=#{updatedAt},
     closed_at=#{closedAt}
-    where id = #{id}
+    where uuid = #{uuid}
   </update>
 
   <select id="findById" parameterType="long" resultType="Issue">
