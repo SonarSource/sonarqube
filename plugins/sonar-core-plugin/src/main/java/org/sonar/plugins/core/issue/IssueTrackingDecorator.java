@@ -93,7 +93,8 @@ public class IssueTrackingDecorator implements Decorator {
 
     // Load new issues
     Issuable issuable = perspectives.as(Issuable.class, resource);
-    List<DefaultIssue> newIssues = prepareNewIssues(toDefaultIssues(issuable.issues()), source);
+    List<DefaultIssue> newIssues = toDefaultIssues(issuable.issues());
+    setChecksumOnNewIssues(newIssues, source);
 
     // Load existing issues
     Collection<IssueDto> referenceIssues = loadExistingOpenIssues(resource);
@@ -102,14 +103,11 @@ public class IssueTrackingDecorator implements Decorator {
     mapIssues(newIssues, referenceIssues, source, resource);
   }
 
-  private List<DefaultIssue> prepareNewIssues(List<DefaultIssue> issues, String source) {
-    List<DefaultIssue> result = newArrayList();
+  private void setChecksumOnNewIssues(List<DefaultIssue> issues, String source) {
     List<String> checksums = SourceChecksum.lineChecksumsOfFile(source);
     for (DefaultIssue issue : issues) {
       issue.setChecksum(SourceChecksum.getChecksumForLine(checksums, issue.line()));
-      result.add(issue);
     }
-    return result;
   }
 
   private Collection<IssueDto> loadExistingOpenIssues(Resource resource) {
@@ -129,27 +127,7 @@ public class IssueTrackingDecorator implements Decorator {
 
     if (lastIssues != null) {
       hasLastScan = true;
-      unmappedLastIssues.addAll(lastIssues);
-
-      for (IssueDto lastIssue : lastIssues) {
-        lastIssuesByRule.put(getRule(lastIssue), lastIssue);
-      }
-
-      // Match the key of the issue. (For manual issues)
-      for (DefaultIssue newIssue : newIssues) {
-        mapIssue(newIssue,
-            findLastIssueWithSameKey(newIssue, lastIssuesByRule.get(getRule(newIssue))),
-            lastIssuesByRule, referenceIssuesMap);
-      }
-
-      // Try first to match issues on same rule with same line and with same checksum (but not necessarily with same message)
-      for (DefaultIssue newIssue : newIssues) {
-        if (isNotAlreadyMapped(newIssue)) {
-          mapIssue(newIssue,
-              findLastIssueWithSameLineAndChecksum(newIssue, lastIssuesByRule.get(getRule(newIssue))),
-              lastIssuesByRule, referenceIssuesMap);
-        }
-      }
+      mapLastIssues(newIssues, lastIssues, lastIssuesByRule);
     }
 
     // If each new issue matches an old one we can stop the matching mechanism
@@ -253,6 +231,30 @@ public class IssueTrackingDecorator implements Decorator {
 
     unmappedLastIssues.clear();
     return referenceIssuesMap;
+  }
+
+  private void mapLastIssues(List<DefaultIssue> newIssues, @Nullable Collection<IssueDto> lastIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
+    unmappedLastIssues.addAll(lastIssues);
+
+    for (IssueDto lastIssue : lastIssues) {
+      lastIssuesByRule.put(getRule(lastIssue), lastIssue);
+    }
+
+    // Match the key of the issue. (For manual issues)
+    for (DefaultIssue newIssue : newIssues) {
+      mapIssue(newIssue,
+          findLastIssueWithSameKey(newIssue, lastIssuesByRule.get(getRule(newIssue))),
+          lastIssuesByRule, referenceIssuesMap);
+    }
+
+    // Try first to match issues on same rule with same line and with same checksum (but not necessarily with same message)
+    for (DefaultIssue newIssue : newIssues) {
+      if (isNotAlreadyMapped(newIssue)) {
+        mapIssue(newIssue,
+            findLastIssueWithSameLineAndChecksum(newIssue, lastIssuesByRule.get(getRule(newIssue))),
+            lastIssuesByRule, referenceIssuesMap);
+      }
+    }
   }
 
   @VisibleForTesting
@@ -382,6 +384,7 @@ public class IssueTrackingDecorator implements Decorator {
   private void mapIssue(DefaultIssue newIssue, IssueDto pastIssue, Multimap<Integer, IssueDto> lastIssuesByRule, Map<DefaultIssue, IssueDto> issueMap) {
     if (pastIssue != null) {
       newIssue.setCreatedAt(pastIssue.getCreatedAt());
+      newIssue.setUpdatedAt(project.getAnalysisDate());
       newIssue.setKey(pastIssue.getUuid());
       // TODO
 //      newIssue.setPersonId(pastIssue.getPersonId());
