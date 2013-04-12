@@ -259,7 +259,6 @@ public final class Platform {
     servicesContainer.addSingleton(DryRunDatabaseFactory.class);
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
-    servicesContainer.addSingleton(JRubyFacades.class);
     servicesContainer.addSingleton(DefaultIssueFinder.class);
     servicesContainer.addSingleton(DefaultJRubyIssues.class);
 

@@ -33,7 +33,10 @@ public interface JRubyIssues extends ServerComponent {
 
   /**
    * <code>Api.issues.find(hash)</code>
+   *
+   * TODO document parameters
+   *
    */
-  IssueFinder.Results find(Map<String, Object> params);
+  IssueFinder.Results find(Map<String, Object> parameters);
 
 }

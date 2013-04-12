@@ -19,6 +19,8 @@
  */
 package org.sonar.server.ui;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.JRubyIssues;
@@ -46,15 +48,42 @@ public class DefaultJRubyIssues implements JRubyIssues {
 
   IssueQuery newQuery(Map<String, Object> props) {
     IssueQuery.Builder builder = IssueQuery.builder();
-    builder.keys((List<String>) props.get("keys"));
-    builder.severities((List<String>) props.get("severities"));
-    builder.statuses((List<String>) props.get("statuses"));
-    builder.resolutions((List<String>) props.get("resolutions"));
-    builder.components((List<String>) props.get("components"));
-    builder.userLogins((List<String>) props.get("userLogins"));
-    builder.assigneeLogins((List<String>) props.get("assigneeLogins"));
-    builder.limit((Integer) props.get("limit"));
-    builder.offset((Integer) props.get("offset"));
+    builder.keys(toStringList(props.get("keys")));
+    builder.severities(toStringList(props.get("severities")));
+    builder.statuses(toStringList(props.get("statuses")));
+    builder.resolutions(toStringList(props.get("resolutions")));
+    builder.components(toStringList(props.get("components")));
+    builder.userLogins(toStringList(props.get("userLogins")));
+    builder.assigneeLogins(toStringList(props.get("assigneeLogins")));
+    builder.limit(toInteger(props.get("limit")));
+    builder.offset(toInteger(props.get("offset")));
     return builder.build();
+  }
+
+  List<String> toStringList(Object o) {
+    List<String> result = null;
+    if (o != null) {
+      if (o instanceof List) {
+        // assume that it contains only strings
+        result = (List) o;
+      } else if (o instanceof CharSequence) {
+        result = Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((CharSequence) o));
+      }
+    }
+    return result;
+  }
+
+  Integer toInteger(Object o) {
+    if (o instanceof Integer) {
+      return (Integer) o;
+    }
+    if (o instanceof String) {
+      return Integer.parseInt((String) o);
+    }
+    return null;
+  }
+
+  public void start() {
+    // used to force pico to instantiate the singleton at startup
   }
 }

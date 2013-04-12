@@ -34,6 +34,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class DefaultJRubyIssuesTest {
 
@@ -75,4 +76,10 @@ public class DefaultJRubyIssuesTest {
     assertThat(query.offset()).isEqualTo(50);
   }
 
+  @Test
+  public void should_start() throws Exception {
+    facade.start();
+    // nothing is done
+    verifyZeroInteractions(finder);
+  }
 }

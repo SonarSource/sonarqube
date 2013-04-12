@@ -18,87 +18,40 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
 #
 
-require "json"
-
 class Api::IssuesController < Api::ApiController
 
-  # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :put, :only => [ :update ]
-  verify :method => :post, :only => [ :create ]
-  verify :method => :delete, :only => [ :destroy ]
-
-  before_filter :admin_required, :only => [ :create, :update, :destroy ]
-
-  # GET /api/issues
-  def index
-    map={}
-    map['keys'] = params[:keys]
-    map['severities'] = params[:severities]
-    map['severityMin'] = params[:severityMin]
-    map['status'] = params[:status]
-    map['resolutions'] = params[:resolutions]
-    map['components'] = params[:components]
-    map['authors'] = params[:authors]
-    map['assignees'] = params[:assignees]
-    map['rules'] = params[:rules]
-    map['limit'] = params[:limit]
-
-    respond_to do |format|
-      format.json { render :json => jsonp(issues_to_json(find_issues(map))) }
-      format.xml { render :xml => xml_not_supported }
-    end
+  # GET /api/issues/search?<parameters>
+  def search
+    results = find_issues(params)
+    render :json => jsonp(issues_to_json(results.issues))
   end
 
-  #GET /api/issues/foo
-  def show
-    respond_to do |format|
-      format.json { render :json => jsonp(issues_to_json([find_issue(params[:key])])) }
-      format.xml { render :xml => xml_not_supported }
-    end
-  end
-
-
-  protected
+  private
 
   def find_issues(map)
-    issues_query.execute(map)
-  end
-
-  def find_issue(key)
-    issues_query.execute(key)
-  end
-
-  def issues_query
-    java_facade.getIssueFilter()
-  end
-
-  def issues_to_json(issues)
-    json = []
-    issues.each do |issue|
-      json << issue_to_json(issue) if issue
-    end
-    json
+    Api.issues.find(map)
   end
 
   def issue_to_json(issue)
-    {
+    json = {
         :key => issue.key,
         :component => issue.componentKey,
-        :ruleKey => issue.ruleKey,
-        :ruleRepositoryKey => issue.ruleRepositoryKey,
-        :severity => issue.severity,
-        :title => issue.title,
-        :message => issue.message,
-        :line => issue.line,
-        :cost => issue.cost,
-        :status => issue.status,
-        :resolution => issue.resolution,
-        :userLogin => issue.userLogin,
-        :assigneeLogin => issue.assigneeLogin,
-        :createdAt => to_date(issue.createdAt),
-        :updatedAt => to_date(issue.updatedAt),
-        :closedAt => to_date(issue.closedAt),
+        :ruleRepository => issue.ruleRepositoryKey,
+        :rule => issue.ruleKey,
     }
+    json[:severity] = issue.severity if issue.severity
+    json[:title] = issue.title if issue.title
+    json[:message] = issue.message if issue.message
+    json[:line] = issue.line if issue.line
+    json[:cost] = issue.cost if issue.cost
+    json[:status] = issue.status if issue.status
+    json[:resolution] = issue.resolution if issue.resolution
+    json[:userLogin] = issue.userLogin if issue.userLogin
+    json[:assigneeLogin] = issue.assigneeLogin if issue.assigneeLogin
+    json[:createdAt] = to_date(issue.createdAt) if issue.createdAt
+    json[:updatedAt] = to_date(issue.updatedAt) if issue.updatedAt
+    json[:closedAt] = to_date(issue.closedAt) if issue.closedAt
+    json
   end
 
   def to_date(java_date)
