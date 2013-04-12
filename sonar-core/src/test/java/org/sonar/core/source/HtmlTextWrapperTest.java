@@ -163,4 +163,40 @@ public class HtmlTextWrapperTest {
             "}"
     );
   }
+
+  @Test
+  public void should_encode_markup_chars() throws Exception {
+
+    String javadocWithHtml =
+            "/**\n" +
+            " * Provides a basic framework to sequentially read any kind of character stream in order to feed a generic OUTPUT.\n" +
+            " * \n" +
+            " * This framework can used for instance in order to :\n" +
+            " * <ul>\n" +
+            " *   <li>Create a lexer in charge to generate a list of tokens from a character stream</li>\n" +
+            " *   <li>Create a source code syntax highligther in charge to decorate a source code with HTML tags</li>\n" +
+            " *   <li>Create a javadoc generator</li>\n" +
+            " *   <li>...</li>\n" +
+            " * </ul>\n" +
+            " */\n";
+
+
+    HighlightingContext context = HighlightingContext.buildFrom("0,453,cppd;");
+
+    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
+    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(javadocWithHtml, context);
+
+    assertThat(htmlOutput).containsExactly(
+            "<span class=\"cppd\">/**</span>",
+            "<span class=\"cppd\"> * Provides a basic framework to sequentially read any kind of character stream in order to feed a generic OUTPUT.</span>",
+            "<span class=\"cppd\"> * </span>",
+            "<span class=\"cppd\"> * This framework can used for instance in order to :</span>",
+            "<span class=\"cppd\"> * &lt;ul&gt;</span>",
+            "<span class=\"cppd\"> *   &lt;li&gt;Create a lexer in charge to generate a list of tokens from a character stream&lt;/li&gt;</span>",
+            "<span class=\"cppd\"> *   &lt;li&gt;Create a source code syntax highligther in charge to decorate a source code with HTML tags&lt;/li&gt;</span>",
+            "<span class=\"cppd\"> *   &lt;li&gt;Create a javadoc generator&lt;/li&gt;</span>",
+            "<span class=\"cppd\"> *   &lt;li&gt;...&lt;/li&gt;</span>",
+            "<span class=\"cppd\"> * &lt;/ul&gt;</span>",
+            "<span class=\"cppd\"> */</span>");
+  }
 }

@@ -40,6 +40,10 @@ public class HtmlTextWrapper {
 
   public static final char CR_END_OF_LINE = '\r';
   public static final char LF_END_OF_LINE = '\n';
+  public static final char HTML_OPENING = '<';
+  public static final char HTML_CLOSING = '>';
+  public static final String ENCODED_HTML_OPENING = "&lt;";
+  public static final String ENCODED_HTML_CLOSING = "&gt;";
 
   public List<String> wrapTextWithHtml(String text, HighlightingContext context) {
 
@@ -74,7 +78,8 @@ public class HtmlTextWrapper {
         openNewTags(charsReader, tagsToOpen, currentHtmlLine);
 
         if (shouldAppendCharToHtmlOutput(charsReader)) {
-          currentHtmlLine.append((char) charsReader.getCurrentValue());
+          char currentChar = (char) charsReader.getCurrentValue();
+          currentHtmlLine.append(normalize(currentChar));
         }
       }
 
@@ -92,6 +97,15 @@ public class HtmlTextWrapper {
     }
 
     return decoratedHtmlLines;
+  }
+
+  private char[] normalize(char currentChar) {
+    if(currentChar == HTML_OPENING) {
+      return ENCODED_HTML_OPENING.toCharArray();
+    } else if(currentChar == HTML_CLOSING) {
+      return ENCODED_HTML_CLOSING.toCharArray();
+    }
+    return new char[]{currentChar};
   }
 
   private boolean shouldAppendCharToHtmlOutput(CharactersReader charsReader) {
