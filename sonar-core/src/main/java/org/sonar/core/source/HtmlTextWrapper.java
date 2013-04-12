@@ -40,6 +40,12 @@ public class HtmlTextWrapper {
 
   public static final char CR_END_OF_LINE = '\r';
   public static final char LF_END_OF_LINE = '\n';
+  public static final char HTML_OPENING = '<';
+  public static final char HTML_CLOSING = '>';
+  public static final char AMPERSAND = '&';
+  public static final String ENCODED_HTML_OPENING = "&lt;";
+  public static final String ENCODED_HTML_CLOSING = "&gt;";
+  public static final String ENCODED_AMPERSAND = "&amp;";
 
   public List<String> wrapTextWithHtml(String text, HighlightingContext context) {
 
@@ -74,7 +80,8 @@ public class HtmlTextWrapper {
         openNewTags(charsReader, tagsToOpen, currentHtmlLine);
 
         if (shouldAppendCharToHtmlOutput(charsReader)) {
-          currentHtmlLine.append((char) charsReader.getCurrentValue());
+          char currentChar = (char) charsReader.getCurrentValue();
+          currentHtmlLine.append(normalize(currentChar));
         }
       }
 
@@ -92,6 +99,20 @@ public class HtmlTextWrapper {
     }
 
     return decoratedHtmlLines;
+  }
+
+  private char[] normalize(char currentChar) {
+    char[] normalizedChars;
+    if(currentChar == HTML_OPENING) {
+      normalizedChars = ENCODED_HTML_OPENING.toCharArray();
+    } else if(currentChar == HTML_CLOSING) {
+      normalizedChars = ENCODED_HTML_CLOSING.toCharArray();
+    } else if(currentChar == AMPERSAND) {
+      normalizedChars = ENCODED_AMPERSAND.toCharArray();
+    } else {
+      normalizedChars = new char[]{currentChar};
+    }
+    return normalizedChars;
   }
 
   private boolean shouldAppendCharToHtmlOutput(CharactersReader charsReader) {
@@ -113,11 +134,15 @@ public class HtmlTextWrapper {
   }
 
   private boolean shouldReopenPendingTags(CharactersReader charactersReader) {
-    return charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE;
+    return (charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE)
+            || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != CR_END_OF_LINE
+                && charactersReader.getCurrentValue() != LF_END_OF_LINE
+    );
   }
 
   private boolean shouldStartNewLine(CharactersReader charactersReader) {
-    return charactersReader.getPreviousValue() == LF_END_OF_LINE;
+    return charactersReader.getPreviousValue() == LF_END_OF_LINE
+            || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE);
   }
 
   private void closeCompletedTags(CharactersReader charactersReader, int numberOfTagsToClose,

@@ -43,11 +43,6 @@ public class DefaultHighlightable implements Highlightable {
   }
 
   @Override
-  public void highlightText(int startOffset, int endOffset, String typeOfText) {
-    highlightingRulesBuilder.registerHighlightingRule(startOffset, endOffset, typeOfText);
-  }
-
-  @Override
   public Component component() {
     return component;
   }

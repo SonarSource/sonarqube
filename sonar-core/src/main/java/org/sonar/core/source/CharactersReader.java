@@ -31,6 +31,7 @@ import java.util.Deque;
 public class CharactersReader {
 
   public static final int END_OF_STREAM = -1;
+  public static final char[] SPECIAL_CHARS = {'<', '>'};
 
   private final BufferedReader stringBuffer;
   private final Deque<String> openTags;

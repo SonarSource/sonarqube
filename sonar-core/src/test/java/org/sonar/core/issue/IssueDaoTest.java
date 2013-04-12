@@ -36,10 +36,10 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueDaoTest extends AbstractDaoTestCase {
 
-  IssueDao dao;
+  private IssueDao dao;
 
   @Before
-  public void setUp() {
+  public void createDao() {
     dao = new IssueDao(getMyBatis());
   }
 
@@ -67,7 +67,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     dao.insert(issueDto);
 
-    checkTables("insert", new String[]{"id", "created_at", "updated_at", "closed_at"}, "issues");
+    checkTables("insert", new String[] {"id", "created_at", "updated_at", "closed_at"}, "issues");
   }
 
   @Test
@@ -121,7 +121,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_issue_by_uuid() {
+  public void should_find_issue_by_key() {
     setupData("shared");
 
     IssueDto issue = dao.selectByKey("100");
@@ -132,29 +132,29 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_by_parameter() {
     setupData("select");
 
-    IssueQuery query = IssueQuery.builder().keys(newArrayList("100")).build();
-    assertThat(dao.select(query)).hasSize(1);
+    IssueQuery issueQuery = IssueQuery.builder().keys(newArrayList("100")).build();
+    assertThat(dao.select(issueQuery)).hasSize(1);
 
-    query = IssueQuery.builder().components(newArrayList("key")).build();
-    assertThat(dao.select(query)).hasSize(2);
+    issueQuery = IssueQuery.builder().components(newArrayList("key")).build();
+    assertThat(dao.select(issueQuery)).hasSize(2);
 
-    query = IssueQuery.builder().resolutions(newArrayList("FALSE-POSITIVE")).build();
-    assertThat(dao.select(query)).hasSize(1);
+    issueQuery = IssueQuery.builder().resolutions(newArrayList("FALSE-POSITIVE")).build();
+    assertThat(dao.select(issueQuery)).hasSize(1);
 
-    query = IssueQuery.builder().statuses(newArrayList("OPEN")).build();
-    assertThat(dao.select(query)).hasSize(2);
+    issueQuery = IssueQuery.builder().statuses(newArrayList("OPEN")).build();
+    assertThat(dao.select(issueQuery)).hasSize(2);
 
-    query = IssueQuery.builder().severities(newArrayList("BLOCKER")).build();
-    assertThat(dao.select(query)).hasSize(4);
+    issueQuery = IssueQuery.builder().severities(newArrayList("BLOCKER")).build();
+    assertThat(dao.select(issueQuery)).hasSize(4);
 
-    query = IssueQuery.builder().userLogins(newArrayList("user")).build();
-    assertThat(dao.select(query)).hasSize(1);
+    issueQuery = IssueQuery.builder().userLogins(newArrayList("user")).build();
+    assertThat(dao.select(issueQuery)).hasSize(1);
 
-    query = IssueQuery.builder().assigneeLogins(newArrayList("user")).build();
-    assertThat(dao.select(query)).hasSize(5);
+    issueQuery = IssueQuery.builder().assigneeLogins(newArrayList("user")).build();
+    assertThat(dao.select(issueQuery)).hasSize(5);
 
-    query = IssueQuery.builder().userLogins(newArrayList("user")).statuses(newArrayList("OPEN")).build();
-    assertThat(dao.select(query)).hasSize(1);
+    issueQuery = IssueQuery.builder().userLogins(newArrayList("user")).statuses(newArrayList("OPEN")).build();
+    assertThat(dao.select(issueQuery)).hasSize(1);
   }
 
   @Test

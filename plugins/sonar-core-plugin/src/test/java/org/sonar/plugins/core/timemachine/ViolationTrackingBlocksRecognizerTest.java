@@ -21,17 +21,16 @@ package org.sonar.plugins.core.timemachine;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ViolationTrackingBlocksRecognizerTest {
 
   @Test
   public void test() {
-    assertThat(compute(t("abcde"), t("abcde"), 3, 3), is(5));
-    assertThat(compute(t("abcde"), t("abcd"), 3, 3), is(4));
-    assertThat(compute(t("bcde"), t("abcde"), 3, 3), is(0));
-    assertThat(compute(t("bcde"), t("abcde"), 2, 3), is(4));
+    assertThat(compute(t("abcde"), t("abcde"), 3, 3)).isEqualTo(5);
+    assertThat(compute(t("abcde"), t("abcd"), 3, 3)).isEqualTo(4);
+    assertThat(compute(t("bcde"), t("abcde"), 3, 3)).isEqualTo(0);
+    assertThat(compute(t("bcde"), t("abcde"), 2, 3)).isEqualTo(4);
   }
 
   private static int compute(String a, String b, int ai, int bi) {

@@ -48,21 +48,20 @@ public class DeprecatedViolations implements BatchComponent {
   }
 
   Issue toIssue(Violation violation) {
-    DefaultIssue issue = new DefaultIssue();
-    issue.setComponentKey(violation.getResource().getEffectiveKey());
-    issue.setKey(UUID.randomUUID().toString());
-    issue.setRuleRepositoryKey(violation.getRule().getRepositoryKey());
-    issue.setRuleKey(violation.getRule().getKey());
-    issue.setCost(violation.getCost());
-    issue.setChecksum(violation.getChecksum());
-    issue.setCreatedAt(violation.getCreatedAt());
-    // FIXME
-    //issue.setPerson(violation.getPersonId());
-    issue.setLine(violation.getLineId());
-    issue.setMessage(violation.getMessage());
+    DefaultIssue issue = new DefaultIssue()
+        .setComponentKey(violation.getResource().getEffectiveKey())
+        .setKey(UUID.randomUUID().toString())
+        .setRuleRepositoryKey(violation.getRule().getRepositoryKey())
+        .setRuleKey(violation.getRule().getKey())
+        .setCost(violation.getCost())
+        .setLine(violation.getLineId())
+        .setMessage(violation.getMessage())
+        .setStatus(Issue.STATUS_OPEN);
     if (violation.getSeverity() != null) {
       issue.setSeverity(violation.getSeverity().name());
     }
+    // FIXME
+    //issue.setPerson(violation.getPersonId());
     return issue;
   }
 }

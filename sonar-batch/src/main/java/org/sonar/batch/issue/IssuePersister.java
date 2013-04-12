@@ -19,24 +19,77 @@
  */
 package org.sonar.batch.issue;
 
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.index.ScanPersister;
+import org.sonar.batch.index.SnapshotCache;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDao;
+import org.sonar.core.issue.IssueDto;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class IssuePersister implements ScanPersister {
 
   private final IssueDao dao;
-  private final IssueCache cache;
+  private final IssueCache issueCache;
+  private final SnapshotCache snapshotCache;
+  private final RuleFinder ruleFinder;
 
-  public IssuePersister(IssueDao dao, IssueCache cache) {
+  public IssuePersister(IssueDao dao, IssueCache issueCache, SnapshotCache snapshotCache, RuleFinder ruleFinder) {
     this.dao = dao;
-    this.cache = cache;
+    this.issueCache = issueCache;
+    this.snapshotCache = snapshotCache;
+    this.ruleFinder = ruleFinder;
   }
 
   @Override
   public void persist() {
-    for (Issue issue : cache.issues()) {
-      System.out.println("Persist issue " + issue.key() + " on " + issue.componentKey());
+    for (Issue issue : issueCache.issues()) {
+      Snapshot snapshot = snapshotCache.get(issue.componentKey());
+      if (snapshot == null) {
+        throw new IllegalStateException("Snapshot should not be null");
+      }
+      Rule rule = ruleFinder.findByKey(issue.ruleRepositoryKey(), issue.ruleKey());
+      if (rule == null) {
+        throw new IllegalStateException("Rule should not be null");
+      }
+
+      IssueDto issueDto = toIssueDto((DefaultIssue) issue, snapshot.getResourceId(), rule.getId());
+      if (issue.isNew()) {
+        dao.insert(issueDto);
+      } else {
+        // TODO do a batch update to get modified issues by user during the analysis
+        dao.update(newArrayList(issueDto));
+      }
     }
+  }
+
+  private IssueDto toIssueDto(DefaultIssue issue, Integer componentId, Integer ruleId) {
+    return new IssueDto()
+        .setUuid(issue.key())
+        .setLine(issue.line())
+        .setTitle(issue.title())
+        .setMessage(issue.message())
+        .setCost(issue.cost())
+        .setResolution(issue.resolution())
+        .setStatus(issue.status())
+        .setChecksum(issue.getChecksum())
+        .setManualIssue(issue.isManual())
+        .setManualSeverity(issue.isManualSeverity())
+        .setUserLogin(issue.userLogin())
+        .setAssigneeLogin(issue.assigneeLogin())
+        .setCreatedAt(issue.createdAt())
+        .setUpdatedAt(issue.updatedAt())
+        .setClosedAt(issue.closedAt())
+        .setRuleId(ruleId)
+        .setResourceId(componentId)
+
+            // TODO
+//        .setData(null)
+//        .setPersonId()
+        ;
   }
 }
