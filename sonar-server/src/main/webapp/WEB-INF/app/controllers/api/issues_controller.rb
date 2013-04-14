@@ -22,15 +22,11 @@ class Api::IssuesController < Api::ApiController
 
   # GET /api/issues/search?<parameters>
   def search
-    results = find_issues(params)
+    results = Api.issues.find(params, current_user.id)
     render :json => jsonp(issues_to_json(results.issues))
   end
 
   private
-
-  def find_issues(map)
-    Api.issues.find(map)
-  end
 
   def issues_to_json(issues)
     json = []

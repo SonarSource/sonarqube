@@ -17,13 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.ui;
+package org.sonar.server.issue;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.JRubyIssues;
+import org.sonar.server.ui.JRubyFacades;
 
 import java.util.List;
 import java.util.Map;
@@ -42,8 +43,8 @@ public class DefaultJRubyIssues implements JRubyIssues {
     JRubyFacades.setIssues(this);
   }
 
-  public IssueFinder.Results find(Map<String, Object> params) {
-    return finder.find(newQuery(params));
+  public IssueFinder.Results find(Map<String, Object> params, Integer currentUserId) {
+    return finder.find(newQuery(params), currentUserId);
   }
 
   IssueQuery newQuery(Map<String, Object> props) {

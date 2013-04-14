@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.server.ui;
+package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.server.issue.DefaultJRubyIssues;
 
 import java.util.Map;
 
@@ -32,6 +33,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -43,13 +45,13 @@ public class DefaultJRubyIssuesTest {
 
   @Test
   public void test_find() throws Exception {
-    facade.find(ImmutableMap.<String, Object>of("keys", Lists.newArrayList("ABCDE")));
+    facade.find(ImmutableMap.<String, Object>of("keys", Lists.newArrayList("ABCDE")), 123);
     verify(finder).find(argThat(new ArgumentMatcher<IssueQuery>() {
       @Override
       public boolean matches(Object o) {
         return ((IssueQuery) o).keys().contains("ABCDE");
       }
-    }));
+    }), eq(123));
   }
 
   @Test

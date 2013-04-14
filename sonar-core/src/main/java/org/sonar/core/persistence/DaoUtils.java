@@ -37,6 +37,7 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorDao;
+import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.UserDao;
 
 import java.util.List;
@@ -51,6 +52,7 @@ public final class DaoUtils {
     return ImmutableList.of(
       ActiveDashboardDao.class,
       AuthorDao.class,
+      AuthorizationDao.class,
       DashboardDao.class,
       DuplicationDao.class,
       GraphDao.class,

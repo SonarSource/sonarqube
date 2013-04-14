@@ -37,7 +37,7 @@ public interface JRubyIssues extends ServerComponent {
    * Search for issues.
    *
    * <p>
-   *   Ruby: <code>Api.issues.find(hash)</code>
+   *   Ruby: <code>Api.issues.find(hash_of_parameters, current_user.id)</code>
    * </p>
    *
    * <p>Parameters</p>
@@ -45,6 +45,6 @@ public interface JRubyIssues extends ServerComponent {
    *   TODO document parameters
    * </ul>
    */
-  IssueFinder.Results find(Map<String, Object> parameters);
+  IssueFinder.Results find(Map<String, Object> parameters, Integer currentUserId);
 
 }

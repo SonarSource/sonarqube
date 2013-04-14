@@ -31,7 +31,7 @@ public class JRubyFacades implements ServerComponent {
 
   private static JRubyIssues issues = null;
 
-  static void setIssues(JRubyIssues i) {
+  public static void setIssues(JRubyIssues i) {
     JRubyFacades.issues = i;
   }
 

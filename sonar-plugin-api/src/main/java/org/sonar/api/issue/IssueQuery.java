@@ -26,6 +26,8 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import java.util.List;
 
 /**
+ * TODO add javadoc
+ *
  * @since 3.6
  */
 public class IssueQuery {

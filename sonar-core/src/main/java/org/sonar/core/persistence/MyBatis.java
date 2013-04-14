@@ -134,6 +134,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     };
     loadMappers(conf, mappers);
     loadMapper(conf, "org.sonar.core.issue.IssueMapper");
+    loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
     configureLogback(mappers);
 
     sessionFactory = new SqlSessionFactoryBuilder().build(conf);

@@ -28,7 +28,7 @@
     i.closed_at as closedAt
   </sql>
 
-  <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty ="id">
+  <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO issues (uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, message, line, cost, status,
     resolution, checksum, user_login, assignee_login, person_id, data, created_at, updated_at, closed_at)
     VALUES (#{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{message}, #{line}, #{cost}, #{status},
@@ -36,8 +36,8 @@
   </insert>
 
   <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="Issue" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
+  <insert id="insert" databaseId="oracle" parameterType="Issue" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO issues (id, uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, message, line, cost, status,
@@ -71,19 +71,27 @@
   </update>
 
   <select id="selectById" parameterType="long" resultType="Issue">
-    select <include refid="issueColumns"/>
+    select
+    <include refid="issueColumns"/>
     from issues i
     where i.id=#{id}
   </select>
 
   <select id="selectByKey" parameterType="String" resultType="Issue">
-    select <include refid="issueColumns"/>
+    select
+    <include refid="issueColumns"/>
     from issues i
     where i.uuid=#{uuid}
   </select>
 
   <select id="select" parameterType="map" resultType="Issue">
-    select <include refid="issueColumns"/> from issues i
+    select
+    <include refid="issueColumns"/>
+    <include refid="selectQueryConditions"/>
+  </select>
+
+  <sql id="selectQueryConditions">
+    from issues i
     <if test="components != null and components.size() > 0">
       , projects p, snapshots root, snapshots s
     </if>
@@ -140,7 +148,7 @@
         </foreach>
       </if>
     </where>
-  </select>
+  </sql>
 
 </mapper>
 

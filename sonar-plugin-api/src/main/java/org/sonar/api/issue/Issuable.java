@@ -20,7 +20,6 @@
 
 package org.sonar.api.issue;
 
-import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
 
 import java.util.Collection;
@@ -51,8 +50,4 @@ public interface Issuable extends Perspective {
   IssueBuilder newIssue();
 
   Collection<Issue> issues();
-
-  @Override
-  Component component();
-
 }

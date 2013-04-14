@@ -24,11 +24,10 @@ class IssuesController < ApplicationController
     @issues = find_issues({}).issues
   end
 
-
   protected
 
   def find_issues(map)
-    Api.issues.find(map)
+    Api.issues.find(map, current_user.id)
   end
 
 end

@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
@@ -33,8 +34,12 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.user.AuthorizationDao;
+
+import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -47,53 +52,70 @@ public class DefaultIssueFinder implements IssueFinder {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIssueFinder.class);
 
+  /**
+   * The role required to access issues
+   */
+  private static final String ROLE = "user";
+
+  private final MyBatis myBatis;
   private final IssueDao issueDao;
   private final ResourceDao resourceDao;
+  private final AuthorizationDao authorizationDao;
   private final RuleFinder ruleFinder;
 
-  public DefaultIssueFinder(IssueDao issueDao, ResourceDao resourceDao, RuleFinder ruleFinder) {
+  public DefaultIssueFinder(MyBatis myBatis, IssueDao issueDao, ResourceDao resourceDao,
+                            AuthorizationDao authorizationDao, RuleFinder ruleFinder) {
+    this.myBatis = myBatis;
     this.issueDao = issueDao;
     this.resourceDao = resourceDao;
+    this.authorizationDao = authorizationDao;
     this.ruleFinder = ruleFinder;
   }
 
-  public Results find(IssueQuery query) {
+  public Results find(IssueQuery query, @Nullable Integer currentUserId) {
     LOG.debug("IssueQuery : {}", query);
-    List<IssueDto> dtoList = issueDao.select(query);
+    SqlSession sqlSession = myBatis.openSession();
+    try {
+      List<IssueDto> issueDtos = issueDao.select(query, sqlSession);
 
-    final Set<Integer> componentIds = Sets.newLinkedHashSet();
-    final Set<Integer> ruleIds = Sets.newLinkedHashSet();
-    for (IssueDto dto : dtoList) {
-      componentIds.add(dto.getResourceId());
-      ruleIds.add(dto.getRuleId());
-    }
-    final Map<Integer, Rule> rules = Maps.newHashMap();
-    for (Integer ruleId : ruleIds) {
-      Rule rule = ruleFinder.findById(ruleId);
-      if (rule != null) {
-        rules.put(rule.getId(), rule);
+      Set<Integer> componentIds = Sets.newLinkedHashSet();
+      Set<Integer> ruleIds = Sets.newLinkedHashSet();
+      for (IssueDto issueDto : issueDtos) {
+        componentIds.add(issueDto.getResourceId());
+        ruleIds.add(issueDto.getRuleId());
       }
-    }
-    final Map<Integer, ResourceDto> resources = Maps.newHashMap();
-    for (Integer componentId : componentIds) {
-      ResourceDto resource = resourceDao.getResource(componentId);
-      if (resource != null) {
-        resources.put(resource.getId().intValue(), resource);
+
+      componentIds = authorizationDao.keepAuthorizedComponentIds(componentIds, currentUserId, ROLE, sqlSession);
+
+      final Map<Integer, Rule> rules = Maps.newHashMap();
+      for (Integer ruleId : ruleIds) {
+        Rule rule = ruleFinder.findById(ruleId);
+        if (rule != null) {
+          rules.put(rule.getId(), rule);
+        }
       }
-    }
-
-    // TODO verify authorization
-
-    List<Issue> issues = ImmutableList.copyOf(Iterables.transform(dtoList, new Function<IssueDto, Issue>() {
-      @Override
-      public Issue apply(IssueDto dto) {
-        Rule rule = rules.get(dto.getRuleId());
-        ResourceDto resource = resources.get(dto.getResourceId());
-        return toIssue(dto, rule, resource);
+      final Map<Integer, ResourceDto> resources = Maps.newHashMap();
+      for (Integer componentId : componentIds) {
+        // TODO replace N+1 SQL requests by a single one
+        ResourceDto resource = resourceDao.getResource(componentId);
+        if (resource != null) {
+          resources.put(resource.getId().intValue(), resource);
+        }
       }
-    }));
 
-    return new DefaultResults(issues);
+      List<Issue> issues = ImmutableList.copyOf(Iterables.transform(issueDtos, new Function<IssueDto, Issue>() {
+        @Override
+        public Issue apply(IssueDto dto) {
+          Rule rule = rules.get(dto.getRuleId());
+          ResourceDto resource = resources.get(dto.getResourceId());
+          return toIssue(dto, rule, resource);
+        }
+      }));
+
+      return new DefaultResults(issues);
+    } finally {
+      MyBatis.closeQuietly(sqlSession);
+    }
   }
 
   public Issue findByKey(String key) {
