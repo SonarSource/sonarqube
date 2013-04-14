@@ -21,6 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.base.Charsets;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -113,11 +114,15 @@ public class ModuleFileSystemProviderTest {
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(fs.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());
     assertThat(fs.sourceDirs()).hasSize(1);
-    assertThat(fs.sourceDirs().get(0).getCanonicalPath()).endsWith("src/main/java");
+    assertThat(path(fs.sourceDirs().get(0))).endsWith("src/main/java");
     assertThat(fs.testDirs()).hasSize(1);
-    assertThat(fs.testDirs().get(0).getCanonicalPath()).endsWith("src/test/java");
+    assertThat(path(fs.testDirs().get(0))).endsWith("src/test/java");
     assertThat(fs.binaryDirs()).hasSize(1);
-    assertThat(fs.binaryDirs().get(0).getCanonicalPath()).endsWith("target/classes");
+    assertThat(path(fs.binaryDirs().get(0))).endsWith("target/classes");
+  }
+
+  private String path(File f) throws IOException {
+    return FilenameUtils.separatorsToUnix(f.getCanonicalPath());
   }
 
   private ProjectDefinition newSimpleModule() {
