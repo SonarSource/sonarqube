@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins;
 
+import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -102,7 +103,7 @@ public class PluginDownloaderTest {
     Plugin test = new Plugin("test");
     File file = testFolder.newFile("test-1.0.jar");
     file.createNewFile();
-    Release test10 = new Release(test, "1.0").setDownloadUrl("file://" + file.getCanonicalPath());
+    Release test10 = new Release(test, "1.0").setDownloadUrl("file://" + FilenameUtils.separatorsToUnix(file.getCanonicalPath()));
     test.addRelease(test10);
 
     when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
