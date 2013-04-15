@@ -236,7 +236,7 @@ public class IssueTrackingDecorator implements Decorator {
     return referenceIssuesMap;
   }
 
-  private void mapLastIssues(List<DefaultIssue> newIssues, @Nullable Collection<IssueDto> lastIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
+  private void mapLastIssues(List<DefaultIssue> newIssues, Collection<IssueDto> lastIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
     unmappedLastIssues.addAll(lastIssues);
 
     for (IssueDto lastIssue : lastIssues) {
