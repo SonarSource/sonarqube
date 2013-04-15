@@ -21,12 +21,9 @@
 package org.sonar.api.issue;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
-import org.sonar.api.rules.Rule;
 
 import javax.annotation.Nullable;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,12 +31,12 @@ import java.util.List;
  */
 public interface IssueFinder extends ServerComponent {
 
-  interface Results {
-    List<Issue> issues();
-  }
-
   Results find(IssueQuery issueQuery, @Nullable Integer currentUserId);
 
   Issue findByKey(String key);
+
+  interface Results {
+    List<Issue> issues();
+  }
 
 }
