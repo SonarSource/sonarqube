@@ -27,6 +27,7 @@ import org.sonar.api.notifications.NotificationDispatcherMetadata;
 import org.sonar.api.resources.Java;
 import org.sonar.batch.issue.IssuesDecorator;
 import org.sonar.batch.issue.IssuesDensityDecorator;
+import org.sonar.batch.issue.NewIssuesDecorator;
 import org.sonar.batch.issue.WeightedIssuesDecorator;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
@@ -431,6 +432,7 @@ public final class CorePlugin extends SonarPlugin {
         IssueTrackingDecorator.class,
         ViolationPersisterDecorator.class,
         NewViolationsDecorator.class,
+        NewIssuesDecorator.class,
         TimeMachineConfigurationPersister.class,
         NewCoverageFileAnalyzer.class,
         NewItCoverageFileAnalyzer.class,
