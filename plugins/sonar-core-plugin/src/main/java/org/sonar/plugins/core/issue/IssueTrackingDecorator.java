@@ -89,11 +89,13 @@ public class IssueTrackingDecorator implements Decorator {
   public void decorate(Resource resource, DecoratorContext context) {
     referenceIssuesMap.clear();
 
-    String source = index.getSource(resource);
-
     // Load new issues
     Issuable issuable = perspectives.as(Issuable.class, resource);
+    if (issuable == null || issuable.issues().isEmpty()){
+      return;
+    }
     List<DefaultIssue> newIssues = toDefaultIssues(issuable.issues());
+    String source = index.getSource(resource);
     setChecksumOnNewIssues(newIssues, source);
 
     // Load existing issues
