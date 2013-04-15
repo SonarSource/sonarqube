@@ -17,11 +17,13 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.issue;
 
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
@@ -40,24 +42,34 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WeightedViolationsDecorator implements Decorator {
+@Properties(
+    @Property(
+        key = CoreProperties.CORE_RULE_WEIGHTS_PROPERTY,
+        defaultValue = CoreProperties.CORE_RULE_WEIGHTS_DEFAULT_VALUE,
+        name = "Rules weight",
+        description = "A weight is associated to each severity to calculate the Rules Compliance Index.",
+        project = false,
+        global = true,
+        category = CoreProperties.CATEGORY_GENERAL)
+)
+public class WeightedIssuesDecorator implements Decorator {
 
   private Settings settings;
   private Map<RulePriority, Integer> weightsBySeverity;
 
-  public WeightedViolationsDecorator(Settings settings) {
+  public WeightedIssuesDecorator(Settings settings) {
     this.settings = settings;
   }
 
   @DependsUpon
-  public List<Metric> dependsUponViolations() {
-    return Arrays.asList(CoreMetrics.BLOCKER_VIOLATIONS, CoreMetrics.CRITICAL_VIOLATIONS,
-        CoreMetrics.MAJOR_VIOLATIONS, CoreMetrics.MINOR_VIOLATIONS, CoreMetrics.INFO_VIOLATIONS);
+  public List<Metric> dependsUponIssues() {
+    return Arrays.asList(CoreMetrics.BLOCKER_ISSUES, CoreMetrics.CRITICAL_ISSUES,
+        CoreMetrics.MAJOR_ISSUES, CoreMetrics.MINOR_ISSUES, CoreMetrics.INFO_ISSUES);
   }
 
   @DependedUpon
-  public Metric generatesWeightedViolations() {
-    return CoreMetrics.WEIGHTED_VIOLATIONS;
+  public Metric generatesWeightedIssues() {
+    return CoreMetrics.WEIGHTED_ISSUES;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -95,7 +107,7 @@ public class WeightedViolationsDecorator implements Decorator {
     Multiset<RulePriority> distribution = TreeMultiset.create();
 
     for (RulePriority severity : RulePriority.values()) {
-      Measure measure = context.getMeasure(SeverityUtils.severityToViolationMetric(severity));
+      Measure measure = context.getMeasure(SeverityUtils.severityToIssueMetric(severity));
       if (measure != null && MeasureUtils.hasValue(measure)) {
         distribution.add(severity, measure.getIntValue());
         double add = weightsBySeverity.get(severity) * measure.getIntValue();
@@ -103,7 +115,7 @@ public class WeightedViolationsDecorator implements Decorator {
       }
     }
 
-    Measure debtMeasure = new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, debt, KeyValueFormat.format(distribution));
+    Measure debtMeasure = new Measure(CoreMetrics.WEIGHTED_ISSUES, debt, KeyValueFormat.format(distribution));
     context.saveMeasure(debtMeasure);
   }
 

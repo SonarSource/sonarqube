@@ -25,6 +25,9 @@ import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.notifications.NotificationDispatcherMetadata;
 import org.sonar.api.resources.Java;
+import org.sonar.batch.issue.IssuesDecorator;
+import org.sonar.batch.issue.IssuesDensityDecorator;
+import org.sonar.batch.issue.WeightedIssuesDecorator;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
@@ -394,8 +397,11 @@ public final class CorePlugin extends SonarPlugin {
         CheckAlertThresholds.class,
         GenerateAlertEvents.class,
         ViolationsDecorator.class,
+        IssuesDecorator.class,
         WeightedViolationsDecorator.class,
+        WeightedIssuesDecorator.class,
         ViolationsDensityDecorator.class,
+        IssuesDensityDecorator.class,
         LineCoverageDecorator.class,
         CoverageDecorator.class,
         BranchCoverageDecorator.class,

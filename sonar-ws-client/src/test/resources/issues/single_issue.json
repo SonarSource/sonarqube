@@ -2,8 +2,8 @@
   {
     "key": "029d283a-072b-4ef8-bdda-e4b212aa39e3",
     "component": "com.sonarsource.it.samples:simple-sample:sample",
-    "ruleKey": "NM_FIELD_NAMING_CONVENTION",
-    "ruleRepositoryKey": "findbugs",
+    "rule": "NM_FIELD_NAMING_CONVENTION",
+    "ruleRepository": "findbugs",
     "severity": "MAJOR",
     "title": "title",
     "message": "message",

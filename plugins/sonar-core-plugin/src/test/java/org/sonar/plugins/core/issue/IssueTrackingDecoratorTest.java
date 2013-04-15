@@ -201,6 +201,15 @@ public class IssueTrackingDecoratorTest {
   }
 
   @Test
+  public void should_set_severity_if_severity_has_been_changed_by_user() {
+    DefaultIssue newIssue = newDefaultIssue("message", 1, "repoKey", "ruleKey", "checksum").setSeverity("MAJOR");
+    IssueDto referenceIssue = newReferenceIssue("message", 1, 1, "checksum").setSeverity("MINOR").setManualSeverity(true);
+
+    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    assertThat(newIssue.severity()).isEqualTo("MINOR");
+  }
+
+  @Test
   public void should_copy_date_when_not_new() {
     DefaultIssue newIssue = newDefaultIssue("message", 1, "repoKey", "ruleKey", "checksum");
     IssueDto referenceIssue = newReferenceIssue("", 1, 1, "checksum");
