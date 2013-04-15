@@ -33,19 +33,15 @@ import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PluginDownloaderTest {
 
@@ -60,7 +56,7 @@ public class PluginDownloaderTest {
   private PluginDownloader pluginDownloader;
 
   @Before
-  public void before() throws IOException {
+  public void before() throws Exception {
     updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class);
     updateCenter = mock(UpdateCenter.class);
     when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
@@ -86,13 +82,19 @@ public class PluginDownloaderTest {
     verify(httpDownloader).download(any(URI.class), argThat(new HasFileName("test-1.0.jar")));
   }
 
-  @Test(expected = SonarException.class)
+  @Test
   public void should_throw_exception_if_download_dir_is_invalid() throws Exception {
     DefaultServerFileSystem defaultServerFileSystem = mock(DefaultServerFileSystem.class);
     // download dir is a file instead of being a directory
     File downloadDir = testFolder.newFile();
     when(defaultServerFileSystem.getDownloadedPluginsDir()).thenReturn(downloadDir);
-    new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem);
+
+    try {
+      new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem);
+      fail();
+    } catch (SonarException e) {
+      // ok
+    }
   }
 
   @Test
@@ -100,7 +102,7 @@ public class PluginDownloaderTest {
     Plugin test = new Plugin("test");
     File file = testFolder.newFile("test-1.0.jar");
     file.createNewFile();
-    Release test10 = new Release(test, "1.0").setDownloadUrl("file://"+ file.getAbsoluteFile());
+    Release test10 = new Release(test, "1.0").setDownloadUrl("file://" + file.getCanonicalPath());
     test.addRelease(test10);
 
     when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
@@ -110,7 +112,7 @@ public class PluginDownloaderTest {
     assertThat(pluginDownloader.hasDownloads()).isTrue();
   }
 
-  @Test(expected = SonarException.class)
+  @Test
   public void should_throw_exception_if_could_not_download() throws Exception {
     Plugin test = new Plugin("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("file://not_found");
@@ -118,10 +120,15 @@ public class PluginDownloaderTest {
 
     when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
 
-    pluginDownloader.download("foo", Version.create("1.0"));
+    try {
+      pluginDownloader.download("foo", Version.create("1.0"));
+      fail();
+    } catch (SonarException e) {
+      // ok
+    }
   }
 
-  @Test(expected = SonarException.class)
+  @Test
   public void should_throw_exception_if_download_fail() throws Exception {
     Plugin test = new Plugin("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
@@ -130,7 +137,12 @@ public class PluginDownloaderTest {
 
     doThrow(new RuntimeException()).when(httpDownloader).download(any(URI.class), any(File.class));
 
-    pluginDownloader.download("foo", Version.create("1.0"));
+    try {
+      pluginDownloader.download("foo", Version.create("1.0"));
+      fail();
+    } catch (SonarException e) {
+      // ok
+    }
   }
 
   @Test
