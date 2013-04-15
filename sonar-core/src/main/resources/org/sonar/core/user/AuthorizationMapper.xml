@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.user.AuthorizationMapper">
+
+  <select id="keepAuthorizedComponentIdsForUser" parameterType="map" resultType="int">
+    SELECT s.project_id
+    FROM group_roles gr, snapshots s
+    WHERE
+      gr.role=#{role}
+      and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+      and gr.resource_id = s.root_project_id
+      and s.project_id in <foreach item="componentId" index="index" collection="componentIds" open="(" separator="," close=")">#{componentId}</foreach>
+      and s.islast = ${_true}
+    UNION DISTINCT
+    SELECT s.project_id
+    FROM user_roles ur, snapshots s
+    WHERE
+      ur.role=#{role}
+      and ur.user_id=#{userId}
+      and s.project_id in <foreach item="componentId" index="index" collection="componentIds" open="(" separator="," close=")">#{componentId}</foreach>
+      and s.islast = ${_true}
+  </select>
+
+  <select id="keepAuthorizedComponentIdsForAnonymous" parameterType="map" resultType="int">
+      SELECT s.project_id
+      FROM group_roles gr, snapshots s
+      WHERE
+        gr.role=#{role}
+        and gr.group_id is null
+        and gr.resource_id = s.root_project_id
+        and s.project_id in <foreach item="componentId" index="index" collection="componentIds" open="(" separator="," close=")">#{componentId}</foreach>
+    </select>
+
+</mapper>
