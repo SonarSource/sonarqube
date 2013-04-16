@@ -19,24 +19,43 @@
  */
 package org.sonar.batch.scan.source;
 
+import com.google.common.collect.ImmutableSet;
 import org.sonar.api.component.Component;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.scan.source.Highlightable;
 import org.sonar.core.component.PerspectiveBuilder;
+import org.sonar.core.component.ResourceComponent;
+
+import javax.annotation.CheckForNull;
+import java.util.Set;
 
 /**
  * @since 3.6
  */
 public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
-  private final SyntaxHighlightingCache syntaxHighlightingCache;
+  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE);
+  private final SyntaxHighlightingCache cache;
 
-  public HighlightableBuilder(SyntaxHighlightingCache syntaxHighlightingCache) {
+
+  public HighlightableBuilder(SyntaxHighlightingCache cache) {
     super(Highlightable.class);
-    this.syntaxHighlightingCache = syntaxHighlightingCache;
+    this.cache = cache;
   }
 
+  @CheckForNull
   @Override
   protected Highlightable loadPerspective(Class<Highlightable> perspectiveClass, Component component) {
-    return new DefaultHighlightable(component, syntaxHighlightingCache);
+    boolean supported = SUPPORTED_QUALIFIERS.contains(component.qualifier());
+    if (supported && component instanceof ResourceComponent) {
+      // temporary hack waiting for the removal of JavaClass.
+      // JavaClass has the same qualifier than JavaFile, so they have to distinguished by their scope
+      supported = Scopes.FILE.equals(((ResourceComponent) component).scope());
+    }
+    if (supported) {
+      return new DefaultHighlightable(component, cache);
+    }
+    return null;
   }
 }

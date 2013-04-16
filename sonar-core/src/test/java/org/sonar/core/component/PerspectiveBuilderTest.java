@@ -19,25 +19,26 @@
  */
 package org.sonar.core.component;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
 
-import javax.annotation.CheckForNull;
+import static org.fest.assertions.Assertions.assertThat;
 
-public abstract class PerspectiveBuilder<T extends Perspective> implements BatchComponent, ServerComponent {
+public class PerspectiveBuilderTest {
+  @Test
+  public void testGetPerspectiveClass() throws Exception {
+    PerspectiveBuilder<FakePerspective> builder = new PerspectiveBuilder<FakePerspective>(FakePerspective.class) {
+      @Override
+      protected FakePerspective loadPerspective(Class<FakePerspective> perspectiveClass, Component component) {
+        return null;
+      }
+    };
 
-  private final Class<T> perspectiveClass;
-
-  protected PerspectiveBuilder(Class<T> perspectiveClass) {
-    this.perspectiveClass = perspectiveClass;
+    assertThat(builder.getPerspectiveClass()).isEqualTo(FakePerspective.class);
   }
 
-  protected Class<T> getPerspectiveClass() {
-    return perspectiveClass;
-  }
+  static interface FakePerspective extends Perspective {
 
-  @CheckForNull
-  protected abstract T loadPerspective(Class<T> perspectiveClass, Component component);
+  }
 }

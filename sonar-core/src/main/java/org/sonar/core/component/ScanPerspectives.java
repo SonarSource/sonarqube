@@ -53,6 +53,7 @@ public class ScanPerspectives implements ResourcePerspectives, BatchComponent {
     return builder.loadPerspective(perspectiveClass, component);
   }
 
+  @CheckForNull
   public <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource) {
     Resource indexedResource = resourceIndex.getResource(resource);
     if (indexedResource != null) {

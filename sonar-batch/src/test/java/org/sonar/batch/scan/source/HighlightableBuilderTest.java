@@ -21,22 +21,47 @@ package org.sonar.batch.scan.source;
 
 import org.junit.Test;
 import org.sonar.api.component.Component;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Project;
 import org.sonar.api.scan.source.Highlightable;
+import org.sonar.core.component.ResourceComponent;
+import org.sonar.java.api.JavaClass;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class HighlightableBuilderTest {
 
+  SyntaxHighlightingCache cache = mock(SyntaxHighlightingCache.class);
+
   @Test
   public void should_load_default_perspective() throws Exception {
+    Component component = new ResourceComponent(new File("foo/bar.c"));
 
-    Component mockComponent = mock(Component.class);
-    SyntaxHighlightingCache highlightingCache = mock(SyntaxHighlightingCache.class);
+    HighlightableBuilder builder = new HighlightableBuilder(cache);
+    Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
 
-    HighlightableBuilder builder = new HighlightableBuilder(highlightingCache);
-    Highlightable perspective = builder.loadPerspective(Highlightable.class, mockComponent);
+    assertThat(perspective).isNotNull().isInstanceOf(DefaultHighlightable.class);
+    assertThat(perspective.component()).isSameAs(component);
+  }
 
-    assertThat(perspective).isInstanceOf(DefaultHighlightable.class);
+  @Test
+  public void project_should_not_be_highlightable() {
+    Component component = new ResourceComponent(new Project("Foo"));
+
+    HighlightableBuilder builder = new HighlightableBuilder(cache);
+    Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
+
+    assertThat(perspective).isNull();
+  }
+
+  @Test
+  public void java_class_should_not_be_highlightable() {
+    Component component = new ResourceComponent(JavaClass.create("foo", "Bar"));
+
+    HighlightableBuilder builder = new HighlightableBuilder(cache);
+    Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
+
+    assertThat(perspective).isNull();
   }
 }

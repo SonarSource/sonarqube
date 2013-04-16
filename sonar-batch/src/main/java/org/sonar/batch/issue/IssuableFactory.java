@@ -21,19 +21,31 @@ package org.sonar.batch.issue;
 
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.PerspectiveBuilder;
+import org.sonar.core.component.ResourceComponent;
 
-public class ScanIssuableFactory extends PerspectiveBuilder<Issuable> {
+import javax.annotation.CheckForNull;
+
+public class IssuableFactory extends PerspectiveBuilder<Issuable> {
 
   private final ModuleIssues moduleIssues;
 
-  public ScanIssuableFactory(ModuleIssues moduleIssues) {
+  public IssuableFactory(ModuleIssues moduleIssues) {
     super(Issuable.class);
     this.moduleIssues = moduleIssues;
   }
 
+  @CheckForNull
   @Override
   protected Issuable loadPerspective(Class<Issuable> perspectiveClass, Component component) {
-    return new ScanIssuable(component, moduleIssues);
+    boolean supported = true;
+    if (component instanceof ResourceComponent) {
+      supported = Scopes.isHigherThanOrEquals(((ResourceComponent) component).scope(), Scopes.FILE);
+    }
+    if (supported) {
+      return new DefaultIssuable(component, moduleIssues);
+    }
+    return null;
   }
 }

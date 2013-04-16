@@ -25,26 +25,28 @@ import org.sonar.api.resources.Resource;
 
 import javax.annotation.Nullable;
 
-class ResourceComponent implements Component {
+public class ResourceComponent implements Component {
   private String key;
   private String name;
   private String longName;
   private String qualifier;
+  private String scope;
   private Long snapshotId;
   private Long resourceId;
 
-  ResourceComponent(Resource resource, @Nullable Snapshot snapshot) {
+  public ResourceComponent(Resource resource, @Nullable Snapshot snapshot) {
     this.key = resource.getEffectiveKey();
     this.name = resource.getName();
     this.longName = resource.getLongName();
     this.qualifier = resource.getQualifier();
+    this.scope = resource.getScope();
     if (snapshot != null && snapshot.getId() != null) {
       this.snapshotId = snapshot.getId().longValue();
       this.resourceId = snapshot.getResourceId().longValue();
     }
   }
 
-  ResourceComponent(Resource resource) {
+  public ResourceComponent(Resource resource) {
     this(resource, null);
   }
 
@@ -63,6 +65,10 @@ class ResourceComponent implements Component {
 
   public String qualifier() {
     return qualifier;
+  }
+
+  public String scope() {
+    return scope;
   }
 
   public Long snapshotId() {

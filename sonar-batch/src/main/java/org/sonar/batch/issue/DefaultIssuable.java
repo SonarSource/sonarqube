@@ -17,27 +17,40 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.component;
+package org.sonar.batch.issue;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
-import org.sonar.api.component.Perspective;
+import org.sonar.api.issue.Issuable;
+import org.sonar.api.issue.Issue;
+import org.sonar.core.issue.DefaultIssueBuilder;
 
-import javax.annotation.CheckForNull;
+import java.util.Collection;
 
-public abstract class PerspectiveBuilder<T extends Perspective> implements BatchComponent, ServerComponent {
+/**
+ * @since 3.6
+ */
+public class DefaultIssuable implements Issuable {
 
-  private final Class<T> perspectiveClass;
+  private final ModuleIssues moduleIssues;
+  private final Component component;
 
-  protected PerspectiveBuilder(Class<T> perspectiveClass) {
-    this.perspectiveClass = perspectiveClass;
+  DefaultIssuable(Component component, ModuleIssues moduleIssues) {
+    this.component = component;
+    this.moduleIssues = moduleIssues;
   }
 
-  protected Class<T> getPerspectiveClass() {
-    return perspectiveClass;
+  @Override
+  public IssueBuilder newIssue() {
+    return new DefaultIssueBuilder(moduleIssues, component.key());
   }
 
-  @CheckForNull
-  protected abstract T loadPerspective(Class<T> perspectiveClass, Component component);
+  @Override
+  public Collection<Issue> issues() {
+    return moduleIssues.issues(component.key());
+  }
+
+  @Override
+  public Component component() {
+    return component;
+  }
 }

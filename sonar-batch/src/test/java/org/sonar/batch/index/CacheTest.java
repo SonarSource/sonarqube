@@ -17,40 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.issue;
+package org.sonar.batch.index;
 
-import org.sonar.api.component.Component;
-import org.sonar.api.issue.Issuable;
-import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssueBuilder;
+import org.junit.Test;
 
-import java.util.Collection;
+public class CacheTest {
+  @Test
+  public void test_put() throws Exception {
 
-/**
- * @since 3.6
- */
-public class ScanIssuable implements Issuable {
-
-  private final ModuleIssues moduleIssues;
-  private final Component component;
-
-  ScanIssuable(Component component, ModuleIssues moduleIssues) {
-    this.component = component;
-    this.moduleIssues = moduleIssues;
   }
 
-  @Override
-  public IssueBuilder newIssue() {
-    return new DefaultIssueBuilder(moduleIssues, component.key());
-  }
-
-  @Override
-  public Collection<Issue> issues() {
-    return moduleIssues.issues(component.key());
-  }
-
-  @Override
-  public Component component() {
-    return component;
-  }
 }
