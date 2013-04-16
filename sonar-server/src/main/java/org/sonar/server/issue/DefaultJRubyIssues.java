@@ -56,6 +56,7 @@ public class DefaultJRubyIssues implements JRubyIssues {
     builder.statuses(toStringList(props.get("statuses")));
     builder.resolutions(toStringList(props.get("resolutions")));
     builder.components(toStringList(props.get("components")));
+    builder.componentRoots(toStringList(props.get("componentRoots")));
     builder.rule(toString(props.get("rule")));
     builder.ruleRepository(toString(props.get("ruleRepository")));
     builder.userLogins(toStringList(props.get("userLogins")));

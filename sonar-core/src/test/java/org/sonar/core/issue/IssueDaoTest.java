@@ -177,10 +177,10 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_return_issues_from_resource_tree() {
+  public void should_return_issues_from_component_root() {
     setupData("select-with-component-children");
 
-    IssueQuery issueQuery = IssueQuery.builder().components(newArrayList("key")).build();
+    IssueQuery issueQuery = IssueQuery.builder().componentRoots(newArrayList("key")).build();
     List<IssueDto> issues = newArrayList(dao.select(issueQuery));
     assertThat(issues).hasSize(2);
     assertThat(issues.get(0).getId()).isEqualTo(100);

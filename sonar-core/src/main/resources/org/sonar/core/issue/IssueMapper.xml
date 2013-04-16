@@ -92,18 +92,21 @@
 
   <sql id="selectQueryConditions">
     from issues i
-    <if test="components != null and components.size() > 0">
+    <if test="componentRoots != null and componentRoots.size() > 0">
       , projects p, snapshots root, snapshots s
+    </if>
+    <if test="components != null and components.size() > 0">
+      , projects project_component
     </if>
     <if test="ruleRepository != null and rule != null">
       , rules r
     </if>
     <where>
-      <if test="components != null and components.size() > 0">
+      <if test="componentRoots != null and componentRoots.size() > 0">
         and p.enabled=${_true}
         and p.kee in
-        <foreach item="component" index="index" collection="components" open="(" separator="," close=")">
-          #{component}
+        <foreach item="componentRoot" index="index" collection="componentRoots" open="(" separator="," close=")">
+          #{componentRoot}
         </foreach>
         and root.project_id=p.id
         and root.islast=${_true}
@@ -119,6 +122,13 @@
         ))
         and s.islast=${_true}
         and i.resource_id=s.project_id
+      </if>
+      <if test="components != null">
+        and project_component.enabled=${_true}
+        and project_component.kee in
+        <foreach item="component" index="index" collection="components" open="(" separator="," close=")">#{component}
+        </foreach>
+        and i.resource_id=project_component.id
       </if>
       <if test="keys != null">
         and i.uuid in

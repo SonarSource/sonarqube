@@ -60,6 +60,7 @@ public class DefaultJRubyIssuesTest {
     map.put("statuses", newArrayList("CLOSED"));
     map.put("resolutions", newArrayList("FALSE-POSITIVE"));
     map.put("components", newArrayList("org.apache"));
+    map.put("componentRoots", newArrayList("org.sonar"));
     map.put("userLogins", newArrayList("marilyn"));
     map.put("assigneeLogins", newArrayList("joanna"));
     map.put("createdAfter", "2013-04-16T09:08:24+0200");
@@ -74,6 +75,8 @@ public class DefaultJRubyIssuesTest {
     assertThat(query.severities()).containsExactly("MAJOR", "MINOR");
     assertThat(query.statuses()).containsOnly("CLOSED");
     assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
+    assertThat(query.components()).containsOnly("org.apache");
+    assertThat(query.componentRoots()).containsOnly("org.sonar");
     assertThat(query.userLogins()).containsOnly("marilyn");
     assertThat(query.assigneeLogins()).containsOnly("joanna");
     assertThat(query.rule()).isEqualTo("rule");

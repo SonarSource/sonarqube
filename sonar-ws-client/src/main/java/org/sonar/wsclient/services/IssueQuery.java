@@ -34,6 +34,7 @@ public final class IssueQuery extends Query<Issue> {
   private String[] status;
   private String[] resolutions;
   private String[] components;
+  private String[] componentRoots;
   private String ruleRepository;
   private String rule;
   private String[] userLogins;
@@ -105,6 +106,15 @@ public final class IssueQuery extends Query<Issue> {
 
   public IssueQuery setComponents(String... components) {
     this.components = components;
+    return this;
+  }
+
+  public String[] getComponentRoots() {
+    return componentRoots;
+  }
+
+  public IssueQuery setComponentRoots(String... componentRoots) {
+    this.componentRoots = componentRoots;
     return this;
   }
 
@@ -190,6 +200,7 @@ public final class IssueQuery extends Query<Issue> {
     appendUrlParameter(url, "status", status);
     appendUrlParameter(url, "resolutions", resolutions);
     appendUrlParameter(url, "components", components);
+    appendUrlParameter(url, "componentRoots", componentRoots);
     appendUrlParameter(url, "ruleRepository", ruleRepository);
     appendUrlParameter(url, "rule", rule);
     appendUrlParameter(url, "userLogins", userLogins);

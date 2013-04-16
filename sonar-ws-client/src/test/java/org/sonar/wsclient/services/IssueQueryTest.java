@@ -40,6 +40,7 @@ public class IssueQueryTest extends QueryTestCase {
         .setKeys("key1", "key2")
         .setAssigneeLogins("assigneeLogin1", "assigneeLogin2")
         .setComponents("component1", "component2")
+        .setComponentRoots("componentRoot1", "componentRoot2")
         .setLimit(1)
         .setMinSeverity("minSev")
         .setResolutions("resoltion1", "resolution2")
@@ -50,8 +51,8 @@ public class IssueQueryTest extends QueryTestCase {
         .setUserLogins("userLogin1", "userLogin2")
         ;
     assertThat(query.getUrl()).isEqualTo("/api/issues/search?keys=key1,key2&severities=sev1,sev2&minSeverity=minSev&status=status1,status2&" +
-        "resolutions=resoltion1,resolution2&components=component1,component2&ruleRepository=ruleRepo&rule=rule&userLogins=userLogin1,userLogin2&" +
-        "assigneeLogins=assigneeLogin1,assigneeLogin2&limit=1&");
+        "resolutions=resoltion1,resolution2&components=component1,component2&componentRoots=componentRoot1,componentRoot2&ruleRepository=ruleRepo&rule=rule&" +
+        "userLogins=userLogin1,userLogin2&assigneeLogins=assigneeLogin1,assigneeLogin2&limit=1&");
   }
 
   @Test

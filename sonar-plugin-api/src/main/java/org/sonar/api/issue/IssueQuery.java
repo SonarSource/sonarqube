@@ -38,6 +38,7 @@ public class IssueQuery {
   private final List<String> statuses;
   private final List<String> resolutions;
   private final List<String> components;
+  private final List<String> componentRoots;
   private final String ruleRepository;
   private final String rule;
   private final List<String> userLogins;
@@ -52,6 +53,7 @@ public class IssueQuery {
     this.statuses = builder.statuses;
     this.resolutions = builder.resolutions;
     this.components = builder.components;
+    this.componentRoots = builder.componentRoots;
     this.ruleRepository = builder.ruleRepository;
     this.rule = builder.rule;
     this.userLogins = builder.userLogins;
@@ -80,6 +82,10 @@ public class IssueQuery {
 
   public List<String> components() {
     return components;
+  }
+
+  public List<String> componentRoots() {
+    return componentRoots;
   }
 
   public String ruleRepository() {
@@ -137,6 +143,7 @@ public class IssueQuery {
     private List<String> statuses;
     private List<String> resolutions;
     private List<String> components;
+    private List<String> componentRoots;
     private String ruleRepository;
     private String rule;
     private List<String> userLogins;
@@ -171,6 +178,11 @@ public class IssueQuery {
 
     public Builder components(List<String> l) {
       this.components = l;
+      return this;
+    }
+
+    public Builder componentRoots(List<String> l) {
+      this.componentRoots = l;
       return this;
     }
 

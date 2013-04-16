@@ -22,6 +22,8 @@ package org.sonar.api.issue;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import java.util.Date;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueQueryTest {
@@ -32,14 +34,30 @@ public class IssueQueryTest {
       .keys(Lists.newArrayList("ABCDE"))
       .severities(Lists.newArrayList(Issue.SEVERITY_BLOCKER))
       .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
+      .resolutions(Lists.newArrayList(Issue.RESOLUTION_FALSE_POSITIVE))
+      .components(Lists.newArrayList("components"))
+      .componentRoots(Lists.newArrayList("componentRoots"))
+      .ruleRepository("ruleRepository")
+      .rule("rule")
+      .userLogins(Lists.newArrayList("user"))
       .assigneeLogins(Lists.newArrayList("gargantua"))
+      .createdAfter(new Date())
+      .createdBefore(new Date())
       .limit(125)
       .offset(33)
       .build();
     assertThat(query.keys()).containsExactly("ABCDE");
     assertThat(query.severities()).containsExactly(Issue.SEVERITY_BLOCKER);
     assertThat(query.statuses()).containsExactly(Issue.STATUS_RESOLVED);
+    assertThat(query.resolutions()).containsExactly(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(query.components()).containsExactly("components");
+    assertThat(query.componentRoots()).containsExactly("componentRoots");
+    assertThat(query.userLogins()).containsExactly("user");
     assertThat(query.assigneeLogins()).containsExactly("gargantua");
+    assertThat(query.ruleRepository()).isEqualTo("ruleRepository");
+    assertThat(query.rule()).isEqualTo("rule");
+    assertThat(query.createdAfter()).isNotNull();
+    assertThat(query.createdBefore()).isNotNull();
     assertThat(query.limit()).isEqualTo(125);
     assertThat(query.offset()).isEqualTo(33);
   }

@@ -212,11 +212,7 @@ class DrilldownController < ApplicationController
       @rule_measures = @snapshot.rule_measures(metrics)
     end
 
-    snapshot = @drilldown.highlighted_snapshot || @snapshot
-    # FIXME For the moment the issues API return issues for all the resource tree, so it's imposible to know if there are issues only for the project for instance
-    # issues = Api.issues.find({'componentKey' => snapshot.project.key}, current_user.id).issues
-    #@display_viewers = true if snapshot.file? || issues.size>0
-    @display_viewers = snapshot.file?
+    @display_viewers=display_issue_viewers?(@drilldown.highlighted_snapshot || @snapshot)
   end
 
   private
@@ -264,6 +260,12 @@ class DrilldownController < ApplicationController
   def display_violation_viewers?(snapshot)
     return true if snapshot.file?
     snapshot.violations.size>0
+  end
+
+  def display_issue_viewers?(snapshot)
+    return true if snapshot.file?
+    issues = Api.issues.find({'components' => snapshot.project.key}, current_user ? current_user.id : nil).issues
+    issues.size>0
   end
 
   def guess_rule_severity(snapshot, rule, metric_prefix)
