@@ -13,6 +13,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.akiban</groupId>
+      <artifactId>akiban-persistit</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-core</artifactId>
     </dependency>
