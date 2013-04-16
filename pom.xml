@@ -461,6 +461,8 @@
           <pushChanges>false</pushChanges>
           <mavenExecutorId>forked-path</mavenExecutorId>
           <preparationGoals>clean install</preparationGoals>
+          <!-- SONAR-4189 -->
+          <arguments>-Prelease</arguments>
         </configuration>
       </plugin>
       <plugin>
