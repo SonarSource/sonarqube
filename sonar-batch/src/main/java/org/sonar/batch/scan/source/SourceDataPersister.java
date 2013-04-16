@@ -50,16 +50,16 @@ public class SourceDataPersister implements ScanPersister {
 
   private void persistDataCache(String dataType, Map<String, String> sourceDataByComponent) {
 
-    for (Map.Entry<String, String> componentRules : sourceDataByComponent.entrySet()) {
+    for (Map.Entry<String, String> componentData : sourceDataByComponent.entrySet()) {
 
-      Snapshot snapshotForComponent = snapshots.get(componentRules.getKey());
+      Snapshot snapshotForComponent = snapshots.get(componentData.getKey());
 
       SnapshotDataDto snapshotDataDto = new SnapshotDataDto();
       if(snapshotForComponent != null) {
         snapshotDataDto.setSnapshotId(snapshotForComponent.getId());
         snapshotDataDto.setResourceId(snapshotForComponent.getResourceId());
         snapshotDataDto.setDataType(dataType);
-        snapshotDataDto.setData(sourceDataByComponent.get(componentRules.getValue()));
+        snapshotDataDto.setData(componentData.getValue());
         snapshotDataDao.insert(snapshotDataDto);
       }
     }

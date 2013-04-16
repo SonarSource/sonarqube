@@ -20,6 +20,7 @@
 
 package org.sonar.core.source;
 
+import com.google.common.base.Strings;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
@@ -48,16 +49,22 @@ public class HtmlSourceDecorator {
     if (snapshotSource != null && snapshotDataEntries != null) {
       DecorationDataHolder decorationDataHolder = new DecorationDataHolder();
       for (SnapshotDataDto snapshotDataEntry : snapshotDataEntries) {
-        if (snapshotDataEntry.isSyntaxHighlightingData()) {
-          decorationDataHolder.loadSyntaxHighlightingData(snapshotDataEntry.getData());
-        } else if (snapshotDataEntry.isSymbolData()) {
-          decorationDataHolder.loadSymbolReferences(snapshotDataEntry.getData());
-        }
+        loadSnapshotData(decorationDataHolder, snapshotDataEntry);
       }
 
       HtmlTextDecorator textDecorator = new HtmlTextDecorator();
       return textDecorator.decorateTextWithHtml(snapshotSource, decorationDataHolder);
     }
     return null;
+  }
+
+  private void loadSnapshotData(DecorationDataHolder decorationDataHolder, SnapshotDataDto snapshotDataEntry) {
+    if(!Strings.isNullOrEmpty(snapshotDataEntry.getData())) {
+      if (snapshotDataEntry.isSyntaxHighlightingData()) {
+        decorationDataHolder.loadSyntaxHighlightingData(snapshotDataEntry.getData());
+      } else if (snapshotDataEntry.isSymbolData()) {
+        decorationDataHolder.loadSymbolReferences(snapshotDataEntry.getData());
+      }
+    }
   }
 }

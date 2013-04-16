@@ -49,16 +49,20 @@ public class SourceDataPersisterTest {
   @Test
   public void should_persist_source_cache_data() throws Exception {
 
+    final String componentKey = "component1";
+    final String dataType = "myDataType";
+    final String data = "source data for component 1";
+
     Snapshot snapshotComponent1 = mock(Snapshot.class);
     when(snapshotComponent1.getId()).thenReturn(1);
     when(snapshotComponent1.getResourceId()).thenReturn(1);
 
     Map<String, String> sourceData = Maps.newHashMap();
-    sourceData.put("component1", "source data for component 1");
+    sourceData.put(componentKey, data);
 
     when(sourceDataCache.getSourceDataByComponent()).thenReturn(sourceData);
-    when(sourceDataCache.getDataType()).thenReturn("myDataType");
-    when(snapshots.get("component1")).thenReturn(snapshotComponent1);
+    when(sourceDataCache.getDataType()).thenReturn(dataType);
+    when(snapshots.get(componentKey)).thenReturn(snapshotComponent1);
 
     SourceDataPersister persister = new SourceDataPersister(snapshotDataDao, new SourceDataCache[]{sourceDataCache}, snapshots);
     persister.persist();
@@ -67,7 +71,9 @@ public class SourceDataPersisterTest {
       @Override
       public boolean matches(Object o) {
         SnapshotDataDto insertedData = (SnapshotDataDto) o;
-        return insertedData.getSnapshotId() == 1 && insertedData.getDataType() == "myDataType";
+        return insertedData.getSnapshotId() == 1
+          && dataType.equals(insertedData.getDataType())
+          && data.equals(insertedData.getData());
       }
     }));
   }
