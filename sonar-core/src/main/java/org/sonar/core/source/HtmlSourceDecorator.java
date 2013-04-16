@@ -30,12 +30,12 @@ import java.util.Collection;
 /**
  * @since 3.6
  */
-public class SourceDecorator {
+public class HtmlSourceDecorator {
 
   private final SnapshotSourceDao snapshotSourceDao;
   private final SnapshotDataDao snapshotDataDao;
 
-  public SourceDecorator(MyBatis myBatis) {
+  public HtmlSourceDecorator(MyBatis myBatis) {
     snapshotSourceDao = new SnapshotSourceDao(myBatis);
     snapshotDataDao = new SnapshotDataDao(myBatis);
   }
