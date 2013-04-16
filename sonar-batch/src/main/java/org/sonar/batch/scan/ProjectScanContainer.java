@@ -20,7 +20,9 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.DefaultFileLinesContextFactory;
@@ -31,12 +33,22 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
-import org.sonar.batch.index.*;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.DefaultPersistenceManager;
+import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.index.DependencyPersister;
+import org.sonar.batch.index.EventPersister;
+import org.sonar.batch.index.LinkPersister;
+import org.sonar.batch.index.MeasurePersister;
+import org.sonar.batch.index.MemoryOptimizer;
+import org.sonar.batch.index.SnapshotCache;
+import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.IssuePersister;
 import org.sonar.batch.issue.ScanIssueActions;
 import org.sonar.batch.phases.GraphPersister;
+import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.scan.source.SourceDataPersister;
@@ -59,44 +71,47 @@ public class ProjectScanContainer extends ComponentContainer {
     addBatchComponents();
     fixMavenExecutor();
     addBatchExtensions();
+    Settings settings = getComponentByType(Settings.class);
+    if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
+      add(PhasesSumUpTimeProfiler.class);
+    }
   }
 
   private void addBatchComponents() {
     add(
-      DefaultResourceCreationLock.class,
-      DefaultPersistenceManager.class,
-      DependencyPersister.class,
-      EventPersister.class,
-      LinkPersister.class,
-      MeasurePersister.class,
-      MemoryOptimizer.class,
-      DefaultResourcePersister.class,
-      SourcePersister.class,
-      DefaultNotificationManager.class,
-      MetricProvider.class,
-      ProjectConfigurator.class,
-      DefaultIndex.class,
-      DefaultFileLinesContextFactory.class,
-      ProjectLock.class,
-      LastSnapshots.class,
-      SnapshotCache.class,
+        DefaultResourceCreationLock.class,
+        DefaultPersistenceManager.class,
+        DependencyPersister.class,
+        EventPersister.class,
+        LinkPersister.class,
+        MeasurePersister.class,
+        MemoryOptimizer.class,
+        DefaultResourcePersister.class,
+        SourcePersister.class,
+        DefaultNotificationManager.class,
+        MetricProvider.class,
+        ProjectConfigurator.class,
+        DefaultIndex.class,
+        DefaultFileLinesContextFactory.class,
+        ProjectLock.class,
+        LastSnapshots.class,
+        SnapshotCache.class,
 
-      ScanIssueActions.class,
-      DeprecatedViolations.class,
-      IssueCache.class,
-      IssuePersister.class,
+        ScanIssueActions.class,
+        DeprecatedViolations.class,
+        IssueCache.class,
+        IssuePersister.class,
 
-      TestPlanPerspectiveLoader.class,
-      TestablePerspectiveLoader.class,
-      TestPlanBuilder.class,
-      TestableBuilder.class,
-      ScanGraph.create(),
-      GraphPersister.class,
+        TestPlanPerspectiveLoader.class,
+        TestablePerspectiveLoader.class,
+        TestPlanBuilder.class,
+        TestableBuilder.class,
+        ScanGraph.create(),
+        GraphPersister.class,
 
-      SyntaxHighlightingCache.class,
-      SymbolDataCache.class,
-      SourceDataPersister.class
-    );
+        SyntaxHighlightingCache.class,
+        SymbolDataCache.class,
+        SourceDataPersister.class);
   }
 
   private void fixMavenExecutor() {

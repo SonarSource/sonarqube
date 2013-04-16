@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.phases;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +30,10 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.scan.maven.MavenPluginExecutor;
+import org.sonar.batch.events.EventBus;
 import org.sonar.batch.local.DryRunExporter;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 import java.util.Collection;
 
@@ -43,20 +45,25 @@ public class PostJobsExecutor implements BatchComponent {
   private final DefaultModuleFileSystem fs;
   private final MavenPluginExecutor mavenExecutor;
   private final DryRunExporter localModeExporter;
+  private final EventBus eventBus;
 
   public PostJobsExecutor(BatchExtensionDictionnary selector, Project project, DefaultModuleFileSystem fs, MavenPluginExecutor mavenExecutor,
-                          DryRunExporter localModeExporter) {
+      DryRunExporter localModeExporter, EventBus eventBus) {
     this.selector = selector;
     this.project = project;
     this.fs = fs;
     this.mavenExecutor = mavenExecutor;
     this.localModeExporter = localModeExporter;
+    this.eventBus = eventBus;
   }
 
   public void execute(SensorContext context) {
     Collection<PostJob> postJobs = selector.select(PostJob.class, project, true);
+
+    eventBus.fireEvent(new PostJobPhaseEvent(Lists.newArrayList(postJobs), true));
     execute(context, postJobs);
     exportLocalModeResults(context);
+    eventBus.fireEvent(new PostJobPhaseEvent(Lists.newArrayList(postJobs), false));
   }
 
   private void execute(SensorContext context, Collection<PostJob> postJobs) {
@@ -64,8 +71,10 @@ public class PostJobsExecutor implements BatchComponent {
 
     for (PostJob postJob : postJobs) {
       LOG.info("Executing post-job {}", postJob.getClass());
+      eventBus.fireEvent(new PostJobExecutionEvent(postJob, true));
       executeMavenPlugin(postJob);
       postJob.executeOn(project, context);
+      eventBus.fireEvent(new PostJobExecutionEvent(postJob, false));
     }
   }
 

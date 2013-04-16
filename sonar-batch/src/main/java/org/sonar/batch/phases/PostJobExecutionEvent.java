@@ -19,40 +19,32 @@
  */
 package org.sonar.batch.phases;
 
-import com.google.common.collect.Sets;
+import org.sonar.api.batch.PostJob;
+import org.sonar.api.batch.events.PostJobExecutionHandler;
 
-import java.util.Arrays;
-import java.util.Set;
+class PostJobExecutionEvent extends AbstractPhaseEvent<PostJobExecutionHandler>
+    implements org.sonar.api.batch.events.PostJobExecutionHandler.PostJobExecutionEvent {
 
-public class Phases {
+  private final PostJob postJob;
 
-  public static enum Phase {
-    MAVEN("Maven"), INIT("Initializers"), SENSOR("Sensors"), DECORATOR("Decorators"), POSTJOB("Post-Jobs");
-
-    private final String label;
-
-    private Phase(String label) {
-      this.label = label;
-    }
-
-    @Override
-    public String toString() {
-      return label;
-    }
+  PostJobExecutionEvent(PostJob postJob, boolean start) {
+    super(start);
+    this.postJob = postJob;
   }
 
-  private final Set<Phase> enabled = Sets.newHashSet();
-
-  public Phases enable(Phase... phases) {
-    enabled.addAll(Arrays.asList(phases));
-    return this;
+  @Override
+  public PostJob getPostJob() {
+    return postJob;
   }
 
-  public boolean isEnabled(Phase phase) {
-    return enabled.contains(phase);
+  @Override
+  public void dispatch(PostJobExecutionHandler handler) {
+    handler.onPostJobExecution(this);
   }
 
-  public boolean isFullyEnabled() {
-    return enabled.containsAll(Arrays.asList(Phase.values()));
+  @Override
+  public Class getType() {
+    return PostJobExecutionHandler.class;
   }
+
 }

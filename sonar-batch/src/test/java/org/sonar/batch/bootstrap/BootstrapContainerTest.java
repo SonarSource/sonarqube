@@ -62,11 +62,11 @@ public class BootstrapContainerTest {
     PluginMetadata metadata = mock(PluginMetadata.class);
     FakePlugin plugin = new FakePlugin();
     BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(ImmutableMap.<PluginMetadata, Plugin>of(
-      metadata, plugin
-    ));
+    when(pluginRepository.getPluginsByMetadata()).thenReturn(ImmutableMap.<PluginMetadata, Plugin> of(
+        metadata, plugin
+        ));
 
-    BootstrapContainer container = spy(BootstrapContainer.create(Lists.newArrayList(pluginRepository)));
+    BootstrapContainer container = spy(BootstrapContainer.create(Lists.<Object> newArrayList(pluginRepository)));
     doNothing().when(container).executeTask();
     container.doAfterStart();
 

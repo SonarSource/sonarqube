@@ -17,42 +17,18 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.profiling;
 
-import com.google.common.collect.Sets;
+public class ItemProfiling extends AbstractTimeProfiling {
 
-import java.util.Arrays;
-import java.util.Set;
+  private final String itemName;
 
-public class Phases {
-
-  public static enum Phase {
-    MAVEN("Maven"), INIT("Initializers"), SENSOR("Sensors"), DECORATOR("Decorators"), POSTJOB("Post-Jobs");
-
-    private final String label;
-
-    private Phase(String label) {
-      this.label = label;
-    }
-
-    @Override
-    public String toString() {
-      return label;
-    }
+  public ItemProfiling(String itemName) {
+    this.itemName = itemName;
   }
 
-  private final Set<Phase> enabled = Sets.newHashSet();
-
-  public Phases enable(Phase... phases) {
-    enabled.addAll(Arrays.asList(phases));
-    return this;
+  public String itemName() {
+    return itemName;
   }
 
-  public boolean isEnabled(Phase phase) {
-    return enabled.contains(phase);
-  }
-
-  public boolean isFullyEnabled() {
-    return enabled.containsAll(Arrays.asList(Phase.values()));
-  }
 }

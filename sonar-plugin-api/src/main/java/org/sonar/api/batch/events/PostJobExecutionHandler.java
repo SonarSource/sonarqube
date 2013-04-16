@@ -17,42 +17,31 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.batch.phases;
+package org.sonar.api.batch.events;
 
-import com.google.common.collect.Sets;
+import org.sonar.api.batch.PostJob;
 
-import java.util.Arrays;
-import java.util.Set;
+/**
+ * @since 3.6
+ */
+public interface PostJobExecutionHandler extends EventHandler {
 
-public class Phases {
+  /**
+   * This interface is not intended to be implemented by clients.
+   */
+  interface PostJobExecutionEvent {
 
-  public static enum Phase {
-    MAVEN("Maven"), INIT("Initializers"), SENSOR("Sensors"), DECORATOR("Decorators"), POSTJOB("Post-Jobs");
+    PostJob getPostJob();
 
-    private final String label;
+    boolean isStart();
 
-    private Phase(String label) {
-      this.label = label;
-    }
+    boolean isEnd();
 
-    @Override
-    public String toString() {
-      return label;
-    }
   }
 
-  private final Set<Phase> enabled = Sets.newHashSet();
+  /**
+   * Called before and after execution of {@link PostJob}.
+   */
+  void onPostJobExecution(PostJobExecutionEvent event);
 
-  public Phases enable(Phase... phases) {
-    enabled.addAll(Arrays.asList(phases));
-    return this;
-  }
-
-  public boolean isEnabled(Phase phase) {
-    return enabled.contains(phase);
-  }
-
-  public boolean isFullyEnabled() {
-    return enabled.containsAll(Arrays.asList(Phase.values()));
-  }
 }

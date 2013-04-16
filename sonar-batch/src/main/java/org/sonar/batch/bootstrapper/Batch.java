@@ -76,7 +76,7 @@ public final class Batch {
   }
 
   private void startBatch() {
-    List all = Lists.newArrayList(components);
+    List<Object> all = Lists.newArrayList(components);
     all.add(new BootstrapProperties(bootstrapProperties));
     if (projectReactor != null) {
       all.add(projectReactor);

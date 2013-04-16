@@ -384,6 +384,11 @@ public interface CoreProperties {
   String SCAN_TASK = "scan";
 
   /**
+   * @since 3.6
+   */
+  String PROFILING_LOG_PROPERTY = "sonar.profiling.log";
+
+  /**
    * @deprecated replaced in v3.4 by properties specific to languages, for example sonar.java.coveragePlugin
    *             See http://jira.codehaus.org/browse/SONARJAVA-39 for more details.
    */

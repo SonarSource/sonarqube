@@ -21,11 +21,14 @@ package org.sonar.batch.scan;
 
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -52,6 +55,26 @@ public class ProjectScanContainerTest {
 
     assertThat(container.getComponentsByType(MavenPluginExecutor.class)).hasSize(1);
     assertThat(container.getComponentByType(MavenPluginExecutor.class)).isSameAs(mavenPluginExecutor);
+  }
+
+  @Test
+  public void should_activate_profiling() {
+    ComponentContainer parentContainer = new ComponentContainer();
+    Settings settings = new Settings();
+    parentContainer.add(settings);
+    ProjectScanContainer container = new ProjectScanContainer(parentContainer);
+    container.add(mock(ExtensionInstaller.class));
+    container.doBeforeStart();
+
+    assertThat(container.getComponentsByType(PhasesSumUpTimeProfiler.class)).hasSize(0);
+
+    settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, "true");
+
+    container = new ProjectScanContainer(parentContainer);
+    container.add(mock(ExtensionInstaller.class));
+    container.doBeforeStart();
+
+    assertThat(container.getComponentsByType(PhasesSumUpTimeProfiler.class)).hasSize(1);
   }
 
   @Test

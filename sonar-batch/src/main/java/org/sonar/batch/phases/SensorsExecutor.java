@@ -66,9 +66,9 @@ public class SensorsExecutor implements BatchComponent {
     for (Sensor sensor : sensors) {
       // SONAR-2965 In case the sensor takes too much time we close the session to not face a timeout
       session.commitAndClose();
-      executeMavenPlugin(sensor);
 
       eventBus.fireEvent(new SensorExecutionEvent(sensor, true));
+      executeMavenPlugin(sensor);
       sensor.analyse(project, context);
       eventBus.fireEvent(new SensorExecutionEvent(sensor, false));
     }
