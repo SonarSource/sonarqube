@@ -53,13 +53,13 @@ class Api::IssuesController < Api::ApiController
     json[:resolution] = issue.resolution if issue.resolution
     json[:userLogin] = issue.userLogin if issue.userLogin
     json[:assigneeLogin] = issue.assigneeLogin if issue.assigneeLogin
-    json[:createdAt] = to_date(issue.createdAt) if issue.createdAt
-    json[:updatedAt] = to_date(issue.updatedAt) if issue.updatedAt
-    json[:closedAt] = to_date(issue.closedAt) if issue.closedAt
+    json[:createdAt] = format_java_datetime(issue.createdAt) if issue.createdAt
+    json[:updatedAt] = format_java_datetime(issue.updatedAt) if issue.updatedAt
+    json[:closedAt] = format_java_datetime(issue.closedAt) if issue.closedAt
     json
   end
 
-  def to_date(java_date)
+  def format_java_datetime(java_date)
     java_date ? Api::Utils.format_datetime(Time.at(java_date.time/1000)) : nil
   end
 

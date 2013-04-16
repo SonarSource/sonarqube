@@ -44,7 +44,7 @@ module ResourceHelper
   end
 
   def to_date(java_date)
-    java_date ? Api::Utils.format_datetime(Time.at(java_date.time/1000)) : nil
+    java_date ? Time.at(java_date.time/1000) : nil
   end
 
 end

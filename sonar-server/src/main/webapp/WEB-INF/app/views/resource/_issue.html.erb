@@ -22,6 +22,8 @@
       &nbsp;
 
       <% if issue.created_at %>
+        <% puts "### " + Time.now.to_s %>
+        <% puts "### " + Time.now.to_s %>
         <span><%= distance_of_time_in_words_to_now(to_date(issue.created_at)) -%></span>
         &nbsp;
       <% end %>
