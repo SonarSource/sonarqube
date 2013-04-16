@@ -95,6 +95,9 @@
     <if test="components != null and components.size() > 0">
       , projects p, snapshots root, snapshots s
     </if>
+    <if test="ruleRepository != null and rule != null">
+      , rules r
+    </if>
     <where>
       <if test="components != null and components.size() > 0">
         and p.enabled=${_true}
@@ -146,6 +149,16 @@
         and i.assignee_login in
         <foreach item="assigneeLogin" index="index" collection="assigneeLogins" open="(" separator="," close=")">#{assigneeLogin}
         </foreach>
+      </if>
+      <if test="ruleRepository != null and rule != null">
+        and r.plugin_name = #{ruleRepository} and r.plugin_rule_key = #{rule}
+        and i.rule_id = r.id
+      </if>
+      <if test="createdAfter">
+        and i.created_at &gt; #{createdAfter}
+      </if>
+      <if test="createdBefore">
+        and i.created_at &lt; #{createdBefore}
       </if>
     </where>
   </sql>

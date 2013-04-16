@@ -22,6 +22,8 @@ package org.sonar.wsclient.services;
 
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueQueryTest extends QueryTestCase {
@@ -41,13 +43,24 @@ public class IssueQueryTest extends QueryTestCase {
         .setLimit(1)
         .setMinSeverity("minSev")
         .setResolutions("resoltion1", "resolution2")
-        .setRules("rule1", "rule2")
+        .setRuleRepository("ruleRepo")
+        .setRule("rule")
         .setStatus("status1", "status2")
         .setSeverities("sev1", "sev2")
-        .setUserLogins("userLogin1", "userLogin2");
+        .setUserLogins("userLogin1", "userLogin2")
+        ;
     assertThat(query.getUrl()).isEqualTo("/api/issues/search?keys=key1,key2&severities=sev1,sev2&minSeverity=minSev&status=status1,status2&" +
-        "resolutions=resoltion1,resolution2&components=component1,component2&rules=rule1,rule2&userLogins=userLogin1,userLogin2&" +
+        "resolutions=resoltion1,resolution2&components=component1,component2&ruleRepository=ruleRepo&rule=rule&userLogins=userLogin1,userLogin2&" +
         "assigneeLogins=assigneeLogin1,assigneeLogin2&limit=1&");
+  }
+
+  @Test
+  public void get_all_issues_by_created_at() throws Exception {
+    IssueQuery query = IssueQuery.create()
+        .setCreatedAfter(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-16"))
+        .setCreatedBefore(new SimpleDateFormat("yyyy-MM-dd").parse("2010-02-18"))
+        ;
+    assertThat(query.getUrl()).isEqualTo("/api/issues/search?createdAfter=Tue+Apr+16+00%3A00%3A00+CEST+2013&createdBefore=Thu+Feb+18+00%3A00%3A00+CET+2010&");
   }
 
 }

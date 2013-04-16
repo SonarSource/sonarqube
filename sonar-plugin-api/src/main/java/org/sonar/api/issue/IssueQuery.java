@@ -23,6 +23,7 @@ package org.sonar.api.issue;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,8 +38,12 @@ public class IssueQuery {
   private final List<String> statuses;
   private final List<String> resolutions;
   private final List<String> components;
+  private final String ruleRepository;
+  private final String rule;
   private final List<String> userLogins;
   private final List<String> assigneeLogins;
+  private final Date createdAfter;
+  private final Date createdBefore;
   private final int limit, offset;
 
   private IssueQuery(Builder builder) {
@@ -47,8 +52,12 @@ public class IssueQuery {
     this.statuses = builder.statuses;
     this.resolutions = builder.resolutions;
     this.components = builder.components;
+    this.ruleRepository = builder.ruleRepository;
+    this.rule = builder.rule;
     this.userLogins = builder.userLogins;
     this.assigneeLogins = builder.assigneeLogins;
+    this.createdAfter = builder.createdAfter;
+    this.createdBefore = builder.createdBefore;
     this.limit = builder.limit;
     this.offset = builder.offset;
   }
@@ -73,12 +82,28 @@ public class IssueQuery {
     return components;
   }
 
+  public String ruleRepository() {
+    return ruleRepository;
+  }
+
+  public String rule() {
+    return rule;
+  }
+
   public List<String> userLogins() {
     return userLogins;
   }
 
   public List<String> assigneeLogins() {
     return assigneeLogins;
+  }
+
+  public Date createdAfter() {
+    return createdAfter;
+  }
+
+  public Date createdBefore() {
+    return createdBefore;
   }
 
   public int limit() {
@@ -112,8 +137,12 @@ public class IssueQuery {
     private List<String> statuses;
     private List<String> resolutions;
     private List<String> components;
+    private String ruleRepository;
+    private String rule;
     private List<String> userLogins;
     private List<String> assigneeLogins;
+    private Date createdAfter;
+    private Date createdBefore;
     private int limit = DEFAULT_LIMIT;
     private int offset = DEFAULT_OFFSET;
 
@@ -145,6 +174,16 @@ public class IssueQuery {
       return this;
     }
 
+    public Builder ruleRepository(String ruleRepository) {
+      this.ruleRepository = ruleRepository;
+      return this;
+    }
+
+    public Builder rule(String rule) {
+      this.rule = rule;
+      return this;
+    }
+
     public Builder userLogins(List<String> l) {
       this.userLogins = l;
       return this;
@@ -152,6 +191,16 @@ public class IssueQuery {
 
     public Builder assigneeLogins(List<String> l) {
       this.assigneeLogins = l;
+      return this;
+    }
+
+    public Builder createdAfter(Date createdAfter) {
+      this.createdAfter = createdAfter;
+      return this;
+    }
+
+    public Builder createdBefore(Date createdBefore) {
+      this.createdBefore = createdBefore;
       return this;
     }
 

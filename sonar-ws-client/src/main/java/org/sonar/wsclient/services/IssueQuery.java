@@ -19,6 +19,8 @@
  */
 package org.sonar.wsclient.services;
 
+import java.util.Date;
+
 /**
  * @since 3.6
  */
@@ -32,10 +34,14 @@ public final class IssueQuery extends Query<Issue> {
   private String[] status;
   private String[] resolutions;
   private String[] components;
-  private String[] rules;
+  private String ruleRepository;
+  private String rule;
   private String[] userLogins;
   private String[] assigneeLogins;
+  private Date createdAfter;
+  private Date createdBefore;
   private Integer limit;
+  private Integer offset;
 
   private IssueQuery() {
   }
@@ -102,12 +108,21 @@ public final class IssueQuery extends Query<Issue> {
     return this;
   }
 
-  public String[] getRules() {
-    return rules;
+  public String getRuleRepository() {
+    return ruleRepository;
   }
 
-  public IssueQuery setRules(String... rules) {
-    this.rules = rules;
+  public IssueQuery setRuleRepository(String ruleRepository) {
+    this.ruleRepository = ruleRepository;
+    return this;
+  }
+
+  public String getRule() {
+    return rule;
+  }
+
+  public IssueQuery setRule(String rule) {
+    this.rule = rule;
     return this;
   }
 
@@ -129,12 +144,39 @@ public final class IssueQuery extends Query<Issue> {
     return this;
   }
 
+  public Date getCreatedAfter() {
+    return createdAfter;
+  }
+
+  public IssueQuery setCreatedAfter(Date createdAfter) {
+    this.createdAfter = createdAfter;
+    return this;
+  }
+
+  public Date getCreatedBefore() {
+    return createdBefore;
+  }
+
+  public IssueQuery setCreatedBefore(Date createdBefore) {
+    this.createdBefore = createdBefore;
+    return this;
+  }
+
   public Integer getLimit() {
     return limit;
   }
 
   public IssueQuery setLimit(Integer limit) {
     this.limit = limit;
+    return this;
+  }
+
+  public Integer getOffset() {
+    return offset;
+  }
+
+  public IssueQuery setOffset(Integer offset) {
+    this.offset = offset;
     return this;
   }
 
@@ -148,10 +190,14 @@ public final class IssueQuery extends Query<Issue> {
     appendUrlParameter(url, "status", status);
     appendUrlParameter(url, "resolutions", resolutions);
     appendUrlParameter(url, "components", components);
-    appendUrlParameter(url, "rules", rules);
+    appendUrlParameter(url, "ruleRepository", ruleRepository);
+    appendUrlParameter(url, "rule", rule);
     appendUrlParameter(url, "userLogins", userLogins);
     appendUrlParameter(url, "assigneeLogins", assigneeLogins);
+    appendUrlParameter(url, "createdAfter", createdAfter);
+    appendUrlParameter(url, "createdBefore", createdBefore);
     appendUrlParameter(url, "limit", limit);
+    appendUrlParameter(url, "offset", offset);
     return url.toString();
   }
 

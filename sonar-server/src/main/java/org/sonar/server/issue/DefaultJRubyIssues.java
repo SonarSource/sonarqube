@@ -24,8 +24,10 @@ import com.google.common.collect.Lists;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.JRubyIssues;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.server.ui.JRubyFacades;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -54,8 +56,12 @@ public class DefaultJRubyIssues implements JRubyIssues {
     builder.statuses(toStringList(props.get("statuses")));
     builder.resolutions(toStringList(props.get("resolutions")));
     builder.components(toStringList(props.get("components")));
+    builder.rule(toString(props.get("rule")));
+    builder.ruleRepository(toString(props.get("ruleRepository")));
     builder.userLogins(toStringList(props.get("userLogins")));
     builder.assigneeLogins(toStringList(props.get("assigneeLogins")));
+    builder.createdAfter(toDate(props.get("createdAfter")));
+    builder.createdBefore(toDate(props.get("createdBefore")));
     builder.limit(toInteger(props.get("limit")));
     builder.offset(toInteger(props.get("offset")));
     return builder.build();
@@ -80,6 +86,23 @@ public class DefaultJRubyIssues implements JRubyIssues {
     }
     if (o instanceof String) {
       return Integer.parseInt((String) o);
+    }
+    return null;
+  }
+
+  String toString(Object o) {
+    if (o instanceof String) {
+      return ((String) o);
+    }
+    return null;
+  }
+
+  Date toDate(Object o){
+    if (o instanceof Date) {
+      return (Date) o;
+    }
+    if (o instanceof String) {
+      return DateUtils.parseDateTime((String) o);
     }
     return null;
   }

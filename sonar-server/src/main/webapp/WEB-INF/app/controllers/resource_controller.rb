@@ -474,10 +474,9 @@ class ResourceController < ApplicationController
         options['severities'] = rule_param
 
       else
-        # TODO
         rule = Rule.by_key_or_id(rule_param)
-        #options[:ruleKey] = rule.key
-        #options[:ruleRepository] = rule.key
+        options['rule'] = rule.plugin_rule_key
+        options['ruleRepository'] = rule.repository_key
       end
     end
 
@@ -485,8 +484,7 @@ class ResourceController < ApplicationController
     if @period
       date = @snapshot.period_datetime(@period)
       if date
-        # TODO
-        #options[:created_after]=date.advance(:minutes => 1)
+        options['createdAfter'] = date
       end
     end
 

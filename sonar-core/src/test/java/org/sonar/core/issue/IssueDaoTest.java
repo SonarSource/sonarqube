@@ -158,6 +158,25 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_find_issue_by_rule() {
+    setupData("select");
+
+    IssueQuery issueQuery = IssueQuery.builder().rule("rule").ruleRepository("repo").build();
+    assertThat(dao.select(issueQuery)).hasSize(4);
+  }
+
+  @Test
+  public void should_find_issue_by_date_creation() {
+    setupData("select");
+
+    IssueQuery issueQuery = IssueQuery.builder().createdAfter(DateUtils.parseDate("2013-04-15")).build();
+    assertThat(dao.select(issueQuery)).hasSize(1);
+
+    issueQuery = IssueQuery.builder().createdBefore(DateUtils.parseDate("2013-04-17")).build();
+    assertThat(dao.select(issueQuery)).hasSize(2);
+  }
+
+  @Test
   public void should_return_issues_from_resource_tree() {
     setupData("select-with-component-children");
 

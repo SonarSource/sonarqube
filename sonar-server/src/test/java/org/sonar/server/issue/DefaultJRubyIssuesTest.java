@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
-import org.sonar.server.issue.DefaultJRubyIssues;
+import org.sonar.api.utils.DateUtils;
 
 import java.util.Map;
 
@@ -34,9 +34,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 public class DefaultJRubyIssuesTest {
 
@@ -64,6 +62,10 @@ public class DefaultJRubyIssuesTest {
     map.put("components", newArrayList("org.apache"));
     map.put("userLogins", newArrayList("marilyn"));
     map.put("assigneeLogins", newArrayList("joanna"));
+    map.put("createdAfter", "2013-04-16T09:08:24+0200");
+    map.put("createdBefore", "2013-04-17T09:08:24+0200");
+    map.put("rule", "rule");
+    map.put("ruleRepository", "ruleRepository");
     map.put("limit", 10);
     map.put("offset", 50);
 
@@ -74,6 +76,10 @@ public class DefaultJRubyIssuesTest {
     assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
     assertThat(query.userLogins()).containsOnly("marilyn");
     assertThat(query.assigneeLogins()).containsOnly("joanna");
+    assertThat(query.rule()).isEqualTo("rule");
+    assertThat(query.ruleRepository()).isEqualTo("ruleRepository");
+    assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
+    assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));
     assertThat(query.limit()).isEqualTo(10);
     assertThat(query.offset()).isEqualTo(50);
   }
