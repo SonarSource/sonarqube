@@ -20,12 +20,12 @@
 
 package org.sonar.batch.scan.source;
 
-public class SymbolDataCache extends SourceDataCache {
+import org.sonar.core.source.jdbc.SnapshotDataDto;
 
-  public static final String DATA_TYPE = "symbol";
+public class SymbolDataCache extends SourceDataCache {
 
   @Override
   public String getDataType() {
-    return DATA_TYPE;
+    return SnapshotDataDto.SYMBOL;
   }
 }

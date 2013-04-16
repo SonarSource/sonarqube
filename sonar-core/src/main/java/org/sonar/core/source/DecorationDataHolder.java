@@ -24,32 +24,42 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 
+import java.util.Arrays;
 import java.util.List;
 
-public class HighlightingContext {
+public class DecorationDataHolder {
 
-  private static final String RULE_SEPARATOR = ";";
+  private static final String ENTITY_SEPARATOR = ";";
   private static final String FIELD_SEPARATOR = ",";
+  private static final String SYMBOL_PREFIX = "symbol.";
 
   private final Multimap<Integer, String> lowerBoundsDefinitions;
   private final List<Integer> upperBoundsDefinitions;
 
-  private HighlightingContext() {
+  public DecorationDataHolder() {
     lowerBoundsDefinitions = TreeMultimap.create();
     upperBoundsDefinitions = Lists.newArrayList();
   }
 
-  public static HighlightingContext buildFrom(String serializedRules) {
+  public void loadSymbolReferences(String symbolsReferences) {
+    String[] symbols = symbolsReferences.split(ENTITY_SEPARATOR);
+    for (int i = 0; i < symbols.length; i++) {
+      String[] symbolFields = symbols[i].split(FIELD_SEPARATOR);
+      int declarationStartOffset = Integer.parseInt(symbolFields[0]);
+      int declarationEndOffset = Integer.parseInt(symbolFields[1]);
+      int symbolLength = declarationEndOffset - declarationStartOffset;
+      String[] symbolOccurrences = Arrays.copyOfRange(symbolFields, 2, symbolFields.length);
+      loadSymbolOccurrences(declarationStartOffset, symbolLength, symbolOccurrences);
+    }
+  }
 
-    HighlightingContext context = new HighlightingContext();
-
-    String[] rules = serializedRules.split(RULE_SEPARATOR);
+  public void loadSyntaxHighlightingData(String syntaxHighlightingRules) {
+    String[] rules = syntaxHighlightingRules.split(ENTITY_SEPARATOR);
     for (int i = 0; i < rules.length; i++) {
       String[] ruleFields = rules[i].split(FIELD_SEPARATOR);
-      context.lowerBoundsDefinitions.put(Integer.parseInt(ruleFields[0]), ruleFields[2]);
-      context.upperBoundsDefinitions.add(Integer.parseInt(ruleFields[1]));
+      lowerBoundsDefinitions.put(Integer.parseInt(ruleFields[0]), ruleFields[2]);
+      upperBoundsDefinitions.add(Integer.parseInt(ruleFields[1]));
     }
-    return context;
   }
 
   public Multimap<Integer, String> getLowerBoundsDefinitions() {
@@ -58,5 +68,14 @@ public class HighlightingContext {
 
   public List<Integer> getUpperBoundsDefinitions() {
     return upperBoundsDefinitions;
+  }
+
+  private void loadSymbolOccurrences(int declarationStartOffset, int symbolLength, String[] symbolOccurrences) {
+    for (int i = 0; i < symbolOccurrences.length; i++) {
+      int occurrenceStartOffset = Integer.parseInt(symbolOccurrences[i]);
+      int occurrenceEndOffset = occurrenceStartOffset + symbolLength;
+      lowerBoundsDefinitions.put(occurrenceStartOffset, SYMBOL_PREFIX + declarationStartOffset);
+      upperBoundsDefinitions.add(occurrenceEndOffset);
+    }
   }
 }

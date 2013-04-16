@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
+import java.util.Collection;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SnapshotDataDaoTest extends AbstractDaoTestCase {
@@ -39,9 +41,11 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_retrieve_snapshot_data_by_snapshot_id() throws Exception {
 
-    String data = dao.selectSnapshotData(10L);
+    Collection<SnapshotDataDto> data = dao.selectSnapshotData(10L);
 
-    assertThat(data).isEqualTo("0,10,k");
+    assertThat(data).onProperty("snapshotId").containsOnly(10L, 10L);
+    assertThat(data).onProperty("dataType").containsOnly("highlight_syntax", "symbol");
+    assertThat(data).onProperty("data").containsOnly("0,10,k;", "20,25,20,35,45;");
   }
 
   @Test
@@ -58,8 +62,10 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
 
     dao.insert(dto);
 
-    String serializedData = dao.selectSnapshotData(11L);
+    Collection<SnapshotDataDto> serializedData = dao.selectSnapshotData(11L);
 
-    assertThat(serializedData).isEqualTo(data);
+    assertThat(serializedData).onProperty("snapshotId").containsOnly(11L);
+    assertThat(serializedData).onProperty("dataType").containsOnly(dataType);
+    assertThat(serializedData).onProperty("data").containsOnly(data);
   }
 }

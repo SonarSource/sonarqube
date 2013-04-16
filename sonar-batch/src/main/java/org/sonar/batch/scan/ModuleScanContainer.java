@@ -56,6 +56,7 @@ import org.sonar.batch.scan.filesystem.ExclusionFilters;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.filesystem.LanguageFilters;
 import org.sonar.batch.scan.filesystem.ModuleFileSystemProvider;
+import org.sonar.batch.scan.source.SymbolPerspectiveBuilder;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.batch.scan.source.HighlightableBuilder;
 
@@ -124,6 +125,7 @@ public class ModuleScanContainer extends ComponentContainer {
         IssuableFactory.class,
 
         HighlightableBuilder.class,
+        SymbolPerspectiveBuilder.class,
         ScanPerspectives.class
       );
   }

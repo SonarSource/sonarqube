@@ -20,12 +20,12 @@
 
 package org.sonar.batch.scan.source;
 
-public class SyntaxHighlightingCache extends SourceDataCache {
+import org.sonar.core.source.jdbc.SnapshotDataDto;
 
-  public static final String DATA_TYPE = "highlight_syntax";
+public class SyntaxHighlightingCache extends SourceDataCache {
 
   @Override
   public String getDataType() {
-    return DATA_TYPE;
+    return SnapshotDataDto.HIGHLIGHT_SYNTAX;
   }
 }

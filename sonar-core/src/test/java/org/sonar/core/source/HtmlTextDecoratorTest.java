@@ -25,20 +25,21 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.core.source.HtmlTextWrapper.CR_END_OF_LINE;
-import static org.sonar.core.source.HtmlTextWrapper.LF_END_OF_LINE;
+import static org.sonar.core.source.HtmlTextDecorator.CR_END_OF_LINE;
+import static org.sonar.core.source.HtmlTextDecorator.LF_END_OF_LINE;
 
-public class HtmlTextWrapperTest {
+public class HtmlTextDecoratorTest {
 
   @Test
   public void should_decorate_simple_character_range() throws Exception {
 
     String packageDeclaration = "package org.sonar.core.source;";
 
-    HighlightingContext context = HighlightingContext.buildFrom("0,7,k;");
+    DecorationDataHolder decorationData = new DecorationDataHolder();
+    decorationData.loadSyntaxHighlightingData("0,7,k;");
 
-    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(packageDeclaration, context);
+    HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
+    List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(packageDeclaration, decorationData);
 
     assertThat(htmlOutput).containsOnly("<span class=\"k\">package</span> org.sonar.core.source;");
   }
@@ -54,10 +55,11 @@ public class HtmlTextWrapperTest {
             + secondCommentLine + LF_END_OF_LINE
             + thirdCommentLine + LF_END_OF_LINE;
 
-    HighlightingContext context = HighlightingContext.buildFrom("0,14,cppd;");
+    DecorationDataHolder decorationData = new DecorationDataHolder();
+    decorationData.loadSyntaxHighlightingData("0,14,cppd;");
 
-    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(blockComment, context);
+    HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
+    List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(blockComment, decorationData);
 
     assertThat(htmlOutput).containsExactly(
             "<span class=\"cppd\">" + firstCommentLine + "</span>",
@@ -71,10 +73,11 @@ public class HtmlTextWrapperTest {
 
     String classDeclaration = "public class MyClass implements MyInterface {\n";
 
-    HighlightingContext context = HighlightingContext.buildFrom("0,6,k;7,12,k;21,31,k;");
+    DecorationDataHolder decorationData = new DecorationDataHolder();
+    decorationData.loadSyntaxHighlightingData("0,6,k;7,12,k;21,31,k;");
 
-    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(classDeclaration, context);
+    HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
+    List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(classDeclaration, decorationData);
 
     assertThat(htmlOutput).containsOnly(
             "<span class=\"k\">public</span> " +
@@ -94,10 +97,11 @@ public class HtmlTextWrapperTest {
             " * @throws IllegalArgumentException if no formula is associated to the metric" + LF_END_OF_LINE +
             " */" + LF_END_OF_LINE;
 
-    HighlightingContext context = HighlightingContext.buildFrom("0,184,cppd;47,53,k;");
+    DecorationDataHolder decorationData = new DecorationDataHolder();
+    decorationData.loadSyntaxHighlightingData("0,184,cppd;47,53,k;");
 
-    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(javaDocSample, context);
+    HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
+    List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(javaDocSample, decorationData);
 
     assertThat(htmlOutput).containsExactly(
             "<span class=\"cppd\">/**</span>",
@@ -122,10 +126,11 @@ public class HtmlTextWrapperTest {
             "  return metric;" + CR_END_OF_LINE + LF_END_OF_LINE +
             "}" + CR_END_OF_LINE + LF_END_OF_LINE;
 
-    HighlightingContext context = HighlightingContext.buildFrom("0,52,cppd;54,67,a;69,75,k;106,112,k;");
+    DecorationDataHolder decorationData = new DecorationDataHolder();
+    decorationData.loadSyntaxHighlightingData("0,52,cppd;54,67,a;69,75,k;106,112,k;");
 
-    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(crlfCodeSample, context);
+    HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
+    List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(crlfCodeSample, decorationData);
 
     assertThat(htmlOutput).containsExactly(
             "<span class=\"cppd\">/**</span>",
@@ -149,10 +154,11 @@ public class HtmlTextWrapperTest {
             "public class HelloWorld {" + LF_END_OF_LINE +
             "}";
 
-    HighlightingContext context = HighlightingContext.buildFrom("0,16,cppd;18,25,k;25,31,k;");
+    DecorationDataHolder decorationData = new DecorationDataHolder();
+    decorationData.loadSyntaxHighlightingData("0,16,cppd;18,25,k;25,31,k;");
 
-    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(classDeclarationSample, context);
+    HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
+    List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(classDeclarationSample, decorationData);
 
     assertThat(htmlOutput).containsExactly(
             "<span class=\"cppd\">/*</span>",
@@ -181,10 +187,11 @@ public class HtmlTextWrapperTest {
             " */\n";
 
 
-    HighlightingContext context = HighlightingContext.buildFrom("0,453,cppd;");
+    DecorationDataHolder decorationData = new DecorationDataHolder();
+    decorationData.loadSyntaxHighlightingData("0,453,cppd;");
 
-    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(javadocWithHtml, context);
+    HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
+    List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(javadocWithHtml, decorationData);
 
     assertThat(htmlOutput).containsExactly(
             "<span class=\"cppd\">/**</span>",
@@ -213,10 +220,11 @@ public class HtmlTextWrapperTest {
             " * @since 2.13\n" +
             " */\n";
 
-    HighlightingContext context = HighlightingContext.buildFrom("0,220,cppd;");
+    DecorationDataHolder decorationData = new DecorationDataHolder();
+    decorationData.loadSyntaxHighlightingData("0,220,cppd;");
 
-    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(javadocWithAmpersandChar, context);
+    HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
+    List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(javadocWithAmpersandChar, decorationData);
 
     assertThat(htmlOutput).containsExactly(
             "<span class=\"cppd\">/**</span>",
@@ -241,10 +249,11 @@ public class HtmlTextWrapperTest {
             "  return metric;" + CR_END_OF_LINE +
             "}" + CR_END_OF_LINE;
 
-    HighlightingContext context = HighlightingContext.buildFrom("0,50,cppd;51,64,a;65,71,k;101,107,k;");
+    DecorationDataHolder decorationData = new DecorationDataHolder();
+    decorationData.loadSyntaxHighlightingData("0,50,cppd;51,64,a;65,71,k;101,107,k;");
 
-    HtmlTextWrapper htmlTextWrapper = new HtmlTextWrapper();
-    List<String> htmlOutput = htmlTextWrapper.wrapTextWithHtml(crCodeSample, context);
+    HtmlTextDecorator htmlTextDecorator = new HtmlTextDecorator();
+    List<String> htmlOutput = htmlTextDecorator.decorateTextWithHtml(crCodeSample, decorationData);
 
     assertThat(htmlOutput).containsExactly(
             "<span class=\"cppd\">/**</span>",

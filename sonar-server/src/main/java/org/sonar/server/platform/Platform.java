@@ -57,7 +57,7 @@ import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
-import org.sonar.core.source.SyntaxHighlighter;
+import org.sonar.core.source.SourceDecorator;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
@@ -274,7 +274,7 @@ public final class Platform {
     servicesContainer.addSingleton(TestablePerspectiveLoader.class);
     servicesContainer.addSingleton(TestPlanPerspectiveLoader.class);
     servicesContainer.addSingleton(SnapshotPerspectives.class);
-    servicesContainer.addSingleton(SyntaxHighlighter.class);
+    servicesContainer.addSingleton(SourceDecorator.class);
 
     ServerExtensionInstaller extensionRegistrar = servicesContainer.getComponentByType(ServerExtensionInstaller.class);
     extensionRegistrar.registerExtensions(servicesContainer);

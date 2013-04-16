@@ -56,7 +56,7 @@ import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
-import org.sonar.core.source.SyntaxHighlighter;
+import org.sonar.core.source.SourceDecorator;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.workflow.WorkflowEngine;
 import org.sonar.markdown.Markdown;
@@ -561,7 +561,7 @@ public final class JRubyFacade {
   }
 
   public Collection<String> getHighlightedSourceLines(long snapshotId) {
-    return get(SyntaxHighlighter.class).getHighlightedSourceAsHtml(snapshotId);
+    return get(SourceDecorator.class).getDecoratedSourceAsHtml(snapshotId);
   }
 
 //  public IssueFilter getIssueFilter() {

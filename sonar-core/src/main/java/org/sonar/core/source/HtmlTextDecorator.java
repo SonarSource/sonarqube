@@ -36,7 +36,7 @@ import static org.sonar.core.source.CharactersReader.END_OF_STREAM;
 /**
  * @since 3.6
  */
-public class HtmlTextWrapper {
+public class HtmlTextDecorator {
 
   public static final char CR_END_OF_LINE = '\r';
   public static final char LF_END_OF_LINE = '\n';
@@ -47,7 +47,7 @@ public class HtmlTextWrapper {
   public static final String ENCODED_HTML_CLOSING = "&gt;";
   public static final String ENCODED_AMPERSAND = "&amp;";
 
-  public List<String> wrapTextWithHtml(String text, HighlightingContext context) {
+  public List<String> decorateTextWithHtml(String text, DecorationDataHolder context) {
 
     StringBuilder currentHtmlLine = new StringBuilder();
     List<String> decoratedHtmlLines = Lists.newArrayList();
@@ -92,7 +92,7 @@ public class HtmlTextWrapper {
 
     } catch (IOException exception) {
       String errorMsg = "An exception occurred while highlighting the syntax of one of the project's files";
-      LoggerFactory.getLogger(HtmlTextWrapper.class).error(errorMsg);
+      LoggerFactory.getLogger(HtmlTextDecorator.class).error(errorMsg);
       throw new IllegalStateException(errorMsg, exception);
     } finally {
       Closeables.closeQuietly(stringBuffer);
@@ -119,11 +119,11 @@ public class HtmlTextWrapper {
     return charsReader.getCurrentValue() != CR_END_OF_LINE && charsReader.getCurrentValue() != LF_END_OF_LINE;
   }
 
-  private int getNumberOfTagsToClose(int currentIndex, HighlightingContext context) {
+  private int getNumberOfTagsToClose(int currentIndex, DecorationDataHolder context) {
     return Collections.frequency(context.getUpperBoundsDefinitions(), currentIndex);
   }
 
-  private Collection<String> getTagsToOpen(int currentIndex, HighlightingContext context) {
+  private Collection<String> getTagsToOpen(int currentIndex, DecorationDataHolder context) {
     return context.getLowerBoundsDefinitions().get(currentIndex);
   }
 

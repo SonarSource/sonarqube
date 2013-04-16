@@ -28,7 +28,7 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class SyntaxHighlighterTest extends AbstractDaoTestCase {
+public class SourceDecoratorTest extends AbstractDaoTestCase {
 
   @Before
   public void setUpDatasets() {
@@ -38,9 +38,9 @@ public class SyntaxHighlighterTest extends AbstractDaoTestCase {
   @Test
   public void should_highlight_source_with_html() throws Exception {
 
-    SyntaxHighlighter highlighter = new SyntaxHighlighter(getMyBatis());
+    SourceDecorator highlighter = new SourceDecorator(getMyBatis());
 
-    List<String> highlightedSource = (List<String>)highlighter.getHighlightedSourceAsHtml(11L);
+    List<String> highlightedSource = (List<String>)highlighter.getDecoratedSourceAsHtml(11L);
 
     assertThat(highlightedSource).containsExactly(
             "<span class=\"cppd\">/*</span>",

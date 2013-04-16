@@ -25,6 +25,8 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
+import java.util.Collection;
+
 /**
  * @since 3.6
  */
@@ -36,7 +38,7 @@ public class SnapshotDataDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public String selectSnapshotData(long snapshotId) {
+  public Collection<SnapshotDataDto> selectSnapshotData(long snapshotId) {
 
     SqlSession session = mybatis.openSession();
 
