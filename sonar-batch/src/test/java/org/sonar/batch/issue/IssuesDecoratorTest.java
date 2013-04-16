@@ -89,6 +89,17 @@ public class IssuesDecoratorTest {
     verify(context).saveMeasure(CoreMetrics.ISSUES, 4.0);
   }
 
+  @Test
+  public void should_do_nothing_when_issuable_is_null() {
+    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
+    when(perspectives.as(Issuable.class, resource)).thenReturn(null);
+    IssuesDecorator decorator = new IssuesDecorator(perspectives, rulefinder);
+
+    decorator.decorate(resource, context);
+
+    verifyZeroInteractions(context);
+  }
+
   /**
    * See http://jira.codehaus.org/browse/SONAR-1729
    */
