@@ -57,6 +57,6 @@ public class DefaultHighlightableTest {
             .highlight(20, 30, "cppd")
             .done();
 
-    verify(highlightingCache).registerSourceHighlighting("myComponent", "0,10,k;20,30,cppd;");
+    verify(highlightingCache).registerSourceData("myComponent", "0,10,k;20,30,cppd;");
   }
 }

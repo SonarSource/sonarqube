@@ -24,7 +24,6 @@ import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
-import org.mockito.InOrder;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
@@ -34,56 +33,57 @@ import java.util.Map;
 
 import static org.mockito.Mockito.*;
 
-public class SyntaxHighlightingPersisterTest {
+public class SourceDataPersisterTest {
 
   private SnapshotCache snapshots;
-  private SyntaxHighlightingCache highlightingCache;
+  private SourceDataCache sourceDataCache;
   private SnapshotDataDao snapshotDataDao;
 
   @Before
   public void setUpInjectedObjects() {
     snapshots = mock(SnapshotCache.class);
-    highlightingCache = mock(SyntaxHighlightingCache.class);
+    sourceDataCache = mock(SyntaxHighlightingCache.class);
     snapshotDataDao = mock(SnapshotDataDao.class);
   }
 
   @Test
-  public void should_persist_components_highlighting() throws Exception {
+  public void should_persist_source_cache_data() throws Exception {
 
     Snapshot snapshotComponent1 = mock(Snapshot.class);
     when(snapshotComponent1.getId()).thenReturn(1);
     when(snapshotComponent1.getResourceId()).thenReturn(1);
 
-    Snapshot snapshotComponent2 = mock(Snapshot.class);
-    when(snapshotComponent2.getId()).thenReturn(2);
-    when(snapshotComponent2.getResourceId()).thenReturn(2);
+    Map<String, String> sourceData = Maps.newHashMap();
+    sourceData.put("component1", "source data for component 1");
 
-    Map<String, String> highlightingRules = Maps.newHashMap();
-    highlightingRules.put("component1", "0,10,k;2,4,k;15,25,cppd;");
-    highlightingRules.put("component2", "0,5,cppd;15,25,k;");
-
-    when(highlightingCache.getHighlightingRulesByComponent()).thenReturn(highlightingRules);
-
+    when(sourceDataCache.getSourceDataByComponent()).thenReturn(sourceData);
+    when(sourceDataCache.getDataType()).thenReturn("myDataType");
     when(snapshots.get("component1")).thenReturn(snapshotComponent1);
-    when(snapshots.get("component2")).thenReturn(snapshotComponent2);
 
-    SyntaxHighlightingPersister persister = new SyntaxHighlightingPersister(snapshotDataDao, highlightingCache, snapshots);
+    SourceDataPersister persister = new SourceDataPersister(snapshotDataDao, new SourceDataCache[]{sourceDataCache}, snapshots);
     persister.persist();
 
-    InOrder orderedMock = inOrder(snapshotDataDao);
-
-    orderedMock.verify(snapshotDataDao).insert(argThat(new ArgumentMatcher<SnapshotDataDto>() {
+    verify(snapshotDataDao).insert(argThat(new ArgumentMatcher<SnapshotDataDto>() {
       @Override
       public boolean matches(Object o) {
-        return ((SnapshotDataDto)o).getSnapshotId() == 1;
+        SnapshotDataDto insertedData = (SnapshotDataDto) o;
+        return insertedData.getSnapshotId() == 1 && insertedData.getDataType() == "myDataType";
       }
     }));
+  }
 
-    orderedMock.verify(snapshotDataDao).insert(argThat(new ArgumentMatcher<SnapshotDataDto>() {
-      @Override
-      public boolean matches(Object o) {
-        return ((SnapshotDataDto)o).getSnapshotId() == 2;
-      }
-    }));
+  @Test
+  public void should_ignore_components_without_snapshot() throws Exception {
+
+    Map<String, String> sourceData = Maps.newHashMap();
+    sourceData.put("component1", "source data for component 1");
+
+    when(sourceDataCache.getSourceDataByComponent()).thenReturn(sourceData);
+    when(snapshots.get("component1")).thenReturn(null);
+
+    SourceDataPersister persister = new SourceDataPersister(snapshotDataDao, new SourceDataCache[]{sourceDataCache}, snapshots);
+    persister.persist();
+
+    verify(snapshotDataDao, times(0)).insert(any(SnapshotDataDto.class));
   }
 }

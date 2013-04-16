@@ -61,6 +61,6 @@ public class DefaultSymbolPerspectiveTest {
 
     symbolPerspective.end();
 
-    verify(cache).registerSymbolData("myComponent", "4,8,4,12,70;25,33,25,44,60,108;");
+    verify(cache).registerSourceData("myComponent", "4,8,4,12,70;25,33,25,44,60,108;");
   }
 }

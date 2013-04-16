@@ -28,26 +28,29 @@ import org.sonar.core.source.jdbc.SnapshotDataDto;
 
 import java.util.Map;
 
-public class SyntaxHighlightingPersister implements ScanPersister {
-
-  public static final String DATA_TYPE = "highlight_syntax";
+public class SourceDataPersister implements ScanPersister {
 
   private final SnapshotDataDao snapshotDataDao;
-  private final SyntaxHighlightingCache highlightingCache;
+  private final SourceDataCache[] sourceDataCache;
   private final SnapshotCache snapshots;
 
-  public SyntaxHighlightingPersister(SnapshotDataDao snapshotDataDao, SyntaxHighlightingCache highlightingCache, SnapshotCache snapshots) {
+  public SourceDataPersister(SnapshotDataDao snapshotDataDao, SourceDataCache[] sourceDataCache, SnapshotCache snapshots) {
     this.snapshotDataDao = snapshotDataDao;
-    this.highlightingCache = highlightingCache;
+    this.sourceDataCache = sourceDataCache;
     this.snapshots = snapshots;
   }
 
   @Override
   public void persist() {
 
-    Map<String, String> highlightingRules = highlightingCache.getHighlightingRulesByComponent();
+    for (SourceDataCache dataCache : sourceDataCache) {
+      persistDataCache(dataCache.getDataType(), dataCache.getSourceDataByComponent());
+    }
+  }
 
-    for (Map.Entry<String, String> componentRules : highlightingRules.entrySet()) {
+  private void persistDataCache(String dataType, Map<String, String> sourceDataByComponent) {
+
+    for (Map.Entry<String, String> componentRules : sourceDataByComponent.entrySet()) {
 
       Snapshot snapshotForComponent = snapshots.get(componentRules.getKey());
 
@@ -55,8 +58,8 @@ public class SyntaxHighlightingPersister implements ScanPersister {
       if(snapshotForComponent != null) {
         snapshotDataDto.setSnapshotId(snapshotForComponent.getId());
         snapshotDataDto.setResourceId(snapshotForComponent.getResourceId());
-        snapshotDataDto.setDataType(DATA_TYPE);
-        snapshotDataDto.setData(highlightingRules.get(componentRules.getValue()));
+        snapshotDataDto.setDataType(dataType);
+        snapshotDataDto.setData(sourceDataByComponent.get(componentRules.getValue()));
         snapshotDataDao.insert(snapshotDataDto);
       }
     }

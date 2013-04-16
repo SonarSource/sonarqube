@@ -62,7 +62,7 @@ public class DefaultHighlightable implements Highlightable {
     @Override
     public void done() {
       String serializedHighlightingRules = highlightingRulesBuilder.build().serializeAsString();
-      syntaxHighlightingCache.registerSourceHighlighting(component().key(), serializedHighlightingRules);
+      syntaxHighlightingCache.registerSourceData(component().key(), serializedHighlightingRules);
     }
   }
 }

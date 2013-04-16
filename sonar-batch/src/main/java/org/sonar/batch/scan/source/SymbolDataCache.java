@@ -20,23 +20,12 @@
 
 package org.sonar.batch.scan.source;
 
-import com.google.common.collect.Maps;
+public class SymbolDataCache extends SourceDataCache {
 
-import java.util.Map;
+  public static final String DATA_TYPE = "symbol";
 
-public class SymbolDataCache {
-
-  private final Map<String, String> symbolDataCache;
-
-  public SymbolDataCache() {
-    symbolDataCache = Maps.newHashMap();
-  }
-
-  public void registerSymbolData(String componentKey, String serializedSymbolData) {
-    symbolDataCache.put(componentKey, serializedSymbolData);
-  }
-
-  public Map<String, String> getSymbolDataByComponent() {
-    return symbolDataCache;
+  @Override
+  public String getDataType() {
+    return DATA_TYPE;
   }
 }

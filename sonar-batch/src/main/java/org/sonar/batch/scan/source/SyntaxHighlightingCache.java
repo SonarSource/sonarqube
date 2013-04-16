@@ -20,24 +20,12 @@
 
 package org.sonar.batch.scan.source;
 
-import com.google.common.collect.Maps;
-import org.sonar.api.BatchComponent;
+public class SyntaxHighlightingCache extends SourceDataCache {
 
-import java.util.Map;
+  public static final String DATA_TYPE = "highlight_syntax";
 
-public class SyntaxHighlightingCache implements BatchComponent {
-
-  private final Map<String, String> highlightingCache;
-
-  public SyntaxHighlightingCache() {
-    highlightingCache = Maps.newHashMap();
-  }
-
-  public void registerSourceHighlighting(String componentKey, String serializedHighlightingRules) {
-    highlightingCache.put(componentKey, serializedHighlightingRules);
-  }
-
-  public Map<String, String> getHighlightingRulesByComponent() {
-    return highlightingCache;
+  @Override
+  public String getDataType() {
+    return DATA_TYPE;
   }
 }

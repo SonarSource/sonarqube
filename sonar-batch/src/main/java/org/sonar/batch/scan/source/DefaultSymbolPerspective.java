@@ -59,7 +59,7 @@ public class DefaultSymbolPerspective implements SymbolPerspective {
 
   @Override
   public void end() {
-    symbolDataCache.registerSymbolData(component().key(), symbolDataRepository.serializeAsString());
+    symbolDataCache.registerSourceData(component().key(), symbolDataRepository.serializeAsString());
   }
 
   @Override

@@ -39,8 +39,9 @@ import org.sonar.batch.issue.ScanIssueActions;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
+import org.sonar.batch.scan.source.SourceDataPersister;
+import org.sonar.batch.scan.source.SymbolDataCache;
 import org.sonar.batch.scan.source.SyntaxHighlightingCache;
-import org.sonar.batch.scan.source.SyntaxHighlightingPersister;
 import org.sonar.core.component.ScanGraph;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.test.TestPlanBuilder;
@@ -93,7 +94,8 @@ public class ProjectScanContainer extends ComponentContainer {
       GraphPersister.class,
 
       SyntaxHighlightingCache.class,
-      SyntaxHighlightingPersister.class
+      SymbolDataCache.class,
+      SourceDataPersister.class
     );
   }
 
