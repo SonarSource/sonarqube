@@ -64,7 +64,7 @@ public class IssuesDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    Issuable issuable = perspectives.as(Issuable.class, context.getResource());
+    Issuable issuable = perspectives.as(Issuable.class, resource);
     Collection<Issue> issues = issuable.issues();
     computeTotalIssues(context, issues);
     computeIssuesPerSeverities(context, issues);

@@ -21,20 +21,14 @@ package org.sonar.server.ui;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.web.DefaultTab;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.RequiredMeasures;
-import org.sonar.api.web.ResourceQualifier;
-import org.sonar.api.web.RubyRailsPage;
-import org.sonar.api.web.UserRole;
-import org.sonar.api.web.View;
+import org.sonar.api.web.*;
 
 /**
  * @since 2.7
  */
 public final class DefaultPages {
 
-  private static final View[] PAGES = {new SourceTab(), new CoverageTab(), new ViolationsTab(), new DuplicationsTab()};
+  private static final View[] PAGES = {new SourceTab(), new CoverageTab(), new ViolationsTab(), new IssuesTab(), new DuplicationsTab()};
 
   private DefaultPages() {
   }
@@ -125,6 +119,34 @@ public final class DefaultPages {
 
     public String getTitle() {
       return "Violations";
+    }
+  }
+
+  @NavigationSection(NavigationSection.RESOURCE_TAB)
+  @DefaultTab(
+      metrics = {CoreMetrics.ISSUES_DENSITY_KEY, CoreMetrics.WEIGHTED_ISSUES_KEY, CoreMetrics.ISSUES_KEY, CoreMetrics.BLOCKER_ISSUES_KEY,
+          CoreMetrics.CRITICAL_ISSUES_KEY, CoreMetrics.MAJOR_ISSUES_KEY, CoreMetrics.MINOR_ISSUES_KEY, CoreMetrics.INFO_ISSUES_KEY,
+          CoreMetrics.NEW_VIOLATIONS_KEY, CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY, CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY, CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY,
+          CoreMetrics.NEW_MINOR_VIOLATIONS_KEY, CoreMetrics.NEW_INFO_VIOLATIONS_KEY})
+  // TODO
+//          CoreMetrics.ACTIVE_REVIEWS_KEY, CoreMetrics.UNASSIGNED_REVIEWS_KEY,
+//          CoreMetrics.UNPLANNED_REVIEWS_KEY, CoreMetrics.FALSE_POSITIVE_REVIEWS_KEY, CoreMetrics.UNREVIEWED_VIOLATIONS_KEY, CoreMetrics.NEW_UNREVIEWED_VIOLATIONS_KEY})
+  @ResourceQualifier(
+      value = {Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.PACKAGE, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.CLASS,
+          Qualifiers.UNIT_TEST_FILE})
+  @UserRole(UserRole.CODEVIEWER)
+  private static final class IssuesTab implements RubyRailsPage {
+    public String getTemplate() {
+      // not used, hardcoded in BrowseController
+      return "browse/index";
+    }
+
+    public String getId() {
+      return "issues";
+    }
+
+    public String getTitle() {
+      return "Issues";
     }
   }
 

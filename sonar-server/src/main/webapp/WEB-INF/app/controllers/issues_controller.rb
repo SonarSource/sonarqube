@@ -21,13 +21,16 @@
 class IssuesController < ApplicationController
 
   def index
-    @issues = find_issues({}).issues
+    @issues = find_issues({})
   end
 
   protected
 
   def find_issues(map)
-    Api.issues.find(map, current_user.id)
+    user = current_user ? current_user.id : nil
+    issues = []
+    Api.issues.find(map, user).issues.each {|issue| issues << issue}
+    issues
   end
 
 end

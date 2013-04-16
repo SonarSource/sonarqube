@@ -1,0 +1,79 @@
+<div id="vId<%= issue.key -%>">
+  <div class="violation">
+    <div class="vtitle">
+      <%
+         # TODO
+         #if violation.review
+         if false
+      %>
+        <div class="review_permalink">
+        </div>
+      <% end %>
+
+      <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png">
+      &nbsp;
+      <span class="rulename">
+        <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;"
+           href="<%= url_for :controller => 'rules', :action => 'show', :id => issue.rule_key, :layout => 'false' -%>">
+              <%= h(Rule.by_key_or_id(issue.rule_repository_key + ':' + issue.rule_key).name) -%></a>
+      </span>
+      &nbsp;
+      <%= image_tag 'sep12.png' -%>
+      &nbsp;
+
+      <% if issue.created_at %>
+        <span><%= distance_of_time_in_words_to_now(to_date(issue.created_at)) -%></span>
+        &nbsp;
+      <% end %>
+      <%
+         # TODO
+         #if violation.switched_off?
+         if false
+      %>
+        <%= image_tag 'sep12.png' -%>
+        &nbsp;
+        <span class="falsePositive"><%= message('false_positive') -%></span>
+        &nbsp;
+      <% end %>
+      <%
+         # TODO
+         #if violation.review && violation.review.resolved?
+         if false
+      %>
+        <%= image_tag 'sep12.png' -%>
+        &nbsp;
+        <span class="reviewResolved"><%= message('reviews.status.RESOLVED') -%></span>
+        &nbsp;
+      <% end %>
+      <%
+         # TODO display assignee name instead of login
+         #if violation.review && violation.review.assignee_id
+         if false
+      %>
+        <%= image_tag 'sep12.png' -%>
+        &nbsp;
+        <%= message('assigned_to') -%> <%= h(issue.assignee) -%>
+        &nbsp;
+      <% end %>
+      <%
+         # TODO
+         #if violation.review && violation.review.planned?
+        if false
+      %>
+        <%= image_tag 'sep12.png' -%>
+        &nbsp;
+        <%= message('reviews.planned_for_x', :params => h(violation.review.action_plan.name)) -%>
+        &nbsp;
+      <% end %>
+
+    </div>
+
+    <div class="discussionComment first">
+      <div id="vMsg<%= issue.key -%>">
+        <%= issue.message || '&nbsp;' -%>
+      </div>
+    </div>
+
+  </div>
+
+</div>

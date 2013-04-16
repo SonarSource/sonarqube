@@ -1,0 +1,117 @@
+<% display_options = @scm_available || @expandable || @filtered || @display_issues
+   if display_options
+%>
+
+  <div class="source_options">
+    <script>
+      applyOptions = function (elt) {
+        var currentForm = $j(elt).closest('.options-form');
+        var params = currentForm.serialize();
+        var url = '<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key %>?display_title=<%= params[:display_title].to_s -%>&'+ params;
+        openAccordionItem(url, elt, true);
+        return true;
+      };
+    </script>
+    <form method="GET" action="<%= url_for :controller => 'resource', :action => 'index', :id => @resource.key -%>" class="options-form">
+      <input type="hidden" name="tab" value="<%= params[:tab] -%>"/>
+      <input type="hidden" name="metric" value="<%= params[:metric] -%>"/>
+      <input type="hidden" name="period" value="<%= params[:period] -%>"/>
+
+      <table>
+        <tr>
+          <%
+             first=true
+             if @expandable %>
+            <td class="<%= 'first' if first -%>">
+              <input type="checkbox" value="true" name="expand" <%= 'checked' if @expanded -%> onclick="applyOptions(this)"/>
+              <label for="expand"><%= message('full_source') -%></label>
+            </td>
+          <% first=false
+             end %>
+
+          <% if @scm_available && !@display_issues && @snapshot.project_snapshot.periods? %>
+            <td class="<%= 'first' if first -%>">
+              <select name="period" class="period" onchange="applyOptions(this)">
+                <option value=""><%= message('time_changes') -%>...</option>
+                <%= period_select_options(@snapshot, 1) -%>
+                <%= period_select_options(@snapshot, 2) -%>
+                <%= period_select_options(@snapshot, 3) -%>
+                <%= period_select_options(@snapshot, 4) -%>
+                <%= period_select_options(@snapshot, 5) -%>
+              </select>
+            </td>
+          <%
+             first=false
+             end %>
+
+          <% if @display_issues %>
+            <td class="<%= 'first' if first -%>">
+              <select name="period" class="period" onchange="applyOptions(this)">
+                <option value=""><%= message('time_changes') -%>...</option>
+                <%= violation_period_select_options(@snapshot, 1) -%>
+                <%= violation_period_select_options(@snapshot, 2) -%>
+                <%= violation_period_select_options(@snapshot, 3) -%>
+                <%= violation_period_select_options(@snapshot, 4) -%>
+                <%= violation_period_select_options(@snapshot, 5) -%>
+              </select>
+            </td>
+
+            <td class="<%= 'first' if first -%>"><%= render :partial => 'rules_filter_issues' -%></td>
+          <% first=false
+             end %>
+
+          <% if @display_coverage %>
+            <td class="<%= 'first' if first -%>">
+              <select class="coverage_filter" name="coverage_filter" onchange="applyOptions(this)">
+                <optgroup label="<%= h message('coverage_viewer.unit_tests') -%>">
+                  <option value="lines_to_cover" <%= 'selected' if @coverage_filter=='lines_to_cover' -%>><%= Metric.name_for('lines_to_cover') -%></option>
+                  <option value="uncovered_lines" <%= 'selected' if @coverage_filter=='uncovered_lines' -%>><%= Metric.name_for('uncovered_lines') -%></option>
+                  <option value="conditions_to_cover" <%= 'selected' if @coverage_filter=='conditions_to_cover' -%>><%= Metric.name_for('conditions_to_cover') -%></option>
+                  <option value="uncovered_conditions" <%= 'selected' if @coverage_filter=='uncovered_conditions' -%>><%= Metric.name_for('uncovered_conditions') -%></option>
+                </optgroup>
+                <% if @display_it_coverage %>
+                  <optgroup label="<%= h message('coverage_viewer.integration_tests') -%>">
+                    <option value="it_lines_to_cover" <%= 'selected' if @coverage_filter=='it_lines_to_cover' -%>><%= Metric.name_for('it_lines_to_cover') -%></option>
+                    <option value="it_uncovered_lines" <%= 'selected' if @coverage_filter=='it_uncovered_lines' -%>><%= Metric.name_for('it_uncovered_lines') -%></option>
+                    <option value="it_conditions_to_cover" <%= 'selected' if @coverage_filter=='it_conditions_to_cover' -%>><%= Metric.name_for('it_conditions_to_cover') -%></option>
+                    <option value="it_uncovered_conditions" <%= 'selected' if @coverage_filter=='it_uncovered_conditions' -%>><%= Metric.name_for('it_uncovered_conditions') -%></option>
+                  </optgroup>
+                <% end %>
+                <% if @display_overall_coverage %>
+                  <optgroup label="<%= h message('coverage_viewer.overall_tests') -%>">
+                    <option value="overall_lines_to_cover" <%= 'selected' if @coverage_filter=='overall_lines_to_cover' -%>><%= Metric.name_for('overall_lines_to_cover') -%></option>
+                    <option value="overall_uncovered_lines" <%= 'selected' if @coverage_filter=='overall_uncovered_lines' -%>><%= Metric.name_for('overall_uncovered_lines') -%></option>
+                    <option value="overall_conditions_to_cover" <%= 'selected' if @coverage_filter=='overall_conditions_to_cover' -%>><%= Metric.name_for('overall_conditions_to_cover') -%></option>
+                    <option value="overall_uncovered_conditions" <%= 'selected' if @coverage_filter=='overall_uncovered_conditions' -%>><%= Metric.name_for('overall_uncovered_conditions') -%></option>
+                  </optgroup>
+                <% end %>
+                <% if @testable && !@testable.testCases.empty? %>
+                  <optgroup label="<%= h message('coverage_viewer.per_test') -%>">
+                    <option value="lines_covered_per_test" <%= 'selected' if @coverage_filter=='lines_covered_per_test' -%>><%= message('coverage_viewer.lines_covered_per_test') -%></option>
+                  </optgroup>
+                <% end %>
+              </select>
+            </td>
+
+            <% if @coverage_filter=='lines_covered_per_test' %>
+              <td class="<%= 'first' if first -%>">
+                <select class="test_case_filter" name="test_case_filter" onchange="applyOptions(this)">
+                  <option value=""><%= message('coverage_viewer.select_test') -%></option>
+                  <% @test_case_by_test_plan.sort_by{|test_plan, test_cases| test_plan.component.longName}.each do |test_plan, test_cases| %>
+                    <optgroup label="<%= test_plan.component.longName %>">
+                      <% test_cases.sort_by{|test_case| test_case.name}.each do |test_case| %>
+                        <option value="<%= test_case.name -%>" <%= 'selected' if @test_case_filter==test_case.name -%>><%= test_case.name -%></option>
+                      <% end %>
+                    </optgroup>
+                  <% end %>
+                </select>
+              </td>
+            <% end %>
+
+          <% first=false
+             end %>
+        </tr>
+      </table>
+    </form>
+  </div>
+<% end %>

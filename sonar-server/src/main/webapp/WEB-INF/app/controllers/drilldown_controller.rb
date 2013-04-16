@@ -141,6 +141,84 @@ class DrilldownController < ApplicationController
     @display_viewers=display_violation_viewers?(@drilldown.highlighted_snapshot || @snapshot)
   end
 
+  def issues
+    @rule=Rule.by_key_or_id(params[:rule])
+
+    # variation measures
+    if params[:period].present? && params[:period].to_i>0
+      @period=params[:period].to_i
+      metric_prefix = 'new_'
+    else
+      @period=nil
+      metric_prefix = ''
+    end
+
+    @severity = params[:severity]
+    @rule_severity = params[:rule_sev] || @severity
+
+    if @rule && @rule_severity.blank?
+      # workaround for SONAR-3255 : guess the severity
+      @rule_severity=guess_rule_severity_for_issues_metric(@snapshot, @rule, metric_prefix)
+    end
+
+    if @rule_severity.present?
+      # Filter resources by severity
+      @metric = Metric::by_key("#{metric_prefix}#{@rule_severity.downcase}_issues")
+    else
+      @metric = Metric::by_key("#{metric_prefix}issues")
+    end
+
+    # selected resources
+    if params[:rids]
+      @selected_rids= params[:rids]
+    elsif params[:resource]
+      highlighted_resource=Project.by_key(params[:resource])
+      @selected_rids=(highlighted_resource ? [highlighted_resource.id] : [])
+    else
+      @selected_rids=[]
+    end
+    @selected_rids=@selected_rids.map { |r| r.to_i }
+
+    # options for Drilldown
+    options={:exclude_zero_value => true, :period => @period}
+    if @rule
+      params[:rule]=@rule.key # workaround for SONAR-1767 : the javascript hash named "rp" in the HTML source must contain the rule key, but not the rule id
+      options[:rule_id]=@rule.id
+    end
+
+    # load data
+    @drilldown = Drilldown.new(@resource, @metric, @selected_rids, options)
+
+    @highlighted_resource=@drilldown.highlighted_resource
+    if @highlighted_resource.nil? && @drilldown.columns.empty?
+      @highlighted_resource=@resource
+    end
+
+    #
+    # Initialize filter by rule
+    #
+    if @severity.present?
+      # Filter on severity -> filter rule measures by the selected metric
+      @rule_measures = @snapshot.rule_measures(@metric)
+    else
+      # No filter -> loads all the rules
+      metrics=[
+          Metric.by_key("#{metric_prefix}blocker_issues"),
+          Metric.by_key("#{metric_prefix}critical_issues"),
+          Metric.by_key("#{metric_prefix}major_issues"),
+          Metric.by_key("#{metric_prefix}minor_issues"),
+          Metric.by_key("#{metric_prefix}info_issues")
+      ]
+      @rule_measures = @snapshot.rule_measures(metrics)
+    end
+
+    snapshot = @drilldown.highlighted_snapshot || @snapshot
+    # FIXME For the moment the issues API return issues for all the resource tree, so it's imposible to know if there are issues only for the project for instance
+    # issues = Api.issues.find({'componentKey' => snapshot.project.key}, current_user.id).issues
+    #@display_viewers = true if snapshot.file? || issues.size>0
+    @display_viewers = snapshot.file?
+  end
+
   private
 
   def select_metric(metric_key, default_key)
@@ -196,4 +274,14 @@ class DrilldownController < ApplicationController
     end
     Severity::MAJOR
   end
+
+  def guess_rule_severity_for_issues_metric(snapshot, rule, metric_prefix)
+    Severity::KEYS.each do |severity|
+      if snapshot.rule_measure(Metric.by_key("#{metric_prefix}#{severity.downcase}_issues"), rule)
+        return severity
+      end
+    end
+    Severity::MAJOR
+  end
+
 end

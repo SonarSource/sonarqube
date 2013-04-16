@@ -42,4 +42,9 @@ module ResourceHelper
 
     '(' + (value1.to_i - value2.to_i).to_s + '/' + value1 + ')'
   end
+
+  def to_date(java_date)
+    java_date ? Api::Utils.format_datetime(Time.at(java_date.time/1000)) : nil
+  end
+
 end

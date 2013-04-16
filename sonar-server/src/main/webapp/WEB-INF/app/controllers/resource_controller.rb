@@ -46,6 +46,9 @@ class ResourceController < ApplicationController
           if @extension.getId()=='violations'
             render_violations()
             render_partial_index()
+          elsif @extension.getId()=='issues'
+            render_issues()
+            render :partial => 'index_issues'
           elsif (@extension.getId()=='coverage')
             render_coverage()
             render_partial_index()
@@ -427,6 +430,87 @@ class ResourceController < ApplicationController
     end
   end
 
+  def render_issues
+    load_sources()
+    @display_issues = true
+    @global_issues = []
+    @expandable = (@lines != nil)
+    @filtered = !@expanded
+    rule_param = params[:rule]
+
+    options = {'components' => @resource.key}
+
+    # TODO
+    #if rule_param.blank? && params[:metric]
+    #  metric = Metric.by_id(params[:metric])
+    #  if metric && (metric.name=='active_reviews' || metric.name=='unassigned_reviews' || metric.name=='unplanned_reviews' || metric.name=='false_positive_reviews' ||
+    #      metric.name=='unreviewed_violations' || metric.name=='new_unreviewed_violations')
+    #    rule_param = metric.name.gsub(/new_/, '')
+    #
+    #    # hack to select the correct option in the rule filter select-box
+    #    params[:rule] = rule_param
+    #  end
+    #end
+
+    if !rule_param.blank? && rule_param != 'all'
+      #if rule_param=='false_positive_reviews'
+      #  options[:switched_off]=true
+      #
+      #elsif rule_param=='active_reviews'
+      #  options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
+      #
+      #elsif rule_param=='unassigned_reviews'
+      #  options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
+      #  options[:review_assignee_id]=nil
+      #
+      #elsif rule_param=='unplanned_reviews'
+      #  options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
+      #  options[:planned]=false
+      #
+      #elsif rule_param=='unreviewed_violations'
+      #  options[:review_statuses]=[nil]
+
+      if Sonar::RulePriority.id(rule_param)
+        options['severities'] = rule_param
+
+      else
+        # TODO
+        rule = Rule.by_key_or_id(rule_param)
+        #options[:ruleKey] = rule.key
+        #options[:ruleRepository] = rule.key
+      end
+    end
+
+
+    if @period
+      date = @snapshot.period_datetime(@period)
+      if date
+        # TODO
+        #options[:created_after]=date.advance(:minutes => 1)
+      end
+    end
+
+    user = current_user ? current_user.id : nil
+    issues = Api.issues.find(options, user).issues
+    issues.each do |issue|
+      # sorted by severity => from blocker to info
+      if @lines && issue.line && issue.line>0 && issue.line<=@lines.size
+        @lines[issue.line-1].add_issue(issue)
+      else
+        @global_issues<<issue
+      end
+    end
+
+    if !@expanded && @lines
+      filter_lines { |line| line.issues? }
+    end
+
+    # TODO
+    #@review_screens_by_vid=nil
+    #if current_user && has_role?(:user, @resource)
+    #  @review_screens_by_vid = RuleFailure.available_java_screens_for_violations(violations, @resource, current_user)
+    #end
+  end
 
   def render_source
     load_sources()
@@ -463,7 +547,8 @@ class ResourceController < ApplicationController
   end
 
   class Line
-    attr_accessor :index, :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :highlighted, :deprecated_conditions_label, :covered_lines
+    attr_accessor :index, :source, :revision, :author, :datetime, :violations, :issues, :hits, :conditions, :covered_conditions, :hidden, :highlighted,
+                  :deprecated_conditions_label, :covered_lines
 
     def initialize(source)
       @source=source
@@ -475,13 +560,31 @@ class ResourceController < ApplicationController
       @visible=true
     end
 
+    def add_issue(issue)
+      @issues||=[]
+      @issues<<issue
+      @visible=true
+    end
+
     def violations?
       @violations && @violations.size>0
+    end
+
+    def issues?
+      @issues && @issues.size>0
     end
 
     def violation_severity
       if @violations && @violations.size>0
         @violations[0].failure_level
+      else
+        nil
+      end
+    end
+
+    def issue_severity
+      if @issues && @issues.size>0
+        @issues[0].severity
       else
         nil
       end
