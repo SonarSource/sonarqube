@@ -97,7 +97,7 @@ module ApplicationHelper
   #
   # === Examples
   #
-  #   url_for_static(:path => 'images/sonar.png')
+  #   url_for_static(:path => 'images/sonarqube-24x100.png')
   #   url_for_static(:plugin => 'myplugin', :path => 'image.png')
   def url_for_static(options={})
     if options[:plugin]
