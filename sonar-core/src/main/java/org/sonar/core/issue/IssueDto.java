@@ -62,7 +62,7 @@ public final class IssueDto {
     return id;
   }
 
-  public IssueDto setId(Long id) {
+  public IssueDto setId(@Nullable Long id) {
     this.id = id;
     return this;
   }
@@ -188,7 +188,7 @@ public final class IssueDto {
     return userLogin;
   }
 
-  public IssueDto setUserLogin(String userLogin) {
+  public IssueDto setUserLogin(@Nullable String userLogin) {
     this.userLogin = userLogin;
     return this;
   }
@@ -197,7 +197,7 @@ public final class IssueDto {
     return assigneeLogin;
   }
 
-  public IssueDto setAssigneeLogin(String assigneeLogin) {
+  public IssueDto setAssigneeLogin(@Nullable String assigneeLogin) {
     this.assigneeLogin = assigneeLogin;
     return this;
   }
@@ -206,7 +206,7 @@ public final class IssueDto {
     return personId;
   }
 
-  public IssueDto setPersonId(Long personId) {
+  public IssueDto setPersonId(@Nullable Long personId) {
     this.personId = personId;
     return this;
   }
@@ -215,7 +215,7 @@ public final class IssueDto {
     return data;
   }
 
-  public IssueDto setData(String s) {
+  public IssueDto setData(@Nullable String s) {
     Preconditions.checkArgument(s == null || s.length() <= 1000,
         "Issue data must not exceed 1000 characters: " + s);
     this.data = s;
@@ -235,7 +235,7 @@ public final class IssueDto {
     return updatedAt;
   }
 
-  public IssueDto setUpdatedAt(Date updatedAt) {
+  public IssueDto setUpdatedAt(@Nullable Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
@@ -244,7 +244,7 @@ public final class IssueDto {
     return closedAt;
   }
 
-  public IssueDto setClosedAt(Date closedAt) {
+  public IssueDto setClosedAt(@Nullable Date closedAt) {
     this.closedAt = closedAt;
     return this;
   }
