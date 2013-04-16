@@ -61,12 +61,12 @@ public class SyntaxHighlightingRuleSet {
     public Builder registerHighlightingRule(int startOffset, int endOffset, String typeOfText) {
       if (ruleConflictsWithExistingRules(startOffset, endOffset)) {
         String errorMsg = String.format("Cannot register highlighting rule for characters from %s to %s as it " +
-                "overlaps at least one existing rule", startOffset, endOffset);
+          "overlaps at least one existing rule", startOffset, endOffset);
         LoggerFactory.getLogger(SyntaxHighlightingRuleSet.class).error(errorMsg);
         throw new UnsupportedOperationException(errorMsg);
       }
       SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(startOffset, endOffset,
-              typeOfText);
+        typeOfText);
       this.syntaxHighlightingRuleSet.add(syntaxHighlightingRule);
       return this;
     }
@@ -77,24 +77,24 @@ public class SyntaxHighlightingRuleSet {
 
     private boolean ruleConflictsWithExistingRules(final int startOffset, final int endOffset) {
       Collection<SyntaxHighlightingRule> conflictingRules = Collections2
-              .filter(syntaxHighlightingRuleSet, new Predicate<SyntaxHighlightingRule>() {
-                @Override
-                public boolean apply(@Nullable SyntaxHighlightingRule syntaxHighlightingRule) {
+        .filter(syntaxHighlightingRuleSet, new Predicate<SyntaxHighlightingRule>() {
+          @Override
+          public boolean apply(@Nullable SyntaxHighlightingRule syntaxHighlightingRule) {
 
-                  if (syntaxHighlightingRule != null) {
-                    boolean overlapsStartBoundary = startOffset < syntaxHighlightingRule.getStartPosition()
-                            && endOffset >= syntaxHighlightingRule.getStartPosition() + 1
-                            && endOffset < syntaxHighlightingRule.getEndPosition();
+            if (syntaxHighlightingRule != null) {
+              boolean overlapsStartBoundary = startOffset < syntaxHighlightingRule.getStartPosition()
+                && endOffset >= syntaxHighlightingRule.getStartPosition() + 1
+                && endOffset < syntaxHighlightingRule.getEndPosition();
 
-                    boolean overlapsEndBoundary = startOffset > syntaxHighlightingRule.getStartPosition()
-                            && startOffset < syntaxHighlightingRule.getEndPosition()
-                            && endOffset > syntaxHighlightingRule.getEndPosition();
+              boolean overlapsEndBoundary = startOffset > syntaxHighlightingRule.getStartPosition()
+                && startOffset < syntaxHighlightingRule.getEndPosition()
+                && endOffset > syntaxHighlightingRule.getEndPosition();
 
-                    return overlapsStartBoundary || overlapsEndBoundary;
-                  }
-                  return false;
-                }
-              });
+              return overlapsStartBoundary || overlapsEndBoundary;
+            }
+            return false;
+          }
+        });
       return !conflictingRules.isEmpty();
     }
   }
@@ -110,11 +110,11 @@ public class SyntaxHighlightingRuleSet {
 
     for (SyntaxHighlightingRule highlightingRule : orderedRules) {
       serializedRules.append(highlightingRule.getStartPosition())
-              .append(FIELD_SEPARATOR)
-              .append(highlightingRule.getEndPosition())
-              .append(FIELD_SEPARATOR)
-              .append(highlightingRule.getTextType())
-              .append(RULE_SEPARATOR);
+        .append(FIELD_SEPARATOR)
+        .append(highlightingRule.getEndPosition())
+        .append(FIELD_SEPARATOR)
+        .append(highlightingRule.getTextType())
+        .append(RULE_SEPARATOR);
     }
 
     return serializedRules.toString();

@@ -18,56 +18,37 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.core.source.jdbc;
+package org.sonar.api.scan.source;
+
+import org.sonar.api.component.Perspective;
 
 /**
  * @since 3.6
  */
-public class SnapshotDataDto {
+public interface SymbolPerspective extends Perspective {
 
-  private long id;
-  private long snapshotId;
-  private long resourceId;
-  private String data;
-  private String dataType;
+  interface SymbolBuilder {
 
-  public long getSnapshotId() {
-    return snapshotId;
+    SymbolBuilder setDeclaration(int startOffset, int endOffset);
+
+    SymbolBuilder setFullyQualifiedName(String fullyQualifiedName);
+
+    Symbol build();
   }
 
-  public long getResourceId() {
-    return resourceId;
+  interface ReferencesBuilder {
+
+    ReferencesBuilder addReference(int startOffset);
   }
 
-  public String getData() {
-    return data;
-  }
+  SymbolPerspective begin();
 
-  public String getDataType() {
-    return dataType;
-  }
+  SymbolBuilder newSymbol();
 
-  public long getId() {
-    return id;
-  }
+  ReferencesBuilder declareReferences(Symbol symbol);
 
-  public void setId(long id) {
-    this.id = id;
-  }
-
-  public void setSnapshotId(long snapshotId) {
-    this.snapshotId = snapshotId;
-  }
-
-  public void setResourceId(long resourceId) {
-    this.resourceId = resourceId;
-  }
-
-  public void setData(String data) {
-    this.data = data;
-  }
-
-  public void setDataType(String dataType) {
-    this.dataType = dataType;
-  }
+  void end();
 }
+
+
+
