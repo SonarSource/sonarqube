@@ -246,7 +246,7 @@ class RulesConfigurationController < ApplicationController
   def delete
     rule=Rule.find(params[:rule_id])
     if rule.editable?
-      rule.status=RULE::STATUS_REMOVED
+      rule.status=Rule::STATUS_REMOVED
       rule.save
 
       # it's mandatory to execute 'destroy_all' but not 'delete_all' because active_rule_parameters must
