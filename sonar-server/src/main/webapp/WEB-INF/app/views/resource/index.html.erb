@@ -6,4 +6,5 @@
 <script type="text/javascript">
   // Always display title in popup mode
   openAccordionItem('<%= url_for(params.merge({:display_title => 'true', :popup => 'true'})) -%>', this);
+  $j("#accordion-panel").on("click", "span[class|='symbol']", highlight_usages);
 </script>

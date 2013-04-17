@@ -74,7 +74,7 @@ public class DecorationDataHolder {
     for (int i = 0; i < symbolOccurrences.length; i++) {
       int occurrenceStartOffset = Integer.parseInt(symbolOccurrences[i]);
       int occurrenceEndOffset = occurrenceStartOffset + symbolLength;
-      lowerBoundsDefinitions.put(occurrenceStartOffset, SYMBOL_PREFIX + declarationStartOffset);
+      lowerBoundsDefinitions.put(occurrenceStartOffset, SYMBOL_PREFIX + declarationStartOffset + " highlightable");
       upperBoundsDefinitions.add(occurrenceEndOffset);
     }
   }
