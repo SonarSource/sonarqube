@@ -37,7 +37,6 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -85,9 +84,9 @@ public class IssuesWorkflowDecorator implements Decorator {
     }
   }
 
-  private void updateIssues(Collection<Issue> newIssues){
-    for (Issue issue : newIssues){
-      moduleIssues.addOrUpdate((DefaultIssue)issue);
+  private void updateIssues(Collection<Issue> newIssues) {
+    for (Issue issue : newIssues) {
+      moduleIssues.addOrUpdate((DefaultIssue) issue);
     }
   }
 
@@ -129,7 +128,7 @@ public class IssuesWorkflowDecorator implements Decorator {
   private void reopenUnresolvedIssues(Collection<IssueDto> openIssues, Resource resource) {
     for (IssueDto openIssue : openIssues) {
       if (Issue.STATUS_RESOLVED.equals(openIssue.getStatus()) && !Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())
-          && !openIssue.isManualIssue()) {
+        && !openIssue.isManualIssue()) {
         reopenAndSave(openIssue, resource);
       }
     }
@@ -149,7 +148,7 @@ public class IssuesWorkflowDecorator implements Decorator {
     issue.setUpdatedAt(new Date());
   }
 
-  private void closeAndSave(IssueDto openIssue, Resource resource){
+  private void closeAndSave(IssueDto openIssue, Resource resource) {
     DefaultIssue issue = toIssue(openIssue, resource);
     close(issue);
     moduleIssues.addOrUpdate(issue);
@@ -186,8 +185,7 @@ public class IssuesWorkflowDecorator implements Decorator {
     // TODO add person
 
     Rule rule = ruleFinder.findById(dto.getRuleId());
-    issue.setRuleKey(rule.getKey());
-    issue.setRuleRepositoryKey(rule.getRepositoryKey());
+    issue.setRuleKey(rule.ruleKey());
     return issue;
   }
 
