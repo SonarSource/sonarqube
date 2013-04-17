@@ -201,3 +201,10 @@ function collapseTests(index, elt){
   parent.find(".test_expandLink_"+ index).show();
   parent.next(".tests_viewer .test_message_"+ index).hide();
 }
+
+/* Source decoration functions */
+function highlight_usages(){
+  var selectedClass = $j(this).attr("class");
+  $j(".highlighted").removeClass("highlighted");
+  $j("." + selectedClass).toggleClass("highlighted");
+}
