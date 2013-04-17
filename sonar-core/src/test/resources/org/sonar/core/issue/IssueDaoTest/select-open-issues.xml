@@ -1,0 +1,116 @@
+<!--
+  ~ Sonar, open source software quality management tool.
+  ~ Copyright (C) 2008-2012 SonarSource
+  ~ mailto:contact AT sonarsource DOT com
+  ~
+  ~ Sonar is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU Lesser General Public
+  ~ License as published by the Free Software Foundation; either
+  ~ version 3 of the License, or (at your option) any later version.
+  ~
+  ~ Sonar is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public
+  ~ License along with Sonar; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+  -->
+
+<dataset>
+
+  <issues
+      id="100"
+      uuid="100"
+      resource_id="400"
+      rule_id="500"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      manual_issue="[false]"
+      title="[null]"
+      message="[null]"
+      line="200"
+      cost="[null]"
+      status="OPEN"
+      resolution="[null]"
+      checksum="[null]"
+      user_login="user"
+      assignee_login="user"
+      person_id="[null]"
+      data="[null]"
+      created_at="2013-04-16"
+      updated_at="[null]"
+      closed_at="[null]"
+      />
+
+  <issues
+      id="101"
+      uuid="101"
+      resource_id="401"
+      rule_id="505"
+      severity="MAJOR"
+      manual_severity="[false]"
+      manual_issue="[false]"
+      title="[null]"
+      message="[null]"
+      line="120"
+      cost="[null]"
+      status="OPEN"
+      resolution="FIXED"
+      checksum="[null]"
+      user_login="[null]"
+      assignee_login="user"
+      person_id="[null]"
+      data="[null]"
+      created_at="2013-04-10"
+      updated_at="[null]"
+      closed_at="[null]"
+      />
+
+  <issues
+      id="102"
+      uuid="102"
+      resource_id="402"
+      rule_id="505"
+      severity="MAJOR"
+      manual_severity="[false]"
+      manual_issue="[false]"
+      title="[null]"
+      message="[null]"
+      line="120"
+      cost="[null]"
+      status="CLOSED"
+      resolution="FIXED"
+      checksum="[null]"
+      user_login="[null]"
+      assignee_login="user"
+      person_id="[null]"
+      data="[null]"
+      created_at="2013-04-10"
+      updated_at="[null]"
+      closed_at="[null]"
+      />
+
+  <projects
+      id="400"
+      kee="key"
+      root_id="[null]"
+      enabled="[true]"
+      />
+
+  <projects
+      id="401"
+      kee="key2"
+      root_id="400"
+      enabled="[true]"
+      />
+
+  <projects
+      id="402"
+      kee="key3"
+      root_id="400"
+      enabled="[true]"
+      />
+
+</dataset>
