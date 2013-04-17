@@ -96,7 +96,7 @@ public class ModuleIssuesTest {
     moduleIssues.onIssueCreation(issue);
 
     ArgumentCaptor<Issue> argument = ArgumentCaptor.forClass(Issue.class);
-    verify(cache).add(argument.capture());
+    verify(cache).addOrUpdate(argument.capture());
     assertThat(argument.getValue().key()).isNotNull();
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(argument.getValue().severity()).isEqualTo(Issue.SEVERITY_CRITICAL);
@@ -118,7 +118,7 @@ public class ModuleIssuesTest {
     moduleIssues.onIssueCreation(issue);
 
     ArgumentCaptor<Issue> argument = ArgumentCaptor.forClass(Issue.class);
-    verify(cache).add(argument.capture());
+    verify(cache).addOrUpdate(argument.capture());
     assertThat(argument.getValue().key()).isNotNull();
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(argument.getValue().severity()).isEqualTo(Issue.SEVERITY_INFO);

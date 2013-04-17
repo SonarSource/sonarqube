@@ -45,8 +45,13 @@ public class ModuleIssues implements OnIssueCreation, BatchComponent {
   }
 
   public Collection<Issue> issues(String componentKey) {
-    // TODO copy
     return cache.componentIssues(componentKey);
+  }
+
+  public ModuleIssues addOrUpdate(DefaultIssue issue) {
+    Preconditions.checkState(!Strings.isNullOrEmpty(issue.key()), "Missing issue key");
+    cache.addOrUpdate(issue);
+    return this;
   }
 
   @Override
@@ -66,6 +71,6 @@ public class ModuleIssues implements OnIssueCreation, BatchComponent {
       issue.setSeverity(activeRule.getSeverity().name());
     }
 
-    cache.add(issue);
+    cache.addOrUpdate(issue);
   }
 }

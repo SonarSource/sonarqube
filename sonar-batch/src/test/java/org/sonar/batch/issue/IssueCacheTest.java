@@ -53,11 +53,10 @@ public class IssueCacheTest {
     DefaultIssue issue1 = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action");
     DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Action");
     DefaultIssue issue3 = new DefaultIssue().setKey("333").setComponentKey("org.struts.Filter");
-    cache.add(issue1).add(issue2).add(issue3);
+    cache.addOrUpdate(issue1).addOrUpdate(issue2).addOrUpdate(issue3);
 
     assertThat(issueKeys(cache.componentIssues("org.struts.Action"))).containsOnly("111", "222");
     assertThat(issueKeys(cache.componentIssues("org.struts.Filter"))).containsOnly("333");
-    assertThat(issueKeys(cache.issues())).containsOnly("111", "222", "333");
   }
 
   Collection<String> issueKeys(Collection<Issue> issues) {

@@ -19,31 +19,34 @@
  */
 package org.sonar.batch.issue;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.Issue;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Shared issues among all project modules
  */
 public class IssueCache implements BatchComponent {
 
-  // issues by component key
-  private final ListMultimap<String, Issue> componentIssues = ArrayListMultimap.create();
-
-  public Collection<Issue> issues() {
-    return componentIssues.values();
-  }
+  // component key -> issue key -> issue
+  private final Map<String, Map<String, Issue>> componentIssues = Maps.newHashMap();
 
   public Collection<Issue> componentIssues(String componentKey) {
-    return componentIssues.get(componentKey);
+    Map<String, Issue> issuesByKey = componentIssues.get(componentKey);
+    return issuesByKey == null ? Collections.<Issue>emptyList() : issuesByKey.values();
   }
 
-  public IssueCache add(Issue issue) {
-    componentIssues.put(issue.componentKey(), issue);
+  public IssueCache addOrUpdate(Issue issue) {
+    Map<String, Issue> issuesByKey = componentIssues.get(issue.componentKey());
+    if (issuesByKey == null) {
+      issuesByKey = Maps.newHashMap();
+      componentIssues.put(issue.componentKey(), issuesByKey);
+    }
+    issuesByKey.put(issue.key(), issue);
     return this;
   }
 }

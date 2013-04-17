@@ -39,7 +39,7 @@ public class DeprecatedViolations implements BatchComponent {
   public void add(Violation violation) {
     Issue issue = toIssue(violation);
     if (issue != null) {
-      cache.add(issue);
+      cache.addOrUpdate(issue);
     }
   }
 

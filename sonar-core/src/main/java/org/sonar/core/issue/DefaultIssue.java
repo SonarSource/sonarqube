@@ -29,11 +29,12 @@ import org.sonar.api.issue.Issue;
 
 import javax.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-public class DefaultIssue implements Issue {
+public class DefaultIssue implements Issue, Serializable {
 
   private static final Set<String> SEVERITIES = ImmutableSet.of(SEVERITY_BLOCKER, SEVERITY_CRITICAL, SEVERITY_MAJOR, SEVERITY_MINOR, SEVERITY_INFO);
   private static final Set<String> RESOLUTIONS = ImmutableSet.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED);

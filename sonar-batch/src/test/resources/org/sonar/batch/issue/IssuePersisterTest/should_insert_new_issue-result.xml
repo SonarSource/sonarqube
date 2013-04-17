@@ -1,0 +1,6 @@
+<dataset>
+  <snapshots id="100" project_id="200" islast="[true]"/>
+  <issues id="1" uuid="ABCD" resource_id="200" rule_id="300" severity="BLOCKER" manual_severity="[false]" manual_issue="[false]" title="[null]" message="[null]"
+          line="[null]" cost="[null]" status="OPEN" resolution="[null]" checksum="[null]" user_login="[null]" assignee_login="[null]" person_id="[null]"
+          data="[null]" created_at="2013-05-18" updated_at="2013-05-23" closed_at="[null]" />
+</dataset>

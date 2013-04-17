@@ -30,6 +30,9 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDao;
 import org.sonar.core.issue.IssueDto;
 
+import java.util.Collection;
+import java.util.Map;
+
 import static com.google.common.collect.Lists.newArrayList;
 
 public class IssuePersister implements ScanPersister {
@@ -48,49 +51,51 @@ public class IssuePersister implements ScanPersister {
 
   @Override
   public void persist() {
-    for (Issue issue : issueCache.issues()) {
-      Snapshot snapshot = snapshotCache.get(issue.componentKey());
-      if (snapshot == null) {
-        throw new IllegalStateException("Snapshot should not be null");
-      }
-      Rule rule = ruleFinder.findByKey(issue.ruleRepositoryKey(), issue.ruleKey());
-      if (rule == null) {
-        throw new IllegalStateException("Rule should not be null");
-      }
+    for (Map.Entry<String, Snapshot> componentEntry : snapshotCache.snapshots()) {
+      String componentKey = componentEntry.getKey();
+      Snapshot snapshot = componentEntry.getValue();
+      Collection<Issue> issues = issueCache.componentIssues(componentKey);
 
-      IssueDto issueDto = toIssueDto((DefaultIssue) issue, snapshot.getResourceId(), rule.getId());
-      if (issue.isNew()) {
-        dao.insert(issueDto);
-      } else {
-        // TODO do a batch update to get modified issues by user during the analysis
-        dao.update(newArrayList(issueDto));
+      for (Issue issue : issues) {
+        Rule rule = ruleFinder.findByKey(issue.ruleRepositoryKey(), issue.ruleKey());
+        if (rule == null) {
+          throw new IllegalStateException("Rule not found: " + issue.ruleRepositoryKey() + ":" + issue.ruleKey());
+        }
+
+        IssueDto dto = toIssueDto((DefaultIssue) issue, snapshot.getResourceId(), rule.getId());
+        if (issue.isNew()) {
+          dao.insert(dto);
+        } else {
+          // TODO do a batch update to get modified issues by user during the analysis
+          dao.update(newArrayList(dto));
+        }
       }
     }
   }
 
   private IssueDto toIssueDto(DefaultIssue issue, Integer componentId, Integer ruleId) {
     return new IssueDto()
-        .setUuid(issue.key())
-        .setLine(issue.line())
-        .setTitle(issue.title())
-        .setMessage(issue.message())
-        .setCost(issue.cost())
-        .setResolution(issue.resolution())
-        .setStatus(issue.status())
-        .setSeverity(issue.severity())
-        .setChecksum(issue.getChecksum())
-        .setManualIssue(issue.isManual())
-        .setManualSeverity(issue.isManualSeverity())
-        .setUserLogin(issue.userLogin())
-        .setAssigneeLogin(issue.assigneeLogin())
-        .setCreatedAt(issue.createdAt())
-        .setUpdatedAt(issue.updatedAt())
-        .setClosedAt(issue.closedAt())
-        .setRuleId(ruleId)
-        .setResourceId(componentId)
-        .setData(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : null)
-        // TODO
+      .setUuid(issue.key())
+      .setLine(issue.line())
+      .setTitle(issue.title())
+      .setMessage(issue.message())
+      .setCost(issue.cost())
+      .setResolution(issue.resolution())
+      .setStatus(issue.status())
+      .setSeverity(issue.severity())
+      .setChecksum(issue.getChecksum())
+      .setManualIssue(issue.isManual())
+      .setManualSeverity(issue.isManualSeverity())
+      .setUserLogin(issue.userLogin())
+      .setAssigneeLogin(issue.assigneeLogin())
+      .setCreatedAt(issue.createdAt())
+      .setUpdatedAt(issue.updatedAt())
+      .setClosedAt(issue.closedAt())
+      .setRuleId(ruleId)
+      .setResourceId(componentId)
+      .setData(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : null)
+      // TODO
 //        .setPersonId()
-        ;
+      ;
   }
 }
