@@ -40,6 +40,14 @@ public class IssueCache implements BatchComponent {
     return issuesByKey == null ? Collections.<Issue>emptyList() : issuesByKey.values();
   }
 
+  public Issue componentIssue(String componentKey, String issueKey) {
+    Map<String, Issue> issuesByKey = componentIssues.get(componentKey);
+    if (issuesByKey != null) {
+      return issuesByKey.get(issueKey);
+    }
+    return null;
+  }
+
   public IssueCache addOrUpdate(Issue issue) {
     Map<String, Issue> issuesByKey = componentIssues.get(issue.componentKey());
     if (issuesByKey == null) {

@@ -20,6 +20,7 @@
 package org.sonar.api.issue;
 
 import org.junit.Test;
+import org.sonar.api.rule.Severity;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -29,13 +30,131 @@ public class IssueChangeTest {
     IssueChange change = IssueChange.create();
     assertThat(change.hasChanges()).isFalse();
     assertThat(change.severity()).isNull();
+    assertThat(change.isCostChanged()).isFalse();
     assertThat(change.cost()).isNull();
-    assertThat(change.assigneeLogin()).isNull();
+    assertThat(change.isAssigneeChanged()).isFalse();
+    assertThat(change.assignee()).isNull();
+    assertThat(change.isLineChanged()).isFalse();
     assertThat(change.line()).isNull();
     assertThat(change.comment()).isNull();
     assertThat(change.message()).isNull();
     assertThat(change.resolution()).isNull();
     assertThat(change.manualSeverity()).isNull();
     assertThat(change.attributes()).isEmpty();
+  }
+
+
+  @Test
+  public void should_change_line() {
+    IssueChange change = IssueChange.create();
+    change.setLine(123);
+    assertThat(change.isLineChanged()).isTrue();
+    assertThat(change.line()).isEqualTo(123);
+  }
+
+  @Test
+  public void should_reset_line() {
+    IssueChange change = IssueChange.create();
+    assertThat(change.isLineChanged()).isFalse();
+    assertThat(change.hasChanges()).isFalse();
+    change.setLine(null);
+    assertThat(change.isLineChanged()).isTrue();
+    assertThat(change.hasChanges()).isTrue();
+  }
+
+  @Test
+  public void should_change_cost() {
+    IssueChange change = IssueChange.create();
+    change.setCost(500.0);
+    assertThat(change.isCostChanged()).isTrue();
+    assertThat(change.cost()).isEqualTo(500.0);
+  }
+
+  @Test
+  public void should_reset_cost() {
+    IssueChange change = IssueChange.create();
+    assertThat(change.isCostChanged()).isFalse();
+    assertThat(change.hasChanges()).isFalse();
+    change.setCost(null);
+    assertThat(change.isCostChanged()).isTrue();
+    assertThat(change.hasChanges()).isTrue();
+  }
+
+  @Test
+  public void should_change_assignne() {
+    IssueChange change = IssueChange.create();
+    change.setAssignee("karadoc");
+    assertThat(change.isAssigneeChanged()).isTrue();
+    assertThat(change.assignee()).isEqualTo("karadoc");
+  }
+
+  @Test
+  public void should_reset_assignee() {
+    IssueChange change = IssueChange.create();
+    assertThat(change.isAssigneeChanged()).isFalse();
+    assertThat(change.hasChanges()).isFalse();
+    change.setAssignee(null);
+    assertThat(change.isAssigneeChanged()).isTrue();
+    assertThat(change.hasChanges()).isTrue();
+  }
+
+  @Test
+  public void should_change_message() {
+    IssueChange change = IssueChange.create();
+    change.setMessage("foo");
+    assertThat(change.message()).isEqualTo("foo");
+    assertThat(change.hasChanges()).isTrue();
+  }
+
+  @Test
+  public void should_add_comment() {
+    IssueChange change = IssueChange.create();
+    change.setComment("foo").setCommentLogin("perceval");
+    assertThat(change.comment()).isEqualTo("foo");
+    assertThat(change.commentLogin()).isEqualTo("perceval");
+    assertThat(change.hasChanges()).isTrue();
+  }
+
+  @Test
+  public void should_change_resolution() {
+    IssueChange change = IssueChange.create();
+    change.setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(change.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(change.hasChanges()).isTrue();
+  }
+
+  @Test
+  public void should_change_severity() {
+    IssueChange change = IssueChange.create();
+    change.setSeverity(Severity.INFO);
+    assertThat(change.severity()).isEqualTo(Severity.INFO);
+    assertThat(change.hasChanges()).isTrue();
+  }
+
+  @Test
+  public void should_set_manual_severity() {
+    IssueChange change = IssueChange.create();
+    change.setManualSeverity(false);
+    assertThat(change.manualSeverity()).isFalse();
+    assertThat(change.hasChanges()).isTrue();
+  }
+
+  @Test
+  public void should_set_attribute() {
+    IssueChange change = IssueChange.create();
+    change.setAttribute("JIRA", "FOO-1234");
+    assertThat(change.attributes()).isNotEmpty();
+    assertThat(change.attributes().get("JIRA")).isEqualTo("FOO-1234");
+    assertThat(change.hasChanges()).isTrue();
+  }
+
+  @Test
+  public void should_unset_attribute() {
+    IssueChange change = IssueChange.create();
+    change.setAttribute("JIRA", null);
+    assertThat(change.attributes()).hasSize(1);
+    assertThat(change.attributes().get("JIRA")).isNull();
+    assertThat(change.attributes().containsKey("JIRA")).isTrue();
+    assertThat(change.hasChanges()).isTrue();
   }
 }

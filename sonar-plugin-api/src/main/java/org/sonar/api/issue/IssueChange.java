@@ -20,6 +20,7 @@
 package org.sonar.api.issue;
 
 import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,6 +31,7 @@ import java.util.Map;
 public class IssueChange {
   private String severity = null;
   private String comment = null;
+  private String commentLogin = null;
   private Boolean manualSeverity = null;
   private String message = null;
   private boolean lineChanged = false;
@@ -38,7 +40,7 @@ public class IssueChange {
   private Double cost = null;
   private String resolution = null;
   private boolean assigneeLoginChanged = false;
-  private String assigneeLogin = null;
+  private String assignee = null;
   private Map<String, String> attributes = null;
 
   private IssueChange() {
@@ -53,13 +55,18 @@ public class IssueChange {
       lineChanged || costChanged || resolution != null || assigneeLoginChanged || attributes != null;
   }
 
-  public IssueChange setSeverity(String severity) {
-    this.severity = severity;
+  public IssueChange setSeverity(String s) {
+    this.severity = s;
     return this;
   }
 
   public IssueChange setComment(String comment) {
     this.comment = comment;
+    return this;
+  }
+
+  public IssueChange setCommentLogin(String s) {
+    this.commentLogin = s;
     return this;
   }
 
@@ -90,21 +97,17 @@ public class IssueChange {
     return this;
   }
 
-  public IssueChange setAssigneeLogin(@Nullable String assigneeLogin) {
+  public IssueChange setAssignee(@Nullable String assigneeLogin) {
     this.assigneeLoginChanged = true;
-    this.assigneeLogin = assigneeLogin;
+    this.assignee = assigneeLogin;
     return this;
   }
 
   public IssueChange setAttribute(String key, @Nullable String value) {
-    if (attributes == null && value != null) {
+    if (attributes == null) {
       attributes = new LinkedHashMap<String, String>();
     }
-    if (value != null) {
-      attributes.put(key, value);
-    } else if (attributes != null) {
-      attributes.remove(key);
-    }
+    attributes.put(key, value);
     return this;
   }
 
@@ -114,6 +117,10 @@ public class IssueChange {
 
   public String comment() {
     return comment;
+  }
+
+  public String commentLogin() {
+    return commentLogin;
   }
 
   public Boolean manualSeverity() {
@@ -128,16 +135,28 @@ public class IssueChange {
     return line;
   }
 
+  public boolean isLineChanged() {
+    return lineChanged;
+  }
+
   public Double cost() {
     return cost;
+  }
+
+  public boolean isCostChanged() {
+    return costChanged;
   }
 
   public String resolution() {
     return resolution;
   }
 
-  public String assigneeLogin() {
-    return assigneeLogin;
+  public String assignee() {
+    return assignee;
+  }
+
+  public boolean isAssigneeChanged() {
+    return assigneeLoginChanged;
   }
 
   public Map<String, String> attributes() {

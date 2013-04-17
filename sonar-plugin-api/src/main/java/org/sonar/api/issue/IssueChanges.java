@@ -24,22 +24,8 @@ import org.sonar.api.ServerComponent;
 
 import javax.annotation.Nullable;
 
-public interface IssueActions extends BatchComponent, ServerComponent {
+public interface IssueChanges extends BatchComponent, ServerComponent {
 
-  Issue comment(Issue issue, String userLogin, String comment);
-
-  Issue setSeverity(Issue issue, String severity);
-
-  Issue setManualSeverity(Issue issue, String severity);
-
-  Issue setMessage(Issue issue, String message);
-
-  Issue setCost(Issue issue, @Nullable Double cost);
-
-  Issue setResolution(Issue issue, String resolution);
-
-  Issue assign(Issue issue, String userLogin);
-
-  Issue setAttribute(Issue issue, String key, @Nullable String value);
+  Issue apply(Issue issue, IssueChange change);
 
 }
