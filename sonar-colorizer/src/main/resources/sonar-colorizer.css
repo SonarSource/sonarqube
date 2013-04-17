@@ -65,7 +65,9 @@
 }
 
 .highlightable {
-  background-color: #a5c2ee;
+  text-decoration: underline;
+  color: #0000AA;
+  cursor: hand; cursor: pointer;
 }
 
 .highlighted {
