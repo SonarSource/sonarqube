@@ -78,11 +78,13 @@ public class NewIssuesDecorator implements Decorator {
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource, context)) {
       Issuable issuable = perspectives.as(Issuable.class, context.getResource());
-      Collection<Issue> issues = issuable.issues();
+      if (issuable != null) {
+        Collection<Issue> issues = issuable.issues();
 
-      computeNewIssues(context, issues);
-      computeNewIssuesPerSeverity(context, issues);
-      computeNewIssuesPerRule(context, issues);
+        computeNewIssues(context, issues);
+        computeNewIssuesPerSeverity(context, issues);
+        computeNewIssuesPerRule(context, issues);
+      }
     }
     if (ResourceUtils.isRootProject(resource)) {
       notifyNewIssues((Project) resource, context);
