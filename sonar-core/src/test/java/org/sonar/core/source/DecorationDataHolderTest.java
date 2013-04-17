@@ -51,7 +51,7 @@ public class DecorationDataHolderTest {
     assertThat(lowerBoundsDefinitions.containsEntry(0, "cppd"));
     assertThat(lowerBoundsDefinitions.containsEntry(54, "a"));
     assertThat(lowerBoundsDefinitions.containsEntry(69, "k"));
-    assertThat(lowerBoundsDefinitions.containsEntry(80, "symbol-80"));
+    assertThat(lowerBoundsDefinitions.containsEntry(80, "symbol-ππ80"));
     assertThat(lowerBoundsDefinitions.containsEntry(90, "symbol-90"));
     assertThat(lowerBoundsDefinitions.containsEntry(106, "cppd"));
     assertThat(lowerBoundsDefinitions.containsEntry(114, "k"));
