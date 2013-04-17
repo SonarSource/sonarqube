@@ -73,13 +73,15 @@ public class IssuesWorkflowDecorator implements Decorator {
       issueTracking.track(resource, openIssues, (List) newIssues);
       updateIssues(newIssues);
 
-      addManualIssues(openIssues);
+      addManualIssuesAndCloseResolvedOnes(openIssues, resource);
       closeResolvedStandardIssues(openIssues, newIssues, resource);
-      closeResolvedManualIssues(openIssues, resource);
+      keepFalsePositiveIssues(openIssues, resource);
       reopenUnresolvedIssues(openIssues, resource);
-    }
-    if (ResourceUtils.isRootProject(resource)) {
-      closeIssuesOnDeletedResources(openIssues, resource);
+
+      if (ResourceUtils.isRootProject(resource)) {
+        // TODO
+//        closeIssuesOnDeletedResources(openIssues, resource);
+      }
     }
   }
 
@@ -89,28 +91,14 @@ public class IssuesWorkflowDecorator implements Decorator {
     }
   }
 
-  private void addManualIssues(Collection<IssueDto> openIssues) {
+  private void addManualIssuesAndCloseResolvedOnes(Collection<IssueDto> openIssues, Resource resource) {
     for (IssueDto openIssue : openIssues) {
       if (openIssue.isManualIssue()) {
-        DefaultIssue newIssue = new DefaultIssue();
-        moduleIssues.addOrUpdate(newIssue);
-      }
-    }
-  }
-
-  /**
-   * Close issues that relate to resources that have been deleted or renamed.
-   */
-  private void closeIssuesOnDeletedResources(Collection<IssueDto> openIssues, Resource resource) {
-    for (IssueDto openIssue : openIssues) {
-      close(openIssue, resource);
-    }
-  }
-
-  private void closeResolvedManualIssues(Collection<IssueDto> openIssues, Resource resource) {
-    for (IssueDto openIssue : openIssues) {
-      if (openIssue.isManualIssue() && Issue.STATUS_RESOLVED.equals(openIssue.getStatus())) {
-        close(openIssue, resource);
+        DefaultIssue issue = toIssue(openIssue, resource);
+        if (Issue.STATUS_RESOLVED.equals(issue.status())) {
+          close(issue);
+        }
+        moduleIssues.addOrUpdate(issue);
       }
     }
   }
@@ -120,7 +108,20 @@ public class IssuesWorkflowDecorator implements Decorator {
 
     for (IssueDto openIssue : openIssues) {
       if (!openIssue.isManualIssue() && !issueKeys.contains(openIssue.getUuid())) {
-        close(openIssue, resource);
+        closeAndSave(openIssue, resource);
+      }
+    }
+  }
+
+
+  private void keepFalsePositiveIssues(Collection<IssueDto> openIssues, Resource resource) {
+    for (IssueDto openIssue : openIssues) {
+      if (!openIssue.isManualIssue() && Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())) {
+        DefaultIssue issue = toIssue(openIssue, resource);
+        issue.setResolution(openIssue.getResolution());
+        issue.setStatus(openIssue.getStatus());
+        issue.setUpdatedAt(new Date());
+        moduleIssues.addOrUpdate(issue);
       }
     }
   }
@@ -129,19 +130,32 @@ public class IssuesWorkflowDecorator implements Decorator {
     for (IssueDto openIssue : openIssues) {
       if (Issue.STATUS_RESOLVED.equals(openIssue.getStatus()) && !Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())
           && !openIssue.isManualIssue()) {
-        reopen(openIssue, resource);
+        reopenAndSave(openIssue, resource);
       }
     }
   }
 
-  private void close(IssueDto openIssue, Resource resource) {
-    DefaultIssue issue = toIssue(openIssue, resource);
+  /**
+   * Close issues that relate to resources that have been deleted or renamed.
+   */
+  private void closeIssuesOnDeletedResources(Collection<IssueDto> openIssues, Resource resource) {
+    for (IssueDto openIssue : openIssues) {
+      closeAndSave(openIssue, resource);
+    }
+  }
+
+  private void close(DefaultIssue issue) {
     issue.setStatus(Issue.STATUS_CLOSED);
     issue.setUpdatedAt(new Date());
+  }
+
+  private void closeAndSave(IssueDto openIssue, Resource resource){
+    DefaultIssue issue = toIssue(openIssue, resource);
+    close(issue);
     moduleIssues.addOrUpdate(issue);
   }
 
-  private void reopen(IssueDto openIssue, Resource resource) {
+  private void reopenAndSave(IssueDto openIssue, Resource resource) {
     DefaultIssue issue = toIssue(openIssue, resource);
     issue.setStatus(Issue.STATUS_REOPENED);
     issue.setResolution(null);
@@ -166,6 +180,10 @@ public class IssuesWorkflowDecorator implements Decorator {
     issue.setClosedAt(dto.getClosedAt());
     issue.setAttributes(KeyValueFormat.parse(dto.getData()));
     issue.setComponentKey(resource.getKey());
+    issue.setManual(dto.isManualIssue());
+    issue.setManualSeverity(dto.isManualSeverity());
+
+    // TODO add person
 
     Rule rule = ruleFinder.findById(dto.getRuleId());
     issue.setRuleKey(rule.getKey());

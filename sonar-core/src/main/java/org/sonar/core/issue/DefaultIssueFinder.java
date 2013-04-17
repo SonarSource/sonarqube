@@ -145,6 +145,9 @@ public class DefaultIssueFinder implements IssueFinder {
     issue.setUpdatedAt(dto.getUpdatedAt());
     issue.setClosedAt(dto.getClosedAt());
     issue.setAttributes(KeyValueFormat.parse(dto.getData()));
+    issue.setManual(dto.isManualIssue());
+    issue.setManualSeverity(dto.isManualSeverity());
+
     if (resource != null) {
       issue.setComponentKey(resource.getKey());
     }

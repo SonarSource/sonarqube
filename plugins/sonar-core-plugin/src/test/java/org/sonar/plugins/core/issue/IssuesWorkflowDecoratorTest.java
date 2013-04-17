@@ -19,18 +19,17 @@
  */
 package org.sonar.plugins.core.issue;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.sonar.api.batch.DecoratorContext;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.Violation;
-import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.issue.InitialOpenIssuesStack;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.issue.DefaultIssue;
@@ -38,13 +37,15 @@ import org.sonar.core.issue.IssueDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collections;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
 
@@ -61,6 +62,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     initialOpenIssuesStack = mock(InitialOpenIssuesStack.class);
     issueTracking = mock(IssueTracking.class);
     ruleFinder = mock(RuleFinder.class);
+    when(ruleFinder.findById(anyInt())).thenReturn(Rule.create());
 
     decorator = new IssuesWorkflowDecorator(moduleIssues, initialOpenIssuesStack, issueTracking, ruleFinder);
   }
@@ -80,45 +82,88 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_close_resolved_issue() {
+    when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
+    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
+        new IssueDto().setUuid("100").setRuleId(10)));
+
+    decorator.decorate(mock(Resource.class), null);
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(moduleIssues).addOrUpdate(argument.capture());
+    assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(argument.getValue().updatedAt()).isNotNull();
+  }
+
+  @Test
+  public void should_close_resolved_manual_issue() {
+    when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
+    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
+        new IssueDto().setUuid("100").setRuleId(1).setManualIssue(true).setStatus(Issue.STATUS_RESOLVED)));
+
+    decorator.decorate(mock(Resource.class), null);
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(moduleIssues).addOrUpdate(argument.capture());
+    assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(argument.getValue().updatedAt()).isNotNull();
+  }
+
+  @Test
+  public void should_reopen_unresolved_issue() {
+    when(moduleIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
+        new DefaultIssue().setKey("100")));
+    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
+        new IssueDto().setUuid("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FIXED)));
+
+    decorator.decorate(mock(Resource.class), null);
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(moduleIssues, times(2)).addOrUpdate(argument.capture());
+
+    List<DefaultIssue> capturedDefaultIssues = argument.getAllValues();
+    // First call is done when updating issues after calling issue tracking and we don't care
+    DefaultIssue defaultIssue = capturedDefaultIssues.get(1);
+    assertThat(defaultIssue.status()).isEqualTo(Issue.STATUS_REOPENED);
+    assertThat(defaultIssue.resolution()).isNull();
+    assertThat(defaultIssue.updatedAt()).isNotNull();
+  }
+
+  @Test
+  public void should_keep_false_positive_issue() {
+    when(moduleIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
+        new DefaultIssue().setKey("100")));
+    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
+        new IssueDto().setUuid("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)));
+
+    decorator.decorate(mock(Resource.class), null);
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(moduleIssues, times(2)).addOrUpdate(argument.capture());
+
+    List<DefaultIssue> capturedDefaultIssues = argument.getAllValues();
+    // First call is done when updating issues after calling issue tracking and we don't care
+    DefaultIssue defaultIssue = capturedDefaultIssues.get(1);
+    assertThat(defaultIssue.status()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(defaultIssue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(defaultIssue.updatedAt()).isNotNull();
+  }
+
+  @Test
   @Ignore
-  public void shouldCloseIssuesOnResolvedViolations() {
-    //setupData("shouldCloseReviewsOnResolvedViolations");
+  public void should_close_remaining_open_issue_on_root_project() {
+    when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
+    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
+        new IssueDto().setUuid("100").setRuleId(1)));
 
-    when(moduleIssues.issues(anyString())).thenReturn(newArrayList((Issue) new DefaultIssue().setKey("111").setComponentKey("key")));
-    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(new IssueDto().setUuid("111").setResourceId(1)));
-
-    Resource resource = new JavaFile("key");
+    Resource resource = mock(Resource.class);
+    when(resource.getQualifier()).thenReturn(Qualifiers.PROJECT);
     decorator.decorate(resource, null);
 
-    //checkTables("shouldCloseReviewsOnResolvedViolations", new String[] {"updated_at"}, "reviews");
-  }
-
-  @Test
-  @Ignore
-  public void shouldCloseResolvedManualViolations() {
-    setupData("shouldCloseResolvedManualViolations");
-    DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getViolations(any(ViolationQuery.class))).thenReturn(Collections.<Violation>emptyList());
-
-    Resource resource = new JavaFile("org.foo.Bar");
-    decorator.decorate(resource, context);
-
-    checkTables("shouldCloseResolvedManualViolations", new String[] {"updated_at"}, "reviews");
-  }
-
-  @Test
-  @Ignore
-  public void shouldReopenViolations() {
-    setupData("shouldReopenViolations");
-    DecoratorContext context = mock(DecoratorContext.class);
-    Violation violation = new Violation(new Rule());
-    violation.setPermanentId(1000);
-    when(context.getViolations(any(ViolationQuery.class))).thenReturn(newArrayList(violation));
-
-    Resource resource = new JavaFile("org.foo.Bar");
-    decorator.decorate(resource, context);
-
-    checkTables("shouldReopenViolations", new String[] {"updated_at"}, "reviews");
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(moduleIssues, times(2)).addOrUpdate(argument.capture());
+    assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(argument.getValue().updatedAt()).isNotNull();
   }
 
 }
