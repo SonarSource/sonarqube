@@ -54,7 +54,7 @@ public class SyntaxHighlightingRuleSetTest {
   public void should_register_highlighting_rule() throws Exception {
     assertThat(highlightingRules.getSyntaxHighlightingRuleSet()).hasSize(6);
   }
-  
+
   @Test
   public void should_order_by_start_then_end_offset() throws Exception {
 
@@ -66,9 +66,9 @@ public class SyntaxHighlightingRuleSetTest {
   }
 
   @Test
-  public void should_serialize_rules() throws Exception {
+  public void should_serialize_rules_to_string() throws Exception {
 
-    String serializedRules = highlightingRules.serializeAsString();
+    String serializedRules = highlightingRules.writeString();
     assertThat(serializedRules).isEqualTo("0,10,cd;10,12,k;12,20,cd;24,38,k;24,65,cppd;42,50,k;");
   }
 
@@ -77,8 +77,8 @@ public class SyntaxHighlightingRuleSetTest {
 
     throwable.expect(UnsupportedOperationException.class);
 
-    SyntaxHighlightingRuleSet.Builder highlightingRuleSet = SyntaxHighlightingRuleSet.builder();
-    highlightingRuleSet.registerHighlightingRule(0, 10, "k");
-    highlightingRuleSet.registerHighlightingRule(8, 15, "k");
+    SyntaxHighlightingRuleSet.Builder builder = SyntaxHighlightingRuleSet.builder();
+    builder.registerHighlightingRule(0, 10, "k");
+    builder.registerHighlightingRule(8, 15, "k");
   }
 }

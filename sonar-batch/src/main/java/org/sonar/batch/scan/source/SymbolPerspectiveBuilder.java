@@ -22,19 +22,20 @@ package org.sonar.batch.scan.source;
 
 import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.SymbolPerspective;
+import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.component.PerspectiveBuilder;
 
 public class SymbolPerspectiveBuilder extends PerspectiveBuilder<SymbolPerspective> {
 
-  private final SymbolDataCache symbolDataCache;
+  private final ComponentDataCache cache;
 
-  public SymbolPerspectiveBuilder(SymbolDataCache symbolDataCache) {
+  public SymbolPerspectiveBuilder(ComponentDataCache cache) {
     super(SymbolPerspective.class);
-    this.symbolDataCache = symbolDataCache;
+    this.cache = cache;
   }
 
   @Override
   protected SymbolPerspective loadPerspective(Class<SymbolPerspective> perspectiveClass, Component component) {
-    return new DefaultSymbolPerspective(symbolDataCache, component, new SymbolDataRepository());
+    return new DefaultSymbolPerspective(cache, component, new SymbolDataRepository());
   }
 }

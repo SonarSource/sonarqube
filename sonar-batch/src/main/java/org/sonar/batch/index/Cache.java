@@ -23,18 +23,27 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.persistit.Exchange;
 import com.persistit.Key;
+import com.persistit.exception.PersistitException;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 /**
+ *
+ * <p>
  * This cache is not thread-safe, due to direct usage of {@link com.persistit.Exchange}
+ * </p>
  */
 public class Cache<K, V extends Serializable> {
 
   private static final String DEFAULT_GROUP = "_";
+  // TODO improve exception messages by using this cache name
   private final String name;
   private final Exchange exchange;
 
@@ -187,11 +196,11 @@ public class Cache<K, V extends Serializable> {
       List<V> values = Lists.newLinkedList();
       exchange.clear();
       Exchange iteratorExchange = new Exchange(exchange);
-
-      iteratorExchange.append(group);
-      iteratorExchange.append(Key.BEFORE);
+      iteratorExchange.append(group).append(Key.BEFORE);
       while (iteratorExchange.next(false)) {
-        values.add((V) iteratorExchange.getValue().get());
+        if (iteratorExchange.getValue().isDefined()) {
+          values.add((V) iteratorExchange.getValue().get());
+        }
       }
       return values;
     } catch (Exception e) {
@@ -215,6 +224,107 @@ public class Cache<K, V extends Serializable> {
       return values;
     } catch (Exception e) {
       throw new IllegalStateException("Fail to get cache values", e);
+    }
+  }
+
+  public Set<String> groups() {
+    try {
+      Set<String> groups = Sets.newLinkedHashSet();
+      exchange.clear();
+      Exchange iteratorExchange = new Exchange(exchange);
+      iteratorExchange.append(Key.BEFORE);
+      while (iteratorExchange.next(false)) {
+        groups.add(iteratorExchange.getKey().decodeString());
+      }
+      return groups;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to get cache values", e);
+    }
+  }
+
+  public <T extends Serializable> Iterable<Entry<T>> entries() {
+    exchange.clear().to(Key.BEFORE);
+    return new EntryIterable(new Exchange(exchange), true);
+  }
+
+  public <T extends Serializable> Iterable<Entry<T>> entries(String group) {
+    exchange.clear().append(group).append(Key.BEFORE);
+    return new EntryIterable(new Exchange(exchange), false);
+  }
+
+  private static class EntryIterable<T extends Serializable> implements Iterable<Entry<T>> {
+    private final EntryIterator<T> it;
+
+    private EntryIterable(Exchange exchange, boolean deep) {
+      it = new EntryIterator<T>(exchange, deep);
+    }
+
+    @Override
+    public Iterator<Entry<T>> iterator() {
+      return it;
+    }
+  }
+
+  private static class EntryIterator<T extends Serializable> implements Iterator<Entry<T>> {
+    private final Exchange exchange;
+    private final boolean deep;
+
+    private EntryIterator(Exchange exchange, boolean deep) {
+      this.exchange = exchange;
+      this.deep = deep;
+    }
+
+    @Override
+    public boolean hasNext() {
+      try {
+        return exchange.next(deep);
+      } catch (PersistitException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+
+    @Override
+    public Entry next() {
+      Serializable value = null;
+      if (exchange.getValue().isDefined()) {
+        value = (Serializable) exchange.getValue().get();
+      }
+      Key key = exchange.getKey();
+      return new Entry(key.indexTo(-2).decodeString(), key.indexTo(-1).decodeString(), value);
+    }
+
+    @Override
+    public void remove() {
+    }
+  }
+
+  public static class Entry<T extends Serializable> {
+    private final String group;
+    private final String key;
+    private final T value;
+
+    Entry(String group, String key, T value) {
+      this.group = group;
+      this.key = key;
+      this.value = value;
+    }
+
+    public String group() {
+      return group;
+    }
+
+    public String key() {
+      return key;
+    }
+
+    @CheckForNull
+    public T value() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return ToStringBuilder.reflectionToString(this);
     }
   }
 }

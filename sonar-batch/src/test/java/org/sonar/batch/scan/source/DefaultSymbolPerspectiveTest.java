@@ -23,8 +23,12 @@ package org.sonar.batch.scan.source;
 import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.Symbol;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.core.source.jdbc.SnapshotDataDto;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultSymbolPerspectiveTest {
 
@@ -32,7 +36,7 @@ public class DefaultSymbolPerspectiveTest {
   public void should_store_references_for_new_symbol() throws Exception {
 
     Component component = mock(Component.class);
-    SymbolDataCache cache = mock(SymbolDataCache.class);
+    ComponentDataCache cache = mock(ComponentDataCache.class);
     SymbolDataRepository symbolDataRepository = mock(SymbolDataRepository.class);
 
     DefaultSymbolPerspective symbolPerspective = new DefaultSymbolPerspective(cache, component, symbolDataRepository);
@@ -51,7 +55,7 @@ public class DefaultSymbolPerspectiveTest {
     Component component = mock(Component.class);
     when(component.key()).thenReturn("myComponent");
 
-    SymbolDataCache cache = mock(SymbolDataCache.class);
+    ComponentDataCache cache = mock(ComponentDataCache.class);
 
     DefaultSymbolPerspective symbolPerspective = new DefaultSymbolPerspective(cache, component, new SymbolDataRepository());
     Symbol firstSymbol = symbolPerspective.newSymbol().setDeclaration(4, 8).build();
@@ -61,6 +65,6 @@ public class DefaultSymbolPerspectiveTest {
 
     symbolPerspective.end();
 
-    verify(cache).registerSourceData("myComponent", "4,8,4,12,70;25,33,25,44,60,108;");
+    verify(cache).setStringData("myComponent", SnapshotDataDto.SYMBOL, "4,8,4,12,70;25,33,25,44,60,108;");
   }
 }

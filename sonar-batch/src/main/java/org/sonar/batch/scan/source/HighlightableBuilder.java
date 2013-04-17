@@ -24,10 +24,12 @@ import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.scan.source.Highlightable;
+import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.component.PerspectiveBuilder;
 import org.sonar.core.component.ResourceComponent;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Set;
 
 /**
@@ -36,10 +38,9 @@ import java.util.Set;
 public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
   private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE);
-  private final SyntaxHighlightingCache cache;
+  private final ComponentDataCache cache;
 
-
-  public HighlightableBuilder(SyntaxHighlightingCache cache) {
+  public HighlightableBuilder(ComponentDataCache cache) {
     super(Highlightable.class);
     this.cache = cache;
   }

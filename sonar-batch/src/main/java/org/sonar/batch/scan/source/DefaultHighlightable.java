@@ -21,6 +21,8 @@ package org.sonar.batch.scan.source;
 
 import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.Highlightable;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.core.source.jdbc.SnapshotDataDto;
 
 /**
  * @since 3.6
@@ -28,13 +30,13 @@ import org.sonar.api.scan.source.Highlightable;
 public class DefaultHighlightable implements Highlightable {
 
   private final Component component;
-  private final SyntaxHighlightingCache syntaxHighlightingCache;
-  private final SyntaxHighlightingRuleSet.Builder highlightingRulesBuilder;
+  private final ComponentDataCache cache;
+  private final SyntaxHighlightingRuleSet.Builder builder;
 
-  public DefaultHighlightable(Component component, SyntaxHighlightingCache syntaxHighlightingCache) {
+  public DefaultHighlightable(Component component, ComponentDataCache cache) {
     this.component = component;
-    this.syntaxHighlightingCache = syntaxHighlightingCache;
-    this.highlightingRulesBuilder = SyntaxHighlightingRuleSet.builder();
+    this.cache = cache;
+    this.builder = SyntaxHighlightingRuleSet.builder();
   }
 
   @Override
@@ -48,21 +50,20 @@ public class DefaultHighlightable implements Highlightable {
   }
 
   public SyntaxHighlightingRuleSet getHighlightingRules() {
-    return highlightingRulesBuilder.build();
+    return builder.build();
   }
 
   private class DefaultHighlightingBuilder implements HighlightingBuilder {
 
     @Override
     public HighlightingBuilder highlight(int startOffset, int endOffset, String typeOfText) {
-      highlightingRulesBuilder.registerHighlightingRule(startOffset, endOffset, typeOfText);
+      builder.registerHighlightingRule(startOffset, endOffset, typeOfText);
       return this;
     }
 
     @Override
     public void done() {
-      String serializedHighlightingRules = highlightingRulesBuilder.build().serializeAsString();
-      syntaxHighlightingCache.registerSourceData(component().key(), serializedHighlightingRules);
+      cache.setStringData(component().key(), SnapshotDataDto.HIGHLIGHT_SYNTAX, builder.build().writeString());
     }
   }
 }

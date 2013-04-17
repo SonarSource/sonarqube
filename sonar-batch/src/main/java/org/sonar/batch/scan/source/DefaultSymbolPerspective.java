@@ -23,15 +23,17 @@ package org.sonar.batch.scan.source;
 import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.Symbol;
 import org.sonar.api.scan.source.SymbolPerspective;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.core.source.jdbc.SnapshotDataDto;
 
 public class DefaultSymbolPerspective implements SymbolPerspective {
 
-  private final SymbolDataCache symbolDataCache;
+  private final ComponentDataCache cache;
   private final Component component;
   private final SymbolDataRepository symbolDataRepository;
 
-  public DefaultSymbolPerspective(SymbolDataCache symbolDataCache, Component component, SymbolDataRepository symbolDataRepository) {
-    this.symbolDataCache = symbolDataCache;
+  public DefaultSymbolPerspective(ComponentDataCache cache, Component component, SymbolDataRepository symbolDataRepository) {
+    this.cache = cache;
     this.component = component;
     this.symbolDataRepository = symbolDataRepository;
   }
@@ -59,7 +61,7 @@ public class DefaultSymbolPerspective implements SymbolPerspective {
 
   @Override
   public void end() {
-    symbolDataCache.registerSourceData(component().key(), symbolDataRepository.serializeAsString());
+    cache.setStringData(component().key(), SnapshotDataDto.SYMBOL, symbolDataRepository.writeString());
   }
 
   @Override

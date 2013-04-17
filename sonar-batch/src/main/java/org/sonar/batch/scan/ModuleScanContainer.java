@@ -124,8 +124,6 @@ public class ModuleScanContainer extends ComponentContainer {
         ModuleIssues.class,
         IssuableFactory.class,
 
-        HighlightableBuilder.class,
-        SymbolPerspectiveBuilder.class,
         ScanPerspectives.class
       );
   }

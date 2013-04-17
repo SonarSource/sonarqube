@@ -45,7 +45,7 @@ public class SymbolDataRepositoryTest {
     dataRepository.registerSymbolReference(secondSymbol, 124);
     dataRepository.registerSymbolReference(thirdSymbol, 70);
 
-    String serializedSymbolData = dataRepository.serializeAsString();
+    String serializedSymbolData = dataRepository.writeString();
 
     assertThat(serializedSymbolData).isEqualTo("10,20,10,32;55,62,55,70;84,92,84,124;");
   }
@@ -58,7 +58,7 @@ public class SymbolDataRepositoryTest {
     Symbol unusedSymbol = DefaultSymbol.builder(dataRepository).setDeclaration(10, 20).build();
     dataRepository.registerSymbol(unusedSymbol);
 
-    String serializedSymbolData = dataRepository.serializeAsString();
+    String serializedSymbolData = dataRepository.writeString();
 
     assertThat(serializedSymbolData).isEqualTo("10,20,10;");
   }

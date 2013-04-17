@@ -19,30 +19,34 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.database.model.Snapshot;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+public class ComponentDataCache implements BatchComponent {
+  private final Cache cache;
 
-public class SnapshotCache implements BatchComponent {
-  // snapshots by component key
-  private final Map<String, Snapshot> snapshots = Maps.newHashMap();
-
-  public Snapshot get(String componentKey) {
-    return snapshots.get(componentKey);
+  public ComponentDataCache(Caches caches) {
+    cache = caches.createCache("componentData");
   }
 
-  public SnapshotCache put(String componentKey, Snapshot snapshot) {
-    Preconditions.checkState(!snapshots.containsKey(componentKey), "Component is already registered: " + componentKey);
-    snapshots.put(componentKey, snapshot);
+  public <D extends Data> ComponentDataCache setData(String componentKey, String dataType, D data) {
+    cache.put(componentKey, dataType, data);
     return this;
   }
 
-  public Set<Map.Entry<String, Snapshot>> snapshots() {
-    return snapshots.entrySet();
+  public ComponentDataCache setStringData(String componentKey, String dataType, String data) {
+    return setData(componentKey, dataType, new StringData(data));
+  }
+
+  public <D extends Data> D getData(String componentKey, String dataType) {
+    return (D) cache.get(componentKey, dataType);
+  }
+
+  public String getStringData(String componentKey, String dataType) {
+    Data data = (Data) cache.get(componentKey, dataType);
+    return data==null ? null : ((StringData)data).data();
+    }
+
+  public <D extends Data> Iterable<Cache.Entry<D>> entries(String componentKey) {
+    return cache.entries(componentKey);
   }
 }

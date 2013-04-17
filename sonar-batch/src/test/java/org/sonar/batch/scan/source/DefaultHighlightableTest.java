@@ -23,6 +23,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.component.Component;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.core.source.jdbc.SnapshotDataDto;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,7 +38,6 @@ public class DefaultHighlightableTest {
 
   @Test
   public void should_store_highlighting_rules() throws Exception {
-
     DefaultHighlightable highlightablePerspective = new DefaultHighlightable(null, null);
     highlightablePerspective.newHighlighting().highlight(0, 10, "k").highlight(20, 30, "cppd");
 
@@ -45,18 +46,17 @@ public class DefaultHighlightableTest {
 
   @Test
   public void should_apply_registered_highlighting() throws Exception {
-
     Component component = mock(Component.class);
     when(component.key()).thenReturn("myComponent");
 
-    SyntaxHighlightingCache highlightingCache = mock(SyntaxHighlightingCache.class);
+    ComponentDataCache cache = mock(ComponentDataCache.class);
 
-    DefaultHighlightable highlightablePerspective = new DefaultHighlightable(component, highlightingCache);
-    highlightablePerspective.newHighlighting()
-            .highlight(0, 10, "k")
-            .highlight(20, 30, "cppd")
-            .done();
+    DefaultHighlightable highlightable = new DefaultHighlightable(component, cache);
+    highlightable.newHighlighting()
+      .highlight(0, 10, "k")
+      .highlight(20, 30, "cppd")
+      .done();
 
-    verify(highlightingCache).registerSourceData("myComponent", "0,10,k;20,30,cppd;");
+    verify(cache).setStringData("myComponent", SnapshotDataDto.HIGHLIGHT_SYNTAX, "0,10,k;20,30,cppd;");
   }
 }
