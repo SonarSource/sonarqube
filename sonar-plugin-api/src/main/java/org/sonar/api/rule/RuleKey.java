@@ -74,6 +74,9 @@ public class RuleKey implements Serializable {
     return result;
   }
 
+  /**
+   * Do not change this format because it's used by customers of the API (rails, ...)
+   */
   @Override
   public String toString() {
     return String.format("%s:%s", repository, rule);

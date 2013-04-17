@@ -82,7 +82,7 @@ public class IssuesWorkflowDecorator implements Decorator {
       reopenUnresolvedIssues(openIssues, resource);
 
       if (ResourceUtils.isRootProject(resource)) {
-        // TODO
+        // TODO be carefullto take updated openIssue and not the ones coming directly from db (We should probably use a different sensor)
 //        closeIssuesOnDeletedResources(openIssues, resource);
       }
     }

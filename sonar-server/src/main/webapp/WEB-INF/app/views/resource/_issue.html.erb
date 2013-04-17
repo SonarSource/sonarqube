@@ -15,15 +15,13 @@
       <span class="rulename">
         <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;"
            href="<%= url_for :controller => 'rules', :action => 'show', :id => issue.rule_key, :layout => 'false' -%>">
-              <%= h(Rule.by_key_or_id(issue.rule_repository_key + ':' + issue.rule_key).name) -%></a>
+              <%= h(Rule.by_key_or_id(issue.rule_key.to_s).name) -%></a>
       </span>
       &nbsp;
       <%= image_tag 'sep12.png' -%>
       &nbsp;
 
       <% if issue.created_at %>
-        <% puts "### " + Time.now.to_s %>
-        <% puts "### " + Time.now.to_s %>
         <span><%= distance_of_time_in_words_to_now(to_date(issue.created_at)) -%></span>
         &nbsp;
       <% end %>
