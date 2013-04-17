@@ -160,8 +160,8 @@
 
   <rules
       id="500"
-      plugin_name="repo"
-      plugin_rule_key="rule"
+      plugin_name="squid"
+      plugin_rule_key="AvoidCycle"
       />
 
 </dataset>

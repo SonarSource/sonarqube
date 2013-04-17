@@ -22,9 +22,10 @@ package org.sonar.api.issue;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.sonar.api.rule.RuleKey;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * TODO add javadoc
@@ -33,16 +34,15 @@ import java.util.List;
  */
 public class IssueQuery {
 
-  private final List<String> keys;
-  private final List<String> severities;
-  private final List<String> statuses;
-  private final List<String> resolutions;
-  private final List<String> components;
-  private final List<String> componentRoots;
-  private final String ruleRepository;
-  private final String rule;
-  private final List<String> userLogins;
-  private final List<String> assigneeLogins;
+  private final Collection<String> keys;
+  private final Collection<String> severities;
+  private final Collection<String> statuses;
+  private final Collection<String> resolutions;
+  private final Collection<String> components;
+  private final Collection<String> componentRoots;
+  private final Collection<RuleKey> rules;
+  private final Collection<String> userLogins;
+  private final Collection<String> assigneeLogins;
   private final Date createdAfter;
   private final Date createdBefore;
   private final int limit, offset;
@@ -54,8 +54,7 @@ public class IssueQuery {
     this.resolutions = builder.resolutions;
     this.components = builder.components;
     this.componentRoots = builder.componentRoots;
-    this.ruleRepository = builder.ruleRepository;
-    this.rule = builder.rule;
+    this.rules = builder.rules;
     this.userLogins = builder.userLogins;
     this.assigneeLogins = builder.assigneeLogins;
     this.createdAfter = builder.createdAfter;
@@ -64,43 +63,39 @@ public class IssueQuery {
     this.offset = builder.offset;
   }
 
-  public List<String> keys() {
+  public Collection<String> keys() {
     return keys;
   }
 
-  public List<String> severities() {
+  public Collection<String> severities() {
     return severities;
   }
 
-  public List<String> statuses() {
+  public Collection<String> statuses() {
     return statuses;
   }
 
-  public List<String> resolutions() {
+  public Collection<String> resolutions() {
     return resolutions;
   }
 
-  public List<String> components() {
+  public Collection<String> components() {
     return components;
   }
 
-  public List<String> componentRoots() {
+  public Collection<String> componentRoots() {
     return componentRoots;
   }
 
-  public String ruleRepository() {
-    return ruleRepository;
+  public Collection<RuleKey> rules() {
+    return rules;
   }
 
-  public String rule() {
-    return rule;
-  }
-
-  public List<String> userLogins() {
+  public Collection<String> userLogins() {
     return userLogins;
   }
 
-  public List<String> assigneeLogins() {
+  public Collection<String> assigneeLogins() {
     return assigneeLogins;
   }
 
@@ -138,16 +133,15 @@ public class IssueQuery {
     private static final int MAX_LIMIT = 5000;
     private static final int DEFAULT_OFFSET = 0;
 
-    private List<String> keys;
-    private List<String> severities;
-    private List<String> statuses;
-    private List<String> resolutions;
-    private List<String> components;
-    private List<String> componentRoots;
-    private String ruleRepository;
-    private String rule;
-    private List<String> userLogins;
-    private List<String> assigneeLogins;
+    private Collection<String> keys;
+    private Collection<String> severities;
+    private Collection<String> statuses;
+    private Collection<String> resolutions;
+    private Collection<String> components;
+    private Collection<String> componentRoots;
+    private Collection<RuleKey> rules;
+    private Collection<String> userLogins;
+    private Collection<String> assigneeLogins;
     private Date createdAfter;
     private Date createdBefore;
     private int limit = DEFAULT_LIMIT;
@@ -156,52 +150,47 @@ public class IssueQuery {
     private Builder() {
     }
 
-    public Builder keys(List<String> l) {
+    public Builder keys(Collection<String> l) {
       this.keys = l;
       return this;
     }
 
-    public Builder severities(List<String> l) {
+    public Builder severities(Collection<String> l) {
       this.severities = l;
       return this;
     }
 
-    public Builder statuses(List<String> l) {
+    public Builder statuses(Collection<String> l) {
       this.statuses = l;
       return this;
     }
 
-    public Builder resolutions(List<String> l) {
+    public Builder resolutions(Collection<String> l) {
       this.resolutions = l;
       return this;
     }
 
-    public Builder components(List<String> l) {
+    public Builder components(Collection<String> l) {
       this.components = l;
       return this;
     }
 
-    public Builder componentRoots(List<String> l) {
+    public Builder componentRoots(Collection<String> l) {
       this.componentRoots = l;
       return this;
     }
 
-    public Builder ruleRepository(String ruleRepository) {
-      this.ruleRepository = ruleRepository;
+    public Builder rules(Collection<RuleKey> rules) {
+      this.rules = rules;
       return this;
     }
 
-    public Builder rule(String rule) {
-      this.rule = rule;
-      return this;
-    }
-
-    public Builder userLogins(List<String> l) {
+    public Builder userLogins(Collection<String> l) {
       this.userLogins = l;
       return this;
     }
 
-    public Builder assigneeLogins(List<String> l) {
+    public Builder assigneeLogins(Collection<String> l) {
       this.assigneeLogins = l;
       return this;
     }

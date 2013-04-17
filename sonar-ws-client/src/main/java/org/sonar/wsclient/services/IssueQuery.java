@@ -30,13 +30,11 @@ public final class IssueQuery extends Query<Issue> {
 
   private String[] keys;
   private String[] severities;
-  private String minSeverity;
   private String[] status;
   private String[] resolutions;
   private String[] components;
   private String[] componentRoots;
-  private String ruleRepository;
-  private String rule;
+  private String[] rules;
   private String[] userLogins;
   private String[] assigneeLogins;
   private Date createdAfter;
@@ -70,15 +68,6 @@ public final class IssueQuery extends Query<Issue> {
 
   public IssueQuery setSeverities(String... severities) {
     this.severities = severities;
-    return this;
-  }
-
-  public String getMinSeverity() {
-    return minSeverity;
-  }
-
-  public IssueQuery setMinSeverity(String minSeverity) {
-    this.minSeverity = minSeverity;
     return this;
   }
 
@@ -118,21 +107,12 @@ public final class IssueQuery extends Query<Issue> {
     return this;
   }
 
-  public String getRuleRepository() {
-    return ruleRepository;
+  public String[] getRules() {
+    return rules;
   }
 
-  public IssueQuery setRuleRepository(String ruleRepository) {
-    this.ruleRepository = ruleRepository;
-    return this;
-  }
-
-  public String getRule() {
-    return rule;
-  }
-
-  public IssueQuery setRule(String rule) {
-    this.rule = rule;
+  public IssueQuery setRules(String... s) {
+    this.rules = s;
     return this;
   }
 
@@ -196,13 +176,11 @@ public final class IssueQuery extends Query<Issue> {
     url.append('?');
     appendUrlParameter(url, "keys", keys);
     appendUrlParameter(url, "severities", severities);
-    appendUrlParameter(url, "minSeverity", minSeverity);
-    appendUrlParameter(url, "status", status);
+    appendUrlParameter(url, "statuses", status);
     appendUrlParameter(url, "resolutions", resolutions);
     appendUrlParameter(url, "components", components);
     appendUrlParameter(url, "componentRoots", componentRoots);
-    appendUrlParameter(url, "ruleRepository", ruleRepository);
-    appendUrlParameter(url, "rule", rule);
+    appendUrlParameter(url, "rules", rules);
     appendUrlParameter(url, "userLogins", userLogins);
     appendUrlParameter(url, "assigneeLogins", assigneeLogins);
     appendUrlParameter(url, "createdAfter", createdAfter);

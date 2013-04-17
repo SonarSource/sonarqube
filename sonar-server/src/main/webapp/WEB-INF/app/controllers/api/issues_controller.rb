@@ -41,8 +41,8 @@ class Api::IssuesController < Api::ApiController
     json = {
         :key => issue.key,
         :component => issue.componentKey,
-        :ruleRepository => issue.ruleRepositoryKey,
-        :rule => issue.ruleKey,
+        :ruleRepository => issue.ruleKey.repository,
+        :rule => issue.ruleKey.rule
     }
     json[:severity] = issue.severity if issue.severity
     json[:title] = issue.title if issue.title

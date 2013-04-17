@@ -25,8 +25,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -49,20 +49,15 @@ import static org.mockito.Mockito.*;
 
 public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
 
-  private IssuesWorkflowDecorator decorator;
-  private ModuleIssues moduleIssues;
-  private InitialOpenIssuesStack initialOpenIssuesStack;
-  private IssueTracking issueTracking;
-  private RuleFinder ruleFinder;
+  IssuesWorkflowDecorator decorator;
+  ModuleIssues moduleIssues = mock(ModuleIssues.class);
+  InitialOpenIssuesStack initialOpenIssuesStack = mock(InitialOpenIssuesStack.class);
+  IssueTracking issueTracking = mock(IssueTracking.class);
+  RuleFinder ruleFinder = mock(RuleFinder.class);
 
   @Before
   public void init() {
-    moduleIssues = mock(ModuleIssues.class);
-    initialOpenIssuesStack = mock(InitialOpenIssuesStack.class);
-    issueTracking = mock(IssueTracking.class);
-    ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.findById(anyInt())).thenReturn(Rule.create());
-
+    when(ruleFinder.findById(anyInt())).thenReturn(Rule.create().setRepositoryKey("squid").setKey("AvoidCycle"));
     decorator = new IssuesWorkflowDecorator(moduleIssues, initialOpenIssuesStack, issueTracking, ruleFinder);
   }
 
@@ -86,8 +81,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
         new IssueDto().setUuid("100").setRuleId(10)));
 
-    Resource resource = new JavaFile("key");
-    decorator.decorate(resource, null);
+    decorator.decorate(mock(Resource.class), null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(moduleIssues).addOrUpdate(argument.capture());
@@ -101,8 +95,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
         new IssueDto().setUuid("100").setRuleId(1).setManualIssue(true).setStatus(Issue.STATUS_RESOLVED)));
 
-    Resource resource = new JavaFile("key");
-    decorator.decorate(resource, null);
+    decorator.decorate(mock(Resource.class), null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(moduleIssues).addOrUpdate(argument.capture());
@@ -117,8 +110,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
         new IssueDto().setUuid("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FIXED)));
 
-    Resource resource = new JavaFile("key");
-    decorator.decorate(resource, null);
+    decorator.decorate(mock(Resource.class), null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(moduleIssues, times(2)).addOrUpdate(argument.capture());
@@ -138,8 +130,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
         new IssueDto().setUuid("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)));
 
-    Resource resource = new JavaFile("key");
-    decorator.decorate(resource, null);
+    decorator.decorate(mock(Resource.class), null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(moduleIssues, times(2)).addOrUpdate(argument.capture());
@@ -153,13 +144,14 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  @Ignore // TODO
+  @Ignore
   public void should_close_remaining_open_issue_on_root_project() {
     when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
         new IssueDto().setUuid("100").setRuleId(1)));
 
-    Resource resource = new Project("key");
+    Resource resource = mock(Resource.class);
+    when(resource.getQualifier()).thenReturn(Qualifiers.PROJECT);
     decorator.decorate(resource, null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);

@@ -19,14 +19,19 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.base.Function;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.JRubyIssues;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.ui.JRubyFacades;
 
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -51,16 +56,15 @@ public class DefaultJRubyIssues implements JRubyIssues {
 
   IssueQuery newQuery(Map<String, Object> props) {
     IssueQuery.Builder builder = IssueQuery.builder();
-    builder.keys(toStringList(props.get("keys")));
-    builder.severities(toStringList(props.get("severities")));
-    builder.statuses(toStringList(props.get("statuses")));
-    builder.resolutions(toStringList(props.get("resolutions")));
-    builder.components(toStringList(props.get("components")));
-    builder.componentRoots(toStringList(props.get("componentRoots")));
-    builder.rule(toString(props.get("rule")));
-    builder.ruleRepository(toString(props.get("ruleRepository")));
-    builder.userLogins(toStringList(props.get("userLogins")));
-    builder.assigneeLogins(toStringList(props.get("assigneeLogins")));
+    builder.keys(toStrings(props.get("keys")));
+    builder.severities(toStrings(props.get("severities")));
+    builder.statuses(toStrings(props.get("statuses")));
+    builder.resolutions(toStrings(props.get("resolutions")));
+    builder.components(toStrings(props.get("components")));
+    builder.componentRoots(toStrings(props.get("componentRoots")));
+    builder.rules(toRules(props.get("rules")));
+    builder.userLogins(toStrings(props.get("userLogins")));
+    builder.assigneeLogins(toStrings(props.get("assigneeLogins")));
     builder.createdAfter(toDate(props.get("createdAfter")));
     builder.createdBefore(toDate(props.get("createdBefore")));
     builder.limit(toInteger(props.get("limit")));
@@ -68,7 +72,30 @@ public class DefaultJRubyIssues implements JRubyIssues {
     return builder.build();
   }
 
-  List<String> toStringList(Object o) {
+  @SuppressWarnings("unchecked")
+  static Collection<RuleKey> toRules(Object o) {
+    Collection<RuleKey> result = null;
+    if (o != null) {
+      if (o instanceof List) {
+        // assume that it contains only strings
+        result = stringsToRules((List<String>) o);
+      } else if (o instanceof String) {
+        result = stringsToRules(Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((String) o)));
+      }
+    }
+    return result;
+  }
+
+  private static Collection<RuleKey> stringsToRules(Collection<String> o) {
+    return Collections2.transform(o, new Function<String, RuleKey>() {
+      @Override
+      public RuleKey apply(@Nullable String s) {
+        return s != null ? RuleKey.parse(s) : null;
+      }
+    });
+  }
+
+  static List<String> toStrings(Object o) {
     List<String> result = null;
     if (o != null) {
       if (o instanceof List) {
@@ -91,14 +118,7 @@ public class DefaultJRubyIssues implements JRubyIssues {
     return null;
   }
 
-  String toString(Object o) {
-    if (o instanceof String) {
-      return ((String) o);
-    }
-    return null;
-  }
-
-  Date toDate(Object o){
+  Date toDate(Object o) {
     if (o instanceof Date) {
       return (Date) o;
     }

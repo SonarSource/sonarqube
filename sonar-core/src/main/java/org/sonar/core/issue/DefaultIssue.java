@@ -130,7 +130,7 @@ public class DefaultIssue implements Issue, Serializable {
   }
 
   public DefaultIssue setLine(@Nullable Integer l) {
-    Preconditions.checkArgument(l == null || l > 0, "Line must be greater than zero (got " + l + ")");
+    Preconditions.checkArgument(l == null || l > 0, "Line must be null or greater than zero (got " + l + ")");
     this.line = l;
     return this;
   }

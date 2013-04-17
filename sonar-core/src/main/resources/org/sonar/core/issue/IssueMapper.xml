@@ -107,7 +107,7 @@
     <if test="components != null and components.size() > 0">
       , projects project_component
     </if>
-    <if test="ruleRepository != null and rule != null">
+    <if test="rules != null and rules.size() > 0">
       , rules r
     </if>
     <where>
@@ -169,9 +169,9 @@
         <foreach item="assigneeLogin" index="index" collection="assigneeLogins" open="(" separator="," close=")">#{assigneeLogin}
         </foreach>
       </if>
-      <if test="ruleRepository != null and rule != null">
-        and r.plugin_name = #{ruleRepository} and r.plugin_rule_key = #{rule}
+      <if test="rules != null and rules.size() > 0">
         and i.rule_id = r.id
+        and (<foreach item="rule" index="index" collection="rules" open="(" separator=" or " close=")">r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
       </if>
       <if test="createdAfter">
         and i.created_at &gt; #{createdAfter}

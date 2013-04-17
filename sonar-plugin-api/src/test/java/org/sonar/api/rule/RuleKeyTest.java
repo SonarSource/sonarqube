@@ -33,6 +33,46 @@ public class RuleKeyTest {
   }
 
   @Test
+  public void repository_must_not_be_null() throws Exception {
+    try {
+      RuleKey.of(null, "NullDeref");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Repository must be set");
+    }
+  }
+
+  @Test
+  public void repository_must_not_be_empty() throws Exception {
+    try {
+      RuleKey.of("", "NullDeref");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Repository must be set");
+    }
+  }
+
+  @Test
+  public void rule_must_not_be_null() throws Exception {
+    try {
+      RuleKey.of("squid", null);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Rule must be set");
+    }
+  }
+
+  @Test
+  public void rule_must_not_be_empty() throws Exception {
+    try {
+      RuleKey.of("squid", "");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Rule must be set");
+    }
+  }
+
+  @Test
   public void should_encode_and_decode_string() throws Exception {
     RuleKey key = RuleKey.of("squid", "NullDeref");
     String serialized = key.toString();

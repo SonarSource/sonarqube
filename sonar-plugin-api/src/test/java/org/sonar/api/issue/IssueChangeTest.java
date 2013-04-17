@@ -19,32 +19,23 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.ServerComponent;
+import org.junit.Test;
 
-import java.util.Map;
+import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Facade for JRuby on Rails extensions to request issues.
- * <p>
- * Reference from Ruby code : <code>Api.issues</code>
- * </p>
- *
- * @since 3.6
- */
-public interface JRubyIssues extends ServerComponent {
-
-  /**
-   * Search for issues.
-   *
-   * <p>
-   *   Ruby: <code>Api.issues.find(hash_of_parameters, current_user.id)</code>
-   * </p>
-   *
-   * <p>Parameters</p>
-   * <ul>
-   *   TODO document parameters
-   * </ul>
-   */
-  IssueFinder.Results find(Map<String, Object> parameters, Integer currentUserId);
-
+public class IssueChangeTest {
+  @Test
+  public void should_not_have_changes_by_default() throws Exception {
+    IssueChange change = IssueChange.create();
+    assertThat(change.hasChanges()).isFalse();
+    assertThat(change.severity()).isNull();
+    assertThat(change.cost()).isNull();
+    assertThat(change.assigneeLogin()).isNull();
+    assertThat(change.line()).isNull();
+    assertThat(change.comment()).isNull();
+    assertThat(change.message()).isNull();
+    assertThat(change.resolution()).isNull();
+    assertThat(change.manualSeverity()).isNull();
+    assertThat(change.attributes()).isEmpty();
+  }
 }

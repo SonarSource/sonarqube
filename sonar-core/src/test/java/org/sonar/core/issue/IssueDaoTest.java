@@ -23,6 +23,7 @@ package org.sonar.core.issue;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
@@ -67,7 +68,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     dao.insert(issueDto);
 
-    checkTables("insert", new String[] {"id", "created_at", "updated_at", "closed_at"}, "issues");
+    checkTables("insert", new String[]{"id", "created_at", "updated_at", "closed_at"}, "issues");
   }
 
   @Test
@@ -158,11 +159,14 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_issue_by_rule() {
+  public void should_find_issue_by_rules() {
     setupData("select");
 
-    IssueQuery issueQuery = IssueQuery.builder().rule("rule").ruleRepository("repo").build();
+    IssueQuery issueQuery = IssueQuery.builder().rules(newArrayList(RuleKey.of("squid", "AvoidCycle"))).build();
     assertThat(dao.select(issueQuery)).hasSize(4);
+
+    issueQuery = IssueQuery.builder().rules(newArrayList(RuleKey.of("squid", "Other"))).build();
+    assertThat(dao.select(issueQuery)).isEmpty();
   }
 
   @Test

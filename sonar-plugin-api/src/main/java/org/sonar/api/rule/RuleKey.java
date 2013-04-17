@@ -20,9 +20,14 @@
 package org.sonar.api.rule;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 import java.io.Serializable;
 
+/**
+ * Key of a rule. Unique among all the rule repositories.
+ * @since 3.6
+ */
 public class RuleKey implements Serializable {
   private final String repository, rule;
 
@@ -31,20 +36,35 @@ public class RuleKey implements Serializable {
     this.rule = rule;
   }
 
+  /**
+   * Create a key. Parameters are NOT null.
+   */
   public static RuleKey of(String repository, String rule) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(repository), "Repository must be set");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(rule), "Rule must be set");
     return new RuleKey(repository, rule);
   }
 
+  /**
+   * Create a key from a string representation (see {@link #toString()}. An {@link IllegalArgumentException} is raised
+   * if the format is not valid.
+   */
   public static RuleKey parse(String s) {
     String[] split = s.split(":");
     Preconditions.checkArgument(split.length == 2, "Bad format of rule key: " + s);
     return RuleKey.of(split[0], split[1]);
   }
 
+  /**
+   * Never null
+   */
   public String repository() {
     return repository;
   }
 
+  /**
+   * Never null
+   */
   public String rule() {
     return rule;
   }
@@ -75,7 +95,7 @@ public class RuleKey implements Serializable {
   }
 
   /**
-   * Do not change this format because it's used by customers of the API (rails, ...)
+   * Format is "repository:rule", for example "squid:AvoidCycle"
    */
   @Override
   public String toString() {

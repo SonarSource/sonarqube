@@ -25,12 +25,14 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -65,26 +67,43 @@ public class DefaultJRubyIssuesTest {
     map.put("assigneeLogins", newArrayList("joanna"));
     map.put("createdAfter", "2013-04-16T09:08:24+0200");
     map.put("createdBefore", "2013-04-17T09:08:24+0200");
-    map.put("rule", "rule");
-    map.put("ruleRepository", "ruleRepository");
+    map.put("rules", "squid:AvoidCycle,findbugs:NullReference");
     map.put("limit", 10);
     map.put("offset", 50);
 
     IssueQuery query = new DefaultJRubyIssues(finder).newQuery(map);
     assertThat(query.keys()).containsOnly("ABCDE1234");
-    assertThat(query.severities()).containsExactly("MAJOR", "MINOR");
+    assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
     assertThat(query.statuses()).containsOnly("CLOSED");
     assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
     assertThat(query.components()).containsOnly("org.apache");
     assertThat(query.componentRoots()).containsOnly("org.sonar");
     assertThat(query.userLogins()).containsOnly("marilyn");
     assertThat(query.assigneeLogins()).containsOnly("joanna");
-    assertThat(query.rule()).isEqualTo("rule");
-    assertThat(query.ruleRepository()).isEqualTo("ruleRepository");
+    assertThat(query.rules()).hasSize(2);
     assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
     assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));
     assertThat(query.limit()).isEqualTo(10);
     assertThat(query.offset()).isEqualTo(50);
+  }
+
+  @Test
+  public void should_parse_list_of_rules() {
+    assertThat(DefaultJRubyIssues.toRules(null)).isNull();
+    assertThat(DefaultJRubyIssues.toRules("")).isEmpty();
+    assertThat(DefaultJRubyIssues.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
+    assertThat(DefaultJRubyIssues.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
+    assertThat(DefaultJRubyIssues.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
+  }
+
+  @Test
+  public void should_parse_list_of_strings() {
+    assertThat(DefaultJRubyIssues.toStrings(null)).isNull();
+    assertThat(DefaultJRubyIssues.toStrings("")).isEmpty();
+    assertThat(DefaultJRubyIssues.toStrings("foo")).containsOnly("foo");
+    assertThat(DefaultJRubyIssues.toStrings("foo,bar")).containsOnly("foo", "bar");
+    assertThat(DefaultJRubyIssues.toStrings(asList("foo","bar"))).containsOnly("foo", "bar");
+
   }
 
   @Test

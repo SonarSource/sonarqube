@@ -37,22 +37,20 @@ public class IssueQueryTest extends QueryTestCase {
   @Test
   public void get_all_issues_by_parameter() {
     IssueQuery query = IssueQuery.create()
-        .setKeys("key1", "key2")
-        .setAssigneeLogins("assigneeLogin1", "assigneeLogin2")
+        .setKeys("ABCDE", "FGHIJ")
+        .setAssigneeLogins("arthur", "perceval")
         .setComponents("component1", "component2")
         .setComponentRoots("componentRoot1", "componentRoot2")
         .setLimit(1)
-        .setMinSeverity("minSev")
-        .setResolutions("resoltion1", "resolution2")
-        .setRuleRepository("ruleRepo")
-        .setRule("rule")
-        .setStatus("status1", "status2")
-        .setSeverities("sev1", "sev2")
+        .setResolutions("resolution1", "resolution2")
+        .setRules("squid:AvoidCycle")
+        .setStatus("OPEN", "CLOSED")
+        .setSeverities("BLOCKER", "INFO")
         .setUserLogins("userLogin1", "userLogin2")
         ;
-    assertThat(query.getUrl()).isEqualTo("/api/issues/search?keys=key1,key2&severities=sev1,sev2&minSeverity=minSev&status=status1,status2&" +
-        "resolutions=resoltion1,resolution2&components=component1,component2&componentRoots=componentRoot1,componentRoot2&ruleRepository=ruleRepo&rule=rule&" +
-        "userLogins=userLogin1,userLogin2&assigneeLogins=assigneeLogin1,assigneeLogin2&limit=1&");
+    assertThat(query.getUrl()).isEqualTo("/api/issues/search?keys=ABCDE,FGHIJ&severities=BLOCKER,INFO&statuses=OPEN,CLOSED&" +
+        "resolutions=resolution1,resolution2&components=component1,component2&componentRoots=componentRoot1,componentRoot2&rules=squid%3AAvoidCycle&" +
+        "userLogins=userLogin1,userLogin2&assigneeLogins=arthur,perceval&limit=1&");
   }
 
   @Test
