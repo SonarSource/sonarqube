@@ -23,10 +23,13 @@ package org.sonar.core.source;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.source.jdbc.SnapshotDataDao;
+import org.sonar.core.source.jdbc.SnapshotSourceDao;
 
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
@@ -38,11 +41,11 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void should_highlight_syntax_with_html() throws Exception {
 
-    HtmlSourceDecorator highlighter = new HtmlSourceDecorator(getMyBatis());
+    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(getMyBatis());
 
-    List<String> highlightedSource = (List<String>) highlighter.getDecoratedSourceAsHtml(11L);
+    List<String> decoratedSource = (List<String>) sourceDecorator.getDecoratedSourceAsHtml(11L);
 
-    assertThat(highlightedSource).containsExactly(
+    assertThat(decoratedSource).containsExactly(
       "<span class=\"cppd\">/*</span>",
       "<span class=\"cppd\"> * Header</span>",
       "<span class=\"cppd\"> */</span>",
@@ -55,11 +58,11 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void should_mark_symbols_with_html() throws Exception {
 
-    HtmlSourceDecorator highlighter = new HtmlSourceDecorator(getMyBatis());
+    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(getMyBatis());
 
-    List<String> highlightedSource = (List<String>) highlighter.getDecoratedSourceAsHtml(12L);
+    List<String> decoratedSource = (List<String>) sourceDecorator.getDecoratedSourceAsHtml(12L);
 
-    assertThat(highlightedSource).containsExactly(
+    assertThat(decoratedSource).containsExactly(
       "/*",
       " * Header",
       " */",
@@ -72,11 +75,11 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void should_decorate_source_with_multiple_decoration_strategies() throws Exception {
 
-    HtmlSourceDecorator highlighter = new HtmlSourceDecorator(getMyBatis());
+    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(getMyBatis());
 
-    List<String> highlightedSource = (List<String>) highlighter.getDecoratedSourceAsHtml(13L);
+    List<String> decoratedSource = (List<String>) sourceDecorator.getDecoratedSourceAsHtml(13L);
 
-    assertThat(highlightedSource).containsExactly(
+    assertThat(decoratedSource).containsExactly(
       "<span class=\"cppd\">/*</span>",
       "<span class=\"cppd\"> * Header</span>",
       "<span class=\"cppd\"> */</span>",
@@ -89,5 +92,19 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
       "  }",
       "}"
     );
+  }
+
+  @Test
+  public void should_not_query_sources_if_no_snapshot_data() throws Exception {
+
+    SnapshotSourceDao snapshotSourceDao = mock(SnapshotSourceDao.class);
+    SnapshotDataDao snapshotDataDao = mock(SnapshotDataDao.class);
+
+    HtmlSourceDecorator sourceDecorator = new HtmlSourceDecorator(snapshotSourceDao, snapshotDataDao);
+
+    sourceDecorator.getDecoratedSourceAsHtml(14L);
+
+    verify(snapshotDataDao, times(1)).selectSnapshotData(14L);
+    verify(snapshotSourceDao, times(0)).selectSnapshotSource(14L);
   }
 }

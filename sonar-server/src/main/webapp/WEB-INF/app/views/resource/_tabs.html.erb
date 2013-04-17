@@ -23,7 +23,7 @@
     <ul class="tablinks">
       <%
          first=true
-         if @snapshot.source && has_role?(:codeviewer, @snapshot)
+         if @snapshot.has_source && has_role?(:codeviewer, @snapshot)
       %>
         <li class="<%= 'first' if first -%>">
           <a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&amp;format=txt"><%= message('raw') -%></a>

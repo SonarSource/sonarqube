@@ -256,6 +256,9 @@ class Snapshot < ActiveRecord::Base
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getHighlightedSourceLines(id)
   end
 
+  def has_source
+    SnapshotSource.count('id', :conditions => "snapshot_id = #{id}") > 0
+  end
 
   private
 

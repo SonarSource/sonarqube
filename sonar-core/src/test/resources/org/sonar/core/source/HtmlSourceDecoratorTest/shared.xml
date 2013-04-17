@@ -5,6 +5,7 @@
     <snapshots id="11" project_id="1" islast="[true]" />
     <snapshots id="12" project_id="2" islast="[true]" />
     <snapshots id="13" project_id="3" islast="[true]" />
+    <snapshots id="14" project_id="3" islast="[true]" />
 
     <snapshot_data id="101" resource_id="1" snapshot_id="11" data="0,16,cppd;18,25,k;25,31,k;" data_type="highlight_syntax" />
     <snapshot_data id="102" resource_id="2" snapshot_id="12" data="31,41,31;" data_type="symbol" />

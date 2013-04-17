@@ -20,6 +20,7 @@
 
 package org.sonar.core.source;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
@@ -37,23 +38,31 @@ public class HtmlSourceDecorator {
   private final SnapshotDataDao snapshotDataDao;
 
   public HtmlSourceDecorator(MyBatis myBatis) {
-    snapshotSourceDao = new SnapshotSourceDao(myBatis);
-    snapshotDataDao = new SnapshotDataDao(myBatis);
+    this.snapshotSourceDao = new SnapshotSourceDao(myBatis);
+    this.snapshotDataDao = new SnapshotDataDao(myBatis);
+  }
+
+  @VisibleForTesting
+  protected HtmlSourceDecorator(SnapshotSourceDao snapshotSourceDao, SnapshotDataDao snapshotDataDao) {
+    this.snapshotSourceDao = snapshotSourceDao;
+    this.snapshotDataDao= snapshotDataDao;
   }
 
   public Collection<String> getDecoratedSourceAsHtml(long snapshotId) {
 
-    String snapshotSource = snapshotSourceDao.selectSnapshotSource(snapshotId);
     Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotData(snapshotId);
 
-    if (snapshotSource != null && snapshotDataEntries != null) {
-      DecorationDataHolder decorationDataHolder = new DecorationDataHolder();
-      for (SnapshotDataDto snapshotDataEntry : snapshotDataEntries) {
-        loadSnapshotData(decorationDataHolder, snapshotDataEntry);
-      }
+    if (!snapshotDataEntries.isEmpty()) {
+      String snapshotSource = snapshotSourceDao.selectSnapshotSource(snapshotId);
+      if(snapshotSource != null) {
+        DecorationDataHolder decorationDataHolder = new DecorationDataHolder();
+        for (SnapshotDataDto snapshotDataEntry : snapshotDataEntries) {
+          loadSnapshotData(decorationDataHolder, snapshotDataEntry);
+        }
 
-      HtmlTextDecorator textDecorator = new HtmlTextDecorator();
-      return textDecorator.decorateTextWithHtml(snapshotSource, decorationDataHolder);
+        HtmlTextDecorator textDecorator = new HtmlTextDecorator();
+        return textDecorator.decorateTextWithHtml(snapshotSource, decorationDataHolder);
+      }
     }
     return null;
   }

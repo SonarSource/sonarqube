@@ -160,7 +160,8 @@ class ResourceController < ApplicationController
     @period = params[:period].to_i unless params[:period].blank?
     @expanded=(params[:expand]=='true')
     @display_manual_violation_form=(current_user && has_role?(:user, @snapshot))
-    if @snapshot.source
+
+    if @snapshot.has_source
       source_lines = @snapshot.highlighting_data || @snapshot.source.syntax_highlighted_lines()
       init_scm()
 
