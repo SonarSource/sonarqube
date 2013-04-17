@@ -20,38 +20,44 @@
 
 package org.sonar.batch.issue;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
 import org.sonar.api.BatchExtension;
 import org.sonar.core.issue.IssueDto;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class InitialOpenIssuesStack implements BatchExtension {
 
-  private List<IssueDto> issues;
+  private ListMultimap<Integer, IssueDto> issuesByResourceId;
 
   public InitialOpenIssuesStack() {
-
+    issuesByResourceId = ArrayListMultimap.create();
   }
 
   public void setIssues(List<IssueDto> issues){
-    this.issues = issues;
+    for (IssueDto issueDto : issues) {
+      issuesByResourceId.put(issueDto.getResourceId(), issueDto);
+    }
   }
 
   public List<IssueDto> selectAndRemove(final Integer resourceId){
-    Predicate resourcePredicate = new Predicate<IssueDto>() {
-      @Override
-      public boolean apply(IssueDto issueDto) {
-        return issueDto.getResourceId().equals(resourceId);
-      }
-    };
+    List<IssueDto> foundIssuesDto = issuesByResourceId.get(resourceId);
+    if (!foundIssuesDto.isEmpty()) {
+      List<IssueDto> issuesDto = ImmutableList.copyOf(foundIssuesDto);
+      issuesByResourceId.removeAll(resourceId);
+      return issuesDto;
+    } else {
+      return Collections.emptyList();
+    }
+  }
 
-    List<IssueDto> issuesDto = newArrayList(Iterables.find(issues, resourcePredicate));
-    Iterables.removeIf(issuesDto, resourcePredicate);
-
-    return issuesDto;
+  @VisibleForTesting
+  Collection<IssueDto> getAllIssues(){
+    return issuesByResourceId.values();
   }
 }

@@ -34,6 +34,7 @@ import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.dashboards.*;
 import org.sonar.plugins.core.issue.IssueTracking;
+import org.sonar.plugins.core.issue.IssuesWorkflowDecorator;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
@@ -395,6 +396,7 @@ public final class CorePlugin extends SonarPlugin {
         CheckAlertThresholds.class,
         GenerateAlertEvents.class,
         ViolationsDecorator.class,
+        IssuesWorkflowDecorator.class,
         InitialOpenIssuesSensor.class,
         InitialOpenIssuesStack.class,
         IssuesDecorator.class,

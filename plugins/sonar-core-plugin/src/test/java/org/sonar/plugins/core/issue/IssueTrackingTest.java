@@ -60,7 +60,7 @@ public class IssueTrackingTest {
 
     Project project = mock(Project.class);
     when(project.getAnalysisDate()).thenReturn(analysisDate);
-    decorator = new IssueTracking(project, null, ruleFinder, null, null);
+    decorator = new IssueTracking(project, ruleFinder, null, null);
   }
 
   @Test

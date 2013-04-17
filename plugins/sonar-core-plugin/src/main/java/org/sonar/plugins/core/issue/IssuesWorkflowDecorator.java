@@ -21,33 +21,35 @@ package org.sonar.plugins.core.issue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.InitialOpenIssuesStack;
 import org.sonar.batch.issue.ModuleIssues;
-import org.sonar.core.DryRunIncompatible;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
-@DryRunIncompatible
-@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
-@DependedUpon(IssuesWorkflowDecorator.END_OF_ISSUES_UPDATES)
-public class IssuesWorkflowDecorator implements Decorator {
+import static com.google.common.collect.Lists.newArrayList;
 
-  public static final String END_OF_ISSUES_UPDATES = "END_OF_ISSUES_UPDATES";
+@DependedUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
+public class IssuesWorkflowDecorator implements Decorator {
 
   private final ModuleIssues moduleIssues;
   private final InitialOpenIssuesStack initialOpenIssuesStack;
@@ -66,11 +68,13 @@ public class IssuesWorkflowDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    Collection<Issue> newIssues = moduleIssues.issues(resource.getEffectiveKey());
-    Collection<IssueDto> openIssues = initialOpenIssuesStack.selectAndRemove(resource.getId());
-    if (!openIssues.isEmpty()) {
-      issueTracking.track(resource, openIssues, (List) newIssues);
-      updateIssues(newIssues);
+    if (isComponentSupported(resource)) {
+      Collection<Issue> newIssues = moduleIssues.issues(resource.getEffectiveKey());
+      Collection<IssueDto> openIssues = initialOpenIssuesStack.selectAndRemove(resource.getId());
+
+      Collection<DefaultIssue> newDefaultIssues = toDefaultIssues(newIssues);
+      issueTracking.track(resource, openIssues, newDefaultIssues);
+      updateIssues(newDefaultIssues);
 
       addManualIssuesAndCloseResolvedOnes(openIssues, resource);
       closeResolvedStandardIssues(openIssues, newIssues, resource);
@@ -84,9 +88,9 @@ public class IssuesWorkflowDecorator implements Decorator {
     }
   }
 
-  private void updateIssues(Collection<Issue> newIssues) {
-    for (Issue issue : newIssues) {
-      moduleIssues.addOrUpdate((DefaultIssue) issue);
+  private void updateIssues(Collection<DefaultIssue> newIssues) {
+    for (DefaultIssue issue : newIssues) {
+      moduleIssues.addOrUpdate(issue);
     }
   }
 
@@ -112,7 +116,6 @@ public class IssuesWorkflowDecorator implements Decorator {
     }
   }
 
-
   private void keepFalsePositiveIssues(Collection<IssueDto> openIssues, Resource resource) {
     for (IssueDto openIssue : openIssues) {
       if (!openIssue.isManualIssue() && Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())) {
@@ -128,7 +131,7 @@ public class IssuesWorkflowDecorator implements Decorator {
   private void reopenUnresolvedIssues(Collection<IssueDto> openIssues, Resource resource) {
     for (IssueDto openIssue : openIssues) {
       if (Issue.STATUS_RESOLVED.equals(openIssue.getStatus()) && !Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())
-        && !openIssue.isManualIssue()) {
+          && !openIssue.isManualIssue()) {
         reopenAndSave(openIssue, resource);
       }
     }
@@ -187,6 +190,19 @@ public class IssuesWorkflowDecorator implements Decorator {
     Rule rule = ruleFinder.findById(dto.getRuleId());
     issue.setRuleKey(rule.ruleKey());
     return issue;
+  }
+
+  private Collection<DefaultIssue> toDefaultIssues(Collection<Issue> issues) {
+    return newArrayList(Iterables.transform(issues, new Function<Issue, DefaultIssue>() {
+      @Override
+      public DefaultIssue apply(Issue issue) {
+        return (DefaultIssue) issue;
+      }
+    }));
+  }
+
+  private boolean isComponentSupported(Resource resource) {
+    return Scopes.isHigherThanOrEquals(resource.getScope(), Scopes.FILE);
   }
 
   private static final class IssueToKeyfunction implements Function<Issue, String> {

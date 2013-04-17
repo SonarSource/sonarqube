@@ -25,8 +25,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.*;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
@@ -38,6 +36,7 @@ import org.sonar.plugins.core.timemachine.ViolationTrackingBlocksRecognizer;
 import org.sonar.plugins.core.timemachine.tracking.*;
 
 import javax.annotation.Nullable;
+
 import java.util.*;
 
 public class IssueTracking implements BatchExtension {
@@ -48,7 +47,6 @@ public class IssueTracking implements BatchExtension {
     }
   };
   private final Project project;
-  private final ResourcePerspectives perspectives;
   private final RuleFinder ruleFinder;
   private final LastSnapshots lastSnapshots;
   private final SonarIndex index;
@@ -61,22 +59,16 @@ public class IssueTracking implements BatchExtension {
    */
   private Map<DefaultIssue, IssueDto> referenceIssuesMap = Maps.newIdentityHashMap();
 
-  public IssueTracking(Project project, ResourcePerspectives perspectives, RuleFinder ruleFinder, LastSnapshots lastSnapshots, SonarIndex index) {
+  public IssueTracking(Project project, RuleFinder ruleFinder, LastSnapshots lastSnapshots, SonarIndex index) {
     this.project = project;
-    this.perspectives = perspectives;
     this.ruleFinder = ruleFinder;
     this.lastSnapshots = lastSnapshots;
     this.index = index;
   }
 
-  public void track(Resource resource, Collection<IssueDto> referenceIssues, List<DefaultIssue> newIssues) {
+  public void track(Resource resource, Collection<IssueDto> referenceIssues, Collection<DefaultIssue> newIssues) {
     referenceIssuesMap.clear();
 
-    // Load new issues
-    Issuable issuable = perspectives.as(Issuable.class, resource);
-    if (issuable == null || issuable.issues().isEmpty()) {
-      return;
-    }
     String source = index.getSource(resource);
     setChecksumOnNewIssues(newIssues, source);
 
@@ -84,7 +76,7 @@ public class IssueTracking implements BatchExtension {
     mapIssues(newIssues, referenceIssues, source, resource);
   }
 
-  private void setChecksumOnNewIssues(List<DefaultIssue> issues, String source) {
+  private void setChecksumOnNewIssues(Collection<DefaultIssue> issues, String source) {
     List<String> checksums = SourceChecksum.lineChecksumsOfFile(source);
     for (DefaultIssue issue : issues) {
       issue.setChecksum(SourceChecksum.getChecksumForLine(checksums, issue.line()));
@@ -92,12 +84,12 @@ public class IssueTracking implements BatchExtension {
   }
 
   @VisibleForTesting
-  Map<DefaultIssue, IssueDto> mapIssues(List<DefaultIssue> newIssues, @Nullable List<IssueDto> lastIssues) {
+  Map<DefaultIssue, IssueDto> mapIssues(Collection<DefaultIssue> newIssues, @Nullable List<IssueDto> lastIssues) {
     return mapIssues(newIssues, lastIssues, null, null);
   }
 
   @VisibleForTesting
-  Map<DefaultIssue, IssueDto> mapIssues(List<DefaultIssue> newIssues, @Nullable Collection<IssueDto> lastIssues, @Nullable String source, @Nullable Resource resource) {
+  Map<DefaultIssue, IssueDto> mapIssues(Collection<DefaultIssue> newIssues, @Nullable Collection<IssueDto> lastIssues, @Nullable String source, @Nullable Resource resource) {
     boolean hasLastScan = false;
     Multimap<Integer, IssueDto> lastIssuesByRule = LinkedHashMultimap.create();
 
@@ -121,7 +113,7 @@ public class IssueTracking implements BatchExtension {
     return referenceIssuesMap;
   }
 
-  private void mapLastIssues(List<DefaultIssue> newIssues, Collection<IssueDto> lastIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
+  private void mapLastIssues(Collection<DefaultIssue> newIssues, Collection<IssueDto> lastIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
     unmappedLastIssues.addAll(lastIssues);
 
     for (IssueDto lastIssue : lastIssues) {
@@ -145,7 +137,7 @@ public class IssueTracking implements BatchExtension {
     }
   }
 
-  private void mapNewissues(String referenceSource, List<DefaultIssue> newIssues, Multimap<Integer, IssueDto> lastIssuesByRule, String source) {
+  private void mapNewissues(String referenceSource, Collection<DefaultIssue> newIssues, Multimap<Integer, IssueDto> lastIssuesByRule, String source) {
     HashedSequence<StringText> hashedReference = HashedSequence.wrap(new StringText(referenceSource), StringTextComparator.IGNORE_WHITESPACE);
     HashedSequence<StringText> hashedSource = HashedSequence.wrap(new StringText(source), StringTextComparator.IGNORE_WHITESPACE);
     HashedSequenceComparator<StringText> hashedComparator = new HashedSequenceComparator<StringText>(StringTextComparator.IGNORE_WHITESPACE);
@@ -210,7 +202,7 @@ public class IssueTracking implements BatchExtension {
     }
   }
 
-  private void mapIssuesOnSameRule(List<DefaultIssue> newIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
+  private void mapIssuesOnSameRule(Collection<DefaultIssue> newIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
     // Try then to match issues on same rule with same message and with same checksum
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {

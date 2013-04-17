@@ -44,7 +44,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
+@DependsUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
 public class NewIssuesDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;

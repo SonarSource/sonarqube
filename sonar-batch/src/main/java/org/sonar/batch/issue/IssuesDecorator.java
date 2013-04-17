@@ -38,7 +38,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
+@DependsUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
 public class IssuesDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
