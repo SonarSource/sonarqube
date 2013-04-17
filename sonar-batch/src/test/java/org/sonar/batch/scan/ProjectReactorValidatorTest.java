@@ -46,6 +46,36 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
+  public void should_not_fail_with_alphanumeric() {
+    ProjectReactor reactor = createProjectReactor("Foobar2");
+    validator.validate(reactor);
+  }
+
+  @Test
+  public void should_not_fail_with_dot() {
+    ProjectReactor reactor = createProjectReactor("foo.bar");
+    validator.validate(reactor);
+  }
+
+  @Test
+  public void should_not_fail_with_dash() {
+    ProjectReactor reactor = createProjectReactor("foo-bar");
+    validator.validate(reactor);
+  }
+
+  @Test
+  public void should_not_fail_with_colon() {
+    ProjectReactor reactor = createProjectReactor("foo:bar");
+    validator.validate(reactor);
+  }
+
+  @Test
+  public void should_not_fail_with_underscore() {
+    ProjectReactor reactor = createProjectReactor("foo_bar");
+    validator.validate(reactor);
+  }
+
+  @Test
   public void should_fail_with_invalid_key() {
     String projectKey = "foo$bar";
     ProjectReactor reactor = createProjectReactor(projectKey);
