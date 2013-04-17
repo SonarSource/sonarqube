@@ -38,10 +38,10 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IssueTrackingDecoratorTest {
+public class IssueTrackingTest {
 
   private final Date analysisDate = DateUtils.parseDate("2013-04-11");
-  private IssueTrackingDecorator decorator;
+  private IssueTracking decorator;
   private long violationId = 0;
 
   @Before
@@ -59,7 +59,7 @@ public class IssueTrackingDecoratorTest {
 
     Project project = mock(Project.class);
     when(project.getAnalysisDate()).thenReturn(analysisDate);
-    decorator = new IssueTrackingDecorator(project, null, null, ruleFinder, null, null);
+    decorator = new IssueTracking(project, null, ruleFinder, null, null);
   }
 
   @Test

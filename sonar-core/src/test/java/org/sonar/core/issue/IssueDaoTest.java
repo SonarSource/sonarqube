@@ -195,4 +195,11 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(dao.select(issueQuery)).hasSize(5);
   }
 
+  @Test
+  public void should_select_open_issues() {
+    setupData("select-open-issues");
+
+    assertThat(dao.selectOpenIssues(400)).hasSize(2);
+  }
+
 }

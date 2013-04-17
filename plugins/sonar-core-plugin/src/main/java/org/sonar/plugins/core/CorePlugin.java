@@ -25,10 +25,7 @@ import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.notifications.NotificationDispatcherMetadata;
 import org.sonar.api.resources.Java;
-import org.sonar.batch.issue.IssuesDecorator;
-import org.sonar.batch.issue.IssuesDensityDecorator;
-import org.sonar.batch.issue.NewIssuesDecorator;
-import org.sonar.batch.issue.WeightedIssuesDecorator;
+import org.sonar.batch.issue.*;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
@@ -36,7 +33,7 @@ import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.dashboards.*;
-import org.sonar.plugins.core.issue.IssueTrackingDecorator;
+import org.sonar.plugins.core.issue.IssueTracking;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
@@ -398,6 +395,8 @@ public final class CorePlugin extends SonarPlugin {
         CheckAlertThresholds.class,
         GenerateAlertEvents.class,
         ViolationsDecorator.class,
+        InitialOpenIssuesSensor.class,
+        InitialOpenIssuesStack.class,
         IssuesDecorator.class,
         WeightedViolationsDecorator.class,
         WeightedIssuesDecorator.class,
@@ -429,7 +428,7 @@ public final class CorePlugin extends SonarPlugin {
         TendencyDecorator.class,
         VariationDecorator.class,
         ViolationTrackingDecorator.class,
-        IssueTrackingDecorator.class,
+        IssueTracking.class,
         ViolationPersisterDecorator.class,
         NewViolationsDecorator.class,
         NewIssuesDecorator.class,

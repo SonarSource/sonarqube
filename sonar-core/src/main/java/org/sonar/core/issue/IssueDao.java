@@ -85,6 +85,15 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public List<IssueDto> selectOpenIssues(Integer componentId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.selectList("org.sonar.core.issue.IssueMapper.selectOpenIssues", componentId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public List<IssueDto> select(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {

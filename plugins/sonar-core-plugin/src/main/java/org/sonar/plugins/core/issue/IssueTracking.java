@@ -21,20 +21,17 @@
 package org.sonar.plugins.core.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.*;
-import org.sonar.api.batch.*;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueDao;
 import org.sonar.core.issue.IssueDto;
 import org.sonar.plugins.core.timemachine.SourceChecksum;
 import org.sonar.plugins.core.timemachine.ViolationTrackingBlocksRecognizer;
@@ -44,12 +41,7 @@ import javax.annotation.Nullable;
 
 import java.util.*;
 
-import static com.google.common.collect.Lists.newArrayList;
-
-@DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
-@DependedUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
-
-public class IssueTrackingDecorator implements Decorator {
+public class IssueTracking implements BatchExtension {
 
   private static final Comparator<LinePair> LINE_PAIR_COMPARATOR = new Comparator<LinePair>() {
     public int compare(LinePair o1, LinePair o2) {
@@ -58,7 +50,6 @@ public class IssueTrackingDecorator implements Decorator {
   };
   private final Project project;
   private final ResourcePerspectives perspectives;
-  private final IssueDao issueDao;
   private final RuleFinder ruleFinder;
   private final LastSnapshots lastSnapshots;
   private final SonarIndex index;
@@ -71,35 +62,24 @@ public class IssueTrackingDecorator implements Decorator {
    */
   private Map<DefaultIssue, IssueDto> referenceIssuesMap = Maps.newIdentityHashMap();
 
-  public IssueTrackingDecorator(Project project, ResourcePerspectives perspectives, IssueDao issueDao, RuleFinder ruleFinder, LastSnapshots lastSnapshots, SonarIndex index) {
+  public IssueTracking(Project project, ResourcePerspectives perspectives, RuleFinder ruleFinder, LastSnapshots lastSnapshots, SonarIndex index) {
     this.project = project;
     this.perspectives = perspectives;
-    this.issueDao = issueDao;
     this.ruleFinder = ruleFinder;
     this.lastSnapshots = lastSnapshots;
     this.index = index;
   }
 
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return true;
-  }
-
-  @Override
-  public void decorate(Resource resource, DecoratorContext context) {
+  public void track(Resource resource, Collection<IssueDto> referenceIssues, List<DefaultIssue> newIssues) {
     referenceIssuesMap.clear();
 
     // Load new issues
     Issuable issuable = perspectives.as(Issuable.class, resource);
-    if (issuable == null || issuable.issues().isEmpty()){
+    if (issuable == null || issuable.issues().isEmpty()) {
       return;
     }
-    List<DefaultIssue> newIssues = toDefaultIssues(issuable.issues());
     String source = index.getSource(resource);
     setChecksumOnNewIssues(newIssues, source);
-
-    // Load existing issues
-    Collection<IssueDto> referenceIssues = loadExistingOpenIssues(resource);
 
     // Map new issues with old ones
     mapIssues(newIssues, referenceIssues, source, resource);
@@ -110,14 +90,6 @@ public class IssueTrackingDecorator implements Decorator {
     for (DefaultIssue issue : issues) {
       issue.setChecksum(SourceChecksum.getChecksumForLine(checksums, issue.line()));
     }
-  }
-
-  private Collection<IssueDto> loadExistingOpenIssues(Resource resource) {
-    IssueQuery query = IssueQuery.builder()
-      .components(Lists.newArrayList(resource.getEffectiveKey()))
-      .statuses(Lists.newArrayList(Issue.STATUS_OPEN, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED))
-      .build();
-    return issueDao.select(query);
   }
 
   @VisibleForTesting
@@ -174,7 +146,7 @@ public class IssueTrackingDecorator implements Decorator {
     }
   }
 
-  private void mapNewissues(String referenceSource, List<DefaultIssue> newIssues, Multimap<Integer, IssueDto> lastIssuesByRule, String source){
+  private void mapNewissues(String referenceSource, List<DefaultIssue> newIssues, Multimap<Integer, IssueDto> lastIssuesByRule, String source) {
     HashedSequence<StringText> hashedReference = HashedSequence.wrap(new StringText(referenceSource), StringTextComparator.IGNORE_WHITESPACE);
     HashedSequence<StringText> hashedSource = HashedSequence.wrap(new StringText(source), StringTextComparator.IGNORE_WHITESPACE);
     HashedSequenceComparator<StringText> hashedComparator = new HashedSequenceComparator<StringText>(StringTextComparator.IGNORE_WHITESPACE);
@@ -239,7 +211,7 @@ public class IssueTrackingDecorator implements Decorator {
     }
   }
 
-  private void mapIssuesOnSameRule(List<DefaultIssue> newIssues, Multimap<Integer, IssueDto> lastIssuesByRule){
+  private void mapIssuesOnSameRule(List<DefaultIssue> newIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
     // Try then to match issues on same rule with same message and with same checksum
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
@@ -272,15 +244,6 @@ public class IssueTrackingDecorator implements Decorator {
   @VisibleForTesting
   IssueDto getReferenceIssue(DefaultIssue issue) {
     return referenceIssuesMap.get(issue);
-  }
-
-  private List<DefaultIssue> toDefaultIssues(Collection<Issue> issues) {
-    return newArrayList(Iterables.transform(issues, new Function<Issue, DefaultIssue>() {
-      @Override
-      public DefaultIssue apply(Issue issue) {
-        return (DefaultIssue) issue;
-      }
-    }));
   }
 
   private Integer getRule(DefaultIssue issue) {
