@@ -20,6 +20,8 @@
 package org.sonar.batch.phases;
 
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.events.EventBus;
@@ -33,6 +35,8 @@ import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import java.util.Collection;
 
 public final class PhaseExecutor {
+
+  public static final Logger LOGGER = LoggerFactory.getLogger(PhaseExecutor.class);
 
   public static Collection<Class> getPhaseClasses() {
     return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
@@ -114,7 +118,9 @@ public final class PhaseExecutor {
     persistenceManager.setDelayedMode(false);
 
     if (module.isRoot()) {
+      LOGGER.info("Store results in database");
       for (ScanPersister persister : persisters) {
+        LOGGER.debug("Execute {}", persister.getClass().getName());
         persister.persist();
       }
       if (updateStatusJob != null) {

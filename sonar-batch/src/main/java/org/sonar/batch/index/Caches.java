@@ -64,6 +64,8 @@ public class Caches implements BatchComponent, Startable {
   public void start() {
     try {
       tempDir = Files.createTempDir();
+      // TODO should use Persistit#createTemporaryVolume(), but it's not yet available in the version that we use
+      // See https://github.com/akiban/persistit/blob/master/doc/Miscellaneous.rst
       persistit = new Persistit();
       persistit.setPersistitLogger(new Slf4jAdapter(LoggerFactory.getLogger("PERSISTIT")));
       Properties props = new Properties();

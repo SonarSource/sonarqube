@@ -21,7 +21,6 @@ package org.sonar.batch.phases;
 
 import com.tinkerpop.blueprints.Graph;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Perspective;
 import org.sonar.batch.index.ScanPersister;
 import org.sonar.core.component.ComponentVertex;
@@ -50,7 +49,6 @@ public class GraphPersister implements ScanPersister {
   }
 
   public void persist() {
-    LoggerFactory.getLogger(GraphPersister.class).info("Persist graphs of components");
     BatchSession session = myBatis.openBatchSession();
     GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);
     try {
@@ -81,13 +79,13 @@ public class GraphPersister implements ScanPersister {
     Graph subGraph = SubGraph.extract(component.element(), builder.path());
     String data = write(subGraph);
     mapper.insert(new GraphDto()
-        .setData(data)
-        .setFormat("graphson")
-        .setPerspective(builder.getPerspectiveLoader().getPerspectiveKey())
-        .setVersion(1)
-        .setResourceId((Long) component.element().getProperty("rid"))
-        .setSnapshotId(snapshotId)
-        .setRootVertexId(component.element().getId().toString())
+      .setData(data)
+      .setFormat("graphson")
+      .setPerspective(builder.getPerspectiveLoader().getPerspectiveKey())
+      .setVersion(1)
+      .setResourceId((Long) component.element().getProperty("rid"))
+      .setSnapshotId(snapshotId)
+      .setRootVertexId(component.element().getId().toString())
     );
   }
 
