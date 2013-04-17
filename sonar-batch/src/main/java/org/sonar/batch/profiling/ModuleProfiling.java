@@ -29,13 +29,19 @@ import java.util.Map.Entry;
 public class ModuleProfiling extends AbstractTimeProfiling {
 
   private Map<Phases.Phase, PhaseProfiling> profilingPerPhase = new HashMap<Phases.Phase, PhaseProfiling>();
+  private Clock clock;
+
+  public ModuleProfiling(Clock clock) {
+    super(clock);
+    this.clock = clock;
+  }
 
   public PhaseProfiling getProfilingPerPhase(Phase phase) {
     return profilingPerPhase.get(phase);
   }
 
   public void addPhaseProfiling(Phase phase) {
-    profilingPerPhase.put(phase, PhaseProfiling.create(phase));
+    profilingPerPhase.put(phase, PhaseProfiling.create(clock, phase));
   }
 
   public void dump() {

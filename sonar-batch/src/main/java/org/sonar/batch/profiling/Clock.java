@@ -19,17 +19,8 @@
  */
 package org.sonar.batch.profiling;
 
-public class ItemProfiling extends AbstractTimeProfiling {
-
-  private final String itemName;
-
-  public ItemProfiling(Clock clock, String itemName) {
-    super(clock);
-    this.itemName = itemName;
+class Clock {
+  public long now() {
+    return System.currentTimeMillis();
   }
-
-  public String itemName() {
-    return itemName;
-  }
-
 }

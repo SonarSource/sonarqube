@@ -33,12 +33,16 @@ public class PhaseProfiling extends AbstractTimeProfiling {
 
   private Map<String, ItemProfiling> profilingPerItem = new HashMap<String, ItemProfiling>();
 
-  public PhaseProfiling(Phase phase) {
+  private Clock clock;
+
+  public PhaseProfiling(Clock clock, Phase phase) {
+    super(clock);
+    this.clock = clock;
     this.phase = phase;
   }
 
-  public static PhaseProfiling create(Phase phase) {
-    return new PhaseProfiling(phase);
+  public static PhaseProfiling create(Clock clock, Phase phase) {
+    return new PhaseProfiling(clock, phase);
   }
 
   public Phase phase() {
@@ -52,11 +56,11 @@ public class PhaseProfiling extends AbstractTimeProfiling {
 
   public void newItemProfiling(Object item) {
     String stringOrSimpleName = toStringOrSimpleName(item);
-    profilingPerItem.put(stringOrSimpleName, new ItemProfiling(stringOrSimpleName));
+    profilingPerItem.put(stringOrSimpleName, new ItemProfiling(clock, stringOrSimpleName));
   }
 
   public void newItemProfiling(String itemName) {
-    profilingPerItem.put(itemName, new ItemProfiling(itemName));
+    profilingPerItem.put(itemName, new ItemProfiling(clock, itemName));
   }
 
   public void merge(PhaseProfiling other) {

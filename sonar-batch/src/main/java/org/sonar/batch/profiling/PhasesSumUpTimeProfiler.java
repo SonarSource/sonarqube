@@ -42,15 +42,27 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   @VisibleForTesting
   ModuleProfiling currentModuleProfiling;
   @VisibleForTesting
-  ModuleProfiling totalProfiling = new ModuleProfiling();
+  ModuleProfiling totalProfiling;
   private DecoratorsProfiler decoratorsProfiler;
+
+  private Clock clock;
+
+  public PhasesSumUpTimeProfiler() {
+    this(new Clock());
+  }
+
+  @VisibleForTesting
+  PhasesSumUpTimeProfiler(Clock clock) {
+    this.clock = clock;
+    totalProfiling = new ModuleProfiling(clock);
+  }
 
   @Override
   public void onProjectAnalysis(ProjectAnalysisEvent event) {
     Project module = event.getProject();
     if (event.isStart()) {
       decoratorsProfiler = new DecoratorsProfiler();
-      currentModuleProfiling = new ModuleProfiling();
+      currentModuleProfiling = new ModuleProfiling(clock);
     }
     else {
       currentModuleProfiling.stop();
@@ -128,7 +140,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
   }
 
-  static class DecoratorsProfiler {
+  class DecoratorsProfiler {
     List<Decorator> decorators = Lists.newArrayList();
     Map<Decorator, Long> durations = new IdentityHashMap<Decorator, Long>();
     long startTime;
@@ -138,7 +150,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
 
     void start(Decorator decorator) {
-      this.startTime = System.currentTimeMillis();
+      this.startTime = clock.now();
       this.currentDecorator = decorator;
     }
 
@@ -150,7 +162,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
         decorators.add(currentDecorator);
         cumulatedDuration = 0L;
       }
-      durations.put(currentDecorator, cumulatedDuration + (System.currentTimeMillis() - startTime));
+      durations.put(currentDecorator, cumulatedDuration + (clock.now() - startTime));
     }
 
     public Map<Decorator, Long> getDurations() {

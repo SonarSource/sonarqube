@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.profiling;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
@@ -49,23 +50,31 @@ import static org.mockito.Mockito.when;
 
 public class PhasesSumUpTimeProfilerTest {
 
+  private MockedClock clock;
+  private PhasesSumUpTimeProfiler profiler;
+
+  @Before
+  public void prepare() {
+    clock = new MockedClock();
+    profiler = new PhasesSumUpTimeProfiler(clock);
+  }
+
   @Test
   public void testSimpleProject() throws InterruptedException {
-    PhasesSumUpTimeProfiler profiler = new PhasesSumUpTimeProfiler();
+
     final Project project = mockProject("project", true);
     when(project.getModules()).thenReturn(Collections.<Project> emptyList());
 
     fakeAnalysis(profiler, project);
 
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isIn(delta(10L, 5));
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isIn(delta(20L, 5));
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isIn(delta(30L, 5));
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(10L);
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(20L);
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isEqualTo(30L);
 
   }
 
   @Test
   public void testMultimoduleProject() throws InterruptedException {
-    PhasesSumUpTimeProfiler profiler = new PhasesSumUpTimeProfiler();
     final Project project = mockProject("project root", true);
     final Project moduleA = mockProject("moduleA", false);
     final Project moduleB = mockProject("moduleB", false);
@@ -75,20 +84,20 @@ public class PhasesSumUpTimeProfilerTest {
     fakeAnalysis(profiler, moduleB);
     fakeAnalysis(profiler, project);
 
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isIn(delta(10L, 5));
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isIn(delta(20L, 5));
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator2()).totalTime()).isIn(delta(10L, 5));
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isIn(delta(30L, 5));
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(10L);
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(20L);
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator2()).totalTime()).isEqualTo(10L);
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isEqualTo(30L);
 
-    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isIn(delta(30L, 5));
-    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isIn(delta(60L, 10));
-    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator2()).totalTime()).isIn(delta(30L, 5));
-    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isIn(delta(90L, 10));
+    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(30L);
+    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(60L);
+    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator2()).totalTime()).isEqualTo(30L);
+    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isEqualTo(90L);
   }
 
   @Test
   public void testDisplayTimings() {
-    AbstractTimeProfiling profiling = new AbstractTimeProfiling() {
+    AbstractTimeProfiling profiling = new AbstractTimeProfiling(new Clock()) {
     };
 
     profiling.setTotalTime(5);
@@ -104,13 +113,17 @@ public class PhasesSumUpTimeProfilerTest {
     assertThat(profiling.totalTimeAsString()).isEqualTo("5min");
   }
 
-  private Object[] delta(long value, int delta) {
-    Long[] result = new Long[2 * delta + 1];
-    int index = 0;
-    for (long i = value - delta; i <= value + delta; i++) {
-      result[index++] = i;
+  private class MockedClock extends Clock {
+    private long now = 0;
+
+    @Override
+    public long now() {
+      return now;
     }
-    return result;
+
+    public void sleep(long duration) {
+      now += duration;
+    }
   }
 
   private Project mockProject(String name, boolean isRoot) {
@@ -137,22 +150,22 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onDecoratorsPhase(decoratorsEvent(true));
     // Start of decorator 1
     profiler.onDecoratorExecution(decoratorEvent(decorator1, true));
-    Thread.sleep(10);
+    clock.sleep(10);
     // End of decorator 1
     profiler.onDecoratorExecution(decoratorEvent(decorator1, false));
     // Start of decorator 2
     profiler.onDecoratorExecution(decoratorEvent(decorator2, true));
-    Thread.sleep(5);
+    clock.sleep(5);
     // End of decorator 2
     profiler.onDecoratorExecution(decoratorEvent(decorator2, false));
     // Start of decorator 1
     profiler.onDecoratorExecution(decoratorEvent(decorator1, true));
-    Thread.sleep(10);
+    clock.sleep(10);
     // End of decorator 1
     profiler.onDecoratorExecution(decoratorEvent(decorator1, false));
     // Start of decorator 2
     profiler.onDecoratorExecution(decoratorEvent(decorator2, true));
-    Thread.sleep(5);
+    clock.sleep(5);
     // End of decorator 2
     profiler.onDecoratorExecution(decoratorEvent(decorator2, false));
     // End of decorator phase
@@ -165,7 +178,7 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onSensorsPhase(sensorsEvent(true));
     // Start of a Sensor
     profiler.onSensorExecution(sensorEvent(sensor, true));
-    Thread.sleep(10);
+    clock.sleep(10);
     // End of a Sensor
     profiler.onSensorExecution(sensorEvent(sensor, false));
     // End of sensor phase
@@ -178,7 +191,7 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onPostJobsPhase(postJobsEvent(true));
     // Start of a Sensor
     profiler.onPostJobExecution(postJobEvent(postJob, true));
-    Thread.sleep(30);
+    clock.sleep(30);
     // End of a Sensor
     profiler.onPostJobExecution(postJobEvent(postJob, false));
     // End of sensor phase

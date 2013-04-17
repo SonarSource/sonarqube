@@ -31,8 +31,11 @@ public abstract class AbstractTimeProfiling {
 
   private long totalTime;
 
-  public AbstractTimeProfiling() {
-    this.startTime = System.currentTimeMillis();
+  private Clock clock;
+
+  public AbstractTimeProfiling(Clock clock) {
+    this.clock = clock;
+    this.startTime = clock.now();
   }
 
   public long startTime() {
@@ -40,7 +43,7 @@ public abstract class AbstractTimeProfiling {
   }
 
   public void stop() {
-    this.totalTime = System.currentTimeMillis() - startTime;
+    this.totalTime = clock.now() - startTime;
   }
 
   public long totalTime() {
