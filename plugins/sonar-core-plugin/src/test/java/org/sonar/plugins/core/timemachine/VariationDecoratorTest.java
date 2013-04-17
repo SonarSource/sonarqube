@@ -21,10 +21,12 @@ package org.sonar.plugins.core.timemachine;
 
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.*;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
@@ -34,9 +36,7 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class VariationDecoratorTest extends AbstractDbUnitTestCase {
@@ -53,39 +53,10 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldComputeVariations() {
     TimeMachineConfiguration conf = mock(TimeMachineConfiguration.class);
-    when(conf.isFileVariationEnabled()).thenReturn(false);
     VariationDecorator decorator = new VariationDecorator(mock(PastMeasuresLoader.class), mock(MetricFinder.class), conf);
 
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Project("foo")), is(true));
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_DATE, new Project("foo")), is(true));
-  }
-
-  @Test
-  public void shouldNotComputeFileVariations() {
-    TimeMachineConfiguration conf = mock(TimeMachineConfiguration.class);
-    when(conf.isFileVariationEnabled()).thenReturn(false);
-    VariationDecorator decorator = new VariationDecorator(mock(PastMeasuresLoader.class), mock(MetricFinder.class), conf);
-
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new JavaFile("org.foo.Bar")), is(false));
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_DATE, new JavaFile("org.foo.Bar")), is(false));
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new File("org/foo/Bar.php")), is(false));
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_DATE, new File("org/foo/Bar.php")), is(false));
-  }
-
-  @Test
-  public void shouldComputeFileVariationsIfExplictlyEnabled() {
-    TimeMachineConfiguration conf = mock(TimeMachineConfiguration.class);
-    when(conf.isFileVariationEnabled()).thenReturn(true);
-    VariationDecorator decorator = new VariationDecorator(mock(PastMeasuresLoader.class), mock(MetricFinder.class), conf);
-
-    // only for variation with reference analysis
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new JavaFile("org.foo.Bar")), is(true));
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_DATE, new JavaFile("org.foo.Bar")), is(false));
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new File("org/foo/Bar.php")), is(true));
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_DATE, new File("org/foo/Bar.php")), is(false));
-
-    // no side-effect on other resources
-    assertThat(decorator.shouldComputeVariation(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Project("foo")), is(true));
+    assertThat(decorator.shouldComputeVariation(new Project("foo"))).isTrue();
+    assertThat(decorator.shouldComputeVariation(new File("foo/bar.c"))).isFalse();
   }
 
   @Test
@@ -98,12 +69,12 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
     // first past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
-        new Object[] {NCLOC_ID, null, null, null, 180.0},
-        new Object[] {COVERAGE_ID, null, null, null, 75.0}));
+      new Object[]{NCLOC_ID, null, null, null, 180.0},
+      new Object[]{COVERAGE_ID, null, null, null, 75.0}));
 
     // second past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot3)).thenReturn(Arrays.<Object[]>asList(
-        new Object[] {NCLOC_ID, null, null, null, 240.0}));
+      new Object[]{NCLOC_ID, null, null, null, 240.0}));
 
     // current analysis
     DecoratorContext context = mock(DecoratorContext.class);
@@ -111,19 +82,19 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     Measure currentCoverage = newMeasure(COVERAGE, 80.0);
     when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(currentNcloc, currentCoverage));
 
-    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1, pastSnapshot3), false);
+    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1, pastSnapshot3));
     decorator.decorate(javaPackage, context);
 
     // context updated for each variation : 2 times for ncloc and 1 time for coverage
     verify(context, times(3)).saveMeasure(Matchers.<Measure>anyObject());
 
-    assertThat(currentNcloc.getVariation1(), is(20.0));
-    assertThat(currentNcloc.getVariation2(), nullValue());
-    assertThat(currentNcloc.getVariation3(), is(-40.0));
+    assertThat(currentNcloc.getVariation1()).isEqualTo(20.0);
+    assertThat(currentNcloc.getVariation2()).isNull();
+    assertThat(currentNcloc.getVariation3()).isEqualTo(-40.0);
 
-    assertThat(currentCoverage.getVariation1(), is(5.0));
-    assertThat(currentCoverage.getVariation2(), nullValue());
-    assertThat(currentCoverage.getVariation3(), nullValue());
+    assertThat(currentCoverage.getVariation1()).isEqualTo(5.0);
+    assertThat(currentCoverage.getVariation2()).isNull();
+    assertThat(currentCoverage.getVariation3()).isNull();
   }
 
   @Test
@@ -140,9 +111,9 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
     // first past analysis
     when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
-        new Object[] {VIOLATIONS_ID, null, null, null, 180.0},// total
-        new Object[] {VIOLATIONS_ID, null, null, rule1.getId(), 100.0},// rule 1
-        new Object[] {VIOLATIONS_ID, null, null, rule2.getId(), 80.0})); // rule 2
+      new Object[]{VIOLATIONS_ID, null, null, null, 180.0},// total
+      new Object[]{VIOLATIONS_ID, null, null, rule1.getId(), 100.0},// rule 1
+      new Object[]{VIOLATIONS_ID, null, null, rule2.getId(), 80.0})); // rule 2
 
     // current analysis
     DecoratorContext context = mock(DecoratorContext.class);
@@ -151,13 +122,13 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     Measure violationsRule2 = RuleMeasure.createForRule(VIOLATIONS, rule2, 70.0);
     when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(violations, violationsRule1, violationsRule2));
 
-    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1), false);
+    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1));
     decorator.decorate(javaPackage, context);
 
     // context updated for each variation
     verify(context, times(3)).saveMeasure(Matchers.<Measure>anyObject());
 
-    assertThat(violations.getVariation1(), is(20.0));
+    assertThat(violations.getVariation1()).isEqualTo(20.0);
   }
 
   private Measure newMeasure(Metric metric, double value) {

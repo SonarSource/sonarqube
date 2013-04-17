@@ -113,8 +113,4 @@ public class TimeMachineConfiguration implements BatchExtension {
   public List<PastSnapshot> getProjectPastSnapshots() {
     return projectPastSnapshots;
   }
-
-  public boolean isFileVariationEnabled() {
-    return settings.getBoolean("sonar.enableFileVariation");
-  }
 }
