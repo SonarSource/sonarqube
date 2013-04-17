@@ -386,7 +386,7 @@ public interface CoreProperties {
   /**
    * @since 3.6
    */
-  String PROFILING_LOG_PROPERTY = "sonar.profiling.log";
+  String PROFILING_LOG_PROPERTY = "sonar.showProfiling";
 
   /**
    * @deprecated replaced in v3.4 by properties specific to languages, for example sonar.java.coveragePlugin
