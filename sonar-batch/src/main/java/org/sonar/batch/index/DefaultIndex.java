@@ -367,14 +367,15 @@ public class DefaultIndex extends SonarIndex {
     }
 
     violation.setResource(bucket.getResource());
-    addViolation(violation, bucket, force);
-    deprecatedViolations.add(violation);
+    if (addViolation(violation, bucket, force)){
+      deprecatedViolations.add(violation);
+    }
   }
 
-  private void addViolation(Violation violation, Bucket bucket, boolean force) {
+  private boolean addViolation(Violation violation, Bucket bucket, boolean force) {
     boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);
     if (isIgnored) {
-      return;
+      return false;
     }
 
     // TODO this code is not the responsibility of this index. It should be moved somewhere else.
@@ -386,12 +387,14 @@ public class DefaultIndex extends SonarIndex {
         violation.setSeverity(violation.getRule().getSeverity());
       } else {
         LoggerFactory.getLogger(getClass()).debug("Rule is not activated, ignoring violation {}", violation);
-        return;
+        return false;
       }
     }
 
     bucket.addViolation(violation);
+    return true;
   }
+
 
   //
   //
