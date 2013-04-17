@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.index;
 
+import com.google.common.collect.Iterables;
+import com.persistit.exception.PersistitException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -106,7 +108,7 @@ public class CacheTest {
 
   @Test
   public void test_keyset_of_group() {
-    Cache<String, Float> cache = caches.createCache("issues");
+    Cache<String, Float> cache = caches.createCache("measures");
     cache.put("org/apache/struts/Action.java", "ncloc", 123f);
     cache.put("org/apache/struts/Action.java", "lines", 200f);
     cache.put("org/apache/struts/Filter.java", "coverage", 500f);
@@ -116,7 +118,7 @@ public class CacheTest {
 
   @Test
   public void test_values_of_group() {
-    Cache<String, Float> cache = caches.createCache("issues");
+    Cache<String, Float> cache = caches.createCache("measures");
     cache.put("org/apache/struts/Action.java", "ncloc", 123f);
     cache.put("org/apache/struts/Action.java", "lines", 200f);
     cache.put("org/apache/struts/Filter.java", "lines", 500f);
@@ -126,7 +128,7 @@ public class CacheTest {
 
   @Test
   public void test_values() {
-    Cache<String, Float> cache = caches.createCache("issues");
+    Cache<String, Float> cache = caches.createCache("measures");
     cache.put("ncloc", 123f);
     cache.put("lines", 200f);
     assertThat(cache.values()).containsOnly(123f, 200f);
@@ -134,12 +136,61 @@ public class CacheTest {
 
   @Test
   public void test_all_values() {
-    Cache<String, Float> cache = caches.createCache("issues");
+    Cache<String, Float> cache = caches.createCache("measures");
     cache.put("org/apache/struts/Action.java", "ncloc", 123f);
     cache.put("org/apache/struts/Action.java", "lines", 200f);
     cache.put("org/apache/struts/Filter.java", "ncloc", 400f);
     cache.put("org/apache/struts/Filter.java", "lines", 500f);
 
     assertThat(cache.allValues()).containsOnly(123f, 200f, 400f, 500f);
+  }
+
+  @Test
+  public void test_groups() {
+    Cache<String, Float> cache = caches.createCache("issues");
+    assertThat(cache.groups()).isEmpty();
+
+    cache.put("org/apache/struts/Action.java", "ncloc", 123f);
+    cache.put("org/apache/struts/Action.java", "lines", 200f);
+    cache.put("org/apache/struts/Filter.java", "ncloc", 400f);
+
+    assertThat(cache.groups()).containsOnly("org/apache/struts/Action.java", "org/apache/struts/Filter.java");
+  }
+
+  @Test
+  public void test_entries() throws PersistitException {
+    Cache<String, Float> cache = caches.createCache("issues");
+    cache.put("org/apache/struts/Action.java", "ncloc", 123f);
+    cache.put("org/apache/struts/Action.java", "lines", 200f);
+    cache.put("org/apache/struts/Filter.java", "ncloc", 400f);
+
+    Cache.Entry[] entries = Iterables.toArray(cache.<Float>entries(), Cache.Entry.class);
+    assertThat(entries).hasSize(3);
+    assertThat(entries[0].group()).isEqualTo("org/apache/struts/Action.java");
+    assertThat(entries[0].key()).isEqualTo("lines");
+    assertThat(entries[0].value()).isEqualTo(200f);
+    assertThat(entries[1].group()).isEqualTo("org/apache/struts/Action.java");
+    assertThat(entries[1].key()).isEqualTo("ncloc");
+    assertThat(entries[1].value()).isEqualTo(123f);
+    assertThat(entries[2].group()).isEqualTo("org/apache/struts/Filter.java");
+    assertThat(entries[2].key()).isEqualTo("ncloc");
+    assertThat(entries[2].value()).isEqualTo(400f);
+  }
+
+  @Test
+  public void test_entries_of_group() throws PersistitException {
+    Cache<String, Float> cache = caches.createCache("issues");
+    cache.put("org/apache/struts/Action.java", "ncloc", 123f);
+    cache.put("org/apache/struts/Action.java", "lines", 200f);
+    cache.put("org/apache/struts/Filter.java", "ncloc", 400f);
+
+    Cache.Entry[] entries = Iterables.toArray(cache.<Float>entries("org/apache/struts/Action.java"), Cache.Entry.class);
+    assertThat(entries).hasSize(2);
+    assertThat(entries[0].group()).isEqualTo("org/apache/struts/Action.java");
+    assertThat(entries[0].key()).isEqualTo("lines");
+    assertThat(entries[0].value()).isEqualTo(200f);
+    assertThat(entries[1].group()).isEqualTo("org/apache/struts/Action.java");
+    assertThat(entries[1].key()).isEqualTo("ncloc");
+    assertThat(entries[1].value()).isEqualTo(123f);
   }
 }

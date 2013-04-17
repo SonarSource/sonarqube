@@ -17,29 +17,14 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.batch.index;
 
-package org.sonar.batch.scan.source;
+import java.io.Serializable;
 
-import com.google.common.collect.Maps;
-import org.sonar.api.BatchComponent;
+public interface Data extends Serializable {
 
-import java.util.Map;
+  String writeString();
 
-public abstract class SourceDataCache implements BatchComponent {
+  void readString(String s);
 
-  protected Map<String, String> sourceDataByComponent;
-
-  protected SourceDataCache() {
-    sourceDataByComponent = Maps.newHashMap();
-  }
-
-  public void registerSourceData(String componentKey, String serializedData) {
-    sourceDataByComponent.put(componentKey, serializedData);
-  }
-
-  public Map<String, String> getSourceDataByComponent() {
-    return sourceDataByComponent;
-  }
-
-  public abstract String getDataType();
 }

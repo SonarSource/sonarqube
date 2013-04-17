@@ -31,7 +31,7 @@ public class DecorationDataHolder {
 
   private static final String ENTITY_SEPARATOR = ";";
   private static final String FIELD_SEPARATOR = ",";
-  private static final String SYMBOL_PREFIX = "symbol.";
+  private static final String SYMBOL_PREFIX = "symbol-";
 
   private final Multimap<Integer, String> lowerBoundsDefinitions;
   private final List<Integer> upperBoundsDefinitions;

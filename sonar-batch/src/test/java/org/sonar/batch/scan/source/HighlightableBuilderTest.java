@@ -24,6 +24,7 @@ import org.sonar.api.component.Component;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.source.Highlightable;
+import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.component.ResourceComponent;
 import org.sonar.java.api.JavaClass;
 
@@ -32,7 +33,7 @@ import static org.mockito.Mockito.mock;
 
 public class HighlightableBuilderTest {
 
-  SyntaxHighlightingCache cache = mock(SyntaxHighlightingCache.class);
+  ComponentDataCache cache = mock(ComponentDataCache.class);
 
   @Test
   public void should_load_default_perspective() throws Exception {

@@ -25,8 +25,10 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import org.slf4j.LoggerFactory;
+import org.sonar.batch.index.Data;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -35,7 +37,7 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class SyntaxHighlightingRuleSet {
+public class SyntaxHighlightingRuleSet implements Data {
 
   private static final String FIELD_SEPARATOR = ",";
   private static final String RULE_SEPARATOR = ";";
@@ -103,13 +105,13 @@ public class SyntaxHighlightingRuleSet {
     return syntaxHighlightingRuleSet;
   }
 
-  public String serializeAsString() {
-
-    StringBuilder serializedRules = new StringBuilder();
+  @Override
+  public String writeString() {
+    StringBuilder sb = new StringBuilder();
     List<SyntaxHighlightingRule> orderedRules = getOrderedHighlightingRules();
 
     for (SyntaxHighlightingRule highlightingRule : orderedRules) {
-      serializedRules.append(highlightingRule.getStartPosition())
+      sb.append(highlightingRule.getStartPosition())
         .append(FIELD_SEPARATOR)
         .append(highlightingRule.getEndPosition())
         .append(FIELD_SEPARATOR)
@@ -117,12 +119,16 @@ public class SyntaxHighlightingRuleSet {
         .append(RULE_SEPARATOR);
     }
 
-    return serializedRules.toString();
+    return sb.toString();
+  }
+
+  @Override
+  public void readString(String s) {
+    throw new UnsupportedOperationException();
   }
 
   @VisibleForTesting
   protected List<SyntaxHighlightingRule> getOrderedHighlightingRules() {
-
     Ordering<SyntaxHighlightingRule> ruleOrdering = new Ordering<SyntaxHighlightingRule>() {
       @Override
       public int compare(@Nullable SyntaxHighlightingRule left,

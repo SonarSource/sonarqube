@@ -44,6 +44,10 @@
   <logger name="java.sql.ResultSet">
     <level value="${SQL_RESULTS_LOGGER_LEVEL:-WARN}"/>
   </logger>
+  <logger name="PERSISTIT">
+    <level value="WARN"/>
+  </logger>
+
 
   <root>
     <!-- sonar.verbose -->

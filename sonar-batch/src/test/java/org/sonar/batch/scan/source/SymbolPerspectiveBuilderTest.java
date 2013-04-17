@@ -24,19 +24,20 @@ import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.scan.source.SymbolPerspective;
+import org.sonar.batch.index.ComponentDataCache;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class SymbolPerspectiveBuilderTest {
 
+  ComponentDataCache dataCache = mock(ComponentDataCache.class);
+
   @Test
   public void should_load_perspective() throws Exception {
-
-    SymbolDataCache symbolDataCache = mock(SymbolDataCache.class);
     Component component = mock(Component.class);
 
-    SymbolPerspectiveBuilder perspectiveBuilder = new SymbolPerspectiveBuilder(symbolDataCache);
+    SymbolPerspectiveBuilder perspectiveBuilder = new SymbolPerspectiveBuilder(dataCache);
     Perspective perspective = perspectiveBuilder.loadPerspective(SymbolPerspective.class, component);
 
     assertThat(perspective).isInstanceOf(SymbolPerspective.class);

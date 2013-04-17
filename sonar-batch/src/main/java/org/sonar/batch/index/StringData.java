@@ -17,15 +17,29 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.batch.index;
 
-package org.sonar.batch.scan.source;
+public class StringData implements Data {
+  private String data = null;
 
-import org.sonar.core.source.jdbc.SnapshotDataDto;
+  public StringData() {
+  }
 
-public class SymbolDataCache extends SourceDataCache {
+  public StringData(String s) {
+    this.data = s;
+  }
+
+  public String data() {
+    return data;
+  }
 
   @Override
-  public String getDataType() {
-    return SnapshotDataDto.SYMBOL;
+  public String writeString() {
+    return data;
+  }
+
+  @Override
+  public void readString(String s) {
+    this.data = s;
   }
 }

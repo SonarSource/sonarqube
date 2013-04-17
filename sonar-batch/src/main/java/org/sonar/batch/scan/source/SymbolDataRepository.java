@@ -23,11 +23,12 @@ package org.sonar.batch.scan.source;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import org.sonar.api.scan.source.Symbol;
+import org.sonar.batch.index.Data;
 
 import java.util.Collection;
 import java.util.Comparator;
 
-public class SymbolDataRepository {
+public class SymbolDataRepository implements Data {
 
   private static final String FIELD_SEPARATOR = ",";
   private static final String SYMBOL_SEPARATOR = ";";
@@ -43,29 +44,34 @@ public class SymbolDataRepository {
   }
 
   public void registerSymbolReference(Symbol symbol, int startOffset) {
-    if(startOffset >= symbol.getDeclarationStartOffset() && startOffset < symbol.getDeclarationEndOffset()) {
+    if (startOffset >= symbol.getDeclarationStartOffset() && startOffset < symbol.getDeclarationEndOffset()) {
       throw new UnsupportedOperationException("Cannot add reference overlapping the symbol declaration");
     }
     referencesBySymbol.put(symbol, startOffset);
   }
 
-  public String serializeAsString() {
-
-    StringBuilder serializedData = new StringBuilder();
+  @Override
+  public String writeString() {
+    StringBuilder sb = new StringBuilder();
 
     for (Symbol symbol : referencesBySymbol.keySet()) {
 
-      serializedData.append(symbol.getDeclarationStartOffset())
-              .append(FIELD_SEPARATOR)
-              .append(symbol.getDeclarationEndOffset());
+      sb.append(symbol.getDeclarationStartOffset())
+        .append(FIELD_SEPARATOR)
+        .append(symbol.getDeclarationEndOffset());
       Collection<Integer> symbolReferences = referencesBySymbol.get(symbol);
       for (Integer symbolReference : symbolReferences) {
-        serializedData.append(FIELD_SEPARATOR).append(symbolReference);
+        sb.append(FIELD_SEPARATOR).append(symbolReference);
       }
-      serializedData.append(SYMBOL_SEPARATOR);
+      sb.append(SYMBOL_SEPARATOR);
     }
 
-    return serializedData.toString();
+    return sb.toString();
+  }
+
+  @Override
+  public void readString(String s) {
+    throw new UnsupportedOperationException();
   }
 
 
@@ -80,7 +86,7 @@ public class SymbolDataRepository {
     @Override
     public int compare(Integer left, Integer right) {
       int result;
-      if(left != null & right != null) {
+      if (left != null & right != null) {
         result = left - right;
       } else {
         result = left == null ? -1 : 1;
