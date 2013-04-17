@@ -17,31 +17,26 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.rules;
+package org.sonar.api.rule;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.task.TaskComponent;
+import com.google.common.collect.ImmutableList;
 
-import org.sonar.api.ServerComponent;
+import java.util.List;
 
-import java.util.Collection;
+public final class Severity {
 
-/**
- * @since 2.3
- */
-public interface RuleFinder extends TaskComponent, ServerComponent {
+  private Severity() {
+    // utility
+  }
+
+  public static final String INFO = "INFO";
+  public static final String MINOR = "MINOR";
+  public static final String MAJOR = "MAJOR";
+  public static final String CRITICAL = "CRITICAL";
+  public static final String BLOCKER = "BLOCKER";
 
   /**
-   * @since 2.5
+   * All the supported severities, orderest from {@link #INFO} to {@link #BLOCKER}.
    */
-  Rule findById(int ruleId);
-
-  Rule findByKey(String repositoryKey, String key);
-
-  Rule findByKey(RuleKey key);
-
-  Rule find(RuleQuery query);
-
-  Collection<Rule> findAll(RuleQuery query);
-
+  public static final List<String> ALL = ImmutableList.of(INFO, MINOR, MAJOR, CRITICAL, BLOCKER);
 }

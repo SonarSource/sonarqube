@@ -29,7 +29,7 @@ public class ScanIssueActions implements IssueActions {
 
   @Override
   public Issue comment(Issue issue, String userLogin, String comment) {
-    throw new UnsupportedOperationException("TODO");
+    throw new UnsupportedOperationException("Not supported yet from batch");
   }
 
   @Override

@@ -21,6 +21,7 @@ package org.sonar.batch.issue;
 
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -32,8 +33,8 @@ public class ScanIssueActionsTest {
   @Test
   public void should_set_severity() throws Exception {
     Issue issue = new DefaultIssue();
-    issue = actions.setSeverity(issue, Issue.SEVERITY_INFO);
-    assertThat(issue.severity()).isEqualTo(Issue.SEVERITY_INFO);
+    issue = actions.setSeverity(issue, Severity.INFO);
+    assertThat(issue.severity()).isEqualTo(Severity.INFO);
   }
 
   @Test

@@ -17,31 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.api.rules;
+@ParametersAreNonnullByDefault
+package org.sonar.api.rule;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.task.TaskComponent;
-
-import org.sonar.api.ServerComponent;
-
-import java.util.Collection;
-
-/**
- * @since 2.3
- */
-public interface RuleFinder extends TaskComponent, ServerComponent {
-
-  /**
-   * @since 2.5
-   */
-  Rule findById(int ruleId);
-
-  Rule findByKey(String repositoryKey, String key);
-
-  Rule findByKey(RuleKey key);
-
-  Rule find(RuleQuery query);
-
-  Collection<Rule> findAll(RuleQuery query);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

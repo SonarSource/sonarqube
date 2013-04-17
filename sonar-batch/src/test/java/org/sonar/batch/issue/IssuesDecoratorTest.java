@@ -158,9 +158,9 @@ public class IssuesDecoratorTest {
   @Test
   public void should_count_issues_per_rule() {
     List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleRepositoryKey(ruleA1.getRepositoryKey()).setRuleKey(ruleA1.getKey()).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(ruleA1.getRepositoryKey()).setRuleKey(ruleA1.getKey()).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(ruleA2.getRepositoryKey()).setRuleKey(ruleA2.getKey()).setSeverity(RulePriority.MAJOR.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()));
     when(issuable.issues()).thenReturn(issues);
 
     decorator.decorate(resource, context);
@@ -173,9 +173,9 @@ public class IssuesDecoratorTest {
   @Test
   public void same_rule_should_have_different_severities() {
     List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleRepositoryKey(ruleA1.getRepositoryKey()).setRuleKey(ruleA1.getKey()).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(ruleA1.getRepositoryKey()).setRuleKey(ruleA1.getKey()).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(ruleA1.getRepositoryKey()).setRuleKey(ruleA1.getKey()).setSeverity(RulePriority.MINOR.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.MINOR.name()));
     when(issuable.issues()).thenReturn(issues);
 
     decorator.decorate(resource, context);
@@ -186,10 +186,10 @@ public class IssuesDecoratorTest {
 
   private List<Issue> createIssues() {
     List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleRepositoryKey(ruleA1.getRepositoryKey()).setRuleKey(ruleA1.getKey()).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(ruleA1.getRepositoryKey()).setRuleKey(ruleA1.getKey()).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(ruleA2.getRepositoryKey()).setRuleKey(ruleA2.getKey()).setSeverity(RulePriority.MAJOR.name()));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(ruleB1.getRepositoryKey()).setRuleKey(ruleB1.getKey()).setSeverity(RulePriority.MINOR.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setSeverity(RulePriority.MINOR.name()));
     return issues;
   }
 }

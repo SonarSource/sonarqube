@@ -22,13 +22,13 @@ package org.sonar.core.issue;
 import com.google.common.base.Preconditions;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
 
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
   private final OnIssueCreation callback;
   private final String componentKey;
-  private String ruleRepository;
-  private String ruleKey;
+  private RuleKey ruleKey;
   private Integer line;
   private String message;
   private String title;
@@ -42,9 +42,8 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issuable.IssueBuilder rule(String repository, String key) {
-    this.ruleRepository = repository;
-    this.ruleKey = key;
+  public Issuable.IssueBuilder ruleKey(RuleKey ruleKey) {
+    this.ruleKey = ruleKey;
     return this;
   }
 
@@ -87,12 +86,10 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   @Override
   public Issue done() {
     Preconditions.checkNotNull(componentKey, "Component key must be set");
-    Preconditions.checkNotNull(ruleRepository, "Rule repository must be set");
     Preconditions.checkNotNull(ruleKey, "Rule key must be set");
 
     DefaultIssue issue = new DefaultIssue();
     issue.setComponentKey(componentKey);
-    issue.setRuleRepositoryKey(ruleRepository);
     issue.setRuleKey(ruleKey);
     issue.setMessage(message);
     issue.setTitle(title);

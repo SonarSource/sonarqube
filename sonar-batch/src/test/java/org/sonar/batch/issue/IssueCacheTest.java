@@ -25,6 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.Severity;
 import org.sonar.batch.index.Caches;
 import org.sonar.core.issue.DefaultIssue;
 
@@ -48,7 +49,7 @@ public class IssueCacheTest {
   }
 
   @Test
-  public void should_cache_issues() throws Exception {
+  public void should_add_new_issue() throws Exception {
     IssueCache cache = new IssueCache();
     DefaultIssue issue1 = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action");
     DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Action");
@@ -57,6 +58,22 @@ public class IssueCacheTest {
 
     assertThat(issueKeys(cache.componentIssues("org.struts.Action"))).containsOnly("111", "222");
     assertThat(issueKeys(cache.componentIssues("org.struts.Filter"))).containsOnly("333");
+  }
+
+  @Test
+  public void should_update_existing_issue() throws Exception {
+    IssueCache cache = new IssueCache();
+    DefaultIssue issue = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action").setSeverity(Severity.BLOCKER);
+    cache.addOrUpdate(issue);
+
+    issue.setSeverity(Severity.MINOR);
+    cache.addOrUpdate(issue);
+
+    Collection<Issue> issues = cache.componentIssues("org.struts.Action");
+    assertThat(issues).hasSize(1);
+    Issue reloaded = issues.iterator().next();
+    assertThat(reloaded.key()).isEqualTo("111");
+    assertThat(reloaded.severity()).isEqualTo(Severity.MINOR);
   }
 
   Collection<String> issueKeys(Collection<Issue> issues) {

@@ -22,6 +22,7 @@ package org.sonar.batch.issue;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.issue.DefaultIssue;
 
@@ -49,15 +50,14 @@ public class DeprecatedViolations implements BatchComponent {
 
   Issue toIssue(Violation violation) {
     DefaultIssue issue = new DefaultIssue()
-        .setComponentKey(violation.getResource().getEffectiveKey())
-        .setKey(UUID.randomUUID().toString())
-        .setRuleRepositoryKey(violation.getRule().getRepositoryKey())
-        .setRuleKey(violation.getRule().getKey())
-        .setCost(violation.getCost())
-        .setLine(violation.getLineId())
-        .setMessage(violation.getMessage())
-        .setStatus(Issue.STATUS_OPEN)
-        .setSeverity(violation.getSeverity() != null ? violation.getSeverity().name() : null);
+      .setComponentKey(violation.getResource().getEffectiveKey())
+      .setKey(UUID.randomUUID().toString())
+      .setRuleKey(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
+      .setCost(violation.getCost())
+      .setLine(violation.getLineId())
+      .setMessage(violation.getMessage())
+      .setStatus(Issue.STATUS_OPEN)
+      .setSeverity(violation.getSeverity() != null ? violation.getSeverity().name() : null);
 
     // FIXME
     //issue.setPerson(violation.getPersonId());

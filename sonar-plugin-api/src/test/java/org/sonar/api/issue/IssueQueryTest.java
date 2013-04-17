@@ -21,6 +21,7 @@ package org.sonar.api.issue;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.sonar.api.rule.Severity;
 
 import java.util.Date;
 
@@ -32,7 +33,7 @@ public class IssueQueryTest {
   public void should_build_query() throws Exception {
     IssueQuery query = IssueQuery.builder()
       .keys(Lists.newArrayList("ABCDE"))
-      .severities(Lists.newArrayList(Issue.SEVERITY_BLOCKER))
+      .severities(Lists.newArrayList(Severity.BLOCKER))
       .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
       .resolutions(Lists.newArrayList(Issue.RESOLUTION_FALSE_POSITIVE))
       .components(Lists.newArrayList("components"))
@@ -47,7 +48,7 @@ public class IssueQueryTest {
       .offset(33)
       .build();
     assertThat(query.keys()).containsExactly("ABCDE");
-    assertThat(query.severities()).containsExactly(Issue.SEVERITY_BLOCKER);
+    assertThat(query.severities()).containsExactly(Severity.BLOCKER);
     assertThat(query.statuses()).containsExactly(Issue.STATUS_RESOLVED);
     assertThat(query.resolutions()).containsExactly(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(query.components()).containsExactly("components");

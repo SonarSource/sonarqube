@@ -38,7 +38,6 @@ import org.sonar.plugins.core.timemachine.ViolationTrackingBlocksRecognizer;
 import org.sonar.plugins.core.timemachine.tracking.*;
 
 import javax.annotation.Nullable;
-
 import java.util.*;
 
 public class IssueTracking implements BatchExtension {
@@ -132,16 +131,16 @@ public class IssueTracking implements BatchExtension {
     // Match the key of the issue. (For manual issues)
     for (DefaultIssue newIssue : newIssues) {
       mapIssue(newIssue,
-          findLastIssueWithSameKey(newIssue, lastIssuesByRule.get(getRule(newIssue))),
-          lastIssuesByRule, referenceIssuesMap);
+        findLastIssueWithSameKey(newIssue, lastIssuesByRule.get(getRule(newIssue))),
+        lastIssuesByRule, referenceIssuesMap);
     }
 
     // Try first to match issues on same rule with same line and with same checksum (but not necessarily with same message)
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
         mapIssue(newIssue,
-            findLastIssueWithSameLineAndChecksum(newIssue, lastIssuesByRule.get(getRule(newIssue))),
-            lastIssuesByRule, referenceIssuesMap);
+          findLastIssueWithSameLineAndChecksum(newIssue, lastIssuesByRule.get(getRule(newIssue))),
+          lastIssuesByRule, referenceIssuesMap);
       }
     }
   }
@@ -216,8 +215,8 @@ public class IssueTracking implements BatchExtension {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
         mapIssue(newIssue,
-            findLastIssueWithSameChecksumAndMessage(newIssue, lastIssuesByRule.get(getRule(newIssue))),
-            lastIssuesByRule, referenceIssuesMap);
+          findLastIssueWithSameChecksumAndMessage(newIssue, lastIssuesByRule.get(getRule(newIssue))),
+          lastIssuesByRule, referenceIssuesMap);
       }
     }
 
@@ -225,8 +224,8 @@ public class IssueTracking implements BatchExtension {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
         mapIssue(newIssue,
-            findLastIssueWithSameLineAndMessage(newIssue, lastIssuesByRule.get(getRule(newIssue))),
-            lastIssuesByRule, referenceIssuesMap);
+          findLastIssueWithSameLineAndMessage(newIssue, lastIssuesByRule.get(getRule(newIssue))),
+          lastIssuesByRule, referenceIssuesMap);
       }
     }
 
@@ -235,8 +234,8 @@ public class IssueTracking implements BatchExtension {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
         mapIssue(newIssue,
-            findLastIssueWithSameChecksum(newIssue, lastIssuesByRule.get(getRule(newIssue))),
-            lastIssuesByRule, referenceIssuesMap);
+          findLastIssueWithSameChecksum(newIssue, lastIssuesByRule.get(getRule(newIssue))),
+          lastIssuesByRule, referenceIssuesMap);
       }
     }
   }
@@ -247,7 +246,7 @@ public class IssueTracking implements BatchExtension {
   }
 
   private Integer getRule(DefaultIssue issue) {
-    return ruleFinder.findByKey(issue.ruleRepositoryKey(), issue.ruleKey()).getId();
+    return ruleFinder.findByKey(issue.ruleKey()).getId();
   }
 
   private Integer getRule(IssueDto issue) {

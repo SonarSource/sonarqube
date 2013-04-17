@@ -17,65 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+@ParametersAreNonnullByDefault
 package org.sonar.api.issue;
 
-import org.sonar.api.rule.RuleKey;
-
-import java.util.Date;
-import java.util.Map;
-
-/**
- * @since 3.6
- */
-public interface Issue {
-
-  String STATUS_OPEN = "OPEN";
-  String STATUS_REOPENED = "REOPENED";
-  String STATUS_RESOLVED = "RESOLVED";
-  String STATUS_CLOSED = "CLOSED";
-
-  String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
-  String RESOLUTION_FIXED = "FIXED";
-
-  /**
-   * Unique generated key
-   */
-  String key();
-
-  String componentKey();
-
-  RuleKey ruleKey();
-
-  String severity();
-
-  String title();
-
-  String message();
-
-  Integer line();
-
-  Double cost();
-
-  String status();
-
-  String resolution();
-
-  String userLogin();
-
-  String assigneeLogin();
-
-  Date createdAt();
-
-  Date updatedAt();
-
-  Date closedAt();
-
-  String attribute(String key);
-
-  Map<String, String> attributes();
-
-  /**
-   * Used only during project scan.
-   */
-  boolean isNew();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

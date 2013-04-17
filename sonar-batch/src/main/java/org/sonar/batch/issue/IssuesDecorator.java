@@ -101,7 +101,7 @@ public class IssuesDecorator implements Decorator {
     Map<RulePriority, Multiset<Rule>> rulesPerSeverity = Maps.newHashMap();
     for (Issue issue : issues) {
       Multiset<Rule> rulesBag = initRules(rulesPerSeverity, RulePriority.valueOf(issue.severity()));
-      rulesBag.add(rulefinder.findByKey(issue.ruleRepositoryKey(), issue.ruleKey()));
+      rulesBag.add(rulefinder.findByKey(issue.ruleKey().repository(), issue.ruleKey().rule()));
     }
 
     for (RulePriority severity : RulePriority.values()) {

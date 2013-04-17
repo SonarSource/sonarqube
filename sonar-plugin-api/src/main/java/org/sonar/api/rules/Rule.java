@@ -28,6 +28,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
 
@@ -542,5 +543,9 @@ public final class Rule {
    */
   public static Set<String> getStatusList() {
     return ImmutableSet.of(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED);
+  }
+
+  public RuleKey ruleKey() {
+    return RuleKey.of(getRepositoryKey(), getKey());
   }
 }

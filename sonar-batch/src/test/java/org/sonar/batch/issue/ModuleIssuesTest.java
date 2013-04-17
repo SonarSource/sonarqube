@@ -26,6 +26,8 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
@@ -63,7 +65,7 @@ public class ModuleIssuesTest {
   public void should_ignore_null_active_rule() throws Exception {
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(null);
 
-    DefaultIssue issue = new DefaultIssue().setRuleRepositoryKey("repoKey").setRuleKey("ruleKey");
+    DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle"));
     moduleIssues.onIssueCreation(issue);
 
     verifyZeroInteractions(cache);
@@ -75,7 +77,7 @@ public class ModuleIssuesTest {
     when(activeRule.getRule()).thenReturn(null);
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
 
-    DefaultIssue issue = new DefaultIssue().setRuleRepositoryKey("repoKey").setRuleKey("ruleKey");
+    DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle"));
     moduleIssues.onIssueCreation(issue);
 
     verifyZeroInteractions(cache);
@@ -92,14 +94,14 @@ public class ModuleIssuesTest {
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
 
-    DefaultIssue issue = new DefaultIssue().setRuleRepositoryKey("repoKey").setRuleKey("ruleKey").setSeverity(Issue.SEVERITY_CRITICAL);
+    DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle")).setSeverity(Severity.CRITICAL);
     moduleIssues.onIssueCreation(issue);
 
     ArgumentCaptor<Issue> argument = ArgumentCaptor.forClass(Issue.class);
     verify(cache).addOrUpdate(argument.capture());
     assertThat(argument.getValue().key()).isNotNull();
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_OPEN);
-    assertThat(argument.getValue().severity()).isEqualTo(Issue.SEVERITY_CRITICAL);
+    assertThat(argument.getValue().severity()).isEqualTo(Severity.CRITICAL);
     assertThat(argument.getValue().createdAt()).isEqualTo(analysisDate);
   }
 
@@ -114,14 +116,14 @@ public class ModuleIssuesTest {
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
 
-    DefaultIssue issue = new DefaultIssue().setRuleRepositoryKey("repoKey").setRuleKey("ruleKey").setSeverity(null);
+    DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle")).setSeverity(null);
     moduleIssues.onIssueCreation(issue);
 
     ArgumentCaptor<Issue> argument = ArgumentCaptor.forClass(Issue.class);
     verify(cache).addOrUpdate(argument.capture());
     assertThat(argument.getValue().key()).isNotNull();
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_OPEN);
-    assertThat(argument.getValue().severity()).isEqualTo(Issue.SEVERITY_INFO);
+    assertThat(argument.getValue().severity()).isEqualTo(Severity.INFO);
     assertThat(argument.getValue().createdAt()).isEqualTo(analysisDate);
   }
 

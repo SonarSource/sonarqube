@@ -64,8 +64,6 @@ public class Caches implements BatchComponent, Startable {
   public void start() {
     try {
       tempDir = Files.createTempDir();
-      // TODO should use Persistit#createTemporaryVolume(), but it's not yet available in the version that we use
-      // See https://github.com/akiban/persistit/blob/master/doc/Miscellaneous.rst
       persistit = new Persistit();
       persistit.setPersistitLogger(new Slf4jAdapter(LoggerFactory.getLogger("PERSISTIT")));
       Properties props = new Properties();
@@ -76,6 +74,10 @@ public class Caches implements BatchComponent, Startable {
       props.setProperty("journalpath", "${datapath}/journal");
       persistit.setProperties(props);
       persistit.initialize();
+
+      // TODO should use persistit#createTemporaryVolume(), but how ?
+      // See https://github.com/akiban/persistit/blob/master/doc/Miscellaneous.rst
+
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start caches", e);
     }

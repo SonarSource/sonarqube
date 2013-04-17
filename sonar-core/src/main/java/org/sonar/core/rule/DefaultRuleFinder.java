@@ -22,6 +22,7 @@ package org.sonar.core.rule;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
@@ -53,6 +54,10 @@ public class DefaultRuleFinder implements RuleFinder {
             .setParameter("status", Rule.STATUS_REMOVED
         ),
         null);
+  }
+
+  public Rule findByKey(RuleKey key) {
+    return findByKey(key.repository(), key.rule());
   }
 
   public Rule findByKey(String repositoryKey, String key) {

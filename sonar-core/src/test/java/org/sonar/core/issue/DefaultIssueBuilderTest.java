@@ -20,7 +20,8 @@
 package org.sonar.core.issue;
 
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,8 +38,8 @@ public class DefaultIssueBuilderTest {
       .message("msg")
       .line(123)
       .cost(10000.0)
-      .rule("squid", "NullDereference")
-      .severity(Issue.SEVERITY_CRITICAL)
+      .ruleKey(RuleKey.of("squid", "NullDereference"))
+      .severity(Severity.CRITICAL)
       .done();
 
     assertThat(issue).isNotNull();
@@ -47,9 +48,9 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.componentKey()).isEqualTo(componentKey);
     assertThat(issue.message()).isEqualTo("msg");
     assertThat(issue.line()).isEqualTo(123);
-    assertThat(issue.ruleRepositoryKey()).isEqualTo("squid");
-    assertThat(issue.ruleKey()).isEqualTo("NullDereference");
-    assertThat(issue.severity()).isEqualTo(Issue.SEVERITY_CRITICAL);
+    assertThat(issue.ruleKey().repository()).isEqualTo("squid");
+    assertThat(issue.ruleKey().rule()).isEqualTo("NullDereference");
+    assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(issue.updatedAt()).isNull();
     assertThat(issue.closedAt()).isNull();
     assertThat(issue.assigneeLogin()).isNull();

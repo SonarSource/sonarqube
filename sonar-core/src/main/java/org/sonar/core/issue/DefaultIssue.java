@@ -26,9 +26,10 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
@@ -36,14 +37,12 @@ import java.util.Set;
 
 public class DefaultIssue implements Issue, Serializable {
 
-  private static final Set<String> SEVERITIES = ImmutableSet.of(SEVERITY_BLOCKER, SEVERITY_CRITICAL, SEVERITY_MAJOR, SEVERITY_MINOR, SEVERITY_INFO);
   private static final Set<String> RESOLUTIONS = ImmutableSet.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED);
   private static final Set<String> STATUSES = ImmutableSet.of(STATUS_OPEN, STATUS_CLOSED, STATUS_REOPENED, STATUS_RESOLVED);
 
   private String key;
   private String componentKey;
-  private String ruleKey;
-  private String ruleRepositoryKey;
+  private RuleKey ruleKey;
   private String severity;
   private boolean manualSeverity = false;
   private String title;
@@ -80,21 +79,12 @@ public class DefaultIssue implements Issue, Serializable {
     return this;
   }
 
-  public String ruleKey() {
+  public RuleKey ruleKey() {
     return ruleKey;
   }
 
-  public DefaultIssue setRuleKey(String ruleKey) {
-    this.ruleKey = ruleKey;
-    return this;
-  }
-
-  public String ruleRepositoryKey() {
-    return ruleRepositoryKey;
-  }
-
-  public DefaultIssue setRuleRepositoryKey(String ruleRepositoryKey) {
-    this.ruleRepositoryKey = ruleRepositoryKey;
+  public DefaultIssue setRuleKey(RuleKey k) {
+    this.ruleKey = k;
     return this;
   }
 
@@ -103,7 +93,7 @@ public class DefaultIssue implements Issue, Serializable {
   }
 
   public DefaultIssue setSeverity(@Nullable String s) {
-    Preconditions.checkArgument(s == null || SEVERITIES.contains(s), "Not a valid severity: " + s);
+    Preconditions.checkArgument(s == null || Severity.ALL.contains(s), "Not a valid severity: " + s);
     this.severity = s;
     return this;
   }
@@ -267,7 +257,7 @@ public class DefaultIssue implements Issue, Serializable {
     return attributes == null ? null : ImmutableMap.copyOf(attributes);
   }
 
-  public DefaultIssue setAttributes(Map<String, String> attributes){
+  public DefaultIssue setAttributes(Map<String, String> attributes) {
     this.attributes = attributes;
     return this;
   }

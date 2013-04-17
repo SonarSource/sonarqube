@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
@@ -40,7 +41,6 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.AuthorizationDao;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,8 +152,7 @@ public class DefaultIssueFinder implements IssueFinder {
       issue.setComponentKey(resource.getKey());
     }
     if (rule != null) {
-      issue.setRuleKey(rule.getKey());
-      issue.setRuleRepositoryKey(rule.getRepositoryKey());
+      issue.setRuleKey(RuleKey.of(rule.getRepositoryKey(), rule.getKey()));
     }
     return issue;
   }

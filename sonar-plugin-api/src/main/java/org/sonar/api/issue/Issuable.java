@@ -21,6 +21,7 @@
 package org.sonar.api.issue;
 
 import org.sonar.api.component.Perspective;
+import org.sonar.api.rule.RuleKey;
 
 import java.util.Collection;
 
@@ -30,7 +31,7 @@ import java.util.Collection;
 public interface Issuable extends Perspective {
 
   interface IssueBuilder {
-    IssueBuilder rule(String repository, String key);
+    IssueBuilder ruleKey(RuleKey ruleKey);
 
     IssueBuilder line(Integer line);
 

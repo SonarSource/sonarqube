@@ -56,7 +56,7 @@ public class ModuleIssues implements OnIssueCreation, BatchComponent {
 
   @Override
   public void onIssueCreation(DefaultIssue issue) {
-    ActiveRule activeRule = qProfile.getActiveRule(issue.ruleRepositoryKey(), issue.ruleKey());
+    ActiveRule activeRule = qProfile.getActiveRule(issue.ruleKey().repository(), issue.ruleKey().rule());
     if (activeRule == null || activeRule.getRule() == null) {
       // rule does not exist or is not enabled -> ignore the issue
       return;

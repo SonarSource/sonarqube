@@ -83,22 +83,20 @@ public class DefaultIssueFinderTest {
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(issue.componentKey()).isEqualTo("componentKey");
-    assertThat(issue.ruleKey()).isEqualTo("key");
-    assertThat(issue.ruleRepositoryKey()).isEqualTo("repo");
+    assertThat(issue.ruleKey().toString()).isEqualTo("repo:key");
   }
 
   @Test
   public void should_find_by_key() {
     IssueDto issueDto = new IssueDto().setId(1L).setRuleId(1).setResourceId(1);
-    when(issueDao.selectByKey("key")).thenReturn(issueDto);
-    when(ruleFinder.findById(anyInt())).thenReturn(Rule.create("repo", "key"));
-    when(resourceDao.getResource(anyInt())).thenReturn(new ResourceDto().setKey("componentKey"));
+    when(issueDao.selectByKey("ABCDE")).thenReturn(issueDto);
+    when(ruleFinder.findById(anyInt())).thenReturn(Rule.create("squid", "NullDeref"));
+    when(resourceDao.getResource(anyInt())).thenReturn(new ResourceDto().setKey("org/struts/Action.java"));
 
-    Issue issue = finder.findByKey("key");
+    Issue issue = finder.findByKey("ABCDE");
     assertThat(issue).isNotNull();
-    assertThat(issue.componentKey()).isEqualTo("componentKey");
-    assertThat(issue.ruleKey()).isEqualTo("key");
-    assertThat(issue.ruleRepositoryKey()).isEqualTo("repo");
+    assertThat(issue.componentKey()).isEqualTo("org/struts/Action.java");
+    assertThat(issue.ruleKey().toString()).isEqualTo("squid:NullDeref");
   }
 
   private void grantAccessRights() {

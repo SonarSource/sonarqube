@@ -40,6 +40,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
@@ -138,8 +139,8 @@ public class NewIssuesDecoratorTest {
 
   @Test
   public void should_clear_cache_after_execution() {
-    Issue issue1 = new DefaultIssue().setRuleRepositoryKey(rule1.getRepositoryKey()).setRuleKey(rule1.getKey()).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(rightNow);
-    Issue issue2 = new DefaultIssue().setRuleRepositoryKey(rule2.getRepositoryKey()).setRuleKey(rule2.getKey()).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(rightNow);
+    Issue issue1 = new DefaultIssue().setRuleKey(RuleKey.of(rule1.getRepositoryKey(), rule1.getKey())).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(rightNow);
+    Issue issue2 = new DefaultIssue().setRuleKey(RuleKey.of(rule2.getRepositoryKey(), rule2.getKey())).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(rightNow);
     when(issuable.issues()).thenReturn(newArrayList(issue1)).thenReturn(newArrayList(issue2));
 
     decorator.decorate(resource, context);
@@ -257,12 +258,12 @@ public class NewIssuesDecoratorTest {
 
   private List<Issue> createIssues() {
     List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleRepositoryKey(rule1.getRepositoryKey()).setRuleKey(rule1.getKey()).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(rightNow));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(rule1.getRepositoryKey()).setRuleKey(rule1.getKey()).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(tenDaysAgo));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(rule2.getRepositoryKey()).setRuleKey(rule2.getKey()).setSeverity(RulePriority.MAJOR.name()).setCreatedAt(fiveDaysAgo));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(rule2.getRepositoryKey()).setRuleKey(rule2.getKey()).setSeverity(RulePriority.MAJOR.name()).setCreatedAt(tenDaysAgo));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(rule3.getRepositoryKey()).setRuleKey(rule3.getKey()).setSeverity(RulePriority.MINOR.name()).setCreatedAt(fiveDaysAgo));
-    issues.add(new DefaultIssue().setRuleRepositoryKey(rule3.getRepositoryKey()).setRuleKey(rule3.getKey()).setSeverity(RulePriority.MINOR.name()).setCreatedAt(tenDaysAgo));
+    issues.add(new DefaultIssue().setRuleKey(rule1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(rightNow));
+    issues.add(new DefaultIssue().setRuleKey(rule1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(tenDaysAgo));
+    issues.add(new DefaultIssue().setRuleKey(rule2.ruleKey()).setSeverity(RulePriority.MAJOR.name()).setCreatedAt(fiveDaysAgo));
+    issues.add(new DefaultIssue().setRuleKey(rule2.ruleKey()).setSeverity(RulePriority.MAJOR.name()).setCreatedAt(tenDaysAgo));
+    issues.add(new DefaultIssue().setRuleKey(rule3.ruleKey()).setSeverity(RulePriority.MINOR.name()).setCreatedAt(fiveDaysAgo));
+    issues.add(new DefaultIssue().setRuleKey(rule3.ruleKey()).setSeverity(RulePriority.MINOR.name()).setCreatedAt(tenDaysAgo));
     return issues;
   }
 

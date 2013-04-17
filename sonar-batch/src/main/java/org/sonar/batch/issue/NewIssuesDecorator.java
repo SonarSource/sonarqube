@@ -148,7 +148,7 @@ public class NewIssuesDecorator implements Decorator {
 
       for (Issue issue : issues) {
         if (RulePriority.valueOf(issue.severity()).equals(severity)) {
-          Rule rule = rulefinder.findByKey(issue.ruleRepositoryKey(), issue.ruleKey());
+          Rule rule = rulefinder.findByKey(issue.ruleKey().repository(), issue.ruleKey().rule());
           rules.add(rule);
           issuesPerRule.put(rule, issue);
         }

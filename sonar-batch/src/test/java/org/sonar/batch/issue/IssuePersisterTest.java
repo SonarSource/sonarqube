@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.DateUtils;
@@ -54,6 +56,7 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
 
   @Test
   public void should_insert_new_issue() throws Exception {
+    setupData("should_insert_new_issue");
     Snapshot snapshot = new Snapshot();
     snapshot.setId(100);
     snapshot.setResourceId(200);
@@ -62,11 +65,10 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("org/struts/Action.java")
-      .setRuleRepositoryKey("squid")
-      .setRuleKey("NullDef")
+      .setRuleKey(RuleKey.of("squid", "NullDef"))
       .setNew(true)
       .setStatus(Issue.STATUS_OPEN)
-      .setSeverity(Issue.SEVERITY_BLOCKER)
+      .setSeverity(Severity.BLOCKER)
       .setCreatedAt(DateUtils.parseDate("2013-05-18"))
       .setUpdatedAt(DateUtils.parseDate("2013-05-23"));
     when(issues.componentIssues("org/struts/Action.java")).thenReturn(newArrayList(issue));
@@ -91,11 +93,10 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("org/struts/Action.java")
-      .setRuleRepositoryKey("squid")
-      .setRuleKey("NullDef")
+      .setRuleKey(RuleKey.of("squid", "NullDef"))
       .setNew(false)
       .setStatus(Issue.STATUS_CLOSED)
-      .setSeverity(Issue.SEVERITY_BLOCKER)
+      .setSeverity(Severity.BLOCKER)
       .setCreatedAt(DateUtils.parseDate("2013-05-18"))
       .setUpdatedAt(DateUtils.parseDate("2013-05-23"));
     when(issues.componentIssues("org/struts/Action.java")).thenReturn(newArrayList(issue));
@@ -120,11 +121,10 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("org/struts/Action.java")
-      .setRuleRepositoryKey("squid")
-      .setRuleKey("NullDef")
+      .setRuleKey(RuleKey.of("squid", "NullDef"))
       .setNew(false)
       .setStatus(Issue.STATUS_CLOSED)
-      .setSeverity(Issue.SEVERITY_BLOCKER)
+      .setSeverity(Severity.BLOCKER)
       .setCreatedAt(DateUtils.parseDate("2013-05-18"))
       .setUpdatedAt(DateUtils.parseDate("2013-05-23"));
     when(issues.componentIssues("org/struts/Action.java")).thenReturn(newArrayList(issue));

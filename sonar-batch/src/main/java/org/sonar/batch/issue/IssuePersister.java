@@ -57,9 +57,9 @@ public class IssuePersister implements ScanPersister {
       Collection<Issue> issues = issueCache.componentIssues(componentKey);
 
       for (Issue issue : issues) {
-        Rule rule = ruleFinder.findByKey(issue.ruleRepositoryKey(), issue.ruleKey());
+        Rule rule = ruleFinder.findByKey(issue.ruleKey().repository(), issue.ruleKey().rule());
         if (rule == null) {
-          throw new IllegalStateException("Rule not found: " + issue.ruleRepositoryKey() + ":" + issue.ruleKey());
+          throw new IllegalStateException("Rule not found: " + issue.ruleKey());
         }
 
         IssueDto dto = toIssueDto((DefaultIssue) issue, snapshot.getResourceId(), rule.getId());

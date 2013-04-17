@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.DateUtils;
@@ -46,16 +47,16 @@ public class IssueTrackingTest {
 
   @Before
   public void before() {
-    Rule rule1 = Rule.create("repoKey", "ruleKey");
+    Rule rule1 = Rule.create("squid", "AvoidCycle");
     rule1.setId(1);
-    Rule rule2 = Rule.create("repoKey", "ruleKey2");
+    Rule rule2 = Rule.create("squid", "NullDeref");
     rule2.setId(2);
 
     RuleFinder ruleFinder = mock(RuleFinder.class);
     when(ruleFinder.findById(1)).thenReturn(rule1);
     when(ruleFinder.findById(2)).thenReturn(rule2);
-    when(ruleFinder.findByKey("repoKey", "ruleKey")).thenReturn(rule1);
-    when(ruleFinder.findByKey("repoKey", "ruleKey2")).thenReturn(rule2);
+    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule1);
+    when(ruleFinder.findByKey(RuleKey.of("squid", "NullDeref"))).thenReturn(rule2);
 
     Project project = mock(Project.class);
     when(project.getAnalysisDate()).thenReturn(analysisDate);
@@ -68,7 +69,7 @@ public class IssueTrackingTest {
     IssueDto referenceIssue2 = newReferenceIssue("message", 10, 1, "checksum2").setUuid("200");
 
     // exactly the fields of referenceIssue1 but not the same key
-    DefaultIssue newIssue = newDefaultIssue("message", 10, "repoKey", "ruleKey", "checksum1").setKey("200");
+    DefaultIssue newIssue = newDefaultIssue("message", 10, RuleKey.of("squid", "AvoidCycle"), "checksum1").setKey("200");
 
     decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue1, referenceIssue2));
     // same key
@@ -81,8 +82,8 @@ public class IssueTrackingTest {
     IssueDto referenceIssue1 = newReferenceIssue("message", 1, 1, "checksum1");
     IssueDto referenceIssue2 = newReferenceIssue("message", 3, 1, "checksum2");
 
-    DefaultIssue newIssue1 = newDefaultIssue("message", 3, "repoKey", "ruleKey", "checksum1");
-    DefaultIssue newIssue2 = newDefaultIssue("message", 5, "repoKey", "ruleKey", "checksum2");
+    DefaultIssue newIssue1 = newDefaultIssue("message", 3, RuleKey.of("squid", "AvoidCycle"), "checksum1");
+    DefaultIssue newIssue2 = newDefaultIssue("message", 5, RuleKey.of("squid", "AvoidCycle"), "checksum2");
 
     decorator.mapIssues(newArrayList(newIssue1, newIssue2), newArrayList(referenceIssue1, referenceIssue2));
     assertThat(decorator.getReferenceIssue(newIssue1)).isSameAs(referenceIssue1);
@@ -96,7 +97,7 @@ public class IssueTrackingTest {
    */
   @Test
   public void same_rule_and_null_line_and_checksum_but_different_messages() {
-    DefaultIssue newIssue = newDefaultIssue("new message", null, "repoKey", "ruleKey", "checksum1");
+    DefaultIssue newIssue = newDefaultIssue("new message", null, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("old message", null, 1, "checksum1");
 
     decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
@@ -106,7 +107,7 @@ public class IssueTrackingTest {
 
   @Test
   public void same_rule_and_line_and_checksum_but_different_messages() {
-    DefaultIssue newIssue = newDefaultIssue("new message", 1, "repoKey", "ruleKey", "checksum1");
+    DefaultIssue newIssue = newDefaultIssue("new message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("old message", 1, 1, "checksum1");
 
     decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
@@ -116,7 +117,7 @@ public class IssueTrackingTest {
 
   @Test
   public void same_rule_and_line_message() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, "repoKey", "ruleKey", "checksum1");
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 1, 1, "checksum2");
 
     decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
@@ -126,7 +127,7 @@ public class IssueTrackingTest {
 
   @Test
   public void should_ignore_reference_measure_without_checksum() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, "repoKey", "ruleKey", null);
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), null);
     IssueDto referenceIssue = newReferenceIssue("message", 1, 2, null);
 
     decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
@@ -136,7 +137,7 @@ public class IssueTrackingTest {
 
   @Test
   public void same_rule_and_message_and_checksum_but_different_line() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, "repoKey", "ruleKey", "checksum1");
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 2, 1, "checksum1");
 
     decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
@@ -149,7 +150,7 @@ public class IssueTrackingTest {
    */
   @Test
   public void same_checksum_and_rule_but_different_line_and_different_message() {
-    DefaultIssue newIssue = newDefaultIssue("new message", 1, "repoKey", "ruleKey", "checksum1");
+    DefaultIssue newIssue = newDefaultIssue("new message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("old message", 2, 1, "checksum1");
 
     decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
@@ -159,7 +160,7 @@ public class IssueTrackingTest {
 
   @Test
   public void should_create_new_issue_when_same_rule_same_message_but_different_line_and_checksum() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, "repoKey", "ruleKey", "checksum1");
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 2, 1, "checksum2");
 
     decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
@@ -169,7 +170,7 @@ public class IssueTrackingTest {
 
   @Test
   public void should_not_track_issue_if_different_rule() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, "repoKey", "ruleKey", "checksum1");
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 1, 2, "checksum1");
 
     decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
@@ -181,7 +182,7 @@ public class IssueTrackingTest {
   public void should_compare_issues_with_database_format() {
     // issue messages are trimmed and can be abbreviated when persisted in database.
     // Comparing issue messages must use the same format.
-    DefaultIssue newIssue = newDefaultIssue(" message ", 1, "repoKey", "ruleKey", "checksum1");
+    DefaultIssue newIssue = newDefaultIssue(" message ", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("       message       ", 1, 1, "checksum2");
 
     decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
@@ -191,7 +192,7 @@ public class IssueTrackingTest {
 
   @Test
   public void should_set_date_of_new_issues() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, "repoKey", "ruleKey", "checksum");
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum");
     assertThat(newIssue.createdAt()).isNull();
 
     Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(newArrayList(newIssue), Lists.<IssueDto>newArrayList());
@@ -202,16 +203,16 @@ public class IssueTrackingTest {
 
   @Test
   public void should_set_severity_if_severity_has_been_changed_by_user() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, "repoKey", "ruleKey", "checksum").setSeverity("MAJOR");
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum").setSeverity("MAJOR");
     IssueDto referenceIssue = newReferenceIssue("message", 1, 1, "checksum").setSeverity("MINOR").setManualSeverity(true);
 
-    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
     assertThat(newIssue.severity()).isEqualTo("MINOR");
   }
 
   @Test
   public void should_copy_date_when_not_new() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, "repoKey", "ruleKey", "checksum");
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum");
     IssueDto referenceIssue = newReferenceIssue("", 1, 1, "checksum");
     Date referenceDate = DateUtils.parseDate("2009-05-18");
     referenceIssue.setCreatedAt(referenceDate);
@@ -223,8 +224,8 @@ public class IssueTrackingTest {
     assertThat(newIssue.isNew()).isFalse();
   }
 
-  private DefaultIssue newDefaultIssue(String message, Integer line, String repositoryKey, String ruleKey, String checksum) {
-    return new DefaultIssue().setMessage(message).setLine(line).setRuleKey(ruleKey).setRuleRepositoryKey(repositoryKey).setChecksum(checksum);
+  private DefaultIssue newDefaultIssue(String message, Integer line, RuleKey ruleKey, String checksum) {
+    return new DefaultIssue().setMessage(message).setLine(line).setRuleKey(ruleKey).setChecksum(checksum);
   }
 
   private IssueDto newReferenceIssue(String message, Integer lineId, int ruleId, String lineChecksum) {
