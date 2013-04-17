@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.profiling;
 
+import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.Phases.Phase;
 
@@ -45,13 +46,19 @@ public class ModuleProfiling extends AbstractTimeProfiling {
   }
 
   public void dump() {
+    double percent = this.totalTime() / 100.0;
     for (PhaseProfiling phaseProfiling : sortByDescendingTotalTime(profilingPerPhase.values())) {
-      System.out.println(" * " + phaseProfiling.phase() + " execution time: " + phaseProfiling.totalTimeAsString());
+      StringBuilder sb = new StringBuilder();
+      sb.append(" * ").append(phaseProfiling.phase()).append(" execution time: ").append(phaseProfiling.totalTimeAsString())
+          .append(" (").append((int) (phaseProfiling.totalTime() / percent)).append("%)");
+      System.out.println(sb.toString());
     }
     for (Phase phase : Phases.Phase.values()) {
       if (profilingPerPhase.containsKey(phase)) {
-        System.out.println("");
-        System.out.println(" * " + phase + " execution time breakdown");
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n * ").append(phase).append(" execution time breakdown: ")
+            .append(TimeUtils.formatDuration(getProfilingPerPhase(phase).totalTime()));
+        System.out.println(sb.toString());
         getProfilingPerPhase(phase).dump();
       }
     }

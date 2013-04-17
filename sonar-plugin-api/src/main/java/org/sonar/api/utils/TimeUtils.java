@@ -17,24 +17,36 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.dbcleaner;
+package org.sonar.api.utils;
 
-import org.sonar.api.batch.PostJob;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Project;
-import org.sonar.core.DryRunIncompatible;
-import org.sonar.plugins.dbcleaner.api.PurgeTask;
+/**
+ * @since 3.6
+ */
+public final class TimeUtils {
 
-@DryRunIncompatible
-public class ProjectPurgePostJob implements PostJob {
-
-  private PurgeTask purgeTask;
-
-  public ProjectPurgePostJob(PurgeTask purgeTask) {
-    this.purgeTask = purgeTask;
+  private TimeUtils() {
   }
 
-  public void executeOn(final Project project, SensorContext context) {
-    purgeTask.purge(project.getId());
+  public static String formatDuration(long durationInMs) {
+    if (durationInMs < 1000) {
+      return String.format("%sms", durationInMs);
+    }
+    else {
+      long sec = durationInMs / 1000;
+      if (sec < 60) {
+        return String.format("%ss", sec);
+      }
+      else {
+        long min = sec / 60;
+        long remainingSec = sec - (min * 60);
+        if (remainingSec > 0) {
+          return String.format("%smin %ss", min, remainingSec);
+        }
+        else {
+          return String.format("%smin", min);
+        }
+      }
+    }
   }
+
 }

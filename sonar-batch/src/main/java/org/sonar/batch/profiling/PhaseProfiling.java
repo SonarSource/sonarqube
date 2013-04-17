@@ -74,8 +74,12 @@ public class PhaseProfiling extends AbstractTimeProfiling {
   }
 
   public void dump() {
+    double percent = this.totalTime() / 100.0;
     for (ItemProfiling itemProfiling : truncateList(sortByDescendingTotalTime(profilingPerItem.values()))) {
-      System.out.println("   o " + itemProfiling.itemName() + ": " + itemProfiling.totalTimeAsString());
+      StringBuilder sb = new StringBuilder();
+      sb.append("   o ").append(itemProfiling.itemName()).append(": ").append(itemProfiling.totalTimeAsString())
+          .append(" (").append((int) (itemProfiling.totalTime() / percent)).append("%)");
+      System.out.println(sb.toString());
     }
   }
 

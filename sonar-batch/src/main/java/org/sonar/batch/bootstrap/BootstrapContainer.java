@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.core.purge.PurgeProfiler;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
@@ -105,7 +107,8 @@ public class BootstrapContainer extends ComponentContainer {
       DefaultDatabaseConnector.class,
       JpaDatabaseSession.class,
       BatchDatabaseSessionFactory.class,
-      DaoUtils.getDaoClasses()
+      DaoUtils.getDaoClasses(),
+      PurgeProfiler.class
     );
   }
 

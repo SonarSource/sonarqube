@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.profiling;
 
+import org.sonar.api.utils.TimeUtils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,26 +53,7 @@ public abstract class AbstractTimeProfiling {
   }
 
   public String totalTimeAsString() {
-    if (totalTime < 1000) {
-      return String.format("%sms", totalTime);
-    }
-    else {
-      long sec = totalTime / 1000;
-      // long remainingMs = totalTime - (sec * 1000);
-      if (sec < 60) {
-        return String.format("%ss", sec);
-      }
-      else {
-        long min = sec / 60;
-        long remainingSec = sec - (min * 60);
-        if (remainingSec > 0) {
-          return String.format("%smin %ss", min, remainingSec);
-        }
-        else {
-          return String.format("%smin", min);
-        }
-      }
-    }
+    return TimeUtils.formatDuration(totalTime);
   }
 
   public void setTotalTime(long totalTime) {

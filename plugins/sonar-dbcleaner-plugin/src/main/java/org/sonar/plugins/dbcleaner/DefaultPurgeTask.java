@@ -21,12 +21,15 @@ package org.sonar.plugins.dbcleaner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.TimeUtils;
 import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 import org.sonar.plugins.dbcleaner.api.PurgeTask;
 import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
@@ -50,11 +53,13 @@ public class DefaultPurgeTask implements PurgeTask {
   private PurgeDao purgeDao;
   private Settings settings;
   private DefaultPeriodCleaner periodCleaner;
+  private final PurgeProfiler profiler;
 
-  public DefaultPurgeTask(PurgeDao purgeDao, Settings settings, DefaultPeriodCleaner periodCleaner) {
+  public DefaultPurgeTask(PurgeDao purgeDao, Settings settings, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler) {
     this.purgeDao = purgeDao;
     this.settings = settings;
     this.periodCleaner = periodCleaner;
+    this.profiler = profiler;
   }
 
   public PurgeTask delete(long resourceId) {
@@ -63,8 +68,16 @@ public class DefaultPurgeTask implements PurgeTask {
   }
 
   public PurgeTask purge(long resourceId) {
+    long start = System.currentTimeMillis();
+    profiler.reset();
     cleanHistoricalData(resourceId);
     doPurge(resourceId);
+    if (settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
+      long duration = System.currentTimeMillis() - start;
+      System.out.println("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
+      profiler.dump(duration);
+      System.out.println("\n -------- End of profiling for purge --------\n");
+    }
     return this;
   }
 
@@ -79,9 +92,9 @@ public class DefaultPurgeTask implements PurgeTask {
 
   private String[] getScopesWithoutHistoricalData() {
     if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
-      return new String[]{Scopes.DIRECTORY, Scopes.FILE};
+      return new String[] {Scopes.DIRECTORY, Scopes.FILE};
     }
-    return new String[]{Scopes.FILE};
+    return new String[] {Scopes.FILE};
   }
 
   private void doPurge(long resourceId) {

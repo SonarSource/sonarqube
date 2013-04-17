@@ -30,6 +30,7 @@ import org.sonar.api.batch.events.ProjectAnalysisHandler;
 import org.sonar.api.batch.events.SensorExecutionHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.phases.Phases;
 
 import java.util.IdentityHashMap;
@@ -66,15 +67,17 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
     else {
       currentModuleProfiling.stop();
-      System.out.println("\n -------- Profiling for module " + module.getName() + " --------\n");
+      long moduleTotalTime = currentModuleProfiling.totalTime();
+      System.out.println("\n -------- Profiling of module " + module.getName() + ": " + TimeUtils.formatDuration(moduleTotalTime) + " --------\n");
       currentModuleProfiling.dump();
-      System.out.println("\n -------- End of profiling for module " + module.getName() + " --------\n");
+      System.out.println("\n -------- End of profiling of module " + module.getName() + " --------\n");
       totalProfiling.merge(currentModuleProfiling);
       if (module.isRoot() && !module.getModules().isEmpty()) {
         totalProfiling.stop();
-        System.out.println("\n ======== Profiling for total execution ========\n");
+        long totalTime = totalProfiling.totalTime();
+        System.out.println("\n ======== Profiling of total execution: " + TimeUtils.formatDuration(totalTime) + " ========\n");
         totalProfiling.dump();
-        System.out.println("\n ======== End of profiling for total execution ========\n");
+        System.out.println("\n ======== End of profiling of total execution ========\n");
       }
     }
   }

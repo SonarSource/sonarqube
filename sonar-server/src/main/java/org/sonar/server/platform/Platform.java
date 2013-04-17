@@ -54,6 +54,7 @@ import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.SemaphoreUpdater;
 import org.sonar.core.persistence.SemaphoresImpl;
+import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
@@ -106,7 +107,11 @@ import org.sonar.server.startup.RegisterRules;
 import org.sonar.server.startup.RegisterServletFilters;
 import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
 import org.sonar.server.startup.ServerMetadataPersister;
-import org.sonar.server.ui.*;
+import org.sonar.server.ui.CodeColorizers;
+import org.sonar.server.ui.JRubyI18n;
+import org.sonar.server.ui.PageDecorations;
+import org.sonar.server.ui.SecurityRealmFactory;
+import org.sonar.server.ui.Views;
 
 import javax.servlet.ServletContext;
 
@@ -179,6 +184,7 @@ public final class Platform {
     for (Class daoClass : DaoUtils.getDaoClasses()) {
       rootContainer.addSingleton(daoClass);
     }
+    rootContainer.addSingleton(PurgeProfiler.class);
     rootContainer.addSingleton(PluginDeployer.class);
     rootContainer.addSingleton(InstalledPluginReferentialFactory.class);
     rootContainer.addSingleton(DefaultServerPluginRepository.class);

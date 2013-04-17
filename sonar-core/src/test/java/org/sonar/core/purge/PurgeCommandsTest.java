@@ -20,6 +20,7 @@
 package org.sonar.core.purge;
 
 import org.apache.ibatis.session.SqlSession;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
@@ -27,6 +28,14 @@ import org.sonar.core.persistence.MyBatis;
 import java.util.Arrays;
 
 public class PurgeCommandsTest extends AbstractDaoTestCase {
+
+  private PurgeProfiler profiler;
+
+  @Before
+  public void prepare() {
+    profiler = new PurgeProfiler();
+  }
+
   /**
    * Test that all related data is deleted.
    */
@@ -36,12 +45,12 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      new PurgeCommands(session).deleteSnapshots(PurgeSnapshotQuery.create().setId(5L));
+      new PurgeCommands(session, profiler).deleteSnapshots(PurgeSnapshotQuery.create().setId(5L));
     } finally {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldDeleteSnapshot",
-      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "snapshot_data");
+        "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "snapshot_data");
   }
 
   /**
@@ -53,12 +62,12 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      new PurgeCommands(session).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
+      new PurgeCommands(session, profiler).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
     } finally {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldPurgeSnapshot",
-      "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews", "snapshot_data");
+        "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews", "snapshot_data");
   }
 
   @Test
@@ -67,7 +76,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
-      new PurgeCommands(session).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
+      new PurgeCommands(session, profiler).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -79,7 +88,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
     setupData("shouldDeleteResource");
     SqlSession session = getMyBatis().openSession();
     try {
-      new PurgeCommands(session).deleteResources(Arrays.asList(1L));
+      new PurgeCommands(session, profiler).deleteResources(Arrays.asList(1L));
     } finally {
       MyBatis.closeQuietly(session);
     }

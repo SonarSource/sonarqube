@@ -41,7 +41,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
 
   @Before
   public void createDao() {
-    dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis()));
+    dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis()), new PurgeProfiler());
   }
 
   @Test
@@ -65,9 +65,8 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
     } finally {
       MyBatis.closeQuietly(session);
     }
-    checkTables("shouldCloseReviewWhenDisablingResource", /* excluded column */new String[]{"updated_at"}, "reviews");
+    checkTables("shouldCloseReviewWhenDisablingResource", /* excluded column */new String[] {"updated_at"}, "reviews");
   }
-
 
   @Test
   public void shouldPurgeProject() {
@@ -79,7 +78,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     setupData("shouldDeleteHistoricalDataOfDirectoriesAndFiles");
-    dao.purge(1, new String[]{Scopes.DIRECTORY, Scopes.FILE});
+    dao.purge(1, new String[] {Scopes.DIRECTORY, Scopes.FILE});
     checkTables("shouldDeleteHistoricalDataOfDirectoriesAndFiles", "projects", "snapshots");
   }
 
