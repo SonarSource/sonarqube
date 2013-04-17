@@ -64,6 +64,10 @@
   font-weight: normal;
 }
 
+.highlightable {
+  background-color: #a5c2ee;
+}
+
 .highlighted {
   background-color: #ff0000;
 }
