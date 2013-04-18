@@ -20,7 +20,9 @@
 
 package org.sonar.plugins.core.issue;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
@@ -28,9 +30,12 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -43,6 +48,12 @@ public class IssueTrackingTest {
 
   private final Date analysisDate = DateUtils.parseDate("2013-04-11");
   private IssueTracking decorator;
+
+  private Project project;
+  private RuleFinder ruleFinder;
+
+  private LastSnapshots lastSnapshots;
+
   private long violationId = 0;
 
   @Before
@@ -52,15 +63,17 @@ public class IssueTrackingTest {
     Rule rule2 = Rule.create("squid", "NullDeref");
     rule2.setId(2);
 
-    RuleFinder ruleFinder = mock(RuleFinder.class);
+    ruleFinder = mock(RuleFinder.class);
     when(ruleFinder.findById(1)).thenReturn(rule1);
     when(ruleFinder.findById(2)).thenReturn(rule2);
     when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule1);
     when(ruleFinder.findByKey(RuleKey.of("squid", "NullDeref"))).thenReturn(rule2);
 
-    Project project = mock(Project.class);
+    lastSnapshots = mock(LastSnapshots.class);
+
+    project = mock(Project.class);
     when(project.getAnalysisDate()).thenReturn(analysisDate);
-    decorator = new IssueTracking(project, ruleFinder, null, null);
+    decorator = new IssueTracking(project, ruleFinder, lastSnapshots, null);
   }
 
   @Test
@@ -222,6 +235,119 @@ public class IssueTrackingTest {
     assertThat(mapping.size()).isEqualTo(1);
     assertThat(newIssue.createdAt()).isEqualTo(referenceDate);
     assertThat(newIssue.isNew()).isFalse();
+  }
+
+  @Test
+  public void past_issue_not_assiciated_with_line_should_not_cause_npe() throws Exception {
+    when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
+    String source = load("example2-v2");
+
+    DefaultIssue newIssue = newDefaultIssue("Indentation", 9, RuleKey.of("squid", "AvoidCycle"), "foo");
+    IssueDto referenceIssue = newReferenceIssue("2 branches need to be covered", null, 1, null);
+
+
+    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+      newArrayList(newIssue),
+      newArrayList(referenceIssue),
+      source, project);
+
+    assertThat(mapping.isEmpty()).isTrue();
+    assertThat(newIssue.isNew()).isTrue();
+  }
+
+  @Test
+  public void new_issue_not_assiciated_with_line_should_not_cause_npe() throws Exception {
+    when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
+    String source = load("example2-v2");
+
+    DefaultIssue newIssue = newDefaultIssue("1 branch need to be covered", null, RuleKey.of("squid", "AvoidCycle"), "foo");
+    IssueDto referenceIssue = newReferenceIssue("Indentationd", 7, 1, null);
+
+    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+      newArrayList(newIssue),
+      newArrayList(referenceIssue),
+      source, project);
+
+    assertThat(mapping.isEmpty()).isTrue();
+    assertThat(newIssue.isNew()).isTrue();
+  }
+
+  /**
+   * SONAR-2928
+   */
+  @Test
+  public void issue_not_associated_with_line() throws Exception {
+    when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
+    String source = load("example2-v2");
+
+    DefaultIssue newIssue = newDefaultIssue("1 branch need to be covered", null, RuleKey.of("squid", "AvoidCycle"), null);
+    IssueDto referenceIssue = newReferenceIssue("2 branches need to be covered", null, 1, null);
+
+    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+      newArrayList(newIssue),
+      newArrayList(referenceIssue),
+      source, project);
+
+    assertThat(newIssue.isNew()).isFalse();
+    assertThat(mapping.get(newIssue)).isEqualTo(referenceIssue);
+  }
+
+  /**
+   * SONAR-3072
+   */
+  @Test
+  public void should_track_issues_based_on_blocks_recognition_on_example1() throws Exception {
+    when(lastSnapshots.getSource(project)).thenReturn(load("example1-v1"));
+    String source = load("example1-v2");
+
+    IssueDto referenceIssue1 = newReferenceIssue("Indentation", 7, 1, null);
+    IssueDto referenceIssue2 = newReferenceIssue("Indentation", 11, 1, null);
+
+    DefaultIssue newIssue1 = newDefaultIssue("Indentation", 9, RuleKey.of("squid", "AvoidCycle"), null);
+    DefaultIssue newIssue2 = newDefaultIssue("Indentation", 13, RuleKey.of("squid", "AvoidCycle"), null);
+    DefaultIssue newIssue3 = newDefaultIssue("Indentation", 17, RuleKey.of("squid", "AvoidCycle"), null);
+    DefaultIssue newIssue4 = newDefaultIssue("Indentation", 21, RuleKey.of("squid", "AvoidCycle"), null);
+
+    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+      Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4),
+      Arrays.asList(referenceIssue1, referenceIssue2),
+      source, project);
+
+    assertThat(newIssue1.isNew()).isTrue();
+    assertThat(newIssue2.isNew()).isTrue();
+    assertThat(newIssue3.isNew()).isFalse();
+    assertThat(mapping.get(newIssue3)).isEqualTo(referenceIssue1);
+    assertThat(newIssue4.isNew()).isFalse();
+    assertThat(mapping.get(newIssue4)).isEqualTo(referenceIssue2);
+  }
+
+  /**
+   * SONAR-3072
+   */
+  @Test
+  public void should_track_issues_based_on_blocks_recognition_on_example2() throws Exception {
+    when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
+    String source = load("example2-v2");
+
+    IssueDto referenceIssue1 = newReferenceIssue("SystemPrintln", 5, 1, null);
+
+    DefaultIssue newIssue1 = newDefaultIssue("SystemPrintln", 6, RuleKey.of("squid", "AvoidCycle"), null);
+    DefaultIssue newIssue2 = newDefaultIssue("SystemPrintln", 10, RuleKey.of("squid", "AvoidCycle"), null);
+    DefaultIssue newIssue3 = newDefaultIssue("SystemPrintln", 14, RuleKey.of("squid", "AvoidCycle"), null);
+
+    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+      Arrays.asList(newIssue1, newIssue2, newIssue3),
+      Arrays.asList(referenceIssue1),
+      source, project);
+
+    assertThat(newIssue1.isNew()).isTrue();
+    assertThat(newIssue2.isNew()).isFalse();
+    assertThat(mapping.get(newIssue2)).isEqualTo(referenceIssue1);
+    assertThat(newIssue3.isNew()).isTrue();
+  }
+
+  private static String load(String name) throws IOException {
+    return Resources.toString(IssueTrackingTest.class.getResource("IssueTrackingTest/" + name + ".txt"), Charsets.UTF_8);
   }
 
   private DefaultIssue newDefaultIssue(String message, Integer line, RuleKey ruleKey, String checksum) {
