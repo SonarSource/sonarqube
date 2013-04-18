@@ -93,6 +93,8 @@ public class JettyEmbedder {
     }
 
     WebAppContext context = new WebAppContext(getPath("/war/sonar-server"), contextPath);
+    // Set up the path to the custom webdefault.xml (SONAR-3962).
+    context.setDefaultsDescriptor("/org/sonar/application/webdefault.xml");
     handlers.add(context);
 
     String filenamePattern = configuration.getProperty("sonar.web.jettyRequestLogs");
