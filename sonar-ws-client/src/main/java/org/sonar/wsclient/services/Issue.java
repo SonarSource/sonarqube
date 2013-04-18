@@ -28,8 +28,8 @@ public class Issue extends Model {
 
   private String key;
   private String componentKey;
-  private String ruleKey;
   private String ruleRepositoryKey;
+  private String ruleKey;
   private String severity;
   private String title;
   private String message;
@@ -61,21 +61,21 @@ public class Issue extends Model {
     return this;
   }
 
-  public String getRuleKey() {
-    return ruleKey;
-  }
-
-  public Issue setRuleKey(String ruleKey) {
-    this.ruleKey = ruleKey;
-    return this;
-  }
-
   public String getRuleRepositoryKey() {
     return ruleRepositoryKey;
   }
 
   public Issue setRuleRepositoryKey(String ruleRepositoryKey) {
     this.ruleRepositoryKey = ruleRepositoryKey;
+    return this;
+  }
+
+  public String getRuleKey() {
+    return ruleKey;
+  }
+
+  public Issue setRuleKey(String ruleKey) {
+    this.ruleKey = ruleKey;
     return this;
   }
 
@@ -190,9 +190,22 @@ public class Issue extends Model {
   @Override
   public String toString() {
     return new StringBuilder()
-        .append(key)
+      .append("[key=").append(key).append("], ")
+      .append("[componentKey=").append(componentKey).append("], ")
+      .append("[ruleRepositoryKey=").append(ruleRepositoryKey).append("], ")
+      .append("[ruleKey=").append(ruleKey).append("], ")
+      .append("[severity=").append(severity).append("], ")
+      .append("[title=").append(title).append("], ")
+      .append("[message=").append(message).append("], ")
+      .append("[line=").append(line).append("], ")
+      .append("[cost=").append(cost).append("], ")
+      .append("[status=").append(status).append("], ")
+      .append("[resolution=").append(resolution).append("], ")
+      .append("[userLogin=").append(userLogin).append("], ")
+      .append("[assigneeLogin=").append(assigneeLogin).append("], ")
+      .append("[createdAt=").append(createdAt).append("], ")
+      .append("[updatedAt=").append(updatedAt).append("], ")
+      .append("[closedAt=").append(closedAt).append("]")
         .toString();
   }
-
-
 }
