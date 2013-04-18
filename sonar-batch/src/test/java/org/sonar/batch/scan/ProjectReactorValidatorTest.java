@@ -85,6 +85,16 @@ public class ProjectReactorValidatorTest {
     validator.validate(reactor);
   }
 
+  @Test
+  public void should_fail_with_backslash() {
+    String projectKey = "foo\\bar";
+    ProjectReactor reactor = createProjectReactor(projectKey);
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("foo\\bar is not a valid project or module key");
+    validator.validate(reactor);
+  }
+
   private ProjectReactor createProjectReactor(String projectKey) {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, projectKey);
     ProjectReactor reactor = new ProjectReactor(def);
