@@ -31,12 +31,14 @@ public class DecorationDataHolder {
   private static final String SYMBOL_PREFIX = "symbol-";
   private static final String HIGHLIGHTABLE = "highlightable";
 
-  private LinkedList<TagEntry> tagEntriesStack;
-  private LinkedList<Integer> closingTagsStack;
+  private List<TagEntry> openingTagsEntries;
+  private int openingTagsIndex;
+  private List<Integer> closingTagsOffsets;
+  private int closingTagsIndex;
 
   public DecorationDataHolder() {
-    tagEntriesStack = Lists.newLinkedList();
-    closingTagsStack = Lists.newLinkedList();
+    openingTagsEntries = Lists.newArrayList();
+    closingTagsOffsets = Lists.newArrayList();
   }
 
   public void loadSymbolReferences(String symbolsReferences) {
@@ -55,29 +57,45 @@ public class DecorationDataHolder {
     String[] rules = syntaxHighlightingRules.split(ENTITY_SEPARATOR);
     for (int i = 0; i < rules.length; i++) {
       String[] ruleFields = rules[i].split(FIELD_SEPARATOR);
-      insertAndPreserveOrder(new TagEntry(Integer.parseInt(ruleFields[0]), ruleFields[2]), tagEntriesStack);
-      insertAndPreserveOrder(Integer.parseInt(ruleFields[1]), closingTagsStack);
+      insertAndPreserveOrder(new TagEntry(Integer.parseInt(ruleFields[0]), ruleFields[2]), openingTagsEntries);
+      insertAndPreserveOrder(Integer.parseInt(ruleFields[1]), closingTagsOffsets);
     }
   }
 
-  public Deque<TagEntry> getTagEntriesStack() {
-    return tagEntriesStack;
+  public List<TagEntry> getOpeningTagsEntries() {
+    return openingTagsEntries;
   }
 
-  public Deque<Integer> getClosingTagsStack() {
-    return closingTagsStack;
+  public TagEntry getCurrentOpeningTagEntry() {
+    return openingTagsIndex < openingTagsEntries.size() ? openingTagsEntries.get(openingTagsIndex) : null;
+  }
+
+  public void nextOpeningTagEntry() {
+    openingTagsIndex++;
+  }
+
+  public List<Integer> getClosingTagsOffsets() {
+    return closingTagsOffsets;
+  }
+
+  public int getCurrentClosingTagOffset() {
+    return closingTagsIndex < closingTagsOffsets.size() ? closingTagsOffsets.get(closingTagsIndex) : -1;
+  }
+
+  public void nextClosingTagOffset() {
+    closingTagsIndex++;
   }
 
   private void loadSymbolOccurrences(int declarationStartOffset, int symbolLength, String[] symbolOccurrences) {
     for (int i = 0; i < symbolOccurrences.length; i++) {
       int occurrenceStartOffset = Integer.parseInt(symbolOccurrences[i]);
       int occurrenceEndOffset = occurrenceStartOffset + symbolLength;
-      insertAndPreserveOrder(new TagEntry(occurrenceStartOffset, SYMBOL_PREFIX + declarationStartOffset + " " + HIGHLIGHTABLE), tagEntriesStack);
-      insertAndPreserveOrder(occurrenceEndOffset, closingTagsStack);
+      insertAndPreserveOrder(new TagEntry(occurrenceStartOffset, SYMBOL_PREFIX + declarationStartOffset + " " + HIGHLIGHTABLE), openingTagsEntries);
+      insertAndPreserveOrder(occurrenceEndOffset, closingTagsOffsets);
     }
   }
 
-  private void insertAndPreserveOrder(TagEntry newEntry, LinkedList<TagEntry> orderedEntries) {
+  private void insertAndPreserveOrder(TagEntry newEntry, List<TagEntry> orderedEntries) {
     int insertionIndex = 0;
     Iterator<TagEntry> entriesIterator = orderedEntries.iterator();
     while(entriesIterator.hasNext() && entriesIterator.next().getStartOffset() <= newEntry.getStartOffset()) {
@@ -86,7 +104,7 @@ public class DecorationDataHolder {
     orderedEntries.add(insertionIndex, newEntry);
   }
 
-  private void insertAndPreserveOrder(int newOffset, LinkedList<Integer> orderedOffsets) {
+  private void insertAndPreserveOrder(int newOffset, List<Integer> orderedOffsets) {
     int insertionIndex = 0;
     Iterator<Integer> entriesIterator = orderedOffsets.iterator();
     while(entriesIterator.hasNext() && entriesIterator.next() <= newOffset) {

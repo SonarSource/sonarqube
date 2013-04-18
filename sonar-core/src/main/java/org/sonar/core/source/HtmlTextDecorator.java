@@ -120,17 +120,19 @@ public class HtmlTextDecorator {
 
   private int getNumberOfTagsToClose(int currentIndex, DecorationDataHolder dataHolder) {
     int numberOfTagsToClose = 0;
-    while(!dataHolder.getClosingTagsStack().isEmpty() && dataHolder.getClosingTagsStack().peek() == currentIndex) {
-      dataHolder.getClosingTagsStack().pop();
+
+    while(currentIndex == dataHolder.getCurrentClosingTagOffset()) {
       numberOfTagsToClose++;
+      dataHolder.nextClosingTagOffset();
     }
     return numberOfTagsToClose;
   }
 
   private Collection<String> getTagsToOpen(int currentIndex, DecorationDataHolder dataHolder) {
     Collection<String> tagsToOpen = Lists.newArrayList();
-    while(!dataHolder.getTagEntriesStack().isEmpty() && dataHolder.getTagEntriesStack().peek().getStartOffset() == currentIndex) {
-      tagsToOpen.add(dataHolder.getTagEntriesStack().pop().getCssClass());
+    while(dataHolder.getCurrentOpeningTagEntry() != null && currentIndex == dataHolder.getCurrentOpeningTagEntry().getStartOffset()) {
+      tagsToOpen.add(dataHolder.getCurrentOpeningTagEntry().getCssClass());
+      dataHolder.nextOpeningTagEntry();
     }
     return tagsToOpen;
   }

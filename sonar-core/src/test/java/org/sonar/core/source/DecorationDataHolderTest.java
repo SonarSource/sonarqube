@@ -23,7 +23,7 @@ package org.sonar.core.source;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Deque;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -44,32 +44,32 @@ public class DecorationDataHolderTest {
   @Test
   public void should_extract_lower_bounds_from_serialized_rules() throws Exception {
 
-    Deque<TagEntry> tagEntries = decorationDataHolder.getTagEntriesStack();
+    List<TagEntry> openingTagsEntries = decorationDataHolder.getOpeningTagsEntries();
 
-    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(0, "k"));
-    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(0, "cppd"));
-    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(54, "a"));
-    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(69, "k"));
-    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(80, "symbol-80 highlightable"));
-    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(90, "symbol-80 highlightable"));
-    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(106, "cppd"));
-    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(114, "k"));
-    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(140, "symbol-80 highlightable"));
+    assertThat(openingTagsEntries.get(0)).isEqualTo(new TagEntry(0, "k"));
+    assertThat(openingTagsEntries.get(1)).isEqualTo(new TagEntry(0, "cppd"));
+    assertThat(openingTagsEntries.get(2)).isEqualTo(new TagEntry(54, "a"));
+    assertThat(openingTagsEntries.get(3)).isEqualTo(new TagEntry(69, "k"));
+    assertThat(openingTagsEntries.get(4)).isEqualTo(new TagEntry(80, "symbol-80 highlightable"));
+    assertThat(openingTagsEntries.get(5)).isEqualTo(new TagEntry(90, "symbol-80 highlightable"));
+    assertThat(openingTagsEntries.get(6)).isEqualTo(new TagEntry(106, "cppd"));
+    assertThat(openingTagsEntries.get(7)).isEqualTo(new TagEntry(114, "k"));
+    assertThat(openingTagsEntries.get(8)).isEqualTo(new TagEntry(140, "symbol-80 highlightable"));
   }
 
   @Test
   public void should_extract_upper_bounds_from_serialized_rules() throws Exception {
 
-    Deque<Integer> upperBoundsDefinition = decorationDataHolder.getClosingTagsStack();
+    List<Integer> offsets = decorationDataHolder.getClosingTagsOffsets();
 
-    assertThat(upperBoundsDefinition.pop()).isEqualTo(8);
-    assertThat(upperBoundsDefinition.pop()).isEqualTo(52);
-    assertThat(upperBoundsDefinition.pop()).isEqualTo(67);
-    assertThat(upperBoundsDefinition.pop()).isEqualTo(75);
-    assertThat(upperBoundsDefinition.pop()).isEqualTo(85);
-    assertThat(upperBoundsDefinition.pop()).isEqualTo(95);
-    assertThat(upperBoundsDefinition.pop()).isEqualTo(130);
-    assertThat(upperBoundsDefinition.pop()).isEqualTo(130);
-    assertThat(upperBoundsDefinition.pop()).isEqualTo(145);
+    assertThat(offsets.get(0)).isEqualTo(8);
+    assertThat(offsets.get(1)).isEqualTo(52);
+    assertThat(offsets.get(2)).isEqualTo(67);
+    assertThat(offsets.get(3)).isEqualTo(75);
+    assertThat(offsets.get(4)).isEqualTo(85);
+    assertThat(offsets.get(5)).isEqualTo(95);
+    assertThat(offsets.get(6)).isEqualTo(130);
+    assertThat(offsets.get(7)).isEqualTo(130);
+    assertThat(offsets.get(8)).isEqualTo(145);
   }
 }
