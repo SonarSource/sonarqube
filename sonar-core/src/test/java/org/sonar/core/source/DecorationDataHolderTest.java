@@ -20,11 +20,10 @@
 
 package org.sonar.core.source;
 
-import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Deque;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -45,23 +44,32 @@ public class DecorationDataHolderTest {
   @Test
   public void should_extract_lower_bounds_from_serialized_rules() throws Exception {
 
-    Multimap<Integer, String> lowerBoundsDefinitions = decorationDataHolder.getLowerBoundsDefinitions();
+    Deque<TagEntry> tagEntries = decorationDataHolder.getTagEntriesStack();
 
-    assertThat(lowerBoundsDefinitions.containsEntry(0, "k"));
-    assertThat(lowerBoundsDefinitions.containsEntry(0, "cppd"));
-    assertThat(lowerBoundsDefinitions.containsEntry(54, "a"));
-    assertThat(lowerBoundsDefinitions.containsEntry(69, "k"));
-    assertThat(lowerBoundsDefinitions.containsEntry(80, "symbol-80 highlightable"));
-    assertThat(lowerBoundsDefinitions.containsEntry(90, "symbol-90 highlightable"));
-    assertThat(lowerBoundsDefinitions.containsEntry(106, "cppd"));
-    assertThat(lowerBoundsDefinitions.containsEntry(114, "k"));
-    assertThat(lowerBoundsDefinitions.containsEntry(140, "symbol-140 highlightable"));
+    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(0, "k"));
+    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(0, "cppd"));
+    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(54, "a"));
+    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(69, "k"));
+    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(80, "symbol-80 highlightable"));
+    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(90, "symbol-80 highlightable"));
+    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(106, "cppd"));
+    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(114, "k"));
+    assertThat(tagEntries.pop()).isEqualTo(new TagEntry(140, "symbol-80 highlightable"));
   }
 
   @Test
   public void should_extract_upper_bounds_from_serialized_rules() throws Exception {
 
-    List<Integer> upperBoundsDefinition = decorationDataHolder.getUpperBoundsDefinitions();
-    assertThat(upperBoundsDefinition).containsExactly(8, 52, 67, 75, 130, 130, 85, 95, 145);
+    Deque<Integer> upperBoundsDefinition = decorationDataHolder.getClosingTagsStack();
+
+    assertThat(upperBoundsDefinition.pop()).isEqualTo(8);
+    assertThat(upperBoundsDefinition.pop()).isEqualTo(52);
+    assertThat(upperBoundsDefinition.pop()).isEqualTo(67);
+    assertThat(upperBoundsDefinition.pop()).isEqualTo(75);
+    assertThat(upperBoundsDefinition.pop()).isEqualTo(85);
+    assertThat(upperBoundsDefinition.pop()).isEqualTo(95);
+    assertThat(upperBoundsDefinition.pop()).isEqualTo(130);
+    assertThat(upperBoundsDefinition.pop()).isEqualTo(130);
+    assertThat(upperBoundsDefinition.pop()).isEqualTo(145);
   }
 }

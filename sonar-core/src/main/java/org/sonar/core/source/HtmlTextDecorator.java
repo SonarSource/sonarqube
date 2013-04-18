@@ -28,7 +28,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import static org.sonar.core.source.CharactersReader.END_OF_STREAM;
@@ -47,7 +46,7 @@ public class HtmlTextDecorator {
   public static final String ENCODED_HTML_CLOSING = "&gt;";
   public static final String ENCODED_AMPERSAND = "&amp;";
 
-  public List<String> decorateTextWithHtml(String text, DecorationDataHolder context) {
+  public List<String> decorateTextWithHtml(String text, DecorationDataHolder decorationDataHolder) {
 
     StringBuilder currentHtmlLine = new StringBuilder();
     List<String> decoratedHtmlLines = Lists.newArrayList();
@@ -69,14 +68,14 @@ public class HtmlTextDecorator {
           }
         }
 
-        int numberOfTagsToClose = getNumberOfTagsToClose(charsReader.getCurrentIndex(), context);
+        int numberOfTagsToClose = getNumberOfTagsToClose(charsReader.getCurrentIndex(), decorationDataHolder);
         closeCompletedTags(charsReader, numberOfTagsToClose, currentHtmlLine);
 
         if (shouldClosePendingTags(charsReader)) {
           closeCurrentSyntaxTags(charsReader, currentHtmlLine);
         }
 
-        Collection<String> tagsToOpen = getTagsToOpen(charsReader.getCurrentIndex(), context);
+        Collection<String> tagsToOpen = getTagsToOpen(charsReader.getCurrentIndex(), decorationDataHolder);
         openNewTags(charsReader, tagsToOpen, currentHtmlLine);
 
         if (shouldAppendCharToHtmlOutput(charsReader)) {
@@ -119,12 +118,21 @@ public class HtmlTextDecorator {
     return charsReader.getCurrentValue() != CR_END_OF_LINE && charsReader.getCurrentValue() != LF_END_OF_LINE;
   }
 
-  private int getNumberOfTagsToClose(int currentIndex, DecorationDataHolder context) {
-    return Collections.frequency(context.getUpperBoundsDefinitions(), currentIndex);
+  private int getNumberOfTagsToClose(int currentIndex, DecorationDataHolder dataHolder) {
+    int numberOfTagsToClose = 0;
+    while(!dataHolder.getClosingTagsStack().isEmpty() && dataHolder.getClosingTagsStack().peek() == currentIndex) {
+      dataHolder.getClosingTagsStack().pop();
+      numberOfTagsToClose++;
+    }
+    return numberOfTagsToClose;
   }
 
-  private Collection<String> getTagsToOpen(int currentIndex, DecorationDataHolder context) {
-    return context.getLowerBoundsDefinitions().get(currentIndex);
+  private Collection<String> getTagsToOpen(int currentIndex, DecorationDataHolder dataHolder) {
+    Collection<String> tagsToOpen = Lists.newArrayList();
+    while(!dataHolder.getTagEntriesStack().isEmpty() && dataHolder.getTagEntriesStack().peek().getStartOffset() == currentIndex) {
+      tagsToOpen.add(dataHolder.getTagEntriesStack().pop().getCssClass());
+    }
+    return tagsToOpen;
   }
 
   private boolean shouldClosePendingTags(CharactersReader charactersReader) {

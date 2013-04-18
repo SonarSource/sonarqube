@@ -21,24 +21,22 @@
 package org.sonar.core.source;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.TreeMultimap;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class DecorationDataHolder {
 
   private static final String ENTITY_SEPARATOR = ";";
   private static final String FIELD_SEPARATOR = ",";
   private static final String SYMBOL_PREFIX = "symbol-";
+  private static final String HIGHLIGHTABLE = "highlightable";
 
-  private final Multimap<Integer, String> lowerBoundsDefinitions;
-  private final List<Integer> upperBoundsDefinitions;
+  private LinkedList<TagEntry> tagEntriesStack;
+  private LinkedList<Integer> closingTagsStack;
 
   public DecorationDataHolder() {
-    lowerBoundsDefinitions = TreeMultimap.create();
-    upperBoundsDefinitions = Lists.newArrayList();
+    tagEntriesStack = Lists.newLinkedList();
+    closingTagsStack = Lists.newLinkedList();
   }
 
   public void loadSymbolReferences(String symbolsReferences) {
@@ -57,25 +55,43 @@ public class DecorationDataHolder {
     String[] rules = syntaxHighlightingRules.split(ENTITY_SEPARATOR);
     for (int i = 0; i < rules.length; i++) {
       String[] ruleFields = rules[i].split(FIELD_SEPARATOR);
-      lowerBoundsDefinitions.put(Integer.parseInt(ruleFields[0]), ruleFields[2]);
-      upperBoundsDefinitions.add(Integer.parseInt(ruleFields[1]));
+      insertAndPreserveOrder(new TagEntry(Integer.parseInt(ruleFields[0]), ruleFields[2]), tagEntriesStack);
+      insertAndPreserveOrder(Integer.parseInt(ruleFields[1]), closingTagsStack);
     }
   }
 
-  public Multimap<Integer, String> getLowerBoundsDefinitions() {
-    return lowerBoundsDefinitions;
+  public Deque<TagEntry> getTagEntriesStack() {
+    return tagEntriesStack;
   }
 
-  public List<Integer> getUpperBoundsDefinitions() {
-    return upperBoundsDefinitions;
+  public Deque<Integer> getClosingTagsStack() {
+    return closingTagsStack;
   }
 
   private void loadSymbolOccurrences(int declarationStartOffset, int symbolLength, String[] symbolOccurrences) {
     for (int i = 0; i < symbolOccurrences.length; i++) {
       int occurrenceStartOffset = Integer.parseInt(symbolOccurrences[i]);
       int occurrenceEndOffset = occurrenceStartOffset + symbolLength;
-      lowerBoundsDefinitions.put(occurrenceStartOffset, SYMBOL_PREFIX + declarationStartOffset + " highlightable");
-      upperBoundsDefinitions.add(occurrenceEndOffset);
+      insertAndPreserveOrder(new TagEntry(occurrenceStartOffset, SYMBOL_PREFIX + declarationStartOffset + " " + HIGHLIGHTABLE), tagEntriesStack);
+      insertAndPreserveOrder(occurrenceEndOffset, closingTagsStack);
     }
+  }
+
+  private void insertAndPreserveOrder(TagEntry newEntry, LinkedList<TagEntry> orderedEntries) {
+    int insertionIndex = 0;
+    Iterator<TagEntry> entriesIterator = orderedEntries.iterator();
+    while(entriesIterator.hasNext() && entriesIterator.next().getStartOffset() <= newEntry.getStartOffset()) {
+      insertionIndex++;
+    }
+    orderedEntries.add(insertionIndex, newEntry);
+  }
+
+  private void insertAndPreserveOrder(int newOffset, LinkedList<Integer> orderedOffsets) {
+    int insertionIndex = 0;
+    Iterator<Integer> entriesIterator = orderedOffsets.iterator();
+    while(entriesIterator.hasNext() && entriesIterator.next() <= newOffset) {
+      insertionIndex++;
+    }
+    orderedOffsets.add(insertionIndex, newOffset);
   }
 }
