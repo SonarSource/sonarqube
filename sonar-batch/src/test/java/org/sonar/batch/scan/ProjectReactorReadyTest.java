@@ -22,6 +22,7 @@ package org.sonar.batch.scan;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Settings;
 
 import static org.mockito.Mockito.mock;
 
@@ -29,13 +30,14 @@ public class ProjectReactorReadyTest {
   @Test
   public void should_do_nothing() {
     // it's only a barrier
-    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class), mock(ProjectReactor.class), new ProjectBuilder[] {mock(ProjectBuilder.class)});
+    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class), mock(ProjectReactor.class), new Settings(),
+        new ProjectBuilder[] {mock(ProjectBuilder.class)});
     barrier.start();
   }
 
   @Test
   public void project_builders_should_be_optional() {
-    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class), mock(ProjectReactor.class));
+    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class), mock(ProjectReactor.class), new Settings());
     barrier.start();
   }
 }
