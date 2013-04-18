@@ -158,7 +158,7 @@ import java.util.List;
     key = CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
     defaultValue = "" + CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE,
     name = "Import sources",
-    description = "Set to false if sources should not be displayed, e.g. for security reasons.",
+    description = "Set to false if sources should not be imported and therefore not available in the Web UI (e.g. for security reasons).",
     project = true,
     module = true,
     global = true,
