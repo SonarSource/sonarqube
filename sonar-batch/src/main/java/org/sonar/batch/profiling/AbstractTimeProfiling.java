@@ -64,7 +64,7 @@ public abstract class AbstractTimeProfiling {
     this.setTotalTime(this.totalTime() + other.totalTime());
   }
 
-  protected <G extends AbstractTimeProfiling> List<G> sortByDescendingTotalTime(Collection<G> unsorted) {
+  static <G extends AbstractTimeProfiling> List<G> sortByDescendingTotalTime(Collection<G> unsorted) {
     List<G> result = new ArrayList<G>(unsorted.size());
     result.addAll(unsorted);
     Collections.sort(result, new Comparator<G>() {
@@ -73,6 +73,21 @@ public abstract class AbstractTimeProfiling {
         return Long.valueOf(o2.totalTime()).compareTo(o1.totalTime());
       }
     });
+    return result;
+  }
+
+  static <G extends AbstractTimeProfiling> List<G> truncate(Collection<G> sortedList) {
+    int maxSize = 10;
+    List<G> result = new ArrayList<G>(maxSize);
+    int i = 0;
+    for (G item : sortedList) {
+      if (i++ >= maxSize || item.totalTime() == 0) {
+        return result;
+      }
+      else {
+        result.add(item);
+      }
+    }
     return result;
   }
 

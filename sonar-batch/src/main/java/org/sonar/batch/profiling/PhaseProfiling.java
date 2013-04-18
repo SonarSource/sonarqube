@@ -21,9 +21,7 @@ package org.sonar.batch.profiling;
 
 import org.sonar.batch.phases.Phases.Phase;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -75,7 +73,7 @@ public class PhaseProfiling extends AbstractTimeProfiling {
 
   public void dump() {
     double percent = this.totalTime() / 100.0;
-    for (ItemProfiling itemProfiling : truncateList(sortByDescendingTotalTime(profilingPerItem.values()))) {
+    for (ItemProfiling itemProfiling : truncate(sortByDescendingTotalTime(profilingPerItem.values()))) {
       StringBuilder sb = new StringBuilder();
       sb.append("   o ").append(itemProfiling.itemName()).append(": ").append(itemProfiling.totalTimeAsString())
           .append(" (").append((int) (itemProfiling.totalTime() / percent)).append("%)");
@@ -94,21 +92,6 @@ public class PhaseProfiling extends AbstractTimeProfiling {
       return o.getClass().getSimpleName();
     }
     return toString;
-  }
-
-  private List<ItemProfiling> truncateList(List<ItemProfiling> sortedFullList) {
-    int maxSize = 10;
-    List<ItemProfiling> result = new ArrayList<ItemProfiling>(maxSize);
-    int i = 0;
-    for (ItemProfiling item : sortedFullList) {
-      if (i++ >= maxSize || item.totalTime() == 0) {
-        return result;
-      }
-      else {
-        result.add(item);
-      }
-    }
-    return result;
   }
 
 }

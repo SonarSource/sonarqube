@@ -21,6 +21,7 @@ package org.sonar.batch.scan;
 
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Settings;
 
 /**
  * Barrier to control the project lifecycle :
@@ -35,18 +36,20 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
  */
 public class ProjectReactorReady {
 
-  private ProjectReactor reactor;
+  private final ProjectReactor reactor;
+  private final Settings settings;
 
-  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, ProjectBuilder[] projectBuilders) {
+  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, Settings settings, ProjectBuilder[] projectBuilders) {
     this.reactor = reactor;
+    this.settings = settings;
   }
 
-  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor) {
-    this.reactor = reactor;
+  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, Settings settings) {
+    this(exclusions, reactor, settings, null);
   }
 
   public void start() {
-    ProjectReactorValidator validator = new ProjectReactorValidator();
+    ProjectReactorValidator validator = new ProjectReactorValidator(settings);
     validator.validate(reactor);
   }
 }

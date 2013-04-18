@@ -20,8 +20,11 @@
 package org.sonar.batch.scan;
 
 import com.google.common.base.Joiner;
+import org.codehaus.plexus.util.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 
 import java.util.ArrayList;
@@ -34,21 +37,39 @@ import java.util.List;
 public class ProjectReactorValidator {
 
   private static final String VALID_MODULE_KEY_REGEXP = "[0-9a-zA-Z\\-_\\.:]+";
+  private final Settings settings;
+
+  public ProjectReactorValidator(Settings settings) {
+    this.settings = settings;
+  }
 
   public void validate(ProjectReactor reactor) {
     List<String> validationMessages = new ArrayList<String>();
-    for (ProjectDefinition def : reactor.getProjects()) {
-      validate(def, validationMessages);
+    for (ProjectDefinition moduleDef : reactor.getProjects()) {
+      validateModule(moduleDef, validationMessages);
     }
+
+    validateBranch(validationMessages);
 
     if (!validationMessages.isEmpty()) {
       throw new SonarException("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
     }
   }
 
-  private void validate(ProjectDefinition def, List<String> validationMessages) {
+  private void validateModule(ProjectDefinition moduleDef, List<String> validationMessages) {
+    validateKey(moduleDef, validationMessages);
+  }
+
+  private void validateKey(ProjectDefinition def, List<String> validationMessages) {
     if (!def.getKey().matches(VALID_MODULE_KEY_REGEXP)) {
       validationMessages.add(String.format("%s is not a valid project or module key", def.getKey()));
+    }
+  }
+
+  private void validateBranch(List<String> validationMessages) {
+    String branch = settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    if (StringUtils.isNotEmpty(branch) && !branch.matches(VALID_MODULE_KEY_REGEXP)) {
+      validationMessages.add(String.format("%s is not a valid branch name", branch));
     }
   }
 

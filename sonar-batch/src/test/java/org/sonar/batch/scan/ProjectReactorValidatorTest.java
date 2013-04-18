@@ -26,59 +26,62 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 
 public class ProjectReactorValidatorTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
   private ProjectReactorValidator validator;
+  private Settings settings;
 
   @Before
   public void prepare() {
-    validator = new ProjectReactorValidator();
+    settings = new Settings();
+    validator = new ProjectReactorValidator(settings);
   }
 
   @Test
-  public void should_not_fail_with_valid_data() {
+  public void should_not_fail_with_valid_key() {
     ProjectReactor reactor = createProjectReactor("foo");
     validator.validate(reactor);
   }
 
   @Test
-  public void should_not_fail_with_alphanumeric() {
+  public void should_not_fail_with_alphanumeric_key() {
     ProjectReactor reactor = createProjectReactor("Foobar2");
     validator.validate(reactor);
   }
 
   @Test
-  public void should_not_fail_with_dot() {
+  public void should_not_fail_with_dot_key() {
     ProjectReactor reactor = createProjectReactor("foo.bar");
     validator.validate(reactor);
   }
 
   @Test
-  public void should_not_fail_with_dash() {
+  public void should_not_fail_with_dash_key() {
     ProjectReactor reactor = createProjectReactor("foo-bar");
     validator.validate(reactor);
   }
 
   @Test
-  public void should_not_fail_with_colon() {
+  public void should_not_fail_with_colon_key() {
     ProjectReactor reactor = createProjectReactor("foo:bar");
     validator.validate(reactor);
   }
 
   @Test
-  public void should_not_fail_with_underscore() {
+  public void should_not_fail_with_underscore_key() {
     ProjectReactor reactor = createProjectReactor("foo_bar");
     validator.validate(reactor);
   }
 
   @Test
   public void should_fail_with_invalid_key() {
-    String projectKey = "foo$bar";
-    ProjectReactor reactor = createProjectReactor(projectKey);
+    ProjectReactor reactor = createProjectReactor("foo$bar");
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("foo$bar is not a valid project or module key");
@@ -86,18 +89,42 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void should_fail_with_backslash() {
-    String projectKey = "foo\\bar";
-    ProjectReactor reactor = createProjectReactor(projectKey);
+  public void should_fail_with_backslash_in_key() {
+    ProjectReactor reactor = createProjectReactor("foo\\bar");
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("foo\\bar is not a valid project or module key");
     validator.validate(reactor);
   }
 
+  @Test
+  public void should_not_fail_with_valid_branch() {
+    validator.validate(createProjectReactor("foo", "branch"));
+    validator.validate(createProjectReactor("foo", "Branch2"));
+    validator.validate(createProjectReactor("foo", "bra.nch"));
+    validator.validate(createProjectReactor("foo", "bra-nch"));
+    validator.validate(createProjectReactor("foo", "bra:nch"));
+    validator.validate(createProjectReactor("foo", "bra_nch"));
+  }
+
+  @Test
+  public void should_fail_with_invalid_branch() {
+    ProjectReactor reactor = createProjectReactor("foo", "bran#ch");
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("bran#ch is not a valid branch name");
+    validator.validate(reactor);
+  }
+
   private ProjectReactor createProjectReactor(String projectKey) {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, projectKey);
     ProjectReactor reactor = new ProjectReactor(def);
+    return reactor;
+  }
+
+  private ProjectReactor createProjectReactor(String projectKey, String branch) {
+    ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, projectKey);
+    ProjectReactor reactor = new ProjectReactor(def);
+    settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, branch);
     return reactor;
   }
 

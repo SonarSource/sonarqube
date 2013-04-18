@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.profiling;
 
+import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.Phases.Phase;
@@ -31,10 +32,19 @@ public class ModuleProfiling extends AbstractTimeProfiling {
 
   private Map<Phases.Phase, PhaseProfiling> profilingPerPhase = new HashMap<Phases.Phase, PhaseProfiling>();
   private Clock clock;
+  private Project module;
 
-  public ModuleProfiling(Clock clock) {
+  public ModuleProfiling(Project module, Clock clock) {
     super(clock);
+    this.module = module;
     this.clock = clock;
+  }
+
+  public String moduleName() {
+    if (module != null) {
+      return module.getName();
+    }
+    return null;
   }
 
   public PhaseProfiling getProfilingPerPhase(Phase phase) {
