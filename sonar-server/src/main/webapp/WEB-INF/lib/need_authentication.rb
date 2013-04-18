@@ -116,6 +116,10 @@ class PluginRealm
       return nil if !Api::Utils.java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
       # Automatically create a user in the sonar db if authentication has been successfully done
       user = User.new(:login => username, :name => username, :email => '')
+      if details
+        user.name = details.getName()
+        user.email = details.getEmail()
+      end
       default_group_name = Api::Utils.java_facade.getSettings().getString('sonar.defaultGroup')
       default_group = Group.find_by_name(default_group_name)
       if default_group
@@ -123,10 +127,12 @@ class PluginRealm
       else
         Rails.logger.error("The default user group does not exist: #{default_group_name}. Please check the parameter 'Default user group' in general settings.")
       end
-    end
-    if details
-      user.name = details.getName()
-      user.email = details.getEmail()
+    else
+      # Existing user
+      if details && Api::Utils.java_facade.getSettings().getBoolean('sonar.security.updateUserAttributes')
+        user.name = details.getName()
+        user.email = details.getEmail()
+      end
     end
     if @save_password
       user.password = password

@@ -167,6 +167,12 @@ public interface CoreProperties {
 
   String CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE = "sonar.authenticator.ignoreStartupFailure";
   String CORE_AUTHENTICATOR_CREATE_USERS = "sonar.authenticator.createUsers";
+
+  /**
+   * @since 3.6
+   */
+  String CORE_AUTHENTICATOR_UPDATE_USER_ATTRIBUTES = "sonar.security.updateUserAttributes";
+
   String SERVER_VERSION = "sonar.core.version";
   String SERVER_ID = "sonar.core.id";
 
