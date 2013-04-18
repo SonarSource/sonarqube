@@ -33,9 +33,13 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.phases.Phases;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.sonar.batch.profiling.AbstractTimeProfiling.sortByDescendingTotalTime;
+import static org.sonar.batch.profiling.AbstractTimeProfiling.truncate;
 
 public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorExecutionHandler, DecoratorExecutionHandler, PostJobExecutionHandler, DecoratorsPhaseHandler,
     SensorsPhaseHandler, PostJobsPhaseHandler {
@@ -44,6 +48,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   ModuleProfiling currentModuleProfiling;
   @VisibleForTesting
   ModuleProfiling totalProfiling;
+  private List<ModuleProfiling> modulesProfilings = new ArrayList<ModuleProfiling>();
   private DecoratorsProfiler decoratorsProfiler;
 
   private Clock clock;
@@ -55,7 +60,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   @VisibleForTesting
   PhasesSumUpTimeProfiler(Clock clock) {
     this.clock = clock;
-    totalProfiling = new ModuleProfiling(clock);
+    totalProfiling = new ModuleProfiling(null, clock);
   }
 
   @Override
@@ -63,23 +68,37 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     Project module = event.getProject();
     if (event.isStart()) {
       decoratorsProfiler = new DecoratorsProfiler();
-      currentModuleProfiling = new ModuleProfiling(clock);
+      currentModuleProfiling = new ModuleProfiling(module, clock);
     }
     else {
       currentModuleProfiling.stop();
+      modulesProfilings.add(currentModuleProfiling);
       long moduleTotalTime = currentModuleProfiling.totalTime();
       System.out.println("\n -------- Profiling of module " + module.getName() + ": " + TimeUtils.formatDuration(moduleTotalTime) + " --------\n");
       currentModuleProfiling.dump();
       System.out.println("\n -------- End of profiling of module " + module.getName() + " --------\n");
       totalProfiling.merge(currentModuleProfiling);
       if (module.isRoot() && !module.getModules().isEmpty()) {
-        totalProfiling.stop();
-        long totalTime = totalProfiling.totalTime();
-        System.out.println("\n ======== Profiling of total execution: " + TimeUtils.formatDuration(totalTime) + " ========\n");
-        totalProfiling.dump();
-        System.out.println("\n ======== End of profiling of total execution ========\n");
+        dumpTotalExecutionSummary();
       }
     }
+  }
+
+  private void dumpTotalExecutionSummary() {
+    totalProfiling.stop();
+    long totalTime = totalProfiling.totalTime();
+    System.out.println("\n ======== Profiling of total execution: " + TimeUtils.formatDuration(totalTime) + " ========\n");
+    System.out.println(" * Module execution time breakdown: ");
+    double percent = totalTime / 100.0;
+    for (ModuleProfiling modulesProfiling : truncate(sortByDescendingTotalTime(modulesProfilings))) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("   o ").append(modulesProfiling.moduleName()).append(" execution time: ").append(modulesProfiling.totalTimeAsString())
+          .append(" (").append((int) (modulesProfiling.totalTime() / percent)).append("%)");
+      System.out.println(sb.toString());
+    }
+    System.out.println();
+    totalProfiling.dump();
+    System.out.println("\n ======== End of profiling of total execution ========\n");
   }
 
   public void onSensorsPhase(SensorsPhaseEvent event) {
