@@ -232,19 +232,6 @@ public class IssueTracking implements BatchExtension {
     }
   }
 
-  @VisibleForTesting
-  IssueDto getReferenceIssue(DefaultIssue issue) {
-    return referenceIssuesMap.get(issue);
-  }
-
-  private Integer getRule(DefaultIssue issue) {
-    return ruleFinder.findByKey(issue.ruleKey()).getId();
-  }
-
-  private Integer getRule(IssueDto issue) {
-    return ruleFinder.findById(issue.getRuleId()).getId();
-  }
-
   private void map(Collection<DefaultIssue> newIssues, Collection<IssueDto> lastIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
@@ -324,7 +311,7 @@ public class IssueTracking implements BatchExtension {
   }
 
   private boolean isNotAlreadyMapped(IssueDto pastIssue) {
-    return !unmappedLastIssues.contains(pastIssue);
+    return unmappedLastIssues.contains(pastIssue);
   }
 
   private boolean isNotAlreadyMapped(DefaultIssue newIssue) {
@@ -368,6 +355,19 @@ public class IssueTracking implements BatchExtension {
       newIssue.setNew(true);
       newIssue.setCreatedAt(project.getAnalysisDate());
     }
+  }
+
+  @VisibleForTesting
+  IssueDto getReferenceIssue(DefaultIssue issue) {
+    return referenceIssuesMap.get(issue);
+  }
+
+  private Integer getRule(DefaultIssue issue) {
+    return ruleFinder.findByKey(issue.ruleKey()).getId();
+  }
+
+  private Integer getRule(IssueDto issue) {
+    return issue.getRuleId();
   }
 
   @Override
