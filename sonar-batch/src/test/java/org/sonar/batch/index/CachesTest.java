@@ -74,6 +74,16 @@ public class CachesTest {
     }
   }
 
+  @Test
+  public void should_not_create_cache_before_starting() {
+    try {
+      caches.createCache("too_early");
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Caches are not started");
+    }
+  }
+
   static class Element implements Serializable {
 
   }

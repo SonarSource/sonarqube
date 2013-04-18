@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import com.persistit.Exchange;
 import com.persistit.Persistit;
+import com.persistit.Volume;
 import com.persistit.exception.PersistitException;
 import com.persistit.logging.Slf4jAdapter;
 import org.apache.commons.io.FileUtils;
@@ -46,12 +47,13 @@ public class Caches implements BatchComponent, Startable {
   private final Set<String> cacheNames = Sets.newHashSet();
   private File tempDir;
   private Persistit persistit;
+  private Volume volume;
 
   public <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName) {
+    Preconditions.checkState(volume != null && volume.isOpened(), "Caches are not started");
     Preconditions.checkState(!cacheNames.contains(cacheName), "Cache is already created: " + cacheName);
-
     try {
-      Exchange exchange = persistit.getExchange("sonar-scan", cacheName, true);
+      Exchange exchange = persistit.getExchange(volume, cacheName, true);
       Cache<K, V> cache = new Cache<K, V>(cacheName, exchange);
       cacheNames.add(cacheName);
       return cache;
@@ -68,15 +70,15 @@ public class Caches implements BatchComponent, Startable {
       persistit.setPersistitLogger(new Slf4jAdapter(LoggerFactory.getLogger("PERSISTIT")));
       Properties props = new Properties();
       props.setProperty("datapath", tempDir.getAbsolutePath());
+      props.setProperty("logpath", "${datapath}/log");
+      props.setProperty("logfile", "${logpath}/persistit_${timestamp}.log");
       props.setProperty("buffer.count.8192", "10");
-      props.setProperty("logfile", "${datapath}/persistit.log");
-      props.setProperty("volume.1", "${datapath}/sonar-scan,create,pageSize:8192,initialSize:1M,extensionSize:1M,maximumSize:10G");
       props.setProperty("journalpath", "${datapath}/journal");
+      props.setProperty("tmpvoldir", "${datapath}");
+      props.setProperty("volume.1", "${datapath}/persistit,create,pageSize:8192,initialPages:10,extensionPages:100,maximumPages:25000");
       persistit.setProperties(props);
       persistit.initialize();
-
-      // TODO should use persistit#createTemporaryVolume(), but how ?
-      // See https://github.com/akiban/persistit/blob/master/doc/Miscellaneous.rst
+      volume = persistit.createTemporaryVolume();
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start caches", e);
@@ -89,6 +91,7 @@ public class Caches implements BatchComponent, Startable {
       try {
         persistit.close(false);
         persistit = null;
+        volume = null;
       } catch (PersistitException e) {
         throw new IllegalStateException("Fail to close caches", e);
       }
