@@ -47,6 +47,7 @@ public final class CoreMetrics {
   public static String DOMAIN_RULES = "Rules";
   public static String DOMAIN_SCM = "SCM";
   public static String DOMAIN_REVIEWS = "Reviews";
+  public static String DOMAIN_ISSUES = "Issues";
 
   /**
    * @deprecated since 2.5 See SONAR-2007
@@ -1532,150 +1533,315 @@ public final class CoreMetrics {
   //
   // --------------------------------------------------------------------------------------------------------------------  
 
+  /**
+   * @since 3.6
+   */
   public static final String ISSUES_KEY = "issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric ISSUES = new Metric.Builder(ISSUES_KEY, "Issues", Metric.ValueType.INT)
       .setDescription("Issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String WEIGHTED_ISSUES_KEY = "weighted_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric WEIGHTED_ISSUES = new Metric.Builder(WEIGHTED_ISSUES_KEY, "Weighted issues", Metric.ValueType.INT)
       .setDescription("Weighted issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String ISSUES_DENSITY_KEY = "issues_density";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric ISSUES_DENSITY = new Metric.Builder(ISSUES_DENSITY_KEY, "Rules compliance", Metric.ValueType.PERCENT)
       .setDescription("Rules compliance")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String BLOCKER_ISSUES_KEY = "blocker_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric BLOCKER_ISSUES = new Metric.Builder(BLOCKER_ISSUES_KEY, "Blocker issues", Metric.ValueType.INT)
       .setDescription("Blocker issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String CRITICAL_ISSUES_KEY = "critical_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric CRITICAL_ISSUES = new Metric.Builder(CRITICAL_ISSUES_KEY, "Critical issues", Metric.ValueType.INT)
       .setDescription("Critical issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String MAJOR_ISSUES_KEY = "major_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric MAJOR_ISSUES = new Metric.Builder(MAJOR_ISSUES_KEY, "Major issues", Metric.ValueType.INT)
       .setDescription("Major issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String MINOR_ISSUES_KEY = "minor_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric MINOR_ISSUES = new Metric.Builder(MINOR_ISSUES_KEY, "Minor issues", Metric.ValueType.INT)
       .setDescription("Minor issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String INFO_ISSUES_KEY = "info_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric INFO_ISSUES = new Metric.Builder(INFO_ISSUES_KEY, "Info issues", Metric.ValueType.INT)
       .setDescription("Info issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String NEW_ISSUES_KEY = "new_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric NEW_ISSUES = new Metric.Builder(NEW_ISSUES_KEY, "New issues", Metric.ValueType.INT)
       .setDescription("New issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .setDeleteHistoricalData(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String NEW_BLOCKER_ISSUES_KEY = "new_blocker_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric NEW_BLOCKER_ISSUES = new Metric.Builder(NEW_BLOCKER_ISSUES_KEY, "New Blocker issues", Metric.ValueType.INT)
       .setDescription("New Blocker issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .setDeleteHistoricalData(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String NEW_CRITICAL_ISSUES_KEY = "new_critical_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric NEW_CRITICAL_ISSUES = new Metric.Builder(NEW_CRITICAL_ISSUES_KEY, "New Critical issues", Metric.ValueType.INT)
       .setDescription("New Critical issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .setDeleteHistoricalData(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String NEW_MAJOR_ISSUES_KEY = "new_major_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric NEW_MAJOR_ISSUES = new Metric.Builder(NEW_MAJOR_ISSUES_KEY, "New Major issues", Metric.ValueType.INT)
       .setDescription("New Major issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .setDeleteHistoricalData(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String NEW_MINOR_ISSUES_KEY = "new_minor_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric NEW_MINOR_ISSUES = new Metric.Builder(NEW_MINOR_ISSUES_KEY, "New Minor issues", Metric.ValueType.INT)
       .setDescription("New Minor issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .setDeleteHistoricalData(true)
       .create();
 
+  /**
+   * @since 3.6
+   */
   public static final String NEW_INFO_ISSUES_KEY = "new_info_issues";
+
+  /**
+   * @since 3.6
+   */
   public static final Metric NEW_INFO_ISSUES = new Metric.Builder(NEW_INFO_ISSUES_KEY, "New Info issues", Metric.ValueType.INT)
       .setDescription("New Info issues")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
-      .setDomain(DOMAIN_RULES)
+      .setDomain(DOMAIN_ISSUES)
       .setBestValue(0.0)
       .setOptimizedBestValue(true)
       .setDeleteHistoricalData(true)
-      .create();  
-  
+      .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String FALSE_POSITIVE_ISSUES_KEY = "false_positive_issues";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric FALSE_POSITIVE_ISSUES = new Metric.Builder(FALSE_POSITIVE_ISSUES_KEY, "False-positive issues", Metric.ValueType.INT)
+    .setDescription("Active false-positive issues")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain(DOMAIN_ISSUES)
+    .setBestValue(0.0)
+    .setOptimizedBestValue(true)
+    .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String UNASSIGNED_ISSUES_KEY = "unassigned_issues";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric UNASSIGNED_ISSUES = new Metric.Builder(UNASSIGNED_ISSUES_KEY, "Unassigned issues", Metric.ValueType.INT)
+    .setDescription("Active unassigned issues")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain(DOMAIN_ISSUES)
+    .setBestValue(0.0)
+    .setOptimizedBestValue(true)
+    .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String UNPLANNED_ISSUES_KEY = "unplanned_issues";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric UNPLANNED_ISSUES = new Metric.Builder(UNPLANNED_ISSUES_KEY, "Unplanned issues", Metric.ValueType.INT)
+    .setDescription("Active unplanned issues")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain(DOMAIN_ISSUES)
+    .setBestValue(0.0)
+    .setOptimizedBestValue(true)
+    .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String NEW_UNPLANNED_ISSUES_KEY = "new_unplanned_issues";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric NEW_UNPLANNED_ISSUES = new Metric.Builder(NEW_UNPLANNED_ISSUES_KEY, "New unplanned issues", Metric.ValueType.INT)
+    .setDescription("New issues that have not been planned yet")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(true)
+    .setDomain(DOMAIN_ISSUES)
+    .setBestValue(0.0)
+    .setOptimizedBestValue(true)
+    .setDeleteHistoricalData(true)
+    .create();
+
+
   // --------------------------------------------------------------------------------------------------------------------
   //
   // DESIGN

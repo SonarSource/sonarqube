@@ -21,31 +21,18 @@
 package org.sonar.plugins.core;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.notifications.NotificationDispatcherMetadata;
 import org.sonar.api.resources.Java;
-import org.sonar.batch.issue.InitialOpenIssuesSensor;
-import org.sonar.batch.issue.InitialOpenIssuesStack;
-import org.sonar.batch.issue.IssuesDecorator;
-import org.sonar.batch.issue.IssuesDensityDecorator;
-import org.sonar.batch.issue.NewIssuesDecorator;
-import org.sonar.batch.issue.WeightedIssuesDecorator;
+import org.sonar.batch.issue.*;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
-import org.sonar.plugins.core.dashboards.GlobalDefaultDashboard;
-import org.sonar.plugins.core.dashboards.ProjectDefaultDashboard;
-import org.sonar.plugins.core.dashboards.ProjectHotspotDashboard;
-import org.sonar.plugins.core.dashboards.ProjectReviewsDashboard;
-import org.sonar.plugins.core.dashboards.ProjectTimeMachineDashboard;
+import org.sonar.plugins.core.dashboards.*;
 import org.sonar.plugins.core.issue.IssueTracking;
 import org.sonar.plugins.core.issue.IssuesWorkflowDecorator;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
@@ -55,73 +42,12 @@ import org.sonar.plugins.core.notifications.reviews.ChangesInReviewAssignedToMeO
 import org.sonar.plugins.core.notifications.reviews.NewFalsePositiveReview;
 import org.sonar.plugins.core.notifications.violations.NewViolationsOnFirstDifferentialPeriod;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
-import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
-import org.sonar.plugins.core.sensors.CheckAlertThresholds;
-import org.sonar.plugins.core.sensors.CommentDensityDecorator;
-import org.sonar.plugins.core.sensors.CoverageDecorator;
-import org.sonar.plugins.core.sensors.DirectoriesDecorator;
-import org.sonar.plugins.core.sensors.FilesDecorator;
-import org.sonar.plugins.core.sensors.GenerateAlertEvents;
-import org.sonar.plugins.core.sensors.ItBranchCoverageDecorator;
-import org.sonar.plugins.core.sensors.ItCoverageDecorator;
-import org.sonar.plugins.core.sensors.ItLineCoverageDecorator;
-import org.sonar.plugins.core.sensors.LineCoverageDecorator;
-import org.sonar.plugins.core.sensors.ManualMeasureDecorator;
-import org.sonar.plugins.core.sensors.ManualViolationInjector;
-import org.sonar.plugins.core.sensors.OverallBranchCoverageDecorator;
-import org.sonar.plugins.core.sensors.OverallCoverageDecorator;
-import org.sonar.plugins.core.sensors.OverallLineCoverageDecorator;
-import org.sonar.plugins.core.sensors.ProfileEventsSensor;
-import org.sonar.plugins.core.sensors.ProfileSensor;
-import org.sonar.plugins.core.sensors.ProjectLinksSensor;
-import org.sonar.plugins.core.sensors.ReviewNotifications;
-import org.sonar.plugins.core.sensors.ReviewWorkflowDecorator;
-import org.sonar.plugins.core.sensors.ReviewsMeasuresDecorator;
-import org.sonar.plugins.core.sensors.UnitTestDecorator;
-import org.sonar.plugins.core.sensors.VersionEventsSensor;
-import org.sonar.plugins.core.sensors.ViolationSeverityUpdater;
-import org.sonar.plugins.core.sensors.ViolationsDecorator;
-import org.sonar.plugins.core.sensors.ViolationsDensityDecorator;
-import org.sonar.plugins.core.sensors.WeightedViolationsDecorator;
-import org.sonar.plugins.core.timemachine.NewCoverageAggregator;
-import org.sonar.plugins.core.timemachine.NewCoverageFileAnalyzer;
-import org.sonar.plugins.core.timemachine.NewItCoverageFileAnalyzer;
-import org.sonar.plugins.core.timemachine.NewOverallCoverageFileAnalyzer;
-import org.sonar.plugins.core.timemachine.NewViolationsDecorator;
-import org.sonar.plugins.core.timemachine.TendencyDecorator;
-import org.sonar.plugins.core.timemachine.TimeMachineConfigurationPersister;
-import org.sonar.plugins.core.timemachine.VariationDecorator;
-import org.sonar.plugins.core.timemachine.ViolationPersisterDecorator;
-import org.sonar.plugins.core.timemachine.ViolationTrackingDecorator;
+import org.sonar.plugins.core.sensors.*;
+import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.web.TestsViewer;
-import org.sonar.plugins.core.widgets.ActionPlansWidget;
-import org.sonar.plugins.core.widgets.AlertsWidget;
-import org.sonar.plugins.core.widgets.CommentsDuplicationsWidget;
-import org.sonar.plugins.core.widgets.ComplexityWidget;
-import org.sonar.plugins.core.widgets.CoverageWidget;
-import org.sonar.plugins.core.widgets.CustomMeasuresWidget;
-import org.sonar.plugins.core.widgets.DescriptionWidget;
-import org.sonar.plugins.core.widgets.EventsWidget;
-import org.sonar.plugins.core.widgets.HotspotMetricWidget;
-import org.sonar.plugins.core.widgets.HotspotMostViolatedResourcesWidget;
-import org.sonar.plugins.core.widgets.HotspotMostViolatedRulesWidget;
-import org.sonar.plugins.core.widgets.ItCoverageWidget;
-import org.sonar.plugins.core.widgets.MeasureFilterListWidget;
-import org.sonar.plugins.core.widgets.MeasureFilterTreemapWidget;
-import org.sonar.plugins.core.widgets.RulesWidget;
-import org.sonar.plugins.core.widgets.SizeWidget;
-import org.sonar.plugins.core.widgets.TimeMachineWidget;
-import org.sonar.plugins.core.widgets.TimelineWidget;
-import org.sonar.plugins.core.widgets.TreemapWidget;
-import org.sonar.plugins.core.widgets.WelcomeWidget;
-import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
-import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
-import org.sonar.plugins.core.widgets.reviews.PlannedReviewsWidget;
-import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
-import org.sonar.plugins.core.widgets.reviews.ReviewsMetricsWidget;
-import org.sonar.plugins.core.widgets.reviews.ReviewsPerDeveloperWidget;
-import org.sonar.plugins.core.widgets.reviews.UnplannedReviewsWidget;
+import org.sonar.plugins.core.widgets.*;
+import org.sonar.plugins.core.widgets.reviews.*;
 
 import java.util.List;
 
@@ -515,7 +441,6 @@ public final class CorePlugin extends SonarPlugin {
         IssueTracking.class,
         ViolationPersisterDecorator.class,
         NewViolationsDecorator.class,
-        NewIssuesDecorator.class,
         TimeMachineConfigurationPersister.class,
         NewCoverageFileAnalyzer.class,
         NewItCoverageFileAnalyzer.class,

@@ -45,4 +45,22 @@ final class SeverityUtils {
     }
     return metric;
   }
+
+  static Metric severityToNewMetricIssue(RulePriority severity) {
+    Metric metric;
+    if (severity.equals(RulePriority.BLOCKER)) {
+      metric = CoreMetrics.NEW_BLOCKER_ISSUES;
+    } else if (severity.equals(RulePriority.CRITICAL)) {
+      metric = CoreMetrics.NEW_CRITICAL_ISSUES;
+    } else if (severity.equals(RulePriority.MAJOR)) {
+      metric = CoreMetrics.NEW_MAJOR_ISSUES;
+    } else if (severity.equals(RulePriority.MINOR)) {
+      metric = CoreMetrics.NEW_MINOR_ISSUES;
+    } else if (severity.equals(RulePriority.INFO)) {
+      metric = CoreMetrics.NEW_INFO_ISSUES;
+    } else {
+      throw new IllegalArgumentException("Unsupported severity: " + severity);
+    }
+    return metric;
+  }
 }

@@ -19,10 +19,7 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasureUtils;
@@ -33,6 +30,10 @@ import org.sonar.api.resources.Resource;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @since 3.6
+ */
+@DependsUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
 public class IssuesDensityDecorator implements Decorator {
 
   public boolean shouldExecuteOnProject(Project project) {
