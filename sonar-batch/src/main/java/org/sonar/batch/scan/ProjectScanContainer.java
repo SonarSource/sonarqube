@@ -33,18 +33,7 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
-import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.index.ComponentDataPersister;
-import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.DefaultPersistenceManager;
-import org.sonar.batch.index.DefaultResourcePersister;
-import org.sonar.batch.index.DependencyPersister;
-import org.sonar.batch.index.EventPersister;
-import org.sonar.batch.index.LinkPersister;
-import org.sonar.batch.index.MeasurePersister;
-import org.sonar.batch.index.MemoryOptimizer;
-import org.sonar.batch.index.SnapshotCache;
-import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.index.*;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.IssuePersister;
@@ -96,16 +85,14 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultFileLinesContextFactory.class,
       ProjectLock.class,
       LastSnapshots.class,
+      Caches.class,
       SnapshotCache.class,
-
       ComponentDataCache.class,
       ComponentDataPersister.class,
-
       ScanIssueChanges.class,
       DeprecatedViolations.class,
       IssueCache.class,
       IssuePersister.class,
-
       TestPlanPerspectiveLoader.class,
       TestablePerspectiveLoader.class,
       TestPlanBuilder.class,

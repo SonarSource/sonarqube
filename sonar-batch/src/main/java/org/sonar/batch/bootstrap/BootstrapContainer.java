@@ -135,8 +135,7 @@ public class BootstrapContainer extends ComponentContainer {
       PastSnapshotFinderByPreviousVersion.class,
       PastMeasuresLoader.class,
       PastSnapshotFinder.class,
-      DefaultModelFinder.class,
-      Caches.class
+      DefaultModelFinder.class
     );
   }
 
