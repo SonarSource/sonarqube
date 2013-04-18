@@ -563,8 +563,4 @@ public final class JRubyFacade {
   public Collection<String> getHighlightedSourceLines(long snapshotId) {
     return get(HtmlSourceDecorator.class).getDecoratedSourceAsHtml(snapshotId);
   }
-
-//  public IssueFilter getIssueFilter() {
-//    return get(IssueFilter.class);
-//  }
 }

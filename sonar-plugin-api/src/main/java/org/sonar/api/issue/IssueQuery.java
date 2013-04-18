@@ -24,8 +24,10 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 
-import java.util.Date;
+import javax.annotation.Nullable;
+
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * TODO add javadoc
@@ -205,14 +207,14 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder limit(Integer i) {
+    public Builder limit(@Nullable Integer i) {
       Preconditions.checkArgument(i == null || i.intValue() > 0, "Limit must be greater than 0 (got " + i + ")");
       Preconditions.checkArgument(i == null || i.intValue() < MAX_LIMIT, "Limit must be less than " + MAX_LIMIT + " (got " + i + ")");
       this.limit = (i == null ? DEFAULT_LIMIT : i.intValue());
       return this;
     }
 
-    public Builder offset(Integer i) {
+    public Builder offset(@Nullable Integer i) {
       Preconditions.checkArgument(i == null || i.intValue() >= 0, "Offset must be greater than or equal to 0 (got " + i + ")");
       this.offset = (i == null ? DEFAULT_OFFSET : i.intValue());
       return this;
