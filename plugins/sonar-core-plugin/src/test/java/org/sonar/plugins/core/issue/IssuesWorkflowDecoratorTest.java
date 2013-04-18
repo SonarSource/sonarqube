@@ -21,7 +21,6 @@ package org.sonar.plugins.core.issue;
 
 import com.google.common.collect.Lists;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
@@ -144,18 +143,18 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  @Ignore
   public void should_close_remaining_open_issue_on_root_project() {
     when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
-    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
-        new IssueDto().setUuid("100").setRuleId(1)));
+    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(Collections.<IssueDto>emptyList());
+
+    when(initialOpenIssuesStack.getAllIssues()).thenReturn(newArrayList(new IssueDto().setUuid("100").setRuleId(1)));
 
     Resource resource = mock(Resource.class);
     when(resource.getQualifier()).thenReturn(Qualifiers.PROJECT);
     decorator.decorate(resource, null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(moduleIssues, times(2)).addOrUpdate(argument.capture());
+    verify(moduleIssues).addOrUpdate(argument.capture());
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(argument.getValue().updatedAt()).isNotNull();
   }

@@ -76,14 +76,16 @@ public class IssuesWorkflowDecorator implements Decorator {
       issueTracking.track(resource, openIssues, newDefaultIssues);
       updateIssues(newDefaultIssues);
 
-      addManualIssuesAndCloseResolvedOnes(openIssues, resource);
-      closeResolvedStandardIssues(openIssues, newIssues, resource);
-      keepFalsePositiveIssues(openIssues, resource);
-      reopenUnresolvedIssues(openIssues, resource);
+      Set<String> issueKeys = Sets.newHashSet(Collections2.transform(newIssues, new IssueToKeyfunction()));
+      for (IssueDto openIssue : openIssues) {
+        addManualIssuesAndCloseResolvedOnes(openIssue, resource);
+        closeResolvedStandardIssues(openIssue, issueKeys, resource);
+        keepFalsePositiveIssues(openIssue, resource);
+        reopenUnresolvedIssues(openIssue, resource);
+      }
 
       if (ResourceUtils.isRootProject(resource)) {
-        // TODO be carefullto take updated openIssue and not the ones coming directly from db (We should probably use a different sensor)
-//        closeIssuesOnDeletedResources(openIssues, resource);
+        closeIssuesOnDeletedResources(initialOpenIssuesStack.getAllIssues(), resource);
       }
     }
   }
@@ -94,46 +96,37 @@ public class IssuesWorkflowDecorator implements Decorator {
     }
   }
 
-  private void addManualIssuesAndCloseResolvedOnes(Collection<IssueDto> openIssues, Resource resource) {
-    for (IssueDto openIssue : openIssues) {
-      if (openIssue.isManualIssue()) {
-        DefaultIssue issue = toIssue(openIssue, resource);
-        if (Issue.STATUS_RESOLVED.equals(issue.status())) {
-          close(issue);
-        }
-        moduleIssues.addOrUpdate(issue);
+  private void addManualIssuesAndCloseResolvedOnes(IssueDto openIssue, Resource resource) {
+    if (openIssue.isManualIssue()) {
+      DefaultIssue issue = toIssue(openIssue, resource);
+      if (Issue.STATUS_RESOLVED.equals(issue.status())) {
+        close(issue);
       }
+      moduleIssues.addOrUpdate(issue);
     }
   }
 
-  private void closeResolvedStandardIssues(Collection<IssueDto> openIssues, Collection<Issue> issues, Resource resource) {
-    Set<String> issueKeys = Sets.newHashSet(Collections2.transform(issues, new IssueToKeyfunction()));
-
-    for (IssueDto openIssue : openIssues) {
-      if (!openIssue.isManualIssue() && !issueKeys.contains(openIssue.getUuid())) {
-        closeAndSave(openIssue, resource);
-      }
+  private void closeResolvedStandardIssues(IssueDto openIssue, Set<String> issueKeys, Resource resource) {
+    if (!openIssue.isManualIssue() && !issueKeys.contains(openIssue.getUuid())) {
+      closeAndSave(openIssue, resource);
     }
   }
 
-  private void keepFalsePositiveIssues(Collection<IssueDto> openIssues, Resource resource) {
-    for (IssueDto openIssue : openIssues) {
-      if (!openIssue.isManualIssue() && Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())) {
-        DefaultIssue issue = toIssue(openIssue, resource);
-        issue.setResolution(openIssue.getResolution());
-        issue.setStatus(openIssue.getStatus());
-        issue.setUpdatedAt(new Date());
-        moduleIssues.addOrUpdate(issue);
-      }
+  private void keepFalsePositiveIssues(IssueDto openIssue, Resource resource) {
+    if (!openIssue.isManualIssue() && Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())) {
+      DefaultIssue issue = toIssue(openIssue, resource);
+      issue.setResolution(openIssue.getResolution());
+      issue.setStatus(openIssue.getStatus());
+      issue.setUpdatedAt(new Date());
+      moduleIssues.addOrUpdate(issue);
     }
+
   }
 
-  private void reopenUnresolvedIssues(Collection<IssueDto> openIssues, Resource resource) {
-    for (IssueDto openIssue : openIssues) {
-      if (Issue.STATUS_RESOLVED.equals(openIssue.getStatus()) && !Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())
-          && !openIssue.isManualIssue()) {
-        reopenAndSave(openIssue, resource);
-      }
+  private void reopenUnresolvedIssues(IssueDto openIssue, Resource resource) {
+    if (Issue.STATUS_RESOLVED.equals(openIssue.getStatus()) && !Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())
+        && !openIssue.isManualIssue()) {
+      reopenAndSave(openIssue, resource);
     }
   }
 

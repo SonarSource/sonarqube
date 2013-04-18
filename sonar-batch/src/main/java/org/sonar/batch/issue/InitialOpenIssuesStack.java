@@ -20,7 +20,6 @@
 
 package org.sonar.batch.issue;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
@@ -56,8 +55,7 @@ public class InitialOpenIssuesStack implements BatchExtension {
     }
   }
 
-  @VisibleForTesting
-  Collection<IssueDto> getAllIssues(){
+  public Collection<IssueDto> getAllIssues(){
     return issuesByResourceId.values();
   }
 }
