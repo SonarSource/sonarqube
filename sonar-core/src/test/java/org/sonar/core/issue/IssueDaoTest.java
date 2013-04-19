@@ -118,6 +118,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getCreatedAt()).isNotNull();
     assertThat(issue.getUpdatedAt()).isNotNull();
     assertThat(issue.getClosedAt()).isNotNull();
+    assertThat(issue.getRule()).isNotNull();
+    assertThat(issue.getRuleRepo()).isNotNull();
   }
 
   @Test

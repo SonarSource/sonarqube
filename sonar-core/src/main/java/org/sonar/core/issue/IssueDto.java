@@ -58,9 +58,7 @@ public final class IssueDto {
   private Date closedAt;
 
   // joins
-  private String rule;
-
-  // This fields are not persited in db
+  private transient String ruleKey;
   private transient String ruleRepo;
   private transient String componentKey;
 
@@ -256,7 +254,7 @@ public final class IssueDto {
   }
 
   public String getRule() {
-    return rule;
+    return ruleKey;
   }
 
   public String getRuleRepo() {
@@ -272,7 +270,7 @@ public final class IssueDto {
    */
   public IssueDto setRuleKey_unit_test_only(String repo, String rule) {
     this.ruleRepo = repo;
-    this.rule = rule;
+    this.ruleKey = rule;
     return this;
   }
 
@@ -353,7 +351,7 @@ public final class IssueDto {
     issue.setComponentKey(componentKey);
     issue.setManual(manualIssue);
     issue.setManualSeverity(manualSeverity);
-    issue.setRuleKey(RuleKey.of(ruleRepo, rule));
+    issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));
     issue.setNew(false);
     // TODO personId
     return issue;
