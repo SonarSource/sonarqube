@@ -55,6 +55,11 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   private String propertySetKey;
   private String deprecatedKey;
   private List<PropertyFieldDefinition> fields;
+  /**
+   * @since 3.6
+   */
+  private String subcategory;
+  private int index;
 
   /**
    * @since 3.6
@@ -65,6 +70,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     this.description = builder.description;
     this.defaultValue = builder.defaultValue;
     this.category = builder.category;
+    this.subcategory = builder.subcategory;
     this.global = builder.global;
     this.type = builder.type;
     this.options = builder.options;
@@ -73,6 +79,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     this.fields = builder.fields;
     this.deprecatedKey = builder.deprecatedKey;
     this.qualifiers = builder.qualifiers;
+    this.index = builder.index;
   }
 
   /**
@@ -100,12 +107,14 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
         .global(annotation.global())
         .qualifiers(qualifiers)
         .category(annotation.category())
+        .subcategory(annotation.subcategory())
         .type(annotation.type())
         .options(annotation.options())
         .multiValues(annotation.multiValues())
         .propertySetKey(annotation.propertySetKey())
         .fields(PropertyFieldDefinition.create(annotation.fields()))
         .deprecatedKey(annotation.deprecatedKey())
+        .index(annotation.index())
         .build();
   }
 
@@ -185,6 +194,13 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   }
 
   /**
+   * @since 3.6
+   */
+  public String subcategory() {
+    return subcategory;
+  }
+
+  /**
    * Qualifiers that can display this property
    *
    * @since 3.6
@@ -228,6 +244,13 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     return deprecatedKey;
   }
 
+  /**
+   * @since 3.6
+   */
+  public int index() {
+    return index;
+  }
+
   public static final class Result {
     private static final Result SUCCESS = new Result(null);
     private String errorKey = null;
@@ -260,6 +283,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     private String description;
     private String defaultValue;
     private String category;
+    private String subcategory;
     private List<String> qualifiers;
     private boolean global;
     private PropertyType type;
@@ -268,6 +292,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     private String propertySetKey;
     private List<PropertyFieldDefinition> fields;
     private String deprecatedKey;
+    private int index;
 
     private Builder(String key) {
       this.key = key;
@@ -275,6 +300,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       this.description = "";
       this.defaultValue = "";
       this.category = "";
+      this.subcategory = "default";
       this.propertySetKey = "";
       this.deprecatedKey = "";
       this.global = true;
@@ -282,6 +308,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       this.qualifiers = newArrayList();
       this.options = newArrayList();
       this.fields = newArrayList();
+      this.index = 999;
     }
 
     public Builder description(String description) {
@@ -301,6 +328,11 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
 
     public Builder category(String category) {
       this.category = category;
+      return this;
+    }
+
+    public Builder subcategory(String subcategory) {
+      this.subcategory = subcategory;
       return this;
     }
 
@@ -356,6 +388,11 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
 
     public Builder deprecatedKey(String deprecatedKey) {
       this.deprecatedKey = deprecatedKey;
+      return this;
+    }
+
+    public Builder index(int index) {
+      this.index = index;
       return this;
     }
 

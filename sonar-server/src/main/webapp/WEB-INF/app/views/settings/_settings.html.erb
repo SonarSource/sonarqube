@@ -14,6 +14,13 @@
           <% @categories.each do |category| -%>
             <tr id="select_<%= category -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category -%>">
               <td><%= link_to category_name(category), :category => category -%></td>
+              <%  if @category==category
+                (@subcategories_per_categories[category]||[]).each do |subcategory| -%>
+                <tr id="select_<%= subcategory -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @subcategory==subcategory -%>">
+                  <td> - <%= link_to subcategory_name(category, subcategory), :category => category, :subcategory => subcategory -%></td>
+                </tr>
+              <%   end
+                 end -%>
             </tr>
           <% end -%>
           </tbody>

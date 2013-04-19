@@ -24,6 +24,10 @@ module SettingsHelper
     message("property.category.#{category}", :default => category)
   end
 
+  def subcategory_name(category, subcategory)
+    message("property.category.#{category}.#{subcategory}", :default => subcategory)
+  end
+
   def property_name(property)
     message("property.#{property.key}.name", :default => property.name)
   end
@@ -52,6 +56,14 @@ module SettingsHelper
     message("category.#{category}.help", :default => '')
   end
 
+  def category_desc(category)
+    message("property.category.#{category}.description", :default => '')
+  end
+
+  def subcategory_desc(category, subcategory)
+    message("property.category.#{category}.#{subcategory}.description", :default => '')
+  end
+
   def property_value(property)
     if property.multi_values?
       Property.values(property.key, @resource ? @resource.id : nil)
@@ -73,8 +85,8 @@ module SettingsHelper
     property.type
   end
 
-  def by_property_name(properties)
-    Api::Utils.insensitive_sort(properties) { |property| property_name(property) }
+  def by_property_index_or_name(properties)
+    properties.sort_by { |p| [p.index, property_name(p).downcase] }
   end
 
   def input_name(property)
