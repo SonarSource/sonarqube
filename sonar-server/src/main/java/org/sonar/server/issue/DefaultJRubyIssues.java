@@ -28,6 +28,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.JRubyIssues;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.web.UserRole;
 import org.sonar.server.ui.JRubyFacades;
 
 import javax.annotation.Nullable;
@@ -50,8 +51,11 @@ public class DefaultJRubyIssues implements JRubyIssues {
     JRubyFacades.setIssues(this);
   }
 
+  /**
+   * Requires the role {@link org.sonar.api.web.UserRole#CODEVIEWER}
+   */
   public IssueFinder.Results find(Map<String, Object> params, Integer currentUserId) {
-    return finder.find(newQuery(params), currentUserId);
+    return finder.find(newQuery(params), currentUserId, UserRole.CODEVIEWER);
   }
 
   IssueQuery newQuery(Map<String, Object> props) {
@@ -64,7 +68,7 @@ public class DefaultJRubyIssues implements JRubyIssues {
     builder.componentRoots(toStrings(props.get("componentRoots")));
     builder.rules(toRules(props.get("rules")));
     builder.userLogins(toStrings(props.get("userLogins")));
-    builder.assigneeLogins(toStrings(props.get("assigneeLogins")));
+    builder.assignees(toStrings(props.get("assignees")));
     builder.createdAfter(toDate(props.get("createdAfter")));
     builder.createdBefore(toDate(props.get("createdBefore")));
     builder.limit(toInteger(props.get("limit")));

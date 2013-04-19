@@ -35,7 +35,7 @@ public interface Issuable extends Perspective {
 
     IssueBuilder line(Integer line);
 
-    IssueBuilder message(String message);
+    IssueBuilder description(String description);
 
     IssueBuilder title(String title);
 

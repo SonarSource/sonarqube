@@ -35,7 +35,7 @@ public class DefaultIssueBuilderTest {
   public void should_create_issue() throws Exception {
     String componentKey = "org.apache.struts:struts-core:Action.java";
     DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder(callback, componentKey)
-      .message("msg")
+      .description("the desc")
       .line(123)
       .cost(10000.0)
       .ruleKey(RuleKey.of("squid", "NullDereference"))
@@ -46,14 +46,14 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.key()).isNull();
     assertThat(issue.cost()).isEqualTo(10000.0);
     assertThat(issue.componentKey()).isEqualTo(componentKey);
-    assertThat(issue.message()).isEqualTo("msg");
+    assertThat(issue.description()).isEqualTo("the desc");
     assertThat(issue.line()).isEqualTo(123);
     assertThat(issue.ruleKey().repository()).isEqualTo("squid");
     assertThat(issue.ruleKey().rule()).isEqualTo("NullDereference");
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(issue.updatedAt()).isNull();
     assertThat(issue.closedAt()).isNull();
-    assertThat(issue.assigneeLogin()).isNull();
+    assertThat(issue.assignee()).isNull();
     assertThat(issue.isNew()).isTrue();
     verify(callback).onIssueCreation(issue);
   }

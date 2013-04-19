@@ -212,7 +212,7 @@ public class IssuesDecoratorTest {
     List<Issue> issues = newArrayList();
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_REOPENED).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setStatus(Issue.STATUS_OPEN).setAssigneeLogin("arthur").setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setStatus(Issue.STATUS_OPEN).setAssignee("arthur").setSeverity(RulePriority.CRITICAL.name()));
     when(issuable.issues()).thenReturn(issues);
 
     decorator.decorate(resource, context);

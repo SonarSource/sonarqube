@@ -41,7 +41,7 @@ public class IssueQueryTest {
       .componentRoots(Lists.newArrayList("org.struts:core"))
       .rules(Lists.newArrayList(RuleKey.of("squid", "AvoidCycle")))
       .userLogins(Lists.newArrayList("crunky"))
-      .assigneeLogins(Lists.newArrayList("gargantua"))
+      .assignees(Lists.newArrayList("gargantua"))
       .createdAfter(new Date())
       .createdBefore(new Date())
       .limit(125)
@@ -54,7 +54,7 @@ public class IssueQueryTest {
     assertThat(query.components()).containsOnly("org/struts/Action.java");
     assertThat(query.componentRoots()).containsOnly("org.struts:core");
     assertThat(query.userLogins()).containsOnly("crunky");
-    assertThat(query.assigneeLogins()).containsOnly("gargantua");
+    assertThat(query.assignees()).containsOnly("gargantua");
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();

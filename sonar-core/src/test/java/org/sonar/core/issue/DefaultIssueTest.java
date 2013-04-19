@@ -19,6 +19,7 @@
  */
 package org.sonar.core.issue;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -66,6 +67,16 @@ public class DefaultIssueTest {
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Not a valid severity: FOO");
+    }
+  }
+
+  @Test
+  public void size_of_description_should_be_limited() {
+    try {
+      issue.setDescription(StringUtils.repeat("a", 5000));
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Description must not be longer than 4000 characters (got 5000)");
     }
   }
 }

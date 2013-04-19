@@ -78,7 +78,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
   public void should_close_resolved_issue() {
     when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
-        new IssueDto().setUuid("100").setRuleId(10)));
+        new IssueDto().setUuid("100").setRuleId(10).setRuleKey_unit_test_only("squid", "AvoidCycle")));
 
     decorator.decorate(mock(Resource.class), null);
 
@@ -92,7 +92,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
   public void should_close_resolved_manual_issue() {
     when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
-        new IssueDto().setUuid("100").setRuleId(1).setManualIssue(true).setStatus(Issue.STATUS_RESOLVED)));
+        new IssueDto().setUuid("100").setRuleId(1).setManualIssue(true).setStatus(Issue.STATUS_RESOLVED).setRuleKey_unit_test_only("squid", "AvoidCycle")));
 
     decorator.decorate(mock(Resource.class), null);
 
@@ -107,7 +107,8 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     when(moduleIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
         new DefaultIssue().setKey("100")));
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
-        new IssueDto().setUuid("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FIXED)));
+        new IssueDto().setUuid("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FIXED)
+          .setRuleKey_unit_test_only("squid", "AvoidCycle")));
 
     decorator.decorate(mock(Resource.class), null);
 
@@ -127,7 +128,8 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     when(moduleIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
         new DefaultIssue().setKey("100")));
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
-        new IssueDto().setUuid("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)));
+        new IssueDto().setUuid("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
+          .setRuleKey_unit_test_only("squid", "AvoidCycle")));
 
     decorator.decorate(mock(Resource.class), null);
 
@@ -147,7 +149,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(Collections.<IssueDto>emptyList());
 
-    when(initialOpenIssuesStack.getAllIssues()).thenReturn(newArrayList(new IssueDto().setUuid("100").setRuleId(1)));
+    when(initialOpenIssuesStack.getAllIssues()).thenReturn(newArrayList(new IssueDto().setUuid("100").setRuleId(1).setRuleKey_unit_test_only("squid", "AvoidCycle")));
 
     Resource resource = mock(Resource.class);
     when(resource.getQualifier()).thenReturn(Qualifiers.PROJECT);

@@ -19,10 +19,12 @@
  */
 package org.sonar.core.issue;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.Nullable;
 import java.util.Date;
@@ -32,8 +34,6 @@ import java.util.Date;
  */
 public final class IssueDto {
 
-  public static final int MESSAGE_MAX_SIZE = 4000;
-
   private Long id;
   private String uuid;
   private Integer resourceId;
@@ -42,14 +42,14 @@ public final class IssueDto {
   private boolean manualSeverity;
   private boolean manualIssue;
   private String title;
-  private String message;
+  private String description;
   private Integer line;
   private Double cost;
   private String status;
   private String resolution;
   private String checksum;
   private String userLogin;
-  private String assigneeLogin;
+  private String assignee;
   private Long personId;
   private String data;
   private Date createdAt;
@@ -133,12 +133,12 @@ public final class IssueDto {
     return this;
   }
 
-  public String getMessage() {
-    return message;
+  public String getDescription() {
+    return description;
   }
 
-  public IssueDto setMessage(String message) {
-    this.message = abbreviateMessage(message);
+  public IssueDto setDescription(String s) {
+    this.description = s;
     return this;
   }
 
@@ -196,12 +196,12 @@ public final class IssueDto {
     return this;
   }
 
-  public String getAssigneeLogin() {
-    return assigneeLogin;
+  public String getAssignee() {
+    return assignee;
   }
 
-  public IssueDto setAssigneeLogin(@Nullable String assigneeLogin) {
-    this.assigneeLogin = assigneeLogin;
+  public IssueDto setAssignee(@Nullable String s) {
+    this.assignee = s;
     return this;
   }
 
@@ -252,10 +252,6 @@ public final class IssueDto {
     return this;
   }
 
-  public static String abbreviateMessage(String message) {
-    return message != null ? StringUtils.abbreviate(StringUtils.trim(message), MESSAGE_MAX_SIZE) : null;
-  }
-
   public String getRule() {
     return rule;
   }
@@ -271,16 +267,9 @@ public final class IssueDto {
   /**
    * Only for unit tests
    */
-  public IssueDto setRule_unit_test_only(String rule) {
+  public IssueDto setRuleKey_unit_test_only(String repo, String rule) {
+    this.ruleRepo = repo;
     this.rule = rule;
-    return this;
-  }
-
-  /**
-   * Only for unit tests
-   */
-  public IssueDto setRuleRepo_unit_test_only(String ruleRepo) {
-    this.ruleRepo = ruleRepo;
     return this;
   }
 
@@ -313,5 +302,56 @@ public final class IssueDto {
   @Override
   public int hashCode() {
     return id != null ? id.hashCode() : 0;
+  }
+
+
+  public static IssueDto toDto(DefaultIssue issue, Integer componentId, Integer ruleId) {
+    return new IssueDto()
+      .setUuid(issue.key())
+      .setLine(issue.line())
+      .setTitle(issue.title())
+      .setDescription(issue.description())
+      .setCost(issue.cost())
+      .setResolution(issue.resolution())
+      .setStatus(issue.status())
+      .setSeverity(issue.severity())
+      .setChecksum(issue.getChecksum())
+      .setManualIssue(issue.isManual())
+      .setManualSeverity(issue.isManualSeverity())
+      .setUserLogin(issue.userLogin())
+      .setAssignee(issue.assignee())
+      .setCreatedAt(issue.createdAt())
+      .setUpdatedAt(issue.updatedAt())
+      .setClosedAt(issue.closedAt())
+      .setRuleId(ruleId)
+      .setResourceId(componentId)
+      .setData(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
+      // TODO
+//        .setPersonId()
+      ;
+  }
+
+  public DefaultIssue toDefaultIssue() {
+    DefaultIssue issue = new DefaultIssue();
+    issue.setKey(uuid);
+    issue.setStatus(status);
+    issue.setResolution(resolution);
+    issue.setDescription(description);
+    issue.setTitle(title);
+    issue.setCost(cost);
+    issue.setLine(line);
+    issue.setSeverity(severity);
+    issue.setUserLogin(userLogin);
+    issue.setAssignee(assignee);
+    issue.setCreatedAt(createdAt);
+    issue.setUpdatedAt(updatedAt);
+    issue.setClosedAt(closedAt);
+    issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(data, "")));
+    issue.setComponentKey(componentKey);
+    issue.setManual(manualIssue);
+    issue.setManualSeverity(manualSeverity);
+    issue.setRuleKey(RuleKey.of(ruleRepo, rule));
+    // TODO personId
+    return issue;
   }
 }

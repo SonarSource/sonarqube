@@ -23,7 +23,6 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.ScanPersister;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.issue.DefaultIssue;
@@ -62,7 +61,7 @@ public class IssuePersister implements ScanPersister {
           throw new IllegalStateException("Rule not found: " + issue.ruleKey());
         }
 
-        IssueDto dto = toIssueDto((DefaultIssue) issue, snapshot.getResourceId(), rule.getId());
+        IssueDto dto = IssueDto.toDto((DefaultIssue) issue, snapshot.getResourceId(), rule.getId());
         if (issue.isNew()) {
           dao.insert(dto);
         } else {
@@ -73,29 +72,5 @@ public class IssuePersister implements ScanPersister {
     }
   }
 
-  private IssueDto toIssueDto(DefaultIssue issue, Integer componentId, Integer ruleId) {
-    return new IssueDto()
-      .setUuid(issue.key())
-      .setLine(issue.line())
-      .setTitle(issue.title())
-      .setMessage(issue.message())
-      .setCost(issue.cost())
-      .setResolution(issue.resolution())
-      .setStatus(issue.status())
-      .setSeverity(issue.severity())
-      .setChecksum(issue.getChecksum())
-      .setManualIssue(issue.isManual())
-      .setManualSeverity(issue.isManualSeverity())
-      .setUserLogin(issue.userLogin())
-      .setAssigneeLogin(issue.assigneeLogin())
-      .setCreatedAt(issue.createdAt())
-      .setUpdatedAt(issue.updatedAt())
-      .setClosedAt(issue.closedAt())
-      .setRuleId(ruleId)
-      .setResourceId(componentId)
-      .setData(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : null)
-      // TODO
-//        .setPersonId()
-      ;
-  }
+
 }

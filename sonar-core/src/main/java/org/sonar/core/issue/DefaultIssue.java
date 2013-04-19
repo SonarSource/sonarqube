@@ -47,13 +47,13 @@ public class DefaultIssue implements Issue, Serializable {
   private String severity;
   private boolean manualSeverity = false;
   private String title;
-  private String message;
+  private String description;
   private Integer line;
   private Double cost;
   private String status;
   private String resolution;
   private String userLogin;
-  private String assigneeLogin;
+  private String assignee;
   private Date createdAt;
   private Date updatedAt;
   private Date closedAt;
@@ -117,12 +117,16 @@ public class DefaultIssue implements Issue, Serializable {
     return this;
   }
 
-  public String message() {
-    return message;
+  public String description() {
+    return description;
   }
 
-  public DefaultIssue setMessage(@Nullable String message) {
-    this.message = message;
+  public DefaultIssue setDescription(@Nullable String s) {
+    if (s != null) {
+      Preconditions.checkArgument(s.length() < Issue.DESCRIPTION_MAX_SIZE,
+        "Description must not be longer than " + Issue.DESCRIPTION_MAX_SIZE + " characters (got " + s.length() + ")");
+    }
+    this.description = s;
     return this;
   }
 
@@ -175,12 +179,12 @@ public class DefaultIssue implements Issue, Serializable {
     return this;
   }
 
-  public String assigneeLogin() {
-    return assigneeLogin;
+  public String assignee() {
+    return assignee;
   }
 
-  public DefaultIssue setAssigneeLogin(@Nullable String assigneeLogin) {
-    this.assigneeLogin = assigneeLogin;
+  public DefaultIssue setAssignee(@Nullable String s) {
+    this.assignee = s;
     return this;
   }
 
@@ -255,7 +259,7 @@ public class DefaultIssue implements Issue, Serializable {
   }
 
   public Map<String, String> attributes() {
-    return attributes == null ? Collections.<String,String>emptyMap() : ImmutableMap.copyOf(attributes);
+    return attributes == null ? Collections.<String, String>emptyMap() : ImmutableMap.copyOf(attributes);
   }
 
   public DefaultIssue setAttributes(Map<String, String> attributes) {

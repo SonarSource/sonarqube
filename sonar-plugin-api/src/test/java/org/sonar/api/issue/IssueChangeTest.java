@@ -37,7 +37,7 @@ public class IssueChangeTest {
     assertThat(change.isLineChanged()).isFalse();
     assertThat(change.line()).isNull();
     assertThat(change.comment()).isNull();
-    assertThat(change.message()).isNull();
+    assertThat(change.description()).isNull();
     assertThat(change.resolution()).isNull();
     assertThat(change.manualSeverity()).isNull();
     assertThat(change.attributes()).isEmpty();
@@ -101,8 +101,8 @@ public class IssueChangeTest {
   @Test
   public void should_change_message() {
     IssueChange change = IssueChange.create();
-    change.setMessage("foo");
-    assertThat(change.message()).isEqualTo("foo");
+    change.setDescription("foo");
+    assertThat(change.description()).isEqualTo("foo");
     assertThat(change.hasChanges()).isTrue();
   }
 

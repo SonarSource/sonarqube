@@ -13,14 +13,14 @@
     i.manual_severity as manualSeverity,
     i.manual_issue as manualIssue,
     i.title as title,
-    i.message as message,
+    i.message as description,
     i.line as line,
     i.cost as cost,
     i.status as status,
     i.resolution as resolution,
     i.checksum as checksum,
     i.user_login as userLogin,
-    i.assignee_login as assigneeLogin,
+    i.assignee_login as assignee,
     i.person_id as personId,
     i.data as data,
     i.created_at as createdAt,
@@ -34,8 +34,8 @@
   <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO issues (uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, message, line, cost, status,
     resolution, checksum, user_login, assignee_login, person_id, data, created_at, updated_at, closed_at)
-    VALUES (#{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{message}, #{line}, #{cost}, #{status},
-    #{resolution}, #{checksum}, #{userLogin}, #{assigneeLogin}, #{personId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
+    VALUES (#{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{description}, #{line}, #{cost}, #{status},
+    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{personId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
   </insert>
 
   <!-- Oracle -->
@@ -45,31 +45,31 @@
     </selectKey>
     INSERT INTO issues (id, uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, message, line, cost, status,
     resolution, checksum, user_login, assignee_login, person_id, data, created_at, updated_at, closed_at)
-    VALUES (#{id}, #{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{message}, #{line}, #{cost}, #{status},
-    #{resolution}, #{checksum}, #{userLogin}, #{assigneeLogin}, #{personId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
+    VALUES (#{id}, #{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{description}, #{line}, #{cost}, #{status},
+    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{personId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
   </insert>
 
   <update id="update" parameterType="Issue">
     update issues set
-    resource_id=#{resourceId},
-    rule_id=#{ruleId},
-    severity=#{severity},
-    manual_severity=#{manualSeverity},
-    manual_issue=#{manualIssue},
-    title=#{title},
-    message=#{message},
-    line=#{line},
-    cost=#{cost},
-    status=#{status},
-    resolution=#{resolution},
-    checksum=#{checksum},
-    user_login=#{userLogin},
-    assignee_login=#{assigneeLogin},
-    person_id=#{personId},
-    data=#{data},
-    created_at=#{createdAt},
-    updated_at=#{updatedAt},
-    closed_at=#{closedAt}
+      resource_id=#{resourceId},
+      rule_id=#{ruleId},
+      severity=#{severity},
+      manual_severity=#{manualSeverity},
+      manual_issue=#{manualIssue},
+      title=#{title},
+      message=#{description},
+      line=#{line},
+      cost=#{cost},
+      status=#{status},
+      resolution=#{resolution},
+      checksum=#{checksum},
+      user_login=#{userLogin},
+      assignee_login=#{assignee},
+      person_id=#{personId},
+      data=#{data},
+      created_at=#{createdAt},
+      updated_at=#{updatedAt},
+      closed_at=#{closedAt}
     where uuid = #{uuid}
   </update>
 
@@ -77,7 +77,10 @@
     select
     <include refid="issueColumns"/>
     from issues i, rules r, projects p
-    where i.id=#{id} and i.rule_id=r.id and p.id=i.resource_id
+    where
+      i.id=#{id} and
+      i.rule_id=r.id and
+      p.id=i.resource_id
   </select>
 
   <select id="selectByKey" parameterType="String" resultType="Issue">
@@ -166,9 +169,9 @@
         <foreach item="userLogin" index="index" collection="userLogins" open="(" separator="," close=")">#{userLogin}
         </foreach>
       </if>
-      <if test="assigneeLogins != null">
+      <if test="assignees != null">
         and i.assignee_login in
-        <foreach item="assigneeLogin" index="index" collection="assigneeLogins" open="(" separator="," close=")">#{assigneeLogin}
+        <foreach item="assignee" index="index" collection="assignees" open="(" separator="," close=")">#{assignee}
         </foreach>
       </if>
       <if test="rules != null and rules.size() > 0">

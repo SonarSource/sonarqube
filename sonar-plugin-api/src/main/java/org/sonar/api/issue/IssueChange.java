@@ -33,13 +33,13 @@ public class IssueChange {
   private String comment = null;
   private String commentLogin = null;
   private Boolean manualSeverity = null;
-  private String message = null;
+  private String description = null;
   private boolean lineChanged = false;
   private Integer line = null;
   private boolean costChanged = false;
   private Double cost = null;
   private String resolution = null;
-  private boolean assigneeLoginChanged = false;
+  private boolean assigneeChanged = false;
   private String assignee = null;
   private Map<String, String> attributes = null;
 
@@ -51,8 +51,8 @@ public class IssueChange {
   }
 
   public boolean hasChanges() {
-    return severity != null || comment != null || manualSeverity != null || message != null ||
-      lineChanged || costChanged || resolution != null || assigneeLoginChanged || attributes != null;
+    return severity != null || comment != null || manualSeverity != null || description != null ||
+      lineChanged || costChanged || resolution != null || assigneeChanged || attributes != null;
   }
 
   public IssueChange setSeverity(String s) {
@@ -75,8 +75,8 @@ public class IssueChange {
     return this;
   }
 
-  public IssueChange setMessage(String message) {
-    this.message = message;
+  public IssueChange setDescription(String s) {
+    this.description = s;
     return this;
   }
 
@@ -98,7 +98,7 @@ public class IssueChange {
   }
 
   public IssueChange setAssignee(@Nullable String assigneeLogin) {
-    this.assigneeLoginChanged = true;
+    this.assigneeChanged = true;
     this.assignee = assigneeLogin;
     return this;
   }
@@ -127,8 +127,8 @@ public class IssueChange {
     return manualSeverity;
   }
 
-  public String message() {
-    return message;
+  public String description() {
+    return description;
   }
 
   public Integer line() {
@@ -156,7 +156,7 @@ public class IssueChange {
   }
 
   public boolean isAssigneeChanged() {
-    return assigneeLoginChanged;
+    return assigneeChanged;
   }
 
   public Map<String, String> attributes() {

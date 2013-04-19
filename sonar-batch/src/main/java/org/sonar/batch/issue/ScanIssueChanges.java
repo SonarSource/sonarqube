@@ -54,13 +54,13 @@ public class ScanIssueChanges implements IssueChanges {
       issue.setCost(change.cost());
     }
     if (change.manualSeverity() != null) {
-      change.setManualSeverity(change.manualSeverity().booleanValue());
+      change.setManualSeverity(change.manualSeverity());
     }
     if (change.severity() != null) {
       issue.setSeverity(change.severity());
     }
     if (change.isAssigneeChanged()) {
-      issue.setAssigneeLogin(change.assignee());
+      issue.setAssignee(change.assignee());
     }
     if (change.resolution() != null) {
       issue.setResolution(change.resolution());

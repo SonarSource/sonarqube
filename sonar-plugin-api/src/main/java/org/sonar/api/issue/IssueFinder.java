@@ -37,7 +37,7 @@ public interface IssueFinder extends ServerComponent {
     List<Issue> issues();
   }
 
-  Results find(IssueQuery query, @Nullable Integer currentUserId);
+  Results find(IssueQuery query, @Nullable Integer currentUserId, String role);
 
   Issue findByKey(String key /* TODO @Nullable Integer currentUserId */);
 /*

@@ -55,8 +55,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     issueDto.setSeverity("BLOCKER");
     issueDto.setLine(200);
     issueDto.setStatus("OPEN");
-    issueDto.setAssigneeLogin("user");
-    issueDto.setMessage("message");
+    issueDto.setAssignee("user");
+    issueDto.setDescription("the description");
     issueDto.setCost(10.0);
     issueDto.setChecksum("checksum");
     issueDto.setPersonId(100L);
@@ -80,7 +80,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     issue.setResolution("NEW_RESOLUTION");
     issue.setStatus("NEW_STATUS");
     issue.setSeverity("NEW_SEV");
-    issue.setAssigneeLogin("new_user");
+    issue.setAssignee("new_user");
     issue.setManualSeverity(true);
     issue.setManualIssue(false);
     issue.setTitle("NEW_TITLE");
@@ -105,7 +105,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.isManualIssue()).isFalse();
     assertThat(issue.getTitle()).isNull();
-    assertThat(issue.getMessage()).isNull();
+    assertThat(issue.getDescription()).isNull();
     assertThat(issue.getLine()).isEqualTo(200);
     assertThat(issue.getCost()).isEqualTo(4.2);
     assertThat(issue.getStatus()).isEqualTo("OPEN");
@@ -113,7 +113,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getChecksum()).isEqualTo("XXX");
     assertThat(issue.getPersonId()).isNull();
     assertThat(issue.getUserLogin()).isEqualTo("arthur");
-    assertThat(issue.getAssigneeLogin()).isEqualTo("perceval");
+    assertThat(issue.getAssignee()).isEqualTo("perceval");
     assertThat(issue.getData()).isEqualTo("JIRA=FOO-1234");
     assertThat(issue.getCreatedAt()).isNotNull();
     assertThat(issue.getUpdatedAt()).isNotNull();
@@ -136,7 +136,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     IssueQuery query = IssueQuery.builder()
       .keys(newArrayList("ABCDE"))
       .userLogins(newArrayList("arthur", "otherguy"))
-      .assigneeLogins(newArrayList("perceval", "otherguy"))
+      .assignees(newArrayList("perceval", "otherguy"))
       .components(newArrayList("Action.java"))
       .resolutions(newArrayList("FIXED"))
       .severities(newArrayList("BLOCKER"))

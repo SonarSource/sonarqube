@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.AuthorizationDao;
 
@@ -44,11 +42,6 @@ public class DefaultIssueFinder implements IssueFinder {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIssueFinder.class);
 
-  /**
-   * The role required to access issues
-   */
-  private static final String ROLE = "user";
-
   private final MyBatis myBatis;
   private final IssueDao issueDao;
   private final AuthorizationDao authorizationDao;
@@ -60,7 +53,7 @@ public class DefaultIssueFinder implements IssueFinder {
     this.authorizationDao = authorizationDao;
   }
 
-  public Results find(IssueQuery query, @Nullable Integer currentUserId) {
+  public Results find(IssueQuery query, @Nullable Integer currentUserId, String role) {
     LOG.debug("IssueQuery : {}", query);
     SqlSession sqlSession = myBatis.openSession();
     try {
@@ -70,11 +63,11 @@ public class DefaultIssueFinder implements IssueFinder {
       for (IssueDto issueDto : dtos) {
         componentIds.add(issueDto.getResourceId());
       }
-      Set<Integer> authorizedComponentIds = authorizationDao.keepAuthorizedComponentIds(componentIds, currentUserId, ROLE, sqlSession);
+      Set<Integer> authorizedComponentIds = authorizationDao.keepAuthorizedComponentIds(componentIds, currentUserId, role, sqlSession);
       List<Issue> issues = Lists.newArrayList();
       for (IssueDto dto : dtos) {
         if (authorizedComponentIds.contains(dto.getResourceId())) {
-          issues.add(toIssue(dto));
+          issues.add(dto.toDefaultIssue());
         }
       }
       return new DefaultResults(issues);
@@ -85,30 +78,7 @@ public class DefaultIssueFinder implements IssueFinder {
 
   public Issue findByKey(String key) {
     IssueDto dto = issueDao.selectByKey(key);
-    return dto != null ? toIssue(dto) : null;
-  }
-
-  private Issue toIssue(IssueDto dto) {
-    DefaultIssue issue = new DefaultIssue();
-    issue.setKey(dto.getUuid());
-    issue.setStatus(dto.getStatus());
-    issue.setResolution(dto.getResolution());
-    issue.setMessage(dto.getMessage());
-    issue.setTitle(dto.getTitle());
-    issue.setCost(dto.getCost());
-    issue.setLine(dto.getLine());
-    issue.setSeverity(dto.getSeverity());
-    issue.setUserLogin(dto.getUserLogin());
-    issue.setAssigneeLogin(dto.getAssigneeLogin());
-    issue.setCreatedAt(dto.getCreatedAt());
-    issue.setUpdatedAt(dto.getUpdatedAt());
-    issue.setClosedAt(dto.getClosedAt());
-    issue.setAttributes(KeyValueFormat.parse(dto.getData()));
-    issue.setManual(dto.isManualIssue());
-    issue.setManualSeverity(dto.isManualSeverity());
-    issue.setComponentKey(dto.getComponentKey());
-    issue.setRuleKey(RuleKey.of(dto.getRuleRepo(), dto.getRule()));
-    return issue;
+    return dto != null ? dto.toDefaultIssue() : null;
   }
 
   static class DefaultResults implements Results {

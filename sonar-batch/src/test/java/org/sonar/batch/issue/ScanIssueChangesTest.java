@@ -27,10 +27,7 @@ import org.sonar.core.issue.DefaultIssue;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ScanIssueChangesTest {
 
@@ -77,7 +74,7 @@ public class ScanIssueChangesTest {
     assertThat(changed.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(changed.attribute("JIRA")).isEqualTo("FOO-123");
     assertThat(changed.severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(changed.assigneeLogin()).isEqualTo("arthur");
+    assertThat(changed.assignee()).isEqualTo("arthur");
     assertThat(changed.cost()).isEqualTo(4.2);
     assertThat(changed.updatedAt()).isNotNull();
   }

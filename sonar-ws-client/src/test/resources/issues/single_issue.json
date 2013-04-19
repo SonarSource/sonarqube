@@ -12,7 +12,7 @@
     "status": "OPEN",
     "resolution": "FIXED",
     "userLogin": "admin",
-    "assigneeLogin": "admin",
+    "assignee": "admin",
     "createdAt": "2013-04-10T18:21:15+0200",
     "updatedAt": "2013-04-10T18:21:15+0200",
     "closedAt": null

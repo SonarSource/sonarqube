@@ -27,6 +27,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.AuthorizationDao;
 
@@ -60,16 +61,14 @@ public class DefaultIssueFinderTest {
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleRepo_unit_test_only("squid")
-      .setRule_unit_test_only("AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleRepo_unit_test_only("squid")
-      .setRule_unit_test_only("AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.select(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
 
-    IssueFinder.Results results = finder.find(issueQuery, null);
+    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(issue.componentKey()).isEqualTo("Action.java");
@@ -80,8 +79,7 @@ public class DefaultIssueFinderTest {
   public void should_find_by_key() {
     IssueDto issueDto = new IssueDto().setId(1L).setRuleId(1).setResourceId(1)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleRepo_unit_test_only("squid")
-      .setRule_unit_test_only("AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
     when(issueDao.selectByKey("ABCDE")).thenReturn(issueDto);
 
     Issue issue = finder.findByKey("ABCDE");

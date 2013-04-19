@@ -50,7 +50,7 @@ public class IssueUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(issue.getStatus()).isEqualTo("OPEN");
     assertThat(issue.getResolution()).isEqualTo("FIXED");
     assertThat(issue.getUserLogin()).isEqualTo("admin");
-    assertThat(issue.getAssigneeLogin()).isEqualTo("admin");
+    assertThat(issue.getAssignee()).isEqualTo("admin");
     assertThat(issue.getCreatedAt()).isNotNull();
     assertThat(issue.getUpdatedAt()).isNotNull();
     assertThat(issue.getClosedAt()).isNull();

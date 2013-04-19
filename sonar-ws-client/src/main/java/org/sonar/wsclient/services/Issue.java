@@ -151,7 +151,7 @@ public class Issue extends Model {
     return this;
   }
 
-  public String getAssigneeLogin() {
+  public String getAssignee() {
     return assigneeLogin;
   }
 

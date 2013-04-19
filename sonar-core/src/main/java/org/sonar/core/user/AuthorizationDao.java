@@ -26,7 +26,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -64,5 +63,9 @@ public class AuthorizationDao implements ServerComponent {
     }
 
     return Sets.newHashSet(session.<Integer>selectList(sql, params));
+  }
+
+  public boolean isAuthorizedComponentId(int componentId, @Nullable Integer userId, String role) {
+    return keepAuthorizedComponentIds(Sets.newHashSet(componentId), userId, role).size() == 1;
   }
 }

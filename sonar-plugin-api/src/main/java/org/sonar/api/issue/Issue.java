@@ -29,6 +29,7 @@ import java.util.Map;
  */
 public interface Issue {
 
+  int DESCRIPTION_MAX_SIZE = 4000;
   String STATUS_OPEN = "OPEN";
   String STATUS_REOPENED = "REOPENED";
   String STATUS_RESOLVED = "RESOLVED";
@@ -50,7 +51,7 @@ public interface Issue {
 
   String title();
 
-  String message();
+  String description();
 
   Integer line();
 
@@ -62,7 +63,7 @@ public interface Issue {
 
   String userLogin();
 
-  String assigneeLogin();
+  String assignee();
 
   Date createdAt();
 

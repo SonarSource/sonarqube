@@ -30,7 +30,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private final String componentKey;
   private RuleKey ruleKey;
   private Integer line;
-  private String message;
+  private String description;
   private String title;
   private String severity;
   private Double cost;
@@ -54,8 +54,8 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issuable.IssueBuilder message(String message) {
-    this.message = message;
+  public Issuable.IssueBuilder description(String s) {
+    this.description = s;
     return this;
   }
 
@@ -91,7 +91,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     DefaultIssue issue = new DefaultIssue();
     issue.setComponentKey(componentKey);
     issue.setRuleKey(ruleKey);
-    issue.setMessage(message);
+    issue.setDescription(description);
     issue.setTitle(title);
     issue.setSeverity(severity);
 

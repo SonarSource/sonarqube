@@ -77,6 +77,7 @@ import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.DefaultJRubyIssues;
+import org.sonar.server.issue.ServerIssueChanges;
 import org.sonar.server.macro.MacroInterpreter;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
@@ -268,6 +269,7 @@ public final class Platform {
     servicesContainer.addSingleton(Periods.class);
     servicesContainer.addSingleton(DefaultIssueFinder.class);
     servicesContainer.addSingleton(DefaultJRubyIssues.class);
+    servicesContainer.addSingleton(ServerIssueChanges.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

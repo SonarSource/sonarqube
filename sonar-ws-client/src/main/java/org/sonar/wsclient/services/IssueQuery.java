@@ -182,7 +182,7 @@ public final class IssueQuery extends Query<Issue> {
     appendUrlParameter(url, "componentRoots", componentRoots);
     appendUrlParameter(url, "rules", rules);
     appendUrlParameter(url, "userLogins", userLogins);
-    appendUrlParameter(url, "assigneeLogins", assigneeLogins);
+    appendUrlParameter(url, "assignees", assigneeLogins);
     appendUrlParameter(url, "createdAfter", createdAfter);
     appendUrlParameter(url, "createdBefore", createdBefore);
     appendUrlParameter(url, "limit", limit);

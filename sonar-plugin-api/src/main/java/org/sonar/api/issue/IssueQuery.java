@@ -24,8 +24,6 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 
@@ -44,7 +42,7 @@ public class IssueQuery {
   private final Collection<String> componentRoots;
   private final Collection<RuleKey> rules;
   private final Collection<String> userLogins;
-  private final Collection<String> assigneeLogins;
+  private final Collection<String> assignees;
   private final Date createdAfter;
   private final Date createdBefore;
   private final int limit, offset;
@@ -58,7 +56,7 @@ public class IssueQuery {
     this.componentRoots = builder.componentRoots;
     this.rules = builder.rules;
     this.userLogins = builder.userLogins;
-    this.assigneeLogins = builder.assigneeLogins;
+    this.assignees = builder.assignees;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
     this.limit = builder.limit;
@@ -97,8 +95,8 @@ public class IssueQuery {
     return userLogins;
   }
 
-  public Collection<String> assigneeLogins() {
-    return assigneeLogins;
+  public Collection<String> assignees() {
+    return assignees;
   }
 
   public Date createdAfter() {
@@ -143,7 +141,7 @@ public class IssueQuery {
     private Collection<String> componentRoots;
     private Collection<RuleKey> rules;
     private Collection<String> userLogins;
-    private Collection<String> assigneeLogins;
+    private Collection<String> assignees;
     private Date createdAfter;
     private Date createdBefore;
     private int limit = DEFAULT_LIMIT;
@@ -192,8 +190,8 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder assigneeLogins(Collection<String> l) {
-      this.assigneeLogins = l;
+    public Builder assignees(Collection<String> l) {
+      this.assignees = l;
       return this;
     }
 
@@ -207,14 +205,14 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder limit(@Nullable Integer i) {
+    public Builder limit(Integer i) {
       Preconditions.checkArgument(i == null || i.intValue() > 0, "Limit must be greater than 0 (got " + i + ")");
       Preconditions.checkArgument(i == null || i.intValue() < MAX_LIMIT, "Limit must be less than " + MAX_LIMIT + " (got " + i + ")");
       this.limit = (i == null ? DEFAULT_LIMIT : i.intValue());
       return this;
     }
 
-    public Builder offset(@Nullable Integer i) {
+    public Builder offset(Integer i) {
       Preconditions.checkArgument(i == null || i.intValue() >= 0, "Offset must be greater than or equal to 0 (got " + i + ")");
       this.offset = (i == null ? DEFAULT_OFFSET : i.intValue());
       return this;

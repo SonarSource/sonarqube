@@ -40,7 +40,7 @@ public class IssueUnmarshaller extends AbstractUnmarshaller<Issue> {
         .setStatus(utils.getString(json, "status"))
         .setResolution(utils.getString(json, "resolution"))
         .setUserLogin(utils.getString(json, "userLogin"))
-        .setAssigneeLogin(utils.getString(json, "assigneeLogin"))
+        .setAssigneeLogin(utils.getString(json, "assignee"))
         .setCreatedAt(utils.getDateTime(json, "createdAt"))
         .setUpdatedAt(utils.getDateTime(json, "updatedAt"))
         .setClosedAt(utils.getDateTime(json, "closedAt"));

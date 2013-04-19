@@ -32,16 +32,13 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.InitialOpenIssuesStack;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -78,14 +75,14 @@ public class IssuesWorkflowDecorator implements Decorator {
 
       Set<String> issueKeys = Sets.newHashSet(Collections2.transform(newIssues, new IssueToKeyfunction()));
       for (IssueDto openIssue : openIssues) {
-        addManualIssuesAndCloseResolvedOnes(openIssue, resource);
-        closeResolvedStandardIssues(openIssue, issueKeys, resource);
-        keepFalsePositiveIssues(openIssue, resource);
-        reopenUnresolvedIssues(openIssue, resource);
+        addManualIssuesAndCloseResolvedOnes(openIssue);
+        closeResolvedStandardIssues(openIssue, issueKeys);
+        keepFalsePositiveIssues(openIssue);
+        reopenUnresolvedIssues(openIssue);
       }
 
       if (ResourceUtils.isRootProject(resource)) {
-        closeIssuesOnDeletedResources(initialOpenIssuesStack.getAllIssues(), resource);
+        closeIssuesOnDeletedResources(initialOpenIssuesStack.getAllIssues());
       }
     }
   }
@@ -96,9 +93,9 @@ public class IssuesWorkflowDecorator implements Decorator {
     }
   }
 
-  private void addManualIssuesAndCloseResolvedOnes(IssueDto openIssue, Resource resource) {
+  private void addManualIssuesAndCloseResolvedOnes(IssueDto openIssue) {
     if (openIssue.isManualIssue()) {
-      DefaultIssue issue = toIssue(openIssue, resource);
+      DefaultIssue issue = openIssue.toDefaultIssue();
       if (Issue.STATUS_RESOLVED.equals(issue.status())) {
         close(issue);
       }
@@ -106,15 +103,15 @@ public class IssuesWorkflowDecorator implements Decorator {
     }
   }
 
-  private void closeResolvedStandardIssues(IssueDto openIssue, Set<String> issueKeys, Resource resource) {
+  private void closeResolvedStandardIssues(IssueDto openIssue, Set<String> issueKeys) {
     if (!openIssue.isManualIssue() && !issueKeys.contains(openIssue.getUuid())) {
-      closeAndSave(openIssue, resource);
+      closeAndSave(openIssue);
     }
   }
 
-  private void keepFalsePositiveIssues(IssueDto openIssue, Resource resource) {
+  private void keepFalsePositiveIssues(IssueDto openIssue) {
     if (!openIssue.isManualIssue() && Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())) {
-      DefaultIssue issue = toIssue(openIssue, resource);
+      DefaultIssue issue = openIssue.toDefaultIssue();
       issue.setResolution(openIssue.getResolution());
       issue.setStatus(openIssue.getStatus());
       issue.setUpdatedAt(new Date());
@@ -123,19 +120,19 @@ public class IssuesWorkflowDecorator implements Decorator {
 
   }
 
-  private void reopenUnresolvedIssues(IssueDto openIssue, Resource resource) {
+  private void reopenUnresolvedIssues(IssueDto openIssue) {
     if (Issue.STATUS_RESOLVED.equals(openIssue.getStatus()) && !Issue.RESOLUTION_FALSE_POSITIVE.equals(openIssue.getResolution())
-        && !openIssue.isManualIssue()) {
-      reopenAndSave(openIssue, resource);
+      && !openIssue.isManualIssue()) {
+      reopenAndSave(openIssue);
     }
   }
 
   /**
    * Close issues that relate to resources that have been deleted or renamed.
    */
-  private void closeIssuesOnDeletedResources(Collection<IssueDto> openIssues, Resource resource) {
+  private void closeIssuesOnDeletedResources(Collection<IssueDto> openIssues) {
     for (IssueDto openIssue : openIssues) {
-      closeAndSave(openIssue, resource);
+      closeAndSave(openIssue);
     }
   }
 
@@ -144,46 +141,20 @@ public class IssuesWorkflowDecorator implements Decorator {
     issue.setUpdatedAt(new Date());
   }
 
-  private void closeAndSave(IssueDto openIssue, Resource resource) {
-    DefaultIssue issue = toIssue(openIssue, resource);
+  private void closeAndSave(IssueDto openIssue) {
+    DefaultIssue issue = openIssue.toDefaultIssue();
     close(issue);
     moduleIssues.addOrUpdate(issue);
   }
 
-  private void reopenAndSave(IssueDto openIssue, Resource resource) {
-    DefaultIssue issue = toIssue(openIssue, resource);
+  private void reopenAndSave(IssueDto openIssue) {
+    DefaultIssue issue = openIssue.toDefaultIssue();
     issue.setStatus(Issue.STATUS_REOPENED);
     issue.setResolution(null);
     issue.setUpdatedAt(new Date());
     moduleIssues.addOrUpdate(issue);
   }
 
-  private DefaultIssue toIssue(IssueDto dto, Resource resource) {
-    DefaultIssue issue = new DefaultIssue();
-    issue.setKey(dto.getUuid());
-    issue.setStatus(dto.getStatus());
-    issue.setResolution(dto.getResolution());
-    issue.setMessage(dto.getMessage());
-    issue.setTitle(dto.getTitle());
-    issue.setCost(dto.getCost());
-    issue.setLine(dto.getLine());
-    issue.setSeverity(dto.getSeverity());
-    issue.setUserLogin(dto.getUserLogin());
-    issue.setAssigneeLogin(dto.getAssigneeLogin());
-    issue.setCreatedAt(dto.getCreatedAt());
-    issue.setUpdatedAt(dto.getUpdatedAt());
-    issue.setClosedAt(dto.getClosedAt());
-    issue.setAttributes(KeyValueFormat.parse(dto.getData()));
-    issue.setComponentKey(resource.getKey());
-    issue.setManual(dto.isManualIssue());
-    issue.setManualSeverity(dto.isManualSeverity());
-
-    // TODO add person
-
-    Rule rule = ruleFinder.findById(dto.getRuleId());
-    issue.setRuleKey(rule.ruleKey());
-    return issue;
-  }
 
   private Collection<DefaultIssue> toDefaultIssues(Collection<Issue> issues) {
     return newArrayList(Iterables.transform(issues, new Function<Issue, DefaultIssue>() {

@@ -28,9 +28,7 @@ class IssuesController < ApplicationController
 
   def find_issues(map)
     user = current_user ? current_user.id : nil
-    issues = []
-    Api.issues.find(map, user).issues.each {|issue| issues << issue}
-    issues
+    Api.issues.find(map, user).issues
   end
 
 end

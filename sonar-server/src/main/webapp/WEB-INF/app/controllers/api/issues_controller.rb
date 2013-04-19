@@ -58,16 +58,16 @@ class Api::IssuesController < Api::ApiController
         :key => issue.key,
         :component => issue.componentKey,
         :rule => issue.ruleKey.toString(),
-        :status => issue.status,
-        :resolution => issue.resolution
+        :resolution => issue.resolution,
+        :status => issue.status
     }
     json[:severity] = issue.severity if issue.severity
     json[:title] = issue.title if issue.title
-    json[:desc] = issue.message if issue.message
+    json[:desc] = issue.description if issue.description
     json[:line] = issue.line if issue.line
     json[:cost] = issue.cost if issue.cost
     json[:userLogin] = issue.userLogin if issue.userLogin
-    json[:assignee] = issue.assigneeLogin if issue.assigneeLogin
+    json[:assignee] = issue.assignee if issue.assignee
     json[:createdAt] = format_java_datetime(issue.createdAt) if issue.createdAt
     json[:updatedAt] = format_java_datetime(issue.updatedAt) if issue.updatedAt
     json[:closedAt] = format_java_datetime(issue.closedAt) if issue.closedAt

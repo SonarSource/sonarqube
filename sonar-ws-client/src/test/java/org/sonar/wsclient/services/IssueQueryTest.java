@@ -50,7 +50,7 @@ public class IssueQueryTest extends QueryTestCase {
         ;
     assertThat(query.getUrl()).isEqualTo("/api/issues/search?keys=ABCDE,FGHIJ&severities=BLOCKER,INFO&statuses=OPEN,CLOSED&" +
         "resolutions=resolution1,resolution2&components=component1,component2&componentRoots=componentRoot1,componentRoot2&rules=squid%3AAvoidCycle&" +
-        "userLogins=userLogin1,userLogin2&assigneeLogins=arthur,perceval&limit=1&");
+        "userLogins=userLogin1,userLogin2&assignees=arthur,perceval&limit=1&");
   }
 
   @Test

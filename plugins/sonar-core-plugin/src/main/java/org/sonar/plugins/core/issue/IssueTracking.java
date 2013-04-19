@@ -24,8 +24,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.*;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.resources.Project;
@@ -44,16 +42,9 @@ import java.util.*;
 
 public class IssueTracking implements BatchExtension {
 
-  private static final Logger LOG = LoggerFactory.getLogger(IssueTracking.class);
-
   private static final Comparator<LinePair> LINE_PAIR_COMPARATOR = new Comparator<LinePair>() {
     public int compare(LinePair o1, LinePair o2) {
-      int weightDiff = o2.weight - o1.weight;
-      if (weightDiff != 0) {
-        return weightDiff;
-      } else {
-       return Math.abs(o1.lineA -o1.lineB) - Math.abs(o2.lineA - o2.lineB);
-      }
+      return o2.weight - o1.weight;
     }
   };
   private final Project project;
@@ -77,8 +68,6 @@ public class IssueTracking implements BatchExtension {
   }
 
   public void track(Resource resource, Collection<IssueDto> referenceIssues, Collection<DefaultIssue> newIssues) {
-    LOG.debug("Tracking : " + resource);
-
     referenceIssuesMap.clear();
 
     String source = index.getSource(resource);
@@ -129,13 +118,13 @@ public class IssueTracking implements BatchExtension {
     unmappedLastIssues.addAll(lastIssues);
 
     for (IssueDto lastIssue : lastIssues) {
-      lastIssuesByRule.put(getRuleId(lastIssue), lastIssue);
+      lastIssuesByRule.put(getRule(lastIssue), lastIssue);
     }
 
     // Match the key of the issue. (For manual issues)
     for (DefaultIssue newIssue : newIssues) {
       mapIssue(newIssue,
-        findLastIssueWithSameKey(newIssue, lastIssuesByRule.get(getRuleId(newIssue))),
+        findLastIssueWithSameKey(newIssue, lastIssuesByRule.get(getRule(newIssue))),
         lastIssuesByRule, referenceIssuesMap);
     }
 
@@ -143,7 +132,7 @@ public class IssueTracking implements BatchExtension {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
         mapIssue(newIssue,
-          findLastIssueWithSameLineAndChecksum(newIssue, lastIssuesByRule.get(getRuleId(newIssue))),
+          findLastIssueWithSameLineAndChecksum(newIssue, lastIssuesByRule.get(getRule(newIssue))),
           lastIssuesByRule, referenceIssuesMap);
       }
     }
@@ -191,7 +180,6 @@ public class IssueTracking implements BatchExtension {
     for (HashOccurrence hashOccurrence : map.values()) {
       if (hashOccurrence.countA == 1 && hashOccurrence.countB == 1) {
         // Guaranteed that lineA has been moved to lineB, so we can map all issues on lineA to all issues on lineB
-        LOG.debug("*** Guaranteed that lineA has been moved to lineB, so we can map all issues on lineA to all issues on lineB");
         map(newIssuesByLines.get(hashOccurrence.lineB), lastIssuesByLines.get(hashOccurrence.lineA), lastIssuesByRule);
         lastIssuesByLines.removeAll(hashOccurrence.lineA);
         newIssuesByLines.removeAll(hashOccurrence.lineB);
@@ -210,7 +198,6 @@ public class IssueTracking implements BatchExtension {
       Collections.sort(possibleLinePairs, LINE_PAIR_COMPARATOR);
       for (LinePair linePair : possibleLinePairs) {
         // High probability that lineA has been moved to lineB, so we can map all Issues on lineA to all Issues on lineB
-        LOG.debug("*** High probability that lineA has been moved to lineB, so we can map all Issues on lineA to all Issues on lineB");
         map(newIssuesByLines.get(linePair.lineB), lastIssuesByLines.get(linePair.lineA), lastIssuesByRule);
       }
     }
@@ -220,9 +207,8 @@ public class IssueTracking implements BatchExtension {
     // Try then to match issues on same rule with same message and with same checksum
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
-        LOG.debug("*** Try then to match issues on same rule with same message and with same checksum");
         mapIssue(newIssue,
-          findLastIssueWithSameChecksumAndMessage(newIssue, lastIssuesByRule.get(getRuleId(newIssue))),
+          findLastIssueWithSameChecksumAndMessage(newIssue, lastIssuesByRule.get(getRule(newIssue))),
           lastIssuesByRule, referenceIssuesMap);
       }
     }
@@ -230,9 +216,8 @@ public class IssueTracking implements BatchExtension {
     // Try then to match issues on same rule with same line and with same message
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
-        LOG.debug("*** Try then to match issues on same rule with same line and with same message");
         mapIssue(newIssue,
-          findLastIssueWithSameLineAndMessage(newIssue, lastIssuesByRule.get(getRuleId(newIssue))),
+          findLastIssueWithSameLineAndMessage(newIssue, lastIssuesByRule.get(getRule(newIssue))),
           lastIssuesByRule, referenceIssuesMap);
       }
     }
@@ -241,24 +226,33 @@ public class IssueTracking implements BatchExtension {
     // See SONAR-2812
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
-        LOG.debug("*** Last check: match issue if same rule and same checksum but different line and different message");
         mapIssue(newIssue,
-          findLastIssueWithSameChecksum(newIssue, lastIssuesByRule.get(getRuleId(newIssue))),
+          findLastIssueWithSameChecksum(newIssue, lastIssuesByRule.get(getRule(newIssue))),
           lastIssuesByRule, referenceIssuesMap);
       }
     }
+  }
+
+  @VisibleForTesting
+  IssueDto getReferenceIssue(DefaultIssue issue) {
+    return referenceIssuesMap.get(issue);
+  }
+
+  private Integer getRule(DefaultIssue issue) {
+    return ruleFinder.findByKey(issue.ruleKey()).getId();
+  }
+
+  private Integer getRule(IssueDto issue) {
+    return ruleFinder.findById(issue.getRuleId()).getId();
   }
 
   private void map(Collection<DefaultIssue> newIssues, Collection<IssueDto> lastIssues, Multimap<Integer, IssueDto> lastIssuesByRule) {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue)) {
         for (IssueDto pastIssue : lastIssues) {
-          if (isNotAlreadyMapped(pastIssue) && Objects.equal(getRuleId(newIssue), getRuleId(pastIssue))) {
-            LOG.debug("mapIssue newIssue : "+ newIssue + " with : "+ pastIssue);
+          if (isNotAlreadyMapped(pastIssue) && Objects.equal(getRule(newIssue), getRule(pastIssue))) {
             mapIssue(newIssue, pastIssue, lastIssuesByRule, referenceIssuesMap);
             break;
-          } else {
-            LOG.debug("Not mapIssue newIssue : "+ newIssue + " with : "+ pastIssue);
           }
         }
       }
@@ -331,7 +325,7 @@ public class IssueTracking implements BatchExtension {
   }
 
   private boolean isNotAlreadyMapped(IssueDto pastIssue) {
-    return unmappedLastIssues.contains(pastIssue);
+    return !unmappedLastIssues.contains(pastIssue);
   }
 
   private boolean isNotAlreadyMapped(DefaultIssue newIssue) {
@@ -339,7 +333,7 @@ public class IssueTracking implements BatchExtension {
   }
 
   private boolean isSameChecksum(DefaultIssue newIssue, IssueDto pastIssue) {
-    return StringUtils.equals(pastIssue.getChecksum(), newIssue.getChecksum());
+    return Objects.equal(pastIssue.getChecksum(), newIssue.getChecksum());
   }
 
   private boolean isSameLine(DefaultIssue newIssue, IssueDto pastIssue) {
@@ -347,7 +341,7 @@ public class IssueTracking implements BatchExtension {
   }
 
   private boolean isSameMessage(DefaultIssue newIssue, IssueDto pastIssue) {
-    return StringUtils.equals(IssueDto.abbreviateMessage(newIssue.message()), pastIssue.getMessage());
+    return Objects.equal(StringUtils.trim(newIssue.description()), StringUtils.trim(pastIssue.getDescription()));
   }
 
   private boolean isSameKey(DefaultIssue newIssue, IssueDto pastIssue) {
@@ -356,8 +350,6 @@ public class IssueTracking implements BatchExtension {
 
   private void mapIssue(DefaultIssue newIssue, IssueDto pastIssue, Multimap<Integer, IssueDto> lastIssuesByRule, Map<DefaultIssue, IssueDto> issueMap) {
     if (pastIssue != null) {
-      LOG.debug("Mapping with old issue from newIssue : "+ newIssue + " and pastIssue : "+ pastIssue);
-
       newIssue.setKey(pastIssue.getUuid());
       if (pastIssue.isManualSeverity()) {
         newIssue.setSeverity(pastIssue.getSeverity());
@@ -370,28 +362,13 @@ public class IssueTracking implements BatchExtension {
       // TODO
 //      newIssue.setPersonId(pastIssue.getPersonId());
 
-      lastIssuesByRule.remove(getRuleId(newIssue), pastIssue);
+      lastIssuesByRule.remove(getRule(newIssue), pastIssue);
       issueMap.put(newIssue, pastIssue);
       unmappedLastIssues.remove(pastIssue);
     } else {
-      LOG.debug("No old issue, creating new one with newIssue : "+ newIssue + " and pastIssue : "+ pastIssue);
-
       newIssue.setNew(true);
       newIssue.setCreatedAt(project.getAnalysisDate());
     }
-  }
-
-  @VisibleForTesting
-  IssueDto getReferenceIssue(DefaultIssue issue) {
-    return referenceIssuesMap.get(issue);
-  }
-
-  private Integer getRuleId(DefaultIssue issue) {
-    return ruleFinder.findByKey(issue.ruleKey()).getId();
-  }
-
-  private Integer getRuleId(IssueDto issue) {
-    return issue.getRuleId();
   }
 
   @Override

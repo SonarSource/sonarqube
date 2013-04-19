@@ -98,7 +98,7 @@ public class IssuesDecorator implements Decorator {
         rulesBag.add(rulefinder.findByKey(issue.ruleKey().repository(), issue.ruleKey().rule()));
         issuesPerSeverities.put(RulePriority.valueOf(issue.severity()), issue);
 
-        if (issue.assigneeLogin() == null) {
+        if (issue.assignee() == null) {
           countUnassigned++;
         }
         if (Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution())) {

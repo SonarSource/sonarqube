@@ -8,7 +8,7 @@
       manual_severity="[false]"
       manual_issue="[false]"
       title="[null]"
-      message="message"
+      message="the description"
       line="200"
       cost="10.0"
       status="OPEN"

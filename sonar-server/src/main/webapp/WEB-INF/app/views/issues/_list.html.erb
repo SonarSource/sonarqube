@@ -54,13 +54,6 @@
       </th>
     </tr>
     </thead>
-    <tfoot>
-    <tr>
-      <td colspan="6">
-        <%= paginate(@issues) -%>
-      </td>
-    </tr>
-    </tfoot>
     <tbody>
     <%
        @issues.each do |issue|
@@ -84,7 +77,7 @@
           <%= h(issue.title) %>
         </td>
         <td>
-          <%= h(issue.message) %>
+          <%= h(issue.description) %>
         </td>
         <td>
           <%= h issue.componentKey -%>
@@ -99,10 +92,10 @@
           <%= issue.cost -%>
         </td>
         <td>
-          <%= issue.user_login -%>
+          <%= issue.userLogin -%>
         </td>
         <td>
-          <%= issue.assignee_login -%>
+          <%= issue.assignee -%>
         </td>
         <td>
           <%= issue.attributes -%>
