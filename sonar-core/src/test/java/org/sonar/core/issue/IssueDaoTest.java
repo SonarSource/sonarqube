@@ -118,8 +118,9 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getCreatedAt()).isNotNull();
     assertThat(issue.getUpdatedAt()).isNotNull();
     assertThat(issue.getClosedAt()).isNotNull();
-    assertThat(issue.getRule()).isNotNull();
-    assertThat(issue.getRuleRepo()).isNotNull();
+    assertThat(issue.getRuleRepo()).isEqualTo("squid");
+    assertThat(issue.getRule()).isEqualTo("AvoidCycle");
+    assertThat(issue.getComponentKey()).isEqualTo("Action.java");
   }
 
   @Test
@@ -129,6 +130,9 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     IssueDto issue = dao.selectByKey("ABCDE");
     assertThat(issue.getUuid()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100);
+    assertThat(issue.getRuleRepo()).isEqualTo("squid");
+    assertThat(issue.getRule()).isEqualTo("AvoidCycle");
+    assertThat(issue.getComponentKey()).isEqualTo("Action.java");
   }
 
   @Test
@@ -144,8 +148,14 @@ public class IssueDaoTest extends AbstractDaoTestCase {
       .severities(newArrayList("BLOCKER"))
       .rules(newArrayList(RuleKey.of("squid", "AvoidCycle")))
       .build();
+
     assertThat(dao.select(query)).hasSize(1);
-    assertThat(dao.select(query).get(0).getId()).isEqualTo(100);
+
+    IssueDto issue = dao.select(query).get(0);
+    assertThat(issue.getId()).isEqualTo(100);
+    assertThat(issue.getRuleRepo()).isEqualTo("squid");
+    assertThat(issue.getRule()).isEqualTo("AvoidCycle");
+    assertThat(issue.getComponentKey()).isEqualTo("Action.java");
   }
 
   @Test
@@ -196,7 +206,13 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_open_issues() {
     setupData("shared", "should_select_open_issues");
 
-    assertThat(dao.selectOpenIssues(399)).hasSize(2);
+    List<IssueDto> dtos = dao.selectOpenIssues(399);
+    assertThat(dtos).hasSize(2);
+
+    IssueDto issue = dtos.get(0);
+    assertThat(issue.getRuleRepo()).isEqualTo("squid");
+    assertThat(issue.getRule()).isEqualTo("NullRef");
+    assertThat(issue.getComponentKey()).isEqualTo("Filter.java");
   }
 
 }
