@@ -22,18 +22,34 @@ class Api::IssuesController < Api::ApiController
 
   # GET /api/issues/search?<parameters>
   def search
-    user = current_user ? current_user.id : nil
-    results = Api.issues.find(params, user)
-    render :json => jsonp(issues_to_json(results.issues))
+    user_id = current_user ? current_user.id : nil
+    results = Api.issues.find(params, user_id)
+    render :json => jsonp(results_to_json(results))
+  end
+
+  # POST /api/issues/change?key=<issue key>&<newSeverity=xxx>&<newResolution=xxx>...
+  def change
+    verify_post_request
+    access_denied unless logged_in?
+
+    # TODO
+    render :json => jsonp({})
+  end
+
+  # POST /api/issues/create?severity=xxx>&<resolution=xxx>&component=<component key>
+  def create
+    verify_post_request
+    access_denied unless logged_in?
+
+    # TODO
+    render :json => jsonp({})
   end
 
   private
 
-  def issues_to_json(issues)
-    json = []
-    issues.each do |issue|
-      json << issue_to_json(issue) if issue
-    end
+  def results_to_json(results)
+    json = {}
+    json[:issues] = results.issues.map { |issue| issue_to_json(issue) }
     json
   end
 
@@ -41,21 +57,21 @@ class Api::IssuesController < Api::ApiController
     json = {
         :key => issue.key,
         :component => issue.componentKey,
-        :ruleRepository => issue.ruleKey.repository,
-        :rule => issue.ruleKey.rule
+        :rule => issue.ruleKey.toString(),
+        :status => issue.status,
+        :resolution => issue.resolution
     }
     json[:severity] = issue.severity if issue.severity
     json[:title] = issue.title if issue.title
-    json[:message] = issue.message if issue.message
+    json[:desc] = issue.message if issue.message
     json[:line] = issue.line if issue.line
     json[:cost] = issue.cost if issue.cost
-    json[:status] = issue.status if issue.status
-    json[:resolution] = issue.resolution if issue.resolution
     json[:userLogin] = issue.userLogin if issue.userLogin
-    json[:assigneeLogin] = issue.assigneeLogin if issue.assigneeLogin
+    json[:assignee] = issue.assigneeLogin if issue.assigneeLogin
     json[:createdAt] = format_java_datetime(issue.createdAt) if issue.createdAt
     json[:updatedAt] = format_java_datetime(issue.updatedAt) if issue.updatedAt
     json[:closedAt] = format_java_datetime(issue.closedAt) if issue.closedAt
+    json[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
     json
   end
 

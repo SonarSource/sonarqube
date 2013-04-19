@@ -23,20 +23,26 @@ package org.sonar.api.issue;
 import org.sonar.api.ServerComponent;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 /**
+ * Search for issues. This component can be used only by server-side extensions. Batch extensions should
+ * use the perspective {@link Issuable}.
+ *
  * @since 3.6
  */
 public interface IssueFinder extends ServerComponent {
-
-  Results find(IssueQuery issueQuery, @Nullable Integer currentUserId);
-
-  Issue findByKey(String key);
 
   interface Results {
     List<Issue> issues();
   }
 
+  Results find(IssueQuery query, @Nullable Integer currentUserId);
+
+  Issue findByKey(String key /* TODO @Nullable Integer currentUserId */);
+/*
+  Map<RuleKey, Rule> rules(Collection<Issue> issues);
+
+  Map<String, Component> components(Collection<Issue> issues);
+*/
 }

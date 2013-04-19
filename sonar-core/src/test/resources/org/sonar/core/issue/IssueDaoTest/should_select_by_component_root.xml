@@ -48,7 +48,7 @@
       id="101"
       uuid="101"
       resource_id="401"
-      rule_id="505"
+      rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"
       manual_issue="[false]"
@@ -68,43 +68,6 @@
       closed_at="[null]"
       />
 
-
-  <projects
-      id="400"
-      kee="key"
-      enabled="[true]"
-      />
-
-  <snapshots
-      id="100"
-      project_id="400"
-      root_snapshot_id="[null]"
-      path=""
-      islast="[false]"
-      />
-
-  <snapshots
-      id="101"
-      project_id="400"
-      root_snapshot_id="[null]"
-      path=""
-      islast="[true]"
-      />
-
-
-  <projects
-      id="401"
-      kee="child"
-      enabled="[true]"
-      />
-
-  <snapshots
-      id="102"
-      project_id="401"
-      root_snapshot_id="101"
-      path="101."
-      islast="[true]"
-      />
 
 
 </dataset>

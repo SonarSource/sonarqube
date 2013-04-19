@@ -73,7 +73,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void update() {
-    setupData("update");
+    setupData("shared", "update");
     Collection<IssueDto> issues = newArrayList(dao.selectById(100L));
     IssueDto issue = issues.iterator().next();
     issue.setLine(1000);
@@ -94,12 +94,11 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_issue_by_id() {
-    setupData("shared");
-
+  public void should_select_by_id() {
+    setupData("shared", "should_select_by_id");
     IssueDto issue = dao.selectById(100L);
     assertThat(issue.getId()).isEqualTo(100L);
-    assertThat(issue.getUuid()).isEqualTo("100");
+    assertThat(issue.getUuid()).isEqualTo("ABCDE");
     assertThat(issue.getResourceId()).isEqualTo(400);
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
@@ -108,102 +107,94 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getTitle()).isNull();
     assertThat(issue.getMessage()).isNull();
     assertThat(issue.getLine()).isEqualTo(200);
-    assertThat(issue.getCost()).isNull();
+    assertThat(issue.getCost()).isEqualTo(4.2);
     assertThat(issue.getStatus()).isEqualTo("OPEN");
-    assertThat(issue.getResolution()).isNull();
-    assertThat(issue.getChecksum()).isNull();
-    assertThat(issue.getAssigneeLogin()).isEqualTo("user");
+    assertThat(issue.getResolution()).isEqualTo("FIXED");
+    assertThat(issue.getChecksum()).isEqualTo("XXX");
     assertThat(issue.getPersonId()).isNull();
-    assertThat(issue.getUserLogin()).isNull();
-    assertThat(issue.getData()).isNull();
-    assertThat(issue.getCreatedAt()).isNull();
-    assertThat(issue.getUpdatedAt()).isNull();
-    assertThat(issue.getClosedAt()).isNull();
+    assertThat(issue.getUserLogin()).isEqualTo("arthur");
+    assertThat(issue.getAssigneeLogin()).isEqualTo("perceval");
+    assertThat(issue.getData()).isEqualTo("JIRA=FOO-1234");
+    assertThat(issue.getCreatedAt()).isNotNull();
+    assertThat(issue.getUpdatedAt()).isNotNull();
+    assertThat(issue.getClosedAt()).isNotNull();
   }
 
   @Test
-  public void should_find_issue_by_key() {
-    setupData("shared");
+  public void should_select_by_key() {
+    setupData("shared", "should_select_by_key");
 
-    IssueDto issue = dao.selectByKey("100");
-    assertThat(issue).isNotNull();
+    IssueDto issue = dao.selectByKey("ABCDE");
+    assertThat(issue.getUuid()).isEqualTo("ABCDE");
+    assertThat(issue.getId()).isEqualTo(100);
   }
 
   @Test
-  public void should_select_by_parameter() {
-    setupData("select");
+  public void should_select_by_query() {
+    setupData("shared", "should_select_by_query");
 
-    IssueQuery issueQuery = IssueQuery.builder().keys(newArrayList("100")).build();
-    assertThat(dao.select(issueQuery)).hasSize(1);
-
-    issueQuery = IssueQuery.builder().components(newArrayList("key")).build();
-    assertThat(dao.select(issueQuery)).hasSize(2);
-
-    issueQuery = IssueQuery.builder().resolutions(newArrayList("FALSE-POSITIVE")).build();
-    assertThat(dao.select(issueQuery)).hasSize(1);
-
-    issueQuery = IssueQuery.builder().statuses(newArrayList("OPEN")).build();
-    assertThat(dao.select(issueQuery)).hasSize(2);
-
-    issueQuery = IssueQuery.builder().severities(newArrayList("BLOCKER")).build();
-    assertThat(dao.select(issueQuery)).hasSize(4);
-
-    issueQuery = IssueQuery.builder().userLogins(newArrayList("user")).build();
-    assertThat(dao.select(issueQuery)).hasSize(1);
-
-    issueQuery = IssueQuery.builder().assigneeLogins(newArrayList("user")).build();
-    assertThat(dao.select(issueQuery)).hasSize(5);
-
-    issueQuery = IssueQuery.builder().userLogins(newArrayList("user")).statuses(newArrayList("OPEN")).build();
-    assertThat(dao.select(issueQuery)).hasSize(1);
+    IssueQuery query = IssueQuery.builder()
+      .keys(newArrayList("ABCDE"))
+      .userLogins(newArrayList("arthur", "otherguy"))
+      .assigneeLogins(newArrayList("perceval", "otherguy"))
+      .components(newArrayList("Action.java"))
+      .resolutions(newArrayList("FIXED"))
+      .severities(newArrayList("BLOCKER"))
+      .rules(newArrayList(RuleKey.of("squid", "AvoidCycle")))
+      .build();
+    assertThat(dao.select(query)).hasSize(1);
+    assertThat(dao.select(query).get(0).getId()).isEqualTo(100);
   }
 
   @Test
-  public void should_find_issue_by_rules() {
-    setupData("select");
+  public void should_select_by_rules() {
+    setupData("shared", "should_select_by_rules");
 
-    IssueQuery issueQuery = IssueQuery.builder().rules(newArrayList(RuleKey.of("squid", "AvoidCycle"))).build();
-    assertThat(dao.select(issueQuery)).hasSize(4);
+    IssueQuery query = IssueQuery.builder().rules(newArrayList(RuleKey.of("squid", "AvoidCycle"))).build();
+    assertThat(dao.select(query)).hasSize(2);
 
-    issueQuery = IssueQuery.builder().rules(newArrayList(RuleKey.of("squid", "Other"))).build();
-    assertThat(dao.select(issueQuery)).isEmpty();
+    query = IssueQuery.builder().rules(newArrayList(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("squid", "NullRef"))).build();
+    assertThat(dao.select(query)).hasSize(3);
+
+    query = IssueQuery.builder().rules(newArrayList(RuleKey.of("squid", "Other"))).build();
+    assertThat(dao.select(query)).isEmpty();
   }
 
   @Test
-  public void should_find_issue_by_date_creation() {
-    setupData("select");
+  public void should_select_by_date_creation() {
+    setupData("shared", "should_select_by_date_creation");
 
-    IssueQuery issueQuery = IssueQuery.builder().createdAfter(DateUtils.parseDate("2013-04-15")).build();
-    assertThat(dao.select(issueQuery)).hasSize(1);
+    IssueQuery query = IssueQuery.builder().createdAfter(DateUtils.parseDate("2013-04-15")).build();
+    assertThat(dao.select(query)).hasSize(1);
 
-    issueQuery = IssueQuery.builder().createdBefore(DateUtils.parseDate("2013-04-17")).build();
-    assertThat(dao.select(issueQuery)).hasSize(2);
+    query = IssueQuery.builder().createdBefore(DateUtils.parseDate("2013-04-17")).build();
+    assertThat(dao.select(query)).hasSize(1);
   }
 
   @Test
-  public void should_return_issues_from_component_root() {
-    setupData("select-with-component-children");
+  public void should_select_by_component_root() {
+    setupData("shared", "should_select_by_component_root");
 
-    IssueQuery issueQuery = IssueQuery.builder().componentRoots(newArrayList("key")).build();
-    List<IssueDto> issues = newArrayList(dao.select(issueQuery));
+    IssueQuery query = IssueQuery.builder().componentRoots(newArrayList("struts")).build();
+    List<IssueDto> issues = newArrayList(dao.select(query));
     assertThat(issues).hasSize(2);
     assertThat(issues.get(0).getId()).isEqualTo(100);
     assertThat(issues.get(1).getId()).isEqualTo(101);
   }
 
   @Test
-  public void should_select_without_parameter_return_all_issues() {
-    setupData("select");
+  public void should_select_all() {
+    setupData("shared", "should_select_all");
 
-    IssueQuery issueQuery = IssueQuery.builder().build();
-    assertThat(dao.select(issueQuery)).hasSize(5);
+    IssueQuery query = IssueQuery.builder().build();
+    assertThat(dao.select(query)).hasSize(3);
   }
 
   @Test
   public void should_select_open_issues() {
-    setupData("select-open-issues");
+    setupData("shared", "should_select_open_issues");
 
-    assertThat(dao.selectOpenIssues(400)).hasSize(2);
+    assertThat(dao.selectOpenIssues(399)).hasSize(2);
   }
 
 }

@@ -62,7 +62,7 @@ public class ScanIssueChanges implements IssueChanges {
     if (change.isAssigneeChanged()) {
       issue.setAssigneeLogin(change.assignee());
     }
-    if (change.resolution()!=null) {
+    if (change.resolution() != null) {
       issue.setResolution(change.resolution());
     }
     if (change.isLineChanged()) {
@@ -74,8 +74,7 @@ public class ScanIssueChanges implements IssueChanges {
   }
 
   private DefaultIssue reload(Issue issue) {
-    DefaultIssue reloaded = (DefaultIssue) issue;
-    reloaded = (DefaultIssue) cache.componentIssue(reloaded.componentKey(), reloaded.key());
+    DefaultIssue reloaded = (DefaultIssue) cache.componentIssue(issue.componentKey(), issue.key());
     if (reloaded == null) {
       throw new IllegalStateException("Bad API usage. Unregistered issues can't be changed.");
     }

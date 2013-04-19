@@ -25,7 +25,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.annotation.Nullable;
-
 import java.util.Date;
 
 /**
@@ -53,10 +52,14 @@ public final class IssueDto {
   private String assigneeLogin;
   private Long personId;
   private String data;
-
   private Date createdAt;
   private Date updatedAt;
   private Date closedAt;
+
+  // joins
+  private String rule;
+  private String ruleRepo;
+  private String componentKey;
 
   public Long getId() {
     return id;
@@ -217,7 +220,7 @@ public final class IssueDto {
 
   public IssueDto setData(@Nullable String s) {
     Preconditions.checkArgument(s == null || s.length() <= 1000,
-        "Issue data must not exceed 1000 characters: " + s);
+      "Issue data must not exceed 1000 characters: " + s);
     this.data = s;
     return this;
   }
@@ -250,7 +253,43 @@ public final class IssueDto {
   }
 
   public static String abbreviateMessage(String message) {
-    return message!= null ? StringUtils.abbreviate(StringUtils.trim(message), MESSAGE_MAX_SIZE) : null;
+    return message != null ? StringUtils.abbreviate(StringUtils.trim(message), MESSAGE_MAX_SIZE) : null;
+  }
+
+  public String getRule() {
+    return rule;
+  }
+
+  public String getRuleRepo() {
+    return ruleRepo;
+  }
+
+  public String getComponentKey() {
+    return componentKey;
+  }
+
+  /**
+   * Only for unit tests
+   */
+  public IssueDto setRule_unit_test_only(String rule) {
+    this.rule = rule;
+    return this;
+  }
+
+  /**
+   * Only for unit tests
+   */
+  public IssueDto setRuleRepo_unit_test_only(String ruleRepo) {
+    this.ruleRepo = ruleRepo;
+    return this;
+  }
+
+  /**
+   * Only for unit tests
+   */
+  public IssueDto setComponentKey_unit_test_only(String componentKey) {
+    this.componentKey = componentKey;
+    return this;
   }
 
   @Override

@@ -31,6 +31,7 @@ import org.sonar.api.rule.Severity;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -254,7 +255,7 @@ public class DefaultIssue implements Issue, Serializable {
   }
 
   public Map<String, String> attributes() {
-    return attributes == null ? null : ImmutableMap.copyOf(attributes);
+    return attributes == null ? Collections.<String,String>emptyMap() : ImmutableMap.copyOf(attributes);
   }
 
   public DefaultIssue setAttributes(Map<String, String> attributes) {

@@ -25,7 +25,10 @@
     i.data as data,
     i.created_at as createdAt,
     i.updated_at as updatedAt,
-    i.closed_at as closedAt
+    i.closed_at as closedAt,
+    r.plugin_rule_key as rule,
+    r.plugin_name as ruleRepo,
+    p.kee as componentKey
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty="id">
@@ -73,24 +76,25 @@
   <select id="selectById" parameterType="long" resultType="Issue">
     select
     <include refid="issueColumns"/>
-    from issues i
-    where i.id=#{id}
+    from issues i, rules r, projects p
+    where i.id=#{id} and i.rule_id=r.id and p.id=i.resource_id
   </select>
 
   <select id="selectByKey" parameterType="String" resultType="Issue">
     select
     <include refid="issueColumns"/>
-    from issues i
-    where i.uuid=#{uuid}
+    from issues i, rules r, projects p
+    where i.uuid=#{uuid} and i.rule_id=r.id and p.id=i.resource_id
   </select>
 
   <select id="selectOpenIssues" parameterType="String" resultType="Issue">
     select distinct
     <include refid="issueColumns"/>
-    from issues i, projects p
+    from issues i, rules r, projects p
     where i.status &lt;&gt; 'CLOSED'
-    and p.root_id=#{componentId} or (p.root_id is null and p.id=#{componentId})
-    and i.resource_id=p.id
+      and (p.root_id=#{componentId} or (p.root_id is null and p.id=#{componentId}))
+      and i.resource_id=p.id
+      and r.id=i.rule_id
   </select>
 
   <select id="select" parameterType="map" resultType="Issue">
@@ -100,32 +104,30 @@
   </select>
 
   <sql id="selectQueryConditions">
-    from issues i
+    from issues i, projects p, rules r
     <if test="componentRoots != null and componentRoots.size() > 0">
-      , projects p, snapshots root, snapshots s
+      , projects rootprojects, snapshots rootsnapshots, snapshots s
     </if>
     <if test="components != null and components.size() > 0">
       , projects project_component
     </if>
-    <if test="rules != null and rules.size() > 0">
-      , rules r
-    </if>
     <where>
+      p.id=i.resource_id and i.rule_id=r.id
       <if test="componentRoots != null and componentRoots.size() > 0">
-        and p.enabled=${_true}
-        and p.kee in
+        and rootprojects.enabled=${_true}
+        and rootprojects.kee in
         <foreach item="componentRoot" index="index" collection="componentRoots" open="(" separator="," close=")">
           #{componentRoot}
         </foreach>
-        and root.project_id=p.id
-        and root.islast=${_true}
-        and (s.id=root.id or (s.root_snapshot_id=root.id and
+        and rootsnapshots.project_id=rootprojects.id
+        and rootsnapshots.islast=${_true}
+        and (s.id=rootsnapshots.id or (s.root_snapshot_id=rootsnapshots.id and
         <choose>
           <when test="_databaseId == 'mssql'">
-            s.path LIKE root.path + CAST(root.id AS varchar(15)) + '.%'
+            s.path LIKE rootsnapshots.path + CAST(rootsnapshots.id AS varchar(15)) + '.%'
           </when>
           <otherwise>
-            s.path LIKE root.path || root.id || '.%'
+            s.path LIKE rootsnapshots.path || rootsnapshots.id || '.%'
           </otherwise>
         </choose>
         ))
@@ -170,7 +172,6 @@
         </foreach>
       </if>
       <if test="rules != null and rules.size() > 0">
-        and i.rule_id = r.id
         and (<foreach item="rule" index="index" collection="rules" open="(" separator=" or " close=")">r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
       </if>
       <if test="createdAfter">

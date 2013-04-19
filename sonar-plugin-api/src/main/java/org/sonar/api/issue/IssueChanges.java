@@ -24,6 +24,10 @@ import org.sonar.api.ServerComponent;
 
 import javax.annotation.Nullable;
 
+/**
+ * Change existing issues
+ * @since 3.6
+ */
 public interface IssueChanges extends BatchComponent, ServerComponent {
 
   Issue apply(Issue issue, IssueChange change);

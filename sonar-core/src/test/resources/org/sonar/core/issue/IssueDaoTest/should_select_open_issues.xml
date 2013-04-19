@@ -20,7 +20,6 @@
 
 <dataset>
 
-  <!-- First resource -->
   <issues
       id="100"
       uuid="100"
@@ -48,8 +47,32 @@
   <issues
       id="101"
       uuid="101"
-      resource_id="400"
-      rule_id="505"
+      resource_id="401"
+      rule_id="501"
+      severity="MAJOR"
+      manual_severity="[false]"
+      manual_issue="[false]"
+      title="[null]"
+      message="[null]"
+      line="120"
+      cost="[null]"
+      status="OPEN"
+      resolution="FIXED"
+      checksum="[null]"
+      user_login="[null]"
+      assignee_login="user"
+      person_id="[null]"
+      data="[null]"
+      created_at="2013-04-10"
+      updated_at="[null]"
+      closed_at="[null]"
+      />
+
+  <issues
+      id="102"
+      uuid="102"
+      resource_id="401"
+      rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"
       manual_issue="[false]"
@@ -68,100 +91,4 @@
       updated_at="[null]"
       closed_at="[null]"
       />
-
-
-  <!-- Second resource -->
-  <issues
-      id="102"
-      uuid="102"
-      resource_id="500"
-      rule_id="500"
-      severity="BLOCKER"
-      manual_severity="[false]"
-      manual_issue="[false]"
-      title="[null]"
-      message="[null]"
-      line="200"
-      cost="[null]"
-      status="OPEN"
-      resolution="FIXED"
-      checksum="[null]"
-      user_login="[null]"
-      assignee_login="user"
-      person_id="[null]"
-      data="[null]"
-      created_at="[null]"
-      updated_at="[null]"
-      closed_at="[null]"
-      />
-
-  <issues
-      id="103"
-      uuid="103"
-      resource_id="500"
-      rule_id="500"
-      severity="BLOCKER"
-      manual_severity="[false]"
-      manual_issue="[false]"
-      title="[null]"
-      message="[null]"
-      line="200"
-      cost="[null]"
-      status="REOPENED"
-      resolution="FIXED"
-      checksum="[null]"
-      user_login="[null]"
-      assignee_login="user"
-      person_id="[null]"
-      data="[null]"
-      created_at="[null]"
-      updated_at="[null]"
-      closed_at="[null]"
-      />
-
-  <issues
-      id="104"
-      uuid="104"
-      resource_id="500"
-      rule_id="500"
-      severity="BLOCKER"
-      manual_severity="[false]"
-      manual_issue="[false]"
-      title="[null]"
-      message="[null]"
-      line="200"
-      cost="[null]"
-      status="[null]"
-      resolution="FALSE-POSITIVE"
-      checksum="[null]"
-      user_login="[null]"
-      assignee_login="user"
-      person_id="[null]"
-      data="[null]"
-      created_at="[null]"
-      updated_at="[null]"
-      closed_at="[null]"
-      />
-
-  <projects
-      id="400"
-      kee="key"
-      enabled="[true]"
-      />
-
-  <snapshots
-      id="100"
-      project_id="400"
-      root_snapshot_id="[null]"
-      path=""
-      islast="[true]"
-      />
-
-
-  <rules
-      id="500"
-      plugin_name="squid"
-      plugin_rule_key="AvoidCycle"
-      />
-
 </dataset>
