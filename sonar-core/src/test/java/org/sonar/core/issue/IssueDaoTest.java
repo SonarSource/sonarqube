@@ -49,7 +49,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("insert");
 
     IssueDto issueDto = new IssueDto();
-    issueDto.setUuid("100");
+    issueDto.setKey("100");
     issueDto.setResourceId(400);
     issueDto.setRuleId(12);
     issueDto.setSeverity("BLOCKER");
@@ -59,7 +59,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     issueDto.setDescription("the description");
     issueDto.setCost(10.0);
     issueDto.setChecksum("checksum");
-    issueDto.setPersonId(100L);
+    issueDto.setAuthorLogin("arthur");
 
     Date today = new Date();
     issueDto.setCreatedAt(today);
@@ -86,7 +86,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     issue.setTitle("NEW_TITLE");
     issue.setCreatedAt(DateUtils.parseDate("2012-05-18"));
     issue.setUpdatedAt(DateUtils.parseDate("2012-07-01"));
-    issue.setData("big=bang");
+    issue.setAttributes("big=bang");
 
     dao.update(issues);
 
@@ -98,7 +98,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_by_id");
     IssueDto issue = dao.selectById(100L);
     assertThat(issue.getId()).isEqualTo(100L);
-    assertThat(issue.getUuid()).isEqualTo("ABCDE");
+    assertThat(issue.getKey()).isEqualTo("ABCDE");
     assertThat(issue.getResourceId()).isEqualTo(400);
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
@@ -114,7 +114,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getPersonId()).isNull();
     assertThat(issue.getUserLogin()).isEqualTo("arthur");
     assertThat(issue.getAssignee()).isEqualTo("perceval");
-    assertThat(issue.getData()).isEqualTo("JIRA=FOO-1234");
+    assertThat(issue.getAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(issue.getCreatedAt()).isNotNull();
     assertThat(issue.getUpdatedAt()).isNotNull();
     assertThat(issue.getClosedAt()).isNotNull();
@@ -128,7 +128,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_by_key");
 
     IssueDto issue = dao.selectByKey("ABCDE");
-    assertThat(issue.getUuid()).isEqualTo("ABCDE");
+    assertThat(issue.getKey()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100);
     assertThat(issue.getRuleRepo()).isEqualTo("squid");
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");

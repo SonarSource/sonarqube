@@ -42,11 +42,11 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
     setupData("insert");
 
     IssueChangeDto dto = new IssueChangeDto();
-    dto.setIssueUuid("100");
-    dto.setUserId(100L);
+    dto.setIssueKey("100");
+    dto.setUserLogin("arthur");
     dto.setChangeType("type");
     dto.setChangeData("data");
-    dto.setMessage("message");
+    dto.setMessage("some message");
 
     Date today = new Date();
     dto.setCreatedAt(today);
@@ -64,10 +64,10 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
     IssueChangeDto dto = dao.findById(100L);
     assertThat(dto.getId()).isEqualTo(100L);
     assertThat(dto.getIssueUuid()).isEqualTo("100");
-    assertThat(dto.getUserId()).isEqualTo(100L);
+    assertThat(dto.getUserLogin()).isEqualTo("arthur");
     assertThat(dto.getChangeType()).isEqualTo("type");
     assertThat(dto.getChangeData()).isEqualTo("data");
-    assertThat(dto.getMessage()).isEqualTo("message");
+    assertThat(dto.getMessage()).isEqualTo("some message");
     assertThat(dto.getCreatedAt()).isNull();
     assertThat(dto.getUpdatedAt()).isNull();
   }

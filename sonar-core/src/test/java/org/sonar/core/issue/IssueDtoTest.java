@@ -37,13 +37,13 @@ public class IssueDtoTest {
   @Test
   public void set_data_check_maximal_length() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Issue data must not exceed 1000 characters: ");
+    thrown.expectMessage("Issue attributes must not exceed 1000 characters: ");
 
     StringBuilder s = new StringBuilder(4500);
     for (int i = 0; i < 4500; i++) {
       s.append('a');
     }
-    new IssueDto().setData(s.toString());
+    new IssueDto().setAttributes(s.toString());
   }
 
   @Test
@@ -53,7 +53,7 @@ public class IssueDtoTest {
     Date closedAt = DateUtils.addDays(new Date(), -1);
 
     IssueDto dto = new IssueDto()
-        .setUuid("100")
+        .setKey("100")
         .setRuleId(1)
         .setRuleKey_unit_test_only("squid", "AvoidCycle")
         .setComponentKey_unit_test_only("component-key")
@@ -69,7 +69,7 @@ public class IssueDtoTest {
         .setManualIssue(true)
         .setUserLogin("arthur")
         .setAssignee("perceval")
-        .setData("key=value")
+        .setAttributes("key=value")
         .setCreatedAt(createdAt)
         .setUpdatedAt(updatedAt)
         .setClosedAt(closedAt);

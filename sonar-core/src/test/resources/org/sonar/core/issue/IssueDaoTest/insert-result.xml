@@ -1,14 +1,14 @@
 <dataset>
 
   <issues
-      uuid="100"
+      kee="100"
       resource_id="400"
       rule_id="12"
       severity="BLOCKER"
       manual_severity="[false]"
       manual_issue="[false]"
       title="[null]"
-      message="the description"
+      description="the description"
       line="200"
       cost="10.0"
       status="OPEN"
@@ -16,8 +16,8 @@
       checksum="checksum"
       user_login="[null]"
       assignee_login="user"
-      person_id="100"
-      data="[null]"
+      author_login="arthur"
+      attributes="[null]"
       />
 
 </dataset>

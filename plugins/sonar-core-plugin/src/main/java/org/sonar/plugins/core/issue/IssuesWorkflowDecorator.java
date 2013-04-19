@@ -102,7 +102,7 @@ public class IssuesWorkflowDecorator implements Decorator {
   }
 
   private void closeResolvedStandardIssues(IssueDto openIssue, Set<String> issueKeys) {
-    if (!openIssue.isManualIssue() && !issueKeys.contains(openIssue.getUuid())) {
+    if (!openIssue.isManualIssue() && !issueKeys.contains(openIssue.getKey())) {
       closeAndSave(openIssue);
     }
   }

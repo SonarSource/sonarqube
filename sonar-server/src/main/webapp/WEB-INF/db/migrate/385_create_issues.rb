@@ -25,14 +25,14 @@ class CreateIssues < ActiveRecord::Migration
 
   def self.up
     create_table :issues do |t|
-      t.column :uuid,                 :string,    :null => false,   :limit => 36
+      t.column :kee,                  :string,    :null => false,   :limit => 36
       t.column :resource_id,          :integer,   :null => false
       t.column :rule_id,              :integer,   :null => false
       t.column :severity, 					  :string, 	  :null => true,	  :limit => 10
       t.column :manual_severity,      :boolean,   :null => false
       t.column :manual_issue,         :boolean,   :null => false
       t.column :title,                :string ,   :null => true,    :limit => 500
-      t.column :message,              :string,    :null => true,    :limit => 4000
+      t.column :description,          :string,    :null => true,    :limit => 4000
       t.column :line,                 :integer,   :null => true
       t.column :cost,                 :decimal,   :null => true,    :precision => 30,   :scale => 20
       t.column :status,               :string ,   :null => true,    :limit => 10
@@ -40,8 +40,8 @@ class CreateIssues < ActiveRecord::Migration
       t.column :checksum,             :string ,   :null => true,    :limit => 1000
       t.column :user_login,           :string,    :null => true,	  :limit => 40
       t.column :assignee_login,       :string,    :null => true,	  :limit => 40
-      t.column :person_id   ,         :integer,   :null => true
-      t.column :data,                 :string,    :null => true,    :limit => 1000
+      t.column :author_login,         :string,    :null => true,    :limit => 100
+      t.column :attributes,           :string,    :null => true,    :limit => 1000
       t.column :created_at,           :datetime,  :null => true
       t.column :updated_at,           :datetime,  :null => true
       t.column :closed_at,            :datetime,  :null => true

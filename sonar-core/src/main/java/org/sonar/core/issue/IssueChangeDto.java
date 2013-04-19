@@ -30,8 +30,8 @@ import java.util.Date;
 public final class IssueChangeDto {
 
   private Long id;
-  private String issueUuid;
-  private Long userId;
+  private String issueKey;
+  private String userLogin;
   private String changeType;
   private String changeData;
   private String message;
@@ -48,20 +48,20 @@ public final class IssueChangeDto {
   }
 
   public String getIssueUuid() {
-    return issueUuid;
+    return issueKey;
   }
 
-  public IssueChangeDto setIssueUuid(String issueUuid) {
-    this.issueUuid = issueUuid;
+  public IssueChangeDto setIssueKey(String issueKey) {
+    this.issueKey = issueKey;
     return this;
   }
 
-  public Long getUserId() {
-    return userId;
+  public String getUserLogin() {
+    return userLogin;
   }
 
-  public IssueChangeDto setUserId(Long userId) {
-    this.userId = userId;
+  public IssueChangeDto setUserLogin(String userLogin) {
+    this.userLogin = userLogin;
     return this;
   }
 

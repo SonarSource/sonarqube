@@ -1,35 +1,15 @@
-<!--
-  ~ Sonar, open source software quality management tool.
-  ~ Copyright (C) 2008-2012 SonarSource
-  ~ mailto:contact AT sonarsource DOT com
-  ~
-  ~ Sonar is free software; you can redistribute it and/or
-  ~ modify it under the terms of the GNU Lesser General Public
-  ~ License as published by the Free Software Foundation; either
-  ~ version 3 of the License, or (at your option) any later version.
-  ~
-  ~ Sonar is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  ~ Lesser General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU Lesser General Public
-  ~ License along with Sonar; if not, write to the Free Software
-  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
-  -->
-
 <dataset>
 
   <issues
       id="100"
-      uuid="ABCDE"
+      kee="ABCDE"
       resource_id="400"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
       manual_issue="[false]"
       title="[null]"
-      message="[null]"
+      description="[null]"
       line="200"
       cost="4.2"
       status="OPEN"
@@ -37,8 +17,8 @@
       checksum="XXX"
       user_login="arthur"
       assignee_login="perceval"
-      person_id="[null]"
-      data="JIRA=FOO-1234"
+      author_login="[null]"
+      attributes="JIRA=FOO-1234"
       created_at="2013-04-16"
       updated_at="2013-04-16"
       closed_at="2013-04-16"

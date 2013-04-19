@@ -1,11 +1,11 @@
 <dataset>
 
   <issue_changes
-      issue_uuid="100"
-      user_id="100"
+      issue_key="100"
+      user_login="arthur"
       change_type="type"
       change_data="data"
-      message="message"
+      message="some message"
       />
 
 </dataset>

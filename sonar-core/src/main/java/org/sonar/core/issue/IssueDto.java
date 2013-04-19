@@ -36,7 +36,7 @@ import java.util.Date;
 public final class IssueDto {
 
   private Long id;
-  private String uuid;
+  private String kee;
   private Integer resourceId;
   private Integer ruleId;
   private String severity;
@@ -51,8 +51,8 @@ public final class IssueDto {
   private String checksum;
   private String userLogin;
   private String assignee;
-  private Long personId;
-  private String data;
+  private String authorLogin;
+  private String attributes;
   private Date createdAt;
   private Date updatedAt;
   private Date closedAt;
@@ -71,12 +71,12 @@ public final class IssueDto {
     return this;
   }
 
-  public String getUuid() {
-    return uuid;
+  public String getKey() {
+    return kee;
   }
 
-  public IssueDto setUuid(String uuid) {
-    this.uuid = uuid;
+  public IssueDto setKey(String key) {
+    this.kee = key;
     return this;
   }
 
@@ -206,23 +206,23 @@ public final class IssueDto {
     return this;
   }
 
-  public Long getPersonId() {
-    return personId;
+  public String getPersonId() {
+    return authorLogin;
   }
 
-  public IssueDto setPersonId(@Nullable Long personId) {
-    this.personId = personId;
+  public IssueDto setAuthorLogin(@Nullable String authorLogin) {
+    this.authorLogin = authorLogin;
     return this;
   }
 
-  public String getData() {
-    return data;
+  public String getAttributes() {
+    return attributes;
   }
 
-  public IssueDto setData(@Nullable String s) {
+  public IssueDto setAttributes(@Nullable String s) {
     Preconditions.checkArgument(s == null || s.length() <= 1000,
-      "Issue data must not exceed 1000 characters: " + s);
-    this.data = s;
+      "Issue attributes must not exceed 1000 characters: " + s);
+    this.attributes = s;
     return this;
   }
 
@@ -308,7 +308,7 @@ public final class IssueDto {
 
   public static IssueDto toDto(DefaultIssue issue, Integer componentId, Integer ruleId) {
     return new IssueDto()
-      .setUuid(issue.key())
+      .setKey(issue.key())
       .setLine(issue.line())
       .setTitle(issue.title())
       .setDescription(issue.description())
@@ -326,7 +326,7 @@ public final class IssueDto {
       .setClosedAt(issue.closedAt())
       .setRuleId(ruleId)
       .setResourceId(componentId)
-      .setData(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
+      .setAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
       // TODO
 //        .setPersonId()
       ;
@@ -334,7 +334,7 @@ public final class IssueDto {
 
   public DefaultIssue toDefaultIssue() {
     DefaultIssue issue = new DefaultIssue();
-    issue.setKey(uuid);
+    issue.setKey(kee);
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setDescription(description);
@@ -347,7 +347,7 @@ public final class IssueDto {
     issue.setCreatedAt(createdAt);
     issue.setUpdatedAt(updatedAt);
     issue.setClosedAt(closedAt);
-    issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(data, "")));
+    issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(attributes, "")));
     issue.setComponentKey(componentKey);
     issue.setManual(manualIssue);
     issue.setManualSeverity(manualSeverity);

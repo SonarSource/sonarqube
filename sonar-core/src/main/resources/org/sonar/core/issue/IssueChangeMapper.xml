@@ -26,8 +26,8 @@
 
   <sql id="issueChangeColumns">
     i.id,
-    i.issue_uuid as issueUuid,
-    i.user_id as userId,
+    i.issue_key as issueKey,
+    i.user_login as userLogin,
     i.change_type as changeType,
     i.change_data as changeData,
     i.message as message,
@@ -36,8 +36,8 @@
   </sql>
 
   <insert id="insert" parameterType="IssueChange" useGeneratedKeys="true" keyProperty ="id">
-    INSERT INTO issue_changes (issue_uuid, user_id, change_type, change_data, message, created_at, updated_at)
-    VALUES (#{issueUuid}, #{userId}, #{changeType}, #{changeData}, #{message}, #{createdAt}, #{updatedAt})
+    INSERT INTO issue_changes (issue_key, user_login, change_type, change_data, message, created_at, updated_at)
+    VALUES (#{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{message}, #{createdAt}, #{updatedAt})
   </insert>
 
   <!-- Oracle -->
@@ -45,8 +45,8 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
       select issue_changes_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issue_changes (id, issue_uuid, user_id, change_type, change_data, message, created_at, updated_at)
-    VALUES (#{id}, #{issueUuid}, #{userId}, #{changeType}, #{changeData}, #{message}, #{createdAt}, #{updatedAt})
+    INSERT INTO issue_changes (id, issue_key, user_login, change_type, change_data, message, created_at, updated_at)
+    VALUES (#{id}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{message}, #{createdAt}, #{updatedAt})
   </insert>
 
   <select id="findById" parameterType="long" resultType="IssueChange">
@@ -58,7 +58,7 @@
   <select id="selectByIssue" parameterType="string" resultType="IssueChange">
     select <include refid="issueChangeColumns"/>
     from issue_changes i
-    where i.issue_uuid=#{issueUuid}
+    where i.issue_key=#{issueKey}
   </select>
 
 </mapper>

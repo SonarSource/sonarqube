@@ -6,14 +6,14 @@
 
   <sql id="issueColumns">
     i.id,
-    i.uuid as uuid,
+    i.kee as kee,
     i.resource_id as resourceId,
     i.rule_id as ruleId,
     i.severity as severity,
     i.manual_severity as manualSeverity,
     i.manual_issue as manualIssue,
     i.title as title,
-    i.message as description,
+    i.description as description,
     i.line as line,
     i.cost as cost,
     i.status as status,
@@ -21,8 +21,8 @@
     i.checksum as checksum,
     i.user_login as userLogin,
     i.assignee_login as assignee,
-    i.person_id as personId,
-    i.data as data,
+    i.author_login as authorLogin,
+    i.attributes as attributes,
     i.created_at as createdAt,
     i.updated_at as updatedAt,
     i.closed_at as closedAt,
@@ -32,10 +32,10 @@
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO issues (uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, message, line, cost, status,
-    resolution, checksum, user_login, assignee_login, person_id, data, created_at, updated_at, closed_at)
-    VALUES (#{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{description}, #{line}, #{cost}, #{status},
-    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{personId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
+    INSERT INTO issues (kee, resource_id, rule_id, severity, manual_severity, manual_issue, title, description, line, cost, status,
+    resolution, checksum, user_login, assignee_login, author_login, attributes, created_at, updated_at, closed_at)
+    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{description}, #{line}, #{cost}, #{status},
+    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{createdAt}, #{updatedAt}, #{closedAt})
   </insert>
 
   <!-- Oracle -->
@@ -43,10 +43,10 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issues (id, uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, message, line, cost, status,
-    resolution, checksum, user_login, assignee_login, person_id, data, created_at, updated_at, closed_at)
-    VALUES (#{id}, #{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{description}, #{line}, #{cost}, #{status},
-    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{personId}, #{data}, #{createdAt}, #{updatedAt}, #{closedAt})
+    INSERT INTO issues (kee, uuid, resource_id, rule_id, severity, manual_severity, manual_issue, title, description, line, cost, status,
+    resolution, checksum, user_login, assignee_login, author_login, attributes, created_at, updated_at, closed_at)
+    VALUES (#{kee}, #{uuid}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{description}, #{line}, #{cost}, #{status},
+    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{createdAt}, #{updatedAt}, #{closedAt})
   </insert>
 
   <update id="update" parameterType="Issue">
@@ -57,7 +57,7 @@
       manual_severity=#{manualSeverity},
       manual_issue=#{manualIssue},
       title=#{title},
-      message=#{description},
+    description=#{description},
       line=#{line},
       cost=#{cost},
       status=#{status},
@@ -65,12 +65,12 @@
       checksum=#{checksum},
       user_login=#{userLogin},
       assignee_login=#{assignee},
-      person_id=#{personId},
-      data=#{data},
+      author_login=#{authorLogin},
+      attributes=#{attributes},
       created_at=#{createdAt},
       updated_at=#{updatedAt},
       closed_at=#{closedAt}
-    where uuid = #{uuid}
+    where kee = #{kee}
   </update>
 
   <select id="selectById" parameterType="long" resultType="Issue">
@@ -87,7 +87,7 @@
     select
     <include refid="issueColumns"/>
     from issues i, rules r, projects p
-    where i.uuid=#{uuid} and i.rule_id=r.id and p.id=i.resource_id
+    where i.kee=#{kee} and i.rule_id=r.id and p.id=i.resource_id
   </select>
 
   <select id="selectOpenIssues" parameterType="String" resultType="Issue">
@@ -145,7 +145,7 @@
         and i.resource_id=project_component.id
       </if>
       <if test="keys != null">
-        and i.uuid in
+        and i.kee in
         <foreach item="key" index="index" collection="keys" open="(" separator="," close=")">#{key}
         </foreach>
       </if>
