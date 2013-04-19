@@ -27,8 +27,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.issue.InitialOpenIssuesStack;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.issue.DefaultIssue;
@@ -53,14 +51,12 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
   ModuleIssues moduleIssues = mock(ModuleIssues.class);
   InitialOpenIssuesStack initialOpenIssuesStack = mock(InitialOpenIssuesStack.class);
   IssueTracking issueTracking = mock(IssueTracking.class);
-  RuleFinder ruleFinder = mock(RuleFinder.class);
   Date loadedDate = new Date();
 
   @Before
   public void init() {
     when(initialOpenIssuesStack.getLoadedDate()).thenReturn(loadedDate);
-    when(ruleFinder.findById(anyInt())).thenReturn(Rule.create().setRepositoryKey("squid").setKey("AvoidCycle"));
-    decorator = new IssuesWorkflowDecorator(moduleIssues, initialOpenIssuesStack, issueTracking, ruleFinder);
+    decorator = new IssuesWorkflowDecorator(moduleIssues, initialOpenIssuesStack, issueTracking);
   }
 
   @Test

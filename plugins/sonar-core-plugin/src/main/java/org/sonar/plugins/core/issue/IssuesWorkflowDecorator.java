@@ -32,7 +32,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.issue.InitialOpenIssuesStack;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.issue.DefaultIssue;
@@ -52,13 +51,11 @@ public class IssuesWorkflowDecorator implements Decorator {
   private final ModuleIssues moduleIssues;
   private final InitialOpenIssuesStack initialOpenIssuesStack;
   private final IssueTracking issueTracking;
-  private final RuleFinder ruleFinder;
 
-  public IssuesWorkflowDecorator(ModuleIssues moduleIssues, InitialOpenIssuesStack initialOpenIssuesStack, IssueTracking issueTracking, RuleFinder ruleFinder) {
+  public IssuesWorkflowDecorator(ModuleIssues moduleIssues, InitialOpenIssuesStack initialOpenIssuesStack, IssueTracking issueTracking) {
     this.moduleIssues = moduleIssues;
     this.initialOpenIssuesStack = initialOpenIssuesStack;
     this.issueTracking = issueTracking;
-    this.ruleFinder = ruleFinder;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -118,7 +115,6 @@ public class IssuesWorkflowDecorator implements Decorator {
       issue.setUpdatedAt(getLoadedDate());
       moduleIssues.addOrUpdate(issue);
     }
-
   }
 
   private void reopenUnresolvedIssues(IssueDto openIssue) {

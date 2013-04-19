@@ -93,7 +93,7 @@ public class IssueDtoTest {
     assertThat(issue.createdAt()).isEqualTo(createdAt);
     assertThat(issue.updatedAt()).isEqualTo(updatedAt);
     assertThat(issue.closedAt()).isEqualTo(closedAt);
+    assertThat(issue.isNew()).isFalse();
   }
-
 
 }
