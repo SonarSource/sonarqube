@@ -27,6 +27,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -58,8 +59,10 @@ public final class IssueDto {
 
   // joins
   private String rule;
-  private String ruleRepo;
-  private String componentKey;
+
+  // This fields are not persited in db
+  private transient String ruleRepo;
+  private transient String componentKey;
 
   public Long getId() {
     return id;

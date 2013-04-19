@@ -39,6 +39,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -114,7 +115,7 @@ public class IssuesWorkflowDecorator implements Decorator {
       DefaultIssue issue = openIssue.toDefaultIssue();
       issue.setResolution(openIssue.getResolution());
       issue.setStatus(openIssue.getStatus());
-      issue.setUpdatedAt(new Date());
+      issue.setUpdatedAt(getLoadedDate());
       moduleIssues.addOrUpdate(issue);
     }
 
@@ -138,7 +139,8 @@ public class IssuesWorkflowDecorator implements Decorator {
 
   private void close(DefaultIssue issue) {
     issue.setStatus(Issue.STATUS_CLOSED);
-    issue.setUpdatedAt(new Date());
+    issue.setUpdatedAt(getLoadedDate());
+    issue.setClosedAt(getLoadedDate());
   }
 
   private void closeAndSave(IssueDto openIssue) {
@@ -151,7 +153,7 @@ public class IssuesWorkflowDecorator implements Decorator {
     DefaultIssue issue = openIssue.toDefaultIssue();
     issue.setStatus(Issue.STATUS_REOPENED);
     issue.setResolution(null);
-    issue.setUpdatedAt(new Date());
+    issue.setUpdatedAt(getLoadedDate());
     moduleIssues.addOrUpdate(issue);
   }
 
@@ -173,5 +175,9 @@ public class IssuesWorkflowDecorator implements Decorator {
     public String apply(@Nullable Issue issue) {
       return (issue != null ? issue.key() : null);
     }
+  }
+
+  private Date getLoadedDate(){
+    return initialOpenIssuesStack.getLoadedDate();
   }
 }

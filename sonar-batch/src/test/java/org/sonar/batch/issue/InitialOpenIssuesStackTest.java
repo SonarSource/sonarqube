@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.issue.IssueDto;
 
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -40,14 +41,16 @@ public class InitialOpenIssuesStackTest {
 
   @Test
   public void should_get_and_remove() {
+    Date loadedDate = new Date();
     IssueDto issueDto = new IssueDto().setResourceId(10).setId(1L);
-    initialOpenIssuesStack.setIssues(newArrayList(issueDto));
+    initialOpenIssuesStack.setIssues(newArrayList(issueDto), loadedDate);
 
     List<IssueDto> issueDtos = initialOpenIssuesStack.selectAndRemove(10);
     assertThat(issueDtos).hasSize(1);
     assertThat(issueDtos.get(0).getId()).isEqualTo(1L);
 
     assertThat(initialOpenIssuesStack.getAllIssues()).isEmpty();
+    assertThat(initialOpenIssuesStack.getLoadedDate()).isEqualTo(loadedDate);
   }
 
   @Test
@@ -55,7 +58,7 @@ public class InitialOpenIssuesStackTest {
     initialOpenIssuesStack.setIssues(newArrayList(
         new IssueDto().setResourceId(10).setId(1L),
         new IssueDto().setResourceId(10).setId(2L)
-    ));
+    ), new Date());
 
     List<IssueDto> issueDtos = initialOpenIssuesStack.selectAndRemove(10);
     assertThat(issueDtos).hasSize(2);
@@ -66,7 +69,7 @@ public class InitialOpenIssuesStackTest {
   @Test
   public void should_do_nothing_if_resource_not_found() {
     IssueDto issueDto = new IssueDto().setResourceId(10).setId(1L);
-    initialOpenIssuesStack.setIssues(newArrayList(issueDto));
+    initialOpenIssuesStack.setIssues(newArrayList(issueDto), new Date());
 
     List<IssueDto> issueDtos = initialOpenIssuesStack.selectAndRemove(999);
     assertThat(issueDtos).hasSize(0);

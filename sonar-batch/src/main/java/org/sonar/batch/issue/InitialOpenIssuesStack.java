@@ -28,17 +28,21 @@ import org.sonar.core.issue.IssueDto;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class InitialOpenIssuesStack implements BatchExtension {
 
   private ListMultimap<Integer, IssueDto> issuesByResourceId;
 
+  private Date loadedDate;
+
   public InitialOpenIssuesStack() {
     issuesByResourceId = ArrayListMultimap.create();
   }
 
-  public void setIssues(List<IssueDto> issues){
+  public void setIssues(List<IssueDto> issues, Date loadedDate){
+    this.loadedDate = loadedDate;
     for (IssueDto issueDto : issues) {
       issuesByResourceId.put(issueDto.getResourceId(), issueDto);
     }
@@ -57,5 +61,9 @@ public class InitialOpenIssuesStack implements BatchExtension {
 
   public Collection<IssueDto> getAllIssues(){
     return issuesByResourceId.values();
+  }
+
+  public Date getLoadedDate() {
+    return loadedDate;
   }
 }

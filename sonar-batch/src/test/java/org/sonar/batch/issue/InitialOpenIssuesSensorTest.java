@@ -26,6 +26,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.core.issue.IssueDao;
 import org.sonar.core.issue.IssueDto;
 
+import java.util.Date;
+
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,6 +54,6 @@ public class InitialOpenIssuesSensorTest {
     initialOpenIssuesSensor.analyse(project, null);
 
     verify(issueDao).selectOpenIssues(1);
-    verify(initialOpenIssuesStack).setIssues(anyListOf(IssueDto.class));
+    verify(initialOpenIssuesStack).setIssues(anyListOf(IssueDto.class), any(Date.class));
   }
 }

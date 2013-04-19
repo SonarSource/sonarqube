@@ -26,6 +26,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.core.issue.IssueDao;
 import org.sonar.core.issue.IssueDto;
 
+import java.util.Date;
 import java.util.List;
 
 public class InitialOpenIssuesSensor implements Sensor {
@@ -45,8 +46,9 @@ public class InitialOpenIssuesSensor implements Sensor {
 
   @Override
   public void analyse(Project project, SensorContext context) {
+    Date loadingDate = new Date();
     List<IssueDto> issuesDto = issueDao.selectOpenIssues(project.getId());
-    initialOpenIssuesStack.setIssues(issuesDto);
+    initialOpenIssuesStack.setIssues(issuesDto, loadingDate);
   }
 
 }

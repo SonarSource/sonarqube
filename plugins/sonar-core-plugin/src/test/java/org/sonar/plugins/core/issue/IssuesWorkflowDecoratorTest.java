@@ -36,6 +36,7 @@ import org.sonar.core.issue.IssueDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -53,9 +54,11 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
   InitialOpenIssuesStack initialOpenIssuesStack = mock(InitialOpenIssuesStack.class);
   IssueTracking issueTracking = mock(IssueTracking.class);
   RuleFinder ruleFinder = mock(RuleFinder.class);
+  Date loadedDate = new Date();
 
   @Before
   public void init() {
+    when(initialOpenIssuesStack.getLoadedDate()).thenReturn(loadedDate);
     when(ruleFinder.findById(anyInt())).thenReturn(Rule.create().setRepositoryKey("squid").setKey("AvoidCycle"));
     decorator = new IssuesWorkflowDecorator(moduleIssues, initialOpenIssuesStack, issueTracking, ruleFinder);
   }
@@ -85,7 +88,8 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(moduleIssues).addOrUpdate(argument.capture());
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(argument.getValue().updatedAt()).isNotNull();
+    assertThat(argument.getValue().updatedAt()).isEqualTo(loadedDate);
+    assertThat(argument.getValue().closedAt()).isEqualTo(loadedDate);
   }
 
   @Test
@@ -99,7 +103,8 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(moduleIssues).addOrUpdate(argument.capture());
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(argument.getValue().updatedAt()).isNotNull();
+    assertThat(argument.getValue().updatedAt()).isEqualTo(loadedDate);
+    assertThat(argument.getValue().closedAt()).isEqualTo(loadedDate);
   }
 
   @Test
@@ -120,16 +125,16 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     DefaultIssue defaultIssue = capturedDefaultIssues.get(1);
     assertThat(defaultIssue.status()).isEqualTo(Issue.STATUS_REOPENED);
     assertThat(defaultIssue.resolution()).isNull();
-    assertThat(defaultIssue.updatedAt()).isNotNull();
+    assertThat(defaultIssue.updatedAt()).isEqualTo(loadedDate);
   }
 
   @Test
   public void should_keep_false_positive_issue() {
     when(moduleIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
-        new DefaultIssue().setKey("100")));
+      new DefaultIssue().setKey("100")));
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
-        new IssueDto().setUuid("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
-          .setRuleKey_unit_test_only("squid", "AvoidCycle")));
+      new IssueDto().setUuid("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
+        .setRuleKey_unit_test_only("squid", "AvoidCycle")));
 
     decorator.decorate(mock(Resource.class), null);
 
@@ -141,7 +146,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     DefaultIssue defaultIssue = capturedDefaultIssues.get(1);
     assertThat(defaultIssue.status()).isEqualTo(Issue.STATUS_RESOLVED);
     assertThat(defaultIssue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(defaultIssue.updatedAt()).isNotNull();
+    assertThat(defaultIssue.updatedAt()).isEqualTo(loadedDate);
   }
 
   @Test
@@ -158,7 +163,8 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(moduleIssues).addOrUpdate(argument.capture());
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(argument.getValue().updatedAt()).isNotNull();
+    assertThat(argument.getValue().updatedAt()).isEqualTo(loadedDate);
+    assertThat(argument.getValue().closedAt()).isEqualTo(loadedDate);
   }
 
 }

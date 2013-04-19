@@ -198,7 +198,7 @@ public abstract class Resource<P extends Resource> {
     return this;
   }
 
-  public final String getEffectiveKey() {
+  public String getEffectiveKey() {
     return effectiveKey;
   }
 
