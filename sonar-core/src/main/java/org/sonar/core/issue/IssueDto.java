@@ -27,7 +27,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.Nullable;
-
 import java.util.Date;
 
 /**
@@ -58,7 +57,7 @@ public final class IssueDto {
   private Date closedAt;
 
   // joins
-  private String rule;
+  private String ruleKey;
 
   // This fields are not persited in db
   private transient String ruleRepo;
@@ -272,7 +271,7 @@ public final class IssueDto {
    */
   public IssueDto setRuleKey_unit_test_only(String repo, String rule) {
     this.ruleRepo = repo;
-    this.rule = rule;
+    this.ruleKey = rule;
     return this;
   }
 
@@ -353,7 +352,7 @@ public final class IssueDto {
     issue.setComponentKey(componentKey);
     issue.setManual(manualIssue);
     issue.setManualSeverity(manualSeverity);
-    issue.setRuleKey(RuleKey.of(ruleRepo, rule));
+    issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));
     // TODO personId
     return issue;
   }

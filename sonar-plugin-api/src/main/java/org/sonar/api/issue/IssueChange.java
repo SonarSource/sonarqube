@@ -41,6 +41,7 @@ public class IssueChange {
   private String resolution = null;
   private boolean assigneeChanged = false;
   private String assignee = null;
+  private String title = null;
   private Map<String, String> attributes = null;
 
   private IssueChange() {
@@ -72,6 +73,11 @@ public class IssueChange {
 
   public IssueChange setManualSeverity(boolean b) {
     this.manualSeverity = b;
+    return this;
+  }
+
+  public IssueChange setTitle(String s) {
+    this.title = s;
     return this;
   }
 
@@ -129,6 +135,10 @@ public class IssueChange {
 
   public String description() {
     return description;
+  }
+
+  public String title() {
+    return title;
   }
 
   public Integer line() {

@@ -42,7 +42,8 @@ import static org.mockito.Mockito.*;
 public class DefaultJRubyIssuesTest {
 
   IssueFinder finder = mock(IssueFinder.class);
-  DefaultJRubyIssues facade = new DefaultJRubyIssues(finder);
+  ServerIssueChanges changes = mock(ServerIssueChanges.class);
+  DefaultJRubyIssues facade = new DefaultJRubyIssues(finder, changes);
 
   @Test
   public void test_find() throws Exception {
@@ -72,7 +73,7 @@ public class DefaultJRubyIssuesTest {
     map.put("limit", 10);
     map.put("offset", 50);
 
-    IssueQuery query = new DefaultJRubyIssues(finder).newQuery(map);
+    IssueQuery query = new DefaultJRubyIssues(finder, changes).toQuery(map);
     assertThat(query.keys()).containsOnly("ABCDE1234");
     assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
     assertThat(query.statuses()).containsOnly("CLOSED");
@@ -103,7 +104,7 @@ public class DefaultJRubyIssuesTest {
     assertThat(DefaultJRubyIssues.toStrings("")).isEmpty();
     assertThat(DefaultJRubyIssues.toStrings("foo")).containsOnly("foo");
     assertThat(DefaultJRubyIssues.toStrings("foo,bar")).containsOnly("foo", "bar");
-    assertThat(DefaultJRubyIssues.toStrings(asList("foo","bar"))).containsOnly("foo", "bar");
+    assertThat(DefaultJRubyIssues.toStrings(asList("foo", "bar"))).containsOnly("foo", "bar");
 
   }
 

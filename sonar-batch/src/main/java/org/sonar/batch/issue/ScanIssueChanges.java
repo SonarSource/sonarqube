@@ -22,10 +22,10 @@ package org.sonar.batch.issue;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueChange;
 import org.sonar.api.issue.IssueChanges;
+import org.sonar.core.issue.ApplyIssueChange;
 import org.sonar.core.issue.DefaultIssue;
 
 import java.util.Date;
-import java.util.Map;
 
 public class ScanIssueChanges implements IssueChanges {
 
@@ -41,7 +41,7 @@ public class ScanIssueChanges implements IssueChanges {
       return issue;
     }
     DefaultIssue reloaded = reload(issue);
-    doChange(reloaded, change);
+    ApplyIssueChange.apply(reloaded, change);
     // TODO set the date of loading of issues
     reloaded.setUpdatedAt(new Date());
     cache.addOrUpdate(reloaded);
@@ -49,29 +49,6 @@ public class ScanIssueChanges implements IssueChanges {
     return reloaded;
   }
 
-  private void doChange(DefaultIssue issue, IssueChange change) {
-    if (change.isCostChanged()) {
-      issue.setCost(change.cost());
-    }
-    if (change.manualSeverity() != null) {
-      change.setManualSeverity(change.manualSeverity());
-    }
-    if (change.severity() != null) {
-      issue.setSeverity(change.severity());
-    }
-    if (change.isAssigneeChanged()) {
-      issue.setAssignee(change.assignee());
-    }
-    if (change.resolution() != null) {
-      issue.setResolution(change.resolution());
-    }
-    if (change.isLineChanged()) {
-      issue.setLine(change.line());
-    }
-    for (Map.Entry<String, String> entry : change.attributes().entrySet()) {
-      issue.setAttribute(entry.getKey(), entry.getValue());
-    }
-  }
 
   private DefaultIssue reload(Issue issue) {
     DefaultIssue reloaded = (DefaultIssue) cache.componentIssue(issue.componentKey(), issue.key());

@@ -26,7 +26,7 @@
     i.created_at as createdAt,
     i.updated_at as updatedAt,
     i.closed_at as closedAt,
-    r.plugin_rule_key as rule,
+    r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
     p.kee as componentKey
   </sql>

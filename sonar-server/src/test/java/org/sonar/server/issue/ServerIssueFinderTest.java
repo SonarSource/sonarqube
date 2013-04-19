@@ -17,7 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.core.issue;
+package org.sonar.server.issue;
 
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
@@ -28,6 +28,8 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.issue.IssueDao;
+import org.sonar.core.issue.IssueDto;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.AuthorizationDao;
 
@@ -39,10 +41,10 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DefaultIssueFinderTest {
+public class ServerIssueFinderTest {
 
   MyBatis mybatis;
-  DefaultIssueFinder finder;
+  ServerIssueFinder finder;
   IssueDao issueDao;
   AuthorizationDao authorizationDao;
 
@@ -51,7 +53,7 @@ public class DefaultIssueFinderTest {
     mybatis = mock(MyBatis.class);
     issueDao = mock(IssueDao.class);
     authorizationDao = mock(AuthorizationDao.class);
-    finder = new DefaultIssueFinder(mybatis, issueDao, authorizationDao);
+    finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao);
   }
 
   @Test

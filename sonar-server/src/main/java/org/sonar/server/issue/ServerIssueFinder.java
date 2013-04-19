@@ -17,8 +17,7 @@
  * License along with Sonar; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
-package org.sonar.core.issue;
+package org.sonar.server.issue;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -28,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.core.issue.IssueDao;
+import org.sonar.core.issue.IssueDto;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.AuthorizationDao;
 
@@ -38,16 +39,16 @@ import java.util.Set;
 /**
  * @since 3.6
  */
-public class DefaultIssueFinder implements IssueFinder {
+public class ServerIssueFinder implements IssueFinder {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultIssueFinder.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ServerIssueFinder.class);
 
   private final MyBatis myBatis;
   private final IssueDao issueDao;
   private final AuthorizationDao authorizationDao;
 
 
-  public DefaultIssueFinder(MyBatis myBatis, IssueDao issueDao, AuthorizationDao authorizationDao) {
+  public ServerIssueFinder(MyBatis myBatis, IssueDao issueDao, AuthorizationDao authorizationDao) {
     this.myBatis = myBatis;
     this.issueDao = issueDao;
     this.authorizationDao = authorizationDao;

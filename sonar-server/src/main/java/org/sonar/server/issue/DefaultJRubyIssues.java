@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import org.sonar.api.issue.IssueChange;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.JRubyIssues;
@@ -45,20 +46,28 @@ import java.util.Map;
 public class DefaultJRubyIssues implements JRubyIssues {
 
   private final IssueFinder finder;
+  private final ServerIssueChanges changes;
 
-  public DefaultJRubyIssues(IssueFinder f) {
+  public DefaultJRubyIssues(IssueFinder f, ServerIssueChanges changes) {
     this.finder = f;
+    this.changes = changes;
     JRubyFacades.setIssues(this);
   }
 
   /**
    * Requires the role {@link org.sonar.api.web.UserRole#CODEVIEWER}
    */
-  public IssueFinder.Results find(Map<String, Object> params, Integer currentUserId) {
-    return finder.find(newQuery(params), currentUserId, UserRole.CODEVIEWER);
+  public IssueFinder.Results find(Map<String, Object> params, @Nullable Integer currentUserId) {
+    // TODO move the role to IssueFinder
+    return finder.find(toQuery(params), currentUserId, UserRole.CODEVIEWER);
   }
 
-  IssueQuery newQuery(Map<String, Object> props) {
+  public void change(Map<String, Object> params, @Nullable Integer currentUserId) {
+    String issueKey = (String) params.get("key");
+    changes.change(issueKey, toChange(params), currentUserId);
+  }
+
+  IssueQuery toQuery(Map<String, Object> props) {
     IssueQuery.Builder builder = IssueQuery.builder();
     builder.keys(toStrings(props.get("keys")));
     builder.severities(toStrings(props.get("severities")));
@@ -74,6 +83,34 @@ public class DefaultJRubyIssues implements JRubyIssues {
     builder.limit(toInteger(props.get("limit")));
     builder.offset(toInteger(props.get("offset")));
     return builder.build();
+  }
+
+  IssueChange toChange(Map<String, Object> props) {
+    IssueChange change = IssueChange.create();
+    if (props.containsKey("newSeverity")) {
+      change.setSeverity((String) props.get("newSeverity"));
+    }
+    if (props.containsKey("newDesc")) {
+      change.setDescription((String) props.get("newDesc"));
+    }
+    if (props.containsKey("newCost")) {
+      change.setCost(toDouble(props.get("newCost")));
+    }
+    if (props.containsKey("newLine")) {
+      change.setLine(toInteger(props.get("newLine")));
+    }
+    if (props.containsKey("newAssignee")) {
+      change.setAssignee((String) props.get("newAssignee"));
+    }
+    if (props.containsKey("newResolution")) {
+      change.setResolution((String) props.get("newResolution"));
+    }
+    if (props.containsKey("newTitle")) {
+      change.setTitle((String) props.get("newTitle"));
+    }
+
+    // TODO set attribute + comment
+    return change;
   }
 
   @SuppressWarnings("unchecked")
@@ -121,6 +158,17 @@ public class DefaultJRubyIssues implements JRubyIssues {
     }
     return null;
   }
+
+  Double toDouble(Object o) {
+    if (o instanceof Double) {
+      return (Double) o;
+    }
+    if (o instanceof String) {
+      return Double.parseDouble((String) o);
+    }
+    return null;
+  }
+
 
   Date toDate(Object o) {
     if (o instanceof Date) {

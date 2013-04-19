@@ -70,6 +70,11 @@ public class IssueChange {
     return this;
   }
 
+  public IssueChange description(String s) {
+    params.put("newDescription", s);
+    return this;
+  }
+
   public IssueChange attribute(String key, @Nullable String value) {
     if (value == null) {
       params.put("newAttr[" + key + "]", "");
