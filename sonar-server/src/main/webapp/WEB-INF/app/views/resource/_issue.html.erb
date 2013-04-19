@@ -70,8 +70,8 @@
 
     <div class="discussionComment first">
       <div id="vMsg<%= issue.key -%>">
-        <% issue_message = issue.message ? Api::Utils.split_newlines(h(issue.message)).join('<br/>') : '' %>
-        <%= issue_message || '&nbsp;' -%>
+        <% issue_description = issue.description ? Api::Utils.split_newlines(h(issue.description)).join('<br/>') : '' %>
+        <%= issue_description || '&nbsp;' -%>
       </div>
     </div>
 
