@@ -1,0 +1,16 @@
+package sample;
+
+public class Sample {
+	
+	public Sample(int i) {
+		int j = i+1; // violation: unused local variable
+	}
+
+	public boolean avoidUtilityClass() {
+		return true;
+	}
+
+	private String myMethod() { // violation : unused private method
+		return "hello";
+	}
+}

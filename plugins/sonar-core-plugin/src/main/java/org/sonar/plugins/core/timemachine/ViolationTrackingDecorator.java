@@ -21,44 +21,30 @@ package org.sonar.plugins.core.timemachine;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.SonarIndex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.*;
 import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.scan.LastSnapshots;
-import org.sonar.plugins.core.timemachine.tracking.HashedSequence;
-import org.sonar.plugins.core.timemachine.tracking.HashedSequenceComparator;
-import org.sonar.plugins.core.timemachine.tracking.RollingHashSequence;
-import org.sonar.plugins.core.timemachine.tracking.RollingHashSequenceComparator;
-import org.sonar.plugins.core.timemachine.tracking.StringText;
-import org.sonar.plugins.core.timemachine.tracking.StringTextComparator;
+import org.sonar.plugins.core.timemachine.tracking.*;
 
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
 @DependedUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class ViolationTrackingDecorator implements Decorator {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ViolationTrackingDecorator.class);
+
   private LastSnapshots lastSnapshots;
   private Map<Violation, RuleFailureModel> referenceViolationsMap = Maps.newIdentityHashMap();
   private SonarIndex index;
@@ -80,6 +66,8 @@ public class ViolationTrackingDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
+    LOG.debug("ViolationTracking : " + resource);
+
     referenceViolationsMap.clear();
 
     ViolationQuery violationQuery = ViolationQuery.create().forResource(resource).setSwitchMode(ViolationQuery.SwitchMode.BOTH);
@@ -195,6 +183,7 @@ public class ViolationTrackingDecorator implements Decorator {
           for (HashOccurrence hashOccurrence : map.values()) {
             if (hashOccurrence.countA == 1 && hashOccurrence.countB == 1) {
               // Guaranteed that lineA has been moved to lineB, so we can map all violations on lineA to all violations on lineB
+              LOG.debug("*** Guaranteed that lineA has been moved to lineB, so we can map all issues on lineA to all issues on lineB");
               map(newViolationsByLines.get(hashOccurrence.lineB), lastViolationsByLines.get(hashOccurrence.lineA), lastViolationsByRule);
               lastViolationsByLines.removeAll(hashOccurrence.lineA);
               newViolationsByLines.removeAll(hashOccurrence.lineB);
@@ -213,6 +202,7 @@ public class ViolationTrackingDecorator implements Decorator {
             Collections.sort(possibleLinePairs, LINE_PAIR_COMPARATOR);
             for (LinePair linePair : possibleLinePairs) {
               // High probability that lineA has been moved to lineB, so we can map all violations on lineA to all violations on lineB
+              LOG.debug("*** High probability that lineA has been moved to lineB, so we can map all Issues on lineA to all Issues on lineB");
               map(newViolationsByLines.get(linePair.lineB), lastViolationsByLines.get(linePair.lineA), lastViolationsByRule);
             }
           }
@@ -222,6 +212,7 @@ public class ViolationTrackingDecorator implements Decorator {
       // Try then to match violations on same rule with same message and with same checksum
       for (Violation newViolation : newViolations) {
         if (isNotAlreadyMapped(newViolation)) {
+          LOG.debug("*** Try then to match issues on same rule with same message and with same checksum");
           mapViolation(newViolation,
             findLastViolationWithSameChecksumAndMessage(newViolation, lastViolationsByRule.get(newViolation.getRule().getId())),
             lastViolationsByRule, referenceViolationsMap);
@@ -231,6 +222,7 @@ public class ViolationTrackingDecorator implements Decorator {
       // Try then to match violations on same rule with same line and with same message
       for (Violation newViolation : newViolations) {
         if (isNotAlreadyMapped(newViolation)) {
+          LOG.debug("*** Try then to match issues on same rule with same line and with same message");
           mapViolation(newViolation,
             findLastViolationWithSameLineAndMessage(newViolation, lastViolationsByRule.get(newViolation.getRule().getId())),
             lastViolationsByRule, referenceViolationsMap);
@@ -241,6 +233,7 @@ public class ViolationTrackingDecorator implements Decorator {
       // See SONAR-2812
       for (Violation newViolation : newViolations) {
         if (isNotAlreadyMapped(newViolation)) {
+          LOG.debug("*** Last check: match issue if same rule and same checksum but different line and different message");
           mapViolation(newViolation,
             findLastViolationWithSameChecksum(newViolation, lastViolationsByRule.get(newViolation.getRule().getId())),
             lastViolationsByRule, referenceViolationsMap);
@@ -257,8 +250,11 @@ public class ViolationTrackingDecorator implements Decorator {
       if (isNotAlreadyMapped(newViolation)) {
         for (RuleFailureModel pastViolation : lastViolations) {
           if (isNotAlreadyMapped(pastViolation) && Objects.equal(newViolation.getRule().getId(), pastViolation.getRuleId())) {
+            LOG.debug("mapIssue newViolation : " + newViolation + " with pastViolation : " + pastViolation);
             mapViolation(newViolation, pastViolation, lastViolationsByRule, referenceViolationsMap);
             break;
+          } else {
+            LOG.debug("Not mapIssue newViolation : " + newViolation + " with pastViolation : " + pastViolation);
           }
         }
       }
@@ -384,6 +380,8 @@ public class ViolationTrackingDecorator implements Decorator {
   private void mapViolation(Violation newViolation, RuleFailureModel pastViolation,
                             Multimap<Integer, RuleFailureModel> lastViolationsByRule, Map<Violation, RuleFailureModel> violationMap) {
     if (pastViolation != null) {
+      LOG.debug("Mapping with old violation from newViolation : " + newViolation + " and pastViolation : " + pastViolation);
+
       newViolation.setCreatedAt(pastViolation.getCreatedAt());
       newViolation.setPermanentId(pastViolation.getPermanentId());
       newViolation.setSwitchedOff(pastViolation.isSwitchedOff());
@@ -393,6 +391,8 @@ public class ViolationTrackingDecorator implements Decorator {
       violationMap.put(newViolation, pastViolation);
       unmappedLastViolations.remove(pastViolation);
     } else {
+      LOG.debug("No old violation, creating new one with newViolation : " + newViolation + " and pastViolation : " + pastViolation);
+
       newViolation.setNew(true);
       newViolation.setCreatedAt(project.getAnalysisDate());
     }
