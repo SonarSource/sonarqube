@@ -48,8 +48,9 @@ public class IssueTracking implements BatchExtension {
 
   private static final Comparator<LinePair> LINE_PAIR_COMPARATOR = new Comparator<LinePair>() {
     public int compare(LinePair o1, LinePair o2) {
-      if (o2.weight - o1.weight != 0) {
-        return o2.weight - o1.weight;
+      int weightDiff = o2.weight - o1.weight;
+      if (weightDiff != 0) {
+        return weightDiff;
       } else {
        return Math.abs(o1.lineA -o1.lineB) - Math.abs(o2.lineA - o2.lineB);
       }
