@@ -354,6 +354,7 @@ public final class IssueDto {
     issue.setManual(manualIssue);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(RuleKey.of(ruleRepo, rule));
+    issue.setNew(false);
     // TODO personId
     return issue;
   }
