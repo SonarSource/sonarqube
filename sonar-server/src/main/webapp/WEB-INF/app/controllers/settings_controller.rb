@@ -101,14 +101,17 @@ class SettingsController < ApplicationController
 
   def load_properties
     definitions_per_category = java_facade.propertyDefinitions.getPropertiesByCategory(@resource ? @resource.qualifier : nil)
-
     @categories = definitions_per_category.keys + SPECIAL_CATEGORIES
     @categories = by_category_name(@categories)
 
     default_category = nil
     default_category = @categories[0] if !@categories.empty?
     @category = params[:category] || default_category
-    @definitions = definitions_per_category[@category] || []
+    @subcategory = params[:subcategory] || 'default'
+    @subcategories_per_categories = {}
+    definitions_per_category.each {|category, definitions_per_subcategories| @subcategories_per_categories.store(category, by_subcategory_name(category, definitions_per_subcategories.keys - ['default'])) }
+    @definitions = definitions_per_category[@category] || {}
+    @definitions = @definitions[@subcategory] || []
 
     not_found('category') unless @categories.include? @category
   end

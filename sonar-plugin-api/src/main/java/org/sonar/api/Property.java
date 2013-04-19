@@ -66,6 +66,11 @@ public @interface Property {
   String category() default "";
 
   /**
+   * @since 3.6
+   */
+  String subcategory() default "default";
+
+  /**
    * Is the property displayed in project settings page ?
    */
   boolean project() default false;
@@ -128,4 +133,11 @@ public @interface Property {
    * @since 3.4
    */
   String deprecatedKey() default "";
+
+  /**
+   * Order to display properties in Sonar UI. When two properties have the same index then it is sorted by
+   * lexicographic order of property name.
+   * @since 3.6
+   */
+  int index() default 999;
 }

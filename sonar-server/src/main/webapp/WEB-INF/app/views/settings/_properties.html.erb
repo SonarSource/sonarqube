@@ -1,7 +1,7 @@
 <% if SettingsController::SPECIAL_CATEGORIES.include?(@category) -%>
   <%= render 'special', :url => url_for(:controller => "#{@category}_configuration") -%>
 <% else -%>
-  <% form_remote_tag :url => {:controller => 'settings', :action => 'update', :category => @category, :resource_id => @resource ? @resource.id : nil},
+  <% form_remote_tag :url => {:controller => 'settings', :action => 'update', :category => @category, :subcategory => @subcategory, :resource_id => @resource ? @resource.id : nil},
                      :method => :post,
                      :before => "$('submit_settings').hide();$('loading_settings').show();",
                      :update => 'properties',
@@ -10,11 +10,21 @@
     <table class="data marginbottom10">
       <thead>
       <tr>
-        <th><%= h category_name(@category) -%></th>
+        <th><%= h category_name(@category) -%><% if @subcategory != 'default' %> - <%= h subcategory_name(@category, @subcategory) -%><% end -%></th>
       </tr>
       </thead>
       <tbody>
-      <% by_property_name(@definitions).each do |property| -%>
+      <% unless @subcategory != 'default' || category_desc(@category).blank? -%>
+        <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
+          <td class="help"><%= category_desc(@category) -%> </td>
+        </tr>
+      <% end -%>
+      <% unless @subcategory == 'default' || subcategory_desc(@category, @subcategory).blank? -%>
+        <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
+          <td class="help"><%= subcategory_desc(@category, @subcategory) -%> </td>
+        </tr>
+      <% end -%>
+      <% by_property_index_or_name(@definitions).each do |property| -%>
         <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
           <td style="padding: 10px" id="block_<%= property.key -%>">
             <h3>
@@ -50,11 +60,12 @@
         </tr>
       <% end -%>
 
-      <% unless category_help(@category).blank? -%>
+      <% unless @subcategory != 'default' || category_help(@category).blank? -%>
         <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
           <td class="help"><%= category_help(@category) -%> </td>
         </tr>
       <% end -%>
+
       </tbody>
     </table>
     <div style="padding-left: 16px;">

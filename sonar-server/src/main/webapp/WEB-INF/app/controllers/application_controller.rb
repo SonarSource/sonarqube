@@ -214,8 +214,15 @@ class ApplicationController < ActionController::Base
     Api::Utils.insensitive_sort(categories) { |category| category_name(category) }
   end
 
+  def by_subcategory_name(category, subcategories)
+    Api::Utils.insensitive_sort(subcategories) { |subcategory| subcategory_name(category, subcategory) }
+  end
+
   def category_name(category)
     message("property.category.#{category}", :default => category)
   end
 
+  def subcategory_name(category, subcategory)
+    message("property.category.#{category}.#{subcategory}", :default => subcategory)
+  end
 end

@@ -34,7 +34,7 @@ public class PropertyDefinitionsTest {
         PropertyDefinition.build("foo").name("Foo").build(),
         PropertyDefinition.build("one").name("One").build(),
         PropertyDefinition.build("two").name("Two").defaultValue("2").build()
-    );
+        );
 
     assertProperties(def);
   }
@@ -58,7 +58,7 @@ public class PropertyDefinitionsTest {
     PropertyDefinitions def = new PropertyDefinitions(
         PropertyDefinition.build("inCateg").name("In Categ").category("categ").build(),
         PropertyDefinition.build("noCateg").name("No categ").build()
-    );
+        );
 
     assertThat(def.getCategory("inCateg")).isEqualTo("categ");
     assertThat(def.getCategory("noCateg")).isEmpty();
@@ -99,13 +99,26 @@ public class PropertyDefinitionsTest {
         PropertyDefinition.build("project").name("Project").category("catProject").global(false).qualifiers(Qualifiers.PROJECT).build(),
         PropertyDefinition.build("module").name("Module").category("catModule").global(false).qualifiers(Qualifiers.MODULE).build(),
         PropertyDefinition.build("view").name("View").category("catView").global(false).qualifiers(Qualifiers.VIEW).build()
-    );
+        );
 
     assertThat(def.getPropertiesByCategory(null).keySet()).containsOnly("catGlobal1", "catGlobal2");
     assertThat(def.getPropertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly("catProject");
     assertThat(def.getPropertiesByCategory(Qualifiers.MODULE).keySet()).containsOnly("catModule");
     assertThat(def.getPropertiesByCategory(Qualifiers.VIEW).keySet()).containsOnly("catView");
     assertThat(def.getPropertiesByCategory("Unkown").keySet()).isEmpty();
+  }
+
+  @Test
+  public void should_group_by_subcategory() {
+    PropertyDefinitions def = new PropertyDefinitions(
+        PropertyDefinition.build("global1").name("Global1").category("catGlobal1").subcategory("sub1").global(true).build(),
+        PropertyDefinition.build("global2").name("Global2").category("catGlobal1").subcategory("sub2").global(true).build(),
+        PropertyDefinition.build("global3").name("Global3").category("catGlobal1").global(true).build(),
+        PropertyDefinition.build("global4").name("Global4").category("catGlobal2").global(true).build()
+        );
+
+    assertThat(def.getPropertiesByCategory(null).get("catGlobal1").keySet()).containsOnly("default", "sub1", "sub2");
+    assertThat(def.getPropertiesByCategory(null).get("catGlobal2").keySet()).containsOnly("default");
   }
 
   @Test
@@ -134,25 +147,25 @@ public class PropertyDefinitionsTest {
   }
 
   @Properties({
-      @Property(key = "one", name = "One"),
-      @Property(key = "two", name = "Two", defaultValue = "2")
+    @Property(key = "one", name = "One"),
+    @Property(key = "two", name = "Two", defaultValue = "2")
   })
   static final class PluginWithProperties {
   }
 
   @Properties({
-      @Property(key = "inCateg", name = "In Categ", category = "categ"),
-      @Property(key = "noCateg", name = "No categ")
+    @Property(key = "inCateg", name = "In Categ", category = "categ"),
+    @Property(key = "noCateg", name = "No categ")
   })
   static final class Categories {
   }
 
   @Properties({
-      @Property(key = "global1", name = "Global1", category = "catGlobal1", global = true, project = false, module = false),
-      @Property(key = "global2", name = "Global2", category = "catGlobal1", global = true, project = false, module = false),
-      @Property(key = "global3", name = "Global3", category = "catGlobal2", global = true, project = false, module = false),
-      @Property(key = "project", name = "Project", category = "catProject", global = false, project = true, module = false),
-      @Property(key = "module", name = "Module", category = "catModule", global = false, project = false, module = true)
+    @Property(key = "global1", name = "Global1", category = "catGlobal1", global = true, project = false, module = false),
+    @Property(key = "global2", name = "Global2", category = "catGlobal1", global = true, project = false, module = false),
+    @Property(key = "global3", name = "Global3", category = "catGlobal2", global = true, project = false, module = false),
+    @Property(key = "project", name = "Project", category = "catProject", global = false, project = true, module = false),
+    @Property(key = "module", name = "Module", category = "catModule", global = false, project = false, module = true)
   })
   static final class ByCategory {
   }
