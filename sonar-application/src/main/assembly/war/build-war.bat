@@ -3,12 +3,12 @@
 rem Copyright (C) 2008-2012 SonarSource
 rem mailto:contact AT sonarsource DOT com
 rem 
-rem Sonar is free software; you can redistribute it and/or
+rem SonarQube is free software; you can redistribute it and/or
 rem modify it under the terms of the GNU Lesser General Public
 rem License as published by the Free Software Foundation; either
 rem version 3 of the License, or (at your option) any later version.
 rem 
-rem Sonar is distributed in the hope that it will be useful,
+rem SonarQube is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 rem Lesser General Public License for more details.
