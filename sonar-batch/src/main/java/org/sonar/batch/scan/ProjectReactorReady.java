@@ -23,6 +23,8 @@ import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 
+import javax.annotation.Nullable;
+
 /**
  * Barrier to control the project lifecycle :
  * <p/>
@@ -39,7 +41,7 @@ public class ProjectReactorReady {
   private final ProjectReactor reactor;
   private final Settings settings;
 
-  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, Settings settings, ProjectBuilder[] projectBuilders) {
+  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, Settings settings, @Nullable ProjectBuilder[] projectBuilders) {
     this.reactor = reactor;
     this.settings = settings;
   }

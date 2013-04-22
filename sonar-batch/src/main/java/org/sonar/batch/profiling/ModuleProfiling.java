@@ -24,6 +24,8 @@ import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.Phases.Phase;
 
+import javax.annotation.CheckForNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,7 +36,7 @@ public class ModuleProfiling extends AbstractTimeProfiling {
   private Clock clock;
   private Project module;
 
-  public ModuleProfiling(Project module, Clock clock) {
+  public ModuleProfiling(@CheckForNull Project module, Clock clock) {
     super(clock);
     this.module = module;
     this.clock = clock;
