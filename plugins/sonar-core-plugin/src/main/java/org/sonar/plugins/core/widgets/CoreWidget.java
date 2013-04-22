@@ -41,7 +41,6 @@ public abstract class CoreWidget extends AbstractRubyTemplate implements RubyRai
 
   @Override
   protected String getTemplatePath() {
-    return "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources" + templatePath;
-    //return templatePath;
+    return templatePath;
   }
 }
