@@ -12,18 +12,18 @@
       <tr>
         <th><%= h category_name(@category) -%><% if @subcategory != 'default' %> - <%= h subcategory_name(@category, @subcategory) -%><% end -%></th>
       </tr>
-      </thead>
-      <tbody>
       <% unless @subcategory != 'default' || category_desc(@category).blank? -%>
-        <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
-          <td class="help"><%= category_desc(@category) -%> </td>
+        <tr>
+          <td><%= category_desc(@category) -%> </td>
         </tr>
       <% end -%>
       <% unless @subcategory == 'default' || subcategory_desc(@category, @subcategory).blank? -%>
-        <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
-          <td class="help"><%= subcategory_desc(@category, @subcategory) -%> </td>
+        <tr>
+          <td><%= subcategory_desc(@category, @subcategory) -%> </td>
         </tr>
       <% end -%>
+      </thead>
+      <tbody>
       <% by_property_index_or_name(@definitions).each do |property| -%>
         <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
           <td style="padding: 10px" id="block_<%= property.key -%>">
@@ -68,11 +68,13 @@
 
       </tbody>
     </table>
+    <% unless @definitions.empty? %>
     <div style="padding-left: 16px;">
       <%= hidden_field_tag('page_version', (params[:page_version] || 0).to_i + 1) -%>
       <%= submit_tag(message('settings.save_category', :params => [category_name(@category)]), :id => 'submit_settings') -%>
       <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="loading_settings" style="display:none;">
     </div>
+    <% end %>
   <% end -%>
 <% end -%>
 

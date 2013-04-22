@@ -475,6 +475,20 @@ table.data th img, table.data td img {
   vertical-align: baseline;
 }
 
+.data td.category {
+  padding-right: 15px;
+}
+
+.data td.category.withSubcategories {
+  background-image: url('../images/bullet_arrow_down.gif');
+  background-position: right center;
+  background-repeat: no-repeat;
+}
+
+.data td.subcategory {
+  padding-left: 20px;
+}
+
 .hoverable:hover {
   background-color: #CAE3F2;
 }
