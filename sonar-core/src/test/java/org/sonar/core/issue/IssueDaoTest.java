@@ -111,7 +111,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getStatus()).isEqualTo("OPEN");
     assertThat(issue.getResolution()).isEqualTo("FIXED");
     assertThat(issue.getChecksum()).isEqualTo("XXX");
-    assertThat(issue.getPersonId()).isNull();
+    assertThat(issue.getAuthorLogin()).isEqualTo("pierre");
     assertThat(issue.getUserLogin()).isEqualTo("arthur");
     assertThat(issue.getAssignee()).isEqualTo("perceval");
     assertThat(issue.getAttributes()).isEqualTo("JIRA=FOO-1234");

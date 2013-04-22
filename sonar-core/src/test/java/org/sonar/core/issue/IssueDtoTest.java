@@ -70,6 +70,7 @@ public class IssueDtoTest {
         .setUserLogin("arthur")
         .setAssignee("perceval")
         .setAttributes("key=value")
+        .setAuthorLogin("pierre")
         .setCreatedAt(createdAt)
         .setUpdatedAt(updatedAt)
         .setClosedAt(closedAt);
@@ -90,6 +91,7 @@ public class IssueDtoTest {
     assertThat(issue.userLogin()).isEqualTo("arthur");
     assertThat(issue.assignee()).isEqualTo("perceval");
     assertThat(issue.attribute("key")).isEqualTo("value");
+    assertThat(issue.authorLogin()).isEqualTo("pierre");
     assertThat(issue.createdAt()).isEqualTo(createdAt);
     assertThat(issue.updatedAt()).isEqualTo(updatedAt);
     assertThat(issue.closedAt()).isEqualTo(closedAt);

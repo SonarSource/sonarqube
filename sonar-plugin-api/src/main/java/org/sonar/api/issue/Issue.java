@@ -75,6 +75,8 @@ public interface Issue {
 
   Map<String, String> attributes();
 
+  String authorLogin();
+
   /**
    * Used only during project scan.
    */

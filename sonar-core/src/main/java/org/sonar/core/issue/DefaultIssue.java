@@ -31,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -62,6 +63,7 @@ public class DefaultIssue implements Issue, Serializable {
   private String checksum;
   private boolean isNew = true;
   private Map<String, String> attributes = null;
+  private String authorLogin;
 
   public String key() {
     return key;
@@ -261,6 +263,15 @@ public class DefaultIssue implements Issue, Serializable {
 
   public DefaultIssue setAttributes(Map<String, String> attributes) {
     this.attributes = attributes;
+    return this;
+  }
+
+  public String authorLogin() {
+    return authorLogin;
+  }
+
+  public DefaultIssue setAuthorLogin(String authorLogin) {
+    this.authorLogin = authorLogin;
     return this;
   }
 

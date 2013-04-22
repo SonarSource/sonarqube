@@ -206,7 +206,7 @@ public final class IssueDto {
     return this;
   }
 
-  public String getPersonId() {
+  public String getAuthorLogin() {
     return authorLogin;
   }
 
@@ -327,9 +327,7 @@ public final class IssueDto {
       .setRuleId(ruleId)
       .setResourceId(componentId)
       .setAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
-      // TODO
-//        .setPersonId()
-      ;
+      .setAuthorLogin(issue.authorLogin());
   }
 
   public DefaultIssue toDefaultIssue() {
@@ -352,8 +350,8 @@ public final class IssueDto {
     issue.setManual(manualIssue);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));
+    issue.setAuthorLogin(authorLogin);
     issue.setNew(false);
-    // TODO personId
     return issue;
   }
 }
