@@ -107,7 +107,6 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
         .global(annotation.global())
         .qualifiers(qualifiers)
         .category(annotation.category())
-        .subcategory(annotation.subcategory())
         .type(annotation.type())
         .options(annotation.options())
         .multiValues(annotation.multiValues())

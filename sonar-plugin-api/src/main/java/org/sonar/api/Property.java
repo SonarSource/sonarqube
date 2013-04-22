@@ -66,11 +66,6 @@ public @interface Property {
   String category() default "";
 
   /**
-   * @since 3.6
-   */
-  String subcategory() default "default";
-
-  /**
    * Is the property displayed in project settings page ?
    */
   boolean project() default false;
