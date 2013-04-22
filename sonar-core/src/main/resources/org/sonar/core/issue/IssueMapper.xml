@@ -43,9 +43,9 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issues (kee, resource_id, rule_id, severity, manual_severity, manual_issue, title, description, line, cost, status,
+    INSERT INTO issues (id, kee, resource_id, rule_id, severity, manual_severity, manual_issue, title, description, line, cost, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, created_at, updated_at, closed_at)
-    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{description}, #{line}, #{cost}, #{status},
+    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{description}, #{line}, #{cost}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{createdAt}, #{updatedAt}, #{closedAt})
   </insert>
 
