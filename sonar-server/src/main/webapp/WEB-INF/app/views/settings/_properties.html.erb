@@ -9,12 +9,12 @@
 
     <table class="data marginbottom10">
       <thead>
-      <tr>
-        <th><%= h category_name(@category) -%><% if @subcategory != 'default' %> - <%= h subcategory_name(@category, @subcategory) -%><% end -%></th>
-      </tr>
+        <tr>
+          <th><%= h category_name(@category) -%><% if @subcategory != 'default' %> - <%= h subcategory_name(@category, @subcategory) -%><% end -%></th>
+        </tr>
       <% unless @subcategory != 'default' || category_desc(@category).blank? -%>
         <tr>
-          <td><%= category_desc(@category) -%> </td>
+          <td class="categoryDescription"><%= category_desc(@category) -%> </td>
         </tr>
       <% end -%>
       <% unless @subcategory == 'default' || subcategory_desc(@category, @subcategory).blank? -%>
