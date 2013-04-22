@@ -63,7 +63,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
     IssueChangeDto dto = dao.findById(100L);
     assertThat(dto.getId()).isEqualTo(100L);
-    assertThat(dto.getIssueUuid()).isEqualTo("100");
+    assertThat(dto.getIssueKey()).isEqualTo("100");
     assertThat(dto.getUserLogin()).isEqualTo("arthur");
     assertThat(dto.getChangeType()).isEqualTo("type");
     assertThat(dto.getChangeData()).isEqualTo("data");

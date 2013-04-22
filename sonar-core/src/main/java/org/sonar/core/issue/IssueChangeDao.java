@@ -59,11 +59,11 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public Collection<IssueChangeDto> selectByIssue(String issueUuid) {
+  public Collection<IssueChangeDto> selectByIssue(String issueKey) {
     SqlSession session = mybatis.openSession();
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-      return mapper.selectByIssue(issueUuid);
+      return mapper.selectByIssue(issueKey);
     } finally {
       MyBatis.closeQuietly(session);
     }

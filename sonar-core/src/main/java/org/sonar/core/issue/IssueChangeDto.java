@@ -47,7 +47,7 @@ public final class IssueChangeDto {
     return this;
   }
 
-  public String getIssueUuid() {
+  public String getIssueKey() {
     return issueKey;
   }
 
