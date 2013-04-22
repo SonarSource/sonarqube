@@ -87,7 +87,7 @@ public class IssueDtoTest {
     assertThat(issue.title()).isEqualTo("title");
     assertThat(issue.description()).isEqualTo("message");
     assertThat(issue.isManualSeverity()).isTrue();
-    assertThat(issue.isManual()).isTrue();
+    assertThat(issue.manual()).isTrue();
     assertThat(issue.userLogin()).isEqualTo("arthur");
     assertThat(issue.assignee()).isEqualTo("perceval");
     assertThat(issue.attribute("key")).isEqualTo("value");

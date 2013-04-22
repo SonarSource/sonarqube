@@ -214,7 +214,7 @@ public class DefaultIssue implements Issue, Serializable {
     return this;
   }
 
-  public boolean isManual() {
+  public boolean manual() {
     return manual;
   }
 

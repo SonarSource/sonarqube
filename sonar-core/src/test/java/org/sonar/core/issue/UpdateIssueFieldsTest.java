@@ -26,14 +26,13 @@ import org.sonar.api.rule.Severity;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ApplyIssueChangeTest {
+public class UpdateIssueFieldsTest {
 
   @Test
   public void should_change_fields() throws Exception {
     DefaultIssue issue = new DefaultIssue().setComponentKey("org/struts/Action.java").setKey("ABCDE");
-    ApplyIssueChange.apply(issue, IssueChange.create()
+    UpdateIssueFields.apply(issue, IssueChange.create()
       .setLine(200)
-      .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
       .setAttribute("JIRA", "FOO-123")
       .setManualSeverity(true)
       .setSeverity(Severity.CRITICAL)
@@ -43,7 +42,6 @@ public class ApplyIssueChangeTest {
       .setCost(4.2)
     );
     assertThat(issue.line()).isEqualTo(200);
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.title()).isEqualTo("new title");
     assertThat(issue.description()).isEqualTo("new desc");
     assertThat(issue.attribute("JIRA")).isEqualTo("FOO-123");
@@ -67,7 +65,7 @@ public class ApplyIssueChangeTest {
       .setSeverity("BLOCKER")
       .setStatus("CLOSED")
       .setResolution("FIXED");
-    ApplyIssueChange.apply(issue, IssueChange.create());
+    UpdateIssueFields.apply(issue, IssueChange.create());
 
     assertThat(issue.componentKey()).isEqualTo("org/struts/Action.java");
     assertThat(issue.key()).isEqualTo("ABCDE");

@@ -22,7 +22,7 @@ package org.sonar.server.issue;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueChange;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.ApplyIssueChange;
+import org.sonar.core.issue.UpdateIssueFields;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDao;
 import org.sonar.core.issue.IssueDto;
@@ -59,7 +59,7 @@ public class ServerIssueChanges {
     }
     DefaultIssue issue = dto.toDefaultIssue();
     if (change.hasChanges()) {
-      ApplyIssueChange.apply(issue, change);
+      UpdateIssueFields.apply(issue, change);
       issueDao.update(Arrays.asList(IssueDto.toDto(issue, dto.getResourceId(), dto.getRuleId())));
     }
     return issue;
