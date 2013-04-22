@@ -22,17 +22,19 @@ package org.sonar.batch.issue;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueChange;
 import org.sonar.api.issue.IssueChanges;
-import org.sonar.core.issue.ApplyIssueChange;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.workflow.IssueWorkflow;
 
 import java.util.Date;
 
 public class ScanIssueChanges implements IssueChanges {
 
   private final IssueCache cache;
+  private final IssueWorkflow workflow;
 
-  public ScanIssueChanges(IssueCache cache) {
+  public ScanIssueChanges(IssueCache cache, IssueWorkflow workflow) {
     this.cache = cache;
+    this.workflow = workflow;
   }
 
   @Override
@@ -41,8 +43,7 @@ public class ScanIssueChanges implements IssueChanges {
       return issue;
     }
     DefaultIssue reloaded = reload(issue);
-    ApplyIssueChange.apply(reloaded, change);
-    // TODO set the date of loading of issues
+    workflow.apply(reloaded, change);
     reloaded.setUpdatedAt(new Date());
     cache.addOrUpdate(reloaded);
     // TODO keep history of changes

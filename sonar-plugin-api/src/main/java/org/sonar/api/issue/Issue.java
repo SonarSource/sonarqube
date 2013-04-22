@@ -35,8 +35,9 @@ public interface Issue {
   String STATUS_RESOLVED = "RESOLVED";
   String STATUS_CLOSED = "CLOSED";
 
-  String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
+  String RESOLUTION_OPEN = "OPEN";
   String RESOLUTION_FIXED = "FIXED";
+  String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
 
   /**
    * Unique generated key
@@ -64,6 +65,8 @@ public interface Issue {
   String userLogin();
 
   String assignee();
+
+  boolean manual();
 
   Date createdAt();
 

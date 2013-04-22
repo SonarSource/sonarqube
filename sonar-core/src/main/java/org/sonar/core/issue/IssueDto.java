@@ -317,7 +317,7 @@ public final class IssueDto {
       .setStatus(issue.status())
       .setSeverity(issue.severity())
       .setChecksum(issue.getChecksum())
-      .setManualIssue(issue.isManual())
+      .setManualIssue(issue.manual())
       .setManualSeverity(issue.isManualSeverity())
       .setUserLogin(issue.userLogin())
       .setAssignee(issue.assignee())

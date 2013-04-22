@@ -38,7 +38,7 @@ public class IssueChange {
   private Integer line = null;
   private boolean costChanged = false;
   private Double cost = null;
-  private String resolution = null;
+  private String transition = null;
   private boolean assigneeChanged = false;
   private String assignee = null;
   private String title = null;
@@ -53,7 +53,7 @@ public class IssueChange {
 
   public boolean hasChanges() {
     return severity != null || comment != null || manualSeverity != null || description != null ||
-      lineChanged || costChanged || resolution != null || assigneeChanged || attributes != null;
+      lineChanged || costChanged || transition != null || assigneeChanged || attributes != null;
   }
 
   public IssueChange setSeverity(String s) {
@@ -98,8 +98,8 @@ public class IssueChange {
     return this;
   }
 
-  public IssueChange setResolution(String resolution) {
-    this.resolution = resolution;
+  public IssueChange setTransition(String transition) {
+    this.transition = transition;
     return this;
   }
 
@@ -157,8 +157,8 @@ public class IssueChange {
     return costChanged;
   }
 
-  public String resolution() {
-    return resolution;
+  public String transition() {
+    return transition;
   }
 
   public String assignee() {

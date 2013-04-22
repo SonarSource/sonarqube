@@ -102,8 +102,8 @@ public class DefaultJRubyIssues implements JRubyIssues {
     if (props.containsKey("newAssignee")) {
       change.setAssignee((String) props.get("newAssignee"));
     }
-    if (props.containsKey("newResolution")) {
-      change.setResolution((String) props.get("newResolution"));
+    if (props.containsKey("transition")) {
+      change.setTransition((String) props.get("transition"));
     }
     if (props.containsKey("newTitle")) {
       change.setTitle((String) props.get("newTitle"));

@@ -38,7 +38,7 @@ public class IssueChangeTest {
     assertThat(change.line()).isNull();
     assertThat(change.comment()).isNull();
     assertThat(change.description()).isNull();
-    assertThat(change.resolution()).isNull();
+    assertThat(change.transition()).isNull();
     assertThat(change.manualSeverity()).isNull();
     assertThat(change.attributes()).isEmpty();
   }
@@ -118,8 +118,8 @@ public class IssueChangeTest {
   @Test
   public void should_change_resolution() {
     IssueChange change = IssueChange.create();
-    change.setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(change.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
+    change.setTransition("resolve");
+    assertThat(change.transition()).isEqualTo("resolve");
     assertThat(change.hasChanges()).isTrue();
   }
 

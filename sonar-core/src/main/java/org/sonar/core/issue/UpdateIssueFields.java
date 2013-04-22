@@ -23,7 +23,7 @@ import org.sonar.api.issue.IssueChange;
 
 import java.util.Map;
 
-public class ApplyIssueChange {
+public class UpdateIssueFields {
 
   public static void apply(DefaultIssue issue, IssueChange change) {
     if (change.description() != null) {
@@ -40,9 +40,6 @@ public class ApplyIssueChange {
     }
     if (change.isAssigneeChanged()) {
       issue.setAssignee(change.assignee());
-    }
-    if (change.resolution() != null) {
-      issue.setResolution(change.resolution());
     }
     if (change.isLineChanged()) {
       issue.setLine(change.line());

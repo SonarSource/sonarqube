@@ -24,6 +24,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueChange;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.workflow.IssueWorkflow;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -32,7 +33,8 @@ import static org.mockito.Mockito.*;
 public class ScanIssueChangesTest {
 
   IssueCache cache = mock(IssueCache.class);
-  ScanIssueChanges changes = new ScanIssueChanges(cache);
+  IssueWorkflow workflow = mock(IssueWorkflow.class);
+  ScanIssueChanges changes = new ScanIssueChanges(cache, workflow);
 
   @Test
   public void should_ignore_empty_change() throws Exception {
@@ -58,24 +60,13 @@ public class ScanIssueChangesTest {
 
   @Test
   public void should_change_fields() throws Exception {
-    Issue issue = new DefaultIssue().setComponentKey("org/struts/Action.java").setKey("ABCDE");
+    DefaultIssue issue = new DefaultIssue().setComponentKey("org/struts/Action.java").setKey("ABCDE");
     when(cache.componentIssue("org/struts/Action.java", "ABCDE")).thenReturn(issue);
-    Issue changed = changes.apply(issue, IssueChange.create()
-      .setLine(200)
-      .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
-      .setAttribute("JIRA", "FOO-123")
-      .setManualSeverity(true)
-      .setSeverity(Severity.CRITICAL)
-      .setAssignee("arthur")
-      .setCost(4.2)
-    );
+
+    IssueChange change = IssueChange.create().setTransition("resolve");
+    changes.apply(issue, change);
+
     verify(cache).addOrUpdate(issue);
-    assertThat(changed.line()).isEqualTo(200);
-    assertThat(changed.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(changed.attribute("JIRA")).isEqualTo("FOO-123");
-    assertThat(changed.severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(changed.assignee()).isEqualTo("arthur");
-    assertThat(changed.cost()).isEqualTo(4.2);
-    assertThat(changed.updatedAt()).isNotNull();
+    verify(workflow).apply(issue, change);
   }
 }
