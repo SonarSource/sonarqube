@@ -89,6 +89,7 @@ public class DefaultJRubyIssues implements JRubyIssues {
     IssueChange change = IssueChange.create();
     if (props.containsKey("newSeverity")) {
       change.setSeverity((String) props.get("newSeverity"));
+      change.setManualSeverity(true);
     }
     if (props.containsKey("newDesc")) {
       change.setDescription((String) props.get("newDesc"));
@@ -108,8 +109,10 @@ public class DefaultJRubyIssues implements JRubyIssues {
     if (props.containsKey("newTitle")) {
       change.setTitle((String) props.get("newTitle"));
     }
-
-    // TODO set attribute + comment
+    if (props.containsKey("comment")) {
+      change.setComment((String) props.get("comment"));
+    }
+    // TODO set attribute and login
     return change;
   }
 

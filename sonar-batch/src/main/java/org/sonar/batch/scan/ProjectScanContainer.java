@@ -34,10 +34,7 @@ import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.index.*;
-import org.sonar.batch.issue.DeprecatedViolations;
-import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.issue.IssuePersister;
-import org.sonar.batch.issue.ScanIssueChanges;
+import org.sonar.batch.issue.*;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
@@ -45,6 +42,7 @@ import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.scan.source.HighlightableBuilder;
 import org.sonar.batch.scan.source.SymbolPerspectiveBuilder;
 import org.sonar.core.component.ScanGraph;
+import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
@@ -89,10 +87,15 @@ public class ProjectScanContainer extends ComponentContainer {
       SnapshotCache.class,
       ComponentDataCache.class,
       ComponentDataPersister.class,
-      ScanIssueChanges.class,
+
+      // issues
+      IssueWorkflow.class,
+      ScanIssues.class,
       DeprecatedViolations.class,
       IssueCache.class,
       IssuePersister.class,
+
+      // tests
       TestPlanPerspectiveLoader.class,
       TestablePerspectiveLoader.class,
       TestPlanBuilder.class,
@@ -100,6 +103,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ScanGraph.create(),
       GraphPersister.class,
 
+      // lang
       HighlightableBuilder.class,
       SymbolPerspectiveBuilder.class
     );

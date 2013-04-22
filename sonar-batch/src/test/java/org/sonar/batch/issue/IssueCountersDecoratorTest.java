@@ -53,9 +53,9 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class IssuesDecoratorTest {
+public class IssueCountersDecoratorTest {
 
-  private IssuesDecorator decorator;
+  private IssueCountersDecorator decorator;
   private TimeMachineConfiguration timeMachineConfiguration;
   private RuleFinder rulefinder;
   private Issuable issuable;
@@ -107,7 +107,7 @@ public class IssuesDecoratorTest {
     issuable = mock(Issuable.class);
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(issuable);
-    decorator = new IssuesDecorator(perspectives, rulefinder, timeMachineConfiguration);
+    decorator = new IssueCountersDecorator(perspectives, rulefinder, timeMachineConfiguration);
   }
 
   @Test
@@ -130,7 +130,7 @@ public class IssuesDecoratorTest {
   public void should_do_nothing_when_issuable_is_null() {
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(null);
-    IssuesDecorator decorator = new IssuesDecorator(perspectives, rulefinder, timeMachineConfiguration);
+    IssueCountersDecorator decorator = new IssueCountersDecorator(perspectives, rulefinder, timeMachineConfiguration);
 
     decorator.decorate(resource, context);
 

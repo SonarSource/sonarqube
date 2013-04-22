@@ -27,13 +27,17 @@ import org.sonar.core.component.ResourceComponent;
 
 import javax.annotation.CheckForNull;
 
+/**
+ * Create the perspective {@link Issuable} on components.
+ * @since 3.6
+ */
 public class IssuableFactory extends PerspectiveBuilder<Issuable> {
 
-  private final ModuleIssues moduleIssues;
+  private final ScanIssues scanIssues;
 
-  public IssuableFactory(ModuleIssues moduleIssues) {
+  public IssuableFactory(ScanIssues scanIssues) {
     super(Issuable.class);
-    this.moduleIssues = moduleIssues;
+    this.scanIssues = scanIssues;
   }
 
   @CheckForNull
@@ -43,9 +47,6 @@ public class IssuableFactory extends PerspectiveBuilder<Issuable> {
     if (component instanceof ResourceComponent) {
       supported = Scopes.isHigherThanOrEquals(((ResourceComponent) component).scope(), Scopes.FILE);
     }
-    if (supported) {
-      return new DefaultIssuable(component, moduleIssues);
-    }
-    return null;
+    return supported ? new DefaultIssuable(component, scanIssues) : null;
   }
 }

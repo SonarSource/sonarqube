@@ -41,16 +41,17 @@ import java.util.*;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
+ * Computes metrics related to number of issues.
  * @since 3.6
  */
 @DependsUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
-public class IssuesDecorator implements Decorator {
+public class IssueCountersDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
   private final RuleFinder rulefinder;
   private final TimeMachineConfiguration timeMachineConfiguration;
 
-  public IssuesDecorator(ResourcePerspectives perspectives, RuleFinder rulefinder, TimeMachineConfiguration timeMachineConfiguration) {
+  public IssueCountersDecorator(ResourcePerspectives perspectives, RuleFinder rulefinder, TimeMachineConfiguration timeMachineConfiguration) {
     this.perspectives = perspectives;
     this.rulefinder = rulefinder;
     this.timeMachineConfiguration = timeMachineConfiguration;
@@ -62,7 +63,7 @@ public class IssuesDecorator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesIssuesMetrics() {
-    return newArrayList(
+    return ImmutableList.of(
       CoreMetrics.ISSUES,
       CoreMetrics.BLOCKER_ISSUES,
       CoreMetrics.CRITICAL_ISSUES,

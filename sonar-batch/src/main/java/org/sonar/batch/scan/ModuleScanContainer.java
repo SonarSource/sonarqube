@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.bootstrap.ExtensionMatcher;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -32,33 +30,21 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.batch.DefaultProjectClasspath;
-import org.sonar.batch.DefaultSensorContext;
-import org.sonar.batch.DefaultTimeMachine;
-import org.sonar.batch.ProfileProvider;
-import org.sonar.batch.ProjectTree;
-import org.sonar.batch.ResourceFilters;
-import org.sonar.batch.ViolationFilters;
+import org.sonar.batch.*;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.batch.issue.IssuableFactory;
-import org.sonar.batch.issue.ModuleIssues;
+import org.sonar.batch.issue.*;
 import org.sonar.batch.local.DryRunExporter;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
-import org.sonar.batch.scan.filesystem.DeprecatedFileSystemAdapter;
-import org.sonar.batch.scan.filesystem.ExclusionFilters;
-import org.sonar.batch.scan.filesystem.FileSystemLogger;
-import org.sonar.batch.scan.filesystem.LanguageFilters;
-import org.sonar.batch.scan.filesystem.ModuleFileSystemProvider;
-import org.sonar.batch.scan.source.SymbolPerspectiveBuilder;
+import org.sonar.batch.scan.filesystem.*;
 import org.sonar.core.component.ScanPerspectives;
-import org.sonar.batch.scan.source.HighlightableBuilder;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
@@ -79,53 +65,59 @@ public class ModuleScanContainer extends ComponentContainer {
   private void addCoreComponents() {
     ProjectDefinition moduleDefinition = getComponentByType(ProjectTree.class).getProjectDefinition(module);
     add(
-        moduleDefinition,
-        module.getConfiguration(),
-        module,
-        ModuleSettings.class);
+      moduleDefinition,
+      module.getConfiguration(),
+      module,
+      ModuleSettings.class);
 
     // hack to initialize commons-configuration before ExtensionProviders
     getComponentByType(ModuleSettings.class);
 
     add(
-        EventBus.class,
-        PhaseExecutor.class,
-        PhasesTimeProfiler.class,
-        UnsupportedProperties.class,
-        PhaseExecutor.getPhaseClasses(),
-        moduleDefinition.getContainerExtensions(),
+      EventBus.class,
+      PhaseExecutor.class,
+      PhasesTimeProfiler.class,
+      UnsupportedProperties.class,
+      PhaseExecutor.getPhaseClasses(),
+      moduleDefinition.getContainerExtensions(),
 
-        // TODO move outside project, but not possible yet because of dependency of project settings (cf plsql)
-        Languages.class,
+      // TODO move outside project, but not possible yet because of dependency of project settings (cf plsql)
+      Languages.class,
 
-        // file system
-        PathResolver.class,
-        FileExclusions.class,
-        LanguageFilters.class,
-        ExclusionFilters.class,
-        DefaultProjectClasspath.class,
-        new ModuleFileSystemProvider(),
-        DeprecatedFileSystemAdapter.class,
-        FileSystemLogger.class,
+      // file system
+      PathResolver.class,
+      FileExclusions.class,
+      LanguageFilters.class,
+      ExclusionFilters.class,
+      DefaultProjectClasspath.class,
+      new ModuleFileSystemProvider(),
+      DeprecatedFileSystemAdapter.class,
+      FileSystemLogger.class,
 
-        // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-        getComponentByType(ResourcePersister.class).getSnapshot(module),
+      // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
+      getComponentByType(ResourcePersister.class).getSnapshot(module),
 
-        TimeMachineConfiguration.class,
-        org.sonar.api.database.daos.MeasuresDao.class,
-        DefaultSensorContext.class,
-        BatchExtensionDictionnary.class,
-        DefaultTimeMachine.class,
-        ViolationFilters.class,
-        ResourceFilters.class,
-        DryRunExporter.class,
-        new ProfileProvider(),
+      TimeMachineConfiguration.class,
+      org.sonar.api.database.daos.MeasuresDao.class,
+      DefaultSensorContext.class,
+      BatchExtensionDictionnary.class,
+      DefaultTimeMachine.class,
+      ViolationFilters.class,
+      ResourceFilters.class,
+      DryRunExporter.class,
+      new ProfileProvider(),
 
-        ModuleIssues.class,
-        IssuableFactory.class,
+      // issues
+      ScanIssues.class,
+      IssuableFactory.class,
+      IssueCountersDecorator.class,
+      WeightedIssuesDecorator.class,
+      IssuesDensityDecorator.class,
+      InitialOpenIssuesSensor.class,
+      InitialOpenIssuesStack.class,
 
-        ScanPerspectives.class
-      );
+      ScanPerspectives.class
+    );
   }
 
   private void addExtensions() {
@@ -147,9 +139,9 @@ public class ModuleScanContainer extends ComponentContainer {
   protected void doAfterStart() {
     DefaultIndex index = getComponentByType(DefaultIndex.class);
     index.setCurrentProject(module,
-        getComponentByType(ResourceFilters.class),
-        getComponentByType(ViolationFilters.class),
-        getComponentByType(RulesProfile.class));
+      getComponentByType(ResourceFilters.class),
+      getComponentByType(ViolationFilters.class),
+      getComponentByType(RulesProfile.class));
 
     getComponentByType(PhaseExecutor.class).execute(module);
   }

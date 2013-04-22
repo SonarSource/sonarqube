@@ -17,21 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
+package org.sonar.core.issue.workflow;
 
-/**
- * @since 3.6
- */
-public interface IssueClient {
+import org.junit.Test;
+import org.sonar.api.issue.Issue;
+import org.sonar.core.issue.DefaultIssue;
 
-  Issues find(IssueQuery query);
+import static org.fest.assertions.Assertions.assertThat;
 
-  void change(String issueKey, IssueChange change);
+public class SetResolutionTest {
+  @Test
+  public void should_set_resolution() throws Exception {
+    DefaultIssue issue = new DefaultIssue();
+    SetResolution function = new SetResolution(Issue.RESOLUTION_FIXED);
+    function.execute(issue);
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+  }
 
-  void create(NewIssue issue);
-
-  /**
-   * Shortcut for {@code #change(issueKey, IssueChange.create().comment(comment)}
-   */
-  void comment(String issueKey, String comment);
+  @Test
+  public void resolution_should_not_be_empty() throws Exception {
+    try {
+      new SetResolution("");
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Resolution must be set");
+    }
+  }
 }

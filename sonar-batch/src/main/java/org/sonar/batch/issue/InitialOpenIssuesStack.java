@@ -23,7 +23,7 @@ package org.sonar.batch.issue;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.core.issue.IssueDto;
 
 import java.util.Collection;
@@ -31,9 +31,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class InitialOpenIssuesStack implements BatchExtension {
+public class InitialOpenIssuesStack implements BatchComponent {
 
-  private ListMultimap<Integer, IssueDto> issuesByResourceId;
+  private final ListMultimap<Integer, IssueDto> issuesByResourceId;
 
   private Date loadedDate;
 
@@ -41,14 +41,14 @@ public class InitialOpenIssuesStack implements BatchExtension {
     issuesByResourceId = ArrayListMultimap.create();
   }
 
-  public void setIssues(List<IssueDto> issues, Date loadedDate){
+  public void setIssues(List<IssueDto> issues, Date loadedDate) {
     this.loadedDate = loadedDate;
     for (IssueDto issueDto : issues) {
       issuesByResourceId.put(issueDto.getResourceId(), issueDto);
     }
   }
 
-  public List<IssueDto> selectAndRemove(final Integer resourceId){
+  public List<IssueDto> selectAndRemove(final Integer resourceId) {
     List<IssueDto> foundIssuesDto = issuesByResourceId.get(resourceId);
     if (!foundIssuesDto.isEmpty()) {
       List<IssueDto> issuesDto = ImmutableList.copyOf(foundIssuesDto);
@@ -59,7 +59,7 @@ public class InitialOpenIssuesStack implements BatchExtension {
     }
   }
 
-  public Collection<IssueDto> getAllIssues(){
+  public Collection<IssueDto> getAllIssues() {
     return issuesByResourceId.values();
   }
 

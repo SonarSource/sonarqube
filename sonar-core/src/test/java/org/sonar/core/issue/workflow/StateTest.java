@@ -17,38 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
+package org.sonar.core.issue.workflow;
 
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.fest.assertions.Fail.fail;
 
-public class IssueChangeTest {
+public class StateTest {
+
+  Transition t1 = Transition.builder("close").from("OPEN").to("CLOSED").build();
+
   @Test
-  public void should_create_empty_change() {
-    IssueChange change = IssueChange.create();
-    assertThat(change.urlParams()).isEmpty();
+  public void key_should_be_set() throws Exception {
+    try {
+      new State("", new Transition[0]);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("State key must be set");
+    }
   }
 
   @Test
-  public void should_create_change() {
-    IssueChange change = IssueChange.create()
-      .comment("this is a comment")
-      .assignee("lancelot")
-      .attribute("JIRA", "FOO-1234")
-      .attribute("LINK", null)
-      .cost(4.2)
-      .transition("resolve")
-      .severity("BLOCKER");
-    assertThat(change.urlParams()).hasSize(7).includes(
-      entry("comment", "this is a comment"),
-      entry("newAssignee", "lancelot"),
-      entry("newAttr[JIRA]", "FOO-1234"),
-      entry("newAttr[LINK]", ""),
-      entry("newCost", 4.2),
-      entry("transition", "resolve"),
-      entry("newSeverity", "BLOCKER")
-    );
+  public void key_should_be_upper_case() throws Exception {
+    try {
+      new State("close", new Transition[0]);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("State key must be upper-case");
+    }
+  }
+
+  @Test
+  public void no_duplicated_out_transitions() throws Exception {
+    try {
+      new State("CLOSE", new Transition[]{t1, t1});
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Transition 'close' is declared several times from the originating state 'CLOSE'");
+    }
   }
 }

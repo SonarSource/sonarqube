@@ -40,6 +40,7 @@ import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.ServerIssueFinder;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterExecutor;
@@ -235,6 +236,9 @@ public final class Platform {
     servicesContainer.addSingleton(DryRunDatabaseFactory.class);
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
+
+    // issues
+    servicesContainer.addSingleton(IssueWorkflow.class);
     servicesContainer.addSingleton(ServerIssueChanges.class);
     servicesContainer.addSingleton(ServerIssueFinder.class);
     servicesContainer.addSingleton(DefaultJRubyIssues.class);

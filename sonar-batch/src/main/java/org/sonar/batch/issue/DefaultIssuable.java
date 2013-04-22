@@ -31,22 +31,22 @@ import java.util.Collection;
  */
 public class DefaultIssuable implements Issuable {
 
-  private final ModuleIssues moduleIssues;
+  private final ScanIssues scanIssues;
   private final Component component;
 
-  DefaultIssuable(Component component, ModuleIssues moduleIssues) {
+  DefaultIssuable(Component component, ScanIssues scanIssues) {
     this.component = component;
-    this.moduleIssues = moduleIssues;
+    this.scanIssues = scanIssues;
   }
 
   @Override
   public IssueBuilder newIssue() {
-    return new DefaultIssueBuilder(moduleIssues, component.key());
+    return new DefaultIssueBuilder(scanIssues, component.key());
   }
 
   @Override
   public Collection<Issue> issues() {
-    return moduleIssues.issues(component.key());
+    return scanIssues.issues(component.key());
   }
 
   @Override

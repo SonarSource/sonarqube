@@ -51,7 +51,7 @@ public class DefaultIssueClient implements IssueClient {
   }
 
   @Override
-  public void apply(String issueKey, IssueChange change) {
+  public void change(String issueKey, IssueChange change) {
     if (!change.urlParams().isEmpty()) {
       Map<String, Object> queryParams = new LinkedHashMap<String, Object>(change.urlParams());
       queryParams.put("key", issueKey);
@@ -72,7 +72,7 @@ public class DefaultIssueClient implements IssueClient {
 
   @Override
   public void comment(String issueKey, String comment) {
-    apply(issueKey, IssueChange.create().comment(comment));
+    change(issueKey, IssueChange.create().comment(comment));
   }
 
 }

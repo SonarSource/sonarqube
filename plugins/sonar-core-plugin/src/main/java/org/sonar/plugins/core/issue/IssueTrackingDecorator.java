@@ -21,7 +21,7 @@ package org.sonar.plugins.core.issue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
@@ -33,29 +33,27 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.issue.InitialOpenIssuesStack;
-import org.sonar.batch.issue.ModuleIssues;
+import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;
 
 import javax.annotation.Nullable;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 @DependedUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
-public class IssuesWorkflowDecorator implements Decorator {
+public class IssueTrackingDecorator implements Decorator {
 
-  private final ModuleIssues moduleIssues;
+  private final ScanIssues scanIssues;
   private final InitialOpenIssuesStack initialOpenIssuesStack;
-  private final IssueTracking issueTracking;
+  private final IssueTracking tracking;
 
-  public IssuesWorkflowDecorator(ModuleIssues moduleIssues, InitialOpenIssuesStack initialOpenIssuesStack, IssueTracking issueTracking) {
-    this.moduleIssues = moduleIssues;
+  public IssueTrackingDecorator(ScanIssues scanIssues, InitialOpenIssuesStack initialOpenIssuesStack, IssueTracking tracking) {
+    this.scanIssues = scanIssues;
     this.initialOpenIssuesStack = initialOpenIssuesStack;
-    this.issueTracking = issueTracking;
+    this.tracking = tracking;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -64,14 +62,12 @@ public class IssuesWorkflowDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (isComponentSupported(resource)) {
-      Collection<Issue> newIssues = moduleIssues.issues(resource.getEffectiveKey());
+      Collection<DefaultIssue> newIssues = new ArrayList(scanIssues.issues(resource.getEffectiveKey()));
       Collection<IssueDto> openIssues = initialOpenIssuesStack.selectAndRemove(resource.getId());
+      tracking.track(resource, openIssues, newIssues);
+      updateIssues(newIssues);
 
-      Collection<DefaultIssue> newDefaultIssues = toDefaultIssues(newIssues);
-      issueTracking.track(resource, openIssues, newDefaultIssues);
-      updateIssues(newDefaultIssues);
-
-      Set<String> issueKeys = Sets.newHashSet(Collections2.transform(newIssues, new IssueToKeyfunction()));
+      Set<String> issueKeys = Sets.newHashSet(Collections2.transform(newIssues, new IssueToKeyFunction()));
       for (IssueDto openIssue : openIssues) {
         addManualIssuesAndCloseResolvedOnes(openIssue);
         closeResolvedStandardIssues(openIssue, issueKeys);
@@ -87,7 +83,7 @@ public class IssuesWorkflowDecorator implements Decorator {
 
   private void updateIssues(Collection<DefaultIssue> newIssues) {
     for (DefaultIssue issue : newIssues) {
-      moduleIssues.addOrUpdate(issue);
+      scanIssues.addOrUpdate(issue);
     }
   }
 
@@ -97,7 +93,7 @@ public class IssuesWorkflowDecorator implements Decorator {
       if (Issue.STATUS_RESOLVED.equals(issue.status())) {
         close(issue);
       }
-      moduleIssues.addOrUpdate(issue);
+      scanIssues.addOrUpdate(issue);
     }
   }
 
@@ -113,7 +109,7 @@ public class IssuesWorkflowDecorator implements Decorator {
       issue.setResolution(openIssue.getResolution());
       issue.setStatus(openIssue.getStatus());
       issue.setUpdatedAt(getLoadedDate());
-      moduleIssues.addOrUpdate(issue);
+      scanIssues.addOrUpdate(issue);
     }
   }
 
@@ -142,7 +138,7 @@ public class IssuesWorkflowDecorator implements Decorator {
   private void closeAndSave(IssueDto openIssue) {
     DefaultIssue issue = openIssue.toDefaultIssue();
     close(issue);
-    moduleIssues.addOrUpdate(issue);
+    scanIssues.addOrUpdate(issue);
   }
 
   private void reopenAndSave(IssueDto openIssue) {
@@ -150,30 +146,20 @@ public class IssuesWorkflowDecorator implements Decorator {
     issue.setStatus(Issue.STATUS_REOPENED);
     issue.setResolution(null);
     issue.setUpdatedAt(getLoadedDate());
-    moduleIssues.addOrUpdate(issue);
-  }
-
-
-  private Collection<DefaultIssue> toDefaultIssues(Collection<Issue> issues) {
-    return newArrayList(Iterables.transform(issues, new Function<Issue, DefaultIssue>() {
-      @Override
-      public DefaultIssue apply(Issue issue) {
-        return (DefaultIssue) issue;
-      }
-    }));
+    scanIssues.addOrUpdate(issue);
   }
 
   private boolean isComponentSupported(Resource resource) {
     return Scopes.isHigherThanOrEquals(resource.getScope(), Scopes.FILE);
   }
 
-  private static final class IssueToKeyfunction implements Function<Issue, String> {
+  private static final class IssueToKeyFunction implements Function<Issue, String> {
     public String apply(@Nullable Issue issue) {
       return (issue != null ? issue.key() : null);
     }
   }
 
-  private Date getLoadedDate(){
+  private Date getLoadedDate() {
     return initialOpenIssuesStack.getLoadedDate();
   }
 }

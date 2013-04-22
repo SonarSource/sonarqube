@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.batch.issue;
 
 import org.sonar.api.batch.Sensor;
@@ -29,6 +28,9 @@ import org.sonar.core.issue.IssueDto;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Load all the issues referenced during the previous scan.
+ */
 public class InitialOpenIssuesSensor implements Sensor {
 
   private final InitialOpenIssuesStack initialOpenIssuesStack;
@@ -47,8 +49,8 @@ public class InitialOpenIssuesSensor implements Sensor {
   @Override
   public void analyse(Project project, SensorContext context) {
     Date loadingDate = new Date();
-    List<IssueDto> issuesDto = issueDao.selectOpenIssues(project.getId());
-    initialOpenIssuesStack.setIssues(issuesDto, loadingDate);
+    List<IssueDto> dtos = issueDao.selectOpenIssues(project.getId());
+    initialOpenIssuesStack.setIssues(dtos, loadingDate);
   }
 
 }

@@ -33,11 +33,11 @@ import static org.mockito.Mockito.mock;
 
 public class IssuableFactoryTest {
 
-  ModuleIssues moduleIssues = mock(ModuleIssues.class);
+  ScanIssues issueFactory = mock(ScanIssues.class);
 
   @Test
   public void file_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(moduleIssues);
+    IssuableFactory factory = new IssuableFactory(issueFactory);
     Component component = new ResourceComponent(new File("foo/bar.c"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
@@ -48,7 +48,7 @@ public class IssuableFactoryTest {
 
   @Test
   public void project_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(moduleIssues);
+    IssuableFactory factory = new IssuableFactory(issueFactory);
     Component component = new ResourceComponent(new Project("Foo"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
@@ -59,7 +59,7 @@ public class IssuableFactoryTest {
 
   @Test
   public void java_file_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(moduleIssues);
+    IssuableFactory factory = new IssuableFactory(issueFactory);
     Component component = new ResourceComponent(new JavaFile("bar.Foo"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
@@ -70,7 +70,7 @@ public class IssuableFactoryTest {
 
   @Test
   public void java_class_should_not_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(moduleIssues);
+    IssuableFactory factory = new IssuableFactory(issueFactory);
     Component component = new ResourceComponent(JavaClass.create("bar", "Foo"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 

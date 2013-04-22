@@ -51,7 +51,7 @@ public class IssueChange {
    * Add a comment
    */
   public IssueChange comment(String s) {
-    params.put("newComment", s);
+    params.put("comment", s);
     return this;
   }
 
@@ -60,8 +60,13 @@ public class IssueChange {
     return this;
   }
 
-  public IssueChange resolution(String s) {
-    params.put("newResolution", s);
+  public IssueChange line(Integer i) {
+    params.put("newLine", i);
+    return this;
+  }
+
+  public IssueChange transition(String s) {
+    params.put("transition", s);
     return this;
   }
 
@@ -71,7 +76,7 @@ public class IssueChange {
   }
 
   public IssueChange description(String s) {
-    params.put("newDescription", s);
+    params.put("newDesc", s);
     return this;
   }
 

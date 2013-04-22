@@ -27,6 +27,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueChange;
 import org.sonar.core.issue.DefaultIssue;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +90,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
     return machine.state(issue.status()).outTransitions(issue);
   }
 
-  public boolean apply(DefaultIssue issue, IssueChange change) {
+  public boolean change(DefaultIssue issue, IssueChange change) {
     if (change.hasChanges()) {
       if (change.description() != null) {
         issue.setDescription(change.description());
@@ -118,13 +119,18 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
       if (change.transition() != null) {
         move(issue, change.transition());
       }
+      issue.setUpdatedAt(new Date());
       return true;
     }
     return false;
   }
 
-  public void move(DefaultIssue issue, String transition) {
+  private void move(DefaultIssue issue, String transition) {
     State state = machine.state(issue.status());
     state.move(issue, transition);
+  }
+
+  StateMachine machine() {
+    return machine;
   }
 }

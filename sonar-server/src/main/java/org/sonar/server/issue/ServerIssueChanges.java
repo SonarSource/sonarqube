@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueChange;
 import org.sonar.api.web.UserRole;
@@ -26,6 +27,7 @@ import org.sonar.core.issue.UpdateIssueFields;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDao;
 import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.user.AuthorizationDao;
 
 import javax.annotation.Nullable;
@@ -34,15 +36,18 @@ import java.util.Arrays;
 /**
  * @since 3.6
  */
-public class ServerIssueChanges {
+public class ServerIssueChanges implements ServerComponent {
 
+  private final IssueWorkflow workflow;
   private final IssueDao issueDao;
   private final AuthorizationDao authorizationDao;
 
-  public ServerIssueChanges(IssueDao issueDao, AuthorizationDao authorizationDao) {
+  public ServerIssueChanges(IssueWorkflow workflow, IssueDao issueDao, AuthorizationDao authorizationDao) {
+    this.workflow = workflow;
     this.issueDao = issueDao;
     this.authorizationDao = authorizationDao;
   }
+
 
   public Issue change(String issueKey, IssueChange change, @Nullable Integer userId) {
     if (userId == null) {
@@ -59,7 +64,7 @@ public class ServerIssueChanges {
     }
     DefaultIssue issue = dto.toDefaultIssue();
     if (change.hasChanges()) {
-      UpdateIssueFields.apply(issue, change);
+      workflow.change(issue, change);
       issueDao.update(Arrays.asList(IssueDto.toDto(issue, dto.getResourceId(), dto.getRuleId())));
     }
     return issue;

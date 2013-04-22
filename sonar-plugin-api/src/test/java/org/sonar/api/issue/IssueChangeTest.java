@@ -109,9 +109,9 @@ public class IssueChangeTest {
   @Test
   public void should_add_comment() {
     IssueChange change = IssueChange.create();
-    change.setComment("foo").setCommentLogin("perceval");
+    change.setComment("foo").setLogin("perceval");
     assertThat(change.comment()).isEqualTo("foo");
-    assertThat(change.commentLogin()).isEqualTo("perceval");
+    assertThat(change.login()).isEqualTo("perceval");
     assertThat(change.hasChanges()).isTrue();
   }
 

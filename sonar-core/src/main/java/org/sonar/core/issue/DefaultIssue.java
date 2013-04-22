@@ -40,7 +40,7 @@ import java.util.Set;
 
 public class DefaultIssue implements Issue, Serializable {
 
-  private static final Set<String> RESOLUTIONS = ImmutableSet.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED);
+  private static final Set<String> RESOLUTIONS = ImmutableSet.of(RESOLUTION_OPEN, RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED);
   private static final Set<String> STATUSES = ImmutableSet.of(STATUS_OPEN, STATUS_CLOSED, STATUS_REOPENED, STATUS_RESOLVED);
 
   private String key;

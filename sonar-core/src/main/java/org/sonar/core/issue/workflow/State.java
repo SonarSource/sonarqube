@@ -47,7 +47,8 @@ public class State {
     Set<String> keys = Sets.newHashSet();
     for (Transition transition : transitions) {
       if (keys.contains(transition.key())) {
-        throw new IllegalArgumentException("Transition " + transition.key() + " is declared several times from the originating state " + stateKey);
+        throw new IllegalArgumentException("Transition '" + transition.key() +
+          "' is declared several times from the originating state '" + stateKey + "'");
       }
       keys.add(transition.key());
     }

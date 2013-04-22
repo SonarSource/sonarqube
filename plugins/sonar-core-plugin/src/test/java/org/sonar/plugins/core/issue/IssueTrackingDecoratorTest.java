@@ -28,7 +28,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.issue.InitialOpenIssuesStack;
-import org.sonar.batch.issue.ModuleIssues;
+import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -45,18 +45,18 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
+public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
-  IssuesWorkflowDecorator decorator;
-  ModuleIssues moduleIssues = mock(ModuleIssues.class);
+  IssueTrackingDecorator decorator;
+  ScanIssues scanIssues = mock(ScanIssues.class);
   InitialOpenIssuesStack initialOpenIssuesStack = mock(InitialOpenIssuesStack.class);
-  IssueTracking issueTracking = mock(IssueTracking.class);
+  IssueTracking tracking = mock(IssueTracking.class);
   Date loadedDate = new Date();
 
   @Before
   public void init() {
     when(initialOpenIssuesStack.getLoadedDate()).thenReturn(loadedDate);
-    decorator = new IssuesWorkflowDecorator(moduleIssues, initialOpenIssuesStack, issueTracking);
+    decorator = new IssueTrackingDecorator(scanIssues, initialOpenIssuesStack, tracking);
   }
 
   @Test
@@ -67,7 +67,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_execute_on_project_not_if_past_inspection() {
+  public void should_execute_on_project_not_if_past_scan() {
     Project project = mock(Project.class);
     when(project.isLatestAnalysis()).thenReturn(false);
     assertFalse(decorator.shouldExecuteOnProject(project));
@@ -75,14 +75,14 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void should_close_resolved_issue() {
-    when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
+    when(scanIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
         new IssueDto().setKey("100").setRuleId(10).setRuleKey_unit_test_only("squid", "AvoidCycle")));
 
     decorator.decorate(mock(Resource.class), null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(moduleIssues).addOrUpdate(argument.capture());
+    verify(scanIssues).addOrUpdate(argument.capture());
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(argument.getValue().updatedAt()).isEqualTo(loadedDate);
     assertThat(argument.getValue().closedAt()).isEqualTo(loadedDate);
@@ -90,14 +90,14 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void should_close_resolved_manual_issue() {
-    when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
+    when(scanIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
         new IssueDto().setKey("100").setRuleId(1).setManualIssue(true).setStatus(Issue.STATUS_RESOLVED).setRuleKey_unit_test_only("squid", "AvoidCycle")));
 
     decorator.decorate(mock(Resource.class), null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(moduleIssues).addOrUpdate(argument.capture());
+    verify(scanIssues).addOrUpdate(argument.capture());
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(argument.getValue().updatedAt()).isEqualTo(loadedDate);
     assertThat(argument.getValue().closedAt()).isEqualTo(loadedDate);
@@ -105,8 +105,8 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void should_reopen_unresolved_issue() {
-    when(moduleIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
-        new DefaultIssue().setKey("100")));
+    when(scanIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
+      new DefaultIssue().setKey("100")));
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
         new IssueDto().setKey("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FIXED)
           .setRuleKey_unit_test_only("squid", "AvoidCycle")));
@@ -114,7 +114,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     decorator.decorate(mock(Resource.class), null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(moduleIssues, times(2)).addOrUpdate(argument.capture());
+    verify(scanIssues, times(2)).addOrUpdate(argument.capture());
 
     List<DefaultIssue> capturedDefaultIssues = argument.getAllValues();
     // First call is done when updating issues after calling issue tracking and we don't care
@@ -126,7 +126,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void should_keep_false_positive_issue() {
-    when(moduleIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
+    when(scanIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
       new DefaultIssue().setKey("100")));
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
       new IssueDto().setKey("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
@@ -135,7 +135,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     decorator.decorate(mock(Resource.class), null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(moduleIssues, times(2)).addOrUpdate(argument.capture());
+    verify(scanIssues, times(2)).addOrUpdate(argument.capture());
 
     List<DefaultIssue> capturedDefaultIssues = argument.getAllValues();
     // First call is done when updating issues after calling issue tracking and we don't care
@@ -147,7 +147,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void should_close_remaining_open_issue_on_root_project() {
-    when(moduleIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
+    when(scanIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
     when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(Collections.<IssueDto>emptyList());
 
     when(initialOpenIssuesStack.getAllIssues()).thenReturn(newArrayList(new IssueDto().setKey("100").setRuleId(1).setRuleKey_unit_test_only("squid", "AvoidCycle")));
@@ -157,7 +157,7 @@ public class IssuesWorkflowDecoratorTest extends AbstractDaoTestCase {
     decorator.decorate(resource, null);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(moduleIssues).addOrUpdate(argument.capture());
+    verify(scanIssues).addOrUpdate(argument.capture());
     assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(argument.getValue().updatedAt()).isEqualTo(loadedDate);
     assertThat(argument.getValue().closedAt()).isEqualTo(loadedDate);

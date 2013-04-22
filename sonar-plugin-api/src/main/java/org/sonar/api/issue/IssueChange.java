@@ -31,7 +31,7 @@ import java.util.Map;
 public class IssueChange {
   private String severity = null;
   private String comment = null;
-  private String commentLogin = null;
+  private String login = null;
   private Boolean manualSeverity = null;
   private String description = null;
   private boolean lineChanged = false;
@@ -66,8 +66,8 @@ public class IssueChange {
     return this;
   }
 
-  public IssueChange setCommentLogin(String s) {
-    this.commentLogin = s;
+  public IssueChange setLogin(String s) {
+    this.login = s;
     return this;
   }
 
@@ -125,8 +125,8 @@ public class IssueChange {
     return comment;
   }
 
-  public String commentLogin() {
-    return commentLogin;
+  public String login() {
+    return login;
   }
 
   public Boolean manualSeverity() {

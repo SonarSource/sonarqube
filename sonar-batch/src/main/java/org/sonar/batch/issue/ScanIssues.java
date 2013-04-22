@@ -19,21 +19,32 @@
  */
 package org.sonar.batch.issue;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueChange;
 import org.sonar.api.issue.IssueChanges;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Project;
+import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.OnIssueCreation;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
-import java.util.Date;
+import java.util.Collection;
+import java.util.UUID;
 
-public class ScanIssueChanges implements IssueChanges {
+public class ScanIssues implements IssueChanges, OnIssueCreation {
 
+  private final RulesProfile qProfile;
   private final IssueCache cache;
+  private final Project project;
   private final IssueWorkflow workflow;
 
-  public ScanIssueChanges(IssueCache cache, IssueWorkflow workflow) {
+  public ScanIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueWorkflow workflow) {
+    this.qProfile = qProfile;
     this.cache = cache;
+    this.project = project;
     this.workflow = workflow;
   }
 
@@ -43,13 +54,10 @@ public class ScanIssueChanges implements IssueChanges {
       return issue;
     }
     DefaultIssue reloaded = reload(issue);
-    workflow.apply(reloaded, change);
-    reloaded.setUpdatedAt(new Date());
+    workflow.change(reloaded, change);
     cache.addOrUpdate(reloaded);
-    // TODO keep history of changes
     return reloaded;
   }
-
 
   private DefaultIssue reload(Issue issue) {
     DefaultIssue reloaded = (DefaultIssue) cache.componentIssue(issue.componentKey(), issue.key());
@@ -57,5 +65,34 @@ public class ScanIssueChanges implements IssueChanges {
       throw new IllegalStateException("Bad API usage. Unregistered issues can't be changed.");
     }
     return reloaded;
+  }
+
+  public Collection<Issue> issues(String componentKey) {
+    return cache.componentIssues(componentKey);
+  }
+
+  public ScanIssues addOrUpdate(DefaultIssue issue) {
+    Preconditions.checkState(!Strings.isNullOrEmpty(issue.key()), "Missing issue key");
+    cache.addOrUpdate(issue);
+    return this;
+  }
+
+  @Override
+  public void onIssueCreation(DefaultIssue issue) {
+    ActiveRule activeRule = qProfile.getActiveRule(issue.ruleKey().repository(), issue.ruleKey().rule());
+    if (activeRule == null || activeRule.getRule() == null) {
+      // rule does not exist or is not enabled -> ignore the issue
+      return;
+    }
+    String key = UUID.randomUUID().toString();
+    Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
+    issue.setKey(key);
+    issue.setCreatedAt(project.getAnalysisDate());
+    issue.setResolution(Issue.RESOLUTION_OPEN);
+    issue.setStatus(Issue.STATUS_OPEN);
+    if (issue.severity() == null) {
+      issue.setSeverity(activeRule.getSeverity().name());
+    }
+    cache.addOrUpdate(issue);
   }
 }

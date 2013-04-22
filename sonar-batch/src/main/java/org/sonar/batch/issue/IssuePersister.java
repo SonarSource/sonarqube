@@ -34,6 +34,9 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * Executed at the end of project scan, when all the modules are completed.
+ */
 public class IssuePersister implements ScanPersister {
 
   private final IssueDao dao;

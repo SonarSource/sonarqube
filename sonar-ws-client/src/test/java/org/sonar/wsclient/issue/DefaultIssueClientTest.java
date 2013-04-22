@@ -64,9 +64,9 @@ public class DefaultIssueClientTest {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.apply("ABCDE", IssueChange.create().severity("BLOCKER").comment("because!"));
+    client.change("ABCDE", IssueChange.create().severity("BLOCKER").comment("because!"));
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change?newSeverity=BLOCKER&newComment=because!&key=ABCDE");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change?newSeverity=BLOCKER&comment=because!&key=ABCDE");
   }
 
   @Test
@@ -74,7 +74,7 @@ public class DefaultIssueClientTest {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.apply("ABCDE", IssueChange.create());
+    client.change("ABCDE", IssueChange.create());
 
     assertThat(httpServer.requestedPath()).isNull();
   }
