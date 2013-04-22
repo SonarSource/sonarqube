@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.Issue;
@@ -122,11 +123,7 @@ public class DefaultIssue implements Issue, Serializable {
   }
 
   public DefaultIssue setDescription(@Nullable String s) {
-    if (s != null) {
-      Preconditions.checkArgument(s.length() < Issue.DESCRIPTION_MAX_SIZE,
-        "Description must not be longer than " + Issue.DESCRIPTION_MAX_SIZE + " characters (got " + s.length() + ")");
-    }
-    this.description = s;
+    this.description = StringUtils.abbreviate(s, DESCRIPTION_MAX_SIZE);
     return this;
   }
 

@@ -71,12 +71,8 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void size_of_description_should_be_limited() {
-    try {
-      issue.setDescription(StringUtils.repeat("a", 5000));
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Description must not be longer than 4000 characters (got 5000)");
-    }
+  public void size_of_description_should_be_abbreviated_if_too_long() {
+    issue.setDescription(StringUtils.repeat("a", 5000));
+    assertThat(issue.description()).hasSize(4000);
   }
 }
