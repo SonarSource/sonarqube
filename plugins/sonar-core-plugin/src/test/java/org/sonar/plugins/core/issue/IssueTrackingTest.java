@@ -405,17 +405,4 @@ public class IssueTrackingTest {
     return referenceIssue;
   }
 
-  public void test(){
-    IssueDto referenceIssue1 = newReferenceIssue("Avoid unused local variables such as 'j'.", 6, 1, "63c11570fc0a76434156be5f8138fa03");
-    IssueDto referenceIssue2 = newReferenceIssue("Avoid unused private methods such as 'myMethod()'.", 13, 2, "ef23288705d1ef1e512448ace287586e");
-    IssueDto referenceIssue3 = newReferenceIssue("Method 'avoidUtilityClass' is not designed for extension - needs to be abstract, final or empty.", 9, 3, "ed5cdd046fda82727d6fedd1d8e3a310");
-
-    DefaultIssue newIssue1 = newDefaultIssue("Avoid unused local variables such as 'msg'.", 18, RuleKey.of("squid", "AvoidCycle"), "a24254126be2bf1a9b9a8db43f633733");
-    DefaultIssue newIssue2 = newDefaultIssue("Avoid unused private methods such as 'myMethod()'.", 13, RuleKey.of("squid", "NullDeref"), "ef23288705d1ef1e512448ace287586e");
-    DefaultIssue newIssue3 = newDefaultIssue("Method 'avoidUtilityClass' is not designed for extension - needs to be abstract, final or empty.", 9, RuleKey.of("pmd", "UnusedLocalVariable"), "ed5cdd046fda82727d6fedd1d8e3a310");
-    DefaultIssue newIssue4 = newDefaultIssue("Method 'newViolation' is not designed for extension - needs to be abstract, final or empty.", 17, RuleKey.of("pmd", "UnusedLocalVariable"), "7d58ac9040c27e4ca2f11a0269e251e2");
-    DefaultIssue newIssue5 = newDefaultIssue("Avoid unused local variables such as 'j'.", 6, RuleKey.of("squid", "AvoidCycle"), "4432a2675ec3e1620daefe38386b51ef");
-
-  }
-
 }
