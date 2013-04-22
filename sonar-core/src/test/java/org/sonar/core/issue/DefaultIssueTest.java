@@ -1,6 +1,6 @@
 /*
  * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2012 SonarSource
+ * Copyright (C) 2008-2013 SonarSource
  * mailto:contact AT sonarsource DOT com
  *
  * SonarQube is free software; you can redistribute it and/or
@@ -13,9 +13,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Sonar; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.sonar.core.issue;
 
@@ -71,8 +71,20 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void size_of_description_should_be_abbreviated_if_too_long() {
+  public void description_should_be_abbreviated_if_too_long() {
     issue.setDescription(StringUtils.repeat("a", 5000));
     assertThat(issue.description()).hasSize(4000);
+  }
+
+  @Test
+  public void description_should_be_trimmed() {
+    issue.setDescription("    foo     ");
+    assertThat(issue.description()).isEqualTo("foo");
+  }
+
+  @Test
+  public void description_could_be_null() {
+    issue.setDescription(null);
+    assertThat(issue.description()).isNull();
   }
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2012 SonarSource
+ * Copyright (C) 2008-2013 SonarSource
  * mailto:contact AT sonarsource DOT com
  *
  * SonarQube is free software; you can redistribute it and/or
@@ -13,9 +13,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Sonar; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.sonar.wsclient.unmarshallers;
 
@@ -35,7 +35,7 @@ public class SourceUnmarshallerTest extends UnmarshallerTestCase {
 
     source = new SourceUnmarshaller().toModel(loadFile("/sources/source.json"));
     assertThat(source.getLines().size(), is(236));
-    assertThat(source.getLine(3), is(" * Copyright (C) 2008-2012 SonarSource"));
+    assertThat(source.getLine(3), is(" * Copyright (C) 2008-2013 SonarSource"));
   }
 
   @Test
@@ -43,7 +43,7 @@ public class SourceUnmarshallerTest extends UnmarshallerTestCase {
     Source source = new SourceUnmarshaller().toModel(loadFile("/sources/from_line_to_line.json"));
     assertThat(source.getLines().size(), is(15));
     assertThat(source.getLine(1), nullValue());
-    assertThat(source.getLine(3), is(" * Copyright (C) 2008-2012 SonarSource"));
+    assertThat(source.getLine(3), is(" * Copyright (C) 2008-2013 SonarSource"));
   }
 
 }

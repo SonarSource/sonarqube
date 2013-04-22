@@ -1,6 +1,6 @@
 @echo off
 
-rem Copyright (C) 2008-2012 SonarSource
+rem Copyright (C) 2008-2013 SonarSource
 rem mailto:contact AT sonarsource DOT com
 rem 
 rem SonarQube is free software; you can redistribute it and/or
@@ -13,9 +13,9 @@ rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 rem Lesser General Public License for more details.
 rem
-rem You should have received a copy of the GNU Lesser General Public
-rem License along with Sonar; if not, write to the Free Software
-rem Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+rem You should have received a copy of the GNU Lesser General Public License
+rem along with this program; if not, write to the Free Software Foundation,
+rem Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 rem
 rem Use this DOS script to create a Sonar WAR archive.
 
