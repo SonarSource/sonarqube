@@ -787,4 +787,56 @@ module ApplicationHelper
     html
   end
 
+
+  def prepare_colspans(display_violation_form, scm_available, display_coverage)
+
+    colspan=2
+    gray_colspan=1
+    white_colspan=0
+    if display_violation_form
+      colspan+=1
+      gray_colspan+=1
+    end
+    if scm_available
+      colspan+=1
+      gray_colspan+=1
+    end
+    if display_coverage
+      colspan+=2
+      white_colspan+=2
+    end
+
+    {:base => colspan, :gray => gray_colspan, :white => white_colspan}
+  end
+
+
+  def compute_statuses(line, display_coverage, display_violations)
+
+    status=hits_status=conditions_status=''
+
+    if line.highlighted?
+      if display_coverage && line.hits
+        hits_status=(line.hits>0 ? 'ok' : 'ko')
+        if line.conditions && line.conditions>0 && line.covered_conditions
+          if line.covered_conditions==0
+            status='ko'
+            conditions_status='ko'
+          elsif line.covered_conditions==line.conditions
+            status=''
+            conditions_status='ok'
+          else
+            conditions_status='warn'
+            status='warn'
+          end
+        elsif line.hits
+          status=(line.hits>0 ? '' : 'ko')
+        end
+      elsif display_violations && line.violations?
+        status="ko"
+      end
+    end
+
+    {:base => status, :hits => hits_status, :conditions => conditions_status}
+  end
+
 end

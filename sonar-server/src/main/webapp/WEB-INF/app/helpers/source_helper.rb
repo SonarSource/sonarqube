@@ -59,8 +59,22 @@ module SourceHelper
     end
 
     panel.filter_min_date(options[:min_date]) if options[:min_date]
-    
-    render :partial => 'source/source', :locals => {:panel => panel}
+
+    unless panel.empty?
+
+      render :partial => "shared/source_display", :locals => { :display_manual_violation_form => false, \
+                                                               :scm_available => options[:display_scm], \
+                                                               :display_coverage => options[:display_coverage], \
+                                                               :lines => panel.html_lines, \
+                                                               :expanded => options[:expand], \
+                                                               :display_violations => options[:display_violations], \
+                                                               :resource => nil, \
+                                                               :snapshot => nil, \
+                                                               :review_screens_by_vid => false, \
+                                                               :filtered => panel.filtered }
+
+    end
+
   end
 
   def load_distribution(snapshot, metric_key)
@@ -170,6 +184,11 @@ module SourceHelper
             @covered_conditions=1
         end
       end
+    end
+
+    def highlighted?
+      # highlighted if the @highlighted has not been set or has been set to true
+      !hidden? && @highlighted!=false
     end
   end
 end

@@ -1,0 +1,19 @@
+<% if line.highlighted? %>
+  <td class="ind <%= statuses[:hits] -%>" title="<%= message('coverage_viewer.line_covered_by_x_tests', {:params => line.covered_lines.to_s}) if line.covered_lines > 0 -%>">
+      <% if line.covered_lines > 0 %>
+        <a href="<%= ApplicationController.root_context -%>/test/testable/<%= h resource_key -%>?line=<%= index+1 -%>"
+           class="sources-testable-link-<%= index+1 -%>" onclick="openAccordionItem(this.href, this); return false;"><%= line.covered_lines -%></a>
+      <% end %>
+  </td>
+  <td class="ind <%= statuses[:conditions] -%>">
+      <% if line.deprecated_conditions_label -%>
+        <%= line.deprecated_conditions_label -%>
+      <% elsif line.conditions && line.conditions>0 -%>
+                    <span title="<%= h message('coverage_viewer.x_covered_branches', {:params => line.covered_conditions.to_s}) -%>"><%= line.covered_conditions -%>
+                        /<%= line.conditions -%></span>
+      <% end %>
+  </td>
+<% else %>
+  <td class="ind"></td>
+  <td class="ind"></td>
+<% end %>

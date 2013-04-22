@@ -1,0 +1,72 @@
+
+<%= current_display_id = "sources_#{rand(100)}" %>
+
+<table id="<%= current_display_id %>" class="sources2 code" cellpadding="0" cellspacing="0" border="0">
+
+    <script>
+      $j("#<%= current_display_id %>").on("click", "span[class|='symbol']", {id : "<%= current_display_id.to_s() %>"}, highlight_usages);
+    </script>
+
+    <%
+       colspans = prepare_colspans(display_manual_violation_form, scm_available, display_coverage)
+       first_section = true
+    %>
+
+    <%
+       lines.each_with_index do |line, index|
+         if line.hidden? && !expanded
+           previous_hidden = true
+           next
+         end
+         if previous_hidden && !first_section
+           current_revision = nil
+    %>
+        <%= render :partial => "shared/source_new_section", :locals => {:colspan => colspans[:base]} %>
+      <%
+         end
+
+         previous_hidden=false
+         first_section=false
+         statuses = compute_statuses(line, display_coverage, display_violations)
+         has_displayed_lines = line.highlighted?
+      %>
+
+      <tr class="row pos<%= index+1 -%>">
+
+          <% if display_manual_violation_form %>
+            <%= render :partial => "shared/source_violation_form", :locals => {:resource_id => resource.id, :index => index, :colspans => colspans} %>
+          <% end %>
+
+          <% if scm_available %>
+                render :partial => "shared/source_scm", :locals => {:line => line, :current_revision => current_revision}
+          <% end %>
+
+          <%= render :partial => "shared/source_line_numbers", :locals => {:index => index} %>
+
+          <% if display_coverage %>
+            <%= render :partial => "shared/source_coverage", :locals => {:line => line, \
+                                                                          :statuses => statuses, \
+                                                                          :index => index, \
+                                                                          :resource_key => snapshot.resource.key} %>
+          <% end %>
+
+          <%= render :partial => "shared/source_code", :locals => {:code => line.source, :status => statuses[:base]} %>
+
+      </tr>
+
+      <% if display_violations && line.violations? %>
+        <%= render :partial => "shared/source_violations", :locals => {:line => line, \
+                                                                        :display_violation_form => display_manual_violation_form, \
+                                                                        :scm_available => scm_available, \
+                                                                        :review_screens_by_vid => review_screens_by_vid} %>
+      <% end %>
+
+    <% end %>
+</table>
+
+<% if filtered && !has_displayed_lines %>
+  <p style="padding: 10px"><%= message('no_lines_match_your_filter_criteria') -%></p>
+<% end %>
+
+
+

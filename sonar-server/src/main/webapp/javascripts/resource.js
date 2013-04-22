@@ -203,8 +203,8 @@ function collapseTests(index, elt){
 }
 
 /* Source decoration functions */
-function highlight_usages(){
+function highlight_usages(event){
   var selectedClass = $j(this).attr("class").split(" ")[0];
-  $j(".highlighted").removeClass("highlighted");
-  $j("." + selectedClass).toggleClass("highlighted");
+  $j("#" + event.data.id + " span.highlighted").removeClass("highlighted");
+  $j("#" + event.data.id + " span." + selectedClass).toggleClass("highlighted");
 }
