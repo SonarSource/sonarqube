@@ -1,16 +1,17 @@
-
-<%= current_display_id = "sources_#{rand(100)}" %>
+<%
+   current_display_id = "sources_#{rand(100)}"
+   has_displayed_lines = false
+%>
 
 <table id="<%= current_display_id %>" class="sources2 code" cellpadding="0" cellspacing="0" border="0">
 
     <script>
-      $j("#<%= current_display_id %>").on("click", "span[class|='symbol']", {id : "<%= current_display_id.to_s() %>"}, highlight_usages);
+      $j("#<%= current_display_id %>").on("click", "span[class|='symbol']", {id: "<%= current_display_id.to_s() %>"}, highlight_usages);
     </script>
 
     <%
        colspans = prepare_colspans(display_manual_violation_form, scm_available, display_coverage)
        first_section = true
-       has_displayed_lines = false
     %>
 
     <%
@@ -39,7 +40,7 @@
           <% end %>
 
           <% if scm_available %>
-                render :partial => "shared/source_scm", :locals => {:line => line, :current_revision => current_revision}
+            render :partial => "shared/source_scm", :locals => {:line => line, :current_revision => current_revision}
           <% end %>
 
           <%= render :partial => "shared/source_line_numbers", :locals => {:index => index} %>
