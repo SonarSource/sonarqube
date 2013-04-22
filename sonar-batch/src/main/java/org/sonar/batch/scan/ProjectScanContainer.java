@@ -29,6 +29,7 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.bootstrap.BatchSettings;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -121,6 +122,8 @@ public class ProjectScanContainer extends ComponentContainer {
   @Override
   protected void doAfterStart() {
     ProjectTree tree = getComponentByType(ProjectTree.class);
+    BatchSettings settings = getComponentByType(BatchSettings.class);
+    settings.init(tree.getProjectDefinition(tree.getRootProject()));
     scanRecursively(tree.getRootProject());
   }
 

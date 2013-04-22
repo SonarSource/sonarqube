@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONValue;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 
@@ -41,40 +41,41 @@ public class BatchSettings extends Settings {
   // module key -> <key,val>
   private Map<String, Map<String, String>> moduleProperties = Maps.newHashMap();
 
-  public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
-                       ServerClient client, Configuration deprecatedConfiguration, BootstrapProperties globalProperties) {
-    this(bootstrapSettings, propertyDefinitions, client, deprecatedConfiguration, globalProperties, null);
-  }
+  private final BootstrapSettings bootstrapSettings;
+  private final ServerClient client;
 
   public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
-                       ServerClient client, Configuration deprecatedConfiguration, BootstrapProperties bootstrapProperties,
-                       @Nullable ProjectReactor projectReactor) {
+      ServerClient client, Configuration deprecatedConfiguration) {
     super(propertyDefinitions);
+    this.bootstrapSettings = bootstrapSettings;
+    this.client = client;
     this.deprecatedConfiguration = deprecatedConfiguration;
-    init(bootstrapSettings, client, bootstrapProperties, projectReactor);
+    init(null);
   }
 
-  private void init(BootstrapSettings bootstrapSettings, ServerClient client, BootstrapProperties bootstrapProperties, @Nullable ProjectReactor reactor) {
-    LoggerFactory.getLogger(BatchSettings.class).info("Load batch settings");
+  public void init(@Nullable ProjectDefinition rootProject) {
+    clear();
 
-    if (reactor != null) {
+    if (rootProject != null) {
+      LoggerFactory.getLogger(BatchSettings.class).info("Load project settings");
       String branch = bootstrapSettings.property(CoreProperties.PROJECT_BRANCH_PROPERTY);
-      String projectKey = reactor.getRoot().getKey();
+      String projectKey = rootProject.getKey();
       if (StringUtils.isNotBlank(branch)) {
         projectKey = String.format("%s:%s", projectKey, branch);
       }
       downloadSettings(client, projectKey);
     } else {
+      LoggerFactory.getLogger(BatchSettings.class).info("Load batch settings");
       downloadSettings(client, null);
     }
 
-    // order is important -> bottom-up. The last one overrides all the others.
-    addProperties(bootstrapProperties.properties());
-    if (reactor != null) {
-      addProperties(reactor.getRoot().getProperties());
+    addProperties(bootstrapSettings.properties());
+    // Reload reactor properties in case reactor has changed since bootstrap
+    if (rootProject != null) {
+      addProperties(rootProject.getProperties());
     }
-    addEnvironmentVariables();
-    addSystemProperties();
+    properties.putAll(System.getenv());
+    addProperties(System.getProperties());
   }
 
   private void downloadSettings(ServerClient client, @Nullable String projectKey) {
