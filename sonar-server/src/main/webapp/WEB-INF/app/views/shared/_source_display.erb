@@ -39,8 +39,18 @@
             <%= render :partial => "shared/source_violation_form", :locals => {:resource_id => resource.id, :index => index, :colspans => colspans} %>
           <% end %>
 
-          <% if scm_available %>
-            render :partial => "shared/source_scm", :locals => {:line => line, :current_revision => current_revision}
+          <% if scm_available
+               if current_revision!=line.revision
+                 current_revision=line.revision
+                 title = "Revision #{h(line.revision)}"
+          %>
+
+              <%= render :partial => "shared/source_scm", :locals => {:line => line, :title => title} %>
+
+            <% else %>
+              <td class="scm"></td>
+            <% end %>
+
           <% end %>
 
           <%= render :partial => "shared/source_line_numbers", :locals => {:index => index} %>

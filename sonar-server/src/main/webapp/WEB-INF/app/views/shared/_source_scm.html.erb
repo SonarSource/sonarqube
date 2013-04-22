@@ -1,11 +1,4 @@
-<%
-   if current_revision!=line.revision
-    current_revision=line.revision
-    title = "Revision #{h(line.revision)}"
-  %>
-  <td class="scm revision">
+<td class="scm revision">
     <span class="date"><a href="#" title="<%= title -%>" alt="<%= title -%>"><%= Java::OrgSonarApiUtils::DateUtils.formatDate(line.datetime) if line.datetime -%></a></span>
-    <span class="author"><%= h(line.author) -%></span></td>
-  <% else %>
-  <td class="scm"></td>
-<% end %>
+    <span class="author"><%= h(line.author) -%></span>
+</td>
