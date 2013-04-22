@@ -479,6 +479,10 @@ table.data th img, table.data td img {
   padding-right: 15px;
 }
 
+.data td.categoryDescription {
+  padding-bottom: 5px;
+}
+
 .data td.category.withSubcategories {
   background-image: url('../images/bullet_arrow_down.gif');
   background-position: right center;
