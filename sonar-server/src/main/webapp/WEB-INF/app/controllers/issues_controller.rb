@@ -20,8 +20,22 @@
 
 class IssuesController < ApplicationController
 
+  SECTION=Navigation::SECTION_RESOURCE
+
   def index
     @issues = find_issues({})
+  end
+
+  # Used for the permalink, e.g. http://localhost:9000/issues/view/1
+  def view
+    issues = find_issues({'keys' => params[:id]})
+    if issues.length == 1
+      @issue = issues[0]
+      @resource = Project.by_key(@issue.component_key)
+      render 'issues/_view', :locals => {:issue => @issue}
+    else
+      render :text => "<b>Cannot access this issue</b> : not found."
+    end
   end
 
   protected

@@ -839,4 +839,8 @@ module ApplicationHelper
     {:base => status, :hits => hits_status, :conditions => conditions_status}
   end
 
+  def to_date(java_date)
+    java_date ? Time.at(java_date.time/1000) : nil
+  end
+
 end

@@ -1,0 +1,107 @@
+<%
+   table_limit = params[:table_limit] unless table_limit
+   widget_id = params[:widget_id] unless widget_id
+   search_options = params unless search_options
+
+   # TODO
+   search_options['sort'] = 'updated_at'
+   if @dashboard_configuration.selected_period?
+     from_date = @dashboard_configuration.from_datetime
+     # TODO
+     search_options['from'] = from_date
+     to_date = DateTime.now
+     # TODO
+     search_options['to'] = to_date
+   end
+   #puts "### search_options"
+   #search_options.each {|key, value| puts key.to_s + "->"+ value.to_s}
+   user = current_user ? current_user.id : nil
+   issues = Api.issues.find(search_options, user).issues
+
+   # table pagination
+   page_size = table_limit.to_i
+   total_number = issues.size
+   if issues.size > page_size
+     page_id = (params[:page_id] ? params[:page_id].to_i : 1)
+     page_count = issues.size / page_size
+     page_count += 1 if (issues.size % page_size > 0)
+     from = (page_id-1) * page_size
+     to = (page_id*page_size)-1
+     to = issues.size-1 if to >= issues.size
+     issues = issues[from..to]
+   end
+%>
+
+<% if issues.nil? || issues.size ==0 %>
+
+  <span class="empty_widget"><%= message('widget.my_reviews2.no_review') -%></span>
+
+<% else %>
+
+  <table id="issues-widget-list-<%= widget_id -%>" class="data width100">
+    <thead>
+    <tr>
+      <th coslpan="4">
+      </th>
+    </tr>
+    </thead>
+    <tfoot>
+    <tr>
+      <td colspan="3">
+        <%= total_number -%> <%= message('results').downcase -%>
+        <%
+           if page_count
+             page_count = 20 if page_count>20
+             link_params = search_options
+             # TODO
+             link_params[:controller] = 'project_reviews'
+             # TODO
+             link_params[:action] = 'widget_reviews_list'
+             link_params[:snapshot_id] = @snapshot.id
+             link_params[:table_limit] = table_limit
+             link_params[:widget_id] = widget_id
+             link_params[:period] = params[:period]
+        %>
+          |
+          <%= link_to_remote(message('paging_previous'),
+                             :update => "issues-widget-#{widget_id}",
+                             :url => {:params => link_params.merge({:page_id => page_id-1})}) if page_id>1 %>
+          <%= message('paging_previous') unless page_id>1 %>
+          <% for index in 1..page_count %>
+            <%= index.to_s if index==page_id %>
+            <%= link_to_remote(index.to_s,
+                               :update => "issues-widget-#{widget_id}",
+                               :url => {:params => link_params.merge({:page_id => index})}) unless index==page_id %>
+          <% end %>
+          <%= link_to_remote(message('paging_next'),
+                             :update => "issues-widget-#{widget_id}",
+                             :url => {:params => link_params.merge({:page_id => page_id+1})}) if page_id<page_count %>
+          <%= message('paging_next') unless page_id<page_count %>
+        <%
+           end
+        %>
+      </td>
+    </tr>
+    </tfoot>
+    <tbody>
+    <%
+       issues.each do |issue|
+         # TODO display comment
+         #comment = review.comments.last
+    %>
+      <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
+        <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= message(issue.severity.downcase).capitalize -%>"/></td>
+        <td>
+          <%= link_to h(issue.description), :controller => "issues", :action => "view", :id => issue.key -%>
+        </td>
+        <td class="nowrap">
+          <%= distance_of_time_in_words_to_now(to_date(issue.updated_at || issue.created_at)) -%>
+        </td>
+      </tr>
+    <%
+       end
+    %>
+    </tbody>
+  </table>
+
+<% end %>

@@ -47,6 +47,9 @@ import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
+import org.sonar.plugins.core.widgets.issues.ActiveIssuesWidget;
+import org.sonar.plugins.core.widgets.issues.FalsePositiveIssuesWidget;
+import org.sonar.plugins.core.widgets.issues.MyIssuesWidget;
 import org.sonar.plugins.core.widgets.reviews.*;
 
 import java.util.List;
@@ -359,6 +362,7 @@ public final class CorePlugin extends SonarPlugin {
         DescriptionWidget.class,
         ComplexityWidget.class,
         RulesWidget.class,
+        RulesWidget2.class,
         SizeWidget.class,
         EventsWidget.class,
         CustomMeasuresWidget.class,
@@ -368,8 +372,11 @@ public final class CorePlugin extends SonarPlugin {
         HotspotMostViolatedResourcesWidget.class,
         HotspotMostViolatedRulesWidget.class,
         MyReviewsWidget.class,
+        MyIssuesWidget.class,
         ProjectReviewsWidget.class,
+        ActiveIssuesWidget.class,
         FalsePositiveReviewsWidget.class,
+        FalsePositiveIssuesWidget.class,
         ReviewsPerDeveloperWidget.class,
         PlannedReviewsWidget.class,
         UnplannedReviewsWidget.class,

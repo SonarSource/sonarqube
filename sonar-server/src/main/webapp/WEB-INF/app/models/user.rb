@@ -115,7 +115,7 @@ class User < ActiveRecord::Base
   end
 
   def self.find_active_by_login(login)
-    User.find(:first, :conditions => ["login=:login AND active=:active", {:login => login, :active => true}])
+    User.first(:conditions => ["login=:login AND active=:active", {:login => login, :active => true}])
   end
 
 

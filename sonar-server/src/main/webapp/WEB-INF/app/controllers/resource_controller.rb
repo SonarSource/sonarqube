@@ -481,7 +481,6 @@ class ResourceController < ApplicationController
       end
     end
 
-
     if @period
       date = @snapshot.period_datetime(@period)
       if date

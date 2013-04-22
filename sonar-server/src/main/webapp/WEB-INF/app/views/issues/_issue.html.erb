@@ -1,0 +1,90 @@
+<div id="issue-<%= issue.key -%>">
+  <div class="reviewTitle">
+    <h2><%= message('issues.issue_number', :params => h(issue.key.to_s)) -%> - <%= h(issue.description) -%></h2>
+  </div>
+
+  <% if defined?(error_message) && error_message %>
+    <div id="issue-error" class="error"><%= h error_message -%> <a href="#" onclick="$j('#issue-error').hide(); return false;"><%= message('issues.hide_this_message') -%></a></div>
+  <% end %>
+
+  <div class="discussionComment" id="actionForm" style="border: 1px solid #DDD;display:none"></div>
+
+  <table class="reviewDetails marginbottom10">
+    <tr>
+      <td class="key">
+        <%= message('status') -%>:
+      </td>
+      <td class="val">
+        <%= image_tag "status/#{issue.status}.png" -%> <span class="reviewStatus<%= issue.status -%>"><%= message("issues.status.#{issue.status}") -%></span>
+        <% if issue.resolution.present? %>
+          (<span class="reviewResolution<%= issue.resolution -%>"><%= message("issues.resolution.#{issue.resolution}") -%></span>)
+        <% end %>
+      </td>
+      <td class="key">
+        <%= message('severity') -%>:
+      </td>
+      <td class="val">
+        <%= image_tag "priority/#{issue.severity}.png" -%> <%= message("severity.#{issue.severity}") -%>
+      </td>
+    </tr>
+    <tr>
+      <td class="key">
+        <%= message('assignee') -%>:
+      </td>
+      <td class="val">
+        <% assignee = issue.assignee %>
+        <%= assignee ? h(assignee) : '-' -%>
+      </td>
+      <td class="key">
+        <%= message('author') -%>:
+      </td>
+      <td class="val">
+        <% author = issue.user_login %>
+        <%= author ? h(author) : '-' -%>
+      </td>
+    </tr>
+    <tr>
+      <td class="key">
+        <%= message('created') -%>:
+      </td>
+      <td class="val">
+        <%= l(to_date(issue.created_at)) -%>
+      </td>
+      <td class="key">
+        <%= message('updated') -%>:
+      </td>
+      <td class="val">
+        <%= l(to_date(issue.updated_at)) if issue.updated_at -%>
+      </td>
+    </tr>
+    <% # TODO action plan %>
+    <% if issue.rule_key %>
+      <% rule = Rule.by_key_or_id(issue.rule_key.to_s) %>
+      <tr>
+        <td class="key">
+          <%= message('rule') -%>:
+        </td>
+        <td class="val" colspan="3">
+          <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => issue.rule_key.to_s, :layout => 'false' -%>"><%= h(rule.name) -%></a>
+        </td>
+      </tr>
+    <% end %>
+    <tr>
+      <td class="key">
+        <%= message('file') -%>:
+      </td>
+      <td class="val" colspan="3">
+        <%= qualifier_icon(@resource) -%>
+        <% if @resource.root_project.id != @resource.id %>
+          <%= @resource.root_project.long_name -%> <%= image_tag 'sep12.png' -%>
+        <% end %>
+        <% if  @resource.last_snapshot %>
+          <%= link_to_resource(@resource, @resource.long_name, {:tab => :violations, :rule => issue.resolution == "FALSE-POSITIVE" ? "false_positive_issues" : ""}) %>
+        <% else %>
+          <%= @resource.long_name -%>
+        <% end %>
+      </td>
+    </tr>
+  </table>
+
+</div>

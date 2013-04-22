@@ -17,31 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.widgets;
+package org.sonar.plugins.core.widgets.issues;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.WidgetCategory;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.plugins.core.widgets.CoreWidget;
 
-public abstract class CoreWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  private String id, title, templatePath;
-
-  protected CoreWidget(String id, String title, String templatePath) {
-    this.id = id;
-    this.title = title;
-    this.templatePath = templatePath;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources" + templatePath;
-    //return templatePath;
+@WidgetCategory({"Issues"})
+@WidgetProperties({
+  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
+})
+public class ActiveIssuesWidget extends CoreWidget {
+  public ActiveIssuesWidget() {
+    super("project_reviews2", "Active issues", "/org/sonar/plugins/core/widgets/issues/active_issues.html.erb");
   }
 }

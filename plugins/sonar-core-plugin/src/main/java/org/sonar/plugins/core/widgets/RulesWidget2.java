@@ -19,29 +19,12 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.WidgetCategory;
 
-public abstract class CoreWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  private String id, title, templatePath;
+@WidgetCategory({"Rules"})
+public class RulesWidget2 extends CoreWidget {
 
-  protected CoreWidget(String id, String title, String templatePath) {
-    this.id = id;
-    this.title = title;
-    this.templatePath = templatePath;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources" + templatePath;
-    //return templatePath;
+  public RulesWidget2() {
+    super("rules2", "Rules Compliance 2", "/org/sonar/plugins/core/widgets/rules2.html.erb");
   }
 }
