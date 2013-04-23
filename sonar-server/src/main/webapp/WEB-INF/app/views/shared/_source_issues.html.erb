@@ -1,0 +1,14 @@
+<tr>
+    <% if scm_available %>
+      <td class="scm"></td>
+    <% end %>
+    <td class="lid"></td>
+    <td class="violations">
+        <% line.issues.each_with_index do |issue, index| %>
+          <%= render :partial => 'issue', :locals => {:issue => issue} -%>
+          <% if index < line.issues.size-1 %>
+            &nbsp;
+          <% end %>
+        <% end %>
+    </td>
+</tr>

@@ -1,6 +1,5 @@
 <%
    current_display_id = "sources_#{rand(100)}"
-   has_displayed_lines = false
 %>
 
 <table id="<%= current_display_id %>" class="sources2 code" cellpadding="0" cellspacing="0" border="0">
@@ -9,34 +8,76 @@
       $j("#<%= current_display_id %>").on("click", "span[class|='symbol']", {id: "<%= current_display_id.to_s() %>"}, highlight_usages);
     </script>
 
-    <%
-       colspans = prepare_colspans(display_manual_violation_form, scm_available, display_coverage)
-       first_section = true
-    %>
+        <%
+           colspan=2
+           gray_colspan=1
+           white_colspan=0
+           if display_manual_violation_form
+             colspan+=1
+             gray_colspan+=1
+           end
+           if scm_available
+             colspan+=1
+             gray_colspan+=1
+           end
+           if display_coverage
+             colspan+=2
+             white_colspan+=2
+           end
 
-    <%
-       lines.each_with_index do |line, index|
-         if line.hidden? && !expanded
-           previous_hidden = true
-           next
-         end
-         if previous_hidden && !first_section
-           current_revision = nil
-    %>
-        <%= render :partial => "shared/source_new_section", :locals => {:colspan => colspans[:base]} %>
+           current_revision=nil
+           previous_hidden=false
+           first_section=true
+           has_displayed_lines=false
+           lines.each_with_index do |line, index|
+             if line.hidden? && !expanded
+               previous_hidden=true
+               next
+             end
+
+             if previous_hidden && !first_section
+               current_revision=nil
+
+           %>
+
+        <%= render :partial => "shared/source_new_section", :locals => {:colspan => colspan} %>
       <%
          end
-
          previous_hidden=false
          first_section=false
-         statuses = compute_statuses(line, display_coverage, display_violations)
-         has_displayed_lines = line.highlighted?
+
+         status=hits_status=conditions_status=''
+         if line.displayed?
+           has_displayed_lines=true
+           if display_coverage && line.hits
+             hits_status=(line.hits>0 ? 'ok' : 'ko')
+             if line.conditions && line.conditions>0 && line.covered_conditions
+               if line.covered_conditions==0
+                 status='ko'
+                 conditions_status='ko'
+               elsif line.covered_conditions==line.conditions
+                 status=''
+                 conditions_status='ok'
+               else
+                 conditions_status='warn'
+                 status='warn'
+               end
+             elsif line.hits
+               status=(line.hits>0 ? '' : 'ko')
+             end
+           elsif display_violations && line.violations?
+             status="ko"
+           end
+         end
       %>
 
       <tr class="row pos<%= index+1 -%>">
 
           <% if display_manual_violation_form %>
-            <%= render :partial => "shared/source_violation_form", :locals => {:resource_id => resource.id, :index => index, :colspans => colspans} %>
+            <%= render :partial => "shared/source_violation_form", :locals => { :resource_id => resource.id, \
+                                                                                :index => index, \
+                                                                                :gray_colspan => gray_colspan, \
+                                                                                :white_colspan => white_colspan} %>
           <% end %>
 
           <% if scm_available
@@ -57,20 +98,25 @@
 
           <% if display_coverage %>
             <%= render :partial => "shared/source_coverage", :locals => {:line => line, \
-                                                                          :statuses => statuses, \
+                                                                          :statuses => {:hits => hits_status, :conditions => conditions_status}, \
                                                                           :index => index, \
                                                                           :resource_key => snapshot.resource.key} %>
           <% end %>
 
-          <%= render :partial => "shared/source_code", :locals => {:code => line.source, :status => statuses[:base]} %>
+          <%= render :partial => "shared/source_code", :locals => {:code => line.source, :status => status} %>
 
       </tr>
 
       <% if display_violations && line.violations? %>
         <%= render :partial => "shared/source_violations", :locals => {:line => line, \
-                                                                        :display_violation_form => display_manual_violation_form, \
+                                                                        :display_manual_violation_form => display_manual_violation_form, \
                                                                         :scm_available => scm_available, \
                                                                         :review_screens_by_vid => review_screens_by_vid} %>
+      <% end %>
+
+      <% if display_issues && line.issues? %>
+        <%= render :partial => "shared/source_issues", :locals => { :line => line, \
+                                                                    :scm_available => scm_available} %>
       <% end %>
 
     <% end %>

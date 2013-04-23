@@ -1,4 +1,5 @@
-<% if line.highlighted? %>
+<% if line.displayed? && line.covered_lines %>
+  <% puts "displaying coverage info #{line.covered_lines} for line #{line.index}" %>
   <td class="ind <%= statuses[:hits] -%>" title="<%= message('coverage_viewer.line_covered_by_x_tests', {:params => line.covered_lines.to_s}) if line.covered_lines > 0 -%>">
       <% if line.covered_lines > 0 %>
         <a href="<%= ApplicationController.root_context -%>/test/testable/<%= h resource_key -%>?line=<%= index+1 -%>"
@@ -9,8 +10,7 @@
       <% if line.deprecated_conditions_label -%>
         <%= line.deprecated_conditions_label -%>
       <% elsif line.conditions && line.conditions>0 -%>
-                    <span title="<%= h message('coverage_viewer.x_covered_branches', {:params => line.covered_conditions.to_s}) -%>"><%= line.covered_conditions -%>
-                        /<%= line.conditions -%></span>
+        <span title="<%= h message('coverage_viewer.x_covered_branches', {:params => line.covered_conditions.to_s}) -%>"><%= line.covered_conditions -%>/<%= line.conditions -%></span>
       <% end %>
   </td>
 <% else %>

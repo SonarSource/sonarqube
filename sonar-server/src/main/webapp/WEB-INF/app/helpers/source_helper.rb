@@ -1,80 +1,95 @@
- #
- # Sonar, entreprise quality control tool.
- # Copyright (C) 2008-2013 SonarSource
- # mailto:contact AT sonarsource DOT com
- #
- # SonarQube is free software; you can redistribute it and/or
- # modify it under the terms of the GNU Lesser General Public
- # License as published by the Free Software Foundation; either
- # version 3 of the License, or (at your option) any later version.
- #
- # SonarQube is distributed in the hope that it will be useful,
- # but WITHOUT ANY WARRANTY; without even the implied warranty of
- # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- # Lesser General Public License for more details.
- #
- # You should have received a copy of the GNU Lesser General Public License
- # along with this program; if not, write to the Free Software Foundation,
- # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- #
+#
+# Sonar, entreprise quality control tool.
+# Copyright (C) 2008-2013 SonarSource
+# mailto:contact AT sonarsource DOT com
+#
+# SonarQube is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 3 of the License, or (at your option) any later version.
+#
+# SonarQube is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
 module SourceHelper
 
   #
   # Options :
   # - display_scm : boolean (default is true)
   # - display_violations: boolean (default is false)
+  # - display_issues: boolean (default is false)
   # - display_coverage: boolean (default is false)
   # - expand: boolean (default is false). Only if display_violations or display_coverage is true
   # - min_date
-  # - line_range
+  # - line_range : range (default is complete lines range)
+  # - highlighted_lines : range (default is complete lines range)
   #
   def snapshot_source_to_html(snapshot, options={})
-    return '' unless snapshot && snapshot.source
 
-    panel=SourcePanel.new
-    revisions_by_line={}
-    authors_by_line={}
-    dates_by_line={}
-    unless options[:display_scm]==false
-      panel.display_scm=(snapshot.measure('last_commit_datetimes_by_line')!=nil)
-      authors_by_line=load_distribution(snapshot,'authors_by_line')
-      revisions_by_line=load_distribution(snapshot,'revisions_by_line')
-      dates_by_line=load_distribution(snapshot,'last_commit_datetimes_by_line')
-    end
+    panel = get_html_source_panel(snapshot, options)
 
-    panel.html_lines=[]
-    line_range=sanitize_line_range(options[:line_range])
-    highlighted_lines=options[:highlighted_lines]||[]
-    source_lines = snapshot.highlighting_data || snapshot.source.syntax_highlighted_lines()
-    source_lines.each_with_index do |source, index|
-      if line_range.include?(index+1)
-        html_line=HtmlLine.new(source, index+1)
-        html_line.revision=revisions_by_line[index+1]
-        html_line.author=authors_by_line[index+1]
-        html_line.highlighted=(highlighted_lines.include?(index+1))
-        date_string=dates_by_line[index+1]
-        html_line.datetime=(date_string ? Java::OrgSonarApiUtils::DateUtils.parseDateTime(date_string): nil)
-        panel.html_lines<<html_line
-      end
-    end
+    unless panel.nil?
+      panel.filter_min_date(options[:min_date]) if options[:min_date]
 
-    panel.filter_min_date(options[:min_date]) if options[:min_date]
+      unless panel.empty?
 
-    unless panel.empty?
-
-      render :partial => "shared/source_display", :locals => { :display_manual_violation_form => false, \
+        render :partial => "shared/source_display", :locals => {:display_manual_violation_form => false, \
                                                                :scm_available => options[:display_scm], \
                                                                :display_coverage => options[:display_coverage], \
                                                                :lines => panel.html_lines, \
                                                                :expanded => options[:expand], \
                                                                :display_violations => options[:display_violations], \
+                                                               :display_issues => options[:display_issues], \
                                                                :resource => nil, \
                                                                :snapshot => nil, \
                                                                :review_screens_by_vid => false, \
-                                                               :filtered => panel.filtered }
+                                                               :filtered => panel.filtered}
 
+      end
+    else
+      ''
     end
+  end
 
+  def get_html_source_panel(snapshot, options={})
+
+    if snapshot && snapshot.has_source
+
+      panel=SourcePanel.new
+      revisions_by_line={}
+      authors_by_line={}
+      dates_by_line={}
+      if options[:display_scm]
+        panel.display_scm=(snapshot.measure('last_commit_datetimes_by_line')!=nil)
+        authors_by_line=load_distribution(snapshot, 'authors_by_line')
+        revisions_by_line=load_distribution(snapshot, 'revisions_by_line')
+        dates_by_line=load_distribution(snapshot, 'last_commit_datetimes_by_line')
+      end
+
+      panel.html_lines=[]
+      html_source_lines = snapshot.highlighting_data || snapshot.source.syntax_highlighted_lines()
+      line_range=sanitize_range(options[:line_range], 1..html_source_lines.length)
+      highlighted_lines=sanitize_range(options[:highlighted_lines], 1..html_source_lines.length)
+
+      html_source_lines.each_with_index do |source, index|
+        if line_range.include?(index+1)
+          html_line=HtmlLine.new(source, index+1)
+          html_line.revision=revisions_by_line[index+1]
+          html_line.author=authors_by_line[index+1]
+          html_line.displayed=highlighted_lines.include?(index+1)
+          date_string=dates_by_line[index+1]
+          html_line.datetime=(date_string ? Java::OrgSonarApiUtils::DateUtils.parseDateTime(date_string) : nil)
+          panel.html_lines<<html_line
+        end
+      end
+      panel
+    end
   end
 
   def load_distribution(snapshot, metric_key)
@@ -82,11 +97,13 @@ module SourceHelper
     m ? m.data_as_line_distribution() : {}
   end
 
-  def sanitize_line_range(range)
+  def sanitize_range(range, default_range)
     if range
       ([range.min, 1].max)..(range.max)
+    elsif default_range
+      default_range
     else
-      [0..-1]
+      0..-1
     end
   end
 
@@ -109,11 +126,12 @@ module SourceHelper
   end
 
   class HtmlLine
-    attr_accessor :id, :source, :revision, :author, :datetime, :violations, :hits, :conditions, :covered_conditions, :hidden, :selected, :highlighted, :deprecated_conditions_label
+    attr_accessor :index, :source, :revision, :author, :datetime, :violations, :issues, :hits, :conditions,
+                  :covered_conditions, :hidden, :displayed, :deprecated_conditions_label, :covered_lines
 
-    def initialize(source, id)
+    def initialize(source, index)
       @source=source
-      @id=id
+      @index=index
     end
 
     def add_violation(violation)
@@ -122,13 +140,31 @@ module SourceHelper
       @visible=true
     end
 
+    def add_issue(issue)
+      @issues||=[]
+      @issues<<issue
+      @visible=true
+    end
+
     def violations?
       @violations && @violations.size>0
+    end
+
+    def issues?
+      @issues && @issues.size>0
     end
 
     def violation_severity
       if @violations && @violations.size>0
         @violations[0].failure_level
+      else
+        nil
+      end
+    end
+
+    def issue_severity
+      if @issues && @issues.size>0
+        @issues[0].severity
       else
         nil
       end
@@ -142,22 +178,25 @@ module SourceHelper
       end
     end
 
-    def flag_as_selected
-      @selected=true
+    def flag_as_displayed
+      @displayed=true
       @hidden=false
+      puts "line #{index} will be displayed"
     end
 
-    def flag_as_selected_context
+    def flag_as_displayed_context
       # do not force if selected has already been set to true
-      @selected=false if @selected.nil?
+      @displayed=false if @displayed.nil?
       @hidden=false
+      puts "line #{index} will be displayed as context"
     end
 
     def flag_as_hidden
       # do not force if it has already been flagged as visible
       if @hidden.nil?
         @hidden=true
-        @selected=false
+        @displayed=false
+        puts "line #{index} will be hidden"
       end
     end
 
@@ -165,30 +204,25 @@ module SourceHelper
       @hidden==true
     end
 
-    def selected?
+    def displayed?
       # selected if the @selected has not been set or has been set to true
-      !hidden? && @selected!=false
+      !hidden? && @displayed!=false
     end
 
     def deprecated_conditions_label=(label)
       if label
         @deprecated_conditions_label=label
-          if label=='0%'
-            @conditions=2
-            @covered_conditions=0
-          elsif label=='100%'
-            @conditions=2
-            @covered_conditions=2
-          else
-            @conditions=2
-            @covered_conditions=1
+        if label=='0%'
+          @conditions=2
+          @covered_conditions=0
+        elsif label=='100%'
+          @conditions=2
+          @covered_conditions=2
+        else
+          @conditions=2
+          @covered_conditions=1
         end
       end
-    end
-
-    def highlighted?
-      # highlighted if the @highlighted has not been set or has been set to true
-      !hidden? && @highlighted!=false
     end
   end
 end

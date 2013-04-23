@@ -1,14 +1,14 @@
 <tr>
-    <% if @display_manual_violation_form %>
+    <% if display_manual_violation_form %>
       <td class="gray"></td>
     <% end
-       if @scm_available %>
+       if scm_available %>
       <td class="scm"></td>
     <% end %>
     <td class="lid"></td>
     <td class="violations">
         <% line.violations.each_with_index do |violation, index| %>
-          <%= render :partial => 'violation', :locals => {:violation => violation, :review_screens => @review_screens_by_vid ? @review_screens_by_vid.get(violation.id) : []} -%>
+          <%= render :partial => 'violation', :locals => {:violation => violation, :review_screens => review_screens_by_vid ? review_screens_by_vid.get(violation.id) : []} -%>
           <% if index < line.violations.size-1 %>
             &nbsp;
           <% end %>

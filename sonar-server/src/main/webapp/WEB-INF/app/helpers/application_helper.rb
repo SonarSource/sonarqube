@@ -814,7 +814,7 @@ module ApplicationHelper
 
     status=hits_status=conditions_status=''
 
-    if line.highlighted?
+    if line.displayed?
       if display_coverage && line.hits
         hits_status=(line.hits>0 ? 'ok' : 'ko')
         if line.conditions && line.conditions>0 && line.covered_conditions

@@ -21,7 +21,7 @@ require "rexml/document"
 
 class ResourceController < ApplicationController
 
-  include REXML
+  include REXML, SourceHelper
 
   SECTION=Navigation::SECTION_RESOURCE
   helper :dashboard
@@ -161,34 +161,15 @@ class ResourceController < ApplicationController
     @expanded=(params[:expand]=='true')
     @display_manual_violation_form=(current_user && has_role?(:user, @snapshot))
 
-    if @snapshot.has_source
-      source_lines = @snapshot.highlighting_data || @snapshot.source.syntax_highlighted_lines()
-      init_scm()
-
-      @lines=[]
-      source_lines.each_with_index do |source, index|
-        line=Line.new(source)
-        @lines<<line
-
-        line.revision=@revisions_by_line[index+1]
-        line.author=@authors_by_line[index+1]
-
-        date_string=@dates_by_line[index+1]
-        line.datetime=(date_string ? Java::OrgSonarApiUtils::DateUtils.parseDateTime(date_string) : nil)
-      end
-    end
+    panel = get_html_source_panel(@snapshot, {:display_scm => true})
+    @lines = panel.html_lines
   end
 
   def init_scm
     @scm_available=(@snapshot.measure('last_commit_datetimes_by_line')!=nil)
-    @authors_by_line=load_distribution('authors_by_line')
-    @revisions_by_line=load_distribution('revisions_by_line')
-    @dates_by_line=load_distribution('last_commit_datetimes_by_line')
-  end
-
-  def load_distribution(metric_key)
-    m=@snapshot.measure(metric_key)
-    m ? m.data_as_line_distribution() : {}
+    @authors_by_line=load_distribution(@snapshot, 'authors_by_line')
+    @revisions_by_line=load_distribution(@snapshot, 'revisions_by_line')
+    @dates_by_line=load_distribution(@snapshot, 'last_commit_datetimes_by_line')
   end
 
   def render_coverage
@@ -207,9 +188,9 @@ class ResourceController < ApplicationController
       it_prefix = 'it_' if (@coverage_filter.start_with?('it_') || @coverage_filter.start_with?('new_it_'))
       it_prefix = 'overall_' if (@coverage_filter.start_with?('overall_') || @coverage_filter.start_with?('new_overall_'))
 
-      @hits_by_line = load_distribution("#{it_prefix}coverage_line_hits_data")
-      @conditions_by_line = load_distribution("#{it_prefix}conditions_by_line")
-      @covered_conditions_by_line = load_distribution("#{it_prefix}covered_conditions_by_line")
+      @hits_by_line = load_distribution(@snapshot, "#{it_prefix}coverage_line_hits_data")
+      @conditions_by_line = load_distribution(@snapshot, "#{it_prefix}conditions_by_line")
+      @covered_conditions_by_line = load_distribution(@snapshot, "#{it_prefix}covered_conditions_by_line")
 
       @testable = java_facade.testable(@snapshot.id)
       @hits_by_line.each_pair do |line_id, hits|
@@ -217,6 +198,7 @@ class ResourceController < ApplicationController
         if line
           line.index = line_id
           line.covered_lines = @testable ? @testable.countTestCasesOfLine(line_id) : 0
+          puts "covered_lines for line #{line.index} has been set to #{line.covered_lines}"
           line.hits = hits.to_i
           line.conditions = @conditions_by_line[line_id].to_i
           line.covered_conditions = @covered_conditions_by_line[line_id].to_i
@@ -225,7 +207,7 @@ class ResourceController < ApplicationController
 
       if @snapshot.measure("#{it_prefix}conditions_by_line").nil?
         # TODO remove this code when branch_coverage_hits_data is fully removed from CoreMetrics
-        deprecated_branches_by_line = load_distribution("#{it_prefix}branch_coverage_hits_data")
+        deprecated_branches_by_line = load_distribution(@snapshot, "#{it_prefix}branch_coverage_hits_data")
         deprecated_branches_by_line.each_pair do |line_id, label|
           line = @lines[line_id-1]
           if line
@@ -236,7 +218,7 @@ class ResourceController < ApplicationController
 
       to = (@period && @snapshot.period_datetime(@period) ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
       @filtered = true
-
+      puts "coverage filter is #{@coverage_filter}"
       if ('lines_to_cover'==@coverage_filter || 'coverage'==@coverage_filter || 'line_coverage'==@coverage_filter ||
           'new_lines_to_cover'==@coverage_filter || 'new_coverage'==@coverage_filter || 'new_line_coverage'==@coverage_filter ||
           'it_lines_to_cover'==@coverage_filter || 'it_coverage'==@coverage_filter || 'it_line_coverage'==@coverage_filter ||
@@ -244,7 +226,9 @@ class ResourceController < ApplicationController
           'overall_lines_to_cover'==@coverage_filter || 'overall_coverage'==@coverage_filter || 'overall_line_coverage'==@coverage_filter ||
           'new_overall_lines_to_cover'==@coverage_filter || 'new_overall_coverage'==@coverage_filter || 'new_overall_line_coverage'==@coverage_filter)
         @coverage_filter = "#{it_prefix}lines_to_cover"
-        filter_lines { |line| line.hits && line.after(to) }
+        filtered_lines = filter_lines { |line| line.hits && line.after(to) }
+        puts "filtered lines length : #{filtered_lines.length}"
+        filtered_lines
 
       elsif ('uncovered_lines'==@coverage_filter || 'new_uncovered_lines'==@coverage_filter ||
           'it_uncovered_lines'==@coverage_filter || 'new_it_uncovered_lines'==@coverage_filter ||
@@ -531,111 +515,14 @@ class ResourceController < ApplicationController
     @lines.each_with_index do |line, index|
       if yield(line)
         for i in index-4...index
-          @lines[i].flag_as_highlight_context() if i>=0
+          @lines[i].flag_as_displayed_context if i>=0
         end
-        line.flag_as_highlighted()
+        line.flag_as_displayed
         for i in index+1..index+4
-          @lines[i].flag_as_highlight_context() if i<@lines.size
+          @lines[i].flag_as_displayed_context if i<@lines.size
         end
       else
         line.flag_as_hidden()
-      end
-    end
-  end
-
-  class Line
-    attr_accessor :index, :source, :revision, :author, :datetime, :violations, :issues, :hits, :conditions, :covered_conditions, :hidden, :highlighted,
-                  :deprecated_conditions_label, :covered_lines
-
-    def initialize(source)
-      @source=source
-    end
-
-    def add_violation(violation)
-      @violations||=[]
-      @violations<<violation
-      @visible=true
-    end
-
-    def add_issue(issue)
-      @issues||=[]
-      @issues<<issue
-      @visible=true
-    end
-
-    def violations?
-      @violations && @violations.size>0
-    end
-
-    def issues?
-      @issues && @issues.size>0
-    end
-
-    def violation_severity
-      if @violations && @violations.size>0
-        @violations[0].failure_level
-      else
-        nil
-      end
-    end
-
-    def issue_severity
-      if @issues && @issues.size>0
-        @issues[0].severity
-      else
-        nil
-      end
-    end
-
-    def after(date)
-      if date && @datetime
-        @datetime.after(date)
-      else
-        true
-      end
-    end
-
-    def flag_as_highlighted
-      @highlighted=true
-      @hidden=false
-    end
-
-    def flag_as_highlight_context
-      # do not force if highlighted has already been set to true
-      @highlighted=false if @highlighted.nil?
-      @hidden=false
-    end
-
-    def flag_as_hidden
-      # do not force if it has already been flagged as visible
-      if @hidden.nil?
-        @hidden=true
-        @highlighted=false
-      end
-    end
-
-    def hidden?
-      @hidden==true
-    end
-
-    def highlighted?
-      # highlighted if the @highlighted has not been set or has been set to true
-      !hidden? && @highlighted!=false
-    end
-
-    def deprecated_conditions_label=(label)
-      if label
-        @deprecated_conditions_label=label
-        if label=='0%'
-          @conditions=2
-          @covered_conditions=0
-        elsif label=='100%'
-          @conditions=2
-          @covered_conditions=2
-        else
-          @conditions=2
-          @covered_conditions=1
-        end
       end
     end
   end
