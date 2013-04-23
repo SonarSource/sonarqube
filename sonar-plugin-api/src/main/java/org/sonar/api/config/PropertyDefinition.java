@@ -106,8 +106,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       .multiValues(annotation.multiValues())
       .propertySetKey(annotation.propertySetKey())
       .fields(PropertyFieldDefinition.create(annotation.fields()))
-      .deprecatedKey(annotation.deprecatedKey())
-      .index(annotation.index());
+      .deprecatedKey(annotation.deprecatedKey());
     List<String> qualifiers = newArrayList();
     if (annotation.project()) {
       qualifiers.add(Qualifiers.PROJECT);
@@ -250,6 +249,8 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   }
 
   /**
+   * Order to display properties in Sonar UI. When two properties have the same index then it is sorted by
+   * lexicographic order of property name.
    * @since 3.6
    */
   public int index() {
