@@ -23,9 +23,6 @@
 #
 class RemoveEnabledFromRules < ActiveRecord::Migration
 
-  class Rule < ActiveRecord::Base
-  end
-
   def self.up
     remove_column('rules', 'enabled')
   end

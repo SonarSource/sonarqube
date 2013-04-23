@@ -27,12 +27,6 @@ class UpdateRulesStatus < ActiveRecord::Migration
   end
 
   def self.up
-    set_rule_status
-  end
-
-  private
-
-  def self.set_rule_status
     Rule.reset_column_information
     Rule.update_all({:status => 'READY', :created_at => Time.now}, ['enabled=?', true])
     Rule.update_all({:status => 'REMOVED', :updated_at => Time.now}, ['enabled=?', false])
