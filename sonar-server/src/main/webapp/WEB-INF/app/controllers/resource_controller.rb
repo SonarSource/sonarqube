@@ -163,7 +163,7 @@ class ResourceController < ApplicationController
 
     panel = get_html_source_panel(@snapshot, {:display_scm => true})
     @lines = panel.html_lines unless panel.nil?
-    @scm_available=panel.display_scm
+    @scm_available=panel.display_scm unless panel.nil?
   end
 
   def render_coverage
