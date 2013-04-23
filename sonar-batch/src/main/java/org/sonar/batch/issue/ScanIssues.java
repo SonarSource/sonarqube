@@ -28,7 +28,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.OnIssueCreation;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
 import java.util.Collection;
@@ -37,7 +36,7 @@ import java.util.UUID;
 /**
  * Central component to manage issues
  */
-public class ScanIssues implements IssueChanges, OnIssueCreation {
+public class ScanIssues implements IssueChanges {
 
   private final RulesProfile qProfile;
   private final IssueCache cache;
@@ -80,22 +79,20 @@ public class ScanIssues implements IssueChanges, OnIssueCreation {
     return this;
   }
 
-  @Override
-  public void onIssueCreation(DefaultIssue issue) {
+  public boolean initAndAddIssue(DefaultIssue issue) {
     ActiveRule activeRule = qProfile.getActiveRule(issue.ruleKey().repository(), issue.ruleKey().rule());
     if (activeRule == null || activeRule.getRule() == null) {
       // rule does not exist or is not enabled -> ignore the issue
-      return;
+      return false;
     }
     String key = UUID.randomUUID().toString();
     Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
     issue.setKey(key);
     issue.setCreatedAt(project.getAnalysisDate());
-    issue.setResolution(Issue.RESOLUTION_OPEN);
-    issue.setStatus(Issue.STATUS_OPEN);
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }
     cache.addOrUpdate(issue);
+    return true;
   }
 }

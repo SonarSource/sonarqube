@@ -37,18 +37,23 @@ public interface Issuable extends Perspective {
 
     IssueBuilder description(String description);
 
-    IssueBuilder title(String title);
-
     IssueBuilder severity(String severity);
 
     IssueBuilder cost(Double cost);
 
     IssueBuilder manual(boolean b);
 
-    Issue done();
+    IssueBuilder attribute(String key, String value);
+
+    Issue build();
   }
 
-  IssueBuilder newIssue();
+  IssueBuilder newIssueBuilder();
+
+  /**
+   * @return true if the new issue is registered, false if the related rule does not exist or is disabled in the Quality profile
+   */
+  boolean addIssue(Issue issue);
 
   Collection<Issue> issues();
 }

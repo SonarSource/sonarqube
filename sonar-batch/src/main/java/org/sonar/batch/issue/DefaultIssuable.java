@@ -22,6 +22,7 @@ package org.sonar.batch.issue;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
 import java.util.Collection;
@@ -40,8 +41,13 @@ public class DefaultIssuable implements Issuable {
   }
 
   @Override
-  public IssueBuilder newIssue() {
-    return new DefaultIssueBuilder(scanIssues, component.key());
+  public IssueBuilder newIssueBuilder() {
+    return new DefaultIssueBuilder(component.key());
+  }
+
+  @Override
+  public boolean addIssue(Issue issue) {
+    return scanIssues.initAndAddIssue(((DefaultIssue)issue));
   }
 
   @Override

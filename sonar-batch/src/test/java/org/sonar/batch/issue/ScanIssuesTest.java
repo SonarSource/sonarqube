@@ -58,8 +58,9 @@ public class ScanIssuesTest {
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(null);
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-    scanIssues.onIssueCreation(issue);
+    boolean added = scanIssues.initAndAddIssue(issue);
 
+    assertThat(added).isFalse();
     verifyZeroInteractions(cache);
   }
 
@@ -70,8 +71,9 @@ public class ScanIssuesTest {
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-    scanIssues.onIssueCreation(issue);
+    boolean added = scanIssues.initAndAddIssue(issue);
 
+    assertThat(added).isFalse();
     verifyZeroInteractions(cache);
   }
 
@@ -87,12 +89,12 @@ public class ScanIssuesTest {
     when(project.getAnalysisDate()).thenReturn(analysisDate);
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle")).setSeverity(Severity.CRITICAL);
-    scanIssues.onIssueCreation(issue);
+    boolean added = scanIssues.initAndAddIssue(issue);
 
+    assertThat(added).isTrue();
     ArgumentCaptor<Issue> argument = ArgumentCaptor.forClass(Issue.class);
     verify(cache).addOrUpdate(argument.capture());
     assertThat(argument.getValue().key()).isNotNull();
-    assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(argument.getValue().severity()).isEqualTo(Severity.CRITICAL);
     assertThat(argument.getValue().createdAt()).isEqualTo(analysisDate);
   }
@@ -109,12 +111,11 @@ public class ScanIssuesTest {
     when(project.getAnalysisDate()).thenReturn(analysisDate);
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle")).setSeverity(null);
-    scanIssues.onIssueCreation(issue);
+    scanIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<Issue> argument = ArgumentCaptor.forClass(Issue.class);
     verify(cache).addOrUpdate(argument.capture());
     assertThat(argument.getValue().key()).isNotNull();
-    assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(argument.getValue().severity()).isEqualTo(Severity.INFO);
     assertThat(argument.getValue().createdAt()).isEqualTo(analysisDate);
   }

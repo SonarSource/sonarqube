@@ -20,24 +20,25 @@
 package org.sonar.core.issue;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 
+import java.util.Map;
+
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
-  private final OnIssueCreation callback;
   private final String componentKey;
   private RuleKey ruleKey;
   private Integer line;
   private String description;
-  private String title;
   private String severity;
   private Double cost;
   private boolean manual = false;
+  private Map<String, String> attributes;
 
-  public DefaultIssueBuilder(OnIssueCreation callback, String componentKey) {
-    this.callback = callback;
+  public DefaultIssueBuilder(String componentKey) {
     this.componentKey = componentKey;
   }
 
@@ -60,12 +61,6 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issuable.IssueBuilder title(String title) {
-    this.title = title;
-    return this;
-  }
-
-  @Override
   public Issuable.IssueBuilder severity(String severity) {
     this.severity = severity;
     return this;
@@ -84,7 +79,16 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issue done() {
+  public Issuable.IssueBuilder attribute(String key, String value) {
+    if (attributes==null) {
+      attributes = Maps.newLinkedHashMap();
+    }
+    attributes.put(key, value);
+    return this;
+  }
+
+  @Override
+  public Issue build() {
     Preconditions.checkNotNull(componentKey, "Component key must be set");
     Preconditions.checkNotNull(ruleKey, "Rule key must be set");
 
@@ -93,12 +97,13 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setRuleKey(ruleKey);
     issue.setDescription(description);
     issue.setSeverity(severity);
-
     issue.setCost(cost);
     issue.setLine(line);
     issue.setManual(manual);
-
-    callback.onIssueCreation(issue);
+    issue.setAttributes(attributes);
+    issue.setNew(true);
+    issue.setResolution(Issue.RESOLUTION_OPEN);
+    issue.setStatus(Issue.STATUS_OPEN);
     return issue;
   }
 }

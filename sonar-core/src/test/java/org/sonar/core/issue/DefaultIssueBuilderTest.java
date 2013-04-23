@@ -20,27 +20,26 @@
 package org.sonar.core.issue;
 
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class DefaultIssueBuilderTest {
 
-  OnIssueCreation callback = mock(OnIssueCreation.class);
-
   @Test
-  public void should_create_issue() throws Exception {
+  public void should_build_new_issue() throws Exception {
     String componentKey = "org.apache.struts:struts-core:Action.java";
-    DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder(callback, componentKey)
+    DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder(componentKey)
       .description("the desc")
       .line(123)
       .cost(10000.0)
       .ruleKey(RuleKey.of("squid", "NullDereference"))
       .severity(Severity.CRITICAL)
-      .done();
+      .attribute("JIRA", "FOO-123")
+      .attribute("YOUTRACK", "YT-123")
+      .build();
 
     assertThat(issue).isNotNull();
     assertThat(issue.key()).isNull();
@@ -55,6 +54,10 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.closedAt()).isNull();
     assertThat(issue.assignee()).isNull();
     assertThat(issue.isNew()).isTrue();
-    verify(callback).onIssueCreation(issue);
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_OPEN);
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(issue.attribute("JIRA")).isEqualTo("FOO-123");
+    assertThat(issue.attribute("YOUTRACK")).isEqualTo("YT-123");
+    assertThat(issue.attributes()).hasSize(2);
   }
 }
