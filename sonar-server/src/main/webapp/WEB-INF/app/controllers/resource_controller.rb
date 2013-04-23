@@ -162,7 +162,7 @@ class ResourceController < ApplicationController
     @display_manual_violation_form=(current_user && has_role?(:user, @snapshot))
 
     panel = get_html_source_panel(@snapshot, {:display_scm => true})
-    @lines = panel.html_lines
+    @lines = panel.html_lines unless panel.nil?
   end
 
   def init_scm
