@@ -39,7 +39,10 @@ public class HtmlCodeBuilder implements Appendable {
       colorizedCode.append("&lt;");
     } else if (c == '>') {
       colorizedCode.append("&gt;");
-    } else {
+    } else if (c == '&') {
+      colorizedCode.append("&amp;");
+    }
+    else {
       colorizedCode.append(c);
     }
     return this;

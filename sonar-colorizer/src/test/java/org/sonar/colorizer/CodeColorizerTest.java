@@ -19,13 +19,6 @@
  */
 package org.sonar.colorizer;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -39,6 +32,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class CodeColorizerTest {
 
@@ -120,6 +120,21 @@ public class CodeColorizerTest {
     for (Future<String> future : futures) {
       assertEquals(html, future.get());
     }
+  }
+
+  @Test
+  public void shouldEscapeSpecialCharacters() throws Exception {
+
+    Reader java = readFile("/org/sonar/colorizer/samples/SampleWithComments.java");
+
+    String html = CodeColorizer.javaToHtml(java, HtmlOptions.DEFAULT);
+
+    assertHtml(html);
+    assertContains(html, "<pre>  <span class=\"cppd\">/*</span></pre>",
+                         "<pre><span class=\"cppd\">   * This method does &lt;b&gt;something&lt;/b&gt;</span></pre>",
+                         "<pre><span class=\"cppd\">   *</span></pre>",
+                         "<pre><span class=\"cppd\">   * &amp;lt;p&amp;gt;description&amp;lt;/p&amp;gt;</span></pre>",
+                         "<pre><span class=\"cppd\">   */</span></pre>");
   }
 
   /**
