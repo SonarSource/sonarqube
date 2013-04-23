@@ -22,19 +22,12 @@ require 'cgi'
 class RulesConfigurationController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
-  
+
   STATUS_ACTIVE = "ACTIVE"
   STATUS_INACTIVE = "INACTIVE"
 
   ANY_SELECTION = []
   RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
-
-  # GETs should be safe (see http://www.w3.org/2001/tag/doc/whenToUseGet.html)
-  verify :method => :post,
-         :only => ['activate_rule', 'update_param', 'bulk_edit', 'create', 'update', 'delete', 'revert_rule', 'update_rule_note', 'update_active_rule_note', 'delete_active_rule_note'],
-         :redirect_to => {:action => 'index'}
-
-  before_filter :admin_required, :except => ['index', 'export']
 
   def index
     require_parameters :id
@@ -84,6 +77,9 @@ class RulesConfigurationController < ApplicationController
   #
   #
   def revert_rule
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :id, :active_rule_id
     id = params[:id].to_i
     rule_id = params[:active_rule_id].to_i
     java_facade.revertRule(id, rule_id, current_user.name)
@@ -99,6 +95,9 @@ class RulesConfigurationController < ApplicationController
   #
   #
   def activate_rule
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :id, :rule_id, :level
     profile = Profile.find(params[:id].to_i)
     if profile
       rule=Rule.first(:conditions => ["id = ? and status <> ?", params[:rule_id].to_i, Rule::STATUS_REMOVED])
@@ -135,9 +134,8 @@ class RulesConfigurationController < ApplicationController
         active_rule.reload
       end
 
-      is_admin=true # security has already been checked by controller filters
       render :update do |page|
-        page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:profile => profile, :rule => rule, :active_rule => active_rule, :is_admin => is_admin})
+        page.replace_html("rule_#{rule.id}", :partial => 'rule', :object => rule, :locals => {:profile => profile, :rule => rule, :active_rule => active_rule})
         page.assign('localModifications', true)
       end
     end
@@ -151,6 +149,8 @@ class RulesConfigurationController < ApplicationController
   #
   def new
     # form to duplicate a rule
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :id, :rule_id
     @profile = Profile.find(params[:id].to_i)
     @rule = Rule.find(params[:rule_id])
   end
@@ -161,6 +161,9 @@ class RulesConfigurationController < ApplicationController
   #
   #
   def create
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :id, :rule_id
     profile = Profile.find(params[:id].to_i)
     template=Rule.find(params[:rule_id])
     rule=Rule.create(params[:rule].merge(
@@ -203,6 +206,8 @@ class RulesConfigurationController < ApplicationController
   #
   def edit
     # form to edit a rule
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :id, :rule_id
     @profile = Profile.find(params[:id])
     @rule = Rule.find(params[:rule_id])
     if !@rule.editable?
@@ -216,6 +221,9 @@ class RulesConfigurationController < ApplicationController
   #
   #
   def update
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :id, :rule_id
     rule=Rule.find(params[:rule_id])
     if rule.editable?
       rule.name=params[:rule][:name]
@@ -244,6 +252,9 @@ class RulesConfigurationController < ApplicationController
   #
   #
   def delete
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :id, :rule_id
     rule=Rule.find(params[:rule_id])
     if rule.editable?
       rule.status=Rule::STATUS_REMOVED
@@ -269,9 +280,12 @@ class RulesConfigurationController < ApplicationController
   #
   #
   def bulk_edit
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :id, :bulk_rule_ids, :bulk_action
     profile = Profile.find(params[:id].to_i)
     rule_ids = params[:bulk_rule_ids].split(',').map { |id| id.to_i }
-    activation=params[:rule_activation]
+    activation=params[:rule_activation] || STATUS_ACTIVE
 
     case params[:bulk_action]
       when 'activate'
@@ -291,7 +305,9 @@ class RulesConfigurationController < ApplicationController
 
 
   def update_param
-    is_admin=true # security has already been checked by controller filters
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :profile_id, :param_id, :active_rule_id, :value
     profile = Profile.find(params[:profile_id].to_i)
     rule_param = RulesParameter.find(params[:param_id].to_i)
     active_rule = ActiveRule.find(params[:active_rule_id].to_i)
@@ -313,11 +329,14 @@ class RulesConfigurationController < ApplicationController
     end
                   # let's reload the active rule
     active_rule = ActiveRule.find(active_rule.id)
-    render :partial => 'rule', :locals => {:profile => profile, :rule => active_rule.rule, :active_rule => active_rule, :is_admin => is_admin}
+    render :partial => 'rule', :locals => {:profile => profile, :rule => active_rule.rule, :active_rule => active_rule}
   end
 
 
   def update_rule_note
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :rule_id, :text
     rule = Rule.find(params[:rule_id])
     note = rule.note
     unless note
@@ -328,11 +347,14 @@ class RulesConfigurationController < ApplicationController
     note.text = params[:text]
     note.user_login = current_user.login
     note.save!
-    render :partial => 'rule_note', :locals => {:rule => rule, :is_admin => true}
+    render :partial => 'rule_note', :locals => {:rule => rule}
   end
 
 
   def update_active_rule_note
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :active_rule_id, :note
     active_rule = ActiveRule.find(params[:active_rule_id])
     note = active_rule.note
     unless note
@@ -343,15 +365,18 @@ class RulesConfigurationController < ApplicationController
     note.text = params[:note]
     note.user_login = current_user.login
     note.save!
-    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => true, :profile => active_rule.rules_profile}
+    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :profile => active_rule.rules_profile}
   end
 
 
   def delete_active_rule_note
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :active_rule_id
     active_rule = ActiveRule.find(params[:active_rule_id])
     active_rule.note.destroy if active_rule.note
     active_rule.note = nil
-    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => true, :profile => active_rule.rules_profile}
+    render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :profile => active_rule.rules_profile}
   end
 
 

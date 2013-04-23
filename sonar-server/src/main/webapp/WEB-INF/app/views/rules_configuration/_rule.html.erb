@@ -1,6 +1,6 @@
 <td nowrap valign="top" class="left" x="<%= active_rule.failure_level if active_rule -%>" width="1%">
   <form id="levels_<%= rule.id -%>" action="">
-    <% enable_modification = is_admin
+    <% enable_modification = profiles_administrator?
        select_box_id = "levels_select_#{rule.id}"
        check_box_id = "levels_check_#{rule.id}"
        rule_select_box = "$('#{select_box_id}')"
@@ -48,7 +48,7 @@
     <a name="rule<%= rule.id -%>"></a>
 
     <div class="spacer-top spacer-bottom" id="rule_note_<%= rule.id -%>">
-      <%= render :partial => 'rule_note', :locals => {:rule => rule, :is_admin => is_admin} %>
+      <%= render :partial => 'rule_note', :locals => {:rule => rule} %>
     </div>
 
     <%
@@ -71,7 +71,7 @@
                 <span class="form-val-note" style="font-weight: bold"> <%= message('rules_configuration.original_severity') -%>
                   : <%= ancestor_active_rule.priority_text -%></span>
               <% end %>
-              <% if is_admin && active_rule.overrides? %>
+              <% if profiles_administrator? && active_rule.overrides? %>
                 <form action="<%= url_for :overwrite_params => {:action => 'revert_rule', :id => profile.id, :active_rule_id => active_rule.id} -%>" method="post" style="display: inline">
                   <input type="submit" value="<%= message('rules_configuration.revert_to_parent_definition') -%>">
                 </form>
@@ -85,7 +85,7 @@
           <tr id="param_<%= parameter.id -%>">
             <%= render :partial => 'rule_param', :object => nil,
                        :locals => {:parameter => parameter, :active_parameter => active_parameter, :profile => profile, :rule => rule,
-                                   :active_rule => active_rule, :ancestor_active_rule => ancestor_active_rule, :is_admin => is_admin} %>
+                                   :active_rule => active_rule, :ancestor_active_rule => ancestor_active_rule} %>
           </tr>
         <%
            end
@@ -95,11 +95,11 @@
 
     <% if active_rule %>
       <div id="active_rule_note_<%= active_rule.id -%>">
-        <%= render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :is_admin => is_admin, :profile => profile} %>
+        <%= render :partial => 'active_rule_note', :locals => {:active_rule => active_rule, :profile => profile} %>
       </div>
     <% end %>
 
-    <% if is_admin %>
+    <% if profiles_administrator? %>
       <% if rule.template? %>
         <%= link_to message('rules_configuration.copy_rule'), {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule.key}", :class => 'link-action spacer-right' %>
       <% end %>

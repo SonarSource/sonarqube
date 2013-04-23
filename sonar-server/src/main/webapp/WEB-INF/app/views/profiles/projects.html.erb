@@ -1,7 +1,7 @@
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab => 'Projects'} %>
 
 <div class="tabs-panel">
-  <% if is_admin? %>
+  <% if profiles_administrator? %>
     <form method="POST" action="<%= ApplicationController.root_context -%>/profiles/add_project" id="add_project_form">
       <input type="hidden" name="id" value="<%= @profile.id -%>"/>
 

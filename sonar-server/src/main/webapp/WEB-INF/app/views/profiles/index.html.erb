@@ -4,7 +4,7 @@
       <%= image_tag 'compare.png' -%>
       <a href="profiles/compare" id="compare-link"><%= message('quality_profiles.compare_profiles') -%></a>
     </li>
-    <% if administrator? %>
+    <% if profiles_administrator? %>
       <li class="last">
         <%= image_tag 'restore.gif' -%>
         <a href="profiles/restore_form" class="open-modal" id="restore-link"><%= message('quality_profiles.restore_profile') -%></a>
@@ -17,7 +17,7 @@
    Api::Utils.insensitive_sort(languages){|l| l.getName()}.each do |language|
 %>
   <div class="line-block">
-    <% if administrator? %>
+    <% if profiles_administrator? %>
       <ul style="float: right" class="horizontal">
         <li class="marginleft10 add">
           <a id="create-link-<%= language.getKey() -%>" href="profiles/create_form?language=<%= language.getKey() -%>" class="open-modal link-action"><%= message('create') -%></a>
@@ -35,7 +35,7 @@
       <th class="right"><%= message('alerts') -%></th>
       <th class="right"><%= message('projects') -%></th>
       <th class="right"><%= message('default') -%></th>
-      <% if administrator? %>
+      <% if profiles_administrator? %>
         <th width="1%" class="right" colspan="4"><%= message('operations') -%></th>
       <% end %>
     </tr>
@@ -60,7 +60,7 @@
         </td>
 
         <td align="right" width="10%" nowrap>
-          <% if !profile.default_profile? && administrator? %>
+          <% if !profile.default_profile? && profiles_administrator? %>
             <%= link_to_action message('set_as_default'), "#{ApplicationController.root_context}/profiles/set_as_default?id=#{profile.id}",
                                :id => "activate_#{profile.key.parameterize}",
                                :class => 'link-action',
@@ -75,7 +75,7 @@
         </td>
 
 
-        <% if administrator? %>
+        <% if profiles_administrator? %>
 
           <td align="right">
             <form method="post" action="<%= ApplicationController.root_context -%>/profiles/backup/<%= profile.id -%>" id="backup-<%= profile.key.parameterize -%>-form">

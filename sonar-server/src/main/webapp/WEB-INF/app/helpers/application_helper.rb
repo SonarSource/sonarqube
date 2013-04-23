@@ -38,6 +38,14 @@ module ApplicationHelper
       end
   end
 
+  # shortcut for the method has_role?(:profileadmin). Result is kept in cache.
+  def profiles_administrator?
+    @is_profileadmin ||=
+      begin
+        has_role?(:profileadmin)
+      end
+  end
+
   # TODO this method should be moved in resourceable.rb
   def qualifier_icon(object)
     qualifier=(object.respond_to?('qualifier') ? object.qualifier : object.to_s)
@@ -493,7 +501,7 @@ module ApplicationHelper
   #
   # === Optional parameters
   # * page_size: the number of elements to display at the same time (= the pagination size)
-  # 
+  #
   def paginate(items_array, options={})
     html = items_array.size.to_s + " " + message('results').downcase
 
@@ -535,7 +543,7 @@ module ApplicationHelper
   #
   # === Optional parameters
   # * title: to overwrite the tooltip of the parameter
-  # 
+  #
   def review_filter_tag(param_name, params, options={})
     html = "<span class=\"review-filter\" title=\""
     html += options[:title] ? options[:title] : params[param_name]

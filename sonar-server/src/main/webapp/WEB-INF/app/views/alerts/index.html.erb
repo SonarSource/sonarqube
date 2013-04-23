@@ -1,6 +1,6 @@
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Alerts'} %>
 
-<% if is_admin? %>
+<% if profiles_administrator? %>
   <div class="tabs-panel marginbottom10 admin">
     <div id="new_alert_content">
       <%= render :partial => 'new' -%>
@@ -20,7 +20,7 @@
       <% for alert in @alerts %>
           <tr class="<%= cycle('even','odd') -%>">
             <td id="row_alert_<%= alert.id -%>">
-              <% if is_admin?  %>
+              <% if profiles_administrator?  %>
                 <%= render :partial => 'edit', :locals => {:alert => alert} %>
               <% else %>
                 <%= render :partial => 'show', :locals => {:alert => alert} %>

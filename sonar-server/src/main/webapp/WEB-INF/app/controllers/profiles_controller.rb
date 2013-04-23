@@ -19,11 +19,8 @@
 #
 class ProfilesController < ApplicationController
 
-  # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
-  before_filter :admin_required, :only => ['create', 'delete', 'set_as_default', 'copy', 'restore', 'change_parent', 'set_projects', 'rename_form', 'rename']
-
   SECTION=Navigation::SECTION_CONFIGURATION
-    
+
   ROOT_BREADCRUMB = {:name => Api::Utils.message('quality_profiles.page'), :url => {:controller => 'profiles', :action => 'index'}}
 
   # GET /profiles/index
@@ -36,6 +33,7 @@ class ProfilesController < ApplicationController
 
   # GET /profiles/create_form?language=<language>
   def create_form
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'language'
     render :partial => 'profiles/create_form', :locals => {:language_key => params[:language]}
   end
@@ -43,6 +41,7 @@ class ProfilesController < ApplicationController
   # POST /profiles/create?name=<profile name>&language=<language>&[backup=<file>]
   def create
     verify_post_request
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'language'
 
     profile_name=params[:name]
@@ -73,6 +72,7 @@ class ProfilesController < ApplicationController
   # POST /profiles/delete/<id>
   def delete
     verify_post_request
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
 
     @profile = Profile.find(params[:id])
@@ -86,6 +86,7 @@ class ProfilesController < ApplicationController
   # POST /profiles/set_as_default/<id>
   def set_as_default
     verify_post_request
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
 
     profile = Profile.find(params[:id])
@@ -96,6 +97,7 @@ class ProfilesController < ApplicationController
 
   # GET /profiles/copy_form/<profile id>
   def copy_form
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
     @profile = Profile.find(params[:id])
     render :partial => 'profiles/copy_form'
@@ -105,6 +107,7 @@ class ProfilesController < ApplicationController
   def copy
     verify_post_request
     verify_ajax_request
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
 
     @profile = Profile.find(params[:id])
@@ -122,6 +125,7 @@ class ProfilesController < ApplicationController
     end
   end
 
+  # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
   # POST /profiles/backup?id=<profile id>
   def backup
     verify_post_request
@@ -144,6 +148,7 @@ class ProfilesController < ApplicationController
   # POST /profiles/restore?backup=<file>
   def restore
     verify_post_request
+    access_denied unless has_role?(:profileadmin)
     if params[:backup].blank?
       flash[:warning]=message('quality_profiles.please_upload_backup_file')
     else
@@ -221,6 +226,7 @@ class ProfilesController < ApplicationController
   # POST /profiles/change_parent?id=<profile id>&parent_name=<parent profile name>
   def change_parent
     verify_post_request
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
 
     id = params[:id].to_i
@@ -262,8 +268,8 @@ class ProfilesController < ApplicationController
   # POST /profiles/add_project?id=<profile id>&project=<project id or key>
   def add_project
     verify_post_request
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'id', 'project'
-    admin_required
 
     profile=Profile.find(params[:id])
     bad_request('Unknown profile') unless profile
@@ -277,8 +283,8 @@ class ProfilesController < ApplicationController
   # POST /profiles/remove_project?id=<profile id>&project=<project id or key>
   def remove_project
     verify_post_request
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'id', 'project'
-    admin_required
 
     profile=Profile.find(params[:id])
     bad_request('Unknown profile') unless profile
@@ -292,8 +298,8 @@ class ProfilesController < ApplicationController
   # POST /profiles/remove_projects?id=<profile id>
   def remove_projects
     verify_post_request
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
-    admin_required
 
     profile=Profile.find(params[:id])
     bad_request('Unknown profile') unless profile
@@ -304,6 +310,7 @@ class ProfilesController < ApplicationController
 
   # GET /profiles/rename_form?id=<id>
   def rename_form
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
     @profile = Profile.find(params[:id])
     render :partial => 'profiles/rename_form'
@@ -313,6 +320,7 @@ class ProfilesController < ApplicationController
   def rename
     verify_post_request
     verify_ajax_request
+    access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
 
     @profile = Profile.find(params[:id])
@@ -425,7 +433,7 @@ class ProfilesController < ApplicationController
 
   #
   # Remove active rules that are identical in both collections (same severity and same parameters)
-  # and return a map with results {:added => X, :removed => Y, :modified => Z, 
+  # and return a map with results {:added => X, :removed => Y, :modified => Z,
   # :rules => {rule1 => [activeruleleft1, activeruleright1], rule2 => [activeruleleft2, nil], ...]}
   # Assume both collections are ordered by rule key
   #

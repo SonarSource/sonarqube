@@ -77,4 +77,9 @@ module RolesHelper
         role.to_s
     end
   end
+
+  def global_role_name(role)
+    message("global_role.#{role}", :default => role)
+  end
+
 end

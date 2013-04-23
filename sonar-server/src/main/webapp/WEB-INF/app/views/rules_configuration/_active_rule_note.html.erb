@@ -1,4 +1,4 @@
-<% #locals = active_rule, is_admin, profile
+<% #locals = active_rule, profile
   note = active_rule.note
   active_note_detail_div_id = "and_" + active_rule.id.to_s
   add_active_note_button_id = "aanb_" + active_rule.id.to_s
@@ -14,7 +14,7 @@
     <blockquote class="spacer-bottom">
       <cite>
         <b><%= note.user.name -%></b> (<%= distance_of_time_in_words_to_now(note.updated_at) -%>)&nbsp;
-        <% if is_admin %>
+        <% if profiles_administrator? %>
           | &nbsp;
           <a href="#" id="<%= edit_active_note_link_id -%>" class="link-action"
              onclick="$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_form_div_id -%>').show();$('<%= active_note_textarea_id -%>').focus();return false;"><%= message('edit') %></a>
@@ -28,13 +28,13 @@
       </cite>
       <p><%= note.html_text -%></p>
     </blockquote>
-  <% elsif is_admin %>
+  <% elsif profiles_administrator? %>
     <a href="#" onclick="$('<%= active_note_form_div_id -%>').show();$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_textarea_id -%>').focus(); return false;"
        class="link-action spacer-right" id="<%= add_active_note_button_id -%>"><%= message('rules_configuration.add_note') -%></a>
   <% end %>
 </div>
 
-<% if is_admin %>
+<% if profiles_administrator? %>
 
   <%= form_remote_tag :url => {:action => 'update_active_rule_note', :active_rule_id => active_rule.id},
                       :update => "active_rule_note_#{active_rule.id}" -%>

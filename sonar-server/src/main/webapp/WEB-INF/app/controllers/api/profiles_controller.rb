@@ -59,7 +59,7 @@ class Api::ProfilesController < Api::ApiController
   # POST /api/profiles/destroy?language=<language>&name=<name>
   def destroy
     verify_post_request
-    access_denied unless has_role?(:admin)
+    access_denied unless has_role?(:profileadmin)
     require_parameters :language, :name
 
     profile=Profile.find_by_name_and_language(params[:name], params[:language])
@@ -75,7 +75,7 @@ class Api::ProfilesController < Api::ApiController
   # Since v.3.3
   def set_as_default
     verify_post_request
-    access_denied unless has_role?(:admin)
+    access_denied unless has_role?(:profileadmin)
     require_parameters :language, :name
 
     profile=Profile.find_by_name_and_language(params[:name], params[:language])
@@ -130,7 +130,7 @@ class Api::ProfilesController < Api::ApiController
   # curl -X POST -u admin:admin -F 'backup=@backup.xml' -v http://localhost:9000/api/profiles/restore
   def restore
     verify_post_request
-    access_denied unless has_role?(:admin)
+    access_denied unless has_role?(:profileadmin)
     require_parameters :backup
 
     backup = Api::Utils.read_post_request_param(params[:backup])

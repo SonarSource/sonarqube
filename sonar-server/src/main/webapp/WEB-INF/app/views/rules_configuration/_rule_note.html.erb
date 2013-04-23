@@ -1,4 +1,4 @@
-<% #locals = rule, is_admin
+<% #locals = rule
   note = rule.note
   note_detail_div_id = "nd_" + rule.id.to_s
   note_extend_link_id = "nel_" + rule.id.to_s
@@ -19,8 +19,8 @@
   <% if note && !note.text.strip.blank? %>
     <p><%= note.html_text -%></p>
   <% end %>
-  
-  <% if is_admin %>
+
+  <% if profiles_administrator? %>
     <div>
         <a href="#" id="<%= note_extend_link_id -%>" class="link-action spacer-right"
            onclick="$('<%= note_detail_div_id -%>').hide();$('<%= note_form_div_id -%>').show();$('<%= note_textarea_id -%>').focus();return false;"><%= message('rules_configuration.extend_description') %></a>
@@ -28,7 +28,7 @@
   <% end %>
 </div>
 
-<% if is_admin %>
+<% if profiles_administrator? %>
 <div id="<%= note_form_div_id -%>" style="display: none" class="admin">
   <%= form_remote_tag :url => {:action => 'update_rule_note', :rule_id => rule.id},
                       :update => "rule_note_#{rule.id}" %>

@@ -2,7 +2,7 @@
    param_value = active_parameter.value if active_parameter
    active_param_id = active_parameter.id if active_parameter
    active_rule_id = active_rule.id if active_rule
-   read_only = !active_rule || !is_admin
+   read_only = !active_rule || !profiles_administrator?
 %>
 
 <td class="form-key-cell"><%= parameter.name -%></td>

@@ -50,7 +50,7 @@
 </script>
 <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Coding rules'} %>
 
-<% enable_modification = is_admin? %>
+<% enable_modification = profiles_administrator? %>
 <div class="tabs-panel marginbottom10 background-gray">
 
 <% form_tag({:action => 'index'}, {:id => 'rules-search-form', :method => 'get'}) do %>
@@ -164,13 +164,11 @@
 <tr><td colspan="3" class="even"><%= message('no_results') -%>.</td></tr>
 <% end %>
 <%
-  # avoid executing several times the method is_admin?()
-  is_admin=is_admin?()
   @current_rules.each do |rule|
     active_rule = @profile.active_by_rule_id(rule.id)
 %>
   <tr id="rule_<%= rule.id -%>">
-    <%= render :partial => 'rule', :object => rule, :locals => {:profile => @profile, :rule => rule, :active_rule => active_rule, :is_admin => is_admin} %>
+    <%= render :partial => 'rule', :object => rule, :locals => {:profile => @profile, :rule => rule, :active_rule => active_rule} %>
   </tr>
 <% end %>
 </tbody>

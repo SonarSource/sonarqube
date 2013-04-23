@@ -1,24 +1,28 @@
-<h1 class="marginbottom10"><%= message 'system_administrators.page' -%></h1>
+<h1 class="marginbottom10"><%= message 'administrators.page' -%></h1>
 
 <table class="data width100" id="global-roles">
   <thead>
   <tr >
-    <th>Role</th>
-    <th width="30%">Users</th>
-    <th width="30%">Groups</th>
+    <th><%= message('global_role.role') -%></th>
+    <th width="30%"><%= message('global_role.users') -%></th>
+    <th width="30%"><%= message('global_role.groups') -%></th>
   </tr>
   </thead>
   <tbody>
-  <tr class="even" >
-    <td valign="top"><b>Administrators</b><br/><span class="small gray">Ability to perform all administration functions for the instance: global configuration and personalization of default dashboards.</span></td>
-    <td valign="top" style="word-break:break-all;width:30%;">
-      <span><%= users('admin').map(&:name).join(', ') -%></span>
-      (<%= link_to "select", {:action => 'edit_users', :role => 'admin', :redirect => 'global'}, :class => 'link-action' -%>)
-    </td>
-    <td valign="top" style="word-break:break-all;width:30%;">
-      <span><%= groups('admin').map{|g| group_name(g)}.join(', ') %></span>
-      (<%= link_to "select", {:action => 'edit_groups', :role => 'admin', :redirect => 'global'}, :class => 'link-action' -%>)
-    </td>
-  </tr>
+    <% ['admin', 'profileadmin'].each do |globalRole| %>
+    <tr class="<%= cycle('even', 'odd', :name => 'globalRole') -%>" >
+      <td valign="top">
+        <b><%= message('global_role.' + globalRole) -%></b><br/>
+        <span class="small gray"><%= message('global_role.' + globalRole + '.desc') -%></span></td>
+      <td valign="top" style="word-break:break-all;width:30%;">
+        <span><%= users(globalRole).map(&:name).join(', ') -%></span>
+        (<%= link_to "select", {:action => 'edit_users', :role => globalRole, :redirect => 'global'}, :class => 'link-action' -%>)
+      </td>
+      <td valign="top" style="word-break:break-all;width:30%;">
+        <span><%= groups(globalRole).map{|g| group_name(g)}.join(', ') %></span>
+        (<%= link_to "select", {:action => 'edit_groups', :role => globalRole, :redirect => 'global'}, :class => 'link-action' -%>)
+      </td>
+    </tr>
+    <% end %>
   </tbody>
 </table>

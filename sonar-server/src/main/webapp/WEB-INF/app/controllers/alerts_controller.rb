@@ -19,9 +19,6 @@
 #
 class AlertsController < ApplicationController
 
-  verify :method => :post, :only => ['create', 'update', 'delete'], :redirect_to => { :action => 'index' }
-  before_filter :admin_required, :except => [ 'index' ]
-
   SECTION=Navigation::SECTION_CONFIGURATION
 
   #
@@ -43,6 +40,7 @@ class AlertsController < ApplicationController
   #
   #
   def show
+    require_parameters :id
     @alert = @profile.alerts.find(params[:id])
   end
 
@@ -52,6 +50,8 @@ class AlertsController < ApplicationController
   #
   #
   def new
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :profile_id
     @profile = Profile.find(params[:profile_id])
     @alert = @profile.alerts.build(params[:alert])
     render :partial => 'new', :status => 200
@@ -64,6 +64,8 @@ class AlertsController < ApplicationController
   #
   #
   def edit
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :id
     @alert = @profile.alerts.find(params[:id])
   end
 
@@ -74,6 +76,9 @@ class AlertsController < ApplicationController
   #
   #
   def create
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :profile_id
     @profile = Profile.find(params[:profile_id])
     params[:alert][:period] = nil if params[:alert][:period] == '0'
     @alert = @profile.alerts.build(params[:alert])
@@ -95,6 +100,9 @@ class AlertsController < ApplicationController
   #
   #
   def update
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :profile_id, :id
     @profile = Profile.find(params[:profile_id])
     params[:alert][:period] = nil if params[:alert][:period] == '0'
     @alerts=@profile.alerts
@@ -116,6 +124,9 @@ class AlertsController < ApplicationController
   #
   #
   def delete
+    verify_post_request
+    access_denied unless has_role?(:profileadmin)
+    require_parameters :profile_id, :id
     @profile = Profile.find(params[:profile_id])
     @alert = @profile.alerts.find(params[:id])
     @alert.destroy

@@ -4,7 +4,7 @@
   if @project
      title='Role Membership For: ' + h(@project.name)
    else
-     title='System Administrators'
+     title="#{global_role_name(@role)}"
    end
 %>
 <div class="subtitle">&raquo; <a href="<%= url_for :action => params[:redirect], :q => params[:q], :qualifier => params[:qualifier] -%>">Back</a></div>
@@ -36,7 +36,7 @@
             <button id="select_left_all" onclick="SelectBox.move_all('to', 'from');return false;"><< unselect all</button>
           </td>
           <td class="box" style="padding: 5px 10px;" valign="top">
-            <h2>Role: <%= role_name(@role) -%></h2>
+            <h2>Role: <%= @project ? role_name(@role) : global_role_name(@role) -%></h2>
 
             <select name="groups[]" id="to" size="20" multiple="multiple" style="margin: 5px 0pt; width: 300px;">
               <% granted_groups.each do |group| %>
