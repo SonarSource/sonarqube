@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,6 +65,7 @@ public class TransitionTest {
   public void key_should_be_set() throws Exception {
     try {
       Transition.builder("").from("OPEN").to("CLOSED").build();
+      fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Transition key must be set");
     }
@@ -73,6 +75,7 @@ public class TransitionTest {
   public void key_should_be_lower_case() throws Exception {
     try {
       Transition.builder("CLOSE").from("OPEN").to("CLOSED").build();
+      fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Transition key must be lower-case");
     }
@@ -82,6 +85,7 @@ public class TransitionTest {
   public void originating_status_should_be_set() throws Exception {
     try {
       Transition.builder("close").from("").to("CLOSED").build();
+      fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Originating status must be set");
     }
@@ -91,6 +95,7 @@ public class TransitionTest {
   public void destination_status_should_be_set() throws Exception {
     try {
       Transition.builder("close").from("OPEN").to("").build();
+      fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Destination status must be set");
     }

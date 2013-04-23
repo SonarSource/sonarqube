@@ -24,6 +24,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class SetResolutionTest {
   @Test
@@ -38,6 +39,7 @@ public class SetResolutionTest {
   public void resolution_should_not_be_empty() throws Exception {
     try {
       new SetResolution("");
+      fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Resolution must be set");
     }

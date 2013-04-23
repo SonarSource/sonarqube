@@ -21,13 +21,14 @@ package org.sonar.api.issue;
 
 import org.sonar.api.rule.RuleKey;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
 /**
  * @since 3.6
  */
-public interface Issue {
+public interface Issue extends Serializable {
 
   int DESCRIPTION_MAX_SIZE = 4000;
   String STATUS_OPEN = "OPEN";

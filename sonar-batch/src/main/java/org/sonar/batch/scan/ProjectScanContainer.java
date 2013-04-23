@@ -90,7 +90,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // issues
       IssueWorkflow.class,
-      ScanIssues.class,
       DeprecatedViolations.class,
       IssueCache.class,
       IssuePersister.class,

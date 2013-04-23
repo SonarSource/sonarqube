@@ -19,13 +19,12 @@
  */
 package org.sonar.batch.issue;
 
-import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.Issue;
+import org.sonar.batch.index.Cache;
+import org.sonar.batch.index.Caches;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * Shared issues among all project modules
@@ -33,28 +32,22 @@ import java.util.Map;
 public class IssueCache implements BatchComponent {
 
   // component key -> issue key -> issue
-  private final Map<String, Map<String, Issue>> componentIssues = Maps.newHashMap();
+  private final Cache<String, Issue> cache;
+
+  public IssueCache(Caches caches) {
+    cache = caches.createCache("issues");
+  }
 
   public Collection<Issue> componentIssues(String componentKey) {
-    Map<String, Issue> issuesByKey = componentIssues.get(componentKey);
-    return issuesByKey == null ? Collections.<Issue>emptyList() : issuesByKey.values();
+    return cache.values(componentKey);
   }
 
   public Issue componentIssue(String componentKey, String issueKey) {
-    Map<String, Issue> issuesByKey = componentIssues.get(componentKey);
-    if (issuesByKey != null) {
-      return issuesByKey.get(issueKey);
-    }
-    return null;
+    return cache.get(componentKey, issueKey);
   }
 
   public IssueCache addOrUpdate(Issue issue) {
-    Map<String, Issue> issuesByKey = componentIssues.get(issue.componentKey());
-    if (issuesByKey == null) {
-      issuesByKey = Maps.newHashMap();
-      componentIssues.put(issue.componentKey(), issuesByKey);
-    }
-    issuesByKey.put(issue.key(), issue);
+    cache.put(issue.componentKey(), issue.key(), issue);
     return this;
   }
 }

@@ -49,21 +49,11 @@ public class Caches implements BatchComponent, Startable {
   private Persistit persistit;
   private Volume volume;
 
-  public <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName) {
-    Preconditions.checkState(volume != null && volume.isOpened(), "Caches are not started");
-    Preconditions.checkState(!cacheNames.contains(cacheName), "Cache is already created: " + cacheName);
-    try {
-      Exchange exchange = persistit.getExchange(volume, cacheName, true);
-      Cache<K, V> cache = new Cache<K, V>(cacheName, exchange);
-      cacheNames.add(cacheName);
-      return cache;
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to create cache: " + cacheName, e);
-    }
+  public Caches() {
+    initPersistit();
   }
 
-  @Override
-  public void start() {
+  private void initPersistit() {
     try {
       tempDir = Files.createTempDir();
       persistit = new Persistit();
@@ -83,6 +73,23 @@ public class Caches implements BatchComponent, Startable {
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start caches", e);
     }
+  }
+
+  public <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName) {
+    Preconditions.checkState(volume != null && volume.isOpened(), "Caches are not initialized");
+    Preconditions.checkState(!cacheNames.contains(cacheName), "Cache is already created: " + cacheName);
+    try {
+      Exchange exchange = persistit.getExchange(volume, cacheName, true);
+      Cache<K, V> cache = new Cache<K, V>(cacheName, exchange);
+      cacheNames.add(cacheName);
+      return cache;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to create cache: " + cacheName, e);
+    }
+  }
+
+  @Override
+  public void start() {
   }
 
   @Override

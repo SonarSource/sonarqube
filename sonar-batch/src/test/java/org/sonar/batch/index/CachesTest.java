@@ -37,12 +37,7 @@ public class CachesTest {
   }
 
   @Test
-  public void should_start_and_stop_persistit() throws Exception {
-    assertThat(caches.tempDir()).isNull();
-    assertThat(caches.persistit()).isNull();
-
-    caches.start();
-
+  public void should_stop_and_clean_temp_dir() throws Exception {
     File tempDir = caches.tempDir();
     assertThat(tempDir).isDirectory().exists();
     assertThat(caches.persistit()).isNotNull();
@@ -71,16 +66,6 @@ public class CachesTest {
       fail();
     } catch (IllegalStateException e) {
       // ok
-    }
-  }
-
-  @Test
-  public void should_not_create_cache_before_starting() {
-    try {
-      caches.createCache("too_early");
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Caches are not started");
     }
   }
 

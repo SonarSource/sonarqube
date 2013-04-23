@@ -50,7 +50,7 @@ public class IssueCacheTest {
 
   @Test
   public void should_add_new_issue() throws Exception {
-    IssueCache cache = new IssueCache();
+    IssueCache cache = new IssueCache(caches);
     DefaultIssue issue1 = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action");
     DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Action");
     DefaultIssue issue3 = new DefaultIssue().setKey("333").setComponentKey("org.struts.Filter");
@@ -62,7 +62,7 @@ public class IssueCacheTest {
 
   @Test
   public void should_update_existing_issue() throws Exception {
-    IssueCache cache = new IssueCache();
+    IssueCache cache = new IssueCache(caches);
     DefaultIssue issue = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action").setSeverity(Severity.BLOCKER);
     cache.addOrUpdate(issue);
 

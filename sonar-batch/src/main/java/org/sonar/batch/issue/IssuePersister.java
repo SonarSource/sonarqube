@@ -74,6 +74,4 @@ public class IssuePersister implements ScanPersister {
       }
     }
   }
-
-
 }
