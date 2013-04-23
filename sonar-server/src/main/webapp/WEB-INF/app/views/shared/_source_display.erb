@@ -94,7 +94,7 @@
 
           <% end %>
 
-          <%= render :partial => "shared/source_line_numbers", :locals => {:index => index} %>
+          <%= render :partial => "shared/source_line_numbers", :locals => {:index => line.index} %>
 
           <% if display_coverage %>
             <%= render :partial => "shared/source_coverage", :locals => {:line => line, \
