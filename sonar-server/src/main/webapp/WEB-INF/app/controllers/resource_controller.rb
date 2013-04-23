@@ -163,13 +163,7 @@ class ResourceController < ApplicationController
 
     panel = get_html_source_panel(@snapshot, {:display_scm => true})
     @lines = panel.html_lines unless panel.nil?
-  end
-
-  def init_scm
-    @scm_available=(@snapshot.measure('last_commit_datetimes_by_line')!=nil)
-    @authors_by_line=load_distribution(@snapshot, 'authors_by_line')
-    @revisions_by_line=load_distribution(@snapshot, 'revisions_by_line')
-    @dates_by_line=load_distribution(@snapshot, 'last_commit_datetimes_by_line')
+    @scm_available=panel.display_scm
   end
 
   def render_coverage
