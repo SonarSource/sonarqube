@@ -60,14 +60,22 @@ public class IssueTrackingDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (isComponentSupported(resource)) {
+      // all the issues created by rule engines during this module scan
       Collection<DefaultIssue> newIssues = new ArrayList(scanIssues.issues(resource.getEffectiveKey()));
+
+      // all the issues that are open in db before starting this module scan
       Collection<IssueDto> openIssues = initialOpenIssuesStack.selectAndRemove(resource.getId());
+
       tracking.track(resource, openIssues, newIssues);
+
       updateIssues(newIssues);
 
       Set<String> issueKeys = Sets.newHashSet(Collections2.transform(newIssues, new IssueToKeyFunction()));
       for (IssueDto openIssue : openIssues) {
+        // not in newIssues
         addManualIssuesAndCloseResolvedOnes(openIssue);
+
+
         closeResolvedStandardIssues(openIssue, issueKeys);
         keepFalsePositiveIssues(openIssue);
         reopenUnresolvedIssues(openIssue);
@@ -142,7 +150,7 @@ public class IssueTrackingDecorator implements Decorator {
   private void reopenAndSave(IssueDto openIssue) {
     DefaultIssue issue = openIssue.toDefaultIssue();
     issue.setStatus(Issue.STATUS_REOPENED);
-    issue.setResolution(null);
+    issue.setResolution(Issue.RESOLUTION_OPEN);
     issue.setUpdatedAt(getLoadedDate());
     scanIssues.addOrUpdate(issue);
   }

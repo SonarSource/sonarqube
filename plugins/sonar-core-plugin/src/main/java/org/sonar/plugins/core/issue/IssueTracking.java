@@ -23,8 +23,6 @@ package org.sonar.plugins.core.issue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.resources.Project;
@@ -38,12 +36,9 @@ import org.sonar.plugins.core.timemachine.ViolationTrackingBlocksRecognizer;
 import org.sonar.plugins.core.timemachine.tracking.*;
 
 import javax.annotation.Nullable;
-
 import java.util.*;
 
 public class IssueTracking implements BatchExtension {
-
-  private static final Logger LOG = LoggerFactory.getLogger(IssueTracking.class);
 
   private static final Comparator<LinePair> LINE_PAIR_COMPARATOR = new Comparator<LinePair>() {
     public int compare(LinePair o1, LinePair o2) {
@@ -51,7 +46,7 @@ public class IssueTracking implements BatchExtension {
       if (weightDiff != 0) {
         return weightDiff;
       } else {
-        return Math.abs(o1.lineA -o1.lineB) - Math.abs(o2.lineA - o2.lineB);
+        return Math.abs(o1.lineA - o1.lineB) - Math.abs(o2.lineA - o2.lineB);
       }
     }
   };

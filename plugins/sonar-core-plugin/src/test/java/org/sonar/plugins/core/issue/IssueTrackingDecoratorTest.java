@@ -119,7 +119,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     // First call is done when updating issues after calling issue tracking and we don't care
     DefaultIssue defaultIssue = capturedDefaultIssues.get(1);
     assertThat(defaultIssue.status()).isEqualTo(Issue.STATUS_REOPENED);
-    assertThat(defaultIssue.resolution()).isNull();
+    assertThat(defaultIssue.resolution()).isEqualTo(Issue.RESOLUTION_OPEN);
     assertThat(defaultIssue.updatedAt()).isEqualTo(loadedDate);
   }
 
