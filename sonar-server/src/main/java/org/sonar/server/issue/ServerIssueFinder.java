@@ -86,7 +86,11 @@ public class ServerIssueFinder implements IssueFinder {
           ruleIds.add(dto.getRuleId());
         }
       }
-      return new DefaultResults(issues, getRulesByIssue(issues, ruleIds), getComponentsByIssue(issues, componentIds));
+      if (!issues.isEmpty()) {
+        return new DefaultResults(issues, getRulesByIssue(issues, ruleIds), getComponentsByIssue(issues, componentIds));
+      } else {
+        return new DefaultResults(issues);
+      }
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
@@ -142,6 +146,12 @@ public class ServerIssueFinder implements IssueFinder {
       this.issues = issues;
       this.rulesByIssue = rulesByIssue;
       this.componentsByIssue = componentsByIssue;
+    }
+
+    DefaultResults(List<Issue> issues) {
+      this.issues = issues;
+      this.rulesByIssue = newHashMap();
+      this.componentsByIssue = newHashMap();
     }
 
     @Override

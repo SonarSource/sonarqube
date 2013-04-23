@@ -38,13 +38,18 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.AuthorizationDao;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class ServerIssueFinderTest {
 
@@ -146,6 +151,21 @@ public class ServerIssueFinderTest {
     assertThat(results.issues()).hasSize(2);
     assertThat(results.component(issue)).isEqualTo(component);
     assertThat(results.components()).hasSize(1);
+  }
+
+  @Test
+  public void should_get_empty_rule_and_component_from_result_when_no_issue() {
+    grantAccessRights();
+    IssueQuery issueQuery = mock(IssueQuery.class);
+    when(issueDao.select(eq(issueQuery), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
+
+    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    assertThat(results.issues()).isEmpty();
+    assertThat(results.rules()).isEmpty();
+    assertThat(results.components()).isEmpty();
+
+    verifyZeroInteractions(ruleFinder);
+    verifyZeroInteractions(resourceDao);
   }
 
   private void grantAccessRights() {
