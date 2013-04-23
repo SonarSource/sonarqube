@@ -33,15 +33,14 @@ public class PropertyDefinitionTest {
 
   @Test
   public void should_create_property() {
-    PropertyDefinition def = PropertyDefinition.build("hello")
+    PropertyDefinition def = PropertyDefinition.builder("hello")
         .name("Hello")
         .defaultValue("world")
         .category("categ")
         .options("de", "en")
         .description("desc")
         .type(PropertyType.FLOAT)
-        .global(false)
-        .qualifiers(Qualifiers.FILE, Qualifiers.CLASS)
+        .onlyOnQualifiers(Qualifiers.FILE, Qualifiers.CLASS)
         .multiValues(true)
         .propertySetKey("set")
         .build();
@@ -82,8 +81,20 @@ public class PropertyDefinitionTest {
   }
 
   @Test
+  public void should_create_hidden_property() {
+    PropertyDefinition def = PropertyDefinition.builder("hello")
+      .name("Hello")
+      .hidden()
+      .build();
+
+    assertThat(def.key()).isEqualTo("hello");
+    assertThat(def.qualifiers()).isEmpty();
+    assertThat(def.global()).isFalse();
+  }
+
+  @Test
   public void should_create_property_with_default_values() {
-    PropertyDefinition def = PropertyDefinition.build("hello")
+    PropertyDefinition def = PropertyDefinition.builder("hello")
         .name("Hello")
         .build();
 
@@ -124,7 +135,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void should_support_property_sets() {
-    PropertyDefinition def = PropertyDefinition.build("hello")
+    PropertyDefinition def = PropertyDefinition.builder("hello")
         .name("Hello")
         .fields(
             PropertyFieldDefinition.build("first").name("First").description("Description").options("A", "B").build(),
@@ -169,7 +180,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void should_validate_string() {
-    PropertyDefinition def = PropertyDefinition.build("foo").name("foo").type(PropertyType.STRING).build();
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.STRING).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -179,7 +190,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void should_validate_boolean() {
-    PropertyDefinition def = PropertyDefinition.build("foo").name("foo").type(PropertyType.BOOLEAN).build();
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.BOOLEAN).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -193,7 +204,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void should_validate_integer() {
-    PropertyDefinition def = PropertyDefinition.build("foo").name("foo").type(PropertyType.INTEGER).build();
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.INTEGER).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -206,7 +217,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void should_validate_float() {
-    PropertyDefinition def = PropertyDefinition.build("foo").name("foo").type(PropertyType.FLOAT).build();
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.FLOAT).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -220,7 +231,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void should_validate_single_select_list() {
-    PropertyDefinition def = PropertyDefinition.build("foo").name("foo").type(PropertyType.SINGLE_SELECT_LIST).options("de", "en").build();
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.SINGLE_SELECT_LIST).options("de", "en").build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -234,7 +245,7 @@ public class PropertyDefinitionTest {
 
   @Test
   public void should_auto_detect_password_type() {
-    PropertyDefinition def = PropertyDefinition.build("scm.password.secured").name("SCM password").build();
+    PropertyDefinition def = PropertyDefinition.builder("scm.password.secured").name("SCM password").build();
 
     assertThat(def.key()).isEqualTo("scm.password.secured");
     assertThat(def.type()).isEqualTo(PropertyType.PASSWORD);
@@ -242,10 +253,20 @@ public class PropertyDefinitionTest {
 
   @Test
   public void should_auto_detect_license_type() {
-    PropertyDefinition def = PropertyDefinition.build("views.license.secured").name("Views license").build();
+    PropertyDefinition def = PropertyDefinition.builder("views.license.secured").name("Views license").build();
 
     assertThat(def.key()).isEqualTo("views.license.secured");
     assertThat(def.type()).isEqualTo(PropertyType.LICENSE);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void should_not_define_qualifier_and_hidden() {
+    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).hidden().build();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void should_not_authorise_empty_key() {
+    PropertyDefinition.builder(null).build();
   }
 
   @Properties(@Property(key = "hello", name = "Hello", defaultValue = "world", description = "desc",

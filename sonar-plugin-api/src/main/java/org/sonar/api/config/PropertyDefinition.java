@@ -22,6 +22,7 @@ package org.sonar.api.config;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.BatchExtension;
@@ -32,6 +33,7 @@ import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -85,7 +87,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   /**
    * @since 3.6
    */
-  public static Builder build(String key) {
+  public static Builder builder(String key) {
     return new Builder(key);
   }
 
@@ -93,6 +95,18 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
    * @since 3.6
    */
   static PropertyDefinition create(Property annotation) {
+    Builder builder = PropertyDefinition.builder(annotation.key())
+      .name(annotation.name())
+      .defaultValue(annotation.defaultValue())
+      .description(annotation.description())
+      .category(annotation.category())
+      .type(annotation.type())
+      .options(Arrays.asList(annotation.options()))
+      .multiValues(annotation.multiValues())
+      .propertySetKey(annotation.propertySetKey())
+      .fields(PropertyFieldDefinition.create(annotation.fields()))
+      .deprecatedKey(annotation.deprecatedKey())
+      .index(annotation.index());
     List<String> qualifiers = newArrayList();
     if (annotation.project()) {
       qualifiers.add(Qualifiers.PROJECT);
@@ -100,21 +114,12 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     if (annotation.module()) {
       qualifiers.add(Qualifiers.MODULE);
     }
-    return PropertyDefinition.build(annotation.key())
-        .name(annotation.name())
-        .defaultValue(annotation.defaultValue())
-        .description(annotation.description())
-        .global(annotation.global())
-        .qualifiers(qualifiers)
-        .category(annotation.category())
-        .type(annotation.type())
-        .options(annotation.options())
-        .multiValues(annotation.multiValues())
-        .propertySetKey(annotation.propertySetKey())
-        .fields(PropertyFieldDefinition.create(annotation.fields()))
-        .deprecatedKey(annotation.deprecatedKey())
-        .index(annotation.index())
-        .build();
+    if (annotation.global()) {
+      builder.onQualifiers(qualifiers);
+    } else {
+      builder.onlyOnQualifiers(qualifiers);
+    }
+    return builder.build();
   }
 
   public static Result validate(PropertyType type, @Nullable String value, List<String> options) {
@@ -291,6 +296,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     private String propertySetKey;
     private List<PropertyFieldDefinition> fields;
     private String deprecatedKey;
+    private boolean hidden;
     private int index;
 
     private Builder(String key) {
@@ -307,6 +313,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       this.qualifiers = newArrayList();
       this.options = newArrayList();
       this.fields = newArrayList();
+      this.hidden = false;
       this.index = 999;
     }
 
@@ -335,18 +342,27 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
-    public Builder qualifiers(String... qualifiers) {
-      this.qualifiers.addAll(newArrayList(qualifiers));
+    public Builder onQualifiers(String first, String... rest) {
+      this.qualifiers = Lists.asList(first, rest);
+      this.global = true;
       return this;
     }
 
-    public Builder qualifiers(List<String> qualifiers) {
-      this.qualifiers.addAll(qualifiers);
+    public Builder onQualifiers(List<String> qualifiers) {
+      this.qualifiers = ImmutableList.copyOf(qualifiers);
+      this.global = true;
       return this;
     }
 
-    public Builder global(boolean global) {
-      this.global = global;
+    public Builder onlyOnQualifiers(String first, String... rest) {
+      this.qualifiers = Lists.asList(first, rest);
+      this.global = false;
+      return this;
+    }
+
+    public Builder onlyOnQualifiers(List<String> qualifiers) {
+      this.qualifiers = ImmutableList.copyOf(qualifiers);
+      this.global = false;
       return this;
     }
 
@@ -355,8 +371,8 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
-    public Builder options(String... options) {
-      this.options.addAll(ImmutableList.copyOf(options));
+    public Builder options(String first, String... rest) {
+      this.options.addAll(Lists.asList(first, rest));
       return this;
     }
 
@@ -375,8 +391,8 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
-    public Builder fields(PropertyFieldDefinition... fields) {
-      this.fields.addAll(ImmutableList.copyOf(fields));
+    public Builder fields(PropertyFieldDefinition first, PropertyFieldDefinition... rest) {
+      this.fields.addAll(Lists.asList(first, rest));
       return this;
     }
 
@@ -390,6 +406,11 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
+    public Builder hidden() {
+      this.hidden = true;
+      return this;
+    }
+
     public Builder index(int index) {
       this.index = index;
       return this;
@@ -398,6 +419,10 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     public PropertyDefinition build() {
       Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
       fixType(key, type);
+      Preconditions.checkArgument(!hidden || qualifiers.isEmpty(), "Cannot be hidden and defining qualifiers on which to display");
+      if (hidden) {
+        global = false;
+      }
       return new PropertyDefinition(this);
     }
 
