@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.issue;
+package org.sonar.plugins.core.issue;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchExtension;
 import org.sonar.core.issue.IssueDto;
 
 import java.util.Collection;
@@ -31,7 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class InitialOpenIssuesStack implements BatchComponent {
+public class InitialOpenIssuesStack implements BatchExtension {
 
   private final ListMultimap<Integer, IssueDto> issuesByResourceId;
 

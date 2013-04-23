@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.issue;
+package org.sonar.plugins.core.issue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +32,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
 
 public class InitialOpenIssuesSensorTest {
 

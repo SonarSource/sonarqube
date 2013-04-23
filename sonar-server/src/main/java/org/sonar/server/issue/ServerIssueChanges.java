@@ -48,7 +48,6 @@ public class ServerIssueChanges implements ServerComponent {
     this.authorizationDao = authorizationDao;
   }
 
-
   public Issue change(String issueKey, IssueChange change, @Nullable Integer userId) {
     if (userId == null) {
       // must be logged

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.issue;
+package org.sonar.plugins.core.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
@@ -42,6 +42,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Computes metrics related to number of issues.
+ *
  * @since 3.6
  */
 @DependsUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)

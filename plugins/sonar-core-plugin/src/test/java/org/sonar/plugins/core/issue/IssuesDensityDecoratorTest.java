@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.issue;
+package org.sonar.plugins.core.issue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -28,7 +29,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class IssuesDensityDecoratorTest {
@@ -70,7 +70,7 @@ public class IssuesDensityDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context, never()).saveMeasure(eq(CoreMetrics.ISSUES_DENSITY), anyDouble());
+    verify(context, never()).saveMeasure(Matchers.eq(CoreMetrics.ISSUES_DENSITY), Matchers.anyDouble());
   }
 
   @Test

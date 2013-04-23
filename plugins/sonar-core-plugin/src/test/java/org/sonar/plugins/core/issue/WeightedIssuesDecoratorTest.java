@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.issue;
+package org.sonar.plugins.core.issue;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.DecoratorContext;
@@ -29,10 +28,11 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.test.IsMeasure;
 
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
+
 
 public class WeightedIssuesDecoratorTest {
 
@@ -71,13 +71,13 @@ public class WeightedIssuesDecoratorTest {
   public void should_load_severity_weights_at_startup() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY, "BLOCKER=2;CRITICAL=1;MAJOR=0;MINOR=0;INFO=0");
-    
+
     WeightedIssuesDecorator decorator = new WeightedIssuesDecorator(settings);
     decorator.start();
 
-    assertThat(decorator.getWeightsBySeverity().get(RulePriority.BLOCKER), Is.is(2));
-    assertThat(decorator.getWeightsBySeverity().get(RulePriority.CRITICAL), Is.is(1));
-    assertThat(decorator.getWeightsBySeverity().get(RulePriority.MAJOR), Is.is(0));
+    assertThat(decorator.getWeightsBySeverity().get(RulePriority.BLOCKER)).isEqualTo(2);
+    assertThat(decorator.getWeightsBySeverity().get(RulePriority.CRITICAL)).isEqualTo(1);
+    assertThat(decorator.getWeightsBySeverity().get(RulePriority.MAJOR)).isEqualTo(0);
   }
 
   @Test
@@ -88,6 +88,6 @@ public class WeightedIssuesDecoratorTest {
     WeightedIssuesDecorator decorator = new WeightedIssuesDecorator(settings);
     decorator.start();
 
-    assertThat(decorator.getWeightsBySeverity().get(RulePriority.MAJOR), Is.is(1));
+    assertThat(decorator.getWeightsBySeverity().get(RulePriority.MAJOR)).isEqualTo(1);
   }
 }

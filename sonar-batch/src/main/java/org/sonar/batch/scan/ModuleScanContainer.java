@@ -110,11 +110,6 @@ public class ModuleScanContainer extends ComponentContainer {
       // issues
       ScanIssues.class,
       IssuableFactory.class,
-      IssueCountersDecorator.class,
-      WeightedIssuesDecorator.class,
-      IssuesDensityDecorator.class,
-      InitialOpenIssuesSensor.class,
-      InitialOpenIssuesStack.class,
 
       ScanPerspectives.class
     );

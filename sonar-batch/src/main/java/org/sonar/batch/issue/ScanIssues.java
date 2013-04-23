@@ -34,6 +34,9 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import java.util.Collection;
 import java.util.UUID;
 
+/**
+ * Central component to manage issues
+ */
 public class ScanIssues implements IssueChanges, OnIssueCreation {
 
   private final RulesProfile qProfile;
@@ -49,7 +52,7 @@ public class ScanIssues implements IssueChanges, OnIssueCreation {
   }
 
   @Override
-  public Issue apply(Issue issue, IssueChange change) {
+  public Issue change(Issue issue, IssueChange change) {
     if (!change.hasChanges()) {
       return issue;
     }

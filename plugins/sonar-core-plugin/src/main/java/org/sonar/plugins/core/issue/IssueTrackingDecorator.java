@@ -21,7 +21,6 @@ package org.sonar.plugins.core.issue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
@@ -32,7 +31,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.resources.Scopes;
-import org.sonar.batch.issue.InitialOpenIssuesStack;
 import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;

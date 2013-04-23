@@ -123,7 +123,7 @@ public class ScanIssuesTest {
   public void should_ignore_empty_change() throws Exception {
     Issue issue = new DefaultIssue().setComponentKey("org/struts/Action.java").setKey("ABCDE");
     when(cache.componentIssue("org/struts/Action.java", "ABCDE")).thenReturn(issue);
-    Issue changed = scanIssues.apply(issue, IssueChange.create());
+    Issue changed = scanIssues.change(issue, IssueChange.create());
     verifyZeroInteractions(cache);
     assertThat(changed).isSameAs(issue);
     assertThat(changed.updatedAt()).isNull();
@@ -134,7 +134,7 @@ public class ScanIssuesTest {
     Issue issue = new DefaultIssue().setComponentKey("org/struts/Action.java").setKey("ABCDE");
     when(cache.componentIssue("org/struts/Action.java", "ABCDE")).thenReturn(null);
     try {
-      scanIssues.apply(issue, IssueChange.create().setLine(200));
+      scanIssues.change(issue, IssueChange.create().setLine(200));
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Bad API usage. Unregistered issues can't be changed.");
@@ -147,7 +147,7 @@ public class ScanIssuesTest {
     when(cache.componentIssue("org/struts/Action.java", "ABCDE")).thenReturn(issue);
 
     IssueChange change = IssueChange.create().setTransition("resolve");
-    scanIssues.apply(issue, change);
+    scanIssues.change(issue, change);
 
     verify(cache).addOrUpdate(issue);
     verify(workflow).change(issue, change);

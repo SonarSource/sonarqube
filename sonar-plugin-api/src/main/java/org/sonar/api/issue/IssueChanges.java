@@ -30,6 +30,6 @@ import javax.annotation.Nullable;
  */
 public interface IssueChanges extends BatchComponent {
 
-  Issue apply(Issue issue, IssueChange change);
+  Issue change(Issue issue, IssueChange change);
 
 }

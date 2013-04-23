@@ -32,8 +32,7 @@ import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.dashboards.*;
-import org.sonar.plugins.core.issue.IssueTracking;
-import org.sonar.plugins.core.issue.IssueTrackingDecorator;
+import org.sonar.plugins.core.issue.*;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
@@ -401,7 +400,14 @@ public final class CorePlugin extends SonarPlugin {
         // colorizers
         JavaColorizerFormat.class,
 
-        // batch
+        // issues
+      IssueCountersDecorator.class,
+      WeightedIssuesDecorator.class,
+      IssuesDensityDecorator.class,
+      InitialOpenIssuesSensor.class,
+      InitialOpenIssuesStack.class,
+
+      // batch
         ProfileSensor.class,
         ProfileEventsSensor.class,
         ProjectLinksSensor.class,

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.issue;
+package org.sonar.plugins.core.issue;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
