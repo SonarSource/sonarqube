@@ -80,7 +80,8 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     this.propertySetKey = builder.propertySetKey;
     this.fields = builder.fields;
     this.deprecatedKey = builder.deprecatedKey;
-    this.qualifiers = builder.qualifiers;
+    this.qualifiers = builder.onQualifiers;
+    this.qualifiers.addAll(builder.onlyOnQualifiers);
     this.index = builder.index;
   }
 
@@ -288,7 +289,8 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     private String defaultValue;
     private String category;
     private String subcategory;
-    private List<String> qualifiers;
+    private List<String> onQualifiers;
+    private List<String> onlyOnQualifiers;
     private boolean global;
     private PropertyType type;
     private List<String> options;
@@ -310,7 +312,8 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       this.deprecatedKey = "";
       this.global = true;
       this.type = PropertyType.STRING;
-      this.qualifiers = newArrayList();
+      this.onQualifiers = newArrayList();
+      this.onlyOnQualifiers = newArrayList();
       this.options = newArrayList();
       this.fields = newArrayList();
       this.hidden = false;
@@ -343,25 +346,25 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     }
 
     public Builder onQualifiers(String first, String... rest) {
-      this.qualifiers = Lists.asList(first, rest);
+      this.onQualifiers.addAll(Lists.asList(first, rest));
       this.global = true;
       return this;
     }
 
     public Builder onQualifiers(List<String> qualifiers) {
-      this.qualifiers = ImmutableList.copyOf(qualifiers);
+      this.onQualifiers.addAll(ImmutableList.copyOf(qualifiers));
       this.global = true;
       return this;
     }
 
     public Builder onlyOnQualifiers(String first, String... rest) {
-      this.qualifiers = Lists.asList(first, rest);
+      this.onlyOnQualifiers.addAll(Lists.asList(first, rest));
       this.global = false;
       return this;
     }
 
     public Builder onlyOnQualifiers(List<String> qualifiers) {
-      this.qualifiers = ImmutableList.copyOf(qualifiers);
+      this.onlyOnQualifiers.addAll(ImmutableList.copyOf(qualifiers));
       this.global = false;
       return this;
     }
@@ -419,7 +422,8 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     public PropertyDefinition build() {
       Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
       fixType(key, type);
-      Preconditions.checkArgument(!hidden || qualifiers.isEmpty(), "Cannot be hidden and defining qualifiers on which to display");
+      Preconditions.checkArgument(onQualifiers.isEmpty() || onlyOnQualifiers.isEmpty(), "Cannot define both onQualifiers and onlyOnQualifiers");
+      Preconditions.checkArgument((!hidden || (onQualifiers.isEmpty()) && (!hidden || (onlyOnQualifiers.isEmpty()))), "Cannot be hidden and defining qualifiers on which to display");
       if (hidden) {
         global = false;
       }

@@ -28,22 +28,23 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.AnnotationUtils;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class PropertyDefinitionTest {
 
   @Test
   public void should_create_property() {
     PropertyDefinition def = PropertyDefinition.builder("hello")
-        .name("Hello")
-        .defaultValue("world")
-        .category("categ")
-        .options("de", "en")
-        .description("desc")
-        .type(PropertyType.FLOAT)
-        .onlyOnQualifiers(Qualifiers.FILE, Qualifiers.CLASS)
-        .multiValues(true)
-        .propertySetKey("set")
-        .build();
+      .name("Hello")
+      .defaultValue("world")
+      .category("categ")
+      .options("de", "en")
+      .description("desc")
+      .type(PropertyType.FLOAT)
+      .onlyOnQualifiers(Qualifiers.FILE, Qualifiers.CLASS)
+      .multiValues(true)
+      .propertySetKey("set")
+      .build();
 
     assertThat(def.key()).isEqualTo("hello");
     assertThat(def.name()).isEqualTo("Hello");
@@ -95,8 +96,8 @@ public class PropertyDefinitionTest {
   @Test
   public void should_create_property_with_default_values() {
     PropertyDefinition def = PropertyDefinition.builder("hello")
-        .name("Hello")
-        .build();
+      .name("Hello")
+      .build();
 
     assertThat(def.key()).isEqualTo("hello");
     assertThat(def.name()).isEqualTo("Hello");
@@ -136,12 +137,12 @@ public class PropertyDefinitionTest {
   @Test
   public void should_support_property_sets() {
     PropertyDefinition def = PropertyDefinition.builder("hello")
-        .name("Hello")
-        .fields(
-            PropertyFieldDefinition.build("first").name("First").description("Description").options("A", "B").build(),
-            PropertyFieldDefinition.build("second").name("Second").type(PropertyType.INTEGER).indicativeSize(5).build()
-        )
-        .build();
+      .name("Hello")
+      .fields(
+        PropertyFieldDefinition.build("first").name("First").description("Description").options("A", "B").build(),
+        PropertyFieldDefinition.build("second").name("Second").type(PropertyType.INTEGER).indicativeSize(5).build()
+      )
+      .build();
 
     assertThat(def.fields()).hasSize(2);
     assertThat(def.fields().get(0).key()).isEqualTo("first");
@@ -259,24 +260,54 @@ public class PropertyDefinitionTest {
     assertThat(def.type()).isEqualTo(PropertyType.LICENSE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void should_not_define_qualifier_and_hidden() {
-    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).hidden().build();
+  @Test
+  public void should_not_authorise_empty_key() {
+    try {
+      PropertyDefinition.builder(null).build();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Key must be set").isInstanceOf(IllegalArgumentException.class);
+    }
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void should_not_authorise_empty_key() {
-    PropertyDefinition.builder(null).build();
+  @Test
+  public void should_not_authorize_defining_on_qualifiers_and_hidden() {
+    try {
+      PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).hidden().build();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Cannot be hidden and defining qualifiers on which to display").isInstanceOf(IllegalArgumentException.class);
+    }
+  }
+
+  @Test
+  public void should_not_authorize_defining_ony_on_qualifiers_and_hidden() {
+    try {
+      PropertyDefinition.builder("foo").name("foo").onlyOnQualifiers(Qualifiers.FILE).hidden().build();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Cannot be hidden and defining qualifiers on which to display").isInstanceOf(IllegalArgumentException.class);
+    }
+  }
+
+  @Test
+  public void should_not_authorize_defining_on_qualifiers_and_only_on_qualifiers() {
+    try {
+      PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).onlyOnQualifiers(Qualifiers.PROJECT).build();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Cannot define both onQualifiers and onlyOnQualifiers").isInstanceOf(IllegalArgumentException.class);
+    }
   }
 
   @Properties(@Property(key = "hello", name = "Hello", defaultValue = "world", description = "desc",
-      options = {"de", "en"}, category = "categ", type = PropertyType.FLOAT, global = false, project = true, module = true, multiValues = true, propertySetKey = "set"))
+    options = {"de", "en"}, category = "categ", type = PropertyType.FLOAT, global = false, project = true, module = true, multiValues = true, propertySetKey = "set"))
   static class Init {
   }
 
   @Properties(@Property(key = "hello", name = "Hello", fields = {
-      @PropertyField(key = "first", name = "First", description = "Description", options = {"A", "B"}),
-      @PropertyField(key = "second", name = "Second", type = PropertyType.INTEGER, indicativeSize = 5)}))
+    @PropertyField(key = "first", name = "First", description = "Description", options = {"A", "B"}),
+    @PropertyField(key = "second", name = "Second", type = PropertyType.INTEGER, indicativeSize = 5)}))
   static class WithPropertySet {
   }
 
