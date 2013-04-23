@@ -62,7 +62,6 @@ class Api::IssuesController < Api::ApiController
         :status => issue.status
     }
     json[:severity] = issue.severity if issue.severity
-    json[:title] = issue.title if issue.title
     json[:desc] = issue.description if issue.description
     json[:line] = issue.line if issue.line
     json[:cost] = issue.cost if issue.cost

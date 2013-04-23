@@ -55,10 +55,6 @@ public class Issue {
     return JsonUtils.getString(json, "severity");
   }
 
-  public String title() {
-    return JsonUtils.getString(json, "title");
-  }
-
   public String description() {
     return JsonUtils.getString(json, "desc");
   }

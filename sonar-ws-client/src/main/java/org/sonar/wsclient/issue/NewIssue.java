@@ -68,11 +68,6 @@ public class NewIssue {
     return this;
   }
 
-  public NewIssue title(String s) {
-    params.put("title", s);
-    return this;
-  }
-
   public NewIssue cost(Double d) {
     params.put("cost", d);
     return this;

@@ -45,7 +45,6 @@ public class IssueParserTest {
     assertThat(first.assignee()).isEqualTo("karadoc");
     assertThat(first.description()).isEqualTo("the desc");
     assertThat(first.cost()).isEqualTo(4.2);
-    assertThat(first.title()).isEqualTo("the title");
     assertThat(first.userLogin()).isEqualTo("perceval");
     assertThat(first.createdAt()).isNotNull();
     assertThat(first.updatedAt()).isNotNull();

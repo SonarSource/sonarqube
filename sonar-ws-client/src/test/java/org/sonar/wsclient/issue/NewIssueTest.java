@@ -39,17 +39,15 @@ public class NewIssueTest {
       .line(123)
       .rule("squid:AvoidCycle")
       .severity("BLOCKER")
-      .title("the title")
       .attribute("JIRA", "FOO-123");
 
-    assertThat(newIssue.urlParams()).hasSize(8).includes(
+    assertThat(newIssue.urlParams()).hasSize(7).includes(
       entry("component", "Action.java"),
       entry("cost", 4.2),
       entry("desc", "the desc"),
       entry("line", 123),
       entry("rule", "squid:AvoidCycle"),
       entry("severity", "BLOCKER"),
-      entry("title", "the title"),
       entry("attr[JIRA]", "FOO-123")
     );
   }
