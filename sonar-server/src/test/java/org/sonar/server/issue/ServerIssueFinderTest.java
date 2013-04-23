@@ -24,13 +24,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.IssueDao;
 import org.sonar.core.issue.IssueDto;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.AuthorizationDao;
 
 import java.util.List;
@@ -45,15 +50,20 @@ public class ServerIssueFinderTest {
 
   MyBatis mybatis;
   ServerIssueFinder finder;
+
   IssueDao issueDao;
   AuthorizationDao authorizationDao;
+  DefaultRuleFinder ruleFinder;
+  ResourceDao resourceDao;
 
   @Before
   public void before() {
     mybatis = mock(MyBatis.class);
     issueDao = mock(IssueDao.class);
     authorizationDao = mock(AuthorizationDao.class);
-    finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao);
+    ruleFinder = mock(DefaultRuleFinder.class);
+    resourceDao = mock(ResourceDao.class);
+    finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao, ruleFinder, resourceDao);
   }
 
   @Test
@@ -88,6 +98,54 @@ public class ServerIssueFinderTest {
     assertThat(issue).isNotNull();
     assertThat(issue.componentKey()).isEqualTo("Action.java");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
+  }
+
+  @Test
+  public void should_get_rule_from_result() {
+    Rule rule = Rule.create().setRepositoryKey("squid").setKey("AvoidCycle");
+    when(ruleFinder.findByIds(anyCollection())).thenReturn(newArrayList(rule));
+
+    grantAccessRights();
+    IssueQuery issueQuery = mock(IssueQuery.class);
+
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
+      .setComponentKey_unit_test_only("Action.java")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123)
+      .setComponentKey_unit_test_only("Action.java")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+    List<IssueDto> dtoList = newArrayList(issue1, issue2);
+    when(issueDao.select(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+
+    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    Issue issue = results.issues().iterator().next();
+    assertThat(results.issues()).hasSize(2);
+    assertThat(results.rule(issue)).isEqualTo(rule);
+    assertThat(results.rules()).hasSize(1);
+  }
+
+  @Test
+  public void should_get_component_from_result() {
+    Component component = new ComponentDto().setKey("Action.java");
+    when(resourceDao.findByIds(anyCollection())).thenReturn(newArrayList(component));
+
+    grantAccessRights();
+    IssueQuery issueQuery = mock(IssueQuery.class);
+
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
+      .setComponentKey_unit_test_only("Action.java")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123)
+      .setComponentKey_unit_test_only("Action.java")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+    List<IssueDto> dtoList = newArrayList(issue1, issue2);
+    when(issueDao.select(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+
+    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    Issue issue = results.issues().iterator().next();
+    assertThat(results.issues()).hasSize(2);
+    assertThat(results.component(issue)).isEqualTo(component);
+    assertThat(results.components()).hasSize(1);
   }
 
   private void grantAccessRights() {

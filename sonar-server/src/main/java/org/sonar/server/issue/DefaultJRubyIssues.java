@@ -33,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.server.ui.JRubyFacades;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -57,6 +58,7 @@ public class DefaultJRubyIssues implements JRubyIssues {
   /**
    * Requires the role {@link org.sonar.api.web.UserRole#CODEVIEWER}
    */
+  @Override
   public IssueFinder.Results find(Map<String, Object> params, @Nullable Integer currentUserId) {
     // TODO move the role to IssueFinder
     return finder.find(toQuery(params), currentUserId, UserRole.CODEVIEWER);

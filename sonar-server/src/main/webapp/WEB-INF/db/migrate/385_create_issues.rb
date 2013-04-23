@@ -31,7 +31,6 @@ class CreateIssues < ActiveRecord::Migration
       t.column :severity, 					  :string, 	  :null => true,	  :limit => 10
       t.column :manual_severity,      :boolean,   :null => false
       t.column :manual_issue,         :boolean,   :null => false
-      t.column :title,                :string ,   :null => true,    :limit => 500
       t.column :description,          :string,    :null => true,    :limit => 4000
       t.column :line,                 :integer,   :null => true
       t.column :cost,                 :decimal,   :null => true,    :precision => 30,   :scale => 20

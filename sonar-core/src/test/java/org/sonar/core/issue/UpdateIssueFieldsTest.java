@@ -20,7 +20,6 @@
 package org.sonar.core.issue;
 
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueChange;
 import org.sonar.api.rule.Severity;
 
@@ -42,7 +41,6 @@ public class UpdateIssueFieldsTest {
       .setCost(4.2)
     );
     assertThat(issue.line()).isEqualTo(200);
-    assertThat(issue.title()).isEqualTo("new title");
     assertThat(issue.description()).isEqualTo("new desc");
     assertThat(issue.attribute("JIRA")).isEqualTo("FOO-123");
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
@@ -56,7 +54,6 @@ public class UpdateIssueFieldsTest {
       .setComponentKey("org/struts/Action.java")
       .setKey("ABCDE")
       .setLine(123)
-      .setTitle("the title")
       .setDescription("the desc")
       .setAssignee("karadoc")
       .setCost(4.2)
@@ -77,6 +74,5 @@ public class UpdateIssueFieldsTest {
     assertThat(issue.cost()).isEqualTo(4.2);
     assertThat(issue.isManualSeverity()).isTrue();
     assertThat(issue.description()).isEqualTo("the desc");
-    assertThat(issue.title()).isEqualTo("the title");
   }
 }

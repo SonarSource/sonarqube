@@ -42,13 +42,11 @@ public class DefaultIssue implements Issue, Serializable {
 
   private static final Set<String> RESOLUTIONS = ImmutableSet.of(RESOLUTION_OPEN, RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED);
   private static final Set<String> STATUSES = ImmutableSet.of(STATUS_OPEN, STATUS_CLOSED, STATUS_REOPENED, STATUS_RESOLVED);
-
   private String key;
   private String componentKey;
   private RuleKey ruleKey;
   private String severity;
   private boolean manualSeverity = false;
-  private String title;
   private String description;
   private Integer line;
   private Double cost;
@@ -108,15 +106,6 @@ public class DefaultIssue implements Issue, Serializable {
 
   public DefaultIssue setManualSeverity(boolean b) {
     this.manualSeverity = b;
-    return this;
-  }
-
-  public String title() {
-    return title;
-  }
-
-  public DefaultIssue setTitle(@Nullable String title) {
-    this.title = title;
     return this;
   }
 

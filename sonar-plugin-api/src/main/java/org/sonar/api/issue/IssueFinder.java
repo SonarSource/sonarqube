@@ -21,8 +21,12 @@
 package org.sonar.api.issue;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.component.Component;
+import org.sonar.api.rules.Rule;
 
 import javax.annotation.Nullable;
+
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -35,12 +39,21 @@ public interface IssueFinder extends ServerComponent {
 
   interface Results {
     List<Issue> issues();
+
+    Rule rule(Issue issue);
+
+    Collection<Rule> rules();
+
+    Component component(Issue issue);
+
+    Collection<Component> components();
   }
 
   Results find(IssueQuery query, @Nullable Integer currentUserId, String role);
 
   Issue findByKey(String key /* TODO @Nullable Integer currentUserId */);
-/*
+
+  /*
   Map<RuleKey, Rule> rules(Collection<Issue> issues);
 
   Map<String, Component> components(Collection<Issue> issues);

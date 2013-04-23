@@ -58,14 +58,14 @@
       </td>
     </tr>
     <% # TODO action plan %>
-    <% if issue.rule_key %>
-      <% rule = Rule.by_key_or_id(issue.rule_key.to_s) %>
+    <% if rule %>
+      <% rule_name = Api.rules.rule_name(I18n.locale, rule.rule_key) %>
       <tr>
         <td class="key">
           <%= message('rule') -%>:
         </td>
         <td class="val" colspan="3">
-          <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => issue.rule_key.to_s, :layout => 'false' -%>"><%= h(rule.name) -%></a>
+          <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.rule_key.to_s, :layout => 'false' -%>"><%= h(rule_name) -%></a>
         </td>
       </tr>
     <% end %>
@@ -74,14 +74,14 @@
         <%= message('file') -%>:
       </td>
       <td class="val" colspan="3">
-        <%= qualifier_icon(@resource) -%>
-        <% if @resource.root_project.id != @resource.id %>
-          <%= @resource.root_project.long_name -%> <%= image_tag 'sep12.png' -%>
+        <%= qualifier_icon(resource) -%>
+        <% if resource.root_project.id != resource.id %>
+          <%= resource.root_project.long_name -%> <%= image_tag 'sep12.png' -%>
         <% end %>
-        <% if  @resource.last_snapshot %>
-          <%= link_to_resource(@resource, @resource.long_name, {:tab => :violations, :rule => issue.resolution == "FALSE-POSITIVE" ? "false_positive_issues" : ""}) %>
+        <% if  resource.last_snapshot %>
+          <%= link_to_resource(resource, resource.long_name, {:tab => :violations, :rule => issue.resolution == "FALSE-POSITIVE" ? "false_positive_issues" : ""}) %>
         <% else %>
-          <%= @resource.long_name -%>
+          <%= resource.long_name -%>
         <% end %>
       </td>
     </tr>

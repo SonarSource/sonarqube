@@ -25,4 +25,9 @@ class Api
     Java::OrgSonarServerUi::JRubyFacades.issues()
   end
 
+  # since 3.6
+  def self.rules
+    Java::OrgSonarServerUi::JRubyFacades.rules()
+  end
+
 end

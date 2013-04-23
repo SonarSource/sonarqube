@@ -28,11 +28,12 @@ class IssuesController < ApplicationController
 
   # Used for the permalink, e.g. http://localhost:9000/issues/view/1
   def view
-    issues = find_issues({'keys' => params[:id]})
-    if issues.length == 1
-      @issue = issues[0]
+    issue_result = find_issues({'keys' => params[:id]})
+    if issue_result.issues.length == 1
+      @issue = issue_result.issues[0]
+      @rule = issue_result.rule(@issue)
       @resource = Project.by_key(@issue.component_key)
-      render 'issues/_view', :locals => {:issue => @issue}
+      render 'issues/_view', :locals => {:issue => @issue, :rule => @rule, :resource => @resource}
     else
       render :text => "<b>Cannot access this issue</b> : not found."
     end
@@ -42,7 +43,7 @@ class IssuesController < ApplicationController
 
   def find_issues(map)
     user = current_user ? current_user.id : nil
-    Api.issues.find(map, user).issues
+    Api.issues.find(map, user)
   end
 
 end

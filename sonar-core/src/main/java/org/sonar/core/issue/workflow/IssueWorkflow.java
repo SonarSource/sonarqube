@@ -101,9 +101,6 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
       if (change.severity() != null) {
         issue.setSeverity(change.severity());
       }
-      if (change.title() != null) {
-        issue.setTitle(change.title());
-      }
       if (change.isAssigneeChanged()) {
         issue.setAssignee(change.assignee());
       }

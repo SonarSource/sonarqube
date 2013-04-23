@@ -41,7 +41,6 @@ import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.server.issue.ServerIssueFinder;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterExecutor;
 import org.sonar.core.measure.MeasureFilterFactory;
@@ -72,12 +71,14 @@ import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.DefaultJRubyIssues;
 import org.sonar.server.issue.ServerIssueChanges;
+import org.sonar.server.issue.ServerIssueFinder;
 import org.sonar.server.macro.MacroInterpreter;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitymodel.DefaultModelManager;
+import org.sonar.server.rule.DefaultJRubyRules;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
@@ -242,6 +243,9 @@ public final class Platform {
     servicesContainer.addSingleton(ServerIssueChanges.class);
     servicesContainer.addSingleton(ServerIssueFinder.class);
     servicesContainer.addSingleton(DefaultJRubyIssues.class);
+
+    // rules
+    servicesContainer.addSingleton(DefaultJRubyRules.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

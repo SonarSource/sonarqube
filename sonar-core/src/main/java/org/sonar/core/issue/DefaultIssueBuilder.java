@@ -92,7 +92,6 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setComponentKey(componentKey);
     issue.setRuleKey(ruleKey);
     issue.setDescription(description);
-    issue.setTitle(title);
     issue.setSeverity(severity);
 
     issue.setCost(cost);

@@ -75,6 +75,12 @@
     select * from projects where id=#{id}
   </select>
 
+  <select id="selectResourcesById" parameterType="map" resultMap="resourceResultMap">
+    select * from projects p where p.enabled=${_true} and p.id in
+    <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">#{id}
+    </foreach>
+  </select>
+
   <select id="selectSnapshot" parameterType="long" resultMap="snapshotResultMap">
     select * from snapshots where id=#{id}
   </select>

@@ -17,36 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui;
+package org.sonar.api.rule;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.JRubyIssues;
-import org.sonar.api.rule.JRubyRules;
 
 /**
- * All the facades to Java components
+ * Facade for JRuby on Rails extensions to request rules.
+ * <p>
+ * Reference from Ruby code : <code>Api.rules</code>
+ * </p>
  *
  * @since 3.6
  */
-public class JRubyFacades implements ServerComponent {
+public interface JRubyRules extends ServerComponent {
 
-  private static JRubyIssues issues = null;
-  private static JRubyRules rules = null;
-
-  public static void setIssues(JRubyIssues i) {
-    JRubyFacades.issues = i;
-  }
-
-  public static JRubyIssues issues() {
-    return issues;
-  }
-
-  public static void setRules(JRubyRules rules) {
-    JRubyFacades.rules = rules;
-  }
-
-  public static JRubyRules rules() {
-    return rules;
-  }
+  /**
+   * Return the localized name of a rule.
+   *
+   * <p>
+   *   Ruby: <code>Api.rules.ruleName(I18n.locale, rule.rule_key)</code>
+   * </p>
+   */
+  String ruleName(String rubyLocale, RuleKey ruleKey);
 
 }

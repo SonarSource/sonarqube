@@ -50,8 +50,6 @@ public interface Issue {
 
   String severity();
 
-  String title();
-
   String description();
 
   Integer line();

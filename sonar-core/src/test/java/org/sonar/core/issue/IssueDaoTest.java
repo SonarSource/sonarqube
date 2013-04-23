@@ -83,7 +83,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     issue.setAssignee("new_user");
     issue.setManualSeverity(true);
     issue.setManualIssue(false);
-    issue.setTitle("NEW_TITLE");
     issue.setCreatedAt(DateUtils.parseDate("2012-05-18"));
     issue.setUpdatedAt(DateUtils.parseDate("2012-07-01"));
     issue.setAttributes("big=bang");
@@ -104,7 +103,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
     assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.isManualIssue()).isFalse();
-    assertThat(issue.getTitle()).isNull();
     assertThat(issue.getDescription()).isNull();
     assertThat(issue.getLine()).isEqualTo(200);
     assertThat(issue.getCost()).isEqualTo(4.2);

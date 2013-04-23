@@ -17,36 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui;
+package org.sonar.core.component;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.JRubyIssues;
-import org.sonar.api.rule.JRubyRules;
+import org.sonar.api.component.Component;
 
-/**
- * All the facades to Java components
- *
- * @since 3.6
- */
-public class JRubyFacades implements ServerComponent {
+public class ComponentDto implements Component {
 
-  private static JRubyIssues issues = null;
-  private static JRubyRules rules = null;
+  private String key;
+  private String name;
+  private String longName;
+  private String qualifier;
 
-  public static void setIssues(JRubyIssues i) {
-    JRubyFacades.issues = i;
+  @Override
+  public String key() {
+    return key;
   }
 
-  public static JRubyIssues issues() {
-    return issues;
+  public ComponentDto setKey(String key) {
+    this.key = key;
+    return this;
   }
 
-  public static void setRules(JRubyRules rules) {
-    JRubyFacades.rules = rules;
+  @Override
+  public String name() {
+    return name;
   }
 
-  public static JRubyRules rules() {
-    return rules;
+  public ComponentDto setName(String name) {
+    this.name = name;
+    return this;
   }
 
+  @Override
+  public String longName() {
+    return longName;
+  }
+
+
+  public ComponentDto setLongName(String longName) {
+    this.longName = longName;
+    return this;
+  }
+
+  @Override
+  public String qualifier() {
+    return qualifier;
+  }
+
+  public ComponentDto setQualifier(String qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
 }

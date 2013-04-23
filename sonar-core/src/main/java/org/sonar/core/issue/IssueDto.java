@@ -42,7 +42,6 @@ public final class IssueDto {
   private String severity;
   private boolean manualSeverity;
   private boolean manualIssue;
-  private String title;
   private String description;
   private Integer line;
   private Double cost;
@@ -122,15 +121,6 @@ public final class IssueDto {
 
   public IssueDto setManualIssue(boolean manualIssue) {
     this.manualIssue = manualIssue;
-    return this;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public IssueDto setTitle(String title) {
-    this.title = title;
     return this;
   }
 
@@ -310,7 +300,6 @@ public final class IssueDto {
     return new IssueDto()
       .setKey(issue.key())
       .setLine(issue.line())
-      .setTitle(issue.title())
       .setDescription(issue.description())
       .setCost(issue.cost())
       .setResolution(issue.resolution())
@@ -336,7 +325,6 @@ public final class IssueDto {
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setDescription(description);
-    issue.setTitle(title);
     issue.setCost(cost);
     issue.setLine(line);
     issue.setSeverity(severity);

@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Bridge between JRuby webapp and Java I18n component
  */
-public final class JRubyI18n implements ServerComponent {
+public class JRubyI18n implements ServerComponent {
 
   private I18n i18n;
   private Map<String, Locale> localesByRubyKey = Maps.newHashMap();

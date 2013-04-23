@@ -63,7 +63,6 @@ public class IssueDtoTest {
         .setCost(15.0)
         .setLine(6)
         .setSeverity("BLOCKER")
-        .setTitle("title")
         .setDescription("message")
         .setManualSeverity(true)
         .setManualIssue(true)
@@ -84,7 +83,6 @@ public class IssueDtoTest {
     assertThat(issue.cost()).isEqualTo(15.0);
     assertThat(issue.line()).isEqualTo(6);
     assertThat(issue.severity()).isEqualTo("BLOCKER");
-    assertThat(issue.title()).isEqualTo("title");
     assertThat(issue.description()).isEqualTo("message");
     assertThat(issue.isManualSeverity()).isTrue();
     assertThat(issue.manual()).isTrue();

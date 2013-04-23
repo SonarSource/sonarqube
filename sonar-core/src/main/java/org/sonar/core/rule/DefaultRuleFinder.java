@@ -48,12 +48,21 @@ public class DefaultRuleFinder implements RuleFinder {
 
   protected final Rule doFindById(int ruleId) {
     DatabaseSession session = sessionFactory.getSession();
-    return (Rule) session.getSingleResult(
+    return session.getSingleResult(
         session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.id=:id and r.status<>:status")
             .setParameter("id", ruleId)
             .setParameter("status", Rule.STATUS_REMOVED
         ),
         null);
+  }
+
+  public Collection<Rule> findByIds(Collection<Integer> ruleIds) {
+    DatabaseSession session = sessionFactory.getSession();
+    StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" r where r.id in (:ids) and status<>:status ");
+    Query hqlQuery = session.createQuery(hql.toString())
+      .setParameter("status", Rule.STATUS_REMOVED)
+      .setParameter("ids", ruleIds);
+    return hqlQuery.getResultList();
   }
 
   public Rule findByKey(RuleKey key) {
@@ -66,7 +75,7 @@ public class DefaultRuleFinder implements RuleFinder {
 
   protected final Rule doFindByKey(String repositoryKey, String key) {
     DatabaseSession session = sessionFactory.getSession();
-    return (Rule) session.getSingleResult(
+    return session.getSingleResult(
         session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.key=:key and r.pluginName=:pluginName and r.status<>:status")
             .setParameter("key", key)
             .setParameter("pluginName", repositoryKey)
@@ -77,8 +86,7 @@ public class DefaultRuleFinder implements RuleFinder {
 
   public final Rule find(RuleQuery query) {
     DatabaseSession session = sessionFactory.getSession();
-    return (Rule) session.getSingleResult(createHqlQuery(session, query), null);
-
+    return session.getSingleResult(createHqlQuery(session, query), null);
   }
 
   public final Collection<Rule> findAll(RuleQuery query) {

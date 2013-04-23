@@ -7,7 +7,6 @@
       severity="BLOCKER"
       manual_severity="[false]"
       manual_issue="[false]"
-      title="[null]"
       description="the description"
       line="200"
       cost="10.0"

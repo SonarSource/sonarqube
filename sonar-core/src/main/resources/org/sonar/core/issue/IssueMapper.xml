@@ -12,7 +12,6 @@
     i.severity as severity,
     i.manual_severity as manualSeverity,
     i.manual_issue as manualIssue,
-    i.title as title,
     i.description as description,
     i.line as line,
     i.cost as cost,
@@ -32,9 +31,9 @@
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO issues (kee, resource_id, rule_id, severity, manual_severity, manual_issue, title, description, line, cost, status,
+    INSERT INTO issues (kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, cost, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, created_at, updated_at, closed_at)
-    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{description}, #{line}, #{cost}, #{status},
+    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{cost}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{createdAt}, #{updatedAt}, #{closedAt})
   </insert>
 
@@ -43,9 +42,9 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issues (id, kee, resource_id, rule_id, severity, manual_severity, manual_issue, title, description, line, cost, status,
+    INSERT INTO issues (id, kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, cost, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, created_at, updated_at, closed_at)
-    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{title}, #{description}, #{line}, #{cost}, #{status},
+    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{cost}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{createdAt}, #{updatedAt}, #{closedAt})
   </insert>
 
@@ -56,8 +55,7 @@
       severity=#{severity},
       manual_severity=#{manualSeverity},
       manual_issue=#{manualIssue},
-      title=#{title},
-    description=#{description},
+      description=#{description},
       line=#{line},
       cost=#{cost},
       status=#{status},

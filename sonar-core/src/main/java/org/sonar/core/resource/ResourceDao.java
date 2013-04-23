@@ -19,12 +19,16 @@
  */
 package org.sonar.core.resource;
 
-import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.component.Component;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.MyBatis;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class ResourceDao {
   private MyBatis mybatis;
@@ -95,7 +99,7 @@ public class ResourceDao {
 
   public List<ResourceDto> getDescendantProjects(long projectId, SqlSession session) {
     ResourceMapper mapper = session.getMapper(ResourceMapper.class);
-    List<ResourceDto> resources = Lists.newArrayList();
+    List<ResourceDto> resources = newArrayList();
     appendChildProjects(projectId, mapper, resources);
     return resources;
   }
@@ -126,5 +130,27 @@ public class ResourceDao {
       MyBatis.closeQuietly(session);
     }
     return this;
+  }
+
+  public Collection<Component> findByIds(Collection<Integer> ids) {
+    SqlSession session = mybatis.openSession();
+    try {
+      Collection<ResourceDto> resources =  session.getMapper(ResourceMapper.class).selectResourcesById(ids);
+      Collection<Component> components = newArrayList();
+      for (ResourceDto resourceDto : resources) {
+        components.add(toComponent(resourceDto));
+      }
+      return components;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public ComponentDto toComponent(ResourceDto resourceDto){
+    return new ComponentDto()
+      .setKey(resourceDto.getKey())
+      .setLongName(resourceDto.getLongName())
+      .setName(resourceDto.getName())
+      .setQualifier(resourceDto.getQualifier());
   }
 }

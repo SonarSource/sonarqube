@@ -27,49 +27,53 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Collection;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 
 public class DefaultRuleFinderTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void shouldFindById() {
+  public void should_find_by_id() {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
-    assertThat(finder.findById(3).getConfigKey(), is("Checker/Treewalker/AnnotationUseStyleCheck"));
+    assertThat(finder.findById(3).getConfigKey()).isEqualTo("Checker/Treewalker/AnnotationUseStyleCheck");
   }
 
   @Test
-  public void shouldNotFindDisabledRuleById() {
+  public void should_not_find_disabled_rule_by_id() {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
-    assertThat(finder.findById(2), nullValue());
+    assertThat(finder.findById(2)).isNull();
   }
 
   @Test
-  public void shouldFindByKey() {
+  public void should_find_by_ids() {
+    setupData("shared");
+    DefaultRuleFinder finder = new DefaultRuleFinder(getSessionFactory());
+    // 2 is disabled
+    assertThat(finder.findByIds(newArrayList(2, 3))).hasSize(1);
+  }
+
+  @Test
+  public void should_find_by_key() {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
     Rule rule = finder.findByKey("checkstyle", "com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck");
-    assertNotNull(rule);
-    assertThat(rule.getKey(), is("com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"));
-    assertThat(rule.isEnabled(), is(true));
+    assertThat(rule).isNotNull();
+    assertThat(rule.getKey()).isEqualTo(("com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"));
+    assertThat(rule.isEnabled()).isTrue();
   }
 
   @Test
-  public void findShouldReturnNullIfNoResults() {
+  public void find_should_return_null_if_no_results() {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
-    assertNull(finder.findByKey("checkstyle", "unknown"));
-    assertNull(finder.find(RuleQuery.create().withRepositoryKey("checkstyle").withConfigKey("unknown")));
+    assertThat(finder.findByKey("checkstyle", "unknown")).isNull();
+    assertThat(finder.find(RuleQuery.create().withRepositoryKey("checkstyle").withConfigKey("unknown"))).isNull();
   }
 
   @Test
-  public void findRepositoryRules() {
+  public void find_repository_rules() {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
     Collection<Rule> rules = finder.findAll(RuleQuery.create().withRepositoryKey("checkstyle"));
@@ -78,7 +82,7 @@ public class DefaultRuleFinderTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void findAllEnabled() {
+  public void find_all_enabled() {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
     Collection<Rule> rules = finder.findAll(RuleQuery.create());
@@ -87,18 +91,18 @@ public class DefaultRuleFinderTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void doNotFindDisabledRules() {
+  public void do_not_find_disabled_rules() {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
     Rule rule = finder.findByKey("checkstyle", "DisabledCheck");
-    assertNull(rule);
+    assertThat(rule).isNull();
   }
 
   @Test
-  public void doNotFindUnknownRules() {
+  public void do_not_find_unknown_rules() {
     setupData("shared");
     RuleFinder finder = new DefaultRuleFinder(getSessionFactory());
     Collection<Rule> rules = finder.findAll(RuleQuery.create().withRepositoryKey("unknown_repository"));
-    assertThat(rules.size(), is(0));
+    assertThat(rules).isEmpty();
   }
 }

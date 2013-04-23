@@ -17,36 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui;
+package org.sonar.server.rule;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.JRubyIssues;
 import org.sonar.api.rule.JRubyRules;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.server.ui.JRubyFacades;
+import org.sonar.server.ui.JRubyI18n;
 
 /**
- * All the facades to Java components
+ * Facade of rules components for JRuby on Rails webapp
  *
  * @since 3.6
  */
-public class JRubyFacades implements ServerComponent {
+public class DefaultJRubyRules implements JRubyRules {
 
-  private static JRubyIssues issues = null;
-  private static JRubyRules rules = null;
+  private final JRubyI18n jRubyI18n;
 
-  public static void setIssues(JRubyIssues i) {
-    JRubyFacades.issues = i;
+  public DefaultJRubyRules(JRubyI18n jRubyI18n) {
+    this.jRubyI18n = jRubyI18n;
+    JRubyFacades.setRules(this);
   }
 
-  public static JRubyIssues issues() {
-    return issues;
+  public String ruleName(String rubyLocale, RuleKey ruleKey) {
+    String l18n =  jRubyI18n.getRuleName(rubyLocale, ruleKey.repository(), ruleKey.rule());
+    if (l18n != null) {
+      return l18n;
+    } else {
+      return jRubyI18n.getRuleName("en", ruleKey.repository(), ruleKey.rule());
+    }
   }
 
-  public static void setRules(JRubyRules rules) {
-    JRubyFacades.rules = rules;
+  public void start() {
+    // used to force pico to instantiate the singleton at startup
   }
-
-  public static JRubyRules rules() {
-    return rules;
-  }
-
 }
