@@ -39,7 +39,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Declare a plugin property. Values are available at runtime through the component {@link Settings}.
- * <p></p>
+ * <p/>
  * It's the programmatic alternative to the annotation {@link org.sonar.api.Property}. It is more
  * testable and adds new features like sub-categories and ordering.
  * <p/>
