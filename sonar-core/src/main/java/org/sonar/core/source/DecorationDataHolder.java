@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.core.source;
 
 import com.google.common.collect.Lists;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
-public class DecorationDataHolder {
+class DecorationDataHolder {
 
   private static final String ENTITY_SEPARATOR = ";";
   private static final String FIELD_SEPARATOR = ",";
@@ -36,15 +37,15 @@ public class DecorationDataHolder {
   private List<Integer> closingTagsOffsets;
   private int closingTagsIndex;
 
-  public DecorationDataHolder() {
+  DecorationDataHolder() {
     openingTagsEntries = Lists.newArrayList();
     closingTagsOffsets = Lists.newArrayList();
   }
 
-  public void loadSymbolReferences(String symbolsReferences) {
+  void loadSymbolReferences(String symbolsReferences) {
     String[] symbols = symbolsReferences.split(ENTITY_SEPARATOR);
-    for (int i = 0; i < symbols.length; i++) {
-      String[] symbolFields = symbols[i].split(FIELD_SEPARATOR);
+    for (String symbol : symbols) {
+      String[] symbolFields = symbol.split(FIELD_SEPARATOR);
       int declarationStartOffset = Integer.parseInt(symbolFields[0]);
       int declarationEndOffset = Integer.parseInt(symbolFields[1]);
       int symbolLength = declarationEndOffset - declarationStartOffset;
@@ -53,36 +54,36 @@ public class DecorationDataHolder {
     }
   }
 
-  public void loadSyntaxHighlightingData(String syntaxHighlightingRules) {
+  void loadSyntaxHighlightingData(String syntaxHighlightingRules) {
     String[] rules = syntaxHighlightingRules.split(ENTITY_SEPARATOR);
-    for (int i = 0; i < rules.length; i++) {
-      String[] ruleFields = rules[i].split(FIELD_SEPARATOR);
+    for (String rule : rules) {
+      String[] ruleFields = rule.split(FIELD_SEPARATOR);
       insertAndPreserveOrder(new TagEntry(Integer.parseInt(ruleFields[0]), ruleFields[2]), openingTagsEntries);
       insertAndPreserveOrder(Integer.parseInt(ruleFields[1]), closingTagsOffsets);
     }
   }
 
-  public List<TagEntry> getOpeningTagsEntries() {
+  List<TagEntry> getOpeningTagsEntries() {
     return openingTagsEntries;
   }
 
-  public TagEntry getCurrentOpeningTagEntry() {
+  TagEntry getCurrentOpeningTagEntry() {
     return openingTagsIndex < openingTagsEntries.size() ? openingTagsEntries.get(openingTagsIndex) : null;
   }
 
-  public void nextOpeningTagEntry() {
+  void nextOpeningTagEntry() {
     openingTagsIndex++;
   }
 
-  public List<Integer> getClosingTagsOffsets() {
+  List<Integer> getClosingTagsOffsets() {
     return closingTagsOffsets;
   }
 
-  public int getCurrentClosingTagOffset() {
+  int getCurrentClosingTagOffset() {
     return closingTagsIndex < closingTagsOffsets.size() ? closingTagsOffsets.get(closingTagsIndex) : -1;
   }
 
-  public void nextClosingTagOffset() {
+  void nextClosingTagOffset() {
     closingTagsIndex++;
   }
 
@@ -98,7 +99,7 @@ public class DecorationDataHolder {
   private void insertAndPreserveOrder(TagEntry newEntry, List<TagEntry> orderedEntries) {
     int insertionIndex = 0;
     Iterator<TagEntry> entriesIterator = orderedEntries.iterator();
-    while(entriesIterator.hasNext() && entriesIterator.next().getStartOffset() <= newEntry.getStartOffset()) {
+    while (entriesIterator.hasNext() && entriesIterator.next().getStartOffset() <= newEntry.getStartOffset()) {
       insertionIndex++;
     }
     orderedEntries.add(insertionIndex, newEntry);
@@ -107,7 +108,7 @@ public class DecorationDataHolder {
   private void insertAndPreserveOrder(int newOffset, List<Integer> orderedOffsets) {
     int insertionIndex = 0;
     Iterator<Integer> entriesIterator = orderedOffsets.iterator();
-    while(entriesIterator.hasNext() && entriesIterator.next() <= newOffset) {
+    while (entriesIterator.hasNext() && entriesIterator.next() <= newOffset) {
       insertionIndex++;
     }
     orderedOffsets.add(insertionIndex, newOffset);

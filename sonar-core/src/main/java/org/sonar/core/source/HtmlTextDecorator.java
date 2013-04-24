@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.core.source;
 
 import com.google.common.collect.Lists;
@@ -35,18 +34,18 @@ import static org.sonar.core.source.CharactersReader.END_OF_STREAM;
 /**
  * @since 3.6
  */
-public class HtmlTextDecorator {
+class HtmlTextDecorator {
 
-  public static final char CR_END_OF_LINE = '\r';
-  public static final char LF_END_OF_LINE = '\n';
-  public static final char HTML_OPENING = '<';
-  public static final char HTML_CLOSING = '>';
-  public static final char AMPERSAND = '&';
-  public static final String ENCODED_HTML_OPENING = "&lt;";
-  public static final String ENCODED_HTML_CLOSING = "&gt;";
-  public static final String ENCODED_AMPERSAND = "&amp;";
+  static final char CR_END_OF_LINE = '\r';
+  static final char LF_END_OF_LINE = '\n';
+  static final char HTML_OPENING = '<';
+  static final char HTML_CLOSING = '>';
+  static final char AMPERSAND = '&';
+  static final String ENCODED_HTML_OPENING = "&lt;";
+  static final String ENCODED_HTML_CLOSING = "&gt;";
+  static final String ENCODED_AMPERSAND = "&amp;";
 
-  public List<String> decorateTextWithHtml(String text, DecorationDataHolder decorationDataHolder) {
+  List<String> decorateTextWithHtml(String text, DecorationDataHolder decorationDataHolder) {
 
     StringBuilder currentHtmlLine = new StringBuilder();
     List<String> decoratedHtmlLines = Lists.newArrayList();
@@ -102,11 +101,11 @@ public class HtmlTextDecorator {
 
   private char[] normalize(char currentChar) {
     char[] normalizedChars;
-    if(currentChar == HTML_OPENING) {
+    if (currentChar == HTML_OPENING) {
       normalizedChars = ENCODED_HTML_OPENING.toCharArray();
-    } else if(currentChar == HTML_CLOSING) {
+    } else if (currentChar == HTML_CLOSING) {
       normalizedChars = ENCODED_HTML_CLOSING.toCharArray();
-    } else if(currentChar == AMPERSAND) {
+    } else if (currentChar == AMPERSAND) {
       normalizedChars = ENCODED_AMPERSAND.toCharArray();
     } else {
       normalizedChars = new char[]{currentChar};
@@ -121,7 +120,7 @@ public class HtmlTextDecorator {
   private int getNumberOfTagsToClose(int currentIndex, DecorationDataHolder dataHolder) {
     int numberOfTagsToClose = 0;
 
-    while(currentIndex == dataHolder.getCurrentClosingTagOffset()) {
+    while (currentIndex == dataHolder.getCurrentClosingTagOffset()) {
       numberOfTagsToClose++;
       dataHolder.nextClosingTagOffset();
     }
@@ -130,7 +129,7 @@ public class HtmlTextDecorator {
 
   private Collection<String> getTagsToOpen(int currentIndex, DecorationDataHolder dataHolder) {
     Collection<String> tagsToOpen = Lists.newArrayList();
-    while(dataHolder.getCurrentOpeningTagEntry() != null && currentIndex == dataHolder.getCurrentOpeningTagEntry().getStartOffset()) {
+    while (dataHolder.getCurrentOpeningTagEntry() != null && currentIndex == dataHolder.getCurrentOpeningTagEntry().getStartOffset()) {
       tagsToOpen.add(dataHolder.getCurrentOpeningTagEntry().getCssClass());
       dataHolder.nextOpeningTagEntry();
     }
@@ -139,20 +138,20 @@ public class HtmlTextDecorator {
 
   private boolean shouldClosePendingTags(CharactersReader charactersReader) {
     return charactersReader.getCurrentValue() == CR_END_OF_LINE
-            || (charactersReader.getCurrentValue() == LF_END_OF_LINE && charactersReader.getPreviousValue() != CR_END_OF_LINE)
-            || (charactersReader.getCurrentValue() == END_OF_STREAM && charactersReader.getPreviousValue() != LF_END_OF_LINE);
+      || (charactersReader.getCurrentValue() == LF_END_OF_LINE && charactersReader.getPreviousValue() != CR_END_OF_LINE)
+      || (charactersReader.getCurrentValue() == END_OF_STREAM && charactersReader.getPreviousValue() != LF_END_OF_LINE);
   }
 
   private boolean shouldReopenPendingTags(CharactersReader charactersReader) {
     return (charactersReader.getPreviousValue() == LF_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE)
-            || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != CR_END_OF_LINE
-                && charactersReader.getCurrentValue() != LF_END_OF_LINE
+      || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != CR_END_OF_LINE
+      && charactersReader.getCurrentValue() != LF_END_OF_LINE
     );
   }
 
   private boolean shouldStartNewLine(CharactersReader charactersReader) {
     return charactersReader.getPreviousValue() == LF_END_OF_LINE
-            || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE);
+      || (charactersReader.getPreviousValue() == CR_END_OF_LINE && charactersReader.getCurrentValue() != LF_END_OF_LINE);
   }
 
   private void closeCompletedTags(CharactersReader charactersReader, int numberOfTagsToClose,

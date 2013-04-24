@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.core.source;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
@@ -32,7 +32,7 @@ import java.util.Collection;
 /**
  * @since 3.6
  */
-public class HtmlSourceDecorator {
+public class HtmlSourceDecorator implements ServerComponent {
 
   private final SnapshotSourceDao snapshotSourceDao;
   private final SnapshotDataDao snapshotDataDao;
