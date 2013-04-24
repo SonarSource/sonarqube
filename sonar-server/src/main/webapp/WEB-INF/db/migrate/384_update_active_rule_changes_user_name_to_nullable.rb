@@ -24,7 +24,7 @@
 class UpdateActiveRuleChangesUserNameToNullable < ActiveRecord::Migration
 
   def self.up
-    change_column :active_rule_changes, :user_name, :string, :limit => 200, :null => true
+    change_column('active_rule_changes', 'user_name', :string, :limit => 200, :null => true)
   end
 
 end
