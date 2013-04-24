@@ -67,7 +67,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
       " * Header",
       " */",
       "",
-      "public class <span class=\"symbol-31 highlightable\">HelloWorld</span> {",
+      "public class <span class=\"sym-31 sym\">HelloWorld</span> {",
       "}"
     );
   }
@@ -84,11 +84,11 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
       "<span class=\"cppd\"> * Header</span>",
       "<span class=\"cppd\"> */</span>",
       "",
-      "<span class=\"k\">public </span><span class=\"k\">class </span><span class=\"symbol-31 highlightable\">HelloWorld</span> {",
-      "  <span class=\"k\">public</span> <span class=\"k\">void</span> <span class=\"symbol-58 highlightable\">foo</span>() {",
+      "<span class=\"k\">public </span><span class=\"k\">class </span><span class=\"sym-31 sym\">HelloWorld</span> {",
+      "  <span class=\"k\">public</span> <span class=\"k\">void</span> <span class=\"sym-58 sym\">foo</span>() {",
       "  }",
-      "  <span class=\"k\">public</span> <span class=\"k\">void</span> <span class=\"symbol-84 highlightable\">bar</span>() {",
-      "    <span class=\"symbol-58 highlightable\">foo</span>();",
+      "  <span class=\"k\">public</span> <span class=\"k\">void</span> <span class=\"sym-84 sym\">bar</span>() {",
+      "    <span class=\"sym-58 sym\">foo</span>();",
       "  }",
       "}"
     );

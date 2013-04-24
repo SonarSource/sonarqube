@@ -153,7 +153,7 @@
 
   <% if review.rule_failure && review.resource_line && review.rule_failure.snapshot && has_role?(:codeviewer, review.project) %>
     <div class="marginbottom10">
-      <%= snapshot_source_to_html(review.rule_failure.snapshot, {:line_range => (review.resource_line-5)..(review.resource_line+5), :highlighted_lines => [review.resource_line]}) -%>
+      <%= snapshot_html_source(review.rule_failure.snapshot, {:line_range => (review.resource_line-5)..(review.resource_line+5), :highlighted_lines => [review.resource_line]}) -%>
     </div>
   <% end %>
 

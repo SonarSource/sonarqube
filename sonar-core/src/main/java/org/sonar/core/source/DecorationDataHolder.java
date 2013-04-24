@@ -28,8 +28,8 @@ public class DecorationDataHolder {
 
   private static final String ENTITY_SEPARATOR = ";";
   private static final String FIELD_SEPARATOR = ",";
-  private static final String SYMBOL_PREFIX = "symbol-";
-  private static final String HIGHLIGHTABLE = "highlightable";
+  private static final String SYMBOL_PREFIX = "sym-";
+  private static final String HIGHLIGHTABLE = "sym";
 
   private List<TagEntry> openingTagsEntries;
   private int openingTagsIndex;

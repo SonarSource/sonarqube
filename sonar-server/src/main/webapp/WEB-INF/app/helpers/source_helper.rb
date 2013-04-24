@@ -30,11 +30,11 @@ module SourceHelper
   # - line_range : range (default is complete lines range)
   # - highlighted_lines : range (default is complete lines range)
   #
-  def snapshot_source_to_html(snapshot, options={})
+  def snapshot_html_source(snapshot, options={})
 
     panel = get_html_source_panel(snapshot, options)
 
-    unless panel.nil?
+    if panel
       panel.filter_min_date(options[:min_date]) if options[:min_date]
 
       unless panel.empty?
@@ -75,14 +75,15 @@ module SourceHelper
       panel.html_lines=[]
       html_source_lines = snapshot.highlighting_data || snapshot.source.syntax_highlighted_lines()
       line_range=sanitize_range(options[:line_range], 1..html_source_lines.length)
-      highlighted_lines=sanitize_range(options[:highlighted_lines], 1..html_source_lines.length)
 
       html_source_lines.each_with_index do |source, index|
         if line_range.include?(index+1)
           html_line=HtmlLine.new(source, index+1)
           html_line.revision=revisions_by_line[index+1]
           html_line.author=authors_by_line[index+1]
-          html_line.displayed=highlighted_lines.include?(index+1)
+          if options[:highlighted_lines]
+            html_line.displayed=options[:highlighted_lines].include?(index+1)
+          end
           date_string=dates_by_line[index+1]
           html_line.datetime=(date_string ? Java::OrgSonarApiUtils::DateUtils.parseDateTime(date_string) : nil)
           panel.html_lines<<html_line
@@ -126,12 +127,12 @@ module SourceHelper
   end
 
   class HtmlLine
-    attr_accessor :index, :source, :revision, :author, :datetime, :violations, :issues, :hits, :conditions,
+    attr_accessor :id, :index, :source, :revision, :author, :datetime, :violations, :issues, :hits, :conditions,
                   :covered_conditions, :hidden, :displayed, :deprecated_conditions_label, :covered_lines
 
-    def initialize(source, index)
+    def initialize(source, id)
       @source=source
-      @index=index
+      @id=id
     end
 
     def add_violation(violation)
@@ -181,14 +182,12 @@ module SourceHelper
     def flag_as_displayed
       @displayed=true
       @hidden=false
-      puts "line #{index} will be displayed"
     end
 
     def flag_as_displayed_context
-      # do not force if selected has already been set to true
+      # do not force if displayed has already been set to true
       @displayed=false if @displayed.nil?
       @hidden=false
-      puts "line #{index} will be displayed as context"
     end
 
     def flag_as_hidden
@@ -196,7 +195,6 @@ module SourceHelper
       if @hidden.nil?
         @hidden=true
         @displayed=false
-        puts "line #{index} will be hidden"
       end
     end
 
@@ -205,7 +203,7 @@ module SourceHelper
     end
 
     def displayed?
-      # selected if the @selected has not been set or has been set to true
+      # displayed if the @displayed has not been set or has been set to true
       !hidden? && @displayed!=false
     end
 

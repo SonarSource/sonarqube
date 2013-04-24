@@ -1,5 +1,4 @@
 <% if line.displayed? && line.covered_lines %>
-  <% puts "displaying coverage info #{line.covered_lines} for line #{line.index}" %>
   <td class="ind <%= statuses[:hits] -%>" title="<%= message('coverage_viewer.line_covered_by_x_tests', {:params => line.covered_lines.to_s}) if line.covered_lines > 0 -%>">
       <% if line.covered_lines > 0 %>
         <a href="<%= ApplicationController.root_context -%>/test/testable/<%= h resource_key -%>?line=<%= index+1 -%>"

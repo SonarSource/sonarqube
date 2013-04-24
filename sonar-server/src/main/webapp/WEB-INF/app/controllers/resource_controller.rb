@@ -192,7 +192,6 @@ class ResourceController < ApplicationController
         if line
           line.index = line_id
           line.covered_lines = @testable ? @testable.countTestCasesOfLine(line_id) : 0
-          puts "covered_lines for line #{line.index} has been set to #{line.covered_lines}"
           line.hits = hits.to_i
           line.conditions = @conditions_by_line[line_id].to_i
           line.covered_conditions = @covered_conditions_by_line[line_id].to_i
@@ -212,7 +211,6 @@ class ResourceController < ApplicationController
 
       to = (@period && @snapshot.period_datetime(@period) ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
       @filtered = true
-      puts "coverage filter is #{@coverage_filter}"
       if ('lines_to_cover'==@coverage_filter || 'coverage'==@coverage_filter || 'line_coverage'==@coverage_filter ||
           'new_lines_to_cover'==@coverage_filter || 'new_coverage'==@coverage_filter || 'new_line_coverage'==@coverage_filter ||
           'it_lines_to_cover'==@coverage_filter || 'it_coverage'==@coverage_filter || 'it_line_coverage'==@coverage_filter ||
@@ -220,9 +218,7 @@ class ResourceController < ApplicationController
           'overall_lines_to_cover'==@coverage_filter || 'overall_coverage'==@coverage_filter || 'overall_line_coverage'==@coverage_filter ||
           'new_overall_lines_to_cover'==@coverage_filter || 'new_overall_coverage'==@coverage_filter || 'new_overall_line_coverage'==@coverage_filter)
         @coverage_filter = "#{it_prefix}lines_to_cover"
-        filtered_lines = filter_lines { |line| line.hits && line.after(to) }
-        puts "filtered lines length : #{filtered_lines.length}"
-        filtered_lines
+        filter_lines { |line| line.hits && line.after(to) }
 
       elsif ('uncovered_lines'==@coverage_filter || 'new_uncovered_lines'==@coverage_filter ||
           'it_uncovered_lines'==@coverage_filter || 'new_it_uncovered_lines'==@coverage_filter ||

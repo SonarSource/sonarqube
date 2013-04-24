@@ -64,17 +64,15 @@
   font-weight: normal;
 }
 
-.highlightable {
-  /*text-decoration: underline;*/
-  /*color: #0000AA;*/
+.sym {
   cursor: hand; cursor: pointer;
 }
 
-.highlightable:hover {
+.sym:hover {
   background-color: #ff8c00;
 }
 
 .highlighted {
-  background-color: yellow;
+  background-color: #B3D4FF;
 }
 

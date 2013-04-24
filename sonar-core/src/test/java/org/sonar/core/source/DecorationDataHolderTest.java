@@ -50,11 +50,11 @@ public class DecorationDataHolderTest {
     assertThat(openingTagsEntries.get(1)).isEqualTo(new TagEntry(0, "cppd"));
     assertThat(openingTagsEntries.get(2)).isEqualTo(new TagEntry(54, "a"));
     assertThat(openingTagsEntries.get(3)).isEqualTo(new TagEntry(69, "k"));
-    assertThat(openingTagsEntries.get(4)).isEqualTo(new TagEntry(80, "symbol-80 highlightable"));
-    assertThat(openingTagsEntries.get(5)).isEqualTo(new TagEntry(90, "symbol-80 highlightable"));
+    assertThat(openingTagsEntries.get(4)).isEqualTo(new TagEntry(80, "sym-80 sym"));
+    assertThat(openingTagsEntries.get(5)).isEqualTo(new TagEntry(90, "sym-80 sym"));
     assertThat(openingTagsEntries.get(6)).isEqualTo(new TagEntry(106, "cppd"));
     assertThat(openingTagsEntries.get(7)).isEqualTo(new TagEntry(114, "k"));
-    assertThat(openingTagsEntries.get(8)).isEqualTo(new TagEntry(140, "symbol-80 highlightable"));
+    assertThat(openingTagsEntries.get(8)).isEqualTo(new TagEntry(140, "sym-80 sym"));
   }
 
   @Test

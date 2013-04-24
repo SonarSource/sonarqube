@@ -25,7 +25,7 @@
     </p>
   <% end %>
 
-  <%= snapshot_source_to_html(resource.last_snapshot, {:line_range => from_line..to_line}) -%>
+  <%= snapshot_html_source(resource.last_snapshot, {:line_range => from_line..to_line}) -%>
 
   <% if lines_count > ResourceHelper::DUPLICATION_SNIPPET_DEFAULT_NB_OF_LINES %>
     <p class="small">
