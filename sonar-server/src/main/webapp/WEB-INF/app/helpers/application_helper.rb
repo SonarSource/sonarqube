@@ -535,6 +535,39 @@ module ApplicationHelper
   end
 
   #
+  # Creates a pagination section for the given array (items_array) if its size exceeds the pagination size (default: 20).
+  # Upon completion of this method, the HTML is returned and the given array contains only the selected elements.
+  #
+  # In any case, the HTML that is returned contains the message 'x results', where x is the total number of elements
+  # in the items_array object.
+  #
+  # === Optional parameters
+  # * page_size: the number of elements to display at the same time (= the pagination size)
+  #
+  def paginate_java(pagination)
+    size = pagination.size.to_i
+    page_id = pagination.page ? pagination.page.to_i : 1
+    page_size = pagination.limit.to_i || 20
+    page_count = pagination.pages.to_i
+
+    html = size.to_s + " " + message('results').downcase
+
+    if size > page_size
+      # render the pagination links
+      html += " | "
+      html += link_to_if page_id>1, message('paging_previous'), {:overwrite_params => {:page_id => page_id-1}}
+      html += " "
+      for index in 1..page_count
+        html += link_to_unless index==page_id, index.to_s, {:overwrite_params => {:page_id => index}}
+        html += " "
+      end
+      html += link_to_if page_id<page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+page_id}}
+    end
+
+    html
+  end
+
+  #
   # Used on the reviews listing page (http://localhost:9000/project_reviews)
   # Prints a label for the given parameter that is used to filter the review list.
   # The label has:

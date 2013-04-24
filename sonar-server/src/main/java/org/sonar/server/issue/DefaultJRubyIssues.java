@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 import org.sonar.api.issue.IssueChange;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
@@ -83,7 +84,7 @@ public class DefaultJRubyIssues implements JRubyIssues {
     builder.createdAfter(toDate(props.get("createdAfter")));
     builder.createdBefore(toDate(props.get("createdBefore")));
     builder.limit(toInteger(props.get("limit")));
-//    builder.offset(toInteger(props.get("offset")));
+    builder.page(toInteger(props.get("page")));
     return builder.build();
   }
 
@@ -158,6 +159,10 @@ public class DefaultJRubyIssues implements JRubyIssues {
     if (o instanceof Integer) {
       return (Integer) o;
     }
+    if (o instanceof Long) {
+      return Ints.checkedCast((Long) o);
+    }
+
     if (o instanceof String) {
       return Integer.parseInt((String) o);
     }

@@ -24,12 +24,12 @@ public class Pagination {
 
   private int limit;
   private int page;
-  private int count;
+  private int size;
 
-  public Pagination(int limit, int page, int count) {
+  public Pagination(int limit, int page, int size) {
     this.limit = limit;
     this.page = page;
-    this.count = count;
+    this.size = size;
   }
 
   public int page() {
@@ -40,8 +40,8 @@ public class Pagination {
     return limit;
   }
 
-  public int count() {
-    return count;
+  public int size() {
+    return size;
   }
 
   public int offset(){
@@ -49,14 +49,14 @@ public class Pagination {
   }
 
   public int pages() {
-    int p = (count / limit);
-    if ((count % limit) > 0) {
+    int p = (size / limit);
+    if ((size % limit) > 0) {
       p++;
     }
     return p;
   }
 
-  public boolean isEmpty() {
-    return count == 0;
+  public boolean empty() {
+    return size == 0;
   }
 }

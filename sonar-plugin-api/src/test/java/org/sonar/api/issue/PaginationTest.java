@@ -32,8 +32,8 @@ public class PaginationTest {
 
     assertThat(pagination.limit()).isEqualTo(5);
     assertThat(pagination.page()).isEqualTo(1);
-    assertThat(pagination.count()).isEqualTo(20);
-    assertThat(pagination.isEmpty()).isFalse();
+    assertThat(pagination.size()).isEqualTo(20);
+    assertThat(pagination.empty()).isFalse();
 
     assertThat(pagination.offset()).isEqualTo(0);
     assertThat(pagination.pages()).isEqualTo(4);

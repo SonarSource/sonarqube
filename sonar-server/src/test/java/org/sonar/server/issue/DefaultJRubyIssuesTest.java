@@ -70,8 +70,8 @@ public class DefaultJRubyIssuesTest {
     map.put("createdAfter", "2013-04-16T09:08:24+0200");
     map.put("createdBefore", "2013-04-17T09:08:24+0200");
     map.put("rules", "squid:AvoidCycle,findbugs:NullReference");
-    map.put("limit", 10);
-    map.put("offset", 50);
+    map.put("limit", 10l);
+    map.put("page", 50);
 
     IssueQuery query = new DefaultJRubyIssues(finder, changes).toQuery(map);
     assertThat(query.keys()).containsOnly("ABCDE1234");
@@ -86,7 +86,7 @@ public class DefaultJRubyIssuesTest {
     assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
     assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));
     assertThat(query.limit()).isEqualTo(10);
-//    assertThat(query.offset()).isEqualTo(50);
+    assertThat(query.page()).isEqualTo(50);
   }
 
   @Test

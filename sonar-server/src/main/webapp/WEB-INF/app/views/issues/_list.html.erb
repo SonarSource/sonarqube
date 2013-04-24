@@ -51,6 +51,13 @@
       </th>
     </tr>
     </thead>
+    <tfoot>
+    <tr>
+      <td colspan="6">
+        <%= paginate_java(@pagination) -%>
+      </td>
+    </tr>
+    </tfoot>
     <tbody>
     <%
        @issues.each do |issue|
