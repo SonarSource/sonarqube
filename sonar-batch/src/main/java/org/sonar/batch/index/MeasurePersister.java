@@ -75,7 +75,13 @@ public final class MeasurePersister {
       unsavedMeasuresByResource.put(resource, measure);
       return;
     }
-    MeasureModel model = insertOrUpdate(resource, measure);
+    MeasureModel model;
+    try {
+      model = insertOrUpdate(resource, measure);
+    } catch (Exception e) {
+      // SONAR-4066
+      throw new SonarException(String.format("Unable to save measure for metric [%s] on resource [%s]", measure.getMetricKey(), resource.getKey()), e);
+    }
     if (model != null) {
       memoryOptimizer.evictDataMeasure(measure, model);
     }
@@ -104,8 +110,8 @@ public final class MeasurePersister {
       !(ResourceUtils.isEntity(resource) && measure.isBestValue());
   }
 
-  private List<MeasureModel> getMeasuresToSave() {
-    List<MeasureModel> measures = Lists.newArrayList();
+  private List<MeasureModelAndDetails> getMeasuresToSave() {
+    List<MeasureModelAndDetails> measures = Lists.newArrayList();
 
     Map<Resource, Collection<Measure>> map = unsavedMeasuresByResource.asMap();
     for (Map.Entry<Resource, Collection<Measure>> entry : map.entrySet()) {
@@ -113,7 +119,7 @@ public final class MeasurePersister {
       Snapshot snapshot = resourcePersister.getSnapshot(entry.getKey());
       for (Measure measure : entry.getValue()) {
         if (shouldPersistMeasure(resource, measure)) {
-          measures.add(model(measure).setSnapshotId(snapshot.getId()));
+          measures.add(new MeasureModelAndDetails(model(measure).setSnapshotId(snapshot.getId()), resource.getKey(), measure.getMetricKey()));
         }
       }
     }
@@ -157,15 +163,20 @@ public final class MeasurePersister {
     return model;
   }
 
-  private void insert(Iterable<MeasureModel> values) {
+  private void insert(Iterable<MeasureModelAndDetails> values) {
     SqlSession session = mybatis.openSession();
     try {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
-      for (MeasureModel value : values) {
-        mapper.insert(value);
-        if (value.getMeasureData() != null) {
-          mapper.insertData(value.getMeasureData());
+      for (MeasureModelAndDetails value : values) {
+        try {
+          mapper.insert(value.getMeasureModel());
+          if (value.getMeasureModel().getMeasureData() != null) {
+            mapper.insertData(value.getMeasureModel().getMeasureData());
+          }
+        } catch (Exception e) {
+          // SONAR-4066
+          throw new SonarException(String.format("Unable to save measure for metric [%s] on resource [%s]", value.getMetricKey(), value.getResourceKey()), e);
         }
       }
 
@@ -217,5 +228,30 @@ public final class MeasurePersister {
     }
 
     return value;
+  }
+
+  // SONAR-4066
+  private static class MeasureModelAndDetails {
+    private final MeasureModel measureModel;
+    private final String resourceKey;
+    private final String metricKey;
+
+    public MeasureModelAndDetails(MeasureModel measureModel, String resourceKey, String metricKey) {
+      this.measureModel = measureModel;
+      this.resourceKey = resourceKey;
+      this.metricKey = metricKey;
+    }
+
+    public MeasureModel getMeasureModel() {
+      return measureModel;
+    }
+
+    public String getResourceKey() {
+      return resourceKey;
+    }
+
+    public String getMetricKey() {
+      return metricKey;
+    }
   }
 }

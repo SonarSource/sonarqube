@@ -19,11 +19,11 @@
  */
 package org.sonar.batch.index;
 
-import org.mockito.ArgumentCaptor;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
@@ -37,6 +37,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.SonarException;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -47,8 +48,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MeasurePersisterTest extends AbstractDaoTestCase {
+
+  @org.junit.Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   private static final String SHORT = "SHORT";
   private static final String LONG = StringUtils.repeat("0123456789", 10);
+  private static final String TOO_LONG = StringUtils.repeat("0123456789", 401);
 
   public static final int PROJECT_SNAPSHOT_ID = 3001;
   public static final int PACKAGE_SNAPSHOT_ID = 3002;
@@ -85,6 +91,18 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     checkTables("shouldInsertMeasure", "project_measures");
     verify(memoryOptimizer).evictDataMeasure(eq(measure), any(MeasureModel.class));
     assertThat(measure.getId()).isNotNull();
+  }
+
+  @Test
+  public void should_display_contextual_info_when_error_during_insert_measure() {
+    setupData("empty");
+
+    Measure measure = new Measure(ncloc()).setValue(1234.0).setAlertText(TOO_LONG);
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Unable to save measure for metric [ncloc] on resource [foo]");
+
+    measurePersister.saveMeasure(project, measure);
   }
 
   @Test
@@ -190,6 +208,20 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     measurePersister.dump();
     checkTables("shouldDelaySaving", "project_measures", "measure_data");
+  }
+
+  @Test
+  public void should_display_contextual_info_when_error_during_delay_saving() {
+    setupData("empty");
+
+    measurePersister.setDelayedMode(true);
+
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0).setData(SHORT).setAlertText(TOO_LONG));
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Unable to save measure for metric [ncloc] on resource [foo]");
+
+    measurePersister.dump();
   }
 
   @Test
