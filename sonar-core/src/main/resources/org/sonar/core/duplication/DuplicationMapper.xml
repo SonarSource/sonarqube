@@ -22,4 +22,12 @@
     VALUES (#{snapshotId}, #{projectSnapshotId}, #{hash}, #{indexInFile}, #{startLine}, #{endLine})
   </insert>
 
+  <!-- Oracle -->
+  <insert id="batchInsert" databaseId="oracle" parameterType="DuplicationUnit" useGeneratedKeys="false">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select duplications_index_seq.NEXTVAL from DUAL
+    </selectKey>
+      INSERT INTO duplications_index (id, snapshot_id, project_snapshot_id, hash, index_in_file, start_line, end_line)
+      VALUES (#{id}, #{snapshotId}, #{projectSnapshotId}, #{hash}, #{indexInFile}, #{startLine}, #{endLine})
+    </insert>
 </mapper>

@@ -19,11 +19,13 @@
  */
 package org.sonar.core.duplication;
 
+
 /**
  * A simple DTO (Data Transfer Object) class that provides the mapping of data to a table.
  */
 public final class DuplicationUnitDto {
 
+  private Long id;
   private Integer snapshotId;
   private Integer projectSnapshotId;
 
@@ -44,6 +46,15 @@ public final class DuplicationUnitDto {
     this.indexInFile = indexInFile;
     this.startLine = startLine;
     this.endLine = endLine;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public DuplicationUnitDto setId(Long id) {
+    this.id = id;
+    return this;
   }
 
   public Integer getSnapshotId() {
