@@ -3,13 +3,14 @@
 
 <mapper namespace="org.sonar.core.source.jdbc.SnapshotDataMapper">
 
-  <select id="selectSnapshotData" parameterType="long" resultType="SnapshotData">
+  <select id="selectSnapshotData" parameterType="map" resultType="SnapshotData">
     SELECT
-      snapshot_id as "snapshotId",
+      snapshot_id AS "snapshotId",
       data,
-      data_type as "dataType"
+      data_type AS "dataType"
     FROM snapshot_data
     WHERE snapshot_id = #{sid}
+    AND data_type IN <foreach item="dataType" index="index" collection="dataTypes" open="(" separator="," close=")">#{dataType}</foreach>
   </select>
 
   <insert id="insert" parameterType="SnapshotData" useGeneratedKeys="false">

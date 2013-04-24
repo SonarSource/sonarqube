@@ -20,6 +20,7 @@
 
 package org.sonar.core.source;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -104,7 +105,7 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
     sourceDecorator.getDecoratedSourceAsHtml(14L);
 
-    verify(snapshotDataDao, times(1)).selectSnapshotData(14L);
+    verify(snapshotDataDao, times(1)).selectSnapshotData(14L, Lists.newArrayList("highlight_syntax", "symbol"));
     verify(snapshotSourceDao, times(0)).selectSnapshotSource(14L);
   }
 }

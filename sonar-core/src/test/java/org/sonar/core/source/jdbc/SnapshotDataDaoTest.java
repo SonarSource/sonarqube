@@ -20,6 +20,7 @@
 
 package org.sonar.core.source.jdbc;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -41,7 +42,7 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_retrieve_snapshot_data_by_snapshot_id() throws Exception {
 
-    Collection<SnapshotDataDto> data = dao.selectSnapshotData(10L);
+    Collection<SnapshotDataDto> data = dao.selectSnapshotData(10L, Lists.newArrayList("highlight_syntax", "symbol"));
 
     assertThat(data).onProperty("snapshotId").containsOnly(10L, 10L);
     assertThat(data).onProperty("dataType").containsOnly("highlight_syntax", "symbol");
@@ -62,7 +63,7 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
 
     dao.insert(dto);
 
-    Collection<SnapshotDataDto> serializedData = dao.selectSnapshotData(11L);
+    Collection<SnapshotDataDto> serializedData = dao.selectSnapshotData(11L, Lists.newArrayList("highlight_syntax"));
 
     assertThat(serializedData).onProperty("snapshotId").containsOnly(11L);
     assertThat(serializedData).onProperty("dataType").containsOnly(dataType);

@@ -24,7 +24,7 @@ import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.Symbol;
 import org.sonar.api.scan.source.SymbolPerspective;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.core.source.jdbc.SnapshotDataDto;
+import org.sonar.core.source.SnapshotDataType;
 
 public class DefaultSymbolPerspective implements SymbolPerspective {
 
@@ -61,7 +61,7 @@ public class DefaultSymbolPerspective implements SymbolPerspective {
 
   @Override
   public void end() {
-    cache.setStringData(component().key(), SnapshotDataDto.SYMBOL, symbolDataRepository.writeString());
+    cache.setStringData(component().key(), SnapshotDataType.SYMBOL_HIGHLIGHTING.getValue(), symbolDataRepository.writeString());
   }
 
   @Override

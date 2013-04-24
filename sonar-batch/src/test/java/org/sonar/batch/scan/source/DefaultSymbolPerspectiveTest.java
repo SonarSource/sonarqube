@@ -24,11 +24,9 @@ import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.scan.source.Symbol;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.core.source.jdbc.SnapshotDataDto;
+import org.sonar.core.source.SnapshotDataType;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultSymbolPerspectiveTest {
 
@@ -65,6 +63,6 @@ public class DefaultSymbolPerspectiveTest {
 
     symbolPerspective.end();
 
-    verify(cache).setStringData("myComponent", SnapshotDataDto.SYMBOL, "4,8,4,12,70;25,33,25,44,60,108;");
+    verify(cache).setStringData("myComponent", SnapshotDataType.SYMBOL_HIGHLIGHTING.getValue(), "4,8,4,12,70;25,33,25,44,60,108;");
   }
 }

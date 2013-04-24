@@ -32,7 +32,7 @@ class DecorationDataHolder {
   private static final String SYMBOL_PREFIX = "sym-";
   private static final String HIGHLIGHTABLE = "sym";
 
-  private List<TagEntry> openingTagsEntries;
+  private List<OpeningHtmlTag> openingTagsEntries;
   private int openingTagsIndex;
   private List<Integer> closingTagsOffsets;
   private int closingTagsIndex;
@@ -58,16 +58,16 @@ class DecorationDataHolder {
     String[] rules = syntaxHighlightingRules.split(ENTITY_SEPARATOR);
     for (String rule : rules) {
       String[] ruleFields = rule.split(FIELD_SEPARATOR);
-      insertAndPreserveOrder(new TagEntry(Integer.parseInt(ruleFields[0]), ruleFields[2]), openingTagsEntries);
+      insertAndPreserveOrder(new OpeningHtmlTag(Integer.parseInt(ruleFields[0]), ruleFields[2]), openingTagsEntries);
       insertAndPreserveOrder(Integer.parseInt(ruleFields[1]), closingTagsOffsets);
     }
   }
 
-  List<TagEntry> getOpeningTagsEntries() {
+  List<OpeningHtmlTag> getOpeningTagsEntries() {
     return openingTagsEntries;
   }
 
-  TagEntry getCurrentOpeningTagEntry() {
+  OpeningHtmlTag getCurrentOpeningTagEntry() {
     return openingTagsIndex < openingTagsEntries.size() ? openingTagsEntries.get(openingTagsIndex) : null;
   }
 
@@ -88,21 +88,21 @@ class DecorationDataHolder {
   }
 
   private void loadSymbolOccurrences(int declarationStartOffset, int symbolLength, String[] symbolOccurrences) {
-    for (int i = 0; i < symbolOccurrences.length; i++) {
-      int occurrenceStartOffset = Integer.parseInt(symbolOccurrences[i]);
+    for (String symbolOccurrence : symbolOccurrences) {
+      int occurrenceStartOffset = Integer.parseInt(symbolOccurrence);
       int occurrenceEndOffset = occurrenceStartOffset + symbolLength;
-      insertAndPreserveOrder(new TagEntry(occurrenceStartOffset, SYMBOL_PREFIX + declarationStartOffset + " " + HIGHLIGHTABLE), openingTagsEntries);
+      insertAndPreserveOrder(new OpeningHtmlTag(occurrenceStartOffset, SYMBOL_PREFIX + declarationStartOffset + " " + HIGHLIGHTABLE), openingTagsEntries);
       insertAndPreserveOrder(occurrenceEndOffset, closingTagsOffsets);
     }
   }
 
-  private void insertAndPreserveOrder(TagEntry newEntry, List<TagEntry> orderedEntries) {
+  private void insertAndPreserveOrder(OpeningHtmlTag newEntry, List<OpeningHtmlTag> openingHtmlTags) {
     int insertionIndex = 0;
-    Iterator<TagEntry> entriesIterator = orderedEntries.iterator();
-    while (entriesIterator.hasNext() && entriesIterator.next().getStartOffset() <= newEntry.getStartOffset()) {
+    Iterator<OpeningHtmlTag> tagIterator = openingHtmlTags.iterator();
+    while (tagIterator.hasNext() && tagIterator.next().getStartOffset() <= newEntry.getStartOffset()) {
       insertionIndex++;
     }
-    orderedEntries.add(insertionIndex, newEntry);
+    openingHtmlTags.add(insertionIndex, newEntry);
   }
 
   private void insertAndPreserveOrder(int newOffset, List<Integer> orderedOffsets) {

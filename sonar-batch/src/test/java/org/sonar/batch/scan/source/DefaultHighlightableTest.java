@@ -24,12 +24,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.component.Component;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.core.source.jdbc.SnapshotDataDto;
+import org.sonar.core.source.SnapshotDataType;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultHighlightableTest {
 
@@ -57,6 +55,6 @@ public class DefaultHighlightableTest {
       .highlight(20, 30, "cppd")
       .done();
 
-    verify(cache).setStringData("myComponent", SnapshotDataDto.HIGHLIGHT_SYNTAX, "0,10,k;20,30,cppd;");
+    verify(cache).setStringData("myComponent", SnapshotDataType.SYNTAX_HIGHLIGHTING.getValue(), "0,10,k;20,30,cppd;");
   }
 }

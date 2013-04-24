@@ -21,6 +21,7 @@ package org.sonar.core.source;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
@@ -28,6 +29,7 @@ import org.sonar.core.source.jdbc.SnapshotDataDto;
 import org.sonar.core.source.jdbc.SnapshotSourceDao;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -50,7 +52,10 @@ public class HtmlSourceDecorator implements ServerComponent {
 
   public Collection<String> getDecoratedSourceAsHtml(long snapshotId) {
 
-    Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotData(snapshotId);
+    List<String> highlightingDataTypes = Lists.newArrayList(SnapshotDataType.SYNTAX_HIGHLIGHTING.getValue(),
+      SnapshotDataType.SYMBOL_HIGHLIGHTING.getValue());
+
+    Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotData(snapshotId, highlightingDataTypes);
 
     if (!snapshotDataEntries.isEmpty()) {
       String snapshotSource = snapshotSourceDao.selectSnapshotSource(snapshotId);
@@ -69,9 +74,9 @@ public class HtmlSourceDecorator implements ServerComponent {
 
   private void loadSnapshotData(DecorationDataHolder decorationDataHolder, SnapshotDataDto snapshotDataEntry) {
     if(!Strings.isNullOrEmpty(snapshotDataEntry.getData())) {
-      if (snapshotDataEntry.isSyntaxHighlightingData()) {
+      if (SnapshotDataType.isSyntaxHighlighting(snapshotDataEntry.getDataType())) {
         decorationDataHolder.loadSyntaxHighlightingData(snapshotDataEntry.getData());
-      } else if (snapshotDataEntry.isSymbolData()) {
+      } else if (SnapshotDataType.isSymbolHighlighting(snapshotDataEntry.getDataType())) {
         decorationDataHolder.loadSymbolReferences(snapshotDataEntry.getData());
       }
     }

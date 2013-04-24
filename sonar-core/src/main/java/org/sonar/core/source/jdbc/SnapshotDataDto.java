@@ -25,9 +25,6 @@ package org.sonar.core.source.jdbc;
  */
 public class SnapshotDataDto {
 
-  public static final String HIGHLIGHT_SYNTAX = "highlight_syntax";
-  public static final String SYMBOL = "symbol";
-
   private long id;
   private long snapshotId;
   private long resourceId;
@@ -72,13 +69,5 @@ public class SnapshotDataDto {
 
   public void setDataType(String dataType) {
     this.dataType = dataType;
-  }
-
-  public boolean isSyntaxHighlightingData() {
-    return HIGHLIGHT_SYNTAX.equals(dataType);
-  }
-
-  public boolean isSymbolData() {
-    return SYMBOL.equals(dataType);
   }
 }

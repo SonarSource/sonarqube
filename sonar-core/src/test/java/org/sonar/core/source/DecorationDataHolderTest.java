@@ -44,17 +44,17 @@ public class DecorationDataHolderTest {
   @Test
   public void should_extract_lower_bounds_from_serialized_rules() throws Exception {
 
-    List<TagEntry> openingTagsEntries = decorationDataHolder.getOpeningTagsEntries();
+    List<OpeningHtmlTag> openingTagsEntries = decorationDataHolder.getOpeningTagsEntries();
 
-    assertThat(openingTagsEntries.get(0)).isEqualTo(new TagEntry(0, "k"));
-    assertThat(openingTagsEntries.get(1)).isEqualTo(new TagEntry(0, "cppd"));
-    assertThat(openingTagsEntries.get(2)).isEqualTo(new TagEntry(54, "a"));
-    assertThat(openingTagsEntries.get(3)).isEqualTo(new TagEntry(69, "k"));
-    assertThat(openingTagsEntries.get(4)).isEqualTo(new TagEntry(80, "sym-80 sym"));
-    assertThat(openingTagsEntries.get(5)).isEqualTo(new TagEntry(90, "sym-80 sym"));
-    assertThat(openingTagsEntries.get(6)).isEqualTo(new TagEntry(106, "cppd"));
-    assertThat(openingTagsEntries.get(7)).isEqualTo(new TagEntry(114, "k"));
-    assertThat(openingTagsEntries.get(8)).isEqualTo(new TagEntry(140, "sym-80 sym"));
+    assertThat(openingTagsEntries.get(0)).isEqualTo(new OpeningHtmlTag(0, "k"));
+    assertThat(openingTagsEntries.get(1)).isEqualTo(new OpeningHtmlTag(0, "cppd"));
+    assertThat(openingTagsEntries.get(2)).isEqualTo(new OpeningHtmlTag(54, "a"));
+    assertThat(openingTagsEntries.get(3)).isEqualTo(new OpeningHtmlTag(69, "k"));
+    assertThat(openingTagsEntries.get(4)).isEqualTo(new OpeningHtmlTag(80, "sym-80 sym"));
+    assertThat(openingTagsEntries.get(5)).isEqualTo(new OpeningHtmlTag(90, "sym-80 sym"));
+    assertThat(openingTagsEntries.get(6)).isEqualTo(new OpeningHtmlTag(106, "cppd"));
+    assertThat(openingTagsEntries.get(7)).isEqualTo(new OpeningHtmlTag(114, "k"));
+    assertThat(openingTagsEntries.get(8)).isEqualTo(new OpeningHtmlTag(140, "sym-80 sym"));
   }
 
   @Test

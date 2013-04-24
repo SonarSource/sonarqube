@@ -23,6 +23,7 @@ package org.sonar.core.source.jdbc;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -31,5 +32,5 @@ public interface SnapshotDataMapper {
 
   void insert(SnapshotDataDto snapshotData);
 
-  Collection<SnapshotDataDto> selectSnapshotData(@Param("sid") long snapshotId);
+  Collection<SnapshotDataDto> selectSnapshotData(@Param("sid") long snapshotId, @Param("dataTypes") List<String> dataTypes);
 }

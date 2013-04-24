@@ -17,48 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.source;
 
-class TagEntry {
+public enum SnapshotDataType {
 
-  private final int startOffset;
-  private final String cssClass;
+  SYNTAX_HIGHLIGHTING("highlight_syntax"),
+  SYMBOL_HIGHLIGHTING("symbol");
 
-  TagEntry(int startOffset, String cssClass) {
-    this.startOffset = startOffset;
-    this.cssClass = cssClass;
+  private SnapshotDataType(String value) {
+    this.value = value;
   }
 
-  int getStartOffset() {
-    return startOffset;
+  private String value;
+
+  public static boolean isSyntaxHighlighting(String dataType) {
+    return SYNTAX_HIGHLIGHTING.value.equals(dataType);
   }
 
-  String getCssClass() {
-    return cssClass;
+  public static boolean isSymbolHighlighting(String dataType) {
+    return SYMBOL_HIGHLIGHTING.value.equals(dataType);
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    TagEntry tagEntry = (TagEntry) o;
-    if (startOffset != tagEntry.startOffset) {
-      return false;
-    }
-    if (cssClass != null ? !cssClass.equals(tagEntry.cssClass) : tagEntry.cssClass != null) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = startOffset;
-    result = 31 * result + (cssClass != null ? cssClass.hashCode() : 0);
-    return result;
+  public String getValue() {
+    return value;
   }
 }
