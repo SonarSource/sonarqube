@@ -92,6 +92,7 @@ public class ServerIssueFinderTest {
     Issue issue = results.issues().iterator().next();
     assertThat(issue.componentKey()).isEqualTo("Action.java");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
+    assertThat(results.securityExclusions()).isFalse();
   }
 
   @Test
@@ -110,9 +111,10 @@ public class ServerIssueFinderTest {
     when(authorizationDao.keepAuthorizedComponentIds(anySet(), anyInt(), anyString(), any(SqlSession.class))).thenReturn(newHashSet(123));
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(issue1));
 
-    finder.find(issueQuery, null, UserRole.USER);
+    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
 
     verify(issueDao).selectByIds(eq(newHashSet(1L)), any(SqlSession.class));
+    assertThat(results.securityExclusions()).isTrue();
   }
 
   @Test

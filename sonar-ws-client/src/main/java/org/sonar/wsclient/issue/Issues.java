@@ -29,6 +29,7 @@ public class Issues {
 
   private final List<Issue> list = new ArrayList<Issue>();
   private Paging paging;
+  private Boolean securityExclusions;
 
   Issues add(Issue issue) {
     list.add(issue);
@@ -38,12 +39,21 @@ public class Issues {
     return list;
   }
 
-  void setPaging(Paging paging) {
+  Issues setPaging(Paging paging) {
     this.paging = paging;
+    return this;
   }
 
   public Paging paging(){
     return paging;
   }
 
+  public Boolean securityExclusions() {
+    return securityExclusions;
+  }
+
+  Issues setSecurityExclusions(Boolean securityExclusions) {
+    this.securityExclusions = securityExclusions;
+    return this;
+  }
 }

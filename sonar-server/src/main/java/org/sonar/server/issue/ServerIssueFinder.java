@@ -89,7 +89,7 @@ public class ServerIssueFinder implements IssueFinder {
         }
       }
 
-      return new DefaultResults(issues, getRulesByIssue(issues, ruleIds), getComponentsByIssue(issues, componentIds), paging);
+      return new DefaultResults(issues, getRulesByIssue(issues, ruleIds), getComponentsByIssue(issues, componentIds), paging, authorizedIssues.size() != allIssuesDto.size());
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
@@ -172,12 +172,14 @@ public class ServerIssueFinder implements IssueFinder {
     private final Paging paging;
     private final Map<Issue, Rule> rulesByIssue;
     private final Map<Issue, Component> componentsByIssue;
+    private final boolean securityExclusions;
 
-    DefaultResults(List<Issue> issues, Map<Issue, Rule> rulesByIssue, Map<Issue, Component> componentsByIssue, Paging paging) {
+    DefaultResults(List<Issue> issues, Map<Issue, Rule> rulesByIssue, Map<Issue, Component> componentsByIssue, Paging paging, boolean securityExclusions) {
       this.issues = issues;
       this.rulesByIssue = rulesByIssue;
       this.componentsByIssue = componentsByIssue;
       this.paging = paging;
+      this.securityExclusions = securityExclusions;
     }
 
     @Override
@@ -199,6 +201,10 @@ public class ServerIssueFinder implements IssueFinder {
 
     public Collection<Component> components() {
       return componentsByIssue.values();
+    }
+
+    public boolean securityExclusions() {
+      return securityExclusions;
     }
 
     public Paging paging() {

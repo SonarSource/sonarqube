@@ -29,11 +29,12 @@
       "status": "OPEN"
     }
   ],
-  "pagination":
+  "paging":
     {
-      "page": 1,
-      "limit": 100,
-      "size": 2,
+      "pageIndex": 1,
+      "pageSize": 100,
+      "total": 2,
       "pages": 1
-    }
+    },
+  "securityExclusions": true
 }

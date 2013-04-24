@@ -51,6 +51,7 @@ class Api::IssuesController < Api::ApiController
     json = {}
     json[:issues] = results.issues.map { |issue| issue_to_json(issue) }
     json[:paging] = pagination_to_json(results.paging)
+    json[:securityExclusions] = results.securityExclusions
     json
   end
 

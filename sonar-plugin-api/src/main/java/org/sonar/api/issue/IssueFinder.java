@@ -49,6 +49,8 @@ public interface IssueFinder extends ServerComponent {
     Collection<Component> components();
 
     Paging paging();
+
+    boolean securityExclusions();
   }
 
   Results find(IssueQuery query, @Nullable Integer currentUserId, String role);

@@ -20,6 +20,7 @@
 package org.sonar.wsclient.issue;
 
 import org.json.simple.JSONValue;
+import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,8 @@ class IssueParser {
     }
     Map paging = (Map) jRoot.get("paging");
     result.setPaging(new Paging(paging));
+
+    result.setSecurityExclusions(JsonUtils.getBoolean(jRoot, "securityExclusions"));
     return result;
   }
 }

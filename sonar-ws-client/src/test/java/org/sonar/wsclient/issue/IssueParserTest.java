@@ -60,5 +60,15 @@ public class IssueParserTest {
     assertThat(second.description()).isNull();
     assertThat(second.attribute("JIRA")).isNull();
     assertThat(second.attributes()).isEmpty();
+
+    assertThat(issues.paging()).isNotNull();
+    Paging paging = issues.paging();
+    assertThat(paging.pageIndex()).isEqualTo(1);
+    assertThat(paging.pageSize()).isEqualTo(100);
+    assertThat(paging.pages()).isEqualTo(1);
+    assertThat(paging.total()).isEqualTo(2);
+
+    assertThat(issues.securityExclusions()).isTrue();
   }
+
 }
