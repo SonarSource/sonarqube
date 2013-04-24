@@ -94,8 +94,8 @@ public final class PropertyFieldDefinition {
     return options;
   }
 
-  public PropertyDefinition.Result validate(@Nullable String value) {
-    return PropertyDefinition.validate(type, value, options);
+  public PropertyDef.Result validate(@Nullable String value) {
+    return PropertyDef.validate(type, value, options);
   }
 
   public static class Builder {
