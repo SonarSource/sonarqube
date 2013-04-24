@@ -20,6 +20,7 @@
 
 package org.sonar.core.issue;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
@@ -108,12 +109,31 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
+  @VisibleForTesting
+  List<IssueDto> selectIssueIdsAndComponentsId(IssueQuery query) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectIssueIdsAndComponentsId(query, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   /**
    * The returned IssueDto list contains only the issue id and the resource id
    */
   public List<IssueDto> selectIssueIdsAndComponentsId(IssueQuery query, SqlSession session) {
     // TODO support ordering
     return session.selectList("org.sonar.core.issue.IssueMapper.selectIssueIdsAndComponentsId", query);
+  }
+
+  Collection<IssueDto> selectByIds(Collection<Long> ids) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectByIds(ids, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public Collection<IssueDto> selectByIds(Collection<Long> ids, SqlSession session) {

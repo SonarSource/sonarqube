@@ -205,7 +205,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_issue_ids_and_components_ids");
 
     IssueQuery query = IssueQuery.builder().build();
-    List<IssueDto> results = dao.selectIssueIdsAndComponentsId(query, getMyBatis().openSession());
+    List<IssueDto> results = dao.selectIssueIdsAndComponentsId(query);
     assertThat(results).hasSize(3);
   }
 
@@ -226,7 +226,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_by_ids() {
     setupData("shared", "should_select_by_ids");
 
-    Collection<IssueDto> results = dao.selectByIds(newArrayList(100l, 101l, 102l), getMyBatis().openSession());
+    Collection<IssueDto> results = dao.selectByIds(newArrayList(100l, 101l, 102l));
     assertThat(results).hasSize(3);
   }
 
