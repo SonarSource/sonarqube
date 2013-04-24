@@ -51,7 +51,6 @@ public final class Unmarshallers {
     unmarshallers.put(ManualMeasure.class, new ManualMeasureUnmarshaller());
     unmarshallers.put(Authentication.class, new AuthenticationUnmarshaller());
     unmarshallers.put(ResourceSearchResult.class, new ResourceSearchUnmarshaller());
-    unmarshallers.put(Issue.class, new IssueUnmarshaller());
   }
 
   public static <M extends Model> Unmarshaller<M> forModel(Class<M> modelClass) {

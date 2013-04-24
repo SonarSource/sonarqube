@@ -24,27 +24,26 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class PaginationTest {
+public class PagingTest {
 
   @Test
   public void test_pagination(){
-    Pagination pagination = new Pagination(5, 1, 20);
+    Paging paging = new Paging(5, 1, 20);
 
-    assertThat(pagination.limit()).isEqualTo(5);
-    assertThat(pagination.page()).isEqualTo(1);
-    assertThat(pagination.size()).isEqualTo(20);
-    assertThat(pagination.empty()).isFalse();
+    assertThat(paging.pageSize()).isEqualTo(5);
+    assertThat(paging.pageIndex()).isEqualTo(1);
+    assertThat(paging.total()).isEqualTo(20);
 
-    assertThat(pagination.offset()).isEqualTo(0);
-    assertThat(pagination.pages()).isEqualTo(4);
+    assertThat(paging.offset()).isEqualTo(0);
+    assertThat(paging.pages()).isEqualTo(4);
   }
 
   @Test
   public void test_pagination_on_second_page(){
-    Pagination pagination = new Pagination(5, 2, 20);
+    Paging paging = new Paging(5, 2, 20);
 
-    assertThat(pagination.offset()).isEqualTo(5);
-    assertThat(pagination.pages()).isEqualTo(4);
+    assertThat(paging.offset()).isEqualTo(5);
+    assertThat(paging.pages()).isEqualTo(4);
   }
 
 }

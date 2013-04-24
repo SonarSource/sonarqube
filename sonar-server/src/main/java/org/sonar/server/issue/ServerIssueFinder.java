@@ -29,7 +29,7 @@ import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.Pagination;
+import org.sonar.api.issue.Paging;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.issue.IssueDao;
 import org.sonar.core.issue.IssueDto;
@@ -76,8 +76,8 @@ public class ServerIssueFinder implements IssueFinder {
       Set<Integer> componentIds = getResourceIds(allIssuesDto);
       Set<Integer> authorizedComponentIds = authorizationDao.keepAuthorizedComponentIds(componentIds, currentUserId, role, sqlSession);
       List<IssueDto> authorizedIssues = getAuthorizedIssues(allIssuesDto, authorizedComponentIds);
-      Pagination pagination = new Pagination(query.limit(), query.page(), authorizedIssues.size());
-      Set<Long> paginatedAuthorizedIssueIds = getPaginatedAuthorizedIssueIds(authorizedIssues, pagination);
+      Paging paging = new Paging(query.pageSize(), query.pageIndex(), authorizedIssues.size());
+      Set<Long> paginatedAuthorizedIssueIds = getPaginatedAuthorizedIssueIds(authorizedIssues, paging);
 
       Collection<IssueDto> dtos = issueDao.selectByIds(paginatedAuthorizedIssueIds, sqlSession);
       Set<Integer> ruleIds = Sets.newLinkedHashSet();
@@ -89,7 +89,7 @@ public class ServerIssueFinder implements IssueFinder {
         }
       }
 
-      return new DefaultResults(issues, getRulesByIssue(issues, ruleIds), getComponentsByIssue(issues, componentIds), pagination);
+      return new DefaultResults(issues, getRulesByIssue(issues, ruleIds), getComponentsByIssue(issues, componentIds), paging);
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
@@ -112,13 +112,13 @@ public class ServerIssueFinder implements IssueFinder {
     }));
   }
 
-  private Set<Long> getPaginatedAuthorizedIssueIds(List<IssueDto> authorizedIssues, Pagination pagination) {
+  private Set<Long> getPaginatedAuthorizedIssueIds(List<IssueDto> authorizedIssues, Paging paging) {
     Set<Long> issueIds = Sets.newLinkedHashSet();
     int index = 0;
     for (IssueDto issueDto : authorizedIssues) {
-      if (index >= pagination.offset() && issueIds.size() < pagination.limit()) {
+      if (index >= paging.offset() && issueIds.size() < paging.pageSize()) {
         issueIds.add(issueDto.getId());
-      } else if (issueIds.size() >= pagination.limit()) {
+      } else if (issueIds.size() >= paging.pageSize()) {
         break;
       }
       index++;
@@ -169,15 +169,15 @@ public class ServerIssueFinder implements IssueFinder {
 
   static class DefaultResults implements Results {
     private final List<Issue> issues;
-    private final Pagination pagination;
+    private final Paging paging;
     private final Map<Issue, Rule> rulesByIssue;
     private final Map<Issue, Component> componentsByIssue;
 
-    DefaultResults(List<Issue> issues, Map<Issue, Rule> rulesByIssue, Map<Issue, Component> componentsByIssue, Pagination pagination) {
+    DefaultResults(List<Issue> issues, Map<Issue, Rule> rulesByIssue, Map<Issue, Component> componentsByIssue, Paging paging) {
       this.issues = issues;
       this.rulesByIssue = rulesByIssue;
       this.componentsByIssue = componentsByIssue;
-      this.pagination = pagination;
+      this.paging = paging;
     }
 
     @Override
@@ -201,8 +201,8 @@ public class ServerIssueFinder implements IssueFinder {
       return componentsByIssue.values();
     }
 
-    public Pagination pagination() {
-      return pagination;
+    public Paging paging() {
+      return paging;
     }
   }
 }

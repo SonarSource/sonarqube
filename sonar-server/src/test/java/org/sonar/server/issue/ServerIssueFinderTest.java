@@ -97,7 +97,7 @@ public class ServerIssueFinderTest {
   @Test
   public void should_find_only_authorized_issues() {
     IssueQuery issueQuery = mock(IssueQuery.class);
-    when(issueQuery.limit()).thenReturn(100);
+    when(issueQuery.pageSize()).thenReturn(100);
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
@@ -110,7 +110,7 @@ public class ServerIssueFinderTest {
     when(authorizationDao.keepAuthorizedComponentIds(anySet(), anyInt(), anyString(), any(SqlSession.class))).thenReturn(newHashSet(123));
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(issue1));
 
-    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    finder.find(issueQuery, null, UserRole.USER);
 
     verify(issueDao).selectByIds(eq(newHashSet(1L)), any(SqlSession.class));
   }
@@ -120,8 +120,8 @@ public class ServerIssueFinderTest {
     grantAccessRights();
 
     IssueQuery issueQuery = mock(IssueQuery.class);
-    when(issueQuery.limit()).thenReturn(1);
-    when(issueQuery.page()).thenReturn(1);
+    when(issueQuery.pageSize()).thenReturn(1);
+    when(issueQuery.pageIndex()).thenReturn(1);
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
@@ -134,9 +134,9 @@ public class ServerIssueFinderTest {
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
-    assertThat(results.pagination().offset()).isEqualTo(0);
-    assertThat(results.pagination().size()).isEqualTo(2);
-    assertThat(results.pagination().pages()).isEqualTo(2);
+    assertThat(results.paging().offset()).isEqualTo(0);
+    assertThat(results.paging().total()).isEqualTo(2);
+    assertThat(results.paging().pages()).isEqualTo(2);
 
     // Only one result is expected because the limit is 1
     verify(issueDao).selectByIds(eq(newHashSet(1L)), any(SqlSession.class));

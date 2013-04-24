@@ -90,13 +90,13 @@ public class IssueQuery {
     return this;
   }
 
-  public IssueQuery limit(int limit) {
-    params.put("limit", limit);
+  public IssueQuery pageSize(int pageSize) {
+    params.put("pageSize", pageSize);
     return this;
   }
 
-  public IssueQuery offset(int offset) {
-    params.put("offset", offset);
+  public IssueQuery pageIndex(int pageIndex) {
+    params.put("pageIndex", pageIndex);
     return this;
   }
 

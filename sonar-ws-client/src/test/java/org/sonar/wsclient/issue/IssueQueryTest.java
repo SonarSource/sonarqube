@@ -43,8 +43,8 @@ public class IssueQueryTest {
       .statuses("OPEN", "CLOSED")
       .severities("BLOCKER", "INFO")
       .userLogins("login1", "login2")
-      .limit(5)
-      .offset(4);
+      .pageSize(5)
+      .pageIndex(4);
 
     assertThat(query.urlParams()).hasSize(11);
     assertThat(query.urlParams()).includes(entry("keys", "ABCDE,FGHIJ"));
@@ -55,8 +55,8 @@ public class IssueQueryTest {
     assertThat(query.urlParams()).includes(entry("statuses", "OPEN,CLOSED"));
     assertThat(query.urlParams()).includes(entry("severities", "BLOCKER,INFO"));
     assertThat(query.urlParams()).includes(entry("userLogins", "login1,login2"));
-    assertThat(query.urlParams()).includes(entry("limit", 5));
-    assertThat(query.urlParams()).includes(entry("offset", 4));
+    assertThat(query.urlParams()).includes(entry("pageSize", 5));
+    assertThat(query.urlParams()).includes(entry("pageIndex", 4));
   }
 
   @Test

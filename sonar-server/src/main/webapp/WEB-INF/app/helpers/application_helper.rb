@@ -545,23 +545,23 @@ module ApplicationHelper
   # * page_size: the number of elements to display at the same time (= the pagination size)
   #
   def paginate_java(pagination)
-    size = pagination.size.to_i
-    page_id = pagination.page ? pagination.page.to_i : 1
-    page_size = pagination.limit.to_i || 20
-    page_count = pagination.pages.to_i
+    total = pagination.total.to_i
+    page_index = pagination.page_index ? pagination.page_index.to_i : 1
+    page_size = pagination.page_size.to_i || 20
+    pages = pagination.pages.to_i
 
-    html = size.to_s + " " + message('results').downcase
+    html = total.to_s + " " + message('results').downcase
 
-    if size > page_size
+    if total > page_size
       # render the pagination links
       html += " | "
-      html += link_to_if page_id>1, message('paging_previous'), {:overwrite_params => {:page_id => page_id-1}}
+      html += link_to_if page_index>1, message('paging_previous'), {:overwrite_params => {:page_index => page_index-1}}
       html += " "
-      for index in 1..page_count
-        html += link_to_unless index==page_id, index.to_s, {:overwrite_params => {:page_id => index}}
+      for index in 1..pages
+        html += link_to_unless index==page_index, index.to_s, {:overwrite_params => {:page_index => index}}
         html += " "
       end
-      html += link_to_if page_id<page_count, message('paging_next'), {:overwrite_params => {:page_id => 1+page_id}}
+      html += link_to_if page_index<pages, message('paging_next'), {:overwrite_params => {:page_index => 1+page_index}}
     end
 
     html

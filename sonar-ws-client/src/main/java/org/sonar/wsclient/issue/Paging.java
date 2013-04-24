@@ -18,46 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.issue;
+package org.sonar.wsclient.issue;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
-import org.sonar.api.rules.Rule;
+import org.sonar.wsclient.unmarshallers.JsonUtils;
 
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 /**
- * Search for issues. This component can be used only by server-side extensions. Batch extensions should
- * use the perspective {@link Issuable}.
- *
  * @since 3.6
  */
-public interface IssueFinder extends ServerComponent {
+public class Paging {
 
-  interface Results {
-    List<Issue> issues();
+  private final Map json;
 
-    Rule rule(Issue issue);
-
-    Collection<Rule> rules();
-
-    Component component(Issue issue);
-
-    Collection<Component> components();
-
-    Paging paging();
+  Paging(Map json) {
+    this.json = json;
   }
 
-  Results find(IssueQuery query, @Nullable Integer currentUserId, String role);
+  public Integer pageSize() {
+    return JsonUtils.getInteger(json, "pageSize");
+  }
 
-  Issue findByKey(String key /* TODO @Nullable Integer currentUserId */);
+  public Integer pageIndex() {
+    return JsonUtils.getInteger(json, "pageIndex");
+  }
 
-  /*
-  Map<RuleKey, Rule> rules(Collection<Issue> issues);
+  public Integer total() {
+    return JsonUtils.getInteger(json, "total");
+  }
 
-  Map<String, Component> components(Collection<Issue> issues);
-*/
+  public Integer pages() {
+    return JsonUtils.getInteger(json, "pages");
+  }
+
 }

@@ -46,11 +46,11 @@ public class IssueQuery {
   private final Date createdAfter;
   private final Date createdBefore;
 
-  // max results
-  private final int limit;
+  // max results per page
+  private final int pageSize;
 
   // index of selected page. Start with 1.
-  private final int page;
+  private final int pageIndex;
 
   private IssueQuery(Builder builder) {
     this.keys = builder.keys;
@@ -64,8 +64,8 @@ public class IssueQuery {
     this.assignees = builder.assignees;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
-    this.limit = builder.limit;
-    this.page = builder.page;
+    this.pageSize = builder.pageSize;
+    this.pageIndex = builder.pageIndex;
   }
 
   public Collection<String> keys() {
@@ -112,12 +112,12 @@ public class IssueQuery {
     return createdBefore;
   }
 
-  public int limit() {
-    return limit;
+  public int pageSize() {
+    return pageSize;
   }
 
-  public int page() {
-    return page;
+  public int pageIndex() {
+    return pageIndex;
   }
 
   @Override
@@ -134,9 +134,9 @@ public class IssueQuery {
    * @since 3.6
    */
   public static class Builder {
-    private static final int DEFAULT_LIMIT = 100;
-    private static final int MAX_LIMIT = 1000;
-    private static final int DEFAULT_PAGE = 1;
+    private static final int DEFAULT_PAGE_SIZE = 100;
+    private static final int MAX_PAGE_SIZE = 1000;
+    private static final int DEFAULT_PAGE_INDEX = 1;
 
     private Collection<String> keys;
     private Collection<String> severities;
@@ -149,8 +149,8 @@ public class IssueQuery {
     private Collection<String> assignees;
     private Date createdAfter;
     private Date createdBefore;
-    private int limit = DEFAULT_LIMIT;
-    private int page = DEFAULT_PAGE;
+    private int pageSize = DEFAULT_PAGE_SIZE;
+    private int pageIndex = DEFAULT_PAGE_INDEX;
 
     private Builder() {
     }
@@ -210,16 +210,16 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder limit(Integer i) {
-      Preconditions.checkArgument(i == null || i.intValue() > 0, "Limit must be greater than 0 (got " + i + ")");
-      Preconditions.checkArgument(i == null || i.intValue() < MAX_LIMIT, "Limit must be less than " + MAX_LIMIT + " (got " + i + ")");
-      this.limit = (i == null ? DEFAULT_LIMIT : i.intValue());
+    public Builder pageSize(Integer i) {
+      Preconditions.checkArgument(i == null || i.intValue() > 0, "Page size must be greater than 0 (got " + i + ")");
+      Preconditions.checkArgument(i == null || i.intValue() < MAX_PAGE_SIZE, "Page size must be less than " + MAX_PAGE_SIZE + " (got " + i + ")");
+      this.pageSize = (i == null ? DEFAULT_PAGE_SIZE : i.intValue());
       return this;
     }
 
-    public Builder page(Integer i) {
-      Preconditions.checkArgument(i == null || i.intValue() > 0, "Page must be greater than 0 (got " + i + ")");
-      this.page = (i == null ? DEFAULT_PAGE : i.intValue());
+    public Builder pageIndex(Integer i) {
+      Preconditions.checkArgument(i == null || i.intValue() > 0, "Page index must be greater than 0 (got " + i + ")");
+      this.pageIndex = (i == null ? DEFAULT_PAGE_INDEX : i.intValue());
       return this;
     }
 

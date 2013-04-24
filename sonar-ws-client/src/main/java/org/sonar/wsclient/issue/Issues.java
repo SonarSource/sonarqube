@@ -28,6 +28,7 @@ import java.util.List;
 public class Issues {
 
   private final List<Issue> list = new ArrayList<Issue>();
+  private Paging paging;
 
   Issues add(Issue issue) {
     list.add(issue);
@@ -36,4 +37,13 @@ public class Issues {
   public List<Issue> list() {
     return list;
   }
+
+  void setPaging(Paging paging) {
+    this.paging = paging;
+  }
+
+  public Paging paging(){
+    return paging;
+  }
+
 }

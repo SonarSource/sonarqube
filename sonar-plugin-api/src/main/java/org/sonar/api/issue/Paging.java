@@ -20,43 +20,42 @@
 
 package org.sonar.api.issue;
 
-public class Pagination {
+/**
+ * @since 3.6
+ */
+public class Paging {
 
-  private int limit;
-  private int page;
-  private int size;
+  private int pageSize;
+  private int pageIndex;
+  private int total;
 
-  public Pagination(int limit, int page, int size) {
-    this.limit = limit;
-    this.page = page;
-    this.size = size;
+  public Paging(int pageSize, int pageIndex, int total) {
+    this.pageSize = pageSize;
+    this.pageIndex = pageIndex;
+    this.total = total;
   }
 
-  public int page() {
-    return page;
+  public int pageIndex() {
+    return pageIndex;
   }
 
-  public int limit() {
-    return limit;
+  public int pageSize() {
+    return pageSize;
   }
 
-  public int size() {
-    return size;
+  public int total() {
+    return total;
   }
 
   public int offset(){
-    return (page - 1) * limit;
+    return (pageIndex - 1) * pageSize;
   }
 
   public int pages() {
-    int p = (size / limit);
-    if ((size % limit) > 0) {
+    int p = (total / pageSize);
+    if ((total % pageSize) > 0) {
       p++;
     }
     return p;
-  }
-
-  public boolean empty() {
-    return size == 0;
   }
 }

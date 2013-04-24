@@ -21,9 +21,9 @@
 class IssuesController < ApplicationController
 
   def index
-    page = params[:page_id] || 1
-    issues_result = find_issues({'limit' => 25, 'page' => page})
-    @pagination = issues_result.pagination
+    page_index = params[:page_index] || 1
+    issues_result = find_issues({'pageSize' => 25, 'pageIndex' => page_index})
+    @paging = issues_result.paging
     @issues = issues_result.issues.collect {|issue| issue}
   end
 

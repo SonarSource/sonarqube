@@ -50,6 +50,7 @@ class Api::IssuesController < Api::ApiController
   def results_to_json(results)
     json = {}
     json[:issues] = results.issues.map { |issue| issue_to_json(issue) }
+    json[:paging] = pagination_to_json(results.paging)
     json
   end
 
@@ -71,6 +72,16 @@ class Api::IssuesController < Api::ApiController
     json[:updatedAt] = format_java_datetime(issue.updatedAt) if issue.updatedAt
     json[:closedAt] = format_java_datetime(issue.closedAt) if issue.closedAt
     json[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
+    json
+  end
+
+  def pagination_to_json(paging)
+    json = {
+        :pageIndex => paging.pageIndex,
+        :pageSize => paging.pageSize,
+        :total => paging.total,
+        :pages => paging.pages
+    }
     json
   end
 

@@ -32,6 +32,8 @@ class IssueParser {
     for (Map jIssue : jIssues) {
       result.add(new Issue(jIssue));
     }
+    Map paging = (Map) jRoot.get("paging");
+    result.setPaging(new Paging(paging));
     return result;
   }
 }

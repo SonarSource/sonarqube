@@ -83,8 +83,8 @@ public class DefaultJRubyIssues implements JRubyIssues {
     builder.assignees(toStrings(props.get("assignees")));
     builder.createdAfter(toDate(props.get("createdAfter")));
     builder.createdBefore(toDate(props.get("createdBefore")));
-    builder.limit(toInteger(props.get("limit")));
-    builder.page(toInteger(props.get("page")));
+    builder.pageSize(toInteger(props.get("pageSize")));
+    builder.pageIndex(toInteger(props.get("pageIndex")));
     return builder.build();
   }
 

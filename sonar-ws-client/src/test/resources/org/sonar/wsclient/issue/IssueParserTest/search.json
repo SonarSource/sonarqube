@@ -28,5 +28,12 @@
       "resolution": "FIXED",
       "status": "OPEN"
     }
-  ]
+  ],
+  "pagination":
+    {
+      "page": 1,
+      "limit": 100,
+      "size": 2,
+      "pages": 1
+    }
 }
