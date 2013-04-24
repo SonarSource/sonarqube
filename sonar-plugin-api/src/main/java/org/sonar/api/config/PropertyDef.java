@@ -32,14 +32,13 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * @since 3.0
+ * @since 3.6
  */
 public final class PropertyDef implements BatchExtension, ServerExtension {
 
@@ -56,15 +55,9 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
   private String propertySetKey;
   private String deprecatedKey;
   private List<PropertyFieldDefinition> fields;
-  /**
-   * @since 3.6
-   */
   private String subcategory;
   private int index;
 
-  /**
-   * @since 3.6
-   */
   private PropertyDef(Builder builder) {
     this.key = builder.key;
     this.name = builder.name;
@@ -84,16 +77,10 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
     this.index = builder.index;
   }
 
-  /**
-   * @since 3.6
-   */
   public static Builder builder(String key) {
     return new Builder(key);
   }
 
-  /**
-   * @since 3.6
-   */
   static PropertyDef create(Property annotation) {
     Builder builder = PropertyDef.builder(annotation.key())
       .name(annotation.name())
@@ -196,17 +183,12 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
     return category;
   }
 
-  /**
-   * @since 3.6
-   */
   public String subcategory() {
     return subcategory;
   }
 
   /**
    * Qualifiers that can display this property
-   *
-   * @since 3.6
    */
   public List<String> qualifiers() {
     return qualifiers;
@@ -219,30 +201,18 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
     return global;
   }
 
-  /**
-   * @since 3.3
-   */
   public boolean multiValues() {
     return multiValues;
   }
 
-  /**
-   * @since 3.3
-   */
   public String propertySetKey() {
     return propertySetKey;
   }
 
-  /**
-   * @since 3.3
-   */
   public List<PropertyFieldDefinition> fields() {
     return fields;
   }
 
-  /**
-   * @since 3.4
-   */
   public String deprecatedKey() {
     return deprecatedKey;
   }
@@ -250,7 +220,6 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
   /**
    * Order to display properties in Sonar UI. When two properties have the same index then it is sorted by
    * lexicographic order of property name.
-   * @since 3.6
    */
   public int index() {
     return index;
@@ -279,45 +248,27 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
     }
   }
 
-  /**
-   * @since 3.6
-   */
   public static class Builder {
-    private String key;
-    private String name;
-    private String description;
-    private String defaultValue;
-    private String category;
-    private String subcategory;
-    private List<String> onQualifiers;
-    private List<String> onlyOnQualifiers;
-    private boolean global;
-    private PropertyType type;
-    private List<String> options;
-    private boolean multiValues;
-    private String propertySetKey;
-    private List<PropertyFieldDefinition> fields;
-    private String deprecatedKey;
-    private boolean hidden;
-    private int index;
+    private final String key;
+    private String name = "";
+    private String description = "";
+    private String defaultValue = "";
+    private String category = "";
+    private String subcategory = "default";
+    private List<String> onQualifiers = newArrayList();
+    private List<String> onlyOnQualifiers = newArrayList();
+    private boolean global = true;
+    private PropertyType type = PropertyType.STRING;
+    private List<String> options = newArrayList();
+    private boolean multiValues = false;
+    private String propertySetKey = "";
+    private List<PropertyFieldDefinition> fields = newArrayList();
+    private String deprecatedKey = "";
+    private boolean hidden = false;
+    private int index = 999;
 
     private Builder(String key) {
       this.key = key;
-      this.name = "";
-      this.description = "";
-      this.defaultValue = "";
-      this.category = "";
-      this.subcategory = "default";
-      this.propertySetKey = "";
-      this.deprecatedKey = "";
-      this.global = true;
-      this.type = PropertyType.STRING;
-      this.onQualifiers = newArrayList();
-      this.onlyOnQualifiers = newArrayList();
-      this.options = newArrayList();
-      this.fields = newArrayList();
-      this.hidden = false;
-      this.index = 999;
     }
 
     public Builder description(String description) {
@@ -423,7 +374,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
       Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
       fixType(key, type);
       Preconditions.checkArgument(onQualifiers.isEmpty() || onlyOnQualifiers.isEmpty(), "Cannot define both onQualifiers and onlyOnQualifiers");
-      Preconditions.checkArgument((!hidden || (onQualifiers.isEmpty()) && (!hidden || (onlyOnQualifiers.isEmpty()))), "Cannot be hidden and defining qualifiers on which to display");
+      Preconditions.checkArgument((!hidden || (onQualifiers.isEmpty()) && onlyOnQualifiers.isEmpty()), "Cannot be hidden and defining qualifiers on which to display");
       if (hidden) {
         global = false;
       }
