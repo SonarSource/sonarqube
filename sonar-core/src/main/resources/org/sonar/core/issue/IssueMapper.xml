@@ -196,13 +196,38 @@
       <if test="rules != null and rules.size() > 0">
         and (<foreach item="rule" index="index" collection="rules" open="(" separator=" or " close=")">r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
       </if>
-      <if test="createdAfter">
+      <if test="createdAfter != null">
         and i.created_at &gt; #{createdAfter}
       </if>
-      <if test="createdBefore">
+      <if test="createdBefore != null">
         and i.created_at &lt; #{createdBefore}
       </if>
     </where>
+    <if test="sort != null">
+      order by
+      <choose>
+        <when test="'created'.equals(sort)">
+          i.created_at
+        </when>
+        <when test="'updated'.equals(sort)">
+          i.updated_at
+        </when>
+        <when test="'closed'.equals(sort)">
+          i.closed_at
+        </when>
+        <when test="'assignee'.equals(sort)">
+          i.assignee_login
+        </when>
+      </choose>
+      <choose>
+        <when test="true.equals(asc)">
+          asc
+        </when>
+        <otherwise>
+          desc
+        </otherwise>
+      </choose>
+    </if>
   </sql>
 
 </mapper>

@@ -27,6 +27,7 @@ import org.sonar.api.rule.Severity;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class IssueQueryTest {
 
@@ -44,6 +45,7 @@ public class IssueQueryTest {
       .assignees(Lists.newArrayList("gargantua"))
       .createdAfter(new Date())
       .createdBefore(new Date())
+      .sort("assignee")
       .pageSize(10)
       .pageIndex(2)
       .build();
@@ -58,7 +60,56 @@ public class IssueQueryTest {
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();
+    assertThat(query.sort()).isEqualTo("assignee");
     assertThat(query.pageSize()).isEqualTo(10);
     assertThat(query.pageIndex()).isEqualTo(2);
+  }
+
+  @Test
+  public void should_validate_page_size() throws Exception {
+    try {
+      IssueQuery.builder()
+        .pageSize(0)
+        .build();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Page size must be greater than 0 (got 0)").isInstanceOf(IllegalArgumentException.class);
+    }
+  }
+
+  @Test
+  public void should_validate_page_size_too_high() throws Exception {
+    try {
+      IssueQuery.builder()
+        .pageSize(10000)
+        .build();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Page size must be less than 1000 (got 10000)").isInstanceOf(IllegalArgumentException.class);
+    }
+  }
+
+  @Test
+  public void should_validate_page_index() throws Exception {
+    try {
+      IssueQuery.builder()
+        .pageIndex(0)
+        .build();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Page index must be greater than 0 (got 0)").isInstanceOf(IllegalArgumentException.class);
+    }
+  }
+
+  @Test
+  public void should_validate_sort() throws Exception {
+    try {
+      IssueQuery.builder()
+        .sort("INVALID SORT")
+        .build();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Sort should contain only : [created, updated, closed, assignee]").isInstanceOf(IllegalArgumentException.class);
+    }
   }
 }

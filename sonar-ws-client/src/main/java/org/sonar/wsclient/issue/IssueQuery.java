@@ -90,6 +90,16 @@ public class IssueQuery {
     return this;
   }
 
+  public IssueQuery sort(String sort) {
+    params.put("sort", sort);
+    return this;
+  }
+
+  public IssueQuery asc(boolean asc) {
+    params.put("asc", asc);
+    return this;
+  }
+
   public IssueQuery pageSize(int pageSize) {
     params.put("pageSize", pageSize);
     return this;

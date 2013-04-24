@@ -36,6 +36,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -74,7 +75,6 @@ public class IssueTrackingDecorator implements Decorator {
       for (IssueDto openIssue : openIssues) {
         // not in newIssues
         addManualIssuesAndCloseResolvedOnes(openIssue);
-
 
         closeResolvedStandardIssues(openIssue, issueKeys);
         keepFalsePositiveIssues(openIssue);

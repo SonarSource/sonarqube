@@ -178,7 +178,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(dao.select(query)).hasSize(1);
 
     query = IssueQuery.builder().createdBefore(DateUtils.parseDate("2013-04-17")).build();
-    assertThat(dao.select(query)).hasSize(1);
+    assertThat(dao.select(query)).hasSize(2);
   }
 
   @Test
@@ -198,6 +198,18 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     IssueQuery query = IssueQuery.builder().build();
     assertThat(dao.select(query)).hasSize(3);
+  }
+
+  @Test
+  public void should_select_sort_by_assignee() {
+    setupData("shared", "should_select_returned_sorted_result");
+
+    IssueQuery query = IssueQuery.builder().sort("assignee").asc(true).build();
+    List<IssueDto> results = newArrayList(dao.select(query));
+    assertThat(results).hasSize(3);
+    assertThat(results.get(0).getAssignee()).isEqualTo("arthur");
+    assertThat(results.get(1).getAssignee()).isEqualTo("henry");
+    assertThat(results.get(2).getAssignee()).isEqualTo("perceval");
   }
 
   @Test
@@ -229,5 +241,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     Collection<IssueDto> results = dao.selectByIds(newArrayList(100l, 101l, 102l));
     assertThat(results).hasSize(3);
   }
+
 
 }

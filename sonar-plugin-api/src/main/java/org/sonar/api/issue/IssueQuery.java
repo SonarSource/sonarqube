@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
@@ -45,6 +46,8 @@ public class IssueQuery {
   private final Collection<String> assignees;
   private final Date createdAfter;
   private final Date createdBefore;
+  private final String sort;
+  private final boolean asc;
 
   // max results per page
   private final int pageSize;
@@ -64,6 +67,8 @@ public class IssueQuery {
     this.assignees = builder.assignees;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
+    this.sort = builder.sort;
+    this.asc = builder.asc;
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
   }
@@ -112,6 +117,14 @@ public class IssueQuery {
     return createdBefore;
   }
 
+  public String sort() {
+    return sort;
+  }
+
+  public boolean asc() {
+    return asc;
+  }
+
   public int pageSize() {
     return pageSize;
   }
@@ -134,6 +147,11 @@ public class IssueQuery {
    * @since 3.6
    */
   public static class Builder {
+
+    private enum Sort {
+      created, updated, closed, assignee;
+    }
+
     private static final int DEFAULT_PAGE_SIZE = 100;
     private static final int MAX_PAGE_SIZE = 1000;
     private static final int DEFAULT_PAGE_INDEX = 1;
@@ -149,6 +167,8 @@ public class IssueQuery {
     private Collection<String> assignees;
     private Date createdAfter;
     private Date createdBefore;
+    private String sort;
+    private boolean asc = false;
     private int pageSize = DEFAULT_PAGE_SIZE;
     private int pageIndex = DEFAULT_PAGE_INDEX;
 
@@ -207,6 +227,20 @@ public class IssueQuery {
 
     public Builder createdBefore(Date createdBefore) {
       this.createdBefore = createdBefore;
+      return this;
+    }
+
+    public Builder sort(String sort) {
+      try {
+        this.sort = Sort.valueOf(sort).name();
+      } catch (IllegalArgumentException e){
+        throw new IllegalArgumentException("Sort should contain only : " + Arrays.toString(Sort.values()), e);
+      }
+      return this;
+    }
+
+    public Builder asc(boolean asc) {
+      this.asc = asc;
       return this;
     }
 

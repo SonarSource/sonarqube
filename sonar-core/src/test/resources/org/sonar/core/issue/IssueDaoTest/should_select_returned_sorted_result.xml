@@ -1,5 +1,6 @@
 <dataset>
 
+  <!-- rule 500 -->
   <issues
       id="100"
       kee="ABCDE"
@@ -15,7 +16,7 @@
       resolution="FIXED"
       checksum="XXX"
       user_login="arthur"
-      assignee_login="perceval"
+      assignee_login="arthur"
       author_login="[null]"
       attributes="JIRA=FOO-1234"
       created_at="2013-04-16"
@@ -41,9 +42,33 @@
       assignee_login="perceval"
       author_login="[null]"
       attributes="JIRA=FOO-1234"
-      created_at="2013-04-13"
-      updated_at="2013-04-13"
-      closed_at="2013-04-13"
+      created_at="2013-04-16"
+      updated_at="2013-04-16"
+      closed_at="2013-04-16"
       />
 
+
+  <!-- rule 501 -->
+  <issues
+      id="102"
+      kee="ABCDE"
+      resource_id="400"
+      rule_id="501"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      manual_issue="[false]"
+      description="[null]"
+      line="200"
+      cost="4.2"
+      status="OPEN"
+      resolution="FIXED"
+      checksum="XXX"
+      user_login="arthur"
+      assignee_login="henry"
+      author_login="[null]"
+      attributes="JIRA=FOO-1234"
+      created_at="2013-04-16"
+      updated_at="2013-04-16"
+      closed_at="2013-04-16"
+      />
 </dataset>
