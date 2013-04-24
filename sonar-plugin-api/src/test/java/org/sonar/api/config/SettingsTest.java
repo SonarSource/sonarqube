@@ -33,7 +33,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class SettingsTest {
 
-  private PropertyDefinitions definitions;
+  private PropertyDefs definitions;
 
   @Properties({
     @Property(key = "hello", name = "Hello", defaultValue = "world"),
@@ -57,7 +57,7 @@ public class SettingsTest {
 
   @Before
   public void init_definitions() {
-    definitions = new PropertyDefinitions();
+    definitions = new PropertyDefs();
     definitions.addComponent(Init.class);
   }
 

@@ -22,12 +22,13 @@ package org.sonar.server.platform;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.PropertyDefs;
 import org.sonar.api.config.Settings;
 import org.sonar.core.config.ConfigurationUtils;
 
 import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.Map;
@@ -52,12 +53,12 @@ public class ServerSettings extends Settings {
   private File deployDir;
   private File sonarHome;
 
-  public ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, ServletContext servletContext) {
+  public ServerSettings(PropertyDefs definitions, Configuration deprecatedConfiguration, ServletContext servletContext) {
     this(definitions, deprecatedConfiguration, getDeployDir(servletContext), SonarHome.getHome());
   }
 
   @VisibleForTesting
-  ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, File deployDir, File sonarHome) {
+  ServerSettings(PropertyDefs definitions, Configuration deprecatedConfiguration, File deployDir, File sonarHome) {
     super(definitions);
     this.deprecatedConfiguration = deprecatedConfiguration;
     this.deployDir = deployDir;

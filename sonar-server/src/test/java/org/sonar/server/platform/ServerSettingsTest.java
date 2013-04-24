@@ -22,7 +22,7 @@ package org.sonar.server.platform;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Test;
-import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.PropertyDefs;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -36,7 +36,7 @@ public class ServerSettingsTest {
 
   @Test
   public void load_properties_file() {
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
+    ServerSettings settings = new ServerSettings(new PropertyDefs(), new BaseConfiguration(), new File("."), home);
 
     assertThat(settings.getString("hello")).isEqualTo("world");
   }
@@ -44,7 +44,7 @@ public class ServerSettingsTest {
   @Test
   public void systemPropertiesShouldOverridePropertiesFile() {
     System.setProperty("ServerSettingsTestEnv", "in_env");
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
+    ServerSettings settings = new ServerSettings(new PropertyDefs(), new BaseConfiguration(), new File("."), home);
 
     assertThat(settings.getString("ServerSettingsTestEnv")).isEqualTo("in_env");
   }
@@ -52,12 +52,12 @@ public class ServerSettingsTest {
   @Test(expected = IllegalStateException.class)
   public void fail_if_properties_file_is_not_found() {
     File sonarHome = new File("unknown/path");
-    new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), sonarHome);
+    new ServerSettings(new PropertyDefs(), new BaseConfiguration(), new File("."), sonarHome);
   }
 
   @Test
   public void activateDatabaseSettings() {
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
+    ServerSettings settings = new ServerSettings(new PropertyDefs(), new BaseConfiguration(), new File("."), home);
 
     Map<String, String> databaseProperties = ImmutableMap.of("in_db", "true");
     settings.activateDatabaseSettings(databaseProperties);
@@ -67,7 +67,7 @@ public class ServerSettingsTest {
 
   @Test
   public void file_settings_override_db_settings() {
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), new File("."), home);
+    ServerSettings settings = new ServerSettings(new PropertyDefs(), new BaseConfiguration(), new File("."), home);
     assertThat(settings.getString("in_file")).isEqualTo("true");
 
     Map<String, String> databaseProperties = ImmutableMap.of("in_file", "false");
@@ -79,7 +79,7 @@ public class ServerSettingsTest {
   @Test
   public void synchronize_deprecated_commons_configuration() {
     BaseConfiguration deprecated = new BaseConfiguration();
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), deprecated, new File("."), home);
+    ServerSettings settings = new ServerSettings(new PropertyDefs(), deprecated, new File("."), home);
 
     assertThat(settings.getString("in_file")).isEqualTo("true");
     assertThat(deprecated.getString("in_file")).isEqualTo("true");

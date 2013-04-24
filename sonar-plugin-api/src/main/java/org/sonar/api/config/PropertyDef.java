@@ -32,6 +32,7 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
   private boolean multiValues;
   private String propertySetKey;
   private String deprecatedKey;
-  private List<PropertyFieldDefinition> fields;
+  private List<PropertyFieldDef> fields;
   private String subcategory;
   private int index;
 
@@ -108,7 +109,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
       .options(Arrays.asList(annotation.options()))
       .multiValues(annotation.multiValues())
       .propertySetKey(annotation.propertySetKey())
-      .fields(PropertyFieldDefinition.create(annotation.fields()))
+      .fields(PropertyFieldDef.create(annotation.fields()))
       .deprecatedKey(annotation.deprecatedKey());
     List<String> qualifiers = newArrayList();
     if (annotation.project()) {
@@ -226,7 +227,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
     return propertySetKey;
   }
 
-  public List<PropertyFieldDefinition> fields() {
+  public List<PropertyFieldDef> fields() {
     return fields;
   }
 
@@ -279,7 +280,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
     private List<String> options = newArrayList();
     private boolean multiValues = false;
     private String propertySetKey = "";
-    private List<PropertyFieldDefinition> fields = newArrayList();
+    private List<PropertyFieldDef> fields = newArrayList();
     private String deprecatedKey = "";
     private boolean hidden = false;
     private int index = 999;
@@ -362,12 +363,12 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
       return this;
     }
 
-    public Builder fields(PropertyFieldDefinition first, PropertyFieldDefinition... rest) {
+    public Builder fields(PropertyFieldDef first, PropertyFieldDef... rest) {
       this.fields.addAll(Lists.asList(first, rest));
       return this;
     }
 
-    public Builder fields(List<PropertyFieldDefinition> fields) {
+    public Builder fields(List<PropertyFieldDef> fields) {
       this.fields.addAll(ImmutableList.copyOf(fields));
       return this;
     }

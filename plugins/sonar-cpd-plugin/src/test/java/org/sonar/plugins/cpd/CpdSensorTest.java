@@ -22,7 +22,7 @@ package org.sonar.plugins.cpd;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.PropertyDefs;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Language;
@@ -44,7 +44,7 @@ public class CpdSensorTest {
     IndexFactory indexFactory = mock(IndexFactory.class);
     sonarEngine = new SonarEngine(indexFactory, null, null, null);
     sonarBridgeEngine = new SonarBridgeEngine(indexFactory, null, null);
-    settings = new Settings(new PropertyDefinitions(CpdPlugin.class));
+    settings = new Settings(new PropertyDefs(CpdPlugin.class));
     sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings);
   }
 

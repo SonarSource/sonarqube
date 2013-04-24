@@ -23,7 +23,7 @@ import com.google.common.collect.ListMultimap;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
-import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.PropertyDefs;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.NewUserHandler;
@@ -185,8 +185,8 @@ public final class JRubyFacade {
   }
 
   // PLUGINS ------------------------------------------------------------------
-  public PropertyDefinitions getPropertyDefinitions() {
-    return get(PropertyDefinitions.class);
+  public PropertyDefs getPropertyDefinitions() {
+    return get(PropertyDefs.class);
   }
 
   public boolean hasPlugin(String key) {

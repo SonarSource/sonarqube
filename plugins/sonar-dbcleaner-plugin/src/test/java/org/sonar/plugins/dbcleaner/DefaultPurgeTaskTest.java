@@ -21,7 +21,7 @@ package org.sonar.plugins.dbcleaner;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.PropertyDefs;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.purge.PurgeDao;
@@ -31,15 +31,13 @@ import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultPurgeTaskTest {
   @Test
   public void shouldNotDeleteHistoricalDataOfDirectories() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    Settings settings = new Settings(new PropertyDefinitions(DefaultPurgeTask.class));
+    Settings settings = new Settings(new PropertyDefs(DefaultPurgeTask.class));
     settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, "false");
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
@@ -51,7 +49,7 @@ public class DefaultPurgeTaskTest {
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesByDefault() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    Settings settings = new Settings(new PropertyDefinitions(DefaultPurgeTask.class));
+    Settings settings = new Settings(new PropertyDefs(DefaultPurgeTask.class));
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
     task.purge(1L);

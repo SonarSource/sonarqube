@@ -22,18 +22,16 @@ package org.sonar.server.startup;
 import org.junit.Test;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.PropertyDefs;
 import org.sonar.core.properties.PropertiesDao;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 public class RenameDeprecatedPropertyKeysTest {
   @Test
   public void should_rename_deprecated_keys() {
     PropertiesDao dao = mock(PropertiesDao.class);
-    PropertyDefinitions definitions = new PropertyDefinitions(FakeExtension.class);
+    PropertyDefs definitions = new PropertyDefs(FakeExtension.class);
     RenameDeprecatedPropertyKeys task = new RenameDeprecatedPropertyKeys(dao, definitions);
     task.start();
 

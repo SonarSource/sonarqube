@@ -135,7 +135,7 @@ public class ServerIssueFinderTest {
 
     IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
     assertThat(results.pagination().offset()).isEqualTo(0);
-    assertThat(results.pagination().count()).isEqualTo(2);
+    assertThat(results.pagination().size()).isEqualTo(2);
     assertThat(results.pagination().pages()).isEqualTo(2);
 
     // Only one result is expected because the limit is 1

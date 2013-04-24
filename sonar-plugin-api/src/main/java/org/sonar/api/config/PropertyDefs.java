@@ -37,7 +37,7 @@ import java.util.*;
  *
  * @since 2.12
  */
-public final class PropertyDefinitions implements BatchComponent, ServerComponent {
+public final class PropertyDefs implements BatchComponent, ServerComponent {
 
   private final Map<String, PropertyDef> definitions = Maps.newHashMap();
   private final Map<String, String> categories = Maps.newHashMap();
@@ -46,28 +46,28 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   // deprecated key -> new key
   private final Map<String, String> deprecatedKeys = Maps.newHashMap();
 
-  public PropertyDefinitions(Object... components) {
+  public PropertyDefs(Object... components) {
     if (components != null) {
       addComponents(Arrays.asList(components));
     }
   }
 
-  public PropertyDefinitions addComponents(Collection components) {
+  public PropertyDefs addComponents(Collection components) {
     return addComponents(components, "");
   }
 
-  public PropertyDefinitions addComponents(Collection components, String defaultCategory) {
+  public PropertyDefs addComponents(Collection components, String defaultCategory) {
     for (Object component : components) {
       addComponent(component, defaultCategory);
     }
     return this;
   }
 
-  public PropertyDefinitions addComponent(Object object) {
+  public PropertyDefs addComponent(Object object) {
     return addComponent(object, "");
   }
 
-  public PropertyDefinitions addComponent(Object component, String defaultCategory) {
+  public PropertyDefs addComponent(Object component, String defaultCategory) {
     addComponentFromAnnotationProperty(component, defaultCategory);
     if (component instanceof PropertyDef) {
       PropertyDef propertyDefinition = (PropertyDef) component;
@@ -76,7 +76,7 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return this;
   }
 
-  private PropertyDefinitions addComponentFromAnnotationProperty(Object component, String defaultCategory) {
+  private PropertyDefs addComponentFromAnnotationProperty(Object component, String defaultCategory) {
     Properties annotations = AnnotationUtils.getAnnotation(component, Properties.class);
     if (annotations != null) {
       for (Property property : annotations.value()) {
@@ -90,12 +90,12 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return this;
   }
 
-  private PropertyDefinitions addProperty(Property property, String defaultCategory) {
+  private PropertyDefs addProperty(Property property, String defaultCategory) {
     PropertyDef definition = PropertyDef.create(property);
     return add(definition, defaultCategory);
   }
 
-  private PropertyDefinitions add(PropertyDef definition, String defaultCategory) {
+  private PropertyDefs add(PropertyDef definition, String defaultCategory) {
     if (!definitions.containsKey(definition.key())) {
       definitions.put(definition.key(), definition);
       categories.put(definition.key(), StringUtils.defaultIfBlank(definition.category(), defaultCategory));

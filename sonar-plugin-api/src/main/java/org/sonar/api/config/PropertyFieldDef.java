@@ -34,7 +34,7 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.3
  */
-public final class PropertyFieldDefinition {
+public final class PropertyFieldDef {
   private final String key;
   private final String name;
   private final String description;
@@ -42,7 +42,7 @@ public final class PropertyFieldDefinition {
   private final PropertyType type;
   private final List<String> options;
 
-  private PropertyFieldDefinition(Builder builder) {
+  private PropertyFieldDef(Builder builder) {
     this.key = builder.key;
     this.name = builder.name;
     this.description = builder.description;
@@ -51,16 +51,16 @@ public final class PropertyFieldDefinition {
     this.options = builder.options;
   }
 
-  static List<PropertyFieldDefinition> create(PropertyField[] fields) {
-    List<PropertyFieldDefinition> definitions = newArrayList();
+  static List<PropertyFieldDef> create(PropertyField[] fields) {
+    List<PropertyFieldDef> definitions = newArrayList();
     for (PropertyField field : fields) {
-      definitions.add(PropertyFieldDefinition.build(field.key())
-          .name(field.name())
-          .description(field.description())
-          .indicativeSize(field.indicativeSize())
-          .type(field.type())
-          .options(field.options())
-          .build()
+      definitions.add(PropertyFieldDef.build(field.key())
+        .name(field.name())
+        .description(field.description())
+        .indicativeSize(field.indicativeSize())
+        .type(field.type())
+        .options(field.options())
+        .build()
       );
     }
     return definitions;
@@ -145,10 +145,10 @@ public final class PropertyFieldDefinition {
       return this;
     }
 
-    public PropertyFieldDefinition build() {
+    public PropertyFieldDef build() {
       Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
       Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must be set");
-      return new PropertyFieldDefinition(this);
+      return new PropertyFieldDef(this);
     }
   }
 }
