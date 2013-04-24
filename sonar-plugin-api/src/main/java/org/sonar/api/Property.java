@@ -38,6 +38,8 @@ import java.lang.annotation.Target;
  * (see method <code>getConfiguration()</code>).
  * <p/>
  * <p><strong>Must be used in <code>org.sonar.api.Plugin</code> classes only.</strong></p>
+ * <p></p>
+ * It's recommended to use the class {@link org.sonar.api.config.PropertyDef} since v3.6.
  *
  * @since 1.10
  */

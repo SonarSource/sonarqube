@@ -38,6 +38,23 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
+ * Declare a plugin property. Values are available at runtime through the component {@link Settings}.
+ * <p></p>
+ * It's the programmatic alternative to the annotation {@link org.sonar.api.Property}. It is more
+ * testable and adds new features like sub-categories and ordering.
+ * <p/>
+ * Example:
+ * <pre>
+ *   public class MyPlugin extends SonarPlugin {
+ *     public List getExtensions() {
+ *       return Arrays.asList(
+ *         PropertyDef.builder("sonar.foo").name("Foo").build(),
+ *         PropertyDef.builder("sonar.bar").name("Bar").type(PropertyType.INTEGER).build()
+ *       );
+ *     }
+ *   }
+ * </pre>
+ *
  * @since 3.6
  */
 public final class PropertyDef implements BatchExtension, ServerExtension {
