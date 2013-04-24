@@ -116,16 +116,8 @@ public class IssueQuery {
     return limit;
   }
 
-//  public int pages(int count) {
-//    int p = (count / limit);
-//    if ((count % limit) > 0) {
-//      p++;
-//    }
-//    return p;
-//  }
-
-  public int offset(){
-    return (page - 1) * limit;
+  public int page() {
+    return page;
   }
 
   @Override

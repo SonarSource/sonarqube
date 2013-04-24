@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -30,6 +29,7 @@ import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.Pagination;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.issue.IssueDao;
 import org.sonar.core.issue.IssueDto;
@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 /**
@@ -72,43 +73,53 @@ public class ServerIssueFinder implements IssueFinder {
     SqlSession sqlSession = myBatis.openSession();
     try {
       List<IssueDto> allIssuesDto = issueDao.selectIssueIdsAndComponentsId(query, sqlSession);
-
-      Set<Integer> componentIds = Sets.newLinkedHashSet();
-      for (IssueDto issueDto : allIssuesDto) {
-        componentIds.add(issueDto.getResourceId());
-      }
+      Set<Integer> componentIds = getResourceIds(allIssuesDto);
       Set<Integer> authorizedComponentIds = authorizationDao.keepAuthorizedComponentIds(componentIds, currentUserId, role, sqlSession);
-      Set<Long> issueIds = getAutorizedIssueIds(allIssuesDto, authorizedComponentIds, query);
+      List<IssueDto> authorizedIssues = getAuthorizedIssues(allIssuesDto, authorizedComponentIds);
+      Pagination pagination = new Pagination(query.limit(), query.page(), authorizedIssues.size());
+      Set<Long> paginatedAuthorizedIssueIds = getPaginatedAuthorizedIssueIds(authorizedIssues, pagination);
 
-      Collection<IssueDto> dtos = issueDao.selectByIds(issueIds, sqlSession);
+      Collection<IssueDto> dtos = issueDao.selectByIds(paginatedAuthorizedIssueIds, sqlSession);
       Set<Integer> ruleIds = Sets.newLinkedHashSet();
-      List<Issue> issues = Lists.newArrayList();
+      List<Issue> issues = newArrayList();
       for (IssueDto dto : dtos) {
         if (authorizedComponentIds.contains(dto.getResourceId())) {
           issues.add(dto.toDefaultIssue());
           ruleIds.add(dto.getRuleId());
         }
       }
-      if (!issues.isEmpty()) {
-        return new DefaultResults(issues, getRulesByIssue(issues, ruleIds), getComponentsByIssue(issues, componentIds));
-      } else {
-        return new DefaultResults(issues);
-      }
+
+      return new DefaultResults(issues, getRulesByIssue(issues, ruleIds), getComponentsByIssue(issues, componentIds), pagination);
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
   }
 
-  private Set<Long> getAutorizedIssueIds(List<IssueDto> allIssuesDto, Set<Integer> authorizedComponentIds, IssueQuery query){
+  private Set<Integer> getResourceIds(List<IssueDto> allIssuesDto) {
+    Set<Integer> componentIds = Sets.newLinkedHashSet();
+    for (IssueDto issueDto : allIssuesDto) {
+      componentIds.add(issueDto.getResourceId());
+    }
+    return componentIds;
+  }
+
+  private List<IssueDto> getAuthorizedIssues(List<IssueDto> allIssuesDto, final Set<Integer> authorizedComponentIds) {
+    return newArrayList(Iterables.filter(allIssuesDto, new Predicate<IssueDto>() {
+      @Override
+      public boolean apply(IssueDto issueDto) {
+        return authorizedComponentIds.contains(issueDto.getResourceId());
+      }
+    }));
+  }
+
+  private Set<Long> getPaginatedAuthorizedIssueIds(List<IssueDto> authorizedIssues, Pagination pagination) {
     Set<Long> issueIds = Sets.newLinkedHashSet();
     int index = 0;
-    for (IssueDto issueDto : allIssuesDto) {
-      if (authorizedComponentIds.contains(issueDto.getResourceId())) {
-        if (index >= query.offset() && issueIds.size() < query.limit()) {
-          issueIds.add(issueDto.getId());
-        } else if (issueIds.size() >= query.limit()) {
-          break;
-        }
+    for (IssueDto issueDto : authorizedIssues) {
+      if (index >= pagination.offset() && issueIds.size() < pagination.limit()) {
+        issueIds.add(issueDto.getId());
+      } else if (issueIds.size() >= pagination.limit()) {
+        break;
       }
       index++;
     }
@@ -158,20 +169,15 @@ public class ServerIssueFinder implements IssueFinder {
 
   static class DefaultResults implements Results {
     private final List<Issue> issues;
+    private final Pagination pagination;
     private final Map<Issue, Rule> rulesByIssue;
     private final Map<Issue, Component> componentsByIssue;
-    // TODO add nb total issues and maybe some pagination methods
 
-    DefaultResults(List<Issue> issues, Map<Issue, Rule> rulesByIssue, Map<Issue, Component> componentsByIssue) {
+    DefaultResults(List<Issue> issues, Map<Issue, Rule> rulesByIssue, Map<Issue, Component> componentsByIssue, Pagination pagination) {
       this.issues = issues;
       this.rulesByIssue = rulesByIssue;
       this.componentsByIssue = componentsByIssue;
-    }
-
-    DefaultResults(List<Issue> issues) {
-      this.issues = issues;
-      this.rulesByIssue = newHashMap();
-      this.componentsByIssue = newHashMap();
+      this.pagination = pagination;
     }
 
     @Override
@@ -195,5 +201,8 @@ public class ServerIssueFinder implements IssueFinder {
       return componentsByIssue.values();
     }
 
+    public Pagination pagination() {
+      return pagination;
+    }
   }
 }

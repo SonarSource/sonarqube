@@ -113,7 +113,33 @@ public class ServerIssueFinderTest {
     IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
 
     verify(issueDao).selectByIds(eq(newHashSet(1L)), any(SqlSession.class));
-    assertThat(results.issues()).hasSize(1);
+  }
+
+  @Test
+  public void should_find_paginate_result() {
+    grantAccessRights();
+
+    IssueQuery issueQuery = mock(IssueQuery.class);
+    when(issueQuery.limit()).thenReturn(1);
+    when(issueQuery.page()).thenReturn(1);
+
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
+      .setComponentKey_unit_test_only("Action.java")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(135)
+      .setComponentKey_unit_test_only("Phases.java")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+    List<IssueDto> dtoList = newArrayList(issue1, issue2);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
+
+    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    assertThat(results.pagination().offset()).isEqualTo(0);
+    assertThat(results.pagination().count()).isEqualTo(2);
+    assertThat(results.pagination().pages()).isEqualTo(2);
+
+    // Only one result is expected because the limit is 1
+    verify(issueDao).selectByIds(eq(newHashSet(1L)), any(SqlSession.class));
   }
 
   @Test
@@ -194,9 +220,6 @@ public class ServerIssueFinderTest {
     assertThat(results.issues()).isEmpty();
     assertThat(results.rules()).isEmpty();
     assertThat(results.components()).isEmpty();
-
-    verifyZeroInteractions(ruleFinder);
-    verifyZeroInteractions(resourceDao);
   }
 
   private void grantAccessRights() {

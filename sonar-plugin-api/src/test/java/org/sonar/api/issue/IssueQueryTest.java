@@ -59,6 +59,6 @@ public class IssueQueryTest {
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();
     assertThat(query.limit()).isEqualTo(10);
-    assertThat(query.offset()).isEqualTo(10);
+    assertThat(query.page()).isEqualTo(2);
   }
 }

@@ -19,12 +19,14 @@
  */
 package org.sonar.core.resource;
 
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -133,9 +135,13 @@ public class ResourceDao {
   }
 
   public Collection<Component> findByIds(Collection<Integer> ids) {
+    if (ids.isEmpty()) {
+      return Collections.emptyList();
+    }
     SqlSession session = mybatis.openSession();
     try {
-      Collection<ResourceDto> resources =  session.getMapper(ResourceMapper.class).selectResourcesById(ids);
+      List <List<Integer>> idsPartition = Lists.partition(newArrayList(ids), 1000);
+      Collection<ResourceDto> resources =  session.getMapper(ResourceMapper.class).selectResourcesById(idsPartition);
       Collection<Component> components = newArrayList();
       for (ResourceDto resourceDto : resources) {
         components.add(toComponent(resourceDto));

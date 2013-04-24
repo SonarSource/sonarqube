@@ -22,7 +22,6 @@ package org.sonar.core.resource;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface ResourceMapper {
@@ -54,7 +53,7 @@ public interface ResourceMapper {
   /**
    * @since3.6
    */
-  List<ResourceDto> selectResourcesById(@Param("ids") Collection<Integer> ids);
+  List<ResourceDto> selectResourcesById(@Param("ids") List <List<Integer>> ids);
 
   void insert(ResourceDto resource);
 

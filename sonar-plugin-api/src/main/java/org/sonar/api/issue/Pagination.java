@@ -20,44 +20,43 @@
 
 package org.sonar.api.issue;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
-import org.sonar.api.rules.Rule;
+public class Pagination {
 
-import javax.annotation.Nullable;
+  private int limit;
+  private int page;
+  private int count;
 
-import java.util.Collection;
-import java.util.List;
-
-/**
- * Search for issues. This component can be used only by server-side extensions. Batch extensions should
- * use the perspective {@link Issuable}.
- *
- * @since 3.6
- */
-public interface IssueFinder extends ServerComponent {
-
-  interface Results {
-    List<Issue> issues();
-
-    Rule rule(Issue issue);
-
-    Collection<Rule> rules();
-
-    Component component(Issue issue);
-
-    Collection<Component> components();
-
-    Pagination pagination();
+  public Pagination(int limit, int page, int count) {
+    this.limit = limit;
+    this.page = page;
+    this.count = count;
   }
 
-  Results find(IssueQuery query, @Nullable Integer currentUserId, String role);
+  public int page() {
+    return page;
+  }
 
-  Issue findByKey(String key /* TODO @Nullable Integer currentUserId */);
+  public int limit() {
+    return limit;
+  }
 
-  /*
-  Map<RuleKey, Rule> rules(Collection<Issue> issues);
+  public int count() {
+    return count;
+  }
 
-  Map<String, Component> components(Collection<Issue> issues);
-*/
+  public int offset(){
+    return (page - 1) * limit;
+  }
+
+  public int pages() {
+    int p = (count / limit);
+    if ((count % limit) > 0) {
+      p++;
+    }
+    return p;
+  }
+
+  public boolean isEmpty() {
+    return count == 0;
+  }
 }

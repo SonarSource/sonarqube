@@ -22,7 +22,6 @@ package org.sonar.core.issue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -30,6 +29,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -102,16 +102,10 @@ public class IssueDao implements BatchComponent, ServerComponent {
   public List<IssueDto> select(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {
-      return select(query, session);
+      return session.selectList("org.sonar.core.issue.IssueMapper.select", query);
     } finally {
       MyBatis.closeQuietly(session);
     }
-  }
-
-  public List<IssueDto> select(IssueQuery query, SqlSession session) {
-    // TODO support ordering
-
-    return session.selectList("org.sonar.core.issue.IssueMapper.select", query, new RowBounds(query.offset(), query.limit()));
   }
 
   /**
@@ -119,11 +113,13 @@ public class IssueDao implements BatchComponent, ServerComponent {
    */
   public List<IssueDto> selectIssueIdsAndComponentsId(IssueQuery query, SqlSession session) {
     // TODO support ordering
-
     return session.selectList("org.sonar.core.issue.IssueMapper.selectIssueIdsAndComponentsId", query);
   }
 
   public Collection<IssueDto> selectByIds(Collection<Long> ids, SqlSession session) {
+    if (ids.isEmpty()) {
+      return Collections.emptyList();
+    }
     List <List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
     Map<String, List <List<Long>>> params = ImmutableMap.of("ids", idsPartition);
     return session.selectList("org.sonar.core.issue.IssueMapper.selectByIds", params);

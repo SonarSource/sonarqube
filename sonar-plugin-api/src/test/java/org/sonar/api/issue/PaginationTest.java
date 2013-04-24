@@ -20,44 +20,31 @@
 
 package org.sonar.api.issue;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
-import org.sonar.api.rules.Rule;
+import org.junit.Test;
 
-import javax.annotation.Nullable;
+import static org.fest.assertions.Assertions.assertThat;
 
-import java.util.Collection;
-import java.util.List;
+public class PaginationTest {
 
-/**
- * Search for issues. This component can be used only by server-side extensions. Batch extensions should
- * use the perspective {@link Issuable}.
- *
- * @since 3.6
- */
-public interface IssueFinder extends ServerComponent {
+  @Test
+  public void test_pagination(){
+    Pagination pagination = new Pagination(5, 1, 20);
 
-  interface Results {
-    List<Issue> issues();
+    assertThat(pagination.limit()).isEqualTo(5);
+    assertThat(pagination.page()).isEqualTo(1);
+    assertThat(pagination.count()).isEqualTo(20);
+    assertThat(pagination.isEmpty()).isFalse();
 
-    Rule rule(Issue issue);
-
-    Collection<Rule> rules();
-
-    Component component(Issue issue);
-
-    Collection<Component> components();
-
-    Pagination pagination();
+    assertThat(pagination.offset()).isEqualTo(0);
+    assertThat(pagination.pages()).isEqualTo(4);
   }
 
-  Results find(IssueQuery query, @Nullable Integer currentUserId, String role);
+  @Test
+  public void test_pagination_on_second_page(){
+    Pagination pagination = new Pagination(5, 2, 20);
 
-  Issue findByKey(String key /* TODO @Nullable Integer currentUserId */);
+    assertThat(pagination.offset()).isEqualTo(5);
+    assertThat(pagination.pages()).isEqualTo(4);
+  }
 
-  /*
-  Map<RuleKey, Rule> rules(Collection<Issue> issues);
-
-  Map<String, Component> components(Collection<Issue> issues);
-*/
 }

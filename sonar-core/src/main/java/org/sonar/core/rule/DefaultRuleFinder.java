@@ -31,6 +31,7 @@ import org.sonar.jpa.session.DatabaseSessionFactory;
 import javax.persistence.Query;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,6 +58,9 @@ public class DefaultRuleFinder implements RuleFinder {
   }
 
   public Collection<Rule> findByIds(Collection<Integer> ruleIds) {
+    if (ruleIds.isEmpty()) {
+      return Collections.emptyList();
+    }
     DatabaseSession session = sessionFactory.getSession();
     StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" r where r.id in (:ids) and status<>:status ");
     Query hqlQuery = session.createQuery(hql.toString())
