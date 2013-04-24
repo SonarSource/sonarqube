@@ -22,7 +22,7 @@ class IssuesController < ApplicationController
 
   def index
     page = params[:page_id] || 1
-    issues_result = find_issues({'limit' => 2, 'page' => page})
+    issues_result = find_issues({'limit' => 25, 'page' => page})
     @pagination = issues_result.pagination
     @issues = issues_result.issues.collect {|issue| issue}
   end
