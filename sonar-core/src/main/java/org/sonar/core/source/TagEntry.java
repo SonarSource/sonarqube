@@ -17,37 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.core.source;
 
-public class TagEntry {
+class TagEntry {
 
   private final int startOffset;
   private final String cssClass;
 
-  public TagEntry(int startOffset, String cssClass) {
+  TagEntry(int startOffset, String cssClass) {
     this.startOffset = startOffset;
     this.cssClass = cssClass;
   }
 
-  public int getStartOffset() {
+  int getStartOffset() {
     return startOffset;
   }
 
-  public String getCssClass() {
+  String getCssClass() {
     return cssClass;
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     TagEntry tagEntry = (TagEntry) o;
-
-    if (startOffset != tagEntry.startOffset) return false;
-    if (cssClass != null ? !cssClass.equals(tagEntry.cssClass) : tagEntry.cssClass != null) return false;
-
+    if (startOffset != tagEntry.startOffset) {
+      return false;
+    }
+    if (cssClass != null ? !cssClass.equals(tagEntry.cssClass) : tagEntry.cssClass != null) {
+      return false;
+    }
     return true;
   }
 

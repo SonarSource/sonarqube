@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.core.source;
 
 import java.io.BufferedReader;
@@ -28,10 +27,9 @@ import java.util.Deque;
 /**
  * @since 3.6
  */
-public class CharactersReader {
+class CharactersReader {
 
-  public static final int END_OF_STREAM = -1;
-  public static final char[] SPECIAL_CHARS = {'<', '>'};
+  static final int END_OF_STREAM = -1;
 
   private final BufferedReader stringBuffer;
   private final Deque<String> openTags;
@@ -45,34 +43,34 @@ public class CharactersReader {
     this.openTags = new ArrayDeque<String>();
   }
 
-  public boolean readNextChar() throws IOException {
+  boolean readNextChar() throws IOException {
     previousValue = currentValue;
     currentValue = stringBuffer.read();
     currentIndex++;
     return currentValue != END_OF_STREAM;
   }
 
-  public int getCurrentValue() {
+  int getCurrentValue() {
     return currentValue;
   }
 
-  public int getPreviousValue() {
+  int getPreviousValue() {
     return previousValue;
   }
 
-  public int getCurrentIndex() {
+  int getCurrentIndex() {
     return currentIndex;
   }
 
-  public void registerOpenTag(String textType) {
+  void registerOpenTag(String textType) {
     openTags.push(textType);
   }
 
-  public void removeLastOpenTag() {
+  void removeLastOpenTag() {
     openTags.remove();
   }
 
-  public Deque<String> getOpenTags() {
+  Deque<String> getOpenTags() {
     return openTags;
   }
 }
