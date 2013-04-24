@@ -20,6 +20,8 @@
 
 package org.sonar.core.issue;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
@@ -29,6 +31,9 @@ import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 3.6
@@ -107,6 +112,21 @@ public class IssueDao implements BatchComponent, ServerComponent {
     // TODO support ordering
 
     return session.selectList("org.sonar.core.issue.IssueMapper.select", query, new RowBounds(query.offset(), query.limit()));
+  }
+
+  /**
+   * The returned IssueDto list contains only the issue id and the resource id
+   */
+  public List<IssueDto> selectIssueIdsAndComponentsId(IssueQuery query, SqlSession session) {
+    // TODO support ordering
+
+    return session.selectList("org.sonar.core.issue.IssueMapper.selectIssueIdsAndComponentsId", query);
+  }
+
+  public Collection<IssueDto> selectByIds(Collection<Long> ids, SqlSession session) {
+    List <List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
+    Map<String, List <List<Long>>> params = ImmutableMap.of("ids", idsPartition);
+    return session.selectList("org.sonar.core.issue.IssueMapper.selectByIds", params);
   }
 
 }

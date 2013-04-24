@@ -45,7 +45,12 @@ public class IssueQuery {
   private final Collection<String> assignees;
   private final Date createdAfter;
   private final Date createdBefore;
-  private final int limit, offset;
+
+  // max results
+  private final int limit;
+
+  // index of selected page. Start with 1.
+  private final int page;
 
   private IssueQuery(Builder builder) {
     this.keys = builder.keys;
@@ -60,7 +65,7 @@ public class IssueQuery {
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
     this.limit = builder.limit;
-    this.offset = builder.offset;
+    this.page = builder.page;
   }
 
   public Collection<String> keys() {
@@ -111,8 +116,16 @@ public class IssueQuery {
     return limit;
   }
 
-  public int offset() {
-    return offset;
+//  public int pages(int count) {
+//    int p = (count / limit);
+//    if ((count % limit) > 0) {
+//      p++;
+//    }
+//    return p;
+//  }
+
+  public int offset(){
+    return (page - 1) * limit;
   }
 
   @Override
@@ -130,8 +143,8 @@ public class IssueQuery {
    */
   public static class Builder {
     private static final int DEFAULT_LIMIT = 100;
-    private static final int MAX_LIMIT = 5000;
-    private static final int DEFAULT_OFFSET = 0;
+    private static final int MAX_LIMIT = 1000;
+    private static final int DEFAULT_PAGE = 1;
 
     private Collection<String> keys;
     private Collection<String> severities;
@@ -145,7 +158,7 @@ public class IssueQuery {
     private Date createdAfter;
     private Date createdBefore;
     private int limit = DEFAULT_LIMIT;
-    private int offset = DEFAULT_OFFSET;
+    private int page = DEFAULT_PAGE;
 
     private Builder() {
     }
@@ -212,9 +225,9 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder offset(Integer i) {
-      Preconditions.checkArgument(i == null || i.intValue() >= 0, "Offset must be greater than or equal to 0 (got " + i + ")");
-      this.offset = (i == null ? DEFAULT_OFFSET : i.intValue());
+    public Builder page(Integer i) {
+      Preconditions.checkArgument(i == null || i.intValue() > 0, "Page must be greater than 0 (got " + i + ")");
+      this.page = (i == null ? DEFAULT_PAGE : i.intValue());
       return this;
     }
 

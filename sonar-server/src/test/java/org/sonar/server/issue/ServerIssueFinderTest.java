@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
@@ -83,13 +84,36 @@ public class ServerIssueFinderTest {
       .setComponentKey_unit_test_only("Action.java")
       .setRuleKey_unit_test_only("squid", "AvoidCycle");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.select(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(issue.componentKey()).isEqualTo("Action.java");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
+  }
+
+  @Test
+  public void should_find_only_authorized_issues() {
+    IssueQuery issueQuery = mock(IssueQuery.class);
+    when(issueQuery.limit()).thenReturn(100);
+
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
+      .setComponentKey_unit_test_only("Action.java")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(135)
+      .setComponentKey_unit_test_only("Phases.java")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+    List<IssueDto> dtoList = newArrayList(issue1, issue2);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(authorizationDao.keepAuthorizedComponentIds(anySet(), anyInt(), anyString(), any(SqlSession.class))).thenReturn(newHashSet(123));
+    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(issue1));
+
+    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+
+    verify(issueDao).selectByIds(eq(newHashSet(1L)), any(SqlSession.class));
+    assertThat(results.issues()).hasSize(1);
   }
 
   @Test
@@ -120,9 +144,11 @@ public class ServerIssueFinderTest {
       .setComponentKey_unit_test_only("Action.java")
       .setRuleKey_unit_test_only("squid", "AvoidCycle");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.select(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(results.issues()).hasSize(2);
     assertThat(results.rule(issue)).isEqualTo(rule);
@@ -144,9 +170,12 @@ public class ServerIssueFinderTest {
       .setComponentKey_unit_test_only("Action.java")
       .setRuleKey_unit_test_only("squid", "AvoidCycle");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.select(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
+
 
     IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(results.issues()).hasSize(2);
     assertThat(results.component(issue)).isEqualTo(component);
@@ -157,7 +186,9 @@ public class ServerIssueFinderTest {
   public void should_get_empty_rule_and_component_from_result_when_no_issue() {
     grantAccessRights();
     IssueQuery issueQuery = mock(IssueQuery.class);
-    when(issueDao.select(eq(issueQuery), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
+    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
+    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
+
 
     IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
     assertThat(results.issues()).isEmpty();

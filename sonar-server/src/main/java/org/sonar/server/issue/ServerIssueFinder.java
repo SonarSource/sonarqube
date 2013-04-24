@@ -71,13 +71,16 @@ public class ServerIssueFinder implements IssueFinder {
     LOG.debug("IssueQuery : {}", query);
     SqlSession sqlSession = myBatis.openSession();
     try {
-      List<IssueDto> dtos = issueDao.select(query, sqlSession);
+      List<IssueDto> allIssuesDto = issueDao.selectIssueIdsAndComponentsId(query, sqlSession);
 
       Set<Integer> componentIds = Sets.newLinkedHashSet();
-      for (IssueDto issueDto : dtos) {
+      for (IssueDto issueDto : allIssuesDto) {
         componentIds.add(issueDto.getResourceId());
       }
       Set<Integer> authorizedComponentIds = authorizationDao.keepAuthorizedComponentIds(componentIds, currentUserId, role, sqlSession);
+      Set<Long> issueIds = getAutorizedIssueIds(allIssuesDto, authorizedComponentIds, query);
+
+      Collection<IssueDto> dtos = issueDao.selectByIds(issueIds, sqlSession);
       Set<Integer> ruleIds = Sets.newLinkedHashSet();
       List<Issue> issues = Lists.newArrayList();
       for (IssueDto dto : dtos) {
@@ -94,6 +97,22 @@ public class ServerIssueFinder implements IssueFinder {
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
+  }
+
+  private Set<Long> getAutorizedIssueIds(List<IssueDto> allIssuesDto, Set<Integer> authorizedComponentIds, IssueQuery query){
+    Set<Long> issueIds = Sets.newLinkedHashSet();
+    int index = 0;
+    for (IssueDto issueDto : allIssuesDto) {
+      if (authorizedComponentIds.contains(issueDto.getResourceId())) {
+        if (index >= query.offset() && issueIds.size() < query.limit()) {
+          issueIds.add(issueDto.getId());
+        } else if (issueIds.size() >= query.limit()) {
+          break;
+        }
+      }
+      index++;
+    }
+    return issueIds;
   }
 
   private Map<Issue, Rule> getRulesByIssue(List<Issue> issues, Set<Integer> ruleIds) {
@@ -141,6 +160,7 @@ public class ServerIssueFinder implements IssueFinder {
     private final List<Issue> issues;
     private final Map<Issue, Rule> rulesByIssue;
     private final Map<Issue, Component> componentsByIssue;
+    // TODO add nb total issues and maybe some pagination methods
 
     DefaultResults(List<Issue> issues, Map<Issue, Rule> rulesByIssue, Map<Issue, Component> componentsByIssue) {
       this.issues = issues;

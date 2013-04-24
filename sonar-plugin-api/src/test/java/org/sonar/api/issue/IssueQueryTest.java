@@ -44,8 +44,8 @@ public class IssueQueryTest {
       .assignees(Lists.newArrayList("gargantua"))
       .createdAfter(new Date())
       .createdBefore(new Date())
-      .limit(125)
-      .offset(33)
+      .limit(10)
+      .page(2)
       .build();
     assertThat(query.keys()).containsOnly("ABCDE");
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
@@ -58,7 +58,7 @@ public class IssueQueryTest {
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();
-    assertThat(query.limit()).isEqualTo(125);
-    assertThat(query.offset()).isEqualTo(33);
+    assertThat(query.limit()).isEqualTo(10);
+    assertThat(query.offset()).isEqualTo(10);
   }
 }

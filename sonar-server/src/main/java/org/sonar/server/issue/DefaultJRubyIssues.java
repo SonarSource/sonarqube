@@ -83,7 +83,7 @@ public class DefaultJRubyIssues implements JRubyIssues {
     builder.createdAfter(toDate(props.get("createdAfter")));
     builder.createdBefore(toDate(props.get("createdBefore")));
     builder.limit(toInteger(props.get("limit")));
-    builder.offset(toInteger(props.get("offset")));
+//    builder.offset(toInteger(props.get("offset")));
     return builder.build();
   }
 
