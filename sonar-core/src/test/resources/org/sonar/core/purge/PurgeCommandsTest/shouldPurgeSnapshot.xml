@@ -37,7 +37,7 @@
   <events id="1" resource_id="1" snapshot_id="1"
           category="VERSION" description="[null]" name="Version 1.0" event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
 
-  <duplications_index project_snapshot_id="1" snapshot_id="1"
+  <duplications_index id="1" project_snapshot_id="1" snapshot_id="1"
                       hash="bb" index_in_file="0" start_line="0" end_line="0"/>
 
   <reviews id="1" project_id="1" resource_id="1" status="OPEN"
@@ -85,7 +85,7 @@
     <events id="2" resource_id="2" snapshot_id="2"
             category="VERSION" description="[null]" name="Version 1.0" event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
 
-    <duplications_index project_snapshot_id="2" snapshot_id="2"
+    <duplications_index id="2" project_snapshot_id="2" snapshot_id="2"
                         hash="bb" index_in_file="0" start_line="0" end_line="0"/>
 
     <reviews id="2" project_id="2" resource_id="2" status="OPEN"
