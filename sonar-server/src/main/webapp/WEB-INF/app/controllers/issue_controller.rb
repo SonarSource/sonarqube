@@ -18,10 +18,21 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-class IssuesController < ApplicationController
+class IssueController < ApplicationController
 
-  def index
-    @issues = find_issues({}).issues
+  SECTION=Navigation::SECTION_RESOURCE
+
+  # Used for the permalink, e.g. http://localhost:9000/issue/view/1
+  def view
+    issue_result = find_issues({'keys' => params[:id]})
+    if issue_result.issues.length == 1
+      @issue = issue_result.issues[0]
+      @rule = issue_result.rule(@issue)
+      @resource = Project.by_key(@issue.component_key)
+      render 'issue/_view', :locals => {:issue => @issue, :rule => @rule, :resource => @resource}
+    else
+      render :text => "<b>Cannot access this issue</b> : not found."
+    end
   end
 
   protected

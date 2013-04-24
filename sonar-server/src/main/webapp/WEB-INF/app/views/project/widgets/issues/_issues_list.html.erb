@@ -92,7 +92,7 @@
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
         <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= message(issue.severity.downcase).capitalize -%>"/></td>
         <td>
-          <%= link_to h(issue.description), :controller => "issues", :action => "view", :id => issue.key -%>
+          <%= link_to h(issue.description), :controller => "issue", :action => "view", :id => issue.key -%>
         </td>
         <td class="nowrap">
           <%= distance_of_time_in_words_to_now(to_date(issue.updated_at || issue.created_at)) -%>
