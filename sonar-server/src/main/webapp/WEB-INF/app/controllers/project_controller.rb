@@ -78,7 +78,7 @@ class ProjectController < ApplicationController
   # GET /project/profile?id=<project id>
   def profile
     require_parameters :id
-    @project = get_current_project(params[:id])
+    @project=get_current_project_for_profile(params[:id])
   end
 
   # POST /project/set_profile?id=<project id>&language=<language>[&profile_id=<profile id>]
@@ -87,7 +87,7 @@ class ProjectController < ApplicationController
     verify_post_request
 
     language=params[:language]
-    project = get_current_project(params[:id])
+    project = get_current_project_for_profile(params[:id])
 
     if params[:profile_id].blank?
       Profile.reset_default_profile_for_project_id(language, project.id)
@@ -98,6 +98,13 @@ class ProjectController < ApplicationController
     end
 
     redirect_to :action => 'profile', :id => project.id
+  end
+
+  def get_current_project_for_profile(project_id)
+    project=Project.by_key(project_id)
+    not_found("Project not found") unless project
+    access_denied unless (is_admin?(project) || has_role?(:profileadmin))
+    project
   end
 
   def key

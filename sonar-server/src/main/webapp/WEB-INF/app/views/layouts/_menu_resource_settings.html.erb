@@ -1,45 +1,50 @@
 <li>
   <a href="#" onclick="showDropdownMenu('project-settings-menu'); return false;" class="link-more" id="project-settings-menu-link"><%= message('layout.configuration') -%></a>
-  
+
   <div id="project-settings-menu" class="dropdown-menu" style="display: none">
+    <% is_admin = has_role?(:admin, @project) %>
     <ul>
-      <% if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'configurable')) %>
+      <% if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'configurable')) %>
          <li><a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
       <% end %>
       <% if (@project.project?) %>
         <li><a href="<%= ApplicationController.root_context -%>/project/profile/<%= @project.id -%>"><%= message('project_quality_profiles.page') -%></a></li>
       <% end %>
+      <% if is_admin %>
       <li><a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
-      <% if (@project.project?) %>
+      <% end %>
+      <% if (is_admin && @project.project?) %>
         <li><a href="<%= ApplicationController.root_context -%>/action_plans/index/<%= @project.id -%>"><%= message('action_plans.page') -%></a></li>
       <% end %>
-      <% if (@project.project?) %>
+      <% if (is_admin && @project.project?) %>
          <li><a href="<%= ApplicationController.root_context -%>/project/links/<%= @project.id -%>"><%= message('project_links.page') -%></a></li>
       <% end %>
       <%
          # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
-         if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') || @project.view? || @project.subview?)
+         if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') || @project.view? || @project.subview?)
       %>
       <li><a href="<%= ApplicationController.root_context -%>/project_roles/index/<%= @project.id -%>"><%= message('roles.page') -%></a></li>
       <% end %>
       <%
          # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
-         if (controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view?)
+         if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view?)
       %>
         <li><a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
       <% end %>
-      <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key') %>
+      <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key') %>
         <li><a href="<%= ApplicationController.root_context -%>/project/key/<%= @project.id -%>"><%= message('update_key.page') -%></a></li>
       <% end %>
-      <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable') %>
+      <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable') %>
         <li><a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('resource_deletion.page', :params => message('qualifier.' + @project.qualifier)) -%></a></li>
       <% end %>
-      <% controller.java_facade.getPages(Navigation::SECTION_RESOURCE_CONFIGURATION, @project.scope, @project.qualifier, @project.language, nil).each do |page|
-        page_url = "#{page.getId()}?resource=#{@project.id}"
+      <% if is_admin
+          controller.java_facade.getPages(Navigation::SECTION_RESOURCE_CONFIGURATION, @project.scope, @project.qualifier, @project.language, nil).each do |page|
+            page_url = "#{page.getId()}?resource=#{@project.id}"
       %>
         <li><a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
-      <% end %>
+      <%   end
+         end %>
     </ul>
   </div>
-  
+
 </li>

@@ -46,7 +46,7 @@
         <li>
           <%= link_to_favourite(displayed_resource) -%>
         </li>
-        <% if has_role?(:admin, displayed_resource) && !displayed_resource.entity? %>
+        <% if (has_role?(:admin, displayed_resource) || profiles_administrator?) && !displayed_resource.entity? %>
           <%= render 'layouts/menu_resource_settings' -%>
         <% end %>
       <% end %>
