@@ -1,5 +1,8 @@
 <tr>
-    <% if scm_available %>
+    <% if display_manual_violation_form %>
+      <td class="gray"></td>
+    <% end
+       if scm_available %>
       <td class="scm"></td>
     <% end %>
     <td class="lid"></td>

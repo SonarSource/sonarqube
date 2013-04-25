@@ -116,6 +116,7 @@
 
       <% if display_issues && line.issues? %>
         <%= render :partial => "shared/source_issues", :locals => { :line => line, \
+                                                                    :display_manual_violation_form => display_manual_violation_form, \
                                                                     :scm_available => scm_available} %>
       <% end %>
 
