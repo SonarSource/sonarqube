@@ -24,7 +24,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
-import org.sonar.api.config.PropertyDefs;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
@@ -45,7 +45,7 @@ public class PersistentSettingsTest {
   public void init() throws URISyntaxException {
     dao = mock(PropertiesDao.class);
     settings = new ServerSettings(
-      new PropertyDefs(),
+      new PropertyDefinitions(),
       new PropertiesConfiguration(),
       new File("."),
       new File(PersistentSettingsTest.class.getResource("/org/sonar/server/platform/PersistentSettingsTest/").toURI()));

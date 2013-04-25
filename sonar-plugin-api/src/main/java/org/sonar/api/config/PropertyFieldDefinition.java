@@ -34,7 +34,7 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.3
  */
-public final class PropertyFieldDef {
+public final class PropertyFieldDefinition {
   private final String key;
   private final String name;
   private final String description;
@@ -42,7 +42,7 @@ public final class PropertyFieldDef {
   private final PropertyType type;
   private final List<String> options;
 
-  private PropertyFieldDef(Builder builder) {
+  private PropertyFieldDefinition(Builder builder) {
     this.key = builder.key;
     this.name = builder.name;
     this.description = builder.description;
@@ -51,16 +51,16 @@ public final class PropertyFieldDef {
     this.options = builder.options;
   }
 
-  static List<PropertyFieldDef> create(PropertyField[] fields) {
-    List<PropertyFieldDef> definitions = newArrayList();
+  static List<PropertyFieldDefinition> create(PropertyField[] fields) {
+    List<PropertyFieldDefinition> definitions = newArrayList();
     for (PropertyField field : fields) {
-      definitions.add(PropertyFieldDef.build(field.key())
-        .name(field.name())
-        .description(field.description())
-        .indicativeSize(field.indicativeSize())
-        .type(field.type())
-        .options(field.options())
-        .build()
+      definitions.add(PropertyFieldDefinition.build(field.key())
+          .name(field.name())
+          .description(field.description())
+          .indicativeSize(field.indicativeSize())
+          .type(field.type())
+          .options(field.options())
+          .build()
       );
     }
     return definitions;
@@ -145,10 +145,10 @@ public final class PropertyFieldDef {
       return this;
     }
 
-    public PropertyFieldDef build() {
+    public PropertyFieldDefinition build() {
       Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
       Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must be set");
-      return new PropertyFieldDef(this);
+      return new PropertyFieldDefinition(this);
     }
   }
 }

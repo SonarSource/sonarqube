@@ -139,8 +139,8 @@ public class PropertyDefTest {
     PropertyDef def = PropertyDef.builder("hello")
       .name("Hello")
       .fields(
-        PropertyFieldDef.build("first").name("First").description("Description").options("A", "B").build(),
-        PropertyFieldDef.build("second").name("Second").type(PropertyType.INTEGER).indicativeSize(5).build()
+        PropertyFieldDefinition.build("first").name("First").description("Description").options("A", "B").build(),
+        PropertyFieldDefinition.build("second").name("Second").type(PropertyType.INTEGER).indicativeSize(5).build()
       )
       .build();
 

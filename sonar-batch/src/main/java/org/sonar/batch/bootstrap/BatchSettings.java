@@ -26,7 +26,7 @@ import org.json.simple.JSONValue;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.PropertyDefs;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 
 import javax.annotation.Nullable;
@@ -44,9 +44,9 @@ public class BatchSettings extends Settings {
   private final BootstrapSettings bootstrapSettings;
   private final ServerClient client;
 
-  public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefs propertyDefs,
+  public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
       ServerClient client, Configuration deprecatedConfiguration) {
-    super(propertyDefs);
+    super(propertyDefinitions);
     this.bootstrapSettings = bootstrapSettings;
     this.client = client;
     this.deprecatedConfiguration = deprecatedConfiguration;

@@ -51,14 +51,14 @@ import java.util.Properties;
 public class Settings implements BatchComponent, ServerComponent {
 
   protected Map<String, String> properties;
-  protected PropertyDefs definitions;
+  protected PropertyDefinitions definitions;
   private Encryption encryption;
 
   public Settings() {
-    this(new PropertyDefs());
+    this(new PropertyDefinitions());
   }
 
-  public Settings(PropertyDefs definitions) {
+  public Settings(PropertyDefinitions definitions) {
     this.properties = Maps.newHashMap();
     this.definitions = definitions;
     this.encryption = new Encryption(this);
@@ -364,7 +364,7 @@ public class Settings implements BatchComponent, ServerComponent {
     return ImmutableMap.copyOf(properties);
   }
 
-  public PropertyDefs getDefinitions() {
+  public PropertyDefinitions getDefinitions() {
     return definitions;
   }
 
@@ -373,7 +373,7 @@ public class Settings implements BatchComponent, ServerComponent {
    * This method is usually used by unit tests.
    */
   public static Settings createForComponent(Object component) {
-    return new Settings(new PropertyDefs(component));
+    return new Settings(new PropertyDefinitions(component));
   }
 
   protected void doOnSetProperty(String key, @Nullable String value) {

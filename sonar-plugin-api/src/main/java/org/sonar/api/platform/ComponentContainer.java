@@ -29,7 +29,7 @@ import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.config.PropertyDefs;
+import org.sonar.api.config.PropertyDefinitions;
 
 import javax.annotation.Nullable;
 
@@ -42,7 +42,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
 
   ComponentContainer parent, child; // no need for multiple children
   MutablePicoContainer pico;
-  PropertyDefs propertyDefs;
+  PropertyDefinitions propertyDefinitions;
 
   /**
    * Create root container
@@ -51,8 +51,8 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
     this.parent = null;
     this.child = null;
     this.pico = createPicoContainer();
-    propertyDefs = new PropertyDefs();
-    addSingleton(propertyDefs);
+    propertyDefinitions = new PropertyDefinitions();
+    addSingleton(propertyDefinitions);
     addSingleton(this);
   }
 
@@ -63,7 +63,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
     this.parent = parent;
     this.pico = parent.pico.makeChildContainer();
     this.parent.child = this;
-    this.propertyDefs = parent.propertyDefs;
+    this.propertyDefinitions = parent.propertyDefinitions;
     addSingleton(this);
   }
 
@@ -170,7 +170,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
   }
 
   public void declareExtension(@Nullable PluginMetadata plugin, Object extension) {
-    propertyDefs.addComponent(extension, plugin != null ? plugin.getName() : "");
+    propertyDefinitions.addComponent(extension, plugin != null ? plugin.getName() : "");
   }
 
   public ComponentContainer addPicoAdapter(ComponentAdapter adapter) {

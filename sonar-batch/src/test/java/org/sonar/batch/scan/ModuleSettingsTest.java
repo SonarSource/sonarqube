@@ -24,7 +24,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.PropertyDefs;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.batch.bootstrap.BatchSettings;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class ModuleSettingsTest {
   @Test
   public void test_loading_of_module_settings() {
     BatchSettings batchSettings = mock(BatchSettings.class);
-    when(batchSettings.getDefinitions()).thenReturn(new PropertyDefs());
+    when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "overridding", "batch",
       "on-batch", "true"

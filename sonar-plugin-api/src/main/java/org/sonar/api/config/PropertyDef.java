@@ -72,7 +72,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
   private boolean multiValues;
   private String propertySetKey;
   private String deprecatedKey;
-  private List<PropertyFieldDef> fields;
+  private List<PropertyFieldDefinition> fields;
   private String subcategory;
   private int index;
 
@@ -109,7 +109,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
       .options(Arrays.asList(annotation.options()))
       .multiValues(annotation.multiValues())
       .propertySetKey(annotation.propertySetKey())
-      .fields(PropertyFieldDef.create(annotation.fields()))
+      .fields(PropertyFieldDefinition.create(annotation.fields()))
       .deprecatedKey(annotation.deprecatedKey());
     List<String> qualifiers = newArrayList();
     if (annotation.project()) {
@@ -227,7 +227,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
     return propertySetKey;
   }
 
-  public List<PropertyFieldDef> fields() {
+  public List<PropertyFieldDefinition> fields() {
     return fields;
   }
 
@@ -280,7 +280,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
     private List<String> options = newArrayList();
     private boolean multiValues = false;
     private String propertySetKey = "";
-    private List<PropertyFieldDef> fields = newArrayList();
+    private List<PropertyFieldDefinition> fields = newArrayList();
     private String deprecatedKey = "";
     private boolean hidden = false;
     private int index = 999;
@@ -363,12 +363,12 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
       return this;
     }
 
-    public Builder fields(PropertyFieldDef first, PropertyFieldDef... rest) {
+    public Builder fields(PropertyFieldDefinition first, PropertyFieldDefinition... rest) {
       this.fields.addAll(Lists.asList(first, rest));
       return this;
     }
 
-    public Builder fields(List<PropertyFieldDef> fields) {
+    public Builder fields(List<PropertyFieldDefinition> fields) {
       this.fields.addAll(ImmutableList.copyOf(fields));
       return this;
     }

@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.Property;
-import org.sonar.api.config.PropertyDefs;
+import org.sonar.api.config.PropertyDefinitions;
 
 import java.util.Arrays;
 
@@ -157,9 +157,9 @@ public class ComponentContainerTest {
     ComponentContainer container = new ComponentContainer();
     container.addSingleton(ComponentWithProperty.class);
 
-    PropertyDefs propertyDefs = container.getComponentByType(PropertyDefs.class);
-    assertThat(propertyDefs.get("foo")).isNotNull();
-    assertThat(propertyDefs.get("foo").defaultValue()).isEqualTo("bar");
+    PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
+    assertThat(propertyDefinitions.get("foo")).isNotNull();
+    assertThat(propertyDefinitions.get("foo").defaultValue()).isEqualTo("bar");
   }
 
   @Test
@@ -168,8 +168,8 @@ public class ComponentContainerTest {
     PluginMetadata plugin = mock(PluginMetadata.class);
     container.declareExtension(plugin, ComponentWithProperty.class);
 
-    PropertyDefs propertyDefs = container.getComponentByType(PropertyDefs.class);
-    assertThat(propertyDefs.get("foo")).isNotNull();
+    PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
+    assertThat(propertyDefinitions.get("foo")).isNotNull();
     assertThat(container.getComponentByType(ComponentWithProperty.class)).isNull();
   }
 
@@ -179,8 +179,8 @@ public class ComponentContainerTest {
     PluginMetadata plugin = mock(PluginMetadata.class);
     container.addExtension(plugin, ComponentWithProperty.class);
 
-    PropertyDefs propertyDefs = container.getComponentByType(PropertyDefs.class);
-    assertThat(propertyDefs.get("foo")).isNotNull();
+    PropertyDefinitions propertyDefinitions = container.getComponentByType(PropertyDefinitions.class);
+    assertThat(propertyDefinitions.get("foo")).isNotNull();
     assertThat(container.getComponentByType(ComponentWithProperty.class)).isNotNull();
     assertThat(container.getComponentByKey(ComponentWithProperty.class)).isNotNull();
   }
