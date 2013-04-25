@@ -43,6 +43,7 @@ public class BatchSettings extends Settings {
 
   private final BootstrapSettings bootstrapSettings;
   private final ServerClient client;
+  private Map<String, String> savedProperties;
 
   public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
       ServerClient client, Configuration deprecatedConfiguration) {
@@ -54,7 +55,7 @@ public class BatchSettings extends Settings {
   }
 
   public void init(@Nullable ProjectDefinition rootProject) {
-    clear();
+    savedProperties = this.getProperties();
 
     if (rootProject != null) {
       LoggerFactory.getLogger(BatchSettings.class).info("Load project settings");
@@ -76,6 +77,13 @@ public class BatchSettings extends Settings {
     }
     properties.putAll(System.getenv());
     addProperties(System.getProperties());
+  }
+
+  /**
+   * Restore properties like they were before call of the {@link #init(ProjectDefinition)} method
+   */
+  public void restore() {
+    this.setProperties(savedProperties);
   }
 
   private void downloadSettings(ServerClient client, @Nullable String projectKey) {

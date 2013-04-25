@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -34,8 +35,22 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
-import org.sonar.batch.index.*;
-import org.sonar.batch.issue.*;
+import org.sonar.batch.index.Caches;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.index.ComponentDataPersister;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.DefaultPersistenceManager;
+import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.index.DependencyPersister;
+import org.sonar.batch.index.EventPersister;
+import org.sonar.batch.index.LinkPersister;
+import org.sonar.batch.index.MeasurePersister;
+import org.sonar.batch.index.MemoryOptimizer;
+import org.sonar.batch.index.SnapshotCache;
+import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.issue.DeprecatedViolations;
+import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.IssuePersister;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
@@ -68,45 +83,44 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addBatchComponents() {
     add(
-      DefaultResourceCreationLock.class,
-      DefaultPersistenceManager.class,
-      DependencyPersister.class,
-      EventPersister.class,
-      LinkPersister.class,
-      MeasurePersister.class,
-      MemoryOptimizer.class,
-      DefaultResourcePersister.class,
-      SourcePersister.class,
-      DefaultNotificationManager.class,
-      MetricProvider.class,
-      ProjectConfigurator.class,
-      DefaultIndex.class,
-      DefaultFileLinesContextFactory.class,
-      ProjectLock.class,
-      LastSnapshots.class,
-      Caches.class,
-      SnapshotCache.class,
-      ComponentDataCache.class,
-      ComponentDataPersister.class,
+        DefaultResourceCreationLock.class,
+        DefaultPersistenceManager.class,
+        DependencyPersister.class,
+        EventPersister.class,
+        LinkPersister.class,
+        MeasurePersister.class,
+        MemoryOptimizer.class,
+        DefaultResourcePersister.class,
+        SourcePersister.class,
+        DefaultNotificationManager.class,
+        MetricProvider.class,
+        ProjectConfigurator.class,
+        DefaultIndex.class,
+        DefaultFileLinesContextFactory.class,
+        ProjectLock.class,
+        LastSnapshots.class,
+        Caches.class,
+        SnapshotCache.class,
+        ComponentDataCache.class,
+        ComponentDataPersister.class,
 
-      // issues
-      IssueWorkflow.class,
-      DeprecatedViolations.class,
-      IssueCache.class,
-      IssuePersister.class,
+        // issues
+        IssueWorkflow.class,
+        DeprecatedViolations.class,
+        IssueCache.class,
+        IssuePersister.class,
 
-      // tests
-      TestPlanPerspectiveLoader.class,
-      TestablePerspectiveLoader.class,
-      TestPlanBuilder.class,
-      TestableBuilder.class,
-      ScanGraph.create(),
-      GraphPersister.class,
+        // tests
+        TestPlanPerspectiveLoader.class,
+        TestablePerspectiveLoader.class,
+        TestPlanBuilder.class,
+        TestableBuilder.class,
+        ScanGraph.create(),
+        GraphPersister.class,
 
-      // lang
-      HighlightableBuilder.class,
-      SymbolPerspectiveBuilder.class
-    );
+        // lang
+        HighlightableBuilder.class,
+        SymbolPerspectiveBuilder.class);
   }
 
   private void fixMavenExecutor() {
@@ -127,6 +141,12 @@ public class ProjectScanContainer extends ComponentContainer {
     scanRecursively(tree.getRootProject());
   }
 
+  public void stop() {
+    // Remove project specific settings
+    BatchSettings settings = getComponentByType(BatchSettings.class);
+    settings.restore();
+  }
+
   private void scanRecursively(Project module) {
     for (Project subModules : module.getModules()) {
       scanRecursively(subModules);
@@ -134,7 +154,8 @@ public class ProjectScanContainer extends ComponentContainer {
     scan(module);
   }
 
-  private void scan(Project module) {
+  @VisibleForTesting
+  void scan(Project module) {
     new ModuleScanContainer(this, module).execute();
   }
 
