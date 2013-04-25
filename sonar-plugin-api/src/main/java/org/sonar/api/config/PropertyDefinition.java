@@ -66,6 +66,9 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   private PropertyType type;
   private List<String> options;
   private String description;
+  /**
+   * @see PropertyDef.Builder#category(String)
+   */
   private String category;
   private List<String> qualifiers;
   private boolean global;
@@ -73,6 +76,9 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   private String propertySetKey;
   private String deprecatedKey;
   private List<PropertyFieldDefinition> fields;
+  /**
+   * @see PropertyDef.Builder#subCategory(String)
+   */
   private String subCategory;
   private int index;
 
@@ -101,16 +107,16 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
 
   static PropertyDefinition create(Property annotation) {
     Builder builder = PropertyDefinition.builder(annotation.key())
-      .name(annotation.name())
-      .defaultValue(annotation.defaultValue())
-      .description(annotation.description())
-      .category(annotation.category())
-      .type(annotation.type())
-      .options(Arrays.asList(annotation.options()))
-      .multiValues(annotation.multiValues())
-      .propertySetKey(annotation.propertySetKey())
-      .fields(PropertyFieldDefinition.create(annotation.fields()))
-      .deprecatedKey(annotation.deprecatedKey());
+        .name(annotation.name())
+        .defaultValue(annotation.defaultValue())
+        .description(annotation.description())
+        .category(annotation.category())
+        .type(annotation.type())
+        .options(Arrays.asList(annotation.options()))
+        .multiValues(annotation.multiValues())
+        .propertySetKey(annotation.propertySetKey())
+        .fields(PropertyFieldDefinition.create(annotation.fields()))
+        .deprecatedKey(annotation.deprecatedKey());
     List<String> qualifiers = newArrayList();
     if (annotation.project()) {
       qualifiers.add(Qualifiers.PROJECT);
@@ -197,10 +203,16 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     return description;
   }
 
+  /**
+   * @see PropertyDef.Builder#category(String)
+   */
   public String category() {
     return category;
   }
 
+  /**
+   * @see PropertyDef.Builder#subCategory(String)
+   */
   public String subCategory() {
     return subCategory;
   }
@@ -271,8 +283,14 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     private String name = "";
     private String description = "";
     private String defaultValue = "";
+    /**
+     * @see PropertyDef.Builder#category(String)
+     */
     private String category = "";
-    private String subCategory = "default";
+    /**
+     * @see PropertyDef.Builder#subCategory(String)
+     */
+    private String subCategory = "";
     private List<String> onQualifiers = newArrayList();
     private List<String> onlyOnQualifiers = newArrayList();
     private boolean global = true;
@@ -304,13 +322,22 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
+    /**
+     * Category where properties will appear. By default equal to plugin name.
+     * @param category Name/key of the category. Could be internationalized.
+     */
     public Builder category(String category) {
       this.category = category;
       return this;
     }
 
-    public Builder subCategory(String s) {
-      this.subCategory = s;
+    /**
+     * Sub category where properties will appear. By default sub category will have
+     * same name as parent category.
+     * @param subCategory Name/key of the sub category. Could be internationalized.
+     */
+    public Builder subCategory(String subCategory) {
+      this.subCategory = subCategory;
       return this;
     }
 

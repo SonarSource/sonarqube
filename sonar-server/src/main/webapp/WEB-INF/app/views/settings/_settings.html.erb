@@ -11,17 +11,9 @@
           </tr>
           </thead>
           <tbody>
-          <% @categories.each do |category|
-               subcategories = @subcategories_per_categories[category] || []-%>
-            <tr id="select_<%= category -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category && @subcategory == 'default' -%>">
-              <td class="category <%= 'withSubcategories' if not subcategories.empty? -%>"><%= link_to category_name(category), :category => category -%></td>
-              <%  if @category==category
-                subcategories.each do |subcategory| -%>
-                <tr id="select_<%= subcategory -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @subcategory==subcategory -%>">
-                  <td class="subcategory"><%= link_to subcategory_name(category, subcategory), :category => category, :subcategory => subcategory -%></td>
-                </tr>
-              <%   end
-                 end -%>
+          <% @categories.each do |category| -%>
+            <tr id="select_<%= category -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category -%>">
+              <td class="category"><%= link_to category_name(category), :category => category -%></td>
             </tr>
           <% end -%>
           </tbody>

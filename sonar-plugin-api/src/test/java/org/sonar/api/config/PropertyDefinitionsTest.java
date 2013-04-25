@@ -117,8 +117,8 @@ public class PropertyDefinitionsTest {
       PropertyDefinition.builder("global4").name("Global4").category("catGlobal2").build()
         );
 
-    assertThat(def.getPropertiesByCategory(null).get("catGlobal1").keySet()).containsOnly("default", "sub1", "sub2");
-    assertThat(def.getPropertiesByCategory(null).get("catGlobal2").keySet()).containsOnly("default");
+    assertThat(def.getPropertiesByCategory(null).get("catGlobal1").keySet()).containsOnly("catGlobal1", "sub1", "sub2");
+    assertThat(def.getPropertiesByCategory(null).get("catGlobal2").keySet()).containsOnly("catGlobal2");
   }
 
   @Test

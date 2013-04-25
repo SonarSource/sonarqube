@@ -215,7 +215,14 @@ class ApplicationController < ActionController::Base
   end
 
   def by_subcategory_name(category, subcategories)
-    Api::Utils.insensitive_sort(subcategories) { |subcategory| subcategory_name(category, subcategory) }
+    Api::Utils.insensitive_sort(subcategories) { |subcategory|
+      if (subcategory == category)
+        # Hack to have default category in first position
+        "aaaaa"
+      else
+        subcategory_name(category, subcategory)
+      end
+    }
   end
 
   def category_name(category)

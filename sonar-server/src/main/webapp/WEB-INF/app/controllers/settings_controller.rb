@@ -107,12 +107,13 @@ class SettingsController < ApplicationController
     default_category = nil
     default_category = @categories[0] if !@categories.empty?
     @category = params[:category] || default_category
-    @subcategory = params[:subcategory] || 'default'
-    @subcategories_per_categories = {}
-    definitions_per_category.each {|category, definitions_per_subcategories| @subcategories_per_categories.store(category, by_subcategory_name(category, definitions_per_subcategories.keys - ['default'])) }
-    @definitions = definitions_per_category[@category] || {}
-    @definitions = @definitions[@subcategory] || []
 
     not_found('category') unless @categories.include? @category
+
+    @subcategory = params[:subcategory] || @category
+    @subcategories_per_categories = {}
+    definitions_per_category.each {|category, definitions_per_subcategories| @subcategories_per_categories.store(category, by_subcategory_name(category, definitions_per_subcategories.keys)) }
+    @definitions = definitions_per_category[@category] || {}
+    @definitions = @definitions[@subcategory] || []
   end
 end

@@ -25,7 +25,12 @@ module SettingsHelper
   end
 
   def subcategory_name(category, subcategory)
-    message("property.category.#{category}.#{subcategory}", :default => subcategory)
+    if (category == subcategory)
+      # If subcategory == category then it is the default one
+      category_name(category)
+    else
+      message("property.category.#{category}.#{subcategory}", :default => subcategory)
+    end
   end
 
   def property_name(property)

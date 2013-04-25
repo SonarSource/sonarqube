@@ -6,18 +6,22 @@
                      :before => "$('submit_settings').hide();$('loading_settings').show();",
                      :update => 'properties',
                      :script => false do -%>
-
+    <% subcategories = @subcategories_per_categories[@category] || [] -%>
+    <ul class="tabs2">
+      <% subcategories.each do |subcategory| -%>
+        <li>
+          <%= link_to subcategory_name(@category, subcategory), {:action => 'index', :category => @category, :subcategory => subcategory}, :class => @subcategory==subcategory ? 'selected' : nil -%>
+        </li>
+      <% end -%>
+    </ul>
     <table class="data marginbottom10">
       <thead>
-        <tr>
-          <th><%= h category_name(@category) -%><% if @subcategory != 'default' %> - <%= h subcategory_name(@category, @subcategory) -%><% end -%></th>
-        </tr>
-      <% unless @subcategory != 'default' || category_desc(@category).blank? -%>
+      <% if @subcategory == @category && !category_desc(@category).blank? -%>
         <tr>
           <td class="categoryDescription"><%= category_desc(@category) -%> </td>
         </tr>
       <% end -%>
-      <% unless @subcategory == 'default' || subcategory_desc(@category, @subcategory).blank? -%>
+      <% if @subcategory != @category && !subcategory_desc(@category, @subcategory).blank? -%>
         <tr>
           <td><%= subcategory_desc(@category, @subcategory) -%> </td>
         </tr>
@@ -60,7 +64,7 @@
         </tr>
       <% end -%>
 
-      <% unless @subcategory != 'default' || category_help(@category).blank? -%>
+      <% unless @subcategory != @category || category_help(@category).blank? -%>
         <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
           <td class="help"><%= category_help(@category) -%> </td>
         </tr>
@@ -71,7 +75,7 @@
     <% unless @definitions.empty? %>
     <div style="padding-left: 16px;">
       <%= hidden_field_tag('page_version', (params[:page_version] || 0).to_i + 1) -%>
-      <%= submit_tag(message('settings.save_category', :params => [category_name(@category)]), :id => 'submit_settings') -%>
+      <%= submit_tag(message('settings.save_category', :params => [subcategory_name(@category, @subcategory)]), :id => 'submit_settings') -%>
       <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="loading_settings" style="display:none;">
     </div>
     <% end %>

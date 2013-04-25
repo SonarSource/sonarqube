@@ -30,7 +30,11 @@ import org.sonar.api.utils.AnnotationUtils;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Metadata of all the properties declared by plugins
@@ -98,8 +102,9 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   private PropertyDefinitions add(PropertyDefinition definition, String defaultCategory) {
     if (!definitions.containsKey(definition.key())) {
       definitions.put(definition.key(), definition);
-      categories.put(definition.key(), StringUtils.defaultIfBlank(definition.category(), defaultCategory));
-      subcategories.put(definition.key(), StringUtils.defaultIfBlank(definition.subCategory(), "default"));
+      String category = StringUtils.defaultIfBlank(definition.category(), defaultCategory);
+      categories.put(definition.key(), category);
+      subcategories.put(definition.key(), StringUtils.defaultIfBlank(definition.subCategory(), category));
       if (!Strings.isNullOrEmpty(definition.deprecatedKey()) && !definition.deprecatedKey().equals(definition.key())) {
         deprecatedKeys.put(definition.deprecatedKey(), definition.key());
       }
