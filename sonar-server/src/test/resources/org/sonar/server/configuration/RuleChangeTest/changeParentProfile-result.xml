@@ -1,5 +1,5 @@
 <dataset>
 
-  <active_rule_changes id="1" user_name="admin" profile_id="2" profile_version="2" rule_id="1" enabled="true" old_severity="[null]" new_severity="2"/>
+  <active_rule_changes id="1" username="admin" profile_id="2" profile_version="2" rule_id="1" enabled="true" old_severity="[null]" new_severity="2"/>
 
 </dataset>

@@ -1,6 +1,6 @@
 <dataset>
 
-  <active_rule_changes id="1" user_name="admin" profile_id="2" profile_version="2" rule_id="2" enabled="[null]" old_severity="3" new_severity="2"/>
+  <active_rule_changes id="1" username="admin" profile_id="2" profile_version="2" rule_id="2" enabled="[null]" old_severity="3" new_severity="2"/>
 
   <active_rule_param_changes id="1" active_rule_change_id="1" rules_parameter_id="13" old_value="30" new_value="[null]"/>
   <active_rule_param_changes id="2" active_rule_change_id="1" rules_parameter_id="14" old_value="100" new_value="50"/>
