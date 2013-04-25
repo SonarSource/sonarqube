@@ -1,6 +1,6 @@
 <div id="issue-<%= issue.key -%>">
   <div class="reviewTitle">
-    <h2><%= message('issues.issue_number', :params => h(issue.key.to_s)) -%> - <%= h(issue.description) -%></h2>
+    <h2><%= h(issue.description) -%></h2>
   </div>
 
   <% if defined?(error_message) && error_message %>

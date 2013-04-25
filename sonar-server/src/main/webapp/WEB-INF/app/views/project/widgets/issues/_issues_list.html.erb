@@ -95,7 +95,7 @@
           <%= link_to h(issue.description), :controller => "issue", :action => "view", :id => issue.key -%>
         </td>
         <td class="nowrap">
-          <%= distance_of_time_in_words_to_now(to_date(issue.updated_at || issue.created_at)) -%>
+          <%= distance_of_time_in_words_to_now(to_date(issue.updated_at || issue.created_at)) if (issue.updated_at || issue.created_at) -%>
         </td>
       </tr>
     <%
