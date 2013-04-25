@@ -31,7 +31,7 @@
     <tr class="<%= cycle('even', 'odd') -%>">
       <td valign="top" width="1%" nowrap><%= change.profile_version - 1 %> -> <%= change.profile_version %></td>
       <td valign="top" width="1%" nowrap><%= l(change.change_date) -%></td>
-      <td valign="top" width="1%" nowrap><%= change.user_name ? change.user_name : 'System' %></td>
+      <td valign="top" width="1%" nowrap><%= change.username ? change.username : 'System' %></td>
       <td valign="top" width="1%" nowrap><%= change.action_text %></td>
       <td valign="top"><%= change.rule.name %></td>
       <td valign="top">

@@ -302,6 +302,11 @@ public final class CoreMetrics {
       .create();
 
   public static final String CLASS_COMPLEXITY_KEY = "class_complexity";
+
+  /**
+   * Information about the cyclomatic complexity per class, calculated by divided the complexity in classes by the number of classes.
+   * If the complexity in classes is not available, the complexity of the file is used.
+   */
   public static final Metric CLASS_COMPLEXITY = new Metric.Builder(CLASS_COMPLEXITY_KEY, "Complexity /class", Metric.ValueType.FLOAT)
       .setDescription("Complexity average by class")
       .setDirection(Metric.DIRECTION_WORST)

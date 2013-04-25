@@ -26,16 +26,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.profiles.RulesProfile;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,7 +42,7 @@ import java.util.List;
 @Table(name = "active_rule_changes")
 public class ActiveRuleChange extends BaseIdentifiable {
 
-  @Column(name = "user_name", updatable = false, nullable = true)
+  @Column(name = "username", updatable = false, nullable = true)
   private String userName;
 
   @ManyToOne(fetch = FetchType.EAGER)
