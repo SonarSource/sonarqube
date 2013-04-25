@@ -39,7 +39,7 @@ import java.util.*;
  */
 public final class PropertyDefinitions implements BatchComponent, ServerComponent {
 
-  private final Map<String, PropertyDef> definitions = Maps.newHashMap();
+  private final Map<String, PropertyDefinition> definitions = Maps.newHashMap();
   private final Map<String, String> categories = Maps.newHashMap();
   private final Map<String, String> subcategories = Maps.newHashMap();
 
@@ -69,8 +69,8 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
 
   public PropertyDefinitions addComponent(Object component, String defaultCategory) {
     addComponentFromAnnotationProperty(component, defaultCategory);
-    if (component instanceof PropertyDef) {
-      PropertyDef propertyDefinition = (PropertyDef) component;
+    if (component instanceof PropertyDefinition) {
+      PropertyDefinition propertyDefinition = (PropertyDefinition) component;
       add(propertyDefinition, defaultCategory);
     }
     return this;
@@ -91,11 +91,11 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   }
 
   private PropertyDefinitions addProperty(Property property, String defaultCategory) {
-    PropertyDef definition = PropertyDef.create(property);
+    PropertyDefinition definition = PropertyDefinition.create(property);
     return add(definition, defaultCategory);
   }
 
-  private PropertyDefinitions add(PropertyDef definition, String defaultCategory) {
+  private PropertyDefinitions add(PropertyDefinition definition, String defaultCategory) {
     if (!definitions.containsKey(definition.key())) {
       definitions.put(definition.key(), definition);
       categories.put(definition.key(), StringUtils.defaultIfBlank(definition.category(), defaultCategory));
@@ -107,11 +107,11 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return this;
   }
 
-  public PropertyDef get(String key) {
+  public PropertyDefinition get(String key) {
     return definitions.get(validKey(key));
   }
 
-  public Collection<PropertyDef> getAll() {
+  public Collection<PropertyDefinition> getAll() {
     return definitions.values();
   }
 
@@ -122,18 +122,18 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   /**
    * @since 3.6
    */
-  public Map<String, Map<String, Collection<PropertyDef>>> getPropertiesByCategory(@Nullable String qualifier) {
-    Map<String, Map<String, Collection<PropertyDef>>> byCategory = new HashMap<String, Map<String, Collection<PropertyDef>>>();
+  public Map<String, Map<String, Collection<PropertyDefinition>>> getPropertiesByCategory(@Nullable String qualifier) {
+    Map<String, Map<String, Collection<PropertyDefinition>>> byCategory = new HashMap<String, Map<String, Collection<PropertyDefinition>>>();
 
-    for (PropertyDef definition : getAll()) {
+    for (PropertyDefinition definition : getAll()) {
       if (qualifier == null ? definition.global() : definition.qualifiers().contains(qualifier)) {
         String category = getCategory(definition.key());
         if (!byCategory.containsKey(category)) {
-          byCategory.put(category, new HashMap<String, Collection<PropertyDef>>());
+          byCategory.put(category, new HashMap<String, Collection<PropertyDefinition>>());
         }
         String subCategory = getSubCategory(definition.key());
         if (!byCategory.get(category).containsKey(subCategory)) {
-          byCategory.get(category).put(subCategory, new ArrayList<PropertyDef>());
+          byCategory.get(category).put(subCategory, new ArrayList<PropertyDefinition>());
         }
         byCategory.get(category).get(subCategory).add(definition);
       }
@@ -142,12 +142,12 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return byCategory;
   }
 
-  public Map<String, Map<String, Collection<PropertyDef>>> getPropertiesByCategory() {
+  public Map<String, Map<String, Collection<PropertyDefinition>>> getPropertiesByCategory() {
     return getPropertiesByCategory(null);
   }
 
   public String getDefaultValue(String key) {
-    PropertyDef def = get(key);
+    PropertyDefinition def = get(key);
     if (def == null) {
       return null;
     }
@@ -171,7 +171,7 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   }
 
   public String getDeprecatedKey(String key) {
-    PropertyDef def = get(key);
+    PropertyDefinition def = get(key);
     if (def == null) {
       return null;
     }

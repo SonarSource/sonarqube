@@ -58,7 +58,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @since 3.6
  */
-public final class PropertyDef implements BatchExtension, ServerExtension {
+public final class PropertyDefinition implements BatchExtension, ServerExtension {
 
   private String key;
   private String defaultValue;
@@ -76,7 +76,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
   private String subcategory;
   private int index;
 
-  private PropertyDef(Builder builder) {
+  private PropertyDefinition(Builder builder) {
     this.key = builder.key;
     this.name = builder.name;
     this.description = builder.description;
@@ -99,8 +99,8 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
     return new Builder(key);
   }
 
-  static PropertyDef create(Property annotation) {
-    Builder builder = PropertyDef.builder(annotation.key())
+  static PropertyDefinition create(Property annotation) {
+    Builder builder = PropertyDefinition.builder(annotation.key())
       .name(annotation.name())
       .defaultValue(annotation.defaultValue())
       .description(annotation.description())
@@ -388,7 +388,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
       return this;
     }
 
-    public PropertyDef build() {
+    public PropertyDefinition build() {
       Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
       fixType(key, type);
       Preconditions.checkArgument(onQualifiers.isEmpty() || onlyOnQualifiers.isEmpty(), "Cannot define both onQualifiers and onlyOnQualifiers");
@@ -396,7 +396,7 @@ public final class PropertyDef implements BatchExtension, ServerExtension {
       if (hidden) {
         global = false;
       }
-      return new PropertyDef(this);
+      return new PropertyDefinition(this);
     }
 
     private void fixType(String key, PropertyType type) {

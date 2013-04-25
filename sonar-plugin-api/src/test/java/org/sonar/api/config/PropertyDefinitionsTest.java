@@ -31,9 +31,9 @@ public class PropertyDefinitionsTest {
   @Test
   public void should_inspect_plugin_objects() {
     PropertyDefinitions def = new PropertyDefinitions(
-      PropertyDef.builder("foo").name("Foo").build(),
-      PropertyDef.builder("one").name("One").build(),
-      PropertyDef.builder("two").name("Two").defaultValue("2").build()
+      PropertyDefinition.builder("foo").name("Foo").build(),
+      PropertyDefinition.builder("one").name("One").build(),
+      PropertyDefinition.builder("two").name("Two").defaultValue("2").build()
         );
 
     assertProperties(def);
@@ -56,8 +56,8 @@ public class PropertyDefinitionsTest {
   @Test
   public void test_categories() {
     PropertyDefinitions def = new PropertyDefinitions(
-      PropertyDef.builder("inCateg").name("In Categ").category("categ").build(),
-      PropertyDef.builder("noCateg").name("No categ").build()
+      PropertyDefinition.builder("inCateg").name("In Categ").category("categ").build(),
+      PropertyDefinition.builder("noCateg").name("No categ").build()
         );
 
     assertThat(def.getCategory("inCateg")).isEqualTo("categ");
@@ -75,8 +75,8 @@ public class PropertyDefinitionsTest {
   @Test
   public void test_default_category() {
     PropertyDefinitions def = new PropertyDefinitions();
-    def.addComponent(PropertyDef.builder("inCateg").name("In Categ").category("categ").build(), "default");
-    def.addComponent(PropertyDef.builder("noCateg").name("No categ").build(), "default");
+    def.addComponent(PropertyDefinition.builder("inCateg").name("In Categ").category("categ").build(), "default");
+    def.addComponent(PropertyDefinition.builder("noCateg").name("No categ").build(), "default");
 
     assertThat(def.getCategory("inCateg")).isEqualTo("categ");
     assertThat(def.getCategory("noCateg")).isEqualTo("default");
@@ -93,12 +93,12 @@ public class PropertyDefinitionsTest {
   @Test
   public void should_group_by_category() {
     PropertyDefinitions def = new PropertyDefinitions(
-      PropertyDef.builder("global1").name("Global1").category("catGlobal1").build(),
-      PropertyDef.builder("global2").name("Global2").category("catGlobal1").build(),
-      PropertyDef.builder("global3").name("Global3").category("catGlobal2").build(),
-      PropertyDef.builder("project").name("Project").category("catProject").onlyOnQualifiers(Qualifiers.PROJECT).build(),
-      PropertyDef.builder("module").name("Module").category("catModule").onlyOnQualifiers(Qualifiers.MODULE).build(),
-      PropertyDef.builder("view").name("View").category("catView").onlyOnQualifiers(Qualifiers.VIEW).build()
+      PropertyDefinition.builder("global1").name("Global1").category("catGlobal1").build(),
+      PropertyDefinition.builder("global2").name("Global2").category("catGlobal1").build(),
+      PropertyDefinition.builder("global3").name("Global3").category("catGlobal2").build(),
+      PropertyDefinition.builder("project").name("Project").category("catProject").onlyOnQualifiers(Qualifiers.PROJECT).build(),
+      PropertyDefinition.builder("module").name("Module").category("catModule").onlyOnQualifiers(Qualifiers.MODULE).build(),
+      PropertyDefinition.builder("view").name("View").category("catView").onlyOnQualifiers(Qualifiers.VIEW).build()
         );
 
     assertThat(def.getPropertiesByCategory(null).keySet()).containsOnly("catGlobal1", "catGlobal2");
@@ -111,10 +111,10 @@ public class PropertyDefinitionsTest {
   @Test
   public void should_group_by_subcategory() {
     PropertyDefinitions def = new PropertyDefinitions(
-      PropertyDef.builder("global1").name("Global1").category("catGlobal1").subcategory("sub1").build(),
-      PropertyDef.builder("global2").name("Global2").category("catGlobal1").subcategory("sub2").build(),
-      PropertyDef.builder("global3").name("Global3").category("catGlobal1").build(),
-      PropertyDef.builder("global4").name("Global4").category("catGlobal2").build()
+      PropertyDefinition.builder("global1").name("Global1").category("catGlobal1").subcategory("sub1").build(),
+      PropertyDefinition.builder("global2").name("Global2").category("catGlobal1").subcategory("sub2").build(),
+      PropertyDefinition.builder("global3").name("Global3").category("catGlobal1").build(),
+      PropertyDefinition.builder("global4").name("Global4").category("catGlobal2").build()
         );
 
     assertThat(def.getPropertiesByCategory(null).get("catGlobal1").keySet()).containsOnly("default", "sub1", "sub2");

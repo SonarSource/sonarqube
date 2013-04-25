@@ -30,11 +30,11 @@ import org.sonar.api.utils.AnnotationUtils;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-public class PropertyDefTest {
+public class PropertyDefinitionTest {
 
   @Test
   public void should_create_property() {
-    PropertyDef def = PropertyDef.builder("hello")
+    PropertyDefinition def = PropertyDefinition.builder("hello")
       .name("Hello")
       .defaultValue("world")
       .category("categ")
@@ -65,7 +65,7 @@ public class PropertyDefTest {
     Properties props = AnnotationUtils.getAnnotation(Init.class, Properties.class);
     Property prop = props.value()[0];
 
-    PropertyDef def = PropertyDef.create(prop);
+    PropertyDefinition def = PropertyDefinition.create(prop);
 
     assertThat(def.key()).isEqualTo("hello");
     assertThat(def.name()).isEqualTo("Hello");
@@ -83,7 +83,7 @@ public class PropertyDefTest {
 
   @Test
   public void should_create_hidden_property() {
-    PropertyDef def = PropertyDef.builder("hello")
+    PropertyDefinition def = PropertyDefinition.builder("hello")
       .name("Hello")
       .hidden()
       .build();
@@ -95,7 +95,7 @@ public class PropertyDefTest {
 
   @Test
   public void should_create_property_with_default_values() {
-    PropertyDef def = PropertyDef.builder("hello")
+    PropertyDefinition def = PropertyDefinition.builder("hello")
       .name("Hello")
       .build();
 
@@ -118,7 +118,7 @@ public class PropertyDefTest {
     Properties props = AnnotationUtils.getAnnotation(DefaultValues.class, Properties.class);
     Property prop = props.value()[0];
 
-    PropertyDef def = PropertyDef.create(prop);
+    PropertyDefinition def = PropertyDefinition.create(prop);
 
     assertThat(def.key()).isEqualTo("hello");
     assertThat(def.name()).isEqualTo("Hello");
@@ -136,7 +136,7 @@ public class PropertyDefTest {
 
   @Test
   public void should_support_property_sets() {
-    PropertyDef def = PropertyDef.builder("hello")
+    PropertyDefinition def = PropertyDefinition.builder("hello")
       .name("Hello")
       .fields(
         PropertyFieldDefinition.build("first").name("First").description("Description").options("A", "B").build(),
@@ -163,7 +163,7 @@ public class PropertyDefTest {
     Properties props = AnnotationUtils.getAnnotation(WithPropertySet.class, Properties.class);
     Property prop = props.value()[0];
 
-    PropertyDef def = PropertyDef.create(prop);
+    PropertyDefinition def = PropertyDefinition.create(prop);
 
     assertThat(def.fields()).hasSize(2);
     assertThat(def.fields().get(0).key()).isEqualTo("first");
@@ -181,7 +181,7 @@ public class PropertyDefTest {
 
   @Test
   public void should_validate_string() {
-    PropertyDef def = PropertyDef.builder("foo").name("foo").type(PropertyType.STRING).build();
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.STRING).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -191,7 +191,7 @@ public class PropertyDefTest {
 
   @Test
   public void should_validate_boolean() {
-    PropertyDef def = PropertyDef.builder("foo").name("foo").type(PropertyType.BOOLEAN).build();
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.BOOLEAN).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -205,7 +205,7 @@ public class PropertyDefTest {
 
   @Test
   public void should_validate_integer() {
-    PropertyDef def = PropertyDef.builder("foo").name("foo").type(PropertyType.INTEGER).build();
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.INTEGER).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -218,7 +218,7 @@ public class PropertyDefTest {
 
   @Test
   public void should_validate_float() {
-    PropertyDef def = PropertyDef.builder("foo").name("foo").type(PropertyType.FLOAT).build();
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.FLOAT).build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -232,7 +232,7 @@ public class PropertyDefTest {
 
   @Test
   public void should_validate_single_select_list() {
-    PropertyDef def = PropertyDef.builder("foo").name("foo").type(PropertyType.SINGLE_SELECT_LIST).options("de", "en").build();
+    PropertyDefinition def = PropertyDefinition.builder("foo").name("foo").type(PropertyType.SINGLE_SELECT_LIST).options("de", "en").build();
 
     assertThat(def.validate(null).isValid()).isTrue();
     assertThat(def.validate("").isValid()).isTrue();
@@ -246,7 +246,7 @@ public class PropertyDefTest {
 
   @Test
   public void should_auto_detect_password_type() {
-    PropertyDef def = PropertyDef.builder("scm.password.secured").name("SCM password").build();
+    PropertyDefinition def = PropertyDefinition.builder("scm.password.secured").name("SCM password").build();
 
     assertThat(def.key()).isEqualTo("scm.password.secured");
     assertThat(def.type()).isEqualTo(PropertyType.PASSWORD);
@@ -254,7 +254,7 @@ public class PropertyDefTest {
 
   @Test
   public void PropertyDef() {
-    PropertyDef def = PropertyDef.builder("views.license.secured").name("Views license").build();
+    PropertyDefinition def = PropertyDefinition.builder("views.license.secured").name("Views license").build();
 
     assertThat(def.key()).isEqualTo("views.license.secured");
     assertThat(def.type()).isEqualTo(PropertyType.LICENSE);
@@ -263,7 +263,7 @@ public class PropertyDefTest {
   @Test
   public void should_not_authorise_empty_key() {
     try {
-      PropertyDef.builder(null).build();
+      PropertyDefinition.builder(null).build();
       fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Key must be set").isInstanceOf(IllegalArgumentException.class);
@@ -273,7 +273,7 @@ public class PropertyDefTest {
   @Test
   public void should_not_authorize_defining_on_qualifiers_and_hidden() {
     try {
-      PropertyDef.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).hidden().build();
+      PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).hidden().build();
       fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Cannot be hidden and defining qualifiers on which to display").isInstanceOf(IllegalArgumentException.class);
@@ -283,7 +283,7 @@ public class PropertyDefTest {
   @Test
   public void should_not_authorize_defining_ony_on_qualifiers_and_hidden() {
     try {
-      PropertyDef.builder("foo").name("foo").onlyOnQualifiers(Qualifiers.FILE).hidden().build();
+      PropertyDefinition.builder("foo").name("foo").onlyOnQualifiers(Qualifiers.FILE).hidden().build();
       fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Cannot be hidden and defining qualifiers on which to display").isInstanceOf(IllegalArgumentException.class);
@@ -293,7 +293,7 @@ public class PropertyDefTest {
   @Test
   public void should_not_authorize_defining_on_qualifiers_and_only_on_qualifiers() {
     try {
-      PropertyDef.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).onlyOnQualifiers(Qualifiers.PROJECT).build();
+      PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).onlyOnQualifiers(Qualifiers.PROJECT).build();
       fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Cannot define both onQualifiers and onlyOnQualifiers").isInstanceOf(IllegalArgumentException.class);

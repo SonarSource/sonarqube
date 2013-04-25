@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.config.PropertyDef;
+import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.cpd.decorators.DuplicationDensityDecorator;
 import org.sonar.plugins.cpd.decorators.SumDuplicationsDecorator;
@@ -35,7 +35,7 @@ public final class CpdPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return ImmutableList.of(
-      PropertyDef.builder(CoreProperties.CPD_CROSS_RPOJECT)
+      PropertyDefinition.builder(CoreProperties.CPD_CROSS_RPOJECT)
         .defaultValue(CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE + "")
         .name("Cross project duplication detection")
         .description("SonarQube supports the detection of cross project duplications. Activating this property will slightly increase each Sonar analysis time.")
@@ -43,7 +43,7 @@ public final class CpdPlugin extends SonarPlugin {
         .category(CoreProperties.CATEGORY_DUPLICATIONS)
         .type(PropertyType.BOOLEAN)
         .build(),
-      PropertyDef.builder(CoreProperties.CPD_SKIP_PROPERTY)
+      PropertyDefinition.builder(CoreProperties.CPD_SKIP_PROPERTY)
         .defaultValue("false")
         .name("Skip")
         .description("Disable detection of duplications")
@@ -51,7 +51,7 @@ public final class CpdPlugin extends SonarPlugin {
         .category(CoreProperties.CATEGORY_DUPLICATIONS)
         .type(PropertyType.BOOLEAN)
         .build(),
-      PropertyDef.builder(CoreProperties.CPD_EXCLUSIONS)
+      PropertyDefinition.builder(CoreProperties.CPD_EXCLUSIONS)
         .defaultValue("")
         .name("Duplication exclusions")
         .description("Patterns used to exclude some source files from the duplication detection mechanism. " +

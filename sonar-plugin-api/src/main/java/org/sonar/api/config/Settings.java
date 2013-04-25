@@ -190,7 +190,7 @@ public class Settings implements BatchComponent, ServerComponent {
    * </ul>
    */
   public String[] getStringArray(String key) {
-    PropertyDef property = getDefinitions().get(key);
+    PropertyDefinition property = getDefinitions().get(key);
     if ((null != property) && (property.multiValues())) {
       String value = getString(key);
       if (value == null) {
@@ -258,7 +258,7 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public Settings setProperty(String key, @Nullable String[] values) {
-    PropertyDef property = getDefinitions().get(key);
+    PropertyDefinition property = getDefinitions().get(key);
     if ((null == property) || (!property.multiValues())) {
       throw new IllegalStateException("Fail to set multiple values on a single value property " + key);
     }

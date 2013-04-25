@@ -21,7 +21,7 @@ package org.sonar.server.startup;
 
 import com.google.common.base.Strings;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.config.PropertyDef;
+import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.core.properties.PropertiesDao;
 
@@ -40,7 +40,7 @@ public class RenameDeprecatedPropertyKeys {
 
   public void start() {
     LoggerFactory.getLogger(RenameDeprecatedPropertyKeys.class).info("Rename deprecated property keys");
-    for (PropertyDef definition : definitions.getAll()) {
+    for (PropertyDefinition definition : definitions.getAll()) {
       if (!Strings.isNullOrEmpty(definition.deprecatedKey())) {
         dao.renamePropertyKey(definition.deprecatedKey(), definition.key());
       }
