@@ -97,7 +97,7 @@ class RulesConfigurationController < ApplicationController
   def activate_rule
     verify_post_request
     access_denied unless has_role?(:profileadmin)
-    require_parameters :id, :rule_id, :level
+    require_parameters :id, :rule_id
     profile = Profile.find(params[:id].to_i)
     if profile
       rule=Rule.first(:conditions => ["id = ? and status <> ?", params[:rule_id].to_i, Rule::STATUS_REMOVED])
