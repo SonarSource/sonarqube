@@ -73,7 +73,7 @@
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
   <events id="2" name="Version 1.0" resource_id="5" snapshot_id="5" category="VERSION" description="[null]"
           event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
-  <duplications_index project_snapshot_id="5" snapshot_id="5" hash="bb" index_in_file="0" start_line="0" end_line="0"/>
+  <duplications_index id="2" project_snapshot_id="5" snapshot_id="5" hash="bb" index_in_file="0" start_line="0" end_line="0"/>
   <snapshot_data id="2" resource_id="5" snapshot_id="5" data="0,10,k" data_type="highlight_syntax" created_at="[null]" updated_at="[null]" />
 
 
