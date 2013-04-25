@@ -111,8 +111,8 @@ public class PropertyDefinitionsTest {
   @Test
   public void should_group_by_subcategory() {
     PropertyDefinitions def = new PropertyDefinitions(
-      PropertyDefinition.builder("global1").name("Global1").category("catGlobal1").subcategory("sub1").build(),
-      PropertyDefinition.builder("global2").name("Global2").category("catGlobal1").subcategory("sub2").build(),
+      PropertyDefinition.builder("global1").name("Global1").category("catGlobal1").subCategory("sub1").build(),
+      PropertyDefinition.builder("global2").name("Global2").category("catGlobal1").subCategory("sub2").build(),
       PropertyDefinition.builder("global3").name("Global3").category("catGlobal1").build(),
       PropertyDefinition.builder("global4").name("Global4").category("catGlobal2").build()
         );

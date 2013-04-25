@@ -73,7 +73,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   private String propertySetKey;
   private String deprecatedKey;
   private List<PropertyFieldDefinition> fields;
-  private String subcategory;
+  private String subCategory;
   private int index;
 
   private PropertyDefinition(Builder builder) {
@@ -82,7 +82,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     this.description = builder.description;
     this.defaultValue = builder.defaultValue;
     this.category = builder.category;
-    this.subcategory = builder.subcategory;
+    this.subCategory = builder.subCategory;
     this.global = builder.global;
     this.type = builder.type;
     this.options = builder.options;
@@ -201,8 +201,8 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     return category;
   }
 
-  public String subcategory() {
-    return subcategory;
+  public String subCategory() {
+    return subCategory;
   }
 
   /**
@@ -272,7 +272,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     private String description = "";
     private String defaultValue = "";
     private String category = "";
-    private String subcategory = "default";
+    private String subCategory = "default";
     private List<String> onQualifiers = newArrayList();
     private List<String> onlyOnQualifiers = newArrayList();
     private boolean global = true;
@@ -309,8 +309,8 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
-    public Builder subcategory(String subcategory) {
-      this.subcategory = subcategory;
+    public Builder subCategory(String s) {
+      this.subCategory = s;
       return this;
     }
 

@@ -99,7 +99,7 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     if (!definitions.containsKey(definition.key())) {
       definitions.put(definition.key(), definition);
       categories.put(definition.key(), StringUtils.defaultIfBlank(definition.category(), defaultCategory));
-      subcategories.put(definition.key(), StringUtils.defaultIfBlank(definition.subcategory(), "default"));
+      subcategories.put(definition.key(), StringUtils.defaultIfBlank(definition.subCategory(), "default"));
       if (!Strings.isNullOrEmpty(definition.deprecatedKey()) && !definition.deprecatedKey().equals(definition.key())) {
         deprecatedKeys.put(definition.deprecatedKey(), definition.key());
       }
