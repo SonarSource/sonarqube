@@ -24,6 +24,8 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 
+import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -230,11 +232,13 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder sort(String sort) {
-      try {
-        this.sort = Sort.valueOf(sort).name();
-      } catch (IllegalArgumentException e){
-        throw new IllegalArgumentException("Sort should contain only : " + Arrays.toString(Sort.values()), e);
+    public Builder sort(@Nullable String sort) {
+      if (sort != null) {
+        try {
+          this.sort = Sort.valueOf(sort).name();
+        } catch (IllegalArgumentException e){
+          throw new IllegalArgumentException("Sort should contain only : " + Arrays.toString(Sort.values()), e);
+        }
       }
       return this;
     }
@@ -244,14 +248,14 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder pageSize(Integer i) {
+    public Builder pageSize(@Nullable Integer i) {
       Preconditions.checkArgument(i == null || i.intValue() > 0, "Page size must be greater than 0 (got " + i + ")");
       Preconditions.checkArgument(i == null || i.intValue() < MAX_PAGE_SIZE, "Page size must be less than " + MAX_PAGE_SIZE + " (got " + i + ")");
       this.pageSize = (i == null ? DEFAULT_PAGE_SIZE : i.intValue());
       return this;
     }
 
-    public Builder pageIndex(Integer i) {
+    public Builder pageIndex(@Nullable Integer i) {
       Preconditions.checkArgument(i == null || i.intValue() > 0, "Page index must be greater than 0 (got " + i + ")");
       this.pageIndex = (i == null ? DEFAULT_PAGE_INDEX : i.intValue());
       return this;
