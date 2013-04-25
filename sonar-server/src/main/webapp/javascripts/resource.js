@@ -204,7 +204,15 @@ function collapseTests(index, elt){
 
 /* Source decoration functions */
 function highlight_usages(event){
-  var selectedClass = $j(this).attr("class").split(" ")[0];
+  var isAlreadyHighlighted = false;
+  var selectedElementClasses = $j(this).attr("class").split(" ");
+  if(selectedElementClasses.indexOf("highlighted") != -1) {
+    isAlreadyHighlighted = true;
+  }
   $j("#" + event.data.id + " span.highlighted").removeClass("highlighted");
-  $j("#" + event.data.id + " span." + selectedClass).addClass("highlighted");
+
+  if(!isAlreadyHighlighted) {
+    var selectedClass = selectedElementClasses[0];
+    $j("#" + event.data.id + " span." + selectedClass).addClass("highlighted");
+  }
 }
