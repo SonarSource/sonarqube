@@ -22,7 +22,7 @@ package org.sonar.plugins.core.issue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.db.IssueDto;
 
 import java.util.Date;
 import java.util.List;

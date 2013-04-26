@@ -25,8 +25,8 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.index.ScanPersister;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueDao;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.db.IssueDao;
+import org.sonar.core.issue.db.IssueDto;
 
 import java.util.Collection;
 import java.util.Map;

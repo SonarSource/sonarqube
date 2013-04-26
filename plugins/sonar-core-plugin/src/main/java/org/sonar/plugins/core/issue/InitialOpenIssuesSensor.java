@@ -22,8 +22,8 @@ package org.sonar.plugins.core.issue;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.core.issue.IssueDao;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.db.IssueDao;
+import org.sonar.core.issue.db.IssueDto;
 
 import java.util.Date;
 import java.util.List;

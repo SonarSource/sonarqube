@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue;
+package org.sonar.core.issue.db;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collection;

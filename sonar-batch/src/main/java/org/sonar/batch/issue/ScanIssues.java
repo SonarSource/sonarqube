@@ -75,4 +75,5 @@ public class ScanIssues {
   public boolean remove(Issue issue) {
     return cache.remove(issue);
   }
+
 }

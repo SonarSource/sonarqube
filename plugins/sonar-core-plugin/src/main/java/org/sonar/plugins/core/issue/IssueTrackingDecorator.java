@@ -31,7 +31,7 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
 import java.util.Collection;
@@ -66,10 +66,9 @@ public class IssueTrackingDecorator implements Decorator {
       // all the issues created by rule engines during this module scan
       Collection<DefaultIssue> issues = Lists.newArrayList();
       for (Issue issue : scanIssues.issues(resource.getEffectiveKey())) {
+        scanIssues.remove(issue);
         if (filters.accept(issue)) {
           issues.add((DefaultIssue) issue);
-        } else {
-          scanIssues.remove(issue);
         }
       }
 

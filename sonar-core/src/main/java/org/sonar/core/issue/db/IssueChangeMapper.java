@@ -18,35 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.plugins.core.issue;
+package org.sonar.core.issue.db;
 
-import org.junit.Test;
-import org.sonar.api.resources.Project;
-import org.sonar.core.issue.db.IssueDao;
-import org.sonar.core.issue.db.IssueDto;
+import java.util.Collection;
 
-import java.util.Date;
+/**
+ * @since 3.6
+ */
+public interface IssueChangeMapper {
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+  void insert(IssueChangeDto issueChangeDto);
 
+  IssueChangeDto findById(long issueChangeLogId);
 
-public class InitialOpenIssuesSensorTest {
+  Collection<IssueChangeDto> selectByIssue(String issueUuid);
 
-  InitialOpenIssuesStack stack = mock(InitialOpenIssuesStack.class);
-  IssueDao issueDao = mock(IssueDao.class);
-  InitialOpenIssuesSensor sensor = new InitialOpenIssuesSensor(stack, issueDao);
-
-
-  @Test
-  public void should_select_module_open_issues() {
-    Project project = new Project("key");
-    project.setId(1);
-    sensor.analyse(project, null);
-
-    verify(issueDao).selectOpenIssues(1);
-    verify(stack).setIssues(anyListOf(IssueDto.class), any(Date.class));
-  }
 }

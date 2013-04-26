@@ -29,7 +29,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.java.api.JavaClass;

@@ -39,9 +39,7 @@ public class DeprecatedViolations implements BatchComponent {
 
   public void add(Violation violation) {
     DefaultIssue issue = toIssue(violation);
-    if (issue != null) {
-      cache.put(issue);
-    }
+    cache.put(issue);
   }
 
   public Collection<Violation> get(Resource resource) {
@@ -58,6 +56,8 @@ public class DeprecatedViolations implements BatchComponent {
       .setDescription(violation.getMessage())
       .setResolution(Issue.RESOLUTION_OPEN)
       .setStatus(Issue.STATUS_OPEN)
+      .setManualSeverity(false)
+      .setManual(false)
       .setSeverity(violation.getSeverity() != null ? violation.getSeverity().name() : null);
 
     // FIXME

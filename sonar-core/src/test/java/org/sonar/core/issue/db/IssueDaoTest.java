@@ -18,13 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.issue;
+package org.sonar.core.issue.db;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.issue.db.IssueDao;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collection;

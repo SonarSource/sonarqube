@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.issue;
+package org.sonar.core.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
@@ -55,7 +55,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       // TODO bulk insert
-      session.insert("org.sonar.core.issue.IssueMapper.insert", issueDto);
+      session.insert("org.sonar.core.issue.db.IssueMapper.insert", issueDto);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -67,7 +67,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
     try {
       // TODO bulk update
       for (IssueDto issue : issues) {
-        session.update("org.sonar.core.issue.IssueMapper.update", issue);
+        session.update("org.sonar.core.issue.db.IssueMapper.update", issue);
       }
       session.commit();
       return this;
@@ -80,7 +80,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
   public IssueDto selectById(long id) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.selectOne("org.sonar.core.issue.IssueMapper.selectById", id);
+      return session.selectOne("org.sonar.core.issue.db.IssueMapper.selectById", id);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -89,7 +89,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
   public IssueDto selectByKey(String key) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.selectOne("org.sonar.core.issue.IssueMapper.selectByKey", key);
+      return session.selectOne("org.sonar.core.issue.db.IssueMapper.selectByKey", key);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -99,7 +99,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
   public List<IssueDto> selectOpenIssues(Integer componentId) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.selectList("org.sonar.core.issue.IssueMapper.selectOpenIssues", componentId);
+      return session.selectList("org.sonar.core.issue.db.IssueMapper.selectOpenIssues", componentId);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -108,7 +108,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
   public List<IssueDto> select(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.selectList("org.sonar.core.issue.IssueMapper.select", query);
+      return session.selectList("org.sonar.core.issue.db.IssueMapper.select", query);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -129,7 +129,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
    */
   public List<IssueDto> selectIssueIdsAndComponentsId(IssueQuery query, SqlSession session) {
     // TODO support ordering
-    return session.selectList("org.sonar.core.issue.IssueMapper.selectIssueIdsAndComponentsId", query);
+    return session.selectList("org.sonar.core.issue.db.IssueMapper.selectIssueIdsAndComponentsId", query);
   }
 
   Collection<IssueDto> selectByIds(Collection<Long> ids) {
@@ -147,7 +147,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
     List <List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
     Map<String, List <List<Long>>> params = ImmutableMap.of("ids", idsPartition);
-    return session.selectList("org.sonar.core.issue.IssueMapper.selectByIds", params);
+    return session.selectList("org.sonar.core.issue.db.IssueMapper.selectByIds", params);
   }
 
   private Map<String, String> getAvalailableSorts() {

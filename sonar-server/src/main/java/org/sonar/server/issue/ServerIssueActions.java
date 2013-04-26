@@ -23,8 +23,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueDao;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.db.IssueDao;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.user.AuthorizationDao;
 

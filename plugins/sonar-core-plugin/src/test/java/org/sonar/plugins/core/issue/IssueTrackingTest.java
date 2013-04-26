@@ -33,7 +33,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.db.IssueDto;
 
 import java.io.IOException;
 import java.util.Arrays;

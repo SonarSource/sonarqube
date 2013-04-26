@@ -17,36 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.plugins.core.issue;
+package org.sonar.core.issue.workflow;
 
 import org.junit.Test;
-import org.sonar.api.resources.Project;
-import org.sonar.core.issue.db.IssueDao;
-import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.DefaultIssue;
 
 import java.util.Date;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.fest.assertions.Assertions.assertThat;
 
-
-public class InitialOpenIssuesSensorTest {
-
-  InitialOpenIssuesStack stack = mock(InitialOpenIssuesStack.class);
-  IssueDao issueDao = mock(IssueDao.class);
-  InitialOpenIssuesSensor sensor = new InitialOpenIssuesSensor(stack, issueDao);
-
-
+public class UnsetClosedAtTest {
   @Test
-  public void should_select_module_open_issues() {
-    Project project = new Project("key");
-    project.setId(1);
-    sensor.analyse(project, null);
-
-    verify(issueDao).selectOpenIssues(1);
-    verify(stack).setIssues(anyListOf(IssueDto.class), any(Date.class));
+  public void should_remove_date() throws Exception {
+    UnsetClosedAt function = new UnsetClosedAt();
+    DefaultIssue issue = new DefaultIssue().setCreatedAt(new Date()).setCreatedAt(new Date());
+    function.execute(issue);
+    assertThat(issue.closedAt()).isNull();
+    assertThat(issue.createdAt()).isNotNull();
   }
 }

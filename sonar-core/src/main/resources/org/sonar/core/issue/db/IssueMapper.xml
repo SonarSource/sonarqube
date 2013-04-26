@@ -2,7 +2,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
 
-<mapper namespace="org.sonar.core.issue.IssueMapper">
+<mapper namespace="org.sonar.core.issue.db.IssueMapper">
 
   <sql id="issueColumns">
     i.id,

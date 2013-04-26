@@ -23,9 +23,8 @@ package org.sonar.plugins.core.issue;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.BatchExtension;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.db.IssueDto;
 
 import java.util.Collection;
 import java.util.Collections;

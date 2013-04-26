@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.issue;
+package org.sonar.core.issue.db;
 
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;

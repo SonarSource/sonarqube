@@ -17,20 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.issue.workflow;
 
-package org.sonar.core.issue;
+import org.sonar.core.issue.DefaultIssue;
 
-import java.util.Collection;
+class UnsetClosedAt implements Function {
 
-/**
- * @since 3.6
- */
-public interface IssueChangeMapper {
-
-  void insert(IssueChangeDto issueChangeDto);
-
-  IssueChangeDto findById(long issueChangeLogId);
-
-  Collection<IssueChangeDto> selectByIssue(String issueUuid);
+  @Override
+  public void execute(DefaultIssue issue) {
+    issue.setClosedAt(null);
+  }
 
 }

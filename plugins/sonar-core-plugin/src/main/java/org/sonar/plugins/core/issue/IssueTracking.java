@@ -31,7 +31,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.plugins.core.timemachine.SourceChecksum;
 import org.sonar.plugins.core.timemachine.ViolationTrackingBlocksRecognizer;
 import org.sonar.plugins.core.timemachine.tracking.*;

@@ -44,9 +44,9 @@ import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.graph.jdbc.GraphDto;
 import org.sonar.core.graph.jdbc.GraphDtoMapper;
-import org.sonar.core.issue.IssueChangeDto;
-import org.sonar.core.issue.IssueChangeMapper;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.db.IssueChangeDto;
+import org.sonar.core.issue.db.IssueChangeMapper;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.measure.MeasureFilterDto;
 import org.sonar.core.measure.MeasureFilterMapper;
 import org.sonar.core.properties.PropertiesMapper;
@@ -133,7 +133,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
         SnapshotSourceMapper.class
     };
     loadMappers(conf, mappers);
-    loadMapper(conf, "org.sonar.core.issue.IssueMapper");
+    loadMapper(conf, "org.sonar.core.issue.db.IssueMapper");
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
     configureLogback(mappers);
 

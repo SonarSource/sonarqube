@@ -31,7 +31,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueDao;
+import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static com.google.common.collect.Lists.newArrayList;
