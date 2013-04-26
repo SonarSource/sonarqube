@@ -49,8 +49,8 @@ import static com.google.common.collect.Lists.newArrayList;
  *   public class MyPlugin extends SonarPlugin {
  *     public List getExtensions() {
  *       return Arrays.asList(
- *         PropertyDef.builder("sonar.foo").name("Foo").build(),
- *         PropertyDef.builder("sonar.bar").name("Bar").type(PropertyType.INTEGER).build()
+ *         PropertyDefinition.builder("sonar.foo").name("Foo").build(),
+ *         PropertyDefinition.builder("sonar.bar").name("Bar").type(PropertyType.INTEGER).build()
  *       );
  *     }
  *   }
