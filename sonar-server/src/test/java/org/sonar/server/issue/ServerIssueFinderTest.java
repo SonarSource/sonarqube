@@ -79,10 +79,12 @@ public class ServerIssueFinderTest {
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
@@ -102,10 +104,12 @@ public class ServerIssueFinderTest {
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(135)
       .setComponentKey_unit_test_only("Phases.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
     when(authorizationDao.keepAuthorizedComponentIds(anySet(), anyInt(), anyString(), any(SqlSession.class))).thenReturn(newHashSet(123));
@@ -127,10 +131,12 @@ public class ServerIssueFinderTest {
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(135)
       .setComponentKey_unit_test_only("Phases.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
@@ -148,7 +154,8 @@ public class ServerIssueFinderTest {
   public void should_find_by_key() {
     IssueDto issueDto = new IssueDto().setId(1L).setRuleId(1).setResourceId(1)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     when(issueDao.selectByKey("ABCDE")).thenReturn(issueDto);
 
     Issue issue = finder.findByKey("ABCDE");
@@ -167,10 +174,12 @@ public class ServerIssueFinderTest {
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
@@ -193,10 +202,12 @@ public class ServerIssueFinderTest {
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle");
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);

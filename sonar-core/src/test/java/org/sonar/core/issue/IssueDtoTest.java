@@ -37,7 +37,7 @@ public class IssueDtoTest {
   @Test
   public void set_data_check_maximal_length() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Issue attributes must not exceed 1000 characters: ");
+    thrown.expectMessage("Issue attributes must not exceed 4000 characters: ");
 
     StringBuilder s = new StringBuilder(4500);
     for (int i = 0; i < 4500; i++) {

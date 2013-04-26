@@ -41,22 +41,22 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void should_fail_on_bad_status() {
+  public void should_fail_on_empty_status() {
     try {
-      issue.setStatus("FOO");
+      issue.setStatus("");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Not a valid status: FOO");
+      assertThat(e).hasMessage("Status must be set");
     }
   }
 
   @Test
-  public void should_fail_on_bad_resolution() {
+  public void should_fail_on_empty_resolution() {
     try {
-      issue.setResolution("FOO");
+      issue.setResolution("");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Not a valid resolution: FOO");
+      assertThat(e).hasMessage("Resolution must be set");
     }
   }
 

@@ -210,8 +210,8 @@ public final class IssueDto {
   }
 
   public IssueDto setAttributes(@Nullable String s) {
-    Preconditions.checkArgument(s == null || s.length() <= 1000,
-      "Issue attributes must not exceed 1000 characters: " + s);
+    Preconditions.checkArgument(s == null || s.length() <= 4000,
+      "Issue attributes must not exceed 4000 characters: " + s);
     this.attributes = s;
     return this;
   }

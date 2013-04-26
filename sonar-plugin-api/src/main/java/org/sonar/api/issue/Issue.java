@@ -79,8 +79,4 @@ public interface Issue extends Serializable {
 
   String authorLogin();
 
-  /**
-   * Used only during project scan.
-   */
-  boolean isNew();
 }

@@ -17,46 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.issue.workflow;
 
-package org.sonar.api.issue;
+import org.junit.Test;
+import org.sonar.core.issue.DefaultIssue;
 
-/**
- * TODO move outside this package
- * @since 3.6
- */
-public class Paging {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private final int pageSize;
-  private final int pageIndex;
-  private final int total;
+public class HasResolutionTest {
 
-  public Paging(int pageSize, int pageIndex, int total) {
-    this.pageSize = pageSize;
-    this.pageIndex = pageIndex;
-    this.total = total;
-  }
+  DefaultIssue issue = new DefaultIssue();
 
-  public int pageIndex() {
-    return pageIndex;
-  }
+  @Test
+  public void should_match() throws Exception {
+    HasResolution condition = new HasResolution("OPEN", "FIXED", "FALSE-POSITIVE");
 
-  public int pageSize() {
-    return pageSize;
-  }
+    assertThat(condition.matches(issue.setResolution("OPEN"))).isTrue();
+    assertThat(condition.matches(issue.setResolution("FIXED"))).isTrue();
+    assertThat(condition.matches(issue.setResolution("FALSE-POSITIVE"))).isTrue();
 
-  public int total() {
-    return total;
-  }
-
-  public int offset(){
-    return (pageIndex - 1) * pageSize;
-  }
-
-  public int pages() {
-    int p = (total / pageSize);
-    if ((total % pageSize) > 0) {
-      p++;
-    }
-    return p;
+    assertThat(condition.matches(issue.setResolution("open"))).isFalse();
+    assertThat(condition.matches(issue.setResolution("Fixed"))).isFalse();
   }
 }

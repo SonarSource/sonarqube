@@ -23,7 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueChange;
 import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.Nullable;
@@ -48,84 +47,30 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void should_list_available_transitions() throws Exception {
+  public void should_list_out_manual_transitions() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
-    List<Transition> transitions = workflow.availableTransitions(issue);
+    List<Transition> transitions = workflow.outManualTransitions(issue);
     assertThat(transitions).hasSize(3);
     assertThat(keys(transitions)).containsOnly("close", "falsepositive", "resolve");
   }
 
   @Test
-  public void should_not_change_anything() throws Exception {
-    workflow.start();
-
-    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
-    workflow.change(issue, IssueChange.create());
-
-    assertThat(issue.updatedAt()).isNull();
-  }
-
-  @Test
-  public void should_set_fields() throws Exception {
-    workflow.start();
-
-    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
-    IssueChange change = IssueChange.create()
-      .setAssignee("arthur")
-      .setAttribute("JIRA", "FOO-1234")
-      .setCost(4.2)
-      .setLine(123)
-      .setDescription("the desc")
-      .setSeverity("BLOCKER");
-    workflow.change(issue, change);
-
-    assertThat(issue.updatedAt()).isNotNull();
-    assertThat(issue.assignee()).isEqualTo("arthur");
-    assertThat(issue.attribute("JIRA")).isEqualTo("FOO-1234");
-    assertThat(issue.cost()).isEqualTo(4.2);
-    assertThat(issue.line()).isEqualTo(123);
-    assertThat(issue.description()).isEqualTo("the desc");
-    assertThat(issue.severity()).isEqualTo("BLOCKER");
-  }
-
-  @Test
-  public void should_change_only_fields_with_new_values() throws Exception {
+  public void should_do_automatic_transition() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
-      .setStatus(Issue.STATUS_OPEN)
-      .setAssignee("karadoc")
-      .setAttribute("YOUTRACK", "ABC")
-      .setCost(3.4);
-    IssueChange change = IssueChange.create()
-      .setAttribute("JIRA", "FOO-1234")
-      .setLine(123)
-      .setSeverity("BLOCKER");
-    workflow.change(issue, change);
-
-    assertThat(issue.updatedAt()).isNotNull();
-    assertThat(issue.assignee()).isEqualTo("karadoc");
-    assertThat(issue.attribute("JIRA")).isEqualTo("FOO-1234");
-    assertThat(issue.attribute("YOUTRACK")).isEqualTo("ABC");
-    assertThat(issue.cost()).isEqualTo(3.4);
-    assertThat(issue.line()).isEqualTo(123);
-    assertThat(issue.severity()).isEqualTo("BLOCKER");
-  }
-
-  @Test
-  public void should_change_issue_state() throws Exception {
-    workflow.start();
-
-    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
-    IssueChange change = IssueChange.create().setTransition("close");
-    workflow.change(issue, change);
-
-    assertThat(issue.updatedAt()).isNotNull();
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setStatus(Issue.STATUS_RESOLVED)
+      .setNew(false)
+      .setAlive(false);
+    workflow.doAutomaticTransition(issue);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(issue.closedAt()).isNotNull();
   }
+
 
   private Collection<String> keys(List<Transition> transitions) {
     return Collections2.transform(transitions, new Function<Transition, String>() {

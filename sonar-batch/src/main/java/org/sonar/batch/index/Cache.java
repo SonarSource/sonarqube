@@ -102,18 +102,17 @@ public class Cache<K, V extends Serializable> {
     return get(DEFAULT_GROUP, key);
   }
 
-  public Cache remove(String group, K key) {
+  public boolean remove(String group, K key) {
     try {
       exchange.clear();
       exchange.append(group).append(key);
-      exchange.remove();
-      return this;
+      return exchange.remove();
     } catch (Exception e) {
       throw new IllegalStateException("Fail to get element from cache", e);
     }
   }
 
-  public Cache remove(K key) {
+  public boolean remove(K key) {
     return remove(DEFAULT_GROUP, key);
   }
 

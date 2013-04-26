@@ -17,36 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue;
+package org.sonar.core.issue.workflow;
 
-import org.sonar.api.issue.IssueChange;
+import com.google.common.collect.ImmutableSet;
+import org.sonar.api.issue.Issue;
 
-import java.util.Map;
+import java.util.Set;
 
-public class UpdateIssueFields {
+public class HasResolution implements Condition {
 
-  public static void apply(DefaultIssue issue, IssueChange change) {
-    if (change.description() != null) {
-      issue.setDescription(change.description());
-    }
-    if (change.manualSeverity() != null) {
-      change.setManualSeverity(change.manualSeverity());
-    }
-    if (change.severity() != null) {
-      issue.setSeverity(change.severity());
-    }
-    if (change.isAssigneeChanged()) {
-      issue.setAssignee(change.assignee());
-    }
-    if (change.isLineChanged()) {
-      issue.setLine(change.line());
-    }
-    if (change.isCostChanged()) {
-      issue.setCost(change.cost());
-    }
-    for (Map.Entry<String, String> entry : change.attributes().entrySet()) {
-      issue.setAttribute(entry.getKey(), entry.getValue());
-    }
+  private final Set<String> resolutions;
+
+  public HasResolution(String first, String... others) {
+    this.resolutions = ImmutableSet.<String>builder().add(first).add(others).build();
   }
 
+  @Override
+  public boolean matches(Issue issue) {
+    return issue.resolution() != null && resolutions.contains(issue.resolution());
+  }
 }

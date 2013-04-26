@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 
+import javax.annotation.CheckForNull;
 import java.util.List;
 import java.util.Set;
 
@@ -54,17 +55,32 @@ public class State {
     }
   }
 
-  public List<Transition> outTransitions(Issue issue) {
+  public List<Transition> outManualTransitions(Issue issue) {
     List<Transition> result = Lists.newArrayList();
     for (Transition transition : outTransitions) {
-      if (transition.supports(issue)) {
+      if (!transition.automatic() && transition.supports(issue)) {
         result.add(transition);
       }
     }
     return result;
   }
 
-  public void move(DefaultIssue issue, String transitionKey) {
+  @CheckForNull
+  public Transition outAutomaticTransition(Issue issue) {
+    Transition result = null;
+    for (Transition transition : outTransitions) {
+      if (transition.automatic() && transition.supports(issue)) {
+        if (result == null) {
+          result = transition;
+        } else {
+          throw new IllegalStateException("Several automatic transitions are available for issue: " + issue);
+        }
+      }
+    }
+    return result;
+  }
+
+  public void doTransition(DefaultIssue issue, String transitionKey) {
     Transition transition = transition(transitionKey);
     if (!transition.supports(issue)) {
       throw new IllegalStateException("TODO");

@@ -54,7 +54,7 @@ public class IssueCacheTest {
     DefaultIssue issue1 = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action");
     DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Action");
     DefaultIssue issue3 = new DefaultIssue().setKey("333").setComponentKey("org.struts.Filter");
-    cache.addOrUpdate(issue1).addOrUpdate(issue2).addOrUpdate(issue3);
+    cache.put(issue1).put(issue2).put(issue3);
 
     assertThat(issueKeys(cache.componentIssues("org.struts.Action"))).containsOnly("111", "222");
     assertThat(issueKeys(cache.componentIssues("org.struts.Filter"))).containsOnly("333");
@@ -64,22 +64,22 @@ public class IssueCacheTest {
   public void should_update_existing_issue() throws Exception {
     IssueCache cache = new IssueCache(caches);
     DefaultIssue issue = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action").setSeverity(Severity.BLOCKER);
-    cache.addOrUpdate(issue);
+    cache.put(issue);
 
     issue.setSeverity(Severity.MINOR);
-    cache.addOrUpdate(issue);
+    cache.put(issue);
 
-    Collection<Issue> issues = cache.componentIssues("org.struts.Action");
+    Collection<DefaultIssue> issues = cache.componentIssues("org.struts.Action");
     assertThat(issues).hasSize(1);
     Issue reloaded = issues.iterator().next();
     assertThat(reloaded.key()).isEqualTo("111");
     assertThat(reloaded.severity()).isEqualTo(Severity.MINOR);
   }
 
-  Collection<String> issueKeys(Collection<Issue> issues) {
-    return Collections2.transform(issues, new Function<Issue, String>() {
+  Collection<String> issueKeys(Collection<DefaultIssue> issues) {
+    return Collections2.transform(issues, new Function<DefaultIssue, String>() {
       @Override
-      public String apply(@Nullable Issue issue) {
+      public String apply(@Nullable DefaultIssue issue) {
         return issue.key();
       }
     });

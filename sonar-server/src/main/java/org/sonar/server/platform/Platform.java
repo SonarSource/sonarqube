@@ -70,7 +70,7 @@ import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.DefaultJRubyIssues;
-import org.sonar.server.issue.ServerIssueChanges;
+import org.sonar.server.issue.ServerIssueActions;
 import org.sonar.server.issue.ServerIssueFinder;
 import org.sonar.server.macro.MacroInterpreter;
 import org.sonar.server.notifications.NotificationCenter;
@@ -240,7 +240,7 @@ public final class Platform {
 
     // issues
     servicesContainer.addSingleton(IssueWorkflow.class);
-    servicesContainer.addSingleton(ServerIssueChanges.class);
+    servicesContainer.addSingleton(ServerIssueActions.class);
     servicesContainer.addSingleton(ServerIssueFinder.class);
     servicesContainer.addSingleton(DefaultJRubyIssues.class);
 

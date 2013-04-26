@@ -42,7 +42,7 @@ import static org.mockito.Mockito.*;
 public class DefaultJRubyIssuesTest {
 
   IssueFinder finder = mock(IssueFinder.class);
-  ServerIssueChanges changes = mock(ServerIssueChanges.class);
+  ServerIssueActions changes = mock(ServerIssueActions.class);
   DefaultJRubyIssues facade = new DefaultJRubyIssues(finder, changes);
 
   @Test

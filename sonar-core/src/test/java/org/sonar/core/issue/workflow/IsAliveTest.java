@@ -17,46 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.issue.workflow;
 
-package org.sonar.api.issue;
+import org.junit.Test;
+import org.sonar.core.issue.DefaultIssue;
 
-/**
- * TODO move outside this package
- * @since 3.6
- */
-public class Paging {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private final int pageSize;
-  private final int pageIndex;
-  private final int total;
+public class IsAliveTest {
+  DefaultIssue issue = new DefaultIssue();
 
-  public Paging(int pageSize, int pageIndex, int total) {
-    this.pageSize = pageSize;
-    this.pageIndex = pageIndex;
-    this.total = total;
+  @Test
+  public void should_match_alive() throws Exception {
+    IsAlive condition = new IsAlive(true);
+    assertThat(condition.matches(issue.setAlive(true))).isTrue();
+    assertThat(condition.matches(issue.setAlive(false))).isFalse();
   }
 
-  public int pageIndex() {
-    return pageIndex;
-  }
-
-  public int pageSize() {
-    return pageSize;
-  }
-
-  public int total() {
-    return total;
-  }
-
-  public int offset(){
-    return (pageIndex - 1) * pageSize;
-  }
-
-  public int pages() {
-    int p = (total / pageSize);
-    if ((total % pageSize) > 0) {
-      p++;
-    }
-    return p;
+  @Test
+  public void should_match_dead() throws Exception {
+    IsAlive condition = new IsAlive(false);
+    assertThat(condition.matches(issue.setAlive(true))).isFalse();
+    assertThat(condition.matches(issue.setAlive(false))).isTrue();
   }
 }

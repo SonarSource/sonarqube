@@ -28,6 +28,7 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;
@@ -70,14 +71,19 @@ public class IssueTracking implements BatchExtension {
     this.index = index;
   }
 
-  public void track(Resource resource, Collection<IssueDto> referenceIssues, Collection<DefaultIssue> newIssues) {
+  /**
+   * @return untracked issues
+   */
+  public Set<IssueDto> track(Resource resource, Collection<IssueDto> dbIssues, Collection<DefaultIssue> newIssues) {
     referenceIssuesMap.clear();
+    unmappedLastIssues.clear();
 
     String source = index.getSource(resource);
     setChecksumOnNewIssues(newIssues, source);
 
     // Map new issues with old ones
-    mapIssues(newIssues, referenceIssues, source, resource);
+    mapIssues(newIssues, dbIssues, source, resource);
+    return unmappedLastIssues;
   }
 
   private void setChecksumOnNewIssues(Collection<DefaultIssue> issues, String source) {
@@ -113,7 +119,6 @@ public class IssueTracking implements BatchExtension {
       mapIssuesOnSameRule(newIssues, lastIssuesByRule);
     }
 
-    unmappedLastIssues.clear();
     return referenceIssuesMap;
   }
 
@@ -342,13 +347,19 @@ public class IssueTracking implements BatchExtension {
     if (pastIssue != null) {
       newIssue.setKey(pastIssue.getKey());
       if (pastIssue.isManualSeverity()) {
+        newIssue.setManualSeverity(true);
         newIssue.setSeverity(pastIssue.getSeverity());
       }
-
+      newIssue.setResolution(pastIssue.getResolution());
+      newIssue.setStatus(pastIssue.getStatus());
       newIssue.setCreatedAt(pastIssue.getCreatedAt());
       newIssue.setUpdatedAt(project.getAnalysisDate());
       newIssue.setNew(false);
+      newIssue.setAlive(true);
       newIssue.setAuthorLogin(pastIssue.getAuthorLogin());
+      if (pastIssue.getAttributes() != null) {
+        newIssue.setAttributes(KeyValueFormat.parse(pastIssue.getAttributes()));
+      }
 
       lastIssuesByRule.remove(getRuleId(newIssue), pastIssue);
       issueMap.put(newIssue, pastIssue);

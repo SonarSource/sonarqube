@@ -20,7 +20,6 @@
 package org.sonar.batch.issue;
 
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.index.ScanPersister;
@@ -56,15 +55,15 @@ public class IssuePersister implements ScanPersister {
     for (Map.Entry<String, Snapshot> componentEntry : snapshotCache.snapshots()) {
       String componentKey = componentEntry.getKey();
       Snapshot snapshot = componentEntry.getValue();
-      Collection<Issue> issues = issueCache.componentIssues(componentKey);
+      Collection<DefaultIssue> issues = issueCache.componentIssues(componentKey);
 
-      for (Issue issue : issues) {
+      for (DefaultIssue issue : issues) {
         Rule rule = ruleFinder.findByKey(issue.ruleKey().repository(), issue.ruleKey().rule());
         if (rule == null) {
           throw new IllegalStateException("Rule not found: " + issue.ruleKey());
         }
 
-        IssueDto dto = IssueDto.toDto((DefaultIssue) issue, snapshot.getResourceId(), rule.getId());
+        IssueDto dto = IssueDto.toDto(issue, snapshot.getResourceId(), rule.getId());
         if (issue.isNew()) {
           dao.insert(dto);
         } else {

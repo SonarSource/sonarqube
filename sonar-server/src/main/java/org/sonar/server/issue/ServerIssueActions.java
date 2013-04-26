@@ -21,9 +21,7 @@ package org.sonar.server.issue;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueChange;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.UpdateIssueFields;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDao;
 import org.sonar.core.issue.IssueDto;
@@ -31,24 +29,23 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.user.AuthorizationDao;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 /**
  * @since 3.6
  */
-public class ServerIssueChanges implements ServerComponent {
+public class ServerIssueActions implements ServerComponent {
 
   private final IssueWorkflow workflow;
   private final IssueDao issueDao;
   private final AuthorizationDao authorizationDao;
 
-  public ServerIssueChanges(IssueWorkflow workflow, IssueDao issueDao, AuthorizationDao authorizationDao) {
+  public ServerIssueActions(IssueWorkflow workflow, IssueDao issueDao, AuthorizationDao authorizationDao) {
     this.workflow = workflow;
     this.issueDao = issueDao;
     this.authorizationDao = authorizationDao;
   }
 
-  public Issue change(String issueKey, IssueChange change, @Nullable Integer userId) {
+  public Issue executeAction(String issueKey, String action, @Nullable Integer userId) {
     if (userId == null) {
       // must be logged
       throw new IllegalStateException("User is not logged in");
@@ -62,10 +59,10 @@ public class ServerIssueChanges implements ServerComponent {
       throw new IllegalStateException("User does not have the role " + requiredRole + " required to change the issue: " + issueKey);
     }
     DefaultIssue issue = dto.toDefaultIssue();
-    if (change.hasChanges()) {
-      workflow.change(issue, change);
-      issueDao.update(Arrays.asList(IssueDto.toDto(issue, dto.getResourceId(), dto.getRuleId())));
-    }
+    //if (change.hasChanges()) {
+    //  workflow.change(issue, change);
+    // issueDao.update(Arrays.asList(IssueDto.toDto(issue, dto.getResourceId(), dto.getRuleId())));
+    //}
     return issue;
   }
 }

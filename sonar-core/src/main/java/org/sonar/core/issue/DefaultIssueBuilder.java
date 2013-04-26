@@ -102,6 +102,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setManual(manual);
     issue.setAttributes(attributes);
     issue.setNew(true);
+    issue.setAlive(true);
     issue.setResolution(Issue.RESOLUTION_OPEN);
     issue.setStatus(Issue.STATUS_OPEN);
     return issue;

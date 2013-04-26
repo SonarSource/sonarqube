@@ -39,11 +39,16 @@ public class PagingTest {
   }
 
   @Test
-  public void test_pagination_on_second_page(){
-    Paging paging = new Paging(5, 2, 20);
-
-    assertThat(paging.offset()).isEqualTo(5);
-    assertThat(paging.pages()).isEqualTo(4);
+  public void test_offset(){
+    assertThat(new Paging(5, 1, 20).offset()).isEqualTo(0);
+    assertThat(new Paging(5, 2, 20).offset()).isEqualTo(5);
   }
 
+  @Test
+  public void test_number_of_pages(){
+    assertThat(new Paging(5, 2, 20).pages()).isEqualTo(4);
+    assertThat(new Paging(5, 2, 21).pages()).isEqualTo(5);
+    assertThat(new Paging(5, 2, 25).pages()).isEqualTo(5);
+    assertThat(new Paging(5, 2, 26).pages()).isEqualTo(6);
+  }
 }

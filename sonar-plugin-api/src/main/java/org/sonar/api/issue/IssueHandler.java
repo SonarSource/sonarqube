@@ -17,46 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.api.issue;
 
+import org.sonar.api.BatchExtension;
+
+import javax.annotation.Nullable;
+
 /**
- * TODO move outside this package
  * @since 3.6
  */
-public class Paging {
+public interface IssueHandler extends BatchExtension {
 
-  private final int pageSize;
-  private final int pageIndex;
-  private final int total;
+  interface IssueContext {
+    Issue issue();
 
-  public Paging(int pageSize, int pageIndex, int total) {
-    this.pageSize = pageSize;
-    this.pageIndex = pageIndex;
-    this.total = total;
+    boolean isNew();
+
+    boolean isAlive();
+
+    IssueContext setLine(@Nullable Integer line);
+
+    IssueContext setDescription(String description);
+
+    // set manual severity ?
+    IssueContext setSeverity(String severity);
+
+    // TODO rename to setScmLogin ?
+    IssueContext setAuthorLogin(@Nullable String login);
+
+    IssueContext setAttribute(String key, @Nullable String value);
+
+    IssueContext assignTo(@Nullable String login);
+
+    //TODO IssueContext comment(String comment);
+
   }
 
-  public int pageIndex() {
-    return pageIndex;
-  }
+  void onIssue(IssueContext context);
 
-  public int pageSize() {
-    return pageSize;
-  }
-
-  public int total() {
-    return total;
-  }
-
-  public int offset(){
-    return (pageIndex - 1) * pageSize;
-  }
-
-  public int pages() {
-    int p = (total / pageSize);
-    if ((total % pageSize) > 0) {
-      p++;
-    }
-    return p;
-  }
 }

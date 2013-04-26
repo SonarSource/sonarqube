@@ -17,19 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue;
+package org.sonar.core.issue.workflow;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.junit.Test;
+import org.sonar.core.issue.DefaultIssue;
 
-import javax.annotation.Nullable;
+import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Change existing issues
- * @since 3.6
- */
-public interface IssueChanges extends BatchComponent {
+public class IsManualTest {
+  DefaultIssue issue = new DefaultIssue();
 
-  Issue change(Issue issue, IssueChange change);
+  @Test
+  public void should_match() throws Exception {
+    IsManual condition = new IsManual(true);
+    assertThat(condition.matches(issue.setManual(true))).isTrue();
+    assertThat(condition.matches(issue.setManual(false))).isFalse();
+  }
 
+  @Test
+  public void should_match_dead() throws Exception {
+    IsManual condition = new IsManual(false);
+    assertThat(condition.matches(issue.setManual(true))).isFalse();
+    assertThat(condition.matches(issue.setManual(false))).isTrue();
+  }
 }

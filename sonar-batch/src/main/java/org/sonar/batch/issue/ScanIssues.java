@@ -22,13 +22,10 @@ package org.sonar.batch.issue;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueChange;
-import org.sonar.api.issue.IssueChanges;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.workflow.IssueWorkflow;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -36,46 +33,25 @@ import java.util.UUID;
 /**
  * Central component to manage issues
  */
-public class ScanIssues implements IssueChanges {
+public class ScanIssues {
 
   private final RulesProfile qProfile;
   private final IssueCache cache;
   private final Project project;
-  private final IssueWorkflow workflow;
 
-  public ScanIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueWorkflow workflow) {
+  public ScanIssues(RulesProfile qProfile, IssueCache cache, Project project) {
     this.qProfile = qProfile;
     this.cache = cache;
     this.project = project;
-    this.workflow = workflow;
   }
 
-  @Override
-  public Issue change(Issue issue, IssueChange change) {
-    if (!change.hasChanges()) {
-      return issue;
-    }
-    DefaultIssue reloaded = reload(issue);
-    workflow.change(reloaded, change);
-    cache.addOrUpdate(reloaded);
-    return reloaded;
-  }
-
-  private DefaultIssue reload(Issue issue) {
-    DefaultIssue reloaded = (DefaultIssue) cache.componentIssue(issue.componentKey(), issue.key());
-    if (reloaded == null) {
-      throw new IllegalStateException("Bad API usage. Unregistered issues can't be changed.");
-    }
-    return reloaded;
-  }
-
-  public Collection<Issue> issues(String componentKey) {
+  public Collection<DefaultIssue> issues(String componentKey) {
     return cache.componentIssues(componentKey);
   }
 
   public ScanIssues addOrUpdate(DefaultIssue issue) {
     Preconditions.checkState(!Strings.isNullOrEmpty(issue.key()), "Missing issue key");
-    cache.addOrUpdate(issue);
+    cache.put(issue);
     return this;
   }
 
@@ -92,7 +68,11 @@ public class ScanIssues implements IssueChanges {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }
-    cache.addOrUpdate(issue);
+    cache.put(issue);
     return true;
+  }
+
+  public boolean remove(Issue issue) {
+    return cache.remove(issue);
   }
 }

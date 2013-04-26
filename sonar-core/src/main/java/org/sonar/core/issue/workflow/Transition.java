@@ -35,6 +35,7 @@ class Transition {
   private final String from, to;
   private final Condition[] conditions;
   private final Function[] functions;
+  private final boolean automatic;
 
   private Transition(TransitionBuilder builder) {
     key = builder.key;
@@ -42,6 +43,7 @@ class Transition {
     to = builder.to;
     conditions = builder.conditions.toArray(new Condition[builder.conditions.size()]);
     functions = builder.functions.toArray(new Function[builder.functions.size()]);
+    automatic = builder.automatic;
   }
 
   String key() {
@@ -62,6 +64,10 @@ class Transition {
 
   Function[] functions() {
     return functions;
+  }
+
+  boolean automatic() {
+    return automatic;
   }
 
   public boolean supports(Issue issue) {
@@ -90,6 +96,7 @@ class Transition {
     private String from, to;
     private List<Condition> conditions = Lists.newArrayList();
     private List<Function> functions = Lists.newArrayList();
+    private boolean automatic = false;
 
     private TransitionBuilder(String key) {
       this.key = key;
@@ -112,6 +119,11 @@ class Transition {
 
     public TransitionBuilder functions(Function... f) {
       this.functions.addAll(Arrays.asList(f));
+      return this;
+    }
+
+    public TransitionBuilder automatic() {
+      this.automatic = true;
       return this;
     }
 

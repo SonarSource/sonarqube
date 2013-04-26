@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
@@ -47,14 +48,12 @@ import static org.mockito.Mockito.when;
 public class IssueTrackingTest {
 
   private final Date analysisDate = DateUtils.parseDate("2013-04-11");
-  private IssueTracking decorator;
 
-  private Project project;
-  private RuleFinder ruleFinder;
-
-  private LastSnapshots lastSnapshots;
-
-  private long violationId = 0;
+  IssueTracking tracking;
+  Project project;
+  RuleFinder ruleFinder;
+  LastSnapshots lastSnapshots;
+  long violationId = 0;
 
   @Before
   public void before() {
@@ -77,7 +76,7 @@ public class IssueTrackingTest {
 
     project = mock(Project.class);
     when(project.getAnalysisDate()).thenReturn(analysisDate);
-    decorator = new IssueTracking(project, ruleFinder, lastSnapshots, null);
+    tracking = new IssueTracking(project, ruleFinder, lastSnapshots, null);
   }
 
   @Test
@@ -88,9 +87,9 @@ public class IssueTrackingTest {
     // exactly the fields of referenceIssue1 but not the same key
     DefaultIssue newIssue = newDefaultIssue("message", 10, RuleKey.of("squid", "AvoidCycle"), "checksum1").setKey("200");
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue1, referenceIssue2));
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue1, referenceIssue2));
     // same key
-    assertThat(decorator.getReferenceIssue(newIssue)).isSameAs(referenceIssue2);
+    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue2);
     assertThat(newIssue.isNew()).isFalse();
   }
 
@@ -102,10 +101,10 @@ public class IssueTrackingTest {
     DefaultIssue newIssue1 = newDefaultIssue("message", 3, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     DefaultIssue newIssue2 = newDefaultIssue("message", 5, RuleKey.of("squid", "AvoidCycle"), "checksum2");
 
-    decorator.mapIssues(newArrayList(newIssue1, newIssue2), newArrayList(referenceIssue1, referenceIssue2));
-    assertThat(decorator.getReferenceIssue(newIssue1)).isSameAs(referenceIssue1);
+    tracking.mapIssues(newArrayList(newIssue1, newIssue2), newArrayList(referenceIssue1, referenceIssue2));
+    assertThat(tracking.getReferenceIssue(newIssue1)).isSameAs(referenceIssue1);
     assertThat(newIssue1.isNew()).isFalse();
-    assertThat(decorator.getReferenceIssue(newIssue2)).isSameAs(referenceIssue2);
+    assertThat(tracking.getReferenceIssue(newIssue2)).isSameAs(referenceIssue2);
     assertThat(newIssue2.isNew()).isFalse();
   }
 
@@ -117,8 +116,8 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("new message", null, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("old message", null, 1, "checksum1");
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(decorator.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
     assertThat(newIssue.isNew()).isFalse();
   }
 
@@ -127,8 +126,8 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("new message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("old message", 1, 1, "checksum1");
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(decorator.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
     assertThat(newIssue.isNew()).isFalse();
   }
 
@@ -137,8 +136,8 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 1, 1, "checksum2");
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(decorator.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
     assertThat(newIssue.isNew()).isFalse();
   }
 
@@ -147,8 +146,8 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), null);
     IssueDto referenceIssue = newReferenceIssue("message", 1, 2, null);
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(decorator.getReferenceIssue(newIssue)).isNull();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    assertThat(tracking.getReferenceIssue(newIssue)).isNull();
     assertThat(newIssue.isNew()).isTrue();
   }
 
@@ -157,8 +156,8 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 2, 1, "checksum1");
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(decorator.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
     assertThat(newIssue.isNew()).isFalse();
   }
 
@@ -170,8 +169,8 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("new message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("old message", 2, 1, "checksum1");
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(decorator.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
     assertThat(newIssue.isNew()).isFalse();
   }
 
@@ -180,8 +179,8 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 2, 1, "checksum2");
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(decorator.getReferenceIssue(newIssue)).isNull();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    assertThat(tracking.getReferenceIssue(newIssue)).isNull();
     assertThat(newIssue.isNew()).isTrue();
   }
 
@@ -190,8 +189,8 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 1, 2, "checksum1");
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(decorator.getReferenceIssue(newIssue)).isNull();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    assertThat(tracking.getReferenceIssue(newIssue)).isNull();
     assertThat(newIssue.isNew()).isTrue();
   }
 
@@ -202,8 +201,8 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("      message    ", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 1, 1, "checksum2");
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(decorator.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
     assertThat(newIssue.isNew()).isFalse();
   }
 
@@ -212,7 +211,7 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum");
     assertThat(newIssue.createdAt()).isNull();
 
-    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(newArrayList(newIssue), Lists.<IssueDto>newArrayList());
+    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(newArrayList(newIssue), Lists.<IssueDto>newArrayList());
     assertThat(mapping.size()).isEqualTo(0);
     assertThat(newIssue.createdAt()).isEqualTo(analysisDate);
     assertThat(newIssue.isNew()).isTrue();
@@ -223,7 +222,7 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum").setSeverity("MAJOR");
     IssueDto referenceIssue = newReferenceIssue("message", 1, 1, "checksum").setSeverity("MINOR").setManualSeverity(true);
 
-    decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
     assertThat(newIssue.severity()).isEqualTo("MINOR");
   }
 
@@ -235,7 +234,7 @@ public class IssueTrackingTest {
     referenceIssue.setCreatedAt(referenceDate);
     assertThat(newIssue.createdAt()).isNull();
 
-    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
+    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
     assertThat(mapping.size()).isEqualTo(1);
     assertThat(newIssue.createdAt()).isEqualTo(referenceDate);
     assertThat(newIssue.isNew()).isFalse();
@@ -250,7 +249,7 @@ public class IssueTrackingTest {
     IssueDto referenceIssue = newReferenceIssue("2 branches need to be covered", null, 1, null);
 
 
-    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
       newArrayList(newIssue),
       newArrayList(referenceIssue),
       source, project);
@@ -267,7 +266,7 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("1 branch need to be covered", null, RuleKey.of("squid", "AvoidCycle"), "foo");
     IssueDto referenceIssue = newReferenceIssue("Indentationd", 7, 1, null);
 
-    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
       newArrayList(newIssue),
       newArrayList(referenceIssue),
       source, project);
@@ -287,7 +286,7 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("1 branch need to be covered", null, RuleKey.of("squid", "AvoidCycle"), null);
     IssueDto referenceIssue = newReferenceIssue("2 branches need to be covered", null, 1, null);
 
-    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
       newArrayList(newIssue),
       newArrayList(referenceIssue),
       source, project);
@@ -312,7 +311,7 @@ public class IssueTrackingTest {
     DefaultIssue newIssue3 = newDefaultIssue("Indentation", 17, RuleKey.of("squid", "AvoidCycle"), null);
     DefaultIssue newIssue4 = newDefaultIssue("Indentation", 21, RuleKey.of("squid", "AvoidCycle"), null);
 
-    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
       Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4),
       Arrays.asList(referenceIssue1, referenceIssue2),
       source, project);
@@ -339,7 +338,7 @@ public class IssueTrackingTest {
     DefaultIssue newIssue2 = newDefaultIssue("SystemPrintln", 10, RuleKey.of("squid", "AvoidCycle"), null);
     DefaultIssue newIssue3 = newDefaultIssue("SystemPrintln", 14, RuleKey.of("squid", "AvoidCycle"), null);
 
-    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
       Arrays.asList(newIssue1, newIssue2, newIssue3),
       Arrays.asList(referenceIssue1),
       source, project);
@@ -370,7 +369,7 @@ public class IssueTrackingTest {
     // Same as referenceIssue1
     DefaultIssue newIssue5 = newDefaultIssue("Avoid unused local variables such as 'j'.", 6, RuleKey.of("squid", "AvoidCycle"), "4432a2675ec3e1620daefe38386b51ef");
 
-    Map<DefaultIssue, IssueDto> mapping = decorator.mapIssues(
+    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
       Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4, newIssue5),
       Arrays.asList(referenceIssue1, referenceIssue2, referenceIssue3),
       source, project);
@@ -390,7 +389,7 @@ public class IssueTrackingTest {
   }
 
   private DefaultIssue newDefaultIssue(String message, Integer line, RuleKey ruleKey, String checksum) {
-    return new DefaultIssue().setDescription(message).setLine(line).setRuleKey(ruleKey).setChecksum(checksum);
+    return new DefaultIssue().setDescription(message).setLine(line).setRuleKey(ruleKey).setChecksum(checksum).setResolution(Issue.RESOLUTION_OPEN).setStatus(Issue.STATUS_OPEN);
   }
 
   private IssueDto newReferenceIssue(String message, Integer lineId, int ruleId, String lineChecksum) {
@@ -402,6 +401,8 @@ public class IssueTrackingTest {
     referenceIssue.setDescription(message);
     referenceIssue.setRuleId(ruleId);
     referenceIssue.setChecksum(lineChecksum);
+    referenceIssue.setResolution(Issue.RESOLUTION_OPEN);
+    referenceIssue.setStatus(Issue.STATUS_OPEN);
     return referenceIssue;
   }
 

@@ -62,7 +62,7 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
     snapshot.setResourceId(200);
     snapshots.put("org/struts/Action.java", snapshot);
 
-    Issue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("org/struts/Action.java")
       .setRuleKey(RuleKey.of("squid", "NullDef"))
@@ -90,7 +90,7 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
     snapshot.setResourceId(200);
     snapshots.put("org/struts/Action.java", snapshot);
 
-    Issue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("org/struts/Action.java")
       .setRuleKey(RuleKey.of("squid", "NullDef"))
@@ -118,7 +118,7 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
     snapshot.setResourceId(200);
     snapshots.put("org/struts/Action.java", snapshot);
 
-    Issue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("org/struts/Action.java")
       .setRuleKey(RuleKey.of("squid", "NullDef"))

@@ -17,36 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.plugins.core.issue;
 
 import org.junit.Test;
-import org.sonar.api.resources.Project;
-import org.sonar.core.issue.IssueDao;
-import org.sonar.core.issue.IssueDto;
+import org.mockito.ArgumentMatcher;
+import org.sonar.api.issue.IssueHandler;
+import org.sonar.core.issue.DefaultIssue;
 
-import java.util.Date;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+public class IssueHandlersTest {
+  @Test
+  public void should_execute_handlers() throws Exception {
+    IssueHandler h1 = mock(IssueHandler.class);
+    IssueHandler h2 = mock(IssueHandler.class);
 
-public class InitialOpenIssuesSensorTest {
+    IssueHandlers handlers = new IssueHandlers(new IssueHandler[]{h1, h2});
+    final DefaultIssue issue = new DefaultIssue();
+    handlers.execute(issue);
 
-  InitialOpenIssuesStack stack = mock(InitialOpenIssuesStack.class);
-  IssueDao issueDao = mock(IssueDao.class);
-  InitialOpenIssuesSensor sensor = new InitialOpenIssuesSensor(stack, issueDao);
-
+    verify(h1).onIssue(argThat(new ArgumentMatcher<IssueHandler.IssueContext>() {
+      @Override
+      public boolean matches(Object o) {
+        return ((IssueHandler.IssueContext) o).issue() == issue;
+      }
+    }));
+  }
 
   @Test
-  public void should_select_module_open_issues() {
-    Project project = new Project("key");
-    project.setId(1);
-    sensor.analyse(project, null);
-
-    verify(issueDao).selectOpenIssues(1);
-    verify(stack).setIssues(anyListOf(IssueDto.class), any(Date.class));
+  public void test_no_handlers() {
+    IssueHandlers handlers = new IssueHandlers();
+    handlers.execute(new DefaultIssue());
+    // do not fail
   }
 }

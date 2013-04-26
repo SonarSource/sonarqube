@@ -22,15 +22,10 @@ package org.sonar.api.issue;
 import org.sonar.api.BatchExtension;
 
 /**
- * Observe issues considered as new during project scan. Note that it does not observe manual
- * issues created by end-users
+ * @since 3.6
  */
-public interface NewIssueHandler extends BatchExtension {
+public interface IssueFilter extends BatchExtension {
 
-  interface NewIssueEvent {
-    Issue issue();
-  }
-
-  void onNewIssue(NewIssueEvent event);
+  boolean accept(Issue issue);
 
 }

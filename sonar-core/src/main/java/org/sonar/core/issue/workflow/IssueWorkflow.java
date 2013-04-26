@@ -24,12 +24,9 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueChange;
 import org.sonar.core.issue.DefaultIssue;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class IssueWorkflow implements BatchComponent, ServerComponent, Startable {
 
@@ -41,16 +38,15 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
       .states(Issue.STATUS_OPEN, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED)
       .transition(Transition.builder(DefaultTransitions.CLOSE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_CLOSED)
-        .functions(new SetResolution(Issue.RESOLUTION_FIXED))
-          // TODO set closed at
+        .functions(new SetResolution(Issue.RESOLUTION_FIXED), SetClosedAt.CLOSED_AT)
         .build())
       .transition(Transition.builder(DefaultTransitions.CLOSE)
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_CLOSED)
-          // TODO set closed at
+        .functions(SetClosedAt.CLOSED_AT)
         .build())
       .transition(Transition.builder(DefaultTransitions.CLOSE)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_CLOSED)
-          // TODO set closed at
+        .functions(SetClosedAt.CLOSED_AT)
         .functions(new SetResolution(Issue.RESOLUTION_FIXED))
         .build())
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
@@ -67,17 +63,47 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .build())
       .transition(Transition.builder(DefaultTransitions.REOPEN)
         .from(Issue.STATUS_CLOSED).to(Issue.STATUS_REOPENED)
-        .functions(new SetResolution(Issue.RESOLUTION_OPEN))
+        .functions(new SetResolution(Issue.RESOLUTION_OPEN))// TODO new UnsetClosedAt
         .build())
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
-        .conditions(new IsNotManualIssue())
+        .conditions(new IsManual(false))
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE))
         .build())
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
-        .conditions(new IsNotManualIssue())
+        .conditions(new IsManual(false))
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE))
+        .build())
+
+        // automatic transitions
+
+        // Close the issues that do not exist anymore. Note that isAlive() is true on manual issues
+      .transition(Transition.builder("automaticclose")
+        .from(Issue.STATUS_OPEN).to(Issue.STATUS_CLOSED)
+        .conditions(new IsAlive(false), new IsManual(false))
+        .functions(new SetResolution(Issue.RESOLUTION_FIXED), SetClosedAt.CLOSED_AT)
+        .automatic()
+        .build())
+      .transition(Transition.builder("automaticclose")
+        .from(Issue.STATUS_REOPENED).to(Issue.STATUS_CLOSED)
+        .conditions(new IsAlive(false))
+        .functions(new SetResolution(Issue.RESOLUTION_FIXED), SetClosedAt.CLOSED_AT)
+        .automatic()
+        .build())
+        // Close the issues marked as resolved and that do not exist anymore.
+        // Note that false-positives are kept resolved and are not closed.
+      .transition(Transition.builder("automaticclose")
+        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_CLOSED)
+        .conditions(new IsAlive(false))
+        .functions(SetClosedAt.CLOSED_AT)
+        .automatic()
+        .build())
+      .transition(Transition.builder("automaticreopen")
+        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
+        .conditions(new IsAlive(true), new HasResolution(Issue.RESOLUTION_FIXED))
+        .functions(new SetResolution(Issue.RESOLUTION_OPEN))
+        .automatic()
         .build())
       .build();
   }
@@ -86,46 +112,17 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
   public void stop() {
   }
 
-  public List<Transition> availableTransitions(Issue issue) {
-    return machine.state(issue.status()).outTransitions(issue);
+  public List<Transition> outManualTransitions(Issue issue) {
+    return machine.state(issue.status()).outManualTransitions(issue);
   }
 
-  public boolean change(DefaultIssue issue, IssueChange change) {
-    if (change.hasChanges()) {
-      if (change.description() != null) {
-        issue.setDescription(change.description());
-      }
-      if (change.manualSeverity() != null) {
-        change.setManualSeverity(change.manualSeverity());
-      }
-      if (change.severity() != null) {
-        issue.setSeverity(change.severity());
-      }
-      if (change.isAssigneeChanged()) {
-        issue.setAssignee(change.assignee());
-      }
-      if (change.isLineChanged()) {
-        issue.setLine(change.line());
-      }
-      if (change.isCostChanged()) {
-        issue.setCost(change.cost());
-      }
-      for (Map.Entry<String, String> entry : change.attributes().entrySet()) {
-        issue.setAttribute(entry.getKey(), entry.getValue());
-      }
-      if (change.transition() != null) {
-        move(issue, change.transition());
-      }
-      issue.setUpdatedAt(new Date());
-      return true;
+  public void doAutomaticTransition(DefaultIssue issue) {
+    Transition transition = machine.state(issue.status()).outAutomaticTransition(issue);
+    if (transition != null) {
+      transition.execute(issue);
     }
-    return false;
   }
 
-  private void move(DefaultIssue issue, String transition) {
-    State state = machine.state(issue.status());
-    state.move(issue, transition);
-  }
 
   StateMachine machine() {
     return machine;

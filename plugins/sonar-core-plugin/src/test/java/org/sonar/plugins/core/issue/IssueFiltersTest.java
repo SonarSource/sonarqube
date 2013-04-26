@@ -17,36 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.plugins.core.issue;
 
 import org.junit.Test;
-import org.sonar.api.resources.Project;
-import org.sonar.core.issue.IssueDao;
-import org.sonar.core.issue.IssueDto;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueFilter;
+import org.sonar.core.issue.DefaultIssue;
 
-import java.util.Date;
-
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+public class IssueFiltersTest {
+  @Test
+  public void test_accept() throws Exception {
+    IssueFilter ok = mock(IssueFilter.class);
+    when(ok.accept(any(Issue.class))).thenReturn(true);
 
-public class InitialOpenIssuesSensorTest {
+    IssueFilter ko = mock(IssueFilter.class);
+    when(ko.accept(any(Issue.class))).thenReturn(false);
 
-  InitialOpenIssuesStack stack = mock(InitialOpenIssuesStack.class);
-  IssueDao issueDao = mock(IssueDao.class);
-  InitialOpenIssuesSensor sensor = new InitialOpenIssuesSensor(stack, issueDao);
+    IssueFilters filters = new IssueFilters(new IssueFilter[]{ok, ko});
+    assertThat(filters.accept(new DefaultIssue())).isFalse();
 
+    filters = new IssueFilters(new IssueFilter[]{ok});
+    assertThat(filters.accept(new DefaultIssue())).isTrue();
+
+    filters = new IssueFilters(new IssueFilter[]{ko});
+    assertThat(filters.accept(new DefaultIssue())).isFalse();
+  }
 
   @Test
-  public void should_select_module_open_issues() {
-    Project project = new Project("key");
-    project.setId(1);
-    sensor.analyse(project, null);
-
-    verify(issueDao).selectOpenIssues(1);
-    verify(stack).setIssues(anyListOf(IssueDto.class), any(Date.class));
+  public void should_always_accept_if_no_filters() {
+    IssueFilters filters = new IssueFilters();
+    assertThat(filters.accept(new DefaultIssue())).isTrue();
   }
 }

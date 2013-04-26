@@ -17,14 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.plugins.core.issue;
 
-import org.sonar.api.issue.Issue;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.issue.IssueHandler;
+import org.sonar.core.issue.DefaultIssue;
 
-class IsNotManualIssue implements Condition {
+public class IssueHandlers implements BatchExtension {
+  private final IssueHandler[] handlers;
 
-  @Override
-  public boolean matches(Issue issue) {
-    return !issue.manual();
+  public IssueHandlers(IssueHandler[] handlers) {
+    this.handlers = handlers;
   }
+
+  public IssueHandlers() {
+    this(new IssueHandler[0]);
+  }
+
+  public void execute(DefaultIssue issue) {
+    DefaultIssueHandlerContext context = new DefaultIssueHandlerContext(issue);
+    for (IssueHandler handler : handlers) {
+      handler.onIssue(context);
+    }
+  }
+
 }

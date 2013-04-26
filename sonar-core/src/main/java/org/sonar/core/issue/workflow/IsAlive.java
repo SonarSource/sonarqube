@@ -17,47 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.issue;
+package org.sonar.core.issue.workflow;
 
-import org.sonar.api.component.Component;
-import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueBuilder;
 
-import java.util.Collection;
+class IsAlive implements Condition {
 
-/**
- * @since 3.6
- */
-public class DefaultIssuable implements Issuable {
+  private final boolean alive;
 
-  private final ScanIssues scanIssues;
-  private final Component component;
-
-  DefaultIssuable(Component component, ScanIssues scanIssues) {
-    this.component = component;
-    this.scanIssues = scanIssues;
+  IsAlive(boolean alive) {
+    this.alive = alive;
   }
 
   @Override
-  public IssueBuilder newIssueBuilder() {
-    return new DefaultIssueBuilder(component.key());
-  }
-
-  @Override
-  public boolean addIssue(Issue issue) {
-    return scanIssues.initAndAddIssue(((DefaultIssue)issue));
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Collection<Issue> issues() {
-    return (Collection)scanIssues.issues(component.key());
-  }
-
-  @Override
-  public Component component() {
-    return component;
+  public boolean matches(Issue issue) {
+    return ((DefaultIssue) issue).isAlive() == alive;
   }
 }

@@ -95,6 +95,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
+  // TODO rename selectOpenIssuesByProject. Is it by module or project ??
   public List<IssueDto> selectOpenIssues(Integer componentId) {
     SqlSession session = mybatis.openSession();
     try {

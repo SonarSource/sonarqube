@@ -20,6 +20,7 @@
 package org.sonar.core.issue;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -31,7 +32,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -40,8 +40,6 @@ import java.util.Set;
 
 public class DefaultIssue implements Issue, Serializable {
 
-  private static final Set<String> RESOLUTIONS = ImmutableSet.of(RESOLUTION_OPEN, RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED);
-  private static final Set<String> STATUSES = ImmutableSet.of(STATUS_OPEN, STATUS_CLOSED, STATUS_REOPENED, STATUS_RESOLVED);
   private String key;
   private String componentKey;
   private RuleKey ruleKey;
@@ -60,7 +58,9 @@ public class DefaultIssue implements Issue, Serializable {
   private boolean manual = false;
   private String checksum;
   private boolean isNew = true;
+  private boolean isAlive = true;
   private Map<String, String> attributes = null;
+
   private String authorLogin;
 
   public String key() {
@@ -142,8 +142,8 @@ public class DefaultIssue implements Issue, Serializable {
     return status;
   }
 
-  public DefaultIssue setStatus(@Nullable String s) {
-    Preconditions.checkArgument(s == null || STATUSES.contains(s), "Not a valid status: " + s);
+  public DefaultIssue setStatus(String s) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(s), "Status must be set");
     this.status = s;
     return this;
   }
@@ -152,8 +152,8 @@ public class DefaultIssue implements Issue, Serializable {
     return resolution;
   }
 
-  public DefaultIssue setResolution(@Nullable String s) {
-    Preconditions.checkArgument(s == null || RESOLUTIONS.contains(s), "Not a valid resolution: " + s);
+  public DefaultIssue setResolution(String s) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(s), "Resolution must be set");
     this.resolution = s;
     return this;
   }
@@ -227,6 +227,15 @@ public class DefaultIssue implements Issue, Serializable {
 
   public DefaultIssue setNew(boolean b) {
     isNew = b;
+    return this;
+  }
+
+  public boolean isAlive() {
+    return isAlive;
+  }
+
+  public DefaultIssue setAlive(boolean b) {
+    isAlive = b;
     return this;
   }
 

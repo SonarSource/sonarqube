@@ -40,7 +40,7 @@ class CreateIssues < ActiveRecord::Migration
       t.column :user_login,           :string,    :null => true,	  :limit => 40
       t.column :assignee_login,       :string,    :null => true,	  :limit => 40
       t.column :author_login,         :string,    :null => true,    :limit => 100
-      t.column :attributes,           :string,    :null => true,    :limit => 1000
+      t.column :attributes,           :string,    :null => true,    :limit => 4000
       t.column :created_at,           :datetime,  :null => true
       t.column :updated_at,           :datetime,  :null => true
       t.column :closed_at,            :datetime,  :null => true

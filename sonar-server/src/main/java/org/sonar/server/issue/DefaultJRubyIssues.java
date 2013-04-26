@@ -24,7 +24,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
-import org.sonar.api.issue.IssueChange;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.JRubyIssues;
@@ -34,7 +33,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.server.ui.JRubyFacades;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -48,9 +46,9 @@ import java.util.Map;
 public class DefaultJRubyIssues implements JRubyIssues {
 
   private final IssueFinder finder;
-  private final ServerIssueChanges changes;
+  private final ServerIssueActions changes;
 
-  public DefaultJRubyIssues(IssueFinder f, ServerIssueChanges changes) {
+  public DefaultJRubyIssues(IssueFinder f, ServerIssueActions changes) {
     this.finder = f;
     this.changes = changes;
     JRubyFacades.setIssues(this);
@@ -63,11 +61,6 @@ public class DefaultJRubyIssues implements JRubyIssues {
   public IssueFinder.Results find(Map<String, Object> params, @Nullable Integer currentUserId) {
     // TODO move the role to IssueFinder
     return finder.find(toQuery(params), currentUserId, UserRole.CODEVIEWER);
-  }
-
-  public void change(Map<String, Object> params, @Nullable Integer currentUserId) {
-    String issueKey = (String) params.get("key");
-    changes.change(issueKey, toChange(params), currentUserId);
   }
 
   IssueQuery toQuery(Map<String, Object> props) {
@@ -86,37 +79,6 @@ public class DefaultJRubyIssues implements JRubyIssues {
     builder.pageSize(toInteger(props.get("pageSize")));
     builder.pageIndex(toInteger(props.get("pageIndex")));
     return builder.build();
-  }
-
-  IssueChange toChange(Map<String, Object> props) {
-    IssueChange change = IssueChange.create();
-    if (props.containsKey("newSeverity")) {
-      change.setSeverity((String) props.get("newSeverity"));
-      change.setManualSeverity(true);
-    }
-    if (props.containsKey("newDesc")) {
-      change.setDescription((String) props.get("newDesc"));
-    }
-    if (props.containsKey("newCost")) {
-      change.setCost(toDouble(props.get("newCost")));
-    }
-    if (props.containsKey("newLine")) {
-      change.setLine(toInteger(props.get("newLine")));
-    }
-    if (props.containsKey("newAssignee")) {
-      change.setAssignee((String) props.get("newAssignee"));
-    }
-    if (props.containsKey("transition")) {
-      change.setTransition((String) props.get("transition"));
-    }
-    if (props.containsKey("newTitle")) {
-      change.setTitle((String) props.get("newTitle"));
-    }
-    if (props.containsKey("comment")) {
-      change.setComment((String) props.get("comment"));
-    }
-    // TODO set attribute and login
-    return change;
   }
 
   @SuppressWarnings("unchecked")

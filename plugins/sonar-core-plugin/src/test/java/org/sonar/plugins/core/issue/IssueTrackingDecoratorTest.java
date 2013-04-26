@@ -19,147 +19,141 @@
  */
 package org.sonar.plugins.core.issue;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.sonar.api.issue.Issue;
+import org.mockito.ArgumentMatcher;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueDto;
+import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.java.api.JavaClass;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
   IssueTrackingDecorator decorator;
   ScanIssues scanIssues = mock(ScanIssues.class);
-  InitialOpenIssuesStack initialOpenIssuesStack = mock(InitialOpenIssuesStack.class);
+  InitialOpenIssuesStack initialOpenIssues = mock(InitialOpenIssuesStack.class);
   IssueTracking tracking = mock(IssueTracking.class);
+  IssueFilters filters = mock(IssueFilters.class);
+  IssueHandlers handlers = mock(IssueHandlers.class);
+  IssueWorkflow workflow = mock(IssueWorkflow.class);
   Date loadedDate = new Date();
 
   @Before
   public void init() {
-    when(initialOpenIssuesStack.getLoadedDate()).thenReturn(loadedDate);
-    decorator = new IssueTrackingDecorator(scanIssues, initialOpenIssuesStack, tracking);
+    when(initialOpenIssues.getLoadedDate()).thenReturn(loadedDate);
+    decorator = new IssueTrackingDecorator(scanIssues, initialOpenIssues, tracking, filters, handlers, workflow);
   }
 
   @Test
   public void should_execute_on_project() {
     Project project = mock(Project.class);
     when(project.isLatestAnalysis()).thenReturn(true);
-    assertTrue(decorator.shouldExecuteOnProject(project));
+    assertThat(decorator.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
-  public void should_execute_on_project_not_if_past_scan() {
+  public void should_not_execute_on_project_if_past_scan() {
     Project project = mock(Project.class);
     when(project.isLatestAnalysis()).thenReturn(false);
-    assertFalse(decorator.shouldExecuteOnProject(project));
+    assertThat(decorator.shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
-  public void should_close_resolved_issue() {
-    when(scanIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
-    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
-        new IssueDto().setKey("100").setRuleId(10).setRuleKey_unit_test_only("squid", "AvoidCycle")));
-
-    decorator.decorate(mock(Resource.class), null);
-
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(scanIssues).addOrUpdate(argument.capture());
-    assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(argument.getValue().updatedAt()).isEqualTo(loadedDate);
-    assertThat(argument.getValue().closedAt()).isEqualTo(loadedDate);
+  public void should_not_be_executed_on_classes_not_methods() throws Exception {
+    DecoratorContext context = mock(DecoratorContext.class);
+    decorator.decorate(JavaClass.create("org.foo.Bar"), context);
+    verifyZeroInteractions(context, scanIssues, tracking, filters, handlers, workflow);
   }
 
   @Test
-  public void should_close_resolved_manual_issue() {
-    when(scanIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
-    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
-        new IssueDto().setKey("100").setRuleId(1).setManualIssue(true).setStatus(Issue.STATUS_RESOLVED).setRuleKey_unit_test_only("squid", "AvoidCycle")));
+  public void should_process_open_issues() throws Exception {
+    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+    final DefaultIssue issue = new DefaultIssue();
 
-    decorator.decorate(mock(Resource.class), null);
+    // INPUT : one issue, no open issues during previous scan, no filtering
+    when(scanIssues.issues("struts:Action.java")).thenReturn(Arrays.asList(issue));
+    when(filters.accept(issue)).thenReturn(true);
+    List<IssueDto> dbIssues = Collections.emptyList();
+    when(initialOpenIssues.selectAndRemove(123)).thenReturn(dbIssues);
 
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(scanIssues).addOrUpdate(argument.capture());
-    assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(argument.getValue().updatedAt()).isEqualTo(loadedDate);
-    assertThat(argument.getValue().closedAt()).isEqualTo(loadedDate);
+    decorator.decorate(file, mock(DecoratorContext.class));
+
+    // Apply filters, track, apply transitions, notify extensions then update cache
+    verify(filters).accept(issue);
+    verify(tracking).track(eq(file), eq(dbIssues), argThat(new ArgumentMatcher<Collection<DefaultIssue>>() {
+      @Override
+      public boolean matches(Object o) {
+        List<DefaultIssue> issues = (List<DefaultIssue>) o;
+        return issues.size() == 1 && issues.get(0) == issue;
+      }
+    }));
+    verify(workflow).doAutomaticTransition(issue);
+    verify(handlers).execute(issue);
+    verify(scanIssues).addOrUpdate(issue);
   }
 
   @Test
-  public void should_reopen_unresolved_issue() {
-    when(scanIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
-      new DefaultIssue().setKey("100")));
-    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
-        new IssueDto().setKey("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FIXED)
-          .setRuleKey_unit_test_only("squid", "AvoidCycle")));
+  public void should_register_unmatched_issues() throws Exception {
+    // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
+    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+    DefaultIssue openIssue = new DefaultIssue();
 
-    decorator.decorate(mock(Resource.class), null);
+    // INPUT : one issue, one open issue during previous scan, no filtering
+    when(scanIssues.issues("struts:Action.java")).thenReturn(Arrays.asList(openIssue));
+    when(filters.accept(openIssue)).thenReturn(true);
+    IssueDto unmatchedIssue = new IssueDto().setKey("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
+    List<IssueDto> unmatchedIssues = Arrays.asList(unmatchedIssue);
+    when(tracking.track(eq(file), anyCollection(), anyCollection())).thenReturn(Sets.newHashSet(unmatchedIssues));
 
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(scanIssues, times(2)).addOrUpdate(argument.capture());
+    decorator.decorate(file, mock(DecoratorContext.class));
 
-    List<DefaultIssue> capturedDefaultIssues = argument.getAllValues();
-    // First call is done when updating issues after calling issue tracking and we don't care
-    DefaultIssue defaultIssue = capturedDefaultIssues.get(1);
-    assertThat(defaultIssue.status()).isEqualTo(Issue.STATUS_REOPENED);
-    assertThat(defaultIssue.resolution()).isEqualTo(Issue.RESOLUTION_OPEN);
-    assertThat(defaultIssue.updatedAt()).isEqualTo(loadedDate);
+    verify(workflow, times(2)).doAutomaticTransition(any(DefaultIssue.class));
+    verify(handlers, times(2)).execute(any(DefaultIssue.class));
+    verify(scanIssues, times(2)).addOrUpdate(any(DefaultIssue.class));
+
+    verify(scanIssues).addOrUpdate(argThat(new ArgumentMatcher<DefaultIssue>() {
+      @Override
+      public boolean matches(Object o) {
+        DefaultIssue issue = (DefaultIssue) o;
+        return "ABCDE".equals(issue.key());
+      }
+    }));
   }
 
   @Test
-  public void should_keep_false_positive_issue() {
-    when(scanIssues.issues(anyString())).thenReturn(Lists.<Issue>newArrayList(
-      new DefaultIssue().setKey("100")));
-    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(newArrayList(
-      new IssueDto().setKey("100").setRuleId(1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
-        .setRuleKey_unit_test_only("squid", "AvoidCycle")));
+  public void should_register_issues_on_deleted_components() throws Exception {
+    Project project = new Project("struts");
+    DefaultIssue openIssue = new DefaultIssue();
+    when(scanIssues.issues("struts")).thenReturn(Arrays.asList(openIssue));
+    when(filters.accept(openIssue)).thenReturn(true);
+    IssueDto deadIssue = new IssueDto().setKey("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
+    when(initialOpenIssues.getAllIssues()).thenReturn(Arrays.asList(deadIssue));
 
-    decorator.decorate(mock(Resource.class), null);
+    decorator.decorate(project, mock(DecoratorContext.class));
 
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(scanIssues, times(2)).addOrUpdate(argument.capture());
+    // the dead issue must be closed -> apply automatic transition, notify handlers and add to cache
+    verify(workflow, times(2)).doAutomaticTransition(any(DefaultIssue.class));
+    verify(handlers, times(2)).execute(any(DefaultIssue.class));
+    verify(scanIssues, times(2)).addOrUpdate(any(DefaultIssue.class));
 
-    List<DefaultIssue> capturedDefaultIssues = argument.getAllValues();
-    // First call is done when updating issues after calling issue tracking and we don't care
-    DefaultIssue defaultIssue = capturedDefaultIssues.get(1);
-    assertThat(defaultIssue.status()).isEqualTo(Issue.STATUS_RESOLVED);
-    assertThat(defaultIssue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(defaultIssue.updatedAt()).isEqualTo(loadedDate);
+    verify(scanIssues).addOrUpdate(argThat(new ArgumentMatcher<DefaultIssue>() {
+      @Override
+      public boolean matches(Object o) {
+        DefaultIssue dead = (DefaultIssue) o;
+        return "ABCDE".equals(dead.key()) && !dead.isNew() && !dead.isAlive();
+      }
+    }));
   }
-
-  @Test
-  public void should_close_remaining_open_issue_on_root_project() {
-    when(scanIssues.issues(anyString())).thenReturn(Collections.<Issue>emptyList());
-    when(initialOpenIssuesStack.selectAndRemove(anyInt())).thenReturn(Collections.<IssueDto>emptyList());
-
-    when(initialOpenIssuesStack.getAllIssues()).thenReturn(newArrayList(new IssueDto().setKey("100").setRuleId(1).setRuleKey_unit_test_only("squid", "AvoidCycle")));
-
-    Resource resource = mock(Resource.class);
-    when(resource.getQualifier()).thenReturn(Qualifiers.PROJECT);
-    decorator.decorate(resource, null);
-
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(scanIssues).addOrUpdate(argument.capture());
-    assertThat(argument.getValue().status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(argument.getValue().updatedAt()).isEqualTo(loadedDate);
-    assertThat(argument.getValue().closedAt()).isEqualTo(loadedDate);
-  }
-
 }

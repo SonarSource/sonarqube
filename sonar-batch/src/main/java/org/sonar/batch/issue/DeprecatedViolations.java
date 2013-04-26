@@ -38,9 +38,9 @@ public class DeprecatedViolations implements BatchComponent {
   }
 
   public void add(Violation violation) {
-    Issue issue = toIssue(violation);
+    DefaultIssue issue = toIssue(violation);
     if (issue != null) {
-      cache.addOrUpdate(issue);
+      cache.put(issue);
     }
   }
 
@@ -48,7 +48,7 @@ public class DeprecatedViolations implements BatchComponent {
     throw new UnsupportedOperationException("TODO");
   }
 
-  Issue toIssue(Violation violation) {
+  DefaultIssue toIssue(Violation violation) {
     DefaultIssue issue = new DefaultIssue()
       .setComponentKey(violation.getResource().getEffectiveKey())
       .setKey(UUID.randomUUID().toString())

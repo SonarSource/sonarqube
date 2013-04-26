@@ -23,6 +23,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
+import org.sonar.core.issue.DefaultIssue;
 
 import java.util.Collection;
 
@@ -32,13 +33,13 @@ import java.util.Collection;
 public class IssueCache implements BatchComponent {
 
   // component key -> issue key -> issue
-  private final Cache<String, Issue> cache;
+  private final Cache<String, DefaultIssue> cache;
 
   public IssueCache(Caches caches) {
     cache = caches.createCache("issues");
   }
 
-  public Collection<Issue> componentIssues(String componentKey) {
+  public Collection<DefaultIssue> componentIssues(String componentKey) {
     return cache.values(componentKey);
   }
 
@@ -46,8 +47,12 @@ public class IssueCache implements BatchComponent {
     return cache.get(componentKey, issueKey);
   }
 
-  public IssueCache addOrUpdate(Issue issue) {
+  public IssueCache put(DefaultIssue issue) {
     cache.put(issue.componentKey(), issue.key(), issue);
     return this;
+  }
+
+  public boolean remove(Issue issue) {
+    return cache.remove(issue.componentKey(), issue.key());
   }
 }
