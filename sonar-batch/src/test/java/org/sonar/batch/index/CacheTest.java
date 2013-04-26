@@ -73,13 +73,13 @@ public class CacheTest {
     String group = "org/apache/struts/Action.java";
     cache.put(group, "ncloc", 123f);
     cache.put(group, "lines", 200f);
+    cache.put("otherGroup", "lines", 400f);
     assertThat(cache.get(group, "lines")).isNotNull();
-
-    cache.clear("other group");
-    assertThat(cache.get(group, "lines")).isNotNull();
+    assertThat(cache.get("otherGroup", "lines")).isNotNull();
 
     cache.clear(group);
     assertThat(cache.get(group, "lines")).isNull();
+    assertThat(cache.get("otherGroup", "lines")).isNotNull();
   }
 
   @Test

@@ -126,7 +126,7 @@ public class Cache<K, V extends Serializable> {
       exchange.clear();
       exchange.append(group);
       Key key = new Key(exchange.getKey());
-      key.to(Key.AFTER);
+      key.append(Key.AFTER);
       exchange.removeKeyRange(exchange.getKey(), key);
       return this;
     } catch (Exception e) {
