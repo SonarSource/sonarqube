@@ -28,7 +28,7 @@ class CreateSnapshotData < ActiveRecord::Migration
     create_table :snapshot_data do |t|
       t.column :snapshot_id,    :integer,     :null => true
       t.column :resource_id,    :integer,     :null => true
-      t.column :value,          :text,        :null => true
+      t.column :snapshot_data,  :text,        :null => true
       t.column :data_type,      :string,      :null => true,    :limit => 50
       t.timestamps
     end

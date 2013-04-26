@@ -7,10 +7,10 @@
     <snapshots id="13" project_id="3" islast="[true]" />
     <snapshots id="14" project_id="3" islast="[true]" />
 
-    <snapshot_data id="101" resource_id="1" snapshot_id="11" value="0,16,cppd;18,25,k;25,31,k;" data_type="highlight_syntax" />
-    <snapshot_data id="102" resource_id="2" snapshot_id="12" value="31,41,31;" data_type="symbol" />
-    <snapshot_data id="103" resource_id="3" snapshot_id="13" value="0,16,cppd;18,25,k;25,31,k;46,52,k;53,57,k;72,78,k;79,83,k;" data_type="highlight_syntax" />
-    <snapshot_data id="104" resource_id="3" snapshot_id="13" value="31,41,31;58,61,58,96;84,87,84;" data_type="symbol" />
+    <snapshot_data id="101" resource_id="1" snapshot_id="11" snapshot_data="0,16,cppd;18,25,k;25,31,k;" data_type="highlight_syntax" />
+    <snapshot_data id="102" resource_id="2" snapshot_id="12" snapshot_data="31,41,31;" data_type="symbol" />
+    <snapshot_data id="103" resource_id="3" snapshot_id="13" snapshot_data="0,16,cppd;18,25,k;25,31,k;46,52,k;53,57,k;72,78,k;79,83,k;" data_type="highlight_syntax" />
+    <snapshot_data id="104" resource_id="3" snapshot_id="13" snapshot_data="31,41,31;58,61,58,96;84,87,84;" data_type="symbol" />
 
     <snapshot_sources id="101" snapshot_id="11" data="/*&#10; * Header&#10; */&#10;&#10;public class HelloWorld {&#10;}" />
     <snapshot_sources id="102" snapshot_id="12" data="/*&#10; * Header&#10; */&#10;&#10;public class HelloWorld {&#10;}" />

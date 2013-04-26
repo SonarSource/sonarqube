@@ -5,7 +5,7 @@
     <snapshots id="10" project_id="1" islast="[false]" />
     <snapshots id="11" project_id="1" islast="[true]" />
 
-    <snapshot_data id="101" resource_id="1" snapshot_id="10" value="0,10,k;" data_type="highlight_syntax" />
-    <snapshot_data id="102" resource_id="1" snapshot_id="10" value="20,25,20,35,45;" data_type="symbol" />
+    <snapshot_data id="101" resource_id="1" snapshot_id="10" snapshot_data="0,10,k;" data_type="highlight_syntax" />
+    <snapshot_data id="102" resource_id="1" snapshot_id="10" snapshot_data="20,25,20,35,45;" data_type="symbol" />
 
 </dataset>

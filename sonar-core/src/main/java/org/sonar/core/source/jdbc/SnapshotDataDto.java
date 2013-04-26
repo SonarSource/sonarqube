@@ -28,7 +28,7 @@ public class SnapshotDataDto {
   private long id;
   private long snapshotId;
   private long resourceId;
-  private String value;
+  private String data;
   private String dataType;
 
   public long getSnapshotId() {
@@ -39,8 +39,8 @@ public class SnapshotDataDto {
     return resourceId;
   }
 
-  public String getValue() {
-    return value;
+  public String getData() {
+    return data;
   }
 
   public String getDataType() {
@@ -63,8 +63,8 @@ public class SnapshotDataDto {
     this.resourceId = resourceId;
   }
 
-  public void setValue(String value) {
-    this.value = value;
+  public void setData(String data) {
+    this.data = data;
   }
 
   public void setDataType(String dataType) {

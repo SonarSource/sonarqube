@@ -6,7 +6,7 @@
   <select id="selectSnapshotData" parameterType="map" resultType="SnapshotData">
     SELECT
       snapshot_id AS "snapshotId",
-      value,
+      snapshot_data AS "data",
       data_type AS "dataType"
     FROM snapshot_data
     WHERE snapshot_id = #{sid}
@@ -15,9 +15,9 @@
 
   <insert id="insert" parameterType="SnapshotData" useGeneratedKeys="false">
     insert into snapshot_data
-    (resource_id, snapshot_id, value, data_type, created_at, updated_at)
+    (resource_id, snapshot_id, snapshot_data, data_type, created_at, updated_at)
     values (
-    #{resourceId}, #{snapshotId}, #{value}, #{dataType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    #{resourceId}, #{snapshotId}, #{data}, #{dataType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
   </insert>
 
     <!-- Oracle -->
@@ -26,9 +26,9 @@
             select snapshot_data_seq.NEXTVAL from DUAL
         </selectKey>
         insert into snapshot_data
-        (id, resource_id, snapshot_id, value, data_type, created_at, updated_at)
+        (id, resource_id, snapshot_id, snapshot_data, data_type, created_at, updated_at)
         values (
-        #{id}, #{resourceId}, #{snapshotId}, #{value}, #{dataType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        #{id}, #{resourceId}, #{snapshotId}, #{data}, #{dataType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     </insert>
 </mapper>
 

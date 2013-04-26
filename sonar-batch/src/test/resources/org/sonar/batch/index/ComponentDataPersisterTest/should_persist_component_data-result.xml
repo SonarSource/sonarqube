@@ -1,5 +1,5 @@
 <dataset>
   <snapshots id="100" project_id="200" islast="[true]"/>
-  <snapshot_data id="1" snapshot_id="100" resource_id="200" value="content of symbol" data_type="SYMBOL" created_at="[null]" updated_at="[null]"/>
-  <snapshot_data id="2" snapshot_id="100" resource_id="200" value="content of syntax" data_type="SYNTAX" created_at="[null]" updated_at="[null]" />
+  <snapshot_data id="1" snapshot_id="100" resource_id="200" snapshot_data="content of symbol" data_type="SYMBOL" created_at="[null]" updated_at="[null]"/>
+  <snapshot_data id="2" snapshot_id="100" resource_id="200" snapshot_data="content of syntax" data_type="SYNTAX" created_at="[null]" updated_at="[null]" />
 </dataset>

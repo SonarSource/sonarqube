@@ -98,6 +98,6 @@ Note that measures, events and reviews are not deleted.
            rule_failure_permanent_id="1" resolution="[null]" created_at="[null]" updated_at="[null]" resource_line="200" severity="BLOCKER"
            user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]" data="[null]"/>
 
-  <snapshot_data id="2" resource_id="5" snapshot_id="5" value="0,10,k" data_type="highlight_syntax" created_at="[null]" updated_at="[null]" />
+  <snapshot_data id="2" resource_id="5" snapshot_id="5" snapshot_data="0,10,k" data_type="highlight_syntax" created_at="[null]" updated_at="[null]" />
 
 </dataset>
