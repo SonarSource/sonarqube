@@ -26,10 +26,7 @@ import org.sonar.api.resources.JavaFile;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static junit.framework.Assert.assertNull;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,13 +45,13 @@ public class AverageFormulaTest {
   @Test
   public void test_depends_upon_metrics() throws Exception {
     AverageFormula formula = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS);
-    assertThat(formula.dependsUponMetrics(), hasItems(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS));
+    assertThat(formula.dependsUponMetrics()).containsOnly(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS);
   }
 
   @Test
-  public void test_depends_upon_falback_metric() throws Exception {
+  public void test_depends_upon_fallback_metric() throws Exception {
     AverageFormula formula = AverageFormula.create(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.FUNCTIONS).setFallbackForMainMetric(CoreMetrics.COMPLEXITY);
-    assertThat(formula.dependsUponMetrics(), hasItems(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS));
+    assertThat(formula.dependsUponMetrics()).containsOnly(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS);
   }
 
   @Test
@@ -74,26 +71,26 @@ public class AverageFormulaTest {
 
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
 
-    assertThat(measure.getValue(), is(2.0));
+    assertThat(measure.getValue()).isEqualTo(2.0);
   }
 
   @Test
   public void should_not_compute_if_not_target_metric() {
     when(data.getMeasure(CoreMetrics.FUNCTION_COMPLEXITY)).thenReturn(new Measure(CoreMetrics.FUNCTION_COMPLEXITY, 2.0));
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
-    assertNull(measure);
+    assertThat(measure).isNull();
   }
 
   @Test
-  public void test_when_no_children_mesaures() {
+  public void test_when_no_children_measures() {
     List<FormulaData> childrenData = newArrayList();
     when(data.getChildren()).thenReturn(childrenData);
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
-    assertNull(measure);
+    assertThat(measure).isNull();
   }
 
   @Test
-  public void test_when_no_complexity_mesaures() {
+  public void test_when_no_complexity_measures() {
     List<FormulaData> childrenData = newArrayList();
     FormulaData data1 = mock(FormulaData.class);
     childrenData.add(data1);
@@ -102,11 +99,11 @@ public class AverageFormulaTest {
     when(data.getChildren()).thenReturn(childrenData);
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
 
-    assertNull(measure);
+    assertThat(measure).isNull();
   }
 
   @Test
-  public void test_when_no_by_metric_mesaures() {
+  public void test_when_no_by_metric_measures() {
     List<FormulaData> childrenData = newArrayList();
     FormulaData data1 = mock(FormulaData.class);
     childrenData.add(data1);
@@ -115,7 +112,7 @@ public class AverageFormulaTest {
     when(data.getChildren()).thenReturn(childrenData);
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
 
-    assertNull(measure);
+    assertThat(measure).isNull();
   }
 
   @Test
@@ -135,7 +132,7 @@ public class AverageFormulaTest {
 
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
 
-    assertThat(measure.getValue(), is(2.5));
+    assertThat(measure.getValue()).isEqualTo(2.5);
   }
 
   @Test
@@ -145,7 +142,7 @@ public class AverageFormulaTest {
     when(context.getResource()).thenReturn(new JavaFile("foo"));
 
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS).calculate(data, context);
-    assertThat(measure.getValue(), is(3.0));
+    assertThat(measure.getValue()).isEqualTo(3.0);
   }
 
   @Test
@@ -158,7 +155,7 @@ public class AverageFormulaTest {
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.FUNCTIONS)
         .setFallbackForMainMetric(CoreMetrics.COMPLEXITY)
         .calculate(data, context);
-    assertThat(measure.getValue(), is(3.0));
+    assertThat(measure.getValue()).isEqualTo(3.0);
   }
 
   @Test
@@ -171,7 +168,7 @@ public class AverageFormulaTest {
     Measure measure = AverageFormula.create(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.FUNCTIONS)
         .setFallbackForMainMetric(CoreMetrics.COMPLEXITY)
         .calculate(data, context);
-    assertThat(measure.getValue(), is(3.0));
+    assertThat(measure.getValue()).isEqualTo(3.0);
   }
 
   @Test
@@ -189,7 +186,7 @@ public class AverageFormulaTest {
         .setFallbackForMainMetric(CoreMetrics.COMPLEXITY)
         .calculate(data, context);
 
-    assertThat(measure.getValue(), is(2.5));
+    assertThat(measure.getValue()).isEqualTo(2.5);
   }
 
 }

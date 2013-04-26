@@ -22,8 +22,9 @@ package org.sonar.api.measures;
 
 import org.sonar.api.resources.ResourceUtils;
 
-import java.util.Arrays;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Formula used to compute an average for a given metric A, which is the result of the sum of measures of this metric (A) divided by another metric (B).
@@ -71,7 +72,7 @@ public class AverageFormula implements Formula {
    * {@inheritDoc}
    */
   public List<Metric> dependsUponMetrics() {
-    return Arrays.asList(mainMetric, fallbackMetric, byMetric);
+    return fallbackMetric != null ? newArrayList(mainMetric, fallbackMetric, byMetric) : newArrayList(mainMetric, byMetric);
   }
 
   /**
