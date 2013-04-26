@@ -46,7 +46,7 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
 
     assertThat(data).onProperty("snapshotId").containsOnly(10L, 10L);
     assertThat(data).onProperty("dataType").containsOnly("highlight_syntax", "symbol");
-    assertThat(data).onProperty("data").containsOnly("0,10,k;", "20,25,20,35,45;");
+    assertThat(data).onProperty("value").containsOnly("0,10,k;", "20,25,20,35,45;");
   }
 
   @Test
@@ -58,7 +58,7 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
     SnapshotDataDto dto = new SnapshotDataDto();
     dto.setResourceId(1L);
     dto.setSnapshotId(11L);
-    dto.setData(data);
+    dto.setValue(data);
     dto.setDataType(dataType);
 
     dao.insert(dto);
@@ -67,6 +67,6 @@ public class SnapshotDataDaoTest extends AbstractDaoTestCase {
 
     assertThat(serializedData).onProperty("snapshotId").containsOnly(11L);
     assertThat(serializedData).onProperty("dataType").containsOnly(dataType);
-    assertThat(serializedData).onProperty("data").containsOnly(data);
+    assertThat(serializedData).onProperty("value").containsOnly(data);
   }
 }

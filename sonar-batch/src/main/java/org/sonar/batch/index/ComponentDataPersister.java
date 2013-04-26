@@ -47,7 +47,7 @@ public class ComponentDataPersister implements ScanPersister {
           dto.setSnapshotId(snapshot.getId());
           dto.setResourceId(snapshot.getResourceId());
           dto.setDataType(dataEntry.key());
-          dto.setData(dataEntry.value().writeString());
+          dto.setValue(dataEntry.value().writeString());
 
           // TODO bulk insert
           dao.insert(dto);

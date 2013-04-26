@@ -73,11 +73,11 @@ public class HtmlSourceDecorator implements ServerComponent {
   }
 
   private void loadSnapshotData(DecorationDataHolder decorationDataHolder, SnapshotDataDto snapshotDataEntry) {
-    if(!Strings.isNullOrEmpty(snapshotDataEntry.getData())) {
+    if(!Strings.isNullOrEmpty(snapshotDataEntry.getValue())) {
       if (SnapshotDataType.isSyntaxHighlighting(snapshotDataEntry.getDataType())) {
-        decorationDataHolder.loadSyntaxHighlightingData(snapshotDataEntry.getData());
+        decorationDataHolder.loadSyntaxHighlightingData(snapshotDataEntry.getValue());
       } else if (SnapshotDataType.isSymbolHighlighting(snapshotDataEntry.getDataType())) {
-        decorationDataHolder.loadSymbolReferences(snapshotDataEntry.getData());
+        decorationDataHolder.loadSymbolReferences(snapshotDataEntry.getValue());
       }
     }
   }
