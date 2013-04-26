@@ -71,7 +71,7 @@ public class AverageFormula implements Formula {
    * {@inheritDoc}
    */
   public List<Metric> dependsUponMetrics() {
-    return Arrays.asList(mainMetric, byMetric);
+    return Arrays.asList(mainMetric, fallbackMetric, byMetric);
   }
 
   /**

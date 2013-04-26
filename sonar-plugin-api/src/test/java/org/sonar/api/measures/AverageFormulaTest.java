@@ -52,6 +52,12 @@ public class AverageFormulaTest {
   }
 
   @Test
+  public void test_depends_upon_falback_metric() throws Exception {
+    AverageFormula formula = AverageFormula.create(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.FUNCTIONS).setFallbackForMainMetric(CoreMetrics.COMPLEXITY);
+    assertThat(formula.dependsUponMetrics(), hasItems(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.COMPLEXITY, CoreMetrics.FUNCTIONS));
+  }
+
+  @Test
   public void test_average_calculation() {
     List<FormulaData> childrenData = newArrayList();
     FormulaData data1 = mock(FormulaData.class);
