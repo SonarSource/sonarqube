@@ -47,11 +47,11 @@
       %>
       <h3><%= message('issues_drilldown.col.severity') -%></h3>
       <table class="spacedicon" style="border: 1px solid #ccc;">
-        <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'BLOCKER', :max => max, :measure => blocker_issues} %>
-        <%= render :partial => 'severity', :locals => {:css => 'odd', :severity => 'CRITICAL', :max => max, :measure => critical_issues} %>
-        <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'MAJOR', :max => max, :measure => major_issues} %>
-        <%= render :partial => 'severity', :locals => {:css => 'odd', :severity => 'MINOR', :max => max, :measure => minor_issues} %>
-        <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'INFO', :max => max, :measure => info_issues} %>
+        <%= render :partial => 'severity_issues', :locals => {:css => 'even', :severity => 'BLOCKER', :max => max, :measure => blocker_issues} %>
+        <%= render :partial => 'severity_issues', :locals => {:css => 'odd', :severity => 'CRITICAL', :max => max, :measure => critical_issues} %>
+        <%= render :partial => 'severity_issues', :locals => {:css => 'even', :severity => 'MAJOR', :max => max, :measure => major_issues} %>
+        <%= render :partial => 'severity_issues', :locals => {:css => 'odd', :severity => 'MINOR', :max => max, :measure => minor_issues} %>
+        <%= render :partial => 'severity_issues', :locals => {:css => 'even', :severity => 'INFO', :max => max, :measure => info_issues} %>
       </table>
     </td>
     <td align="left" style="white-space: normal;" valign="top">

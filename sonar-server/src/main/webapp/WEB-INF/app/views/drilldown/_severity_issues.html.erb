@@ -1,0 +1,14 @@
+<% selected=(severity==@severity) %>
+<tr class="<%= css -%> <%= 'selected' if selected -%>">
+	<td><%= image_tag "priority/#{severity}.png" %></td>
+  <td>
+    <%= link_to message("severity.#{severity}"), {:controller => :drilldown, :action => :issues, :id => @resource.id, :severity => (selected ? nil : severity), :period => @period} %>
+  </td>
+  <td style="padding-left: 10px;" align="right" nowrap>
+	  <%= @period ? format_variation(measure, :index => @period, :style => 'light') : format_measure(measure) -%>
+  </td>
+  <td align="left">
+    <% value = measure_or_variation_value(measure) %>
+    <%= barchart(:width => 60, :percent => (value ? (100 * value / max).to_i : 0), :color => (@period_index ? '#cc0000' : '#777')) if max>0  %>
+  </td>
+</tr>
