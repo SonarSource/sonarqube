@@ -30,7 +30,7 @@ import org.sonar.api.issue.JRubyIssues;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
-import org.sonar.server.ui.JRubyFacades;
+import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -43,24 +43,21 @@ import java.util.Map;
  *
  * @since 3.6
  */
-public class DefaultJRubyIssues implements JRubyIssues {
+public class JRubyApiIssues implements JRubyIssues {
 
   private final IssueFinder finder;
-  private final ServerIssueActions changes;
 
-  public DefaultJRubyIssues(IssueFinder f, ServerIssueActions changes) {
+  public JRubyApiIssues(IssueFinder f) {
     this.finder = f;
-    this.changes = changes;
-    JRubyFacades.setIssues(this);
   }
 
   /**
    * Requires the role {@link org.sonar.api.web.UserRole#CODEVIEWER}
    */
   @Override
-  public IssueFinder.Results find(Map<String, Object> params, @Nullable Integer currentUserId) {
+  public IssueFinder.Results find(Map<String, Object> params) {
     // TODO move the role to IssueFinder
-    return finder.find(toQuery(params), currentUserId, UserRole.CODEVIEWER);
+    return finder.find(toQuery(params), UserSession.get().userId(), UserRole.CODEVIEWER);
   }
 
   IssueQuery toQuery(Map<String, Object> props) {

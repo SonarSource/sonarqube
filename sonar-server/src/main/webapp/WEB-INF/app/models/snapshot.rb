@@ -252,8 +252,8 @@ class Snapshot < ActiveRecord::Base
       end
   end
 
-  def highlighting_data
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getHighlightedSourceLines(id)
+  def highlighted_source_lines
+    Internal.text.highlightedSourceLines(id)
   end
 
   def has_source

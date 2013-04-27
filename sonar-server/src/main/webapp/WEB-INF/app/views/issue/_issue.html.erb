@@ -59,7 +59,7 @@
     </tr>
     <% # TODO action plan %>
     <% if rule %>
-      <% rule_name = Api.rules.rule_name(I18n.locale, rule.rule_key) %>
+      <% rule_name = Internal.rules.ruleName(I18n.locale, rule.rule_key) %>
       <tr>
         <td class="key">
           <%= message('rule') -%>:

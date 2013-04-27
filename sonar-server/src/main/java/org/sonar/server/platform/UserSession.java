@@ -17,51 +17,50 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.platform;
 
-package org.sonar.api.issue;
-
-import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
-import org.sonar.api.rules.Rule;
+import com.google.common.base.Objects;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.List;
+public class UserSession {
 
-/**
- * Search for issues. This component can be used only by server-side extensions. Batch extensions should
- * use the perspective {@link Issuable}.
- *
- * @since 3.6
- */
-public interface IssueFinder extends ServerComponent {
+  private static final ThreadLocal<UserSession> threadLocal = new ThreadLocal<UserSession>();
+  private static final UserSession ANONYMOUS = new UserSession(null, null);
 
-  interface Results {
-    List<Issue> issues();
+  private final Integer userId;
+  private final String login;
 
-    Rule rule(Issue issue);
-
-    Collection<Rule> rules();
-
-    Component component(Issue issue);
-
-    Collection<Component> components();
-
-    Paging paging();
-
-    boolean securityExclusions();
+  public UserSession(@Nullable Integer userId, @Nullable String login) {
+    this.userId = userId;
+    this.login = login;
   }
 
-  Results find(IssueQuery query, @Nullable Integer currentUserId, String role);
+  @CheckForNull
+  public String login() {
+    return login;
+  }
 
   @CheckForNull
-  Issue findByKey(String key /* TODO @Nullable Integer currentUserId */);
+  public Integer userId() {
+    return userId;
+  }
 
-  /*
-  Map<RuleKey, Rule> rules(Collection<Issue> issues);
+  public boolean isLoggedIn() {
+    return userId != null;
+  }
 
-  Map<String, Component> components(Collection<Issue> issues);
-*/
+  /**
+   * @return never null
+   */
+  public static UserSession get() {
+    return Objects.firstNonNull(threadLocal.get(), ANONYMOUS);
+  }
+
+  static void set(@Nullable UserSession session) {
+    threadLocal.set(session);
+  }
+
 }
+

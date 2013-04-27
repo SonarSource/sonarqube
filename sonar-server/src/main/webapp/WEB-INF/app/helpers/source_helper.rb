@@ -73,7 +73,7 @@ module SourceHelper
       end
 
       panel.html_lines=[]
-      html_source_lines = snapshot.highlighting_data || snapshot.source.syntax_highlighted_lines()
+      html_source_lines = snapshot.highlighted_source_lines || snapshot.source.syntax_highlighted_lines()
       line_range=sanitize_range(options[:line_range], 1..html_source_lines.length)
 
       html_source_lines.each_with_index do |source, index|

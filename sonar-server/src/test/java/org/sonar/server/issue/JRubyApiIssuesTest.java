@@ -39,21 +39,20 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-public class DefaultJRubyIssuesTest {
+public class JRubyApiIssuesTest {
 
   IssueFinder finder = mock(IssueFinder.class);
-  ServerIssueActions changes = mock(ServerIssueActions.class);
-  DefaultJRubyIssues facade = new DefaultJRubyIssues(finder, changes);
+  JRubyApiIssues facade = new JRubyApiIssues(finder);
 
   @Test
   public void test_find() throws Exception {
-    facade.find(ImmutableMap.<String, Object>of("keys", Lists.newArrayList("ABCDE")), 123);
+    facade.find(ImmutableMap.<String, Object>of("keys", Lists.newArrayList("ABCDE")));
     verify(finder).find(argThat(new ArgumentMatcher<IssueQuery>() {
       @Override
       public boolean matches(Object o) {
         return ((IssueQuery) o).keys().contains("ABCDE");
       }
-    }), eq(123), eq(UserRole.CODEVIEWER));
+    }), anyInt(), eq(UserRole.CODEVIEWER));
   }
 
   @Test
@@ -73,7 +72,7 @@ public class DefaultJRubyIssuesTest {
     map.put("pageSize", 10l);
     map.put("pageIndex", 50);
 
-    IssueQuery query = new DefaultJRubyIssues(finder, changes).toQuery(map);
+    IssueQuery query = new JRubyApiIssues(finder).toQuery(map);
     assertThat(query.keys()).containsOnly("ABCDE1234");
     assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
     assertThat(query.statuses()).containsOnly("CLOSED");
@@ -91,20 +90,20 @@ public class DefaultJRubyIssuesTest {
 
   @Test
   public void should_parse_list_of_rules() {
-    assertThat(DefaultJRubyIssues.toRules(null)).isNull();
-    assertThat(DefaultJRubyIssues.toRules("")).isEmpty();
-    assertThat(DefaultJRubyIssues.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
-    assertThat(DefaultJRubyIssues.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
-    assertThat(DefaultJRubyIssues.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
+    assertThat(JRubyApiIssues.toRules(null)).isNull();
+    assertThat(JRubyApiIssues.toRules("")).isEmpty();
+    assertThat(JRubyApiIssues.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
+    assertThat(JRubyApiIssues.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
+    assertThat(JRubyApiIssues.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
   }
 
   @Test
   public void should_parse_list_of_strings() {
-    assertThat(DefaultJRubyIssues.toStrings(null)).isNull();
-    assertThat(DefaultJRubyIssues.toStrings("")).isEmpty();
-    assertThat(DefaultJRubyIssues.toStrings("foo")).containsOnly("foo");
-    assertThat(DefaultJRubyIssues.toStrings("foo,bar")).containsOnly("foo", "bar");
-    assertThat(DefaultJRubyIssues.toStrings(asList("foo", "bar"))).containsOnly("foo", "bar");
+    assertThat(JRubyApiIssues.toStrings(null)).isNull();
+    assertThat(JRubyApiIssues.toStrings("")).isEmpty();
+    assertThat(JRubyApiIssues.toStrings("foo")).containsOnly("foo");
+    assertThat(JRubyApiIssues.toStrings("foo,bar")).containsOnly("foo", "bar");
+    assertThat(JRubyApiIssues.toStrings(asList("foo", "bar"))).containsOnly("foo", "bar");
 
   }
 

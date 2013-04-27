@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-class Transition {
+public class Transition {
   private final String key;
   private final String from, to;
   private final Condition[] conditions;
@@ -46,7 +46,7 @@ class Transition {
     automatic = builder.automatic;
   }
 
-  String key() {
+  public String key() {
     return key;
   }
 

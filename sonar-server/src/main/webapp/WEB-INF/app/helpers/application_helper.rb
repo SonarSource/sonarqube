@@ -828,6 +828,7 @@ module ApplicationHelper
     html
   end
 
+  # TODO move to Api
   def to_date(java_date)
     java_date ? Time.at(java_date.time/1000) : nil
   end

@@ -22,13 +22,31 @@ class Api::IssuesController < Api::ApiController
 
   # GET /api/issues/search?<parameters>
   def search
-    user_id = current_user ? current_user.id : nil
-    results = Api.issues.find(params, user_id)
-    render :json => jsonp(results_to_json(results))
+    results = Api.issues.find(params)
+    render :json => jsonp(
+      {
+        :securityExclusions => results.securityExclusions,
+        :paging => paging_to_json(results.paging),
+        :issues => results.issues.map { |issue| issue_to_json(issue) }
+      }
+    )
   end
 
-  # POST /api/issues/change?key=<issue key>&<newSeverity=xxx>&<newResolution=xxx>...
-  def change
+  # GET /api/issues/transitions?issue=<key>
+  def transitions
+    # TODO deal with errors (404, ...)
+    require_parameters :issue
+    issue_key = params[:issue]
+    transitions = Internal.issues.listTransitions(issue_key)
+    render :json => jsonp(
+      {
+        :transitions => transitions.map { |t| t.key() }
+      }
+    )
+  end
+
+  # POST /api/issues/transition?issue=<key>&transition=<key>&comment=<optional comment>
+  def transition
     verify_post_request
     access_denied unless logged_in?
 
@@ -47,21 +65,13 @@ class Api::IssuesController < Api::ApiController
 
   private
 
-  def results_to_json(results)
-    json = {}
-    json[:issues] = results.issues.map { |issue| issue_to_json(issue) }
-    json[:paging] = pagination_to_json(results.paging)
-    json[:securityExclusions] = results.securityExclusions
-    json
-  end
-
   def issue_to_json(issue)
     json = {
-        :key => issue.key,
-        :component => issue.componentKey,
-        :rule => issue.ruleKey.toString(),
-        :resolution => issue.resolution,
-        :status => issue.status
+      :key => issue.key,
+      :component => issue.componentKey,
+      :rule => issue.ruleKey.toString(),
+      :resolution => issue.resolution,
+      :status => issue.status
     }
     json[:severity] = issue.severity if issue.severity
     json[:desc] = issue.description if issue.description
@@ -76,14 +86,13 @@ class Api::IssuesController < Api::ApiController
     json
   end
 
-  def pagination_to_json(paging)
-    json = {
-        :pageIndex => paging.pageIndex,
-        :pageSize => paging.pageSize,
-        :total => paging.total,
-        :pages => paging.pages
+  def paging_to_json(paging)
+    {
+      :pageIndex => paging.pageIndex,
+      :pageSize => paging.pageSize,
+      :total => paging.total,
+      :pages => paging.pages
     }
-    json
   end
 
   def format_java_datetime(java_date)

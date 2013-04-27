@@ -22,16 +22,9 @@ class IssuesController < ApplicationController
 
   def index
     page_index = params[:page_index] || 1
-    issues_result = find_issues({'pageSize' => 25, 'pageIndex' => page_index})
+    issues_result = Api.issues.find({'pageSize' => 25, 'pageIndex' => page_index})
     @paging = issues_result.paging
     @issues = issues_result.issues.collect {|issue| issue}
-  end
-
-  protected
-
-  def find_issues(map)
-    user = current_user ? current_user.id : nil
-    Api.issues.find(map, user)
   end
 
 end

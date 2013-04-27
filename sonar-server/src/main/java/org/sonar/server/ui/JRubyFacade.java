@@ -56,13 +56,10 @@ import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
-import org.sonar.core.source.HtmlSourceDecorator;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.workflow.WorkflowEngine;
-import org.sonar.markdown.Markdown;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
-import org.sonar.server.macro.MacroInterpreter;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.*;
 import org.sonar.server.plugins.*;
@@ -73,7 +70,6 @@ import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
-
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.*;
@@ -89,11 +85,7 @@ public final class JRubyFacade {
     return SINGLETON;
   }
 
-  public static String markdownToHtml(String input) {
-    return Markdown.convertToHtml(input);
-  }
-
-  private <T> T get(Class<T> componentType) {
+  <T> T get(Class<T> componentType) {
     return getContainer().getComponentByType(componentType);
   }
 
@@ -317,7 +309,7 @@ public final class JRubyFacade {
 
   public void ruleSeverityChanged(int parentProfileId, int activeRuleId, int oldSeverityId, int newSeverityId, String userName) {
     getProfilesManager().ruleSeverityChanged(parentProfileId, activeRuleId, RulePriority.values()[oldSeverityId],
-        RulePriority.values()[newSeverityId], userName);
+      RulePriority.values()[newSeverityId], userName);
   }
 
   public void ruleDeactivated(int parentProfileId, int deactivatedRuleId, String userName) {
@@ -513,10 +505,10 @@ public final class JRubyFacade {
     // notifier is null when creating the administrator in the migration script 011.
     if (notifier != null) {
       notifier.onNewUser(NewUserHandler.Context.builder()
-          .setLogin(fields.get("login"))
-          .setName(fields.get("name"))
-          .setEmail(fields.get("email"))
-          .build());
+        .setLogin(fields.get("login"))
+        .setName(fields.get("name"))
+        .setEmail(fields.get("email"))
+        .build());
     }
   }
 
@@ -554,13 +546,5 @@ public final class JRubyFacade {
 
   public Testable testable(String componentKey) {
     return get(SnapshotPerspectives.class).as(MutableTestable.class, componentKey);
-  }
-
-  public MacroInterpreter getMacroInterpreter(){
-    return get(MacroInterpreter.class);
-  }
-
-  public Collection<String> getHighlightedSourceLines(long snapshotId) {
-    return get(HtmlSourceDecorator.class).getDecoratedSourceAsHtml(snapshotId);
   }
 }

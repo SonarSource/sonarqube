@@ -17,9 +17,9 @@
 
 <div class="rule_detail">
   <% if @rule.description.strip.start_with?('<p>') %>
-    <%=  MacroInterpreter.interpret_macro @rule.description %>
+    <%= Internal.text.interpretMacros(@rule.description) %>
   <% else %>
-    <p><%= MacroInterpreter.interpret_macro @rule.description %></p>
+    <p><%= Internal.text.interpretMacros(@rule.description) %></p>
   <% end %>
 
   <% if @rule.note && !@rule.note.text.strip.blank? %>

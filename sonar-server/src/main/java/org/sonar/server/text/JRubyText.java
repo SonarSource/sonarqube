@@ -17,37 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.text;
 
-package org.sonar.server.macro;
-
+import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.ServerComponent;
-
-import javax.servlet.ServletContext;
+import org.sonar.core.source.HtmlSourceDecorator;
+import org.sonar.markdown.Markdown;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
+public class JRubyText implements ServerComponent {
 
-public class MacroInterpreter implements ServerComponent {
+  private final MacroInterpreter macroInterpreter;
+  private final HtmlSourceDecorator sourceDecorator;
 
-  private ServletContext servletContext;
-  private List<Macro> macroList;
-
-  public MacroInterpreter(ServletContext servletContext) {
-    this.servletContext = servletContext;
-    this.macroList = newArrayList();
+  public JRubyText(MacroInterpreter macroInterpreter, HtmlSourceDecorator sourceDecorator) {
+    this.macroInterpreter = macroInterpreter;
+    this.sourceDecorator = sourceDecorator;
   }
 
-  public void start(){
-    macroList.add(new RuleMacro(servletContext.getContextPath()));
+  public String interpretMacros(String text) {
+    return macroInterpreter.interpret(text);
   }
 
-  public String interpret(String text){
-    String textReplaced = text;
-    for (Macro macro : macroList) {
-      textReplaced = textReplaced.replaceAll(macro.getRegex(), macro.getReplacement());
-    }
-    return textReplaced;
+  public String markdownToHtml(String markdown) {
+    // TODO move HTML escaping to sonar-markdown
+    return Markdown.convertToHtml(StringEscapeUtils.escapeHtml(markdown));
   }
 
+  public List<String> highlightedSourceLines(long snapshotId) {
+    return sourceDecorator.getDecoratedSourceAsHtml(snapshotId);
+  }
 }

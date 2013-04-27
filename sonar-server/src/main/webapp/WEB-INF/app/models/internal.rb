@@ -18,10 +18,28 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-class MacroInterpreter
+# All the Java components that are not published to public plugin API.
+# Must NOT be used by plugins. Forward-compatibility is NOT guaranteed.
+class Internal
 
-  def self.interpret_macro(text)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getMacroInterpreter().interpret(text)
+  def self.issues
+    component(Java::OrgSonarServerIssue::JRubyInternalIssues.java_class)
   end
 
+  def self.issues_api
+    component(Java::OrgSonarApiIssue::JRubyIssues.java_class)
+  end
+
+  def self.text
+    component(Java::OrgSonarServerText::JRubyText.java_class)
+  end
+
+  def self.rules
+    component(Java::OrgSonarServerRule::JRubyRules.java_class)
+  end
+
+  private
+  def self.component(component_java_class)
+    Java::OrgSonarServerPlatform::Platform.component(component_java_class)
+  end
 end

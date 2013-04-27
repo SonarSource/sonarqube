@@ -69,19 +69,21 @@ import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
-import org.sonar.server.issue.DefaultJRubyIssues;
+import org.sonar.server.issue.JRubyApiIssues;
+import org.sonar.server.issue.JRubyInternalIssues;
 import org.sonar.server.issue.ServerIssueActions;
 import org.sonar.server.issue.ServerIssueFinder;
-import org.sonar.server.macro.MacroInterpreter;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitymodel.DefaultModelManager;
-import org.sonar.server.rule.DefaultJRubyRules;
+import org.sonar.server.rule.JRubyRules;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
+import org.sonar.server.text.JRubyText;
+import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ui.*;
 
 import javax.servlet.ServletContext;
@@ -185,7 +187,6 @@ public final class Platform {
     coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.addPicoAdapter(new DatabaseSessionProvider());
     coreContainer.addSingleton(ServerMetadataPersister.class);
-    coreContainer.addSingleton(MacroInterpreter.class);
     coreContainer.startComponents();
   }
 
@@ -242,10 +243,15 @@ public final class Platform {
     servicesContainer.addSingleton(IssueWorkflow.class);
     servicesContainer.addSingleton(ServerIssueActions.class);
     servicesContainer.addSingleton(ServerIssueFinder.class);
-    servicesContainer.addSingleton(DefaultJRubyIssues.class);
+    servicesContainer.addSingleton(JRubyApiIssues.class);
+    servicesContainer.addSingleton(JRubyInternalIssues.class);
 
     // rules
-    servicesContainer.addSingleton(DefaultJRubyRules.class);
+    servicesContainer.addSingleton(JRubyRules.class);
+
+    // text
+    servicesContainer.addSingleton(MacroInterpreter.class);
+    servicesContainer.addSingleton(JRubyText.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);
@@ -328,5 +334,12 @@ public final class Platform {
    */
   public static Server getServer() {
     return (Server) getInstance().getComponent(Server.class);
+  }
+
+  /**
+   * Used by ruby code
+   */
+  public static <T> T component(Class<T> type) {
+    return getInstance().getContainer().getComponentByType(type);
   }
 }

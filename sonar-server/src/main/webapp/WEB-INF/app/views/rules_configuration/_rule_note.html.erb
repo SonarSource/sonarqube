@@ -10,9 +10,9 @@
 <div id="<%= note_detail_div_id -%>">
   <div>
   <% if rule.description.strip.start_with?('<p>') %>
-    <%= MacroInterpreter.interpret_macro rule.description %>
+    <%= Internal.text.interpretMacros(rule.description) %>
   <% else %>
-    <p><%= MacroInterpreter.interpret_macro rule.description %></p>
+    <p><%= Internal.text.interpretMacros(rule.description) %></p>
   <% end %>
   </div>
 

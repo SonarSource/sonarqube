@@ -52,8 +52,8 @@ class Api::Utils
     false
   end
 
-  def self.markdown_to_html(markdown)
-    markdown ? Java::OrgSonarServerUi::JRubyFacade.markdownToHtml(ERB::Util.html_escape(markdown)) : ''
+  def self.markdown_to_html(markdown='')
+    Internal.text.markdownToHtml(markdown)
   end
 
   # Splits a string into an array of lines

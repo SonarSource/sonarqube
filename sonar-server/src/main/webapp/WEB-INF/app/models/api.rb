@@ -18,16 +18,13 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+# Entry points to Java API. All other Ruby classes are not considered
+# as an API and can evolve through time.
 class Api
 
   # since 3.6
   def self.issues
-    Java::OrgSonarServerUi::JRubyFacades.issues()
-  end
-
-  # since 3.6
-  def self.rules
-    Java::OrgSonarServerUi::JRubyFacades.rules()
+    Internal.issues_api
   end
 
 end

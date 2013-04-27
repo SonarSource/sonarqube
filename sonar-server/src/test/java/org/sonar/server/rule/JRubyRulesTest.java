@@ -28,15 +28,15 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DefaultJRubyRulesTest {
+public class JRubyRulesTest {
 
-  private DefaultJRubyRules defaultJRubyRules;
+  private JRubyRules JRubyRules;
   private JRubyI18n jRubyI18n;
 
   @Before
   public void before() {
     jRubyI18n = mock(JRubyI18n.class);
-    defaultJRubyRules = new DefaultJRubyRules(jRubyI18n);
+    JRubyRules = new JRubyRules(jRubyI18n);
   }
 
   @Test
@@ -45,7 +45,7 @@ public class DefaultJRubyRulesTest {
     String locale = "en";
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     when(jRubyI18n.getRuleName(locale, "squid", "AvoidCycle")).thenReturn(ruleName);
-    assertThat(defaultJRubyRules.ruleName(locale, ruleKey)).isEqualTo(ruleName);
+    assertThat(JRubyRules.ruleName(locale, ruleKey)).isEqualTo(ruleName);
   }
 
   @Test
@@ -54,7 +54,7 @@ public class DefaultJRubyRulesTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     when(jRubyI18n.getRuleName("fr", "squid", "AvoidCycle")).thenReturn(null);
     when(jRubyI18n.getRuleName("en", "squid", "AvoidCycle")).thenReturn(englishRuleName);
-    assertThat(defaultJRubyRules.ruleName("fr", ruleKey)).isEqualTo(englishRuleName);
+    assertThat(JRubyRules.ruleName("fr", ruleKey)).isEqualTo(englishRuleName);
   }
 
 }

@@ -17,27 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rule;
 
+package org.sonar.server.text;
+
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.ServerComponent;
 
-/**
- * Facade for JRuby on Rails extensions to request rules.
- * <p>
- * Reference from Ruby code : <code>Api.rules</code>
- * </p>
- *
- * @since 3.6
- */
-public interface JRubyRules extends ServerComponent {
+import javax.servlet.ServletContext;
+import java.util.List;
 
-  /**
-   * Return the localized name of a rule.
-   *
-   * <p>
-   *   Ruby: <code>Api.rules.ruleName(I18n.locale, rule.rule_key)</code>
-   * </p>
-   */
-  String ruleName(String rubyLocale, RuleKey ruleKey);
+public class MacroInterpreter implements ServerComponent {
+
+  private final List<Macro> macros;
+
+  public MacroInterpreter(ServletContext servletContext) {
+    this.macros = ImmutableList.<Macro>of(
+      new RuleMacro(servletContext.getContextPath())
+    );
+  }
+
+  public String interpret(String text) {
+    String textReplaced = text;
+    for (Macro macro : macros) {
+      textReplaced = textReplaced.replaceAll(macro.getRegex(), macro.getReplacement());
+    }
+    return textReplaced;
+  }
 
 }

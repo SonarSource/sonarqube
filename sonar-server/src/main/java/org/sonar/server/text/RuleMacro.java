@@ -17,20 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui;
 
-import org.junit.Test;
-import org.sonar.server.issue.DefaultJRubyIssues;
+package org.sonar.server.text;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+class RuleMacro implements Macro {
 
-public class JRubyFacadesTest {
+  private final String contextPath;
 
-  @Test
-  public void register_issues_facade_on_creation() throws Exception {
-    DefaultJRubyIssues issues = mock(DefaultJRubyIssues.class);
-    JRubyFacades.setIssues(issues);
-    assertThat(JRubyFacades.issues()).isSameAs(issues);
+  RuleMacro(String contextPath) {
+    this.contextPath = contextPath;
+  }
+
+  /**
+   * First parameter is the repository, second one is the rule key. Exemple : {rule:squid:ArchitecturalConstraint}
+   */
+  public String getRegex() {
+    return "\\{rule:([a-zA-Z0-9._-]++):([a-zA-Z0-9._-]++)\\}";
+  }
+
+  public String getReplacement() {
+    return "<a class='open-modal rule-modal' modal-width='800' href='" + contextPath + "/rules/show/$1:$2?modal=true&layout=false'>$1:$2</a>";
   }
 }

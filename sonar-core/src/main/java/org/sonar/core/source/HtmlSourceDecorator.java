@@ -50,7 +50,7 @@ public class HtmlSourceDecorator implements ServerComponent {
     this.snapshotDataDao= snapshotDataDao;
   }
 
-  public Collection<String> getDecoratedSourceAsHtml(long snapshotId) {
+  public List<String> getDecoratedSourceAsHtml(long snapshotId) {
 
     List<String> highlightingDataTypes = Lists.newArrayList(SnapshotDataType.SYNTAX_HIGHLIGHTING.getValue(),
       SnapshotDataType.SYMBOL_HIGHLIGHTING.getValue());

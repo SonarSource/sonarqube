@@ -17,37 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
 
-import org.sonar.api.rule.JRubyRules;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.server.ui.JRubyFacades;
-import org.sonar.server.ui.JRubyI18n;
+package org.sonar.server.text;
 
-/**
- * Facade of rules components for JRuby on Rails webapp
- *
- * @since 3.6
- */
-public class DefaultJRubyRules implements JRubyRules {
+public interface Macro {
 
-  private final JRubyI18n jRubyI18n;
+  String getRegex();
 
-  public DefaultJRubyRules(JRubyI18n jRubyI18n) {
-    this.jRubyI18n = jRubyI18n;
-    JRubyFacades.setRules(this);
-  }
-
-  public String ruleName(String rubyLocale, RuleKey ruleKey) {
-    String l18n =  jRubyI18n.getRuleName(rubyLocale, ruleKey.repository(), ruleKey.rule());
-    if (l18n != null) {
-      return l18n;
-    } else {
-      return jRubyI18n.getRuleName("en", ruleKey.repository(), ruleKey.rule());
-    }
-  }
-
-  public void start() {
-    // used to force pico to instantiate the singleton at startup
-  }
+  String getReplacement();
 }

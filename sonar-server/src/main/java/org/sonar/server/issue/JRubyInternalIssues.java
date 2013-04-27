@@ -17,12 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.issue;
 
-package org.sonar.server.macro;
+import org.sonar.api.ServerComponent;
+import org.sonar.core.issue.workflow.Transition;
+import org.sonar.server.platform.UserSession;
 
-public interface Macro {
+import java.util.List;
 
-  String getRegex();
+/**
+ * All the issue features that are not published to public API
+ */
+public class JRubyInternalIssues implements ServerComponent {
 
-  String getReplacement();
+  private final ServerIssueActions actions;
+
+  public JRubyInternalIssues(ServerIssueActions actions) {
+    this.actions = actions;
+  }
+
+  public List<Transition> listTransitions(String issueKey) {
+    return actions.listTransitions(issueKey, UserSession.get().userId());
+  }
+
 }

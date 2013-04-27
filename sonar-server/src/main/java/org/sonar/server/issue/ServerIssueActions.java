@@ -21,14 +21,18 @@ package org.sonar.server.issue;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
+import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.user.AuthorizationDao;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -36,13 +40,24 @@ import javax.annotation.Nullable;
 public class ServerIssueActions implements ServerComponent {
 
   private final IssueWorkflow workflow;
+  private final IssueFinder finder;
   private final IssueDao issueDao;
   private final AuthorizationDao authorizationDao;
 
-  public ServerIssueActions(IssueWorkflow workflow, IssueDao issueDao, AuthorizationDao authorizationDao) {
+  public ServerIssueActions(IssueWorkflow workflow, IssueFinder finder, IssueDao issueDao, AuthorizationDao authorizationDao) {
     this.workflow = workflow;
+    this.finder = finder;
     this.issueDao = issueDao;
     this.authorizationDao = authorizationDao;
+  }
+
+  public List<Transition> listTransitions(String issueKey, @Nullable Integer userId) {
+    Issue issue = finder.findByKey(issueKey /*, userId */);
+    // TODO check authorization
+    if (issue == null) {
+      return Collections.emptyList();
+    }
+    return workflow.outManualTransitions(issue);
   }
 
   public Issue executeAction(String issueKey, String action, @Nullable Integer userId) {
