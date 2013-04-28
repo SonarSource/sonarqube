@@ -58,9 +58,16 @@ public class UserSession {
     return Objects.firstNonNull(threadLocal.get(), ANONYMOUS);
   }
 
-  static void set(@Nullable UserSession session) {
-    threadLocal.set(session);
+  public static void set(@Nullable Integer userId, @Nullable String login) {
+    threadLocal.set(new UserSession(userId, login));
   }
 
+  public static void remove() {
+    threadLocal.remove();
+  }
+
+  static boolean hasSession() {
+    return threadLocal.get()!=null;
+  }
 }
 

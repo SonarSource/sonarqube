@@ -45,13 +45,20 @@ class Api::IssuesController < Api::ApiController
     )
   end
 
-  # POST /api/issues/transition?issue=<key>&transition=<key>&comment=<optional comment>
-  def transition
+  # POST /api/issues/do_transition?issue=<key>&transition=<key>&comment=<optional comment>
+  def do_transition
     verify_post_request
-    access_denied unless logged_in?
+    require_parameters :issue, :transition
+    #access_denied unless logged_in?
 
-    # TODO
-    render :json => jsonp({})
+    issue = Internal.issues.doTransition(params[:issue], params[:transition])
+    if issue
+      render :json => jsonp({
+        :issue => issue_to_json(issue)
+      })
+    else
+      render :status => 400
+    end
   end
 
   # POST /api/issues/create?severity=xxx>&<resolution=xxx>&component=<component key>

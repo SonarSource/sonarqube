@@ -112,9 +112,19 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
   public void stop() {
   }
 
+  public boolean doManualTransition(DefaultIssue issue, String transitionKey) {
+    Transition transition = machine.state(issue.status()).transition(transitionKey);
+    if (transition != null && !transition.automatic()) {
+      transition.execute(issue);
+      return true;
+    }
+    return false;
+  }
+
   public List<Transition> outManualTransitions(Issue issue) {
     return machine.state(issue.status()).outManualTransitions(issue);
   }
+
 
   public void doAutomaticTransition(DefaultIssue issue) {
     Transition transition = machine.state(issue.status()).outAutomaticTransition(issue);
@@ -122,7 +132,6 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
       transition.execute(issue);
     }
   }
-
 
   StateMachine machine() {
     return machine;

@@ -29,8 +29,10 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.user.AuthorizationDao;
+import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,8 +62,8 @@ public class ServerIssueActions implements ServerComponent {
     return workflow.outManualTransitions(issue);
   }
 
-  public Issue executeAction(String issueKey, String action, @Nullable Integer userId) {
-    if (userId == null) {
+  public Issue doTransition(String issueKey, String transition, UserSession userSession) {
+    if (!userSession.isLoggedIn()) {
       // must be logged
       throw new IllegalStateException("User is not logged in");
     }
@@ -70,14 +72,13 @@ public class ServerIssueActions implements ServerComponent {
       throw new IllegalStateException("Unknown issue: " + issueKey);
     }
     String requiredRole = UserRole.USER;
-    if (!authorizationDao.isAuthorizedComponentId(dto.getResourceId(), userId, requiredRole)) {
+    if (!authorizationDao.isAuthorizedComponentId(dto.getResourceId(), userSession.userId(), requiredRole)) {
       throw new IllegalStateException("User does not have the role " + requiredRole + " required to change the issue: " + issueKey);
     }
     DefaultIssue issue = dto.toDefaultIssue();
-    //if (change.hasChanges()) {
-    //  workflow.change(issue, change);
-    // issueDao.update(Arrays.asList(IssueDto.toDto(issue, dto.getResourceId(), dto.getRuleId())));
-    //}
+    if (workflow.doManualTransition(issue, transition)) {
+      issueDao.update(Arrays.asList(IssueDto.toDto(issue, dto.getResourceId(), dto.getRuleId())));
+    }
     return issue;
   }
 }

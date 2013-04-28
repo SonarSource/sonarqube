@@ -21,80 +21,37 @@ package org.sonar.server.platform;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class UserSessionFilterTest {
 
   @Before
   public void setUp() {
     // for test isolation
-    UserSession.set(null);
+    UserSession.set(null, null);
   }
 
   @Test
-  public void should_load_user_session() throws Exception {
-    HttpSession httpSession = mock(HttpSession.class);
-    // JRuby sets a long but not an integer
-    when(httpSession.getAttribute("user_id")).thenReturn(123L);
-    when(httpSession.getAttribute("login")).thenReturn("karadoc");
+  public void should_cleanup_user_session_after_request_handling() throws Exception {
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
-    when(httpRequest.getSession(true)).thenReturn(httpSession);
     ServletResponse httpResponse = mock(ServletResponse.class);
-
     FilterChain chain = mock(FilterChain.class);
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        assertThat(UserSession.get()).isNotNull();
-        assertThat(UserSession.get().login()).isEqualTo("karadoc");
-        assertThat(UserSession.get().userId()).isEqualTo(123);
-        assertThat(UserSession.get().isLoggedIn()).isTrue();
-        return null;
-      }
-    }).when(chain).doFilter(httpRequest, httpResponse);
 
+    UserSession.set(123, "karadoc");
+    assertThat(UserSession.hasSession()).isTrue();
     UserSessionFilter filter = new UserSessionFilter();
     filter.doFilter(httpRequest, httpResponse, chain);
 
     verify(chain).doFilter(httpRequest, httpResponse);
-  }
-
-  /**
-   * UserSession should always be set, even when end-user  is not logged in.
-   */
-  @Test
-  public void should_load_anonymous_session() throws Exception {
-    HttpSession httpSession = mock(HttpSession.class);
-    HttpServletRequest httpRequest = mock(HttpServletRequest.class);
-    when(httpRequest.getSession(true)).thenReturn(httpSession);
-    ServletResponse httpResponse = mock(ServletResponse.class);
-
-    FilterChain chain = mock(FilterChain.class);
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        assertThat(UserSession.get()).isNotNull();
-        assertThat(UserSession.get().login()).isNull();
-        assertThat(UserSession.get().userId()).isNull();
-        assertThat(UserSession.get().isLoggedIn()).isFalse();
-        return null;
-      }
-    }).when(chain).doFilter(httpRequest, httpResponse);
-
-    UserSessionFilter filter = new UserSessionFilter();
-    filter.doFilter(httpRequest, httpResponse, chain);
-
-    verify(chain).doFilter(httpRequest, httpResponse);
+    assertThat(UserSession.hasSession()).isFalse();
   }
 
   @Test

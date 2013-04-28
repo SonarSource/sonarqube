@@ -20,34 +20,23 @@
 package org.sonar.server.platform;
 
 import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 public class UserSessionFilter implements Filter {
+  @Override
   public void init(FilterConfig filterConfig) throws ServletException {
   }
 
+  @Override
   public void destroy() {
   }
 
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+  @Override
+  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
     try {
-      HttpServletRequest request = (HttpServletRequest) servletRequest;
-      HttpSession httpSession = request.getSession(true);
-
-      // See available attributes in authenticated_system.rb, methods
-      // current_user= and logout_keeping_session!
-      String login = (String) httpSession.getAttribute("login");
-      Long userId = (Long) httpSession.getAttribute("user_id");
-
-      UserSession.set(new UserSession(userId != null ? userId.intValue() : null, login));
-
-      filterChain.doFilter(servletRequest, servletResponse);
-
+      chain.doFilter(servletRequest, servletResponse);
     } finally {
-      UserSession.set(null);
+      UserSession.remove();
     }
   }
-
 }

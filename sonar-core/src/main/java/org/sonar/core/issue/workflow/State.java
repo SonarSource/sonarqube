@@ -80,15 +80,7 @@ public class State {
     return result;
   }
 
-  public void doTransition(DefaultIssue issue, String transitionKey) {
-    Transition transition = transition(transitionKey);
-    if (!transition.supports(issue)) {
-      throw new IllegalStateException("TODO");
-    }
-    transition.execute(issue);
-  }
-
-  private Transition transition(String transitionKey) {
+  Transition transition(String transitionKey) {
     for (Transition transition : outTransitions) {
       if (transitionKey.equals(transition.key())) {
         return transition;

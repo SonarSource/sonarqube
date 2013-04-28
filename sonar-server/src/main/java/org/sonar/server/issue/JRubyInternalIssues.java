@@ -20,6 +20,7 @@
 package org.sonar.server.issue;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
@@ -40,4 +41,7 @@ public class JRubyInternalIssues implements ServerComponent {
     return actions.listTransitions(issueKey, UserSession.get().userId());
   }
 
+  public Issue doTransition(String issueKey, String transitionKey) {
+    return actions.doTransition(issueKey, transitionKey, UserSession.get());
+  }
 }
