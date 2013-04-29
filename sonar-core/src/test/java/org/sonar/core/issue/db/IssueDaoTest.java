@@ -190,6 +190,15 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issues).hasSize(2);
     assertThat(issues.get(0).getId()).isEqualTo(100);
     assertThat(issues.get(1).getId()).isEqualTo(101);
+
+    query = IssueQuery.builder().componentRoots(newArrayList("Filter.java")).build();
+    issues = newArrayList(dao.select(query));
+    assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).getId()).isEqualTo(101);
+
+    query = IssueQuery.builder().componentRoots(newArrayList("not-found")).build();
+    issues = newArrayList(dao.select(query));
+    assertThat(issues).isEmpty();
   }
 
   @Test

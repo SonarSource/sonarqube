@@ -148,6 +148,9 @@
           <when test="_databaseId == 'mssql'">
             s.path LIKE rootsnapshots.path + CAST(rootsnapshots.id AS varchar(15)) + '.%'
           </when>
+          <when test="_databaseId == 'mysql'">
+            s.path LIKE concat(rootsnapshots.path, rootsnapshots.id, '.%')
+          </when>
           <otherwise>
             s.path LIKE rootsnapshots.path || rootsnapshots.id || '.%'
           </otherwise>
