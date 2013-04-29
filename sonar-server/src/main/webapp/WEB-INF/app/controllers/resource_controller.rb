@@ -462,7 +462,7 @@ class ResourceController < ApplicationController
       end
     end
 
-    issues = Api.issues.find(options, current_user ? current_user.id : nil).issues
+    issues = Api.issues.find(options).issues
     issues.each do |issue|
       # sorted by severity => from blocker to info
       if @lines && issue.line && issue.line>0 && issue.line<=@lines.size

@@ -264,7 +264,7 @@ class DrilldownController < ApplicationController
 
   def display_issue_viewers?(snapshot)
     return true if snapshot.file?
-    issues = Api.issues.find({'components' => snapshot.project.key}, current_user ? current_user.id : nil).issues
+    issues = Api.issues.find({'components' => snapshot.project.key}).issues
     issues.size>0
   end
 
