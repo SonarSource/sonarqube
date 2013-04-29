@@ -150,7 +150,7 @@ class ResourceController < ApplicationController
       @extension=@extensions.find { |extension| extension.getId()==params[:tab] }
 
     elsif !params[:metric].blank?
-      metric=Metric.by_key(params[:metric])
+      metric = Metric.by_key(params[:metric])
       @extension=@extensions.find { |extension| extension.getDefaultTabForMetrics().include?(metric.key) }
     end
     @extension=@extensions.find { |extension| extension.isDefaultTab() } if @extension==nil
@@ -378,7 +378,7 @@ class ResourceController < ApplicationController
     end
 
 
-    if @period
+    if @period && @period != 0
       date=@snapshot.period_datetime(@period)
       if date
         options[:created_after]=date.advance(:minutes => 1)
@@ -455,7 +455,7 @@ class ResourceController < ApplicationController
       end
     end
 
-    if @period
+    if @period && @period != 0
       date = @snapshot.period_datetime(@period)
       if date
         options['createdAfter'] = date
