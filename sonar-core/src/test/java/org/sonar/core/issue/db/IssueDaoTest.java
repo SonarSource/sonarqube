@@ -25,8 +25,6 @@ import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.issue.db.IssueDao;
-import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collection;
@@ -140,7 +138,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_by_query");
 
     IssueQuery query = IssueQuery.builder()
-      .keys(newArrayList("ABCDE"))
+      .issueKeys(newArrayList("ABCDE"))
       .userLogins(newArrayList("arthur", "otherguy"))
       .assignees(newArrayList("perceval", "otherguy"))
       .components(newArrayList("Action.java"))

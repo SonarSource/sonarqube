@@ -39,10 +39,10 @@ public class DefaultIssueClientTest {
     httpServer.doReturnBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    IssueQuery query = IssueQuery.create().keys("ABCDE");
+    IssueQuery query = IssueQuery.create().issues("ABCDE");
     Issues issues = client.find(query);
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?keys=ABCDE");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?issues=ABCDE");
     assertThat(issues.list()).hasSize(1);
     assertThat(issues.list().get(0).key()).isEqualTo("ABCDE");
   }
@@ -68,7 +68,7 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     client.change("ABCDE", IssueChange.create().severity("BLOCKER").comment("because!"));
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change?newSeverity=BLOCKER&comment=because!&key=ABCDE");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change?newSeverity=BLOCKER&comment=because!&issue=ABCDE");
   }
 
   @Test
@@ -114,8 +114,8 @@ public class DefaultIssueClientTest {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.transition("ABCDE", IssueTransition.create().transition("resolve"));
+    client.doTransition("ABCDE", "resolve");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_transition?transition=resolve&issue=ABCDE");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_transition?issue=ABCDE&transition=resolve");
   }
 }

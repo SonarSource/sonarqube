@@ -24,7 +24,7 @@ class IssueController < ApplicationController
 
   # Used for the permalink, e.g. http://localhost:9000/issue/view/1
   def view
-    issue_result = find_issues({'keys' => params[:id]})
+    issue_result = find_issues({'issueKeys' => params[:id]})
     if issue_result.issues.length == 1
       @issue = issue_result.issues[0]
       @rule = issue_result.rule(@issue)

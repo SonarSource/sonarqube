@@ -46,11 +46,11 @@ public class JRubyApiIssuesTest {
 
   @Test
   public void test_find() throws Exception {
-    facade.find(ImmutableMap.<String, Object>of("keys", Lists.newArrayList("ABCDE")));
+    facade.find(ImmutableMap.<String, Object>of("issueKeys", Lists.newArrayList("ABCDE")));
     verify(finder).find(argThat(new ArgumentMatcher<IssueQuery>() {
       @Override
       public boolean matches(Object o) {
-        return ((IssueQuery) o).keys().contains("ABCDE");
+        return ((IssueQuery) o).issueKeys().contains("ABCDE");
       }
     }), anyInt(), eq(UserRole.CODEVIEWER));
   }
@@ -58,7 +58,7 @@ public class JRubyApiIssuesTest {
   @Test
   public void should_create_query_from_parameters() {
     Map<String, Object> map = newHashMap();
-    map.put("keys", newArrayList("ABCDE1234"));
+    map.put("issueKeys", newArrayList("ABCDE1234"));
     map.put("severities", newArrayList("MAJOR", "MINOR"));
     map.put("statuses", newArrayList("CLOSED"));
     map.put("resolutions", newArrayList("FALSE-POSITIVE"));
@@ -73,7 +73,7 @@ public class JRubyApiIssuesTest {
     map.put("pageIndex", 50);
 
     IssueQuery query = new JRubyApiIssues(finder).toQuery(map);
-    assertThat(query.keys()).containsOnly("ABCDE1234");
+    assertThat(query.issueKeys()).containsOnly("ABCDE1234");
     assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
     assertThat(query.statuses()).containsOnly("CLOSED");
     assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");

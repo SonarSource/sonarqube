@@ -34,7 +34,7 @@ public class IssueQueryTest {
   @Test
   public void get_all_issues_by_parameter() {
     IssueQuery query = IssueQuery.create()
-      .keys("ABCDE", "FGHIJ")
+      .issues("ABCDE", "FGHIJ")
       .assignees("arthur", "perceval")
       .components("Action.java", "Filter.java")
       .componentRoots("struts")
@@ -49,7 +49,7 @@ public class IssueQueryTest {
       .pageIndex(4);
 
     assertThat(query.urlParams()).hasSize(13);
-    assertThat(query.urlParams()).includes(entry("keys", "ABCDE,FGHIJ"));
+    assertThat(query.urlParams()).includes(entry("issues", "ABCDE,FGHIJ"));
     assertThat(query.urlParams()).includes(entry("assignees", "arthur,perceval"));
     assertThat(query.urlParams()).includes(entry("components", "Action.java,Filter.java"));
     assertThat(query.urlParams()).includes(entry("componentRoots", "struts"));

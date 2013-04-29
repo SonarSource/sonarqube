@@ -163,9 +163,9 @@
         </foreach>
         and i.resource_id=project_component.id
       </if>
-      <if test="keys != null">
+      <if test="issueKeys != null">
         and i.kee in
-        <foreach item="key" index="index" collection="keys" open="(" separator="," close=")">#{key}
+        <foreach item="key" index="index" collection="issueKeys" open="(" separator="," close=")">#{key}
         </foreach>
       </if>
       <if test="severities != null">

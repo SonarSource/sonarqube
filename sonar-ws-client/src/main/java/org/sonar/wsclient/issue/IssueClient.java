@@ -32,9 +32,9 @@ public interface IssueClient {
 
   void create(NewIssue issue);
 
-  void transition(String issueKey, IssueTransition transition);
-
   List<String> transitions(String issueKey);
+
+  void doTransition(String issueKey, String transition);
 
   /**
    * Shortcut for {@code #change(issueKey, IssueChange.create().comment(comment)}

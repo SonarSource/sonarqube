@@ -31,6 +31,9 @@ import java.util.Map;
  */
 public class DefaultIssueClient implements IssueClient {
 
+  private static final String TRANSITIONS_BASE_URL = "/api/issues/transitions";
+  private static final String DO_TRANSITION_BASE_URL = "/api/issues/do_transition";
+
   private final HttpRequestFactory requestFactory;
   private final IssueParser parser;
 
@@ -55,7 +58,7 @@ public class DefaultIssueClient implements IssueClient {
   public void change(String issueKey, IssueChange change) {
     if (!change.urlParams().isEmpty()) {
       Map<String, Object> queryParams = new LinkedHashMap<String, Object>(change.urlParams());
-      queryParams.put("key", issueKey);
+      queryParams.put("issue", issueKey);
       HttpRequest request = requestFactory.post(IssueChange.BASE_URL, queryParams);
       if (!request.ok()) {
         throw new IllegalStateException("Fail to change issue " + issueKey + ".Bad HTTP response status: " + request.code());
@@ -80,7 +83,7 @@ public class DefaultIssueClient implements IssueClient {
   public List<String> transitions(String issueKey) {
     Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
     queryParams.put("issue", issueKey);
-    HttpRequest request = requestFactory.get("/api/issues/transitions", queryParams);
+    HttpRequest request = requestFactory.get(TRANSITIONS_BASE_URL, queryParams);
     if (!request.ok()) {
       throw new IllegalStateException("Fail to return transition for issue. Bad HTTP response status: " + request.code());
     }
@@ -89,14 +92,13 @@ public class DefaultIssueClient implements IssueClient {
   }
 
   @Override
-  public void transition(String issueKey, IssueTransition transition) {
-    if (!transition.urlParams().isEmpty()) {
-      Map<String, Object> queryParams = new LinkedHashMap<String, Object>(transition.urlParams());
-      queryParams.put("issue", issueKey);
-      HttpRequest request = requestFactory.post(IssueTransition.BASE_URL, queryParams);
-      if (!request.ok()) {
-        throw new IllegalStateException("Fail to execute transition on issue " + issueKey + ".Bad HTTP response status: " + request.code());
-      }
+  public void doTransition(String issueKey, String transition) {
+    Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
+    queryParams.put("issue", issueKey);
+    queryParams.put("transition", transition);
+    HttpRequest request = requestFactory.post(DO_TRANSITION_BASE_URL, queryParams);
+    if (!request.ok()) {
+      throw new IllegalStateException("Fail to execute transition on issue " + issueKey + ".Bad HTTP response status: " + request.code());
     }
   }
 }

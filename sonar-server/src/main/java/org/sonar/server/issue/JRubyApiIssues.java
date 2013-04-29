@@ -33,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +63,7 @@ public class JRubyApiIssues implements JRubyIssues {
 
   IssueQuery toQuery(Map<String, Object> props) {
     IssueQuery.Builder builder = IssueQuery.builder();
-    builder.keys(toStrings(props.get("keys")));
+    builder.issueKeys(toStrings(props.get("issueKeys")));
     builder.severities(toStrings(props.get("severities")));
     builder.statuses(toStrings(props.get("statuses")));
     builder.resolutions(toStrings(props.get("resolutions")));

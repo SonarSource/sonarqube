@@ -44,8 +44,8 @@ public class IssueQuery {
     return params;
   }
 
-  public IssueQuery keys(String... keys) {
-    return addParam("keys", keys);
+  public IssueQuery issues(String... keys) {
+    return addParam("issues", keys);
   }
 
   public IssueQuery severities(String... severities) {

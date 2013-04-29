@@ -34,7 +34,7 @@ public class IssueQueryTest {
   @Test
   public void should_build_query() throws Exception {
     IssueQuery query = IssueQuery.builder()
-      .keys(Lists.newArrayList("ABCDE"))
+      .issueKeys(Lists.newArrayList("ABCDE"))
       .severities(Lists.newArrayList(Severity.BLOCKER))
       .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
       .resolutions(Lists.newArrayList(Issue.RESOLUTION_FALSE_POSITIVE))
@@ -49,7 +49,7 @@ public class IssueQueryTest {
       .pageSize(10)
       .pageIndex(2)
       .build();
-    assertThat(query.keys()).containsOnly("ABCDE");
+    assertThat(query.issueKeys()).containsOnly("ABCDE");
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
     assertThat(query.statuses()).containsOnly(Issue.STATUS_RESOLVED);
     assertThat(query.resolutions()).containsOnly(Issue.RESOLUTION_FALSE_POSITIVE);

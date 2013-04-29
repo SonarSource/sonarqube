@@ -37,7 +37,7 @@ import java.util.Date;
  */
 public class IssueQuery {
 
-  private final Collection<String> keys;
+  private final Collection<String> issueKeys;
   private final Collection<String> severities;
   private final Collection<String> statuses;
   private final Collection<String> resolutions;
@@ -58,7 +58,7 @@ public class IssueQuery {
   private final int pageIndex;
 
   private IssueQuery(Builder builder) {
-    this.keys = builder.keys;
+    this.issueKeys = builder.issueKeys;
     this.severities = builder.severities;
     this.statuses = builder.statuses;
     this.resolutions = builder.resolutions;
@@ -75,8 +75,8 @@ public class IssueQuery {
     this.pageIndex = builder.pageIndex;
   }
 
-  public Collection<String> keys() {
-    return keys;
+  public Collection<String> issueKeys() {
+    return issueKeys;
   }
 
   public Collection<String> severities() {
@@ -158,7 +158,7 @@ public class IssueQuery {
     private static final int MAX_PAGE_SIZE = 1000;
     private static final int DEFAULT_PAGE_INDEX = 1;
 
-    private Collection<String> keys;
+    private Collection<String> issueKeys;
     private Collection<String> severities;
     private Collection<String> statuses;
     private Collection<String> resolutions;
@@ -177,8 +177,8 @@ public class IssueQuery {
     private Builder() {
     }
 
-    public Builder keys(Collection<String> l) {
-      this.keys = l;
+    public Builder issueKeys(Collection<String> l) {
+      this.issueKeys = l;
       return this;
     }
 
