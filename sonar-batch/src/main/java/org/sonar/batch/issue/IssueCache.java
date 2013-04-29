@@ -27,6 +27,8 @@ import org.sonar.core.issue.DefaultIssue;
 
 import java.util.Collection;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 /**
  * Shared issues among all project modules
  */
@@ -41,6 +43,10 @@ public class IssueCache implements BatchComponent {
 
   public Collection<DefaultIssue> componentIssues(String componentKey) {
     return cache.values(componentKey);
+  }
+
+  public Collection<DefaultIssue> componentIssues() {
+    return newArrayList(cache.allValues());
   }
 
   public Issue componentIssue(String componentKey, String issueKey) {

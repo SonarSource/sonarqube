@@ -1,0 +1,67 @@
+<dataset>
+  <metrics id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+           enabled="[true]" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="[false]" delete_historical_data="[null]"/>
+  <metrics id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+           enabled="[true]" worst_value="0" optimized_best_value="[true]" best_value="100" direction="1" hidden="[false]" delete_historical_data="[null]"/>
+
+  <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_name="" version="1"
+                  used_profile="[false]"/>
+
+  <projects id="399" kee="struts" root_id="[null]"/>
+  <projects id="400" kee="Action.java" root_id="399"/>
+  <projects id="401" kee="Filter.java" root_id="399"/>
+
+  <snapshots id="100" project_id="399" root_snapshot_id="[null]" path="" islast="[true]"/>
+  <snapshots id="101" project_id="400" root_snapshot_id="100" path="100." islast="[true]"/>
+  <snapshots id="102" project_id="401" root_snapshot_id="100" path="100." islast="[true]"/>
+
+  <rules id="500" plugin_rule_key="AvoidCycle" plugin_name="squid"/>
+  <rules id="501" plugin_rule_key="NullRef" plugin_name="squid"/>
+
+  <issues
+      id="100"
+      kee="100"
+      resource_id="400"
+      rule_id="500"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      manual_issue="[false]"
+      description="[null]"
+      line="200"
+      cost="[null]"
+      status="OPEN"
+      resolution="[null]"
+      checksum="[null]"
+      user_login="user"
+      assignee_login="user"
+      author_login="[null]"
+      attributes="[null]"
+      created_at="[null]"
+      updated_at="[null]"
+      closed_at="[null]"
+      />
+
+  <issues
+      id="101"
+      kee="101"
+      resource_id="401"
+      rule_id="501"
+      severity="MAJOR"
+      manual_severity="[false]"
+      manual_issue="[false]"
+      description="[null]"
+      line="120"
+      cost="[null]"
+      status="OPEN"
+      resolution="FIXED"
+      checksum="[null]"
+      user_login="[null]"
+      assignee_login="user"
+      author_login="[null]"
+      attributes="[null]"
+      created_at="[null]"
+      updated_at="[null]"
+      closed_at="[null]"
+      />
+
+</dataset>

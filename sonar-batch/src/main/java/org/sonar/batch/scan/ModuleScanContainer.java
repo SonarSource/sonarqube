@@ -39,10 +39,12 @@ import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.batch.issue.*;
+import org.sonar.batch.issue.IssuableFactory;
+import org.sonar.batch.issue.ScanIssues;
 import org.sonar.batch.local.DryRunExporter;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
+import org.sonar.batch.report.SonarReport;
 import org.sonar.batch.scan.filesystem.*;
 import org.sonar.core.component.ScanPerspectives;
 
@@ -105,6 +107,7 @@ public class ModuleScanContainer extends ComponentContainer {
       ViolationFilters.class,
       ResourceFilters.class,
       DryRunExporter.class,
+      SonarReport.class,
       new ProfileProvider(),
 
       // issues

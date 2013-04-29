@@ -49,6 +49,10 @@ public class ScanIssues {
     return cache.componentIssues(componentKey);
   }
 
+  public Collection<DefaultIssue> issues() {
+    return cache.componentIssues();
+  }
+
   public ScanIssues addOrUpdate(DefaultIssue issue) {
     Preconditions.checkState(!Strings.isNullOrEmpty(issue.key()), "Missing issue key");
     cache.put(issue);

@@ -22,6 +22,7 @@ package org.sonar.core.persistence;
 import com.google.common.io.Files;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.review.ReviewDto;
@@ -39,7 +40,6 @@ public class DryRunDatabaseFactory implements ServerComponent {
   private static final String URL = "jdbc:h2:";
   private static final String USER = "sonar";
   private static final String PASSWORD = "sonar";
-
   private final Database database;
   private final ServerFileSystem serverFileSystem;
 
@@ -78,13 +78,14 @@ public class DryRunDatabaseFactory implements ServerComponent {
       .copyTable(source, dest, "rules_parameters")
       .copyTable(source, dest, "rules_profiles");
     if (projectId != null) {
+      String projectsConditionForIssues = "SELECT id from projects where id=" + projectId + " or root_id=" + projectId;
       String snapshotCondition = "islast=" + database.getDialect().getTrueSqlValue() + " and (project_id=" + projectId + " or root_project_id=" + projectId + ")";
       template
         .copyTable(source, dest, "projects", "(id=" + projectId + " or root_id=" + projectId + ")")
         .copyTable(source, dest, "reviews", "project_id=" + projectId, "status<>'" + ReviewDto.STATUS_CLOSED + "'")
         .copyTable(source, dest, "rule_failures", "snapshot_id in (select id from snapshots where " + snapshotCondition + ")")
-        .copyTable(source, dest, "snapshots", snapshotCondition)
-      ;
+        .copyTable(source, dest, "issues", "resource_id in (" + projectsConditionForIssues + ")", "status<>'" + Issue.STATUS_CLOSED + "'")
+        .copyTable(source, dest, "snapshots", snapshotCondition);
     }
   }
 

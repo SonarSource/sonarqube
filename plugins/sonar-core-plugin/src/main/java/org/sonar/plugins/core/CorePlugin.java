@@ -282,6 +282,12 @@ import java.util.List;
     name = "Dry Run Results Export File",
     type = PropertyType.STRING,
     global = false, project = false),
+  @Property(
+    key = "sonar.report.export.path",
+    defaultValue = "sonar-report.json",
+    name = "Report Results Export File",
+    type = PropertyType.STRING,
+    global = false, project = false),
 
   // SERVER-SIDE TECHNICAL PROPERTIES
 

@@ -1,0 +1,30 @@
+<dataset>
+  <metrics id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+           enabled="[true]" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="[false]" delete_historical_data="[null]"/>
+  <metrics id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+           enabled="[true]" worst_value="0" optimized_best_value="[true]" best_value="100" direction="1" hidden="[false]" delete_historical_data="[null]"/>
+
+  <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_name="" version="1"
+                  used_profile="[false]"/>
+
+
+  <projects id="123" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            description="[null]" long_name="Apache Struts"
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="2013-01-25 02:04:06.00"/>
+
+  <snapshots id="1000" project_id="123" root_project_id="123" root_snapshot_id="1000" parent_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" path="1000." depth="1"
+             purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]"
+             period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]"
+             period4_date="[null]" period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             created_at="2013-01-25 02:04:06.00" build_date="2013-01-25 02:04:06.00"
+             version="1.0" status="P" islast="[true]"/>
+
+  <rule_failures id="1" snapshot_id="1000" rule_id="1" failure_level="2" message="msg1" cost="[null]" switched_off="[null]" permanent_id="[null]"/>
+
+  <reviews id="1" project_id="123" resource_id="2" status="OPEN"
+           rule_failure_permanent_id="1" resolution="[null]" created_at="[null]" resource_line="200" severity="BLOCKER"
+           user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]"/>
+
+</dataset>
