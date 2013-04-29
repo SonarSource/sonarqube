@@ -1,6 +1,5 @@
 {
   "transitions": [
-    "close",
     "resolve",
     "falsepositive"
   ]

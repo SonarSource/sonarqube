@@ -77,8 +77,8 @@ public class IssueParserTest {
     List<String> transitions = new IssueParser().parseTransitions(json);
 
     assertThat(transitions).isNotNull();
-    assertThat(transitions).hasSize(3);
-    assertThat(transitions).containsOnly("close", "resolve", "falsepositive");
+    assertThat(transitions).hasSize(2);
+    assertThat(transitions).containsOnly("resolve", "falsepositive");
   }
 
 }

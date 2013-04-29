@@ -96,7 +96,6 @@ public class DefaultIssueClientTest {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
     httpServer.doReturnBody("{\n" +
       "  \"transitions\": [\n" +
-      "    \"close\",\n" +
       "    \"resolve\",\n" +
       "    \"falsepositive\"\n" +
       "  ]\n" +
@@ -106,8 +105,8 @@ public class DefaultIssueClientTest {
     List<String> transitions = client.transitions("ABCDE");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/transitions?issue=ABCDE");
-    assertThat(transitions).hasSize(3);
-    assertThat(transitions).containsOnly("close", "resolve", "falsepositive");
+    assertThat(transitions).hasSize(2);
+    assertThat(transitions).containsOnly("resolve", "falsepositive");
   }
 
   @Test
