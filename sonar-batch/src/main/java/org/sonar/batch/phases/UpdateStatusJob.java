@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.phases;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
@@ -77,7 +76,11 @@ public class UpdateStatusJob implements BatchComponent {
     boolean isLast = (previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt()));
     setFlags(snapshot, isLast, Snapshot.STATUS_PROCESSED);
     if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
-      String baseUrl = StringUtils.defaultIfBlank(settings.getString(CoreProperties.SERVER_BASE_URL), server.getURL());
+      String baseUrl = settings.getString(CoreProperties.SERVER_BASE_URL);
+      if (baseUrl.equals(settings.getDefaultValue(CoreProperties.SERVER_BASE_URL))) {
+        // If server base URL was not configured in Sonar server then is is better to take URL configured on batch side
+        baseUrl = server.getURL();
+      }
       if (!baseUrl.endsWith("/")) {
         baseUrl += "/";
       }
