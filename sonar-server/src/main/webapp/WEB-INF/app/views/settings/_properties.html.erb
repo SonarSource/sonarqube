@@ -10,7 +10,7 @@
     <ul class="tabs2">
       <% subcategories.each do |subcategory| -%>
         <li>
-          <%= link_to subcategory_name(@category, subcategory), {:action => 'index', :category => @category, :subcategory => subcategory}, :class => @subcategory==subcategory ? 'selected' : nil -%>
+          <%= link_to subcategory_name(@category, subcategory), {:action => @resource ? 'settings' : 'index', :category => @category, :subcategory => subcategory}, :class => @subcategory==subcategory ? 'selected' : nil -%>
         </li>
       <% end -%>
     </ul>
