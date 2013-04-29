@@ -22,14 +22,22 @@ class IssueController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
+  helper SourceHelper, UsersHelper
+
   # Used for the permalink, e.g. http://localhost:9000/issue/view/1
   def view
     issue_result = find_issues({'issueKeys' => params[:id]})
     if issue_result.issues.length == 1
-      @issue = issue_result.issues[0]
-      @rule = issue_result.rule(@issue)
-      @resource = Project.by_key(@issue.component_key)
-      render 'issue/_view', :locals => {:issue => @issue, :rule => @rule, :resource => @resource}
+      issue = issue_result.issues[0]
+      rule = issue_result.rule(issue)
+
+      resource = Project.by_key(issue.component_key)
+      project = resource.root_project
+
+      # Only used for breadcrumb
+      @resource = project
+
+      render 'issue/_view', :locals => {:issue => issue, :rule => rule, :resource => resource, :project => project}
     else
       render :text => "<b>Cannot access this issue</b> : not found."
     end

@@ -1,12 +1,13 @@
 <%
    displayed_resource = @resource || @project
+   display_only_root = @review || @issue
 %>
 
 <% if @breadcrumbs %>
 
   <div id="crumbs">
     <ul id="crumbs-ops">
-      <% if displayed_resource && !@review %>
+      <% if displayed_resource && !display_only_root %>
         <li>
           <%= link_to_favourite(displayed_resource) -%>
         </li>
@@ -42,7 +43,7 @@
 
   <div id="crumbs">
     <ul id="crumbs-ops">
-      <% if displayed_resource && !@review %>
+      <% if displayed_resource && !display_only_root %>
         <li>
           <%= link_to_favourite(displayed_resource) -%>
         </li>
@@ -54,7 +55,7 @@
     <ul id="bc">
       <%
          resource_link = {}
-         if @review
+         if display_only_root
            resource_link = {:controller => 'dashboard', :action => 'index'}
          end
 
@@ -87,6 +88,15 @@
         %>
         <li>
           <%= link_to message('review') + ' #' + @review.id.to_s -%>
+        </li>
+      <%
+         end
+
+         # ======== Path for issue ========
+         if @issue
+      %>
+        <li>
+          <%= link_to message('issue') + ' #' + @issue.key.to_s -%>
         </li>
       <%
          end

@@ -75,8 +75,8 @@
       </td>
       <td class="val" colspan="3">
         <%= qualifier_icon(resource) -%>
-        <% if resource.root_project.id != resource.id %>
-          <%= resource.root_project.long_name -%> <%= image_tag 'sep12.png' -%>
+        <% if project.id != resource.id %>
+          <%= project.long_name -%> <%= image_tag 'sep12.png' -%>
         <% end %>
         <% if  resource.last_snapshot %>
           <%= link_to_resource(resource, resource.long_name, {:tab => :violations, :rule => issue.resolution == "FALSE-POSITIVE" ? "false_positive_issues" : ""}) %>
@@ -86,5 +86,17 @@
       </td>
     </tr>
   </table>
+
+  <% if issue.line && has_role?(:codeviewer, project) %>
+    <div class="marginbottom10">
+      <%= snapshot_html_source(resource.last_snapshot, {:line_range => (issue.line-5)..(issue.line+5), :highlighted_lines => [issue.line]}) -%>
+    </div>
+  <% end %>
+
+  <div class="discussion marginbottom10">
+      <div class="discussionComment first">
+        <%= h(issue.description) -%>
+      </div>
+  </div>
 
 </div>

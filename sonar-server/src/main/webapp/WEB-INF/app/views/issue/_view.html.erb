@@ -3,5 +3,5 @@
     # hack in case 'error_message' is nil (this should disappear when refactoring the '_view' and '_issue' partials)
     error_message = error_message 
   %>
-  <%= render :partial => 'issue/issue', :locals => {:issue => @issue, :rule => @rule, :resource => @resource, :workflow => @issue, :error_message => error_message} -%>
+  <%= render :partial => 'issue/issue', :locals => {:issue => issue, :rule => rule, :resource => resource, :workflow => issue, :project => project, :error_message => error_message} -%>
 </div>
