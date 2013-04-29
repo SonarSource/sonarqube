@@ -38,8 +38,7 @@ class IssueController < ApplicationController
   protected
 
   def find_issues(map)
-    user = current_user ? current_user.id : nil
-    Api.issues.find(map, user)
+    Api.issues.find(map)
   end
 
 end

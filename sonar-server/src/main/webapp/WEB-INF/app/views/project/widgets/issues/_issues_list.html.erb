@@ -13,10 +13,8 @@
      # TODO
      search_options['to'] = to_date
    end
-   #puts "### search_options"
-   #search_options.each {|key, value| puts key.to_s + "->"+ value.to_s}
    user = current_user ? current_user.id : nil
-   issues = Api.issues.find(search_options, user).issues
+   issues = Api.issues.find(search_options).issues
 
    # table pagination
    page_size = table_limit.to_i
