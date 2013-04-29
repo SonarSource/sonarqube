@@ -19,25 +19,33 @@
  */
 package org.sonar.wsclient.issue;
 
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @since 3.6
  */
-public interface IssueClient {
+public class IssueTransition {
+  static final String BASE_URL = "/api/issues/do_transition";
+  private final Map<String, Object> params = new LinkedHashMap<String, Object>();
 
-  Issues find(IssueQuery query);
+  private IssueTransition() {
+  }
 
-  void change(String issueKey, IssueChange change);
+  public static IssueTransition create() {
+    return new IssueTransition();
+  }
 
-  void create(NewIssue issue);
-
-  void transition(String issueKey, IssueTransition transition);
-
-  List<String> transitions(String issueKey);
+  Map<String, Object> urlParams() {
+    return params;
+  }
 
   /**
-   * Shortcut for {@code #change(issueKey, IssueChange.create().comment(comment)}
+   * Ask to apply a transition
    */
-  void comment(String issueKey, String comment);
+  public IssueTransition transition(String s) {
+    params.put("transition", s);
+    return this;
+  }
+
 }

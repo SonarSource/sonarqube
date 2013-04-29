@@ -22,10 +22,12 @@ package org.sonar.wsclient.issue;
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 class IssueParser {
+
   Issues parseIssues(String json) {
     Issues result = new Issues();
     Map jRoot = (Map) JSONValue.parse(json);
@@ -38,5 +40,15 @@ class IssueParser {
 
     result.setSecurityExclusions(JsonUtils.getBoolean(jRoot, "securityExclusions"));
     return result;
+  }
+
+  List<String> parseTransitions(String json) {
+    List<String> transitions = new ArrayList<String>();
+    Map jRoot = (Map) JSONValue.parse(json);
+    List<String> jTransitions = (List) jRoot.get("transitions");
+    for (String jTransition : jTransitions) {
+      transitions.add(jTransition);
+    }
+    return transitions;
   }
 }

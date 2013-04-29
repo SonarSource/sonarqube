@@ -23,6 +23,7 @@ import com.github.kevinsawicki.http.HttpRequest;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -75,4 +76,27 @@ public class DefaultIssueClient implements IssueClient {
     change(issueKey, IssueChange.create().comment(comment));
   }
 
+  @Override
+  public List<String> transitions(String issueKey) {
+    Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
+    queryParams.put("issue", issueKey);
+    HttpRequest request = requestFactory.get("/api/issues/transitions", queryParams);
+    if (!request.ok()) {
+      throw new IllegalStateException("Fail to return transition for issue. Bad HTTP response status: " + request.code());
+    }
+    String json = request.body("UTF-8");
+    return parser.parseTransitions(json);
+  }
+
+  @Override
+  public void transition(String issueKey, IssueTransition transition) {
+    if (!transition.urlParams().isEmpty()) {
+      Map<String, Object> queryParams = new LinkedHashMap<String, Object>(transition.urlParams());
+      queryParams.put("issue", issueKey);
+      HttpRequest request = requestFactory.post(IssueTransition.BASE_URL, queryParams);
+      if (!request.ok()) {
+        throw new IllegalStateException("Fail to execute transition on issue " + issueKey + ".Bad HTTP response status: " + request.code());
+      }
+    }
+  }
 }

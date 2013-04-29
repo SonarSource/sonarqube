@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 
+import java.util.List;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -87,5 +89,34 @@ public class DefaultIssueClientTest {
     client.create(NewIssue.create().component("Action.java").rule("squid:AvoidCycle"));
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/create?component=Action.java&rule=squid:AvoidCycle");
+  }
+
+  @Test
+  public void should_get_transitions() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    httpServer.doReturnBody("{\n" +
+      "  \"transitions\": [\n" +
+      "    \"close\",\n" +
+      "    \"resolve\",\n" +
+      "    \"falsepositive\"\n" +
+      "  ]\n" +
+      "}");
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    List<String> transitions = client.transitions("ABCDE");
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/transitions?issue=ABCDE");
+    assertThat(transitions).hasSize(3);
+    assertThat(transitions).containsOnly("close", "resolve", "falsepositive");
+  }
+
+  @Test
+  public void should_apply_transition() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    client.transition("ABCDE", IssueTransition.create().transition("resolve"));
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_transition?transition=resolve&issue=ABCDE");
   }
 }

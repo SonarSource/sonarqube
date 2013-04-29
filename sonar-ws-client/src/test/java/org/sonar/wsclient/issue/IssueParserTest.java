@@ -71,4 +71,14 @@ public class IssueParserTest {
     assertThat(issues.securityExclusions()).isTrue();
   }
 
+  @Test
+  public void test_GET_transitions() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/getTransitions.json"));
+    List<String> transitions = new IssueParser().parseTransitions(json);
+
+    assertThat(transitions).isNotNull();
+    assertThat(transitions).hasSize(3);
+    assertThat(transitions).containsOnly("close", "resolve", "falsepositive");
+  }
+
 }
