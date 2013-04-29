@@ -26,20 +26,50 @@ class IssueController < ApplicationController
 
   # Used for the permalink, e.g. http://localhost:9000/issue/view/1
   def view
-    issue_result = find_issues({'issueKeys' => params[:id]})
-    if issue_result.issues.length == 1
-      issue = issue_result.issues[0]
-      rule = issue_result.rule(issue)
+    require_parameters :id
+    issue_result = find_issue(params[:id])
+    @issue = issue_result.issues[0]
+    @rule = issue_result.rule(@issue)
+    @component = Project.by_key(@issue.component_key)
+    @transitions = Internal.issues.listTransitions(@issue.key)
 
-      resource = Project.by_key(issue.component_key)
-      project = resource.root_project
+    # Used for breadcrumb
+    @resource = @component.root_project
+    render 'issue/_view'
+  end
 
-      # Only used for breadcrumb
-      @resource = project
+  # GET
+  def transition_form
+    require_parameters :key, :transition
+    issue_result = find_issue(params[:key])
+    @issue = issue_result.issues[0]
+    bad_request('Unknown issue') unless @issue
 
-      render 'issue/_view', :locals => {:issue => issue, :rule => rule, :resource => resource, :project => project}
+    @transition = params[:transition]
+    bad_request('Missing transition') if @transition.blank?
+
+    render :partial => 'issue/transition_form'
+  end
+
+  # POST
+  def transition
+    verify_post_request
+    require_parameters :key, :transition
+
+    issue = Internal.issues.doTransition(params[:key], params[:transition])
+
+
+    issue_result = find_issue(params[:key])
+    @issue = issue_result.issues[0]
+    @rule = issue_result.rule(@issue)
+    @component = Project.by_key(@issue.component_key)
+    @transitions = Internal.issues.listTransitions(@issue.key)
+    @resource = @component.root_project
+
+    if issue
+      render :partial => 'issue/view'
     else
-      render :text => "<b>Cannot access this issue</b> : not found."
+      render :status => 400
     end
   end
 
@@ -47,6 +77,15 @@ class IssueController < ApplicationController
 
   def find_issues(map)
     Api.issues.find(map)
+  end
+
+  def find_issue(issue_key)
+    issue_result = find_issues({'issueKeys' => issue_key})
+    if issue_result.issues.length == 1
+      issue_result
+    else
+      render :text => "<b>Cannot access this issue</b> : not found."
+    end
   end
 
 end

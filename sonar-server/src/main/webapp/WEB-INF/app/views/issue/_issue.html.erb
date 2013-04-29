@@ -1,11 +1,23 @@
-<div id="issue-<%= issue.key -%>">
+<div id="issue-<%= @issue.key -%>">
   <div class="reviewTitle">
-    <h2><%= h(issue.description) -%></h2>
+    <h2><%= h(@issue.description) -%></h2>
   </div>
 
   <% if defined?(error_message) && error_message %>
     <div id="issue-error" class="error"><%= h error_message -%> <a href="#" onclick="$j('#issue-error').hide(); return false;"><%= message('issues.hide_this_message') -%></a></div>
   <% end %>
+
+  <% if current_user %>
+    <div class="marginbottom10" id="actionButtons">
+      <% @transitions.each do |transition| %>
+        <%= button_to_remote message("issues.transition.#{transition.key}.button"),
+                             :url => {:controller => "issue", :action => "transition_form", :key => @issue.key, :transition => transition.key},
+                             :update => "actionForm",
+                             :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
+      <% end %>
+    </div>
+  <% end %>
+
 
   <div class="discussionComment" id="actionForm" style="border: 1px solid #DDD;display:none"></div>
 
@@ -15,16 +27,16 @@
         <%= message('status') -%>:
       </td>
       <td class="val">
-        <%= image_tag "status/#{issue.status}.png" -%> <span class="reviewStatus<%= issue.status -%>"><%= message("issues.status.#{issue.status}") -%></span>
-        <% if issue.resolution.present? %>
-          (<span class="reviewResolution<%= issue.resolution -%>"><%= message("issues.resolution.#{issue.resolution}") -%></span>)
+        <%= image_tag "status/#{@issue.status}.png" -%> <span class="reviewStatus<%= @issue.status -%>"><%= message("issues.status.#{@issue.status}") -%></span>
+        <% if @issue.resolution.present? %>
+          (<span class="reviewResolution<%= @issue.resolution -%>"><%= message("issues.resolution.#{@issue.resolution}") -%></span>)
         <% end %>
       </td>
       <td class="key">
         <%= message('severity') -%>:
       </td>
       <td class="val">
-        <%= image_tag "priority/#{issue.severity}.png" -%> <%= message("severity.#{issue.severity}") -%>
+        <%= image_tag "priority/#{@issue.severity}.png" -%> <%= message("severity.#{@issue.severity}") -%>
       </td>
     </tr>
     <tr>
@@ -32,14 +44,14 @@
         <%= message('assignee') -%>:
       </td>
       <td class="val">
-        <% assignee = issue.assignee %>
+        <% assignee = @issue.assignee %>
         <%= assignee ? h(assignee) : '-' -%>
       </td>
       <td class="key">
         <%= message('author') -%>:
       </td>
       <td class="val">
-        <% author = issue.user_login %>
+        <% author = @issue.user_login %>
         <%= author ? h(author) : '-' -%>
       </td>
     </tr>
@@ -48,24 +60,25 @@
         <%= message('created') -%>:
       </td>
       <td class="val">
-        <%= l(to_date(issue.created_at)) -%>
+        <%= l(to_date(@issue.created_at)) -%>
       </td>
       <td class="key">
         <%= message('updated') -%>:
       </td>
       <td class="val">
-        <%= l(to_date(issue.updated_at)) if issue.updated_at -%>
+        <%= l(to_date(@issue.updated_at)) if @issue.updated_at -%>
       </td>
     </tr>
     <% # TODO action plan %>
-    <% if rule %>
-      <% rule_name = Internal.rules.ruleName(I18n.locale, rule.rule_key) %>
+    <% if @rule %>
+      <% rule_name = Internal.rules.ruleName(I18n.locale, @rule.rule_key) %>
       <tr>
         <td class="key">
           <%= message('rule') -%>:
         </td>
         <td class="val" colspan="3">
-          <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.rule_key.to_s, :layout => 'false' -%>"><%= h(rule_name) -%></a>
+          <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;"
+             href="<%= url_for :controller => 'rules', :action => 'show', :id => @rule.rule_key.to_s, :layout => 'false' -%>"><%= h(rule_name) -%></a>
         </td>
       </tr>
     <% end %>
@@ -74,28 +87,28 @@
         <%= message('file') -%>:
       </td>
       <td class="val" colspan="3">
-        <%= qualifier_icon(resource) -%>
-        <% if project.id != resource.id %>
-          <%= project.long_name -%> <%= image_tag 'sep12.png' -%>
+        <%= qualifier_icon(@component) -%>
+        <% if @resource.id != @component.id %>
+          <%= @resource.long_name -%> <%= image_tag 'sep12.png' -%>
         <% end %>
-        <% if  resource.last_snapshot %>
-          <%= link_to_resource(resource, resource.long_name, {:tab => :violations, :rule => issue.resolution == "FALSE-POSITIVE" ? "false_positive_issues" : ""}) %>
+        <% if @component.last_snapshot %>
+          <%= link_to_resource(@component, @component.long_name, {:tab => :violations, :rule => @issue.resolution == "FALSE-POSITIVE" ? "false_positive_issues" : ""}) %>
         <% else %>
-          <%= resource.long_name -%>
+          <%= @component.long_name -%>
         <% end %>
       </td>
     </tr>
   </table>
 
-  <% if issue.line && has_role?(:codeviewer, project) %>
+  <% if @issue.line && has_role?(:codeviewer, @resource) %>
     <div class="marginbottom10">
-      <%= snapshot_html_source(resource.last_snapshot, {:line_range => (issue.line-5)..(issue.line+5), :highlighted_lines => [issue.line]}) -%>
+      <%= snapshot_html_source(@component.last_snapshot, {:line_range => (@issue.line-5)..(@issue.line+5), :highlighted_lines => [@issue.line]}) -%>
     </div>
   <% end %>
 
   <div class="discussion marginbottom10">
       <div class="discussionComment first">
-        <%= h(issue.description) -%>
+        <%= h(@issue.description) -%>
       </div>
   </div>
 
