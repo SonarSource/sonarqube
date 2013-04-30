@@ -24,6 +24,7 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.fest.assertions.MapAssert.entry;
 
 public class EncodingUtilsTest {
@@ -47,5 +48,15 @@ public class EncodingUtilsTest {
     assertThat(EncodingUtils.toMap("foo", "bar")).hasSize(1).includes(entry("foo", "bar"));
     assertThat(EncodingUtils.toMap("1", "one", "2", "two")).hasSize(2).includes(entry("1", "one"), entry("2", "two"));
     assertThat(EncodingUtils.toMap("foo", null)).isEmpty();
+  }
+
+  @Test
+  public void toMap_should_fail_if_odd_arguments() {
+    try {
+      EncodingUtils.toMap("foo");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Not an even number of arguments");
+    }
   }
 }

@@ -37,6 +37,9 @@ public class EncodingUtils {
   }
 
   public static Map<String, Object> toMap(String... array) {
+    if (array.length%2==1) {
+      throw new IllegalArgumentException("Not an even number of arguments");
+    }
     Map<String, Object> map = new LinkedHashMap<String, Object>();
     for (int i = 0; i < array.length; i += 2) {
       Object value = array[i + 1];
