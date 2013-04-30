@@ -28,7 +28,7 @@
       </td>
       <td class="val">
         <%= image_tag "status/#{@issue.status}.png" -%> <span class="reviewStatus<%= @issue.status -%>"><%= message("issues.status.#{@issue.status}") -%></span>
-        <% if @issue.resolution.present? && !@issue.resolution == 'OEPN' %>
+        <% if @issue.resolution.present? && @issue.resolution != 'OPEN' %>
           (<span class="reviewResolution<%= @issue.resolution -%>"><%= message("issues.resolution.#{@issue.resolution}") -%></span>)
         <% end %>
       </td>

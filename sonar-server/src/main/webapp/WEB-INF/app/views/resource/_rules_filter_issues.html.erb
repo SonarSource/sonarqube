@@ -46,7 +46,13 @@
 
   <option value="all"><%= message('all_issues') -%></option>
 
-  <!--TODO Add false_positive, active, ... issues -->
+  <option value="false_positive_issues" <%= 'selected' if params[:rule]=="false_positive_issues" -%>>
+    <%= message('issues_viewer.issue_filter.false_positives') -%>
+  </option>
+  <option value="unassigned_issues" <%= 'selected' if params[:rule]=="unassigned_issues" -%>>
+    <%= message('issues_viewer.issue_filter.unassigned') -%>
+  </option>
+  <!--TODO unplanned_issues -->
 
   <optgroup label="<%= message('severity') -%>">
     <% if blocker_issues

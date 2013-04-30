@@ -413,45 +413,41 @@ class ResourceController < ApplicationController
     @filtered = !@expanded
     rule_param = params[:rule]
 
-    options = {'components' => @resource.key}
+    options = {'components' => @resource.key, 'resolutions' => 'OPEN'}
 
-    # TODO
-    #if rule_param.blank? && params[:metric]
-    #  metric = Metric.by_id(params[:metric])
-    #  if metric && (metric.name=='active_reviews' || metric.name=='unassigned_reviews' || metric.name=='unplanned_reviews' || metric.name=='false_positive_reviews' ||
-    #      metric.name=='unreviewed_violations' || metric.name=='new_unreviewed_violations')
-    #    rule_param = metric.name.gsub(/new_/, '')
-    #
-    #    # hack to select the correct option in the rule filter select-box
-    #    params[:rule] = rule_param
-    #  end
-    #end
+    if rule_param.blank? && params[:metric]
+      metric = Metric.by_id(params[:metric])
+      if metric && (metric.name=='unassigned_issues' || metric.name=='unplanned_issues' || metric.name=='false_positive_issues')
+        rule_param = metric.name.gsub(/new_/, '')
+
+        # hack to select the correct option in the rule filter select-box
+        params[:rule] = rule_param
+      end
+    end
 
     if !rule_param.blank? && rule_param != 'all'
-      #if rule_param=='false_positive_reviews'
-      #  options[:switched_off]=true
-      #
-      #elsif rule_param=='active_reviews'
-      #  options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
-      #
-      #elsif rule_param=='unassigned_reviews'
-      #  options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
-      #  options[:review_assignee_id]=nil
-      #
+      if rule_param=='false_positive_issues'
+        options['resolutions'] = 'FALSE-POSITIVE'
+        options['statuses'] = ['RESOLVED']
+
+      elsif rule_param=='unassigned_issues'
+        options['statuses'] = ['OPEN', 'REOPENED']
+
+        # FIXME 'assignees' to nil will always return all issues!
+        options['assignees'] = nil
+
+      # TODO
       #elsif rule_param=='unplanned_reviews'
       #  options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
       #  options[:planned]=false
       #
-      #elsif rule_param=='unreviewed_violations'
-      #  options[:review_statuses]=[nil]
 
-      if Sonar::RulePriority.id(rule_param)
+      elsif Sonar::RulePriority.id(rule_param)
         options['severities'] = rule_param
 
       else
         rule = Rule.by_key_or_id(rule_param)
-        options['rule'] = rule.plugin_rule_key
-        options['ruleRepository'] = rule.repository_key
+        options['rules'] = rule.key
       end
     end
 
