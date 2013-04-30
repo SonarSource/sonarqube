@@ -43,6 +43,7 @@ public class IssueQueryTest {
       .rules(Lists.newArrayList(RuleKey.of("squid", "AvoidCycle")))
       .userLogins(Lists.newArrayList("crunky"))
       .assignees(Lists.newArrayList("gargantua"))
+      .assigned(true)
       .createdAfter(new Date())
       .createdBefore(new Date())
       .sort("assignee")
@@ -57,6 +58,7 @@ public class IssueQueryTest {
     assertThat(query.componentRoots()).containsOnly("org.struts:core");
     assertThat(query.userLogins()).containsOnly("crunky");
     assertThat(query.assignees()).containsOnly("gargantua");
+    assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();

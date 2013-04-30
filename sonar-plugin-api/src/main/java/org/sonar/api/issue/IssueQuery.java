@@ -46,6 +46,7 @@ public class IssueQuery {
   private final Collection<RuleKey> rules;
   private final Collection<String> userLogins;
   private final Collection<String> assignees;
+  private final Boolean assigned;
   private final Date createdAfter;
   private final Date createdBefore;
   private final String sort;
@@ -67,6 +68,7 @@ public class IssueQuery {
     this.rules = builder.rules;
     this.userLogins = builder.userLogins;
     this.assignees = builder.assignees;
+    this.assigned = builder.assigned;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
@@ -109,6 +111,10 @@ public class IssueQuery {
 
   public Collection<String> assignees() {
     return assignees;
+  }
+
+  public Boolean assigned() {
+    return assigned;
   }
 
   public Date createdAfter() {
@@ -167,6 +173,7 @@ public class IssueQuery {
     private Collection<RuleKey> rules;
     private Collection<String> userLogins;
     private Collection<String> assignees;
+    private Boolean assigned = null;
     private Date createdAfter;
     private Date createdBefore;
     private String sort;
@@ -219,6 +226,15 @@ public class IssueQuery {
 
     public Builder assignees(Collection<String> l) {
       this.assignees = l;
+      return this;
+    }
+
+    /**
+     * If true, it will return all issues assigned to someone
+     * If false, it will return all issues not assigned to someone
+     */
+    public Builder assigned(Boolean assigned) {
+      this.assigned = assigned;
       return this;
     }
 

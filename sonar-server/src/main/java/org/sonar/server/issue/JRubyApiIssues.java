@@ -72,6 +72,7 @@ public class JRubyApiIssues implements JRubyIssues {
     builder.rules(toRules(props.get("rules")));
     builder.userLogins(toStrings(props.get("userLogins")));
     builder.assignees(toStrings(props.get("assignees")));
+    builder.assigned(toBoolean(props.get("assigned")));
     builder.createdAfter(toDate(props.get("createdAfter")));
     builder.createdBefore(toDate(props.get("createdBefore")));
     builder.pageSize(toInteger(props.get("pageSize")));
@@ -146,6 +147,16 @@ public class JRubyApiIssues implements JRubyIssues {
     }
     if (o instanceof String) {
       return DateUtils.parseDateTime((String) o);
+    }
+    return null;
+  }
+
+  Boolean toBoolean(Object o) {
+    if (o instanceof Boolean) {
+      return (Boolean) o;
+    }
+    if (o instanceof String) {
+      return Boolean.parseBoolean((String) o);
     }
     return null;
   }

@@ -80,6 +80,11 @@ public class IssueQuery {
     return addParam("assignees", s);
   }
 
+  public IssueQuery assigned(Boolean assigned) {
+    params.put("assigned", assigned);
+    return this;
+  }
+
   public IssueQuery createdAfter(Date d) {
     params.put("createdAfter", EncodingUtils.toQueryParam(d, true));
     return this;

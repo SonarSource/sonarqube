@@ -196,6 +196,14 @@
         <foreach item="assignee" index="index" collection="assignees" open="(" separator="," close=")">#{assignee}
         </foreach>
       </if>
+      <if test="assigned != null">
+        <if test="assigned == true">
+          and i.assignee_login is not null
+        </if>
+        <if test="assigned == false">
+          and i.assignee_login is null
+        </if>
+      </if>
       <if test="rules != null and rules.size() > 0">
         and (<foreach item="rule" index="index" collection="rules" open="(" separator=" or " close=")">r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
       </if>

@@ -36,6 +36,7 @@ public class IssueQueryTest {
     IssueQuery query = IssueQuery.create()
       .issues("ABCDE", "FGHIJ")
       .assignees("arthur", "perceval")
+      .assigned(true)
       .components("Action.java", "Filter.java")
       .componentRoots("struts")
       .resolutions("FIXED", "FALSE-POSITIVE")
@@ -48,9 +49,10 @@ public class IssueQueryTest {
       .pageSize(5)
       .pageIndex(4);
 
-    assertThat(query.urlParams()).hasSize(13);
+    assertThat(query.urlParams()).hasSize(14);
     assertThat(query.urlParams()).includes(entry("issues", "ABCDE,FGHIJ"));
     assertThat(query.urlParams()).includes(entry("assignees", "arthur,perceval"));
+    assertThat(query.urlParams()).includes(entry("assigned", true));
     assertThat(query.urlParams()).includes(entry("components", "Action.java,Filter.java"));
     assertThat(query.urlParams()).includes(entry("componentRoots", "struts"));
     assertThat(query.urlParams()).includes(entry("resolutions", "FIXED,FALSE-POSITIVE"));

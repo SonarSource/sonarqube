@@ -202,6 +202,23 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_select_by_assigned() {
+    setupData("shared", "should_select_by_assigned");
+
+    IssueQuery query = IssueQuery.builder().assigned(true).build();
+    List<IssueDto> issues = newArrayList(dao.select(query));
+    assertThat(issues).hasSize(2);
+
+    query = IssueQuery.builder().assigned(false).build();
+    issues = newArrayList(dao.select(query));
+    assertThat(issues).hasSize(1);
+
+    query = IssueQuery.builder().assigned(null).build();
+    issues = newArrayList(dao.select(query));
+    assertThat(issues).hasSize(3);
+  }
+
+  @Test
   public void should_select_all() {
     setupData("shared", "should_select_all");
 
@@ -250,6 +267,5 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     Collection<IssueDto> results = dao.selectByIds(newArrayList(100l, 101l, 102l));
     assertThat(results).hasSize(3);
   }
-
 
 }

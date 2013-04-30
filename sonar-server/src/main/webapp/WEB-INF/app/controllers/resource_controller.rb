@@ -431,8 +431,7 @@ class ResourceController < ApplicationController
         options['statuses'] = ['RESOLVED']
 
       elsif rule_param=='unassigned_issues'
-        # FIXME 'assignees' to nil will always return all issues!
-        options['assignees'] = nil
+        options['assigned'] = false
 
       # TODO
       #elsif rule_param=='unplanned_reviews'
