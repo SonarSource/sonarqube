@@ -11,7 +11,7 @@
     <div class="marginbottom10" id="actionButtons">
       <% @transitions.each do |transition| %>
         <%= button_to_remote message("issues.transition.#{transition.key}.button"),
-                             :url => {:controller => "issue", :action => "transition_form", :key => @issue.key, :transition => transition.key},
+                             :url => {:controller => "issue", :action => "transition_form", :id => @issue.key, :transition => transition.key},
                              :update => "actionForm",
                              :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
       <% end %>

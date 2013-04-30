@@ -1,5 +1,5 @@
 <form method="POST">
-  <input type="hidden" name="key" value="<%= @issue.key -%>"/>
+  <input type="hidden" name="id" value="<%= @issue.key -%>"/>
   <input type="hidden" name="transition" value="<%= @transition -%>"/>
 
   <textarea id="actionText" rows="4" name="text" style="width: 100%"></textarea>
@@ -9,5 +9,5 @@
                        :html => {:id => "submit_btn"},
                        :update => 'issue' -%>
   &nbsp;
-  <%= link_to_remote message('cancel'), :url => {:action => 'show', :key => params[:key]}, :update => 'issue' -%>
+  <%= link_to_remote message('cancel'), :url => {:action => 'show', :id => params[:id]}, :update => 'issue' -%>
 </form>

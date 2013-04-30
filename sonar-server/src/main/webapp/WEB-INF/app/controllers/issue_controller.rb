@@ -24,27 +24,22 @@ class IssueController < ApplicationController
 
   helper SourceHelper, UsersHelper
 
+
   # Used for the permalink, e.g. http://localhost:9000/issue/view/1
   def view
     require_parameters :id
-    issue_result = find_issue(params[:id])
-    @issue = issue_result.issues[0]
-    @rule = issue_result.rule(@issue)
-    @component = Project.by_key(@issue.component_key)
-    @transitions = Internal.issues.listTransitions(@issue.key)
+    init_issue(params[:id])
+    init_resource
 
-    # Used for breadcrumb
-    @resource = @component.root_project
+    @transitions = Internal.issues.listTransitions(@issue.key)
     render 'issue/_view'
   end
 
   # GET
   def transition_form
-    require_parameters :key, :transition
-    issue_result = find_issue(params[:key])
-    @issue = issue_result.issues[0]
-    bad_request('Unknown issue') unless @issue
+    require_parameters :id, :transition
 
+    init_issue(params[:id])
     @transition = params[:transition]
     bad_request('Missing transition') if @transition.blank?
 
@@ -54,19 +49,12 @@ class IssueController < ApplicationController
   # POST
   def transition
     verify_post_request
-    require_parameters :key, :transition
-
-    issue = Internal.issues.doTransition(params[:key], params[:transition])
-
-
-    issue_result = find_issue(params[:key])
-    @issue = issue_result.issues[0]
-    @rule = issue_result.rule(@issue)
-    @component = Project.by_key(@issue.component_key)
-    @transitions = Internal.issues.listTransitions(@issue.key)
-    @resource = @component.root_project
-
+    require_parameters :id, :transition
+    issue = Internal.issues.doTransition(params[:id], params[:transition])
     if issue
+      init_issue(params[:id])
+      init_resource
+      @transitions = Internal.issues.listTransitions(@issue.key)
       render :partial => 'issue/view'
     else
       render :status => 400
@@ -74,6 +62,18 @@ class IssueController < ApplicationController
   end
 
   protected
+
+  def init_issue(issue_key)
+    issue_result = find_issue(issue_key)
+    @issue = issue_result.issues[0]
+    bad_request('Unknown issue') unless @issue
+    @rule = issue_result.rule(@issue)
+  end
+
+  def init_resource
+    @component = Project.by_key(@issue.component_key)
+    @resource = @component.root_project
+  end
 
   def find_issues(map)
     Api.issues.find(map)
