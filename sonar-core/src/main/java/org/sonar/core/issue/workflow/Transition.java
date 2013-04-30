@@ -24,10 +24,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 public class Transition {
@@ -79,13 +77,6 @@ public class Transition {
     return true;
   }
 
-  public void execute(DefaultIssue issue) {
-    for (Function function : functions) {
-      function.execute(issue);
-    }
-    issue.setStatus(to);
-    issue.setUpdatedAt(new Date());
-  }
 
   public static TransitionBuilder builder(String key) {
     return new TransitionBuilder(key);

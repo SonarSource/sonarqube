@@ -20,24 +20,99 @@
 package org.sonar.plugins.core.issue;
 
 import org.sonar.api.BatchExtension;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueHandler;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueUpdater;
+
+import javax.annotation.Nullable;
 
 public class IssueHandlers implements BatchExtension {
   private final IssueHandler[] handlers;
+  private final DefaultContext context;
 
-  public IssueHandlers(IssueHandler[] handlers) {
+  public IssueHandlers(IssueUpdater updater, IssueHandler[] handlers) {
     this.handlers = handlers;
+    this.context = new DefaultContext(updater);
   }
 
-  public IssueHandlers() {
-    this(new IssueHandler[0]);
+  public IssueHandlers(IssueUpdater updater) {
+    this(updater, new IssueHandler[0]);
   }
 
   public void execute(DefaultIssue issue) {
-    DefaultIssueHandlerContext context = new DefaultIssueHandlerContext(issue);
+    context.reset(issue);
     for (IssueHandler handler : handlers) {
       handler.onIssue(context);
+    }
+  }
+
+  static class DefaultContext implements IssueHandler.Context {
+    private final IssueUpdater updater;
+    private DefaultIssue issue;
+
+
+    private DefaultContext(IssueUpdater updater) {
+      this.updater = updater;
+    }
+
+    private void reset(DefaultIssue i) {
+      this.issue = i;
+    }
+
+    @Override
+    public Issue issue() {
+      return issue;
+    }
+
+    @Override
+    public boolean isNew() {
+      return issue.isNew();
+    }
+
+    @Override
+    public boolean isAlive() {
+      return issue.isAlive();
+    }
+
+    @Override
+    public IssueHandler.Context setLine(@Nullable Integer line) {
+      updater.setLine(issue, line);
+      return this;
+    }
+
+    @Override
+    public IssueHandler.Context setDescription(@Nullable String description) {
+      updater.setDescription(issue, description);
+      return this;
+    }
+
+    @Override
+    public IssueHandler.Context setSeverity(String severity) {
+      updater.setSeverity(issue, severity);
+      return this;
+    }
+
+    @Override
+    public IssueHandler.Context setAuthorLogin(@Nullable String login) {
+      updater.setAuthorLogin(issue, login);
+      return this;
+    }
+
+    @Override
+    public IssueHandler.Context setAttribute(String key, @Nullable String value) {
+      throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public IssueHandler.Context assign(@Nullable String assignee) {
+      updater.assign(issue, assignee);
+      return this;
+    }
+
+    @Override
+    public IssueHandler.Context comment(String message) {
+      return null;
     }
   }
 

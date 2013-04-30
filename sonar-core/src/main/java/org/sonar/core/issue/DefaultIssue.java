@@ -19,10 +19,10 @@
  */
 package org.sonar.core.issue;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -36,9 +36,8 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
 
-public class DefaultIssue implements Issue, Serializable {
+public class DefaultIssue implements Issue {
 
   private String key;
   private String componentKey;
@@ -60,8 +59,8 @@ public class DefaultIssue implements Issue, Serializable {
   private boolean isNew = true;
   private boolean isAlive = true;
   private Map<String, String> attributes = null;
-
-  private String authorLogin;
+  private String authorLogin = null;
+  private IssueChange change = null;
 
   public String key() {
     return key;
@@ -100,7 +99,7 @@ public class DefaultIssue implements Issue, Serializable {
     return this;
   }
 
-  public boolean isManualSeverity() {
+  public boolean manualSeverity() {
     return manualSeverity;
   }
 
@@ -198,6 +197,7 @@ public class DefaultIssue implements Issue, Serializable {
     return closedAt;
   }
 
+  // TODO rename setClosedDate
   public DefaultIssue setClosedAt(@Nullable Date d) {
     this.closedAt = d;
     return this;
@@ -273,6 +273,20 @@ public class DefaultIssue implements Issue, Serializable {
     return this;
   }
 
+  public DefaultIssue setDiff(String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
+    if (!Objects.equal(oldValue, newValue)) {
+      if (change == null) {
+        change = new IssueChange();
+      }
+      change.setDiff(field, oldValue, newValue);
+    }
+    return this;
+  }
+
+  public IssueChange change() {
+    return change;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -297,6 +311,4 @@ public class DefaultIssue implements Issue, Serializable {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
-
-
 }

@@ -28,7 +28,6 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.issue.DefaultIssue;
 
 import java.util.Collection;
-import java.util.UUID;
 
 /**
  * Central component to manage issues
@@ -65,10 +64,8 @@ public class ScanIssues {
       // rule does not exist or is not enabled -> ignore the issue
       return false;
     }
-    String key = UUID.randomUUID().toString();
-    Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
-    issue.setKey(key);
     issue.setCreatedAt(project.getAnalysisDate());
+    issue.setUpdatedAt(project.getAnalysisDate());
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }

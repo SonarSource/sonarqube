@@ -28,31 +28,29 @@ import javax.annotation.Nullable;
  */
 public interface IssueHandler extends BatchExtension {
 
-  interface IssueContext {
+  interface Context {
     Issue issue();
 
     boolean isNew();
 
     boolean isAlive();
 
-    IssueContext setLine(@Nullable Integer line);
+    Context setLine(@Nullable Integer line);
 
-    IssueContext setDescription(String description);
+    Context setDescription(@Nullable String description);
 
-    // set manual severity ?
-    IssueContext setSeverity(String severity);
+    Context setSeverity(String severity);
 
-    // TODO rename to setScmLogin ?
-    IssueContext setAuthorLogin(@Nullable String login);
+    Context setAuthorLogin(@Nullable String login);
 
-    IssueContext setAttribute(String key, @Nullable String value);
+    Context setAttribute(String key, @Nullable String value);
 
-    IssueContext assignTo(@Nullable String login);
+    Context assign(@Nullable String login);
 
-    //TODO IssueContext comment(String comment);
+    Context comment(String message);
 
   }
 
-  void onIssue(IssueContext context);
+  void onIssue(Context context);
 
 }

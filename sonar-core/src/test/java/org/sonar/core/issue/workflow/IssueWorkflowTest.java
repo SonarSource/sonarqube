@@ -24,15 +24,19 @@ import com.google.common.collect.Collections2;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class IssueWorkflowTest {
-  IssueWorkflow workflow = new IssueWorkflow();
+  IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(new IssueUpdater()));
 
   @Test
   public void should_init_state_machine() throws Exception {
@@ -51,9 +55,9 @@ public class IssueWorkflowTest {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
-    List<Transition> transitions = workflow.outManualTransitions(issue);
-    assertThat(transitions).hasSize(3);
-    assertThat(keys(transitions)).containsOnly("close", "falsepositive", "resolve");
+    List<Transition> transitions = workflow.outTransitions(issue);
+    assertThat(transitions).hasSize(2);
+    assertThat(keys(transitions)).containsOnly("falsepositive", "resolve");
   }
 
   @Test
@@ -65,7 +69,7 @@ public class IssueWorkflowTest {
       .setStatus(Issue.STATUS_RESOLVED)
       .setNew(false)
       .setAlive(false);
-    workflow.doAutomaticTransition(issue);
+    workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(new Date()));
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.closedAt()).isNotNull();

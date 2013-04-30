@@ -349,6 +349,8 @@ public class IssueTracking implements BatchExtension {
       if (pastIssue.isManualSeverity()) {
         newIssue.setManualSeverity(true);
         newIssue.setSeverity(pastIssue.getSeverity());
+      } else if (!Objects.equal(pastIssue.getSeverity(), newIssue.severity())) {
+        newIssue.setDiff("severity", pastIssue.getSeverity(), newIssue.severity());
       }
       newIssue.setResolution(pastIssue.getResolution());
       newIssue.setStatus(pastIssue.getStatus());
@@ -358,15 +360,13 @@ public class IssueTracking implements BatchExtension {
       newIssue.setAlive(true);
       newIssue.setAuthorLogin(pastIssue.getAuthorLogin());
       if (pastIssue.getAttributes() != null) {
+        //TODO do not loose new attributes
         newIssue.setAttributes(KeyValueFormat.parse(pastIssue.getAttributes()));
       }
 
       lastIssuesByRule.remove(getRuleId(newIssue), pastIssue);
       issueMap.put(newIssue, pastIssue);
       unmappedLastIssues.remove(pastIssue);
-    } else {
-      newIssue.setNew(true);
-      newIssue.setCreatedAt(project.getAnalysisDate());
     }
   }
 

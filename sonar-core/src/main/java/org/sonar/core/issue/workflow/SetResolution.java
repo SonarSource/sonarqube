@@ -21,19 +21,17 @@ package org.sonar.core.issue.workflow;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import org.sonar.core.issue.DefaultIssue;
 
-class SetResolution implements Function {
+public class SetResolution implements Function {
   private final String resolution;
 
-  SetResolution(String resolution) {
+  public SetResolution(String resolution) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(resolution), "Resolution must be set");
     this.resolution = resolution;
   }
 
   @Override
-  public void execute(DefaultIssue issue) {
-    issue.setResolution(resolution);
+  public void execute(Context context) {
+    context.setResolution(resolution);
   }
-
 }

@@ -54,20 +54,54 @@ class Api::IssuesController < Api::ApiController
     issue = Internal.issues.doTransition(params[:issue], params[:transition])
     if issue
       render :json => jsonp({
-        :issue => issue_to_json(issue)
-      })
+                              :issue => issue_to_json(issue)
+                            })
     else
       render :status => 400
     end
   end
 
-  # POST /api/issues/create?severity=xxx>&<resolution=xxx>&component=<component key>
+  # POST /api/issues/add_comment?issue=<key>&text=<text>
+  # Note that the text can also be set in the post body
+  def add_comment
+    verify_post_request
+    require_parameters :issue, :text
+
+    text = Api::Utils.read_post_request_param(:text)
+    Internal.issues.addComment(params[:issue], text)
+    # TODO add more response data ?
+    render :json => jsonp({})
+  end
+
+  # POST /api/issues/assign?issue=<key>&assignee=<optional assignee>
+  # A nil assignee will remove the assignee.
+  def assign
+    verify_post_request
+    require_parameters :issue
+
+    Internal.issues.assign(params[:issue], params[:assignee])
+    # TODO return the assignee
+    render :json => jsonp({})
+  end
+
+  # POST /api/issues/create
+  #
+  # Mandatory parameters
+  # 'component' is the component key
+  # 'rule' includes the repository key and the rule key, for example 'squid:AvoidCycle'
+  #
+  # Optional parameters
+  # 'severity' is in BLOCKER, CRITICAL, ... INFO. Default value is MAJOR.
+  # 'line' starts at 1
+  # 'description' is the plain-text description
+  #
   def create
     verify_post_request
     access_denied unless logged_in?
+    require_parameters :component, :rule
 
-    # TODO
-    render :json => jsonp({})
+    issue = Internal.issues.create(params)
+    render :json => jsonp({:issue => issue_to_json(issue)})
   end
 
   private

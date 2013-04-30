@@ -17,15 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.core.issue;
 
-import org.sonar.core.issue.DefaultIssue;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.Date;
 
-class UnsetClosedAt implements Function {
+public class IssueChangeContext implements Serializable {
 
-  @Override
-  public void execute(DefaultIssue issue) {
-    issue.setClosedAt(null);
+  private String login;
+  private Date date;
+  private boolean automatic;
+
+  private IssueChangeContext(@Nullable String login, Date date, boolean automatic) {
+    this.login = login;
+    this.date = date;
+    this.automatic = automatic;
   }
 
+  @CheckForNull
+  public String login() {
+    return login;
+  }
+
+  public Date date() {
+    return date;
+  }
+
+  public boolean automatic() {
+    return automatic;
+  }
+
+  public static IssueChangeContext createScan(Date date) {
+    return new IssueChangeContext(null, date, true);
+  }
+
+  public static IssueChangeContext createUser(Date date, String login) {
+    return new IssueChangeContext(login, date, false);
+  }
 }

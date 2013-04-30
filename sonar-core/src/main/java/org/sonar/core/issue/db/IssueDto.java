@@ -308,7 +308,7 @@ public final class IssueDto {
       .setSeverity(issue.severity())
       .setChecksum(issue.getChecksum())
       .setManualIssue(issue.manual())
-      .setManualSeverity(issue.isManualSeverity())
+      .setManualSeverity(issue.manualSeverity())
       .setUserLogin(issue.userLogin())
       .setAssignee(issue.assignee())
       .setCreatedAt(issue.createdAt())

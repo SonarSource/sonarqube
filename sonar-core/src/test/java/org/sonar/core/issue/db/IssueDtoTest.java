@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.db.IssueDto;
 
 import java.util.Date;
 
@@ -86,7 +85,7 @@ public class IssueDtoTest {
     assertThat(issue.line()).isEqualTo(6);
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.description()).isEqualTo("message");
-    assertThat(issue.isManualSeverity()).isTrue();
+    assertThat(issue.manualSeverity()).isTrue();
     assertThat(issue.manual()).isTrue();
     assertThat(issue.userLogin()).isEqualTo("arthur");
     assertThat(issue.assignee()).isEqualTo("perceval");

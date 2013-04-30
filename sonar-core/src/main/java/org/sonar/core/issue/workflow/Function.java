@@ -19,8 +19,14 @@
  */
 package org.sonar.core.issue.workflow;
 
-import org.sonar.core.issue.DefaultIssue;
+import org.sonar.api.issue.Issue;
 
 interface Function {
-  void execute(DefaultIssue issue);
+  interface Context {
+    Issue issue();
+    Context setResolution(String s);
+    Context setClosedDate(boolean b);
+  }
+
+  void execute(Context context);
 }

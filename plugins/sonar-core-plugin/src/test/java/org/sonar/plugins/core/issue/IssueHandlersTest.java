@@ -23,33 +23,38 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.issue.IssueHandler;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueUpdater;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class IssueHandlersTest {
   @Test
   public void should_execute_handlers() throws Exception {
     IssueHandler h1 = mock(IssueHandler.class);
     IssueHandler h2 = mock(IssueHandler.class);
+    IssueUpdater updater = mock(IssueUpdater.class);
 
-    IssueHandlers handlers = new IssueHandlers(new IssueHandler[]{h1, h2});
+    IssueHandlers handlers = new IssueHandlers(updater, new IssueHandler[]{h1, h2});
     final DefaultIssue issue = new DefaultIssue();
     handlers.execute(issue);
 
-    verify(h1).onIssue(argThat(new ArgumentMatcher<IssueHandler.IssueContext>() {
+    verify(h1).onIssue(argThat(new ArgumentMatcher<IssueHandler.Context>() {
       @Override
       public boolean matches(Object o) {
-        return ((IssueHandler.IssueContext) o).issue() == issue;
+        return ((IssueHandler.Context) o).issue() == issue;
       }
     }));
   }
 
   @Test
   public void test_no_handlers() {
-    IssueHandlers handlers = new IssueHandlers();
+    IssueUpdater updater = mock(IssueUpdater.class);
+    IssueHandlers handlers = new IssueHandlers(updater);
     handlers.execute(new DefaultIssue());
-    // do not fail
+    verifyZeroInteractions(updater);
   }
 }

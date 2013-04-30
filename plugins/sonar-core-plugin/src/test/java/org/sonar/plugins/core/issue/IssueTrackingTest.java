@@ -207,17 +207,6 @@ public class IssueTrackingTest {
   }
 
   @Test
-  public void should_set_date_of_new_issues() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum");
-    assertThat(newIssue.createdAt()).isNull();
-
-    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(newArrayList(newIssue), Lists.<IssueDto>newArrayList());
-    assertThat(mapping.size()).isEqualTo(0);
-    assertThat(newIssue.createdAt()).isEqualTo(analysisDate);
-    assertThat(newIssue.isNew()).isTrue();
-  }
-
-  @Test
   public void should_set_severity_if_severity_has_been_changed_by_user() {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum").setSeverity("MAJOR");
     IssueDto referenceIssue = newReferenceIssue("message", 1, 1, "checksum").setSeverity("MINOR").setManualSeverity(true);

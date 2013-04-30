@@ -31,6 +31,7 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
@@ -83,8 +84,9 @@ public class IssueTrackingDecorator implements Decorator {
         addDead(issues);
       }
 
+      IssueChangeContext changeContext = IssueChangeContext.createScan(context.getProject().getAnalysisDate());
       for (DefaultIssue issue : issues) {
-        workflow.doAutomaticTransition(issue);
+        workflow.doAutomaticTransition(issue, changeContext);
         handlers.execute(issue);
         scanIssues.addOrUpdate(issue);
       }

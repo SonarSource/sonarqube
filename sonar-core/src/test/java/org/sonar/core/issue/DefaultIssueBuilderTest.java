@@ -42,7 +42,7 @@ public class DefaultIssueBuilderTest {
       .build();
 
     assertThat(issue).isNotNull();
-    assertThat(issue.key()).isNull();
+    assertThat(issue.key()).isNotNull();
     assertThat(issue.cost()).isEqualTo(10000.0);
     assertThat(issue.componentKey()).isEqualTo(componentKey);
     assertThat(issue.description()).isEqualTo("the desc");
@@ -50,7 +50,7 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.ruleKey().repository()).isEqualTo("squid");
     assertThat(issue.ruleKey().rule()).isEqualTo("NullDereference");
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(issue.updatedAt()).isNull();
+    assertThat(issue.updatedAt()).isNotNull();
     assertThat(issue.closedAt()).isNull();
     assertThat(issue.assignee()).isNull();
     assertThat(issue.isNew()).isTrue();

@@ -23,12 +23,14 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Mockito;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -88,7 +90,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     List<IssueDto> dbIssues = Collections.emptyList();
     when(initialOpenIssues.selectAndRemove(123)).thenReturn(dbIssues);
 
-    decorator.decorate(file, mock(DecoratorContext.class));
+    decorator.decorate(file, mock(DecoratorContext.class, Mockito.RETURNS_MOCKS));
 
     // Apply filters, track, apply transitions, notify extensions then update cache
     verify(filters).accept(issue);
@@ -99,8 +101,8 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
         return issues.size() == 1 && issues.get(0) == issue;
       }
     }));
-    verify(workflow).doAutomaticTransition(issue);
-    verify(handlers).execute(issue);
+    verify(workflow).doAutomaticTransition(eq(issue), any(IssueChangeContext.class));
+    verify(handlers).execute(eq(issue));
     verify(scanIssues).addOrUpdate(issue);
   }
 
@@ -117,9 +119,9 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     List<IssueDto> unmatchedIssues = Arrays.asList(unmatchedIssue);
     when(tracking.track(eq(file), anyCollection(), anyCollection())).thenReturn(Sets.newHashSet(unmatchedIssues));
 
-    decorator.decorate(file, mock(DecoratorContext.class));
+    decorator.decorate(file, mock(DecoratorContext.class, Mockito.RETURNS_MOCKS));
 
-    verify(workflow, times(2)).doAutomaticTransition(any(DefaultIssue.class));
+    verify(workflow, times(2)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
     verify(handlers, times(2)).execute(any(DefaultIssue.class));
     verify(scanIssues, times(2)).addOrUpdate(any(DefaultIssue.class));
 
@@ -141,10 +143,10 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     IssueDto deadIssue = new IssueDto().setKey("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
     when(initialOpenIssues.getAllIssues()).thenReturn(Arrays.asList(deadIssue));
 
-    decorator.decorate(project, mock(DecoratorContext.class));
+    decorator.decorate(project, mock(DecoratorContext.class, Mockito.RETURNS_MOCKS));
 
     // the dead issue must be closed -> apply automatic transition, notify handlers and add to cache
-    verify(workflow, times(2)).doAutomaticTransition(any(DefaultIssue.class));
+    verify(workflow, times(2)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
     verify(handlers, times(2)).execute(any(DefaultIssue.class));
     verify(scanIssues, times(2)).addOrUpdate(any(DefaultIssue.class));
 

@@ -84,13 +84,15 @@ public class ScanIssuesTest {
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
 
-    DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle")).setSeverity(Severity.CRITICAL);
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setSeverity(Severity.CRITICAL);
     boolean added = scanIssues.initAndAddIssue(issue);
 
     assertThat(added).isTrue();
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
-    assertThat(argument.getValue().key()).isNotNull();
     assertThat(argument.getValue().severity()).isEqualTo(Severity.CRITICAL);
     assertThat(argument.getValue().createdAt()).isEqualTo(analysisDate);
   }
@@ -111,7 +113,6 @@ public class ScanIssuesTest {
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
-    assertThat(argument.getValue().key()).isNotNull();
     assertThat(argument.getValue().severity()).isEqualTo(Severity.INFO);
     assertThat(argument.getValue().createdAt()).isEqualTo(analysisDate);
   }

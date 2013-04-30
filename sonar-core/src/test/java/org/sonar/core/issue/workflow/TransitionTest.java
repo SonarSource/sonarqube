@@ -25,7 +25,6 @@ import org.sonar.core.issue.DefaultIssue;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TransitionTest {
@@ -99,22 +98,6 @@ public class TransitionTest {
     } catch (Exception e) {
       assertThat(e).hasMessage("Destination status must be set");
     }
-  }
-
-  @Test
-  public void should_execute_functions() throws Exception {
-    DefaultIssue issue = new DefaultIssue();
-    Transition transition = Transition.builder("close")
-      .from("OPEN").to("CLOSED")
-      .conditions(condition1, condition2)
-      .functions(function1, function2)
-      .build();
-    transition.execute(issue);
-
-    assertThat(issue.status()).isEqualTo("CLOSED");
-    assertThat(issue.updatedAt()).isNotNull();
-    verify(function1).execute(issue);
-    verify(function2).execute(issue);
   }
 
   @Test

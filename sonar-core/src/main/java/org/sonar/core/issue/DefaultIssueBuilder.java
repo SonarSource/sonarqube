@@ -19,13 +19,18 @@
  */
 package org.sonar.core.issue;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 
+import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
@@ -88,18 +93,25 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issue build() {
+  public DefaultIssue build() {
     Preconditions.checkNotNull(componentKey, "Component key must be set");
     Preconditions.checkNotNull(ruleKey, "Rule key must be set");
 
     DefaultIssue issue = new DefaultIssue();
+    String key = UUID.randomUUID().toString();
+    Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
+    issue.setKey(key);
+    Date now = new Date();
+    issue.setCreatedAt(now);
+    issue.setUpdatedAt(now);
     issue.setComponentKey(componentKey);
     issue.setRuleKey(ruleKey);
     issue.setDescription(description);
-    issue.setSeverity(severity);
+    issue.setSeverity(Objects.firstNonNull(severity, Severity.MAJOR));
     issue.setCost(cost);
     issue.setLine(line);
     issue.setManual(manual);
+    issue.setManualSeverity(manual);
     issue.setAttributes(attributes);
     issue.setNew(true);
     issue.setAlive(true);

@@ -19,29 +19,15 @@
  */
 package org.sonar.core.issue.workflow;
 
-import org.junit.Test;
-import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
+public class SetClosedDate implements Function {
+  private final boolean set;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
-
-public class SetResolutionTest {
-  @Test
-  public void should_set_resolution() throws Exception {
-    DefaultIssue issue = new DefaultIssue();
-    SetResolution function = new SetResolution(Issue.RESOLUTION_FIXED);
-    function.execute(issue);
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+  public SetClosedDate(boolean set) {
+    this.set = set;
   }
 
-  @Test
-  public void resolution_should_not_be_empty() throws Exception {
-    try {
-      new SetResolution("");
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Resolution must be set");
-    }
+  @Override
+  public void execute(Context context) {
+    context.setClosedDate(set);
   }
 }
