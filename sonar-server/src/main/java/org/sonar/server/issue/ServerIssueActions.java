@@ -95,7 +95,7 @@ public class ServerIssueActions implements ServerComponent {
     IssueDto dto = loadDto(issueKey, userSession);
     DefaultIssue issue = dto.toDefaultIssue();
 
-    if (issueUpdater.setSeverity(issue, severity)) {
+    if (issueUpdater.setManualSeverity(issue, severity)) {
       issueDao.update(Arrays.asList(IssueDto.toDto(issue, dto.getResourceId(), dto.getRuleId())));
     }
     return issue;
