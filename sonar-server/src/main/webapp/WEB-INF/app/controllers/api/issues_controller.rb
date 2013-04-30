@@ -20,7 +20,12 @@
 
 class Api::IssuesController < Api::ApiController
 
+  #
   # GET /api/issues/search?<parameters>
+  #
+  # -- Example
+  # curl -v -u admin:admin 'http://localhost:9000/api/issues/search?statuses=OPEN,RESOLVED'
+  #
   def search
     results = Api.issues.find(params)
     render :json => jsonp(
@@ -32,7 +37,12 @@ class Api::IssuesController < Api::ApiController
     )
   end
 
+  #
   # GET /api/issues/transitions?issue=<key>
+  #
+  # -- Example
+  # curl -v -u admin:admin 'http://localhost:9000/api/issues/transitions?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0'
+  #
   def transitions
     # TODO deal with errors (404, ...)
     require_parameters :issue
@@ -45,7 +55,12 @@ class Api::IssuesController < Api::ApiController
     )
   end
 
+  #
   # POST /api/issues/do_transition?issue=<key>&transition=<key>&comment=<optional comment>
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/do_transition?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0&transition=resolve'
+  #
   def do_transition
     verify_post_request
     require_parameters :issue, :transition
@@ -61,8 +76,10 @@ class Api::IssuesController < Api::ApiController
     end
   end
 
+  #
   # POST /api/issues/add_comment?issue=<key>&text=<text>
   # Note that the text can also be set in the post body
+  #
   def add_comment
     verify_post_request
     require_parameters :issue, :text
@@ -73,8 +90,13 @@ class Api::IssuesController < Api::ApiController
     render :json => jsonp({})
   end
 
+  #
   # POST /api/issues/assign?issue=<key>&assignee=<optional assignee>
   # A nil assignee will remove the assignee.
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/assign?issue=4a2881e7-825e-4140-a154-01f420c43d11&assignee=emmerik'
+  #
   def assign
     verify_post_request
     require_parameters :issue
@@ -86,14 +108,17 @@ class Api::IssuesController < Api::ApiController
 
   # POST /api/issues/create
   #
-  # Mandatory parameters
+  # -- Mandatory parameters
   # 'component' is the component key
   # 'rule' includes the repository key and the rule key, for example 'squid:AvoidCycle'
   #
-  # Optional parameters
+  # -- Optional parameters
   # 'severity' is in BLOCKER, CRITICAL, ... INFO. Default value is MAJOR.
   # 'line' starts at 1
   # 'description' is the plain-text description
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/create?component=commons-io:commons-io:org.apache.commons.io.filefilter.OrFileFilter&rule=pmd:ConstructorCallsOverridableMethod&line=2&severity=BLOCKER'
   #
   def create
     verify_post_request
