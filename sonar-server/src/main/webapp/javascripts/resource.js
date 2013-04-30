@@ -190,7 +190,7 @@ function hVF(elt, line) {
 // show the form for transition
 function displayIssueTransitionForm(issueKey, transitionKey) {
   // TODO
-  //hideMoreViolationActions(violation_id);
+  //hideMoreIssueActions(issueKey);
   new Ajax.Updater('issue-form' + issueKey,
       baseUrl + '/issue/issue_transition_form?issue=' + issueKey + '&transition='+ transitionKey,
       {
@@ -199,8 +199,25 @@ function displayIssueTransitionForm(issueKey, transitionKey) {
         onComplete:function (request) {
           $('issue-actions' + issueKey).remove();
           $('issue-form' + issueKey).show();
-          // TODO
-//          $('commentText' + issueKey).focus();
+          $('issue-comment' + issueKey).focus();
+        }
+      });
+  return false;
+}
+
+// show the form to assign issue
+function displayIssueAssignForm(issueKey) {
+  // TODO
+  //hideMoreIssueActions(issueKey);
+  new Ajax.Updater('issue-form' + issueKey,
+      baseUrl + '/issue/issue_assign_form/?issue=' +issueKey,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('issue-actions' + issueKey).remove();
+          $('issue-form' + issueKey).show();
+          $('issue_assignee_login').focus();
         }
       });
   return false;

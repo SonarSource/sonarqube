@@ -55,13 +55,12 @@ class IssueController < ApplicationController
     render :partial => 'issue/transition_form'
   end
 
-  # POST
   def transition
     verify_post_request
     require_parameters :issue, :transition
-    issue = Internal.issues.doTransition(params[:issue], params[:transition])
-    if issue
-      init_issue(params[:issue])
+
+    @issue = Internal.issues.doTransition(params[:issue], params[:transition])
+    if @issue
       init_resource
       @transitions = Internal.issues.listTransitions(@issue.key)
       render :partial => 'issue/view'
@@ -73,9 +72,14 @@ class IssueController < ApplicationController
 
   #
   #
-  # ACTIONS FROM ISSUES TAB OF RESOURCE VIEWER
+  # ACTIONS FROM ISSUES TAB OF CODE VIEWER
   #
   #
+
+  def display_issue
+    init_issue(params[:issue])
+    render :partial => 'resource/issue', :locals => {:issue => @issue}
+  end
 
   def issue_transition_form
     require_parameters :issue, :transition
@@ -87,26 +91,37 @@ class IssueController < ApplicationController
     render :partial => 'issue/code_viewer/transition_form'
   end
 
-  # POST
   def issue_transition
     verify_post_request
     require_parameters :issue, :transition
-    issue = Internal.issues.doTransition(params[:issue], params[:transition])
-    if issue
-      init_issue(params[:issue])
-      @transitions = Internal.issues.listTransitions(@issue.key)
-      render :partial => 'resource/issue', :locals => {:issue => @issue}
-    else
-      # TODO
-      render :status => 400
-    end
+
+    @issue = Internal.issues.doTransition(params[:issue], params[:transition])
+    render_issue_code_viewer
   end
 
-  # GET
-  def display_issue
+  def issue_assign_form
+    require_parameters :issue
     init_issue(params[:issue])
-    render :partial => 'resource/issue', :locals => {:issue => @issue}
+
+    render :partial => 'issue/code_viewer/assign_form'
   end
+
+  def issue_assign
+    verify_post_request
+    require_parameters :issue
+
+    assignee = nil
+    if params[:me]=='true'
+      assignee = current_user.login
+
+    elsif params[:issue_assignee_login].present?
+      assignee = params[:issue_assignee_login]
+    end
+
+    @issue = Internal.issues.assign(params[:issue], assignee)
+    render_issue_code_viewer
+  end
+
 
   protected
 
@@ -119,6 +134,16 @@ class IssueController < ApplicationController
   def init_resource
     @component = Project.by_key(@issue.component_key)
     @resource = @component.root_project
+  end
+
+  def render_issue_code_viewer
+    if @issue
+      @transitions = Internal.issues.listTransitions(@issue.key)
+      render :partial => 'resource/issue', :locals => {:issue => @issue}
+    else
+      # TODO
+      render :status => 400
+    end
   end
 
   def find_issues(map)

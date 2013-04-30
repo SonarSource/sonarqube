@@ -71,11 +71,17 @@
           <div id="issue-error-<%= issue.key -%>" class="error"><%= h error_message -%>
             <a href="#" onclick="$('issue-error-<%= issue.key -%>').hide(); return false;"><%= message('issues.hide_this_message') -%></a></div>
         <% end %>
-        <% transitions = Internal.issues.listTransitions(issue.key) %>
-        <% transitions.each do |transition| %>
+
+        <% Internal.issues.listTransitions(issue.key).each do |transition| %>
         <%= link_to_function message("issues.transition.#{transition.key}.button"), "displayIssueTransitionForm('#{issue.key}', '#{transition.key}')",
                              :name => message("issues.transition.#{transition.key}.button"), :class => 'link-action spacer-right' -%>
         <% end %>
+
+        <% unless issue.status == 'RESOLVED' %>
+        <%= link_to_function message('issues.action.assign.button'), "displayIssueAssignForm('#{issue.key}')",
+                             :name => message('issues.action.assign.button'), :class => 'link-action spacer-right' -%>
+        <% end %>
+
     </div>
     <% end %>
     <div class="discussionComment" id="issue-form<%= issue.key -%>" style="display:none"></div>

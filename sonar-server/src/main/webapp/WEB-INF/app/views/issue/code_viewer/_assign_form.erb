@@ -1,0 +1,41 @@
+<%
+   assignee_check_script = "if ($('autocompleteText-issue_assignee_login').value != '' && $('issue_assignee_login').value == '') { alert($('autocompleteText-issue_assignee_login').value + '" + message('issues.user_does_not_exist') + "'); return false;}"
+%>
+
+<form method="POST"
+      onsubmit="new Ajax.Updater('issue-key<%= params[:issue] -%>', '<%= url_for :controller => 'issue', :action => 'issue_assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)});return false;">
+  <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
+  <input type="hidden" name="transition" value="<%= params[:transition] -%>"/>
+
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top">
+        <textarea id="issue-comment<%= params[:issue] -%>" rows="4" name="text" style="width: 100%"></textarea>
+      </td>
+      <td class="sep"></td>
+      <td style="vertical-align:top;width: 90px">
+        <%= render :partial => 'markdown/tips' -%>
+      </td>
+    </tr>
+  </table>
+
+  <%= user_autocomplete_field 'issue_assignee_login', '' -%>
+
+  &nbsp;&nbsp;
+  <%= submit_to_remote "submit_btn", message('issues.action.assign.button'),
+                       :url => {:action => 'issue_assign'},
+                       :update => "issue-key" + params[:issue],
+                       :before => assignee_check_script -%>
+  &nbsp;
+  <%= image_tag 'sep12.png' -%>
+  &nbsp;
+  <%= submit_to_remote "submit_me_btn", message('issues.action.assign_to_me.button'),
+                       :url => {:action => 'issue_assign', :issue => params[:issue], :me => true},
+                       :update => "issue-key" + params[:issue],
+                       :html => {:disabled => (@issue.assignee == current_user.login)} -%>
+  &nbsp;
+  <%= link_to_function message('cancel'), "cancelIssueAction('#{params[:issue]}')" -%>
+  <script>
+    $('autocompleteText-issue_assignee_login').focus()
+  </script>
+</form>
