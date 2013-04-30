@@ -21,7 +21,6 @@
 package org.sonar.plugins.core.issue;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
@@ -216,21 +215,24 @@ public class IssueTrackingTest {
   }
 
   @Test
-  public void should_copy_date_when_not_new() {
+  public void should_copy_some_fields_when_not_new() {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum");
-    IssueDto referenceIssue = newReferenceIssue("", 1, 1, "checksum");
+    IssueDto referenceIssue = newReferenceIssue("", 1, 1, "checksum").setAuthorLogin("arthur").setAssignee("perceval");
     Date referenceDate = DateUtils.parseDate("2009-05-18");
     referenceIssue.setCreatedAt(referenceDate);
     assertThat(newIssue.createdAt()).isNull();
 
     Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
     assertThat(mapping.size()).isEqualTo(1);
-    assertThat(newIssue.createdAt()).isEqualTo(referenceDate);
     assertThat(newIssue.isNew()).isFalse();
+
+    assertThat(newIssue.createdAt()).isEqualTo(referenceDate);
+    assertThat(newIssue.assignee()).isEqualTo("perceval");
+    assertThat(newIssue.authorLogin()).isEqualTo("arthur");
   }
 
   @Test
-  public void past_issue_not_assiciated_with_line_should_not_cause_npe() throws Exception {
+  public void past_issue_not_associated_with_line_should_not_cause_npe() throws Exception {
     when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
     String source = load("example2-v2");
 
@@ -248,7 +250,7 @@ public class IssueTrackingTest {
   }
 
   @Test
-  public void new_issue_not_assiciated_with_line_should_not_cause_npe() throws Exception {
+  public void new_issue_not_associated_with_line_should_not_cause_npe() throws Exception {
     when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
     String source = load("example2-v2");
 

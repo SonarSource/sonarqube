@@ -37,6 +37,7 @@ import org.sonar.plugins.core.timemachine.ViolationTrackingBlocksRecognizer;
 import org.sonar.plugins.core.timemachine.tracking.*;
 
 import javax.annotation.Nullable;
+
 import java.util.*;
 
 public class IssueTracking implements BatchExtension {
@@ -358,6 +359,7 @@ public class IssueTracking implements BatchExtension {
       newIssue.setUpdatedAt(project.getAnalysisDate());
       newIssue.setNew(false);
       newIssue.setAlive(true);
+      newIssue.setAssignee(pastIssue.getAssignee());
       newIssue.setAuthorLogin(pastIssue.getAuthorLogin());
       if (pastIssue.getAttributes() != null) {
         //TODO do not loose new attributes
