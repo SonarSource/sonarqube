@@ -25,6 +25,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 public class IssueUpdater implements BatchComponent, ServerComponent {
@@ -38,13 +39,14 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
-  public DefaultIssue setManualSeverity(DefaultIssue issue, String severity) {
+  public boolean setManualSeverity(DefaultIssue issue, String severity) {
     if (!issue.manualSeverity() || !Objects.equal(severity, issue.severity())) {
       issue.setDiff("severity", issue.severity(), severity);
       issue.setSeverity(severity);
       issue.setManualSeverity(true);
+      return true;
     }
-    return issue;
+    return false;
   }
 
   public boolean assign(DefaultIssue issue, @Nullable String assignee) {
