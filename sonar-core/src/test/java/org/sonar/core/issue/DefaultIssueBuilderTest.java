@@ -31,7 +31,8 @@ public class DefaultIssueBuilderTest {
   @Test
   public void should_build_new_issue() throws Exception {
     String componentKey = "org.apache.struts:struts-core:Action.java";
-    DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder(componentKey)
+    DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
+      .componentKey(componentKey)
       .description("the desc")
       .line(123)
       .cost(10000.0)
@@ -51,6 +52,7 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.ruleKey().rule()).isEqualTo("NullDereference");
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(issue.updatedAt()).isNotNull();
+    assertThat(issue.createdAt()).isNotNull();
     assertThat(issue.closedAt()).isNull();
     assertThat(issue.assignee()).isNull();
     assertThat(issue.isNew()).isTrue();

@@ -28,23 +28,35 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
+import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
-  private final String componentKey;
+  private String componentKey;
   private RuleKey ruleKey;
   private Integer line;
   private String description;
   private String severity;
   private Double cost;
   private boolean manual = false;
+  private Date createdDate;
   private Map<String, String> attributes;
 
-  public DefaultIssueBuilder(String componentKey) {
+  public DefaultIssueBuilder() {
+
+  }
+
+  public DefaultIssueBuilder componentKey(String componentKey) {
     this.componentKey = componentKey;
+    return this;
+  }
+
+  public DefaultIssueBuilder createdDate(@Nullable Date date) {
+    this.createdDate = date;
+    return this;
   }
 
   @Override
@@ -85,7 +97,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
   @Override
   public Issuable.IssueBuilder attribute(String key, String value) {
-    if (attributes==null) {
+    if (attributes == null) {
       attributes = Maps.newLinkedHashMap();
     }
     attributes.put(key, value);
@@ -101,7 +113,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     String key = UUID.randomUUID().toString();
     Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
     issue.setKey(key);
-    Date now = new Date();
+    Date now = Objects.firstNonNull(createdDate, new Date());
     issue.setCreatedAt(now);
     issue.setUpdatedAt(now);
     issue.setComponentKey(componentKey);

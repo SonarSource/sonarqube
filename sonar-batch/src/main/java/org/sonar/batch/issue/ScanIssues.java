@@ -21,6 +21,7 @@ package org.sonar.batch.issue;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
@@ -32,7 +33,7 @@ import java.util.Collection;
 /**
  * Central component to manage issues
  */
-public class ScanIssues {
+public class ScanIssues implements BatchComponent {
 
   private final RulesProfile qProfile;
   private final IssueCache cache;

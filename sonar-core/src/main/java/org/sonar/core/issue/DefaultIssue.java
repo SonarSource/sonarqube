@@ -179,7 +179,7 @@ public class DefaultIssue implements Issue {
     return createdAt;
   }
 
-  public DefaultIssue setCreatedAt(@Nullable Date d) {
+  public DefaultIssue setCreatedAt(Date d) {
     this.createdAt = d;
     return this;
   }

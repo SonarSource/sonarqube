@@ -367,8 +367,8 @@ public class DefaultIndex extends SonarIndex {
     }
 
     violation.setResource(bucket.getResource());
-    if (addViolation(violation, bucket, force)){
-      deprecatedViolations.add(violation);
+    if (addViolation(violation, bucket, force)) {
+      deprecatedViolations.add(violation, currentProject.getAnalysisDate());
     }
   }
 

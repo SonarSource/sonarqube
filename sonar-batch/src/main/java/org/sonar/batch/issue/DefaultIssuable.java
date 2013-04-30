@@ -42,7 +42,7 @@ public class DefaultIssuable implements Issuable {
 
   @Override
   public IssueBuilder newIssueBuilder() {
-    return new DefaultIssueBuilder(component.key());
+    return new DefaultIssueBuilder().componentKey(component.key());
   }
 
   @Override

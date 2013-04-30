@@ -61,7 +61,7 @@ public class JRubyInternalIssues implements ServerComponent {
     String componentKey = parameters.get("component");
     // TODO verify authorization
     // TODO check existence of component
-    DefaultIssueBuilder builder = new DefaultIssueBuilder(componentKey);
+    DefaultIssueBuilder builder = new DefaultIssueBuilder().componentKey(componentKey);
     String line = parameters.get("line");
     builder.line(line != null ? Integer.parseInt(line) : null);
     builder.description(parameters.get("description"));

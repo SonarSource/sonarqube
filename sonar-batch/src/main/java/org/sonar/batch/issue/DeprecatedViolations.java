@@ -27,6 +27,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
 import java.util.Collection;
+import java.util.Date;
 
 public class DeprecatedViolations implements BatchComponent {
 
@@ -36,8 +37,8 @@ public class DeprecatedViolations implements BatchComponent {
     this.cache = cache;
   }
 
-  public void add(Violation violation) {
-    DefaultIssue issue = toIssue(violation);
+  public void add(Violation violation, Date creationDate) {
+    DefaultIssue issue = toIssue(violation, creationDate);
     cache.put(issue);
   }
 
@@ -45,8 +46,10 @@ public class DeprecatedViolations implements BatchComponent {
     throw new UnsupportedOperationException("TODO");
   }
 
-  DefaultIssue toIssue(Violation violation) {
-    return (DefaultIssue) new DefaultIssueBuilder(violation.getResource().getEffectiveKey())
+  DefaultIssue toIssue(Violation violation, Date creationDate) {
+    return (DefaultIssue) new DefaultIssueBuilder()
+      .createdDate(creationDate)
+      .componentKey(violation.getResource().getEffectiveKey())
       .ruleKey(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
       .cost(violation.getCost())
       .line(violation.getLineId())
