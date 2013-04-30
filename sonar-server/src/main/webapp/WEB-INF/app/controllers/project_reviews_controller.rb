@@ -261,27 +261,27 @@ class ProjectReviewsController < ApplicationController
   # POST
   def execute
     bad_request('Missing review id') unless params[:id]
-    review = Review.find(params[:id], :include => ['project'])
+    @review = Review.find(params[:id], :include => ['project'])
 
-    access_denied unless has_rights_to_modify?(review.resource)
+    access_denied unless has_rights_to_modify?(@review.resource)
 
     bad_request('Missing command') if params[:command].blank?
 
     error_message = nil
     begin
-      RuleFailure.execute_command(params[:command], review.violation, current_user, params)
+      RuleFailure.execute_command(params[:command], @review.violation, current_user, params)
     rescue Exception => e
       error_message=Api::Utils.exception_message(e, :backtrace => false)
     end
 
     ActiveRecord::Base.uncached() do
-      review.clean_violation_cache
-      review.reload
+      @review.clean_violation_cache
+      @review.reload
 
       # TODO remove this ugly workaround to bypass ActiveRecord cache....
-      review.violation.review=review
+      @review.violation.review=@review
     end
-    render :partial => "project_reviews/review", :locals => {:review => review, :error_message => error_message}
+    render :partial => "project_reviews/review", :locals => {:error_message => error_message}
   end
 
 

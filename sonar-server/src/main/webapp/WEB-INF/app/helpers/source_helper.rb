@@ -81,8 +81,8 @@ module SourceHelper
           html_line=HtmlLine.new(source, index+1)
           html_line.revision=revisions_by_line[index+1]
           html_line.author=authors_by_line[index+1]
-          if options[:highlighted_lines]
-            html_line.displayed=options[:highlighted_lines].include?(index+1)
+          if options[:highlighted_lines] && options[:highlighted_lines].include?(index+1)
+            html_line.set_focus
           end
           date_string=dates_by_line[index+1]
           html_line.datetime=(date_string ? Java::OrgSonarApiUtils::DateUtils.parseDateTime(date_string) : nil)
@@ -128,7 +128,7 @@ module SourceHelper
 
   class HtmlLine
     attr_accessor :id, :index, :source, :revision, :author, :datetime, :violations, :issues, :hits, :conditions,
-                  :covered_conditions, :hidden, :displayed, :deprecated_conditions_label, :covered_lines
+                  :covered_conditions, :hidden, :displayed, :deprecated_conditions_label, :covered_lines, :has_focus
 
     def initialize(source, id)
       @source=source
@@ -205,6 +205,10 @@ module SourceHelper
     def displayed?
       # displayed if the @displayed has not been set or has been set to true
       !hidden? && @displayed!=false
+    end
+
+    def set_focus
+      @has_focus=true
     end
 
     def deprecated_conditions_label=(label)

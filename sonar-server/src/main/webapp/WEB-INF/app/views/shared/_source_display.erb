@@ -67,6 +67,8 @@
              end
            elsif display_violations && line.violations?
              status="ko"
+           elsif line.has_focus
+             status="ko"
            end
          end
       %>
