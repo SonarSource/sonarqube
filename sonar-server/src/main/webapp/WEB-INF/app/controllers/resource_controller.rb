@@ -431,14 +431,11 @@ class ResourceController < ApplicationController
         options['statuses'] = ['RESOLVED']
 
       elsif rule_param=='unassigned_issues'
-        options['statuses'] = ['OPEN', 'REOPENED']
-
         # FIXME 'assignees' to nil will always return all issues!
         options['assignees'] = nil
 
       # TODO
       #elsif rule_param=='unplanned_reviews'
-      #  options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
       #  options[:planned]=false
       #
 

@@ -69,16 +69,19 @@
         <%= l(to_date(@issue.updated_at)) if @issue.updated_at -%>
       </td>
     </tr>
+
     <% # TODO action plan %>
-    <% if @rule %>
-      <% rule_name = Internal.rules.ruleName(I18n.locale, @rule.rule_key) %>
+
+
+    <% if @issue.rule_key %>
+      <% rule_name = Internal.rules.ruleName(I18n.locale, @issue.rule_key) %>
       <tr>
         <td class="key">
           <%= message('rule') -%>:
         </td>
         <td class="val" colspan="3">
-          <a onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;"
-             href="<%= url_for :controller => 'rules', :action => 'show', :id => @rule.rule_key.to_s, :layout => 'false' -%>"><%= h(rule_name) -%></a>
+          <a class="open-modal" modal-width="800" href="<%= url_for :controller => 'rules', :action => 'show', :id => issue.rule_key.to_s, :modal => 'true', :layout => 'false' -%>">
+            <%= h(rule_name) -%></a>
         </td>
       </tr>
     <% end %>

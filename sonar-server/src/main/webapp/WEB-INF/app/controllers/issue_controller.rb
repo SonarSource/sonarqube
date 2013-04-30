@@ -114,7 +114,6 @@ class IssueController < ApplicationController
     issue_result = find_issue(issue_key)
     @issue = issue_result.issues[0]
     bad_request('Unknown issue') unless @issue
-    @rule = issue_result.rule(@issue)
   end
 
   def init_resource
