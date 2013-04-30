@@ -192,7 +192,7 @@ function displayIssueTransitionForm(issueKey, transitionKey) {
   // TODO
   //hideMoreViolationActions(violation_id);
   new Ajax.Updater('issue-form' + issueKey,
-      baseUrl + '/issue/issue_transition_form?id=' + issueKey + '&transition='+ transitionKey,
+      baseUrl + '/issue/issue_transition_form?issue=' + issueKey + '&transition='+ transitionKey,
       {
         asynchronous:true,
         evalScripts:true,
@@ -210,7 +210,7 @@ function displayIssueTransitionForm(issueKey, transitionKey) {
 function cancelIssueAction(issueKey) {
   new Ajax.Updater(
       'issue-key' + issueKey,
-      baseUrl + '/issue/display_issue/' + issueKey,
+      baseUrl + '/issue/display_issue?issue=' + issueKey,
       {
         asynchronous:true,
         evalScripts:true

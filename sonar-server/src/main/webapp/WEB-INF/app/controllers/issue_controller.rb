@@ -35,11 +35,20 @@ class IssueController < ApplicationController
     render 'issue/_view'
   end
 
+  def show
+    require_parameters :key
+    init_issue(params[:key])
+    init_resource
+
+    @transitions = Internal.issues.listTransitions(@issue.key)
+    render :partial => 'issue/view'
+  end
+
   # GET
   def transition_form
-    require_parameters :id, :transition
+    require_parameters :issue, :transition
 
-    init_issue(params[:id])
+    init_issue(params[:issue])
     @transition = params[:transition]
     bad_request('Missing transition') if @transition.blank?
 
@@ -49,10 +58,10 @@ class IssueController < ApplicationController
   # POST
   def transition
     verify_post_request
-    require_parameters :id, :transition
-    issue = Internal.issues.doTransition(params[:id], params[:transition])
+    require_parameters :issue, :transition
+    issue = Internal.issues.doTransition(params[:issue], params[:transition])
     if issue
-      init_issue(params[:id])
+      init_issue(params[:issue])
       init_resource
       @transitions = Internal.issues.listTransitions(@issue.key)
       render :partial => 'issue/view'
@@ -69,9 +78,9 @@ class IssueController < ApplicationController
   #
 
   def issue_transition_form
-    require_parameters :id, :transition
+    require_parameters :issue, :transition
 
-    init_issue(params[:id])
+    init_issue(params[:issue])
     @transition = params[:transition]
     bad_request('Missing transition') if @transition.blank?
 
@@ -81,10 +90,10 @@ class IssueController < ApplicationController
   # POST
   def issue_transition
     verify_post_request
-    require_parameters :id, :transition
-    issue = Internal.issues.doTransition(params[:id], params[:transition])
+    require_parameters :issue, :transition
+    issue = Internal.issues.doTransition(params[:issue], params[:transition])
     if issue
-      init_issue(params[:id])
+      init_issue(params[:issue])
       @transitions = Internal.issues.listTransitions(@issue.key)
       render :partial => 'resource/issue', :locals => {:issue => @issue}
     else
@@ -95,7 +104,7 @@ class IssueController < ApplicationController
 
   # GET
   def display_issue
-    init_issue(params[:id])
+    init_issue(params[:issue])
     render :partial => 'resource/issue', :locals => {:issue => @issue}
   end
 
