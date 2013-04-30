@@ -34,8 +34,8 @@ class CreateIssues < ActiveRecord::Migration
       t.column :description,          :string,    :null => true,    :limit => 4000
       t.column :line,                 :integer,   :null => true
       t.column :cost,                 :decimal,   :null => true,    :precision => 30,   :scale => 20
-      t.column :status,               :string ,   :null => true,    :limit => 10
-      t.column :resolution,           :string ,   :null => true,    :limit => 200
+      t.column :status,               :string ,   :null => true,    :limit => 20
+      t.column :resolution,           :string ,   :null => true,    :limit => 20
       t.column :checksum,             :string ,   :null => true,    :limit => 1000
       t.column :user_login,           :string,    :null => true,	  :limit => 40
       t.column :assignee_login,       :string,    :null => true,	  :limit => 40
@@ -46,8 +46,7 @@ class CreateIssues < ActiveRecord::Migration
       t.column :closed_at,            :datetime,  :null => true
     end
 
-    #add_index :issues,  :resource_id,   :name => 'issues_resource_id'
-    #add_index :issues,  :rule_id,       :name => 'issues_rule_id'
+    add_index :issues,  :resource_id,   :name => 'issues_resource_id'
   end
 
 end
