@@ -27,7 +27,7 @@ class CreateIssues < ActiveRecord::Migration
     create_table :issues do |t|
       t.column :kee,                  :string,    :null => false,   :limit => 36
       t.column :resource_id,          :integer,   :null => false
-      t.column :rule_id,              :integer,   :null => false
+      t.column :rule_id,              :integer,   :null => true
       t.column :severity, 					  :string, 	  :null => true,	  :limit => 10
       t.column :manual_severity,      :boolean,   :null => false
       t.column :manual_issue,         :boolean,   :null => false
