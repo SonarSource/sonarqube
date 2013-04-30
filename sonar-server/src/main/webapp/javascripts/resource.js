@@ -184,6 +184,41 @@ function hVF(elt, line) {
 }
 
 /*
+ Functions used in issues code viewer
+ */
+
+// show the form for transition
+function displayIssueTransitionForm(issueKey, transitionKey) {
+  // TODO
+  //hideMoreViolationActions(violation_id);
+  new Ajax.Updater('issue-form' + issueKey,
+      baseUrl + '/issue/issue_transition_form?id=' + issueKey + '&transition='+ transitionKey,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('issue-actions' + issueKey).remove();
+          $('issue-form' + issueKey).show();
+          // TODO
+//          $('commentText' + issueKey).focus();
+        }
+      });
+  return false;
+}
+
+// cancel action : hide form and refresh issue
+function cancelIssueAction(issueKey) {
+  new Ajax.Updater(
+      'issue-key' + issueKey,
+      baseUrl + '/issue/display_issue/' + issueKey,
+      {
+        asynchronous:true,
+        evalScripts:true
+      });
+  return false;
+}
+
+/*
  Functions used in tests viewer
  */
 function expandTests(index, elt){

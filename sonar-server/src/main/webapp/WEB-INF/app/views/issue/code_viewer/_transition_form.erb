@@ -1,0 +1,27 @@
+<form method="POST"
+      onsubmit="new Ajax.Updater('issue-key<%= params[:id] -%>', '<%= url_for :controller => 'issue', :action => 'issue_transition' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)});return false;">
+  <input type="hidden" name="id" value="<%= params[:id] -%>"/>
+  <input type="hidden" name="transition" value="<%= params[:transition] -%>"/>
+
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top">
+        <textarea id="commentText<%= params[:id] -%>" rows="4" name="text" style="width: 100%"></textarea>
+      </td>
+      <td class="sep"></td>
+      <td style="vertical-align:top;width: 90px">
+        <%= render :partial => 'markdown/tips' -%>
+      </td>
+    </tr>
+  </table>
+
+  <div>
+    <%= submit_to_remote "submit_btn"+params[:id],
+                         message("issues.transition.#{params[:transition]}.button"),
+                         :url => {:controller => 'issue', :action => 'issue_transition'},
+                         :html => {:id => "submit_btn"+params[:id]},
+                         :update => 'issue-key'+params[:id] -%>
+    &nbsp;
+    <%= link_to_function message('cancel'), "cancelIssueAction('#{params[:id]}')" -%>
+  </div>
+</form>

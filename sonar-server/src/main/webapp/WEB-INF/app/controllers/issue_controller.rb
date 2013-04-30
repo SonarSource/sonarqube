@@ -57,8 +57,46 @@ class IssueController < ApplicationController
       @transitions = Internal.issues.listTransitions(@issue.key)
       render :partial => 'issue/view'
     else
+      # TODO
       render :status => 400
     end
+  end
+
+  #
+  #
+  # ACTIONS FROM ISSUES TAB OF RESOURCE VIEWER
+  #
+  #
+
+  def issue_transition_form
+    require_parameters :id, :transition
+
+    init_issue(params[:id])
+    @transition = params[:transition]
+    bad_request('Missing transition') if @transition.blank?
+
+    render :partial => 'issue/code_viewer/transition_form'
+  end
+
+  # POST
+  def issue_transition
+    verify_post_request
+    require_parameters :id, :transition
+    issue = Internal.issues.doTransition(params[:id], params[:transition])
+    if issue
+      init_issue(params[:id])
+      @transitions = Internal.issues.listTransitions(@issue.key)
+      render :partial => 'resource/issue', :locals => {:issue => @issue}
+    else
+      # TODO
+      render :status => 400
+    end
+  end
+
+  # GET
+  def display_issue
+    init_issue(params[:id])
+    render :partial => 'resource/issue', :locals => {:issue => @issue}
   end
 
   protected

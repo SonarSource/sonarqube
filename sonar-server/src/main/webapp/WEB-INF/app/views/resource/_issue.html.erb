@@ -1,14 +1,9 @@
-<div id="vId<%= issue.key -%>">
+<div id="issue-key<%= issue.key -%>">
   <div class="violation">
     <div class="vtitle">
-      <%
-         # TODO
-         #if violation.review
-         if false
-      %>
         <div class="review_permalink">
+          <span class="review_permalink"><%= link_to message('issue'), :controller => "issue", :action => "view", :id => issue.key -%></span>
         </div>
-      <% end %>
 
       <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png">
       &nbsp;
@@ -63,12 +58,25 @@
     </div>
 
     <div class="discussionComment first">
-      <div id="vMsg<%= issue.key -%>">
+      <div id="issue-description<%= issue.key -%>">
         <% issue_description = issue.description ? Api::Utils.split_newlines(h(issue.description)).join('<br/>') : '' %>
         <%= issue_description || '&nbsp;' -%>
       </div>
     </div>
 
-  </div>
+    <% if current_user %>
+      <div class="vActions" id="issue-actions<%= issue.key -%>">
+        <% if defined?(error_message) && error_message %>
+          <div id="issue-error-<%= issue.key -%>" class="error"><%= h error_message -%> <a href="#" onclick="$('issue-error-<%= issue.key -%>').hide(); return false;"><%= message('issues.hide_this_message') -%></a></div>
+        <% end %>
+        <% transitions = Internal.issues.listTransitions(issue.key) %>
+        <% transitions.each do |transition| %>
+        <%= link_to_function message("issues.transition.#{transition.key}.button"), "displayIssueTransitionForm('#{issue.key}', '#{transition.key}')",
+                             :name => message("issues.transition.#{transition.key}.button"), :class => 'link-action spacer-right' -%>
+        <% end %>
+    </div>
+    <% end %>
+    <div class="discussionComment" id="issue-form<%= issue.key -%>" style="display:none"></div>
 
+  </div>
 </div>

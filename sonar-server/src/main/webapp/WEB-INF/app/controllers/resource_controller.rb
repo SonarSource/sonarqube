@@ -413,7 +413,7 @@ class ResourceController < ApplicationController
     @filtered = !@expanded
     rule_param = params[:rule]
 
-    options = {'components' => @resource.key, 'resolutions' => 'OPEN'}
+    options = {'components' => @resource.key, 'resolutions' => ['OPEN', 'FIXED']}
 
     if rule_param.blank? && params[:metric]
       metric = Metric.by_id(params[:metric])
