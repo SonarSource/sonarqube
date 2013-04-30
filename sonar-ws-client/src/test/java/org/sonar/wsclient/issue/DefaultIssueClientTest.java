@@ -62,23 +62,33 @@ public class DefaultIssueClientTest {
   }
 
   @Test
-  public void should_apply_change() {
+  public void should_set_severity() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.change("ABCDE", IssueChange.create().severity("BLOCKER").comment("because!"));
+    client.setSeverity("ABCDE", "BLOCKER");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change?newSeverity=BLOCKER&comment=because!&issue=ABCDE");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/set_severity?issue=ABCDE&severity=BLOCKER");
   }
 
   @Test
-  public void should_not_apply_empty_change() {
+  public void should_assign() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.change("ABCDE", IssueChange.create());
+    client.assign("ABCDE", "emmerik");
 
-    assertThat(httpServer.requestedPath()).isNull();
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign?issue=ABCDE&assignee=emmerik");
+  }
+
+  @Test
+  public void should_unassign() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    client.assign("ABCDE", null);
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign?issue=ABCDE");
   }
 
   @Test

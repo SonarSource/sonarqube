@@ -20,9 +20,10 @@
 package org.sonar.wsclient.issue;
 
 import com.github.kevinsawicki.http.HttpRequest;
+import org.sonar.wsclient.internal.EncodingUtils;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 
-import java.util.LinkedHashMap;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -30,9 +31,6 @@ import java.util.Map;
  * Do not instantiate this class, but use {@link org.sonar.wsclient.SonarClient#issueClient()}.
  */
 public class DefaultIssueClient implements IssueClient {
-
-  private static final String TRANSITIONS_BASE_URL = "/api/issues/transitions";
-  private static final String DO_TRANSITION_BASE_URL = "/api/issues/do_transition";
 
   private final HttpRequestFactory requestFactory;
   private final IssueParser parser;
@@ -55,18 +53,6 @@ public class DefaultIssueClient implements IssueClient {
   }
 
   @Override
-  public void change(String issueKey, IssueChange change) {
-    if (!change.urlParams().isEmpty()) {
-      Map<String, Object> queryParams = new LinkedHashMap<String, Object>(change.urlParams());
-      queryParams.put("issue", issueKey);
-      HttpRequest request = requestFactory.post(IssueChange.BASE_URL, queryParams);
-      if (!request.ok()) {
-        throw new IllegalStateException("Fail to change issue " + issueKey + ".Bad HTTP response status: " + request.code());
-      }
-    }
-  }
-
-  @Override
   public void create(NewIssue newIssue) {
     HttpRequest request = requestFactory.post(NewIssue.BASE_URL, newIssue.urlParams());
     if (!request.ok()) {
@@ -75,15 +61,27 @@ public class DefaultIssueClient implements IssueClient {
   }
 
   @Override
-  public void comment(String issueKey, String comment) {
-    change(issueKey, IssueChange.create().comment(comment));
+  public void setSeverity(String issueKey, String severity) {
+    Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "severity", severity);
+    HttpRequest request = requestFactory.post("/api/issues/set_severity", params);
+    if (!request.ok()) {
+      throw new IllegalStateException("Fail to set severity. Bad HTTP response status: " + request.code());
+    }
+  }
+
+  @Override
+  public void assign(String issueKey, @Nullable String assignee) {
+    Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "assignee", assignee);
+    HttpRequest request = requestFactory.post("/api/issues/assign", params);
+    if (!request.ok()) {
+      throw new IllegalStateException("Fail to assign issue to user. Bad HTTP response status: " + request.code());
+    }
   }
 
   @Override
   public List<String> transitions(String issueKey) {
-    Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
-    queryParams.put("issue", issueKey);
-    HttpRequest request = requestFactory.get(TRANSITIONS_BASE_URL, queryParams);
+    Map<String, Object> queryParams = EncodingUtils.toMap("issue", issueKey);
+    HttpRequest request = requestFactory.get("/api/issues/transitions", queryParams);
     if (!request.ok()) {
       throw new IllegalStateException("Fail to return transition for issue. Bad HTTP response status: " + request.code());
     }
@@ -93,12 +91,12 @@ public class DefaultIssueClient implements IssueClient {
 
   @Override
   public void doTransition(String issueKey, String transition) {
-    Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
-    queryParams.put("issue", issueKey);
-    queryParams.put("transition", transition);
-    HttpRequest request = requestFactory.post(DO_TRANSITION_BASE_URL, queryParams);
+    Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "transition", transition);
+    HttpRequest request = requestFactory.post("/api/issues/do_transition", params);
     if (!request.ok()) {
       throw new IllegalStateException("Fail to execute transition on issue " + issueKey + ".Bad HTTP response status: " + request.code());
     }
   }
+
+
 }

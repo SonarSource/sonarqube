@@ -21,6 +21,8 @@ package org.sonar.wsclient.internal;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Not an API, please do not directly use this class.
@@ -32,6 +34,17 @@ public class EncodingUtils {
 
   private EncodingUtils() {
     // only static methods
+  }
+
+  public static Map<String, Object> toMap(String... array) {
+    Map<String, Object> map = new LinkedHashMap<String, Object>();
+    for (int i = 0; i < array.length; i += 2) {
+      Object value = array[i + 1];
+      if (value != null) {
+        map.put(array[i], array[i + 1]);
+      }
+    }
+    return map;
   }
 
   public static String toQueryParam(String[] strings) {

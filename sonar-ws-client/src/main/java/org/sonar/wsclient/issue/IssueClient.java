@@ -19,6 +19,7 @@
  */
 package org.sonar.wsclient.issue;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -28,7 +29,9 @@ public interface IssueClient {
 
   Issues find(IssueQuery query);
 
-  void change(String issueKey, IssueChange change);
+  void assign(String issueKey, @Nullable String assignee);
+
+  void setSeverity(String issueKey, String severity);
 
   void create(NewIssue issue);
 
@@ -36,8 +39,4 @@ public interface IssueClient {
 
   void doTransition(String issueKey, String transition);
 
-  /**
-   * Shortcut for {@code #change(issueKey, IssueChange.create().comment(comment)}
-   */
-  void comment(String issueKey, String comment);
 }

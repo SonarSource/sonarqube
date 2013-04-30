@@ -24,6 +24,7 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.MapAssert.entry;
 
 public class EncodingUtilsTest {
   @Test
@@ -38,5 +39,13 @@ public class EncodingUtilsTest {
     assertThat(EncodingUtils.toQueryParam(new String[]{"foo", "bar"})).isEqualTo("foo,bar");
     assertThat(EncodingUtils.toQueryParam(new String[]{"foo"})).isEqualTo("foo");
     assertThat(EncodingUtils.toQueryParam(new String[]{""})).isEqualTo("");
+  }
+
+  @Test
+  public void test_toMap() {
+    assertThat(EncodingUtils.toMap()).isEmpty();
+    assertThat(EncodingUtils.toMap("foo", "bar")).hasSize(1).includes(entry("foo", "bar"));
+    assertThat(EncodingUtils.toMap("1", "one", "2", "two")).hasSize(2).includes(entry("1", "one"), entry("2", "two"));
+    assertThat(EncodingUtils.toMap("foo", null)).isEmpty();
   }
 }
