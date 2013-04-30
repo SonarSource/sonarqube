@@ -28,7 +28,7 @@
       </td>
       <td class="val">
         <%= image_tag "status/#{@issue.status}.png" -%> <span class="reviewStatus<%= @issue.status -%>"><%= message("issues.status.#{@issue.status}") -%></span>
-        <% if @issue.resolution.present? %>
+        <% if @issue.resolution.present? && !@issue.resolution == 'OEPN' %>
           (<span class="reviewResolution<%= @issue.resolution -%>"><%= message("issues.resolution.#{@issue.resolution}") -%></span>)
         <% end %>
       </td>
@@ -92,7 +92,7 @@
           <%= @resource.long_name -%> <%= image_tag 'sep12.png' -%>
         <% end %>
         <% if @component.last_snapshot %>
-          <%= link_to_resource(@component, @component.long_name, {:tab => :violations, :rule => @issue.resolution == "FALSE-POSITIVE" ? "false_positive_issues" : ""}) %>
+          <%= link_to_resource(@component, @component.long_name, {:tab => :issues, :rule => @issue.resolution == "FALSE-POSITIVE" ? "false_positive_issues" : ""}) %>
         <% else %>
           <%= @component.long_name -%>
         <% end %>

@@ -21,28 +21,22 @@
       <%= image_tag 'sep12.png' -%>
       &nbsp;
 
-      <% if issue.created_at %>
-        <span><%= distance_of_time_in_words_to_now(to_date(issue.created_at)) -%></span>
-        &nbsp;
-      <% end %>
+      <span><%= distance_of_time_in_words_to_now(to_date(issue.created_at)) -%></span>
+      &nbsp;
       <%
-         # TODO
-         #if violation.switched_off?
-         if false
+         if issue.resolution == 'FALSE-POSITIVE'
       %>
         <%= image_tag 'sep12.png' -%>
         &nbsp;
-        <span class="falsePositive"><%= message('false_positive') -%></span>
+        <span class="reviewResolution<%= issue.resolution %>"><%= message("issues.resolution.#{issue.resolution}") -%></span>
         &nbsp;
       <% end %>
       <%
-         # TODO
-         #if violation.review && violation.review.resolved?
-         if false
+         if issue.status == 'RESOLVED'
       %>
         <%= image_tag 'sep12.png' -%>
         &nbsp;
-        <span class="reviewResolved"><%= message('reviews.status.RESOLVED') -%></span>
+        <span class="reviewStatus<%= issue.status -%>"><%= message("issues.status.#{issue.status}") -%></span>
         &nbsp;
       <% end %>
       <%
