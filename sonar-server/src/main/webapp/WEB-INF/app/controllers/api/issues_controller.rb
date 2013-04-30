@@ -64,7 +64,6 @@ class Api::IssuesController < Api::ApiController
   def do_transition
     verify_post_request
     require_parameters :issue, :transition
-    #access_denied unless logged_in?
 
     issue = Internal.issues.doTransition(params[:issue], params[:transition])
     if issue
@@ -78,7 +77,13 @@ class Api::IssuesController < Api::ApiController
 
   #
   # POST /api/issues/add_comment?issue=<key>&text=<text>
-  # Note that the text can also be set in the post body
+  #
+  # -- Mandatory parameters
+  # 'issue' is the key of an existing issue
+  # 'text' is the plain-text message. It can also be set in the post body.
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/add_comment?issue=4a2881e7-825e-4140-a154-01f420c43d11&text=foooo'
   #
   def add_comment
     verify_post_request
@@ -86,13 +91,15 @@ class Api::IssuesController < Api::ApiController
 
     text = Api::Utils.read_post_request_param(:text)
     Internal.issues.addComment(params[:issue], text)
-    # TODO add more response data ?
+    # TODO complete answer
     render :json => jsonp({})
   end
 
   #
+  # Assign an existing issue to a user or un-assign.
+  #
   # POST /api/issues/assign?issue=<key>&assignee=<optional assignee>
-  # A nil assignee will remove the assignee.
+  # A nil or blank assignee removes the assignee.
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/assign?issue=4a2881e7-825e-4140-a154-01f420c43d11&assignee=emmerik'
@@ -101,11 +108,32 @@ class Api::IssuesController < Api::ApiController
     verify_post_request
     require_parameters :issue
 
-    Internal.issues.assign(params[:issue], params[:assignee])
-    # TODO return the assignee
-    render :json => jsonp({})
+    issue = Internal.issues.assign(params[:issue], params[:assignee])
+    render :json => jsonp({:issue => issue_to_json(issue)})
   end
 
+
+  #
+  # Change the severity of an existing issue
+  #
+  # POST /api/issues/set_severity?issue=<key>&severity=<severity>
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/set_severity?issue=4a2881e7-825e-4140-a154-01f420c43d11&severity=BLOCKER'
+  #
+  def set_severity
+    verify_post_request
+    require_parameters :issue, :severity
+
+    issue = Internal.issues.setSeverity(params[:issue], params[:severity])
+
+    render :json => jsonp({:issue => issue_to_json(issue)})
+  end
+
+
+  #
+  # Create a manual issue.
+  #
   # POST /api/issues/create
   #
   # -- Mandatory parameters
@@ -149,6 +177,7 @@ class Api::IssuesController < Api::ApiController
     json[:updatedAt] = format_java_datetime(issue.updatedAt) if issue.updatedAt
     json[:closedAt] = format_java_datetime(issue.closedAt) if issue.closedAt
     json[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
+    json[:manual] = issue.manual if issue.manual
     json
   end
 
