@@ -351,7 +351,7 @@ public class IssueTracking implements BatchExtension {
         newIssue.setManualSeverity(true);
         newIssue.setSeverity(pastIssue.getSeverity());
       } else if (!Objects.equal(pastIssue.getSeverity(), newIssue.severity())) {
-        newIssue.setDiff("severity", pastIssue.getSeverity(), newIssue.severity());
+        // TODO register diff
       }
       newIssue.setResolution(pastIssue.getResolution());
       newIssue.setStatus(pastIssue.getStatus());
@@ -361,8 +361,9 @@ public class IssueTracking implements BatchExtension {
       newIssue.setAlive(true);
       newIssue.setAssignee(pastIssue.getAssignee());
       newIssue.setAuthorLogin(pastIssue.getAuthorLogin());
+      newIssue.setAssignee(pastIssue.getAssignee());
       if (pastIssue.getAttributes() != null) {
-        //TODO do not loose new attributes
+        //FIXME do not override new attributes
         newIssue.setAttributes(KeyValueFormat.parse(pastIssue.getAttributes()));
       }
 

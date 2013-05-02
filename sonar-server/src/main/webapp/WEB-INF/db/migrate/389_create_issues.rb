@@ -25,7 +25,7 @@ class CreateIssues < ActiveRecord::Migration
 
   def self.up
     create_table :issues do |t|
-      t.column :kee,                  :string,    :null => false,   :limit => 36
+      t.column :kee,                  :string,    :null => false,   :limit => 100
       t.column :resource_id,          :integer,   :null => false
       t.column :rule_id,              :integer,   :null => true
       t.column :severity, 					  :string, 	  :null => true,	  :limit => 10
@@ -46,6 +46,7 @@ class CreateIssues < ActiveRecord::Migration
       t.column :closed_at,            :datetime,  :null => true
     end
 
+    add_index :issues,  :kee,           :name => 'issues_kee'
     add_index :issues,  :resource_id,   :name => 'issues_resource_id'
   end
 

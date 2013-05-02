@@ -30,18 +30,21 @@ import java.util.Date;
 
 public class IssueUpdater implements BatchComponent, ServerComponent {
 
-  public boolean setSeverity(DefaultIssue issue, String severity) {
+  public boolean setSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
+    if (issue.manualSeverity()) {
+      throw new IllegalStateException("Severity can't be changed");
+    }
     if (!Objects.equal(severity, issue.severity())) {
-      issue.setDiff("severity", issue.severity(), severity);
+      issue.setFieldDiff(context, "severity", issue.severity(), severity);
       issue.setSeverity(severity);
       return true;
     }
     return false;
   }
 
-  public boolean setManualSeverity(DefaultIssue issue, String severity) {
+  public boolean setManualSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (!issue.manualSeverity() || !Objects.equal(severity, issue.severity())) {
-      issue.setDiff("severity", issue.severity(), severity);
+      issue.setFieldDiff(context, "severity", issue.severity(), severity);
       issue.setSeverity(severity);
       issue.setManualSeverity(true);
       return true;
@@ -49,62 +52,56 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
-  public boolean assign(DefaultIssue issue, @Nullable String assignee) {
+  public boolean assign(DefaultIssue issue, @Nullable String assignee, IssueChangeContext context) {
     String sanitizedAssignee = StringUtils.defaultIfBlank(assignee, null);
     if (!Objects.equal(sanitizedAssignee, issue.assignee())) {
-      issue.setDiff("assignee", issue.assignee(), sanitizedAssignee);
+      issue.setFieldDiff(context, "assignee", issue.assignee(), sanitizedAssignee);
       issue.setAssignee(sanitizedAssignee);
       return true;
     }
     return false;
   }
 
-  public DefaultIssue setLine(DefaultIssue issue, @Nullable Integer line) {
+  public boolean setLine(DefaultIssue issue, @Nullable Integer line) {
     if (!Objects.equal(line, issue.line())) {
       issue.setLine(line);
+      return true;
     }
-    return issue;
+    return false;
   }
 
-  public DefaultIssue setResolution(DefaultIssue issue, String resolution) {
+  public boolean setResolution(DefaultIssue issue, String resolution, IssueChangeContext context) {
     if (!Objects.equal(resolution, issue.resolution())) {
-      issue.setDiff("resolution", issue.resolution(), resolution);
+      issue.setFieldDiff(context, "resolution", issue.resolution(), resolution);
       issue.setResolution(resolution);
+      return true;
     }
-    return issue;
+    return false;
   }
 
-  public DefaultIssue setStatus(DefaultIssue issue, String status) {
+  public boolean setStatus(DefaultIssue issue, String status, IssueChangeContext context) {
     if (!Objects.equal(status, issue.status())) {
-      issue.setDiff("status", issue.status(), status);
+      issue.setFieldDiff(context, "status", issue.status(), status);
       issue.setStatus(status);
+      return true;
     }
-    return issue;
+    return false;
   }
 
-  public DefaultIssue setAuthorLogin(DefaultIssue issue, @Nullable String authorLogin) {
-    if (!Objects.equal(authorLogin, issue.authorLogin())) {
-      issue.setAuthorLogin(authorLogin);
-    }
-    return issue;
+  public void setAuthorLogin(DefaultIssue issue, @Nullable String authorLogin) {
+    issue.setAuthorLogin(authorLogin);
   }
 
-  public DefaultIssue setDescription(DefaultIssue issue, @Nullable String description) {
-    if (!Objects.equal(description, issue.description())) {
-      if (issue.manual()) {
-        issue.setDiff("description", issue.description(), description);
-      }
-      issue.setDescription(description);
-    }
-    return issue;
+  public void setDescription(DefaultIssue issue, @Nullable String description) {
+    issue.setDescription(description);
   }
 
-  public DefaultIssue setClosedDate(DefaultIssue issue, @Nullable Date date) {
-    if (!Objects.equal(date, issue.closedAt())) {
-      issue.setDiff("closedDate", issue.closedAt(), date);
-      issue.setClosedAt(date);
-    }
-    return issue;
+  public void addComment(DefaultIssue issue, String text, IssueChangeContext context) {
+    issue.addComment(IssueComment.create(context.login(), text));
+  }
+
+  public void setClosedDate(DefaultIssue issue, @Nullable Date date) {
+    issue.setClosedAt(date);
   }
 
   // TODO setAttribute

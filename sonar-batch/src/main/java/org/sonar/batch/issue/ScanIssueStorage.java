@@ -19,25 +19,29 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.batch.index.ScanPersister;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.persistence.MyBatis;
 
-/**
- * Executed at the end of project scan, when all the modules are completed.
- */
-public class IssuePersister implements ScanPersister {
+public class ScanIssueStorage extends IssueStorage implements BatchComponent {
 
-  private final IssueCache issueCache;
-  private final ScanIssueStorage storage;
+  private final SnapshotCache snapshotCache;
 
-  public IssuePersister(IssueCache issueCache, ScanIssueStorage storage) {
-    this.issueCache = issueCache;
-    this.storage = storage;
+  public ScanIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, SnapshotCache snapshotCache) {
+    super(mybatis, ruleFinder);
+    this.snapshotCache = snapshotCache;
   }
 
   @Override
-  public void persist() {
-    Iterable<DefaultIssue> issues = issueCache.componentIssues();
-    storage.save(issues);
+  protected int componentId(DefaultIssue issue) {
+    Snapshot snapshot = snapshotCache.get(issue.componentKey());
+    if (snapshot == null) {
+      throw new IllegalStateException("Component does not exist: " + issue.componentKey());
+    }
+    return snapshot.getResourceId();
   }
 }

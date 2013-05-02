@@ -44,7 +44,6 @@ public class FunctionExecutor implements BatchComponent, ServerComponent {
   }
 
   static class FunctionContext implements Function.Context {
-
     private final IssueUpdater updater;
     private final DefaultIssue issue;
     private final IssueChangeContext changeContext;
@@ -62,7 +61,7 @@ public class FunctionExecutor implements BatchComponent, ServerComponent {
 
     @Override
     public Function.Context setResolution(String s) {
-      updater.setResolution(issue, s);
+      updater.setResolution(issue, s, changeContext);
       return this;
     }
 

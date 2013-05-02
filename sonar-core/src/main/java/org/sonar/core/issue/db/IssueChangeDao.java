@@ -25,7 +25,8 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
-import java.util.Collection;
+import javax.annotation.CheckForNull;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -38,28 +39,21 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public void insert(IssueChangeDto issueChangeDto) {
-    SqlSession session = mybatis.openSession();
-    IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-    try {
-      mapper.insert(issueChangeDto);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public IssueChangeDto findById(long issueChangeLogId) {
+  @CheckForNull
+  public IssueChangeDto selectById(long id) {
     SqlSession session = mybatis.openSession();
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-      return mapper.findById(issueChangeLogId);
+      return mapper.selectById(id);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public Collection<IssueChangeDto> selectByIssue(String issueKey) {
+  /**
+   * Issue changes ordered by descending creation date.
+   */
+  public List<IssueChangeDto> selectByIssue(String issueKey) {
     SqlSession session = mybatis.openSession();
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);

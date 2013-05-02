@@ -24,6 +24,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
+import org.sonar.core.issue.IssueComment;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
@@ -55,6 +56,14 @@ public class JRubyInternalIssues implements ServerComponent {
 
   public Issue setSeverity(String issueKey, String severity) {
     return actions.setSeverity(issueKey, severity, UserSession.get());
+  }
+
+  public DefaultIssue addComment(String issueKey, String comment) {
+    return actions.addComment(issueKey, comment, UserSession.get());
+  }
+
+  public List<IssueComment> comments(String issueKey) {
+    return actions.comments(issueKey, UserSession.get());
   }
 
   public Issue create(Map<String, String> parameters) {

@@ -2,24 +2,22 @@
 
   <issue_changes
       id="100"
-      issue_key="100"
+      issue_key="1000"
       user_login="arthur"
-      change_type="type"
-      change_data="data"
-      message="some message"
-      created_at="[null]"
-      updated_at="[null]"
+      change_type="comment"
+      change_data="this is a comment"
+      created_at="2013-01-01"
+      updated_at="2013-01-01"
       />
 
   <issue_changes
       id="101"
-      issue_key="100"
+      issue_key="1000"
       user_login="arthur"
-      change_type="type"
-      change_data="data"
-      message="some message"
-      created_at="[null]"
-      updated_at="[null]"
+      change_type="fields"
+      change_data="severity:MAJOR,BLOCKER"
+      created_at="2013-02-02"
+      updated_at="2013-02-02"
       />
 
 </dataset>

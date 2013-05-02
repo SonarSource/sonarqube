@@ -89,10 +89,9 @@ class Api::IssuesController < Api::ApiController
     verify_post_request
     require_parameters :issue, :text
 
-    text = Api::Utils.read_post_request_param(:text)
-    Internal.issues.addComment(params[:issue], text)
-    # TODO complete answer
-    render :json => jsonp({})
+    text = Api::Utils.read_post_request_param(params[:text])
+    issue = Internal.issues.addComment(params[:issue], text)
+    render :json => jsonp({:comment => comment_to_json(issue.newComments().get(0))})
   end
 
   #
@@ -179,6 +178,15 @@ class Api::IssuesController < Api::ApiController
     json[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
     json[:manual] = issue.manual if issue.manual
     json
+  end
+
+  def comment_to_json(comment)
+    {
+      :key => comment.key(),
+      :text => comment.text(),
+      :createdAt => format_java_datetime(comment.createdAt()),
+      :login => comment.userLogin()
+    }
   end
 
   def paging_to_json(paging)

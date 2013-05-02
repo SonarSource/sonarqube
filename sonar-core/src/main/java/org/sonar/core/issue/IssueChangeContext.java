@@ -28,12 +28,12 @@ public class IssueChangeContext implements Serializable {
 
   private String login;
   private Date date;
-  private boolean automatic;
+  private boolean scan;
 
-  private IssueChangeContext(@Nullable String login, Date date, boolean automatic) {
+  private IssueChangeContext(@Nullable String login, Date date, boolean scan) {
     this.login = login;
     this.date = date;
-    this.automatic = automatic;
+    this.scan = scan;
   }
 
   @CheckForNull
@@ -45,8 +45,8 @@ public class IssueChangeContext implements Serializable {
     return date;
   }
 
-  public boolean automatic() {
-    return automatic;
+  public boolean scan() {
+    return scan;
   }
 
   public static IssueChangeContext createScan(Date date) {

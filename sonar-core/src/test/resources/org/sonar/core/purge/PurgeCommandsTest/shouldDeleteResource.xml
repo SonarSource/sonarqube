@@ -27,7 +27,7 @@
   <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" created_at="[null]" line="200" severity="BLOCKER"
           user_login="perceval" assignee_login="arthur" rule_id="500" manual_issue="[true]" manual_severity="[false]" description="[null]"/>
 
-  <issue_changes id="1" issue_key="ABCDE" created_at="[null]" updated_at="[null]" user_login="admin" message="abc"/>
+  <issue_changes id="1" kee="ABDA" issue_key="ABCDE" created_at="[null]" updated_at="[null]" user_login="admin" change_type="comment" change_data="this is a comment"/>
 
   <authors id="1" person_id="1" login="tartanpion" created_at="[null]" updated_at="[null]" />
   <authors id="2" person_id="1" login="fanfoue" created_at="[null]" updated_at="[null]" />

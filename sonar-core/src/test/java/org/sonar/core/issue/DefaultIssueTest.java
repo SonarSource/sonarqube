@@ -19,11 +19,13 @@
  */
 package org.sonar.core.issue;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.fest.assertions.MapAssert.entry;
 
 public class DefaultIssueTest {
 
@@ -38,6 +40,20 @@ public class DefaultIssueTest {
     assertThat(issue.attribute("foo")).isEqualTo("newbar");
     issue.setAttribute("foo", null);
     assertThat(issue.attribute("foo")).isNull();
+  }
+
+  @Test
+  public void setAttributes_should_not_clear_existing_values() throws Exception {
+    issue.setAttributes(ImmutableMap.of("1", "one"));
+    assertThat(issue.attribute("1")).isEqualTo("one");
+
+    issue.setAttributes(ImmutableMap.of("2", "two"));
+    assertThat(issue.attributes()).hasSize(2);
+    assertThat(issue.attributes()).includes(entry("1", "one"), entry("2", "two"));
+
+    issue.setAttributes(null);
+    assertThat(issue.attributes()).hasSize(2);
+    assertThat(issue.attributes()).includes(entry("1", "one"), entry("2", "two"));
   }
 
   @Test

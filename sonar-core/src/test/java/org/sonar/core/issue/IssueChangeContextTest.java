@@ -17,23 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.issue;
 
-package org.sonar.core.issue.db;
+import org.junit.Test;
 
-import java.util.List;
+import java.util.Date;
 
-/**
- * @since 3.6
- */
-public interface IssueChangeMapper {
+import static org.fest.assertions.Assertions.assertThat;
 
-  void insert(IssueChangeDto dto);
+public class IssueChangeContextTest {
+  @Test
+  public void test_scan_context() throws Exception {
+    Date now = new Date();
+    IssueChangeContext context = IssueChangeContext.createScan(now);
 
-  IssueChangeDto selectById(long id);
+    assertThat(context.scan()).isTrue();
+    assertThat(context.login()).isNull();
+    assertThat(context.date()).isEqualTo(now);
+  }
 
-  /**
-   * Issue changes ordered by descending creation date.
-   */
-  List<IssueChangeDto> selectByIssue(String issueKey);
+  @Test
+  public void test_end_user_context() throws Exception {
+    Date now = new Date();
+    IssueChangeContext context = IssueChangeContext.createUser(now, "emmerik");
 
+    assertThat(context.scan()).isFalse();
+    assertThat(context.login()).isEqualTo("emmerik");
+    assertThat(context.date()).isEqualTo(now);
+  }
 }

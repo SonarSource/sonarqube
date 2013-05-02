@@ -33,6 +33,7 @@ public interface IssueHandler extends BatchExtension {
 
     boolean isNew();
 
+    // TODO rename isClosed()
     boolean isAlive();
 
     Context setLine(@Nullable Integer line);
@@ -47,7 +48,7 @@ public interface IssueHandler extends BatchExtension {
 
     Context assign(@Nullable String login);
 
-    Context comment(String message);
+    Context addComment(String text);
 
   }
 

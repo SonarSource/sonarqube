@@ -55,7 +55,8 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   @Before
   public void init() {
     when(initialOpenIssues.getLoadedDate()).thenReturn(loadedDate);
-    decorator = new IssueTrackingDecorator(scanIssues, initialOpenIssues, tracking, filters, handlers, workflow);
+    decorator = new IssueTrackingDecorator(scanIssues, initialOpenIssues, tracking,
+      filters, handlers, workflow, mock(Project.class));
   }
 
   @Test
@@ -102,7 +103,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       }
     }));
     verify(workflow).doAutomaticTransition(eq(issue), any(IssueChangeContext.class));
-    verify(handlers).execute(eq(issue));
+    verify(handlers).execute(eq(issue), any(IssueChangeContext.class));
     verify(scanIssues).addOrUpdate(issue);
   }
 
@@ -122,7 +123,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     decorator.decorate(file, mock(DecoratorContext.class, Mockito.RETURNS_MOCKS));
 
     verify(workflow, times(2)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
-    verify(handlers, times(2)).execute(any(DefaultIssue.class));
+    verify(handlers, times(2)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
     verify(scanIssues, times(2)).addOrUpdate(any(DefaultIssue.class));
 
     verify(scanIssues).addOrUpdate(argThat(new ArgumentMatcher<DefaultIssue>() {
@@ -147,7 +148,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
     // the dead issue must be closed -> apply automatic transition, notify handlers and add to cache
     verify(workflow, times(2)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
-    verify(handlers, times(2)).execute(any(DefaultIssue.class));
+    verify(handlers, times(2)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
     verify(scanIssues, times(2)).addOrUpdate(any(DefaultIssue.class));
 
     verify(scanIssues).addOrUpdate(argThat(new ArgumentMatcher<DefaultIssue>() {

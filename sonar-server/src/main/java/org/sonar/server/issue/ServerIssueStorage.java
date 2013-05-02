@@ -17,27 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.issue;
+package org.sonar.server.issue;
 
-import org.sonar.batch.index.ScanPersister;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceQuery;
 
-/**
- * Executed at the end of project scan, when all the modules are completed.
- */
-public class IssuePersister implements ScanPersister {
+public class ServerIssueStorage extends IssueStorage implements ServerComponent {
 
-  private final IssueCache issueCache;
-  private final ScanIssueStorage storage;
+  private final ResourceDao resourceDao;
 
-  public IssuePersister(IssueCache issueCache, ScanIssueStorage storage) {
-    this.issueCache = issueCache;
-    this.storage = storage;
+  public ServerIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, ResourceDao resourceDao) {
+    super(mybatis, ruleFinder);
+    this.resourceDao = resourceDao;
   }
 
   @Override
-  public void persist() {
-    Iterable<DefaultIssue> issues = issueCache.componentIssues();
-    storage.save(issues);
+  protected int componentId(DefaultIssue issue) {
+    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(issue.componentKey()));
+    if (resourceDto == null) {
+      throw new IllegalStateException("Unknown component: " + issue.componentKey());
+    }
+    return resourceDto.getId().intValue();
   }
 }

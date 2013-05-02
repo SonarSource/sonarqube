@@ -71,10 +71,7 @@ import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
-import org.sonar.server.issue.JRubyApiIssues;
-import org.sonar.server.issue.JRubyInternalIssues;
-import org.sonar.server.issue.ServerIssueActions;
-import org.sonar.server.issue.ServerIssueFinder;
+import org.sonar.server.issue.*;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
@@ -242,6 +239,7 @@ public final class Platform {
     servicesContainer.addSingleton(Periods.class);
 
     // issues
+    servicesContainer.addSingleton(ServerIssueStorage.class);
     servicesContainer.addSingleton(IssueUpdater.class);
     servicesContainer.addSingleton(FunctionExecutor.class);
     servicesContainer.addSingleton(IssueWorkflow.class);

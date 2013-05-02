@@ -26,10 +26,10 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 
+import java.util.Date;
+
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 public class IssueHandlersTest {
   @Test
@@ -40,7 +40,7 @@ public class IssueHandlersTest {
 
     IssueHandlers handlers = new IssueHandlers(updater, new IssueHandler[]{h1, h2});
     final DefaultIssue issue = new DefaultIssue();
-    handlers.execute(issue);
+    handlers.execute(issue, IssueChangeContext.createScan(new Date()));
 
     verify(h1).onIssue(argThat(new ArgumentMatcher<IssueHandler.Context>() {
       @Override
@@ -54,7 +54,7 @@ public class IssueHandlersTest {
   public void test_no_handlers() {
     IssueUpdater updater = mock(IssueUpdater.class);
     IssueHandlers handlers = new IssueHandlers(updater);
-    handlers.execute(new DefaultIssue());
+    handlers.execute(new DefaultIssue(), IssueChangeContext.createScan(new Date()));
     verifyZeroInteractions(updater);
   }
 }

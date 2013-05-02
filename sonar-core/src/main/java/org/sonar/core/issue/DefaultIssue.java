@@ -23,6 +23,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -31,10 +32,12 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class DefaultIssue implements Issue {
@@ -60,7 +63,8 @@ public class DefaultIssue implements Issue {
   private boolean isAlive = true;
   private Map<String, String> attributes = null;
   private String authorLogin = null;
-  private IssueChange change = null;
+  private FieldDiffs diffs = null;
+  private List<IssueComment> newComments = null;
 
   public String key() {
     return key;
@@ -239,6 +243,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public String attribute(String key) {
     return attributes == null ? null : attributes.get(key);
   }
@@ -259,11 +264,17 @@ public class DefaultIssue implements Issue {
     return attributes == null ? Collections.<String, String>emptyMap() : ImmutableMap.copyOf(attributes);
   }
 
-  public DefaultIssue setAttributes(Map<String, String> attributes) {
-    this.attributes = attributes;
+  public DefaultIssue setAttributes(@Nullable Map<String, String> map) {
+    if (map != null) {
+      if (attributes == null) {
+        attributes = Maps.newHashMap();
+      }
+      attributes.putAll(map);
+    }
     return this;
   }
 
+  @CheckForNull
   public String authorLogin() {
     return authorLogin;
   }
@@ -273,18 +284,32 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
-  public DefaultIssue setDiff(String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
+  public DefaultIssue setFieldDiff(IssueChangeContext context, String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
     if (!Objects.equal(oldValue, newValue)) {
-      if (change == null) {
-        change = new IssueChange();
+      if (diffs == null) {
+        diffs = new FieldDiffs();
+        diffs.setUserLogin(context.login());
       }
-      change.setDiff(field, oldValue, newValue);
+      diffs.setDiff(field, oldValue, newValue);
     }
     return this;
   }
 
-  public IssueChange change() {
-    return change;
+  @CheckForNull
+  public FieldDiffs diffs() {
+    return diffs;
+  }
+
+  public DefaultIssue addComment(IssueComment comment) {
+    if (newComments == null) {
+      newComments = Lists.newArrayList();
+    }
+    newComments.add(comment);
+    return this;
+  }
+
+  public List<IssueComment> newComments() {
+    return Objects.firstNonNull(newComments, Collections.<IssueComment>emptyList());
   }
 
   @Override

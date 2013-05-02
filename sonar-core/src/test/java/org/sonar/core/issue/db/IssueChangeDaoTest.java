@@ -21,12 +21,10 @@ package org.sonar.core.issue.db;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.issue.db.IssueChangeDao;
-import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -40,46 +38,27 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_insert() {
-    setupData("insert");
-
-    IssueChangeDto dto = new IssueChangeDto();
-    dto.setIssueKey("100");
-    dto.setUserLogin("arthur");
-    dto.setChangeType("type");
-    dto.setChangeData("data");
-    dto.setMessage("some message");
-
-    Date today = new Date();
-    dto.setCreatedAt(today);
-    dto.setUpdatedAt(today);
-
-    dao.insert(dto);
-
-    checkTables("insert", new String[]{"id", "created_at", "updated_at"}, "issue_changes");
-  }
-
-  @Test
-  public void should_find_by_id() {
+  public void should_select_by_id() {
     setupData("shared");
 
-    IssueChangeDto dto = dao.findById(100L);
+    IssueChangeDto dto = dao.selectById(100L);
     assertThat(dto.getId()).isEqualTo(100L);
-    assertThat(dto.getIssueKey()).isEqualTo("100");
+    assertThat(dto.getIssueKey()).isEqualTo("1000");
     assertThat(dto.getUserLogin()).isEqualTo("arthur");
-    assertThat(dto.getChangeType()).isEqualTo("type");
-    assertThat(dto.getChangeData()).isEqualTo("data");
-    assertThat(dto.getMessage()).isEqualTo("some message");
-    assertThat(dto.getCreatedAt()).isNull();
-    assertThat(dto.getUpdatedAt()).isNull();
+    assertThat(dto.getChangeType()).isEqualTo("comment");
+    assertThat(dto.getChangeData()).isEqualTo("this is a comment");
+    assertThat(dto.getCreatedAt()).isNotNull();
+    assertThat(dto.getUpdatedAt()).isNotNull();
   }
 
   @Test
   public void should_select_by_issue() {
     setupData("shared");
 
-    Collection<IssueChangeDto> dtoList = dao.selectByIssue("100");
-    assertThat(dtoList).hasSize(2);
+    List<IssueChangeDto> ordered = dao.selectByIssue("1000");
+    assertThat(ordered).hasSize(2);
+    assertThat(ordered.get(0).getId()).isEqualTo(101);
+    assertThat(ordered.get(1).getId()).isEqualTo(100);
   }
 
 }

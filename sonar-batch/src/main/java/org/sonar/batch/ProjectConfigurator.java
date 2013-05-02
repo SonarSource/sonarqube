@@ -96,6 +96,7 @@ public class ProjectConfigurator implements BatchComponent {
     }
     if (date == null) {
       date = new Date();
+      settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, date, true);
     }
     return date;
   }

@@ -22,6 +22,7 @@ package org.sonar.core.issue.db;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import javax.annotation.Nullable;
 import java.util.Date;
 
 /**
@@ -30,11 +31,11 @@ import java.util.Date;
 public final class IssueChangeDto {
 
   private Long id;
+  private String key;
   private String issueKey;
   private String userLogin;
   private String changeType;
   private String changeData;
-  private String message;
   private Date createdAt;
   private Date updatedAt;
 
@@ -44,6 +45,15 @@ public final class IssueChangeDto {
 
   public IssueChangeDto setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public IssueChangeDto setKey(String key) {
+    this.key = key;
     return this;
   }
 
@@ -60,7 +70,7 @@ public final class IssueChangeDto {
     return userLogin;
   }
 
-  public IssueChangeDto setUserLogin(String userLogin) {
+  public IssueChangeDto setUserLogin(@Nullable String userLogin) {
     this.userLogin = userLogin;
     return this;
   }
@@ -80,15 +90,6 @@ public final class IssueChangeDto {
 
   public IssueChangeDto setChangeData(String changeData) {
     this.changeData = changeData;
-    return this;
-  }
-
-  public String getMessage() {
-    return message;
-  }
-
-  public IssueChangeDto setMessage(String message) {
-    this.message = message;
     return this;
   }
 

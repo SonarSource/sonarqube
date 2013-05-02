@@ -48,33 +48,8 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   public IssueDao(MyBatis mybatis) {
     this.mybatis = mybatis;
+    // FIXME
     this.avalailableSorts = getAvalailableSorts();
-  }
-
-  public void insert(IssueDto issueDto) {
-    SqlSession session = mybatis.openSession();
-    try {
-      // TODO bulk insert
-      session.insert("org.sonar.core.issue.db.IssueMapper.insert", issueDto);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public IssueDao update(Collection<IssueDto> issues) {
-    SqlSession session = mybatis.openBatchSession();
-    try {
-      // TODO bulk update
-      for (IssueDto issue : issues) {
-        session.update("org.sonar.core.issue.db.IssueMapper.update", issue);
-      }
-      session.commit();
-      return this;
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public IssueDto selectById(long id) {

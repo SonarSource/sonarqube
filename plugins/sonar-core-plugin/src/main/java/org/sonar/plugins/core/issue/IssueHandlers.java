@@ -23,6 +23,7 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueHandler;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.Nullable;
@@ -40,8 +41,8 @@ public class IssueHandlers implements BatchExtension {
     this(updater, new IssueHandler[0]);
   }
 
-  public void execute(DefaultIssue issue) {
-    context.reset(issue);
+  public void execute(DefaultIssue issue, IssueChangeContext changeContext) {
+    context.reset(issue, changeContext);
     for (IssueHandler handler : handlers) {
       handler.onIssue(context);
     }
@@ -50,14 +51,15 @@ public class IssueHandlers implements BatchExtension {
   static class DefaultContext implements IssueHandler.Context {
     private final IssueUpdater updater;
     private DefaultIssue issue;
-
+    private IssueChangeContext changeContext;
 
     private DefaultContext(IssueUpdater updater) {
       this.updater = updater;
     }
 
-    private void reset(DefaultIssue i) {
+    private void reset(DefaultIssue i, IssueChangeContext changeContext) {
       this.issue = i;
+      this.changeContext = changeContext;
     }
 
     @Override
@@ -89,7 +91,7 @@ public class IssueHandlers implements BatchExtension {
 
     @Override
     public IssueHandler.Context setSeverity(String severity) {
-      updater.setSeverity(issue, severity);
+      updater.setSeverity(issue, severity, changeContext);
       return this;
     }
 
@@ -106,13 +108,14 @@ public class IssueHandlers implements BatchExtension {
 
     @Override
     public IssueHandler.Context assign(@Nullable String assignee) {
-      updater.assign(issue, assignee);
+      updater.assign(issue, assignee, changeContext);
       return this;
     }
 
     @Override
-    public IssueHandler.Context comment(String message) {
-      return null;
+    public IssueHandler.Context addComment(String text) {
+      updater.addComment(issue, text, changeContext);
+      return this;
     }
   }
 

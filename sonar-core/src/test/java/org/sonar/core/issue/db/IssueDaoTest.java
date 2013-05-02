@@ -45,54 +45,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_insert() {
-    setupData("insert");
-
-    IssueDto issueDto = new IssueDto();
-    issueDto.setKey("100");
-    issueDto.setResourceId(400);
-    issueDto.setRuleId(12);
-    issueDto.setSeverity("BLOCKER");
-    issueDto.setLine(200);
-    issueDto.setStatus("OPEN");
-    issueDto.setAssignee("user");
-    issueDto.setDescription("the description");
-    issueDto.setCost(10.0);
-    issueDto.setChecksum("checksum");
-    issueDto.setAuthorLogin("arthur");
-
-    Date today = new Date();
-    issueDto.setCreatedAt(today);
-    issueDto.setUpdatedAt(today);
-    issueDto.setClosedAt(today);
-
-    dao.insert(issueDto);
-
-    checkTables("insert", new String[]{"id", "created_at", "updated_at", "closed_at"}, "issues");
-  }
-
-  @Test
-  public void update() {
-    setupData("shared", "update");
-    Collection<IssueDto> issues = newArrayList(dao.selectById(100L));
-    IssueDto issue = issues.iterator().next();
-    issue.setLine(1000);
-    issue.setResolution("NEW_RESOLUTION");
-    issue.setStatus("NEW_STATUS");
-    issue.setSeverity("NEW_SEV");
-    issue.setAssignee("new_user");
-    issue.setManualSeverity(true);
-    issue.setManualIssue(false);
-    issue.setCreatedAt(DateUtils.parseDate("2012-05-18"));
-    issue.setUpdatedAt(DateUtils.parseDate("2012-07-01"));
-    issue.setAttributes("big=bang");
-
-    dao.update(issues);
-
-    checkTables("update", "issues");
-  }
-
-  @Test
   public void should_select_by_id() {
     setupData("shared", "should_select_by_id");
     IssueDto issue = dao.selectById(100L);

@@ -47,15 +47,18 @@ public class IssueTrackingDecorator implements Decorator {
   private final IssueFilters filters;
   private final IssueHandlers handlers;
   private final IssueWorkflow workflow;
+  private final IssueChangeContext changeContext;
 
   public IssueTrackingDecorator(ScanIssues scanIssues, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
-                                IssueFilters filters, IssueHandlers handlers, IssueWorkflow workflow) {
+                                IssueFilters filters, IssueHandlers handlers, IssueWorkflow workflow,
+                                Project project) {
     this.scanIssues = scanIssues;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
     this.filters = filters;
     this.handlers = handlers;
     this.workflow = workflow;
+    this.changeContext = IssueChangeContext.createScan(project.getAnalysisDate());
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -84,10 +87,9 @@ public class IssueTrackingDecorator implements Decorator {
         addDead(issues);
       }
 
-      IssueChangeContext changeContext = IssueChangeContext.createScan(context.getProject().getAnalysisDate());
       for (DefaultIssue issue : issues) {
         workflow.doAutomaticTransition(issue, changeContext);
-        handlers.execute(issue);
+        handlers.execute(issue, changeContext);
         scanIssues.addOrUpdate(issue);
       }
     }

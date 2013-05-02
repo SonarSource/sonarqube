@@ -17,23 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.issue;
 
-package org.sonar.core.issue.db;
+import javax.annotation.Nullable;
+import java.util.Date;
+import java.util.UUID;
 
-import java.util.List;
+public class IssueComment extends IssueChange {
 
-/**
- * @since 3.6
- */
-public interface IssueChangeMapper {
+  private String key;
+  private String text;
 
-  void insert(IssueChangeDto dto);
+  public String text() {
+    return text;
+  }
 
-  IssueChangeDto selectById(long id);
+  public IssueComment setText(String s) {
+    this.text = s;
+    return this;
+  }
 
-  /**
-   * Issue changes ordered by descending creation date.
-   */
-  List<IssueChangeDto> selectByIssue(String issueKey);
+  public String key() {
+    return key;
+  }
 
+  public IssueComment setKey(String key) {
+    this.key = key;
+    return this;
+  }
+
+  public static IssueComment create(@Nullable String login, String text) {
+    IssueComment comment = new IssueComment();
+    comment.setKey(UUID.randomUUID().toString());
+    Date now = new Date();
+    comment.setUserLogin(login);
+    comment.setText(text);
+    comment.setCreatedAt(now).setUpdatedAt(now);
+    return comment;
+  }
 }

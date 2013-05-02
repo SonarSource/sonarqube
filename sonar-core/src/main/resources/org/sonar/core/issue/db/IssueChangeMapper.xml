@@ -26,39 +26,42 @@
 
   <sql id="issueChangeColumns">
     i.id,
+    i.kee as kee,
     i.issue_key as issueKey,
     i.user_login as userLogin,
     i.change_type as changeType,
     i.change_data as changeData,
-    i.message as message,
     i.created_at as createdAt,
     i.updated_at as updatedAt
   </sql>
 
-  <insert id="insert" parameterType="IssueChange" useGeneratedKeys="true" keyProperty ="id">
-    INSERT INTO issue_changes (issue_key, user_login, change_type, change_data, message, created_at, updated_at)
-    VALUES (#{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{message}, #{createdAt}, #{updatedAt})
+  <insert id="insert" parameterType="IssueChange" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO issue_changes (kee, issue_key, user_login, change_type, change_data, created_at, updated_at)
+    VALUES (#{key}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt})
   </insert>
 
   <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="IssueChange" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
+  <insert id="insert" databaseId="oracle" parameterType="IssueChange" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issue_changes_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issue_changes (id, issue_key, user_login, change_type, change_data, message, created_at, updated_at)
-    VALUES (#{id}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{message}, #{createdAt}, #{updatedAt})
+    INSERT INTO issue_changes (id, kee, issue_key, user_login, change_type, change_data, created_at, updated_at)
+    VALUES (#{id}, #{key}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <select id="findById" parameterType="long" resultType="IssueChange">
-    select <include refid="issueChangeColumns"/>
+  <select id="selectById" parameterType="long" resultType="IssueChange">
+    select
+    <include refid="issueChangeColumns"/>
     from issue_changes i
     where i.id=#{id}
   </select>
 
   <select id="selectByIssue" parameterType="string" resultType="IssueChange">
-    select <include refid="issueChangeColumns"/>
+    select
+    <include refid="issueChangeColumns"/>
     from issue_changes i
     where i.issue_key=#{issueKey}
+    order by i.created_at desc
   </select>
 
 </mapper>

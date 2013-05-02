@@ -25,14 +25,17 @@ class CreateIssueChanges < ActiveRecord::Migration
 
   def self.up
     create_table :issue_changes do |t|
-      t.column :issue_key,          :string,    :null => false,   :limit => 36
+      t.column :kee,                :string,    :null => true,    :limit => 100
+      t.column :issue_key,          :string,    :null => false,   :limit => 100
       t.column :user_login,         :string,    :null => true,	  :limit => 40
-      t.column :change_type, 				:string, 	  :null => true,	  :limit => 50
-      t.column :change_data,        :string,    :null => true,    :limit => 4000
-      t.column :message,            :text,      :null => true
+      t.column :change_type, 				:string, 	  :null => true,	  :limit => 40
+      t.column :change_data,        :text,      :null => true
       t.column :created_at,         :datetime,  :null => true
       t.column :updated_at,         :datetime,  :null => true
     end
+
+    add_index :issue_changes,  :kee,         :name => 'issue_changes_kee'
+    add_index :issue_changes,  :issue_key,   :name => 'issue_changes_issue_key'
   end
 
 end

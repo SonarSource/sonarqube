@@ -19,49 +19,37 @@
  */
 package org.sonar.core.issue;
 
-import com.google.common.collect.Maps;
-
-import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.Map;
+import java.util.Date;
 
-public class IssueChange implements Serializable {
+public abstract class IssueChange implements Serializable {
+  private String userLogin;
+  private Date createdAt, updatedAt;
 
-  public static class Diff<T extends Serializable> implements Serializable {
-    private T before, after;
-
-    public Diff(@Nullable T before, @Nullable T after) {
-      this.before = before;
-      this.after = after;
-    }
-
-    public T before() {
-      return before;
-    }
-
-    public T after() {
-      return after;
-    }
-
-    void setAfter(T t) {
-      this.after = t;
-    }
+  public String userLogin() {
+    return userLogin;
   }
 
-  private Map<String, Diff> diffs = Maps.newLinkedHashMap();
-
-  public Map<String, Diff> diffs() {
-    return diffs;
+  public IssueChange setUserLogin(String s) {
+    this.userLogin = s;
+    return this;
   }
 
-  @SuppressWarnings("unchecked")
-  public void setDiff(String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
-    Diff diff = diffs.get(field);
-    if (diff == null) {
-      diff = new Diff(oldValue, newValue);
-      diffs.put(field, diff);
-    } else {
-      diff.setAfter(newValue);
-    }
+  public Date createdAt() {
+    return createdAt;
+  }
+
+  public IssueChange setCreatedAt(Date d) {
+    this.createdAt = d;
+    return this;
+  }
+
+  public Date updatedAt() {
+    return updatedAt;
+  }
+
+  public IssueChange setUpdatedAt(Date d) {
+    this.updatedAt = d;
+    return this;
   }
 }

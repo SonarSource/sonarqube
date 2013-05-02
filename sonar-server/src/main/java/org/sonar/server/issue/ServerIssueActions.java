@@ -21,25 +21,24 @@ package org.sonar.server.issue;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueComment;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -47,25 +46,25 @@ import java.util.*;
 public class ServerIssueActions implements ServerComponent {
 
   private final IssueWorkflow workflow;
-  private final IssueDao issueDao;
-  private final AuthorizationDao authorizationDao;
-  private final ResourceDao resourceDao;
-  private final RuleFinder ruleFinder;
   private final IssueUpdater issueUpdater;
+  private final IssueDao issueDao;
+  private final IssueStorage issueStorage;
+  private final AuthorizationDao authorizationDao;
 
-  public ServerIssueActions(IssueWorkflow workflow, IssueDao issueDao,
-                            AuthorizationDao authorizationDao, ResourceDao resourceDao, RuleFinder ruleFinder, IssueUpdater issueUpdater) {
+  public ServerIssueActions(IssueWorkflow workflow,
+                            IssueDao issueDao,
+                            IssueStorage issueStorage,
+                            AuthorizationDao authorizationDao,
+                            IssueUpdater issueUpdater) {
     this.workflow = workflow;
     this.issueDao = issueDao;
-    this.authorizationDao = authorizationDao;
-    this.resourceDao = resourceDao;
-    this.ruleFinder = ruleFinder;
+    this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
+    this.authorizationDao = authorizationDao;
   }
 
   public List<Transition> listTransitions(String issueKey, UserSession userSession) {
-    IssueDto dto = loadDto(issueKey, userSession);
-    DefaultIssue issue = dto.toDefaultIssue();
+    DefaultIssue issue = loadIssue(issueKey, userSession);
     List<Transition> transitions = workflow.outTransitions(issue);
     Collections.sort(transitions, new Comparator<Transition>() {
       @Override
@@ -77,50 +76,59 @@ public class ServerIssueActions implements ServerComponent {
   }
 
   public Issue doTransition(String issueKey, String transition, UserSession userSession) {
-    IssueDto dto = loadDto(issueKey, userSession);
-    DefaultIssue issue = dto.toDefaultIssue();
+    DefaultIssue issue = loadIssue(issueKey, userSession);
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (workflow.doTransition(issue, transition, context)) {
-      issueDao.update(Arrays.asList(IssueDto.toDto(issue, dto.getResourceId(), dto.getRuleId())));
+      issueStorage.save(issue);
     }
     return issue;
   }
 
   public Issue assign(String issueKey, @Nullable String assigneeLogin, UserSession userSession) {
-    IssueDto dto = loadDto(issueKey, userSession);
-    DefaultIssue issue = dto.toDefaultIssue();
+    DefaultIssue issue = loadIssue(issueKey, userSession);
 
     // TODO check that assignee exists
-    if (issueUpdater.assign(issue, assigneeLogin)) {
-      issueDao.update(Arrays.asList(IssueDto.toDto(issue, dto.getResourceId(), dto.getRuleId())));
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+    if (issueUpdater.assign(issue, assigneeLogin, context)) {
+      issueStorage.save(issue);
     }
     return issue;
   }
 
   public Issue setSeverity(String issueKey, String severity, UserSession userSession) {
-    IssueDto dto = loadDto(issueKey, userSession);
-    DefaultIssue issue = dto.toDefaultIssue();
+    DefaultIssue issue = loadIssue(issueKey, userSession);
 
-    if (issueUpdater.setManualSeverity(issue, severity)) {
-      issueDao.update(Arrays.asList(IssueDto.toDto(issue, dto.getResourceId(), dto.getRuleId())));
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+    if (issueUpdater.setManualSeverity(issue, severity, context)) {
+      issueStorage.save(issue);
     }
     return issue;
   }
 
+  public DefaultIssue addComment(String issueKey, String comment, UserSession userSession) {
+    DefaultIssue issue = loadIssue(issueKey, userSession);
+
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+    issueUpdater.addComment(issue, comment, context);
+    issueStorage.save(issue);
+    return issue;
+  }
+
+  public List<IssueComment> comments(String issueKey, UserSession userSession) {
+    throw new UnsupportedOperationException("TODO");
+  }
+
   public Issue create(DefaultIssue issue, UserSession userSession) {
+    // TODO merge with JRubyInternalIssues
     issue.setManual(true);
     issue.setUserLogin(userSession.login());
 
-    // TODO check that rule and component exist
-    Rule rule = ruleFinder.findByKey(issue.ruleKey());
-    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(issue.componentKey()));
-    IssueDto dto = IssueDto.toDto(issue, resourceDto.getId().intValue(), rule.getId());
-    issueDao.insert(dto);
+    issueStorage.save(issue);
 
     return issue;
   }
 
-  private IssueDto loadDto(String issueKey, UserSession userSession) {
+  private DefaultIssue loadIssue(String issueKey, UserSession userSession) {
     if (!userSession.isLoggedIn()) {
       // must be logged
       throw new IllegalStateException("User is not logged in");
@@ -133,6 +141,6 @@ public class ServerIssueActions implements ServerComponent {
     if (!authorizationDao.isAuthorizedComponentId(dto.getResourceId(), userSession.userId(), requiredRole)) {
       throw new IllegalStateException("User does not have the role " + requiredRole + " required to change the issue: " + issueKey);
     }
-    return dto;
+    return dto.toDefaultIssue();
   }
 }
