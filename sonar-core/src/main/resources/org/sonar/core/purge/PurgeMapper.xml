@@ -240,11 +240,37 @@
   </delete>
 
   <delete id="deleteResourceActionPlansIssues" parameterType="long">
-    delete from action_plans_issues api where exists (select * from action_plans ap where ap.id=api.action_plan_id and ap.project_id=#{id})
+    delete from action_plans_issues api
+    where exists (select * from action_plans ap where ap.id=api.action_plan_id and ap.project_id=#{id})
+  </delete>
+
+  <!-- Mssql -->
+  <delete id="deleteResourceActionPlansIssues" databaseId="mssql" parameterType="long">
+    delete action_plans_issues from action_plans_issues
+    inner join action_plans on action_plans.id=action_plans_issues.action_plan_id
+    where action_plans.project_id=#{id}
+  </delete>
+
+  <!-- Mysql -->
+  <delete id="deleteResourceActionPlansIssues" databaseId="mysql" parameterType="long">
+    delete api from action_plans_issues as api, action_plans as ap where ap.id=api.action_plan_id and ap.project_id=#{id}
   </delete>
 
   <delete id="deleteResourceIssueChanges" parameterType="long">
-    delete from issue_changes ic where exists (select * from issues i where ic.issue_key=i.kee and i.resource_id=#{id})
+    delete from issue_changes ic
+    where exists (select * from issues i where i.kee=ic.issue_key and i.resource_id=#{id})
+  </delete>
+
+  <!-- Mssql -->
+  <delete id="deleteResourceIssueChanges" databaseId="mssql" parameterType="long">
+    delete issue_changes from issue_changes
+    inner join issues on issue_changes.issue_key=issues.kee
+    where issues.resource_id=#{id}
+  </delete>
+
+  <!-- Mysql -->
+  <delete id="deleteResourceIssueChanges" databaseId="mysql" parameterType="long">
+    delete ic from issue_changes as ic, issues as i where ic.issue_key=i.kee and i.resource_id=#{id}
   </delete>
 
   <delete id="deleteResourceIssues" parameterType="long">
