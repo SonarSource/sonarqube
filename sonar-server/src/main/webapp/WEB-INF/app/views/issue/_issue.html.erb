@@ -9,6 +9,12 @@
 
   <% if current_user %>
     <div class="marginbottom10" id="actionButtons">
+      <% unless issue.status == 'RESOLVED' %>
+        <%= button_to_remote message('issues.action.assign.button'),
+                             :url => {:controller => "issue", :action => "assign_form", :issue => @issue.key},
+                             :update => "actionForm",
+                             :complete => "$('actionButtons').remove();$('actionForm').show();" -%>
+      <% end %>
       <% @transitions.each do |transition| %>
         <%= button_to_remote message("issues.transition.#{transition.key}.button"),
                              :url => {:controller => "issue", :action => "transition_form", :issue => @issue.key, :transition => transition.key},
@@ -17,10 +23,6 @@
       <% end %>
 
       <% unless issue.status == 'RESOLVED' %>
-        <%= button_to_remote message('reviews.assign'),
-                             :url => {:controller => "issue", :action => "assign_form", :issue => @issue.key},
-                             :update => "actionForm",
-                             :complete => "$('actionButtons').remove();$('actionForm').show();" -%>
         <%= button_to_remote message('issues.action.change_severity.button'),
                              :url => {:controller => "issue", :action => "change_severity_form", :issue => @issue.key},
                              :update => "actionForm",
