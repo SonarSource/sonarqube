@@ -22,7 +22,6 @@ package org.sonar.core.issue.db;
 import com.google.common.collect.Lists;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueComment;
 
 import java.util.Date;
@@ -30,16 +29,16 @@ import java.util.List;
 
 class ChangeDtoConverter {
 
-  static final String TYPE_FIELD_CHANGE = "diff";
+  static final String TYPE_FIELD_CHANGE = "change";
   static final String TYPE_COMMENT = "comment";
 
-  static List<IssueChangeDto> toChangeDtos(DefaultIssue issue) {
+  static List<IssueChangeDto> extractChangeDtos(DefaultIssue issue) {
     List<IssueChangeDto> dtos = Lists.newArrayList();
     for (IssueComment comment : issue.newComments()) {
       dtos.add(commentToDto(issue.key(), comment));
     }
     if (issue.diffs() != null) {
-      dtos.add(diffsToDto(issue.key(), issue.diffs()));
+      dtos.add(changeToDto(issue.key(), issue.diffs()));
     }
     return dtos;
   }
@@ -53,7 +52,7 @@ class ChangeDtoConverter {
     return dto;
   }
 
-  static IssueChangeDto diffsToDto(String issueKey, FieldDiffs diffs) {
+  static IssueChangeDto changeToDto(String issueKey, FieldDiffs diffs) {
     IssueChangeDto dto = newDto(issueKey);
     dto.setChangeType(TYPE_FIELD_CHANGE);
     dto.setChangeData(diffs.toString());
@@ -70,5 +69,22 @@ class ChangeDtoConverter {
     dto.setCreatedAt(now);
     dto.setUpdatedAt(new Date());
     return dto;
+  }
+
+  public static IssueComment dtoToComment(IssueChangeDto dto) {
+    return new IssueComment()
+      .setText(dto.getChangeData())
+      .setKey(dto.getKey())
+      .setCreatedAt(dto.getCreatedAt())
+      .setUpdatedAt(dto.getUpdatedAt())
+      .setUserLogin(dto.getUserLogin());
+  }
+
+  public static FieldDiffs dtoToChange(IssueChangeDto dto) {
+    FieldDiffs diffs = FieldDiffs.parse(dto.getChangeData());
+    diffs.setUserLogin(dto.getUserLogin());
+    diffs.setCreatedAt(dto.getCreatedAt());
+    diffs.setUpdatedAt(dto.getUpdatedAt());
+    return diffs;
   }
 }

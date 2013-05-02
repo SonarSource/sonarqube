@@ -21,16 +21,15 @@ package org.sonar.core.issue.db;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.issue.IssueComment;
 import org.sonar.core.persistence.AbstractDaoTestCase;
-
-import java.util.Date;
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
-  private IssueChangeDao dao;
+  IssueChangeDao dao;
 
   @Before
   public void createDao() {
@@ -38,27 +37,28 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_by_id() {
+  public void should_select_issue_comments() {
     setupData("shared");
 
-    IssueChangeDto dto = dao.selectById(100L);
-    assertThat(dto.getId()).isEqualTo(100L);
-    assertThat(dto.getIssueKey()).isEqualTo("1000");
-    assertThat(dto.getUserLogin()).isEqualTo("arthur");
-    assertThat(dto.getChangeType()).isEqualTo("comment");
-    assertThat(dto.getChangeData()).isEqualTo("this is a comment");
-    assertThat(dto.getCreatedAt()).isNotNull();
-    assertThat(dto.getUpdatedAt()).isNotNull();
+    IssueComment[] comments = dao.selectIssueComments("1000");
+    assertThat(comments).hasSize(2);
+    IssueComment first = comments[0];
+    assertThat(first.text()).isEqualTo("recent comment");
+    assertThat(first.userLogin()).isEqualTo("arthur");
+    assertThat(first.key()).isEqualTo("FGHIJ");
+
+    IssueComment second = comments[1];
+    assertThat(second.text()).isEqualTo("old comment");
   }
 
   @Test
-  public void should_select_by_issue() {
+  public void should_select_issue_changes() {
     setupData("shared");
 
-    List<IssueChangeDto> ordered = dao.selectByIssue("1000");
-    assertThat(ordered).hasSize(2);
-    assertThat(ordered.get(0).getId()).isEqualTo(101);
-    assertThat(ordered.get(1).getId()).isEqualTo(100);
+    FieldDiffs[] ordered = dao.selectIssueChanges("1000");
+    assertThat(ordered).hasSize(1);
+    FieldDiffs.Diff severityDiff = ordered[0].get("severity");
+    assertThat(severityDiff.oldValue()).isEqualTo("MAJOR");
+    assertThat(severityDiff.newValue()).isEqualTo("BLOCKER");
   }
-
 }

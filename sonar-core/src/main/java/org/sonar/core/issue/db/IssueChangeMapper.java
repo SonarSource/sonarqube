@@ -20,6 +20,8 @@
 
 package org.sonar.core.issue.db;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
@@ -29,11 +31,9 @@ public interface IssueChangeMapper {
 
   void insert(IssueChangeDto dto);
 
-  IssueChangeDto selectById(long id);
-
   /**
    * Issue changes ordered by descending creation date.
    */
-  List<IssueChangeDto> selectByIssue(String issueKey);
+  List<IssueChangeDto> selectByIssueAndType(@Param("issueKey") String issueKey, @Param("changeType") String changeType);
 
 }

@@ -67,7 +67,7 @@ public abstract class IssueStorage {
             conflicts.add(issue);
           }
         }
-        for (IssueChangeDto changeDto : ChangeDtoConverter.toChangeDtos(issue)) {
+        for (IssueChangeDto changeDto : ChangeDtoConverter.extractChangeDtos(issue)) {
           session.insert(MYBATIS_INSERT_CHANGE, changeDto);
         }
       }

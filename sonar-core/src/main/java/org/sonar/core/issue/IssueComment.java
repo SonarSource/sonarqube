@@ -20,11 +20,14 @@
 package org.sonar.core.issue;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
-public class IssueComment extends IssueChange {
+public class IssueComment implements Serializable {
 
+  private String userLogin;
+  private Date createdAt, updatedAt;
   private String key;
   private String text;
 
@@ -43,6 +46,33 @@ public class IssueComment extends IssueChange {
 
   public IssueComment setKey(String key) {
     this.key = key;
+    return this;
+  }
+
+  public String userLogin() {
+    return userLogin;
+  }
+
+  public IssueComment setUserLogin(String userLogin) {
+    this.userLogin = userLogin;
+    return this;
+  }
+
+  public Date createdAt() {
+    return createdAt;
+  }
+
+  public IssueComment setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  public Date updatedAt() {
+    return updatedAt;
+  }
+
+  public IssueComment setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 

@@ -51,10 +51,10 @@ public class ChangeDtoConverterTest {
     diffs.setDiff("severity", "INFO", "BLOCKER");
     diffs.setUserLogin("emmerik");
 
-    IssueChangeDto dto = ChangeDtoConverter.diffsToDto("ABCDE", diffs);
+    IssueChangeDto dto = ChangeDtoConverter.changeToDto("ABCDE", diffs);
 
     assertThat(dto.getChangeData()).isEqualTo("severity=INFO|BLOCKER");
-    assertThat(dto.getChangeType()).isEqualTo("diff");
+    assertThat(dto.getChangeType()).isEqualTo("change");
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNotNull();
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
@@ -69,10 +69,10 @@ public class ChangeDtoConverterTest {
     issue.setFieldDiff(context, "severity", "INFO", "BLOCKER");
     issue.addComment(comment);
 
-    List<IssueChangeDto> changeDtos = ChangeDtoConverter.toChangeDtos(issue);
+    List<IssueChangeDto> changeDtos = ChangeDtoConverter.extractChangeDtos(issue);
     assertThat(changeDtos).hasSize(2);
     assertThat(changeDtos.get(0).getChangeType()).isEqualTo("comment");
-    assertThat(changeDtos.get(1).getChangeType()).isEqualTo("diff");
+    assertThat(changeDtos.get(1).getChangeType()).isEqualTo("change");
 
   }
 }

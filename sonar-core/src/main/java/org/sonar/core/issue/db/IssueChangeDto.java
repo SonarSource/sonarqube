@@ -31,7 +31,7 @@ import java.util.Date;
 public final class IssueChangeDto {
 
   private Long id;
-  private String key;
+  private String kee;
   private String issueKey;
   private String userLogin;
   private String changeType;
@@ -49,11 +49,11 @@ public final class IssueChangeDto {
   }
 
   public String getKey() {
-    return key;
+    return kee;
   }
 
   public IssueChangeDto setKey(String key) {
-    this.key = key;
+    this.kee = key;
     return this;
   }
 

@@ -23,9 +23,10 @@ package org.sonar.core.issue.db;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.issue.IssueComment;
 import org.sonar.core.persistence.MyBatis;
 
-import javax.annotation.CheckForNull;
 import java.util.List;
 
 /**
@@ -39,28 +40,34 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  @CheckForNull
-  public IssueChangeDto selectById(long id) {
-    SqlSession session = mybatis.openSession();
-    try {
-      IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-      return mapper.selectById(id);
-    } finally {
-      MyBatis.closeQuietly(session);
+  public IssueComment[] selectIssueComments(String issueKey) {
+    List<IssueChangeDto> dtos = selectByIssue(issueKey, ChangeDtoConverter.TYPE_COMMENT);
+    IssueComment[] result = new IssueComment[dtos.size()];
+    for (int index = 0; index < dtos.size(); index++) {
+      result[index] = ChangeDtoConverter.dtoToComment(dtos.get(index));
     }
+    return result;
+  }
+
+  public FieldDiffs[] selectIssueChanges(String issueKey) {
+    List<IssueChangeDto> dtos = selectByIssue(issueKey, ChangeDtoConverter.TYPE_FIELD_CHANGE);
+    FieldDiffs[] result = new FieldDiffs[dtos.size()];
+    for (int index = 0; index < dtos.size(); index++) {
+      result[index] = ChangeDtoConverter.dtoToChange(dtos.get(index));
+    }
+    return result;
   }
 
   /**
    * Issue changes ordered by descending creation date.
    */
-  public List<IssueChangeDto> selectByIssue(String issueKey) {
+  private List<IssueChangeDto> selectByIssue(String issueKey, String changeType) {
     SqlSession session = mybatis.openSession();
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-      return mapper.selectByIssue(issueKey);
+      return mapper.selectByIssueAndType(issueKey, changeType);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
-
 }

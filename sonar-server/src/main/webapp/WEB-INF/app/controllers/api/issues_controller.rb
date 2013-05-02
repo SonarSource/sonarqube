@@ -29,11 +29,11 @@ class Api::IssuesController < Api::ApiController
   def search
     results = Api.issues.find(params)
     render :json => jsonp(
-      {
-        :securityExclusions => results.securityExclusions,
-        :paging => paging_to_json(results.paging),
-        :issues => results.issues.map { |issue| issue_to_json(issue) }
-      }
+        {
+            :securityExclusions => results.securityExclusions,
+            :paging => paging_to_json(results.paging),
+            :issues => results.issues.map { |issue| issue_to_json(issue) }
+        }
     )
   end
 
@@ -49,9 +49,9 @@ class Api::IssuesController < Api::ApiController
     issue_key = params[:issue]
     transitions = Internal.issues.listTransitions(issue_key)
     render :json => jsonp(
-      {
-        :transitions => transitions.map { |t| t.key() }
-      }
+        {
+            :transitions => transitions.map { |t| t.key() }
+        }
     )
   end
 
@@ -68,7 +68,7 @@ class Api::IssuesController < Api::ApiController
     issue = Internal.issues.doTransition(params[:issue], params[:transition])
     if issue
       render :json => jsonp({
-                              :issue => issue_to_json(issue)
+                                :issue => issue_to_json(issue)
                             })
     else
       render :status => 400
@@ -90,8 +90,25 @@ class Api::IssuesController < Api::ApiController
     require_parameters :issue, :text
 
     text = Api::Utils.read_post_request_param(params[:text])
-    issue = Internal.issues.addComment(params[:issue], text)
-    render :json => jsonp({:comment => comment_to_json(issue.newComments().get(0))})
+    comment = Internal.issues.addComment(params[:issue], text)
+    render :json => jsonp({:comment => comment_to_json(comment)})
+  end
+
+  #
+  # GET /api/issues/comments?issue=<key>
+  #
+  # -- Example
+  # curl -v -u admin:admin 'http://localhost:9000/api/issues/comments?issue=4a2881e7-825e-4140-a154-01f420c43d11'
+  #
+  def comments
+    require_parameters :issue
+
+    comments = Internal.issues.comments(params[:issue])
+    render :json => jsonp(
+        {
+            :comments => comments.map { |comment| comment_to_json(comment) }
+        }
+    )
   end
 
   #
@@ -160,11 +177,11 @@ class Api::IssuesController < Api::ApiController
 
   def issue_to_json(issue)
     json = {
-      :key => issue.key,
-      :component => issue.componentKey,
-      :rule => issue.ruleKey.toString(),
-      :resolution => issue.resolution,
-      :status => issue.status
+        :key => issue.key,
+        :component => issue.componentKey,
+        :rule => issue.ruleKey.toString(),
+        :resolution => issue.resolution,
+        :status => issue.status
     }
     json[:severity] = issue.severity if issue.severity
     json[:desc] = issue.description if issue.description
@@ -182,19 +199,19 @@ class Api::IssuesController < Api::ApiController
 
   def comment_to_json(comment)
     {
-      :key => comment.key(),
-      :text => comment.text(),
-      :createdAt => format_java_datetime(comment.createdAt()),
-      :login => comment.userLogin()
+        :key => comment.key(),
+        :text => comment.text(),
+        :createdAt => format_java_datetime(comment.createdAt()),
+        :login => comment.userLogin()
     }
   end
 
   def paging_to_json(paging)
     {
-      :pageIndex => paging.pageIndex,
-      :pageSize => paging.pageSize,
-      :total => paging.total,
-      :pages => paging.pages
+        :pageIndex => paging.pageIndex,
+        :pageSize => paging.pageSize,
+        :total => paging.total,
+        :pages => paging.pages
     }
   end
 

@@ -22,10 +22,8 @@ package org.sonar.server.issue;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueComment;
-import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.*;
+import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
@@ -48,6 +46,7 @@ public class ServerIssueActions implements ServerComponent {
   private final IssueWorkflow workflow;
   private final IssueUpdater issueUpdater;
   private final IssueDao issueDao;
+  private final IssueChangeDao issueChangeDao;
   private final IssueStorage issueStorage;
   private final AuthorizationDao authorizationDao;
 
@@ -55,12 +54,13 @@ public class ServerIssueActions implements ServerComponent {
                             IssueDao issueDao,
                             IssueStorage issueStorage,
                             AuthorizationDao authorizationDao,
-                            IssueUpdater issueUpdater) {
+                            IssueUpdater issueUpdater, IssueChangeDao issueChangeDao) {
     this.workflow = workflow;
     this.issueDao = issueDao;
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
     this.authorizationDao = authorizationDao;
+    this.issueChangeDao = issueChangeDao;
   }
 
   public List<Transition> listTransitions(String issueKey, UserSession userSession) {
@@ -105,17 +105,23 @@ public class ServerIssueActions implements ServerComponent {
     return issue;
   }
 
-  public DefaultIssue addComment(String issueKey, String comment, UserSession userSession) {
+  public IssueComment addComment(String issueKey, String comment, UserSession userSession) {
     DefaultIssue issue = loadIssue(issueKey, userSession);
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     issueUpdater.addComment(issue, comment, context);
     issueStorage.save(issue);
-    return issue;
+    return issue.newComments().get(0);
   }
 
-  public List<IssueComment> comments(String issueKey, UserSession userSession) {
-    throw new UnsupportedOperationException("TODO");
+  public IssueComment[] comments(String issueKey, UserSession userSession) {
+    // TODO verify authorization
+    return issueChangeDao.selectIssueComments(issueKey);
+  }
+
+  public FieldDiffs[] changes(String issueKey, UserSession userSession) {
+    // TODO verify authorization
+    return issueChangeDao.selectIssueChanges(issueKey);
   }
 
   public Issue create(DefaultIssue issue, UserSession userSession) {

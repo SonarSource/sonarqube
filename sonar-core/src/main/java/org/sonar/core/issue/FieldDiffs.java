@@ -25,21 +25,52 @@ import com.google.common.collect.Maps;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
-public class FieldDiffs extends IssueChange {
+public class FieldDiffs implements Serializable {
 
   public static final Splitter FIELDS_SPLITTER = Splitter.on(',').omitEmptyStrings();
 
+  private String userLogin;
+  private Date createdAt, updatedAt;
   private final Map<String, Diff> diffs = Maps.newLinkedHashMap();
 
-  Map<String, Diff> diffs() {
+  public Map<String, Diff> diffs() {
     return diffs;
   }
 
-  Diff get(String field) {
+  public Diff get(String field) {
     return diffs.get(field);
   }
+
+  public String userLogin() {
+    return userLogin;
+  }
+
+  public FieldDiffs setUserLogin(String s) {
+    this.userLogin = s;
+    return this;
+  }
+
+  public Date createdAt() {
+    return createdAt;
+  }
+
+  public FieldDiffs setCreatedAt(Date d) {
+    this.createdAt = d;
+    return this;
+  }
+
+  public Date updatedAt() {
+    return updatedAt;
+  }
+
+  public FieldDiffs setUpdatedAt(Date d) {
+    this.updatedAt = d;
+    return this;
+  }
+
 
   @SuppressWarnings("unchecked")
   public void setDiff(String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
