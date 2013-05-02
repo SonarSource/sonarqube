@@ -19,6 +19,7 @@
  */
 package org.sonar.core.issue;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Date;
@@ -49,11 +50,15 @@ public class IssueComment implements Serializable {
     return this;
   }
 
+  /**
+   * The user who created the comment. Null if it was automatically generated during project scan.
+   */
+  @CheckForNull
   public String userLogin() {
     return userLogin;
   }
 
-  public IssueComment setUserLogin(String userLogin) {
+  public IssueComment setUserLogin(@Nullable String userLogin) {
     this.userLogin = userLogin;
     return this;
   }

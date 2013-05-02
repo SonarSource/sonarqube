@@ -27,6 +27,9 @@ import org.sonar.api.ServerComponent;
 import javax.annotation.Nullable;
 import java.util.Date;
 
+/**
+ * Updates issue fields and chooses if changes must be kept in history.
+ */
 public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean setSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
