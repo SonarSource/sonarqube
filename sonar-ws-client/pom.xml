@@ -130,13 +130,13 @@
           <instructions>
             <Import-Package>!*</Import-Package>
             <Require-Bundle>org.apache.httpcomponents.httpclient;bundle-version="${httpclient4.version}";optional="true",
-              org.apache.httpcomponents.httpcore;bundle-version="${httpclient4.version}";optional="true",
+              org.apache.httpcomponents.httpcore;bundle-version="${httpclient4.version}";optional="true"
             </Require-Bundle>
             <Export-Package>!.,org.sonar.wsclient,
               org.sonar.wsclient.connectors,
               org.sonar.wsclient.services
             </Export-Package>
-            <Bundle-RequiredExecutionEnvironment>J2SE-1.6</Bundle-RequiredExecutionEnvironment>
+            <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
           </instructions>
         </configuration>
         <executions>
