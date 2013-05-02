@@ -46,9 +46,9 @@ public class IssueParserTest {
     assertThat(first.description()).isEqualTo("the desc");
     assertThat(first.cost()).isEqualTo(4.2);
     assertThat(first.userLogin()).isEqualTo("perceval");
-    assertThat(first.createdAt()).isNotNull();
-    assertThat(first.updatedAt()).isNotNull();
-    assertThat(first.closedAt()).isNotNull();
+    assertThat(first.creationDate()).isNotNull();
+    assertThat(first.updateDate()).isNotNull();
+    assertThat(first.closeDate()).isNotNull();
     assertThat(first.attribute("JIRA")).isEqualTo("FOO-1234");
     assertThat(first.attribute("OTHER")).isNull();
     assertThat(first.attributes()).hasSize(1);

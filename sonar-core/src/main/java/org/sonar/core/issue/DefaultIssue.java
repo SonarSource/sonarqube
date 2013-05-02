@@ -54,9 +54,6 @@ public class DefaultIssue implements Issue {
   private String resolution;
   private String userLogin;
   private String assignee;
-  private Date createdAt;
-  private Date updatedAt;
-  private Date closedAt;
   private boolean manual = false;
   private String checksum;
   private boolean isNew = true;
@@ -65,6 +62,15 @@ public class DefaultIssue implements Issue {
   private String authorLogin = null;
   private FieldDiffs diffs = null;
   private List<IssueComment> newComments = null;
+
+  // functional dates
+  private Date creationDate;
+  private Date updateDate;
+  private Date closeDate;
+
+  // technical dates
+  private Date technicalCreationDate;
+  private Date technicalUpdateDate;
 
   public String key() {
     return key;
@@ -179,32 +185,57 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
-  public Date createdAt() {
-    return createdAt;
+  public Date creationDate() {
+    return creationDate;
   }
 
-  public DefaultIssue setCreatedAt(Date d) {
-    this.createdAt = d;
+  public DefaultIssue setCreationDate(Date d) {
+    this.creationDate = d;
     return this;
   }
 
-  public Date updatedAt() {
-    return updatedAt;
+  public Date updateDate() {
+    return updateDate;
   }
 
-  public DefaultIssue setUpdatedAt(@Nullable Date d) {
-    this.updatedAt = d;
+  public DefaultIssue setUpdateDate(@Nullable Date d) {
+    this.updateDate = d;
     return this;
   }
 
-  public Date closedAt() {
-    return closedAt;
+  public Date closeDate() {
+    return closeDate;
   }
 
-  // TODO rename setClosedDate
-  public DefaultIssue setClosedAt(@Nullable Date d) {
-    this.closedAt = d;
+  public DefaultIssue setCloseDate(@Nullable Date d) {
+    this.closeDate = d;
     return this;
+  }
+
+
+  /**
+   * The date when issue was physically created
+   */
+  public DefaultIssue setTechnicalCreationDate(@Nullable Date d) {
+    this.technicalCreationDate = d;
+    return this;
+  }
+
+  public Date technicalCreationDate() {
+    return technicalCreationDate;
+  }
+
+  /**
+   * The date when issue was physically updated for the last time
+   */
+
+  public DefaultIssue setTechnicalUpdateDate(@Nullable Date d) {
+    this.technicalUpdateDate = d;
+    return this;
+  }
+
+  public Date technicalUpdateDate() {
+    return technicalUpdateDate;
   }
 
   public boolean manual() {

@@ -25,7 +25,6 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
 import javax.annotation.Nullable;
-
 import java.util.Date;
 
 public class IssueUpdater implements BatchComponent, ServerComponent {
@@ -100,10 +99,17 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     issue.addComment(IssueComment.create(context.login(), text));
   }
 
-  public void setClosedDate(DefaultIssue issue, @Nullable Date date) {
-    issue.setClosedAt(date);
+  public void setCloseDate(DefaultIssue issue, @Nullable Date d) {
+    issue.setCloseDate(d);
   }
 
-  // TODO setAttribute
-  // TODO comment
+  public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {
+    String oldValue = issue.attribute(key);
+    if (!Objects.equal(oldValue, value)) {
+      issue.setFieldDiff(context, key, oldValue, value);
+      issue.setAttribute(key, value);
+      return true;
+    }
+    return false;
+  }
 }

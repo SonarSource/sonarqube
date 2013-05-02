@@ -46,11 +46,11 @@ public class ScanIssues implements BatchComponent {
   }
 
   public Collection<DefaultIssue> issues(String componentKey) {
-    return cache.componentIssues(componentKey);
+    return cache.byComponent(componentKey);
   }
 
   public Collection<DefaultIssue> issues() {
-    return cache.componentIssues();
+    return cache.all();
   }
 
   public ScanIssues addOrUpdate(DefaultIssue issue) {
@@ -65,8 +65,9 @@ public class ScanIssues implements BatchComponent {
       // rule does not exist or is not enabled -> ignore the issue
       return false;
     }
-    issue.setCreatedAt(project.getAnalysisDate());
-    issue.setUpdatedAt(project.getAnalysisDate());
+    issue.setCreationDate(project.getAnalysisDate());
+    issue.setUpdateDate(project.getAnalysisDate());
+    issue.setCloseDate(project.getAnalysisDate());
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }

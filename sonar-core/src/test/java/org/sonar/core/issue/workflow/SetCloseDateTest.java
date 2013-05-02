@@ -19,14 +19,18 @@
  */
 package org.sonar.core.issue.workflow;
 
-import org.sonar.api.issue.Issue;
+import org.junit.Test;
 
-interface Function {
-  interface Context {
-    Issue issue();
-    Context setResolution(String s);
-    Context setCloseDate(boolean b);
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+public class SetCloseDateTest {
+  @Test
+  public void should_set_close_date() throws Exception {
+    SetCloseDate function = new SetCloseDate(true);
+    Function.Context context = mock(Function.Context.class);
+    function.execute(context);
+    verify(context, times(1)).setCloseDate(true);
   }
-
-  void execute(Context context);
 }

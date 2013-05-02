@@ -118,9 +118,9 @@ public class SonarReport implements BatchComponent {
       put(jsonIssue, "status", issue.status());
       put(jsonIssue, "resolution", issue.resolution());
       put(jsonIssue, "isNew", issue.isNew());
-      put(jsonIssue, "createdAt", issue.createdAt());
-      put(jsonIssue, "updatedAt", issue.updatedAt());
-      put(jsonIssue, "closedAt", issue.closedAt());
+      put(jsonIssue, "creationDate", issue.creationDate());
+      put(jsonIssue, "updateDate", issue.updateDate());
+      put(jsonIssue, "closeDate", issue.closeDate());
       json.add(jsonIssue);
 
       componentKeyList.add(issue.componentKey());

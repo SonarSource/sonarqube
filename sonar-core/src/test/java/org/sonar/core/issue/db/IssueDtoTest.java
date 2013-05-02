@@ -71,9 +71,9 @@ public class IssueDtoTest {
         .setAssignee("perceval")
         .setAttributes("key=value")
         .setAuthorLogin("pierre")
-        .setCreatedAt(createdAt)
-        .setUpdatedAt(updatedAt)
-        .setClosedAt(closedAt);
+        .setIssueCreationDate(createdAt)
+        .setIssueUpdateDate(updatedAt)
+        .setIssueCloseDate(closedAt);
 
     DefaultIssue issue = dto.toDefaultIssue();
     assertThat(issue.key()).isEqualTo("100");
@@ -91,9 +91,9 @@ public class IssueDtoTest {
     assertThat(issue.assignee()).isEqualTo("perceval");
     assertThat(issue.attribute("key")).isEqualTo("value");
     assertThat(issue.authorLogin()).isEqualTo("pierre");
-    assertThat(issue.createdAt()).isEqualTo(createdAt);
-    assertThat(issue.updatedAt()).isEqualTo(updatedAt);
-    assertThat(issue.closedAt()).isEqualTo(closedAt);
+    assertThat(issue.creationDate()).isEqualTo(createdAt);
+    assertThat(issue.updateDate()).isEqualTo(updatedAt);
+    assertThat(issue.closeDate()).isEqualTo(closedAt);
     assertThat(issue.isNew()).isFalse();
   }
 

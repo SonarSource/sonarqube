@@ -83,16 +83,16 @@ public class Issue {
     return JsonUtils.getString(json, "assignee");
   }
 
-  public Date createdAt() {
-    return JsonUtils.getDateTime(json, "createdAt");
+  public Date creationDate() {
+    return JsonUtils.getDateTime(json, "creationDate");
   }
 
-  public Date updatedAt() {
-    return JsonUtils.getDateTime(json, "updatedAt");
+  public Date updateDate() {
+    return JsonUtils.getDateTime(json, "updateDate");
   }
 
-  public Date closedAt() {
-    return JsonUtils.getDateTime(json, "closedAt");
+  public Date closeDate() {
+    return JsonUtils.getDateTime(json, "closeDate");
   }
 
   public String attribute(String key) {

@@ -25,6 +25,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueComment;
@@ -35,47 +36,67 @@ import java.util.Collection;
 import java.util.Date;
 
 public class IssueStorageTest extends AbstractDaoTestCase {
+
+  IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
+
   @Test
   public void should_insert_new_issues() throws Exception {
     FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
 
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
     IssueComment comment = IssueComment.create("emmerik", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 
+    Date date = DateUtils.parseDate("2013-05-18");
     DefaultIssue issue = new DefaultIssue();
     issue.setKey("ABCDE");
     issue.setRuleKey(RuleKey.of("squid", "AvoidCycle"));
     issue.setLine(5000);
     issue.setNew(true);
-    issue.setFieldDiff(context, "severity", "INFO", "BLOCKER");
     issue.setUserLogin("emmerik");
     issue.setResolution("OPEN").setStatus("OPEN").setSeverity("BLOCKER");
     issue.setAttribute("foo", "bar");
     issue.addComment(comment);
+    issue.setCreationDate(date);
+    issue.setUpdateDate(date);
+    issue.setCloseDate(date);
 
     saver.save(issue);
 
-    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "closed_at"}, "issues", "issue_changes");
+    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at"}, "issues", "issue_changes");
   }
 
-  @Ignore("TODO")
   @Test
   public void should_update_issues() throws Exception {
+    setupData("should_update_issues");
 
-  }
+    FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
 
-  @Ignore("TODO")
-  @Test
-  public void should_fail_if_unknown_rule() throws Exception {
+    IssueComment comment = IssueComment.create("emmerik", "the comment");
+    // override generated key
+    comment.setKey("FGHIJ");
 
-  }
+    Date date = DateUtils.parseDate("2013-05-18");
+    DefaultIssue issue = new DefaultIssue();
+    issue.setKey("ABCDE");
+    issue.setRuleKey(RuleKey.of("squid", "AvoidCycle"));
+    issue.setLine(5000);
+    issue.setNew(false);
+    issue.setChecksum("FFFFF");
+    issue.setAuthorLogin("simon");
+    issue.setAssignee("loic");
+    issue.setFieldDiff(context, "severity", "INFO", "BLOCKER");
+    issue.setUserLogin("emmerik");
+    issue.setResolution("FIXED").setStatus("RESOLVED").setSeverity("BLOCKER");
+    issue.setAttribute("foo", "bar");
+    issue.addComment(comment);
+    issue.setCreationDate(date);
+    issue.setUpdateDate(date);
+    issue.setCloseDate(date);
 
-  @Ignore("TODO")
-  @Test
-  public void should_fail_if_unknown_component() throws Exception {
+    saver.save(issue);
 
+    checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at"}, "issues", "issue_changes");
   }
 
   static class FakeSaver extends IssueStorage {

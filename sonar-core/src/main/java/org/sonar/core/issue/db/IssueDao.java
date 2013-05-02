@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * @since 3.6
@@ -44,21 +43,15 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   private final MyBatis mybatis;
 
-  private Map<String, String> avalailableSorts;
+  private static final Map<String, String> SORTS = ImmutableMap.of(
+    "created", "i.issue_creation_date",
+    "updated", "i.issue_update_date",
+    "closed", "i.issue_close_date",
+    "assignee", "i.assignee"
+  );
 
   public IssueDao(MyBatis mybatis) {
     this.mybatis = mybatis;
-    // FIXME
-    this.avalailableSorts = getAvalailableSorts();
-  }
-
-  public IssueDto selectById(long id) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return session.selectOne("org.sonar.core.issue.db.IssueMapper.selectById", id);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public IssueDto selectByKey(String key) {
@@ -120,18 +113,8 @@ public class IssueDao implements BatchComponent, ServerComponent {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
-    List <List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
-    Map<String, List <List<Long>>> params = ImmutableMap.of("ids", idsPartition);
+    List<List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
+    Map<String, List<List<Long>>> params = ImmutableMap.of("ids", idsPartition);
     return session.selectList("org.sonar.core.issue.db.IssueMapper.selectByIds", params);
   }
-
-  private Map<String, String> getAvalailableSorts() {
-    Map<String, String> availableSorts = newHashMap();
-    availableSorts.put("created", "i.created_at");
-    availableSorts.put("updated", "i.updated_at");
-    availableSorts.put("closed", "i.closed_at");
-    availableSorts.put("assignee", "i.assignee");
-    return availableSorts;
-  }
-
 }

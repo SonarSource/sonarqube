@@ -21,7 +21,6 @@ package org.sonar.batch.issue;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
@@ -46,7 +45,7 @@ public class ScanIssuesTest {
   @Test
   public void should_get_issues() throws Exception {
     scanIssues.issues("key");
-    verify(cache).componentIssues("key");
+    verify(cache).byComponent("key");
   }
 
   @Test
@@ -94,7 +93,7 @@ public class ScanIssuesTest {
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
     assertThat(argument.getValue().severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(argument.getValue().createdAt()).isEqualTo(analysisDate);
+    assertThat(argument.getValue().creationDate()).isEqualTo(analysisDate);
   }
 
   @Test
@@ -114,6 +113,6 @@ public class ScanIssuesTest {
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
     assertThat(argument.getValue().severity()).isEqualTo(Severity.INFO);
-    assertThat(argument.getValue().createdAt()).isEqualTo(analysisDate);
+    assertThat(argument.getValue().creationDate()).isEqualTo(analysisDate);
   }
 }

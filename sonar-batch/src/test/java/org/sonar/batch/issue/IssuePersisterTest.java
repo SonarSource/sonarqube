@@ -36,7 +36,7 @@ public class IssuePersisterTest extends AbstractDaoTestCase {
   public void should_persist_all_issues() throws Exception {
     List<DefaultIssue> issues = Arrays.asList(new DefaultIssue());
     IssueCache issueCache = mock(IssueCache.class);
-    when(issueCache.componentIssues()).thenReturn(issues);
+    when(issueCache.all()).thenReturn(issues);
     ScanIssueStorage storage = mock(ScanIssueStorage.class);
 
     persister = new IssuePersister(issueCache, storage);

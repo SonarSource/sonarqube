@@ -21,6 +21,7 @@ package org.sonar.api.issue;
 
 import org.sonar.api.rule.RuleKey;
 
+import javax.annotation.CheckForNull;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
@@ -53,30 +54,37 @@ public interface Issue extends Serializable {
 
   String description();
 
+  @CheckForNull
   Integer line();
 
+  @CheckForNull
   Double cost();
 
   String status();
 
   String resolution();
 
+  @CheckForNull
   String userLogin();
 
+  @CheckForNull
   String assignee();
 
   boolean manual();
 
-  Date createdAt();
+  Date creationDate();
 
-  Date updatedAt();
+  Date updateDate();
 
-  Date closedAt();
+  @CheckForNull
+  Date closeDate();
 
+  @CheckForNull
   String attribute(String key);
 
   Map<String, String> attributes();
 
+  @CheckForNull
   String authorLogin();
 
 }

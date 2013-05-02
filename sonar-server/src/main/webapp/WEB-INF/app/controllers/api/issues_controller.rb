@@ -189,9 +189,9 @@ class Api::IssuesController < Api::ApiController
     json[:cost] = issue.cost if issue.cost
     json[:userLogin] = issue.userLogin if issue.userLogin
     json[:assignee] = issue.assignee if issue.assignee
-    json[:createdAt] = format_java_datetime(issue.createdAt) if issue.createdAt
-    json[:updatedAt] = format_java_datetime(issue.updatedAt) if issue.updatedAt
-    json[:closedAt] = format_java_datetime(issue.closedAt) if issue.closedAt
+    json[:creationDate] = format_java_datetime(issue.creationDate) if issue.creationDate
+    json[:updateDate] = format_java_datetime(issue.updateDate) if issue.updateDate
+    json[:closeDate] = format_java_datetime(issue.closeDate) if issue.closeDate
     json[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
     json[:manual] = issue.manual if issue.manual
     json

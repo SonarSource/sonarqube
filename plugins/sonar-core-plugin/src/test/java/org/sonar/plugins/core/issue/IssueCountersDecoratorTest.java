@@ -257,8 +257,8 @@ public class IssueCountersDecoratorTest {
 
   @Test
   public void should_clear_cache_after_execution() {
-    Issue issue1 = new DefaultIssue().setRuleKey(RuleKey.of(ruleA1.getRepositoryKey(), ruleA1.getKey())).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(rightNow);
-    Issue issue2 = new DefaultIssue().setRuleKey(RuleKey.of(ruleA2.getRepositoryKey(), ruleA2.getKey())).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(rightNow);
+    Issue issue1 = new DefaultIssue().setRuleKey(RuleKey.of(ruleA1.getRepositoryKey(), ruleA1.getKey())).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(rightNow);
+    Issue issue2 = new DefaultIssue().setRuleKey(RuleKey.of(ruleA2.getRepositoryKey(), ruleA2.getKey())).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(rightNow);
     when(issuable.issues()).thenReturn(newArrayList(issue1)).thenReturn(newArrayList(issue2));
 
     decorator.decorate(resource, context);
@@ -320,12 +320,12 @@ public class IssueCountersDecoratorTest {
 
   private List<Issue> createIssuesForNewMetrics() {
     List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(rightNow).setStatus(Issue.STATUS_OPEN));
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreatedAt(tenDaysAgo).setStatus(Issue.STATUS_OPEN));
-    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()).setCreatedAt(fiveDaysAgo).setStatus(Issue.STATUS_REOPENED));
-    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()).setCreatedAt(tenDaysAgo).setStatus(Issue.STATUS_REOPENED));
-    issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setSeverity(RulePriority.MINOR.name()).setCreatedAt(fiveDaysAgo).setStatus(Issue.STATUS_OPEN));
-    issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setSeverity(RulePriority.MINOR.name()).setCreatedAt(tenDaysAgo).setStatus(Issue.STATUS_OPEN));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(rightNow).setStatus(Issue.STATUS_OPEN));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(tenDaysAgo).setStatus(Issue.STATUS_OPEN));
+    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()).setCreationDate(fiveDaysAgo).setStatus(Issue.STATUS_REOPENED));
+    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()).setCreationDate(tenDaysAgo).setStatus(Issue.STATUS_REOPENED));
+    issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setSeverity(RulePriority.MINOR.name()).setCreationDate(fiveDaysAgo).setStatus(Issue.STATUS_OPEN));
+    issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setSeverity(RulePriority.MINOR.name()).setCreationDate(tenDaysAgo).setStatus(Issue.STATUS_OPEN));
     return issues;
   }
 

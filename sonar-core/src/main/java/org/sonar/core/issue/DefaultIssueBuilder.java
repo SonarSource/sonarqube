@@ -114,8 +114,8 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
     issue.setKey(key);
     Date now = Objects.firstNonNull(createdDate, new Date());
-    issue.setCreatedAt(now);
-    issue.setUpdatedAt(now);
+    issue.setTechnicalCreationDate(now);
+    issue.setTechnicalUpdateDate(now);
     issue.setComponentKey(componentKey);
     issue.setRuleKey(ruleKey);
     issue.setDescription(description);

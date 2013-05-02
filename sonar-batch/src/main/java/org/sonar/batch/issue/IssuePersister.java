@@ -37,7 +37,7 @@ public class IssuePersister implements ScanPersister {
 
   @Override
   public void persist() {
-    Iterable<DefaultIssue> issues = issueCache.componentIssues();
+    Iterable<DefaultIssue> issues = issueCache.all();
     storage.save(issues);
   }
 }

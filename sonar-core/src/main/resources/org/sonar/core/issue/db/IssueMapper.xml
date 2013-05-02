@@ -22,9 +22,11 @@
     i.assignee_login as assignee,
     i.author_login as authorLogin,
     i.attributes as attributes,
+    i.issue_creation_date as issueCreationDate,
+    i.issue_update_date as issueUpdateDate,
+    i.issue_close_date as issueCloseDate,
     i.created_at as createdAt,
     i.updated_at as updatedAt,
-    i.closed_at as closedAt,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
     p.kee as componentKey
@@ -32,9 +34,11 @@
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO issues (kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, cost, status,
-    resolution, checksum, user_login, assignee_login, author_login, attributes, created_at, updated_at, closed_at)
+    resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
+    issue_close_date, created_at, updated_at)
     VALUES (#{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{cost}, #{status},
-    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{createdAt}, #{updatedAt}, #{closedAt})
+    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
+    #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
 
   <!-- Oracle -->
@@ -45,7 +49,8 @@
     INSERT INTO issues (id, kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, cost, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, created_at, updated_at, closed_at)
     VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{cost}, #{status},
-    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{createdAt}, #{updatedAt}, #{closedAt})
+    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
+    #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
 
   <update id="update" parameterType="Issue">
@@ -65,21 +70,13 @@
       assignee_login=#{assignee},
       author_login=#{authorLogin},
       attributes=#{attributes},
+      issue_creation_date=#{issueCreationDate},
+      issue_update_date=#{issueUpdateDate},
+      issue_close_date=#{issueCloseDate},
       created_at=#{createdAt},
-      updated_at=#{updatedAt},
-      closed_at=#{closedAt}
+      updated_at=#{updatedAt}
     where kee = #{kee}
   </update>
-
-  <select id="selectById" parameterType="long" resultType="Issue">
-    select
-    <include refid="issueColumns"/>
-    from issues i, rules r, projects p
-    where
-      i.id=#{id} and
-      i.rule_id=r.id and
-      p.id=i.resource_id
-  </select>
 
   <select id="selectByKey" parameterType="String" resultType="Issue">
     select
@@ -208,23 +205,23 @@
         and (<foreach item="rule" index="index" collection="rules" open="(" separator=" or " close=")">r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
       </if>
       <if test="createdAfter != null">
-        and i.created_at &gt; #{createdAfter}
+        and i.issue_creation_date &gt; #{createdAfter}
       </if>
       <if test="createdBefore != null">
-        and i.created_at &lt; #{createdBefore}
+        and i.issue_creation_date &lt; #{createdBefore}
       </if>
     </where>
     <if test="sort != null">
       order by
       <choose>
         <when test="'created'.equals(sort)">
-          i.created_at
+          i.issue_creation_date
         </when>
         <when test="'updated'.equals(sort)">
-          i.updated_at
+          i.issue_update_date
         </when>
         <when test="'closed'.equals(sort)">
-          i.closed_at
+          i.issue_close_date
         </when>
         <when test="'assignee'.equals(sort)">
           i.assignee_login

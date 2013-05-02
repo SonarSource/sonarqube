@@ -355,8 +355,6 @@ public class IssueTracking implements BatchExtension {
       }
       newIssue.setResolution(pastIssue.getResolution());
       newIssue.setStatus(pastIssue.getStatus());
-      newIssue.setCreatedAt(pastIssue.getCreatedAt());
-      newIssue.setUpdatedAt(project.getAnalysisDate());
       newIssue.setNew(false);
       newIssue.setAlive(true);
       newIssue.setAssignee(pastIssue.getAssignee());
@@ -366,6 +364,13 @@ public class IssueTracking implements BatchExtension {
         //FIXME do not override new attributes
         newIssue.setAttributes(KeyValueFormat.parse(pastIssue.getAttributes()));
       }
+      newIssue.setTechnicalCreationDate(pastIssue.getCreatedAt());
+      newIssue.setTechnicalUpdateDate(pastIssue.getUpdatedAt());
+      newIssue.setCreationDate(pastIssue.getIssueCreationDate());
+      newIssue.setUpdateDate(project.getAnalysisDate());
+
+      // should be null
+      newIssue.setCloseDate(pastIssue.getIssueCloseDate());
 
       lastIssuesByRule.remove(getRuleId(newIssue), pastIssue);
       issueMap.put(newIssue, pastIssue);

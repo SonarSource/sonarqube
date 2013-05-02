@@ -41,16 +41,12 @@ public class IssueCache implements BatchComponent {
     cache = caches.createCache("issues");
   }
 
-  public Collection<DefaultIssue> componentIssues(String componentKey) {
+  public Collection<DefaultIssue> byComponent(String componentKey) {
     return cache.values(componentKey);
   }
 
-  public Collection<DefaultIssue> componentIssues() {
+  public Collection<DefaultIssue> all() {
     return newArrayList(cache.allValues());
-  }
-
-  public Issue componentIssue(String componentKey, String issueKey) {
-    return cache.get(componentKey, issueKey);
   }
 
   public IssueCache put(DefaultIssue issue) {

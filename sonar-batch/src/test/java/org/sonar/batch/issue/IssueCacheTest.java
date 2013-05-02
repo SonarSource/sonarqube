@@ -56,8 +56,8 @@ public class IssueCacheTest {
     DefaultIssue issue3 = new DefaultIssue().setKey("333").setComponentKey("org.struts.Filter");
     cache.put(issue1).put(issue2).put(issue3);
 
-    assertThat(issueKeys(cache.componentIssues("org.struts.Action"))).containsOnly("111", "222");
-    assertThat(issueKeys(cache.componentIssues("org.struts.Filter"))).containsOnly("333");
+    assertThat(issueKeys(cache.byComponent("org.struts.Action"))).containsOnly("111", "222");
+    assertThat(issueKeys(cache.byComponent("org.struts.Filter"))).containsOnly("333");
   }
 
   @Test
@@ -69,14 +69,25 @@ public class IssueCacheTest {
     issue.setSeverity(Severity.MINOR);
     cache.put(issue);
 
-    Collection<DefaultIssue> issues = cache.componentIssues("org.struts.Action");
+    Collection<DefaultIssue> issues = cache.byComponent("org.struts.Action");
     assertThat(issues).hasSize(1);
     Issue reloaded = issues.iterator().next();
     assertThat(reloaded.key()).isEqualTo("111");
     assertThat(reloaded.severity()).isEqualTo(Severity.MINOR);
   }
 
-  Collection<String> issueKeys(Collection<DefaultIssue> issues) {
+  @Test
+  public void should_get_all_issues() throws Exception {
+    IssueCache cache = new IssueCache(caches);
+    DefaultIssue issue1 = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action").setSeverity(Severity.BLOCKER);
+    DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Filter").setSeverity(Severity.INFO);
+    cache.put(issue1).put(issue2);
+
+    Collection<DefaultIssue> issues = cache.all();
+    assertThat(issues).hasSize(2).containsOnly(issue1, issue2);
+  }
+
+  private Collection<String> issueKeys(Collection<DefaultIssue> issues) {
     return Collections2.transform(issues, new Function<DefaultIssue, String>() {
       @Override
       public String apply(@Nullable DefaultIssue issue) {

@@ -219,14 +219,14 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum");
     IssueDto referenceIssue = newReferenceIssue("", 1, 1, "checksum").setAuthorLogin("arthur").setAssignee("perceval");
     Date referenceDate = DateUtils.parseDate("2009-05-18");
-    referenceIssue.setCreatedAt(referenceDate);
-    assertThat(newIssue.createdAt()).isNull();
+    referenceIssue.setIssueCreationDate(referenceDate);
+    assertThat(newIssue.creationDate()).isNull();
 
     Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
     assertThat(mapping.size()).isEqualTo(1);
     assertThat(newIssue.isNew()).isFalse();
 
-    assertThat(newIssue.createdAt()).isEqualTo(referenceDate);
+    assertThat(newIssue.creationDate()).isEqualTo(referenceDate);
     assertThat(newIssue.assignee()).isEqualTo("perceval");
     assertThat(newIssue.authorLogin()).isEqualTo("arthur");
   }

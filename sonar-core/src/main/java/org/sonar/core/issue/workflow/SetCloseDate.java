@@ -19,14 +19,15 @@
  */
 package org.sonar.core.issue.workflow;
 
-import org.sonar.api.issue.Issue;
+public class SetCloseDate implements Function {
+  private final boolean set;
 
-interface Function {
-  interface Context {
-    Issue issue();
-    Context setResolution(String s);
-    Context setCloseDate(boolean b);
+  public SetCloseDate(boolean set) {
+    this.set = set;
   }
 
-  void execute(Context context);
+  @Override
+  public void execute(Context context) {
+    context.setCloseDate(set);
+  }
 }

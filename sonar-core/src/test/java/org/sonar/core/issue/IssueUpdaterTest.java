@@ -193,4 +193,32 @@ public class IssueUpdaterTest {
     assertThat(issue.status()).isEqualTo("CLOSED");
     assertThat(issue.diffs()).isNull();
   }
+
+  @Test
+  public void should_set_new_attribute_value() throws Exception {
+    boolean updated = updater.setAttribute(issue, "JIRA", "FOO-123", context);
+    assertThat(updated).isTrue();
+    assertThat(issue.attribute("JIRA")).isEqualTo("FOO-123");
+    assertThat(issue.diffs().diffs()).hasSize(1);
+    assertThat(issue.diffs().get("JIRA").oldValue()).isNull();
+    assertThat(issue.diffs().get("JIRA").newValue()).isEqualTo("FOO-123");
+  }
+
+  @Test
+  public void should_unset_attribute() throws Exception {
+    issue.setAttribute("JIRA", "FOO-123");
+    boolean updated = updater.setAttribute(issue, "JIRA", null, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.attribute("JIRA")).isNull();
+    assertThat(issue.diffs().diffs()).hasSize(1);
+    assertThat(issue.diffs().get("JIRA").oldValue()).isEqualTo("FOO-123");
+    assertThat(issue.diffs().get("JIRA").newValue()).isNull();
+  }
+
+  @Test
+  public void should_not_update_attribute() throws Exception {
+    issue.setAttribute("JIRA", "FOO-123");
+    boolean updated = updater.setAttribute(issue, "JIRA", "FOO-123", context);
+    assertThat(updated).isFalse();
+  }
 }

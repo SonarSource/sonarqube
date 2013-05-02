@@ -24,8 +24,17 @@
 
   <review_comments id="1" created_at="[null]" updated_at="[null]" review_id="1" user_id="1223" review_text="abc"/>
 
-  <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" created_at="[null]" line="200" severity="BLOCKER"
-          user_login="perceval" assignee_login="arthur" rule_id="500" manual_issue="[true]" manual_severity="[false]" description="[null]"/>
+  <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
+          user_login="perceval" assignee_login="arthur" rule_id="500"
+          manual_issue="[true]"
+          manual_severity="[false]"
+          description="[null]"
+          issue_creation_date="2013-04-16"
+          issue_update_date="2013-04-16"
+          issue_close_date="2013-04-16"
+          created_at="[null]"
+          updated_at="[null]"
+      />
 
   <issue_changes id="1" kee="ABDA" issue_key="ABCDE" created_at="[null]" updated_at="[null]" user_login="admin" change_type="comment" change_data="this is a comment"/>
 

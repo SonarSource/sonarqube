@@ -36,9 +36,11 @@
       assignee_login="user"
       author_login="[null]"
       attributes="[null]"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
       created_at="[null]"
       updated_at="[null]"
-      closed_at="[null]"
       />
 
   <issues
@@ -59,9 +61,11 @@
       assignee_login="user"
       author_login="[null]"
       attributes="[null]"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
       created_at="[null]"
       updated_at="[null]"
-      closed_at="[null]"
       />
 
 </dataset>

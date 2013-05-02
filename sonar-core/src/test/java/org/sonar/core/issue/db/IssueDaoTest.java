@@ -28,7 +28,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -37,7 +36,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueDaoTest extends AbstractDaoTestCase {
 
-  private IssueDao dao;
+  IssueDao dao;
 
   @Before
   public void createDao() {
@@ -45,9 +44,11 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_by_id() {
-    setupData("shared", "should_select_by_id");
-    IssueDto issue = dao.selectById(100L);
+  public void should_select_by_key() {
+    setupData("shared", "should_select_by_key");
+
+    IssueDto issue = dao.selectByKey("ABCDE");
+    assertThat(issue.getKey()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
     assertThat(issue.getKey()).isEqualTo("ABCDE");
     assertThat(issue.getResourceId()).isEqualTo(400);
@@ -61,25 +62,15 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getStatus()).isEqualTo("OPEN");
     assertThat(issue.getResolution()).isEqualTo("FIXED");
     assertThat(issue.getChecksum()).isEqualTo("XXX");
-    assertThat(issue.getAuthorLogin()).isEqualTo("pierre");
+    assertThat(issue.getAuthorLogin()).isEqualTo("karadoc");
     assertThat(issue.getUserLogin()).isEqualTo("arthur");
     assertThat(issue.getAssignee()).isEqualTo("perceval");
     assertThat(issue.getAttributes()).isEqualTo("JIRA=FOO-1234");
+    assertThat(issue.getIssueCreationDate()).isNotNull();
+    assertThat(issue.getIssueUpdateDate()).isNotNull();
+    assertThat(issue.getIssueCloseDate()).isNotNull();
     assertThat(issue.getCreatedAt()).isNotNull();
     assertThat(issue.getUpdatedAt()).isNotNull();
-    assertThat(issue.getClosedAt()).isNotNull();
-    assertThat(issue.getRuleRepo()).isEqualTo("squid");
-    assertThat(issue.getRule()).isEqualTo("AvoidCycle");
-    assertThat(issue.getComponentKey()).isEqualTo("Action.java");
-  }
-
-  @Test
-  public void should_select_by_key() {
-    setupData("shared", "should_select_by_key");
-
-    IssueDto issue = dao.selectByKey("ABCDE");
-    assertThat(issue.getKey()).isEqualTo("ABCDE");
-    assertThat(issue.getId()).isEqualTo(100);
     assertThat(issue.getRuleRepo()).isEqualTo("squid");
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");

@@ -36,6 +36,7 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -266,11 +267,8 @@ public class IssueCountersDecorator implements Decorator {
     return count;
   }
 
-  private boolean isAfter(Issue issue, Date date) {
-    if (date == null) {
-      return true;
-    }
-    return issue.createdAt() != null && issue.createdAt().after(date);
+  private boolean isAfter(Issue issue, @Nullable Date date) {
+    return date == null || issue.creationDate() != null && issue.creationDate().after(date);
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {

@@ -1,10 +1,23 @@
 <dataset>
   <issues id="1" kee="ABCDE" resolution="OPEN" status="OPEN" severity="BLOCKER" manual_severity="[false]"
-      assignee_login="[null]" author_login="[null]" checksum="[null]" closed_at="[null]"
-      cost="[null]" created_at="[null]" description="[null]" line="5000"
-      manual_issue="[false]" resource_id="100" rule_id="200" updated_at="[null]" user_login="emmerik"
-      attributes="foo=bar" />
+      assignee_login="[null]"
+      author_login="[null]"
+      checksum="[null]"
+      cost="[null]"
+      description="[null]"
+      line="5000"
+      manual_issue="[false]"
+      resource_id="100"
+      rule_id="200"
+      created_at="[null]"
+      updated_at="[null]"
+      user_login="emmerik"
+      attributes="foo=bar"
+      issue_creation_date="2013-05-18"
+      issue_update_date="2013-05-18"
+      issue_close_date="2013-05-18"
+      />
 
   <issue_changes id="1" kee="FGHIJ" issue_key="ABCDE" change_type="comment" user_login="emmerik" change_data="the comment" created_at="[null]" updated_at="[null]" />
-  <issue_changes id="2" kee="[null]" issue_key="ABCDE" change_type="change" user_login="emmerik" change_data="severity=INFO|BLOCKER" created_at="[null]" updated_at="[null]" />
+
 </dataset>

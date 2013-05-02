@@ -24,7 +24,7 @@
 class CreateActionPlansIssues < ActiveRecord::Migration
 
   def self.up
-    create_table :action_plans_issues, :id => false do |t|
+    create_table :action_plans_issues do |t|
       t.integer :action_plan_id
       t.integer :issue_id
     end

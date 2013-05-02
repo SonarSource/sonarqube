@@ -28,7 +28,6 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.Nullable;
-
 import java.util.Date;
 
 /**
@@ -53,9 +52,15 @@ public final class IssueDto {
   private String assignee;
   private String authorLogin;
   private String attributes;
+
+  // functional dates
+  private Date issueCreationDate;
+  private Date issueUpdateDate;
+  private Date issueCloseDate;
+
+  // technical dates
   private Date createdAt;
   private Date updatedAt;
-  private Date closedAt;
 
   // joins
   private transient String ruleKey;
@@ -235,12 +240,30 @@ public final class IssueDto {
     return this;
   }
 
-  public Date getClosedAt() {
-    return closedAt;
+  public Date getIssueCreationDate() {
+    return issueCreationDate;
   }
 
-  public IssueDto setClosedAt(@Nullable Date closedAt) {
-    this.closedAt = closedAt;
+  public IssueDto setIssueCreationDate(@Nullable Date d) {
+    this.issueCreationDate = d;
+    return this;
+  }
+
+  public Date getIssueUpdateDate() {
+    return issueUpdateDate;
+  }
+
+  public IssueDto setIssueUpdateDate(@Nullable Date d) {
+    this.issueUpdateDate = d;
+    return this;
+  }
+
+  public Date getIssueCloseDate() {
+    return issueCloseDate;
+  }
+
+  public IssueDto setIssueCloseDate(@Nullable Date d) {
+    this.issueCloseDate = d;
     return this;
   }
 
@@ -278,25 +301,6 @@ public final class IssueDto {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    IssueDto issueDto = (IssueDto) o;
-    return !(id != null ? !id.equals(issueDto.id) : issueDto.id != null);
-  }
-
-  @Override
-  public int hashCode() {
-    return id != null ? id.hashCode() : 0;
-  }
-
-
   public static IssueDto toDto(DefaultIssue issue, Integer componentId, Integer ruleId) {
     return new IssueDto()
       .setKey(issue.key())
@@ -311,13 +315,15 @@ public final class IssueDto {
       .setManualSeverity(issue.manualSeverity())
       .setUserLogin(issue.userLogin())
       .setAssignee(issue.assignee())
-      .setCreatedAt(issue.createdAt())
-      .setUpdatedAt(issue.updatedAt())
-      .setClosedAt(issue.closedAt())
       .setRuleId(ruleId)
       .setResourceId(componentId)
       .setAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
-      .setAuthorLogin(issue.authorLogin());
+      .setAuthorLogin(issue.authorLogin())
+      .setCreatedAt(issue.technicalCreationDate())
+      .setUpdatedAt(issue.technicalUpdateDate())
+      .setIssueCreationDate(issue.creationDate())
+      .setIssueCloseDate(issue.closeDate())
+      .setIssueUpdateDate(issue.updateDate());
   }
 
   public DefaultIssue toDefaultIssue() {
@@ -331,9 +337,6 @@ public final class IssueDto {
     issue.setSeverity(severity);
     issue.setUserLogin(userLogin);
     issue.setAssignee(assignee);
-    issue.setCreatedAt(createdAt);
-    issue.setUpdatedAt(updatedAt);
-    issue.setClosedAt(closedAt);
     issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(attributes, "")));
     issue.setComponentKey(componentKey);
     issue.setManual(manualIssue);
@@ -341,6 +344,11 @@ public final class IssueDto {
     issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));
     issue.setAuthorLogin(authorLogin);
     issue.setNew(false);
+    issue.setTechnicalCreationDate(createdAt);
+    issue.setTechnicalUpdateDate(updatedAt);
+    issue.setCreationDate(issueCreationDate);
+    issue.setCloseDate(issueCloseDate);
+    issue.setUpdateDate(issueUpdateDate);
     return issue;
   }
 }

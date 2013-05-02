@@ -132,9 +132,9 @@ public class SonarReportTest {
       .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
       .setLine(1)
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setCreatedAt(DateUtils.parseDate("2013-04-24"))
-      .setUpdatedAt(DateUtils.parseDate("2013-04-25"))
-      .setClosedAt(DateUtils.parseDate("2013-04-26"))
+      .setCreationDate(DateUtils.parseDate("2013-04-24"))
+      .setUpdateDate(DateUtils.parseDate("2013-04-25"))
+      .setCloseDate(DateUtils.parseDate("2013-04-26"))
       .setNew(false);
 
     when(sonarReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
@@ -155,9 +155,9 @@ public class SonarReportTest {
     assertThat(jsonIssue.get("status")).isEqualTo("CLOSED");
     assertThat(jsonIssue.get("resolution")).isEqualTo("FALSE-POSITIVE");
     assertThat(jsonIssue.get("isNew")).isEqualTo(false);
-    assertThat((String) jsonIssue.get("createdAt")).contains("2013-04-24T00:00");
-    assertThat((String) jsonIssue.get("updatedAt")).contains("2013-04-25T00:00");
-    assertThat((String) jsonIssue.get("closedAt")).contains("2013-04-26T00:00");
+    assertThat((String) jsonIssue.get("creationDate")).contains("2013-04-24T00:00");
+    assertThat((String) jsonIssue.get("updateDate")).contains("2013-04-25T00:00");
+    assertThat((String) jsonIssue.get("closeDate")).contains("2013-04-26T00:00");
   }
 
   @Test

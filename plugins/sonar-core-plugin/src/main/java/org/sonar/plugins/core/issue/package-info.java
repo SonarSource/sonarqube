@@ -17,17 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+@ParametersAreNonnullByDefault
+package org.sonar.plugins.core.issue;
 
-public class SetClosedDate implements Function {
-  private final boolean set;
-
-  public SetClosedDate(boolean set) {
-    this.set = set;
-  }
-
-  @Override
-  public void execute(Context context) {
-    context.setClosedDate(set);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
