@@ -2,7 +2,7 @@
   <input type="hidden" name="issue" value="<%= @issue.key -%>"/>
   <input type="hidden" name="transition" value="<%= @transition -%>"/>
 
-  <textarea id="actionText" rows="4" name="text" style="width: 100%"></textarea>
+  <textarea id="comment" rows="4" name="text" style="width: 100%"></textarea>
   <%= submit_to_remote "submit_btn",
                        message("issues.transition.#{@transition}.button"),
                        :url => {:action => 'transition'},

@@ -2,14 +2,14 @@
    assignee_check_script = "if ($('autocompleteText-issue_assignee_login').value != '' && $('issue_assignee_login').value == '') { alert($('autocompleteText-issue_assignee_login').value + '" + message('issues.user_does_not_exist') + "'); return false;}"
 %>
 
-<form method="POST"
-      onsubmit="new Ajax.Updater('issue-key<%= params[:issue] -%>', '<%= url_for :controller => 'issue', :action => 'issue_assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)});return false;">
-  <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
+<form method="post"
+      onsubmit="<%= assignee_check_script -%> new Ajax.Updater('issue', '<%= url_for :action => 'assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;">
+  <%= hidden_field_tag :issue, params[:issue] -%>
 
   <table class="width100">
     <tr>
       <td style="vertical-align:top">
-        <textarea id="issue-comment<%= params[:issue] -%>" rows="4" name="text" style="width: 100%"></textarea>
+        <textarea id="comment" rows="4" name="text" style="width: 100%"></textarea>
       </td>
       <td class="sep"></td>
       <td style="vertical-align:top;width: 90px">
@@ -22,18 +22,18 @@
 
   &nbsp;&nbsp;
   <%= submit_to_remote "submit_btn", message('issues.action.assign.button'),
-                       :url => {:action => 'issue_assign'},
-                       :update => "issue-key" + params[:issue],
+                       :url => {:action => 'assign'},
+                       :update => "issue",
                        :before => assignee_check_script -%>
   &nbsp;
   <%= image_tag 'sep12.png' -%>
   &nbsp;
   <%= submit_to_remote "submit_me_btn", message('issues.action.assign_to_me.button'),
-                       :url => {:action => 'issue_assign', :issue => params[:issue], :me => true},
-                       :update => "issue-key" + params[:issue],
+                       :url => {:action => 'assign', :issue => params[:issue], :me => true},
+                       :update => "issue",
                        :html => {:disabled => (@issue.assignee == current_user.login)} -%>
   &nbsp;
-  <%= link_to_function message('cancel'), "cancelIssueAction('#{params[:issue]}')" -%>
+  <%= link_to_remote message('cancel'), :url => {:controller => 'issue', :action => 'show', :key => params[:issue]}, :update => 'issue' -%>
   <script>
     $('autocompleteText-issue_assignee_login').focus()
   </script>

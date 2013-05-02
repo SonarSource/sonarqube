@@ -24,6 +24,12 @@ class IssueController < ApplicationController
 
   helper SourceHelper, UsersHelper
 
+  #
+  #
+  # ACTIONS FROM ISSUE DETAIL PAGE
+  #
+  #
+
 
   # Used for the permalink, e.g. http://localhost:9000/issue/view/1
   def view
@@ -44,7 +50,6 @@ class IssueController < ApplicationController
     render :partial => 'issue/view'
   end
 
-  # GET
   def transition_form
     require_parameters :issue, :transition
 
@@ -60,14 +65,45 @@ class IssueController < ApplicationController
     require_parameters :issue, :transition
 
     @issue = Internal.issues.doTransition(params[:issue], params[:transition])
-    if @issue
-      init_resource
-      @transitions = Internal.issues.listTransitions(@issue.key)
-      render :partial => 'issue/view'
-    else
-      # TODO
-      render :status => 400
+    render_issue_detail
+  end
+
+  def assign_form
+    require_parameters :issue
+    init_issue(params[:issue])
+
+    render :partial => 'issue/assign_form'
+  end
+
+  def assign
+    verify_post_request
+    require_parameters :issue
+
+    assignee = nil
+    if params[:me]=='true'
+      assignee = current_user.login
+
+    elsif params[:issue_assignee_login].present?
+      assignee = params[:issue_assignee_login]
     end
+
+    @issue = Internal.issues.assign(params[:issue], assignee)
+    render_issue_detail
+  end
+
+  def change_severity_form
+    require_parameters :issue
+    init_issue(params[:issue])
+
+    render :partial => 'issue/change_severity_form'
+  end
+
+  def change_severity
+    verify_post_request
+    require_parameters :issue, :severity
+
+    @issue = Internal.issues.setSeverity(params[:issue], params[:severity])
+    render_issue_detail
   end
 
   #
@@ -128,12 +164,22 @@ class IssueController < ApplicationController
   def init_issue(issue_key)
     issue_result = find_issue(issue_key)
     @issue = issue_result.issues[0]
-    bad_request('Unknown issue') unless @issue
   end
 
   def init_resource
     @component = Project.by_key(@issue.component_key)
     @resource = @component.root_project
+  end
+
+  def render_issue_detail
+    if @issue
+      init_resource
+      @transitions = Internal.issues.listTransitions(@issue.key)
+      render :partial => 'issue/view'
+    else
+      # TODO
+      render :status => 400
+    end
   end
 
   def render_issue_code_viewer

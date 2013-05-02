@@ -13,7 +13,18 @@
         <%= button_to_remote message("issues.transition.#{transition.key}.button"),
                              :url => {:controller => "issue", :action => "transition_form", :issue => @issue.key, :transition => transition.key},
                              :update => "actionForm",
-                             :complete => "$('actionButtons').remove();$('actionForm').show();$('actionText').focus();" -%>
+                             :complete => "$('actionButtons').remove();$('actionForm').show();$('comment').focus();" -%>
+      <% end %>
+
+      <% unless issue.status == 'RESOLVED' %>
+        <%= button_to_remote message('reviews.assign'),
+                             :url => {:controller => "issue", :action => "assign_form", :issue => @issue.key},
+                             :update => "actionForm",
+                             :complete => "$('actionButtons').remove();$('actionForm').show();" -%>
+        <%= button_to_remote message('issues.action.change_severity.button'),
+                             :url => {:controller => "issue", :action => "change_severity_form", :issue => @issue.key},
+                             :update => "actionForm",
+                             :complete => "$('actionButtons').remove();$('actionForm').show();$('severity').focus();" -%>
       <% end %>
     </div>
   <% end %>
@@ -28,7 +39,7 @@
       </td>
       <td class="val">
         <%= image_tag "status/#{@issue.status}.png" -%> <span class="reviewStatus<%= @issue.status -%>"><%= message("issues.status.#{@issue.status}") -%></span>
-        <% if @issue.resolution.present? && @issue.resolution != 'OPEN' %>
+        <% if @issue.resolution != 'OPEN' %>
           (<span class="reviewResolution<%= @issue.resolution -%>"><%= message("issues.resolution.#{@issue.resolution}") -%></span>)
         <% end %>
       </td>
