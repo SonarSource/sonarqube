@@ -2,8 +2,7 @@
    assignee_check_script = "if ($('autocompleteText-issue_assignee_login').value != '' && $('issue_assignee_login').value == '') { alert($('autocompleteText-issue_assignee_login').value + '" + message('issues.user_does_not_exist') + "'); return false;}"
 %>
 
-<form method="POST"
-      onsubmit="new Ajax.Updater('issue-key<%= params[:issue] -%>', '<%= url_for :controller => 'issue', :action => 'issue_assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)});return false;">
+<form method="POST">
   <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
 
   <table class="width100">

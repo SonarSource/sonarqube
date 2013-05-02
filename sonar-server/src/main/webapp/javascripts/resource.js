@@ -189,8 +189,7 @@ function hVF(elt, line) {
 
 // show the form for transition
 function displayIssueTransitionForm(issueKey, transitionKey) {
-  // TODO
-  //hideMoreIssueActions(issueKey);
+  hideMoreIssueActions(issueKey);
   new Ajax.Updater('issue-form' + issueKey,
       baseUrl + '/issue/issue_transition_form?issue=' + issueKey + '&transition='+ transitionKey,
       {
@@ -207,8 +206,7 @@ function displayIssueTransitionForm(issueKey, transitionKey) {
 
 // show the form to assign issue
 function displayIssueAssignForm(issueKey) {
-  // TODO
-  //hideMoreIssueActions(issueKey);
+  hideMoreIssueActions(issueKey);
   new Ajax.Updater('issue-form' + issueKey,
       baseUrl + '/issue/issue_assign_form/?issue=' +issueKey,
       {
@@ -218,6 +216,23 @@ function displayIssueAssignForm(issueKey) {
           $('issue-actions' + issueKey).remove();
           $('issue-form' + issueKey).show();
           $('issue_assignee_login').focus();
+        }
+      });
+  return false;
+}
+
+// show the form to change severity
+function displayIssueChangeSeverityForm(issueKey) {
+  hideMoreIssueActions(issueKey);
+  new Ajax.Updater('issue-form' + issueKey,
+      baseUrl + '/issue/issue_change_severity_form/?issue=' + issueKey,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('issue-actions' + issueKey).remove();
+          $('issue-form' + issueKey).show();
+          $('issue-severity' + issueKey).focus();
         }
       });
   return false;
@@ -233,6 +248,13 @@ function cancelIssueAction(issueKey) {
         evalScripts:true
       });
   return false;
+}
+
+function hideMoreIssueActions(issueKey) {
+  var popup = $('more' + issueKey);
+  if (popup != null) {
+    popup.hide();
+  }
 }
 
 /*

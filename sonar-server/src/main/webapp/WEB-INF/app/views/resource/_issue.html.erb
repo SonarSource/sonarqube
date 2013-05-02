@@ -81,7 +81,15 @@
         <%= link_to_function message('issues.action.assign.button'), "displayIssueAssignForm('#{issue.key}')",
                              :name => message('issues.action.assign.button'), :class => 'link-action spacer-right' -%>
         <% end %>
-
+        <% unless issue.resolution == 'FALSE-POSITIVE' && issue.status == 'RESOLVED' %>
+          <div class="dropdown">
+            <a href="#" class="link-action link-more" onclick="showDropdownMenu('more<%= issue.key -%>');return false;"><%= message('more_actions') -%></a>
+            <ul style="display: none" class="dropdown-menu" id="more<%= issue.key -%>">
+              <li><%= link_to_function message('issues.action.change_severity.button'), "displayIssueChangeSeverityForm('#{issue.key}')",
+                                       :name => message('issues.action.change_severity.button') -%></li>
+            </ul>
+          </div>
+        <% end %>
     </div>
     <% end %>
     <div class="discussionComment" id="issue-form<%= issue.key -%>" style="display:none"></div>

@@ -158,6 +158,21 @@ class IssueController < ApplicationController
     render_issue_code_viewer
   end
 
+  def issue_change_severity_form
+    require_parameters :issue
+    init_issue(params[:issue])
+
+    render :partial => 'issue/code_viewer/change_severity_form'
+  end
+
+  def issue_change_severity
+    verify_post_request
+    require_parameters :issue, :severity
+
+    @issue = Internal.issues.setSeverity(params[:issue], params[:severity])
+    render_issue_code_viewer
+  end
+
 
   protected
 

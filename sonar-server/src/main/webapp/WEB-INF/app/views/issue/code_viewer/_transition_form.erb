@@ -1,5 +1,4 @@
-<form method="POST"
-      onsubmit="new Ajax.Updater('issue-key<%= params[:issue] -%>', '<%= url_for :controller => 'issue', :action => 'issue_transition' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)});return false;">
+<form method="POST">
   <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
   <input type="hidden" name="transition" value="<%= params[:transition] -%>"/>
 

@@ -38,9 +38,8 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+
+import java.util.*;
 
 /**
  * @since 3.6
@@ -67,7 +66,14 @@ public class ServerIssueActions implements ServerComponent {
   public List<Transition> listTransitions(String issueKey, UserSession userSession) {
     IssueDto dto = loadDto(issueKey, userSession);
     DefaultIssue issue = dto.toDefaultIssue();
-    return workflow.outTransitions(issue);
+    List<Transition> transitions = workflow.outTransitions(issue);
+    Collections.sort(transitions, new Comparator<Transition>() {
+      @Override
+      public int compare(Transition transition, Transition transition2) {
+        return transition.key().compareTo(transition2.key());
+      }
+    });
+    return transitions;
   }
 
   public Issue doTransition(String issueKey, String transition, UserSession userSession) {
