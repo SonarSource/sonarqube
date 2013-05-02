@@ -100,4 +100,11 @@ public interface PurgeMapper {
   void deleteResourceActionPlansReviews(long resourceId);
 
   void deleteSnapshotData(long snapshotId);
+
+  void deleteResourceActionPlansIssues(long resourceId);
+
+  void deleteResourceIssueChanges(long resourceId);
+
+  void deleteResourceIssues(long resourceId);
+
 }

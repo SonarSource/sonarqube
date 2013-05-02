@@ -239,5 +239,17 @@
     delete apr from action_plans_reviews as apr, action_plans as ap where ap.id=apr.action_plan_id and ap.project_id=#{id}
   </delete>
 
+  <delete id="deleteResourceActionPlansIssues" parameterType="long">
+    delete from action_plans_issues api where exists (select * from action_plans ap where ap.id=api.action_plan_id and ap.project_id=#{id})
+  </delete>
+
+  <delete id="deleteResourceIssueChanges" parameterType="long">
+    delete from issue_changes ic where exists (select * from issues i where ic.issue_key=i.kee and i.resource_id=#{id})
+  </delete>
+
+  <delete id="deleteResourceIssues" parameterType="long">
+    delete from issues where resource_id=#{id}
+  </delete>
+
 </mapper>
 

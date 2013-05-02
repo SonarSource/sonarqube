@@ -111,7 +111,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   public void shouldDeleteProject() {
     setupData("shouldDeleteProject");
     dao.deleteResourceTree(1L);
-    assertEmptyTables("projects", "snapshots", "action_plans", "action_plans_reviews", "reviews", "review_comments");
+    assertEmptyTables("projects", "snapshots", "action_plans", "action_plans_reviews", "reviews", "review_comments", "issues", "issue_changes", "action_plans_issues");
   }
 
   static final class SnapshotMatcher extends BaseMatcher<PurgeableSnapshotDto> {
