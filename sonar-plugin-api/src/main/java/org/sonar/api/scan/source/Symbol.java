@@ -20,6 +20,7 @@
 
 package org.sonar.api.scan.source;
 
+@Deprecated
 public interface Symbol {
 
   public int getDeclarationStartOffset();

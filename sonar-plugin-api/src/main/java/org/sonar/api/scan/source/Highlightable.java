@@ -24,6 +24,7 @@ import org.sonar.api.component.Perspective;
 /**
  * @since 3.6
  */
+@Deprecated
 public interface Highlightable extends Perspective {
 
   interface HighlightingBuilder {

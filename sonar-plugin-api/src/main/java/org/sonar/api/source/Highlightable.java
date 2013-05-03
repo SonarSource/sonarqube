@@ -17,39 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.api.scan.source;
+package org.sonar.api.source;
 
 import org.sonar.api.component.Perspective;
 
 /**
  * @since 3.6
  */
-@Deprecated
-public interface SymbolPerspective extends Perspective {
+public interface Highlightable extends Perspective {
 
-  interface SymbolBuilder {
+  interface HighlightingBuilder {
 
-    SymbolBuilder setDeclaration(int startOffset, int endOffset);
+    HighlightingBuilder highlight(int startOffset, int endOffset, String typeOfText);
 
-    SymbolBuilder setFullyQualifiedName(String fullyQualifiedName);
-
-    Symbol build();
+    void done();
   }
 
-  interface ReferencesBuilder {
-
-    ReferencesBuilder addReference(int startOffset);
-  }
-
-  SymbolPerspective begin();
-
-  SymbolBuilder newSymbol();
-
-  ReferencesBuilder declareReferences(Symbol symbol);
-
-  void end();
+  HighlightingBuilder newHighlighting();
 }
-
-
-

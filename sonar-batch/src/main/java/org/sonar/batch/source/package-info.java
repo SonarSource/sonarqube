@@ -17,39 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
+package org.sonar.batch.source;
 
-package org.sonar.api.scan.source;
-
-import org.sonar.api.component.Perspective;
-
-/**
- * @since 3.6
- */
-@Deprecated
-public interface SymbolPerspective extends Perspective {
-
-  interface SymbolBuilder {
-
-    SymbolBuilder setDeclaration(int startOffset, int endOffset);
-
-    SymbolBuilder setFullyQualifiedName(String fullyQualifiedName);
-
-    Symbol build();
-  }
-
-  interface ReferencesBuilder {
-
-    ReferencesBuilder addReference(int startOffset);
-  }
-
-  SymbolPerspective begin();
-
-  SymbolBuilder newSymbol();
-
-  ReferencesBuilder declareReferences(Symbol symbol);
-
-  void end();
-}
-
-
-
+import javax.annotation.ParametersAreNonnullByDefault;

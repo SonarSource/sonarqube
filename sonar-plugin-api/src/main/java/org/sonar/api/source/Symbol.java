@@ -18,38 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.scan.source;
+package org.sonar.api.source;
 
-import org.sonar.api.component.Perspective;
+public interface Symbol {
 
-/**
- * @since 3.6
- */
-@Deprecated
-public interface SymbolPerspective extends Perspective {
+  public int getDeclarationStartOffset();
 
-  interface SymbolBuilder {
+  public int getDeclarationEndOffset();
 
-    SymbolBuilder setDeclaration(int startOffset, int endOffset);
-
-    SymbolBuilder setFullyQualifiedName(String fullyQualifiedName);
-
-    Symbol build();
-  }
-
-  interface ReferencesBuilder {
-
-    ReferencesBuilder addReference(int startOffset);
-  }
-
-  SymbolPerspective begin();
-
-  SymbolBuilder newSymbol();
-
-  ReferencesBuilder declareReferences(Symbol symbol);
-
-  void end();
+  public String getFullyQualifiedName();
 }
-
-
-

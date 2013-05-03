@@ -17,39 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.api.scan.source;
-
-import org.sonar.api.component.Perspective;
+package org.sonar.batch.source;
 
 /**
  * @since 3.6
  */
-@Deprecated
-public interface SymbolPerspective extends Perspective {
+public class SyntaxHighlightingRule {
 
-  interface SymbolBuilder {
+  private final int startPosition;
+  private final int endPosition;
+  private final String textType;
 
-    SymbolBuilder setDeclaration(int startOffset, int endOffset);
-
-    SymbolBuilder setFullyQualifiedName(String fullyQualifiedName);
-
-    Symbol build();
+  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
+    this.startPosition = startPosition;
+    this.endPosition = endPosition;
+    this.textType = textType;
   }
 
-  interface ReferencesBuilder {
-
-    ReferencesBuilder addReference(int startOffset);
+  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
+    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
   }
 
-  SymbolPerspective begin();
+  public int getStartPosition() {
+    return startPosition;
+  }
 
-  SymbolBuilder newSymbol();
+  public int getEndPosition() {
+    return endPosition;
+  }
 
-  ReferencesBuilder declareReferences(Symbol symbol);
-
-  void end();
+  public String getTextType() {
+    return textType;
+  }
 }
-
-
-

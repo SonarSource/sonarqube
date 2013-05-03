@@ -18,38 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.scan.source;
+package org.sonar.batch.source;
 
-import org.sonar.api.component.Perspective;
+import org.sonar.api.component.Component;
+import org.sonar.api.source.Symbolizable;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.core.component.PerspectiveBuilder;
 
-/**
- * @since 3.6
- */
-@Deprecated
-public interface SymbolPerspective extends Perspective {
+public class SymbolizableBuilder extends PerspectiveBuilder<Symbolizable> {
 
-  interface SymbolBuilder {
+  private final ComponentDataCache cache;
 
-    SymbolBuilder setDeclaration(int startOffset, int endOffset);
-
-    SymbolBuilder setFullyQualifiedName(String fullyQualifiedName);
-
-    Symbol build();
+  public SymbolizableBuilder(ComponentDataCache cache) {
+    super(Symbolizable.class);
+    this.cache = cache;
   }
 
-  interface ReferencesBuilder {
-
-    ReferencesBuilder addReference(int startOffset);
+  @Override
+  protected Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, Component component) {
+    return new DefaultSymbolizable(cache, component);
   }
-
-  SymbolPerspective begin();
-
-  SymbolBuilder newSymbol();
-
-  ReferencesBuilder declareReferences(Symbol symbol);
-
-  void end();
 }
-
-
-

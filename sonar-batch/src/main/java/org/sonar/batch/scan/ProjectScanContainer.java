@@ -42,6 +42,7 @@ import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.scan.source.HighlightableBuilder;
 import org.sonar.batch.scan.source.SymbolPerspectiveBuilder;
+import org.sonar.batch.source.SymbolizableBuilder;
 import org.sonar.core.component.ScanGraph;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
@@ -110,7 +111,8 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // lang
       HighlightableBuilder.class,
-      SymbolPerspectiveBuilder.class);
+      SymbolPerspectiveBuilder.class,
+      SymbolizableBuilder.class);
   }
 
   private void fixMavenExecutor() {

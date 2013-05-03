@@ -18,38 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.scan.source;
+package org.sonar.batch.source;
 
+import org.junit.Test;
+import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
+import org.sonar.api.source.Symbolizable;
+import org.sonar.batch.index.ComponentDataCache;
 
-/**
- * @since 3.6
- */
-@Deprecated
-public interface SymbolPerspective extends Perspective {
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  interface SymbolBuilder {
+public class SymbolizableBuilderTest {
 
-    SymbolBuilder setDeclaration(int startOffset, int endOffset);
+  ComponentDataCache dataCache = mock(ComponentDataCache.class);
 
-    SymbolBuilder setFullyQualifiedName(String fullyQualifiedName);
+  @Test
+  public void should_load_perspective() throws Exception {
+    Component component = mock(Component.class);
 
-    Symbol build();
+    SymbolizableBuilder perspectiveBuilder = new SymbolizableBuilder(dataCache);
+    Perspective perspective = perspectiveBuilder.loadPerspective(Symbolizable.class, component);
+
+    assertThat(perspective).isInstanceOf(Symbolizable.class);
+    assertThat(perspective.component()).isEqualTo(component);
   }
-
-  interface ReferencesBuilder {
-
-    ReferencesBuilder addReference(int startOffset);
-  }
-
-  SymbolPerspective begin();
-
-  SymbolBuilder newSymbol();
-
-  ReferencesBuilder declareReferences(Symbol symbol);
-
-  void end();
 }
-
-
-
