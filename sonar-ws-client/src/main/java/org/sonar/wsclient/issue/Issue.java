@@ -63,8 +63,13 @@ public class Issue {
     return JsonUtils.getInteger(json, "line");
   }
 
+  // TODO to be removed
   public Double cost() {
-    return JsonUtils.getDouble(json, "cost");
+    return JsonUtils.getDouble(json, "effortToFix");
+  }
+
+  public Double effortToFix() {
+    return JsonUtils.getDouble(json, "effortToFix");
   }
 
   public String status() {

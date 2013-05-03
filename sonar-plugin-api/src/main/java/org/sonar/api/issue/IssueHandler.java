@@ -42,6 +42,8 @@ public interface IssueHandler extends BatchExtension {
 
     Context setSeverity(String severity);
 
+    Context setEffortToFix(@Nullable Double effortToFix);
+
     Context setAuthorLogin(@Nullable String login);
 
     Context setAttribute(String key, @Nullable String value);

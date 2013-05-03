@@ -8,7 +8,7 @@
       <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png">
       &nbsp;
       <span class="rulename">
-        <% rule_name = Internal.rules.ruleName(I18n.locale, issue.rule_key) %>
+        <% rule_name = Internal.rules.ruleL10nName(@issue_results.rule(issue)) %>
         <a class="open-modal issue-rule-modal" modal-width="800" href="<%= url_for :controller => 'rules', :action => 'show', :id => issue.rule_key.to_s, :modal => 'true', :layout => 'false' -%>">
             <%= h rule_name -%>
         </a>

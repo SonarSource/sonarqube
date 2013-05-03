@@ -44,7 +44,7 @@ public final class IssueDto {
   private boolean manualIssue;
   private String description;
   private Integer line;
-  private Double cost;
+  private Double effortToFix;
   private String status;
   private String resolution;
   private String checksum;
@@ -148,12 +148,12 @@ public final class IssueDto {
     return this;
   }
 
-  public Double getCost() {
-    return cost;
+  public Double getEffortToFix() {
+    return effortToFix;
   }
 
-  public IssueDto setCost(@Nullable Double cost) {
-    this.cost = cost;
+  public IssueDto setEffortToFix(@Nullable Double d) {
+    this.effortToFix = d;
     return this;
   }
 
@@ -306,7 +306,7 @@ public final class IssueDto {
       .setKey(issue.key())
       .setLine(issue.line())
       .setDescription(issue.description())
-      .setCost(issue.cost())
+      .setEffortToFix(issue.effortToFix())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -332,7 +332,7 @@ public final class IssueDto {
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setDescription(description);
-    issue.setCost(cost);
+    issue.setEffortToFix(effortToFix);
     issue.setLine(line);
     issue.setSeverity(severity);
     issue.setUserLogin(userLogin);

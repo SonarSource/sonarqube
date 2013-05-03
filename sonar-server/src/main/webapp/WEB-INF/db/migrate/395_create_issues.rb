@@ -33,7 +33,7 @@ class CreateIssues < ActiveRecord::Migration
       t.column :manual_issue,         :boolean,   :null => false
       t.column :description,          :string,    :null => true,    :limit => 4000
       t.column :line,                 :integer,   :null => true
-      t.column :cost,                 :decimal,   :null => true,    :precision => 30,   :scale => 20
+      t.column :effort_to_fix,        :decimal,   :null => true,    :precision => 30,   :scale => 20
       t.column :status,               :string ,   :null => true,    :limit => 20
       t.column :resolution,           :string ,   :null => true,    :limit => 20
       t.column :checksum,             :string ,   :null => true,    :limit => 1000

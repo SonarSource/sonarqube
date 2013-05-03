@@ -35,7 +35,7 @@ public class DefaultIssueBuilderTest {
       .componentKey(componentKey)
       .description("the desc")
       .line(123)
-      .cost(10000.0)
+      .effortToFix(10000.0)
       .ruleKey(RuleKey.of("squid", "NullDereference"))
       .severity(Severity.CRITICAL)
       .attribute("JIRA", "FOO-123")
@@ -44,7 +44,7 @@ public class DefaultIssueBuilderTest {
 
     assertThat(issue).isNotNull();
     assertThat(issue.key()).isNotNull();
-    assertThat(issue.cost()).isEqualTo(10000.0);
+    assertThat(issue.effortToFix()).isEqualTo(10000.0);
     assertThat(issue.componentKey()).isEqualTo(componentKey);
     assertThat(issue.description()).isEqualTo("the desc");
     assertThat(issue.line()).isEqualTo(123);

@@ -22,7 +22,6 @@ package org.sonar.api.issue;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +33,7 @@ import java.util.Map;
 public interface Issue extends Serializable {
 
   int DESCRIPTION_MAX_SIZE = 4000;
+
   String STATUS_OPEN = "OPEN";
   String STATUS_REOPENED = "REOPENED";
   String STATUS_RESOLVED = "RESOLVED";
@@ -59,8 +59,18 @@ public interface Issue extends Serializable {
   @CheckForNull
   Integer line();
 
+  /**
+   * Arbitrary distance to threshold for resolving the issue.
+   * <p/>
+   * For examples:
+   * <ul>
+   *   <li>for the rule "Avoid too complex methods" : current complexity - max allowed complexity</li>
+   *   <li>for the rule "Avoid Duplications" : number of duplicated blocks</li>
+   *   <li>for the rule "Insufficient Line Coverage" : number of lines to cover to reach the accepted threshold</li>
+   * </ul>
+   */
   @CheckForNull
-  Double cost();
+  Double effortToFix();
 
   String status();
 

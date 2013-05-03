@@ -36,7 +36,7 @@ public class WebRules implements ServerComponent, Startable {
     this.i18n = i18n;
   }
 
-  public String l10nRuleName(Rule rule) {
+  public String ruleL10nName(Rule rule) {
     String name = i18n.getName(rule.getRepositoryKey(), rule.getKey(), UserSession.get().locale());
     if (name == null) {
       name = rule.getName();
@@ -44,7 +44,7 @@ public class WebRules implements ServerComponent, Startable {
     return name;
   }
 
-  public String l10nRuleDescription(Rule rule) {
+  public String ruleL10nDescription(Rule rule) {
     String desc = i18n.getDescription(rule.getRepositoryKey(), rule.getKey(), UserSession.get().locale());
     if (desc == null) {
       desc = rule.getDescription();

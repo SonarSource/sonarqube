@@ -125,7 +125,7 @@ public class ServerIssueActions implements ServerComponent {
   }
 
   public Issue create(DefaultIssue issue, UserSession userSession) {
-    // TODO merge with JRubyInternalIssues
+    // TODO merge with WebIssuesInternal
     issue.setManual(true);
     issue.setUserLogin(userSession.login());
 

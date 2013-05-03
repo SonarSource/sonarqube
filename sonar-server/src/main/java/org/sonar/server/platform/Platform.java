@@ -246,7 +246,7 @@ public final class Platform {
     servicesContainer.addSingleton(ServerIssueActions.class);
     servicesContainer.addSingleton(ServerIssueFinder.class);
     servicesContainer.addSingleton(WebIssuesApi.class);
-    servicesContainer.addSingleton(JRubyInternalIssues.class);
+    servicesContainer.addSingleton(WebIssuesInternal.class);
 
     // rules
     servicesContainer.addSingleton(WebRules.class);

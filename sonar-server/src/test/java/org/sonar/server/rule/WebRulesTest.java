@@ -40,7 +40,7 @@ public class WebRulesTest {
     UserSession.set(new UserSession(123, "emmerik", Locale.FRENCH));
     when(i18n.getName("squid", "AvoidCycle", Locale.FRENCH)).thenReturn("Eviter les cycles");
 
-    String name = facade.l10nRuleName(new Rule("squid", "AvoidCycle"));
+    String name = facade.ruleL10nName(new Rule("squid", "AvoidCycle"));
     assertThat(name).isEqualTo("Eviter les cycles");
   }
 
@@ -51,7 +51,7 @@ public class WebRulesTest {
 
     Rule rule = new Rule("squid", "AvoidCycle");
     rule.setName("Avoid cycles");
-    String name = facade.l10nRuleName(rule);
+    String name = facade.ruleL10nName(rule);
     assertThat(name).isEqualTo("Avoid cycles");
   }
 
@@ -60,7 +60,7 @@ public class WebRulesTest {
     UserSession.set(new UserSession(123, "emmerik", Locale.FRENCH));
     when(i18n.getDescription("squid", "AvoidCycle", Locale.FRENCH)).thenReturn("Les cycles sont le mal");
 
-    String desc = facade.l10nRuleDescription(new Rule("squid", "AvoidCycle"));
+    String desc = facade.ruleL10nDescription(new Rule("squid", "AvoidCycle"));
     assertThat(desc).isEqualTo("Les cycles sont le mal");
   }
 
@@ -71,7 +71,7 @@ public class WebRulesTest {
 
     Rule rule = new Rule("squid", "AvoidCycle");
     rule.setDescription("Cycles are evil");
-    String desc = facade.l10nRuleDescription(rule);
+    String desc = facade.ruleL10nDescription(rule);
     assertThat(desc).isEqualTo("Cycles are evil");
   }
 

@@ -61,7 +61,7 @@ public class IssueDtoTest {
         .setResourceId(1)
         .setStatus(Issue.STATUS_CLOSED)
         .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
-        .setCost(15.0)
+        .setEffortToFix(15.0)
         .setLine(6)
         .setSeverity("BLOCKER")
         .setDescription("message")
@@ -81,7 +81,7 @@ public class IssueDtoTest {
     assertThat(issue.componentKey()).isEqualTo("component-key");
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(issue.cost()).isEqualTo(15.0);
+    assertThat(issue.effortToFix()).isEqualTo(15.0);
     assertThat(issue.line()).isEqualTo(6);
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.description()).isEqualTo("message");

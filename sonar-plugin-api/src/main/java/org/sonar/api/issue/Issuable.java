@@ -23,6 +23,7 @@ package org.sonar.api.issue;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.rule.RuleKey;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 /**
@@ -33,17 +34,17 @@ public interface Issuable extends Perspective {
   interface IssueBuilder {
     IssueBuilder ruleKey(RuleKey ruleKey);
 
-    IssueBuilder line(Integer line);
+    IssueBuilder line(@Nullable Integer line);
 
     IssueBuilder description(String description);
 
     IssueBuilder severity(String severity);
 
-    IssueBuilder cost(Double cost);
+    IssueBuilder effortToFix(@Nullable Double d);
 
     IssueBuilder manual(boolean b);
 
-    IssueBuilder attribute(String key, String value);
+    IssueBuilder attribute(String key, @Nullable String value);
 
     Issue build();
   }

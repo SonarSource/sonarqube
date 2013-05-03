@@ -40,7 +40,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private Integer line;
   private String description;
   private String severity;
-  private Double cost;
+  private Double effortToFix;
   private boolean manual = false;
   private Date createdDate;
   private Map<String, String> attributes;
@@ -84,8 +84,8 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issuable.IssueBuilder cost(@Nullable Double cost) {
-    this.cost = cost;
+  public Issuable.IssueBuilder effortToFix(@Nullable Double d) {
+    this.effortToFix = d;
     return this;
   }
 
@@ -124,7 +124,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setRuleKey(ruleKey);
     issue.setDescription(description);
     issue.setSeverity(Objects.firstNonNull(severity, Severity.MAJOR));
-    issue.setCost(cost);
+    issue.setEffortToFix(effortToFix);
     issue.setLine(line);
     issue.setManual(manual);
     issue.setManualSeverity(manual);

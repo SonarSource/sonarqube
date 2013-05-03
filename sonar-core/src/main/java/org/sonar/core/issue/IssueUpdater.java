@@ -106,6 +106,10 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     issue.setCloseDate(d);
   }
 
+  public void setEffortToFix(DefaultIssue issue, @Nullable Double d) {
+    issue.setEffortToFix(d);
+  }
+
   public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {
     String oldValue = issue.attribute(key);
     if (!Objects.equal(oldValue, value)) {

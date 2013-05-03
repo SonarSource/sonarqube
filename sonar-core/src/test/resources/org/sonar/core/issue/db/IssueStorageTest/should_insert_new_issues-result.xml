@@ -3,7 +3,7 @@
       assignee_login="[null]"
       author_login="[null]"
       checksum="[null]"
-      cost="[null]"
+      effort_to_fix="[null]"
       description="[null]"
       line="5000"
       manual_issue="[false]"

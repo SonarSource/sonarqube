@@ -14,7 +14,7 @@
     i.manual_issue as manualIssue,
     i.description as description,
     i.line as line,
-    i.cost as cost,
+    i.effort_to_fix as effortToFix,
     i.status as status,
     i.resolution as resolution,
     i.checksum as checksum,
@@ -33,10 +33,10 @@
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO issues (kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, cost, status,
+    INSERT INTO issues (kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, effort_to_fix, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{cost}, #{status},
+    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{effortToFix}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
@@ -46,10 +46,10 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issues (id, kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, cost, status,
+    INSERT INTO issues (id, kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, effort_to_fix, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{cost}, #{status},
+    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{effortToFix}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
@@ -63,7 +63,7 @@
       manual_issue=#{manualIssue},
       description=#{description},
       line=#{line},
-      cost=#{cost},
+      effort_to_fix=#{effortToFix},
       status=#{status},
       resolution=#{resolution},
       checksum=#{checksum},

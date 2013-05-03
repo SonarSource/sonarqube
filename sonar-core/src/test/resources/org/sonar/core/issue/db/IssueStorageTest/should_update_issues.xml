@@ -8,7 +8,7 @@
           assignee_login="loic"
           author_login="simon"
           checksum="FFFFF"
-          cost="[null]"
+          effort_to_fix="[null]"
           description="[null]"
           line="3000"
           manual_issue="[false]"

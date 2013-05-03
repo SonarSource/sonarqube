@@ -186,8 +186,8 @@ class Api::IssuesController < Api::ApiController
     }
     json[:severity] = issue.severity if issue.severity
     json[:desc] = issue.description if issue.description
-    json[:line] = issue.line if issue.line
-    json[:cost] = issue.cost if issue.cost
+    json[:line] = issue.line.to_i if issue.line
+    json[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
     json[:userLogin] = issue.userLogin if issue.userLogin
     json[:assignee] = issue.assignee if issue.assignee
     json[:creationDate] = format_java_datetime(issue.creationDate) if issue.creationDate
@@ -208,8 +208,8 @@ class Api::IssuesController < Api::ApiController
   end
 
   def rule_to_json(rule)
-    l10n_name = Internal.rules.l10nRuleName(rule)
-    l10n_desc = Internal.rules.l10nRuleDescription(rule)
+    l10n_name = Internal.rules.ruleL10nName(rule)
+    l10n_desc = Internal.rules.ruleL10nDescription(rule)
     json = {:key => rule.getKey()}
     json[:name] = l10n_name if l10n_name
     json[:desc] = l10n_desc if l10n_desc

@@ -23,7 +23,7 @@
 class Internal
 
   def self.issues
-    component(Java::OrgSonarServerIssue::JRubyInternalIssues.java_class)
+    component(Java::OrgSonarServerIssue::WebIssuesInternal.java_class)
   end
 
   def self.issues_api

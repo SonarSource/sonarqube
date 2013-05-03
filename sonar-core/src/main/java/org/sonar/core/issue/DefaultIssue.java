@@ -51,7 +51,7 @@ public class DefaultIssue implements Issue {
   private boolean manualSeverity = false;
   private String description;
   private Integer line;
-  private Double cost;
+  private Double effortToFix;
   private String status;
   private String resolution;
   private String userLogin;
@@ -140,13 +140,13 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
-  public Double cost() {
-    return cost;
+  public Double effortToFix() {
+    return effortToFix;
   }
 
-  public DefaultIssue setCost(@Nullable Double c) {
-    Preconditions.checkArgument(c == null || c >= 0, "Cost must be positive (got " + c + ")");
-    this.cost = c;
+  public DefaultIssue setEffortToFix(@Nullable Double d) {
+    Preconditions.checkArgument(d == null || d >= 0, "Effort to fix must be greater than or equal 0 (got " + d + ")");
+    this.effortToFix = d;
     return this;
   }
 

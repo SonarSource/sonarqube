@@ -9,7 +9,7 @@
       "resolution": "FIXED",
       "status": "OPEN",
       "assignee": "karadoc",
-      "cost": 4.2,
+      "effortToFix": 4.2,
       "desc": "the desc",
       "title": "the title",
       "userLogin": "perceval",

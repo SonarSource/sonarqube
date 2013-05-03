@@ -34,7 +34,7 @@ public class NewIssueTest {
   public void test_create() {
     NewIssue newIssue = NewIssue.create()
       .component("Action.java")
-      .cost(4.2)
+      .effortToFix(4.2)
       .description("the desc")
       .line(123)
       .rule("squid:AvoidCycle")

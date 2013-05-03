@@ -36,11 +36,11 @@ import java.util.Map;
  * All the issue features that are not published to public API.
  * TODO to be renamed to WebIssuesInternal
  */
-public class JRubyInternalIssues implements ServerComponent {
+public class WebIssuesInternal implements ServerComponent {
 
   private final ServerIssueActions actions;
 
-  public JRubyInternalIssues(ServerIssueActions actions) {
+  public WebIssuesInternal(ServerIssueActions actions) {
     this.actions = actions;
   }
 
@@ -81,6 +81,8 @@ public class JRubyInternalIssues implements ServerComponent {
     builder.line(line != null ? Integer.parseInt(line) : null);
     builder.description(parameters.get("description"));
     builder.severity(parameters.get("severity"));
+    String effortToFix = parameters.get("effortToFix");
+    builder.effortToFix(effortToFix!=null ? Double.parseDouble(effortToFix) : null);
     // TODO verify existence of rule
     builder.ruleKey(RuleKey.parse(parameters.get("rule")));
     builder.manual(true);

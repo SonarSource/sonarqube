@@ -102,6 +102,12 @@ public class IssueHandlers implements BatchExtension {
     }
 
     @Override
+    public IssueHandler.Context setEffortToFix(@Nullable Double d) {
+      updater.setEffortToFix(issue, d);
+      return this;
+    }
+
+    @Override
     public IssueHandler.Context setAttribute(String key, @Nullable String value) {
       throw new UnsupportedOperationException("TODO");
     }

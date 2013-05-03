@@ -454,8 +454,8 @@ class ResourceController < ApplicationController
       end
     end
 
-    issues = Api.issues.find(options).issues
-    issues.each do |issue|
+    @issue_results = Api.issues.find(options)
+    @issue_results.issues.each do |issue|
       # sorted by severity => from blocker to info
       if @lines && issue.line && issue.line>0 && issue.line<=@lines.size
         @lines[issue.line-1].add_issue(issue)

@@ -58,7 +58,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.isManualIssue()).isFalse();
     assertThat(issue.getDescription()).isNull();
     assertThat(issue.getLine()).isEqualTo(200);
-    assertThat(issue.getCost()).isEqualTo(4.2);
+    assertThat(issue.getEffortToFix()).isEqualTo(4.2);
     assertThat(issue.getStatus()).isEqualTo("OPEN");
     assertThat(issue.getResolution()).isEqualTo("FIXED");
     assertThat(issue.getChecksum()).isEqualTo("XXX");

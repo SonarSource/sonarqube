@@ -64,7 +64,7 @@
         <%= message('author') -%>:
       </td>
       <td class="val">
-        <% author = @issue.user_login %>
+        <% author = @issue.userLogin %>
         <%= author ? h(author) : '-' -%>
       </td>
     </tr>
@@ -87,7 +87,7 @@
 
 
     <% if @issue.rule_key %>
-      <% rule_name = Internal.rules.ruleName(I18n.locale, @issue.rule_key) %>
+      <% rule_name = Internal.rules.ruleL10nName(@issue.rule_key) %>
       <tr>
         <td class="key">
           <%= message('rule') -%>:

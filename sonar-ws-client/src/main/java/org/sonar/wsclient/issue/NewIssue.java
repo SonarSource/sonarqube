@@ -68,8 +68,14 @@ public class NewIssue {
     return this;
   }
 
+  // TODO to be removed
   public NewIssue cost(Double d) {
     params.put("cost", d);
+    return this;
+  }
+
+  public NewIssue effortToFix(Double d) {
+    params.put("effortToFix", d);
     return this;
   }
 
