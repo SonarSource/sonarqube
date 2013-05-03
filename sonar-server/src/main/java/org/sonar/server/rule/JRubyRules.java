@@ -19,32 +19,45 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.server.ui.JRubyI18n;
+import org.picocontainer.Startable;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.rules.Rule;
+import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.server.platform.UserSession;
 
 /**
- * Facade of rules components for JRuby on Rails webapp
- *
- * @since 3.6
+ * Used through ruby code <pre>Internal.rules</pre>
  */
-public class JRubyRules {
+public class JRubyRules implements ServerComponent, Startable {
 
-  private final JRubyI18n jRubyI18n;
+  private final RuleI18nManager i18n;
 
-  public JRubyRules(JRubyI18n jRubyI18n) {
-    this.jRubyI18n = jRubyI18n;
+  public JRubyRules(RuleI18nManager i18n) {
+    this.i18n = i18n;
   }
 
-  public String ruleName(String rubyLocale, RuleKey ruleKey) {
-    String l18n = jRubyI18n.getRuleName(rubyLocale, ruleKey.repository(), ruleKey.rule());
-    if (l18n != null) {
-      return l18n;
-    } else {
-      return jRubyI18n.getRuleName("en", ruleKey.repository(), ruleKey.rule());
+  public String l10nRuleName(Rule rule) {
+    String name = i18n.getName(rule.getRepositoryKey(), rule.getKey(), UserSession.get().locale());
+    if (name == null) {
+      name = rule.getName();
     }
+    return name;
   }
 
+  public String l10nRuleDescription(Rule rule) {
+    String desc = i18n.getDescription(rule.getRepositoryKey(), rule.getKey(), UserSession.get().locale());
+    if (desc == null) {
+      desc = rule.getDescription();
+    }
+    return desc;
+  }
+
+  @Override
   public void start() {
     // used to force pico to instantiate the singleton at startup
+  }
+
+  @Override
+  public void stop() {
   }
 }

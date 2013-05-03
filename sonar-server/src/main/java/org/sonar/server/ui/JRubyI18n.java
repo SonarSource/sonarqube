@@ -26,6 +26,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -59,13 +60,17 @@ public class JRubyI18n implements ServerComponent {
     return localesByRubyKey;
   }
 
-  static Locale toLocale(String rubyKey) {
+  public static Locale toLocale(@Nullable String rubyKey) {
     Locale locale;
-    String[] fields = StringUtils.split(rubyKey, "-");
-    if (fields.length == 1) {
-      locale = new Locale(fields[0]);
+    if (rubyKey == null) {
+      locale = Locale.ENGLISH;
     } else {
-      locale = new Locale(fields[0], fields[1]);
+      String[] fields = StringUtils.split(rubyKey, "-");
+      if (fields.length == 1) {
+        locale = new Locale(fields[0]);
+      } else {
+        locale = new Locale(fields[0], fields[1]);
+      }
     }
     return locale;
   }

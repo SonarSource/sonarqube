@@ -21,39 +21,60 @@ package org.sonar.server.platform;
 
 import org.junit.Test;
 
+import java.util.Locale;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class UserSessionTest {
   @Test
-  public void should_never_return_null_session() throws Exception {
+  public void should_get_anonymous_session_by_default() throws Exception {
     UserSession.remove();
 
     UserSession session = UserSession.get();
+
     assertThat(session).isNotNull();
     assertThat(session.login()).isNull();
     assertThat(session.userId()).isNull();
     assertThat(session.isLoggedIn()).isFalse();
+    // default locale
+    assertThat(session.locale()).isEqualTo(Locale.ENGLISH);
+  }
+
+  @Test
+  public void should_set_session_from_jror() throws Exception {
+    UserSession.setSession(123, "karadoc", "fr");
+
+    UserSession session = UserSession.get();
+
+    assertThat(session).isNotNull();
+    assertThat(session.login()).isEqualTo("karadoc");
+    assertThat(session.userId()).isEqualTo(123);
+    assertThat(session.isLoggedIn()).isTrue();
+    assertThat(session.locale()).isEqualTo(Locale.FRENCH);
+  }
+
+  @Test
+  public void should_set_anonymous_session_from_jror() throws Exception {
+    UserSession.setSession(null, null, "fr");
+
+    UserSession session = UserSession.get();
+
+    assertThat(session).isNotNull();
+    assertThat(session.login()).isNull();
+    assertThat(session.userId()).isNull();
+    assertThat(session.isLoggedIn()).isFalse();
+    assertThat(session.locale()).isEqualTo(Locale.FRENCH);
   }
 
   @Test
   public void should_get_session() throws Exception {
-    UserSession.set(123, "karadoc");
+    UserSession.set(new UserSession(123, "karadoc", Locale.FRENCH));
 
     UserSession session = UserSession.get();
     assertThat(session).isNotNull();
     assertThat(session.userId()).isEqualTo(123);
     assertThat(session.login()).isEqualTo("karadoc");
     assertThat(session.isLoggedIn()).isTrue();
-  }
-
-  @Test
-  public void should_get_anonymous_session() throws Exception {
-    UserSession.set(null, null);
-
-    UserSession session = UserSession.get();
-    assertThat(session).isNotNull();
-    assertThat(session.login()).isNull();
-    assertThat(session.userId()).isNull();
-    assertThat(session.isLoggedIn()).isFalse();
+    assertThat(session.locale()).isEqualTo(Locale.FRENCH);
   }
 }

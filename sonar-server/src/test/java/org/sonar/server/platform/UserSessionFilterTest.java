@@ -27,6 +27,8 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import java.util.Locale;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -36,7 +38,7 @@ public class UserSessionFilterTest {
   @Before
   public void setUp() {
     // for test isolation
-    UserSession.set(null, null);
+    UserSession.remove();
   }
 
   @Test
@@ -45,7 +47,7 @@ public class UserSessionFilterTest {
     ServletResponse httpResponse = mock(ServletResponse.class);
     FilterChain chain = mock(FilterChain.class);
 
-    UserSession.set(123, "karadoc");
+    UserSession.set(new UserSession(123, "karadoc", Locale.CANADA_FRENCH));
     assertThat(UserSession.hasSession()).isTrue();
     UserSessionFilter filter = new UserSessionFilter();
     filter.doFilter(httpRequest, httpResponse, chain);

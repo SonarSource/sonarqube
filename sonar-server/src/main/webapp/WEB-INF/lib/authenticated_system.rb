@@ -16,7 +16,6 @@ module AuthenticatedSystem
     if new_user
       session[:user_id] = new_user.id
       @current_user = new_user
-      Java::OrgSonarServerPlatform::UserSession.set(new_user.id, new_user.login)
     else
       session[:user_id] = nil
       @current_user = false

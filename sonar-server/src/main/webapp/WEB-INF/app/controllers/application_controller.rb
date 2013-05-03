@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
   include AuthenticatedSystem
   include NeedAuthorization::Helper
 
-  before_filter :check_database_version, :set_locale, :check_authentication
+  before_filter :check_database_version, :set_user_session, :check_authentication
 
   rescue_from Exception, :with => :render_error
   rescue_from NativeException, :with => :render_native_exception
@@ -85,11 +85,17 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def set_locale
+  def set_user_session
     if params[:locale]
       I18n.locale = request.compatible_language_from(available_locales, [params[:locale]])
     else
       I18n.locale = request.compatible_language_from(available_locales)
+    end
+
+    if current_user && current_user.id
+      Java::OrgSonarServerPlatform::UserSession.setSession(current_user.id.to_i, current_user.login, I18n.locale.to_s)
+    else
+      Java::OrgSonarServerPlatform::UserSession.setSession(nil, nil, I18n.locale.to_s)
     end
   end
 

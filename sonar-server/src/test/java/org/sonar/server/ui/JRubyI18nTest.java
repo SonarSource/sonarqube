@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
 import org.sonar.core.i18n.GwtI18n;
@@ -27,27 +26,30 @@ import org.sonar.core.i18n.RuleI18nManager;
 
 import java.util.Locale;
 
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class JRubyI18nTest {
   @Test
   public void shouldConvertLocales() {
-    assertThat(JRubyI18n.toLocale("fr"), Is.is(Locale.FRENCH));
-    assertThat(JRubyI18n.toLocale("fr-CH"), Is.is(new Locale("fr", "CH")));
+    assertThat(JRubyI18n.toLocale("fr")).isEqualTo(Locale.FRENCH);
+    assertThat(JRubyI18n.toLocale("fr-CH")).isEqualTo(new Locale("fr", "CH"));
   }
 
   @Test
   public void shouldCacheLocales() {
     JRubyI18n i18n = new JRubyI18n(mock(I18n.class), mock(RuleI18nManager.class), mock(GwtI18n.class));
-    assertThat(i18n.getLocalesByRubyKey().size(), Is.is(0));
+    assertThat(i18n.getLocalesByRubyKey()).isEmpty();
 
     i18n.getLocale("fr");
 
-    assertThat(i18n.getLocalesByRubyKey().size(), Is.is(1));
-    assertThat(i18n.getLocalesByRubyKey().get("fr"), not(nullValue()));
+    assertThat(i18n.getLocalesByRubyKey()).hasSize(1);
+    assertThat(i18n.getLocalesByRubyKey().get("fr")).isNotNull();
+  }
+
+  @Test
+  public void default_locale_should_be_english() throws Exception {
+    assertThat(JRubyI18n.toLocale(null)).isEqualTo(Locale.ENGLISH);
 
   }
 }

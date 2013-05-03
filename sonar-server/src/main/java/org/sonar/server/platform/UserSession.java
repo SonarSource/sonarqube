@@ -20,21 +20,25 @@
 package org.sonar.server.platform;
 
 import com.google.common.base.Objects;
+import org.sonar.server.ui.JRubyI18n;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.Locale;
 
 public class UserSession {
 
   private static final ThreadLocal<UserSession> threadLocal = new ThreadLocal<UserSession>();
-  private static final UserSession ANONYMOUS = new UserSession(null, null);
+  private static final UserSession DEFAULT_ANONYMOUS = new UserSession(null, null, Locale.ENGLISH);
 
   private final Integer userId;
   private final String login;
+  private final Locale locale;
 
-  public UserSession(@Nullable Integer userId, @Nullable String login) {
+  public UserSession(@Nullable Integer userId, @Nullable String login, @Nullable Locale locale) {
     this.userId = userId;
     this.login = login;
+    this.locale = Objects.firstNonNull(locale, Locale.ENGLISH);
   }
 
   @CheckForNull
@@ -51,15 +55,23 @@ public class UserSession {
     return userId != null;
   }
 
+  public Locale locale() {
+    return locale;
+  }
+
   /**
    * @return never null
    */
   public static UserSession get() {
-    return Objects.firstNonNull(threadLocal.get(), ANONYMOUS);
+    return Objects.firstNonNull(threadLocal.get(), DEFAULT_ANONYMOUS);
   }
 
-  public static void set(@Nullable Integer userId, @Nullable String login) {
-    threadLocal.set(new UserSession(userId, login));
+  public static void set(@Nullable UserSession session) {
+    threadLocal.set(session);
+  }
+
+  public static void setSession(@Nullable Integer userId, @Nullable String login, @Nullable String localeRubyKey) {
+    set(new UserSession(userId, login, JRubyI18n.toLocale(localeRubyKey)));
   }
 
   public static void remove() {
@@ -67,7 +79,7 @@ public class UserSession {
   }
 
   static boolean hasSession() {
-    return threadLocal.get()!=null;
+    return threadLocal.get() != null;
   }
 }
 
