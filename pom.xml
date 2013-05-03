@@ -1055,6 +1055,22 @@
         <artifactId>http-request</artifactId>
         <version>4.1</version>
       </dependency>
+	  <!-- Monitoring -->
+	  <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>3.0.0-BETA2</version>
+	  </dependency>
+	  <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-jvm</artifactId>
+        <version>3.0.0-BETA2</version>
+	  </dependency>
+	  <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-servlet</artifactId>
+        <version>3.0.0-BETA2</version>
+	  </dependency>
     </dependencies>
   </dependencyManagement>
 

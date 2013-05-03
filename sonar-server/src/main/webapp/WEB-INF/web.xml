@@ -60,6 +60,14 @@
       <param-value>16384</param-value>
     </init-param>
   </filter>
+  <filter>
+    <filter-name>MonitoringFilter</filter-name>
+    <filter-class>org.sonar.server.ui.MonitoringFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>MonitoringFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
   <filter-mapping>
     <filter-name>GZIPFilter</filter-name>
     <url-pattern>/*</url-pattern>
