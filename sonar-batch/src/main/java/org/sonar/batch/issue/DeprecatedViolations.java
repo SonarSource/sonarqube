@@ -22,6 +22,7 @@ package org.sonar.batch.issue;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
@@ -54,7 +55,7 @@ public class DeprecatedViolations implements BatchComponent {
       .cost(violation.getCost())
       .line(violation.getLineId())
       .description(violation.getMessage())
-      .severity(violation.getSeverity() != null ? violation.getSeverity().name() : null)
+      .severity(violation.getSeverity() != null ? violation.getSeverity().name() : Severity.MAJOR)
       .build();
   }
 }

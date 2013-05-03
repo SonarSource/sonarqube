@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.fest.assertions.Fail.fail;
 
 public class IssueWorkflowTest {
   IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(new IssueUpdater()));
@@ -65,6 +65,7 @@ public class IssueWorkflowTest {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
       .setResolution(Issue.RESOLUTION_FIXED)
       .setStatus(Issue.STATUS_RESOLVED)
       .setNew(false)
@@ -75,6 +76,24 @@ public class IssueWorkflowTest {
     assertThat(issue.closeDate()).isNotNull();
   }
 
+  @Test
+  public void should_fail_if_unknown_status() throws Exception {
+    workflow.start();
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setStatus("xxx")
+      .setNew(false)
+      .setAlive(false);
+    try {
+      workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(new Date()));
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Unknown status: xxx [issue=ABCDE]");
+    }
+
+  }
 
   private Collection<String> keys(List<Transition> transitions) {
     return Collections2.transform(transitions, new Function<Transition, String>() {

@@ -106,7 +106,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
   }
 
   public boolean doTransition(DefaultIssue issue, String transitionKey, IssueChangeContext issueChangeContext) {
-    Transition transition = machine.state(issue.status()).transition(transitionKey);
+    Transition transition = stateOf(issue).transition(transitionKey);
     if (transition != null && !transition.automatic()) {
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
       issue.setStatus(transition.to());
@@ -121,11 +121,19 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
 
 
   public void doAutomaticTransition(DefaultIssue issue, IssueChangeContext issueChangeContext) {
-    Transition transition = machine.state(issue.status()).outAutomaticTransition(issue);
+    Transition transition = stateOf(issue).outAutomaticTransition(issue);
     if (transition != null) {
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
       issue.setStatus(transition.to());
     }
+  }
+
+  private State stateOf(DefaultIssue issue) {
+    State state = machine.state(issue.status());
+    if (state==null) {
+      throw new IllegalStateException("Unknown status: " + issue.status() + " [issue=" + issue.key() + "]");
+    }
+    return state;
   }
 
   StateMachine machine() {

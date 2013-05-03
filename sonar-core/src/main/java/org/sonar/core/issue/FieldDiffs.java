@@ -23,6 +23,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Date;
@@ -44,11 +45,12 @@ public class FieldDiffs implements Serializable {
     return diffs.get(field);
   }
 
+  @CheckForNull
   public String userLogin() {
     return userLogin;
   }
 
-  public FieldDiffs setUserLogin(String s) {
+  public FieldDiffs setUserLogin(@Nullable String s) {
     this.userLogin = s;
     return this;
   }
