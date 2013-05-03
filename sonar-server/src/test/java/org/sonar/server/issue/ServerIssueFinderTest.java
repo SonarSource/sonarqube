@@ -31,6 +31,8 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.issue.db.ActionPlanIssueDao;
+import org.sonar.core.issue.db.ActionPlanIssueDto;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.MyBatis;
@@ -61,6 +63,7 @@ public class ServerIssueFinderTest {
   AuthorizationDao authorizationDao;
   DefaultRuleFinder ruleFinder;
   ResourceDao resourceDao;
+  ActionPlanIssueDao actionPlanIssueDao;
 
   @Before
   public void before() {
@@ -69,7 +72,8 @@ public class ServerIssueFinderTest {
     authorizationDao = mock(AuthorizationDao.class);
     ruleFinder = mock(DefaultRuleFinder.class);
     resourceDao = mock(ResourceDao.class);
-    finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao, ruleFinder, resourceDao);
+    actionPlanIssueDao = mock(ActionPlanIssueDao.class);
+    finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao, ruleFinder, resourceDao, actionPlanIssueDao);
   }
 
   @Test
@@ -222,7 +226,37 @@ public class ServerIssueFinderTest {
   }
 
   @Test
-  public void should_get_empty_rule_and_component_from_result_when_no_issue() {
+  public void should_get_action_plans_from_result() {
+    ActionPlanIssueDto actionPlanIssueDto1 = new ActionPlanIssueDto().setIssueId(1L).setKee("A").setName("Short term");
+    ActionPlanIssueDto actionPlanIssueDto2 = new ActionPlanIssueDto().setIssueId(2L).setKee("B").setName("Long term");
+
+    grantAccessRights();
+    IssueQuery issueQuery = mock(IssueQuery.class);
+
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123).setKey("ABC")
+      .setComponentKey_unit_test_only("Action.java")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123).setKey("DEF")
+      .setComponentKey_unit_test_only("Action.java")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
+    List<IssueDto> dtoList = newArrayList(issue1, issue2);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
+
+    when(actionPlanIssueDao.findByIssueIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(actionPlanIssueDto1, actionPlanIssueDto2));
+
+
+    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    assertThat(results.issues()).hasSize(2);
+    Issue issue = results.issues().iterator().next();
+    assertThat(results.issues()).hasSize(2);
+    assertThat(results.actionPlans(issue)).hasSize(1);
+  }
+
+  @Test
+  public void should_get_empty_result_when_no_issue() {
     grantAccessRights();
     IssueQuery issueQuery = mock(IssueQuery.class);
     when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
@@ -233,6 +267,7 @@ public class ServerIssueFinderTest {
     assertThat(results.issues()).isEmpty();
     assertThat(results.rules()).isEmpty();
     assertThat(results.components()).isEmpty();
+    assertThat(results.actionPlans()).isEmpty();
   }
 
   private void grantAccessRights() {

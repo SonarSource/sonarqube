@@ -17,79 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue;
 
-import org.sonar.api.rule.RuleKey;
+package org.sonar.api.issue;
 
 import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @since 3.6
  */
-public interface Issue extends Serializable {
-
-  int DESCRIPTION_MAX_SIZE = 4000;
-  String STATUS_OPEN = "OPEN";
-  String STATUS_REOPENED = "REOPENED";
-  String STATUS_RESOLVED = "RESOLVED";
-  String STATUS_CLOSED = "CLOSED";
-
-  String RESOLUTION_OPEN = "OPEN";
-  String RESOLUTION_FIXED = "FIXED";
-  String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
+public interface ActionPlan extends Serializable {
 
   /**
    * Unique generated key
    */
   String key();
 
-  String componentKey();
+  String name();
 
-  RuleKey ruleKey();
-
-  String severity();
-
+  @CheckForNull
   String description();
-
-  @CheckForNull
-  Integer line();
-
-  @CheckForNull
-  Double cost();
-
-  String status();
-
-  String resolution();
 
   @CheckForNull
   String userLogin();
 
   @CheckForNull
-  String assignee();
+  String status();
 
-  boolean manual();
+  @CheckForNull
+  Date deadLine() ;
 
   Date creationDate();
 
   Date updateDate();
-
-  @CheckForNull
-  Date closeDate();
-
-  @CheckForNull
-  String attribute(String key);
-
-  Map<String, String> attributes();
-
-  @CheckForNull
-  String authorLogin();
-
-  @CheckForNull
-  List<ActionPlan> actionPlans();
 
 }

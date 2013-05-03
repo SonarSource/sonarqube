@@ -49,6 +49,10 @@ public interface IssueFinder extends ServerComponent {
 
     Collection<Component> components();
 
+    Collection<ActionPlan> actionPlans(Issue issue);
+
+    Collection<ActionPlan> actionPlans();
+
     Paging paging();
 
     boolean securityExclusions();

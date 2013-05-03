@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
+
+<mapper namespace="org.sonar.core.issue.db.ActionPlanIssueMapper">
+
+  <sql id="actionPlanColumns">
+    ap.id,
+    ap.name as name,
+    ap.description as description,
+    ap.user_login as userLogin,
+    ap.project_id as projectId,
+    ap.status as status,
+    ap.deadline as deadLine,
+    ap.created_at as createdAt,
+    ap.updated_at as updatedAt
+  </sql>
+
+  <select id="findByIssueIds" parameterType="long" resultType="ActionPlanIssue">
+    select <include refid="actionPlanColumns"/>, api.issue_id as issueId
+    from action_plans_issues api left outer join action_plans ap on ap.id = api.action_plan_id
+    <where>
+    <foreach collection="issueIds" open="api.issue_id in (" close=")" item="list" separator=") or api.issue_id in (" >
+      <foreach collection="list" item="element" separator=",">
+        #{element}
+      </foreach>
+    </foreach>
+    </where>
+  </select>
+
+</mapper>

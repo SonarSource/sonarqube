@@ -20,17 +20,19 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Component;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueFinder;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.Paging;
+import org.sonar.api.issue.*;
 import org.sonar.api.rules.Rule;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.db.ActionPlanIssueDao;
+import org.sonar.core.issue.db.ActionPlanIssueDto;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.MyBatis;
@@ -59,13 +61,15 @@ public class ServerIssueFinder implements IssueFinder {
   private final AuthorizationDao authorizationDao;
   private final DefaultRuleFinder ruleFinder;
   private final ResourceDao resourceDao;
+  private final ActionPlanIssueDao actionPlanIssueDao;
 
-  public ServerIssueFinder(MyBatis myBatis, IssueDao issueDao, AuthorizationDao authorizationDao, DefaultRuleFinder ruleFinder, ResourceDao resourceDao) {
+  public ServerIssueFinder(MyBatis myBatis, IssueDao issueDao, AuthorizationDao authorizationDao, DefaultRuleFinder ruleFinder, ResourceDao resourceDao, ActionPlanIssueDao actionPlanIssueDao) {
     this.myBatis = myBatis;
     this.issueDao = issueDao;
     this.authorizationDao = authorizationDao;
     this.ruleFinder = ruleFinder;
     this.resourceDao = resourceDao;
+    this.actionPlanIssueDao = actionPlanIssueDao;
   }
 
   public Results find(IssueQuery query, @Nullable Integer currentUserId, String role) {
@@ -82,14 +86,24 @@ public class ServerIssueFinder implements IssueFinder {
       Collection<IssueDto> dtos = issueDao.selectByIds(paginatedAuthorizedIssueIds, sqlSession);
       Set<Integer> ruleIds = Sets.newLinkedHashSet();
       List<Issue> issues = newArrayList();
+      List<Long> issueIds = newArrayList();
+      Map<Long, Issue> issuesById = newHashMap();
       for (IssueDto dto : dtos) {
         if (authorizedComponentIds.contains(dto.getResourceId())) {
-          issues.add(dto.toDefaultIssue());
+          DefaultIssue defaultIssue = dto.toDefaultIssue();
+          issuesById.put(dto.getId(), defaultIssue);
+          issueIds.add(dto.getId());
+          issues.add(defaultIssue);
           ruleIds.add(dto.getRuleId());
         }
       }
 
-      return new DefaultResults(issues, getRulesByIssue(issues, ruleIds), getComponentsByIssue(issues, componentIds), paging, authorizedIssues.size() != allIssuesDto.size());
+      Collection<ActionPlanIssueDto> actionPlanIssueDtos = actionPlanIssueDao.findByIssueIds(issueIds, sqlSession);
+      ListMultimap<Issue, ActionPlan> actionPlansByIssueKey = createActionPlansByIssue(actionPlanIssueDtos, issuesById);
+      setActionPlans(issues, actionPlansByIssueKey);
+
+      return new DefaultResults(issues, getRulesByIssue(issues, ruleIds), getComponentsByIssue(issues, componentIds), actionPlansByIssueKey,
+        paging, authorizedIssues.size() != allIssuesDto.size());
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
@@ -162,6 +176,23 @@ public class ServerIssueFinder implements IssueFinder {
     }, null);
   }
 
+  private ListMultimap createActionPlansByIssue(Collection<ActionPlanIssueDto> actionPlanIssueDtos, Map<Long, Issue> issuesById) {
+    ListMultimap<Issue, ActionPlan> actionPlansByIssue = ArrayListMultimap.create();
+    for (ActionPlanIssueDto actionPlanIssueDto : actionPlanIssueDtos) {
+      Issue issue = issuesById.get(actionPlanIssueDto.getIssueId());
+      actionPlansByIssue.put(issue, actionPlanIssueDto.toActionPlan());
+    }
+    return actionPlansByIssue;
+  }
+
+  private void setActionPlans(List<Issue> issues, ListMultimap<Issue, ActionPlan> actionPlansByIssueKey){
+    for (Issue issue : issues) {
+      DefaultIssue defaultIssue = (DefaultIssue) issue;
+      List<ActionPlan> actionPlans = actionPlansByIssueKey.get(issue);
+      defaultIssue.setActionPlans(actionPlans);
+    }
+  }
+
   public Issue findByKey(String key) {
     IssueDto dto = issueDao.selectByKey(key);
     return dto != null ? dto.toDefaultIssue() : null;
@@ -172,12 +203,15 @@ public class ServerIssueFinder implements IssueFinder {
     private final Paging paging;
     private final Map<Issue, Rule> rulesByIssue;
     private final Map<Issue, Component> componentsByIssue;
+    private final ListMultimap<Issue, ActionPlan> actionPlansByIssue;
     private final boolean securityExclusions;
 
-    DefaultResults(List<Issue> issues, Map<Issue, Rule> rulesByIssue, Map<Issue, Component> componentsByIssue, Paging paging, boolean securityExclusions) {
+    DefaultResults(List<Issue> issues, Map<Issue, Rule> rulesByIssue, Map<Issue, Component> componentsByIssue, ListMultimap<Issue, ActionPlan> actionPlansByIssue,
+                   Paging paging, boolean securityExclusions) {
       this.issues = issues;
       this.rulesByIssue = rulesByIssue;
       this.componentsByIssue = componentsByIssue;
+      this.actionPlansByIssue = actionPlansByIssue;
       this.paging = paging;
       this.securityExclusions = securityExclusions;
     }
@@ -201,6 +235,14 @@ public class ServerIssueFinder implements IssueFinder {
 
     public Collection<Component> components() {
       return componentsByIssue.values();
+    }
+
+    public Collection<ActionPlan> actionPlans(Issue issue) {
+      return actionPlansByIssue.get(issue);
+    }
+
+    public Collection<ActionPlan> actionPlans() {
+      return actionPlansByIssue.values();
     }
 
     public boolean securityExclusions() {
