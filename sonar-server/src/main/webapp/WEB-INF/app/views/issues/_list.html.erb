@@ -102,13 +102,13 @@
           <%= issue.attributes -%>
         </td>
         <td>
-          <%= issue.created_at -%>
+          <%= issue.creationDate() -%>
         </td>
         <td>
-          <%= issue.updated_at -%>
+          <%= issue.updateDate() -%>
         </td>
         <td>
-          <%= issue.closed_at -%>
+          <%= issue.closeDate() -%>
         </td>
       </tr>
     <%
