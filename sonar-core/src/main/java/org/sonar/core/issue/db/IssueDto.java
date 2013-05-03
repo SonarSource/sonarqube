@@ -134,7 +134,7 @@ public final class IssueDto {
     return description;
   }
 
-  public IssueDto setDescription(String s) {
+  public IssueDto setDescription(@Nullable String s) {
     this.description = s;
     return this;
   }
@@ -152,7 +152,7 @@ public final class IssueDto {
     return cost;
   }
 
-  public IssueDto setCost(Double cost) {
+  public IssueDto setCost(@Nullable Double cost) {
     this.cost = cost;
     return this;
   }
