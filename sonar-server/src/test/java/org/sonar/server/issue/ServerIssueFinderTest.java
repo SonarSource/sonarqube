@@ -20,7 +20,6 @@
 package org.sonar.server.issue;
 
 import org.apache.ibatis.session.SqlSession;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -56,30 +55,18 @@ import static org.mockito.Mockito.*;
 
 public class ServerIssueFinderTest {
 
-  MyBatis mybatis;
-  ServerIssueFinder finder;
-
-  IssueDao issueDao;
-  AuthorizationDao authorizationDao;
-  DefaultRuleFinder ruleFinder;
-  ResourceDao resourceDao;
-  ActionPlanIssueDao actionPlanIssueDao;
-
-  @Before
-  public void before() {
-    mybatis = mock(MyBatis.class);
-    issueDao = mock(IssueDao.class);
-    authorizationDao = mock(AuthorizationDao.class);
-    ruleFinder = mock(DefaultRuleFinder.class);
-    resourceDao = mock(ResourceDao.class);
-    actionPlanIssueDao = mock(ActionPlanIssueDao.class);
-    finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao, ruleFinder, resourceDao, actionPlanIssueDao);
-  }
+  MyBatis mybatis = mock(MyBatis.class);
+  IssueDao issueDao = mock(IssueDao.class);
+  AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+  DefaultRuleFinder ruleFinder = mock(DefaultRuleFinder.class);
+  ResourceDao resourceDao = mock(ResourceDao.class);
+  ActionPlanIssueDao actionPlanIssueDao = mock(ActionPlanIssueDao.class);
+  ServerIssueFinder finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao, ruleFinder, resourceDao, actionPlanIssueDao);
 
   @Test
   public void should_find_issues() {
     grantAccessRights();
-    IssueQuery issueQuery = mock(IssueQuery.class);
+    IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
@@ -90,10 +77,10 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
-    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(issue.componentKey()).isEqualTo("Action.java");
@@ -103,8 +90,7 @@ public class ServerIssueFinderTest {
 
   @Test
   public void should_find_only_authorized_issues() {
-    IssueQuery issueQuery = mock(IssueQuery.class);
-    when(issueQuery.pageSize()).thenReturn(100);
+    IssueQuery query = IssueQuery.builder().pageSize(100).build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
@@ -115,11 +101,11 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(authorizationDao.keepAuthorizedComponentIds(anySet(), anyInt(), anyString(), any(SqlSession.class))).thenReturn(newHashSet(123));
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(issue1));
 
-    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
 
     verify(issueDao).selectByIds(eq(newHashSet(1L)), any(SqlSession.class));
     assertThat(results.securityExclusions()).isTrue();
@@ -129,9 +115,7 @@ public class ServerIssueFinderTest {
   public void should_find_paginate_result() {
     grantAccessRights();
 
-    IssueQuery issueQuery = mock(IssueQuery.class);
-    when(issueQuery.pageSize()).thenReturn(1);
-    when(issueQuery.pageIndex()).thenReturn(1);
+    IssueQuery query = IssueQuery.builder().pageSize(1).pageIndex(1).build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
@@ -142,10 +126,10 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
-    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
     assertThat(results.paging().offset()).isEqualTo(0);
     assertThat(results.paging().total()).isEqualTo(2);
     assertThat(results.paging().pages()).isEqualTo(2);
@@ -174,7 +158,7 @@ public class ServerIssueFinderTest {
     when(ruleFinder.findByIds(anyCollection())).thenReturn(newArrayList(rule));
 
     grantAccessRights();
-    IssueQuery issueQuery = mock(IssueQuery.class);
+    IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
@@ -185,10 +169,10 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
-    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(results.issues()).hasSize(2);
@@ -202,7 +186,7 @@ public class ServerIssueFinderTest {
     when(resourceDao.findByIds(anyCollection())).thenReturn(newArrayList(component));
 
     grantAccessRights();
-    IssueQuery issueQuery = mock(IssueQuery.class);
+    IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
@@ -213,11 +197,11 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
 
-    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(results.issues()).hasSize(2);
@@ -231,7 +215,7 @@ public class ServerIssueFinderTest {
     ActionPlanIssueDto actionPlanIssueDto2 = new ActionPlanIssueDto().setIssueId(2L).setKee("B").setName("Long term");
 
     grantAccessRights();
-    IssueQuery issueQuery = mock(IssueQuery.class);
+    IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123).setKey("ABC")
       .setComponentKey_unit_test_only("Action.java")
@@ -242,13 +226,13 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     when(actionPlanIssueDao.findByIssueIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(actionPlanIssueDto1, actionPlanIssueDto2));
 
 
-    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(results.issues()).hasSize(2);
@@ -258,12 +242,12 @@ public class ServerIssueFinderTest {
   @Test
   public void should_get_empty_result_when_no_issue() {
     grantAccessRights();
-    IssueQuery issueQuery = mock(IssueQuery.class);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(issueQuery), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
+    IssueQuery query = IssueQuery.builder().build();
+    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
 
 
-    IssueFinder.Results results = finder.find(issueQuery, null, UserRole.USER);
+    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
     assertThat(results.issues()).isEmpty();
     assertThat(results.rules()).isEmpty();
     assertThat(results.components()).isEmpty();

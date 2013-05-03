@@ -23,10 +23,10 @@ package org.sonar.api.issue;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.utils.Paging;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -62,10 +62,4 @@ public interface IssueFinder extends ServerComponent {
 
   @CheckForNull
   Issue findByKey(String key /* TODO @Nullable Integer currentUserId */);
-
-  /*
-  Map<RuleKey, Rule> rules(Collection<Issue> issues);
-
-  Map<String, Component> components(Collection<Issue> issues);
-*/
 }

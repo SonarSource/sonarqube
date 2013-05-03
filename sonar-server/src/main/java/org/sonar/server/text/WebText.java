@@ -26,12 +26,12 @@ import org.sonar.markdown.Markdown;
 
 import java.util.List;
 
-public class JRubyText implements ServerComponent {
+public class WebText implements ServerComponent {
 
   private final MacroInterpreter macroInterpreter;
   private final HtmlSourceDecorator sourceDecorator;
 
-  public JRubyText(MacroInterpreter macroInterpreter, HtmlSourceDecorator sourceDecorator) {
+  public WebText(MacroInterpreter macroInterpreter, HtmlSourceDecorator sourceDecorator) {
     this.macroInterpreter = macroInterpreter;
     this.sourceDecorator = sourceDecorator;
   }

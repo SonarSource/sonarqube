@@ -31,7 +31,7 @@ import java.util.Map;
  *
  * @since 3.6
  */
-public interface JRubyIssues extends ServerComponent {
+public interface WebIssues extends ServerComponent {
 
   /**
    * Search for issues.

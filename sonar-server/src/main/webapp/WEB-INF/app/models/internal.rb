@@ -27,15 +27,15 @@ class Internal
   end
 
   def self.issues_api
-    component(Java::OrgSonarApiIssue::JRubyIssues.java_class)
+    component(Java::OrgSonarApiIssue::WebIssues.java_class)
   end
 
   def self.text
-    component(Java::OrgSonarServerText::JRubyText.java_class)
+    component(Java::OrgSonarServerText::WebText.java_class)
   end
 
   def self.rules
-    component(Java::OrgSonarServerRule::JRubyRules.java_class)
+    component(Java::OrgSonarServerRule::WebRules.java_class)
   end
 
   private

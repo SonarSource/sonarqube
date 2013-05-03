@@ -28,11 +28,11 @@ import org.sonar.server.platform.UserSession;
 /**
  * Used through ruby code <pre>Internal.rules</pre>
  */
-public class JRubyRules implements ServerComponent, Startable {
+public class WebRules implements ServerComponent, Startable {
 
   private final RuleI18nManager i18n;
 
-  public JRubyRules(RuleI18nManager i18n) {
+  public WebRules(RuleI18nManager i18n) {
     this.i18n = i18n;
   }
 

@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.issue;
+package org.sonar.api.utils;
 
 /**
- * TODO move outside this package
  * @since 3.6
  */
 public class Paging {
@@ -30,20 +29,29 @@ public class Paging {
   private final int pageIndex;
   private final int total;
 
-  public Paging(int pageSize, int pageIndex, int total) {
+  private Paging(int pageSize, int pageIndex, int total) {
     this.pageSize = pageSize;
     this.pageIndex = pageIndex;
     this.total = total;
   }
 
+  /**
+   * Page index, starting with 1.
+   */
   public int pageIndex() {
     return pageIndex;
   }
 
+  /**
+   * Maximum number of items per page. It is greater than 0.
+   */
   public int pageSize() {
     return pageSize;
   }
 
+  /**
+   * Total number of items. It is greater than or equal 0.
+   */
   public int total() {
     return total;
   }
@@ -52,11 +60,27 @@ public class Paging {
     return (pageIndex - 1) * pageSize;
   }
 
+  /**
+   * Number of pages. It is greater than or equal 0.
+   */
   public int pages() {
     int p = (total / pageSize);
     if ((total % pageSize) > 0) {
       p++;
     }
     return p;
+  }
+
+  public static Paging create(int pageSize, int pageIndex, int totalItems) {
+    if (pageSize<1) {
+      throw new IllegalArgumentException("Page size must be strictly positive. Got " + pageSize);
+    }
+    if (pageIndex<1) {
+      throw new IllegalArgumentException("Page index must be strictly positive. Got " + pageIndex);
+    }
+    if (totalItems<0) {
+      throw new IllegalArgumentException("Total items must be positive. Got " + totalItems);
+    }
+    return new Paging(pageSize, pageIndex, totalItems);
   }
 }

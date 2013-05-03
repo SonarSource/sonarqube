@@ -25,11 +25,11 @@ import org.sonar.core.source.HtmlSourceDecorator;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class JRubyTextTest {
+public class WebTextTest {
 
   MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   HtmlSourceDecorator sourceDecorator = mock(HtmlSourceDecorator.class);
-  JRubyText text = new JRubyText(macroInterpreter, sourceDecorator);
+  WebText text = new WebText(macroInterpreter, sourceDecorator);
 
   @Test
   public void interpretMacros() throws Exception {

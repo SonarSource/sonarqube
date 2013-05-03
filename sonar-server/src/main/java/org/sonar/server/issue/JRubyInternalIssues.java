@@ -33,7 +33,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * All the issue features that are not published to public API
+ * All the issue features that are not published to public API.
+ * TODO to be renamed to WebIssuesInternal
  */
 public class JRubyInternalIssues implements ServerComponent {
 

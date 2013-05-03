@@ -26,7 +26,8 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.JRubyIssues;
+import org.sonar.api.issue.WebIssues;
+import org.sonar.api.issue.WebIssues;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
@@ -44,11 +45,11 @@ import java.util.Map;
  *
  * @since 3.6
  */
-public class JRubyApiIssues implements JRubyIssues {
+public class WebIssuesApi implements WebIssues {
 
   private final IssueFinder finder;
 
-  public JRubyApiIssues(IssueFinder f) {
+  public WebIssuesApi(IssueFinder f) {
     this.finder = f;
   }
 

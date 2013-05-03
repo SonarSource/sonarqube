@@ -157,7 +157,7 @@ public class IssueQuery {
   public static class Builder {
 
     private enum Sort {
-      created, updated, closed, assignee;
+      created, updated, closed, assignee
     }
 
     private static final int DEFAULT_PAGE_SIZE = 100;
@@ -265,15 +265,15 @@ public class IssueQuery {
     }
 
     public Builder pageSize(@Nullable Integer i) {
-      Preconditions.checkArgument(i == null || i.intValue() > 0, "Page size must be greater than 0 (got " + i + ")");
-      Preconditions.checkArgument(i == null || i.intValue() < MAX_PAGE_SIZE, "Page size must be less than " + MAX_PAGE_SIZE + " (got " + i + ")");
+      Preconditions.checkArgument(i == null || i > 0, "Page size must be greater than 0 (got " + i + ")");
+      Preconditions.checkArgument(i == null || i < MAX_PAGE_SIZE, "Page size must be less than " + MAX_PAGE_SIZE + " (got " + i + ")");
       this.pageSize = (i == null ? DEFAULT_PAGE_SIZE : i.intValue());
       return this;
     }
 
     public Builder pageIndex(@Nullable Integer i) {
-      Preconditions.checkArgument(i == null || i.intValue() > 0, "Page index must be greater than 0 (got " + i + ")");
-      this.pageIndex = (i == null ? DEFAULT_PAGE_INDEX : i.intValue());
+      Preconditions.checkArgument(i == null || i > 0, "Page index must be greater than 0 (got " + i + ")");
+      this.pageIndex = (i == null ? DEFAULT_PAGE_INDEX : i);
       return this;
     }
 

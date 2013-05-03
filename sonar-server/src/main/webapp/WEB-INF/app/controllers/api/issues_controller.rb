@@ -32,7 +32,8 @@ class Api::IssuesController < Api::ApiController
         {
             :securityExclusions => results.securityExclusions,
             :paging => paging_to_json(results.paging),
-            :issues => results.issues.map { |issue| issue_to_json(issue) }
+            :issues => results.issues.map { |issue| issue_to_json(issue) },
+            :rules => results.rules.map { |rule| rule_to_json(rule) }
         }
     )
   end
@@ -204,6 +205,15 @@ class Api::IssuesController < Api::ApiController
         :createdAt => format_java_datetime(comment.createdAt()),
         :login => comment.userLogin()
     }
+  end
+
+  def rule_to_json(rule)
+    l10n_name = Internal.rules.l10nRuleName(rule)
+    l10n_desc = Internal.rules.l10nRuleDescription(rule)
+    json = {:key => rule.getKey()}
+    json[:name] = l10n_name if l10n_name
+    json[:desc] = l10n_desc if l10n_desc
+    json
   end
 
   def paging_to_json(paging)

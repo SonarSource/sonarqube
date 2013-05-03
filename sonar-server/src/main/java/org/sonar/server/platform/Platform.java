@@ -77,11 +77,11 @@ import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitymodel.DefaultModelManager;
-import org.sonar.server.rule.JRubyRules;
+import org.sonar.server.rule.WebRules;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
-import org.sonar.server.text.JRubyText;
+import org.sonar.server.text.WebText;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ui.*;
 
@@ -245,15 +245,15 @@ public final class Platform {
     servicesContainer.addSingleton(IssueWorkflow.class);
     servicesContainer.addSingleton(ServerIssueActions.class);
     servicesContainer.addSingleton(ServerIssueFinder.class);
-    servicesContainer.addSingleton(JRubyApiIssues.class);
+    servicesContainer.addSingleton(WebIssuesApi.class);
     servicesContainer.addSingleton(JRubyInternalIssues.class);
 
     // rules
-    servicesContainer.addSingleton(JRubyRules.class);
+    servicesContainer.addSingleton(WebRules.class);
 
     // text
     servicesContainer.addSingleton(MacroInterpreter.class);
-    servicesContainer.addSingleton(JRubyText.class);
+    servicesContainer.addSingleton(WebText.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);
