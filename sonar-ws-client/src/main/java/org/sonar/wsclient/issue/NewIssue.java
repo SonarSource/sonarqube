@@ -74,7 +74,7 @@ public class NewIssue {
     return this;
   }
 
-  public NewIssue effortToFix(Double d) {
+  public NewIssue effortToFix(double d) {
     params.put("effortToFix", d);
     return this;
   }

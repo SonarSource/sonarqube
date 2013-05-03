@@ -19,13 +19,6 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.closeTo;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.doubleThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
@@ -35,6 +28,12 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 
 import java.util.Arrays;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.mockito.Matchers.doubleThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class UnitTestDecoratorTest {
 
@@ -49,17 +48,17 @@ public class UnitTestDecoratorTest {
 
   @Test
   public void generatesMetrics() {
-    assertThat(decorator.generatesMetrics().size(), is(5));
+    assertThat(decorator.generatesMetrics()).hasSize(5);
   }
 
   @Test
   public void doNotDecorateStaticAnalysis() {
     Project project = mock(Project.class);
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
-    assertThat(decorator.shouldExecuteOnProject(project), is(false));
+    assertThat(decorator.shouldExecuteOnProject(project)).isFalse();
 
     when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-    assertThat(decorator.shouldExecuteOnProject(project), is(true));
+    assertThat(decorator.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
@@ -92,7 +91,7 @@ public class UnitTestDecoratorTest {
 
     decorator.decorate(project, context);
 
-    assertThat(decorator.shouldDecorateResource(project, context), is(false));
+    assertThat(decorator.shouldDecorateResource(project, context)).isFalse();
     verify(context, atLeastOnce()).getMeasure(CoreMetrics.TESTS);
     verifyNoMoreInteractions(context);
   }

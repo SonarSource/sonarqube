@@ -19,15 +19,12 @@
  */
 package org.sonar.plugins.core;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
-import org.sonar.plugins.core.UserManagedMetrics;
 
 import java.util.List;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class UserManagedMetricsTest {
 
@@ -35,10 +32,10 @@ public class UserManagedMetricsTest {
   public void checkDefinitions() {
     UserManagedMetrics userManagedMetrics = new UserManagedMetrics();
     List<Metric> metrics = userManagedMetrics.getMetrics();
-    assertThat(metrics.size(), greaterThan(2));
+    assertThat(metrics.size()).isGreaterThan(2);
     for (Metric metric : metrics) {
-      assertThat(metric.getUserManaged(), is(true));
-      assertThat(metric.getDomain(), is("Management"));
+      assertThat(metric.getUserManaged()).isTrue();
+      assertThat(metric.getDomain()).isEqualTo("Management");
     }
   }
 }

@@ -40,17 +40,11 @@ import java.util.Arrays;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class GenerateAlertEventsTest {
   private GenerateAlertEvents decorator;
@@ -77,13 +71,13 @@ public class GenerateAlertEventsTest {
 
   @Test
   public void shouldNotDecorateIfNoThresholds() {
-    assertThat(decorator.shouldExecuteOnProject(project), is(false));
+    assertThat(decorator.shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
   public void shouldDecorateIfThresholds() {
     when(profile.getAlerts()).thenReturn(Arrays.asList(new Alert()));
-    assertThat(decorator.shouldExecuteOnProject(project), is(true));
+    assertThat(decorator.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
@@ -195,14 +189,14 @@ public class GenerateAlertEventsTest {
 
   private void verifyNotificationSent(String alertName, String alertText, String alertLevel, String isNewAlert) {
     Notification notification = new Notification("alerts")
-        .setDefaultMessage("Alert on " + project.getLongName() + ": " + alertName)
-        .setFieldValue("projectName", project.getLongName())
-        .setFieldValue("projectKey", project.getKey())
-        .setFieldValue("projectId", String.valueOf(project.getId()))
-        .setFieldValue("alertName", alertName)
-        .setFieldValue("alertText", alertText)
-        .setFieldValue("alertLevel", alertLevel)
-        .setFieldValue("isNewAlert", isNewAlert);
+      .setDefaultMessage("Alert on " + project.getLongName() + ": " + alertName)
+      .setFieldValue("projectName", project.getLongName())
+      .setFieldValue("projectKey", project.getKey())
+      .setFieldValue("projectId", String.valueOf(project.getId()))
+      .setFieldValue("alertName", alertName)
+      .setFieldValue("alertText", alertText)
+      .setFieldValue("alertLevel", alertLevel)
+      .setFieldValue("isNewAlert", isNewAlert);
     verify(notificationManager, times(1)).scheduleForSending(eq(notification));
   }
 }

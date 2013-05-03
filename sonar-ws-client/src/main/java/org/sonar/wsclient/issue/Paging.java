@@ -26,6 +26,7 @@ import java.util.Map;
 
 /**
  * @since 3.6
+ * TODO move outside this package
  */
 public class Paging {
 

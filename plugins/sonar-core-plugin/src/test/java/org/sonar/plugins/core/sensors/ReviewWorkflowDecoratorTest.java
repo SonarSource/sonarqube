@@ -20,7 +20,6 @@
 package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.Lists;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
@@ -38,15 +37,10 @@ import org.sonar.core.review.ReviewDto;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ReviewWorkflowDecoratorTest extends AbstractDaoTestCase {
   private ReviewWorkflowDecorator decorator;
@@ -68,14 +62,14 @@ public class ReviewWorkflowDecoratorTest extends AbstractDaoTestCase {
   public void shouldExecuteOnProject() {
     Project project = mock(Project.class);
     when(project.isLatestAnalysis()).thenReturn(true);
-    assertTrue(decorator.shouldExecuteOnProject(project));
+    assertThat(decorator.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
   public void shouldExecuteOnProject_not_if_past_inspection() {
     Project project = mock(Project.class);
     when(project.isLatestAnalysis()).thenReturn(false);
-    assertFalse(decorator.shouldExecuteOnProject(project));
+    assertThat(decorator.shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
@@ -88,7 +82,7 @@ public class ReviewWorkflowDecoratorTest extends AbstractDaoTestCase {
     decorator.decorate(resource, context);
 
     verify(notifications, times(2)).notifyClosed(any(ReviewDto.class), any(Project.class), eq(resource));
-    checkTables("shouldCloseReviewsOnResolvedViolations", new String[] {"updated_at"}, "reviews");
+    checkTables("shouldCloseReviewsOnResolvedViolations", new String[]{"updated_at"}, "reviews");
   }
 
   @Test
@@ -101,7 +95,7 @@ public class ReviewWorkflowDecoratorTest extends AbstractDaoTestCase {
     decorator.decorate(resource, context);
 
     verify(notifications).notifyClosed(any(ReviewDto.class), any(Project.class), eq(resource));
-    checkTables("shouldCloseResolvedManualViolations", new String[] {"updated_at"}, "reviews");
+    checkTables("shouldCloseResolvedManualViolations", new String[]{"updated_at"}, "reviews");
   }
 
   @Test
@@ -116,31 +110,32 @@ public class ReviewWorkflowDecoratorTest extends AbstractDaoTestCase {
     decorator.decorate(resource, context);
 
     verify(notifications).notifyReopened(any(ReviewDto.class), any(Project.class), eq(resource));
-    checkTables("shouldReopenViolations", new String[] {"updated_at"}, "reviews");
+    checkTables("shouldReopenViolations", new String[]{"updated_at"}, "reviews");
   }
 
   @Test
   public void hasUpToDateInformation() {
     assertThat(ReviewWorkflowDecorator.hasUpToDateInformation(
-        new ReviewDto().setTitle("Design").setLine(30),
-        new Violation(new Rule()).setMessage("Design").setLineId(30)),
-        Is.is(true));
+      new ReviewDto().setTitle("Design").setLine(30),
+      new Violation(new Rule()).setMessage("Design").setLineId(30)))
+      .isTrue();
+
 
     // different title
     assertThat(ReviewWorkflowDecorator.hasUpToDateInformation(
-        new ReviewDto().setTitle("Design").setLine(30),
-        new Violation(new Rule()).setMessage("Other").setLineId(30)),
-        Is.is(false));
+      new ReviewDto().setTitle("Design").setLine(30),
+      new Violation(new Rule()).setMessage("Other").setLineId(30))
+    ).isFalse();
 
     // different line
     assertThat(ReviewWorkflowDecorator.hasUpToDateInformation(
-        new ReviewDto().setTitle("Design").setLine(300),
-        new Violation(new Rule()).setMessage("Design").setLineId(200)),
-        Is.is(false));
+      new ReviewDto().setTitle("Design").setLine(300),
+      new Violation(new Rule()).setMessage("Design").setLineId(200)))
+      .isFalse();
 
     assertThat(ReviewWorkflowDecorator.hasUpToDateInformation(
-        new ReviewDto().setTitle("Design").setLine(300),
-        new Violation(new Rule()).setMessage("Design").setLineId(null)),
-        Is.is(false));
+      new ReviewDto().setTitle("Design").setLine(300),
+      new Violation(new Rule()).setMessage("Design").setLineId(null)))
+      .isFalse();
   }
 }

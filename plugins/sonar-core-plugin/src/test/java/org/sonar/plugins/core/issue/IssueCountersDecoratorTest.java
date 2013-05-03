@@ -23,10 +23,9 @@ package org.sonar.plugins.core.issue;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
@@ -329,7 +328,7 @@ public class IssueCountersDecoratorTest {
     return issues;
   }
 
-  private class IsVariationRuleMeasure extends BaseMatcher<Measure> {
+  private class IsVariationRuleMeasure extends ArgumentMatcher<Measure> {
     private Metric metric = null;
     private Rule rule = null;
     private Double var1 = null;
@@ -352,12 +351,9 @@ public class IssueCountersDecoratorTest {
         ObjectUtils.equals(var1, m.getVariation1()) &&
         ObjectUtils.equals(var2, m.getVariation2());
     }
-
-    public void describeTo(Description arg0) {
-    }
   }
 
-  private class IsVariationMeasure extends BaseMatcher<Measure> {
+  private class IsVariationMeasure extends ArgumentMatcher<Measure> {
     private Metric metric = null;
     private Double var1 = null;
     private Double var2 = null;
@@ -378,12 +374,9 @@ public class IssueCountersDecoratorTest {
         ObjectUtils.equals(var2, m.getVariation2()) &&
         !(m instanceof RuleMeasure);
     }
-
-    public void describeTo(Description o) {
-    }
   }
 
-  private class IsMetricMeasure extends BaseMatcher<Measure> {
+  private class IsMetricMeasure extends ArgumentMatcher<Measure> {
     private Metric metric = null;
 
     public IsMetricMeasure(Metric metric) {
@@ -396,9 +389,6 @@ public class IssueCountersDecoratorTest {
       }
       Measure m = (Measure) o;
       return ObjectUtils.equals(metric, m.getMetric());
-    }
-
-    public void describeTo(Description o) {
     }
   }
 }

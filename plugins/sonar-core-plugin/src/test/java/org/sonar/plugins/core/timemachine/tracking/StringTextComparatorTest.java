@@ -21,9 +21,8 @@ package org.sonar.plugins.core.timemachine.tracking;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class StringTextComparatorTest {
 
@@ -34,11 +33,11 @@ public class StringTextComparatorTest {
     StringText a = new StringText("abc\nabc\na bc");
     StringText b = new StringText("abc\nabc d\nab c");
 
-    assertThat("abc == abc", cmp.equals(a, 0, b, 0), is(true));
-    assertThat("abc != abc d", cmp.equals(a, 1, b, 1), is(false));
-    assertThat("a bc == ab c", cmp.equals(a, 2, b, 2), is(true));
-    assertThat(cmp.hash(a, 0), equalTo(cmp.hash(b, 0)));
-    assertThat(cmp.hash(a, 2), equalTo(cmp.hash(b, 2)));
+    assertThat(cmp.equals(a, 0, b, 0)).as("abc == abc").isTrue();
+    assertThat(cmp.equals(a, 1, b, 1)).as("abc != abc d").isFalse();
+    assertThat(cmp.equals(a, 2, b, 2)).as("a bc == ab c").isTrue();
+    assertThat(cmp.hash(a, 0)).isEqualTo(cmp.hash(b, 0));
+    assertThat(cmp.hash(a, 2)).isEqualTo(cmp.hash(b, 2));
   }
 
 }

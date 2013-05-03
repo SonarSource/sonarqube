@@ -23,13 +23,13 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RulePriority;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+
 
 public class SeverityUtilsTest {
   @Test
   public void shouldConvertToViolationMetric() {
-    assertThat(SeverityUtils.severityToViolationMetric(RulePriority.INFO), is(CoreMetrics.INFO_VIOLATIONS));
-    assertThat(SeverityUtils.severityToViolationMetric(RulePriority.BLOCKER), is(CoreMetrics.BLOCKER_VIOLATIONS));
+    assertThat(SeverityUtils.severityToViolationMetric(RulePriority.INFO)).isEqualTo(CoreMetrics.INFO_VIOLATIONS);
+    assertThat(SeverityUtils.severityToViolationMetric(RulePriority.BLOCKER)).isEqualTo(CoreMetrics.BLOCKER_VIOLATIONS);
   }
 }

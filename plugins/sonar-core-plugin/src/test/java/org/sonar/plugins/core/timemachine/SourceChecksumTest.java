@@ -19,21 +19,20 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 import java.util.List;
 
-import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class SourceChecksumTest {
   @Test
   public void shouldGetChecksumForLine() {
     List<String> checksums = SourceChecksum.lineChecksumsOfFile("line");
-    assertThat(SourceChecksum.getChecksumForLine(checksums, null), nullValue());
-    assertThat(SourceChecksum.getChecksumForLine(checksums, 0), nullValue());
-    assertThat(SourceChecksum.getChecksumForLine(checksums, 1), notNullValue());
-    assertThat(SourceChecksum.getChecksumForLine(checksums, 2), nullValue());
+    assertThat(SourceChecksum.getChecksumForLine(checksums, null)).isNull();
+    assertThat(SourceChecksum.getChecksumForLine(checksums, 0)).isNull();
+    assertThat(SourceChecksum.getChecksumForLine(checksums, 1)).isNotNull();
+    assertThat(SourceChecksum.getChecksumForLine(checksums, 2)).isNull();
   }
 
   /**
@@ -42,8 +41,8 @@ public class SourceChecksumTest {
   @Test
   public void shouldGenerateCorrectChecksums() {
     List<String> encoding = SourceChecksum.lineChecksumsOfFile("Привет Мир");
-    assertThat(encoding.size(), is(1));
-    assertThat(encoding.get(0), is("5ba3a45e1299ede07f56e5531351be52"));
+    assertThat(encoding).hasSize(1);
+    assertThat(encoding.get(0)).isEqualTo("5ba3a45e1299ede07f56e5531351be52");
   }
 
   @Test
@@ -51,12 +50,11 @@ public class SourceChecksumTest {
     List<String> crlf = SourceChecksum.lineChecksumsOfFile("Hello\r\nWorld");
     List<String> lf = SourceChecksum.lineChecksumsOfFile("Hello\nWorld");
     List<String> cr = SourceChecksum.lineChecksumsOfFile("Hello\rWorld");
-    assertThat(crlf.size(), is(2));
-    assertThat(crlf.get(0), not(equalTo(crlf.get(1))));
-    assertThat(lf, equalTo(crlf));
-    assertThat(cr, equalTo(crlf));
+    assertThat(crlf).hasSize(2);
+    assertThat(crlf.get(0)).isNotEqualTo(crlf.get(1));
+    assertThat(lf).isEqualTo(crlf);
+    assertThat(cr).isEqualTo(crlf);
 
-    assertThat(SourceChecksum.lineChecksum("\tvoid  method()  {\n"),
-        equalTo(SourceChecksum.lineChecksum("  void method() {")));
+    assertThat(SourceChecksum.lineChecksum("\tvoid  method()  {\n")).isEqualTo(SourceChecksum.lineChecksum("  void method() {"));
   }
 }
