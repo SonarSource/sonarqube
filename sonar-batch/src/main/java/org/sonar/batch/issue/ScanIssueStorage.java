@@ -26,22 +26,33 @@ import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceQuery;
 
 public class ScanIssueStorage extends IssueStorage implements BatchComponent {
 
   private final SnapshotCache snapshotCache;
+  private final ResourceDao resourceDao;
 
-  public ScanIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, SnapshotCache snapshotCache) {
+  public ScanIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, SnapshotCache snapshotCache, ResourceDao resourceDao) {
     super(mybatis, ruleFinder);
     this.snapshotCache = snapshotCache;
+    this.resourceDao = resourceDao;
   }
 
   @Override
   protected int componentId(DefaultIssue issue) {
     Snapshot snapshot = snapshotCache.get(issue.componentKey());
-    if (snapshot == null) {
-      throw new IllegalStateException("Component does not exist: " + issue.componentKey());
+    if (snapshot != null) {
+      return snapshot.getResourceId();
     }
-    return snapshot.getResourceId();
+
+    // Load from db when component does not exist in cache (deleted file for example)
+    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(issue.componentKey()));
+    if (resourceDto == null) {
+      throw new IllegalStateException("Unknown component: " + issue.componentKey());
+    }
+    return resourceDto.getId().intValue();
   }
 }
