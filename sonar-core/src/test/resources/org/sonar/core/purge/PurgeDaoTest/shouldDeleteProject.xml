@@ -21,7 +21,7 @@
 
   <action_plans_reviews action_plan_id="1" review_id="250" />
 
-  <action_plans_issues action_plan_id="1" issue_id="250" />
+  <action_plans_issues id="1" action_plan_id="1" issue_id="250" />
 
   <reviews id="1" project_id="1" resource_id="1" status="CLOSED"
         rule_failure_permanent_id="1" resolution="[null]" created_at="[null]" resource_line="200" severity="BLOCKER"
