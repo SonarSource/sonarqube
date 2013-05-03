@@ -67,16 +67,6 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void should_fail_on_empty_resolution() {
-    try {
-      issue.setResolution("");
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Resolution must be set");
-    }
-  }
-
-  @Test
   public void should_fail_on_bad_severity() {
     try {
       issue.setSeverity("FOO");

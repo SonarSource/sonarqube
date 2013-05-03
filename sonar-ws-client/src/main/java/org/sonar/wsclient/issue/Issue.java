@@ -21,6 +21,7 @@ package org.sonar.wsclient.issue;
 
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
+import javax.annotation.CheckForNull;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -55,10 +56,12 @@ public class Issue {
     return JsonUtils.getString(json, "severity");
   }
 
+  @CheckForNull
   public String description() {
     return JsonUtils.getString(json, "desc");
   }
 
+  @CheckForNull
   public Integer line() {
     return JsonUtils.getInteger(json, "line");
   }
@@ -68,6 +71,7 @@ public class Issue {
     return JsonUtils.getDouble(json, "effortToFix");
   }
 
+  @CheckForNull
   public Double effortToFix() {
     return JsonUtils.getDouble(json, "effortToFix");
   }
@@ -76,14 +80,26 @@ public class Issue {
     return JsonUtils.getString(json, "status");
   }
 
+  /**
+   * The resolution type. Null if the issue is not resolved.
+   */
+  @CheckForNull
   public String resolution() {
     return JsonUtils.getString(json, "resolution");
   }
 
+  /**
+   * Login of the user who created the manual issue, else null.
+   */
+  @CheckForNull
   public String userLogin() {
     return JsonUtils.getString(json, "userLogin");
   }
 
+  /**
+   * Login of assignee. Null if issue is not assigned.
+   */
+  @CheckForNull
   public String assignee() {
     return JsonUtils.getString(json, "assignee");
   }
@@ -96,10 +112,12 @@ public class Issue {
     return JsonUtils.getDateTime(json, "updateDate");
   }
 
+  @CheckForNull
   public Date closeDate() {
     return JsonUtils.getDateTime(json, "closeDate");
   }
 
+  @CheckForNull
   public String attribute(String key) {
     return attributes().get(key);
   }

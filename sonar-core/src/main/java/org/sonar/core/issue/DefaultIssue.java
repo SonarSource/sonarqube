@@ -160,12 +160,12 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public String resolution() {
     return resolution;
   }
 
-  public DefaultIssue setResolution(String s) {
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(s), "Resolution must be set");
+  public DefaultIssue setResolution(@Nullable String s) {
     this.resolution = s;
     return this;
   }

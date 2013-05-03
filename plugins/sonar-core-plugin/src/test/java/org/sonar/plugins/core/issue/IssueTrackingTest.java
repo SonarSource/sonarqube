@@ -380,7 +380,7 @@ public class IssueTrackingTest {
   }
 
   private DefaultIssue newDefaultIssue(String message, Integer line, RuleKey ruleKey, String checksum) {
-    return new DefaultIssue().setDescription(message).setLine(line).setRuleKey(ruleKey).setChecksum(checksum).setResolution(Issue.RESOLUTION_OPEN).setStatus(Issue.STATUS_OPEN);
+    return new DefaultIssue().setDescription(message).setLine(line).setRuleKey(ruleKey).setChecksum(checksum).setStatus(Issue.STATUS_OPEN);
   }
 
   private IssueDto newReferenceIssue(String message, Integer lineId, int ruleId, String lineChecksum) {
@@ -392,7 +392,7 @@ public class IssueTrackingTest {
     referenceIssue.setDescription(message);
     referenceIssue.setRuleId(ruleId);
     referenceIssue.setChecksum(lineChecksum);
-    referenceIssue.setResolution(Issue.RESOLUTION_OPEN);
+    referenceIssue.setResolution(null);
     referenceIssue.setStatus(Issue.STATUS_OPEN);
     return referenceIssue;
   }

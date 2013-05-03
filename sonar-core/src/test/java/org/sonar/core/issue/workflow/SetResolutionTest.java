@@ -19,16 +19,18 @@
  */
 package org.sonar.core.issue.workflow;
 
-import org.sonar.api.issue.Issue;
+import org.junit.Test;
 
-import javax.annotation.Nullable;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-interface Function {
-  interface Context {
-    Issue issue();
-    Context setResolution(@Nullable String s);
-    Context setCloseDate(boolean b);
+public class SetResolutionTest {
+  @Test
+  public void execute() throws Exception {
+    SetResolution function = new SetResolution("FIXED");
+    Function.Context context = mock(Function.Context.class);
+    function.execute(context);
+    verify(context, times(1)).setResolution("FIXED");
   }
-
-  void execute(Context context);
 }

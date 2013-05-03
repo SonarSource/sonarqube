@@ -55,7 +55,7 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.technicalUpdateDate()).isNotNull();
     assertThat(issue.assignee()).isNull();
     assertThat(issue.isNew()).isTrue();
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_OPEN);
+    assertThat(issue.resolution()).isNull();
     assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(issue.attribute("JIRA")).isEqualTo("FOO-123");
     assertThat(issue.attribute("YOUTRACK")).isEqualTo("YT-123");

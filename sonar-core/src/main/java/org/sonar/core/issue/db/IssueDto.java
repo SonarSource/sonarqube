@@ -27,6 +27,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.issue.DefaultIssue;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Date;
 
@@ -103,6 +104,7 @@ public final class IssueDto {
     return this;
   }
 
+  @CheckForNull
   public String getSeverity() {
     return severity;
   }
@@ -130,6 +132,7 @@ public final class IssueDto {
     return this;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
@@ -139,6 +142,7 @@ public final class IssueDto {
     return this;
   }
 
+  @CheckForNull
   public Integer getLine() {
     return line;
   }
@@ -148,6 +152,7 @@ public final class IssueDto {
     return this;
   }
 
+  @CheckForNull
   public Double getEffortToFix() {
     return effortToFix;
   }
@@ -166,6 +171,7 @@ public final class IssueDto {
     return this;
   }
 
+  @CheckForNull
   public String getResolution() {
     return resolution;
   }
@@ -175,15 +181,17 @@ public final class IssueDto {
     return this;
   }
 
+  @CheckForNull
   public String getChecksum() {
     return checksum;
   }
 
-  public IssueDto setChecksum(String checksum) {
+  public IssueDto setChecksum(@Nullable String checksum) {
     this.checksum = checksum;
     return this;
   }
 
+  @CheckForNull
   public String getUserLogin() {
     return userLogin;
   }

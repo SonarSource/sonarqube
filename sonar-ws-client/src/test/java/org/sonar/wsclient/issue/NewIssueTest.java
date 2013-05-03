@@ -43,7 +43,7 @@ public class NewIssueTest {
 
     assertThat(newIssue.urlParams()).hasSize(7).includes(
       entry("component", "Action.java"),
-      entry("cost", 4.2),
+      entry("effortToFix", 4.2),
       entry("desc", "the desc"),
       entry("line", 123),
       entry("rule", "squid:AvoidCycle"),

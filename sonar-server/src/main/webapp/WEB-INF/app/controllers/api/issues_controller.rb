@@ -181,9 +181,9 @@ class Api::IssuesController < Api::ApiController
         :key => issue.key,
         :component => issue.componentKey,
         :rule => issue.ruleKey.toString(),
-        :resolution => issue.resolution,
         :status => issue.status
     }
+    json[:resolution] = issue.resolution if issue.resolution
     json[:severity] = issue.severity if issue.severity
     json[:desc] = issue.description if issue.description
     json[:line] = issue.line.to_i if issue.line

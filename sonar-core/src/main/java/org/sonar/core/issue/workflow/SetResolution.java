@@ -19,14 +19,12 @@
  */
 package org.sonar.core.issue.workflow;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
+import javax.annotation.Nullable;
 
 public class SetResolution implements Function {
   private final String resolution;
 
-  public SetResolution(String resolution) {
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(resolution), "Resolution must be set");
+  public SetResolution(@Nullable String resolution) {
     this.resolution = resolution;
   }
 

@@ -39,7 +39,6 @@ public interface Issue extends Serializable {
   String STATUS_RESOLVED = "RESOLVED";
   String STATUS_CLOSED = "CLOSED";
 
-  String RESOLUTION_OPEN = "OPEN";
   String RESOLUTION_FIXED = "FIXED";
   String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
 
@@ -74,6 +73,10 @@ public interface Issue extends Serializable {
 
   String status();
 
+  /**
+   * The type of resolution. Return null if the issue is not resolved.
+   */
+  @CheckForNull
   String resolution();
 
   @CheckForNull
