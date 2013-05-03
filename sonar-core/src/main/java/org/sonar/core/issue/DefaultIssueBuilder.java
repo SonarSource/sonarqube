@@ -66,7 +66,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issuable.IssueBuilder line(Integer line) {
+  public Issuable.IssueBuilder line(@Nullable Integer line) {
     this.line = line;
     return this;
   }
@@ -84,7 +84,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issuable.IssueBuilder cost(Double cost) {
+  public Issuable.IssueBuilder cost(@Nullable Double cost) {
     this.cost = cost;
     return this;
   }

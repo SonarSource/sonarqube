@@ -310,8 +310,8 @@ public class DefaultIssue implements Issue {
     return authorLogin;
   }
 
-  public DefaultIssue setAuthorLogin(String authorLogin) {
-    this.authorLogin = authorLogin;
+  public DefaultIssue setAuthorLogin(@Nullable String s) {
+    this.authorLogin = s;
     return this;
   }
 
