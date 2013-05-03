@@ -47,7 +47,8 @@
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO issues (id, kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, cost, status,
-    resolution, checksum, user_login, assignee_login, author_login, attributes, created_at, updated_at, closed_at)
+    resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
+    issue_close_date, created_at, updated_at)
     VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{cost}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
