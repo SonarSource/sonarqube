@@ -19,37 +19,27 @@
  */
 package org.sonar.server.ui;
 
-import com.codahale.metrics.servlet.WebappMetricsFilter;
-
-import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
-
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jvm.BufferPoolMetricSet;
-
+import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
+import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.codahale.metrics.servlet.WebappMetricsFilter;
 import org.sonar.api.config.Settings;
-
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.HashMap;
-import java.util.Map;
+import org.sonar.server.platform.Platform;
 
 import javax.management.MBeanServer;
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.sonar.server.platform.Platform;
-
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.codahale.metrics.Timer.Context;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MonitoringFilter extends WebappMetricsFilter {
 
@@ -80,11 +70,16 @@ public class MonitoringFilter extends WebappMetricsFilter {
       return meterNamesByStatusCode;
   }
 
+  // for test purposes
+  boolean isJmxMonitoringActive() {
+    Settings settings
+      = Platform.getInstance().getContainer().getComponentByType(Settings.class);
+    return settings.getBoolean("sonar.jmx.monitoring");
+  }
+
+
   public void init(FilterConfig config) throws ServletException {
-    Settings settings = Platform.getInstance().getContainer()
-        .getComponentByType(Settings.class);
-    boolean jmxActive = settings.getBoolean("sonar.jmx.monitoring");
-    if (jmxActive) {
+    if (isJmxMonitoringActive()) {
       httpMetricsRegistry = new MetricRegistry();
       config.getServletContext().setAttribute(REGISTRY_ATTRIBUTE, httpMetricsRegistry);
       super.init(config);
@@ -93,17 +88,17 @@ public class MonitoringFilter extends WebappMetricsFilter {
       MetricRegistry jvmBufferPoolMetricsRegistry = new MetricRegistry();
       MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
       jvmBufferPoolMetricsRegistry.registerAll(new BufferPoolMetricSet(mBeanServer));
-	  JmxReporter.forRegistry(jvmBufferPoolMetricsRegistry).inDomain("sonar-jvm-buffer-pool").build().start();
-	  
-	  MetricRegistry jvmGcMetricsRegistry = new MetricRegistry();
+      JmxReporter.forRegistry(jvmBufferPoolMetricsRegistry).inDomain("sonar-jvm-buffer-pool").build().start();
+
+      MetricRegistry jvmGcMetricsRegistry = new MetricRegistry();
       jvmGcMetricsRegistry.registerAll(new GarbageCollectorMetricSet());
-	  JmxReporter.forRegistry(jvmGcMetricsRegistry).inDomain("sonar-jvm-gc").build().start();
-	  
-	  MetricRegistry jvmMemMetricsRegistry = new MetricRegistry();
+      JmxReporter.forRegistry(jvmGcMetricsRegistry).inDomain("sonar-jvm-gc").build().start();
+
+      MetricRegistry jvmMemMetricsRegistry = new MetricRegistry();
       jvmMemMetricsRegistry.registerAll(new MemoryUsageGaugeSet());
-	  JmxReporter.forRegistry(jvmMemMetricsRegistry).inDomain("sonar-jvm-mem").build().start();
-	  
-	  MetricRegistry jvmThreadMetricsRegistry = new MetricRegistry();
+      JmxReporter.forRegistry(jvmMemMetricsRegistry).inDomain("sonar-jvm-mem").build().start();
+
+      MetricRegistry jvmThreadMetricsRegistry = new MetricRegistry();
       jvmThreadMetricsRegistry.registerAll(new ThreadStatesGaugeSet());
       JmxReporter.forRegistry(jvmThreadMetricsRegistry).inDomain("sonar-jvm-thread").build().start();
     }

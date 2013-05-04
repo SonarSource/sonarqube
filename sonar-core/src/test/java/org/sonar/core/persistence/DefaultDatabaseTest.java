@@ -25,6 +25,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.dialect.Oracle;
 import org.sonar.core.persistence.dialect.PostgreSql;
 
+import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -198,5 +199,22 @@ public class DefaultDatabaseTest {
 
     assertThat(hibernateProps.getProperty("hibernate.hbm2ddl.auto")).isEqualTo("validate");
     assertThat(hibernateProps.getProperty("hibernate.default_schema")).isEqualTo("foo");
+  }
+
+  @Test
+  public void shouldEnableMonitoring() throws SQLException {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jmx.monitoring", "true");
+    settings.setProperty("sonar.jdbc.url", "jdbc:h2:mem:sonar");
+    settings.setProperty("sonar.jdbc.driverClassName", "org.h2.Driver");
+    settings.setProperty("sonar.jdbc.username", "sonar");
+    settings.setProperty("sonar.jdbc.password", "sonar");
+    settings.setProperty("sonar.jdbc.maxActive", "1");
+
+    DefaultDatabase db = new DefaultDatabase(settings);
+    db.start();
+    assertThat(db.getDataSource()).isInstanceOf(MonitoredDataSource.class);
+    assertThat(db.getDataSource().getConnection()).isNotNull();
+    db.stop();
   }
 }
