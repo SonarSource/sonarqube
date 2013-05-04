@@ -44,7 +44,7 @@ public class IssueQueryTest {
       .statuses("OPEN", "CLOSED")
       .severities("BLOCKER", "INFO")
       .userLogins("login1", "login2")
-      .sort("assignee")
+      .sort("ASSIGNEE")
       .asc(false)
       .pageSize(5)
       .pageIndex(4);
@@ -59,7 +59,7 @@ public class IssueQueryTest {
     assertThat(query.urlParams()).includes(entry("statuses", "OPEN,CLOSED"));
     assertThat(query.urlParams()).includes(entry("severities", "BLOCKER,INFO"));
     assertThat(query.urlParams()).includes(entry("userLogins", "login1,login2"));
-    assertThat(query.urlParams()).includes(entry("sort", "assignee"));
+    assertThat(query.urlParams()).includes(entry("sort", "ASSIGNEE"));
     assertThat(query.urlParams()).includes(entry("asc", false));
     assertThat(query.urlParams()).includes(entry("pageSize", 5));
     assertThat(query.urlParams()).includes(entry("pageIndex", 4));

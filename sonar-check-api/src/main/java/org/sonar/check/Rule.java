@@ -51,14 +51,6 @@ public @interface Rule {
    */
   Priority priority() default Priority.MAJOR;
 
-  /**
-   * Will probably be deprecated and replaced by tags
-   * 
-   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  @Deprecated
-  IsoCategory isoCategory() default IsoCategory.NONE;
-
   Cardinality cardinality() default Cardinality.SINGLE;
 
   /**
