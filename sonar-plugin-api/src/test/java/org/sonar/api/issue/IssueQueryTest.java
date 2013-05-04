@@ -46,7 +46,7 @@ public class IssueQueryTest {
       .assigned(true)
       .createdAfter(new Date())
       .createdBefore(new Date())
-      .sort("assignee")
+      .sort(IssueQuery.Sort.ASSIGNEE)
       .pageSize(10)
       .pageIndex(2)
       .build();
@@ -62,7 +62,7 @@ public class IssueQueryTest {
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();
-    assertThat(query.sort()).isEqualTo("assignee");
+    assertThat(query.sort()).isEqualTo(IssueQuery.Sort.ASSIGNEE);
     assertThat(query.pageSize()).isEqualTo(10);
     assertThat(query.pageIndex()).isEqualTo(2);
   }
@@ -104,14 +104,8 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void should_validate_sort() throws Exception {
-    try {
-      IssueQuery.builder()
-        .sort("INVALID SORT")
-        .build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Sort should contain only : [created, updated, closed, assignee]").isInstanceOf(IllegalArgumentException.class);
-    }
+  public void should_accept_null_sort() throws Exception {
+    IssueQuery query = IssueQuery.builder().sort(null).build();
+    assertThat(query.sort()).isNull();
   }
 }

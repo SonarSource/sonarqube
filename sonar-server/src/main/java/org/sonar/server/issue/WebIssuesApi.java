@@ -27,14 +27,12 @@ import com.google.common.primitives.Ints;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.WebIssues;
-import org.sonar.api.issue.WebIssues;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -78,6 +76,10 @@ public class WebIssuesApi implements WebIssues {
     builder.createdBefore(toDate(props.get("createdBefore")));
     builder.pageSize(toInteger(props.get("pageSize")));
     builder.pageIndex(toInteger(props.get("pageIndex")));
+    String sort = (String) props.get("sort");
+    if (sort != null) {
+      builder.sort(IssueQuery.Sort.valueOf(sort));
+    }
     return builder.build();
   }
 

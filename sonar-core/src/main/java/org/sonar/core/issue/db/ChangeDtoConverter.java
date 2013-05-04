@@ -29,6 +29,10 @@ import java.util.List;
 
 class ChangeDtoConverter {
 
+  private ChangeDtoConverter() {
+    // only static methods
+  }
+
   static final String TYPE_FIELD_CHANGE = "change";
   static final String TYPE_COMMENT = "comment";
 

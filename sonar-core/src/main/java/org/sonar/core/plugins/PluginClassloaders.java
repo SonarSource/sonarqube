@@ -119,7 +119,7 @@ public class PluginClassloaders {
       } else {
         parent = new ResourcesClassloader(resources, baseClassloader);
       }
-      final ClassRealm realm;
+      ClassRealm realm;
       if (plugin.isUseChildFirstClassLoader()) {
         ClassRealm parentRealm = world.newRealm(plugin.getKey() + "-parent", parent);
         realm = parentRealm.createChildRealm(plugin.getKey());

@@ -64,7 +64,9 @@ public class ServerIssueFinder implements IssueFinder {
   private final ResourceDao resourceDao;
   private final ActionPlanIssueDao actionPlanIssueDao;
 
-  public ServerIssueFinder(MyBatis myBatis, IssueDao issueDao, AuthorizationDao authorizationDao, DefaultRuleFinder ruleFinder, ResourceDao resourceDao, ActionPlanIssueDao actionPlanIssueDao) {
+  public ServerIssueFinder(MyBatis myBatis, IssueDao issueDao, AuthorizationDao authorizationDao,
+                           DefaultRuleFinder ruleFinder, ResourceDao resourceDao,
+                           ActionPlanIssueDao actionPlanIssueDao) {
     this.myBatis = myBatis;
     this.issueDao = issueDao;
     this.authorizationDao = authorizationDao;

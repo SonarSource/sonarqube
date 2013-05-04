@@ -173,8 +173,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_sort_by_assignee() {
     setupData("shared", "should_select_returned_sorted_result");
 
-    IssueQuery query = IssueQuery.builder().sort("assignee").asc(true).build();
-    List<IssueDto> results = newArrayList(dao.select(query));
+    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.ASSIGNEE).asc(true).build();
+      List < IssueDto > results = newArrayList(dao.select(query));
     assertThat(results).hasSize(3);
     assertThat(results.get(0).getAssignee()).isEqualTo("arthur");
     assertThat(results.get(1).getAssignee()).isEqualTo("henry");

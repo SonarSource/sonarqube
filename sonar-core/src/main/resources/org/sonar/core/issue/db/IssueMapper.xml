@@ -215,16 +215,16 @@
     <if test="sort != null">
       order by
       <choose>
-        <when test="'created'.equals(sort)">
+        <when test="'CREATION_DATE'.equals(sort.name())">
           i.issue_creation_date
         </when>
-        <when test="'updated'.equals(sort)">
+        <when test="'UPDATE_DATE'.equals(sort.name())">
           i.issue_update_date
         </when>
-        <when test="'closed'.equals(sort)">
+        <when test="'CLOSE_DATE'.equals(sort.name())">
           i.issue_close_date
         </when>
-        <when test="'assignee'.equals(sort)">
+        <when test="'ASSIGNEE'.equals(sort.name())">
           i.assignee_login
         </when>
       </choose>

@@ -45,7 +45,7 @@ public class HtmlSourceDecorator implements ServerComponent {
   }
 
   @VisibleForTesting
-  protected HtmlSourceDecorator(SnapshotSourceDao snapshotSourceDao, SnapshotDataDao snapshotDataDao) {
+  HtmlSourceDecorator(SnapshotSourceDao snapshotSourceDao, SnapshotDataDao snapshotDataDao) {
     this.snapshotSourceDao = snapshotSourceDao;
     this.snapshotDataDao= snapshotDataDao;
   }

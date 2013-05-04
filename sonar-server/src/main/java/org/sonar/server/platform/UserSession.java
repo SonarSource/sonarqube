@@ -28,7 +28,7 @@ import java.util.Locale;
 
 public class UserSession {
 
-  private static final ThreadLocal<UserSession> threadLocal = new ThreadLocal<UserSession>();
+  private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<UserSession>();
   private static final UserSession DEFAULT_ANONYMOUS = new UserSession(null, null, Locale.ENGLISH);
 
   private final Integer userId;
@@ -63,11 +63,11 @@ public class UserSession {
    * @return never null
    */
   public static UserSession get() {
-    return Objects.firstNonNull(threadLocal.get(), DEFAULT_ANONYMOUS);
+    return Objects.firstNonNull(THREAD_LOCAL.get(), DEFAULT_ANONYMOUS);
   }
 
   public static void set(@Nullable UserSession session) {
-    threadLocal.set(session);
+    THREAD_LOCAL.set(session);
   }
 
   public static void setSession(@Nullable Integer userId, @Nullable String login, @Nullable String localeRubyKey) {
@@ -75,11 +75,11 @@ public class UserSession {
   }
 
   public static void remove() {
-    threadLocal.remove();
+    THREAD_LOCAL.remove();
   }
 
   static boolean hasSession() {
-    return threadLocal.get() != null;
+    return THREAD_LOCAL.get() != null;
   }
 }
 

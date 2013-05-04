@@ -422,8 +422,8 @@ public final class Rule {
   /**
    * @since 3.6
    */
-  public Rule setCreatedAt(Date created_at) {
-    this.createdAt = created_at;
+  public Rule setCreatedAt(Date d) {
+    this.createdAt = d;
     return this;
   }
 

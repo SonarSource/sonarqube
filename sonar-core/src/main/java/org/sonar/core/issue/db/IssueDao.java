@@ -43,13 +43,6 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   private final MyBatis mybatis;
 
-  private static final Map<String, String> SORTS = ImmutableMap.of(
-    "created", "i.issue_creation_date",
-    "updated", "i.issue_update_date",
-    "closed", "i.issue_close_date",
-    "assignee", "i.assignee"
-  );
-
   public IssueDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }

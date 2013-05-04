@@ -25,8 +25,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.Nullable;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
@@ -36,6 +34,10 @@ import java.util.Date;
  * @since 3.6
  */
 public class IssueQuery {
+
+  public static enum Sort {
+    CREATION_DATE, UPDATE_DATE, CLOSE_DATE, ASSIGNEE
+  }
 
   private final Collection<String> issueKeys;
   private final Collection<String> severities;
@@ -49,7 +51,7 @@ public class IssueQuery {
   private final Boolean assigned;
   private final Date createdAfter;
   private final Date createdBefore;
-  private final String sort;
+  private final Sort sort;
   private final boolean asc;
 
   // max results per page
@@ -125,7 +127,7 @@ public class IssueQuery {
     return createdBefore;
   }
 
-  public String sort() {
+  public Sort sort() {
     return sort;
   }
 
@@ -156,10 +158,6 @@ public class IssueQuery {
    */
   public static class Builder {
 
-    private enum Sort {
-      created, updated, closed, assignee
-    }
-
     private static final int DEFAULT_PAGE_SIZE = 100;
     private static final int MAX_PAGE_SIZE = 1000;
     private static final int DEFAULT_PAGE_INDEX = 1;
@@ -176,7 +174,7 @@ public class IssueQuery {
     private Boolean assigned = null;
     private Date createdAfter;
     private Date createdBefore;
-    private String sort;
+    private Sort sort;
     private boolean asc = false;
     private int pageSize = DEFAULT_PAGE_SIZE;
     private int pageIndex = DEFAULT_PAGE_INDEX;
@@ -248,14 +246,8 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder sort(@Nullable String sort) {
-      if (sort != null) {
-        try {
-          this.sort = Sort.valueOf(sort).name();
-        } catch (IllegalArgumentException e){
-          throw new IllegalArgumentException("Sort should contain only : " + Arrays.toString(Sort.values()), e);
-        }
-      }
+    public Builder sort(@Nullable Sort sort) {
+      this.sort = sort;
       return this;
     }
 
