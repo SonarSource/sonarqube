@@ -238,6 +238,23 @@ function displayIssueChangeSeverityForm(issueKey) {
   return false;
 }
 
+// show the form to link a issue to an action plan
+function displayIssuePlanForm(issueKey) {
+  hideMoreIssueActions(issueKey);
+  new Ajax.Updater('issue-form' + issueKey,
+      baseUrl + '/issue/issue_plan_form/?issue=' + issueKey,
+      {
+        asynchronous:true,
+        evalScripts:true,
+        onComplete:function (request) {
+          $('issue-actions' + issueKey).remove();
+          $('issue-form' + issueKey).show();
+          $('issue-plan').focus();
+        }
+      });
+  return false;
+}
+
 // cancel action : hide form and refresh issue
 function cancelIssueAction(issueKey) {
   new Ajax.Updater(

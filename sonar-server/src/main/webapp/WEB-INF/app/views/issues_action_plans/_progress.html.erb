@@ -11,13 +11,13 @@
     if action_plan.resolvedIssues() > 0
       resolved_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"})
       percent_resolved = (action_plan.resolvedIssues()*100/action_plan.totalIssues()).to_i
-      tooltip_resolved = message('action_plans.resolved_reviews_x_percent', :params => [percent_resolved.to_s, action_plan.resolvedIssues().to_s])
+      tooltip_resolved = message('issues_action_plans.resolved_issues_x_percent', :params => [percent_resolved.to_s, action_plan.resolvedIssues().to_s])
     end
   
     if action_plan.openIssues() > 0
       open_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_OPEN},#{Review::STATUS_REOPENED}"})
       percent_open = (action_plan.openIssues()*100/action_plan.totalIssues()).to_i
-      tooltip_open = message('action_plans.open_reviews_x_percent', :params => [percent_open.to_s, action_plan.openIssues().to_s])
+      tooltip_open = message('issues_action_plans.open_issues_x_percent', :params => [percent_open.to_s, action_plan.openIssues().to_s])
     end
 %>
 
@@ -38,7 +38,7 @@
       </tr>
     </tbody>
   </table>
-  <div class="note"><%= message('action_plans.x_out_of_x_reviews_solved', :params => [resolved_reviews_link, total_reviews_link]) -%></div>
+  <div class="note"><%= message('issues_action_plans.x_out_of_x_issues_solved', :params => [resolved_reviews_link, total_reviews_link]) -%></div>
 </div>
 
 <% end %>

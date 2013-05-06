@@ -45,13 +45,11 @@
         &nbsp;
       <% end %>
       <%
-         # TODO
-         #if violation.review && violation.review.planned?
-        if false
+        if issue.actionPlanKey()
       %>
         <%= image_tag 'sep12.png' -%>
         &nbsp;
-        <%= message('reviews.planned_for_x', :params => h(violation.review.action_plan.name)) -%>
+        <%= message('issues.planned_for_x', :params => h(@issue_results.actionPlan(issue).name())) -%>
         &nbsp;
       <% end %>
 
@@ -87,6 +85,8 @@
             <ul style="display: none" class="dropdown-menu" id="more<%= issue.key -%>">
               <li><%= link_to_function message('issues.action.change_severity.button'), "displayIssueChangeSeverityForm('#{issue.key}')",
                                        :name => message('issues.action.change_severity.button') -%></li>
+              <li><%= link_to_function message('issues.action.plan.button'), "displayIssuePlanForm('#{issue.key}')",
+                                       :name => message('issues.action.plan.button') -%></li>
             </ul>
           </div>
         <% end %>

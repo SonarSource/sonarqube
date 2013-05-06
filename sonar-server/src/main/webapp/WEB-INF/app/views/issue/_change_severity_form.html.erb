@@ -1,7 +1,7 @@
 <form method="POST">
   <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
 
-  <%= message('issue.new_severity_label') -%>
+  <%= message('issues.new_severity_label') -%>
   <select name="severity" class="withIcons" id="severity">
     <% Severity::KEYS.each do |severity| %>
       <option class="sev_<%= severity -%>" value="<%= severity -%>" <%= 'selected' if severity==Severity::MAJOR -%>><%= message("severity.#{severity}") -%></option>

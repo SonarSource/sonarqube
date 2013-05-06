@@ -6,7 +6,7 @@
   <%= submit_to_remote "submit_btn",
                        message("issues.transition.#{@transition}.button"),
                        :url => {:action => 'transition'},
-                       :html => {:issue => "submit_btn"},
+                       :html => {:id => "submit_btn"},
                        :update => 'issue' -%>
   &nbsp;
   <%= link_to_remote message('cancel'), :url => {:controller => 'issue', :action => 'show', :key => params[:issue]}, :update => 'issue' -%>

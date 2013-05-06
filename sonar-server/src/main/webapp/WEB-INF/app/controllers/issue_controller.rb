@@ -105,6 +105,33 @@ class IssueController < ApplicationController
     render_issue_detail
   end
 
+  def plan_form
+    require_parameters :issue
+    init_issue(params[:issue])
+    init_resource
+    @action_plans =  Internal.issues.openActionPlans(@resource.key)
+
+    render :partial => 'issue/plan_form'
+  end
+
+  def plan
+    verify_post_request
+    require_parameters :issue, :plan
+
+    @issue = Internal.issues.plan(params[:issue], params[:plan])
+    init_issue(params[:issue])
+    render_issue_detail
+  end
+
+  def unplan
+    verify_post_request
+    require_parameters :issue
+
+    @issue = Internal.issues.plan(params[:issue], nil)
+    init_issue(params[:issue])
+    render_issue_detail
+  end
+
   #
   #
   # ACTIONS FROM ISSUES TAB OF CODE VIEWER
@@ -131,6 +158,7 @@ class IssueController < ApplicationController
     require_parameters :issue, :transition
 
     @issue = Internal.issues.doTransition(params[:issue], params[:transition])
+    init_issue(params[:issue])
     render_issue_code_viewer
   end
 
@@ -154,6 +182,7 @@ class IssueController < ApplicationController
     end
 
     @issue = Internal.issues.assign(params[:issue], assignee)
+    init_issue(params[:issue])
     render_issue_code_viewer
   end
 
@@ -169,6 +198,34 @@ class IssueController < ApplicationController
     require_parameters :issue, :severity
 
     @issue = Internal.issues.setSeverity(params[:issue], params[:severity])
+    init_issue(params[:issue])
+    render_issue_code_viewer
+  end
+
+  def issue_plan_form
+    require_parameters :issue
+    init_issue(params[:issue])
+    init_resource
+    @action_plans =  Internal.issues.openActionPlans(@resource.key)
+
+    render :partial => 'issue/code_viewer/plan_form'
+  end
+
+  def issue_plan
+    verify_post_request
+    require_parameters :issue, :plan
+
+    @issue = Internal.issues.plan(params[:issue], params[:plan])
+    init_issue(params[:issue])
+    render_issue_code_viewer
+  end
+
+  def issue_unplan
+    verify_post_request
+    require_parameters :issue
+
+    @issue = Internal.issues.plan(params[:issue], nil)
+    init_issue(params[:issue])
     render_issue_code_viewer
   end
 
@@ -176,8 +233,8 @@ class IssueController < ApplicationController
   protected
 
   def init_issue(issue_key)
-    @issue_result = find_issue(issue_key)
-    @issue = @issue_result.issues[0]
+    @issue_results = find_issue(issue_key)
+    @issue = @issue_results.issues[0]
   end
 
   def init_resource

@@ -34,10 +34,10 @@
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO issues (kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, effort_to_fix, status,
+    INSERT INTO issues (kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue, description, line, effort_to_fix, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{effortToFix}, #{status},
+    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{effortToFix}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
@@ -47,10 +47,10 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issues (id, kee, resource_id, rule_id, severity, manual_severity, manual_issue, description, line, effort_to_fix, status,
+    INSERT INTO issues (id, kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue, description, line, effort_to_fix, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{effortToFix}, #{status},
+    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{effortToFix}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
@@ -59,6 +59,7 @@
     update issues set
       resource_id=#{resourceId},
       rule_id=#{ruleId},
+      action_plan_key=#{actionPlanKey},
       severity=#{severity},
       manual_severity=#{manualSeverity},
       manual_issue=#{manualIssue},
