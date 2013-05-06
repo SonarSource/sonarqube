@@ -19,13 +19,10 @@
  */
 package org.sonar.core.issue.db;
 
-import com.google.common.collect.Lists;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueComment;
 
 import java.util.Date;
-import java.util.List;
 
 class ChangeDtoConverter {
 
@@ -35,17 +32,6 @@ class ChangeDtoConverter {
 
   static final String TYPE_FIELD_CHANGE = "change";
   static final String TYPE_COMMENT = "comment";
-
-  static List<IssueChangeDto> extractChangeDtos(DefaultIssue issue) {
-    List<IssueChangeDto> dtos = Lists.newArrayList();
-    for (IssueComment comment : issue.newComments()) {
-      dtos.add(commentToDto(issue.key(), comment));
-    }
-    if (issue.diffs() != null) {
-      dtos.add(changeToDto(issue.key(), issue.diffs()));
-    }
-    return dtos;
-  }
 
   static IssueChangeDto commentToDto(String issueKey, IssueComment comment) {
     IssueChangeDto dto = newDto(issueKey);
@@ -81,7 +67,8 @@ class ChangeDtoConverter {
       .setKey(dto.getKey())
       .setCreatedAt(dto.getCreatedAt())
       .setUpdatedAt(dto.getUpdatedAt())
-      .setUserLogin(dto.getUserLogin());
+      .setUserLogin(dto.getUserLogin())
+      .setNew(false);
   }
 
   public static FieldDiffs dtoToChange(IssueChangeDto dto) {

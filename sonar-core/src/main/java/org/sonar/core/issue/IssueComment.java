@@ -31,6 +31,7 @@ public class IssueComment implements Serializable {
   private Date createdAt, updatedAt;
   private String key;
   private String text;
+  private boolean isNew;
 
   public String text() {
     return text;
@@ -81,6 +82,15 @@ public class IssueComment implements Serializable {
     return this;
   }
 
+  public boolean isNew() {
+    return isNew;
+  }
+
+  public IssueComment setNew(boolean b) {
+    isNew = b;
+    return this;
+  }
+
   public static IssueComment create(@Nullable String login, String text) {
     IssueComment comment = new IssueComment();
     comment.setKey(UUID.randomUUID().toString());
@@ -88,6 +98,7 @@ public class IssueComment implements Serializable {
     comment.setUserLogin(login);
     comment.setText(text);
     comment.setCreatedAt(now).setUpdatedAt(now);
+    comment.setNew(true);
     return comment;
   }
 }

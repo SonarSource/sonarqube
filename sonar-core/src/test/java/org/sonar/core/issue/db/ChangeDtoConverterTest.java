@@ -60,19 +60,4 @@ public class ChangeDtoConverterTest {
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
     assertThat(dto.getUserLogin()).isEqualTo("emmerik");
   }
-
-  @Test
-  public void test_toChangeDtos() throws Exception {
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
-    IssueComment comment = IssueComment.create("emmerik", "the comment");
-    DefaultIssue issue = new DefaultIssue();
-    issue.setFieldDiff(context, "severity", "INFO", "BLOCKER");
-    issue.addComment(comment);
-
-    List<IssueChangeDto> changeDtos = ChangeDtoConverter.extractChangeDtos(issue);
-    assertThat(changeDtos).hasSize(2);
-    assertThat(changeDtos.get(0).getChangeType()).isEqualTo("comment");
-    assertThat(changeDtos.get(1).getChangeType()).isEqualTo("change");
-
-  }
 }

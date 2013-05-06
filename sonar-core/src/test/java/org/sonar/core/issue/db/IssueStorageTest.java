@@ -19,7 +19,6 @@
  */
 package org.sonar.core.issue.db;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;

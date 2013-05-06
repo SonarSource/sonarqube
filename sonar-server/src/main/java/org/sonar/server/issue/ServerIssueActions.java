@@ -123,7 +123,7 @@ public class ServerIssueActions implements ServerComponent {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     issueUpdater.addComment(issue, comment, context);
     issueStorage.save(issue);
-    return issue.newComments().get(0);
+    return issue.comments().get(0);
   }
 
   public IssueComment[] comments(String issueKey, UserSession userSession) {

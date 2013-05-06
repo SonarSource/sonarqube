@@ -25,6 +25,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueComment;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
@@ -57,7 +58,6 @@ public abstract class IssueStorage {
         int componentId = componentId(issue);
 
         IssueDto dto = IssueDto.toDto(issue, componentId, ruleId);
-        // TODO set technical created/updated dates
         if (issue.isNew()) {
           session.insert(MYBATIS_INSERT_ISSUE, dto);
         } else /* TODO if hasChanges */ {
@@ -67,14 +67,26 @@ public abstract class IssueStorage {
             conflicts.add(issue);
           }
         }
-        for (IssueChangeDto changeDto : ChangeDtoConverter.extractChangeDtos(issue)) {
-          session.insert(MYBATIS_INSERT_CHANGE, changeDto);
-        }
+        insertChanges(session, issue);
+
       }
       session.commit();
       // TODO log and fix conflicts
     } finally {
       MyBatis.closeQuietly(session);
+    }
+  }
+
+  private void insertChanges(SqlSession session, DefaultIssue issue) {
+    for (IssueComment comment : issue.comments()) {
+      if (comment.isNew()) {
+        IssueChangeDto changeDto = ChangeDtoConverter.commentToDto(issue.key(), comment);
+        session.insert(MYBATIS_INSERT_CHANGE, changeDto);
+      }
+    }
+    if (issue.diffs() != null) {
+      IssueChangeDto changeDto = ChangeDtoConverter.changeToDto(issue.key(), issue.diffs());
+      session.insert(MYBATIS_INSERT_CHANGE, changeDto);
     }
   }
 

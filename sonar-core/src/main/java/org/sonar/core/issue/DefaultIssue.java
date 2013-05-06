@@ -63,7 +63,7 @@ public class DefaultIssue implements Issue {
   private String authorLogin = null;
   private FieldDiffs diffs = null;
   private String actionPlanKey;
-  private List<IssueComment> newComments = null;
+  private List<IssueComment> comments = null;
 
   // functional dates
   private Date creationDate;
@@ -344,15 +344,15 @@ public class DefaultIssue implements Issue {
   }
 
   public DefaultIssue addComment(IssueComment comment) {
-    if (newComments == null) {
-      newComments = Lists.newArrayList();
+    if (comments == null) {
+      comments = Lists.newArrayList();
     }
-    newComments.add(comment);
+    comments.add(comment);
     return this;
   }
 
-  public List<IssueComment> newComments() {
-    return Objects.firstNonNull(newComments, Collections.<IssueComment>emptyList());
+  public List<IssueComment> comments() {
+    return Objects.firstNonNull(comments, Collections.<IssueComment>emptyList());
   }
 
   @Override
