@@ -81,8 +81,8 @@ import org.sonar.server.rule.WebRules;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
-import org.sonar.server.text.WebText;
 import org.sonar.server.text.MacroInterpreter;
+import org.sonar.server.text.WebText;
 import org.sonar.server.ui.*;
 
 import javax.servlet.ServletContext;
@@ -93,19 +93,31 @@ import javax.servlet.ServletContext;
 public final class Platform {
 
   private static final Platform INSTANCE = new Platform();
-
   private ComponentContainer rootContainer;// level 1 : only database connectors
   private ComponentContainer coreContainer;// level 2 : level 1 + core components
   private ComponentContainer servicesContainer;// level 3 : level 2 + plugin extensions + core components that depend on plugin extensions
-
   private boolean connected = false;
   private boolean started = false;
+
+  private Platform() {
+  }
 
   public static Platform getInstance() {
     return INSTANCE;
   }
 
-  private Platform() {
+  /**
+   * shortcut for ruby code
+   */
+  public static Server getServer() {
+    return (Server) getInstance().getComponent(Server.class);
+  }
+
+  /**
+   * Used by ruby code
+   */
+  public static <T> T component(Class<T> type) {
+    return getInstance().getContainer().getComponentByType(type);
   }
 
   public void init(ServletContext servletContext) {
@@ -245,6 +257,7 @@ public final class Platform {
     servicesContainer.addSingleton(IssueWorkflow.class);
     servicesContainer.addSingleton(ServerIssueActions.class);
     servicesContainer.addSingleton(ServerIssueFinder.class);
+    servicesContainer.addSingleton(ServerActionPlanStatsFinder.class);
     servicesContainer.addSingleton(WebIssuesApi.class);
     servicesContainer.addSingleton(WebIssuesInternal.class);
 
@@ -329,19 +342,5 @@ public final class Platform {
 
   public Object getComponent(Object key) {
     return getContainer().getComponentByKey(key);
-  }
-
-  /**
-   * shortcut for ruby code
-   */
-  public static Server getServer() {
-    return (Server) getInstance().getComponent(Server.class);
-  }
-
-  /**
-   * Used by ruby code
-   */
-  public static <T> T component(Class<T> type) {
-    return getInstance().getContainer().getComponentByType(type);
   }
 }

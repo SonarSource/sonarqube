@@ -22,10 +22,11 @@ package org.sonar.core.issue;
 
 import org.sonar.api.issue.ActionPlan;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
-public class DefaultActionPlan implements ActionPlan {
+public class ActionPlanStats implements Serializable {
 
   private String key;
   private String name;
@@ -35,13 +36,15 @@ public class DefaultActionPlan implements ActionPlan {
   private Date deadLine;
   private Date creationDate;
   private Date updateDate;
+  private int totalIssues;
+  private int openIssues;
 
-  private DefaultActionPlan(){
+  private ActionPlanStats() {
 
   }
 
-  public static DefaultActionPlan create(String name) {
-    DefaultActionPlan actionPlan = new DefaultActionPlan();
+  public static ActionPlanStats create(String name) {
+    ActionPlanStats actionPlan = new ActionPlanStats();
     actionPlan.setKey(UUID.randomUUID().toString());
     Date now = new Date();
     actionPlan.setName(name);
@@ -54,7 +57,7 @@ public class DefaultActionPlan implements ActionPlan {
     return key;
   }
 
-  public DefaultActionPlan setKey(String key) {
+  public ActionPlanStats setKey(String key) {
     this.key = key;
     return this;
   }
@@ -63,7 +66,7 @@ public class DefaultActionPlan implements ActionPlan {
     return name;
   }
 
-  public DefaultActionPlan setName(String name) {
+  public ActionPlanStats setName(String name) {
     this.name = name;
     return this;
   }
@@ -72,7 +75,7 @@ public class DefaultActionPlan implements ActionPlan {
     return description;
   }
 
-  public DefaultActionPlan setDescription(String description) {
+  public ActionPlanStats setDescription(String description) {
     this.description = description;
     return this;
   }
@@ -81,7 +84,7 @@ public class DefaultActionPlan implements ActionPlan {
     return userLogin;
   }
 
-  public DefaultActionPlan setUserLogin(String userLogin) {
+  public ActionPlanStats setUserLogin(String userLogin) {
     this.userLogin = userLogin;
     return this;
   }
@@ -90,7 +93,7 @@ public class DefaultActionPlan implements ActionPlan {
     return status;
   }
 
-  public DefaultActionPlan setStatus(String status) {
+  public ActionPlanStats setStatus(String status) {
     this.status = status;
     return this;
   }
@@ -99,7 +102,7 @@ public class DefaultActionPlan implements ActionPlan {
     return deadLine;
   }
 
-  public DefaultActionPlan setDeadLine(Date deadLine) {
+  public ActionPlanStats setDeadLine(Date deadLine) {
     this.deadLine = deadLine;
     return this;
   }
@@ -108,7 +111,7 @@ public class DefaultActionPlan implements ActionPlan {
     return creationDate;
   }
 
-  public DefaultActionPlan setCreationDate(Date creationDate) {
+  public ActionPlanStats setCreationDate(Date creationDate) {
     this.creationDate = creationDate;
     return this;
   }
@@ -117,8 +120,30 @@ public class DefaultActionPlan implements ActionPlan {
     return updateDate;
   }
 
-  public DefaultActionPlan setUpdateDate(Date updateDate) {
+  public ActionPlanStats setUpdateDate(Date updateDate) {
     this.updateDate = updateDate;
     return this;
+  }
+
+  public int totalIssues() {
+    return totalIssues;
+  }
+
+  public ActionPlanStats setTotalIssues(int totalIssues) {
+    this.totalIssues = totalIssues;
+    return this;
+  }
+
+  public int openIssues() {
+    return openIssues;
+  }
+
+  public ActionPlanStats setOpenIssues(int openIssues) {
+    this.openIssues = openIssues;
+    return this;
+  }
+
+  public boolean overDue(){
+    return status == ActionPlan.STATUS_OPEN && new Date().after(deadLine);
   }
 }

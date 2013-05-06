@@ -17,10 +17,11 @@
   </sql>
 
   <select id="findByIssueIds" parameterType="long" resultType="ActionPlanIssue">
-    select <include refid="actionPlanColumns"/>, api.issue_id as issueId
-    from action_plans_issues api left outer join action_plans ap on ap.id = api.action_plan_id
+    select <include refid="actionPlanColumns"/>, i.id as issueId
+    from action_plans ap
+    left outer join issues i on i.action_plan_id = ap.id
     <where>
-    <foreach collection="issueIds" open="api.issue_id in (" close=")" item="list" separator=") or api.issue_id in (" >
+    <foreach collection="issueIds" open="i.id in (" close=")" item="list" separator=") or i.id in (" >
       <foreach collection="list" item="element" separator=",">
         #{element}
       </foreach>

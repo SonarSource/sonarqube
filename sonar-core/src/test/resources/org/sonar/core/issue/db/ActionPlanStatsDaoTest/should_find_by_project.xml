@@ -3,14 +3,8 @@
   <action_plans id="1" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
                 user_login="igor" status="[null]" created_at="[null]" updated_at="[null]" />
 
-  <action_plans id="2" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
-                user_login="igor" status="[null]" created_at="[null]" updated_at="[null]" />
-
-  <action_plans id="3" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
-                user_login="igor" status="[null]" created_at="[null]" updated_at="[null]" />
-
   <issues
-      id="250"
+      id="100"
       kee="ABCDE"
       resource_id="400"
       rule_id="500"
@@ -19,7 +13,6 @@
       manual_issue="[false]"
       description="[null]"
       line="200"
-      effort_to_fix="4.2"
       status="OPEN"
       resolution="OPEN"
       checksum="XXX"
@@ -36,8 +29,8 @@
       />
 
   <issues
-      id="251"
-      kee="ABCDE"
+      id="101"
+      kee="ABCDF"
       resource_id="400"
       rule_id="500"
       severity="BLOCKER"
@@ -45,47 +38,19 @@
       manual_issue="[false]"
       description="[null]"
       line="200"
-      effort_to_fix="4.2"
-      status="OPEN"
-      resolution="OPEN"
+      status="CLOSED"
+      resolution="FIXED"
       checksum="XXX"
       user_login="arthur"
       assignee_login="perceval"
       author_login="[null]"
       attributes="JIRA=FOO-1234"
-      action_plan_id="2"
+      action_plan_id="1"
       issue_creation_date="2013-04-16"
       issue_update_date="2013-04-16"
       issue_close_date="2013-04-16"
       created_at="2013-04-16"
       updated_at="2013-04-16"
       />
-
-  <issues
-      id="252"
-      kee="ABCDE"
-      resource_id="400"
-      rule_id="500"
-      severity="BLOCKER"
-      manual_severity="[false]"
-      manual_issue="[false]"
-      description="[null]"
-      line="200"
-      effort_to_fix="4.2"
-      status="OPEN"
-      resolution="OPEN"
-      checksum="XXX"
-      user_login="arthur"
-      assignee_login="perceval"
-      author_login="[null]"
-      attributes="JIRA=FOO-1234"
-      action_plan_id="3"
-      issue_creation_date="2013-04-16"
-      issue_update_date="2013-04-16"
-      issue_close_date="2013-04-16"
-      created_at="2013-04-16"
-      updated_at="2013-04-16"
-      />
-
 
 </dataset>

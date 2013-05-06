@@ -42,7 +42,6 @@ public final class DatabaseUtils {
    */
   static final String[] TABLE_NAMES = {
     "action_plans",
-    "action_plans_issues",
     "action_plans_reviews",
     "active_dashboards",
     "active_rules",

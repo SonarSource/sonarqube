@@ -22,10 +22,7 @@ package org.sonar.server.issue;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueBuilder;
-import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.IssueComment;
+import org.sonar.core.issue.*;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
@@ -39,9 +36,11 @@ import java.util.Map;
 public class WebIssuesInternal implements ServerComponent {
 
   private final ServerIssueActions actions;
+  private final ServerActionPlanStatsFinder actionPlanStatsFinder;
 
-  public WebIssuesInternal(ServerIssueActions actions) {
+  public WebIssuesInternal(ServerIssueActions actions, ServerActionPlanStatsFinder actionPlanStatsFinder) {
     this.actions = actions;
+    this.actionPlanStatsFinder = actionPlanStatsFinder;
   }
 
   public List<Transition> listTransitions(String issueKey) {
@@ -89,4 +88,9 @@ public class WebIssuesInternal implements ServerComponent {
     Issue issue = builder.build();
     return actions.create((DefaultIssue) issue, UserSession.get());
   }
+
+  List<ActionPlanStats> actionPlanStats(String projectKey)  {
+    return actionPlanStatsFinder.find(projectKey);
+  }
+
 }

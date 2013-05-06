@@ -128,13 +128,6 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
-    profiler.start("deleteResourceActionPlansIssues (action_plans_issues)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceActionPlansIssues(resourceId);
-    }
-    session.commit();
-    profiler.stop();
-
     profiler.start("deleteResourceIssues (issues)");
     for (Long resourceId : resourceIds) {
       purgeMapper.deleteResourceIssues(resourceId);

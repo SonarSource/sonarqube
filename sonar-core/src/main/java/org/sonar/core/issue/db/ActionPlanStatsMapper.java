@@ -18,41 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.issue;
+package org.sonar.core.issue.db;
 
-import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.util.Collection;
 
 /**
  * @since 3.6
  */
-public interface ActionPlan extends Serializable {
-
-  String STATUS_OPEN = "OPEN";
-  String STATUS_CLOSED = "CLOSED";
+public interface ActionPlanStatsMapper {
 
   /**
-   * Unique generated key
+   * @since3.6
    */
-  String key();
-
-  String name();
-
-  @CheckForNull
-  String description();
-
-  @CheckForNull
-  String userLogin();
-
-  String status();
-
-  @CheckForNull
-  Date deadLine() ;
-
-  Date creationDate();
-
-  Date updateDate();
-
+  Collection<ActionPlanStatsDto> findByProjectId(@Param("projectId") Long projectId);
 }

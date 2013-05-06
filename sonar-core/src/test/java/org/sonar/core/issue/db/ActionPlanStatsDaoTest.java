@@ -18,41 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.issue;
+package org.sonar.core.issue.db;
 
-import javax.annotation.CheckForNull;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.util.Collection;
 
-/**
- * @since 3.6
- */
-public interface ActionPlan extends Serializable {
+import static org.fest.assertions.Assertions.assertThat;
 
-  String STATUS_OPEN = "OPEN";
-  String STATUS_CLOSED = "CLOSED";
+public class ActionPlanStatsDaoTest extends AbstractDaoTestCase {
 
-  /**
-   * Unique generated key
-   */
-  String key();
+  private ActionPlanStatsDao dao;
 
-  String name();
+  @Before
+  public void createDao() {
+    dao = new ActionPlanStatsDao(getMyBatis());
+  }
 
-  @CheckForNull
-  String description();
+  @Test
+  public void should_find_by_project() {
+    setupData("should_find_by_project");
 
-  @CheckForNull
-  String userLogin();
+    Collection<ActionPlanStatsDto> result = dao.findByProjectId(1l);
+//    assertThat(result).hasSize(1);
+    assertThat(result).isNotEmpty();
 
-  String status();
-
-  @CheckForNull
-  Date deadLine() ;
-
-  Date creationDate();
-
-  Date updateDate();
+    ActionPlanStatsDto actionPlanStatsDto = result.iterator().next();
+    assertThat(actionPlanStatsDto.getTotalIssues()).isEqualTo(2);
+    // TODO
+//    assertThat(actionPlanStatsDto.getOpenIssues()).isEqualTo(1);
+  }
 
 }

@@ -41,6 +41,7 @@ class CreateIssues < ActiveRecord::Migration
       t.column :assignee_login,       :string,    :null => true,	  :limit => 40
       t.column :author_login,         :string,    :null => true,    :limit => 100
       t.column :attributes,           :string,    :null => true,    :limit => 4000
+      t.column :action_plan_id,       :integer,   :null => true
 
       # functional dates
       t.column :issue_creation_date,  :datetime,  :null => true

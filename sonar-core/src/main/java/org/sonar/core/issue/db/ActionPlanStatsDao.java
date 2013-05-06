@@ -18,41 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.issue;
+package org.sonar.core.issue.db;
 
-import javax.annotation.CheckForNull;
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.MyBatis;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.util.Collection;
 
 /**
  * @since 3.6
  */
-public interface ActionPlan extends Serializable {
+public class ActionPlanStatsDao implements BatchComponent, ServerComponent {
 
-  String STATUS_OPEN = "OPEN";
-  String STATUS_CLOSED = "CLOSED";
+  private final MyBatis mybatis;
 
-  /**
-   * Unique generated key
-   */
-  String key();
+  public ActionPlanStatsDao(MyBatis mybatis) {
+    this.mybatis = mybatis;
+  }
 
-  String name();
-
-  @CheckForNull
-  String description();
-
-  @CheckForNull
-  String userLogin();
-
-  String status();
-
-  @CheckForNull
-  Date deadLine() ;
-
-  Date creationDate();
-
-  Date updateDate();
+  public Collection<ActionPlanStatsDto> findByProjectId(Long projectId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(ActionPlanStatsMapper.class).findByProjectId(projectId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
 
 }
