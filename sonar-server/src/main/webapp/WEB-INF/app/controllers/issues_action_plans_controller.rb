@@ -18,7 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-class ActionPlansController < ApplicationController
+class IssuesActionPlansController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
   before_filter :load_resource
@@ -29,13 +29,13 @@ class ActionPlansController < ApplicationController
   end
 
   def edit
-    @action_plan = ActionPlan.find params[:plan_id]
+    @action_plan = ActionPlan.find_by_key params[:plan_key]
     load_action_plans()
     render 'index'
   end
 
   def save
-    @action_plan = ActionPlan.find params[:plan_id] unless params[:plan_id].blank?
+    @action_plan = ActionPlan.find_by_key params[:plan_key] unless params[:plan_key].blank?
     unless @action_plan
       @action_plan = ActionPlan.new(
           :kee => Java::JavaUtil::UUID.randomUUID().toString(),
@@ -72,13 +72,13 @@ class ActionPlansController < ApplicationController
   end
 
   def delete
-    action_plan = ActionPlan.find params[:plan_id]
+    action_plan = ActionPlan.find_by_key params[:plan_key]
     action_plan.destroy
     redirect_to :action => 'index', :id => @resource.id
   end
 
   def change_status
-    action_plan = ActionPlan.find params[:plan_id]
+    action_plan = ActionPlan.find_by_key params[:plan_key]
     if action_plan
       action_plan.status = action_plan.open? ? ActionPlan::STATUS_CLOSED : ActionPlan::STATUS_OPEN
       action_plan.save
@@ -95,8 +95,10 @@ class ActionPlansController < ApplicationController
   end
   
   def load_action_plans
-    @open_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_OPEN, @resource.id], :include => 'reviews', :order => 'deadline ASC')
-    @closed_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_CLOSED, @resource.id], :include => 'reviews', :order => 'deadline DESC')
+    # TODO sort open by deadline ASC and closed by deadline DESC
+    action_plans = Internal.issues.actionPlanStats(@resource.key)
+    @open_action_plans = action_plans.select {|action_plan| action_plan.status == 'OPEN'}
+    @closed_action_plans = action_plans.select {|action_plan| action_plan.status == 'CLOSED'}
   end
 
 end

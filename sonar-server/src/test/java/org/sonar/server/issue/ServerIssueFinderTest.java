@@ -24,14 +24,11 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.component.Component;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueFinder;
-import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.*;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.ActionPlanIssueDao;
-import org.sonar.core.issue.db.ActionPlanIssueDto;
+import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.MyBatis;
@@ -60,8 +57,8 @@ public class ServerIssueFinderTest {
   AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   DefaultRuleFinder ruleFinder = mock(DefaultRuleFinder.class);
   ResourceDao resourceDao = mock(ResourceDao.class);
-  ActionPlanIssueDao actionPlanIssueDao = mock(ActionPlanIssueDao.class);
-  ServerIssueFinder finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao, ruleFinder, resourceDao, actionPlanIssueDao);
+  ActionPlanFinder actionPlanFinder = mock(ActionPlanFinder.class);
+  ServerIssueFinder finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao, ruleFinder, resourceDao, actionPlanFinder);
 
   @Test
   public void should_find_issues() {
@@ -211,17 +208,17 @@ public class ServerIssueFinderTest {
 
   @Test
   public void should_get_action_plans_from_result() {
-    ActionPlanIssueDto actionPlanIssueDto1 = new ActionPlanIssueDto().setIssueId(1L).setKee("A").setName("Short term");
-    ActionPlanIssueDto actionPlanIssueDto2 = new ActionPlanIssueDto().setIssueId(2L).setKee("B").setName("Long term");
+    ActionPlan actionPlan1 = DefaultActionPlan.create("Short term").setKey("A");
+    ActionPlan actionPlan2 = DefaultActionPlan.create("Long term").setKey("B");
 
     grantAccessRights();
     IssueQuery query = IssueQuery.builder().build();
 
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123).setKey("ABC")
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123).setKey("ABC").setActionPlanKey("A")
       .setComponentKey_unit_test_only("Action.java")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
-    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123).setKey("DEF")
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123).setKey("DEF").setActionPlanKey("B")
       .setComponentKey_unit_test_only("Action.java")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
@@ -229,14 +226,12 @@ public class ServerIssueFinderTest {
     when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
-    when(actionPlanIssueDao.findByIssueIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(actionPlanIssueDto1, actionPlanIssueDto2));
-
+    when(actionPlanFinder.findByKeys(anyCollection())).thenReturn(newArrayList(actionPlan1, actionPlan2));
 
     IssueFinder.Results results = finder.find(query, null, UserRole.USER);
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
-    assertThat(results.issues()).hasSize(2);
-    assertThat(results.actionPlans(issue)).hasSize(1);
+    assertThat(results.actionPlan(issue)).isNotNull();
   }
 
   @Test

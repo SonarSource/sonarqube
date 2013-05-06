@@ -27,4 +27,8 @@ class Api
     Internal.issues_api
   end
 
+  def self.to_date(java_date)
+    java_date ? Time.at(java_date.time/1000) : nil
+  end
+
 end

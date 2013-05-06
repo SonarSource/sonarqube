@@ -29,6 +29,7 @@ import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -40,6 +41,7 @@ public final class IssueDto {
   private String kee;
   private Integer resourceId;
   private Integer ruleId;
+  private String actionPlanKey;
   private String severity;
   private boolean manualSeverity;
   private boolean manualIssue;
@@ -101,6 +103,15 @@ public final class IssueDto {
 
   public IssueDto setRuleId(Integer ruleId) {
     this.ruleId = ruleId;
+    return this;
+  }
+
+  public String getActionPlanKey() {
+    return actionPlanKey;
+  }
+
+  public IssueDto setActionPlanKey(String actionPlanKey) {
+    this.actionPlanKey = actionPlanKey;
     return this;
   }
 
@@ -325,6 +336,7 @@ public final class IssueDto {
       .setAssignee(issue.assignee())
       .setRuleId(ruleId)
       .setResourceId(componentId)
+      .setActionPlanKey(issue.actionPlanKey())
       .setAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
       .setAuthorLogin(issue.authorLogin())
       .setCreatedAt(issue.technicalCreationDate())
@@ -350,6 +362,7 @@ public final class IssueDto {
     issue.setManual(manualIssue);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));
+    issue.setActionPlanKey(actionPlanKey);
     issue.setAuthorLogin(authorLogin);
     issue.setNew(false);
     issue.setTechnicalCreationDate(createdAt);

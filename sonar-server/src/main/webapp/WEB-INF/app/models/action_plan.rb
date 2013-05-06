@@ -35,6 +35,14 @@ class ActionPlan < ActiveRecord::Base
   def self.open_by_project_id(project_id)
     ActionPlan.find :all, :conditions => ['status=? AND project_id=?', STATUS_OPEN, project_id], :order => :name
   end
+
+  def self.find_by_key(key)
+    ActionPlan.first :conditions => ['kee=?', key]
+  end
+
+  def key
+    kee
+  end
   
   def user
     @user ||=
@@ -50,7 +58,7 @@ class ActionPlan < ActiveRecord::Base
   def open?
     status == STATUS_OPEN
   end
-  
+
   def progress
     total_reviews = reviews.size
     open_reviews = reviews.select{|r| r.open? || r.reopened?}.size
@@ -64,11 +72,11 @@ class ActionPlan < ActiveRecord::Base
   def open_reviews
     reviews.select {|r| r.open? || r.reopened?}
   end
-  
+
   def over_due?
     deadline ? status==STATUS_OPEN && deadline.past? : false
   end
-  
+
   private
   
   def unique_name_on_same_project

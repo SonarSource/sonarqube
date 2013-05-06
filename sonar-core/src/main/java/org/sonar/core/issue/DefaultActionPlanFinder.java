@@ -18,49 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.issue;
+package org.sonar.core.issue;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.utils.Paging;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.ActionPlanFinder;
+import org.sonar.core.issue.db.ActionPlanDao;
+import org.sonar.core.issue.db.ActionPlanDto;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
-import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Search for issues. This component can be used only by server-side extensions. Batch extensions should
- * use the perspective {@link Issuable}.
- *
  * @since 3.6
  */
-public interface IssueFinder extends ServerComponent {
+public class DefaultActionPlanFinder implements ActionPlanFinder {
 
-  interface Results {
-    List<Issue> issues();
+  private final ActionPlanDao actionPlanDao;
 
-    Rule rule(Issue issue);
-
-    Collection<Rule> rules();
-
-    Component component(Issue issue);
-
-    Collection<Component> components();
-
-    ActionPlan actionPlan(Issue issue);
-
-    Collection<ActionPlan> actionPlans();
-
-    Paging paging();
-
-    boolean securityExclusions();
+  public DefaultActionPlanFinder(ActionPlanDao actionPlanDao) {
+    this.actionPlanDao = actionPlanDao;
   }
 
-  Results find(IssueQuery query, @Nullable Integer currentUserId, String role);
-
-  @CheckForNull
-  Issue findByKey(String key /* TODO @Nullable Integer currentUserId */);
+  public Collection<ActionPlan> findByKeys(Collection<String> keys) {
+    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findByKeys(keys);
+    return newArrayList(Iterables.transform(actionPlanDtos, new Function<ActionPlanDto, ActionPlan>() {
+      @Override
+      public ActionPlan apply(@Nullable ActionPlanDto actionPlanDto) {
+        return actionPlanDto.toActionPlan();
+      }
+    }));
+  }
 }

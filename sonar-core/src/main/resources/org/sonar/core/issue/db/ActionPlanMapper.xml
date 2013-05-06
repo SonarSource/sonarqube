@@ -2,10 +2,11 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
 
-<mapper namespace="org.sonar.core.issue.db.ActionPlanIssueMapper">
+<mapper namespace="org.sonar.core.issue.db.ActionPlanMapper">
 
   <sql id="actionPlanColumns">
     ap.id,
+    ap.kee as kee,
     ap.name as name,
     ap.description as description,
     ap.user_login as userLogin,
@@ -16,12 +17,11 @@
     ap.updated_at as updatedAt
   </sql>
 
-  <select id="findByIssueIds" parameterType="long" resultType="ActionPlanIssue">
-    select <include refid="actionPlanColumns"/>, i.id as issueId
+  <select id="findByKeys" parameterType="long" resultType="ActionPlanIssue">
+    select <include refid="actionPlanColumns"/>
     from action_plans ap
-    left outer join issues i on i.action_plan_id = ap.id
     <where>
-    <foreach collection="issueIds" open="i.id in (" close=")" item="list" separator=") or i.id in (" >
+    <foreach collection="keys" open="ap.kee in (" close=")" item="list" separator=") or ap.kee in (" >
       <foreach collection="list" item="element" separator=",">
         #{element}
       </foreach>

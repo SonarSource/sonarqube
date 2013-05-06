@@ -20,7 +20,6 @@
 
 package org.sonar.core.issue.db;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
@@ -36,31 +35,30 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class ActionPlanIssueDao implements BatchComponent, ServerComponent {
+public class ActionPlanDao implements BatchComponent, ServerComponent {
 
   private final MyBatis mybatis;
 
-  public ActionPlanIssueDao(MyBatis mybatis) {
+  public ActionPlanDao(MyBatis mybatis) {
     this.mybatis = mybatis;
   }
 
-  public Collection<ActionPlanIssueDto> findByIssueIds(Collection<Long> issueIds, SqlSession session) {
-    if (issueIds.isEmpty()) {
+  public Collection<ActionPlanDto> findByKeys(Collection<String> keys, SqlSession session) {
+    if (keys.isEmpty()) {
       return Collections.emptyList();
     }
     try {
-      List<List<Long>> idsPartition = Lists.partition(newArrayList(issueIds), 1000);
-      return session.getMapper(ActionPlanIssueMapper.class).findByIssueIds(idsPartition);
+      List<List<String>> keysPartition = Lists.partition(newArrayList(keys), 1000);
+      return session.getMapper(ActionPlanMapper.class).findByKeys(keysPartition);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  @VisibleForTesting
-  Collection<ActionPlanIssueDto> findByIssueIds(Collection<Long> issueIds) {
+  public Collection<ActionPlanDto> findByKeys(Collection<String> keys) {
     SqlSession session = mybatis.openSession();
     try {
-      return findByIssueIds(issueIds, session);
+      return findByKeys(keys, session);
     } finally {
       MyBatis.closeQuietly(session);
     }

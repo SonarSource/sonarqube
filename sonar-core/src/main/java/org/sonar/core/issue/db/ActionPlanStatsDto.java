@@ -170,7 +170,6 @@ public class ActionPlanStatsDto {
       .setUpdateDate(updatedAt)
       .setTotalIssues(totalIssues)
       .setOpenIssues(openIssues);
-
   }
 
 }

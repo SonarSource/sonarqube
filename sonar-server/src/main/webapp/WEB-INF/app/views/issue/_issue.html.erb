@@ -73,13 +73,13 @@
         <%= message('created') -%>:
       </td>
       <td class="val">
-        <%= l(to_date(@issue.creationDate())) -%>
+        <%= l(Api.to_date(@issue.creationDate())) -%>
       </td>
       <td class="key">
         <%= message('updated') -%>:
       </td>
       <td class="val">
-        <%= l(to_date(@issue.updateDate())) if @issue.updateDate() -%>
+        <%= l(Api.to_date(@issue.updateDate())) if @issue.updateDate() -%>
       </td>
     </tr>
 

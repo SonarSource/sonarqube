@@ -18,32 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.issue.db;
+package org.sonar.api.issue;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.api.ServerComponent;
 
 import java.util.Collection;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.fest.assertions.Assertions.assertThat;
+/**
+ * @since 3.6
+ */
+public interface ActionPlanFinder extends ServerComponent {
 
-public class ActionPlanIssueDaoTest extends AbstractDaoTestCase {
+  Collection<ActionPlan> findByKeys(Collection<String> keys);
 
-  private ActionPlanIssueDao dao;
-
-  @Before
-  public void createDao() {
-    dao = new ActionPlanIssueDao(getMyBatis());
-  }
-
-  @Test
-  public void should_find_by_issue_ids() {
-    setupData("should_find_by_issue_ids");
-
-    Collection<ActionPlanIssueDto> result = dao.findByIssueIds(newArrayList(250l, 251l, 252l));
-    assertThat(result).hasSize(3);
-    assertThat(result.iterator().next().getIssueId()).isNotNull();
-  }
 }

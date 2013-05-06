@@ -16,7 +16,7 @@
              build_date="2008-12-02 13:58:00.00"
              version="[null]" path="[null]"/>
 
-  <action_plans id="1" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
+  <action_plans id="1" kee="ABCD" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
                 user_login="igor" status="[null]" created_at="[null]" updated_at="[null]" />
 
   <action_plans_reviews action_plan_id="1" review_id="250" />
@@ -32,7 +32,7 @@
   <review_comments id="1" created_at="[null]" updated_at="[null]" review_id="2" user_id="1223" review_text="abc"/>
 
   <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
-          user_login="perceval" assignee_login="arthur" rule_id="500" manual_issue="[true]" manual_severity="[false]" description="[null]" action_plan_id="[null]"
+          user_login="perceval" assignee_login="arthur" rule_id="500" manual_issue="[true]" manual_severity="[false]" description="[null]" action_plan_key="[null]"
           created_at="[null]"
           updated_at="[null]"
           issue_creation_date="2013-04-16"
@@ -41,7 +41,7 @@
       />
 
   <issues id="2" kee="ABCDF" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
-          user_login="perceval" assignee_login="arthur" rule_id="500" manual_issue="[true]" manual_severity="[false]" description="[null]" action_plan_id="[null]"
+          user_login="perceval" assignee_login="arthur" rule_id="500" manual_issue="[true]" manual_severity="[false]" description="[null]" action_plan_key="[null]"
           created_at="[null]"
           updated_at="[null]"
           issue_creation_date="2013-04-16"

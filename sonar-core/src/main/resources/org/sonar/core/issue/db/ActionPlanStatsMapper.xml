@@ -6,6 +6,7 @@
 
   <sql id="actionPlanColumns">
     ap.id as id,
+    ap.kee as kee,
     ap.name as name,
     ap.description as description,
     ap.user_login as userLogin,
@@ -19,8 +20,8 @@
   <select id="findByProjectId" parameterType="long" resultType="ActionPlanStats">
     select <include refid="actionPlanColumns"/>, count(total_issues.id) as totalIssues, count(open_issues.id) as openIssues
     from action_plans ap
-    left join issues total_issues on total_issues.action_plan_id = ap.id
-    left join issues open_issues on open_issues.action_plan_id = ap.id and open_issues.status != 'CLOSED'
+    left join issues total_issues on total_issues.action_plan_key = ap.kee
+    left join issues open_issues on open_issues.id = total_issues.id and open_issues.status != 'CLOSED'
     <where>
       and ap.project_id = #{projectId}
     </where>

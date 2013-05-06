@@ -122,7 +122,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Issue", IssueDto.class);
     loadAlias(conf, "IssueChange", IssueChangeDto.class);
     loadAlias(conf, "SnapshotData", SnapshotDataDto.class);
-    loadAlias(conf, "ActionPlanIssue", ActionPlanIssueDto.class);
+    loadAlias(conf, "ActionPlanIssue", ActionPlanDto.class);
     loadAlias(conf, "ActionPlanStats", ActionPlanStatsDto.class);
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
@@ -130,7 +130,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class, ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class,
       ResourceSnapshotMapper.class, ReviewCommentMapper.class, ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class,
       SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class, MeasureMapper.class, SnapshotDataMapper.class,
-      SnapshotSourceMapper.class, ActionPlanIssueMapper.class, ActionPlanStatsMapper.class
+      SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class
     };
     loadMappers(conf, mappers);
     loadMapper(conf, "org.sonar.core.issue.db.IssueMapper");

@@ -24,7 +24,7 @@ import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.graph.jdbc.GraphDao;
-import org.sonar.core.issue.db.ActionPlanIssueDao;
+import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.issue.db.ActionPlanStatsDao;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
@@ -53,7 +53,7 @@ public final class DaoUtils {
   @SuppressWarnings("unchecked")
   public static List<Class<?>> getDaoClasses() {
     return ImmutableList.of(
-      ActionPlanIssueDao.class,
+      ActionPlanDao.class,
       ActionPlanStatsDao.class,
       ActiveDashboardDao.class,
       AuthorDao.class,

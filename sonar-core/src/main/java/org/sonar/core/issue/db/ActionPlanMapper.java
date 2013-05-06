@@ -20,33 +20,18 @@
 
 package org.sonar.core.issue.db;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
+import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+/**
+ * @since 3.6
+ */
+public interface ActionPlanMapper {
 
-public class ActionPlanStatsDaoTest extends AbstractDaoTestCase {
-
-  private ActionPlanStatsDao dao;
-
-  @Before
-  public void createDao() {
-    dao = new ActionPlanStatsDao(getMyBatis());
-  }
-
-  @Test
-  public void should_find_by_project() {
-    setupData("should_find_by_project");
-
-    Collection<ActionPlanStatsDto> result = dao.findByProjectId(1l);
-    assertThat(result).isNotEmpty();
-
-    ActionPlanStatsDto actionPlanStatsDto = result.iterator().next();
-    assertThat(actionPlanStatsDto.getTotalIssues()).isEqualTo(2);
-    assertThat(actionPlanStatsDto.getOpenIssues()).isEqualTo(1);
-  }
-
+  /**
+   * @since3.6
+   */
+  Collection<ActionPlanDto> findByKeys(@Param("keys") List <List<String>> keys);
 }

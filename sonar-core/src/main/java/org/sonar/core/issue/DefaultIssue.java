@@ -28,7 +28,6 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -63,7 +62,7 @@ public class DefaultIssue implements Issue {
   private Map<String, String> attributes = null;
   private String authorLogin = null;
   private FieldDiffs diffs = null;
-  private List<ActionPlan> actionPlans = null;
+  private String actionPlanKey;
   private List<IssueComment> newComments = null;
 
   // functional dates
@@ -319,12 +318,12 @@ public class DefaultIssue implements Issue {
   }
 
   @CheckForNull
-  public List<ActionPlan> actionPlans() {
-    return actionPlans;
+  public String actionPlanKey() {
+    return actionPlanKey;
   }
 
-  public DefaultIssue setActionPlans(List<ActionPlan> actionPlans) {
-    this.actionPlans = actionPlans;
+  public DefaultIssue setActionPlanKey(String actionPlanKey) {
+    this.actionPlanKey = actionPlanKey;
     return this;
   }
 

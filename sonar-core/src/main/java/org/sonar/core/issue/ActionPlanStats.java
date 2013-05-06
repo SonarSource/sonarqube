@@ -143,6 +143,14 @@ public class ActionPlanStats implements Serializable {
     return this;
   }
 
+  public int resolvedIssues() {
+    return totalIssues - openIssues;
+  }
+
+  public boolean isOpen(){
+    return ActionPlan.STATUS_OPEN.equals(status);
+  }
+
   public boolean overDue(){
     return status == ActionPlan.STATUS_OPEN && new Date().after(deadLine);
   }

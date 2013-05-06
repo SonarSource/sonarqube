@@ -9,6 +9,7 @@
     i.kee as kee,
     i.resource_id as resourceId,
     i.rule_id as ruleId,
+    i.action_plan_key as actionPlanKey,
     i.severity as severity,
     i.manual_severity as manualSeverity,
     i.manual_issue as manualIssue,
@@ -132,7 +133,7 @@
       , projects project_component
     </if>
     <where>
-      p.id=i.resource_id and i.rule_id=r.id
+      i.resource_id=p.id and i.rule_id=r.id
       <if test="componentRoots != null and componentRoots.size() > 0">
         and rootprojects.enabled=${_true}
         and rootprojects.kee in

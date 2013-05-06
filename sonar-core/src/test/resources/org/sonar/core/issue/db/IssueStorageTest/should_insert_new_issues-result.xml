@@ -13,7 +13,7 @@
       updated_at="[null]"
       user_login="emmerik"
       attributes="foo=bar"
-      action_plan_id="[null]"
+      action_plan_key="[null]"
       issue_creation_date="2013-05-18"
       issue_update_date="2013-05-18"
       issue_close_date="2013-05-18"

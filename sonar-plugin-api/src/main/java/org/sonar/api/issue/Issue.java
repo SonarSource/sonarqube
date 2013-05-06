@@ -22,9 +22,9 @@ package org.sonar.api.issue;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
+
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -103,6 +103,6 @@ public interface Issue extends Serializable {
   String authorLogin();
 
   @CheckForNull
-  List<ActionPlan> actionPlans();
+  String actionPlanKey();
 
 }

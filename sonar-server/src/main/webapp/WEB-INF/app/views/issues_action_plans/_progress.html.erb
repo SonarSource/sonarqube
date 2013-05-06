@@ -1,0 +1,44 @@
+<%
+  unless action_plan.totalIssues()==0
+    # TODO add links to issues page
+    options = {:controller => 'project_reviews', :action => 'index', :action_plan_id => action_plan.id}
+  
+    resolved_reviews_link = action_plan.resolvedIssues().to_s
+    resolved_reviews_link = link_to action_plan.resolvedIssues().to_s, options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"}) unless action_plan.resolvedIssues()==0
+    total_reviews_link = link_to action_plan.totalIssues().to_s, options
+    total_reviews_link = action_plan.totalIssues().to_s
+
+    if action_plan.resolvedIssues() > 0
+      resolved_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"})
+      percent_resolved = (action_plan.resolvedIssues()*100/action_plan.totalIssues()).to_i
+      tooltip_resolved = message('action_plans.resolved_reviews_x_percent', :params => [percent_resolved.to_s, action_plan.resolvedIssues().to_s])
+    end
+  
+    if action_plan.openIssues() > 0
+      open_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_OPEN},#{Review::STATUS_REOPENED}"})
+      percent_open = (action_plan.openIssues()*100/action_plan.totalIssues()).to_i
+      tooltip_open = message('action_plans.open_reviews_x_percent', :params => [percent_open.to_s, action_plan.openIssues().to_s])
+    end
+%>
+
+<div class="progress">
+  <table>
+    <tbody>
+      <tr>
+        <% if action_plan.resolvedIssues() > 0 %>
+        <td class="resolved" style="width:<%= percent_resolved -%>%;">
+          <a href="#" title="<%= tooltip_resolved -%>" alt="<%= tooltip_resolved -%>"></a>
+        </td>
+        <% end %>
+        <% if action_plan.openIssues() > 0 %>
+        <td class="open" style="width:<%= percent_open -%>%;">
+          <a href="#" title="<%= tooltip_open -%>" alt="<%= tooltip_open -%>"></a>
+        </td>
+        <% end %>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note"><%= message('action_plans.x_out_of_x_reviews_solved', :params => [resolved_reviews_link, total_reviews_link]) -%></div>
+</div>
+
+<% end %>

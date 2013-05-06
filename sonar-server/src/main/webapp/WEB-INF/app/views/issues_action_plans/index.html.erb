@@ -1,0 +1,73 @@
+<table width="100%">
+  <tr>
+    <td valign="top">
+      
+      <h1><%= message('issues_action_plans.page_title') -%></h1>
+
+      <table class="width100 data sortable actionPlans" id="openActionPlans">
+        <thead>
+        <tr>
+          <th class="thin nowrap"><%= message('issues_action_plans.col.status') -%></th>
+          <th class="thin nowrap"><%= message('issues_action_plans.col.name') -%></th>
+          <th class="thin nowrap righticon sortfirstasc" style="text-align: right"><%= message('issues_action_plans.col.due_for') -%></th>
+          <th class="nowrap nosort center"><%= message('issues_action_plans.col.progress') -%></th>
+          <th class="nowrap"><%= message('issues_action_plans.col.description') -%></th>
+          <th class="nowrap"><%= message('issues_action_plans.col.author') -%></th>
+          <th class="thin nowrap nosort"><%= message('issues_action_plans.col.operations') -%></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% if @open_action_plans.empty? %>
+          <td colspan="7" class="even"><%= message('issues_action_plans.no_action_plan') -%></td>
+        <% end %>
+        <%
+           @open_action_plans.each do |plan|
+        %>
+          <tr>
+            <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message('issues_action_plans.status' + plan.status()) -%>"/></td>
+            <td class="thin nowrap"><%= h(plan.name()) -%></td>
+
+            <% deadline = Api.to_date(plan.deadLine()) if plan.deadLine() %>
+
+            <td class="thin nowrap <%= 'over-due' if plan.over_due? -%>" align="right" x="<%= deadline ? deadline.tv_sec : '' -%>"><%= deadline ? deadline.strftime("%d %b %Y") : ' '  -%></td>
+            <% if plan.totalIssues()==0 %>
+              <td class="noprogress thin nowrap">
+                <%= message('issues_action_plans.no_issues_linked_to_action_plan') -%>
+              </td>
+            <% else %>
+              <td class="progress thin">
+                <%= render :partial => 'progress', :locals => {:action_plan => plan} -%>
+              </td>
+            <% end %>
+            <td id="desc"><%= h(plan.description()) -%></td>
+            <% #TODO replace user login by user name -%>
+            <td id="desc"><%= h(plan.userLogin()) -%></td>
+            <td class="thin nowrap right">
+              <%= link_to message('edit'), {:action => 'edit', :id => @resource.id, :plan_key => plan.key()}, :class => 'link-action' -%>
+              &nbsp;
+              <%
+                 close_confirmation_message = {}
+                 if plan.isOpen() && plan.openIssues() > 0
+                   close_confirmation_message = {:confirm => message('issues_action_plans.confirm_close')}
+                 end
+              %>
+              <%= link_to message('issues_action_plans.close'),
+                          {:action => 'change_status', :id => @resource.id, :plan_key => plan.key()}, {:method => 'POST', :class => 'link-action'}.merge(close_confirmation_message) -%>
+              &nbsp;
+              <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_key => plan.key()}, {:method => 'POST', :confirm => message('issues_action_plans.confirm_delete'), :class => 'link-action link-red'} -%>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+      <script>TableKit.Sortable.init('openActionPlans');</script>
+
+    </td>
+    <td class="sep"></td>
+    <td width="210" valign="top" align="right">
+      <div id="admin_form">
+        <%= render :partial => 'new' %>
+      </div>
+    </td>
+  </tr>
+</table>

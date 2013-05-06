@@ -20,18 +20,29 @@
 
 package org.sonar.core.issue.db;
 
-import org.apache.ibatis.annotations.Param;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collection;
-import java.util.List;
 
-/**
- * @since 3.6
- */
-public interface ActionPlanIssueMapper {
+import static com.google.common.collect.Lists.newArrayList;
+import static org.fest.assertions.Assertions.assertThat;
 
-  /**
-   * @since3.6
-   */
-  Collection<ActionPlanIssueDto> findByIssueIds(@Param("issueIds") List <List<Long>> issueIds);
+public class ActionPlanDaoTest extends AbstractDaoTestCase {
+
+  private ActionPlanDao dao;
+
+  @Before
+  public void createDao() {
+    dao = new ActionPlanDao(getMyBatis());
+  }
+
+  @Test
+  public void should_find_by_keys() {
+    setupData("should_find_by_keys");
+
+    Collection<ActionPlanDto> result = dao.findByKeys(newArrayList("ABC", "ABD", "ABE"));
+    assertThat(result).hasSize(3);
+  }
 }

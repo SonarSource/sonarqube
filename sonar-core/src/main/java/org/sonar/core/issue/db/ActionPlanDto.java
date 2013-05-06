@@ -29,7 +29,7 @@ import java.util.Date;
 /**
  * @since 3.6
  */
-public class ActionPlanIssueDto {
+public class ActionPlanDto {
 
   private Integer id;
   private String kee;
@@ -41,22 +41,21 @@ public class ActionPlanIssueDto {
   private Date deadLine;
   private Date createdAt;
   private Date updatedAt;
-  private Long issueId;
 
   public Integer getId() {
     return id;
   }
 
-  public ActionPlanIssueDto setId(Integer id) {
+  public ActionPlanDto setId(Integer id) {
     this.id = id;
     return this;
   }
 
-  public String getKee() {
+  public String getKey() {
     return kee;
   }
 
-  public ActionPlanIssueDto setKee(String kee) {
+  public ActionPlanDto setKey(String kee) {
     this.kee = kee;
     return this;
   }
@@ -65,7 +64,7 @@ public class ActionPlanIssueDto {
     return name;
   }
 
-  public ActionPlanIssueDto setName(String name) {
+  public ActionPlanDto setName(String name) {
     this.name = name;
     return this;
   }
@@ -74,7 +73,7 @@ public class ActionPlanIssueDto {
     return description;
   }
 
-  public ActionPlanIssueDto setDescription(String description) {
+  public ActionPlanDto setDescription(String description) {
     this.description = description;
     return this;
   }
@@ -83,7 +82,7 @@ public class ActionPlanIssueDto {
     return userLogin;
   }
 
-  public ActionPlanIssueDto setUserLogin(String userLogin) {
+  public ActionPlanDto setUserLogin(String userLogin) {
     this.userLogin = userLogin;
     return this;
   }
@@ -92,7 +91,7 @@ public class ActionPlanIssueDto {
     return projectId;
   }
 
-  public ActionPlanIssueDto setProjectId(Integer projectId) {
+  public ActionPlanDto setProjectId(Integer projectId) {
     this.projectId = projectId;
     return this;
   }
@@ -101,7 +100,7 @@ public class ActionPlanIssueDto {
     return status;
   }
 
-  public ActionPlanIssueDto setStatus(String status) {
+  public ActionPlanDto setStatus(String status) {
     this.status = status;
     return this;
   }
@@ -110,7 +109,7 @@ public class ActionPlanIssueDto {
     return deadLine;
   }
 
-  public ActionPlanIssueDto setDeadLine(Date deadLine) {
+  public ActionPlanDto setDeadLine(Date deadLine) {
     this.deadLine = deadLine;
     return this;
   }
@@ -119,7 +118,7 @@ public class ActionPlanIssueDto {
     return createdAt;
   }
 
-  public ActionPlanIssueDto setCreatedAt(Date createdAt) {
+  public ActionPlanDto setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
     return this;
   }
@@ -128,17 +127,8 @@ public class ActionPlanIssueDto {
     return updatedAt;
   }
 
-  public ActionPlanIssueDto setUpdatedAt(Date updatedAt) {
+  public ActionPlanDto setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
-    return this;
-  }
-
-  public Long getIssueId() {
-    return issueId;
-  }
-
-  public ActionPlanIssueDto setIssueId(Long issueId) {
-    this.issueId = issueId;
     return this;
   }
 
@@ -151,8 +141,8 @@ public class ActionPlanIssueDto {
       return false;
     }
 
-    ActionPlanIssueDto actionPlanIssueDto = (ActionPlanIssueDto) o;
-    return !(id != null ? !id.equals(actionPlanIssueDto.id) : actionPlanIssueDto.id != null);
+    ActionPlanDto actionPlanDto = (ActionPlanDto) o;
+    return !(id != null ? !id.equals(actionPlanDto.id) : actionPlanDto.id != null);
   }
 
   @Override
