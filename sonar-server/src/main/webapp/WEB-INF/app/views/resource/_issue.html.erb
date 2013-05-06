@@ -17,7 +17,7 @@
       <%= image_tag 'sep12.png' -%>
       &nbsp;
 
-      <span><%= distance_of_time_in_words_to_now(to_date(issue.creationDate())) -%></span>
+      <span><%= distance_of_time_in_words_to_now(Api::Utils.to_date(issue.creationDate())) -%></span>
       &nbsp;
       <%
          if issue.resolution == 'FALSE-POSITIVE'

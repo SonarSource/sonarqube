@@ -33,6 +33,11 @@ class Api::Utils
     Time.parse(datetime_string)
   end
 
+  # Convert java Date to ruby date
+  def self.to_date(java_date)
+    java_date ? Time.at(java_date.time/1000) : nil
+  end
+
   def self.is_number?(s)
     true if Float(s) rescue false
   end
