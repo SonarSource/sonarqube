@@ -99,6 +99,7 @@ public class ServerIssueFinder implements IssueFinder {
 
           ruleIds.add(dto.getRuleId());
           componentIds.add(dto.getResourceId());
+          actionPlanKeys.add(dto.getActionPlanKey());
         }
       }
 

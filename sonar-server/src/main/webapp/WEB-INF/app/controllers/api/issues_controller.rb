@@ -33,7 +33,8 @@ class Api::IssuesController < Api::ApiController
             :securityExclusions => results.securityExclusions,
             :paging => paging_to_json(results.paging),
             :issues => results.issues.map { |issue| issue_to_json(issue) },
-            :rules => results.rules.map { |rule| rule_to_json(rule) }
+            :rules => results.rules.map { |rule| rule_to_json(rule) },
+            :actionPlans => results.actionPlans.map { |action_plan| action_plan_to_json(action_plan) }
         }
     )
   end
@@ -183,6 +184,7 @@ class Api::IssuesController < Api::ApiController
         :rule => issue.ruleKey.toString(),
         :status => issue.status
     }
+    json[:actionPlan] = issue.actionPlanKey if issue.actionPlanKey
     json[:resolution] = issue.resolution if issue.resolution
     json[:severity] = issue.severity if issue.severity
     json[:desc] = issue.description if issue.description
@@ -213,6 +215,16 @@ class Api::IssuesController < Api::ApiController
     json = {:key => rule.getKey()}
     json[:name] = l10n_name if l10n_name
     json[:desc] = l10n_desc if l10n_desc
+    json
+  end
+
+  def action_plan_to_json(action_plan)
+    json = {:key => action_plan.key(), :name => action_plan.name(), :status => action_plan.status()}
+    json[:desc] = action_plan.description() if action_plan.description() && !action_plan.description().blank?
+    json[:userLogin] = action_plan.userLogin() if action_plan.userLogin()
+    json[:deadLine] = format_java_datetime(action_plan.deadLine()) if action_plan.deadLine()
+    json[:creationDate] = format_java_datetime(action_plan.creationDate()) if action_plan.creationDate()
+    json[:updateDate] = format_java_datetime(action_plan.updateDate()) if action_plan.updateDate()
     json
   end
 

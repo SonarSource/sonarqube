@@ -197,13 +197,12 @@ public class ServerIssueFinderTest {
     when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
-
     IssueFinder.Results results = finder.find(query, null, UserRole.USER);
     assertThat(results.issues()).hasSize(2);
-    Issue issue = results.issues().iterator().next();
     assertThat(results.issues()).hasSize(2);
-    assertThat(results.component(issue)).isEqualTo(component);
     assertThat(results.components()).hasSize(1);
+    Issue issue = results.issues().iterator().next();
+    assertThat(results.component(issue)).isEqualTo(component);
   }
 
   @Test
@@ -225,11 +224,11 @@ public class ServerIssueFinderTest {
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
-
     when(actionPlanFinder.findByKeys(anyCollection())).thenReturn(newArrayList(actionPlan1, actionPlan2));
 
     IssueFinder.Results results = finder.find(query, null, UserRole.USER);
     assertThat(results.issues()).hasSize(2);
+    assertThat(results.actionPlans()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(results.actionPlan(issue)).isNotNull();
   }

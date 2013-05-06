@@ -82,12 +82,19 @@
         <%= l(Api::Utils.to_date(@issue.updateDate())) if @issue.updateDate() -%>
       </td>
     </tr>
-
-    <% # TODO action plan %>
-
-
+    <% if @issue.actionPlanKey() %>
+      <% action_plan = @issue_result.actionPlan(@issue) %>
+      <tr>
+        <td class="key">
+          <%= message('issues.planned_for_label') -%>:
+        </td>
+        <td class="val" colspan="3">
+          <%= h(action_plan.name()) -%>
+        </td>
+      </tr>
+    <% end %>
     <% if @issue.rule_key %>
-      <% rule_name = Internal.rules.ruleL10nName(@issue.rule_key) %>
+      <% rule_name = Internal.rules.ruleL10nName(@issue_result.rule(@issue)) %>
       <tr>
         <td class="key">
           <%= message('rule') -%>:

@@ -177,8 +177,8 @@ class IssueController < ApplicationController
   protected
 
   def init_issue(issue_key)
-    issue_result = find_issue(issue_key)
-    @issue = issue_result.issues[0]
+    @issue_result = find_issue(issue_key)
+    @issue = @issue_result.issues[0]
   end
 
   def init_resource
