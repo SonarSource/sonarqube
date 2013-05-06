@@ -111,6 +111,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // lang
       HighlightableBuilder.class,
+      org.sonar.batch.source.HighlightableBuilder.class,
       SymbolPerspectiveBuilder.class,
       SymbolizableBuilder.class);
   }

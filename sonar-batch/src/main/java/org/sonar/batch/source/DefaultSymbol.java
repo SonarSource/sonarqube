@@ -22,13 +22,15 @@ package org.sonar.batch.source;
 
 import org.sonar.api.source.Symbol;
 
+import javax.annotation.Nullable;
+
 public class DefaultSymbol implements Symbol {
 
   private final int declarationStartOffset;
   private final int declarationEndOffset;
   private final String fullyQualifiedName;
 
-  public DefaultSymbol(int startOffset, int endOffset, String fullyQualifiedName) {
+  public DefaultSymbol(int startOffset, int endOffset, @Nullable String fullyQualifiedName) {
     this.declarationStartOffset = startOffset;
     this.declarationEndOffset = endOffset;
     this.fullyQualifiedName = fullyQualifiedName;
