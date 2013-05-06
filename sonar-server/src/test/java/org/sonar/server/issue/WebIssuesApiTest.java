@@ -67,6 +67,7 @@ public class WebIssuesApiTest {
     map.put("userLogins", newArrayList("marilyn"));
     map.put("assignees", newArrayList("joanna"));
     map.put("assigned", true);
+    map.put("planned", true);
     map.put("createdAfter", "2013-04-16T09:08:24+0200");
     map.put("createdBefore", "2013-04-17T09:08:24+0200");
     map.put("rules", "squid:AvoidCycle,findbugs:NullReference");
@@ -83,6 +84,7 @@ public class WebIssuesApiTest {
     assertThat(query.userLogins()).containsOnly("marilyn");
     assertThat(query.assignees()).containsOnly("joanna");
     assertThat(query.assigned()).isTrue();
+    assertThat(query.planned()).isTrue();
     assertThat(query.rules()).hasSize(2);
     assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
     assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));

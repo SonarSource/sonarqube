@@ -79,7 +79,7 @@
                              :name => message("issues.transition.#{transition.key}.button"), :class => 'link-action spacer-right' -%>
         <% end %>
 
-        <% unless issue.resolution == 'FALSE-POSITIVE' && issue.status == 'RESOLVED' %>
+        <% unless issue.resolution && issue.status == 'RESOLVED' %>
           <div class="dropdown">
             <a href="#" class="link-action link-more" onclick="showDropdownMenu('more<%= issue.key -%>');return false;"><%= message('more_actions') -%></a>
             <ul style="display: none" class="dropdown-menu" id="more<%= issue.key -%>">

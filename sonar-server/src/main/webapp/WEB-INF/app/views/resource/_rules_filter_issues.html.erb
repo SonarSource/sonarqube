@@ -52,7 +52,10 @@
   <option value="unassigned_issues" <%= 'selected' if params[:rule]=="unassigned_issues" -%>>
     <%= message('issues_viewer.issue_filter.unassigned') -%>
   </option>
-  <!--TODO unplanned_issues -->
+  <option value="unplanned_issues" <%= 'selected' if params[:rule]=="unplanned_issues" -%>>
+    <%= message('issues_viewer.issue_filter.unplanned') -%>
+  </option>
+
 
   <optgroup label="<%= message('severity') -%>">
     <% if blocker_issues

@@ -33,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -72,6 +73,7 @@ public class WebIssuesApi implements WebIssues {
     builder.userLogins(toStrings(props.get("userLogins")));
     builder.assignees(toStrings(props.get("assignees")));
     builder.assigned(toBoolean(props.get("assigned")));
+    builder.planned(toBoolean(props.get("planned")));
     builder.createdAfter(toDate(props.get("createdAfter")));
     builder.createdBefore(toDate(props.get("createdBefore")));
     builder.pageSize(toInteger(props.get("pageSize")));

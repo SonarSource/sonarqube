@@ -413,6 +413,7 @@ class ResourceController < ApplicationController
     @filtered = !@expanded
     rule_param = params[:rule]
 
+    # TODO Display only status not closed and resolution not false-positive
     options = {'components' => @resource.key, 'statuses' => ['OPEN', 'REOPENED', 'RESOLVED']}
 
     if rule_param.blank? && params[:metric]
@@ -428,15 +429,12 @@ class ResourceController < ApplicationController
     if !rule_param.blank? && rule_param != 'all'
       if rule_param=='false_positive_issues'
         options['resolutions'] = 'FALSE-POSITIVE'
-        options['statuses'] = ['RESOLVED']
 
       elsif rule_param=='unassigned_issues'
         options['assigned'] = false
 
-      # TODO
-      #elsif rule_param=='unplanned_reviews'
-      #  options[:planned]=false
-      #
+      elsif rule_param=='unplanned_issues'
+        options['planned'] = false
 
       elsif Sonar::RulePriority.id(rule_param)
         options['severities'] = rule_param

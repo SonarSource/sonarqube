@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 
@@ -49,6 +50,7 @@ public class IssueQuery {
   private final Collection<String> userLogins;
   private final Collection<String> assignees;
   private final Boolean assigned;
+  private final Boolean planned;
   private final Date createdAfter;
   private final Date createdBefore;
   private final Sort sort;
@@ -71,6 +73,7 @@ public class IssueQuery {
     this.userLogins = builder.userLogins;
     this.assignees = builder.assignees;
     this.assigned = builder.assigned;
+    this.planned = builder.planned;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
@@ -117,6 +120,10 @@ public class IssueQuery {
 
   public Boolean assigned() {
     return assigned;
+  }
+
+  public Boolean planned() {
+    return planned;
   }
 
   public Date createdAfter() {
@@ -172,6 +179,7 @@ public class IssueQuery {
     private Collection<String> userLogins;
     private Collection<String> assignees;
     private Boolean assigned = null;
+    private Boolean planned = null;
     private Date createdAfter;
     private Date createdBefore;
     private Sort sort;
@@ -233,6 +241,15 @@ public class IssueQuery {
      */
     public Builder assigned(Boolean assigned) {
       this.assigned = assigned;
+      return this;
+    }
+
+    /**
+     * If true, it will return all issues linked to an action plan
+     * If false, it will return all issues not linked to an action plan
+     */
+    public Builder planned(Boolean planned) {
+      this.planned = planned;
       return this;
     }
 
