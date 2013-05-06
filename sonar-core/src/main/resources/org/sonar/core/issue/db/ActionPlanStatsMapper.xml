@@ -25,7 +25,7 @@
     <where>
       and ap.project_id = #{projectId}
     </where>
-    group by ap.id, ap.name, ap.description, ap.user_login, ap.project_id, ap.status, ap.deadline, ap.created_at, ap.updated_at
+    group by ap.id, ap.kee, ap.name, ap.description, ap.user_login, ap.project_id, ap.status, ap.deadline, ap.created_at, ap.updated_at
   </select>
 
 </mapper>
