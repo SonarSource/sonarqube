@@ -247,6 +247,7 @@ Treemap.prototype.initNodes = function () {
     modal: function () {
       return this.each(function () {
         var obj = $j(this);
+        obj.unbind('click');
         var $link = obj.bind('click', function () {
           var $dialog = $j('#modal');
           if (!$dialog.length) {
