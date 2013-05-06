@@ -134,7 +134,8 @@
             </Require-Bundle>
             <Export-Package>!.,org.sonar.wsclient,
               org.sonar.wsclient.connectors,
-              org.sonar.wsclient.services
+              org.sonar.wsclient.services,
+              org.sonar.wsclient.issue
             </Export-Package>
             <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
           </instructions>
