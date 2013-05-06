@@ -36,18 +36,14 @@ class IssueController < ApplicationController
     require_parameters :id
     init_issue(params[:id])
     init_resource
-
-    @transitions = Internal.issues.listTransitions(@issue.key)
+    @transitions = Internal.issues.listTransitions(@issue.key) if current_user
     render 'issue/_view'
   end
 
   def show
     require_parameters :key
     init_issue(params[:key])
-    init_resource
-
-    @transitions = Internal.issues.listTransitions(@issue.key)
-    render :partial => 'issue/view'
+    render_issue_detail
   end
 
   def transition_form
@@ -65,6 +61,7 @@ class IssueController < ApplicationController
     require_parameters :issue, :transition
 
     @issue = Internal.issues.doTransition(params[:issue], params[:transition])
+    init_issue(params[:issue])
     render_issue_detail
   end
 
@@ -88,6 +85,7 @@ class IssueController < ApplicationController
     end
 
     @issue = Internal.issues.assign(params[:issue], assignee)
+    init_issue(params[:issue])
     render_issue_detail
   end
 
@@ -103,6 +101,7 @@ class IssueController < ApplicationController
     require_parameters :issue, :severity
 
     @issue = Internal.issues.setSeverity(params[:issue], params[:severity])
+    init_issue(params[:issue])
     render_issue_detail
   end
 
@@ -189,7 +188,7 @@ class IssueController < ApplicationController
   def render_issue_detail
     if @issue
       init_resource
-      @transitions = Internal.issues.listTransitions(@issue.key)
+      @transitions = Internal.issues.listTransitions(@issue.key) if current_user
       render :partial => 'issue/view'
     else
       # TODO
@@ -199,7 +198,7 @@ class IssueController < ApplicationController
 
   def render_issue_code_viewer
     if @issue
-      @transitions = Internal.issues.listTransitions(@issue.key)
+      @transitions = Internal.issues.listTransitions(@issue.key) if current_user
       render :partial => 'resource/issue', :locals => {:issue => @issue}
     else
       # TODO
