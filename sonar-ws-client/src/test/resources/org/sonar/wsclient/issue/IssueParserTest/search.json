@@ -3,7 +3,7 @@
     {
       "key": "ABCDE",
       "component": "Action.java",
-      "rule": "squid:AvoidCycle",
+      "rule": "squid:CycleBetweenPackages",
       "severity": "CRITICAL",
       "line": 10,
       "resolution": "FIXED",
@@ -23,18 +23,31 @@
     {
       "key": "FGHIJ",
       "component": "Filter.java",
-      "rule": "squid:NullRef",
+      "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck",
       "severity": "BLOCKER",
       "resolution": "FIXED",
       "status": "OPEN"
     }
   ],
-  "paging":
+  "rules": [
     {
-      "pageIndex": 1,
-      "pageSize": 100,
-      "total": 2,
-      "pages": 1
+
+      "key": "squid:CycleBetweenPackages",
+      "name": "Avoid cycle between java packages",
+      "desc": "<p>\nWhen several packages are involved in a cycle (package A > package B > package C > package A where \">\" means \"depends upon\"),\nthat means that those packages are highly coupled and that there is no way to reuse/extract one of those packages without importing all the other packages.\nSuch cycle could quickly increase the effort required to maintain an application and to embrace business change.\nSonar not only detect cycles between packages but also determines what is the minimum effort to break those cycles.\nThis rule log a violation on each source file having an outgoing dependency to be but in order to break a cycle.\n</p>\n"
+
     },
+    {
+      "key": "checkstyle:com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck",
+      "name": "Unused Imports",
+      "desc": "Checks for unused import statements."
+    }
+  ],
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 2,
+    "pages": 1
+  },
   "securityExclusions": true
 }

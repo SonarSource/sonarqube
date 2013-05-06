@@ -37,7 +37,7 @@ public class IssueParserTest {
     Issue first = list.get(0);
     assertThat(first.key()).isEqualTo("ABCDE");
     assertThat(first.componentKey()).isEqualTo("Action.java");
-    assertThat(first.ruleKey()).isEqualTo("squid:AvoidCycle");
+    assertThat(first.ruleKey()).isEqualTo("squid:CycleBetweenPackages");
     assertThat(first.severity()).isEqualTo("CRITICAL");
     assertThat(first.line()).isEqualTo(10);
     assertThat(first.resolution()).isEqualTo("FIXED");
@@ -61,6 +61,11 @@ public class IssueParserTest {
     assertThat(second.attribute("JIRA")).isNull();
     assertThat(second.attributes()).isEmpty();
 
+    assertThat(issues.rules()).hasSize(2);
+    assertThat(issues.rule(first).key()).isEqualTo("squid:CycleBetweenPackages");
+    assertThat(issues.rule(first).name()).isEqualTo("Avoid cycle between java packages");
+    assertThat(issues.rule(first).description()).contains("When several packages");
+
     assertThat(issues.paging()).isNotNull();
     Paging paging = issues.paging();
     assertThat(paging.pageIndex()).isEqualTo(1);
@@ -70,6 +75,16 @@ public class IssueParserTest {
 
     assertThat(issues.securityExclusions()).isTrue();
   }
+
+  @Test
+  public void test_GET_empty_search() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/empty.json"));
+    Issues issues = new IssueParser().parseIssues(json);
+    assertThat(issues).isNotNull();
+    assertThat(issues.list()).isEmpty();
+    assertThat(issues.rules()).isEmpty();
+  }
+
 
   @Test
   public void test_GET_transitions() throws Exception {

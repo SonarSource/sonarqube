@@ -20,6 +20,7 @@
 package org.sonar.wsclient.issue;
 
 import org.json.simple.JSONValue;
+import org.sonar.wsclient.rule.Rule;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import java.util.ArrayList;
@@ -30,15 +31,24 @@ class IssueParser {
 
   Issues parseIssues(String json) {
     Issues result = new Issues();
-    Map jRoot = (Map) JSONValue.parse(json);
-    List<Map> jIssues = (List) jRoot.get("issues");
-    for (Map jIssue : jIssues) {
-      result.add(new Issue(jIssue));
+    Map jsonRoot = (Map) JSONValue.parse(json);
+    List<Map> jsonIssues = (List) jsonRoot.get("issues");
+    if (jsonIssues != null) {
+      for (Map jsonIssue : jsonIssues) {
+        result.add(new Issue(jsonIssue));
+      }
     }
-    Map paging = (Map) jRoot.get("paging");
-    result.setPaging(new Paging(paging));
 
-    result.setSecurityExclusions(JsonUtils.getBoolean(jRoot, "securityExclusions"));
+    List<Map> jsonRules = (List) jsonRoot.get("rules");
+    if (jsonRules != null) {
+      for (Map jsonRule : jsonRules) {
+        result.add(new Rule(jsonRule));
+      }
+    }
+
+    Map paging = (Map) jsonRoot.get("paging");
+    result.setPaging(new Paging(paging));
+    result.setSecurityExclusions(JsonUtils.getBoolean(jsonRoot, "securityExclusions"));
     return result;
   }
 

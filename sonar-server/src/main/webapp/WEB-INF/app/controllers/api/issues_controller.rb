@@ -212,7 +212,7 @@ class Api::IssuesController < Api::ApiController
   def rule_to_json(rule)
     l10n_name = Internal.rules.ruleL10nName(rule)
     l10n_desc = Internal.rules.ruleL10nDescription(rule)
-    json = {:key => rule.getKey()}
+    json = {:key => rule.ruleKey().toString()}
     json[:name] = l10n_name if l10n_name
     json[:desc] = l10n_desc if l10n_desc
     json

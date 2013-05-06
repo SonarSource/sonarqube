@@ -19,8 +19,9 @@
  */
 package org.sonar.wsclient.issue;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.sonar.wsclient.rule.Rule;
+
+import java.util.*;
 
 /**
  * @since 3.6
@@ -28,6 +29,7 @@ import java.util.List;
 public class Issues {
 
   private final List<Issue> list = new ArrayList<Issue>();
+  private final Map<String,Rule> rulesByKey = new HashMap<String, Rule>();
   private Paging paging;
   private Boolean securityExclusions;
 
@@ -35,8 +37,22 @@ public class Issues {
     list.add(issue);
     return this;
   }
+
   public List<Issue> list() {
     return list;
+  }
+
+  Issues add(Rule rule) {
+    rulesByKey.put(rule.key(), rule);
+    return this;
+  }
+
+  public Collection<Rule> rules() {
+    return rulesByKey.values();
+  }
+
+  public Rule rule(Issue issue) {
+    return rulesByKey.get(issue.ruleKey());
   }
 
   Issues setPaging(Paging paging) {
