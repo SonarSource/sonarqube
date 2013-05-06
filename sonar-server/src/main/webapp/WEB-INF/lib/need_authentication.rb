@@ -180,8 +180,12 @@ class RealmFactory
   def self.realm
     if @@realm.nil?
       realm_factory = Api::Utils.java_facade.getCoreComponentByClassname('org.sonar.server.ui.SecurityRealmFactory')
-      component = realm_factory.getRealm()
-      @@realm = component ? PluginRealm.new(component) : DefaultRealm.new
+      if realm_factory
+        component = realm_factory.getRealm()
+        @@realm = component ? PluginRealm.new(component) : DefaultRealm.new
+      else
+        # SecurityRealmFactory is not yet available in pico, for example during db upgrade
+      end
     end
     @@realm
   end
@@ -213,11 +217,11 @@ module NeedAuthentication
           login = login.downcase
         end
 
-        RealmFactory.realm.authenticate?(login, password, servlet_request)
+        RealmFactory.realm.authenticate?(login, password, servlet_request) if RealmFactory.realm
       end
 
       def editable_password?
-        RealmFactory.realm.editable_password?
+        RealmFactory.realm && RealmFactory.realm.editable_password?
       end
     end
   end
