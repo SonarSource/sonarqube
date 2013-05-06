@@ -33,6 +33,7 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -90,6 +91,17 @@ public class ServerIssueActions implements ServerComponent {
     // TODO check that assignee exists
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.assign(issue, assigneeLogin, context)) {
+      issueStorage.save(issue);
+    }
+    return issue;
+  }
+
+  public Issue plan(String issueKey, @Nullable String actionPlanKey, UserSession userSession) {
+    DefaultIssue issue = loadIssue(issueKey, userSession);
+
+    // TODO check that action plan exists
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+    if (issueUpdater.plan(issue, actionPlanKey, context)) {
       issueStorage.save(issue);
     }
     return issue;

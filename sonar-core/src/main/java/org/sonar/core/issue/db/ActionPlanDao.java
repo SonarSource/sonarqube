@@ -43,22 +43,23 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public Collection<ActionPlanDto> findByKeys(Collection<String> keys, SqlSession session) {
-    if (keys.isEmpty()) {
-      return Collections.emptyList();
-    }
+  public Collection<ActionPlanDto> findOpenByProjectId(Long projectId) {
+    SqlSession session = mybatis.openSession();
     try {
-      List<List<String>> keysPartition = Lists.partition(newArrayList(keys), 1000);
-      return session.getMapper(ActionPlanMapper.class).findByKeys(keysPartition);
+      return session.getMapper(ActionPlanMapper.class).findOpenByProjectId(projectId);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   public Collection<ActionPlanDto> findByKeys(Collection<String> keys) {
+    if (keys.isEmpty()) {
+      return Collections.emptyList();
+    }
     SqlSession session = mybatis.openSession();
     try {
-      return findByKeys(keys, session);
+      List<List<String>> keysPartition = Lists.partition(newArrayList(keys), 1000);
+      return session.getMapper(ActionPlanMapper.class).findByKeys(keysPartition);
     } finally {
       MyBatis.closeQuietly(session);
     }

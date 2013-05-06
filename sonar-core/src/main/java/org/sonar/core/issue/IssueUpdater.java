@@ -25,6 +25,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -115,6 +116,16 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     if (!Objects.equal(oldValue, value)) {
       issue.setFieldDiff(context, key, oldValue, value);
       issue.setAttribute(key, value);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean plan(DefaultIssue issue, @Nullable String actionPlanKey, IssueChangeContext context) {
+    String sanitizedActionPlanKey = StringUtils.defaultIfBlank(actionPlanKey, null);
+    if (!Objects.equal(sanitizedActionPlanKey, issue.actionPlanKey())) {
+      issue.setFieldDiff(context, "actionPlanKey", issue.actionPlanKey(), sanitizedActionPlanKey);
+      issue.setActionPlanKey(sanitizedActionPlanKey);
       return true;
     }
     return false;

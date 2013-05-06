@@ -40,7 +40,7 @@ import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.issue.DefaultActionPlanFinder;
+import org.sonar.core.issue.ActionPlanFinder;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -258,10 +258,9 @@ public final class Platform {
     servicesContainer.addSingleton(IssueWorkflow.class);
     servicesContainer.addSingleton(ServerIssueActions.class);
     servicesContainer.addSingleton(ServerIssueFinder.class);
-    servicesContainer.addSingleton(ServerActionPlanStatsFinder.class);
     servicesContainer.addSingleton(WebIssuesApi.class);
     servicesContainer.addSingleton(WebIssuesInternal.class);
-    servicesContainer.addSingleton(DefaultActionPlanFinder.class);
+    servicesContainer.addSingleton(ActionPlanFinder.class);
 
     // rules
     servicesContainer.addSingleton(WebRules.class);

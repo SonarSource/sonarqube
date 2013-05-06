@@ -20,27 +20,28 @@
 package org.sonar.server.issue;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.*;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
  * All the issue features that are not published to public API.
- * TODO to be renamed to WebIssuesInternal
  */
 public class WebIssuesInternal implements ServerComponent {
 
   private final ServerIssueActions actions;
-  private final ServerActionPlanStatsFinder actionPlanStatsFinder;
+  private final ActionPlanFinder actionPlanFinder;
 
-  public WebIssuesInternal(ServerIssueActions actions, ServerActionPlanStatsFinder actionPlanStatsFinder) {
+  public WebIssuesInternal(ServerIssueActions actions, ActionPlanFinder actionPlanFinder) {
     this.actions = actions;
-    this.actionPlanStatsFinder = actionPlanStatsFinder;
+    this.actionPlanFinder = actionPlanFinder;
   }
 
   public List<Transition> listTransitions(String issueKey) {
@@ -57,6 +58,10 @@ public class WebIssuesInternal implements ServerComponent {
 
   public Issue setSeverity(String issueKey, String severity) {
     return actions.setSeverity(issueKey, severity, UserSession.get());
+  }
+
+  public Issue plan(String issueKey, String actionPlanKey) {
+    return actions.plan(issueKey, actionPlanKey, UserSession.get());
   }
 
   public IssueComment addComment(String issueKey, String comment) {
@@ -81,7 +86,7 @@ public class WebIssuesInternal implements ServerComponent {
     builder.description(parameters.get("description"));
     builder.severity(parameters.get("severity"));
     String effortToFix = parameters.get("effortToFix");
-    builder.effortToFix(effortToFix!=null ? Double.parseDouble(effortToFix) : null);
+    builder.effortToFix(effortToFix != null ? Double.parseDouble(effortToFix) : null);
     // TODO verify existence of rule
     builder.ruleKey(RuleKey.parse(parameters.get("rule")));
     builder.manual(true);
@@ -90,7 +95,11 @@ public class WebIssuesInternal implements ServerComponent {
   }
 
   List<ActionPlanStats> actionPlanStats(String projectKey)  {
-    return actionPlanStatsFinder.find(projectKey);
+    return actionPlanFinder.findActionPlanStats(projectKey);
+  }
+
+  Collection<ActionPlan> openActionPlans(String projectKey)  {
+    return actionPlanFinder.findOpenByProjectKey(projectKey);
   }
 
 }

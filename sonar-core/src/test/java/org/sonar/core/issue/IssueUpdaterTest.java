@@ -221,4 +221,15 @@ public class IssueUpdaterTest {
     boolean updated = updater.setAttribute(issue, "JIRA", "FOO-123", context);
     assertThat(updated).isFalse();
   }
+
+  @Test
+  public void should_plan() throws Exception {
+    boolean updated = updater.plan(issue, "ABCD", context);
+    assertThat(updated).isTrue();
+    assertThat(issue.actionPlanKey()).isEqualTo("ABCD");
+
+    FieldDiffs.Diff diff = issue.diffs().get("actionPlanKey");
+    assertThat(diff.oldValue()).isNull();
+    assertThat(diff.newValue()).isEqualTo("ABCD");
+  }
 }

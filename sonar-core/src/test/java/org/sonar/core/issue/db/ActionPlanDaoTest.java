@@ -45,4 +45,12 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
     Collection<ActionPlanDto> result = dao.findByKeys(newArrayList("ABC", "ABD", "ABE"));
     assertThat(result).hasSize(3);
   }
+
+  @Test
+  public void should_find_open_by_project_id() {
+    setupData("should_find_open_by_project_id");
+
+    Collection<ActionPlanDto> result = dao.findOpenByProjectId(1l);
+    assertThat(result).hasSize(2);
+  }
 }

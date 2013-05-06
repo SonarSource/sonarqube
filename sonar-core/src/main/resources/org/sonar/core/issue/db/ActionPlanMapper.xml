@@ -29,4 +29,13 @@
     </where>
   </select>
 
+  <select id="findOpenByProjectId" parameterType="long" resultType="ActionPlanIssue">
+    select <include refid="actionPlanColumns"/>
+    from action_plans ap
+    <where>
+      and ap.project_id=#{projectId}
+      and ap.status='OPEN'
+    </where>
+  </select>
+
 </mapper>

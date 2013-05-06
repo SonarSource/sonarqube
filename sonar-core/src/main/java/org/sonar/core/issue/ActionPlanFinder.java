@@ -17,17 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue;
+
+package org.sonar.core.issue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.issue.ActionPlanStats;
+import org.sonar.api.issue.ActionPlan;
+import org.sonar.core.issue.db.ActionPlanDao;
+import org.sonar.core.issue.db.ActionPlanDto;
 import org.sonar.core.issue.db.ActionPlanStatsDao;
 import org.sonar.core.issue.db.ActionPlanStatsDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -37,20 +42,36 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class ServerActionPlanStatsFinder implements ServerComponent {
+public class ActionPlanFinder implements ServerComponent {
 
+  private final ActionPlanDao actionPlanDao;
   private final ActionPlanStatsDao actionPlanStatsDao;
   private final ResourceDao resourceDao;
 
-  public ServerActionPlanStatsFinder(ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao) {
+  public ActionPlanFinder(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao) {
+    this.actionPlanDao = actionPlanDao;
     this.actionPlanStatsDao = actionPlanStatsDao;
     this.resourceDao = resourceDao;
   }
 
-  public List<ActionPlanStats> find(String projectKey) {
+  public Collection<ActionPlan> findByKeys(Collection<String> keys) {
+    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findByKeys(keys);
+    return toActionPlans(actionPlanDtos);
+  }
+
+  public Collection<ActionPlan> findOpenByProjectKey(String projectKey) {
     ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
     if (resourceDto == null) {
-      throw new IllegalArgumentException("Project "+ projectKey + " does not exists.");
+      throw new IllegalArgumentException("Project " + projectKey + " has not been found.");
+    }
+    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findOpenByProjectId(resourceDto.getId());
+    return toActionPlans(actionPlanDtos);
+  }
+
+  public List<ActionPlanStats> findActionPlanStats(String projectKey) {
+    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
+    if (resourceDto == null) {
+      throw new IllegalArgumentException("Project " + projectKey + " does not exists.");
     }
     Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findByProjectId(resourceDto.getId());
     return newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
@@ -61,4 +82,12 @@ public class ServerActionPlanStatsFinder implements ServerComponent {
     }));
   }
 
+  private Collection<ActionPlan> toActionPlans(Collection<ActionPlanDto> actionPlanDtos) {
+    return newArrayList(Iterables.transform(actionPlanDtos, new Function<ActionPlanDto, ActionPlan>() {
+      @Override
+      public ActionPlan apply(@Nullable ActionPlanDto actionPlanDto) {
+        return actionPlanDto.toActionPlan();
+      }
+    }));
+  }
 }
