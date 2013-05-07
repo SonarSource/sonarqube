@@ -30,18 +30,15 @@ import java.util.List;
  */
 public interface ActionPlanMapper {
 
-  /**
-   * @since3.6
-   */
+  void insert(ActionPlanDto actionPlanDto);
+
+  void update(ActionPlanDto actionPlanDto);
+
+  void delete(@Param("key") String key);
+
   Collection<ActionPlanDto> findByKeys(@Param("keys") List <List<String>> keys);
 
-  /**
-   * @since3.6
-   */
   ActionPlanDto findByKey(@Param("key") String key);
 
-  /**
-   * @since3.6
-   */
   Collection<ActionPlanDto> findOpenByProjectId(@Param("projectId") Long projectId);
 }

@@ -51,8 +51,8 @@ public interface ActionPlan extends Serializable {
   @CheckForNull
   Date deadLine() ;
 
-  Date creationDate();
+  Date createdAt();
 
-  Date updateDate();
+  Date updatedAt();
 
 }

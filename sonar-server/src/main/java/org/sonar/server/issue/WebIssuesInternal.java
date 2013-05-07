@@ -19,16 +19,19 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.primitives.Ints;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.*;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,11 +41,11 @@ import java.util.Map;
 public class WebIssuesInternal implements ServerComponent {
 
   private final ServerIssueActions actions;
-  private final ActionPlanFinder actionPlanFinder;
+  private final ActionPlanManager actionPlanManager;
 
-  public WebIssuesInternal(ServerIssueActions actions, ActionPlanFinder actionPlanFinder) {
+  public WebIssuesInternal(ServerIssueActions actions, ActionPlanManager actionPlanManager) {
     this.actions = actions;
-    this.actionPlanFinder = actionPlanFinder;
+    this.actionPlanManager = actionPlanManager;
   }
 
   public List<Transition> listTransitions(String issueKey) {
@@ -95,16 +98,85 @@ public class WebIssuesInternal implements ServerComponent {
     return actions.create((DefaultIssue) issue, UserSession.get());
   }
 
-  Collection<ActionPlan> openActionPlans(String projectKey)  {
-    return actionPlanFinder.findOpenByProjectKey(projectKey);
+  Collection<ActionPlan> findOpenActionPlans(String projectKey) {
+    return actionPlanManager.findOpenByProjectKey(projectKey);
   }
 
-  List<ActionPlanStats> openActionPlanStats(String projectKey)  {
-    return actionPlanFinder.findOpenActionPlanStats(projectKey);
+  ActionPlan findActionPlan(String actionPlanKey) {
+    return actionPlanManager.findByKey(actionPlanKey);
   }
 
-  List<ActionPlanStats> closedActionPlanStats(String projectKey)  {
-    return actionPlanFinder.findClosedActionPlanStats(projectKey);
+  List<ActionPlanStats> findOpenActionPlanStats(String projectKey) {
+    return actionPlanManager.findOpenActionPlanStats(projectKey);
+  }
+
+  List<ActionPlanStats> findClosedActionPlanStats(String projectKey) {
+    return actionPlanManager.findClosedActionPlanStats(projectKey);
+  }
+
+  public ActionPlan createActionPlan(Map<String, String> parameters) {
+    // TODO verify authorization
+    // TODO verify deadLine, uniquness of name, ...
+    // TODO check existence of projectId
+    Integer projectId = toInteger(parameters.get("projectId"));
+
+    DefaultActionPlan actionPlan = DefaultActionPlan.create(parameters.get("name"))
+                                     .setDescription(parameters.get("description"))
+                                     .setUserLogin(UserSession.get().login())
+                                     .setDeadLine(toDate(parameters.get("deadLine")));
+
+    return actionPlanManager.create(actionPlan, projectId);
+  }
+
+  public ActionPlan updateActionPlan(String key, Map<String, String> parameters) {
+    // TODO verify authorization
+    // TODO verify deadLine
+    // TODO check existence of projectId
+    Integer projectId = toInteger(parameters.get("projectId"));
+    DefaultActionPlan defaultActionPlan = (DefaultActionPlan) actionPlanManager.findByKey(key);
+    defaultActionPlan.setName(parameters.get("name"));
+    defaultActionPlan.setDescription(parameters.get("description"));
+    defaultActionPlan.setDeadLine(toDate(parameters.get("deadLine")));
+    return actionPlanManager.update(defaultActionPlan, projectId);
+  }
+
+  public ActionPlan closeActionPlan(String actionPlanKey) {
+    // TODO verify authorization
+    return actionPlanManager.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED);
+  }
+
+  public ActionPlan openActionPlan(String actionPlanKey) {
+    // TODO verify authorization
+    return actionPlanManager.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN);
+  }
+
+  public void deleteActionPlan(String actionPlanKey) {
+    // TODO verify authorization
+    actionPlanManager.delete(actionPlanKey);
+  }
+
+  Date toDate(Object o) {
+    if (o instanceof Date) {
+      return (Date) o;
+    }
+    if (o instanceof String) {
+      return DateUtils.parseDateTime((String) o);
+    }
+    return null;
+  }
+
+  Integer toInteger(Object o) {
+    if (o instanceof Integer) {
+      return (Integer) o;
+    }
+    if (o instanceof Long) {
+      return Ints.checkedCast((Long) o);
+    }
+
+    if (o instanceof String) {
+      return Integer.parseInt((String) o);
+    }
+    return null;
   }
 
 }

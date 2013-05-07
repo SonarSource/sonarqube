@@ -29,59 +29,57 @@ class IssuesActionPlansController < ApplicationController
   end
 
   def edit
-    @action_plan = ActionPlan.find_by_key params[:plan_key]
+    @action_plan = find_by_key(params[:plan_key])
     load_action_plans()
     render 'index'
   end
 
   def save
-    @action_plan = ActionPlan.find_by_key params[:plan_key] unless params[:plan_key].blank?
-    unless @action_plan
-      @action_plan = ActionPlan.new(
-          :kee => Java::JavaUtil::UUID.randomUUID().toString(),
-          :user_login => current_user.login,
-          :project_id => @resource.id,
-          :status => ActionPlan::STATUS_OPEN)
-    end
-    
-    @action_plan.name = params[:name]
-    @action_plan.description = params[:description]
+    exiting_action_plan = find_by_key(params[:plan_key]) unless params[:plan_key].blank?
+    options = {'projectId' => @resource.id, 'name' => params[:name], 'description' => params[:description]}
+
     unless params[:deadline].blank?
       begin
         deadline = DateTime.strptime(params[:deadline], '%d/%m/%Y')
         # we check if the date is today or in the future
         if deadline > 1.day.ago
-          @action_plan.deadline = deadline
+          options['deadLine'] = Api::Utils.format_datetime(deadline)
         else
           date_not_valid = message('action_plans.date_cant_be_in_past')
-        end 
+        end
       rescue
         date_not_valid = message('action_plans.date_not_valid')
       end
     end
 
-    if date_not_valid || !@action_plan.valid?
-      @action_plan.errors.add :base, date_not_valid if date_not_valid
-      flash[:error] = @action_plan.errors.full_messages.join('<br/>')
+    if date_not_valid
+      # TODO check errors
+      flash[:error] = date_not_valid
       load_action_plans()
       render 'index'
     else
-      @action_plan.save
+      if exiting_action_plan
+        @action_plan = Internal.issues.updateActionPlan(@action_plan.key, options)
+      else
+        @action_plan = Internal.issues.createActionPlan(options)
+      end
       redirect_to :action => 'index', :id => @resource.id
     end
   end
 
   def delete
-    action_plan = ActionPlan.find_by_key params[:plan_key]
-    action_plan.destroy
+    Internal.issues.deleteActionPlan(params[:plan_key])
     redirect_to :action => 'index', :id => @resource.id
   end
 
   def change_status
-    action_plan = ActionPlan.find_by_key params[:plan_key]
+    action_plan = find_by_key(params[:plan_key])
     if action_plan
-      action_plan.status = action_plan.open? ? ActionPlan::STATUS_CLOSED : ActionPlan::STATUS_OPEN
-      action_plan.save
+      if action_plan.status == 'OPEN'
+        Internal.issues.closeActionPlan(params[:plan_key])
+      else
+        Internal.issues.openActionPlan(params[:plan_key])
+      end
     end
     redirect_to :action => 'index', :id => @resource.id
   end
@@ -93,10 +91,14 @@ class IssuesActionPlansController < ApplicationController
     return redirect_to home_path unless @resource
     access_denied unless has_role?(:admin, @resource)
   end
-  
+
   def load_action_plans
-    @open_action_plans = Internal.issues.openActionPlanStats(@resource.key)
-    @closed_action_plans = Internal.issues.closedActionPlanStats(@resource.key)
+    @open_action_plans = Internal.issues.findOpenActionPlanStats(@resource.key)
+    @closed_action_plans = Internal.issues.findClosedActionPlanStats(@resource.key)
+  end
+
+  def find_by_key(key)
+    Internal.issues.findActionPlan(key)
   end
 
 end

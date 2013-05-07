@@ -51,20 +51,20 @@ public class ServerIssueActions implements ServerComponent {
   private final IssueChangeDao issueChangeDao;
   private final IssueStorage issueStorage;
   private final AuthorizationDao authorizationDao;
-  private final ActionPlanFinder actionPlanFinder;
+  private final ActionPlanManager actionPlanManager;
 
   public ServerIssueActions(IssueWorkflow workflow,
                             IssueDao issueDao,
                             IssueStorage issueStorage,
                             AuthorizationDao authorizationDao,
-                            IssueUpdater issueUpdater, IssueChangeDao issueChangeDao, ActionPlanFinder actionPlanFinder) {
+                            IssueUpdater issueUpdater, IssueChangeDao issueChangeDao, ActionPlanManager actionPlanManager) {
     this.workflow = workflow;
     this.issueDao = issueDao;
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
     this.authorizationDao = authorizationDao;
     this.issueChangeDao = issueChangeDao;
-    this.actionPlanFinder = actionPlanFinder;
+    this.actionPlanManager = actionPlanManager;
   }
 
   public List<Transition> listTransitions(String issueKey, UserSession userSession) {
@@ -100,7 +100,7 @@ public class ServerIssueActions implements ServerComponent {
   }
 
   public Issue plan(String issueKey, @Nullable String actionPlanKey, UserSession userSession) {
-    if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanFinder.findByKey(actionPlanKey) == null) {
+    if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanManager.findByKey(actionPlanKey) == null) {
       throw new IllegalStateException("Unknown action plan: " + actionPlanKey);
     }
 

@@ -31,7 +31,7 @@ import org.sonar.api.issue.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.issue.ActionPlanFinder;
+import org.sonar.core.issue.ActionPlanManager;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
@@ -62,17 +62,17 @@ public class ServerIssueFinder implements IssueFinder {
   private final AuthorizationDao authorizationDao;
   private final DefaultRuleFinder ruleFinder;
   private final ResourceDao resourceDao;
-  private final ActionPlanFinder actionPlanFinder;
+  private final ActionPlanManager actionPlanManager;
 
   public ServerIssueFinder(MyBatis myBatis, IssueDao issueDao, AuthorizationDao authorizationDao,
                            DefaultRuleFinder ruleFinder, ResourceDao resourceDao,
-                           ActionPlanFinder actionPlanFinder) {
+                           ActionPlanManager actionPlanManager) {
     this.myBatis = myBatis;
     this.issueDao = issueDao;
     this.authorizationDao = authorizationDao;
     this.ruleFinder = ruleFinder;
     this.resourceDao = resourceDao;
-    this.actionPlanFinder = actionPlanFinder;
+    this.actionPlanManager = actionPlanManager;
   }
 
   public Results find(IssueQuery query, @Nullable Integer currentUserId, String role) {
@@ -155,7 +155,7 @@ public class ServerIssueFinder implements IssueFinder {
   }
 
   private Collection<ActionPlan> findActionPlans(Set<String> actionPlanKeys) {
-    return actionPlanFinder.findByKeys(actionPlanKeys);
+    return actionPlanManager.findByKeys(actionPlanKeys);
   }
 
   public Issue findByKey(String key) {

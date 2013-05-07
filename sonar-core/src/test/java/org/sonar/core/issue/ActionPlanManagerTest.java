@@ -36,25 +36,49 @@ import java.util.Collection;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class ActionPlanFinderTest {
+public class ActionPlanManagerTest {
 
   private ActionPlanDao actionPlanDao = mock(ActionPlanDao.class);
   private ActionPlanStatsDao actionPlanStatsDao = mock(ActionPlanStatsDao.class);
   private ResourceDao resourceDao = mock(ResourceDao.class);
-  private ActionPlanFinder actionPlanFinder;
+  private ActionPlanManager actionPlanManager;
 
   @Before
   public void before() {
-    actionPlanFinder = new ActionPlanFinder(actionPlanDao, actionPlanStatsDao, resourceDao);
+    actionPlanManager = new ActionPlanManager(actionPlanDao, actionPlanStatsDao, resourceDao);
+  }
+
+  @Test
+  public void should_create() {
+    ActionPlan actionPlan = DefaultActionPlan.create("Long term");
+
+    actionPlanManager.create(actionPlan, 1);
+    verify(actionPlanDao).save(any(ActionPlanDto.class));
+  }
+
+  @Test
+  public void should_set_status() {
+    when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD"));
+
+    ActionPlan result = actionPlanManager.setStatus("ABCD", "CLOSED");
+    verify(actionPlanDao).update(any(ActionPlanDto.class));
+
+    assertThat(result).isNotNull();
+    assertThat(result.status()).isEqualTo("CLOSED");
+  }
+
+  @Test
+  public void should_delete() {
+    actionPlanManager.delete("ABCD");
+    verify(actionPlanDao).delete("ABCD");
   }
 
   @Test
   public void should_find_by_key() {
     when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD"));
-    ActionPlan result = actionPlanFinder.findByKey("ABCD");
+    ActionPlan result = actionPlanManager.findByKey("ABCD");
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("ABCD");
   }
@@ -62,13 +86,13 @@ public class ActionPlanFinderTest {
   @Test
   public void should_return_null_if_no_action_plan_when_find_by_key() {
     when(actionPlanDao.findByKey("ABCD")).thenReturn(null);
-    assertThat(actionPlanFinder.findByKey("ABCD")).isNull();
+    assertThat(actionPlanManager.findByKey("ABCD")).isNull();
   }
 
   @Test
   public void should_find_by_keys() {
     when(actionPlanDao.findByKeys(newArrayList("ABCD"))).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
-    Collection<ActionPlan> results = actionPlanFinder.findByKeys(newArrayList("ABCD"));
+    Collection<ActionPlan> results = actionPlanManager.findByKeys(newArrayList("ABCD"));
     assertThat(results).hasSize(1);
     assertThat(results.iterator().next().key()).isEqualTo("ABCD");
   }
@@ -77,7 +101,7 @@ public class ActionPlanFinderTest {
   public void should_find_open_by_project_key() {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
     when(actionPlanDao.findOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
-    Collection<ActionPlan> results = actionPlanFinder.findOpenByProjectKey("org.sonar.Sample");
+    Collection<ActionPlan> results = actionPlanManager.findOpenByProjectKey("org.sonar.Sample");
     assertThat(results).hasSize(1);
     assertThat(results.iterator().next().key()).isEqualTo("ABCD");
   }
@@ -85,7 +109,7 @@ public class ActionPlanFinderTest {
   @Test(expected = IllegalArgumentException.class)
   public void should_throw_exception_if_project_not_found_when_find_open_by_project_key() {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
-    actionPlanFinder.findOpenByProjectKey("<Unkown>");
+    actionPlanManager.findOpenByProjectKey("<Unkown>");
   }
 
   @Test
@@ -93,7 +117,7 @@ public class ActionPlanFinderTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L).setKey("org.sonar.Sample"));
     when(actionPlanStatsDao.findOpenByProjectId(1L)).thenReturn(newArrayList(new ActionPlanStatsDto()));
 
-    Collection<ActionPlanStats> results = actionPlanFinder.findOpenActionPlanStats("org.sonar.Sample");
+    Collection<ActionPlanStats> results = actionPlanManager.findOpenActionPlanStats("org.sonar.Sample");
     assertThat(results).hasSize(1);
   }
 
@@ -101,7 +125,7 @@ public class ActionPlanFinderTest {
   public void should_throw_exception_if_project_not_found_when_find_open_action_plan_stats(){
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
 
-    actionPlanFinder.findOpenActionPlanStats("org.sonar.Sample");
+    actionPlanManager.findOpenActionPlanStats("org.sonar.Sample");
   }
 
   @Test
@@ -109,7 +133,7 @@ public class ActionPlanFinderTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L).setKey("org.sonar.Sample"));
     when(actionPlanStatsDao.findClosedByProjectId(1L)).thenReturn(newArrayList(new ActionPlanStatsDto()));
 
-    Collection<ActionPlanStats> results = actionPlanFinder.findClosedActionPlanStats("org.sonar.Sample");
+    Collection<ActionPlanStats> results = actionPlanManager.findClosedActionPlanStats("org.sonar.Sample");
     assertThat(results).hasSize(1);
   }
 
@@ -117,7 +141,7 @@ public class ActionPlanFinderTest {
   public void should_throw_exception_if_project_not_found_when_find_closed_action_plan_stats(){
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
 
-    actionPlanFinder.findClosedActionPlanStats("org.sonar.Sample");
+    actionPlanManager.findClosedActionPlanStats("org.sonar.Sample");
   }
 
 }

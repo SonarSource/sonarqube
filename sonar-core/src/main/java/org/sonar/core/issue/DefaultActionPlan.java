@@ -33,8 +33,8 @@ public class DefaultActionPlan implements ActionPlan {
   private String userLogin;
   private String status;
   private Date deadLine;
-  private Date creationDate;
-  private Date updateDate;
+  private Date createdAt;
+  private Date updatedAt;
 
   private DefaultActionPlan(){
 
@@ -46,7 +46,7 @@ public class DefaultActionPlan implements ActionPlan {
     Date now = new Date();
     actionPlan.setName(name);
     actionPlan.setStatus(ActionPlan.STATUS_OPEN);
-    actionPlan.setCreationDate(now).setUpdateDate(now);
+    actionPlan.setCreatedAt(now).setUpdatedAt(now);
     return actionPlan;
   }
 
@@ -104,21 +104,21 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
-  public Date creationDate() {
-    return creationDate;
+  public Date createdAt() {
+    return createdAt;
   }
 
-  public DefaultActionPlan setCreationDate(Date creationDate) {
-    this.creationDate = creationDate;
+  public DefaultActionPlan setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
     return this;
   }
 
-  public Date updateDate() {
-    return updateDate;
+  public Date updatedAt() {
+    return updatedAt;
   }
 
-  public DefaultActionPlan setUpdateDate(Date updateDate) {
-    this.updateDate = updateDate;
+  public DefaultActionPlan setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 }

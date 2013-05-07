@@ -39,6 +39,36 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_insert_new_action_plan() {
+    ActionPlanDto actionPlanDto = new ActionPlanDto().setKey("ABC").setName("Long term").setDescription("Long term action plan").setStatus("OPEN")
+                                    .setProjectId(1).setUserLogin("arthur");
+
+    dao.save(actionPlanDto);
+
+    checkTables("should_insert_new_action_plan", new String[]{"id", "created_at", "updated_at"}, "action_plans");
+  }
+
+  @Test
+  public void should_update_action_plan() {
+    setupData("should_update_action_plan");
+
+    ActionPlanDto actionPlanDto = new ActionPlanDto().setKey("ABC").setName("Long term").setDescription("Long term action plan").setStatus("OPEN")
+                                    .setProjectId(1).setUserLogin("arthur");
+    dao.update(actionPlanDto);
+
+    checkTables("should_update_action_plan", new String[]{"id", "created_at", "updated_at"}, "action_plans");
+  }
+
+  @Test
+  public void should_delete_action_plan() {
+    setupData("should_delete_action_plan");
+
+    dao.delete("BCD");
+
+    checkTables("should_delete_action_plan", new String[]{"id", "created_at", "updated_at"}, "action_plans");
+  }
+
+  @Test
   public void should_find_by_key() {
     setupData("should_find_by_key");
 

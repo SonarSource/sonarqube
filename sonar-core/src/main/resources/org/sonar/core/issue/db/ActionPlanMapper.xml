@@ -17,6 +17,36 @@
     ap.updated_at as updatedAt
   </sql>
 
+  <insert id="insert" parameterType="ActionPlanIssue" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO action_plans (kee, name, description, user_login, project_id, status, deadline, created_at, updated_at)
+    VALUES (#{kee}, #{name}, #{description}, #{userLogin}, #{projectId}, #{status}, #{deadLine}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="ActionPlanIssue" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select issues_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO action_plans (id, kee, name, description, user_login, project_id, status, deadline, created_at, updated_at)
+    VALUES (#{id}, #{kee}, #{name}, #{description}, #{userLogin}, #{projectId}, #{status}, #{deadLine}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <update id="update" parameterType="ActionPlanIssue">
+    update action_plans set
+    name=#{name},
+    description=#{description},
+    user_login=#{userLogin},
+    project_id=#{projectId},
+    status=#{status},
+    deadline=#{deadLine},
+    updated_at=current_timestamp
+    where kee = #{kee}
+  </update>
+
+  <delete id="delete" parameterType="String">
+    delete from action_plans where kee=#{key}
+  </delete>
+
   <select id="findByKey" parameterType="long" resultType="ActionPlanIssue">
     select <include refid="actionPlanColumns"/>
     from action_plans ap

@@ -109,7 +109,7 @@ class IssueController < ApplicationController
     require_parameters :issue
     init_issue(params[:issue])
     init_resource
-    @action_plans =  Internal.issues.openActionPlans(@resource.key)
+    @action_plans =  Internal.issues.findOpenActionPlans(@resource.key)
 
     render :partial => 'issue/plan_form'
   end
@@ -206,7 +206,7 @@ class IssueController < ApplicationController
     require_parameters :issue
     init_issue(params[:issue])
     init_resource
-    @action_plans =  Internal.issues.openActionPlans(@resource.key)
+    @action_plans =  Internal.issues.findOpenActionPlans(@resource.key)
 
     render :partial => 'issue/code_viewer/plan_form'
   end

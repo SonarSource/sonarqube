@@ -35,6 +35,7 @@ import org.sonar.core.resource.ResourceQuery;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -42,21 +43,41 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class ActionPlanFinder implements ServerComponent {
+public class ActionPlanManager implements ServerComponent {
 
   private final ActionPlanDao actionPlanDao;
   private final ActionPlanStatsDao actionPlanStatsDao;
   private final ResourceDao resourceDao;
 
-  public ActionPlanFinder(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao) {
+  public ActionPlanManager(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao) {
     this.actionPlanDao = actionPlanDao;
     this.actionPlanStatsDao = actionPlanStatsDao;
     this.resourceDao = resourceDao;
   }
 
-  public Collection<ActionPlan> findByKeys(Collection<String> keys) {
-    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findByKeys(keys);
-    return toActionPlans(actionPlanDtos);
+  public ActionPlan create(ActionPlan actionPlan, Integer projectId){
+    actionPlanDao.save(ActionPlanDto.toActionDto(actionPlan, projectId));
+    return actionPlan;
+  }
+
+  public ActionPlan update(DefaultActionPlan actionPlan, Integer projectId){
+    actionPlanDao.update(ActionPlanDto.toActionDto(actionPlan, projectId));
+    return actionPlan;
+  }
+
+  public void delete(String key){
+    actionPlanDao.delete(key);
+  }
+
+  public ActionPlan setStatus(String key, String status){
+    ActionPlanDto actionPlanDto = actionPlanDao.findByKey(key);
+    if (actionPlanDto == null) {
+      throw new IllegalArgumentException("Action plan " + key + " has not been found.");
+    }
+    actionPlanDto.setStatus(status);
+    actionPlanDto.setCreatedAt(new Date());
+    actionPlanDao.update(actionPlanDto);
+    return actionPlanDto.toActionPlan();
   }
 
   public ActionPlan findByKey(String key) {
@@ -65,6 +86,11 @@ public class ActionPlanFinder implements ServerComponent {
       return null;
     }
     return actionPlanDto.toActionPlan();
+  }
+
+  public Collection<ActionPlan> findByKeys(Collection<String> keys) {
+    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findByKeys(keys);
+    return toActionPlans(actionPlanDtos);
   }
 
   public Collection<ActionPlan> findOpenByProjectKey(String projectKey) {

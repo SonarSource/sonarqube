@@ -31,7 +31,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.ActionPlanFinder;
+import org.sonar.core.issue.ActionPlanManager;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
@@ -61,8 +61,8 @@ public class ServerIssueFinderTest {
   AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   DefaultRuleFinder ruleFinder = mock(DefaultRuleFinder.class);
   ResourceDao resourceDao = mock(ResourceDao.class);
-  ActionPlanFinder actionPlanFinder = mock(ActionPlanFinder.class);
-  ServerIssueFinder finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao, ruleFinder, resourceDao, actionPlanFinder);
+  ActionPlanManager actionPlanManager = mock(ActionPlanManager.class);
+  ServerIssueFinder finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao, ruleFinder, resourceDao, actionPlanManager);
 
   @Test
   public void should_find_issues() {
@@ -228,7 +228,7 @@ public class ServerIssueFinderTest {
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
-    when(actionPlanFinder.findByKeys(anyCollection())).thenReturn(newArrayList(actionPlan1, actionPlan2));
+    when(actionPlanManager.findByKeys(anyCollection())).thenReturn(newArrayList(actionPlan1, actionPlan2));
 
     IssueFinder.Results results = finder.find(query, null, UserRole.USER);
     assertThat(results.issues()).hasSize(2);

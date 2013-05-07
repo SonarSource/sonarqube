@@ -43,6 +43,36 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
+  public void save(ActionPlanDto actionPlanDto) {
+    SqlSession session = mybatis.openSession();
+    try {
+      session.getMapper(ActionPlanMapper.class).insert(actionPlanDto);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void update(ActionPlanDto actionPlanDto) {
+    SqlSession session = mybatis.openSession();
+    try {
+      session.getMapper(ActionPlanMapper.class).update(actionPlanDto);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void delete(String key) {
+    SqlSession session = mybatis.openSession();
+    try {
+      session.getMapper(ActionPlanMapper.class).delete(key);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public ActionPlanDto findByKey(String key) {
     SqlSession session = mybatis.openSession();
     try {

@@ -22,6 +22,7 @@ package org.sonar.core.issue.db;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.issue.ActionPlan;
 import org.sonar.core.issue.DefaultActionPlan;
 
 import java.util.Date;
@@ -162,7 +163,19 @@ public class ActionPlanDto {
       .setStatus(status)
       .setDeadLine(deadLine)
       .setUserLogin(userLogin)
-      .setCreationDate(createdAt)
-      .setUpdateDate(updatedAt);
+      .setCreatedAt(createdAt)
+      .setUpdatedAt(updatedAt);
+  }
+
+  public static ActionPlanDto toActionDto(ActionPlan actionPlan, Integer projectId) {
+    return new ActionPlanDto().setKey(actionPlan.key())
+             .setName(actionPlan.name())
+             .setProjectId(projectId)
+             .setDescription(actionPlan.description())
+             .setStatus(actionPlan.status())
+             .setDeadLine(actionPlan.deadLine())
+             .setUserLogin(actionPlan.userLogin())
+             .setCreatedAt(actionPlan.createdAt())
+             .setUpdatedAt(actionPlan.updatedAt());
   }
 }
