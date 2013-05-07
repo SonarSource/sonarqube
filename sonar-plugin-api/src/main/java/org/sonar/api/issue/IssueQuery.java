@@ -47,6 +47,7 @@ public class IssueQuery {
   private final Collection<String> components;
   private final Collection<String> componentRoots;
   private final Collection<RuleKey> rules;
+  private final Collection<String> actionPlans;
   private final Collection<String> userLogins;
   private final Collection<String> assignees;
   private final Boolean assigned;
@@ -70,6 +71,7 @@ public class IssueQuery {
     this.components = builder.components;
     this.componentRoots = builder.componentRoots;
     this.rules = builder.rules;
+    this.actionPlans = builder.actionPlans;
     this.userLogins = builder.userLogins;
     this.assignees = builder.assignees;
     this.assigned = builder.assigned;
@@ -108,6 +110,10 @@ public class IssueQuery {
 
   public Collection<RuleKey> rules() {
     return rules;
+  }
+
+  public Collection<String> actionPlans() {
+    return actionPlans;
   }
 
   public Collection<String> userLogins() {
@@ -176,6 +182,7 @@ public class IssueQuery {
     private Collection<String> components;
     private Collection<String> componentRoots;
     private Collection<RuleKey> rules;
+    private Collection<String> actionPlans;
     private Collection<String> userLogins;
     private Collection<String> assignees;
     private Boolean assigned = null;
@@ -222,6 +229,11 @@ public class IssueQuery {
 
     public Builder rules(Collection<RuleKey> rules) {
       this.rules = rules;
+      return this;
+    }
+
+    public Builder actionPlans(Collection<String> l) {
+      this.actionPlans = l;
       return this;
     }
 

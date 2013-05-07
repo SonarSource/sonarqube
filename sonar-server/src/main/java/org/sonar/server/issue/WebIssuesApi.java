@@ -70,6 +70,7 @@ public class WebIssuesApi implements WebIssues {
     builder.components(toStrings(props.get("components")));
     builder.componentRoots(toStrings(props.get("componentRoots")));
     builder.rules(toRules(props.get("rules")));
+    builder.actionPlans(toStrings(props.get("actionPlans")));
     builder.userLogins(toStrings(props.get("userLogins")));
     builder.assignees(toStrings(props.get("assignees")));
     builder.assigned(toBoolean(props.get("assigned")));

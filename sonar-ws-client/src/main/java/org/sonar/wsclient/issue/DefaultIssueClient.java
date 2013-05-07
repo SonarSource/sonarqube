@@ -24,6 +24,7 @@ import org.sonar.wsclient.internal.EncodingUtils;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +76,15 @@ public class DefaultIssueClient implements IssueClient {
     HttpRequest request = requestFactory.post("/api/issues/assign", params);
     if (!request.ok()) {
       throw new IllegalStateException("Fail to assign issue to user. Bad HTTP response status: " + request.code());
+    }
+  }
+
+  @Override
+  public void plan(String issueKey, @Nullable String actionPlanKey) {
+    Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "plan", actionPlanKey);
+    HttpRequest request = requestFactory.post("/api/issues/plan", params);
+    if (!request.ok()) {
+      throw new IllegalStateException("Fail to link action plan. Bad HTTP response status: " + request.code());
     }
   }
 

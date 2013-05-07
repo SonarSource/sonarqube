@@ -20,6 +20,7 @@
 package org.sonar.wsclient.issue;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -32,6 +33,8 @@ public interface IssueClient {
   void assign(String issueKey, @Nullable String assignee);
 
   void setSeverity(String issueKey, String severity);
+
+  void plan(String issueKey, @Nullable String actionPlan);
 
   void create(NewIssue issue);
 

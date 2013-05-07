@@ -179,6 +179,20 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_select_by_action_plans() {
+    setupData("shared", "should_select_by_action_plans");
+
+    IssueQuery query = IssueQuery.builder().actionPlans(newArrayList("ABC")).build();
+    assertThat(dao.select(query)).hasSize(2);
+
+    query = IssueQuery.builder().actionPlans(newArrayList("ABC", "DEF")).build();
+    assertThat(dao.select(query)).hasSize(3);
+
+    query = IssueQuery.builder().actionPlans(newArrayList("<Unkown>")).build();
+    assertThat(dao.select(query)).isEmpty();
+  }
+
+  @Test
   public void should_select_all() {
     setupData("shared", "should_select_all");
 

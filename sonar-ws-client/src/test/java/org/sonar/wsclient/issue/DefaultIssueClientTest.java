@@ -92,6 +92,26 @@ public class DefaultIssueClientTest {
   }
 
   @Test
+  public void should_plan() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    client.plan("ABCDE", "DEFGH");
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/plan?issue=ABCDE&plan=DEFGH");
+  }
+
+  @Test
+  public void should_unplan() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    client.plan("ABCDE", null);
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/plan?issue=ABCDE");
+  }
+
+  @Test
   public void should_create_issue() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
 

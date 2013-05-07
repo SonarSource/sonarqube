@@ -41,6 +41,7 @@ public class IssueQueryTest {
       .components(Lists.newArrayList("org/struts/Action.java"))
       .componentRoots(Lists.newArrayList("org.struts:core"))
       .rules(Lists.newArrayList(RuleKey.of("squid", "AvoidCycle")))
+      .actionPlans(Lists.newArrayList("AP1", "AP2"))
       .userLogins(Lists.newArrayList("crunky"))
       .assignees(Lists.newArrayList("gargantua"))
       .assigned(true)
@@ -60,6 +61,7 @@ public class IssueQueryTest {
     assertThat(query.assignees()).containsOnly("gargantua");
     assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
+    assertThat(query.actionPlans()).containsOnly("AP1", "AP2");
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();
     assertThat(query.sort()).isEqualTo(IssueQuery.Sort.ASSIGNEE);

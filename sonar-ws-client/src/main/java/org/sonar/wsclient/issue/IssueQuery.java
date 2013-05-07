@@ -72,6 +72,10 @@ public class IssueQuery {
     return addParam("rules", s);
   }
 
+  public IssueQuery actionPlans(String... s) {
+    return addParam("actionPlans", s);
+  }
+
   public IssueQuery userLogins(String... s) {
     return addParam("userLogins", s);
   }

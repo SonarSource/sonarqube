@@ -215,6 +215,11 @@
       <if test="rules != null and rules.size() > 0">
         and (<foreach item="rule" index="index" collection="rules" open="(" separator=" or " close=")">r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
       </if>
+      <if test="actionPlans != null">
+        and i.action_plan_key in
+        <foreach item="action_plan" index="index" collection="actionPlans" open="(" separator="," close=")">#{action_plan}
+        </foreach>
+      </if>
       <if test="createdAfter != null">
         and i.issue_creation_date &gt; #{createdAfter}
       </if>

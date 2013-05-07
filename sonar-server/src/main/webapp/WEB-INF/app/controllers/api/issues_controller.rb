@@ -148,6 +148,25 @@ class Api::IssuesController < Api::ApiController
     render :json => jsonp({:issue => issue_to_json(issue)})
   end
 
+  #
+  # Link an existing issue to an action plan or unlink
+  #
+  # POST /api/issues/plan?issue=<key>&plan=<optional plan>
+  # A nil or blank plan removes the action plan.
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/plan?issue=4a2881e7-825e-4140-a154-01f420c43d11&plan=6b851f3c-e25c-432c-aee0-0e13a4184ca3'
+  #
+  def plan
+    verify_post_request
+    require_parameters :issue
+
+    plan = nil
+    plan = params[:plan] if params[:plan] && !params[:plan].blank?
+    issue = Internal.issues.plan(params[:issue], plan)
+
+    render :json => jsonp({:issue => issue_to_json(issue)})
+  end
 
   #
   # Create a manual issue.
