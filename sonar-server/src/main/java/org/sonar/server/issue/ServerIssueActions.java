@@ -22,6 +22,7 @@ package org.sonar.server.issue;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.*;
 import org.sonar.core.issue.db.IssueChangeDao;
@@ -34,7 +35,6 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -131,7 +131,7 @@ public class ServerIssueActions implements ServerComponent {
     return issue.comments().get(0);
   }
 
-  public IssueComment[] comments(String issueKey, UserSession userSession) {
+  public DefaultIssueComment[] comments(String issueKey, UserSession userSession) {
     // TODO verify authorization
     return issueChangeDao.selectIssueComments(issueKey);
   }

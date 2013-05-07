@@ -54,7 +54,7 @@ public class IssueDtoTest {
     Date closedAt = DateUtils.addDays(new Date(), -1);
 
     IssueDto dto = new IssueDto()
-        .setKey("100")
+        .setKee("100")
         .setRuleId(1)
         .setRuleKey_unit_test_only("squid", "AvoidCycle")
         .setComponentKey_unit_test_only("component-key")

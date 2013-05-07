@@ -1,0 +1,12 @@
+<dataset>
+  <issue_changes
+      id="1"
+      kee="COMMENT-1234"
+      issue_key="ABCDE"
+      user_login="emmerik"
+      change_type="comment"
+      change_data="the comment"
+      created_at="2013-05-18"
+      updated_at="2013-05-18"
+      />
+</dataset>

@@ -20,20 +20,15 @@
 package org.sonar.core.issue.db;
 
 import org.junit.Test;
-import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueComment;
-
-import java.util.Date;
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ChangeDtoConverterTest {
   @Test
   public void testToChangeDtos() throws Exception {
-    IssueComment comment = IssueComment.create("emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("emmerik", "the comment");
 
     IssueChangeDto dto = ChangeDtoConverter.commentToDto("ABCDE", comment);
 
@@ -54,7 +49,7 @@ public class ChangeDtoConverterTest {
     IssueChangeDto dto = ChangeDtoConverter.changeToDto("ABCDE", diffs);
 
     assertThat(dto.getChangeData()).isEqualTo("severity=INFO|BLOCKER");
-    assertThat(dto.getChangeType()).isEqualTo("change");
+    assertThat(dto.getChangeType()).isEqualTo("diff");
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNotNull();
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");

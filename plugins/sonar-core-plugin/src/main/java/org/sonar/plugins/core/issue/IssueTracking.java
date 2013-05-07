@@ -341,12 +341,12 @@ public class IssueTracking implements BatchExtension {
   }
 
   private boolean isSameKey(DefaultIssue newIssue, IssueDto pastIssue) {
-    return Objects.equal(newIssue.key(), pastIssue.getKey());
+    return Objects.equal(newIssue.key(), pastIssue.getKee());
   }
 
   private void mapIssue(DefaultIssue newIssue, IssueDto pastIssue, Multimap<Integer, IssueDto> lastIssuesByRule, Map<DefaultIssue, IssueDto> issueMap) {
     if (pastIssue != null) {
-      newIssue.setKey(pastIssue.getKey());
+      newIssue.setKey(pastIssue.getKee());
       if (pastIssue.isManualSeverity()) {
         newIssue.setManualSeverity(true);
         newIssue.setSeverity(pastIssue.getSeverity());

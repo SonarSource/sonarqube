@@ -35,18 +35,18 @@
     c.updated_at as updatedAt
   </sql>
 
-  <insert id="insert" parameterType="IssueChange" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="IssueChange" useGeneratedKeys="false" keyProperty="id">
     INSERT INTO issue_changes (kee, issue_key, user_login, change_type, change_data, created_at, updated_at)
-    VALUES (#{key}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt})
+    VALUES (#{kee}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt})
   </insert>
 
   <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="IssueChange" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" databaseId="oracle" parameterType="IssueChange" keyColumn="id" useGeneratedKeys="false" keyProperty="id">
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issue_changes_seq.NEXTVAL from DUAL
     </selectKey>
     INSERT INTO issue_changes (id, kee, issue_key, user_login, change_type, change_data, created_at, updated_at)
-    VALUES (#{id}, #{key}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt})
+    VALUES (#{id}, #{kee}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt})
   </insert>
 
   <select id="selectByIssueAndType" parameterType="map" resultType="IssueChange">
@@ -54,7 +54,7 @@
     <include refid="issueChangeColumns"/>
     from issue_changes c
     where c.issue_key=#{issueKey} and c.change_type=#{changeType}
-    order by c.created_at desc
+    order by c.created_at
   </select>
 
 </mapper>

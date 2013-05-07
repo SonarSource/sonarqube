@@ -22,6 +22,7 @@ package org.sonar.server.issue;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.*;
 import org.sonar.core.issue.workflow.Transition;
@@ -68,7 +69,7 @@ public class WebIssuesInternal implements ServerComponent {
     return actions.addComment(issueKey, comment, UserSession.get());
   }
 
-  public IssueComment[] comments(String issueKey) {
+  public DefaultIssueComment[] comments(String issueKey) {
     return actions.comments(issueKey, UserSession.get());
   }
 

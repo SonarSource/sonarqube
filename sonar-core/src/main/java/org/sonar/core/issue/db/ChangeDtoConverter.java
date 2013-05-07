@@ -19,8 +19,8 @@
  */
 package org.sonar.core.issue.db;
 
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.IssueComment;
 
 import java.util.Date;
 
@@ -30,10 +30,10 @@ class ChangeDtoConverter {
     // only static methods
   }
 
-  static final String TYPE_FIELD_CHANGE = "change";
+  static final String TYPE_FIELD_CHANGE = "diff";
   static final String TYPE_COMMENT = "comment";
 
-  static IssueChangeDto commentToDto(String issueKey, IssueComment comment) {
+  static IssueChangeDto commentToDto(String issueKey, DefaultIssueComment comment) {
     IssueChangeDto dto = newDto(issueKey);
     dto.setKey(comment.key());
     dto.setChangeType(TYPE_COMMENT);
@@ -61,8 +61,8 @@ class ChangeDtoConverter {
     return dto;
   }
 
-  public static IssueComment dtoToComment(IssueChangeDto dto) {
-    return new IssueComment()
+  public static DefaultIssueComment dtoToComment(IssueChangeDto dto) {
+    return new DefaultIssueComment()
       .setText(dto.getChangeData())
       .setKey(dto.getKey())
       .setCreatedAt(dto.getCreatedAt())

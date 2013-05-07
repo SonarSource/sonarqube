@@ -22,6 +22,7 @@ package org.sonar.core.issue.db;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Date;
 
@@ -48,11 +49,12 @@ public final class IssueChangeDto {
     return this;
   }
 
+  @CheckForNull
   public String getKey() {
     return kee;
   }
 
-  public IssueChangeDto setKey(String key) {
+  public IssueChangeDto setKey(@Nullable String key) {
     this.kee = key;
     return this;
   }
@@ -61,8 +63,8 @@ public final class IssueChangeDto {
     return issueKey;
   }
 
-  public IssueChangeDto setIssueKey(String issueKey) {
-    this.issueKey = issueKey;
+  public IssueChangeDto setIssueKey(String s) {
+    this.issueKey = s;
     return this;
   }
 

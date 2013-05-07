@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
@@ -343,7 +344,7 @@ public class DefaultIssue implements Issue {
     return diffs;
   }
 
-  public DefaultIssue addComment(IssueComment comment) {
+  public DefaultIssue addComment(DefaultIssueComment comment) {
     if (comments == null) {
       comments = Lists.newArrayList();
     }
@@ -351,6 +352,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @SuppressWarnings("unchcked")
   public List<IssueComment> comments() {
     return Objects.firstNonNull(comments, Collections.<IssueComment>emptyList());
   }

@@ -48,9 +48,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_by_key");
 
     IssueDto issue = dao.selectByKey("ABCDE");
-    assertThat(issue.getKey()).isEqualTo("ABCDE");
+    assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
-    assertThat(issue.getKey()).isEqualTo("ABCDE");
     assertThat(issue.getResourceId()).isEqualTo(400);
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");

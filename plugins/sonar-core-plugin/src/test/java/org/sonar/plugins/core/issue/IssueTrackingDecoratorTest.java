@@ -116,7 +116,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     // INPUT : one issue, one open issue during previous scan, no filtering
     when(scanIssues.issues("struts:Action.java")).thenReturn(Arrays.asList(openIssue));
     when(filters.accept(openIssue)).thenReturn(true);
-    IssueDto unmatchedIssue = new IssueDto().setKey("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
     List<IssueDto> unmatchedIssues = Arrays.asList(unmatchedIssue);
     when(tracking.track(eq(file), anyCollection(), anyCollection())).thenReturn(Sets.newHashSet(unmatchedIssues));
 
@@ -141,7 +141,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     DefaultIssue openIssue = new DefaultIssue();
     when(scanIssues.issues("struts")).thenReturn(Arrays.asList(openIssue));
     when(filters.accept(openIssue)).thenReturn(true);
-    IssueDto deadIssue = new IssueDto().setKey("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
+    IssueDto deadIssue = new IssueDto().setKee("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
     when(initialOpenIssues.getAllIssues()).thenReturn(Arrays.asList(deadIssue));
 
     decorator.decorate(project, mock(DecoratorContext.class, Mockito.RETURNS_MOCKS));

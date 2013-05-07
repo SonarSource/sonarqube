@@ -217,11 +217,11 @@ public class ServerIssueFinderTest {
     grantAccessRights();
     IssueQuery query = IssueQuery.builder().build();
 
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123).setKey("ABC").setActionPlanKey("A")
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123).setKee("ABC").setActionPlanKey("A")
       .setComponentKey_unit_test_only("Action.java")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
-    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123).setKey("DEF").setActionPlanKey("B")
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setResourceId(123).setKee("DEF").setActionPlanKey("B")
       .setComponentKey_unit_test_only("Action.java")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");

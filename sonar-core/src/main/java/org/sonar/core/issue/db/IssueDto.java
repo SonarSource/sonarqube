@@ -29,7 +29,6 @@ import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 
 /**
@@ -41,7 +40,6 @@ public final class IssueDto {
   private String kee;
   private Integer resourceId;
   private Integer ruleId;
-  private String actionPlanKey;
   private String severity;
   private boolean manualSeverity;
   private boolean manualIssue;
@@ -54,6 +52,7 @@ public final class IssueDto {
   private String userLogin;
   private String assignee;
   private String authorLogin;
+  private String actionPlanKey;
   private String attributes;
 
   // functional dates
@@ -79,12 +78,12 @@ public final class IssueDto {
     return this;
   }
 
-  public String getKey() {
+  public String getKee() {
     return kee;
   }
 
-  public IssueDto setKey(String key) {
-    this.kee = key;
+  public IssueDto setKee(String s) {
+    this.kee = s;
     return this;
   }
 
@@ -106,12 +105,13 @@ public final class IssueDto {
     return this;
   }
 
+  @CheckForNull
   public String getActionPlanKey() {
     return actionPlanKey;
   }
 
-  public IssueDto setActionPlanKey(String actionPlanKey) {
-    this.actionPlanKey = actionPlanKey;
+  public IssueDto setActionPlanKey(@Nullable String s) {
+    this.actionPlanKey = s;
     return this;
   }
 
@@ -187,8 +187,8 @@ public final class IssueDto {
     return resolution;
   }
 
-  public IssueDto setResolution(@Nullable String resolution) {
-    this.resolution = resolution;
+  public IssueDto setResolution(@Nullable String s) {
+    this.resolution = s;
     return this;
   }
 
@@ -322,7 +322,7 @@ public final class IssueDto {
 
   public static IssueDto toDto(DefaultIssue issue, Integer componentId, Integer ruleId) {
     return new IssueDto()
-      .setKey(issue.key())
+      .setKee(issue.key())
       .setLine(issue.line())
       .setDescription(issue.description())
       .setEffortToFix(issue.effortToFix())

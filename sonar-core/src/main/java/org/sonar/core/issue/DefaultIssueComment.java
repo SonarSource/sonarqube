@@ -19,13 +19,15 @@
  */
 package org.sonar.core.issue;
 
+import org.sonar.api.issue.IssueComment;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
-public class IssueComment implements Serializable {
+public class DefaultIssueComment implements Serializable, IssueComment {
 
   private String userLogin;
   private Date createdAt, updatedAt;
@@ -33,20 +35,22 @@ public class IssueComment implements Serializable {
   private String text;
   private boolean isNew;
 
+  @Override
   public String text() {
     return text;
   }
 
-  public IssueComment setText(String s) {
+  public DefaultIssueComment setText(String s) {
     this.text = s;
     return this;
   }
 
+  @Override
   public String key() {
     return key;
   }
 
-  public IssueComment setKey(String key) {
+  public DefaultIssueComment setKey(String key) {
     this.key = key;
     return this;
   }
@@ -54,30 +58,33 @@ public class IssueComment implements Serializable {
   /**
    * The user who created the comment. Null if it was automatically generated during project scan.
    */
+  @Override
   @CheckForNull
   public String userLogin() {
     return userLogin;
   }
 
-  public IssueComment setUserLogin(@Nullable String userLogin) {
+  public DefaultIssueComment setUserLogin(@Nullable String userLogin) {
     this.userLogin = userLogin;
     return this;
   }
 
+  @Override
   public Date createdAt() {
     return createdAt;
   }
 
-  public IssueComment setCreatedAt(Date createdAt) {
+  public DefaultIssueComment setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
+  @Override
   public Date updatedAt() {
     return updatedAt;
   }
 
-  public IssueComment setUpdatedAt(Date updatedAt) {
+  public DefaultIssueComment setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
@@ -86,13 +93,13 @@ public class IssueComment implements Serializable {
     return isNew;
   }
 
-  public IssueComment setNew(boolean b) {
+  public DefaultIssueComment setNew(boolean b) {
     isNew = b;
     return this;
   }
 
-  public static IssueComment create(@Nullable String login, String text) {
-    IssueComment comment = new IssueComment();
+  public static DefaultIssueComment create(@Nullable String login, String text) {
+    DefaultIssueComment comment = new DefaultIssueComment();
     comment.setKey(UUID.randomUUID().toString());
     Date now = new Date();
     comment.setUserLogin(login);

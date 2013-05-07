@@ -26,8 +26,8 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueComment;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
@@ -42,7 +42,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   public void should_insert_new_issues() throws Exception {
     FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
 
-    IssueComment comment = IssueComment.create("emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("emmerik", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 
@@ -71,7 +71,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
 
-    IssueComment comment = IssueComment.create("emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("emmerik", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 

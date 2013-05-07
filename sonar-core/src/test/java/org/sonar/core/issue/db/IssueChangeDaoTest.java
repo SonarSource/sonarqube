@@ -21,9 +21,13 @@ package org.sonar.core.issue.db;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.IssueComment;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+
+import java.util.Arrays;
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -32,7 +36,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   IssueChangeDao dao;
 
   @Before
-  public void createDao() {
+  public void setUp() {
     dao = new IssueChangeDao(getMyBatis());
   }
 
@@ -40,15 +44,18 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   public void should_select_issue_comments() {
     setupData("shared");
 
-    IssueComment[] comments = dao.selectIssueComments("1000");
+    DefaultIssueComment[] comments = dao.selectIssueComments("1000");
     assertThat(comments).hasSize(2);
-    IssueComment first = comments[0];
-    assertThat(first.text()).isEqualTo("recent comment");
-    assertThat(first.userLogin()).isEqualTo("arthur");
-    assertThat(first.key()).isEqualTo("FGHIJ");
 
-    IssueComment second = comments[1];
-    assertThat(second.text()).isEqualTo("old comment");
+    // chronological order
+    DefaultIssueComment first = comments[0];
+    assertThat(first.text()).isEqualTo("old comment");
+
+
+    DefaultIssueComment second = comments[1];
+    assertThat(second.userLogin()).isEqualTo("arthur");
+    assertThat(second.key()).isEqualTo("FGHIJ");
+    assertThat(second.text()).isEqualTo("recent comment");
   }
 
   @Test

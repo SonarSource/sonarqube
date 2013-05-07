@@ -80,8 +80,8 @@ public class IssueTrackingTest {
 
   @Test
   public void key_should_be_the_prioritary_field_to_check() {
-    IssueDto referenceIssue1 = newReferenceIssue("message", 10, 1, "checksum1").setKey("100");
-    IssueDto referenceIssue2 = newReferenceIssue("message", 10, 1, "checksum2").setKey("200");
+    IssueDto referenceIssue1 = newReferenceIssue("message", 10, 1, "checksum1").setKee("100");
+    IssueDto referenceIssue2 = newReferenceIssue("message", 10, 1, "checksum2").setKee("200");
 
     // exactly the fields of referenceIssue1 but not the same key
     DefaultIssue newIssue = newDefaultIssue("message", 10, RuleKey.of("squid", "AvoidCycle"), "checksum1").setKey("200");
@@ -387,7 +387,7 @@ public class IssueTrackingTest {
     IssueDto referenceIssue = new IssueDto();
     Long id = violationId++;
     referenceIssue.setId(id);
-    referenceIssue.setKey(Long.toString(id));
+    referenceIssue.setKee(Long.toString(id));
     referenceIssue.setLine(lineId);
     referenceIssue.setDescription(message);
     referenceIssue.setRuleId(ruleId);

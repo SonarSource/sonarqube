@@ -17,23 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.core.issue.db;
 
-import org.apache.ibatis.annotations.Param;
+public interface IssueMapper {
 
-import java.util.List;
-
-/**
- * @since 3.6
- */
-public interface IssueChangeMapper {
-
-  void insert(IssueChangeDto dto);
-
-  /**
-   * Issue changes by chronological date of creation
-   */
-  List<IssueChangeDto> selectByIssueAndType(@Param("issueKey") String issueKey, @Param("changeType") String changeType);
+  void insert(IssueDto issue);
+  int update(IssueDto issue);
 
 }

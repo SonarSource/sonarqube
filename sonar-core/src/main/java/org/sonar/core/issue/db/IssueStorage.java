@@ -22,20 +22,17 @@ package org.sonar.core.issue.db;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueComment;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class IssueStorage {
-
-  private static final String MYBATIS_INSERT_CHANGE = "org.sonar.core.issue.db.IssueChangeMapper.insert";
-  private static final String MYBATIS_INSERT_ISSUE = "org.sonar.core.issue.db.IssueMapper.insert";
-  private static final String MYBATIS_UPDATE_ISSUE = "org.sonar.core.issue.db.IssueMapper.update";
 
   private final MyBatis mybatis;
   private final RuleFinder ruleFinder;
@@ -50,24 +47,27 @@ public abstract class IssueStorage {
   }
 
   public void save(Iterable<DefaultIssue> issues) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openBatchSession();
+    IssueMapper issueMapper = session.getMapper(IssueMapper.class);
+    IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
     try {
       List<DefaultIssue> conflicts = Lists.newArrayList();
+
       for (DefaultIssue issue : issues) {
         int ruleId = ruleId(issue);
         int componentId = componentId(issue);
 
         IssueDto dto = IssueDto.toDto(issue, componentId, ruleId);
         if (issue.isNew()) {
-          session.insert(MYBATIS_INSERT_ISSUE, dto);
+          issueMapper.insert(dto);
         } else /* TODO if hasChanges */ {
           // TODO manage condition on update date
-          int count = session.update(MYBATIS_UPDATE_ISSUE, dto);
+          int count = issueMapper.update(dto);
           if (count < 1) {
             conflicts.add(issue);
           }
         }
-        insertChanges(session, issue);
+        insertChanges(issueChangeMapper, issue);
 
       }
       session.commit();
@@ -77,16 +77,17 @@ public abstract class IssueStorage {
     }
   }
 
-  private void insertChanges(SqlSession session, DefaultIssue issue) {
+  private void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
     for (IssueComment comment : issue.comments()) {
-      if (comment.isNew()) {
-        IssueChangeDto changeDto = ChangeDtoConverter.commentToDto(issue.key(), comment);
-        session.insert(MYBATIS_INSERT_CHANGE, changeDto);
+      DefaultIssueComment c = (DefaultIssueComment) comment;
+      if (c.isNew()) {
+        IssueChangeDto changeDto = ChangeDtoConverter.commentToDto(issue.key(), c);
+        mapper.insert(changeDto);
       }
     }
     if (issue.diffs() != null) {
       IssueChangeDto changeDto = ChangeDtoConverter.changeToDto(issue.key(), issue.diffs());
-      session.insert(MYBATIS_INSERT_CHANGE, changeDto);
+      mapper.insert(changeDto);
     }
   }
 

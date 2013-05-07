@@ -17,23 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.api.issue;
 
-package org.sonar.core.issue.db;
+import javax.annotation.CheckForNull;
+import java.util.Date;
 
-import org.apache.ibatis.annotations.Param;
+public interface IssueComment {
+  String text();
 
-import java.util.List;
+  String key();
 
-/**
- * @since 3.6
- */
-public interface IssueChangeMapper {
+  @CheckForNull
+  String userLogin();
 
-  void insert(IssueChangeDto dto);
+  Date createdAt();
 
-  /**
-   * Issue changes by chronological date of creation
-   */
-  List<IssueChangeDto> selectByIssueAndType(@Param("issueKey") String issueKey, @Param("changeType") String changeType);
-
+  Date updatedAt();
 }

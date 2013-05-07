@@ -43,7 +43,7 @@
   </insert>
 
   <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="Issue" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" databaseId="oracle" parameterType="Issue" keyColumn="id" useGeneratedKeys="false" keyProperty="id">
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>

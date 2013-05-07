@@ -23,10 +23,11 @@ package org.sonar.core.issue.db;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.IssueComment;
 import org.sonar.core.persistence.MyBatis;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -40,9 +41,9 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public IssueComment[] selectIssueComments(String issueKey) {
+  public DefaultIssueComment[] selectIssueComments(String issueKey) {
     List<IssueChangeDto> dtos = selectByIssue(issueKey, ChangeDtoConverter.TYPE_COMMENT);
-    IssueComment[] result = new IssueComment[dtos.size()];
+    DefaultIssueComment[] result = new DefaultIssueComment[dtos.size()];
     for (int index = 0; index < dtos.size(); index++) {
       result[index] = ChangeDtoConverter.dtoToComment(dtos.get(index));
     }
@@ -59,7 +60,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   /**
-   * Issue changes ordered by descending creation date.
+   * Issue changes by chronological date of creation
    */
   private List<IssueChangeDto> selectByIssue(String issueKey, String changeType) {
     SqlSession session = mybatis.openSession();

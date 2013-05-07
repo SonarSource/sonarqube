@@ -16,7 +16,7 @@
       kee="[null]"
       issue_key="1000"
       user_login="arthur"
-      change_type="change"
+      change_type="diff"
       change_data="severity=MAJOR|BLOCKER"
       created_at="2013-02-02"
       updated_at="2013-02-02"
