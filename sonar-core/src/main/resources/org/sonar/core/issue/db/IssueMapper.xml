@@ -33,7 +33,7 @@
     p.kee as componentKey
   </sql>
 
-  <insert id="insert" parameterType="Issue" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
     INSERT INTO issues (kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue, description, line, effort_to_fix, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
