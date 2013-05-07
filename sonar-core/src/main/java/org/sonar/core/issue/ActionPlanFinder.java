@@ -68,12 +68,26 @@ public class ActionPlanFinder implements ServerComponent {
     return toActionPlans(actionPlanDtos);
   }
 
-  public List<ActionPlanStats> findActionPlanStats(String projectKey) {
+  public List<ActionPlanStats> findOpenActionPlanStats(String projectKey) {
     ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
     if (resourceDto == null) {
       throw new IllegalArgumentException("Project " + projectKey + " does not exists.");
     }
-    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findByProjectId(resourceDto.getId());
+    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findOpenByProjectId(resourceDto.getId());
+    return newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
+      @Override
+      public ActionPlanStats apply(ActionPlanStatsDto actionPlanStatsDto) {
+        return actionPlanStatsDto.toActionPlanStat();
+      }
+    }));
+  }
+
+  public List<ActionPlanStats> findClosedActionPlanStats(String projectKey) {
+    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
+    if (resourceDto == null) {
+      throw new IllegalArgumentException("Project " + projectKey + " does not exists.");
+    }
+    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findClosedByProjectId(resourceDto.getId());
     return newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
       @Override
       public ActionPlanStats apply(ActionPlanStatsDto actionPlanStatsDto) {

@@ -32,5 +32,5 @@ public interface ActionPlanStatsMapper {
   /**
    * @since3.6
    */
-  Collection<ActionPlanStatsDto> findByProjectId(@Param("projectId") Long projectId);
+  Collection<ActionPlanStatsDto> findByProjectId(@Param("projectId") Long projectId, @Param("status")String status, @Param("sort")String sort, @Param("asc")boolean asc);
 }

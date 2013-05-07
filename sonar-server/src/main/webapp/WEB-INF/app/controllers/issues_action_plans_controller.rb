@@ -95,10 +95,8 @@ class IssuesActionPlansController < ApplicationController
   end
   
   def load_action_plans
-    # TODO sort open by deadline ASC and closed by deadline DESC
-    action_plans = Internal.issues.actionPlanStats(@resource.key)
-    @open_action_plans = action_plans.select {|action_plan| action_plan.isOpen()}
-    @closed_action_plans = action_plans.select {|action_plan| !action_plan.isOpen()}
+    @open_action_plans = Internal.issues.openActionPlanStats(@resource.key)
+    @closed_action_plans = Internal.issues.closedActionPlanStats(@resource.key)
   end
 
 end

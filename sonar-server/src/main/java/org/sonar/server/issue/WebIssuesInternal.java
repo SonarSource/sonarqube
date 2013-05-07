@@ -94,12 +94,16 @@ public class WebIssuesInternal implements ServerComponent {
     return actions.create((DefaultIssue) issue, UserSession.get());
   }
 
-  List<ActionPlanStats> actionPlanStats(String projectKey)  {
-    return actionPlanFinder.findActionPlanStats(projectKey);
-  }
-
   Collection<ActionPlan> openActionPlans(String projectKey)  {
     return actionPlanFinder.findOpenByProjectKey(projectKey);
+  }
+
+  List<ActionPlanStats> openActionPlanStats(String projectKey)  {
+    return actionPlanFinder.findOpenActionPlanStats(projectKey);
+  }
+
+  List<ActionPlanStats> closedActionPlanStats(String projectKey)  {
+    return actionPlanFinder.findClosedActionPlanStats(projectKey);
   }
 
 }

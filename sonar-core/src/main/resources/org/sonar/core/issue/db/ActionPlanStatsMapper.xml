@@ -17,15 +17,32 @@
     ap.updated_at as updatedAt
   </sql>
 
-  <select id="findByProjectId" parameterType="long" resultType="ActionPlanStats">
+  <select id="findByProjectId" parameterType="map" resultType="ActionPlanStats">
     select <include refid="actionPlanColumns"/>, count(total_issues.id) as totalIssues, count(open_issues.id) as openIssues
     from action_plans ap
     left join issues total_issues on total_issues.action_plan_key = ap.kee
-    left join issues open_issues on open_issues.id = total_issues.id and open_issues.status != 'CLOSED'
+    left join issues open_issues on open_issues.id = total_issues.id and open_issues.resolution is null
     <where>
       and ap.project_id = #{projectId}
+      and ap.status = #{status}
     </where>
     group by ap.id, ap.kee, ap.name, ap.description, ap.user_login, ap.project_id, ap.status, ap.deadline, ap.created_at, ap.updated_at
+    <if test="sort != null">
+    order by
+    <choose>
+      <when test="'DEADLINE'.equals(sort)">
+        ap.deadline
+      </when>
+    </choose>
+    <choose>
+      <when test="true.equals(asc)">
+        asc
+      </when>
+      <otherwise>
+        desc
+      </otherwise>
+    </choose>
+    </if>
   </select>
 
 </mapper>

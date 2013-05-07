@@ -1,7 +1,7 @@
 <dataset>
 
   <action_plans id="1" kee="ABC" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
-                user_login="igor" status="[null]" created_at="[null]" updated_at="[null]" />
+                user_login="igor" status="OPEN" created_at="[null]" updated_at="[null]" />
 
   <issues
       id="100"
@@ -14,7 +14,7 @@
       description="[null]"
       line="200"
       status="OPEN"
-      resolution="OPEN"
+      resolution="[null]"
       checksum="XXX"
       user_login="arthur"
       assignee_login="perceval"
@@ -31,6 +31,31 @@
   <issues
       id="101"
       kee="ABCDF"
+      resource_id="400"
+      rule_id="500"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      manual_issue="[false]"
+      description="[null]"
+      line="200"
+      status="CLOSED"
+      resolution="FIXED"
+      checksum="XXX"
+      user_login="arthur"
+      assignee_login="perceval"
+      author_login="[null]"
+      attributes="JIRA=FOO-1234"
+      action_plan_key="ABC"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="2013-04-16"
+      updated_at="2013-04-16"
+      />
+
+  <issues
+      id="102"
+      kee="ABCDG"
       resource_id="400"
       rule_id="500"
       severity="BLOCKER"

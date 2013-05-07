@@ -4,8 +4,8 @@
     options = {:controller => 'project_reviews', :action => 'index', :action_plan_id => action_plan.id}
   
     resolved_reviews_link = action_plan.resolvedIssues().to_s
-    resolved_reviews_link = link_to action_plan.resolvedIssues().to_s, options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"}) unless action_plan.resolvedIssues()==0
-    total_reviews_link = link_to action_plan.totalIssues().to_s, options
+    #resolved_reviews_link = link_to action_plan.resolvedIssues().to_s, options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"}) unless action_plan.resolvedIssues()==0
+    #total_reviews_link = link_to action_plan.totalIssues().to_s, options
     total_reviews_link = action_plan.totalIssues().to_s
 
     if action_plan.resolvedIssues() > 0
