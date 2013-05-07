@@ -105,7 +105,14 @@
     <servlet-name>batch</servlet-name>
     <servlet-class>org.sonar.server.plugins.BatchResourcesServlet</servlet-class>
   </servlet>
-
+  <servlet>
+    <servlet-name>metrics</servlet-name>
+    <servlet-class>com.codahale.metrics.servlets.MetricsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>metrics</servlet-name>
+    <url-pattern>/metrics</url-pattern>
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>chart</servlet-name>
     <url-pattern>/chart</url-pattern>

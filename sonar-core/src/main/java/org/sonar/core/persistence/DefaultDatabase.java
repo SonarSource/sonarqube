@@ -21,8 +21,6 @@ package org.sonar.core.persistence;
 
 import com.codahale.metrics.Timer;
 
-import com.codahale.metrics.JmxReporter;
-
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 
@@ -147,9 +145,8 @@ public class DefaultDatabase implements Database {
     boolean jmxActive = settings.getBoolean("sonar.jmx.monitoring");
     if (jmxActive) {
       final BasicDataSource dbcpDataSoure = (BasicDataSource) datasource;
-      MetricRegistry registry = new MetricRegistry();
+      MetricRegistry registry = MetricRegistryLocator.INSTANCE.getRegistry();
       Timer getConnectionTimer = registry.timer(MetricRegistry.name(DataSource.class, "getConnection"));
-      JmxReporter.forRegistry(registry).inDomain("sonar-database").build().start();
       registry.register(MetricRegistry.name(DataSource.class, "active"),
           new Gauge<Integer>() {
         public Integer getValue() {

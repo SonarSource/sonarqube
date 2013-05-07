@@ -27,6 +27,7 @@ import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.codahale.metrics.servlet.WebappMetricsFilter;
 import org.sonar.api.config.Settings;
+import org.sonar.core.persistence.MetricRegistryLocator;
 import org.sonar.server.platform.Platform;
 
 import javax.management.MBeanServer;
@@ -80,27 +81,16 @@ public class MonitoringFilter extends WebappMetricsFilter {
 
   public void init(FilterConfig config) throws ServletException {
     if (isJmxMonitoringActive()) {
-      httpMetricsRegistry = new MetricRegistry();
-      config.getServletContext().setAttribute(REGISTRY_ATTRIBUTE, httpMetricsRegistry);
+      MetricRegistry registry = MetricRegistryLocator.INSTANCE.getRegistry();
+      config.getServletContext().setAttribute(REGISTRY_ATTRIBUTE, registry);
+      config.getServletContext().setAttribute("com.codahale.metrics.servlets.MetricsServlet.registry", registry);
       super.init(config);
-      JmxReporter.forRegistry(httpMetricsRegistry).inDomain("sonar-http").build().start();
-
-      MetricRegistry jvmBufferPoolMetricsRegistry = new MetricRegistry();
       MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-      jvmBufferPoolMetricsRegistry.registerAll(new BufferPoolMetricSet(mBeanServer));
-      JmxReporter.forRegistry(jvmBufferPoolMetricsRegistry).inDomain("sonar-jvm-buffer-pool").build().start();
-
-      MetricRegistry jvmGcMetricsRegistry = new MetricRegistry();
-      jvmGcMetricsRegistry.registerAll(new GarbageCollectorMetricSet());
-      JmxReporter.forRegistry(jvmGcMetricsRegistry).inDomain("sonar-jvm-gc").build().start();
-
-      MetricRegistry jvmMemMetricsRegistry = new MetricRegistry();
-      jvmMemMetricsRegistry.registerAll(new MemoryUsageGaugeSet());
-      JmxReporter.forRegistry(jvmMemMetricsRegistry).inDomain("sonar-jvm-mem").build().start();
-
-      MetricRegistry jvmThreadMetricsRegistry = new MetricRegistry();
-      jvmThreadMetricsRegistry.registerAll(new ThreadStatesGaugeSet());
-      JmxReporter.forRegistry(jvmThreadMetricsRegistry).inDomain("sonar-jvm-thread").build().start();
+      registry.register("jvm-bufferpool", new BufferPoolMetricSet(mBeanServer));
+      registry.register("jvm-gc", new GarbageCollectorMetricSet());
+      registry.register("jvm-mem", new MemoryUsageGaugeSet());
+      registry.register("jvm-thread", new ThreadStatesGaugeSet());
+      JmxReporter.forRegistry(registry).inDomain("sonar").build().start();
     }
   }
 

@@ -1071,6 +1071,11 @@
         <artifactId>metrics-servlet</artifactId>
         <version>3.0.0-BETA2</version>
 	  </dependency>
+	  <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-servlets</artifactId>
+        <version>3.0.0-BETA2</version>
+	  </dependency>
     </dependencies>
   </dependencyManagement>
 

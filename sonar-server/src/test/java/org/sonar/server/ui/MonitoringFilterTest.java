@@ -76,7 +76,7 @@ public class MonitoringFilterTest {
     filter.doFilter(request, response, chain);
     verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     String[] domains = ManagementFactory.getPlatformMBeanServer().getDomains();
-    assertThat(domains).contains("sonar-jvm-mem", "sonar-jvm-gc");
+    assertThat(domains).contains("sonar");
   }
 
 }
