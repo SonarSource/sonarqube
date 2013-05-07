@@ -40,8 +40,7 @@ import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
-import org.sonar.batch.scan.source.HighlightableBuilder;
-import org.sonar.batch.scan.source.SymbolPerspectiveBuilder;
+import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
 import org.sonar.core.component.ScanGraph;
 import org.sonar.core.issue.IssueUpdater;
@@ -111,8 +110,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // lang
       HighlightableBuilder.class,
-      org.sonar.batch.source.HighlightableBuilder.class,
-      SymbolPerspectiveBuilder.class,
       SymbolizableBuilder.class);
   }
 
