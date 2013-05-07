@@ -39,6 +39,15 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_find_by_key() {
+    setupData("should_find_by_key");
+
+    ActionPlanDto result = dao.findByKey("ABC");
+    assertThat(result).isNotNull();
+    assertThat(result.getKey()).isEqualTo("ABC");
+  }
+
+  @Test
   public void should_find_by_keys() {
     setupData("should_find_by_keys");
 

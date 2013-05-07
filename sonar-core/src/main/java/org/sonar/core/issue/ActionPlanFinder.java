@@ -59,6 +59,14 @@ public class ActionPlanFinder implements ServerComponent {
     return toActionPlans(actionPlanDtos);
   }
 
+  public ActionPlan findByKey(String key) {
+    ActionPlanDto actionPlanDto = actionPlanDao.findByKey(key);
+    if (actionPlanDto == null) {
+      return null;
+    }
+    return actionPlanDto.toActionPlan();
+  }
+
   public Collection<ActionPlan> findOpenByProjectKey(String projectKey) {
     ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
     if (resourceDto == null) {

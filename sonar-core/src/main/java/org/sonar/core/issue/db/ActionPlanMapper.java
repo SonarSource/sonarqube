@@ -38,5 +38,10 @@ public interface ActionPlanMapper {
   /**
    * @since3.6
    */
+  ActionPlanDto findByKey(@Param("key") String key);
+
+  /**
+   * @since3.6
+   */
   Collection<ActionPlanDto> findOpenByProjectId(@Param("projectId") Long projectId);
 }

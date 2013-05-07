@@ -52,6 +52,20 @@ public class ActionPlanFinderTest {
   }
 
   @Test
+  public void should_find_by_key() {
+    when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD"));
+    ActionPlan result = actionPlanFinder.findByKey("ABCD");
+    assertThat(result).isNotNull();
+    assertThat(result.key()).isEqualTo("ABCD");
+  }
+
+  @Test
+  public void should_return_null_if_no_action_plan_when_find_by_key() {
+    when(actionPlanDao.findByKey("ABCD")).thenReturn(null);
+    assertThat(actionPlanFinder.findByKey("ABCD")).isNull();
+  }
+
+  @Test
   public void should_find_by_keys() {
     when(actionPlanDao.findByKeys(newArrayList("ABCD"))).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
     Collection<ActionPlan> results = actionPlanFinder.findByKeys(newArrayList("ABCD"));
@@ -69,7 +83,7 @@ public class ActionPlanFinderTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void should_throw_exception_if_projecT_not_found_when_find_open_by_project_key() {
+  public void should_throw_exception_if_project_not_found_when_find_open_by_project_key() {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
     actionPlanFinder.findOpenByProjectKey("<Unkown>");
   }

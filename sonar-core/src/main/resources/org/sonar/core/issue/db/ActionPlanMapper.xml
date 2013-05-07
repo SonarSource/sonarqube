@@ -17,6 +17,14 @@
     ap.updated_at as updatedAt
   </sql>
 
+  <select id="findByKey" parameterType="long" resultType="ActionPlanIssue">
+    select <include refid="actionPlanColumns"/>
+    from action_plans ap
+    <where>
+      ap.kee=#{key}
+    </where>
+  </select>
+
   <select id="findByKeys" parameterType="long" resultType="ActionPlanIssue">
     select <include refid="actionPlanColumns"/>
     from action_plans ap

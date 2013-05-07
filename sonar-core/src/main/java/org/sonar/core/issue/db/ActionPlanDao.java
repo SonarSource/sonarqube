@@ -43,10 +43,10 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public Collection<ActionPlanDto> findOpenByProjectId(Long projectId) {
+  public ActionPlanDto findByKey(String key) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.getMapper(ActionPlanMapper.class).findOpenByProjectId(projectId);
+      return session.getMapper(ActionPlanMapper.class).findByKey(key);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -64,4 +64,14 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
       MyBatis.closeQuietly(session);
     }
   }
+
+  public Collection<ActionPlanDto> findOpenByProjectId(Long projectId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(ActionPlanMapper.class).findOpenByProjectId(projectId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
 }

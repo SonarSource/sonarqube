@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.web.UserRole;
@@ -50,18 +51,20 @@ public class ServerIssueActions implements ServerComponent {
   private final IssueChangeDao issueChangeDao;
   private final IssueStorage issueStorage;
   private final AuthorizationDao authorizationDao;
+  private final ActionPlanFinder actionPlanFinder;
 
   public ServerIssueActions(IssueWorkflow workflow,
                             IssueDao issueDao,
                             IssueStorage issueStorage,
                             AuthorizationDao authorizationDao,
-                            IssueUpdater issueUpdater, IssueChangeDao issueChangeDao) {
+                            IssueUpdater issueUpdater, IssueChangeDao issueChangeDao, ActionPlanFinder actionPlanFinder) {
     this.workflow = workflow;
     this.issueDao = issueDao;
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
     this.authorizationDao = authorizationDao;
     this.issueChangeDao = issueChangeDao;
+    this.actionPlanFinder = actionPlanFinder;
   }
 
   public List<Transition> listTransitions(String issueKey, UserSession userSession) {
@@ -97,9 +100,11 @@ public class ServerIssueActions implements ServerComponent {
   }
 
   public Issue plan(String issueKey, @Nullable String actionPlanKey, UserSession userSession) {
-    DefaultIssue issue = loadIssue(issueKey, userSession);
+    if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanFinder.findByKey(actionPlanKey) == null) {
+      throw new IllegalStateException("Unknown action plan: " + actionPlanKey);
+    }
 
-    // TODO check that action plan exists
+    DefaultIssue issue = loadIssue(issueKey, userSession);
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.plan(issue, actionPlanKey, context)) {
       issueStorage.save(issue);
