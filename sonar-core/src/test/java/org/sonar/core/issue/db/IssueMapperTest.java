@@ -64,7 +64,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     mapper.insert(dto);
     session.commit();
 
-    checkTables("testInsert", new String[]{"id"}, "issues");
+    checkTables("testInsert", new String[]{"id", "effort_to_fix"}, "issues");
   }
 
   @Test
@@ -97,6 +97,6 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     mapper.update(dto);
     session.commit();
 
-    checkTables("testUpdate", new String[]{"id"}, "issues");
+    checkTables("testUpdate", new String[]{"id", "effort_to_fix"}, "issues");
   }
 }

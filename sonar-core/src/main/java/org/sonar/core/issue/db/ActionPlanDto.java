@@ -32,7 +32,7 @@ import java.util.Date;
  */
 public class ActionPlanDto {
 
-  private Integer id;
+  private Long id;
   private String kee;
   private String name;
   private String description;
@@ -43,11 +43,11 @@ public class ActionPlanDto {
   private Date createdAt;
   private Date updatedAt;
 
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 
-  public ActionPlanDto setId(Integer id) {
+  public ActionPlanDto setId(Long id) {
     this.id = id;
     return this;
   }
