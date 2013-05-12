@@ -20,8 +20,10 @@
 package org.sonar.wsclient.issue;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.impl.cookie.DateUtils;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -52,6 +54,7 @@ public class IssueParserTest {
     assertThat(first.attribute("JIRA")).isEqualTo("FOO-1234");
     assertThat(first.attribute("OTHER")).isNull();
     assertThat(first.attributes()).hasSize(1);
+    assertThat(first.comments()).isEmpty();
 
     Issue second = list.get(1);
     assertThat(second.key()).isEqualTo("FGHIJ");
@@ -60,6 +63,7 @@ public class IssueParserTest {
     assertThat(second.description()).isNull();
     assertThat(second.attribute("JIRA")).isNull();
     assertThat(second.attributes()).isEmpty();
+    assertThat(second.comments()).isEmpty();
 
     assertThat(issues.rules()).hasSize(2);
     assertThat(issues.rule(first).key()).isEqualTo("squid:CycleBetweenPackages");
@@ -96,4 +100,25 @@ public class IssueParserTest {
     assertThat(transitions).containsOnly("resolve", "falsepositive");
   }
 
+  @Test
+  public void should_parse_comments() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-comments.json"));
+    Issues issues = new IssueParser().parseIssues(json);
+    assertThat(issues.size()).isEqualTo(1);
+
+    Issue issue = issues.list().get(0);
+    assertThat(issue.comments()).hasSize(2);
+
+    IssueComment firstComment = issue.comments().get(0);
+    assertThat(firstComment.key()).isEqualTo("COMMENT-1");
+    assertThat(firstComment.login()).isEqualTo("morgan");
+    assertThat(firstComment.htmlText()).isEqualTo("the first comment");
+    assertThat(firstComment.createdAt().getDate()).isEqualTo(18);
+
+    IssueComment secondComment = issue.comments().get(1);
+    assertThat(secondComment.key()).isEqualTo("COMMENT-2");
+    assertThat(secondComment.login()).isEqualTo("arthur");
+    assertThat(secondComment.htmlText()).isEqualTo("the second comment");
+    assertThat(secondComment.createdAt().getDate()).isEqualTo(19);
+  }
 }

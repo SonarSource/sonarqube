@@ -20,11 +20,12 @@
 
 package org.sonar.core.issue.db;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
@@ -41,32 +42,44 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public DefaultIssueComment[] selectIssueComments(String issueKey) {
-    List<IssueChangeDto> dtos = selectByIssue(issueKey, ChangeDtoConverter.TYPE_COMMENT);
-    DefaultIssueComment[] result = new DefaultIssueComment[dtos.size()];
-    for (int index = 0; index < dtos.size(); index++) {
-      result[index] = ChangeDtoConverter.dtoToComment(dtos.get(index));
+  public List<DefaultIssueComment> selectCommentsByIssues(SqlSession session, Collection<String> issueKeys) {
+    return selectByIssuesAndType(session, issueKeys, ChangeDtoConverter.TYPE_COMMENT);
+  }
+
+  List<DefaultIssueComment> selectByIssuesAndType(SqlSession session, Collection<String> issueKeys, String changeType) {
+    Preconditions.checkArgument(issueKeys.size() < 1000, "Number of issue keys is greater than or equal 1000");
+    List<DefaultIssueComment> result = Lists.newArrayList();
+    if (!issueKeys.isEmpty()) {
+      IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
+      List<IssueChangeDto> dtos = mapper.selectByIssuesAndType(issueKeys, changeType);
+      for (IssueChangeDto dto : dtos) {
+        result.add(ChangeDtoConverter.dtoToComment(dto));
+      }
     }
     return result;
   }
 
-  public FieldDiffs[] selectIssueChanges(String issueKey) {
-    List<IssueChangeDto> dtos = selectByIssue(issueKey, ChangeDtoConverter.TYPE_FIELD_CHANGE);
-    FieldDiffs[] result = new FieldDiffs[dtos.size()];
-    for (int index = 0; index < dtos.size(); index++) {
-      result[index] = ChangeDtoConverter.dtoToChange(dtos.get(index));
-    }
-    return result;
-  }
-
-  /**
-   * Issue changes by chronological date of creation
-   */
-  private List<IssueChangeDto> selectByIssue(String issueKey, String changeType) {
+  public boolean delete(String key) {
     SqlSession session = mybatis.openSession();
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-      return mapper.selectByIssueAndType(issueKey, changeType);
+      int count = mapper.delete(key);
+      session.commit();
+      return count==1;
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public boolean update(IssueChangeDto change) {
+    SqlSession session = mybatis.openSession();
+    try {
+      IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
+      int count = mapper.update(change);
+      session.commit();
+      return count==1;
+
     } finally {
       MyBatis.closeQuietly(session);
     }

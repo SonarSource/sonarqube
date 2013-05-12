@@ -204,7 +204,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_returned_sorted_result");
 
     IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.ASSIGNEE).asc(true).build();
-      List < IssueDto > results = newArrayList(dao.select(query));
+    List<IssueDto> results = newArrayList(dao.select(query));
     assertThat(results).hasSize(3);
     assertThat(results.get(0).getAssignee()).isEqualTo("arthur");
     assertThat(results.get(1).getAssignee()).isEqualTo("henry");
@@ -212,11 +212,11 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_issue_ids_and_components_ids() {
-    setupData("shared", "should_select_issue_ids_and_components_ids");
+  public void should_select_issue_and_component_ids() {
+    setupData("shared", "should_select_issue_and_component_ids");
 
     IssueQuery query = IssueQuery.builder().build();
-    List<IssueDto> results = dao.selectIssueIdsAndComponentsId(query);
+    List<IssueDto> results = dao.selectIssueAndComponentIds(query);
     assertThat(results).hasSize(3);
   }
 
@@ -239,6 +239,16 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     Collection<IssueDto> results = dao.selectByIds(newArrayList(100l, 101l, 102l));
     assertThat(results).hasSize(3);
+  }
+
+  @Test
+  public void selectByChangeKey() throws Exception {
+    setupData("shared", "selectByChangeKey");
+    IssueDto issue = dao.selectByChangeKey("COMMENT-20");
+    assertThat(issue.getKee()).isEqualTo("ISSUE-2");
+
+    issue = dao.selectByChangeKey("COMMENT-UNKNOWN");
+    assertThat(issue).isNull();
   }
 
 }

@@ -33,6 +33,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.issue.ActionPlanManager;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
@@ -59,16 +60,20 @@ public class ServerIssueFinder implements IssueFinder {
   private static final Logger LOG = LoggerFactory.getLogger(ServerIssueFinder.class);
   private final MyBatis myBatis;
   private final IssueDao issueDao;
+  private final IssueChangeDao issueChangeDao;
   private final AuthorizationDao authorizationDao;
   private final DefaultRuleFinder ruleFinder;
   private final ResourceDao resourceDao;
   private final ActionPlanManager actionPlanManager;
 
-  public ServerIssueFinder(MyBatis myBatis, IssueDao issueDao, AuthorizationDao authorizationDao,
+  public ServerIssueFinder(MyBatis myBatis,
+                           IssueDao issueDao, IssueChangeDao issueChangeDao,
+                           AuthorizationDao authorizationDao,
                            DefaultRuleFinder ruleFinder, ResourceDao resourceDao,
                            ActionPlanManager actionPlanManager) {
     this.myBatis = myBatis;
     this.issueDao = issueDao;
+    this.issueChangeDao = issueChangeDao;
     this.authorizationDao = authorizationDao;
     this.ruleFinder = ruleFinder;
     this.resourceDao = resourceDao;
@@ -79,30 +84,34 @@ public class ServerIssueFinder implements IssueFinder {
     LOG.debug("IssueQuery : {}", query);
     SqlSession sqlSession = myBatis.openSession();
     try {
-      List<IssueDto> allIssuesDto = issueDao.selectIssueIdsAndComponentsId(query, sqlSession);
+      List<IssueDto> allIssuesDto = issueDao.selectIssueAndComponentIds(query, sqlSession);
       Set<Integer> authorizedComponentIds = authorizationDao.keepAuthorizedComponentIds(extractResourceIds(allIssuesDto), currentUserId, role, sqlSession);
       List<IssueDto> authorizedIssues = authorized(allIssuesDto, authorizedComponentIds);
       Paging paging = Paging.create(query.pageSize(), query.pageIndex(), authorizedIssues.size());
       Set<Long> pagedAuthorizedIssueIds = pagedAuthorizedIssueIds(authorizedIssues, paging);
 
       Collection<IssueDto> dtos = issueDao.selectByIds(pagedAuthorizedIssueIds, sqlSession);
-      Map<Long, Issue> issuesById = newHashMap();
+      Map<String, DefaultIssue> issuesByKey = newHashMap();
       List<Issue> issues = newArrayList();
-      List<Long> issueIds = newArrayList();
       Set<Integer> ruleIds = Sets.newHashSet();
       Set<Integer> componentIds = Sets.newHashSet();
       Set<String> actionPlanKeys = Sets.newHashSet();
       for (IssueDto dto : dtos) {
         if (authorizedComponentIds.contains(dto.getResourceId())) {
           DefaultIssue defaultIssue = dto.toDefaultIssue();
-          issuesById.put(dto.getId(), defaultIssue);
-          issueIds.add(dto.getId());
+          issuesByKey.put(dto.getKee(), defaultIssue);
           issues.add(defaultIssue);
 
           ruleIds.add(dto.getRuleId());
           componentIds.add(dto.getResourceId());
           actionPlanKeys.add(dto.getActionPlanKey());
         }
+      }
+
+      List<DefaultIssueComment> comments = issueChangeDao.selectCommentsByIssues(sqlSession, issuesByKey.keySet());
+      for (DefaultIssueComment comment : comments) {
+        DefaultIssue issue = issuesByKey.get(comment.issueKey());
+        issue.addComment(comment);
       }
 
       return new DefaultResults(issues,

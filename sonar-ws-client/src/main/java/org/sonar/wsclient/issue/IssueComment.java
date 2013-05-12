@@ -17,20 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.db;
+package org.sonar.wsclient.issue;
 
-import org.sonar.api.issue.IssueQuery;
+import org.sonar.wsclient.unmarshallers.JsonUtils;
 
-import java.util.List;
+import java.util.Date;
+import java.util.Map;
 
-public interface IssueMapper {
+/**
+ * @since 3.6
+ */
+public class IssueComment {
+  private final Map json;
 
-  IssueDto selectByKey(String key);
-  IssueDto selectByChangeKey(String changeKey);
-  List<IssueDto> selectIssueAndComponentIds(IssueQuery query);
+  IssueComment(Map json) {
+    this.json = json;
+  }
 
-  List<IssueDto> select(IssueQuery query);
-  void insert(IssueDto issue);
+  public String key() {
+    return JsonUtils.getString(json, "key");
+  }
 
-  int update(IssueDto issue);
+  public String htmlText() {
+    return JsonUtils.getString(json, "htmlText");
+  }
+
+  public String login() {
+    return JsonUtils.getString(json, "login");
+  }
+
+  public Date createdAt() {
+    return JsonUtils.getDateTime(json, "createdAt");
+  }
 }

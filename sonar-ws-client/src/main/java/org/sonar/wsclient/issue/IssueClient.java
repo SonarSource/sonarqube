@@ -36,6 +36,8 @@ public interface IssueClient {
 
   void plan(String issueKey, @Nullable String actionPlan);
 
+  IssueComment addComment(String issueKey, String markdownText);
+
   void create(NewIssue issue);
 
   List<String> transitions(String issueKey);

@@ -33,8 +33,8 @@ class ChangeDtoConverter {
   static final String TYPE_FIELD_CHANGE = "diff";
   static final String TYPE_COMMENT = "comment";
 
-  static IssueChangeDto commentToDto(String issueKey, DefaultIssueComment comment) {
-    IssueChangeDto dto = newDto(issueKey);
+  static IssueChangeDto commentToDto(DefaultIssueComment comment) {
+    IssueChangeDto dto = newDto(comment.issueKey());
     dto.setKey(comment.key());
     dto.setChangeType(TYPE_COMMENT);
     dto.setChangeData(comment.text());
@@ -68,6 +68,7 @@ class ChangeDtoConverter {
       .setCreatedAt(dto.getCreatedAt())
       .setUpdatedAt(dto.getUpdatedAt())
       .setUserLogin(dto.getUserLogin())
+      .setIssueKey(dto.getIssueKey())
       .setNew(false);
   }
 

@@ -68,16 +68,16 @@ public class WebIssuesInternal implements ServerComponent {
     return actions.plan(issueKey, actionPlanKey, UserSession.get());
   }
 
-  public IssueComment addComment(String issueKey, String comment) {
-    return actions.addComment(issueKey, comment, UserSession.get());
+  public IssueComment addComment(String issueKey, String text) {
+    return actions.addComment(issueKey, text, UserSession.get());
   }
 
-  public DefaultIssueComment[] comments(String issueKey) {
-    return actions.comments(issueKey, UserSession.get());
+  public IssueComment deleteComment(String commentKey) {
+    return actions.deleteComment(commentKey, UserSession.get());
   }
 
-  public FieldDiffs[] changes(String issueKey) {
-    return actions.changes(issueKey, UserSession.get());
+  public IssueComment editComment(String commentKey, String newText) {
+    return actions.editComment(commentKey, newText, UserSession.get());
   }
 
   public Issue create(Map<String, String> parameters) {
@@ -121,9 +121,9 @@ public class WebIssuesInternal implements ServerComponent {
     Integer projectId = toInteger(parameters.get("projectId"));
 
     DefaultActionPlan actionPlan = DefaultActionPlan.create(parameters.get("name"))
-                                     .setDescription(parameters.get("description"))
-                                     .setUserLogin(UserSession.get().login())
-                                     .setDeadLine(toDate(parameters.get("deadLine")));
+      .setDescription(parameters.get("description"))
+      .setUserLogin(UserSession.get().login())
+      .setDeadLine(toDate(parameters.get("deadLine")));
 
     return actionPlanManager.create(actionPlan, projectId);
   }

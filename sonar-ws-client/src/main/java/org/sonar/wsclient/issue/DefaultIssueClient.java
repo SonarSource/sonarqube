@@ -20,11 +20,11 @@
 package org.sonar.wsclient.issue;
 
 import com.github.kevinsawicki.http.HttpRequest;
+import org.json.simple.JSONValue;
 import org.sonar.wsclient.internal.EncodingUtils;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -86,6 +86,17 @@ public class DefaultIssueClient implements IssueClient {
     if (!request.ok()) {
       throw new IllegalStateException("Fail to link action plan. Bad HTTP response status: " + request.code());
     }
+  }
+
+  @Override
+  public IssueComment addComment(String issueKey, String markdownText) {
+    Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "text", markdownText);
+    HttpRequest request = requestFactory.post("/api/issues/add_comment", params);
+    if (!request.ok()) {
+      throw new IllegalStateException("Fail to add issue comment. Bad HTTP response status: " + request.code());
+    }
+    String json = request.body();
+    return new IssueComment((Map) JSONValue.parse(json));
   }
 
   @Override

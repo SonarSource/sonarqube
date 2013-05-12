@@ -75,7 +75,7 @@ public interface Issue extends Serializable {
   String status();
 
   /**
-   * The type of resolution. Return null if the issue is not resolved.
+   * The type of resolution, or null if the issue is not resolved.
    */
   @CheckForNull
   String resolution();
@@ -106,5 +106,8 @@ public interface Issue extends Serializable {
   @CheckForNull
   String actionPlanKey();
 
+  /**
+   * Non-null list of comments, ordered by chronological order
+   */
   List<IssueComment> comments();
 }

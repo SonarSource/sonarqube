@@ -33,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.ActionPlanManager;
 import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.MyBatis;
@@ -58,11 +59,12 @@ public class ServerIssueFinderTest {
 
   MyBatis mybatis = mock(MyBatis.class);
   IssueDao issueDao = mock(IssueDao.class);
+  IssueChangeDao issueChangeDao = mock(IssueChangeDao.class);
   AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   DefaultRuleFinder ruleFinder = mock(DefaultRuleFinder.class);
   ResourceDao resourceDao = mock(ResourceDao.class);
   ActionPlanManager actionPlanManager = mock(ActionPlanManager.class);
-  ServerIssueFinder finder = new ServerIssueFinder(mybatis, issueDao, authorizationDao, ruleFinder, resourceDao, actionPlanManager);
+  ServerIssueFinder finder = new ServerIssueFinder(mybatis, issueDao, issueChangeDao, authorizationDao, ruleFinder, resourceDao, actionPlanManager);
 
   @Test
   public void should_find_issues() {
@@ -78,7 +80,7 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueFinder.Results results = finder.find(query, null, UserRole.USER);
@@ -102,7 +104,7 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(authorizationDao.keepAuthorizedComponentIds(anySet(), anyInt(), anyString(), any(SqlSession.class))).thenReturn(newHashSet(123));
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(issue1));
 
@@ -127,7 +129,7 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueFinder.Results results = finder.find(query, null, UserRole.USER);
@@ -170,7 +172,7 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueFinder.Results results = finder.find(query, null, UserRole.USER);
@@ -198,7 +200,7 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueFinder.Results results = finder.find(query, null, UserRole.USER);
@@ -226,7 +228,7 @@ public class ServerIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
     when(actionPlanManager.findByKeys(anyCollection())).thenReturn(newArrayList(actionPlan1, actionPlan2));
 
@@ -241,7 +243,7 @@ public class ServerIssueFinderTest {
   public void should_get_empty_result_when_no_issue() {
     grantAccessRights();
     IssueQuery query = IssueQuery.builder().build();
-    when(issueDao.selectIssueIdsAndComponentsId(eq(query), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
+    when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
 
 

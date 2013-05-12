@@ -50,7 +50,18 @@ public class IssueDao implements BatchComponent, ServerComponent {
   public IssueDto selectByKey(String key) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.selectOne("org.sonar.core.issue.db.IssueMapper.selectByKey", key);
+      IssueMapper mapper = session.getMapper(IssueMapper.class);
+      return mapper.selectByKey(key);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public IssueDto selectByChangeKey(String commentKey) {
+    SqlSession session = mybatis.openSession();
+    try {
+      IssueMapper mapper = session.getMapper(IssueMapper.class);
+      return mapper.selectByChangeKey(commentKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -69,17 +80,18 @@ public class IssueDao implements BatchComponent, ServerComponent {
   public List<IssueDto> select(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.selectList("org.sonar.core.issue.db.IssueMapper.select", query);
+      IssueMapper mapper = session.getMapper(IssueMapper.class);
+      return mapper.select(query);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @VisibleForTesting
-  List<IssueDto> selectIssueIdsAndComponentsId(IssueQuery query) {
+  List<IssueDto> selectIssueAndComponentIds(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectIssueIdsAndComponentsId(query, session);
+      return selectIssueAndComponentIds(query, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -88,9 +100,9 @@ public class IssueDao implements BatchComponent, ServerComponent {
   /**
    * The returned IssueDto list contains only the issue id and the resource id
    */
-  public List<IssueDto> selectIssueIdsAndComponentsId(IssueQuery query, SqlSession session) {
-    // TODO support ordering
-    return session.selectList("org.sonar.core.issue.db.IssueMapper.selectIssueIdsAndComponentsId", query);
+  public List<IssueDto> selectIssueAndComponentIds(IssueQuery query, SqlSession session) {
+    IssueMapper mapper = session.getMapper(IssueMapper.class);
+    return mapper.selectIssueAndComponentIds(query);
   }
 
   Collection<IssueDto> selectByIds(Collection<Long> ids) {

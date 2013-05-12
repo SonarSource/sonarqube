@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @since 3.6
+ */
 class IssueParser {
 
   Issues parseIssues(String json) {

@@ -81,7 +81,7 @@ public abstract class IssueStorage {
     for (IssueComment comment : issue.comments()) {
       DefaultIssueComment c = (DefaultIssueComment) comment;
       if (c.isNew()) {
-        IssueChangeDto changeDto = ChangeDtoConverter.commentToDto(issue.key(), c);
+        IssueChangeDto changeDto = ChangeDtoConverter.commentToDto(c);
         mapper.insert(changeDto);
       }
     }

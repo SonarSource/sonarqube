@@ -41,7 +41,8 @@
   </insert>
 
   <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="IssueChange" keyColumn="id" useGeneratedKeys="false" keyProperty="id">
+  <insert id="insert" databaseId="oracle" parameterType="IssueChange" keyColumn="id" useGeneratedKeys="false"
+          keyProperty="id">
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issue_changes_seq.NEXTVAL from DUAL
     </selectKey>
@@ -49,13 +50,22 @@
     VALUES (#{id}, #{kee}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <select id="selectByIssueAndType" parameterType="map" resultType="IssueChange">
+  <delete id="delete" parameterType="string">
+    delete from issue_changes where kee=#{id}
+  </delete>
+
+  <update id="update" parameterType="map">
+    update issue_changes set change_data=#{changeData}, updated_at=#{updatedAt} where kee=#{kee}
+  </update>
+
+  <select id="selectByIssuesAndType" parameterType="map" resultType="IssueChange">
     select
     <include refid="issueChangeColumns"/>
     from issue_changes c
-    where c.issue_key=#{issueKey} and c.change_type=#{changeType}
+    where c.change_type=#{changeType} and c.issue_key in (
+    <foreach collection="issueKeys" item="key" separator=",">#{key}</foreach>
+    )
     order by c.created_at
   </select>
-
 </mapper>
 

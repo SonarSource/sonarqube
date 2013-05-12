@@ -42,7 +42,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   public void should_insert_new_issues() throws Exception {
     FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
 
-    DefaultIssueComment comment = DefaultIssueComment.create("emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 
@@ -71,7 +71,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
 
-    DefaultIssueComment comment = DefaultIssueComment.create("emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
     comment.setKey("FGHIJ");
 

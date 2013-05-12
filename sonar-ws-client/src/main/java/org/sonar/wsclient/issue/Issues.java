@@ -42,6 +42,10 @@ public class Issues {
     return list;
   }
 
+  public int size() {
+    return list.size();
+  }
+
   Issues add(Rule rule) {
     rulesByKey.put(rule.key(), rule);
     return this;

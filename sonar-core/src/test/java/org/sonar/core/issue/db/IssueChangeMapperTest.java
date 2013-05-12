@@ -38,7 +38,7 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void testInsertDiff() throws Exception {
+  public void insert_diff() throws Exception {
     IssueChangeDto dto = new IssueChangeDto();
     dto.setKey(null /* no key on field changes */);
     dto.setUserLogin("emmerik");
@@ -51,11 +51,11 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     mapper.insert(dto);
     session.commit();
 
-    checkTables("testInsertDiff", new String[]{"id"}, "issue_changes");
+    checkTables("insert_diff", new String[]{"id"}, "issue_changes");
   }
 
   @Test
-  public void testInsertComment() throws Exception {
+  public void insert_comment() throws Exception {
     IssueChangeDto dto = new IssueChangeDto();
     dto.setKey("COMMENT-1234");
     dto.setUserLogin("emmerik");
@@ -68,6 +68,6 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     mapper.insert(dto);
     session.commit();
 
-    checkTables("testInsertComment", new String[]{"id"}, "issue_changes");
+    checkTables("insert_comment", new String[]{"id"}, "issue_changes");
   }
 }

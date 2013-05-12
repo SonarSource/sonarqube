@@ -28,9 +28,9 @@ import static org.fest.assertions.Assertions.assertThat;
 public class ChangeDtoConverterTest {
   @Test
   public void testToChangeDtos() throws Exception {
-    DefaultIssueComment comment = DefaultIssueComment.create("emmerik", "the comment");
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
 
-    IssueChangeDto dto = ChangeDtoConverter.commentToDto("ABCDE", comment);
+    IssueChangeDto dto = ChangeDtoConverter.commentToDto(comment);
 
     assertThat(dto.getChangeData()).isEqualTo("the comment");
     assertThat(dto.getChangeType()).isEqualTo("comment");

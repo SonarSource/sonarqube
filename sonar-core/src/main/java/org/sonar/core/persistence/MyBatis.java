@@ -126,14 +126,13 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ActionPlanStats", ActionPlanStatsDto.class);
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
-      DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class, IssueChangeMapper.class, LoadedTemplateMapper.class,
+      DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class, IssueMapper.class, IssueChangeMapper.class, LoadedTemplateMapper.class,
       MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class, ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class,
       ResourceSnapshotMapper.class, ReviewCommentMapper.class, ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class,
       SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class, MeasureMapper.class, SnapshotDataMapper.class,
       SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class
     };
     loadMappers(conf, mappers);
-    loadMapper(conf, "org.sonar.core.issue.db.IssueMapper");
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
     configureLogback(mappers);
 

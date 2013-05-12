@@ -22,9 +22,7 @@ package org.sonar.wsclient.issue;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import javax.annotation.CheckForNull;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @since 3.6
@@ -64,11 +62,6 @@ public class Issue {
   @CheckForNull
   public Integer line() {
     return JsonUtils.getInteger(json, "line");
-  }
-
-  // TODO to be removed
-  public Double cost() {
-    return JsonUtils.getDouble(json, "effortToFix");
   }
 
   @CheckForNull
@@ -128,5 +121,19 @@ public class Issue {
       return Collections.emptyMap();
     }
     return attr;
+  }
+
+  /**
+   * Non-null list of comments
+   */
+  public List<IssueComment> comments() {
+    List<IssueComment> comments = new ArrayList();
+    List<Map> jsonComments = (List<Map>) json.get("comments");
+    if (jsonComments != null) {
+      for (Map jsonComment : jsonComments) {
+        comments.add(new IssueComment(jsonComment));
+      }
+    }
+    return comments;
   }
 }

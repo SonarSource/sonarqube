@@ -28,15 +28,14 @@ class Api::IssuesController < Api::ApiController
   #
   def search
     results = Api.issues.find(params)
-    render :json => jsonp(
-        {
-            :securityExclusions => results.securityExclusions,
-            :paging => paging_to_json(results.paging),
-            :issues => results.issues.map { |issue| issue_to_json(issue) },
-            :rules => results.rules.map { |rule| rule_to_json(rule) },
-            :actionPlans => results.actionPlans.map { |action_plan| action_plan_to_json(action_plan) }
-        }
-    )
+    json = {
+      :securityExclusions => results.securityExclusions,
+      :paging => paging_to_json(results.paging),
+      :issues => results.issues.map { |issue| issue_to_json(issue) },
+      :rules => results.rules.map { |rule| rule_to_json(rule) }
+    }
+    json[:actionPlans] = results.actionPlans.map { |plan| action_plan_to_json(plan) } if results.actionPlans.size>0
+    render :json => jsonp(json)
   end
 
   #
@@ -51,9 +50,9 @@ class Api::IssuesController < Api::ApiController
     issue_key = params[:issue]
     transitions = Internal.issues.listTransitions(issue_key)
     render :json => jsonp(
-        {
-            :transitions => transitions.map { |t| t.key() }
-        }
+      {
+        :transitions => transitions.map { |t| t.key() }
+      }
     )
   end
 
@@ -70,7 +69,7 @@ class Api::IssuesController < Api::ApiController
     issue = Internal.issues.doTransition(params[:issue], params[:transition])
     if issue
       render :json => jsonp({
-                                :issue => issue_to_json(issue)
+                              :issue => issue_to_json(issue)
                             })
     else
       render :status => 400
@@ -82,7 +81,7 @@ class Api::IssuesController < Api::ApiController
   #
   # -- Mandatory parameters
   # 'issue' is the key of an existing issue
-  # 'text' is the plain-text message. It can also be set in the post body.
+  # 'text' is the markdown message. It can be set as an URL parameter or as the post request body.
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/add_comment?issue=4a2881e7-825e-4140-a154-01f420c43d11&text=foooo'
@@ -97,20 +96,39 @@ class Api::IssuesController < Api::ApiController
   end
 
   #
-  # GET /api/issues/comments?issue=<key>
+  # POST /api/issues/delete_comment?key=<key>
+  #
+  # -- Mandatory parameters
+  # 'key' is the comment key
   #
   # -- Example
-  # curl -v -u admin:admin 'http://localhost:9000/api/issues/comments?issue=4a2881e7-825e-4140-a154-01f420c43d11'
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/delete_comment?key=392160d3-a4f2-4c52-a565-e4542cfa2096'
   #
-  def comments
-    require_parameters :issue
+  def delete_comment
+    verify_post_request
+    require_parameters :key
 
-    comments = Internal.issues.comments(params[:issue])
-    render :json => jsonp(
-        {
-            :comments => comments.map { |comment| comment_to_json(comment) }
-        }
-    )
+    comment = Internal.issues.deleteComment(params[:key])
+    render :json => jsonp({:comment => comment_to_json(comment)})
+  end
+
+  #
+  # POST /api/issues/edit_comment?key=<key>&text=<new text>
+  #
+  # -- Mandatory parameters
+  # 'key' is the comment key
+  # 'text' is the new value
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/edit_comment?key=392160d3-a4f2-4c52-a565-e4542cfa2096&text=foo'
+  #
+  def edit_comment
+    verify_post_request
+    require_parameters :key, :text
+
+    text = Api::Utils.read_post_request_param(params[:text])
+    comment = Internal.issues.editComment(params[:issue], text)
+    render :json => jsonp({:comment => comment_to_json(comment)})
   end
 
   #
@@ -198,10 +216,10 @@ class Api::IssuesController < Api::ApiController
 
   def issue_to_json(issue)
     json = {
-        :key => issue.key,
-        :component => issue.componentKey,
-        :rule => issue.ruleKey.toString(),
-        :status => issue.status
+      :key => issue.key,
+      :component => issue.componentKey,
+      :rule => issue.ruleKey.toString(),
+      :status => issue.status
     }
     json[:actionPlan] = issue.actionPlanKey if issue.actionPlanKey
     json[:resolution] = issue.resolution if issue.resolution
@@ -216,16 +234,27 @@ class Api::IssuesController < Api::ApiController
     json[:closeDate] = format_java_datetime(issue.closeDate) if issue.closeDate
     json[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
     json[:manual] = issue.manual if issue.manual
+    if issue.comments.size>0
+      json[:comments] = issue.comments.map { |c| comment_to_json(c) }
+    end
     json
   end
 
   def comment_to_json(comment)
     {
-        :key => comment.key(),
-        :text => comment.text(),
-        :createdAt => format_java_datetime(comment.createdAt()),
-        :login => comment.userLogin()
+      :key => comment.key(),
+      :login => comment.userLogin(),
+      :htmlText => comment.text(),
+      :createdAt => format_java_datetime(comment.createdAt())
     }
+  end
+
+  def diffs_to_json(diffs)
+    json = {
+      :login => diffs.userLogin(),
+      :at => format_java_datetime(diffs.createdAt())
+    }
+    json
   end
 
   def rule_to_json(rule)
@@ -249,10 +278,10 @@ class Api::IssuesController < Api::ApiController
 
   def paging_to_json(paging)
     {
-        :pageIndex => paging.pageIndex,
-        :pageSize => paging.pageSize,
-        :total => paging.total,
-        :pages => paging.pages
+      :pageIndex => paging.pageIndex,
+      :pageSize => paging.pageSize,
+      :total => paging.total,
+      :pages => paging.pages
     }
   end
 

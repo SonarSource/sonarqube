@@ -100,7 +100,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   }
 
   public void addComment(DefaultIssue issue, String text, IssueChangeContext context) {
-    issue.addComment(DefaultIssueComment.create(context.login(), text));
+    issue.addComment(DefaultIssueComment.create(issue.key(), context.login(), text));
   }
 
   public void setCloseDate(DefaultIssue issue, @Nullable Date d) {

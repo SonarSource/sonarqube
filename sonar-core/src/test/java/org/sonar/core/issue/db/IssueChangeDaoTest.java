@@ -19,17 +19,19 @@
  */
 package org.sonar.core.issue.db;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Collections;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
@@ -41,31 +43,77 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_issue_comments() {
+  public void selectCommentsByIssues() {
     setupData("shared");
 
-    DefaultIssueComment[] comments = dao.selectIssueComments("1000");
+    SqlSession session = getMyBatis().openSession();
+    List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, Arrays.asList("1000"));
+    session.close();
     assertThat(comments).hasSize(2);
 
     // chronological order
-    DefaultIssueComment first = comments[0];
+    DefaultIssueComment first = comments.get(0);
     assertThat(first.text()).isEqualTo("old comment");
 
 
-    DefaultIssueComment second = comments[1];
+    DefaultIssueComment second = comments.get(1);
     assertThat(second.userLogin()).isEqualTo("arthur");
     assertThat(second.key()).isEqualTo("FGHIJ");
     assertThat(second.text()).isEqualTo("recent comment");
   }
 
   @Test
-  public void should_select_issue_changes() {
-    setupData("shared");
+  public void selectCommentsByIssues_empty_input() {
+    // no need to connect to db
+    SqlSession session = mock(SqlSession.class);
+    List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, Collections.<String>emptyList());
 
-    FieldDiffs[] ordered = dao.selectIssueChanges("1000");
-    assertThat(ordered).hasSize(1);
-    FieldDiffs.Diff severityDiff = ordered[0].get("severity");
-    assertThat(severityDiff.oldValue()).isEqualTo("MAJOR");
-    assertThat(severityDiff.newValue()).isEqualTo("BLOCKER");
+    assertThat(comments).isEmpty();
+  }
+
+  @Test
+  public void delete() {
+    setupData("delete");
+
+    assertThat(dao.delete("COMMENT-2")).isTrue();
+
+    checkTable("delete", "issue_changes");
+  }
+
+  @Test
+  public void delete_unknown_key() {
+    setupData("delete");
+
+    assertThat(dao.delete("UNKNOWN")).isFalse();
+  }
+
+  @Test
+  public void update() {
+    setupData("update");
+
+    IssueChangeDto change = new IssueChangeDto();
+    change.setKey("COMMENT-2");
+
+    // Only the following fields can be updated:
+    change.setChangeData("new comment");
+    change.setUpdatedAt(DateUtils.parseDate("2013-06-30"));
+
+    assertThat(dao.update(change)).isTrue();
+
+    checkTable("update", "issue_changes");
+  }
+
+  @Test
+  public void update_unknown_key() {
+    setupData("update");
+
+    IssueChangeDto change = new IssueChangeDto();
+    change.setKey("UNKNOWN");
+
+    // Only the following fields can be updated:
+    change.setChangeData("new comment");
+    change.setUpdatedAt(DateUtils.parseDate("2013-06-30"));
+
+    assertThat(dao.update(change)).isFalse();
   }
 }

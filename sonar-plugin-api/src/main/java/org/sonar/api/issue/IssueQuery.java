@@ -25,7 +25,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 
@@ -174,6 +173,7 @@ public class IssueQuery {
     private static final int DEFAULT_PAGE_SIZE = 100;
     private static final int MAX_PAGE_SIZE = 1000;
     private static final int DEFAULT_PAGE_INDEX = 1;
+    private static final int MAX_ISSUE_KEYS = 1000;
 
     private Collection<String> issueKeys;
     private Collection<String> severities;
@@ -286,8 +286,6 @@ public class IssueQuery {
     }
 
     public Builder pageSize(@Nullable Integer i) {
-      Preconditions.checkArgument(i == null || i > 0, "Page size must be greater than 0 (got " + i + ")");
-      Preconditions.checkArgument(i == null || i < MAX_PAGE_SIZE, "Page size must be less than " + MAX_PAGE_SIZE + " (got " + i + ")");
       this.pageSize = (i == null ? DEFAULT_PAGE_SIZE : i.intValue());
       return this;
     }
@@ -299,6 +297,12 @@ public class IssueQuery {
     }
 
     public IssueQuery build() {
+      Preconditions.checkArgument(pageSize > 0, "Page size must be greater than 0 (got " + pageSize + ")");
+      Preconditions.checkArgument(pageSize < MAX_PAGE_SIZE, "Page size must be less than " + MAX_PAGE_SIZE + " (got " + pageSize + ")");
+      if (issueKeys != null) {
+        Preconditions.checkArgument(issueKeys.size() < MAX_ISSUE_KEYS, "Number of issue keys must be less than " + MAX_ISSUE_KEYS + " (got " + issueKeys.size() + ")");
+      }
+
       return new IssueQuery(this);
     }
   }

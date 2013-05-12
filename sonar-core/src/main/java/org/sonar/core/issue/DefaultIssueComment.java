@@ -29,6 +29,7 @@ import java.util.UUID;
 
 public class DefaultIssueComment implements Serializable, IssueComment {
 
+  private String issueKey;
   private String userLogin;
   private Date createdAt, updatedAt;
   private String key;
@@ -42,6 +43,15 @@ public class DefaultIssueComment implements Serializable, IssueComment {
 
   public DefaultIssueComment setText(String s) {
     this.text = s;
+    return this;
+  }
+
+  public String issueKey() {
+    return issueKey;
+  }
+
+  public DefaultIssueComment setIssueKey(String s) {
+    this.issueKey = s;
     return this;
   }
 
@@ -98,8 +108,9 @@ public class DefaultIssueComment implements Serializable, IssueComment {
     return this;
   }
 
-  public static DefaultIssueComment create(@Nullable String login, String text) {
+  public static DefaultIssueComment create(String issueKey, @Nullable String login, String text) {
     DefaultIssueComment comment = new DefaultIssueComment();
+    comment.setIssueKey(issueKey);
     comment.setKey(UUID.randomUUID().toString());
     Date now = new Date();
     comment.setUserLogin(login);

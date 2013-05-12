@@ -34,50 +34,55 @@
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
-    INSERT INTO issues (kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue, description, line, effort_to_fix, status,
+    INSERT INTO issues (kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue,
+    description, line, effort_to_fix, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{effortToFix}, #{status},
+    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue},
+    #{description}, #{line}, #{effortToFix}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
 
   <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="Issue" keyColumn="id" useGeneratedKeys="false" keyProperty="id">
+  <insert id="insert" databaseId="oracle" parameterType="Issue" keyColumn="id" useGeneratedKeys="false"
+          keyProperty="id">
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issues (id, kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue, description, line, effort_to_fix, status,
+    INSERT INTO issues (id, kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue,
+    description, line, effort_to_fix, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue}, #{description}, #{line}, #{effortToFix}, #{status},
+    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue},
+    #{description}, #{line}, #{effortToFix}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
 
   <update id="update" parameterType="Issue">
     update issues set
-      resource_id=#{resourceId},
-      rule_id=#{ruleId},
-      action_plan_key=#{actionPlanKey},
-      severity=#{severity},
-      manual_severity=#{manualSeverity},
-      manual_issue=#{manualIssue},
-      description=#{description},
-      line=#{line},
-      effort_to_fix=#{effortToFix},
-      status=#{status},
-      resolution=#{resolution},
-      checksum=#{checksum},
-      user_login=#{userLogin},
-      assignee_login=#{assignee},
-      author_login=#{authorLogin},
-      attributes=#{attributes},
-      issue_creation_date=#{issueCreationDate},
-      issue_update_date=#{issueUpdateDate},
-      issue_close_date=#{issueCloseDate},
-      created_at=#{createdAt},
-      updated_at=#{updatedAt}
+    resource_id=#{resourceId},
+    rule_id=#{ruleId},
+    action_plan_key=#{actionPlanKey},
+    severity=#{severity},
+    manual_severity=#{manualSeverity},
+    manual_issue=#{manualIssue},
+    description=#{description},
+    line=#{line},
+    effort_to_fix=#{effortToFix},
+    status=#{status},
+    resolution=#{resolution},
+    checksum=#{checksum},
+    user_login=#{userLogin},
+    assignee_login=#{assignee},
+    author_login=#{authorLogin},
+    attributes=#{attributes},
+    issue_creation_date=#{issueCreationDate},
+    issue_update_date=#{issueUpdateDate},
+    issue_close_date=#{issueCloseDate},
+    created_at=#{createdAt},
+    updated_at=#{updatedAt}
     where kee = #{kee}
   </update>
 
@@ -88,14 +93,23 @@
     where i.kee=#{kee} and i.rule_id=r.id and p.id=i.resource_id
   </select>
 
+  <select id="selectByChangeKey" parameterType="String" resultType="Issue">
+    select
+    <include refid="issueColumns"/>
+    from issues i, rules r, projects p, issue_changes ic
+    where
+    i.kee=ic.issue_key and ic.kee=#{id}
+    and i.rule_id=r.id and p.id=i.resource_id
+  </select>
+
   <select id="selectOpenIssues" parameterType="String" resultType="Issue">
     select distinct
     <include refid="issueColumns"/>
     from issues i, rules r, projects p
     where i.status &lt;&gt; 'CLOSED'
-      and (p.root_id=#{componentId} or (p.root_id is null and p.id=#{componentId}))
-      and i.resource_id=p.id
-      and r.id=i.rule_id
+    and (p.root_id=#{componentId} or (p.root_id is null and p.id=#{componentId}))
+    and i.resource_id=p.id
+    and r.id=i.rule_id
   </select>
 
   <select id="selectByIds" parameterType="map" resultType="Issue">
@@ -104,7 +118,7 @@
     from issues i, rules r, projects p
     <where>
       and
-      <foreach collection="ids" open="i.id in (" close=")" item="list" separator=") or i.id in (" >
+      <foreach collection="ids" open="i.id in (" close=")" item="list" separator=") or i.id in (">
         <foreach collection="list" item="element" separator=",">
           #{element}
         </foreach>
@@ -114,7 +128,7 @@
     </where>
   </select>
 
-  <select id="selectIssueIdsAndComponentsId" parameterType="map" resultType="Issue">
+  <select id="selectIssueAndComponentIds" parameterType="map" resultType="Issue">
     select i.id, i.resource_id as resourceId
     <include refid="selectQueryConditions"/>
   </select>
@@ -213,11 +227,13 @@
         </if>
       </if>
       <if test="rules != null and rules.size() > 0">
-        and (<foreach item="rule" index="index" collection="rules" open="(" separator=" or " close=")">r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
+        and (<foreach item="rule" index="index" collection="rules" open="(" separator=" or " close=")">
+        r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
       </if>
       <if test="actionPlans != null">
         and i.action_plan_key in
-        <foreach item="action_plan" index="index" collection="actionPlans" open="(" separator="," close=")">#{action_plan}
+        <foreach item="action_plan" index="index" collection="actionPlans" open="(" separator="," close=")">
+          #{action_plan}
         </foreach>
       </if>
       <if test="createdAfter != null">

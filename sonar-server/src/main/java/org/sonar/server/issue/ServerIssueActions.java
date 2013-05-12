@@ -24,7 +24,10 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.*;
+import org.sonar.core.issue.ActionPlanManager;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
@@ -122,23 +125,23 @@ public class ServerIssueActions implements ServerComponent {
     return issue;
   }
 
-  public IssueComment addComment(String issueKey, String comment, UserSession userSession) {
+  public IssueComment addComment(String issueKey, String text, UserSession userSession) {
     DefaultIssue issue = loadIssue(issueKey, userSession);
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
-    issueUpdater.addComment(issue, comment, context);
+    issueUpdater.addComment(issue, text, context);
     issueStorage.save(issue);
-    return issue.comments().get(0);
+    return issue.comments().get(issue.comments().size() - 1);
   }
 
-  public DefaultIssueComment[] comments(String issueKey, UserSession userSession) {
-    // TODO verify authorization
-    return issueChangeDao.selectIssueComments(issueKey);
+  public IssueComment deleteComment(String key, UserSession userSession) {
+    // TODO
+    return null;
   }
 
-  public FieldDiffs[] changes(String issueKey, UserSession userSession) {
-    // TODO verify authorization
-    return issueChangeDao.selectIssueChanges(issueKey);
+  public IssueComment editComment(String key, String text, UserSession userSession) {
+    // TODO
+    return null;
   }
 
   public Issue create(DefaultIssue issue, UserSession userSession) {
