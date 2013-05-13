@@ -49,7 +49,7 @@
       %>
         <%= image_tag 'sep12.png' -%>
         &nbsp;
-        <%= message('issues.planned_for_x', :params => h(@issue_results.actionPlan(issue).name())) -%>
+        <%= message('issues.planned_for_x', :params => h(@issue_results.actionPlan(issue).name())) if @issue_results.actionPlan(issue) -%>
         &nbsp;
       <% end %>
 
