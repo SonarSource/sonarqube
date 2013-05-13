@@ -20,11 +20,10 @@
 package org.sonar.wsclient.issue;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.impl.cookie.DateUtils;
 import org.junit.Test;
+import org.sonar.wsclient.component.Component;
 import org.sonar.wsclient.user.User;
 
-import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -141,5 +140,19 @@ public class IssueParserTest {
     assertThat(arthur.name()).isEqualTo("Arthur");
     assertThat(arthur.active()).isFalse();
     assertThat(arthur.email()).isEqualTo("ar@thur.bzh");
+  }
+
+  @Test
+  public void should_parse_components() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-components.json"));
+    Issues issues = new IssueParser().parseIssues(json);
+
+    assertThat(issues.components()).hasSize(1);
+
+    Component component = issues.component(issues.list().get(0));
+    assertThat(component.key()).isEqualTo("struts:Action.java");
+    assertThat(component.qualifier()).isEqualTo("CLA");
+    assertThat(component.name()).isEqualTo("Action");
+    assertThat(component.longName()).isEqualTo("org.struts.Action");
   }
 }

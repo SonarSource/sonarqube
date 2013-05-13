@@ -33,6 +33,7 @@ class Api::IssuesController < Api::ApiController
       :securityExclusions => results.securityExclusions,
       :paging => paging_to_hash(results.paging),
       :issues => results.issues.map { |issue| Issue.to_hash(issue) },
+      :components => results.components.map { |component| component_to_hash(component) },
       :rules => results.rules.map { |rule| Rule.to_hash(rule) },
       :users => results.users.map { |user| User.to_hash(user) }
     }
@@ -219,6 +220,16 @@ class Api::IssuesController < Api::ApiController
   end
 
   private
+
+  def component_to_hash(component)
+    hash = {
+      :key => component.key,
+      :qualifier => component.qualifier
+    }
+    hash[:name] = component.name if component.name
+    hash[:longName] = component.longName if component.longName
+    hash
+  end
 
   def paging_to_hash(paging)
     {

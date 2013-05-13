@@ -234,6 +234,9 @@
         and i.issue_creation_date &lt; #{createdBefore}
       </if>
     </where>
+    <if test="sort == null">
+      order by i.id
+    </if>
     <if test="sort != null">
       order by
       <choose>

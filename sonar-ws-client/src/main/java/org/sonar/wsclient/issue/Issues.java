@@ -19,6 +19,7 @@
  */
 package org.sonar.wsclient.issue;
 
+import org.sonar.wsclient.component.Component;
 import org.sonar.wsclient.rule.Rule;
 import org.sonar.wsclient.user.User;
 
@@ -33,6 +34,7 @@ public class Issues {
   private final List<Issue> list = new ArrayList<Issue>();
   private final Map<String, Rule> rulesByKey = new HashMap<String, Rule>();
   private final Map<String, User> usersByKey = new HashMap<String, User>();
+  private final Map<String, Component> componentsByKey = new HashMap<String, Component>();
   private Paging paging;
   private Boolean securityExclusions;
 
@@ -61,6 +63,15 @@ public class Issues {
     return usersByKey.get(login);
   }
 
+  public Collection<Component> components() {
+    return componentsByKey.values();
+  }
+
+  @CheckForNull
+  public Component component(Issue issue) {
+    return componentsByKey.get(issue.componentKey());
+  }
+
   public Paging paging() {
     return paging;
   }
@@ -81,6 +92,11 @@ public class Issues {
 
   Issues add(User user) {
     usersByKey.put(user.login(), user);
+    return this;
+  }
+
+  Issues add(Component c) {
+    componentsByKey.put(c.key(), c);
     return this;
   }
 
