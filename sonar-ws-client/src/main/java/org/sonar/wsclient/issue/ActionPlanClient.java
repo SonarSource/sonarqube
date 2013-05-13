@@ -26,18 +26,18 @@ import java.util.List;
  */
 public interface ActionPlanClient {
 
-  List<ActionPlan> find();
+  List<ActionPlan> find(String projectKey);
 
-  ActionPlan find(String actionPlanKey);
+  ActionPlan get(String actionPlanKey);
 
-  void create(NewActionPlan newActionPlan);
+  ActionPlan create(NewActionPlan newActionPlan);
 
-  void update(UpdateActionPlan updateActionPlan);
+  ActionPlan update(UpdateActionPlan updateActionPlan);
 
   void delete(String actionPlanKey);
 
-  void open(String actionPlanKey);
+  ActionPlan open(String actionPlanKey);
 
-  void close(String actionPlanKey);
+  ActionPlan close(String actionPlanKey);
 
 }

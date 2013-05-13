@@ -53,7 +53,7 @@ public class NewActionPlan {
   }
 
   public NewActionPlan description(String s) {
-    params.put("desc", s);
+    params.put("description", s);
     return this;
   }
 

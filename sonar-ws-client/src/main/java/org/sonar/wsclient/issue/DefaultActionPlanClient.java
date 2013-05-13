@@ -43,8 +43,8 @@ public class DefaultActionPlanClient implements ActionPlanClient {
   }
 
   @Override
-  public List<ActionPlan> find() {
-    HttpRequest request = requestFactory.get(ActionPlanQuery.BASE_URL, null);
+  public List<ActionPlan> find(String projectKey) {
+    HttpRequest request = requestFactory.get(ActionPlanQuery.BASE_URL, EncodingUtils.toMap("project", projectKey));
     if (!request.ok()) {
       throw new IllegalStateException("Fail to search for action plans. Bad HTTP response status: " + request.code());
     }
@@ -61,34 +61,30 @@ public class DefaultActionPlanClient implements ActionPlanClient {
   }
 
   @Override
-  public ActionPlan find(String actionPlanKey) {
-    HttpRequest request = requestFactory.get("/api/action_plans/show", null);
+  public ActionPlan get(String actionPlanKey) {
+    HttpRequest request = requestFactory.get("/api/action_plans/show", EncodingUtils.toMap("key", actionPlanKey));
     if (!request.ok()) {
       throw new IllegalStateException("Fail to search action plan. Bad HTTP response status: " + request.code());
     }
-    String json = request.body("UTF-8");
-    Map jsonRoot = (Map) JSONValue.parse(json);
-    List<Map> jsonActionPlans = (List) jsonRoot.get("actionPlans");
-    if (jsonActionPlans != null) {
-      return new ActionPlan(jsonActionPlans.get(0));
-    }
-    return null;
+    return createActionPlanResult(request);
   }
 
   @Override
-  public void create(NewActionPlan newActionPlan) {
+  public ActionPlan create(NewActionPlan newActionPlan) {
     HttpRequest request = requestFactory.post(NewActionPlan.BASE_URL, newActionPlan.urlParams());
     if (!request.ok()) {
       throw new IllegalStateException("Fail to create action plan. Bad HTTP response status: " + request.code());
     }
+    return createActionPlanResult(request);
   }
 
   @Override
-  public void update(UpdateActionPlan updateActionPlan) {
+  public ActionPlan update(UpdateActionPlan updateActionPlan) {
     HttpRequest request = requestFactory.post(UpdateActionPlan.BASE_URL, updateActionPlan.urlParams());
     if (!request.ok()) {
       throw new IllegalStateException("Fail to update action plan. Bad HTTP response status: " + request.code());
     }
+    return createActionPlanResult(request);
   }
 
   @Override
@@ -97,20 +93,29 @@ public class DefaultActionPlanClient implements ActionPlanClient {
   }
 
   @Override
-  public void open(String actionPlanKey) {
-    executeSimpleAction(actionPlanKey, "open");
+  public ActionPlan open(String actionPlanKey) {
+    HttpRequest request = executeSimpleAction(actionPlanKey, "open");
+    return createActionPlanResult(request);
   }
 
   @Override
-  public void close(String actionPlanKey) {
-    executeSimpleAction(actionPlanKey, "close");
+  public ActionPlan close(String actionPlanKey) {
+    HttpRequest request = executeSimpleAction(actionPlanKey, "close");
+    return createActionPlanResult(request);
   }
 
-  private void executeSimpleAction(String actionPlanKey, String action) {
+  private HttpRequest executeSimpleAction(String actionPlanKey, String action) {
     HttpRequest request = requestFactory.post("/api/action_plans/" + action, EncodingUtils.toMap("key", actionPlanKey));
     if (!request.ok()) {
       throw new IllegalStateException("Fail to " + action + " action plan. Bad HTTP response status: " + request.code());
     }
+    return request;
+  }
+
+  private ActionPlan createActionPlanResult(HttpRequest request){
+    String json = request.body("UTF-8");
+    Map jsonRoot = (Map) JSONValue.parse(json);
+    return new ActionPlan((Map) jsonRoot.get("actionPlan"));
   }
 
 }

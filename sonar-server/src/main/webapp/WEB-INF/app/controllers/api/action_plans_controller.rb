@@ -33,11 +33,11 @@ class Api::ActionPlansController < Api::ApiController
 
     action_plan = Internal.issues.findActionPlan(params[:key])
     hash = {}
-    hash[:actionPlans] = action_plan_to_hash(action_plan) if action_plan
+    hash[:actionPlan] = action_plan_to_hash(action_plan) if action_plan
 
     respond_to do |format|
       format.json { render :json => jsonp(hash) }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'actionPlans') }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'actionPlan') }
     end
   end
 

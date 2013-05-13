@@ -22,7 +22,6 @@ package org.sonar.wsclient.issue;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Date;
 import java.util.Map;
 
@@ -44,7 +43,7 @@ public class ActionPlan {
     return JsonUtils.getString(json, "key");
   }
 
-  public String projectKey() {
+  public String project() {
     return JsonUtils.getString(json, "project");
   }
 
