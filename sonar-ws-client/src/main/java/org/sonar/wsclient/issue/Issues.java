@@ -20,7 +20,9 @@
 package org.sonar.wsclient.issue;
 
 import org.sonar.wsclient.rule.Rule;
+import org.sonar.wsclient.user.User;
 
+import javax.annotation.CheckForNull;
 import java.util.*;
 
 /**
@@ -29,14 +31,10 @@ import java.util.*;
 public class Issues {
 
   private final List<Issue> list = new ArrayList<Issue>();
-  private final Map<String,Rule> rulesByKey = new HashMap<String, Rule>();
+  private final Map<String, Rule> rulesByKey = new HashMap<String, Rule>();
+  private final Map<String, User> usersByKey = new HashMap<String, User>();
   private Paging paging;
   private Boolean securityExclusions;
-
-  Issues add(Issue issue) {
-    list.add(issue);
-    return this;
-  }
 
   public List<Issue> list() {
     return list;
@@ -44,11 +42,6 @@ public class Issues {
 
   public int size() {
     return list.size();
-  }
-
-  Issues add(Rule rule) {
-    rulesByKey.put(rule.key(), rule);
-    return this;
   }
 
   public Collection<Rule> rules() {
@@ -59,17 +52,41 @@ public class Issues {
     return rulesByKey.get(issue.ruleKey());
   }
 
-  Issues setPaging(Paging paging) {
-    this.paging = paging;
-    return this;
+  public Collection<User> users() {
+    return usersByKey.values();
   }
 
-  public Paging paging(){
+  @CheckForNull
+  public User user(String login) {
+    return usersByKey.get(login);
+  }
+
+  public Paging paging() {
     return paging;
   }
 
   public Boolean securityExclusions() {
     return securityExclusions;
+  }
+
+  Issues add(Issue issue) {
+    list.add(issue);
+    return this;
+  }
+
+  Issues add(Rule rule) {
+    rulesByKey.put(rule.key(), rule);
+    return this;
+  }
+
+  Issues add(User user) {
+    usersByKey.put(user.login(), user);
+    return this;
+  }
+
+  Issues setPaging(Paging paging) {
+    this.paging = paging;
+    return this;
   }
 
   Issues setSecurityExclusions(Boolean securityExclusions) {

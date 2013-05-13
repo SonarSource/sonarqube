@@ -22,6 +22,7 @@ package org.sonar.wsclient.issue;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.impl.cookie.DateUtils;
 import org.junit.Test;
+import org.sonar.wsclient.user.User;
 
 import java.util.Date;
 import java.util.List;
@@ -120,5 +121,25 @@ public class IssueParserTest {
     assertThat(secondComment.login()).isEqualTo("arthur");
     assertThat(secondComment.htmlText()).isEqualTo("the second comment");
     assertThat(secondComment.createdAt().getDate()).isEqualTo(19);
+  }
+
+  @Test
+  public void should_parse_users() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-users.json"));
+    Issues issues = new IssueParser().parseIssues(json);
+
+    assertThat(issues.users()).hasSize(2);
+
+    User morgan = issues.user("morgan");
+    assertThat(morgan.login()).isEqualTo("morgan");
+    assertThat(morgan.name()).isEqualTo("Morgan");
+    assertThat(morgan.active()).isTrue();
+    assertThat(morgan.email()).isEqualTo("mor@gan.bzh");
+
+    User arthur = issues.user("arthur");
+    assertThat(arthur.login()).isEqualTo("arthur");
+    assertThat(arthur.name()).isEqualTo("Arthur");
+    assertThat(arthur.active()).isFalse();
+    assertThat(arthur.email()).isEqualTo("ar@thur.bzh");
   }
 }

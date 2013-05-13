@@ -18,17 +18,25 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-# Entry points to Java API. All other Ruby classes are not considered
-# as an API and can evolve through time.
-class Api
+# since 3.6
+class Api::UsersController < Api::ApiController
 
-  # since 3.6
-  def self.issues
-    Internal.issues_api
+  #
+  # GET /api/users/search?<parameters>
+  #
+  # -- Example
+  # curl -v 'http://localhost:9000/api/users/search?includeDeactivated=true&logins=simon,julien'
+  #
+  def search
+    users = Api.users.find(params)
+    hash = {
+      :users => users.map { |user| User.to_hash(user) }
+    }
+
+    respond_to do |format|
+      format.json { render :json => jsonp(hash) }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'users') }
+    end
   end
 
-  # since 3.6
-  def self.users
-    Internal.users_api
-  end
 end

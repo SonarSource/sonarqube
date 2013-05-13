@@ -1,9 +1,9 @@
 <dataset>
-  <!-- disabled -->
-  <users id="50" login="disabled" name="Disabled" email="disabled@lesbronzes.fr" created_at="2011-05-18" updated_at="2012-07-21" active="[false]"/>
+  <!-- inactive -->
+  <users id="50" login="inactive_user" name="Disabled" email="inactive@lesbronzes.fr" created_at="2011-05-18" updated_at="2012-07-21" active="[false]"/>
   <users id="100" login="marius" name="Marius" email="marius@lesbronzes.fr" created_at="2011-05-18" updated_at="2012-07-21" active="[false]"/>
 
-  <!-- enabled -->
+  <!-- active -->
   <users id="101" login="marius" name="Marius" email="marius@lesbronzes.fr" created_at="2011-05-18" updated_at="2012-07-21" active="[true]"/>
 
   <users id="102" login="jcdus" name="Jean-Claude Dus" email="jcdus@lesbronzes.fr" created_at="2011-05-18" updated_at="2012-07-21" active="[true]"/>

@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
@@ -30,6 +31,8 @@ import org.sonar.api.component.Component;
 import org.sonar.api.issue.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.user.User;
+import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
@@ -42,6 +45,7 @@ import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.platform.UserSession;
 
+import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -61,19 +65,23 @@ public class DefaultIssueFinder implements IssueFinder {
   private final IssueChangeDao issueChangeDao;
   private final AuthorizationDao authorizationDao;
   private final DefaultRuleFinder ruleFinder;
+  private final UserFinder userFinder;
   private final ResourceDao resourceDao;
   private final ActionPlanService actionPlanService;
 
   public DefaultIssueFinder(MyBatis myBatis,
                             IssueDao issueDao, IssueChangeDao issueChangeDao,
                             AuthorizationDao authorizationDao,
-                            DefaultRuleFinder ruleFinder, ResourceDao resourceDao,
+                            DefaultRuleFinder ruleFinder,
+                            UserFinder userFinder,
+                            ResourceDao resourceDao,
                             ActionPlanService actionPlanService) {
     this.myBatis = myBatis;
     this.issueDao = issueDao;
     this.issueChangeDao = issueChangeDao;
     this.authorizationDao = authorizationDao;
     this.ruleFinder = ruleFinder;
+    this.userFinder = userFinder;
     this.resourceDao = resourceDao;
     this.actionPlanService = actionPlanService;
   }
@@ -115,6 +123,7 @@ public class DefaultIssueFinder implements IssueFinder {
       Set<Integer> ruleIds = Sets.newHashSet();
       Set<Integer> componentIds = Sets.newHashSet();
       Set<String> actionPlanKeys = Sets.newHashSet();
+      Set<String> users = Sets.newHashSet();
       for (IssueDto dto : pagedIssues) {
         DefaultIssue defaultIssue = dto.toDefaultIssue();
         issuesByKey.put(dto.getKee(), defaultIssue);
@@ -122,17 +131,21 @@ public class DefaultIssueFinder implements IssueFinder {
         ruleIds.add(dto.getRuleId());
         componentIds.add(dto.getResourceId());
         actionPlanKeys.add(dto.getActionPlanKey());
+        users.add(dto.getUserLogin());
+        users.add(dto.getAssignee());
       }
       List<DefaultIssueComment> comments = issueChangeDao.selectCommentsByIssues(sqlSession, issuesByKey.keySet());
       for (DefaultIssueComment comment : comments) {
         DefaultIssue issue = issuesByKey.get(comment.issueKey());
         issue.addComment(comment);
+        users.add(comment.userLogin());
       }
 
       return new DefaultResults(issues,
         findRules(ruleIds),
         findComponents(componentIds),
         findActionPlans(actionPlanKeys),
+        findUsers(users),
         paging,
         authorizedIssues.size() != allIssues.size());
     } finally {
@@ -181,6 +194,10 @@ public class DefaultIssueFinder implements IssueFinder {
     return ruleFinder.findByIds(ruleIds);
   }
 
+  private Collection<User> findUsers(Set<String> logins) {
+    return userFinder.findByLogins(Lists.newArrayList(logins));
+  }
+
   private Collection<Component> findComponents(Set<Integer> componentIds) {
     return resourceDao.findByIds(componentIds);
   }
@@ -199,6 +216,7 @@ public class DefaultIssueFinder implements IssueFinder {
     private final Map<RuleKey, Rule> rulesByKey = Maps.newHashMap();
     private final Map<String, Component> componentsByKey = Maps.newHashMap();
     private final Map<String, ActionPlan> actionPlansByKey = Maps.newHashMap();
+    private final Map<String, User> usersByLogin = Maps.newHashMap();
     private final boolean securityExclusions;
     private final Paging paging;
 
@@ -206,6 +224,7 @@ public class DefaultIssueFinder implements IssueFinder {
                    Collection<Rule> rules,
                    Collection<Component> components,
                    Collection<ActionPlan> actionPlans,
+                   Collection<User> users,
                    Paging paging, boolean securityExclusions) {
       this.issues = issues;
       for (Rule rule : rules) {
@@ -217,6 +236,9 @@ public class DefaultIssueFinder implements IssueFinder {
       for (ActionPlan actionPlan : actionPlans) {
         actionPlansByKey.put(actionPlan.key(), actionPlan);
       }
+      for (User user : users) {
+        usersByLogin.put(user.login(), user);
+      }
       this.paging = paging;
       this.securityExclusions = securityExclusions;
     }
@@ -226,34 +248,53 @@ public class DefaultIssueFinder implements IssueFinder {
       return issues;
     }
 
+    @Override
     public Rule rule(Issue issue) {
       return rulesByKey.get(issue.ruleKey());
     }
 
+    @Override
     public Collection<Rule> rules() {
       return rulesByKey.values();
     }
 
+    @Override
     public Component component(Issue issue) {
       return componentsByKey.get(issue.componentKey());
     }
 
+    @Override
     public Collection<Component> components() {
       return componentsByKey.values();
     }
 
+    @Override
     public ActionPlan actionPlan(Issue issue) {
       return actionPlansByKey.get(issue.actionPlanKey());
     }
 
+    @Override
     public Collection<ActionPlan> actionPlans() {
       return actionPlansByKey.values();
     }
 
+    @Override
+    public Collection<User> users() {
+      return usersByLogin.values();
+    }
+
+    @Override
+    @CheckForNull
+    public User user(String login) {
+      return usersByLogin.get(login);
+    }
+
+    @Override
     public boolean securityExclusions() {
       return securityExclusions;
     }
 
+    @Override
     public Paging paging() {
       return paging;
     }

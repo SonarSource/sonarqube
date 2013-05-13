@@ -19,61 +19,45 @@
  */
 package org.sonar.core.user;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.database.model.User;
-import org.sonar.api.security.UserFinder;
-import org.sonar.core.user.DefaultUserFinder;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.api.user.User;
+import org.sonar.api.user.UserQuery;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import java.util.Arrays;
+import java.util.Collection;
 
-public class DefaultUserFinderTest extends AbstractDbUnitTestCase {
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
-  private UserFinder userFinder;
+public class DefaultUserFinderTest {
+  UserDao dao = mock(UserDao.class);
+  DefaultUserFinder finder = new DefaultUserFinder(dao);
 
-  @Before
-  public void setUp() {
-    setupData("fixture");
-    userFinder = new DefaultUserFinder(getSessionFactory());
+  @Test
+  public void findByLogin() throws Exception {
+    UserDto dto = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com");
+    when(dao.selectUserByLogin("david")).thenReturn(dto);
+
+    assertThat(finder.findByLogin("david").name()).isEqualTo("David");
   }
 
   @Test
-  public void shouldFindUserByLogin() {
-    User user = userFinder.findByLogin("simon");
-    assertThat(user.getId(), is(1));
-    assertThat(user.getLogin(), is("simon"));
-    assertThat(user.getName(), is("Simon Brandhof"));
-    assertThat(user.getEmail(), is("simon.brandhof@sonarsource.com"));
+  public void findByLogins() throws Exception {
+    UserDto david = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com");
+    UserDto john = new UserDto().setLogin("john").setName("John").setEmail("jo@hn.com");
+    when(dao.selectUsersByLogins(Arrays.asList("david", "john"))).thenReturn(Arrays.asList(david, john));
 
-    user = userFinder.findByLogin("godin");
-    assertThat(user.getId(), is(2));
-    assertThat(user.getLogin(), is("godin"));
-    assertThat(user.getName(), is("Evgeny Mandrikov"));
-    assertThat(user.getEmail(), is("evgeny.mandrikov@sonarsource.com"));
-
-    user = userFinder.findByLogin("user");
-    assertThat(user, nullValue());
+    Collection<User> users = finder.findByLogins(Arrays.asList("david", "john"));
+    assertThat(users).hasSize(2);
+    for (User user : users) {
+      assertThat(user.login()).isIn("david", "john");
+    }
   }
 
   @Test
-  public void shouldFindUserById() {
-    User user = userFinder.findById(1);
-    assertThat(user.getId(), is(1));
-    assertThat(user.getLogin(), is("simon"));
-    assertThat(user.getName(), is("Simon Brandhof"));
-    assertThat(user.getEmail(), is("simon.brandhof@sonarsource.com"));
-
-    user = userFinder.findById(2);
-    assertThat(user.getId(), is(2));
-    assertThat(user.getLogin(), is("godin"));
-    assertThat(user.getName(), is("Evgeny Mandrikov"));
-    assertThat(user.getEmail(), is("evgeny.mandrikov@sonarsource.com"));
-
-    user = userFinder.findById(3);
-    assertThat(user, nullValue());
+  public void findByQuery() throws Exception {
+    UserQuery query = UserQuery.builder().logins("simon").build();
+    finder.find(query);
+    verify(dao).selectUsers(query);
   }
-
 }

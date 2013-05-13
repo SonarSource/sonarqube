@@ -58,6 +58,7 @@ import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
+import org.sonar.core.user.HibernateUserFinder;
 import org.sonar.core.workflow.ReviewDatabaseStore;
 import org.sonar.core.workflow.WorkflowEngine;
 import org.sonar.jpa.dao.MeasuresDao;
@@ -84,6 +85,7 @@ import org.sonar.server.startup.*;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.*;
+import org.sonar.server.user.DefaultRubyUserService;
 
 import javax.servlet.ServletContext;
 
@@ -238,9 +240,7 @@ public final class Platform {
     servicesContainer.addSingleton(DefaultMetricFinder.class);
     servicesContainer.addSingleton(ProfilesConsole.class);
     servicesContainer.addSingleton(RulesConsole.class);
-    servicesContainer.addSingleton(DefaultUserFinder.class);
     servicesContainer.addSingleton(ResourceTypes.class);
-    servicesContainer.addSingleton(NewUserNotifier.class);
     servicesContainer.addSingleton(SettingsChangeNotifier.class);
     servicesContainer.addSingleton(PageDecorations.class);
     servicesContainer.addSingleton(MeasureFilterFactory.class);
@@ -249,6 +249,13 @@ public final class Platform {
     servicesContainer.addSingleton(DryRunDatabaseFactory.class);
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
+
+    // users
+    servicesContainer.addSingleton(HibernateUserFinder.class);
+    servicesContainer.addSingleton(NewUserNotifier.class);
+    servicesContainer.addSingleton(DefaultUserFinder.class);
+    servicesContainer.addSingleton(DefaultRubyUserService.class);
+
 
     // issues
     servicesContainer.addSingleton(ServerIssueStorage.class);

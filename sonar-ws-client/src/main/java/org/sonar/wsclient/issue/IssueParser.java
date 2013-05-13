@@ -22,6 +22,7 @@ package org.sonar.wsclient.issue;
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.rule.Rule;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
+import org.sonar.wsclient.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,13 @@ class IssueParser {
     if (jsonRules != null) {
       for (Map jsonRule : jsonRules) {
         result.add(new Rule(jsonRule));
+      }
+    }
+
+    List<Map> jsonUsers = (List) jsonRoot.get("users");
+    if (jsonUsers != null) {
+      for (Map jsonUser : jsonUsers) {
+        result.add(new User(jsonUser));
       }
     }
 

@@ -31,7 +31,7 @@ class ActionPlan < ActiveRecord::Base
 
   STATUS_OPEN = 'OPEN'
   STATUS_CLOSED = 'CLOSED'
-  
+
   def self.open_by_project_id(project_id)
     ActionPlan.find :all, :conditions => ['status=? AND project_id=?', STATUS_OPEN, project_id], :order => :name
   end
@@ -43,14 +43,14 @@ class ActionPlan < ActiveRecord::Base
   def key
     kee
   end
-  
+
   def user
     @user ||=
-        begin
-          user_login ? User.find(:first, :conditions => ['login=?', user_login]) : nil
-        end
+      begin
+        user_login ? User.find(:first, :conditions => ['login=?', user_login]) : nil
+      end
   end
-  
+
   def closed?
     status == STATUS_CLOSED
   end
@@ -61,27 +61,37 @@ class ActionPlan < ActiveRecord::Base
 
   def progress
     total_reviews = reviews.size
-    open_reviews = reviews.select{|r| r.open? || r.reopened?}.size
+    open_reviews = reviews.select { |r| r.open? || r.reopened? }.size
     {:total => total_reviews, :open => open_reviews, :resolved => total_reviews-open_reviews}
   end
-  
+
   def has_open_reviews?
     open_reviews.size > 0
   end
-  
+
   def open_reviews
-    reviews.select {|r| r.open? || r.reopened?}
+    reviews.select { |r| r.open? || r.reopened? }
   end
 
   def over_due?
     deadline ? status==STATUS_OPEN && deadline.past? : false
   end
 
+  def self.to_hash(action_plan)
+    hash = {:key => action_plan.key(), :name => action_plan.name(), :status => action_plan.status()}
+    hash[:desc] = action_plan.description() if action_plan.description() && !action_plan.description().blank?
+    hash[:userLogin] = action_plan.userLogin() if action_plan.userLogin()
+    hash[:deadLine] = Api::Utils.format_datetime(action_plan.deadLine()) if action_plan.deadLine()
+    hash[:creationDate] = Api::Utils.format_datetime(action_plan.creationDate()) if action_plan.creationDate()
+    hash[:updateDate] = Api::Utils.format_datetime(action_plan.updateDate()) if action_plan.updateDate()
+    hash
+  end
+
   private
-  
+
   def unique_name_on_same_project
     action_plan = ActionPlan.find(:first, :conditions => ['project_id=? AND name=?', project_id, name])
-    if action_plan && ( (id && action_plan.id!=id) || !id)
+    if action_plan && ((id && action_plan.id!=id) || !id)
       errors.add(:base, Api::Utils.message('action_plans.same_name_in_same_project'))
     end
   end

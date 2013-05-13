@@ -230,4 +230,10 @@ class User < ActiveRecord::Base
   def password_required?
     (crypted_password.blank? && self.new_record?) || !password.blank?
   end
+
+  def self.to_hash(java_user)
+    hash = {:login => java_user.login, :name => java_user.name, :active => java_user.active}
+    hash[:email] = java_user.email if java_user.email
+    hash
+  end
 end

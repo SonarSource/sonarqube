@@ -19,30 +19,49 @@
  */
 package org.sonar.core.user;
 
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.User;
-import org.sonar.api.security.UserFinder;
-import org.sonar.jpa.session.DatabaseSessionFactory;
+import com.google.common.collect.Lists;
+import org.sonar.api.user.User;
+import org.sonar.api.user.UserFinder;
+import org.sonar.api.user.UserQuery;
+
+import javax.annotation.CheckForNull;
+import java.util.List;
 
 /**
- * @since 2.10
+ * @since 3.6
  */
 public class DefaultUserFinder implements UserFinder {
 
-  private DatabaseSessionFactory sessionFactory;
+  private final UserDao userDao;
 
-  public DefaultUserFinder(DatabaseSessionFactory sessionFactory) {
-    this.sessionFactory = sessionFactory;
+  public DefaultUserFinder(UserDao userDao) {
+    this.userDao = userDao;
   }
 
-  public User findById(int id) {
-    DatabaseSession session = sessionFactory.getSession();
-    return session.getSingleResult(User.class, "id", id);
-  }
-
+  @Override
+  @CheckForNull
   public User findByLogin(String login) {
-    DatabaseSession session = sessionFactory.getSession();
-    return session.getSingleResult(User.class, "login", login);
+    UserDto dto = userDao.selectUserByLogin(login);
+    return dto != null ? dto.toUser() : null;
   }
 
+  @Override
+  public List<User> findByLogins(List<String> logins) {
+    List<UserDto> dtos = userDao.selectUsersByLogins(logins);
+    return toUsers(dtos);
+  }
+
+  @Override
+  public List<User> find(UserQuery query) {
+    List<UserDto> dtos = userDao.selectUsers(query);
+    return toUsers(dtos);
+  }
+
+  private List<User> toUsers(List<UserDto> dtos) {
+    List<User> users = Lists.newArrayList();
+    for (UserDto dto : dtos) {
+      users.add(dto.toUser());
+    }
+    return users;
+  }
 }

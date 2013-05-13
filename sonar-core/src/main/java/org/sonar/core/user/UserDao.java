@@ -19,8 +19,13 @@
  */
 package org.sonar.core.user;
 
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.user.UserQuery;
 import org.sonar.core.persistence.MyBatis;
+
+import javax.annotation.CheckForNull;
+import java.util.List;
 
 /**
  * @since 3.2
@@ -37,7 +42,7 @@ public class UserDao {
    *
    * @return the user, null if user not found
    */
-
+  @CheckForNull
   public UserDto selectUserByLogin(String login) {
     SqlSession session = mybatis.openSession();
     try {
@@ -48,11 +53,39 @@ public class UserDao {
     }
   }
 
+  public List<UserDto> selectUsersByLogins(List<String> logins) {
+    List<UserDto> users = Lists.newArrayList();
+    if (!logins.isEmpty()) {
+      SqlSession session = mybatis.openSession();
+      try {
+        UserMapper mapper = session.getMapper(UserMapper.class);
+        List<List<String>> partitions = Lists.partition(logins, 1000);
+        for (List<String> partition : partitions) {
+          users.addAll(mapper.selectUsersByLogins(partition));
+        }
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
+    }
+    return users;
+  }
+
+  public List<UserDto> selectUsers(UserQuery query) {
+    SqlSession session = mybatis.openSession();
+    try {
+      UserMapper mapper = session.getMapper(UserMapper.class);
+      return mapper.selectUsers(query);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   /**
    * Search for group by name.
    *
    * @return the group, null if group not found
    */
+
   public GroupDto selectGroupByName(String name) {
     SqlSession session = mybatis.openSession();
     try {

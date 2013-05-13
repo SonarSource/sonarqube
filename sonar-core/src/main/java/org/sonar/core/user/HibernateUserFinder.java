@@ -19,34 +19,30 @@
  */
 package org.sonar.core.user;
 
-import org.apache.ibatis.annotations.Param;
-import org.sonar.api.user.UserQuery;
-
-import javax.annotation.CheckForNull;
-import java.util.List;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.User;
+import org.sonar.api.security.UserFinder;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 
 /**
- * @since 3.2
+ * @since 2.10
  */
-public interface UserMapper {
+public class HibernateUserFinder implements UserFinder {
 
-  /**
-   * Select user by login. Note that disabled users are ignored.
-   */
-  @CheckForNull
-  UserDto selectUserByLogin(String login);
+  private DatabaseSessionFactory sessionFactory;
 
-  /**
-   * @since 3.6
-   */
-  List<UserDto> selectUsersByLogins(@Param("logins") List<String> logins);
+  public HibernateUserFinder(DatabaseSessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
 
-  /**
-   * @since 3.6
-   */
-  List<UserDto> selectUsers(UserQuery query);
+  public User findById(int id) {
+    DatabaseSession session = sessionFactory.getSession();
+    return session.getSingleResult(User.class, "id", id);
+  }
 
-  @CheckForNull
-  GroupDto selectGroupByName(String name);
+  public User findByLogin(String login) {
+    DatabaseSession session = sessionFactory.getSession();
+    return session.getSingleResult(User.class, "login", login);
+  }
 
 }

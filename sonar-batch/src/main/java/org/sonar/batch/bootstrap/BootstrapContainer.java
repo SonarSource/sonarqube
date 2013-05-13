@@ -35,7 +35,6 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.index.Caches;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -47,7 +46,7 @@ import org.sonar.core.persistence.SemaphoreUpdater;
 import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.rule.CacheRuleFinder;
-import org.sonar.core.user.DefaultUserFinder;
+import org.sonar.core.user.HibernateUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
@@ -125,7 +124,7 @@ public class BootstrapContainer extends ComponentContainer {
       ProfilesDao.class,
       CacheRuleFinder.class,
       CacheMetricFinder.class,
-      DefaultUserFinder.class,
+      HibernateUserFinder.class,
       SemaphoreUpdater.class,
       SemaphoresImpl.class,
       PastSnapshotFinderByDate.class,

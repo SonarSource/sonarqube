@@ -208,6 +208,14 @@ class Rule < ActiveRecord::Base
       :checksum => checksum)
   end
 
+  def self.to_hash(java_rule)
+    l10n_name = Internal.rules.ruleL10nName(java_rule)
+    l10n_desc = Internal.rules.ruleL10nDescription(java_rule)
+    hash = {:key => java_rule.ruleKey().toString()}
+    hash[:name] = l10n_name if l10n_name
+    hash[:desc] = l10n_desc if l10n_desc
+    hash
+  end
 
   def to_hash_json(profile, active_rule = nil)
     json = {'title' => name, 'key' => key, 'plugin' => plugin_name, 'config_key' => config_key}
@@ -376,7 +384,7 @@ class Rule < ActiveRecord::Base
   def self.sort_by(rules, sort_by)
     case sort_by
       when SORT_BY_CREATION_DATE
-        rules = rules.sort_by {|rule| rule.created_at}.reverse
+        rules = rules.sort_by { |rule| rule.created_at }.reverse
       else
         rules = rules.sort
     end

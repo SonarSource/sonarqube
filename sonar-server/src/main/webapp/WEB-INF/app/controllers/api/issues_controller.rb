@@ -18,6 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+# since 3.6
 class Api::IssuesController < Api::ApiController
 
   #
@@ -31,10 +32,11 @@ class Api::IssuesController < Api::ApiController
     hash = {
       :securityExclusions => results.securityExclusions,
       :paging => paging_to_hash(results.paging),
-      :issues => results.issues.map { |issue| issue_to_hash(issue) },
-      :rules => results.rules.map { |rule| rule_to_hash(rule) }
+      :issues => results.issues.map { |issue| Issue.to_hash(issue) },
+      :rules => results.rules.map { |rule| Rule.to_hash(rule) },
+      :users => results.users.map { |user| User.to_hash(user) }
     }
-    hash[:actionPlans] = results.actionPlans.map { |plan| action_plan_to_hash(plan) } if results.actionPlans.size>0
+    hash[:actionPlans] = results.actionPlans.map { |plan| ActionPlan.to_hash(plan) } if results.actionPlans.size>0
 
     respond_to do |format|
       format.json { render :json => jsonp(hash) }
@@ -73,7 +75,7 @@ class Api::IssuesController < Api::ApiController
     issue = Internal.issues.doTransition(params[:issue], params[:transition])
     if issue
       render :json => jsonp({
-                              :issue => issue_to_hash(issue)
+                              :issue => Issue.to_hash(issue)
                             })
     else
       render :status => 400
@@ -96,7 +98,7 @@ class Api::IssuesController < Api::ApiController
 
     text = Api::Utils.read_post_request_param(params[:text])
     comment = Internal.issues.addComment(params[:issue], text)
-    render :json => jsonp({:comment => comment_to_hash(comment)})
+    render :json => jsonp({:comment => Issue.comment_to_hash(comment)})
   end
 
   #
@@ -113,7 +115,7 @@ class Api::IssuesController < Api::ApiController
     require_parameters :key
 
     comment = Internal.issues.deleteComment(params[:key])
-    render :json => jsonp({:comment => comment_to_hash(comment)})
+    render :json => jsonp({:comment => Issue.comment_to_hash(comment)})
   end
 
   #
@@ -132,7 +134,7 @@ class Api::IssuesController < Api::ApiController
 
     text = Api::Utils.read_post_request_param(params[:text])
     comment = Internal.issues.editComment(params[:issue], text)
-    render :json => jsonp({:comment => comment_to_hash(comment)})
+    render :json => jsonp({:comment => Issue.comment_to_hash(comment)})
   end
 
   #
@@ -149,7 +151,7 @@ class Api::IssuesController < Api::ApiController
     require_parameters :issue
 
     issue = Internal.issues.assign(params[:issue], params[:assignee])
-    render :json => jsonp({:issue => issue_to_hash(issue)})
+    render :json => jsonp({:issue => Issue.to_hash(issue)})
   end
 
 
@@ -167,7 +169,7 @@ class Api::IssuesController < Api::ApiController
 
     issue = Internal.issues.setSeverity(params[:issue], params[:severity])
 
-    render :json => jsonp({:issue => issue_to_hash(issue)})
+    render :json => jsonp({:issue => Issue.to_hash(issue)})
   end
 
   #
@@ -187,7 +189,7 @@ class Api::IssuesController < Api::ApiController
     plan = params[:plan] if params[:plan] && !params[:plan].blank?
     issue = Internal.issues.plan(params[:issue], plan)
 
-    render :json => jsonp({:issue => issue_to_hash(issue)})
+    render :json => jsonp({:issue => Issue.to_hash(issue)})
   end
 
   #
@@ -213,72 +215,10 @@ class Api::IssuesController < Api::ApiController
     require_parameters :component, :rule
 
     issue = Internal.issues.create(params)
-    render :json => jsonp({:issue => issue_to_hash(issue)})
+    render :json => jsonp({:issue => Issue.to_hash(issue)})
   end
 
   private
-
-  def issue_to_hash(issue)
-    hash = {
-      :key => issue.key,
-      :component => issue.componentKey,
-      :rule => issue.ruleKey.toString(),
-      :status => issue.status
-    }
-    hash[:actionPlan] = issue.actionPlanKey if issue.actionPlanKey
-    hash[:resolution] = issue.resolution if issue.resolution
-    hash[:severity] = issue.severity if issue.severity
-    hash[:desc] = issue.description if issue.description
-    hash[:line] = issue.line.to_i if issue.line
-    hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
-    hash[:userLogin] = issue.userLogin if issue.userLogin
-    hash[:assignee] = issue.assignee if issue.assignee
-    hash[:creationDate] = Api::Utils.format_datetime(issue.creationDate) if issue.creationDate
-    hash[:updateDate] = Api::Utils.format_datetime(issue.updateDate) if issue.updateDate
-    hash[:closeDate] = Api::Utils.format_datetime(issue.closeDate) if issue.closeDate
-    hash[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
-    hash[:manual] = issue.manual if issue.manual
-    if issue.comments.size>0
-      hash[:comments] = issue.comments.map { |c| comment_to_hash(c) }
-    end
-    hash
-  end
-
-  def comment_to_hash(comment)
-    {
-      :key => comment.key(),
-      :login => comment.userLogin(),
-      :htmlText => Internal.text.markdownToHtml(comment.markdownText()),
-      :createdAt => Api::Utils.format_datetime(comment.createdAt())
-    }
-  end
-
-  def diffs_to_hash(diffs)
-    hash = {
-      :login => diffs.userLogin(),
-      :at => format_datetime(diffs.createdAt())
-    }
-    hash
-  end
-
-  def rule_to_hash(rule)
-    l10n_name = Internal.rules.ruleL10nName(rule)
-    l10n_desc = Internal.rules.ruleL10nDescription(rule)
-    hash = {:key => rule.ruleKey().toString()}
-    hash[:name] = l10n_name if l10n_name
-    hash[:desc] = l10n_desc if l10n_desc
-    hash
-  end
-
-  def action_plan_to_hash(action_plan)
-    hash = {:key => action_plan.key(), :name => action_plan.name(), :status => action_plan.status()}
-    hash[:desc] = action_plan.description() if action_plan.description() && !action_plan.description().blank?
-    hash[:userLogin] = action_plan.userLogin() if action_plan.userLogin()
-    hash[:deadLine] = Api::Utils.format_datetime(action_plan.deadLine()) if action_plan.deadLine()
-    hash[:createdAt] = Api::Utils.format_datetime(action_plan.createdAt()) if action_plan.createdAt()
-    hash[:updatedAt] = Api::Utils.format_datetime(action_plan.updatedAt()) if action_plan.updatedAt()
-    hash
-  end
 
   def paging_to_hash(paging)
     {

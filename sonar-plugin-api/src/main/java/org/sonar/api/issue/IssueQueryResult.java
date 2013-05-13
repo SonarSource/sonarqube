@@ -21,6 +21,7 @@ package org.sonar.api.issue;
 
 import org.sonar.api.component.Component;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.user.User;
 import org.sonar.api.utils.Paging;
 
 import javax.annotation.CheckForNull;
@@ -35,16 +36,31 @@ public interface IssueQueryResult {
 
   Rule rule(Issue issue);
 
+  /**
+   * The rules involved in the paginated {@link #issues()}.
+   */
   Collection<Rule> rules();
 
   Component component(Issue issue);
 
+  /**
+   * The components involved in the paginated {@link #issues()}.
+   */
   Collection<Component> components();
 
   @CheckForNull
   ActionPlan actionPlan(Issue issue);
 
   Collection<ActionPlan> actionPlans();
+
+  /**
+   * The users involved in the paginated {@link #issues()}, for example people who added a comment, created an issue
+   * or are assigned to issues.
+   */
+  Collection<User> users();
+
+  @CheckForNull
+  User user(String login);
 
   Paging paging();
 

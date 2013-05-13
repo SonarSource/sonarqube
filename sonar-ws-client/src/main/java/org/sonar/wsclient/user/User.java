@@ -17,36 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
+package org.sonar.wsclient.user;
 
-import org.apache.ibatis.annotations.Param;
-import org.sonar.api.user.UserQuery;
+import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import javax.annotation.CheckForNull;
-import java.util.List;
+import java.util.Map;
 
 /**
- * @since 3.2
+ * @since 3.6
  */
-public interface UserMapper {
+public class User {
+  private final Map json;
+
+  public User(Map json) {
+    this.json = json;
+  }
 
   /**
-   * Select user by login. Note that disabled users are ignored.
+   * Unique login
    */
+  public String login() {
+    return JsonUtils.getString(json, "login");
+  }
+
+  public String name() {
+    return JsonUtils.getString(json, "name");
+  }
+
   @CheckForNull
-  UserDto selectUserByLogin(String login);
+  public String email() {
+    return JsonUtils.getString(json, "email");
+  }
 
-  /**
-   * @since 3.6
-   */
-  List<UserDto> selectUsersByLogins(@Param("logins") List<String> logins);
-
-  /**
-   * @since 3.6
-   */
-  List<UserDto> selectUsers(UserQuery query);
-
-  @CheckForNull
-  GroupDto selectGroupByName(String name);
-
+  public boolean active() {
+    return JsonUtils.getBoolean(json, "active") == Boolean.TRUE;
+  }
 }

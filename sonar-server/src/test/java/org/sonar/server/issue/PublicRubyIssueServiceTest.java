@@ -102,16 +102,6 @@ public class PublicRubyIssueServiceTest {
   }
 
   @Test
-  public void should_parse_list_of_strings() {
-    assertThat(PublicRubyIssueService.toStrings(null)).isNull();
-    assertThat(PublicRubyIssueService.toStrings("")).isEmpty();
-    assertThat(PublicRubyIssueService.toStrings("foo")).containsOnly("foo");
-    assertThat(PublicRubyIssueService.toStrings("foo,bar")).containsOnly("foo", "bar");
-    assertThat(PublicRubyIssueService.toStrings(asList("foo", "bar"))).containsOnly("foo", "bar");
-
-  }
-
-  @Test
   public void should_start() throws Exception {
     facade.start();
     // nothing is done

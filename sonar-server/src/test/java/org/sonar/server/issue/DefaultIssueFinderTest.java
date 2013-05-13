@@ -29,6 +29,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
@@ -63,7 +64,8 @@ public class DefaultIssueFinderTest {
   DefaultRuleFinder ruleFinder = mock(DefaultRuleFinder.class);
   ResourceDao resourceDao = mock(ResourceDao.class);
   ActionPlanService actionPlanService = mock(ActionPlanService.class);
-  DefaultIssueFinder finder = new DefaultIssueFinder(mybatis, issueDao, issueChangeDao, authorizationDao, ruleFinder, resourceDao, actionPlanService);
+  UserFinder userFinder = mock(UserFinder.class);
+  DefaultIssueFinder finder = new DefaultIssueFinder(mybatis, issueDao, issueChangeDao, authorizationDao, ruleFinder, userFinder, resourceDao, actionPlanService);
 
   @Test
   public void should_find_issues() {

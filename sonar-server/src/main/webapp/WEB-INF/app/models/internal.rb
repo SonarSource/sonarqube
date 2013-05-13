@@ -38,6 +38,10 @@ class Internal
     component(Java::OrgSonarServerRule::RubyRuleService.java_class)
   end
 
+  def self.users_api
+    component(Java::OrgSonarApiUser::RubyUserService.java_class)
+  end
+
   private
   def self.component(component_java_class)
     Java::OrgSonarServerPlatform::Platform.component(component_java_class)

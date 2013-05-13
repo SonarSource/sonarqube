@@ -3,10 +3,49 @@
 
 <mapper namespace="org.sonar.core.user.UserMapper">
 
+  <sql id="userColumns">
+    u.id as id,
+    u.login as login,
+    u.name as name,
+    u.email as email,
+    u.created_at as "createdAt",
+    u.updated_at as "updatedAt",
+    u.active as "active"
+  </sql>
+
   <select id="selectUserByLogin" parameterType="string" resultType="User">
-    select id, login, name, email, created_at AS "createdAt", updated_at AS "updatedAt", active as "enabled"
-    from users where login=#{id} and active=${_true}
+    select
+    <include refid="userColumns"/>
+    from users u where u.login=#{id} and u.active=${_true}
   </select>
+
+  <select id="selectUsersByLogins" parameterType="map" resultType="User">
+    select
+    <include refid="userColumns"/>
+    from users u where u.login in
+    <foreach item="login" index="index" collection="logins" open="(" separator="," close=")">
+      #{login}
+    </foreach>
+  </select>
+
+  <select id="selectUsers" parameterType="map" resultType="User">
+    select
+    <include refid="userColumns"/>
+    from users u
+    <where>
+      <if test="logins != null and logins.size() > 0">
+        u.login in
+        <foreach item="login" index="index" collection="logins" open="(" separator="," close=")">
+          #{login}
+        </foreach>
+      </if>
+      <if test="includeDeactivated==false">
+        and u.active=${_true}
+      </if>
+    </where>
+    order by u.name
+  </select>
+
 
   <select id="selectGroupByName" parameterType="string" resultType="Group">
     select id, name, description, created_at AS "createdAt", updated_at AS "updatedAt"

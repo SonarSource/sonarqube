@@ -19,34 +19,34 @@
  */
 package org.sonar.core.user;
 
-import org.apache.ibatis.annotations.Param;
-import org.sonar.api.user.UserQuery;
+import org.junit.Test;
 
-import javax.annotation.CheckForNull;
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * @since 3.2
- */
-public interface UserMapper {
+public class DefaultUserTest {
+  @Test
+  public void test_object_methods() throws Exception {
+    DefaultUser john = new DefaultUser().setLogin("john").setName("John");
+    DefaultUser eric = new DefaultUser().setLogin("eric").setName("Eric");
 
-  /**
-   * Select user by login. Note that disabled users are ignored.
-   */
-  @CheckForNull
-  UserDto selectUserByLogin(String login);
+    assertThat(john).isEqualTo(john);
+    assertThat(john).isNotEqualTo(eric);
+    assertThat(john.hashCode()).isEqualTo(john.hashCode());
+    assertThat(john.toString()).contains("login=john").contains("name=John");
+  }
 
-  /**
-   * @since 3.6
-   */
-  List<UserDto> selectUsersByLogins(@Param("logins") List<String> logins);
+  @Test
+  public void test_email() {
+    DefaultUser user = new DefaultUser();
+    assertThat(user.email()).isNull();
 
-  /**
-   * @since 3.6
-   */
-  List<UserDto> selectUsers(UserQuery query);
+    user.setEmail("");
+    assertThat(user.email()).isNull();
 
-  @CheckForNull
-  GroupDto selectGroupByName(String name);
+    user.setEmail("  ");
+    assertThat(user.email()).isNull();
 
+    user.setEmail("s@b.com");
+    assertThat(user.email()).isEqualTo("s@b.com");
+  }
 }

@@ -31,6 +31,7 @@ import org.sonar.api.issue.RubyIssueService;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
+import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -62,22 +63,22 @@ public class PublicRubyIssueService implements RubyIssueService {
   IssueQuery toQuery(Map<String, Object> props) {
     IssueQuery.Builder builder = IssueQuery.builder();
     builder.requiredRole(UserRole.CODEVIEWER);
-    builder.issueKeys(toStrings(props.get("issueKeys")));
-    builder.severities(toStrings(props.get("severities")));
-    builder.statuses(toStrings(props.get("statuses")));
-    builder.resolutions(toStrings(props.get("resolutions")));
-    builder.components(toStrings(props.get("components")));
-    builder.componentRoots(toStrings(props.get("componentRoots")));
+    builder.issueKeys(RubyUtils.toStrings(props.get("issueKeys")));
+    builder.severities(RubyUtils.toStrings(props.get("severities")));
+    builder.statuses(RubyUtils.toStrings(props.get("statuses")));
+    builder.resolutions(RubyUtils.toStrings(props.get("resolutions")));
+    builder.components(RubyUtils.toStrings(props.get("components")));
+    builder.componentRoots(RubyUtils.toStrings(props.get("componentRoots")));
     builder.rules(toRules(props.get("rules")));
-    builder.actionPlans(toStrings(props.get("actionPlans")));
-    builder.userLogins(toStrings(props.get("userLogins")));
-    builder.assignees(toStrings(props.get("assignees")));
-    builder.assigned(toBoolean(props.get("assigned")));
-    builder.planned(toBoolean(props.get("planned")));
-    builder.createdAfter(toDate(props.get("createdAfter")));
-    builder.createdBefore(toDate(props.get("createdBefore")));
-    builder.pageSize(toInteger(props.get("pageSize")));
-    builder.pageIndex(toInteger(props.get("pageIndex")));
+    builder.actionPlans(RubyUtils.toStrings(props.get("actionPlans")));
+    builder.userLogins(RubyUtils.toStrings(props.get("userLogins")));
+    builder.assignees(RubyUtils.toStrings(props.get("assignees")));
+    builder.assigned(RubyUtils.toBoolean(props.get("assigned")));
+    builder.planned(RubyUtils.toBoolean(props.get("planned")));
+    builder.createdAfter(RubyUtils.toDate(props.get("createdAfter")));
+    builder.createdBefore(RubyUtils.toDate(props.get("createdBefore")));
+    builder.pageSize(RubyUtils.toInteger(props.get("pageSize")));
+    builder.pageIndex(RubyUtils.toInteger(props.get("pageIndex")));
     String sort = (String) props.get("sort");
     if (sort != null) {
       builder.sort(IssueQuery.Sort.valueOf(sort));
@@ -108,63 +109,7 @@ public class PublicRubyIssueService implements RubyIssueService {
     });
   }
 
-  static List<String> toStrings(Object o) {
-    List<String> result = null;
-    if (o != null) {
-      if (o instanceof List) {
-        // assume that it contains only strings
-        result = (List) o;
-      } else if (o instanceof CharSequence) {
-        result = Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((CharSequence) o));
-      }
-    }
-    return result;
-  }
 
-  Integer toInteger(Object o) {
-    if (o instanceof Integer) {
-      return (Integer) o;
-    }
-    if (o instanceof Long) {
-      return Ints.checkedCast((Long) o);
-    }
-
-    if (o instanceof String) {
-      return Integer.parseInt((String) o);
-    }
-    return null;
-  }
-
-  Double toDouble(Object o) {
-    if (o instanceof Double) {
-      return (Double) o;
-    }
-    if (o instanceof String) {
-      return Double.parseDouble((String) o);
-    }
-    return null;
-  }
-
-
-  Date toDate(Object o) {
-    if (o instanceof Date) {
-      return (Date) o;
-    }
-    if (o instanceof String) {
-      return DateUtils.parseDateTime((String) o);
-    }
-    return null;
-  }
-
-  Boolean toBoolean(Object o) {
-    if (o instanceof Boolean) {
-      return (Boolean) o;
-    }
-    if (o instanceof String) {
-      return Boolean.parseBoolean((String) o);
-    }
-    return null;
-  }
 
   public void start() {
     // used to force pico to instantiate the singleton at startup

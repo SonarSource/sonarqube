@@ -17,36 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
+package org.sonar.server.user;
 
-import org.apache.ibatis.annotations.Param;
+import org.sonar.api.user.RubyUserService;
+import org.sonar.api.user.User;
+import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
+import org.sonar.server.util.RubyUtils;
 
-import javax.annotation.CheckForNull;
 import java.util.List;
+import java.util.Map;
 
-/**
- * @since 3.2
- */
-public interface UserMapper {
+public class DefaultRubyUserService implements RubyUserService {
+  private final UserFinder finder;
 
-  /**
-   * Select user by login. Note that disabled users are ignored.
-   */
-  @CheckForNull
-  UserDto selectUserByLogin(String login);
+  public DefaultRubyUserService(UserFinder finder) {
+    this.finder = finder;
+  }
 
-  /**
-   * @since 3.6
-   */
-  List<UserDto> selectUsersByLogins(@Param("logins") List<String> logins);
+  @Override
+  public List<User> find(Map<String, Object> params) {
+    UserQuery query = parseQuery(params);
+    return finder.find(query);
+  }
 
-  /**
-   * @since 3.6
-   */
-  List<UserDto> selectUsers(UserQuery query);
-
-  @CheckForNull
-  GroupDto selectGroupByName(String name);
-
+  private UserQuery parseQuery(Map<String, Object> params) {
+    UserQuery.Builder builder = UserQuery.builder();
+    if (RubyUtils.toBoolean(params.get("includeDeactivated"))==Boolean.TRUE) {
+      builder.includeDeactivated();
+    }
+    builder.logins(RubyUtils.toStrings(params.get("logins")));
+    return builder.build();
+  }
 }

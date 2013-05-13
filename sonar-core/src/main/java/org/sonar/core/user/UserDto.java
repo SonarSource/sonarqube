@@ -32,7 +32,7 @@ public class UserDto {
   private String email;
   private Date createdAt;
   private Date updatedAt;
-  private boolean enabled = true;
+  private boolean active = true;
 
   public Long getId() {
     return id;
@@ -88,12 +88,20 @@ public class UserDto {
     return this;
   }
 
-  public boolean isEnabled() {
-    return enabled;
+  public boolean isActive() {
+    return active;
   }
 
-  public UserDto setEnabled(boolean enabled) {
-    this.enabled = enabled;
+  public UserDto setActive(boolean b) {
+    this.active = b;
     return this;
+  }
+
+  public DefaultUser toUser() {
+    return new DefaultUser()
+      .setLogin(login)
+      .setName(name)
+      .setEmail(email)
+      .setActive(active);
   }
 }

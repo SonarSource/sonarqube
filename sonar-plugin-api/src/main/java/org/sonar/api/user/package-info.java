@@ -17,36 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
 
-import org.apache.ibatis.annotations.Param;
-import org.sonar.api.user.UserQuery;
+@ParametersAreNonnullByDefault
+package org.sonar.api.user;
 
-import javax.annotation.CheckForNull;
-import java.util.List;
-
-/**
- * @since 3.2
- */
-public interface UserMapper {
-
-  /**
-   * Select user by login. Note that disabled users are ignored.
-   */
-  @CheckForNull
-  UserDto selectUserByLogin(String login);
-
-  /**
-   * @since 3.6
-   */
-  List<UserDto> selectUsersByLogins(@Param("logins") List<String> logins);
-
-  /**
-   * @since 3.6
-   */
-  List<UserDto> selectUsers(UserQuery query);
-
-  @CheckForNull
-  GroupDto selectGroupByName(String name);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

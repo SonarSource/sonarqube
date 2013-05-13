@@ -21,7 +21,12 @@ package org.sonar.core.user;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.user.UserQuery;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -36,7 +41,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectUserByLogin_ignore_same_disabled_login() {
+  public void selectUserByLogin_ignore_same_inactive_login() {
     setupData("selectUserByLogin");
 
     UserDto user = dao.selectUserByLogin("marius");
@@ -47,14 +52,14 @@ public class UserDaoTest extends AbstractDaoTestCase {
     assertThat(user.getEmail()).isEqualTo("marius@lesbronzes.fr");
     assertThat(user.getCreatedAt()).isNotNull();
     assertThat(user.getUpdatedAt()).isNotNull();
-    assertThat(user.isEnabled()).isTrue();
+    assertThat(user.isActive()).isTrue();
   }
 
   @Test
-  public void selectUserByLogin_ignore_disabled() {
+  public void selectUserByLogin_ignore_inactive() {
     setupData("selectUserByLogin");
 
-    UserDto user = dao.selectUserByLogin("disabled");
+    UserDto user = dao.selectUserByLogin("inactive_user");
     assertThat(user).isNull();
   }
 
@@ -64,6 +69,51 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
     UserDto user = dao.selectUserByLogin("not_found");
     assertThat(user).isNull();
+  }
+
+  @Test
+  public void selectUsersByLogins() throws Exception {
+    setupData("selectUsersByLogins");
+
+    List<UserDto> users = dao.selectUsersByLogins(Arrays.asList("marius", "inactive_user", "other"));
+    assertThat(users).hasSize(2);
+    assertThat(users).onProperty("login").containsOnly("marius", "inactive_user");
+  }
+
+  @Test
+  public void selectUsersByLogins_empty_logins() throws Exception {
+    // no need to access db
+    List<UserDto> users = dao.selectUsersByLogins(Collections.<String>emptyList());
+    assertThat(users).isEmpty();
+  }
+
+  @Test
+  public void selectUsersByQuery_all() throws Exception {
+    setupData("selectUsersByQuery");
+
+    UserQuery query = UserQuery.builder().includeDeactivated().build();
+    List<UserDto> users = dao.selectUsers(query);
+    assertThat(users).hasSize(2);
+  }
+
+  @Test
+  public void selectUsersByQuery_only_actives() throws Exception {
+    setupData("selectUsersByQuery");
+
+    UserQuery query = UserQuery.ALL_ACTIVES;
+    List<UserDto> users = dao.selectUsers(query);
+    assertThat(users).hasSize(1);
+    assertThat(users.get(0).getName()).isEqualTo("Marius");
+  }
+
+  @Test
+  public void selectUsersByQuery_filter_by_login() throws Exception {
+    setupData("selectUsersByQuery");
+
+    UserQuery query = UserQuery.builder().logins("marius", "john").build();
+    List<UserDto> users = dao.selectUsers(query);
+    assertThat(users).hasSize(1);
+    assertThat(users.get(0).getName()).isEqualTo("Marius");
   }
 
   @Test
