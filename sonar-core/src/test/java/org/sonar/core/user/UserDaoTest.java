@@ -41,21 +41,6 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectUserByLogin_ignore_same_inactive_login() {
-    setupData("selectUserByLogin");
-
-    UserDto user = dao.selectUserByLogin("marius");
-    assertThat(user).isNotNull();
-    assertThat(user.getId()).isEqualTo(101L);
-    assertThat(user.getLogin()).isEqualTo("marius");
-    assertThat(user.getName()).isEqualTo("Marius");
-    assertThat(user.getEmail()).isEqualTo("marius@lesbronzes.fr");
-    assertThat(user.getCreatedAt()).isNotNull();
-    assertThat(user.getUpdatedAt()).isNotNull();
-    assertThat(user.isActive()).isTrue();
-  }
-
-  @Test
   public void selectUserByLogin_ignore_inactive() {
     setupData("selectUserByLogin");
 

@@ -1,7 +1,6 @@
 <dataset>
   <!-- inactive -->
   <users id="50" login="inactive_user" name="Disabled" email="inactive@lesbronzes.fr" created_at="2011-05-18" updated_at="2012-07-21" active="[false]"/>
-  <users id="100" login="marius" name="Marius" email="marius@lesbronzes.fr" created_at="2011-05-18" updated_at="2012-07-21" active="[false]"/>
 
   <!-- active -->
   <users id="101" login="marius" name="Marius" email="marius@lesbronzes.fr" created_at="2011-05-18" updated_at="2012-07-21" active="[true]"/>
