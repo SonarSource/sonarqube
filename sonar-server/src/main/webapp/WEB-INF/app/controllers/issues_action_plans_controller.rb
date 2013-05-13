@@ -26,6 +26,8 @@ class IssuesActionPlansController < ApplicationController
 
   def index
     load_action_plans()
+    users = Api.users.find('logins' => (@open_action_plans + @closed_action_plans).collect {|action_plan| action_plan.userLogin()}.join(","))
+    @users = Hash[users.collect { |user| [user.login(), user.name()] }]
   end
 
   def edit
@@ -85,7 +87,7 @@ class IssuesActionPlansController < ApplicationController
 
   def load_action_plans
     @open_action_plans = Internal.issues.findActionPlanStats(@resource.key).select {|plan| plan.status() == 'OPEN'}
-    @closed_action_plans = Internal.issues.findActionPlanStats(@resource.key).select {|plan| plan.status() == 'CLOSED'}.sort{|plan1, plan2| plan2.deadLine() <=> plan1.deadLine()}
+    @closed_action_plans = Internal.issues.findActionPlanStats(@resource.key).select {|plan| plan.status() == 'CLOSED'}
   end
 
   def find_by_key(key)

@@ -38,8 +38,7 @@
               </td>
             <% end %>
             <td id="desc"><%= h(plan.description()) -%></td>
-            <% #TODO replace user login by user name -%>
-            <td id="desc"><%= h(plan.userLogin()) -%></td>
+            <td id="desc"><%= h(@users[plan.userLogin()]) -%></td>
             <td class="thin nowrap right">
               <%= link_to message('edit'), {:action => 'edit', :id => @resource.id, :plan_key => plan.key()}, :class => 'link-action' -%>
               &nbsp;
@@ -98,8 +97,7 @@
                 </td>
               <% end %>
               <td id="desc"><%= h(plan.description()) -%></td>
-              <% #TODO replace user login by user name -%>
-              <td id="desc"><%= h(plan.userLogin()) -%></td>
+              <td id="desc"><%= h(@users[plan.userLogin()]) -%></td>
               <td class="thin nowrap right">
                 <%= link_to message('issues_action_plans.reopen'),
                             {:action => 'change_status', :id => @resource.id, :plan_key => plan.key}, {:method => 'POST', :class => 'action'} -%>
