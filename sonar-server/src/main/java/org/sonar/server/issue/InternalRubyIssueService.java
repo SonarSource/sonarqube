@@ -31,6 +31,9 @@ import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.platform.UserSession;
 
 import java.text.SimpleDateFormat;
@@ -47,13 +50,16 @@ public class InternalRubyIssueService implements ServerComponent {
   private final IssueService issueService;
   private final IssueCommentService commentService;
   private final ActionPlanService actionPlanService;
+  private final ResourceDao resourceDao;
 
   public InternalRubyIssueService(IssueService issueService,
                                   IssueCommentService commentService,
-                                  ActionPlanService actionPlanService) {
+                                  ActionPlanService actionPlanService,
+                                  ResourceDao resourceDao) {
     this.issueService = issueService;
     this.commentService = commentService;
     this.actionPlanService = actionPlanService;
+    this.resourceDao = resourceDao;
   }
 
   public List<Transition> listTransitions(String issueKey) {
@@ -120,44 +126,59 @@ public class InternalRubyIssueService implements ServerComponent {
 
   public Result<ActionPlan> createActionPlan(Map<String, String> parameters) {
     // TODO verify authorization
-    // TODO check existence of projectKey
 
     Result<ActionPlan> result = createActionPlanResult(parameters);
     if (result.ok()) {
-      result.setObject(actionPlanService.create(result.get(), parameters.get("projectKey")));
+      result.setObject(actionPlanService.create(result.get()));
     }
     return result;
   }
 
   public Result<ActionPlan> updateActionPlan(String key, Map<String, String> parameters) {
     // TODO verify authorization
-    // TODO check existence of projectKey
 
     DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key);
-    Result<ActionPlan> result = createActionPlanResult(parameters, existingActionPlan.name());
+    if (existingActionPlan == null) {
+      Result<ActionPlan> result = new Result<ActionPlan>();
+      result.addError("issues_action_plans.errors.action_plan_does_not_exists", key);
+      return result;
+    } else {
+      Result<ActionPlan> result = createActionPlanResult(parameters, existingActionPlan.name());
+      if (result.ok()) {
+        DefaultActionPlan actionPlan = (DefaultActionPlan) result.get();
+        actionPlan.setKey(existingActionPlan.key());
+        actionPlan.setUserLogin(existingActionPlan.userLogin());
+        result.setObject(actionPlanService.update(actionPlan));
+      }
+      return result;
+    }
+  }
+
+  public Result<ActionPlan> closeActionPlan(String actionPlanKey) {
+    // TODO verify authorization
+    Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
     if (result.ok()) {
-      String projectKey = parameters.get("projectKey");
-      DefaultActionPlan actionPlan = (DefaultActionPlan) result.get();
-      actionPlan.setKey(existingActionPlan.key());
-      actionPlan.setUserLogin(existingActionPlan.userLogin());
-      result.setObject(actionPlanService.update(actionPlan, projectKey));
+      result.setObject(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED));
     }
     return result;
   }
 
-  public ActionPlan closeActionPlan(String actionPlanKey) {
+  public Result<ActionPlan> openActionPlan(String actionPlanKey) {
     // TODO verify authorization
-    return actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED);
+    Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
+    if (result.ok()) {
+      result.setObject(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN));
+    }
+    return result;
   }
 
-  public ActionPlan openActionPlan(String actionPlanKey) {
+  public Result<ActionPlan> deleteActionPlan(String actionPlanKey) {
     // TODO verify authorization
-    return actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN);
-  }
-
-  public void deleteActionPlan(String actionPlanKey) {
-    // TODO verify authorization
-    actionPlanService.delete(actionPlanKey);
+    Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
+    if (result.ok()) {
+      actionPlanService.delete(actionPlanKey);
+    }
+    return result;
   }
 
   @VisibleForTesting
@@ -172,7 +193,7 @@ public class InternalRubyIssueService implements ServerComponent {
     String name = parameters.get("name");
     String description = parameters.get("description");
     String deadLineParam = parameters.get("deadLine");
-    String projectParam = parameters.get("projectKey");
+    String projectParam = parameters.get("project");
     Date deadLine = null;
 
     if (Strings.isNullOrEmpty(name)) {
@@ -187,8 +208,13 @@ public class InternalRubyIssueService implements ServerComponent {
       result.addError("errors.is_too_long", "description", 1000);
     }
 
-    if (Strings.isNullOrEmpty(projectParam)) {
+    if (Strings.isNullOrEmpty(projectParam) && oldName == null) {
       result.addError("errors.cant_be_empty", "project");
+    } else {
+      ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
+      if (project == null) {
+        result.addError("issues_action_plans.errors.project_does_not_exists", projectParam);
+      }
     }
 
     if (!Strings.isNullOrEmpty(deadLineParam)) {
@@ -208,12 +234,22 @@ public class InternalRubyIssueService implements ServerComponent {
       result.addError("issues_action_plans.same_name_in_same_project");
     }
 
-    DefaultActionPlan actionPlan = DefaultActionPlan.create(name)
-                                     .setDescription(description)
-                                     .setUserLogin(UserSession.get().login())
-                                     .setDeadLine(deadLine);
-    result.setObject(actionPlan);
+    if (result.ok()) {
+      DefaultActionPlan actionPlan = DefaultActionPlan.create(name)
+                                       .setProjectKey(projectParam)
+                                       .setDescription(description)
+                                       .setUserLogin(UserSession.get().login())
+                                       .setDeadLine(deadLine);
+      result.setObject(actionPlan);
+    }
     return result;
   }
 
+  private Result<ActionPlan> createResultForExistingActionPlan(String actionPlanKey) {
+    Result<ActionPlan> result = new Result<ActionPlan>();
+    if (findActionPlan(actionPlanKey) == null) {
+      result.addError("issues_action_plans.errors.action_plan_does_not_exists", actionPlanKey);
+    }
+    return result;
+  }
 }

@@ -41,10 +41,10 @@ public class ActionPlanStatsDto {
   private Date deadLine;
   private Date createdAt;
   private Date updatedAt;
-
   private int totalIssues;
   private int openIssues;
-
+  // joins
+  private transient String projectKey;
 
   public Integer getId() {
     return id;
@@ -154,22 +154,35 @@ public class ActionPlanStatsDto {
     return this;
   }
 
+  public String getProjectKey() {
+    return projectKey;
+  }
+
+  /**
+   * Only for unit tests
+   */
+  public ActionPlanStatsDto setProjectKey_unit_test_only(String projectKey) {
+    this.projectKey = projectKey;
+    return this;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public ActionPlanStats toActionPlanStat(){
+  public ActionPlanStats toActionPlanStat() {
     return ActionPlanStats.create(name)
-      .setKey(kee)
-      .setDescription(description)
-      .setStatus(status)
-      .setDeadLine(deadLine)
-      .setUserLogin(userLogin)
-      .setCreatedAt(createdAt)
-      .setUpdatedAt(updatedAt)
-      .setTotalIssues(totalIssues)
-      .setOpenIssues(openIssues);
+             .setKey(kee)
+             .setProjectKey(projectKey)
+             .setDescription(description)
+             .setStatus(status)
+             .setDeadLine(deadLine)
+             .setUserLogin(userLogin)
+             .setCreatedAt(createdAt)
+             .setUpdatedAt(updatedAt)
+             .setTotalIssues(totalIssues)
+             .setOpenIssues(openIssues);
   }
 
 }

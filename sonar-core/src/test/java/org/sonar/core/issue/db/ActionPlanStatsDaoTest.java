@@ -39,12 +39,13 @@ public class ActionPlanStatsDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_find_by_project() {
-    setupData("should_find_by_project");
+    setupData("shared", "should_find_by_project");
 
     Collection<ActionPlanStatsDto> result = dao.findByProjectId(1l);
     assertThat(result).isNotEmpty();
 
     ActionPlanStatsDto actionPlanStatsDto = result.iterator().next();
+    assertThat(actionPlanStatsDto.getProjectKey()).isEqualTo("org.sonar.Sample");
     assertThat(actionPlanStatsDto.getTotalIssues()).isEqualTo(3);
     assertThat(actionPlanStatsDto.getOpenIssues()).isEqualTo(1);
   }

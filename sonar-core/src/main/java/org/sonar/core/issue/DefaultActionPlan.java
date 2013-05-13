@@ -29,6 +29,7 @@ public class DefaultActionPlan implements ActionPlan {
 
   private String key;
   private String name;
+  private String projectKey;
   private String description;
   private String userLogin;
   private String status;
@@ -65,6 +66,15 @@ public class DefaultActionPlan implements ActionPlan {
 
   public DefaultActionPlan setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  public String projectKey() {
+    return projectKey;
+  }
+
+  public DefaultActionPlan setProjectKey(String projectKey) {
+    this.projectKey = projectKey;
     return this;
   }
 

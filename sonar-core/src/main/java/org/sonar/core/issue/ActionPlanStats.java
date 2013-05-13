@@ -30,6 +30,7 @@ public class ActionPlanStats implements Serializable {
 
   private String key;
   private String name;
+  private String projectKey;
   private String description;
   private String userLogin;
   private String status;
@@ -68,6 +69,15 @@ public class ActionPlanStats implements Serializable {
 
   public ActionPlanStats setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  public String projectKey() {
+    return projectKey;
+  }
+
+  public ActionPlanStats setProjectKey(String projectKey) {
+    this.projectKey = projectKey;
     return this;
   }
 

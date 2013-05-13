@@ -70,16 +70,17 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_find_by_key() {
-    setupData("should_find_by_key");
+    setupData("shared", "should_find_by_key");
 
     ActionPlanDto result = dao.findByKey("ABC");
     assertThat(result).isNotNull();
     assertThat(result.getKey()).isEqualTo("ABC");
+    assertThat(result.getProjectKey()).isEqualTo("org.sonar.Sample");
   }
 
   @Test
   public void should_find_by_keys() {
-    setupData("should_find_by_keys");
+    setupData("shared", "should_find_by_keys");
 
     Collection<ActionPlanDto> result = dao.findByKeys(newArrayList("ABC", "ABD", "ABE"));
     assertThat(result).hasSize(3);
@@ -87,7 +88,7 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_find_open_by_project_id() {
-    setupData("should_find_open_by_project_id");
+    setupData("shared", "should_find_open_by_project_id");
 
     Collection<ActionPlanDto> result = dao.findOpenByProjectId(1l);
     assertThat(result).hasSize(2);
@@ -95,7 +96,7 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_find_by_name_and_project_id() {
-    setupData("should_find_by_name_and_project_id");
+    setupData("shared", "should_find_by_name_and_project_id");
 
     Collection<ActionPlanDto> result = dao.findByNameAndProjectId("SHORT_TERM", 1l);
     assertThat(result).hasSize(2);

@@ -40,6 +40,8 @@ public interface ActionPlan extends Serializable {
 
   String name();
 
+  String projectKey();
+
   @CheckForNull
   String description();
 

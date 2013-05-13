@@ -57,7 +57,7 @@ public class ActionPlanServiceTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
     ActionPlan actionPlan = DefaultActionPlan.create("Long term");
 
-    actionPlanService.create(actionPlan, "org.sonar.Sample");
+    actionPlanService.create(actionPlan);
     verify(actionPlanDao).save(any(ActionPlanDto.class));
   }
 

@@ -14,18 +14,20 @@
     ap.status as status,
     ap.deadline as deadLine,
     ap.created_at as createdAt,
-    ap.updated_at as updatedAt
+    ap.updated_at as updatedAt,
+    p.kee as projectKey
   </sql>
 
   <select id="findByProjectId" parameterType="map" resultType="ActionPlanStats">
     select <include refid="actionPlanColumns"/>, count(total_issues.id) as totalIssues, count(open_issues.id) as openIssues
     from action_plans ap
+    left join projects p on p.id = ap.project_id
     left join issues total_issues on total_issues.action_plan_key = ap.kee
     left join issues open_issues on open_issues.id = total_issues.id and open_issues.resolution is null
     <where>
       and ap.project_id = #{projectId}
     </where>
-    group by ap.id, ap.kee, ap.name, ap.description, ap.user_login, ap.project_id, ap.status, ap.deadline, ap.created_at, ap.updated_at
+    group by ap.id, ap.kee, ap.name, ap.description, ap.user_login, ap.project_id, ap.status, ap.deadline, ap.created_at, ap.updated_at, p.kee
     order by ap.deadline asc
   </select>
 

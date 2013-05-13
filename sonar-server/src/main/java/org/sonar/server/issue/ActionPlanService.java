@@ -57,13 +57,13 @@ public class ActionPlanService implements ServerComponent {
     this.resourceDao = resourceDao;
   }
 
-  public ActionPlan create(ActionPlan actionPlan, String projectKey){
-    actionPlanDao.save(ActionPlanDto.toActionDto(actionPlan, findProject(projectKey).getId()));
+  public ActionPlan create(ActionPlan actionPlan){
+    actionPlanDao.save(ActionPlanDto.toActionDto(actionPlan, findProject(actionPlan.projectKey()).getId()));
     return actionPlan;
   }
 
-  public ActionPlan update(ActionPlan actionPlan, String projectKey){
-    actionPlanDao.update(ActionPlanDto.toActionDto(actionPlan, findProject(projectKey).getId()));
+  public ActionPlan update(ActionPlan actionPlan){
+    actionPlanDao.update(ActionPlanDto.toActionDto(actionPlan, findProject(actionPlan.projectKey()).getId()));
     return actionPlan;
   }
 

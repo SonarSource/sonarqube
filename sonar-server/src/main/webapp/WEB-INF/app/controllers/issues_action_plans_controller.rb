@@ -35,7 +35,7 @@ class IssuesActionPlansController < ApplicationController
   end
 
   def save
-    options = {'projectKey' => @resource.key, 'name' => params[:name], 'description' => params[:description], 'deadLine' => params[:deadline]}
+    options = {'project' => @resource.key, 'name' => params[:name], 'description' => params[:description], 'deadLine' => params[:deadline]}
 
     exiting_action_plan = find_by_key(params[:plan_key]) unless params[:plan_key].blank?
     if exiting_action_plan

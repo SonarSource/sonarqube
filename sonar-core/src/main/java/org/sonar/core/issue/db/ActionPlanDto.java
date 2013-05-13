@@ -43,6 +43,9 @@ public class ActionPlanDto {
   private Date createdAt;
   private Date updatedAt;
 
+  // joins
+  private transient String projectKey;
+
   public Long getId() {
     return id;
   }
@@ -133,6 +136,18 @@ public class ActionPlanDto {
     return this;
   }
 
+  public String getProjectKey() {
+    return projectKey;
+  }
+
+  /**
+   * Only for unit tests
+   */
+  public ActionPlanDto setProjectKey_unit_test_only(String projectKey) {
+    this.projectKey = projectKey;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -159,6 +174,7 @@ public class ActionPlanDto {
   public DefaultActionPlan toActionPlan() {
     return DefaultActionPlan.create(name)
       .setKey(kee)
+      .setProjectKey(projectKey)
       .setDescription(description)
       .setStatus(status)
       .setDeadLine(deadLine)

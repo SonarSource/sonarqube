@@ -14,7 +14,8 @@
     ap.status as status,
     ap.deadline as deadLine,
     ap.created_at as createdAt,
-    ap.updated_at as updatedAt
+    ap.updated_at as updatedAt,
+    p.kee as projectKey
   </sql>
 
   <insert id="insert" parameterType="ActionPlanIssue" useGeneratedKeys="true" keyProperty="id">
@@ -49,39 +50,43 @@
 
   <select id="findByKey" parameterType="long" resultType="ActionPlanIssue">
     select <include refid="actionPlanColumns"/>
-    from action_plans ap
+    from action_plans ap, projects p
     <where>
-      ap.kee=#{key}
+      and ap.kee=#{key}
+      and ap.project_id=p.id
     </where>
   </select>
 
   <select id="findByKeys" parameterType="long" resultType="ActionPlanIssue">
     select <include refid="actionPlanColumns"/>
-    from action_plans ap
+    from action_plans ap, projects p
     <where>
-    <foreach collection="keys" open="ap.kee in (" close=")" item="list" separator=") or ap.kee in (" >
-      <foreach collection="list" item="element" separator=",">
-        #{element}
+      <foreach collection="keys" open="ap.kee in (" close=")" item="list" separator=") or ap.kee in (" >
+        <foreach collection="list" item="element" separator=",">
+          #{element}
+        </foreach>
       </foreach>
-    </foreach>
+      and ap.project_id=p.id
     </where>
   </select>
 
   <select id="findOpenByProjectId" parameterType="long" resultType="ActionPlanIssue">
     select <include refid="actionPlanColumns"/>
-    from action_plans ap
+    from action_plans ap, projects p
     <where>
       and ap.project_id=#{projectId}
       and ap.status='OPEN'
+      and ap.project_id=p.id
     </where>
   </select>
 
   <select id="findByNameAndProjectId" parameterType="long" resultType="ActionPlanIssue">
     select <include refid="actionPlanColumns"/>
-    from action_plans ap
+    from action_plans ap, projects p
     <where>
       and ap.project_id=#{projectId}
       and ap.name=#{name}
+      and ap.project_id=p.id
     </where>
   </select>
 
