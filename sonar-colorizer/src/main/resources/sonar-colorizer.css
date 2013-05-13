@@ -68,10 +68,6 @@
   cursor: hand; cursor: pointer;
 }
 
-.sym:hover {
-  background-color: #ff8c00;
-}
-
 .highlighted {
   background-color: #B3D4FF;
 }
