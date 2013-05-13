@@ -19,37 +19,33 @@
  */
 package org.sonar.wsclient.user;
 
-import org.sonar.wsclient.internal.EncodingUtils;
+import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @since 3.6
- */
-public class UserQuery {
-  static final String BASE_URL = "/api/users/search";
+import static org.fest.assertions.Assertions.assertThat;
 
-  private final Map<String, Object> params = new HashMap<String, Object>();
+public class UserQueryTest {
+  @Test
+  public void test_params() throws Exception {
+    UserQuery query = UserQuery.create().includeDeactivated().logins("simon", "loic");
+    Map<String, Object> params = query.urlParams();
 
-  private UserQuery() {
+    assertThat(params.get("includeDeactivated")).isEqualTo("true");
+    assertThat(params.get("logins")).isEqualTo("simon,loic");
   }
 
-  public static UserQuery create() {
-    return new UserQuery();
+  @Test
+  public void test_empty_params() throws Exception {
+    UserQuery query = UserQuery.create();
+    Map<String, Object> params = query.urlParams();
+
+    assertThat(params).isEmpty();
   }
 
-  public UserQuery includeDeactivated() {
-    params.put("includeDeactivated", "true");
-    return this;
-  }
-
-  public UserQuery logins(String... s) {
-    params.put("logins", EncodingUtils.toQueryParam(s));
-    return this;
-  }
-
-  Map<String, Object> urlParams() {
-    return params;
+  @Test
+  public void should_replace_logins() throws Exception {
+    UserQuery query = UserQuery.create().logins("simon").logins("loic");
+    assertThat(query.urlParams().get("logins")).isEqualTo("loic");
   }
 }

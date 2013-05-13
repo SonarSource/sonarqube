@@ -46,6 +46,7 @@ public class DefaultUserClientTest {
     User simon = users.get(0);
     assertThat(simon.login()).isEqualTo("simon");
     assertThat(simon.name()).isEqualTo("Simon");
+    assertThat(simon.email()).isNull();
     assertThat(simon.active()).isTrue();
   }
 }
