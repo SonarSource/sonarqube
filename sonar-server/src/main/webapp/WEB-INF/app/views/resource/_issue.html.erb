@@ -17,7 +17,7 @@
       <%= image_tag 'sep12.png' -%>
       &nbsp;
 
-      <span><%= distance_of_time_in_words_to_now(Api::Utils.to_date(issue.creationDate())) -%></span>
+      <span><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></span>
       &nbsp;
       <%
          if issue.resolution == 'FALSE-POSITIVE'
@@ -92,8 +92,14 @@
         <% end %>
     </div>
     <% end %>
-    <div class="discussionComment" id="issue-form<%= issue.key -%>" style="display:none"></div>
-
+    <% issue.comments.each do |comment| %>
+    <div class="discussionComment">
+      <h4><%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= comment.userLogin() -%></b>
+        (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.createdAt)) -%>)
+      </h4>
+      <%= Internal.text.markdownToHtml(comment.markdownText) -%>
+    </div>
+    <% end %>
   </div>
 </div>
 

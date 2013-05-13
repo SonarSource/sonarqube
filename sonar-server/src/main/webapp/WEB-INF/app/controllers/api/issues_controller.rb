@@ -233,9 +233,9 @@ class Api::IssuesController < Api::ApiController
     hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
     hash[:userLogin] = issue.userLogin if issue.userLogin
     hash[:assignee] = issue.assignee if issue.assignee
-    hash[:creationDate] = format_java_datetime(issue.creationDate) if issue.creationDate
-    hash[:updateDate] = format_java_datetime(issue.updateDate) if issue.updateDate
-    hash[:closeDate] = format_java_datetime(issue.closeDate) if issue.closeDate
+    hash[:creationDate] = Api::Utils.format_datetime(issue.creationDate) if issue.creationDate
+    hash[:updateDate] = Api::Utils.format_datetime(issue.updateDate) if issue.updateDate
+    hash[:closeDate] = Api::Utils.format_datetime(issue.closeDate) if issue.closeDate
     hash[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
     hash[:manual] = issue.manual if issue.manual
     if issue.comments.size>0
@@ -248,15 +248,15 @@ class Api::IssuesController < Api::ApiController
     {
       :key => comment.key(),
       :login => comment.userLogin(),
-      :htmlText => comment.text(),
-      :createdAt => format_java_datetime(comment.createdAt())
+      :htmlText => Internal.text.markdownToHtml(comment.markdownText()),
+      :createdAt => Api::Utils.format_datetime(comment.createdAt())
     }
   end
 
   def diffs_to_hash(diffs)
     hash = {
       :login => diffs.userLogin(),
-      :at => format_java_datetime(diffs.createdAt())
+      :at => format_datetime(diffs.createdAt())
     }
     hash
   end
@@ -274,9 +274,9 @@ class Api::IssuesController < Api::ApiController
     hash = {:key => action_plan.key(), :name => action_plan.name(), :status => action_plan.status()}
     hash[:desc] = action_plan.description() if action_plan.description() && !action_plan.description().blank?
     hash[:userLogin] = action_plan.userLogin() if action_plan.userLogin()
-    hash[:deadLine] = format_java_datetime(action_plan.deadLine()) if action_plan.deadLine()
-    hash[:creationDate] = format_java_datetime(action_plan.creationDate()) if action_plan.creationDate()
-    hash[:updateDate] = format_java_datetime(action_plan.updateDate()) if action_plan.updateDate()
+    hash[:deadLine] = Api::Utils.format_datetime(action_plan.deadLine()) if action_plan.deadLine()
+    hash[:creationDate] = Api::Utils.format_datetime(action_plan.creationDate()) if action_plan.creationDate()
+    hash[:updateDate] = Api::Utils.format_datetime(action_plan.updateDate()) if action_plan.updateDate()
     hash
   end
 
@@ -288,9 +288,4 @@ class Api::IssuesController < Api::ApiController
       :pages => paging.pages
     }
   end
-
-  def format_java_datetime(java_date)
-    java_date ? Api::Utils.format_datetime(Time.at(java_date.time/1000)) : nil
-  end
-
 end

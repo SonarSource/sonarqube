@@ -23,7 +23,7 @@ import javax.annotation.CheckForNull;
 import java.util.Date;
 
 public interface IssueComment {
-  String text();
+  String markdownText();
 
   String key();
 

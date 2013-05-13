@@ -33,16 +33,16 @@ public class DefaultIssueComment implements Serializable, IssueComment {
   private String userLogin;
   private Date createdAt, updatedAt;
   private String key;
-  private String text;
+  private String markdownText;
   private boolean isNew;
 
   @Override
-  public String text() {
-    return text;
+  public String markdownText() {
+    return markdownText;
   }
 
-  public DefaultIssueComment setText(String s) {
-    this.text = s;
+  public DefaultIssueComment setMarkdownText(String s) {
+    this.markdownText = s;
     return this;
   }
 
@@ -108,13 +108,13 @@ public class DefaultIssueComment implements Serializable, IssueComment {
     return this;
   }
 
-  public static DefaultIssueComment create(String issueKey, @Nullable String login, String text) {
+  public static DefaultIssueComment create(String issueKey, @Nullable String login, String markdownText) {
     DefaultIssueComment comment = new DefaultIssueComment();
     comment.setIssueKey(issueKey);
     comment.setKey(UUID.randomUUID().toString());
     Date now = new Date();
     comment.setUserLogin(login);
-    comment.setText(text);
+    comment.setMarkdownText(markdownText);
     comment.setCreatedAt(now).setUpdatedAt(now);
     comment.setNew(true);
     return comment;

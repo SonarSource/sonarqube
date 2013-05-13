@@ -22,8 +22,15 @@ require 'time'
 class Api::Utils
 
   # Format dateTime to ISO format
+  #
+  # -- Revisions
+  # Added in 2.8
+  # Support java.util.Date in 3.6
+  #
   def self.format_datetime(datetime)
-    datetime.strftime("%Y-%m-%dT%H:%M:%S%z")
+    return nil unless datetime
+    dt = datetime.is_a?(Java::JavaUtil::Date) ? java_to_ruby_datetime(datetime) : datetime
+    dt.strftime("%Y-%m-%dT%H:%M:%S%z")
   end
 
   def self.parse_datetime(datetime_string, default_is_now=true)
@@ -33,8 +40,11 @@ class Api::Utils
     Time.parse(datetime_string)
   end
 
-  # Convert java Date to ruby date
-  def self.to_date(java_date)
+  # Convert java.util.Date to ruby Time
+  #
+  # -- Revisions
+  # Added in 3.6
+  def self.java_to_ruby_datetime(java_date)
     java_date ? Time.at(java_date.time/1000) : nil
   end
 
@@ -196,4 +206,5 @@ class Api::Utils
   def self.period_abbreviation(index)
     java_facade.getPeriodAbbreviation(index)
   end
+
 end

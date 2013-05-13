@@ -192,8 +192,8 @@ public class IssueQuery {
     private Date createdBefore;
     private Sort sort;
     private boolean asc = false;
-    private int pageSize = DEFAULT_PAGE_SIZE;
-    private int pageIndex = DEFAULT_PAGE_INDEX;
+    private Integer pageSize;
+    private Integer pageIndex;
     private String requiredRole;
 
     private Builder() {
@@ -288,13 +288,12 @@ public class IssueQuery {
     }
 
     public Builder pageSize(@Nullable Integer i) {
-      this.pageSize = (i == null ? DEFAULT_PAGE_SIZE : i.intValue());
+      this.pageSize = i;
       return this;
     }
 
     public Builder pageIndex(@Nullable Integer i) {
-      Preconditions.checkArgument(i == null || i > 0, "Page index must be greater than 0 (got " + i + ")");
-      this.pageIndex = (i == null ? DEFAULT_PAGE_INDEX : i);
+      this.pageIndex = i;
       return this;
     }
 
@@ -304,13 +303,31 @@ public class IssueQuery {
     }
 
     public IssueQuery build() {
-      Preconditions.checkArgument(pageSize > 0, "Page size must be greater than 0 (got " + pageSize + ")");
-      Preconditions.checkArgument(pageSize < MAX_PAGE_SIZE, "Page size must be less than " + MAX_PAGE_SIZE + " (got " + pageSize + ")");
+      initPageIndex();
+      initPageSize();
       if (issueKeys != null) {
         Preconditions.checkArgument(issueKeys.size() < MAX_ISSUE_KEYS, "Number of issue keys must be less than " + MAX_ISSUE_KEYS + " (got " + issueKeys.size() + ")");
       }
-
       return new IssueQuery(this);
+    }
+
+    private void initPageSize() {
+      if (components != null && components.size() == 1 && pageSize == null) {
+        pageSize = 999999;
+      } else {
+        if (pageSize==null) {
+          pageSize = DEFAULT_PAGE_SIZE;
+        }
+        Preconditions.checkArgument(pageSize > 0, "Page size must be greater than 0 (got " + pageSize + ")");
+        Preconditions.checkArgument(pageSize < MAX_PAGE_SIZE, "Page size must be less than " + MAX_PAGE_SIZE + " (got " + pageSize + ")");
+      }
+    }
+
+    private void initPageIndex() {
+      if (pageIndex==null) {
+        pageIndex = DEFAULT_PAGE_INDEX;
+      }
+      Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
     }
   }
 }

@@ -53,13 +53,13 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
     // chronological order
     DefaultIssueComment first = comments.get(0);
-    assertThat(first.text()).isEqualTo("old comment");
+    assertThat(first.markdownText()).isEqualTo("old comment");
 
 
     DefaultIssueComment second = comments.get(1);
     assertThat(second.userLogin()).isEqualTo("arthur");
     assertThat(second.key()).isEqualTo("FGHIJ");
-    assertThat(second.text()).isEqualTo("recent comment");
+    assertThat(second.markdownText()).isEqualTo("recent comment");
   }
 
   @Test

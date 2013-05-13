@@ -34,7 +34,7 @@ class ChangeDtoConverter {
     IssueChangeDto dto = newDto(comment.issueKey());
     dto.setKey(comment.key());
     dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
-    dto.setChangeData(comment.text());
+    dto.setChangeData(comment.markdownText());
     dto.setUserLogin(comment.userLogin());
     return dto;
   }
@@ -60,7 +60,7 @@ class ChangeDtoConverter {
 
   public static DefaultIssueComment dtoToComment(IssueChangeDto dto) {
     return new DefaultIssueComment()
-      .setText(dto.getChangeData())
+      .setMarkdownText(dto.getChangeData())
       .setKey(dto.getKey())
       .setCreatedAt(dto.getCreatedAt())
       .setUpdatedAt(dto.getUpdatedAt())
