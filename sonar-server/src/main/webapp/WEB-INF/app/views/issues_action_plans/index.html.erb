@@ -22,7 +22,7 @@
         <% end %>
         <%
            @open_action_plans.each do |plan|
-             deadline = Api::Utils.to_date(plan.deadLine()) if plan.deadLine()
+             deadline = Api::Utils.java_to_ruby_datetime(plan.deadLine()) if plan.deadLine()
         %>
           <tr>
             <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message('issues_action_plans.status' + plan.status()) -%>"/></td>
@@ -80,8 +80,8 @@
           <tbody>
           <%
              @closed_action_plans.each do |plan|
-               deadline = Api::Utils.to_date(plan.deadLine()) if plan.deadLine()
-               updated_at = Api::Utils.to_date(plan.updateDate())
+               deadline = Api::Utils.java_to_ruby_datetime(plan.deadLine()) if plan.deadLine()
+               updated_at = Api::Utils.java_to_ruby_datetime(plan.updateDate())
           %>
             <tr>
               <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message(plan.status()) -%>"/></td>

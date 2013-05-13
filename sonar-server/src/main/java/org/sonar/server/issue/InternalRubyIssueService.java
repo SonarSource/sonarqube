@@ -26,7 +26,6 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssue;
@@ -138,14 +137,14 @@ public class InternalRubyIssueService implements ServerComponent {
     // TODO verify authorization
     // TODO check existence of projectKey
 
-    Result<ActionPlan> result = createActionPlanResult(parameters);
+    DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key);
+    Result<ActionPlan> result = createActionPlanResult(parameters, existingActionPlan.name());
     if (result.ok()) {
       String projectKey = parameters.get("projectKey");
-      DefaultActionPlan defaultActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key);
-      defaultActionPlan.setName(parameters.get("name"));
-      defaultActionPlan.setDescription(parameters.get("description"));
-      defaultActionPlan.setDeadLine(toDate(parameters.get("deadLine")));
-      result.setObject(actionPlanService.update(defaultActionPlan, projectKey));
+      DefaultActionPlan actionPlan = (DefaultActionPlan) result.get();
+      actionPlan.setKey(existingActionPlan.key());
+      actionPlan.setUserLogin(existingActionPlan.userLogin());
+      result.setObject(actionPlanService.update(actionPlan, projectKey));
     }
     return result;
   }
@@ -167,6 +166,11 @@ public class InternalRubyIssueService implements ServerComponent {
 
   @VisibleForTesting
   Result createActionPlanResult(Map<String, String> parameters) {
+    return createActionPlanResult(parameters, null);
+  }
+
+  @VisibleForTesting
+  Result<ActionPlan> createActionPlanResult(Map<String, String> parameters, String oldName) {
     Result<ActionPlan> result = new Result<ActionPlan>();
 
     String name = parameters.get("name");
@@ -203,7 +207,8 @@ public class InternalRubyIssueService implements ServerComponent {
       }
     }
 
-    if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
+    if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && !name.equals(oldName)
+          && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
       result.addError("issues_action_plans.same_name_in_same_project");
     }
 
@@ -213,16 +218,6 @@ public class InternalRubyIssueService implements ServerComponent {
                                      .setDeadLine(deadLine);
     result.setObject(actionPlan);
     return result;
-  }
-
-  Date toDate(Object o) {
-    if (o instanceof Date) {
-      return (Date) o;
-    }
-    if (o instanceof String) {
-      return DateUtils.parseDateTime((String) o);
-    }
-    return null;
   }
 
 }

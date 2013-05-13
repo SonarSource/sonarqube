@@ -25,7 +25,6 @@ import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.core.issue.ActionPlanStats;
-import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.issue.db.ActionPlanDto;
 import org.sonar.core.issue.db.ActionPlanStatsDao;
@@ -63,7 +62,7 @@ public class ActionPlanService implements ServerComponent {
     return actionPlan;
   }
 
-  public ActionPlan update(DefaultActionPlan actionPlan, String projectKey){
+  public ActionPlan update(ActionPlan actionPlan, String projectKey){
     actionPlanDao.update(ActionPlanDto.toActionDto(actionPlan, findProject(projectKey).getId()));
     return actionPlan;
   }

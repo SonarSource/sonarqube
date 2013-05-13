@@ -149,7 +149,7 @@ public class InternalRubyIssueServiceTest {
 
     when(actionPlanService.isNameAlreadyUsedForProject(anyString(), anyString())).thenReturn(true);
 
-    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    Result result = internalRubyIssueService.createActionPlanResult(parameters, "Short term");
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(new Result.Message("issues_action_plans.same_name_in_same_project"));
   }
