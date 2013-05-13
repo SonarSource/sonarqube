@@ -240,15 +240,4 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     Collection<IssueDto> results = dao.selectByIds(newArrayList(100l, 101l, 102l));
     assertThat(results).hasSize(3);
   }
-
-  @Test
-  public void selectByChangeKey() throws Exception {
-    setupData("shared", "selectByChangeKey");
-    IssueDto issue = dao.selectByChangeKey("COMMENT-20");
-    assertThat(issue.getKee()).isEqualTo("ISSUE-2");
-
-    issue = dao.selectByChangeKey("COMMENT-UNKNOWN");
-    assertThat(issue).isNull();
-  }
-
 }

@@ -17,28 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.api.issue;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.utils.Paging;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 /**
- * Search for issues. This component can be used only by server-side extensions. Batch extensions should
- * use the perspective {@link Issuable}.
+ * Facade for JRuby on Rails extensions to request issues.
+ * <p>
+ * Reference from Ruby code : <code>Api.issues</code>
+ * </p>
  *
  * @since 3.6
  */
-public interface IssueFinder extends ServerComponent {
+public interface RubyIssueService extends ServerComponent {
 
-  IssueQueryResult find(IssueQuery query);
+  /**
+   * Search for issues.
+   * <p/>
+   * Ruby: <code>Api.issues.find(hash_of_parameters)</code>
+   * <p/>
+   * <ul>
+   * TODO document parameters
+   * </ul>
+   */
+  IssueQueryResult find(Map<String, Object> parameters);
 
 }

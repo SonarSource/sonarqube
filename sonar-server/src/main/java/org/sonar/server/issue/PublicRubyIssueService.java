@@ -26,14 +26,13 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.WebIssues;
+import org.sonar.api.issue.IssueQueryResult;
+import org.sonar.api.issue.RubyIssueService;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
-import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -44,11 +43,11 @@ import java.util.Map;
  *
  * @since 3.6
  */
-public class WebIssuesApi implements WebIssues {
+public class PublicRubyIssueService implements RubyIssueService {
 
   private final IssueFinder finder;
 
-  public WebIssuesApi(IssueFinder f) {
+  public PublicRubyIssueService(IssueFinder f) {
     this.finder = f;
   }
 
@@ -56,13 +55,13 @@ public class WebIssuesApi implements WebIssues {
    * Requires the role {@link org.sonar.api.web.UserRole#CODEVIEWER}
    */
   @Override
-  public IssueFinder.Results find(Map<String, Object> params) {
-    // TODO move the role to IssueFinder
-    return finder.find(toQuery(params), UserSession.get().userId(), UserRole.CODEVIEWER);
+  public IssueQueryResult find(Map<String, Object> params) {
+    return finder.find(toQuery(params));
   }
 
   IssueQuery toQuery(Map<String, Object> props) {
     IssueQuery.Builder builder = IssueQuery.builder();
+    builder.requiredRole(UserRole.CODEVIEWER);
     builder.issueKeys(toStrings(props.get("issueKeys")));
     builder.severities(toStrings(props.get("severities")));
     builder.statuses(toStrings(props.get("statuses")));

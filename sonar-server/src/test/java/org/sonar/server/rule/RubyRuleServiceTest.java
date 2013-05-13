@@ -30,10 +30,10 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class WebRulesTest {
+public class RubyRuleServiceTest {
 
   RuleI18nManager i18n = mock(RuleI18nManager.class);
-  WebRules facade = new WebRules(i18n);
+  RubyRuleService facade = new RubyRuleService(i18n);
 
   @Test
   public void should_get_localized_rule_name() {

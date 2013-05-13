@@ -28,6 +28,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,7 +44,20 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   public List<DefaultIssueComment> selectCommentsByIssues(SqlSession session, Collection<String> issueKeys) {
-    return selectByIssuesAndType(session, issueKeys, ChangeDtoConverter.TYPE_COMMENT);
+    return selectByIssuesAndType(session, issueKeys, IssueChangeDto.TYPE_COMMENT);
+  }
+
+  @CheckForNull
+  public DefaultIssueComment selectCommentByKey(String commentKey) {
+    SqlSession session = mybatis.openSession();
+    try {
+      IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
+      IssueChangeDto dto = mapper.selectByKeyAndType(commentKey, IssueChangeDto.TYPE_COMMENT);
+      return dto != null ? ChangeDtoConverter.dtoToComment(dto) : null;
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   List<DefaultIssueComment> selectByIssuesAndType(SqlSession session, Collection<String> issueKeys, String changeType) {
@@ -65,7 +79,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       int count = mapper.delete(key);
       session.commit();
-      return count==1;
+      return count == 1;
 
     } finally {
       MyBatis.closeQuietly(session);
@@ -78,7 +92,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       int count = mapper.update(change);
       session.commit();
-      return count==1;
+      return count == 1;
 
     } finally {
       MyBatis.closeQuietly(session);

@@ -23,19 +23,19 @@
 class Internal
 
   def self.issues
-    component(Java::OrgSonarServerIssue::WebIssuesInternal.java_class)
+    component(Java::OrgSonarServerIssue::InternalRubyIssueService.java_class)
   end
 
   def self.issues_api
-    component(Java::OrgSonarApiIssue::WebIssues.java_class)
+    component(Java::OrgSonarApiIssue::RubyIssueService.java_class)
   end
 
   def self.text
-    component(Java::OrgSonarServerText::WebText.java_class)
+    component(Java::OrgSonarServerText::RubyTextService.java_class)
   end
 
   def self.rules
-    component(Java::OrgSonarServerRule::WebRules.java_class)
+    component(Java::OrgSonarServerRule::RubyRuleService.java_class)
   end
 
   private

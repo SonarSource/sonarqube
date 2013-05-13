@@ -78,12 +78,12 @@ import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitymodel.DefaultModelManager;
-import org.sonar.server.rule.WebRules;
+import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
 import org.sonar.server.text.MacroInterpreter;
-import org.sonar.server.text.WebText;
+import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.*;
 
 import javax.servlet.ServletContext;
@@ -256,18 +256,19 @@ public final class Platform {
     servicesContainer.addSingleton(IssueUpdater.class);
     servicesContainer.addSingleton(FunctionExecutor.class);
     servicesContainer.addSingleton(IssueWorkflow.class);
-    servicesContainer.addSingleton(ServerIssueActions.class);
-    servicesContainer.addSingleton(ServerIssueFinder.class);
-    servicesContainer.addSingleton(WebIssuesApi.class);
-    servicesContainer.addSingleton(WebIssuesInternal.class);
+    servicesContainer.addSingleton(IssueService.class);
+    servicesContainer.addSingleton(IssueCommentService.class);
+    servicesContainer.addSingleton(DefaultIssueFinder.class);
+    servicesContainer.addSingleton(PublicRubyIssueService.class);
+    servicesContainer.addSingleton(InternalRubyIssueService.class);
     servicesContainer.addSingleton(ActionPlanManager.class);
 
     // rules
-    servicesContainer.addSingleton(WebRules.class);
+    servicesContainer.addSingleton(RubyRuleService.class);
 
     // text
     servicesContainer.addSingleton(MacroInterpreter.class);
-    servicesContainer.addSingleton(WebText.class);
+    servicesContainer.addSingleton(RubyTextService.class);
 
     // Notifications
     servicesContainer.addSingleton(EmailSettings.class);

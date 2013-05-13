@@ -22,20 +22,17 @@ package org.sonar.core.persistence;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
+import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
 import org.dbunit.dataset.datatype.IDataTypeFactory;
+import org.dbunit.dataset.datatype.ToleratedDeltaMap;
 import org.dbunit.ext.h2.H2DataTypeFactory;
 import org.dbunit.ext.mssql.MsSqlDataTypeFactory;
 import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.ext.oracle.Oracle10DataTypeFactory;
 import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
-import org.sonar.core.persistence.dialect.Dialect;
-import org.sonar.core.persistence.dialect.MsSql;
-import org.sonar.core.persistence.dialect.MySql;
-import org.sonar.core.persistence.dialect.Oracle;
-import org.sonar.core.persistence.dialect.PostgreSql;
+import org.sonar.core.persistence.dialect.*;
 
 import javax.sql.DataSource;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -46,8 +43,12 @@ import java.util.List;
 public abstract class DatabaseCommands {
   private final IDataTypeFactory dbUnitFactory;
 
-  private DatabaseCommands(IDataTypeFactory dbUnitFactory) {
+  private DatabaseCommands(DefaultDataTypeFactory dbUnitFactory) {
     this.dbUnitFactory = dbUnitFactory;
+
+    // Hack for MsSQL failure in IssueMapperTest.
+    // All the Double fields should be listed here.
+    dbUnitFactory.addToleratedDelta(new ToleratedDeltaMap.ToleratedDelta("issues", "effort_to_fix", 0.0001));
   }
 
   public final IDataTypeFactory getDbUnitFactory() {
@@ -58,11 +59,11 @@ public abstract class DatabaseCommands {
 
   public static DatabaseCommands forDialect(Dialect dialect) {
     DatabaseCommands command = ImmutableMap.of(
-        org.sonar.core.persistence.dialect.H2.ID, H2,
-        MsSql.ID, MSSQL,
-        MySql.ID, MYSQL,
-        Oracle.ID, ORACLE,
-        PostgreSql.ID, POSTGRESQL).get(dialect.getId());
+      org.sonar.core.persistence.dialect.H2.ID, H2,
+      MsSql.ID, MSSQL,
+      MySql.ID, MYSQL,
+      Oracle.ID, ORACLE,
+      PostgreSql.ID, POSTGRESQL).get(dialect.getId());
 
     return Preconditions.checkNotNull(command, "Unknown database: " + dialect);
   }
@@ -86,8 +87,8 @@ public abstract class DatabaseCommands {
     List<String> resetPrimaryKey(String table, int minSequenceValue) {
       String sequence = StringUtils.upperCase(table) + "_SEQ";
       return Arrays.asList(
-          "DROP SEQUENCE " + sequence,
-          "CREATE SEQUENCE " + sequence + " INCREMENT BY 1 MINVALUE 1 START WITH " + minSequenceValue);
+        "DROP SEQUENCE " + sequence,
+        "CREATE SEQUENCE " + sequence + " INCREMENT BY 1 MINVALUE 1 START WITH " + minSequenceValue);
     }
   };
 

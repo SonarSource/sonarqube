@@ -43,7 +43,7 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     dto.setKey(null /* no key on field changes */);
     dto.setUserLogin("emmerik");
     dto.setIssueKey("ABCDE");
-    dto.setChangeType(ChangeDtoConverter.TYPE_FIELD_CHANGE);
+    dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
     dto.setChangeData("severity=INFO|BLOCKER");
     Date d = DateUtils.parseDate("2013-05-18");
     dto.setCreatedAt(d);
@@ -60,7 +60,7 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     dto.setKey("COMMENT-1234");
     dto.setUserLogin("emmerik");
     dto.setIssueKey("ABCDE");
-    dto.setChangeType(ChangeDtoConverter.TYPE_COMMENT);
+    dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
     dto.setChangeData("the comment");
     Date d = DateUtils.parseDate("2013-05-18");
     dto.setCreatedAt(d);

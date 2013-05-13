@@ -31,6 +31,9 @@ import java.util.Date;
  */
 public final class IssueChangeDto {
 
+  public static final String TYPE_FIELD_CHANGE = "diff";
+  public static final String TYPE_COMMENT = "comment";
+
   private Long id;
   private String kee;
   private String issueKey;

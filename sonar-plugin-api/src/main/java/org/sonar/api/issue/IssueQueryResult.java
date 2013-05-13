@@ -19,29 +19,34 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.component.Component;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.utils.Paging;
 
-import java.util.Map;
+import javax.annotation.CheckForNull;
+import java.util.Collection;
+import java.util.List;
 
 /**
- * Facade for JRuby on Rails extensions to request issues.
- * <p>
- * Reference from Ruby code : <code>Api.issues</code>
- * </p>
- *
  * @since 3.6
  */
-public interface WebIssues extends ServerComponent {
+public interface IssueQueryResult {
+  List<Issue> issues();
 
-  /**
-   * Search for issues.
-   * <p/>
-   * Ruby: <code>Api.issues.find(hash_of_parameters)</code>
-   * <p/>
-   * <ul>
-   * TODO document parameters
-   * </ul>
-   */
-  IssueFinder.Results find(Map<String, Object> parameters);
+  Rule rule(Issue issue);
 
+  Collection<Rule> rules();
+
+  Component component(Issue issue);
+
+  Collection<Component> components();
+
+  @CheckForNull
+  ActionPlan actionPlan(Issue issue);
+
+  Collection<ActionPlan> actionPlans();
+
+  Paging paging();
+
+  boolean securityExclusions();
 }

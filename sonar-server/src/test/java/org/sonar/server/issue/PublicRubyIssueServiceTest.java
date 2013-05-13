@@ -36,23 +36,23 @@ import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-public class WebIssuesApiTest {
+public class PublicRubyIssueServiceTest {
 
   IssueFinder finder = mock(IssueFinder.class);
-  WebIssuesApi facade = new WebIssuesApi(finder);
+  PublicRubyIssueService facade = new PublicRubyIssueService(finder);
 
   @Test
-  public void test_find() throws Exception {
+  public void find() throws Exception {
     facade.find(ImmutableMap.<String, Object>of("issueKeys", Lists.newArrayList("ABCDE")));
     verify(finder).find(argThat(new ArgumentMatcher<IssueQuery>() {
       @Override
       public boolean matches(Object o) {
-        return ((IssueQuery) o).issueKeys().contains("ABCDE");
+        IssueQuery query = (IssueQuery) o;
+        return query.issueKeys().contains("ABCDE") && UserRole.CODEVIEWER.equals(query.requiredRole());
       }
-    }), anyInt(), eq(UserRole.CODEVIEWER));
+    }));
   }
 
   @Test
@@ -74,7 +74,7 @@ public class WebIssuesApiTest {
     map.put("pageSize", 10l);
     map.put("pageIndex", 50);
 
-    IssueQuery query = new WebIssuesApi(finder).toQuery(map);
+    IssueQuery query = new PublicRubyIssueService(finder).toQuery(map);
     assertThat(query.issueKeys()).containsOnly("ABCDE1234");
     assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
     assertThat(query.statuses()).containsOnly("CLOSED");
@@ -94,20 +94,20 @@ public class WebIssuesApiTest {
 
   @Test
   public void should_parse_list_of_rules() {
-    assertThat(WebIssuesApi.toRules(null)).isNull();
-    assertThat(WebIssuesApi.toRules("")).isEmpty();
-    assertThat(WebIssuesApi.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
-    assertThat(WebIssuesApi.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
-    assertThat(WebIssuesApi.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
+    assertThat(PublicRubyIssueService.toRules(null)).isNull();
+    assertThat(PublicRubyIssueService.toRules("")).isEmpty();
+    assertThat(PublicRubyIssueService.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
+    assertThat(PublicRubyIssueService.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
+    assertThat(PublicRubyIssueService.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
   }
 
   @Test
   public void should_parse_list_of_strings() {
-    assertThat(WebIssuesApi.toStrings(null)).isNull();
-    assertThat(WebIssuesApi.toStrings("")).isEmpty();
-    assertThat(WebIssuesApi.toStrings("foo")).containsOnly("foo");
-    assertThat(WebIssuesApi.toStrings("foo,bar")).containsOnly("foo", "bar");
-    assertThat(WebIssuesApi.toStrings(asList("foo", "bar"))).containsOnly("foo", "bar");
+    assertThat(PublicRubyIssueService.toStrings(null)).isNull();
+    assertThat(PublicRubyIssueService.toStrings("")).isEmpty();
+    assertThat(PublicRubyIssueService.toStrings("foo")).containsOnly("foo");
+    assertThat(PublicRubyIssueService.toStrings("foo,bar")).containsOnly("foo", "bar");
+    assertThat(PublicRubyIssueService.toStrings(asList("foo", "bar"))).containsOnly("foo", "bar");
 
   }
 

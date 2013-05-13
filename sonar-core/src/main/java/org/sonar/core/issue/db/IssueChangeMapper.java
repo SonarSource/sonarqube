@@ -22,6 +22,7 @@ package org.sonar.core.issue.db;
 
 import org.apache.ibatis.annotations.Param;
 
+import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,6 +37,9 @@ public interface IssueChangeMapper {
 
   int update(IssueChangeDto change);
 
+  @CheckForNull
+  IssueChangeDto selectByKeyAndType(@Param("key") String key,
+                                    @Param("changeType") String type);
   /**
    * Issue changes by chronological date of creation
    */

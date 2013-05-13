@@ -22,19 +22,14 @@ package org.sonar.server.issue;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanManager;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.IssueChangeDao;
-import org.sonar.core.issue.db.IssueDao;
-import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
@@ -46,32 +41,27 @@ import java.util.List;
 /**
  * @since 3.6
  */
-public class ServerIssueActions implements ServerComponent {
+public class IssueService implements ServerComponent {
 
+  private final DefaultIssueFinder finder;
   private final IssueWorkflow workflow;
   private final IssueUpdater issueUpdater;
-  private final IssueDao issueDao;
-  private final IssueChangeDao issueChangeDao;
   private final IssueStorage issueStorage;
-  private final AuthorizationDao authorizationDao;
   private final ActionPlanManager actionPlanManager;
 
-  public ServerIssueActions(IssueWorkflow workflow,
-                            IssueDao issueDao,
-                            IssueStorage issueStorage,
-                            AuthorizationDao authorizationDao,
-                            IssueUpdater issueUpdater, IssueChangeDao issueChangeDao, ActionPlanManager actionPlanManager) {
+  public IssueService(DefaultIssueFinder finder,
+                      IssueWorkflow workflow,
+                      IssueStorage issueStorage,
+                      IssueUpdater issueUpdater, ActionPlanManager actionPlanManager) {
+    this.finder = finder;
     this.workflow = workflow;
-    this.issueDao = issueDao;
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
-    this.authorizationDao = authorizationDao;
-    this.issueChangeDao = issueChangeDao;
     this.actionPlanManager = actionPlanManager;
   }
 
   public List<Transition> listTransitions(String issueKey, UserSession userSession) {
-    DefaultIssue issue = loadIssue(issueKey, userSession);
+    DefaultIssue issue = loadIssue(issueKey);
     List<Transition> transitions = workflow.outTransitions(issue);
     Collections.sort(transitions, new Comparator<Transition>() {
       @Override
@@ -83,7 +73,8 @@ public class ServerIssueActions implements ServerComponent {
   }
 
   public Issue doTransition(String issueKey, String transition, UserSession userSession) {
-    DefaultIssue issue = loadIssue(issueKey, userSession);
+    verifyLoggedIn(userSession);
+    DefaultIssue issue = loadIssue(issueKey);
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (workflow.doTransition(issue, transition, context)) {
       issueStorage.save(issue);
@@ -92,7 +83,8 @@ public class ServerIssueActions implements ServerComponent {
   }
 
   public Issue assign(String issueKey, @Nullable String assigneeLogin, UserSession userSession) {
-    DefaultIssue issue = loadIssue(issueKey, userSession);
+    verifyLoggedIn(userSession);
+    DefaultIssue issue = loadIssue(issueKey);
 
     // TODO check that assignee exists
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
@@ -107,7 +99,8 @@ public class ServerIssueActions implements ServerComponent {
       throw new IllegalStateException("Unknown action plan: " + actionPlanKey);
     }
 
-    DefaultIssue issue = loadIssue(issueKey, userSession);
+    verifyLoggedIn(userSession);
+    DefaultIssue issue = loadIssue(issueKey);
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.plan(issue, actionPlanKey, context)) {
       issueStorage.save(issue);
@@ -116,7 +109,8 @@ public class ServerIssueActions implements ServerComponent {
   }
 
   public Issue setSeverity(String issueKey, String severity, UserSession userSession) {
-    DefaultIssue issue = loadIssue(issueKey, userSession);
+    verifyLoggedIn(userSession);
+    DefaultIssue issue = loadIssue(issueKey);
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.setManualSeverity(issue, severity, context)) {
@@ -125,27 +119,8 @@ public class ServerIssueActions implements ServerComponent {
     return issue;
   }
 
-  public IssueComment addComment(String issueKey, String text, UserSession userSession) {
-    DefaultIssue issue = loadIssue(issueKey, userSession);
-
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
-    issueUpdater.addComment(issue, text, context);
-    issueStorage.save(issue);
-    return issue.comments().get(issue.comments().size() - 1);
-  }
-
-  public IssueComment deleteComment(String key, UserSession userSession) {
-    // TODO
-    return null;
-  }
-
-  public IssueComment editComment(String key, String text, UserSession userSession) {
-    // TODO
-    return null;
-  }
-
   public Issue create(DefaultIssue issue, UserSession userSession) {
-    // TODO merge with WebIssuesInternal
+    // TODO merge with InternalRubyIssueService
     issue.setManual(true);
     issue.setUserLogin(userSession.login());
 
@@ -154,19 +129,14 @@ public class ServerIssueActions implements ServerComponent {
     return issue;
   }
 
-  private DefaultIssue loadIssue(String issueKey, UserSession userSession) {
+  private DefaultIssue loadIssue(String issueKey) {
+    return finder.findByKey(issueKey, UserRole.USER);
+  }
+
+  private void verifyLoggedIn(UserSession userSession) {
     if (!userSession.isLoggedIn()) {
       // must be logged
       throw new IllegalStateException("User is not logged in");
     }
-    IssueDto dto = issueDao.selectByKey(issueKey);
-    if (dto == null) {
-      throw new IllegalStateException("Unknown issue: " + issueKey);
-    }
-    String requiredRole = UserRole.USER;
-    if (!authorizationDao.isAuthorizedComponentId(dto.getResourceId(), userSession.userId(), requiredRole)) {
-      throw new IllegalStateException("User does not have the role " + requiredRole + " required to change the issue: " + issueKey);
-    }
-    return dto.toDefaultIssue();
   }
 }

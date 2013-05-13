@@ -29,6 +29,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -47,21 +48,12 @@ public class IssueDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
+  @CheckForNull
   public IssueDto selectByKey(String key) {
     SqlSession session = mybatis.openSession();
     try {
       IssueMapper mapper = session.getMapper(IssueMapper.class);
       return mapper.selectByKey(key);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public IssueDto selectByChangeKey(String commentKey) {
-    SqlSession session = mybatis.openSession();
-    try {
-      IssueMapper mapper = session.getMapper(IssueMapper.class);
-      return mapper.selectByChangeKey(commentKey);
     } finally {
       MyBatis.closeQuietly(session);
     }

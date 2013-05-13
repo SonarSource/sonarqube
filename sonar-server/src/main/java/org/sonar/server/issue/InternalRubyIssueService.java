@@ -38,46 +38,50 @@ import java.util.Map;
 /**
  * All the issue features that are not published to public API.
  */
-public class WebIssuesInternal implements ServerComponent {
+public class InternalRubyIssueService implements ServerComponent {
 
-  private final ServerIssueActions actions;
+  private final IssueService issueService;
+  private final IssueCommentService commentService;
   private final ActionPlanManager actionPlanManager;
 
-  public WebIssuesInternal(ServerIssueActions actions, ActionPlanManager actionPlanManager) {
-    this.actions = actions;
+  public InternalRubyIssueService(IssueService issueService,
+                                  IssueCommentService commentService,
+                                  ActionPlanManager actionPlanManager) {
+    this.issueService = issueService;
+    this.commentService = commentService;
     this.actionPlanManager = actionPlanManager;
   }
 
   public List<Transition> listTransitions(String issueKey) {
-    return actions.listTransitions(issueKey, UserSession.get());
+    return issueService.listTransitions(issueKey, UserSession.get());
   }
 
   public Issue doTransition(String issueKey, String transitionKey) {
-    return actions.doTransition(issueKey, transitionKey, UserSession.get());
+    return issueService.doTransition(issueKey, transitionKey, UserSession.get());
   }
 
   public Issue assign(String issueKey, String transitionKey) {
-    return actions.assign(issueKey, transitionKey, UserSession.get());
+    return issueService.assign(issueKey, transitionKey, UserSession.get());
   }
 
   public Issue setSeverity(String issueKey, String severity) {
-    return actions.setSeverity(issueKey, severity, UserSession.get());
+    return issueService.setSeverity(issueKey, severity, UserSession.get());
   }
 
   public Issue plan(String issueKey, String actionPlanKey) {
-    return actions.plan(issueKey, actionPlanKey, UserSession.get());
+    return issueService.plan(issueKey, actionPlanKey, UserSession.get());
   }
 
   public IssueComment addComment(String issueKey, String text) {
-    return actions.addComment(issueKey, text, UserSession.get());
+    return commentService.addComment(issueKey, text, UserSession.get());
   }
 
   public IssueComment deleteComment(String commentKey) {
-    return actions.deleteComment(commentKey, UserSession.get());
+    return commentService.deleteComment(commentKey, UserSession.get());
   }
 
   public IssueComment editComment(String commentKey, String newText) {
-    return actions.editComment(commentKey, newText, UserSession.get());
+    return commentService.editComment(commentKey, newText, UserSession.get());
   }
 
   public Issue create(Map<String, String> parameters) {
@@ -95,7 +99,7 @@ public class WebIssuesInternal implements ServerComponent {
     builder.ruleKey(RuleKey.parse(parameters.get("rule")));
     builder.manual(true);
     Issue issue = builder.build();
-    return actions.create((DefaultIssue) issue, UserSession.get());
+    return issueService.create((DefaultIssue) issue, UserSession.get());
   }
 
   Collection<ActionPlan> findOpenActionPlans(String projectKey) {

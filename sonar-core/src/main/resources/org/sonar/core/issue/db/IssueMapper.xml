@@ -93,15 +93,6 @@
     where i.kee=#{kee} and i.rule_id=r.id and p.id=i.resource_id
   </select>
 
-  <select id="selectByChangeKey" parameterType="String" resultType="Issue">
-    select
-    <include refid="issueColumns"/>
-    from issues i, rules r, projects p, issue_changes ic
-    where
-    i.kee=ic.issue_key and ic.kee=#{id}
-    and i.rule_id=r.id and p.id=i.resource_id
-  </select>
-
   <select id="selectOpenIssues" parameterType="String" resultType="Issue">
     select distinct
     <include refid="issueColumns"/>

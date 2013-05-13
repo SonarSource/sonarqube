@@ -26,11 +26,13 @@ import java.util.List;
 public interface IssueMapper {
 
   IssueDto selectByKey(String key);
-  IssueDto selectByChangeKey(String changeKey);
+
   List<IssueDto> selectIssueAndComponentIds(IssueQuery query);
 
   List<IssueDto> select(IssueQuery query);
+
   void insert(IssueDto issue);
 
   int update(IssueDto issue);
+
 }

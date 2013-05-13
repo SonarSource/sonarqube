@@ -26,8 +26,8 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -55,7 +55,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-public class ServerIssueFinderTest {
+public class DefaultIssueFinderTest {
 
   MyBatis mybatis = mock(MyBatis.class);
   IssueDao issueDao = mock(IssueDao.class);
@@ -64,7 +64,7 @@ public class ServerIssueFinderTest {
   DefaultRuleFinder ruleFinder = mock(DefaultRuleFinder.class);
   ResourceDao resourceDao = mock(ResourceDao.class);
   ActionPlanManager actionPlanManager = mock(ActionPlanManager.class);
-  ServerIssueFinder finder = new ServerIssueFinder(mybatis, issueDao, issueChangeDao, authorizationDao, ruleFinder, resourceDao, actionPlanManager);
+  DefaultIssueFinder finder = new DefaultIssueFinder(mybatis, issueDao, issueChangeDao, authorizationDao, ruleFinder, resourceDao, actionPlanManager);
 
   @Test
   public void should_find_issues() {
@@ -83,7 +83,7 @@ public class ServerIssueFinderTest {
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
-    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
+    IssueQueryResult results = finder.find(query);
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(issue.componentKey()).isEqualTo("Action.java");
@@ -93,7 +93,7 @@ public class ServerIssueFinderTest {
 
   @Test
   public void should_find_only_authorized_issues() {
-    IssueQuery query = IssueQuery.builder().pageSize(100).build();
+    IssueQuery query = IssueQuery.builder().pageSize(100).requiredRole(UserRole.USER).build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123)
       .setComponentKey_unit_test_only("Action.java")
@@ -108,7 +108,7 @@ public class ServerIssueFinderTest {
     when(authorizationDao.keepAuthorizedComponentIds(anySet(), anyInt(), anyString(), any(SqlSession.class))).thenReturn(newHashSet(123));
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(issue1));
 
-    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
+    IssueQueryResult results = finder.find(query);
 
     verify(issueDao).selectByIds(eq(newHashSet(1L)), any(SqlSession.class));
     assertThat(results.securityExclusions()).isTrue();
@@ -132,7 +132,7 @@ public class ServerIssueFinderTest {
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
-    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
+    IssueQueryResult results = finder.find(query);
     assertThat(results.paging().offset()).isEqualTo(0);
     assertThat(results.paging().total()).isEqualTo(2);
     assertThat(results.paging().pages()).isEqualTo(2);
@@ -175,7 +175,7 @@ public class ServerIssueFinderTest {
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
-    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
+    IssueQueryResult results = finder.find(query);
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(results.issues()).hasSize(2);
@@ -203,7 +203,7 @@ public class ServerIssueFinderTest {
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
-    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
+    IssueQueryResult results = finder.find(query);
     assertThat(results.issues()).hasSize(2);
     assertThat(results.issues()).hasSize(2);
     assertThat(results.components()).hasSize(1);
@@ -232,7 +232,7 @@ public class ServerIssueFinderTest {
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
     when(actionPlanManager.findByKeys(anyCollection())).thenReturn(newArrayList(actionPlan1, actionPlan2));
 
-    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
+    IssueQueryResult results = finder.find(query);
     assertThat(results.issues()).hasSize(2);
     assertThat(results.actionPlans()).hasSize(2);
     Issue issue = results.issues().iterator().next();
@@ -247,7 +247,7 @@ public class ServerIssueFinderTest {
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
 
 
-    IssueFinder.Results results = finder.find(query, null, UserRole.USER);
+    IssueQueryResult results = finder.find(query);
     assertThat(results.issues()).isEmpty();
     assertThat(results.rules()).isEmpty();
     assertThat(results.components()).isEmpty();

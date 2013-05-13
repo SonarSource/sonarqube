@@ -67,5 +67,12 @@
     )
     order by c.created_at
   </select>
+
+  <select id="selectByKeyAndType" parameterType="map" resultType="IssueChange">
+    select
+    <include refid="issueChangeColumns"/>
+    from issue_changes c
+    where c.change_type=#{changeType} and c.kee=#{key}
+  </select>
 </mapper>
 

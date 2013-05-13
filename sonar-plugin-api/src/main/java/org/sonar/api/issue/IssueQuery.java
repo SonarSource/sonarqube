@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.api.issue;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Date;
 
 /**
- * TODO add javadoc
- *
  * @since 3.6
  */
 public class IssueQuery {
@@ -55,6 +53,7 @@ public class IssueQuery {
   private final Date createdBefore;
   private final Sort sort;
   private final boolean asc;
+  private final String requiredRole;
 
   // max results per page
   private final int pageSize;
@@ -81,6 +80,7 @@ public class IssueQuery {
     this.asc = builder.asc;
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
+    this.requiredRole = builder.requiredRole;
   }
 
   public Collection<String> issueKeys() {
@@ -155,6 +155,11 @@ public class IssueQuery {
     return pageIndex;
   }
 
+  @CheckForNull
+  public String requiredRole() {
+    return requiredRole;
+  }
+
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
@@ -164,10 +169,6 @@ public class IssueQuery {
     return new Builder();
   }
 
-
-  /**
-   * @since 3.6
-   */
   public static class Builder {
 
     private static final int DEFAULT_PAGE_SIZE = 100;
@@ -193,6 +194,7 @@ public class IssueQuery {
     private boolean asc = false;
     private int pageSize = DEFAULT_PAGE_SIZE;
     private int pageIndex = DEFAULT_PAGE_INDEX;
+    private String requiredRole;
 
     private Builder() {
     }
@@ -293,6 +295,11 @@ public class IssueQuery {
     public Builder pageIndex(@Nullable Integer i) {
       Preconditions.checkArgument(i == null || i > 0, "Page index must be greater than 0 (got " + i + ")");
       this.pageIndex = (i == null ? DEFAULT_PAGE_INDEX : i);
+      return this;
+    }
+
+    public Builder requiredRole(@Nullable String s) {
+      this.requiredRole = s;
       return this;
     }
 

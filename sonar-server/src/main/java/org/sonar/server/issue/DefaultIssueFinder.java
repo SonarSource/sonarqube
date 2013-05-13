@@ -41,8 +41,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.AuthorizationDao;
-
-import javax.annotation.Nullable;
+import org.sonar.server.platform.UserSession;
 
 import java.util.Collection;
 import java.util.List;
@@ -55,9 +54,9 @@ import static com.google.common.collect.Maps.newHashMap;
 /**
  * @since 3.6
  */
-public class ServerIssueFinder implements IssueFinder {
+public class DefaultIssueFinder implements IssueFinder {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ServerIssueFinder.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultIssueFinder.class);
   private final MyBatis myBatis;
   private final IssueDao issueDao;
   private final IssueChangeDao issueChangeDao;
@@ -66,11 +65,11 @@ public class ServerIssueFinder implements IssueFinder {
   private final ResourceDao resourceDao;
   private final ActionPlanManager actionPlanManager;
 
-  public ServerIssueFinder(MyBatis myBatis,
-                           IssueDao issueDao, IssueChangeDao issueChangeDao,
-                           AuthorizationDao authorizationDao,
-                           DefaultRuleFinder ruleFinder, ResourceDao resourceDao,
-                           ActionPlanManager actionPlanManager) {
+  public DefaultIssueFinder(MyBatis myBatis,
+                            IssueDao issueDao, IssueChangeDao issueChangeDao,
+                            AuthorizationDao authorizationDao,
+                            DefaultRuleFinder ruleFinder, ResourceDao resourceDao,
+                            ActionPlanManager actionPlanManager) {
     this.myBatis = myBatis;
     this.issueDao = issueDao;
     this.issueChangeDao = issueChangeDao;
@@ -80,34 +79,51 @@ public class ServerIssueFinder implements IssueFinder {
     this.actionPlanManager = actionPlanManager;
   }
 
-  public Results find(IssueQuery query, @Nullable Integer currentUserId, String role) {
+  DefaultIssue findByKey(String issueKey, String requiredRole) {
+    IssueDto dto = issueDao.selectByKey(issueKey);
+    if (dto == null) {
+      throw new IllegalStateException("Unknown issue: " + issueKey);
+    }
+    if (!authorizationDao.isAuthorizedComponentId(dto.getResourceId(), UserSession.get().userId(), requiredRole)) {
+      throw new IllegalStateException("User does not have the role " + requiredRole + " required to change the issue: " + issueKey);
+    }
+    return dto.toDefaultIssue();
+  }
+
+  public IssueQueryResult find(IssueQuery query) {
     LOG.debug("IssueQuery : {}", query);
     SqlSession sqlSession = myBatis.openSession();
     try {
-      List<IssueDto> allIssuesDto = issueDao.selectIssueAndComponentIds(query, sqlSession);
-      Set<Integer> authorizedComponentIds = authorizationDao.keepAuthorizedComponentIds(extractResourceIds(allIssuesDto), currentUserId, role, sqlSession);
-      List<IssueDto> authorizedIssues = authorized(allIssuesDto, authorizedComponentIds);
-      Paging paging = Paging.create(query.pageSize(), query.pageIndex(), authorizedIssues.size());
-      Set<Long> pagedAuthorizedIssueIds = pagedAuthorizedIssueIds(authorizedIssues, paging);
+      // 1. Select the ids of all the issues that match the query
+      List<IssueDto> allIssues = issueDao.selectIssueAndComponentIds(query, sqlSession);
 
-      Collection<IssueDto> dtos = issueDao.selectByIds(pagedAuthorizedIssueIds, sqlSession);
+      // 2. Apply security, if needed
+      List<IssueDto> authorizedIssues;
+      if (query.requiredRole() != null) {
+        authorizedIssues = keepAuthorized(allIssues, query.requiredRole(), sqlSession);
+      } else {
+        authorizedIssues = allIssues;
+      }
+
+      // 3. Apply pagination
+      Paging paging = Paging.create(query.pageSize(), query.pageIndex(), authorizedIssues.size());
+      Set<Long> pagedIssueIds = pagedIssueIds(authorizedIssues, paging);
+
+      // 4. Load issues and their related data (rules, components, comments, action plans, ...)
+      Collection<IssueDto> pagedIssues = issueDao.selectByIds(pagedIssueIds, sqlSession);
       Map<String, DefaultIssue> issuesByKey = newHashMap();
       List<Issue> issues = newArrayList();
       Set<Integer> ruleIds = Sets.newHashSet();
       Set<Integer> componentIds = Sets.newHashSet();
       Set<String> actionPlanKeys = Sets.newHashSet();
-      for (IssueDto dto : dtos) {
-        if (authorizedComponentIds.contains(dto.getResourceId())) {
-          DefaultIssue defaultIssue = dto.toDefaultIssue();
-          issuesByKey.put(dto.getKee(), defaultIssue);
-          issues.add(defaultIssue);
-
-          ruleIds.add(dto.getRuleId());
-          componentIds.add(dto.getResourceId());
-          actionPlanKeys.add(dto.getActionPlanKey());
-        }
+      for (IssueDto dto : pagedIssues) {
+        DefaultIssue defaultIssue = dto.toDefaultIssue();
+        issuesByKey.put(dto.getKee(), defaultIssue);
+        issues.add(defaultIssue);
+        ruleIds.add(dto.getRuleId());
+        componentIds.add(dto.getResourceId());
+        actionPlanKeys.add(dto.getActionPlanKey());
       }
-
       List<DefaultIssueComment> comments = issueChangeDao.selectCommentsByIssues(sqlSession, issuesByKey.keySet());
       for (DefaultIssueComment comment : comments) {
         DefaultIssue issue = issuesByKey.get(comment.issueKey());
@@ -118,22 +134,21 @@ public class ServerIssueFinder implements IssueFinder {
         findRules(ruleIds),
         findComponents(componentIds),
         findActionPlans(actionPlanKeys),
-        paging, authorizedIssues.size() != allIssuesDto.size());
+        paging,
+        authorizedIssues.size() != allIssues.size());
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
   }
 
-  private Set<Integer> extractResourceIds(List<IssueDto> dtos) {
-    Set<Integer> componentIds = Sets.newLinkedHashSet();
-    for (IssueDto issueDto : dtos) {
-      componentIds.add(issueDto.getResourceId());
-    }
-    return componentIds;
-  }
-
-  private List<IssueDto> authorized(List<IssueDto> dtos, final Set<Integer> authorizedComponentIds) {
-    return newArrayList(Iterables.filter(dtos, new Predicate<IssueDto>() {
+  private List<IssueDto> keepAuthorized(List<IssueDto> issues, String requiredRole, SqlSession sqlSession) {
+    final Set<Integer> authorizedComponentIds = authorizationDao.keepAuthorizedComponentIds(
+      extractResourceIds(issues),
+      UserSession.get().userId(),
+      requiredRole,
+      sqlSession
+    );
+    return newArrayList(Iterables.filter(issues, new Predicate<IssueDto>() {
       @Override
       public boolean apply(IssueDto issueDto) {
         return authorizedComponentIds.contains(issueDto.getResourceId());
@@ -141,12 +156,20 @@ public class ServerIssueFinder implements IssueFinder {
     }));
   }
 
-  private Set<Long> pagedAuthorizedIssueIds(List<IssueDto> authorizedIssues, Paging paging) {
+  private Set<Integer> extractResourceIds(List<IssueDto> issues) {
+    Set<Integer> componentIds = Sets.newLinkedHashSet();
+    for (IssueDto issue : issues) {
+      componentIds.add(issue.getResourceId());
+    }
+    return componentIds;
+  }
+
+  private Set<Long> pagedIssueIds(Collection<IssueDto> issues, Paging paging) {
     Set<Long> issueIds = Sets.newLinkedHashSet();
     int index = 0;
-    for (IssueDto issueDto : authorizedIssues) {
+    for (IssueDto issue : issues) {
       if (index >= paging.offset() && issueIds.size() < paging.pageSize()) {
-        issueIds.add(issueDto.getId());
+        issueIds.add(issue.getId());
       } else if (issueIds.size() >= paging.pageSize()) {
         break;
       }
@@ -172,7 +195,7 @@ public class ServerIssueFinder implements IssueFinder {
     return dto != null ? dto.toDefaultIssue() : null;
   }
 
-  static class DefaultResults implements Results {
+  static class DefaultResults implements IssueQueryResult {
     private final List<Issue> issues;
     private final Map<RuleKey, Rule> rulesByKey = Maps.newHashMap();
     private final Map<String, Component> componentsByKey = Maps.newHashMap();
