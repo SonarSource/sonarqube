@@ -94,13 +94,14 @@
     <% end %>
     <% issue.comments.each do |comment| %>
     <div class="discussionComment">
-      <h4><%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= comment.userLogin() -%></b>
+      <h4><%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= @issue_results.user(comment.userLogin()).name() -%></b>
         (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.createdAt)) -%>)
       </h4>
       <%= Internal.text.markdownToHtml(comment.markdownText) -%>
     </div>
     <% end %>
   </div>
+  <div class="discussionComment" id="issue-form<%= issue.key -%>" style="display:none"></div>
 </div>
 
 <script type="text/javascript">

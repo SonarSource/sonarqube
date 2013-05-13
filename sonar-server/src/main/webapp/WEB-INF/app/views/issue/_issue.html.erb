@@ -147,25 +147,15 @@
       %>
         <div class="discussionComment">
           <h4>
-            <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= comment.userLogin -%></b>
+            <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= @issue_results.user(comment.userLogin).name -%></b>
             (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.created_at)) -%>)
             <% if is_last_comment && current_user %>
             <span class="actions" id="editActions">
              &nbsp;&nbsp;<%= image_tag('sep12.png') -%>&nbsp;
              <%
-                if current_user.id == comment.user_id
+                if current_user.login == comment.userLogin
              %>
-               <%= link_to_remote message('edit'),
-                                  :url => {:controller => "project_reviews", :action => "comment_form", :comment_id => comment.id, :id => @review.id},
-                                  :update => "lastComment",
-                                  :complete => "$('commentAction').remove();$('editActions').hide();$('commentText').focus();",
-                                  :html => {:class => 'link-action'} -%>
-               &nbsp;
-               <%= link_to_remote message('delete'),
-                                  :url => {:controller => "project_reviews", :action => "delete_comment", :comment_id => comment.id, :id => @review.id},
-                                  :update => "review",
-                                  :confirm => message('reviews.do_you_want_to_delete_comment'),
-                                  :html => {:class => 'link-action'} -%>
+               edit delete
              <%
                 end
              %>
