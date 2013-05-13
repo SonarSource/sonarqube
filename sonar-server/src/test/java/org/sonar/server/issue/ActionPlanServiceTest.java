@@ -116,11 +116,11 @@ public class ActionPlanServiceTest {
   }
 
   @Test
-  public void should_find_open_action_plan_stats(){
+  public void should_find_action_plan_stats(){
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L).setKey("org.sonar.Sample"));
-    when(actionPlanStatsDao.findOpenByProjectId(1L)).thenReturn(newArrayList(new ActionPlanStatsDto()));
+    when(actionPlanStatsDao.findByProjectId(1L)).thenReturn(newArrayList(new ActionPlanStatsDto()));
 
-    Collection<ActionPlanStats> results = actionPlanService.findOpenActionPlanStats("org.sonar.Sample");
+    Collection<ActionPlanStats> results = actionPlanService.findActionPlanStats("org.sonar.Sample");
     assertThat(results).hasSize(1);
   }
 
@@ -128,23 +128,7 @@ public class ActionPlanServiceTest {
   public void should_throw_exception_if_project_not_found_when_find_open_action_plan_stats(){
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
 
-    actionPlanService.findOpenActionPlanStats("org.sonar.Sample");
-  }
-
-  @Test
-  public void should_find_closed_action_plan_stats(){
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L).setKey("org.sonar.Sample"));
-    when(actionPlanStatsDao.findClosedByProjectId(1L)).thenReturn(newArrayList(new ActionPlanStatsDto()));
-
-    Collection<ActionPlanStats> results = actionPlanService.findClosedActionPlanStats("org.sonar.Sample");
-    assertThat(results).hasSize(1);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void should_throw_exception_if_project_not_found_when_find_closed_action_plan_stats(){
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
-
-    actionPlanService.findClosedActionPlanStats("org.sonar.Sample");
+    actionPlanService.findActionPlanStats("org.sonar.Sample");
   }
 
 }

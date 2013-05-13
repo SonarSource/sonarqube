@@ -24,25 +24,9 @@
     left join issues open_issues on open_issues.id = total_issues.id and open_issues.resolution is null
     <where>
       and ap.project_id = #{projectId}
-      and ap.status = #{status}
     </where>
     group by ap.id, ap.kee, ap.name, ap.description, ap.user_login, ap.project_id, ap.status, ap.deadline, ap.created_at, ap.updated_at
-    <if test="sort != null">
-    order by
-    <choose>
-      <when test="'DEADLINE'.equals(sort)">
-        ap.deadline
-      </when>
-    </choose>
-    <choose>
-      <when test="true.equals(asc)">
-        asc
-      </when>
-      <otherwise>
-        desc
-      </otherwise>
-    </choose>
-    </if>
+    order by ap.deadline asc
   </select>
 
 </mapper>

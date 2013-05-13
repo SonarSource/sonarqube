@@ -38,22 +38,10 @@ public class ActionPlanStatsDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_open_by_project() {
-    setupData("should_find_open_by_project");
+  public void should_find_by_project() {
+    setupData("should_find_by_project");
 
-    Collection<ActionPlanStatsDto> result = dao.findOpenByProjectId(1l);
-    assertThat(result).isNotEmpty();
-
-    ActionPlanStatsDto actionPlanStatsDto = result.iterator().next();
-    assertThat(actionPlanStatsDto.getTotalIssues()).isEqualTo(3);
-    assertThat(actionPlanStatsDto.getOpenIssues()).isEqualTo(1);
-  }
-
-  @Test
-  public void should_find_closed_by_project() {
-    setupData("should_find_closed_by_project");
-
-    Collection<ActionPlanStatsDto> result = dao.findClosedByProjectId(1l);
+    Collection<ActionPlanStatsDto> result = dao.findByProjectId(1l);
     assertThat(result).isNotEmpty();
 
     ActionPlanStatsDto actionPlanStatsDto = result.iterator().next();

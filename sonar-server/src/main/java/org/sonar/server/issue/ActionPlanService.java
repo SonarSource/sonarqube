@@ -100,18 +100,8 @@ public class ActionPlanService implements ServerComponent {
     return toActionPlans(actionPlanDtos);
   }
 
-  public List<ActionPlanStats> findOpenActionPlanStats(String projectKey) {
-    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findOpenByProjectId(findProject(projectKey).getId());
-    return newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
-      @Override
-      public ActionPlanStats apply(ActionPlanStatsDto actionPlanStatsDto) {
-        return actionPlanStatsDto.toActionPlanStat();
-      }
-    }));
-  }
-
-  public List<ActionPlanStats> findClosedActionPlanStats(String projectKey) {
-    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findClosedByProjectId(findProject(projectKey).getId());
+  public List<ActionPlanStats> findActionPlanStats(String projectKey) {
+    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findByProjectId(findProject(projectKey).getId());
     return newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
       @Override
       public ActionPlanStats apply(ActionPlanStatsDto actionPlanStatsDto) {

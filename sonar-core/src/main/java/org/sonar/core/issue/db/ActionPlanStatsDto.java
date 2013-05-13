@@ -166,8 +166,8 @@ public class ActionPlanStatsDto {
       .setStatus(status)
       .setDeadLine(deadLine)
       .setUserLogin(userLogin)
-      .setCreationDate(createdAt)
-      .setUpdateDate(updatedAt)
+      .setCreatedAt(createdAt)
+      .setUpdatedAt(updatedAt)
       .setTotalIssues(totalIssues)
       .setOpenIssues(openIssues);
   }

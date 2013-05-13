@@ -84,8 +84,8 @@ class IssuesActionPlansController < ApplicationController
   end
 
   def load_action_plans
-    @open_action_plans = Internal.issues.findOpenActionPlanStats(@resource.key)
-    @closed_action_plans = Internal.issues.findClosedActionPlanStats(@resource.key)
+    @open_action_plans = Internal.issues.findActionPlanStats(@resource.key).select {|plan| plan.status() == 'OPEN'}
+    @closed_action_plans = Internal.issues.findActionPlanStats(@resource.key).select {|plan| plan.status() == 'CLOSED'}.sort{|plan1, plan2| plan2.deadLine() <=> plan1.deadLine()}
   end
 
   def find_by_key(key)

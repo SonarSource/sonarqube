@@ -34,8 +34,8 @@ public class ActionPlanStats implements Serializable {
   private String userLogin;
   private String status;
   private Date deadLine;
-  private Date creationDate;
-  private Date updateDate;
+  private Date createdAt;
+  private Date updatedAt;
   private int totalIssues;
   private int openIssues;
 
@@ -49,7 +49,7 @@ public class ActionPlanStats implements Serializable {
     Date now = new Date();
     actionPlan.setName(name);
     actionPlan.setStatus(ActionPlan.STATUS_OPEN);
-    actionPlan.setCreationDate(now).setUpdateDate(now);
+    actionPlan.setCreatedAt(now).setUpdatedAt(now);
     return actionPlan;
   }
 
@@ -107,21 +107,21 @@ public class ActionPlanStats implements Serializable {
     return this;
   }
 
-  public Date creationDate() {
-    return creationDate;
+  public Date createdAt() {
+    return createdAt;
   }
 
-  public ActionPlanStats setCreationDate(Date creationDate) {
-    this.creationDate = creationDate;
+  public ActionPlanStats setCreatedAt(Date creationDate) {
+    this.createdAt = creationDate;
     return this;
   }
 
-  public Date updateDate() {
-    return updateDate;
+  public Date updatedAt() {
+    return updatedAt;
   }
 
-  public ActionPlanStats setUpdateDate(Date updateDate) {
-    this.updateDate = updateDate;
+  public ActionPlanStats setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 

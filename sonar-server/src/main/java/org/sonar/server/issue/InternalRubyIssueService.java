@@ -114,12 +114,8 @@ public class InternalRubyIssueService implements ServerComponent {
     return actionPlanService.findByKey(actionPlanKey);
   }
 
-  List<ActionPlanStats> findOpenActionPlanStats(String projectKey) {
-    return actionPlanService.findOpenActionPlanStats(projectKey);
-  }
-
-  List<ActionPlanStats> findClosedActionPlanStats(String projectKey) {
-    return actionPlanService.findClosedActionPlanStats(projectKey);
+  List<ActionPlanStats> findActionPlanStats(String projectKey) {
+    return actionPlanService.findActionPlanStats(projectKey);
   }
 
   public Result<ActionPlan> createActionPlan(Map<String, String> parameters) {

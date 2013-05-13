@@ -23,7 +23,6 @@ package org.sonar.core.issue.db;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.ActionPlan;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
@@ -39,21 +38,13 @@ public class ActionPlanStatsDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  private Collection<ActionPlanStatsDto> findByProjectId(Long projectId, String status, String sort, boolean asc) {
+  public Collection<ActionPlanStatsDto> findByProjectId(Long projectId) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.getMapper(ActionPlanStatsMapper.class).findByProjectId(projectId, status, sort, asc);
+      return session.getMapper(ActionPlanStatsMapper.class).findByProjectId(projectId);
     } finally {
       MyBatis.closeQuietly(session);
     }
-  }
-
-  public Collection<ActionPlanStatsDto> findOpenByProjectId(Long projectId) {
-      return findByProjectId(projectId, ActionPlan.STATUS_OPEN, "DEADLINE", true);
-  }
-
-  public Collection<ActionPlanStatsDto> findClosedByProjectId(Long projectId) {
-    return findByProjectId(projectId, ActionPlan.STATUS_CLOSED, "DEADLINE", false);
   }
 
 }
