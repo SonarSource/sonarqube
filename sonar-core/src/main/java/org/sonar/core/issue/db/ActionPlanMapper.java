@@ -41,4 +41,6 @@ public interface ActionPlanMapper {
   ActionPlanDto findByKey(@Param("key") String key);
 
   Collection<ActionPlanDto> findOpenByProjectId(@Param("projectId") Long projectId);
+
+  Collection<ActionPlanDto> findByNameAndProjectId(@Param("name")String name, @Param("projectId") Long projectId);
 }

@@ -41,7 +41,7 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_insert_new_action_plan() {
     ActionPlanDto actionPlanDto = new ActionPlanDto().setKey("ABC").setName("Long term").setDescription("Long term action plan").setStatus("OPEN")
-                                    .setProjectId(1).setUserLogin("arthur");
+                                    .setProjectId(1l).setUserLogin("arthur");
 
     dao.save(actionPlanDto);
 
@@ -53,7 +53,7 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
     setupData("should_update_action_plan");
 
     ActionPlanDto actionPlanDto = new ActionPlanDto().setKey("ABC").setName("Long term").setDescription("Long term action plan").setStatus("OPEN")
-                                    .setProjectId(1).setUserLogin("arthur");
+                                    .setProjectId(1l).setUserLogin("arthur");
     dao.update(actionPlanDto);
 
     checkTables("should_update_action_plan", new String[]{"id", "created_at", "updated_at"}, "action_plans");
@@ -90,6 +90,14 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
     setupData("should_find_open_by_project_id");
 
     Collection<ActionPlanDto> result = dao.findOpenByProjectId(1l);
+    assertThat(result).hasSize(2);
+  }
+
+  @Test
+  public void should_find_by_name_and_project_id() {
+    setupData("should_find_by_name_and_project_id");
+
+    Collection<ActionPlanDto> result = dao.findByNameAndProjectId("SHORT_TERM", 1l);
     assertThat(result).hasSize(2);
   }
 }

@@ -36,35 +36,25 @@ class IssuesActionPlansController < ApplicationController
 
   def save
     exiting_action_plan = find_by_key(params[:plan_key]) unless params[:plan_key].blank?
-    options = {'projectId' => @resource.id, 'name' => params[:name], 'description' => params[:description]}
+    options = {'projectKey' => @resource.key, 'name' => params[:name], 'description' => params[:description], 'deadLine' => params[:deadline]}
 
-    # TODO do the check on Java side
-    unless params[:deadline].blank?
-      begin
-        deadline = DateTime.strptime(params[:deadline], '%d/%m/%Y')
-        # we check if the date is today or in the future
-        if deadline > 1.day.ago
-          options['deadLine'] = Api::Utils.format_datetime(deadline)
-        else
-          date_not_valid = message('action_plans.date_cant_be_in_past')
-        end
-      rescue
-        date_not_valid = message('action_plans.date_not_valid')
-      end
+    if exiting_action_plan
+      action_plan_result = Internal.issues.updateActionPlan(params[:plan_key], options)
+    else
+      action_plan_result = Internal.issues.createActionPlan(options)
     end
 
-    if date_not_valid
-      # TODO check errors
-      flash[:error] = date_not_valid
+    if action_plan_result.ok()
+      @action_plan = action_plan_result.get()
+      redirect_to :action => 'index', :id => @resource.id
+    else
+      flash[:error] = ""
+      action_plan_result.errors().each_with_index do |msg, index|
+        flash[:error] << message(msg.text(), {:params => msg.params()}).capitalize
+        flash[:error] += "<br/>" if index < action_plan_result.errors().size() - 1
+      end
       load_action_plans()
       render 'index'
-    else
-      if exiting_action_plan
-        @action_plan = Internal.issues.updateActionPlan(@action_plan.key, options)
-      else
-        @action_plan = Internal.issues.createActionPlan(options)
-      end
-      redirect_to :action => 'index', :id => @resource.id
     end
   end
 

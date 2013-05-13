@@ -76,4 +76,13 @@
     </where>
   </select>
 
+  <select id="findByNameAndProjectId" parameterType="long" resultType="ActionPlanIssue">
+    select <include refid="actionPlanColumns"/>
+    from action_plans ap
+    <where>
+      and ap.project_id=#{projectId}
+      and ap.name=#{name}
+    </where>
+  </select>
+
 </mapper>

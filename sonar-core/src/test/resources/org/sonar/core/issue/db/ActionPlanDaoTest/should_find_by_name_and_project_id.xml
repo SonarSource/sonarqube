@@ -1,0 +1,12 @@
+<dataset>
+
+  <action_plans id="1" kee="ABC" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
+                user_login="igor" status="OPEN" created_at="[null]" updated_at="[null]" />
+
+  <action_plans id="2" kee="ABD" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
+                user_login="igor" status="OPEN" created_at="[null]" updated_at="[null]" />
+
+  <action_plans id="3" kee="ABE" project_id="2" name="SHORT_TERM" description="[null]" deadline="[null]"
+                user_login="igor" status="OPEN" created_at="[null]" updated_at="[null]" />
+
+</dataset>

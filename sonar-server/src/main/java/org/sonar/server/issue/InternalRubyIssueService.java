@@ -19,7 +19,8 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.primitives.Ints;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
@@ -33,6 +34,7 @@ import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -121,30 +123,31 @@ public class InternalRubyIssueService implements ServerComponent {
     return actionPlanService.findClosedActionPlanStats(projectKey);
   }
 
-  public ActionPlan createActionPlan(Map<String, String> parameters) {
+  public Result<ActionPlan> createActionPlan(Map<String, String> parameters) {
     // TODO verify authorization
-    // TODO verify deadLine, uniquness of name, ...
-    // TODO check existence of projectId
-    Integer projectId = toInteger(parameters.get("projectId"));
+    // TODO check existence of projectKey
 
-    DefaultActionPlan actionPlan = DefaultActionPlan.create(parameters.get("name"))
-      .setDescription(parameters.get("description"))
-      .setUserLogin(UserSession.get().login())
-      .setDeadLine(toDate(parameters.get("deadLine")));
-
-    return actionPlanService.create(actionPlan, projectId);
+    Result<ActionPlan> result = createActionPlanResult(parameters);
+    if (result.ok()) {
+      result.setObject(actionPlanService.create(result.get(), parameters.get("projectKey")));
+    }
+    return result;
   }
 
-  public ActionPlan updateActionPlan(String key, Map<String, String> parameters) {
+  public Result<ActionPlan> updateActionPlan(String key, Map<String, String> parameters) {
     // TODO verify authorization
-    // TODO verify deadLine
-    // TODO check existence of projectId
-    Integer projectId = toInteger(parameters.get("projectId"));
-    DefaultActionPlan defaultActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key);
-    defaultActionPlan.setName(parameters.get("name"));
-    defaultActionPlan.setDescription(parameters.get("description"));
-    defaultActionPlan.setDeadLine(toDate(parameters.get("deadLine")));
-    return actionPlanService.update(defaultActionPlan, projectId);
+    // TODO check existence of projectKey
+
+    Result<ActionPlan> result = createActionPlanResult(parameters);
+    if (result.ok()) {
+      String projectKey = parameters.get("projectKey");
+      DefaultActionPlan defaultActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key);
+      defaultActionPlan.setName(parameters.get("name"));
+      defaultActionPlan.setDescription(parameters.get("description"));
+      defaultActionPlan.setDeadLine(toDate(parameters.get("deadLine")));
+      result.setObject(actionPlanService.update(defaultActionPlan, projectKey));
+    }
+    return result;
   }
 
   public ActionPlan closeActionPlan(String actionPlanKey) {
@@ -162,26 +165,62 @@ public class InternalRubyIssueService implements ServerComponent {
     actionPlanService.delete(actionPlanKey);
   }
 
+  @VisibleForTesting
+  Result createActionPlanResult(Map<String, String> parameters) {
+    Result<ActionPlan> result = new Result<ActionPlan>();
+
+    String name = parameters.get("name");
+    String description = parameters.get("description");
+    String deadLineParam = parameters.get("deadLine");
+    String projectParam = parameters.get("projectKey");
+    Date deadLine = null;
+
+    if (Strings.isNullOrEmpty(name)) {
+      result.addError("errors.cant_be_empty", "name");
+    } else {
+      if (name.length() > 200) {
+        result.addError("errors.is_too_long", "name", 200);
+      }
+    }
+
+    if (!Strings.isNullOrEmpty(description) && description.length() > 1000) {
+      result.addError("errors.is_too_long", "description", 1000);
+    }
+
+    if (Strings.isNullOrEmpty(projectParam)) {
+      result.addError("errors.cant_be_empty", "project");
+    }
+
+    if (!Strings.isNullOrEmpty(deadLineParam)) {
+      try {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        deadLine = dateFormat.parse(deadLineParam);
+        if (deadLine.before(new Date())) {
+          result.addError("issues_action_plans.date_cant_be_in_past");
+        }
+      } catch (Exception e) {
+        result.addError("errors.is_not_valid", "date");
+      }
+    }
+
+    if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
+      result.addError("issues_action_plans.same_name_in_same_project");
+    }
+
+    DefaultActionPlan actionPlan = DefaultActionPlan.create(name)
+                                     .setDescription(description)
+                                     .setUserLogin(UserSession.get().login())
+                                     .setDeadLine(deadLine);
+    result.setObject(actionPlan);
+    return result;
+  }
+
   Date toDate(Object o) {
     if (o instanceof Date) {
       return (Date) o;
     }
     if (o instanceof String) {
       return DateUtils.parseDateTime((String) o);
-    }
-    return null;
-  }
-
-  Integer toInteger(Object o) {
-    if (o instanceof Integer) {
-      return (Integer) o;
-    }
-    if (o instanceof Long) {
-      return Ints.checkedCast((Long) o);
-    }
-
-    if (o instanceof String) {
-      return Integer.parseInt((String) o);
     }
     return null;
   }

@@ -24,16 +24,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.ActionPlan;
-import org.sonar.api.utils.DateUtils;
 
-import java.util.Date;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class InternalRubyIssueServiceTest {
 
@@ -50,17 +47,17 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_create_action_plan(){
-    Date deadLine = new Date();
-
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
-    parameters.put("projectId", "1");
-    parameters.put("deadLine", DateUtils.formatDateTime(deadLine));
+    parameters.put("projectKey", "org.sonar.Sample");
+    parameters.put("deadLine", "13/05/2113");
 
     ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
-    internalRubyIssueService.createActionPlan(parameters);
-    verify(actionPlanService).create(actionPlanCaptor.capture(), eq(1));
+    Result result = internalRubyIssueService.createActionPlan(parameters);
+    assertThat(result.ok()).isTrue();
+
+    verify(actionPlanService).create(actionPlanCaptor.capture(), eq("org.sonar.Sample"));
     ActionPlan actionPlan = actionPlanCaptor.getValue();
 
     assertThat(actionPlan).isNotNull();
@@ -68,5 +65,100 @@ public class InternalRubyIssueServiceTest {
     assertThat(actionPlan.name()).isEqualTo("Long term");
     assertThat(actionPlan.description()).isEqualTo("Long term issues");
     assertThat(actionPlan.deadLine()).isNotNull();
+  }
+
+  @Test
+  public void should_get_error_on_action_plan_result_when_no_project(){
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", "Long term");
+    parameters.put("description", "Long term issues");
+
+    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(new Result.Message("errors.cant_be_empty", "project"));
+  }
+
+  @Test
+  public void should_get_error_on_action_plan_result_when_no_name(){
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", null);
+    parameters.put("description", "Long term issues");
+    parameters.put("projectKey", "org.sonar.Sample");
+
+    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(new Result.Message("errors.cant_be_empty", "name"));
+  }
+
+  @Test
+  public void should_get_error_on_action_plan_result_when_name_is_too_long(){
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", createLongString(201));
+    parameters.put("description", "Long term issues");
+    parameters.put("projectKey", "org.sonar.Sample");
+
+    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(new Result.Message("errors.is_too_long", "name", 200));
+  }
+
+  @Test
+  public void should_get_error_on_action_plan_result_when_description_is_too_long(){
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", "Long term");
+    parameters.put("description", createLongString(1001));
+    parameters.put("projectKey", "org.sonar.Sample");
+
+    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(new Result.Message("errors.is_too_long", "description", 1000));
+  }
+
+  @Test
+  public void should_get_error_on_action_plan_result_when_dead_line_use_wrong_format(){
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", "Long term");
+    parameters.put("description", "Long term issues");
+    parameters.put("projectKey", "org.sonar.Sample");
+    parameters.put("deadLine", "2013-05-18");
+
+    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(new Result.Message("errors.is_not_valid", "date"));
+  }
+
+  @Test
+  public void should_get_error_on_action_plan_result_when_dead_line_is_in_the_past(){
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", "Long term");
+    parameters.put("description", "Long term issues");
+    parameters.put("projectKey", "org.sonar.Sample");
+    parameters.put("deadLine", "01/01/2000");
+
+    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(new Result.Message("issues_action_plans.date_cant_be_in_past"));
+  }
+
+  @Test
+  public void should_get_error_on_action_plan_result_when_name_is_already_used_for_project(){
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", "Long term");
+    parameters.put("description", "Long term issues");
+    parameters.put("projectKey", "org.sonar.Sample");
+
+    when(actionPlanService.isNameAlreadyUsedForProject(anyString(), anyString())).thenReturn(true);
+
+    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(new Result.Message("issues_action_plans.same_name_in_same_project"));
+  }
+
+  public String createLongString(int size){
+    String result = "";
+    for (int i = 0; i<size; i++) {
+      result += "c";
+    }
+    return result;
   }
 }

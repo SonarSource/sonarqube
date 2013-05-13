@@ -37,7 +37,7 @@ public class ActionPlanDto {
   private String name;
   private String description;
   private String userLogin;
-  private Integer projectId;
+  private Long projectId;
   private String status;
   private Date deadLine;
   private Date createdAt;
@@ -88,11 +88,11 @@ public class ActionPlanDto {
     return this;
   }
 
-  public Integer getProjectId() {
+  public Long getProjectId() {
     return projectId;
   }
 
-  public ActionPlanDto setProjectId(Integer projectId) {
+  public ActionPlanDto setProjectId(Long projectId) {
     this.projectId = projectId;
     return this;
   }
@@ -167,7 +167,7 @@ public class ActionPlanDto {
       .setUpdatedAt(updatedAt);
   }
 
-  public static ActionPlanDto toActionDto(ActionPlan actionPlan, Integer projectId) {
+  public static ActionPlanDto toActionDto(ActionPlan actionPlan, Long projectId) {
     return new ActionPlanDto().setKey(actionPlan.key())
              .setName(actionPlan.name())
              .setProjectId(projectId)

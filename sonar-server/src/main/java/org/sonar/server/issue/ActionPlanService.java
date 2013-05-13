@@ -34,6 +34,7 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
@@ -57,13 +58,13 @@ public class ActionPlanService implements ServerComponent {
     this.resourceDao = resourceDao;
   }
 
-  public ActionPlan create(ActionPlan actionPlan, Integer projectId){
-    actionPlanDao.save(ActionPlanDto.toActionDto(actionPlan, projectId));
+  public ActionPlan create(ActionPlan actionPlan, String projectKey){
+    actionPlanDao.save(ActionPlanDto.toActionDto(actionPlan, findProject(projectKey).getId()));
     return actionPlan;
   }
 
-  public ActionPlan update(DefaultActionPlan actionPlan, Integer projectId){
-    actionPlanDao.update(ActionPlanDto.toActionDto(actionPlan, projectId));
+  public ActionPlan update(DefaultActionPlan actionPlan, String projectKey){
+    actionPlanDao.update(ActionPlanDto.toActionDto(actionPlan, findProject(projectKey).getId()));
     return actionPlan;
   }
 
@@ -82,7 +83,7 @@ public class ActionPlanService implements ServerComponent {
     return actionPlanDto.toActionPlan();
   }
 
-  public ActionPlan findByKey(String key) {
+  public ActionPlan findByKey(@CheckForNull String key) {
     ActionPlanDto actionPlanDto = actionPlanDao.findByKey(key);
     if (actionPlanDto == null) {
       return null;
@@ -96,20 +97,12 @@ public class ActionPlanService implements ServerComponent {
   }
 
   public Collection<ActionPlan> findOpenByProjectKey(String projectKey) {
-    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
-    if (resourceDto == null) {
-      throw new IllegalArgumentException("Project " + projectKey + " has not been found.");
-    }
-    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findOpenByProjectId(resourceDto.getId());
+    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findOpenByProjectId(findProject(projectKey).getId());
     return toActionPlans(actionPlanDtos);
   }
 
   public List<ActionPlanStats> findOpenActionPlanStats(String projectKey) {
-    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
-    if (resourceDto == null) {
-      throw new IllegalArgumentException("Project " + projectKey + " does not exists.");
-    }
-    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findOpenByProjectId(resourceDto.getId());
+    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findOpenByProjectId(findProject(projectKey).getId());
     return newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
       @Override
       public ActionPlanStats apply(ActionPlanStatsDto actionPlanStatsDto) {
@@ -119,17 +112,17 @@ public class ActionPlanService implements ServerComponent {
   }
 
   public List<ActionPlanStats> findClosedActionPlanStats(String projectKey) {
-    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
-    if (resourceDto == null) {
-      throw new IllegalArgumentException("Project " + projectKey + " does not exists.");
-    }
-    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findClosedByProjectId(resourceDto.getId());
+    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findClosedByProjectId(findProject(projectKey).getId());
     return newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
       @Override
       public ActionPlanStats apply(ActionPlanStatsDto actionPlanStatsDto) {
         return actionPlanStatsDto.toActionPlanStat();
       }
     }));
+  }
+
+  public boolean isNameAlreadyUsedForProject(String name, String projectKey) {
+    return !actionPlanDao.findByNameAndProjectId(name, findProject(projectKey).getId()).isEmpty();
   }
 
   private Collection<ActionPlan> toActionPlans(Collection<ActionPlanDto> actionPlanDtos) {
@@ -139,5 +132,13 @@ public class ActionPlanService implements ServerComponent {
         return actionPlanDto.toActionPlan();
       }
     }));
+  }
+
+  private ResourceDto findProject(String projectKey){
+    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
+    if (resourceDto == null) {
+      throw new IllegalArgumentException("Project " + projectKey + " does not exists.");
+    }
+    return resourceDto;
   }
 }
