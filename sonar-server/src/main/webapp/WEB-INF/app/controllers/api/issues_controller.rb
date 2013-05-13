@@ -28,14 +28,18 @@ class Api::IssuesController < Api::ApiController
   #
   def search
     results = Api.issues.find(params)
-    json = {
+    hash = {
       :securityExclusions => results.securityExclusions,
-      :paging => paging_to_json(results.paging),
-      :issues => results.issues.map { |issue| issue_to_json(issue) },
-      :rules => results.rules.map { |rule| rule_to_json(rule) }
+      :paging => paging_to_hash(results.paging),
+      :issues => results.issues.map { |issue| issue_to_hash(issue) },
+      :rules => results.rules.map { |rule| rule_to_hash(rule) }
     }
-    json[:actionPlans] = results.actionPlans.map { |plan| action_plan_to_json(plan) } if results.actionPlans.size>0
-    render :json => jsonp(json)
+    hash[:actionPlans] = results.actionPlans.map { |plan| action_plan_to_hash(plan) } if results.actionPlans.size>0
+
+    respond_to do |format|
+      format.json { render :json => jsonp(hash) }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'issues') }
+    end
   end
 
   #
@@ -69,7 +73,7 @@ class Api::IssuesController < Api::ApiController
     issue = Internal.issues.doTransition(params[:issue], params[:transition])
     if issue
       render :json => jsonp({
-                              :issue => issue_to_json(issue)
+                              :issue => issue_to_hash(issue)
                             })
     else
       render :status => 400
@@ -92,7 +96,7 @@ class Api::IssuesController < Api::ApiController
 
     text = Api::Utils.read_post_request_param(params[:text])
     comment = Internal.issues.addComment(params[:issue], text)
-    render :json => jsonp({:comment => comment_to_json(comment)})
+    render :json => jsonp({:comment => comment_to_hash(comment)})
   end
 
   #
@@ -109,7 +113,7 @@ class Api::IssuesController < Api::ApiController
     require_parameters :key
 
     comment = Internal.issues.deleteComment(params[:key])
-    render :json => jsonp({:comment => comment_to_json(comment)})
+    render :json => jsonp({:comment => comment_to_hash(comment)})
   end
 
   #
@@ -128,7 +132,7 @@ class Api::IssuesController < Api::ApiController
 
     text = Api::Utils.read_post_request_param(params[:text])
     comment = Internal.issues.editComment(params[:issue], text)
-    render :json => jsonp({:comment => comment_to_json(comment)})
+    render :json => jsonp({:comment => comment_to_hash(comment)})
   end
 
   #
@@ -145,7 +149,7 @@ class Api::IssuesController < Api::ApiController
     require_parameters :issue
 
     issue = Internal.issues.assign(params[:issue], params[:assignee])
-    render :json => jsonp({:issue => issue_to_json(issue)})
+    render :json => jsonp({:issue => issue_to_hash(issue)})
   end
 
 
@@ -163,7 +167,7 @@ class Api::IssuesController < Api::ApiController
 
     issue = Internal.issues.setSeverity(params[:issue], params[:severity])
 
-    render :json => jsonp({:issue => issue_to_json(issue)})
+    render :json => jsonp({:issue => issue_to_hash(issue)})
   end
 
   #
@@ -183,7 +187,7 @@ class Api::IssuesController < Api::ApiController
     plan = params[:plan] if params[:plan] && !params[:plan].blank?
     issue = Internal.issues.plan(params[:issue], plan)
 
-    render :json => jsonp({:issue => issue_to_json(issue)})
+    render :json => jsonp({:issue => issue_to_hash(issue)})
   end
 
   #
@@ -209,38 +213,38 @@ class Api::IssuesController < Api::ApiController
     require_parameters :component, :rule
 
     issue = Internal.issues.create(params)
-    render :json => jsonp({:issue => issue_to_json(issue)})
+    render :json => jsonp({:issue => issue_to_hash(issue)})
   end
 
   private
 
-  def issue_to_json(issue)
-    json = {
+  def issue_to_hash(issue)
+    hash = {
       :key => issue.key,
       :component => issue.componentKey,
       :rule => issue.ruleKey.toString(),
       :status => issue.status
     }
-    json[:actionPlan] = issue.actionPlanKey if issue.actionPlanKey
-    json[:resolution] = issue.resolution if issue.resolution
-    json[:severity] = issue.severity if issue.severity
-    json[:desc] = issue.description if issue.description
-    json[:line] = issue.line.to_i if issue.line
-    json[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
-    json[:userLogin] = issue.userLogin if issue.userLogin
-    json[:assignee] = issue.assignee if issue.assignee
-    json[:creationDate] = format_java_datetime(issue.creationDate) if issue.creationDate
-    json[:updateDate] = format_java_datetime(issue.updateDate) if issue.updateDate
-    json[:closeDate] = format_java_datetime(issue.closeDate) if issue.closeDate
-    json[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
-    json[:manual] = issue.manual if issue.manual
+    hash[:actionPlan] = issue.actionPlanKey if issue.actionPlanKey
+    hash[:resolution] = issue.resolution if issue.resolution
+    hash[:severity] = issue.severity if issue.severity
+    hash[:desc] = issue.description if issue.description
+    hash[:line] = issue.line.to_i if issue.line
+    hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
+    hash[:userLogin] = issue.userLogin if issue.userLogin
+    hash[:assignee] = issue.assignee if issue.assignee
+    hash[:creationDate] = format_java_datetime(issue.creationDate) if issue.creationDate
+    hash[:updateDate] = format_java_datetime(issue.updateDate) if issue.updateDate
+    hash[:closeDate] = format_java_datetime(issue.closeDate) if issue.closeDate
+    hash[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
+    hash[:manual] = issue.manual if issue.manual
     if issue.comments.size>0
-      json[:comments] = issue.comments.map { |c| comment_to_json(c) }
+      hash[:comments] = issue.comments.map { |c| comment_to_hash(c) }
     end
-    json
+    hash
   end
 
-  def comment_to_json(comment)
+  def comment_to_hash(comment)
     {
       :key => comment.key(),
       :login => comment.userLogin(),
@@ -249,34 +253,34 @@ class Api::IssuesController < Api::ApiController
     }
   end
 
-  def diffs_to_json(diffs)
-    json = {
+  def diffs_to_hash(diffs)
+    hash = {
       :login => diffs.userLogin(),
       :at => format_java_datetime(diffs.createdAt())
     }
-    json
+    hash
   end
 
-  def rule_to_json(rule)
+  def rule_to_hash(rule)
     l10n_name = Internal.rules.ruleL10nName(rule)
     l10n_desc = Internal.rules.ruleL10nDescription(rule)
-    json = {:key => rule.ruleKey().toString()}
-    json[:name] = l10n_name if l10n_name
-    json[:desc] = l10n_desc if l10n_desc
-    json
+    hash = {:key => rule.ruleKey().toString()}
+    hash[:name] = l10n_name if l10n_name
+    hash[:desc] = l10n_desc if l10n_desc
+    hash
   end
 
-  def action_plan_to_json(action_plan)
-    json = {:key => action_plan.key(), :name => action_plan.name(), :status => action_plan.status()}
-    json[:desc] = action_plan.description() if action_plan.description() && !action_plan.description().blank?
-    json[:userLogin] = action_plan.userLogin() if action_plan.userLogin()
-    json[:deadLine] = format_java_datetime(action_plan.deadLine()) if action_plan.deadLine()
-    json[:creationDate] = format_java_datetime(action_plan.creationDate()) if action_plan.creationDate()
-    json[:updateDate] = format_java_datetime(action_plan.updateDate()) if action_plan.updateDate()
-    json
+  def action_plan_to_hash(action_plan)
+    hash = {:key => action_plan.key(), :name => action_plan.name(), :status => action_plan.status()}
+    hash[:desc] = action_plan.description() if action_plan.description() && !action_plan.description().blank?
+    hash[:userLogin] = action_plan.userLogin() if action_plan.userLogin()
+    hash[:deadLine] = format_java_datetime(action_plan.deadLine()) if action_plan.deadLine()
+    hash[:creationDate] = format_java_datetime(action_plan.creationDate()) if action_plan.creationDate()
+    hash[:updateDate] = format_java_datetime(action_plan.updateDate()) if action_plan.updateDate()
+    hash
   end
 
-  def paging_to_json(paging)
+  def paging_to_hash(paging)
     {
       :pageIndex => paging.pageIndex,
       :pageSize => paging.pageSize,
