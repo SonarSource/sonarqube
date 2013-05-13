@@ -25,20 +25,44 @@ import java.util.Map;
 /**
  * @since 3.6
  */
-public class ActionPlanQuery {
+public class NewActionPlan {
 
-  static final String BASE_URL = "/api/action_plans/search";
+  static final String BASE_URL = "/api/action_plans/create";
 
   private final Map<String, Object> params = new HashMap<String, Object>();
 
-  private ActionPlanQuery() {
+  private NewActionPlan() {
   }
 
-  public static ActionPlanQuery create() {
-    return new ActionPlanQuery();
+  public static NewActionPlan create() {
+    return new NewActionPlan();
   }
 
   Map<String, Object> urlParams() {
     return params;
   }
+
+  public NewActionPlan name(String s) {
+    params.put("name", s);
+    return this;
+  }
+
+  public NewActionPlan project(String s) {
+    params.put("project", s);
+    return this;
+  }
+
+  public NewActionPlan description(String s) {
+    params.put("desc", s);
+    return this;
+  }
+
+  /**
+   * Due date of the action plan. Format is 'day/month/year', for instance, '31/12/2013'.
+   */
+  public NewActionPlan deadLine(String s) {
+    params.put("deadLine", s);
+    return this;
+  }
+
 }

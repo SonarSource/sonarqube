@@ -28,4 +28,16 @@ public interface ActionPlanClient {
 
   List<ActionPlan> find();
 
+  ActionPlan find(String actionPlanKey);
+
+  void create(NewActionPlan newActionPlan);
+
+  void update(UpdateActionPlan updateActionPlan);
+
+  void delete(String actionPlanKey);
+
+  void open(String actionPlanKey);
+
+  void close(String actionPlanKey);
+
 }

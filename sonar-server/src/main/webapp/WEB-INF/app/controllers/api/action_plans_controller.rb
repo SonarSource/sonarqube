@@ -83,7 +83,7 @@ class Api::ActionPlansController < Api::ApiController
       action_plan = result.get()
       render :json => jsonp({:actionPlan => action_plan_to_hash(action_plan)})
     else
-      render_error(result)
+      render_result_error(result)
     end
   end
 
@@ -104,7 +104,7 @@ class Api::ActionPlansController < Api::ApiController
     if result.ok()
       render_success('Action plan deleted')
     else
-      render_error(result)
+      render_result_error(result)
     end
   end
 
@@ -129,7 +129,7 @@ class Api::ActionPlansController < Api::ApiController
       action_plan = result.get()
       render :json => jsonp({:actionPlan => action_plan_to_hash(action_plan)})
     else
-      render_error(result)
+      render_result_error(result)
     end
   end
 
@@ -151,7 +151,7 @@ class Api::ActionPlansController < Api::ApiController
       action_plan = result.get()
       render :json => jsonp({:actionPlan => action_plan_to_hash(action_plan)})
     else
-      render_error(result)
+      render_result_error(result)
     end
   end
 
@@ -173,7 +173,7 @@ class Api::ActionPlansController < Api::ApiController
       action_plan = result.get()
       render :json => jsonp({:actionPlan => action_plan_to_hash(action_plan)})
     else
-      render_error(result)
+      render_result_error(result)
     end
   end
 
@@ -197,7 +197,7 @@ class Api::ActionPlansController < Api::ApiController
     {:msg => message(msg.text(), {:params => msg.params()}).capitalize}
   end
 
-  def render_error(result)
+  def render_result_error(result)
     hash = {:errors => result.errors().map { |error| error_to_hash(error) }}
     respond_to do |format|
       format.json { render :json => jsonp(hash), :status => 400}
