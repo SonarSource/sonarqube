@@ -22,6 +22,8 @@ package org.sonar.wsclient;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.DefaultIssueClient;
 import org.sonar.wsclient.issue.IssueClient;
+import org.sonar.wsclient.user.DefaultUserClient;
+import org.sonar.wsclient.user.UserClient;
 
 /**
  * @since 3.6
@@ -36,6 +38,10 @@ public class SonarClient {
 
   public IssueClient issueClient() {
     return new DefaultIssueClient(requestFactory);
+  }
+
+  public UserClient userClient() {
+    return new DefaultUserClient(requestFactory);
   }
 
   public static Builder builder() {

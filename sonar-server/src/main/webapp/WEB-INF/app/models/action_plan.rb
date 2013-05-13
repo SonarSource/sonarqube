@@ -77,13 +77,14 @@ class ActionPlan < ActiveRecord::Base
     deadline ? status==STATUS_OPEN && deadline.past? : false
   end
 
-  def self.to_hash(action_plan)
-    hash = {:key => action_plan.key(), :name => action_plan.name(), :status => action_plan.status()}
-    hash[:desc] = action_plan.description() if action_plan.description() && !action_plan.description().blank?
-    hash[:userLogin] = action_plan.userLogin() if action_plan.userLogin()
-    hash[:deadLine] = Api::Utils.format_datetime(action_plan.deadLine()) if action_plan.deadLine()
-    hash[:creationDate] = Api::Utils.format_datetime(action_plan.creationDate()) if action_plan.creationDate()
-    hash[:updateDate] = Api::Utils.format_datetime(action_plan.updateDate()) if action_plan.updateDate()
+  # since 3.6
+  def self.to_hash(java_action_plan)
+    hash = {:key => java_action_plan.key(), :name => java_action_plan.name(), :status => java_action_plan.status()}
+    hash[:desc] = java_action_plan.description() if java_action_plan.description() && !java_action_plan.description().blank?
+    hash[:userLogin] = java_action_plan.userLogin() if java_action_plan.userLogin()
+    hash[:deadLine] = Api::Utils.format_datetime(java_action_plan.deadLine()) if java_action_plan.deadLine()
+    hash[:createdAt] = Api::Utils.format_datetime(java_action_plan.createdAt()) if java_action_plan.createdAt()
+    hash[:updatedAt] = Api::Utils.format_datetime(java_action_plan.updatedAt()) if java_action_plan.updatedAt()
     hash
   end
 

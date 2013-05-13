@@ -36,6 +36,11 @@ public class DefaultRubyUserService implements RubyUserService {
   }
 
   @Override
+  public User findByLogin(String login) {
+    return finder.findByLogin(login);
+  }
+
+  @Override
   public List<User> find(Map<String, Object> params) {
     UserQuery query = parseQuery(params);
     return finder.find(query);
@@ -43,7 +48,7 @@ public class DefaultRubyUserService implements RubyUserService {
 
   private UserQuery parseQuery(Map<String, Object> params) {
     UserQuery.Builder builder = UserQuery.builder();
-    if (RubyUtils.toBoolean(params.get("includeDeactivated"))==Boolean.TRUE) {
+    if (RubyUtils.toBoolean(params.get("includeDeactivated")) == Boolean.TRUE) {
       builder.includeDeactivated();
     }
     builder.logins(RubyUtils.toStrings(params.get("logins")));

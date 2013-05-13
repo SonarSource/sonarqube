@@ -17,30 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.user;
+package org.sonar.wsclient.user;
 
-import org.sonar.api.ServerComponent;
-
-import javax.annotation.CheckForNull;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @since 3.6
  */
-public interface RubyUserService extends ServerComponent {
+public interface UserClient {
 
-  @CheckForNull
-  User findByLogin(String login);
+  List<User> find(UserQuery query);
 
-  /**
-   * Search for users
-   * <p/>
-   * Optional parameters are:
-   * <ul>
-   *   <li><code>logins</code>, as an array of strings (['simon', 'julien']) or a comma-separated list of logins ('simon,julien')</li>
-   *   <li><code>includeDeactivated</code> as a boolean. By Default deactivated users are excluded from query.</li>
-   * </ul>
-   */
-  List<User> find(Map<String, Object> params);
 }

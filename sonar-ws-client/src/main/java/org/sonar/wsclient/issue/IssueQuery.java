@@ -127,6 +127,8 @@ public class IssueQuery {
   private IssueQuery addParam(String key, String[] values) {
     if (values != null) {
       params.put(key, EncodingUtils.toQueryParam(values));
+    } else {
+      params.remove(key);
     }
     return this;
   }

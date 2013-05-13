@@ -17,30 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.user;
+package org.sonar.wsclient.user;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.wsclient.internal.EncodingUtils;
 
-import javax.annotation.CheckForNull;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @since 3.6
  */
-public interface RubyUserService extends ServerComponent {
+public class UserQuery {
+  static final String BASE_URL = "/api/users/search";
 
-  @CheckForNull
-  User findByLogin(String login);
+  private final Map<String, Object> params = new HashMap<String, Object>();
 
-  /**
-   * Search for users
-   * <p/>
-   * Optional parameters are:
-   * <ul>
-   *   <li><code>logins</code>, as an array of strings (['simon', 'julien']) or a comma-separated list of logins ('simon,julien')</li>
-   *   <li><code>includeDeactivated</code> as a boolean. By Default deactivated users are excluded from query.</li>
-   * </ul>
-   */
-  List<User> find(Map<String, Object> params);
+  private UserQuery() {
+  }
+
+  public static UserQuery create() {
+    return new UserQuery();
+  }
+
+  public UserQuery includeDeactivated() {
+    params.put("includeDeactivated", "true");
+    return this;
+  }
+
+  public UserQuery logins(String... s) {
+    if (s != null) {
+      params.put("logins", EncodingUtils.toQueryParam(s));
+    } else {
+      params.remove("logins");
+    }
+    return this;
+  }
+
+  Map<String, Object> urlParams() {
+    return params;
+  }
 }
