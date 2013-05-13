@@ -20,6 +20,7 @@
 package org.sonar.wsclient;
 
 import org.junit.Test;
+import org.sonar.wsclient.issue.DefaultActionPlanClient;
 import org.sonar.wsclient.issue.DefaultIssueClient;
 import org.sonar.wsclient.user.DefaultUserClient;
 
@@ -31,6 +32,7 @@ public class SonarClientTest {
   public void should_build_clients() {
     SonarClient client = SonarClient.builder().url("http://localhost:9000").build();
     assertThat(client.issueClient()).isNotNull().isInstanceOf(DefaultIssueClient.class);
+    assertThat(client.actionPlanClient()).isNotNull().isInstanceOf(DefaultActionPlanClient.class);
     assertThat(client.userClient()).isNotNull().isInstanceOf(DefaultUserClient.class);
   }
 
