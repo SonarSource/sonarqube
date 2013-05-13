@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.issue;
+package org.sonar.server.issue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.core.issue.ActionPlanStats;
+import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.issue.db.ActionPlanDto;
 import org.sonar.core.issue.db.ActionPlanStatsDao;
@@ -43,13 +45,13 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class ActionPlanManager implements ServerComponent {
+public class ActionPlanService implements ServerComponent {
 
   private final ActionPlanDao actionPlanDao;
   private final ActionPlanStatsDao actionPlanStatsDao;
   private final ResourceDao resourceDao;
 
-  public ActionPlanManager(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao) {
+  public ActionPlanService(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao) {
     this.actionPlanDao = actionPlanDao;
     this.actionPlanStatsDao = actionPlanStatsDao;
     this.resourceDao = resourceDao;

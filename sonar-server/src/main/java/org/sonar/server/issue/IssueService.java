@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.ActionPlanManager;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
@@ -33,6 +32,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -47,17 +47,17 @@ public class IssueService implements ServerComponent {
   private final IssueWorkflow workflow;
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
-  private final ActionPlanManager actionPlanManager;
+  private final ActionPlanService actionPlanService;
 
   public IssueService(DefaultIssueFinder finder,
                       IssueWorkflow workflow,
                       IssueStorage issueStorage,
-                      IssueUpdater issueUpdater, ActionPlanManager actionPlanManager) {
+                      IssueUpdater issueUpdater, ActionPlanService actionPlanService) {
     this.finder = finder;
     this.workflow = workflow;
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
-    this.actionPlanManager = actionPlanManager;
+    this.actionPlanService = actionPlanService;
   }
 
   public List<Transition> listTransitions(String issueKey, UserSession userSession) {
@@ -95,7 +95,7 @@ public class IssueService implements ServerComponent {
   }
 
   public Issue plan(String issueKey, @Nullable String actionPlanKey, UserSession userSession) {
-    if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanManager.findByKey(actionPlanKey) == null) {
+    if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanService.findByKey(actionPlanKey) == null) {
       throw new IllegalStateException("Unknown action plan: " + actionPlanKey);
     }
 

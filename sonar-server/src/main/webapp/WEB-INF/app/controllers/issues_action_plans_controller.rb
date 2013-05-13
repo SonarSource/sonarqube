@@ -38,6 +38,7 @@ class IssuesActionPlansController < ApplicationController
     exiting_action_plan = find_by_key(params[:plan_key]) unless params[:plan_key].blank?
     options = {'projectId' => @resource.id, 'name' => params[:name], 'description' => params[:description]}
 
+    # TODO do the check on Java side
     unless params[:deadline].blank?
       begin
         deadline = DateTime.strptime(params[:deadline], '%d/%m/%Y')

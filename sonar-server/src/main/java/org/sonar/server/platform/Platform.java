@@ -40,7 +40,6 @@ import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.issue.ActionPlanManager;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -261,7 +260,7 @@ public final class Platform {
     servicesContainer.addSingleton(DefaultIssueFinder.class);
     servicesContainer.addSingleton(PublicRubyIssueService.class);
     servicesContainer.addSingleton(InternalRubyIssueService.class);
-    servicesContainer.addSingleton(ActionPlanManager.class);
+    servicesContainer.addSingleton(ActionPlanService.class);
 
     // rules
     servicesContainer.addSingleton(RubyRuleService.class);

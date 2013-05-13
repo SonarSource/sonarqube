@@ -26,7 +26,10 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.issue.*;
+import org.sonar.core.issue.ActionPlanStats;
+import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
@@ -42,14 +45,14 @@ public class InternalRubyIssueService implements ServerComponent {
 
   private final IssueService issueService;
   private final IssueCommentService commentService;
-  private final ActionPlanManager actionPlanManager;
+  private final ActionPlanService actionPlanService;
 
   public InternalRubyIssueService(IssueService issueService,
                                   IssueCommentService commentService,
-                                  ActionPlanManager actionPlanManager) {
+                                  ActionPlanService actionPlanService) {
     this.issueService = issueService;
     this.commentService = commentService;
-    this.actionPlanManager = actionPlanManager;
+    this.actionPlanService = actionPlanService;
   }
 
   public List<Transition> listTransitions(String issueKey) {
@@ -103,19 +106,19 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   Collection<ActionPlan> findOpenActionPlans(String projectKey) {
-    return actionPlanManager.findOpenByProjectKey(projectKey);
+    return actionPlanService.findOpenByProjectKey(projectKey);
   }
 
   ActionPlan findActionPlan(String actionPlanKey) {
-    return actionPlanManager.findByKey(actionPlanKey);
+    return actionPlanService.findByKey(actionPlanKey);
   }
 
   List<ActionPlanStats> findOpenActionPlanStats(String projectKey) {
-    return actionPlanManager.findOpenActionPlanStats(projectKey);
+    return actionPlanService.findOpenActionPlanStats(projectKey);
   }
 
   List<ActionPlanStats> findClosedActionPlanStats(String projectKey) {
-    return actionPlanManager.findClosedActionPlanStats(projectKey);
+    return actionPlanService.findClosedActionPlanStats(projectKey);
   }
 
   public ActionPlan createActionPlan(Map<String, String> parameters) {
@@ -129,7 +132,7 @@ public class InternalRubyIssueService implements ServerComponent {
       .setUserLogin(UserSession.get().login())
       .setDeadLine(toDate(parameters.get("deadLine")));
 
-    return actionPlanManager.create(actionPlan, projectId);
+    return actionPlanService.create(actionPlan, projectId);
   }
 
   public ActionPlan updateActionPlan(String key, Map<String, String> parameters) {
@@ -137,26 +140,26 @@ public class InternalRubyIssueService implements ServerComponent {
     // TODO verify deadLine
     // TODO check existence of projectId
     Integer projectId = toInteger(parameters.get("projectId"));
-    DefaultActionPlan defaultActionPlan = (DefaultActionPlan) actionPlanManager.findByKey(key);
+    DefaultActionPlan defaultActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key);
     defaultActionPlan.setName(parameters.get("name"));
     defaultActionPlan.setDescription(parameters.get("description"));
     defaultActionPlan.setDeadLine(toDate(parameters.get("deadLine")));
-    return actionPlanManager.update(defaultActionPlan, projectId);
+    return actionPlanService.update(defaultActionPlan, projectId);
   }
 
   public ActionPlan closeActionPlan(String actionPlanKey) {
     // TODO verify authorization
-    return actionPlanManager.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED);
+    return actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED);
   }
 
   public ActionPlan openActionPlan(String actionPlanKey) {
     // TODO verify authorization
-    return actionPlanManager.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN);
+    return actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN);
   }
 
   public void deleteActionPlan(String actionPlanKey) {
     // TODO verify authorization
-    actionPlanManager.delete(actionPlanKey);
+    actionPlanService.delete(actionPlanKey);
   }
 
   Date toDate(Object o) {
