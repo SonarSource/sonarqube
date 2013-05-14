@@ -1,23 +1,22 @@
 <%
   unless action_plan.totalIssues()==0
     # TODO add links to issues page
-    options = {:controller => 'project_reviews', :action => 'index', :action_plan_id => action_plan.id}
-  
-    resolved_reviews_link = action_plan.resolvedIssues().to_s
-    #resolved_reviews_link = link_to action_plan.resolvedIssues().to_s, options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"}) unless action_plan.resolvedIssues()==0
-    #total_reviews_link = link_to action_plan.totalIssues().to_s, options
-    total_reviews_link = action_plan.totalIssues().to_s
+    options = {:controller => 'issues', :action => 'index', :actionPlans => action_plan.key}
+
+    resolved_issues_link = action_plan.resolvedIssues().to_s
+    resolved_issues_link = link_to action_plan.resolvedIssues().to_s, options.merge({:resolved => 'true'}) unless action_plan.resolvedIssues()==0
+    total_issues_link = link_to action_plan.totalIssues().to_s, options
 
     if action_plan.resolvedIssues() > 0
-      resolved_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_RESOLVED},#{Review::STATUS_CLOSED}"})
-      percent_resolved = (action_plan.resolvedIssues()*100/action_plan.totalIssues()).to_i
+      resolved_issues_url = url_for options.merge({:resolved => 'true'})
+      percent_resolved = (action_plan.resolvedIssues()*100 / action_plan.totalIssues()).to_i
       tooltip_resolved = message('issues_action_plans.resolved_issues_x_percent', :params => [percent_resolved.to_s, action_plan.resolvedIssues().to_s])
     end
   
     if action_plan.unresolvedIssues() > 0
-      open_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_OPEN},#{Review::STATUS_REOPENED}"})
-      percent_open = (action_plan.unresolvedIssues()*100/action_plan.totalIssues()).to_i
-      tooltip_open = message('issues_action_plans.open_issues_x_percent', :params => [percent_open.to_s, action_plan.unresolvedIssues().to_s])
+      unresolved_issues_url = url_for options.merge({:resolved => 'false'})
+      percent_open = (action_plan.unresolvedIssues()*100 / action_plan.totalIssues()).to_i
+      tooltip_open = message('issues_action_plans.unresolved_issues_x_percent', :params => [percent_open.to_s, action_plan.unresolvedIssues().to_s])
     end
 %>
 
@@ -27,18 +26,18 @@
       <tr>
         <% if action_plan.resolvedIssues() > 0 %>
         <td class="resolved" style="width:<%= percent_resolved -%>%;">
-          <a href="#" title="<%= tooltip_resolved -%>" alt="<%= tooltip_resolved -%>"></a>
+          <a href="<%= resolved_issues_url -%>" title="<%= resolved_issues_url -%>" alt="<%= tooltip_resolved -%>"></a>
         </td>
         <% end %>
         <% if action_plan.unresolvedIssues() > 0 %>
         <td class="open" style="width:<%= percent_open -%>%;">
-          <a href="#" title="<%= tooltip_open -%>" alt="<%= tooltip_open -%>"></a>
+          <a href="<%= unresolved_issues_url -%>" title="<%= unresolved_issues_url -%>" alt="<%= tooltip_open -%>"></a>
         </td>
         <% end %>
       </tr>
     </tbody>
   </table>
-  <div class="note"><%= message('issues_action_plans.x_out_of_x_issues_solved', :params => [resolved_reviews_link, total_reviews_link]) -%></div>
+  <div class="note"><%= message('issues_action_plans.x_out_of_x_issues_solved', :params => [resolved_issues_link, total_issues_link]) -%></div>
 </div>
 
 <% end %>

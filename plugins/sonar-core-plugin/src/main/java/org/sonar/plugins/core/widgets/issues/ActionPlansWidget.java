@@ -25,12 +25,13 @@ import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 import org.sonar.plugins.core.widgets.CoreWidget;
 
-@WidgetCategory({"Issues"})
+@WidgetCategory({"Action plans", "Issues"})
 @WidgetProperties({
-  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
+  @WidgetProperty(key = "showResolvedIssues", type = WidgetPropertyType.BOOLEAN, defaultValue = "true")
 })
-public class ActiveIssuesWidget extends CoreWidget {
-  public ActiveIssuesWidget() {
-    super("active_issues", "Active issues", "/org/sonar/plugins/core/widgets/issues/active_issues.html.erb");
+public class ActionPlansWidget extends CoreWidget {
+  public ActionPlansWidget() {
+//    super("issues_action_plans", "Issues action plans", "/org/sonar/plugins/core/widgets/issues/action_plans.html.erb");
+    super("issues_action_plans", "Action plans", "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/issues/action_plans.html.erb");
   }
 }

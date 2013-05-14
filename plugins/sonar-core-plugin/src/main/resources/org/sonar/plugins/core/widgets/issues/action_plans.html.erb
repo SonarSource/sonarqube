@@ -1,0 +1,93 @@
+<%
+   if has_role?(:user, @project)
+     action_plans = Internal.issues.findActionPlanStats(@resource.key)
+     open_action_plans = action_plans.select {|plan| plan.isOpen()}
+
+     div_id = "action-plan-widget-#{widget.id.to_s}"
+%>
+
+<div class="line-block">
+  <% if has_role?(:admin, @project) %>
+  <div style="float:right">
+    <a href="<%= url_for :controller => 'issues_action_plans', :action => 'index', :id => @project.id -%>">
+      <%= message('widgets.more') -%>
+    </a>
+  </div>
+  <% end %>
+  
+  <h3><%= message('widget.action_plans.title') -%></h3>
+</div>
+
+
+<div id="<%= div_id -%>">
+
+<% if open_action_plans.size ==0 %>
+
+  <span class="empty_widget"><%= message('widget.action_plans.no_action_plan') -%></span>
+
+<% 
+   else
+     show_resolved_issues = widget_properties["showResolvedIssues"]
+     if show_resolved_issues
+       line_class = "top"
+     else
+       line_class = "middle"
+       max_unresolved_issues = open_action_plans.map {|plan| plan.unresolvedIssues()}.max
+     end 
+%>
+
+  <table class="width100 <%= show_resolved_issues ? 'actionPlans' : 'data' -%>">
+    <thead>
+    <tr>
+      <th colspan="<%= show_resolved_issues ? '3' : '4' %>"></th>
+    </tr>
+    </thead>
+    <tbody>
+      <%
+         open_action_plans.each do |plan|
+           deadline = Api::Utils.java_to_ruby_datetime(plan.deadLine()) if plan.deadLine()
+      %>
+      <tr class="<%= show_resolved_issues ? '' : cycle("even", "odd", :name => "action_plan_" + widget.id.to_s) -%>">
+        <td class="nowrap <%= line_class -%>"><%= h(plan.name) -%></td>
+        <td class="nowrap small <%= line_class -%> <%= 'over-due' if plan.overDue() -%>" style="text-align: right; padding-left:10px"><%= deadline ? deadline.strftime("%d %b %Y") : ' '  -%></td>
+        
+        <% if show_resolved_issues %>
+          <% if plan.totalIssues()==0 %>
+            <td class="noprogress nowrap <%= line_class -%>"><%= message('issues_action_plans.no_issues_linked_to_action_plan') -%></td>
+          <% else %>
+            <td class="progress <%= line_class -%>">
+              <%= render :partial => 'issues_action_plans/progress', :locals => {:action_plan => plan} -%>
+            </td>
+          <% end %>
+        <% 
+           else
+             unresolved_issues_size = plan.unresolvedIssues()
+        %>
+          <td class="right <%= line_class -%>" style="padding-left:20px">
+            <% if unresolved_issues_size == 0 %>
+              <%= unresolved_issues_size -%>
+            <% else %>
+              <a href="<%= url_for({:controller => 'issues', :action => 'index',
+                                    :actionPlans => plan.key, :resolved => 'false'}) -%>"
+                 title="<%= message('widget.action_plans.x_unresolved_issues', :params => unresolved_issues_size.to_s) -%>"><%= unresolved_issues_size -%></a>
+            <% end %>
+          </td>
+          <td class="<%= line_class -%>" style="padding: 0 40px 0 10px; width: 300px;">
+            <div class="barchart" style="width: 100%">
+              <div style="width: <%= max_unresolved_issues > 0 ? 100 * unresolved_issues_size / max_unresolved_issues : 0 -%>%;background-color:#777;"></div>
+            </div>
+          </td>
+        <% end %>
+        
+      </tr>
+      <% 
+         end 
+      %>
+    </tbody>
+  </table>
+
+<% end %>
+  
+</div>
+
+<% end %>

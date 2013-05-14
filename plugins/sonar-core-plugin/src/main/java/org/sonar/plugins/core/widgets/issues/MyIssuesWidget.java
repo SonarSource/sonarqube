@@ -31,6 +31,6 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 })
 public class MyIssuesWidget extends CoreWidget {
   public MyIssuesWidget() {
-    super("my_reviews2", "My active issues", "/org/sonar/plugins/core/widgets/issues/my_issues.html.erb");
+    super("my_issues", "My active issues", "/org/sonar/plugins/core/widgets/issues/my_issues.html.erb");
   }
 }
