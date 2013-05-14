@@ -54,7 +54,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
     assertThat(issue.isManualSeverity()).isFalse();
-    assertThat(issue.isManualIssue()).isFalse();
     assertThat(issue.getDescription()).isNull();
     assertThat(issue.getLine()).isEqualTo(200);
     assertThat(issue.getEffortToFix()).isEqualTo(4.2);
@@ -62,7 +61,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getResolution()).isEqualTo("FIXED");
     assertThat(issue.getChecksum()).isEqualTo("XXX");
     assertThat(issue.getAuthorLogin()).isEqualTo("karadoc");
-    assertThat(issue.getUserLogin()).isEqualTo("arthur");
+    assertThat(issue.getReporter()).isEqualTo("arthur");
     assertThat(issue.getAssignee()).isEqualTo("perceval");
     assertThat(issue.getAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(issue.getIssueCreationDate()).isNotNull();
@@ -81,7 +80,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     IssueQuery query = IssueQuery.builder()
       .issueKeys(newArrayList("ABCDE"))
-      .userLogins(newArrayList("arthur", "otherguy"))
+      .reporters(newArrayList("arthur", "otherguy"))
       .assignees(newArrayList("perceval", "otherguy"))
       .components(newArrayList("Action.java"))
       .resolutions(newArrayList("FIXED"))

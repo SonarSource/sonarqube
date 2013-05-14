@@ -32,13 +32,12 @@ class Issue
     hash[:desc] = issue.description if issue.description
     hash[:line] = issue.line.to_i if issue.line
     hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
-    hash[:userLogin] = issue.userLogin if issue.userLogin
+    hash[:reporter] = issue.reporter if issue.reporter
     hash[:assignee] = issue.assignee if issue.assignee
     hash[:creationDate] = Api::Utils.format_datetime(issue.creationDate) if issue.creationDate
     hash[:updateDate] = Api::Utils.format_datetime(issue.updateDate) if issue.updateDate
     hash[:closeDate] = Api::Utils.format_datetime(issue.closeDate) if issue.closeDate
     hash[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
-    hash[:manual] = issue.manual if issue.manual
     if issue.comments.size>0
       hash[:comments] = issue.comments.map { |c| comment_to_hash(c) }
     end

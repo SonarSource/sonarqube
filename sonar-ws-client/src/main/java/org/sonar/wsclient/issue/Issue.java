@@ -83,10 +83,16 @@ public class Issue {
 
   /**
    * Login of the user who created the manual issue, else null.
+   * TODO to be removed
    */
   @CheckForNull
   public String userLogin() {
-    return JsonUtils.getString(json, "userLogin");
+    return JsonUtils.getString(json, "reporter");
+  }
+
+  @CheckForNull
+  public String reporter() {
+    return JsonUtils.getString(json, "reporter");
   }
 
   /**

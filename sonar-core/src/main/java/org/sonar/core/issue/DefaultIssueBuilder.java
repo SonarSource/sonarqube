@@ -126,7 +126,6 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setSeverity(Objects.firstNonNull(severity, Severity.MAJOR));
     issue.setEffortToFix(effortToFix);
     issue.setLine(line);
-    issue.setManual(manual);
     issue.setManualSeverity(manual);
     issue.setAttributes(attributes);
     issue.setNew(true);

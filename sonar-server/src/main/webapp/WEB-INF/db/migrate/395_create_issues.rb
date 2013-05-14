@@ -30,15 +30,14 @@ class CreateIssues < ActiveRecord::Migration
       t.column :rule_id,              :integer,   :null => true
       t.column :severity, 					  :string, 	  :null => true,	  :limit => 10
       t.column :manual_severity,      :boolean,   :null => false
-      t.column :manual_issue,         :boolean,   :null => false
       t.column :description,          :string,    :null => true,    :limit => 4000
       t.column :line,                 :integer,   :null => true
       t.column :effort_to_fix,        :decimal,   :null => true,    :precision => 30,   :scale => 20
       t.column :status,               :string ,   :null => true,    :limit => 20
       t.column :resolution,           :string ,   :null => true,    :limit => 20
       t.column :checksum,             :string ,   :null => true,    :limit => 1000
-      t.column :user_login,           :string,    :null => true,	  :limit => 40
-      t.column :assignee_login,       :string,    :null => true,	  :limit => 40
+      t.column :reporter,             :string,    :null => true,	  :limit => 40
+      t.column :assignee,             :string,    :null => true,	  :limit => 40
       t.column :author_login,         :string,    :null => true,    :limit => 100
       t.column :action_plan_key,      :string,    :null => true,    :limit => 50
       t.column :attributes,           :string,    :null => true,    :limit => 4000

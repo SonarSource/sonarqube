@@ -81,12 +81,10 @@ public interface Issue extends Serializable {
   String resolution();
 
   @CheckForNull
-  String userLogin();
+  String reporter();
 
   @CheckForNull
   String assignee();
-
-  boolean manual();
 
   Date creationDate();
 

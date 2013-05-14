@@ -121,8 +121,7 @@ public class IssueService implements ServerComponent {
 
   public Issue create(DefaultIssue issue, UserSession userSession) {
     // TODO merge with InternalRubyIssueService
-    issue.setManual(true);
-    issue.setUserLogin(userSession.login());
+    issue.setReporter(userSession.login());
 
     issueStorage.save(issue);
 

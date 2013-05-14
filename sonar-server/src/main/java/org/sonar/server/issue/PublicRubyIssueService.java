@@ -74,7 +74,7 @@ public class PublicRubyIssueService implements RubyIssueService {
     builder.componentRoots(RubyUtils.toStrings(props.get("componentRoots")));
     builder.rules(toRules(props.get("rules")));
     builder.actionPlans(RubyUtils.toStrings(props.get("actionPlans")));
-    builder.userLogins(RubyUtils.toStrings(props.get("userLogins")));
+    builder.reporters(RubyUtils.toStrings(props.get("reporters")));
     builder.assignees(RubyUtils.toStrings(props.get("assignees")));
     builder.assigned(RubyUtils.toBoolean(props.get("assigned")));
     builder.planned(RubyUtils.toBoolean(props.get("planned")));

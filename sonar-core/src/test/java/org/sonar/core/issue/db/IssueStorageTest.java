@@ -52,7 +52,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     issue.setRuleKey(RuleKey.of("squid", "AvoidCycle"));
     issue.setLine(5000);
     issue.setNew(true);
-    issue.setUserLogin("emmerik");
+    issue.setReporter("emmerik");
     issue.setResolution("OPEN").setStatus("OPEN").setSeverity("BLOCKER");
     issue.setAttribute("foo", "bar");
     issue.addComment(comment);
@@ -85,7 +85,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     issue.setAuthorLogin("simon");
     issue.setAssignee("loic");
     issue.setFieldDiff(context, "severity", "INFO", "BLOCKER");
-    issue.setUserLogin("emmerik");
+    issue.setReporter("emmerik");
     issue.setResolution("FIXED").setStatus("RESOLVED").setSeverity("BLOCKER");
     issue.setAttribute("foo", "bar");
     issue.addComment(comment);

@@ -54,9 +54,8 @@ public class DefaultIssue implements Issue {
   private Double effortToFix;
   private String status;
   private String resolution;
-  private String userLogin;
+  private String reporter;
   private String assignee;
-  private boolean manual = false;
   private String checksum;
   private boolean isNew = true;
   private boolean isAlive = true;
@@ -174,12 +173,12 @@ public class DefaultIssue implements Issue {
   }
 
   @CheckForNull
-  public String userLogin() {
-    return userLogin;
+  public String reporter() {
+    return reporter;
   }
 
-  public DefaultIssue setUserLogin(@Nullable String userLogin) {
-    this.userLogin = userLogin;
+  public DefaultIssue setReporter(@Nullable String s) {
+    this.reporter = s;
     return this;
   }
 
@@ -248,15 +247,6 @@ public class DefaultIssue implements Issue {
   @CheckForNull
   public Date technicalUpdateDate() {
     return technicalUpdateDate;
-  }
-
-  public boolean manual() {
-    return manual;
-  }
-
-  public DefaultIssue setManual(boolean b) {
-    this.manual = b;
-    return this;
   }
 
   @CheckForNull

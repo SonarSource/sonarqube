@@ -23,7 +23,9 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.web.UserRole;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -42,7 +44,7 @@ public class IssueQueryTest {
       .componentRoots(Lists.newArrayList("org.struts:core"))
       .rules(Lists.newArrayList(RuleKey.of("squid", "AvoidCycle")))
       .actionPlans(Lists.newArrayList("AP1", "AP2"))
-      .userLogins(Lists.newArrayList("crunky"))
+      .reporters(Lists.newArrayList("crunky"))
       .assignees(Lists.newArrayList("gargantua"))
       .assigned(true)
       .createdAfter(new Date())
@@ -50,6 +52,7 @@ public class IssueQueryTest {
       .sort(IssueQuery.Sort.ASSIGNEE)
       .pageSize(10)
       .pageIndex(2)
+      .requiredRole(UserRole.CODEVIEWER)
       .build();
     assertThat(query.issueKeys()).containsOnly("ABCDE");
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
@@ -57,7 +60,7 @@ public class IssueQueryTest {
     assertThat(query.resolutions()).containsOnly(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(query.components()).containsOnly("org/struts/Action.java");
     assertThat(query.componentRoots()).containsOnly("org.struts:core");
-    assertThat(query.userLogins()).containsOnly("crunky");
+    assertThat(query.reporters()).containsOnly("crunky");
     assertThat(query.assignees()).containsOnly("gargantua");
     assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
@@ -67,10 +70,11 @@ public class IssueQueryTest {
     assertThat(query.sort()).isEqualTo(IssueQuery.Sort.ASSIGNEE);
     assertThat(query.pageSize()).isEqualTo(10);
     assertThat(query.pageIndex()).isEqualTo(2);
+    assertThat(query.requiredRole()).isEqualTo(UserRole.CODEVIEWER);
   }
 
   @Test
-  public void should_validate_page_size() throws Exception {
+  public void page_size_should_be_positive() throws Exception {
     try {
       IssueQuery.builder()
         .pageSize(0)
@@ -82,19 +86,28 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void should_validate_page_size_too_high() throws Exception {
-    try {
-      IssueQuery.builder()
-        .pageSize(10000)
-        .build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Page size must be less than 1000 (got 10000)").isInstanceOf(IllegalArgumentException.class);
-    }
+  public void test_default_page_index_and_size() throws Exception {
+    IssueQuery query = IssueQuery.builder().build();
+    assertThat(query.pageSize()).isEqualTo(IssueQuery.DEFAULT_PAGE_SIZE);
+    assertThat(query.pageIndex()).isEqualTo(IssueQuery.DEFAULT_PAGE_INDEX);
   }
 
   @Test
-  public void should_validate_page_index() throws Exception {
+  public void automatically_resize_page_size() throws Exception {
+    IssueQuery query = IssueQuery.builder()
+      .pageSize(IssueQuery.MAX_PAGE_SIZE + 100)
+      .build();
+    assertThat(query.pageSize()).isEqualTo(IssueQuery.MAX_PAGE_SIZE);
+  }
+
+  @Test
+  public void could_disable_paging_on_single_component() throws Exception {
+    IssueQuery query = IssueQuery.builder().components(Arrays.asList("Action.java")).build();
+    assertThat(query.pageSize()).isGreaterThan(IssueQuery.MAX_PAGE_SIZE);
+  }
+
+  @Test
+  public void page_index_should_be_positive() throws Exception {
     try {
       IssueQuery.builder()
         .pageIndex(0)

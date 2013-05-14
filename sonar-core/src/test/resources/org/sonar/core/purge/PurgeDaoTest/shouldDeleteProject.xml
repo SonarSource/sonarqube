@@ -32,7 +32,8 @@
   <review_comments id="1" created_at="[null]" updated_at="[null]" review_id="2" user_id="1223" review_text="abc"/>
 
   <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
-          user_login="perceval" assignee_login="arthur" rule_id="500" manual_issue="[true]" manual_severity="[false]" description="[null]" action_plan_key="[null]"
+          reporter="perceval" assignee="arthur" rule_id="500"
+          manual_severity="[false]" description="[null]" action_plan_key="[null]"
           created_at="[null]"
           updated_at="[null]"
           issue_creation_date="2013-04-16"
@@ -41,7 +42,8 @@
       />
 
   <issues id="2" kee="ABCDF" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
-          user_login="perceval" assignee_login="arthur" rule_id="500" manual_issue="[true]" manual_severity="[false]" description="[null]" action_plan_key="[null]"
+          reporter="perceval" assignee="arthur" rule_id="500"
+          manual_severity="[false]" description="[null]" action_plan_key="[null]"
           created_at="[null]"
           updated_at="[null]"
           issue_creation_date="2013-04-16"

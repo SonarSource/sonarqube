@@ -42,14 +42,13 @@ public final class IssueDto {
   private Integer ruleId;
   private String severity;
   private boolean manualSeverity;
-  private boolean manualIssue;
   private String description;
   private Integer line;
   private Double effortToFix;
   private String status;
   private String resolution;
   private String checksum;
-  private String userLogin;
+  private String reporter;
   private String assignee;
   private String authorLogin;
   private String actionPlanKey;
@@ -134,15 +133,6 @@ public final class IssueDto {
     return this;
   }
 
-  public boolean isManualIssue() {
-    return manualIssue;
-  }
-
-  public IssueDto setManualIssue(boolean manualIssue) {
-    this.manualIssue = manualIssue;
-    return this;
-  }
-
   @CheckForNull
   public String getDescription() {
     return description;
@@ -203,12 +193,12 @@ public final class IssueDto {
   }
 
   @CheckForNull
-  public String getUserLogin() {
-    return userLogin;
+  public String getReporter() {
+    return reporter;
   }
 
-  public IssueDto setUserLogin(@Nullable String userLogin) {
-    this.userLogin = userLogin;
+  public IssueDto setReporter(@Nullable String s) {
+    this.reporter = s;
     return this;
   }
 
@@ -330,9 +320,8 @@ public final class IssueDto {
       .setStatus(issue.status())
       .setSeverity(issue.severity())
       .setChecksum(issue.getChecksum())
-      .setManualIssue(issue.manual())
       .setManualSeverity(issue.manualSeverity())
-      .setUserLogin(issue.userLogin())
+      .setReporter(issue.reporter())
       .setAssignee(issue.assignee())
       .setRuleId(ruleId)
       .setResourceId(componentId)
@@ -355,11 +344,10 @@ public final class IssueDto {
     issue.setEffortToFix(effortToFix);
     issue.setLine(line);
     issue.setSeverity(severity);
-    issue.setUserLogin(userLogin);
+    issue.setReporter(reporter);
     issue.setAssignee(assignee);
     issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(attributes, "")));
     issue.setComponentKey(componentKey);
-    issue.setManual(manualIssue);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));
     issue.setActionPlanKey(actionPlanKey);

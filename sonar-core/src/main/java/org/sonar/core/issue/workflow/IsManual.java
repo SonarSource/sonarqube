@@ -31,6 +31,6 @@ class IsManual implements Condition {
 
   @Override
   public boolean matches(Issue issue) {
-    return issue.manual()==manual;
+    return manual==(issue.reporter()!=null);
   }
 }

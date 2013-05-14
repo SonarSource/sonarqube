@@ -131,8 +131,8 @@ public class DefaultIssueFinder implements IssueFinder {
         ruleIds.add(dto.getRuleId());
         componentIds.add(dto.getResourceId());
         actionPlanKeys.add(dto.getActionPlanKey());
-        if (dto.getUserLogin() != null) {
-          users.add(dto.getUserLogin());
+        if (dto.getReporter() != null) {
+          users.add(dto.getReporter());
         }
         if (dto.getAssignee() != null) {
           users.add(dto.getAssignee());

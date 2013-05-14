@@ -25,7 +25,6 @@ import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 
@@ -33,6 +32,11 @@ import java.util.Date;
  * @since 3.6
  */
 public class IssueQuery {
+
+  public static final int DEFAULT_PAGE_INDEX = 1;
+  public static final int DEFAULT_PAGE_SIZE = 100;
+  public static final int MAX_PAGE_SIZE = 500;
+  public static final int MAX_ISSUE_KEYS = 500;
 
   public static enum Sort {
     CREATION_DATE, UPDATE_DATE, CLOSE_DATE, ASSIGNEE
@@ -46,7 +50,7 @@ public class IssueQuery {
   private final Collection<String> componentRoots;
   private final Collection<RuleKey> rules;
   private final Collection<String> actionPlans;
-  private final Collection<String> userLogins;
+  private final Collection<String> reporters;
   private final Collection<String> assignees;
   private final Boolean assigned;
   private final Boolean planned;
@@ -72,7 +76,7 @@ public class IssueQuery {
     this.componentRoots = builder.componentRoots;
     this.rules = builder.rules;
     this.actionPlans = builder.actionPlans;
-    this.userLogins = builder.userLogins;
+    this.reporters = builder.reporters;
     this.assignees = builder.assignees;
     this.assigned = builder.assigned;
     this.planned = builder.planned;
@@ -118,8 +122,8 @@ public class IssueQuery {
     return actionPlans;
   }
 
-  public Collection<String> userLogins() {
-    return userLogins;
+  public Collection<String> reporters() {
+    return reporters;
   }
 
   public Collection<String> assignees() {
@@ -177,12 +181,6 @@ public class IssueQuery {
   }
 
   public static class Builder {
-
-    private static final int DEFAULT_PAGE_SIZE = 100;
-    private static final int MAX_PAGE_SIZE = 1000;
-    private static final int DEFAULT_PAGE_INDEX = 1;
-    private static final int MAX_ISSUE_KEYS = 1000;
-
     private Collection<String> issueKeys;
     private Collection<String> severities;
     private Collection<String> statuses;
@@ -191,7 +189,7 @@ public class IssueQuery {
     private Collection<String> componentRoots;
     private Collection<RuleKey> rules;
     private Collection<String> actionPlans;
-    private Collection<String> userLogins;
+    private Collection<String> reporters;
     private Collection<String> assignees;
     private Boolean assigned = null;
     private Boolean planned = null;
@@ -247,8 +245,8 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder userLogins(Collection<String> l) {
-      this.userLogins = l;
+    public Builder reporters(Collection<String> l) {
+      this.reporters = l;
       return this;
     }
 
@@ -332,16 +330,17 @@ public class IssueQuery {
       if (components != null && components.size() == 1 && pageSize == null) {
         pageSize = 999999;
       } else {
-        if (pageSize==null) {
+        if (pageSize == null) {
           pageSize = DEFAULT_PAGE_SIZE;
+        } else if (pageSize > MAX_PAGE_SIZE) {
+          pageSize = MAX_PAGE_SIZE;
         }
         Preconditions.checkArgument(pageSize > 0, "Page size must be greater than 0 (got " + pageSize + ")");
-        Preconditions.checkArgument(pageSize < MAX_PAGE_SIZE, "Page size must be less than " + MAX_PAGE_SIZE + " (got " + pageSize + ")");
       }
     }
 
     private void initPageIndex() {
-      if (pageIndex==null) {
+      if (pageIndex == null) {
         pageIndex = DEFAULT_PAGE_INDEX;
       }
       Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");

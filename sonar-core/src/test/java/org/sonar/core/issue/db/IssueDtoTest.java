@@ -66,8 +66,7 @@ public class IssueDtoTest {
         .setSeverity("BLOCKER")
         .setDescription("message")
         .setManualSeverity(true)
-        .setManualIssue(true)
-        .setUserLogin("arthur")
+        .setReporter("arthur")
         .setAssignee("perceval")
         .setAttributes("key=value")
         .setAuthorLogin("pierre")
@@ -86,8 +85,7 @@ public class IssueDtoTest {
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.description()).isEqualTo("message");
     assertThat(issue.manualSeverity()).isTrue();
-    assertThat(issue.manual()).isTrue();
-    assertThat(issue.userLogin()).isEqualTo("arthur");
+    assertThat(issue.reporter()).isEqualTo("arthur");
     assertThat(issue.assignee()).isEqualTo("perceval");
     assertThat(issue.attribute("key")).isEqualTo("value");
     assertThat(issue.authorLogin()).isEqualTo("pierre");

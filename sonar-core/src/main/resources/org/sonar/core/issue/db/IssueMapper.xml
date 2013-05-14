@@ -12,15 +12,14 @@
     i.action_plan_key as actionPlanKey,
     i.severity as severity,
     i.manual_severity as manualSeverity,
-    i.manual_issue as manualIssue,
     i.description as description,
     i.line as line,
     i.effort_to_fix as effortToFix,
     i.status as status,
     i.resolution as resolution,
     i.checksum as checksum,
-    i.user_login as userLogin,
-    i.assignee_login as assignee,
+    i.reporter as reporter,
+    i.assignee as assignee,
     i.author_login as authorLogin,
     i.attributes as attributes,
     i.issue_creation_date as issueCreationDate,
@@ -34,13 +33,13 @@
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
-    INSERT INTO issues (kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue,
+    INSERT INTO issues (kee, resource_id, rule_id, action_plan_key, severity, manual_severity,
     description, line, effort_to_fix, status,
-    resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
+    resolution, checksum, reporter, assignee, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue},
+    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity},
     #{description}, #{line}, #{effortToFix}, #{status},
-    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
+    #{resolution}, #{checksum}, #{reporter}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
 
@@ -50,13 +49,13 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issues (id, kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue,
+    INSERT INTO issues (id, kee, resource_id, rule_id, action_plan_key, severity, manual_severity,
     description, line, effort_to_fix, status,
-    resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
+    resolution, checksum, reporter, assignee, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue},
+    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity},
     #{description}, #{line}, #{effortToFix}, #{status},
-    #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
+    #{resolution}, #{checksum}, #{reporter}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
 
@@ -67,15 +66,14 @@
     action_plan_key=#{actionPlanKey},
     severity=#{severity},
     manual_severity=#{manualSeverity},
-    manual_issue=#{manualIssue},
     description=#{description},
     line=#{line},
     effort_to_fix=#{effortToFix},
     status=#{status},
     resolution=#{resolution},
     checksum=#{checksum},
-    user_login=#{userLogin},
-    assignee_login=#{assignee},
+    reporter=#{reporter},
+    assignee=#{assignee},
     author_login=#{authorLogin},
     attributes=#{attributes},
     issue_creation_date=#{issueCreationDate},
@@ -200,22 +198,22 @@
           and i.resolution is null
         </if>
       </if>
-      <if test="userLogins != null">
-        and i.user_login in
-        <foreach item="userLogin" index="index" collection="userLogins" open="(" separator="," close=")">#{userLogin}
+      <if test="reporters != null">
+        and i.reporter in
+        <foreach item="reporter" index="index" collection="reporters" open="(" separator="," close=")">#{reporter}
         </foreach>
       </if>
       <if test="assignees != null">
-        and i.assignee_login in
+        and i.assignee in
         <foreach item="assignee" index="index" collection="assignees" open="(" separator="," close=")">#{assignee}
         </foreach>
       </if>
       <if test="assigned != null">
         <if test="assigned == true">
-          and i.assignee_login is not null
+          and i.assignee is not null
         </if>
         <if test="assigned == false">
-          and i.assignee_login is null
+          and i.assignee is null
         </if>
       </if>
       <if test="planned != null">
@@ -259,7 +257,7 @@
           i.issue_close_date
         </when>
         <when test="'ASSIGNEE'.equals(sort.name())">
-          i.assignee_login
+          i.assignee
         </when>
       </choose>
       <choose>
