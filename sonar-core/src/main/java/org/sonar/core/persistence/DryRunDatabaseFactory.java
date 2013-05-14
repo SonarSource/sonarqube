@@ -83,7 +83,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
         .copyTable(source, dest, "projects", "(id=" + projectId + " or root_id=" + projectId + ")")
         .copyTable(source, dest, "reviews", "project_id=" + projectId, "status<>'" + ReviewDto.STATUS_CLOSED + "'")
         .copyTable(source, dest, "rule_failures", "snapshot_id in (select id from snapshots where " + snapshotCondition + ")")
-        .copyTable(source, dest, "issues", "resource_id in (" + projectsConditionForIssues + ")", "resolution is not null")
+        .copyTable(source, dest, "issues", "resource_id in (" + projectsConditionForIssues + ")", "resolution is null")
         .copyTable(source, dest, "snapshots", snapshotCondition);
     }
   }
