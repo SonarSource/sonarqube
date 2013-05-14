@@ -34,11 +34,11 @@
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
-    INSERT INTO issues (kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue,
+    insert into issues (kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue,
     description, line, effort_to_fix, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue},
+    values (#{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue},
     #{description}, #{line}, #{effortToFix}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
@@ -50,11 +50,11 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issues (id, kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue,
+    insert into issues (id, kee, resource_id, rule_id, action_plan_key, severity, manual_severity, manual_issue,
     description, line, effort_to_fix, status,
     resolution, checksum, user_login, assignee_login, author_login, attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue},
+    values (#{id}, #{kee}, #{resourceId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity}, #{manualIssue},
     #{description}, #{line}, #{effortToFix}, #{status},
     #{resolution}, #{checksum}, #{userLogin}, #{assignee}, #{authorLogin}, #{attributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
@@ -96,26 +96,25 @@
   <select id="selectOpenIssues" parameterType="String" resultType="Issue">
     select distinct
     <include refid="issueColumns"/>
-    from issues i, rules r, projects p
+    from issues i
+    inner join rules r on i.rule_id=r.id
+    inner join projects p on i.resource_id=p.id
     where i.status &lt;&gt; 'CLOSED'
     and (p.root_id=#{componentId} or (p.root_id is null and p.id=#{componentId}))
-    and i.resource_id=p.id
-    and r.id=i.rule_id
   </select>
 
   <select id="selectByIds" parameterType="map" resultType="Issue">
     select
     <include refid="issueColumns"/>
-    from issues i, rules r, projects p
+    from issues i
+    inner join rules r on i.rule_id=r.id
+    inner join projects p on i.resource_id=p.id
     <where>
-      and
       <foreach collection="ids" open="i.id in (" close=")" item="list" separator=") or i.id in (">
         <foreach collection="list" item="element" separator=",">
           #{element}
         </foreach>
       </foreach>
-      and i.rule_id=r.id
-      and p.id=i.resource_id
     </where>
   </select>
 
@@ -131,13 +130,15 @@
   </select>
 
   <sql id="selectQueryConditions">
-    from issues i, projects p, rules r
+    from issues i
     <if test="componentRoots != null and componentRoots.size() > 0">
       , projects rootprojects, snapshots rootsnapshots, snapshots s
     </if>
     <if test="components != null and components.size() > 0">
       , projects project_component
     </if>
+    inner join rules r on i.rule_id=r.id
+    inner join projects p on i.resource_id=p.id
     <where>
       i.resource_id=p.id and i.rule_id=r.id
       <if test="componentRoots != null and componentRoots.size() > 0">
