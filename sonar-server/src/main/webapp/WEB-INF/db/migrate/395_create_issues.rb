@@ -53,8 +53,9 @@ class CreateIssues < ActiveRecord::Migration
       t.column :updated_at,           :datetime,  :null => true
     end
 
-    add_index :issues,  :kee,           :name => 'issues_kee',         :unique => true
-    add_index :issues,  :resource_id,   :name => 'issues_resource_id'
+    add_index :issues,  :kee,               :name => 'issues_kee',         :unique => true
+    add_index :issues,  :resource_id,       :name => 'issues_resource_id'
+    add_index :issues,  :action_plan_key,   :name => 'issues_action_plan_key'
   end
 
 end
