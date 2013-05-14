@@ -19,7 +19,7 @@
   </sql>
 
   <select id="findByProjectId" parameterType="map" resultType="ActionPlanStats">
-    select <include refid="actionPlanColumns"/>, count(total_issues.id) as totalIssues, count(open_issues.id) as openIssues
+    select <include refid="actionPlanColumns"/>, count(total_issues.id) as totalIssues, count(open_issues.id) as unresolvedIssues
     from action_plans ap
     left join projects p on p.id = ap.project_id
     left join issues total_issues on total_issues.action_plan_key = ap.kee

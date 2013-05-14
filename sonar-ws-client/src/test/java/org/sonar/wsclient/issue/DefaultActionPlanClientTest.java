@@ -44,8 +44,8 @@ public class DefaultActionPlanClientTest {
                               "\"project\": \"com.sonarsource.it.samples:simple-sample\",\n" +
                               "\"userLogin\": \"admin\",\n" +
                               "\"deadLine\": \"2013-05-30T00:00:00+0200\",\n" +
-                              "\"totalIssues\": 0,\n" +
-                              "\"openIssues\": 0,\n" +
+                              "\"totalIssues\": 3,\n" +
+                              "\"unresolvedIssues\": 2,\n" +
                               "\"createdAt\": \"2013-05-13T12:50:29+0200\",\n" +
                               "\"updatedAt\": \"2013-05-13T12:50:44+0200\"}]}");
 
@@ -61,8 +61,8 @@ public class DefaultActionPlanClientTest {
     assertThat(actionPlan.status()).isEqualTo("CLOSED");
     assertThat(actionPlan.userLogin()).isEqualTo("admin");
     assertThat(actionPlan.deadLine()).isNotNull();
-    assertThat(actionPlan.totalIssues()).isEqualTo(0);
-    assertThat(actionPlan.openIssues()).isEqualTo(0);
+    assertThat(actionPlan.totalIssues()).isEqualTo(3);
+    assertThat(actionPlan.unresolvedIssues()).isEqualTo(2);
     assertThat(actionPlan.createdAt()).isNotNull();
     assertThat(actionPlan.updatedAt()).isNotNull();
   }

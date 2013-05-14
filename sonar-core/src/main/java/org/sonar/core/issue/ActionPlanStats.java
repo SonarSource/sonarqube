@@ -38,7 +38,7 @@ public class ActionPlanStats implements Serializable {
   private Date createdAt;
   private Date updatedAt;
   private int totalIssues;
-  private int openIssues;
+  private int unresolvedIssues;
 
   private ActionPlanStats() {
 
@@ -144,17 +144,17 @@ public class ActionPlanStats implements Serializable {
     return this;
   }
 
-  public int openIssues() {
-    return openIssues;
+  public int unresolvedIssues() {
+    return unresolvedIssues;
   }
 
-  public ActionPlanStats setOpenIssues(int openIssues) {
-    this.openIssues = openIssues;
+  public ActionPlanStats setUnresolvedIssues(int unresolvedIssues) {
+    this.unresolvedIssues = unresolvedIssues;
     return this;
   }
 
   public int resolvedIssues() {
-    return totalIssues - openIssues;
+    return totalIssues - unresolvedIssues;
   }
 
   public boolean isOpen(){

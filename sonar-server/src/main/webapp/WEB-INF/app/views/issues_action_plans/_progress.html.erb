@@ -14,10 +14,10 @@
       tooltip_resolved = message('issues_action_plans.resolved_issues_x_percent', :params => [percent_resolved.to_s, action_plan.resolvedIssues().to_s])
     end
   
-    if action_plan.openIssues() > 0
+    if action_plan.unresolvedIssues() > 0
       open_reviews_url = url_for options.merge({:statuses => "#{Review::STATUS_OPEN},#{Review::STATUS_REOPENED}"})
-      percent_open = (action_plan.openIssues()*100/action_plan.totalIssues()).to_i
-      tooltip_open = message('issues_action_plans.open_issues_x_percent', :params => [percent_open.to_s, action_plan.openIssues().to_s])
+      percent_open = (action_plan.unresolvedIssues()*100/action_plan.totalIssues()).to_i
+      tooltip_open = message('issues_action_plans.open_issues_x_percent', :params => [percent_open.to_s, action_plan.unresolvedIssues().to_s])
     end
 %>
 
@@ -30,7 +30,7 @@
           <a href="#" title="<%= tooltip_resolved -%>" alt="<%= tooltip_resolved -%>"></a>
         </td>
         <% end %>
-        <% if action_plan.openIssues() > 0 %>
+        <% if action_plan.unresolvedIssues() > 0 %>
         <td class="open" style="width:<%= percent_open -%>%;">
           <a href="#" title="<%= tooltip_open -%>" alt="<%= tooltip_open -%>"></a>
         </td>

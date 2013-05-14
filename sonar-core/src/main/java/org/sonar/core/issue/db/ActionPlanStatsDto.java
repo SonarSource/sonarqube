@@ -42,7 +42,7 @@ public class ActionPlanStatsDto {
   private Date createdAt;
   private Date updatedAt;
   private int totalIssues;
-  private int openIssues;
+  private int unresolvedIssues;
   // joins
   private transient String projectKey;
 
@@ -145,12 +145,12 @@ public class ActionPlanStatsDto {
     return this;
   }
 
-  public int getOpenIssues() {
-    return openIssues;
+  public int getUnresolvedIssues() {
+    return unresolvedIssues;
   }
 
-  public ActionPlanStatsDto setOpenIssues(int openIssues) {
-    this.openIssues = openIssues;
+  public ActionPlanStatsDto setUnresolvedIssues(int unresolvedIssues) {
+    this.unresolvedIssues = unresolvedIssues;
     return this;
   }
 
@@ -182,7 +182,7 @@ public class ActionPlanStatsDto {
              .setCreatedAt(createdAt)
              .setUpdatedAt(updatedAt)
              .setTotalIssues(totalIssues)
-             .setOpenIssues(openIssues);
+             .setUnresolvedIssues(unresolvedIssues);
   }
 
 }

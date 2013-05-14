@@ -47,7 +47,7 @@ public class ActionPlanStatsDaoTest extends AbstractDaoTestCase {
     ActionPlanStatsDto actionPlanStatsDto = result.iterator().next();
     assertThat(actionPlanStatsDto.getProjectKey()).isEqualTo("org.sonar.Sample");
     assertThat(actionPlanStatsDto.getTotalIssues()).isEqualTo(3);
-    assertThat(actionPlanStatsDto.getOpenIssues()).isEqualTo(1);
+    assertThat(actionPlanStatsDto.getUnresolvedIssues()).isEqualTo(1);
   }
 
 }

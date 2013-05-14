@@ -87,8 +87,8 @@ public class ActionPlan {
   }
 
   @CheckForNull
-  public Integer openIssues() {
-    return JsonUtils.getInteger(json, "openIssues");
+  public Integer unresolvedIssues() {
+    return JsonUtils.getInteger(json, "unresolvedIssues");
   }
 
 }

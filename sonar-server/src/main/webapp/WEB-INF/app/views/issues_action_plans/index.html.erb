@@ -44,7 +44,7 @@
               &nbsp;
               <%
                  close_confirmation_message = {}
-                 if plan.isOpen() && plan.openIssues() > 0
+                 if plan.isOpen() && plan.unresolvedIssues() > 0
                    close_confirmation_message = {:confirm => message('issues_action_plans.confirm_close')}
                  end
               %>
