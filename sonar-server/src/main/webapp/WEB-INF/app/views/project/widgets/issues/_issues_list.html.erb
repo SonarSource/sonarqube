@@ -3,18 +3,13 @@
    widget_id = params[:widget_id] unless widget_id
    search_options = params unless search_options
 
-   # TODO
-   search_options['sort'] = 'updated_at'
+   search_options['sort'] = 'UPDATE_DATE'
    if @dashboard_configuration.selected_period?
-     from_date = @dashboard_configuration.from_datetime
-     # TODO
-     search_options['from'] = from_date
-     to_date = DateTime.now
-     # TODO
-     search_options['to'] = to_date
+     search_options['createdAfter'] = @dashboard_configuration.from_datetime
+     search_options['createdBefore'] = DateTime.now
    end
-   user = current_user ? current_user.id : nil
-   issues = Api.issues.find(search_options).issues
+   results = Api.issues.find(search_options)
+   issues = results.issues
 
    # table pagination
    page_size = table_limit.to_i
@@ -30,12 +25,10 @@
    end
 %>
 
-<% if issues.nil? || issues.size ==0 %>
-
-  <span class="empty_widget"><%= message('widget.my_reviews2.no_review') -%></span>
+<% if issues.size ==0 %>
+  <span class="empty_widget"><%= message('widget.my_unresolved_issues.no_issue') -%></span>
 
 <% else %>
-
   <table id="issues-widget-list-<%= widget_id -%>" class="data width100">
     <thead>
     <tr>
@@ -51,10 +44,8 @@
            if page_count
              page_count = 20 if page_count>20
              link_params = search_options
-             # TODO
-             link_params[:controller] = 'project_reviews'
-             # TODO
-             link_params[:action] = 'widget_reviews_list'
+             link_params[:controller] = 'issue'
+             link_params[:action] = 'widget_issues_list'
              link_params[:snapshot_id] = @snapshot.id
              link_params[:table_limit] = table_limit
              link_params[:widget_id] = widget_id
@@ -84,16 +75,22 @@
     <tbody>
     <%
        issues.each do |issue|
-         # TODO display comment
-         #comment = review.comments.last
+         last_comment = issue.comments.get(issue.comments.size - 1) if !issue.comments.isEmpty()
     %>
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
-        <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= message(issue.severity.downcase).capitalize -%>"/></td>
+        <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity() -%>.png" title="<%= message('severity.' + issue.severity()) -%>"/></td>
         <td>
-          <%= link_to h(issue.description), :controller => "issue", :action => "view", :id => issue.key -%>
+          <%= link_to h(issue.description()), :controller => "issue", :action => "view", :id => issue.key() -%>
+          <% if last_comment %>
+            <div class="comment-excerpt">
+              <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>
+              &nbsp;<b><%= last_comment.userLogin() -%> :</b>
+              <%= Internal.text.markdownToHtml(last_comment.markdownText) -%>
+            </div>
+          <% end %>
         </td>
         <td class="nowrap">
-          <%= distance_of_time_in_words_to_now(to_date(issue.updated_at || issue.created_at)) if (issue.updated_at || issue.created_at) -%>
+          <%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.updateDate())) -%>
         </td>
       </tr>
     <%
@@ -101,5 +98,4 @@
     %>
     </tbody>
   </table>
-
 <% end %>

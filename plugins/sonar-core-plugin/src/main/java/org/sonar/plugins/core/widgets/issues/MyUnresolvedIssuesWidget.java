@@ -29,8 +29,9 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 @WidgetProperties({
   @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
 })
-public class MyIssuesWidget extends CoreWidget {
-  public MyIssuesWidget() {
-    super("my_issues", "My active issues", "/org/sonar/plugins/core/widgets/issues/my_issues.html.erb");
+public class MyUnresolvedIssuesWidget extends CoreWidget {
+  public MyUnresolvedIssuesWidget() {
+//    super("my_unresolved_issues", "My unresolved issues", "/org/sonar/plugins/core/widgets/issues/my_unresolved_issues.html.erb");
+    super("my_unresolved_issues", "My unresolved issues", "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/issues/my_unresolved_issues.html.erb");
   }
 }
