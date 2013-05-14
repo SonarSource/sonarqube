@@ -131,6 +131,7 @@ public class SonarReportTest {
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
       .setLine(1)
+      .setAssignee("simon")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setCreationDate(DateUtils.parseDate("2013-04-24"))
       .setUpdateDate(DateUtils.parseDate("2013-04-25"))
@@ -144,7 +145,7 @@ public class SonarReportTest {
     JSONArray issues = (JSONArray) json.get("issues");
     assertThat(issues).hasSize(1);
     JSONObject jsonIssue = (JSONObject) issues.get(0);
-    assertThat(jsonIssue.values()).hasSize(12);
+    assertThat(jsonIssue.values()).hasSize(13);
 
     assertThat(jsonIssue.get("key")).isEqualTo("200");
     assertThat(jsonIssue.get("component")).isEqualTo("Action.java");
@@ -154,6 +155,7 @@ public class SonarReportTest {
     assertThat(jsonIssue.get("rule")).isEqualTo("squid:AvoidCycle");
     assertThat(jsonIssue.get("status")).isEqualTo("CLOSED");
     assertThat(jsonIssue.get("resolution")).isEqualTo("FALSE-POSITIVE");
+    assertThat(jsonIssue.get("assignee")).isEqualTo("simon");
     assertThat(jsonIssue.get("isNew")).isEqualTo(false);
     assertThat((String) jsonIssue.get("creationDate")).contains("2013-04-24T00:00");
     assertThat((String) jsonIssue.get("updateDate")).contains("2013-04-25T00:00");

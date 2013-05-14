@@ -103,8 +103,6 @@ public class SonarReport implements BatchComponent {
     return json;
   }
 
-
-
   private void addIssues(JSONObject root, Collection<RuleKey> ruleKeyList, Collection<String> componentKeyList) {
     JSONArray json = new JSONArray();
     for (DefaultIssue issue : getIssues()) {
@@ -118,6 +116,7 @@ public class SonarReport implements BatchComponent {
       put(jsonIssue, "status", issue.status());
       put(jsonIssue, "resolution", issue.resolution());
       put(jsonIssue, "isNew", issue.isNew());
+      put(jsonIssue, "assignee", issue.assignee());
       put(jsonIssue, "creationDate", issue.creationDate());
       put(jsonIssue, "updateDate", issue.updateDate());
       put(jsonIssue, "closeDate", issue.closeDate());
