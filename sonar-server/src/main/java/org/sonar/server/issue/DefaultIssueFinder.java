@@ -131,14 +131,20 @@ public class DefaultIssueFinder implements IssueFinder {
         ruleIds.add(dto.getRuleId());
         componentIds.add(dto.getResourceId());
         actionPlanKeys.add(dto.getActionPlanKey());
-        users.add(dto.getUserLogin());
-        users.add(dto.getAssignee());
+        if (dto.getUserLogin() != null) {
+          users.add(dto.getUserLogin());
+        }
+        if (dto.getAssignee() != null) {
+          users.add(dto.getAssignee());
+        }
       }
       List<DefaultIssueComment> comments = issueChangeDao.selectCommentsByIssues(sqlSession, issuesByKey.keySet());
       for (DefaultIssueComment comment : comments) {
         DefaultIssue issue = issuesByKey.get(comment.issueKey());
         issue.addComment(comment);
-        users.add(comment.userLogin());
+        if (comment.userLogin() != null) {
+          users.add(comment.userLogin());
+        }
       }
 
       return new DefaultResults(issues,
