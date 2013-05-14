@@ -237,13 +237,7 @@ class IssueController < ApplicationController
   #
 
   def widget_issues_list
-    @snapshot = Snapshot.find(params[:snapshot_id])
-    unless @snapshot && has_role?(:user, @snapshot)
-      render :text => "<b>Cannot access the issues of this project</b>: access denied."
-      return
-    end
-
-    @dashboard_configuration = Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot)
+    @dashboard_configuration = Api::DashboardConfiguration.new(nil, :period_index => params[:period])
     render :partial => 'project/widgets/issues/issues_list'
   end
 

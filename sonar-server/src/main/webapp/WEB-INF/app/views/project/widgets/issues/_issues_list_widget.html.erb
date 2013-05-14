@@ -1,11 +1,9 @@
 <%
      table_limit = widget_properties["numberOfLines"]
 
-     if @dashboard_configuration.selected_period?
-       # TODO
-       search_options['from'] = @dashboard_configuration.from_datetime
-       # TODO
-       search_options['to'] = DateTime.now
+     if @dashboard_configuration && @dashboard_configuration.selected_period?
+       search_options['createdAfter'] = @dashboard_configuration.from_datetime
+       search_options['createdBefore'] = DateTime.now
      end
 %>
 

@@ -4,7 +4,7 @@
    search_options = params unless search_options
 
    search_options['sort'] = 'UPDATE_DATE'
-   if @dashboard_configuration.selected_period?
+   if @dashboard_configuration && @dashboard_configuration.selected_period?
      search_options['createdAfter'] = @dashboard_configuration.from_datetime
      search_options['createdBefore'] = DateTime.now
    end
@@ -46,7 +46,6 @@
              link_params = search_options
              link_params[:controller] = 'issue'
              link_params[:action] = 'widget_issues_list'
-             link_params[:snapshot_id] = @snapshot.id
              link_params[:table_limit] = table_limit
              link_params[:widget_id] = widget_id
              link_params[:period] = params[:period]

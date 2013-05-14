@@ -1,8 +1,8 @@
 <%
-   if current_user && has_role?(:user, @project)
+   if !@project || has_role?(:user, @project)
 
      search_options = {}
-     search_options['componentRoots'] = @project.key
+     search_options['componentRoots'] = @project.key if @project
      search_options['resolved'] = 'false'
      search_options['assignees'] = current_user.login
      

@@ -19,18 +19,18 @@
  */
 package org.sonar.plugins.core.widgets.issues;
 
-import org.sonar.api.web.WidgetCategory;
-import org.sonar.api.web.WidgetProperties;
-import org.sonar.api.web.WidgetProperty;
-import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.api.web.*;
 import org.sonar.plugins.core.widgets.CoreWidget;
 
+import static org.sonar.api.web.WidgetScope.GLOBAL;
+
 @WidgetCategory({"Issues"})
+@WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
 })
 public class MyUnresolvedIssuesWidget extends CoreWidget {
   public MyUnresolvedIssuesWidget() {
-    super("my_unresolved_issues", "My unresolved issues", "/org/sonar/plugins/core/widgets/issues/my_unresolved_issues.html.erb");
+    super("my_unresolved_issues", "My unresolved issues", "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/issues/my_unresolved_issues.html.erb");
   }
 }
