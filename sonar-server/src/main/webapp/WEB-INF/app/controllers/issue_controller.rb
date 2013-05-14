@@ -109,7 +109,7 @@ class IssueController < ApplicationController
     require_parameters :issue
     init_issue(params[:issue])
     init_resource
-    @action_plans =  Internal.issues.findOpenActionPlans(@resource.key)
+    @action_plans = Internal.issues.findOpenActionPlans(@resource.key)
 
     render :partial => 'issue/plan_form'
   end
@@ -130,6 +130,35 @@ class IssueController < ApplicationController
     @issue = Internal.issues.plan(params[:issue], nil)
     init_issue(params[:issue])
     render_issue_detail
+  end
+
+  def action_form
+    verify_ajax_request
+    require_parameters :id, :issue
+
+    action_type = params[:id]
+
+    # not used yet
+    issue_key = params[:issue]
+
+    render :partial => "issue/#{action_type}_form"
+  end
+
+  def do_action
+    verify_post_request
+    require_parameters :id, :issue
+
+    issue_key = params[:issue]
+    action_type = params[:id]
+
+    if action_type=='comment'
+      Internal.issues.addComment(issue_key, params[:text])
+    elsif action_type=='assign'
+      Internal.issues.assign(issue_key, params[:assignee])
+    end
+
+    @issue_results = Api.issues.find(issue_key)
+    render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
 
   #
@@ -206,7 +235,7 @@ class IssueController < ApplicationController
     require_parameters :issue
     init_issue(params[:issue])
     init_resource
-    @action_plans =  Internal.issues.findOpenActionPlans(@resource.key)
+    @action_plans = Internal.issues.findOpenActionPlans(@resource.key)
 
     render :partial => 'issue/code_viewer/plan_form'
   end

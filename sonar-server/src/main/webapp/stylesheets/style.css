@@ -176,7 +176,7 @@ button, .button, input[type="submit"], input[type="button"] {
   -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 
-  color: #333333;
+  color: #333;
   border: 1px solid #CCC;
   background: #EBEBEB;
   background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#E7E7E7));
@@ -742,6 +742,18 @@ ul.operations li img {
   padding: 10px;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 div.vtitle {
   background-color: #E4ECF3;
   margin: 0;
@@ -788,7 +800,7 @@ span.rulename, span.rulename a {
 
 div.review_permalink {
   float: right;
-  color: #333333;
+  color: #333;
   font-weight: bold;
   margin: 0;
   padding: 0 10px;
@@ -879,6 +891,84 @@ span.rulename a:hover {
 .global_violations td img, #source_title img {
   vertical-align: text-bottom;
 }
+
+.code-issues {
+  background-color: #FFF;
+  padding: 10px;
+}
+
+.code-issue {
+  background-color: #FFF;
+  margin: 0;
+  font-size: 12px;
+}
+
+.code-issue-name {
+  background-color: #E4ECF3;
+  margin: 0;
+  padding: 5px 10px;
+  line-height: 16px;
+  color: #777;
+  border: 1px solid #DDD;
+}
+
+.code-issue-name img {
+  vertical-align: text-bottom;
+}
+
+.code-issue-link {
+  float: right;
+  color: #333;
+  font-weight: bold;
+  margin: 0;
+  padding: 0 10px;
+  text-shadow: 1px 1px 0 #FFFFFF;
+}
+
+.code-issue-link a {
+  color: #777;
+  font-size: 11px;
+  padding: 0 0 0 20px;
+}
+
+.code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form {
+  background-color: #EFEFEF;
+  border: 1px solid #DDD;
+  border-top: none;
+  line-height: 1.5em;
+  margin: 0;
+  padding: 5px 10px;
+}
+
+.code-issue-msg h4 {
+  font-size: 90%;
+  margin-bottom: 2px;
+}
+
+.code-issue-msg h4 img {
+  vertical-align: sub;
+}
+
+.code-issue-msg li {
+  list-style: square inside;
+}
+
+.code-issue-msg pre {
+  padding: 10px;
+  border: 1px dashed #DDD;
+  color: #444;
+  font-size: 12px;
+}
+
+
+
+
+
+
+
+
+
+
 
 .tab_header {
   border-bottom: 1px solid #DDD;

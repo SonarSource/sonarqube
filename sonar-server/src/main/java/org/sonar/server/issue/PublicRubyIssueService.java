@@ -32,7 +32,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
-
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +48,10 @@ public class PublicRubyIssueService implements RubyIssueService {
 
   public PublicRubyIssueService(IssueFinder f) {
     this.finder = f;
+  }
+
+  public IssueQueryResult find(String issueKey) {
+    return finder.find(IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).build());
   }
 
   /**
@@ -107,7 +111,6 @@ public class PublicRubyIssueService implements RubyIssueService {
       }
     });
   }
-
 
 
   public void start() {

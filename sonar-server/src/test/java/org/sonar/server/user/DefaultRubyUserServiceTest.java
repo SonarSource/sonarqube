@@ -38,14 +38,17 @@ public class DefaultRubyUserServiceTest {
   public void parse_query() throws Exception {
     service.find(ImmutableMap.<String, Object>of(
       "logins", "simon,loic",
-      "includeDeactivated", "true"
+      "includeDeactivated", "true",
+      "s", "sim"
     ));
 
     verify(finder, times(1)).find(argThat(new ArgumentMatcher<UserQuery>() {
       @Override
       public boolean matches(Object o) {
         UserQuery query = (UserQuery) o;
-        return query.includeDeactivated() && query.logins().contains("simon") && query.logins().contains("loic") && query.logins().size() == 2;
+        return query.includeDeactivated() &&
+          query.logins().contains("simon") && query.logins().contains("loic") && query.logins().size() == 2 &&
+          query.searchText().equals("sim");
       }
     }));
   }
@@ -58,7 +61,7 @@ public class DefaultRubyUserServiceTest {
       @Override
       public boolean matches(Object o) {
         UserQuery query = (UserQuery) o;
-        return !query.includeDeactivated() && query.logins() == null;
+        return !query.includeDeactivated() && query.logins() == null && query.searchText()==null;
       }
     }));
   }

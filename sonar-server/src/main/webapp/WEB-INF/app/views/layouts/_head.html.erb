@@ -17,13 +17,13 @@
      end
 
      if @page_title
-       title="Sonar - #{h(@page_title)}"
+       title="SonarQube - #{h(@page_title)}"
      elsif @project
-       title="Sonar - #{h(@project.name)}"
+       title="SonarQube - #{h(@project.name)}"
      elsif @resource
        title="#{h(@resource.long_name)}"
      else
-       title='Sonar'
+       title='SonarQube'
      end
   %>
   <title><%= title -%></title>
@@ -53,6 +53,7 @@
     <%= javascript_include_tag 'dashboard' %>
     <%= javascript_include_tag 'duplication' %>
     <%= javascript_include_tag 'resource' %>
+    <%= javascript_include_tag 'issue' %>
     <%= javascript_include_tag 'recent-history' %>
   <% end %>
   <!--[if lte IE 8]><%= javascript_include_tag 'protovis-msie' -%><![endif]-->

@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
@@ -37,7 +38,6 @@ import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
-
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -72,8 +72,8 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueService.doTransition(issueKey, transitionKey, UserSession.get());
   }
 
-  public Issue assign(String issueKey, String transitionKey) {
-    return issueService.assign(issueKey, transitionKey, UserSession.get());
+  public Issue assign(String issueKey, @Nullable String assignee) {
+    return issueService.assign(issueKey, StringUtils.defaultIfBlank(assignee, null), UserSession.get());
   }
 
   public Issue setSeverity(String issueKey, String severity) {

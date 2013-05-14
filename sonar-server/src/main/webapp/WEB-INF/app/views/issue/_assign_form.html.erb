@@ -1,40 +1,14 @@
-<%
-   assignee_check_script = "if ($('autocompleteText-issue_assignee_login').value != '' && $('issue_assignee_login').value == '') { alert($('autocompleteText-issue_assignee_login').value + '" + message('issues.user_does_not_exist') + "'); return false;}"
-%>
-
-<form method="post"
-      onsubmit="<%= assignee_check_script -%> new Ajax.Updater('issue', '<%= url_for :action => 'assign' -%>', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;">
-  <%= hidden_field_tag :issue, params[:issue] -%>
-
+<form action="">
+  <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
+  <input type="hidden" name="id" value="assign"/>
   <table class="width100">
     <tr>
       <td style="vertical-align:top">
-        <textarea id="comment" rows="4" name="text" style="width: 100%"></textarea>
-      </td>
-      <td class="sep"></td>
-      <td style="vertical-align:top;width: 90px">
-        <%= render :partial => 'markdown/tips' -%>
+        <%= user_select_tag('assignee') -%>
+        <input type="button" value="<%= message('issues.action.assign.button') -%>" onclick="doIssueAction(this)">
+        &nbsp;<%= link_to_function message('cancel'), 'cancelIssueForm(this)' -%>&nbsp;
+        <span class="hidden"><%= image_tag 'loading.gif' -%></span>
       </td>
     </tr>
   </table>
-
-  <%= user_autocomplete_field 'issue_assignee_login', '' -%>
-
-  &nbsp;&nbsp;
-  <%= submit_to_remote "submit_btn", message('issues.action.assign.button'),
-                       :url => {:action => 'assign'},
-                       :update => "issue",
-                       :before => assignee_check_script -%>
-  &nbsp;
-  <%= image_tag 'sep12.png' -%>
-  &nbsp;
-  <%= submit_to_remote "submit_me_btn", message('issues.action.assign_to_me.button'),
-                       :url => {:action => 'assign', :issue => params[:issue], :me => true},
-                       :update => "issue",
-                       :html => {:disabled => (@issue.assignee == current_user.login)} -%>
-  &nbsp;
-  <%= link_to_remote message('cancel'), :url => {:controller => 'issue', :action => 'show', :key => params[:issue]}, :update => 'issue' -%>
-  <script>
-    $('autocompleteText-issue_assignee_login').focus()
-  </script>
 </form>

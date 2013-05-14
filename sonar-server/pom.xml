@@ -256,6 +256,7 @@
                 <include>**/dashboard-min.js</include>
                 <include>**/duplication-min.js</include>
                 <include>**/resource-min.js</include>
+                <include>**/issue-min.js</include>
                 <include>**/recent-history.js</include>
               </includes>
               <output>${project.build.directory}/${project.build.finalName}/javascripts/sonar.js</output>

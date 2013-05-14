@@ -1,17 +1,17 @@
 <tr>
-    <% if display_manual_violation_form %>
-      <td class="gray"></td>
-    <% end
-       if scm_available %>
-      <td class="scm"></td>
+  <% if display_manual_violation_form %>
+    <td class="gray"></td>
+  <% end
+     if scm_available %>
+    <td class="scm"></td>
+  <% end %>
+  <td class="lid"></td>
+  <td class="code-issues">
+    <% line.issues.each_with_index do |issue, index| %>
+      <%= render :partial => 'issue', :locals => {:issue => issue} -%>
+      <% if index < line.issues.size-1 %>
+        &nbsp;
+      <% end %>
     <% end %>
-    <td class="lid"></td>
-    <td class="violations">
-        <% line.issues.each_with_index do |issue, index| %>
-          <%= render :partial => 'issue', :locals => {:issue => issue} -%>
-          <% if index < line.issues.size-1 %>
-            &nbsp;
-          <% end %>
-        <% end %>
-    </td>
+  </td>
 </tr>

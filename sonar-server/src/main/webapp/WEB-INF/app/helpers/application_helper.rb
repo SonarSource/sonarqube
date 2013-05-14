@@ -589,30 +589,12 @@ module ApplicationHelper
     html += "\">X</a></span>"
   end
 
-  #
-  # Creates an enhanced dropdown selection box of resources. Values are loaded on the fly via Ajax requests.
-  # ==== Options
-  # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
-  # * <tt>:html_id</tt> - The id of the HTML element. Default is the name.
-  # * <tt>:html_class</tt> - The class of the HTML element. Default is empty.
-  # * <tt>:qualifiers</tt> - Array of resource qualifiers to filter.
-  # * <tt>:resource_type_property</tt> -Filter on resource types on which the property is enabled, for example 'supportsGlobalDashboards'.
-  # * <tt>:selected_resource</tt> - the resource that is selected by default.
-  # * <tt>:placeholder</tt> - the label to display when nothing is selected
-  # * <tt>:allow_clear</tt> - true if resource can be de-selected. Default is false.
-  # * <tt>:select2_options</tt> - hash of select2 options
-  #
-  def resource_select_tag(name, options={})
-    width=options[:width]
+
+  def select2_tag(name, ws_url, options={})
+    width=options[:width]||'250px'
     html_id=options[:html_id]||name
     html_class=options[:html_class]||''
-
-    ws_url="#{ApplicationController::root_context}/api/resources/search?f=s2&"
-    if options[:qualifiers]
-      ws_url+="q=#{options[:qualifiers].join(',')}"
-    elsif options[:resource_type_property]
-      ws_url+="qp=#{options[:resource_type_property]}"
-    end
+    min_length=options[:min_length]
 
     ajax_options={
       'quietMillis' => 300,
@@ -622,7 +604,6 @@ module ApplicationHelper
     }
     ajax_options.merge!(options[:select2_ajax_options]) if options[:select2_ajax_options]
 
-    min_length = 3 # see limitation in /api/resources/search
     js_options={
       'minimumInputLength' => min_length,
       'allowClear' => options[:allow_clear]||false,
@@ -638,14 +619,72 @@ module ApplicationHelper
     html = "<input type='hidden' id='#{html_id}' class='#{html_class}' name='#{name}'/>"
     js = "$j('##{html_id}').select2({#{js_options.map { |k, v| "#{k}:#{v}" }.join(',')}});"
 
-    resource = options[:selected_resource]
-    if resource
-      js += "$j('##{html_id}').select2('data', {id: #{resource.id}, text: '#{escape_javascript(resource.name(true))}'});"
+    selected_id=options[:selected_id]
+    selected_text=options[:selected_text]
+    if selected_id && selected_text
+      js += "$j('##{html_id}').select2('data', {id: #{selected_id}, text: '#{escape_javascript(selected_text)}'});"
     end
 
     "#{html}<script>#{js}</script>"
   end
 
+
+  #
+  # Creates an enhanced dropdown selection box of resources. Values are loaded on the fly via Ajax requests.
+  # ==== Options
+  # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
+  # * <tt>:html_id</tt> - The id of the HTML element. Default is the name.
+  # * <tt>:html_class</tt> - The class of the HTML element. Default is empty.
+  # * <tt>:qualifiers</tt> - Array of resource qualifiers to filter.
+  # * <tt>:resource_type_property</tt> -Filter on resource types on which the property is enabled, for example 'supportsGlobalDashboards'.
+  # * <tt>:selected_resource</tt> - the resource that is selected by default.
+  # * <tt>:placeholder</tt> - the label to display when nothing is selected
+  # * <tt>:allow_clear</tt> - true if resource can be de-selected. Default is false.
+  # * <tt>:select2_options</tt> - hash of select2 options
+  #
+  def resource_select_tag(name, options={})
+    # see limitation in /api/resources/search
+    options[:min_length]=3
+
+    ws_url="#{ApplicationController::root_context}/api/resources/search?f=s2&"
+    if options[:qualifiers]
+      ws_url+="q=#{options[:qualifiers].join(',')}"
+    elsif options[:resource_type_property]
+      ws_url+="qp=#{options[:resource_type_property]}"
+    end
+
+    selected_resource = options[:selected_resource]
+    if selected_resource
+      options[:selected_id]=resource.id
+      options[:selected_text]=resource.name(true)
+    end
+
+    select2_tag(name, ws_url, options)
+  end
+
+  #
+  # Creates an enhanced dropdown selection box of users. Values are loaded on the fly via Ajax requests.
+  # ==== Options
+  # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
+  # * <tt>:html_id</tt> - The id of the HTML element. Default is the name.
+  # * <tt>:html_class</tt> - The class of the HTML element. Default is empty.
+  # * <tt>:selected_user</tt> - the user that is selected by default.
+  # * <tt>:placeholder</tt> - the label to display when nothing is selected
+  # * <tt>:allow_clear</tt> - true if resource can be de-selected. Default is false.
+  # * <tt>:select2_options</tt> - hash of select2 options
+  #
+  def user_select_tag(name, options={})
+    ws_url="#{ApplicationController::root_context}/api/users/search?f=s2"
+    options[:min_length]=2
+
+    user = options[:selected_user]
+    if user
+      options[:selected_id]=user.login
+      options[:selected_text]=user.name
+    end
+
+    select2_tag(name, ws_url, options)
+  end
 
   #
   # Creates an enhanced dropdown selection box of metrics.

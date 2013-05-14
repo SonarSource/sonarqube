@@ -52,9 +52,9 @@ public class UserQuery {
 
   public UserQuery searchText(@Nullable String s) {
     if (s != null) {
-      params.put("q", s);
+      params.put("s", s);
     } else {
-      params.remove("q");
+      params.remove("s");
     }
     return this;
   }

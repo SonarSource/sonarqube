@@ -52,7 +52,7 @@ public class DefaultRubyUserService implements RubyUserService {
       builder.includeDeactivated();
     }
     builder.logins(RubyUtils.toStrings(params.get("logins")));
-    builder.searchText((String)params.get("q"));
+    builder.searchText((String)params.get("s"));
     return builder.build();
   }
 }
