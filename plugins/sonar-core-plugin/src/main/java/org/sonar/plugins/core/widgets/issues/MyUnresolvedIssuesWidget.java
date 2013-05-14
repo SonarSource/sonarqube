@@ -31,6 +31,6 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 })
 public class MyUnresolvedIssuesWidget extends CoreWidget {
   public MyUnresolvedIssuesWidget() {
-    super("my_unresolved_issues", "My unresolved issues", "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/issues/my_unresolved_issues.html.erb");
+    super("my_unresolved_issues", "My unresolved issues", "/org/sonar/plugins/core/widgets/issues/my_unresolved_issues.html.erb");
   }
 }

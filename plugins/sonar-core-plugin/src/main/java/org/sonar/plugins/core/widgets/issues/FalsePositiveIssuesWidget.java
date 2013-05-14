@@ -31,6 +31,6 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 })
 public class FalsePositiveIssuesWidget extends CoreWidget {
   public FalsePositiveIssuesWidget() {
-    super("false_positive_issues", "False positive open issues", "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/issues/false_positive_issues.html.erb");
+    super("false_positive_issues", "False positive open issues", "/org/sonar/plugins/core/widgets/issues/false_positive_issues.html.erb");
   }
 }
