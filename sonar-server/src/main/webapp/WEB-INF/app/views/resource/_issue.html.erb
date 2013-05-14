@@ -43,9 +43,9 @@
 
   </div>
 
-  <% unless issue.description.blank? %>
+  <% unless issue.message.blank? %>
     <div class="code-issue-msg">
-      <%= Api::Utils.split_newlines(h(issue.description)).join('<br/>') -%>
+      <%= Api::Utils.split_newlines(h(issue.message)).join('<br/>') -%>
     </div>
   <% end %>
 
@@ -54,6 +54,13 @@
       <h4>
         <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= @issue_results.user(comment.userLogin()).name() -%></b>
         (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.createdAt)) -%>)
+        <% if current_user && current_user.login==comment.userLogin %>
+          &nbsp;
+          <%= image_tag 'sep12.png' -%>
+          &nbsp;
+          <a class="link-action" href="#"><%= message('reviews.edit') -%></a>
+          <a class="link-action" href="#"><%= message('reviews.delete') -%></a>
+        <% end %>
       </h4>
       <%= Internal.text.markdownToHtml(comment.markdownText) -%>
     </div>

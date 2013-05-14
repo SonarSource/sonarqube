@@ -918,11 +918,8 @@ span.rulename a:hover {
 
 .code-issue-link {
   float: right;
-  color: #333;
-  font-weight: bold;
   margin: 0;
   padding: 0 10px;
-  text-shadow: 1px 1px 0 #FFFFFF;
 }
 
 .code-issue-link a {
@@ -940,20 +937,20 @@ span.rulename a:hover {
   padding: 5px 10px;
 }
 
-.code-issue-msg h4 {
-  font-size: 90%;
+.code-issue-comment h4 {
+  font-size: 11px;
   margin-bottom: 2px;
 }
 
-.code-issue-msg h4 img {
+.code-issue-comment h4 img {
   vertical-align: sub;
 }
 
-.code-issue-msg li {
+.code-issue-comment li {
   list-style: square inside;
 }
 
-.code-issue-msg pre {
+.code-issue-comment pre {
   padding: 10px;
   border: 1px dashed #DDD;
   color: #444;
