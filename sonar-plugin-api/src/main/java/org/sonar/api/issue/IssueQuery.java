@@ -25,6 +25,7 @@ import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 
@@ -49,6 +50,7 @@ public class IssueQuery {
   private final Collection<String> assignees;
   private final Boolean assigned;
   private final Boolean planned;
+  private final Boolean resolved;
   private final Date createdAfter;
   private final Date createdBefore;
   private final Sort sort;
@@ -74,6 +76,7 @@ public class IssueQuery {
     this.assignees = builder.assignees;
     this.assigned = builder.assigned;
     this.planned = builder.planned;
+    this.resolved = builder.resolved;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
@@ -129,6 +132,10 @@ public class IssueQuery {
 
   public Boolean planned() {
     return planned;
+  }
+
+  public Boolean resolved() {
+    return resolved;
   }
 
   public Date createdAfter() {
@@ -188,6 +195,7 @@ public class IssueQuery {
     private Collection<String> assignees;
     private Boolean assigned = null;
     private Boolean planned = null;
+    private Boolean resolved = null;
     private Date createdAfter;
     private Date createdBefore;
     private Sort sort;
@@ -264,6 +272,15 @@ public class IssueQuery {
      */
     public Builder planned(Boolean planned) {
       this.planned = planned;
+      return this;
+    }
+
+    /**
+     * If true, it will return all resolved issues
+     * If false, it will return all none resolved issues
+     */
+    public Builder resolved(Boolean resolved) {
+      this.resolved = resolved;
       return this;
     }
 

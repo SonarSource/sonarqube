@@ -178,6 +178,23 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_select_by_resolved() {
+    setupData("shared", "should_select_by_resolved");
+
+    IssueQuery query = IssueQuery.builder().resolved(true).build();
+    List<IssueDto> issues = newArrayList(dao.select(query));
+    assertThat(issues).hasSize(2);
+
+    query = IssueQuery.builder().resolved(false).build();
+    issues = newArrayList(dao.select(query));
+    assertThat(issues).hasSize(1);
+
+    query = IssueQuery.builder().resolved(null).build();
+    issues = newArrayList(dao.select(query));
+    assertThat(issues).hasSize(3);
+  }
+
+  @Test
   public void should_select_by_action_plans() {
     setupData("shared", "should_select_by_action_plans");
 

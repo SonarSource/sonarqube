@@ -139,7 +139,8 @@
       , projects project_component
     </if>
     <where>
-      i.resource_id=p.id and i.rule_id=r.id
+      and i.resource_id=p.id
+      and i.rule_id=r.id
       <if test="componentRoots != null and componentRoots.size() > 0">
         and rootprojects.enabled=${_true}
         and rootprojects.kee in
@@ -190,6 +191,14 @@
         and i.resolution in
         <foreach item="resolution" index="index" collection="resolutions" open="(" separator="," close=")">#{resolution}
         </foreach>
+      </if>
+      <if test="resolved != null">
+        <if test="resolved == true">
+          and i.resolution is not null
+        </if>
+        <if test="resolved == false">
+          and i.resolution is null
+        </if>
       </if>
       <if test="userLogins != null">
         and i.user_login in

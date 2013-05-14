@@ -22,6 +22,9 @@ package org.sonar.core.issue;
 
 import org.sonar.api.issue.ActionPlan;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.UUID;
 
@@ -78,11 +81,12 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
+  @CheckForNull
   public String description() {
     return description;
   }
 
-  public DefaultActionPlan setDescription(String description) {
+  public DefaultActionPlan setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
@@ -105,11 +109,12 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
+  @CheckForNull
   public Date deadLine() {
     return deadLine;
   }
 
-  public DefaultActionPlan setDeadLine(Date deadLine) {
+  public DefaultActionPlan setDeadLine(@Nullable Date deadLine) {
     this.deadLine = deadLine;
     return this;
   }

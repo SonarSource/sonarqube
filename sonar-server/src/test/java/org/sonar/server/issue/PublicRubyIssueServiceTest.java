@@ -62,6 +62,7 @@ public class PublicRubyIssueServiceTest {
     map.put("severities", newArrayList("MAJOR", "MINOR"));
     map.put("statuses", newArrayList("CLOSED"));
     map.put("resolutions", newArrayList("FALSE-POSITIVE"));
+    map.put("resolved", true);
     map.put("components", newArrayList("org.apache"));
     map.put("componentRoots", newArrayList("org.sonar"));
     map.put("userLogins", newArrayList("marilyn"));
@@ -79,6 +80,7 @@ public class PublicRubyIssueServiceTest {
     assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
     assertThat(query.statuses()).containsOnly("CLOSED");
     assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
+    assertThat(query.resolved()).isTrue();
     assertThat(query.components()).containsOnly("org.apache");
     assertThat(query.componentRoots()).containsOnly("org.sonar");
     assertThat(query.userLogins()).containsOnly("marilyn");

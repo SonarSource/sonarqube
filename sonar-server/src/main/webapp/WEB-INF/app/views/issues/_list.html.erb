@@ -13,14 +13,14 @@
       <th>
         Message
       </th>
-      <th width="1%">
-        <%= message('project') -%>
+      <th width="1%" nowrap>
+        Component name
       </th>
       <th>
         <%= message('assignee') -%>
       </th>
       <th>
-        Created at
+        Creation date
       </th>
     </tr>
     </thead>
@@ -48,10 +48,7 @@
           <%= link_to h(issue.description), :controller => "issue", :action => "view", :id => issue.key -%>
         </td>
         <td>
-          <span class="nowrap"><%= h(@issue_results.component(issue).longName) -%></span>
-          <br/>
-          <span class="note"><%= h(@issue_results.component(issue).name) -%></span></td>
-
+          <%= h(@issue_results.component(issue).name) -%>
         </td>
         <td>
           <%= @issue_results.user(issue.assignee).name if issue.assignee -%>

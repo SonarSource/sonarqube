@@ -94,6 +94,11 @@ public class IssueQuery {
     return this;
   }
 
+  public IssueQuery resolved(Boolean resolved) {
+    params.put("resolved", resolved);
+    return this;
+  }
+
   public IssueQuery createdAfter(Date d) {
     params.put("createdAfter", EncodingUtils.toQueryParam(d, true));
     return this;

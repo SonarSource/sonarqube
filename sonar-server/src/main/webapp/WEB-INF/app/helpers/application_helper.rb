@@ -546,22 +546,22 @@ module ApplicationHelper
   #
   def paginate_java(pagination)
     total = pagination.total.to_i
-    page_index = pagination.page_index ? pagination.page_index.to_i : 1
-    page_size = pagination.page_size.to_i || 20
-    pages = pagination.pages.to_i
+    page_index = pagination.pageIndex() ? pagination.pageIndex().to_i : 1
+    page_size = pagination.pageSize().to_i || 20
+    pages = pagination.pages().to_i
 
     html = total.to_s + " " + message('results').downcase
 
     if total > page_size
       # render the pagination links
       html += " | "
-      html += link_to_if page_index>1, message('paging_previous'), {:overwrite_params => {:page_index => page_index-1}}
+      html += link_to_if page_index>1, message('paging_previous'), {:overwrite_params => {:pageIndex => page_index-1}}
       html += " "
       for index in 1..pages
-        html += link_to_unless index==page_index, index.to_s, {:overwrite_params => {:page_index => index}}
+        html += link_to_unless index==page_index, index.to_s, {:overwrite_params => {:pageIndex => index}}
         html += " "
       end
-      html += link_to_if page_index<pages, message('paging_next'), {:overwrite_params => {:page_index => 1+page_index}}
+      html += link_to_if page_index<pages, message('paging_next'), {:overwrite_params => {:pageIndex => 1+page_index}}
     end
 
     html

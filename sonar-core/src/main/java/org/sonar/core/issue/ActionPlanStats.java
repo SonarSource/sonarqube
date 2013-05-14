@@ -22,6 +22,9 @@ package org.sonar.core.issue;
 
 import org.sonar.api.issue.ActionPlan;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
@@ -81,11 +84,12 @@ public class ActionPlanStats implements Serializable {
     return this;
   }
 
+  @CheckForNull
   public String description() {
     return description;
   }
 
-  public ActionPlanStats setDescription(String description) {
+  public ActionPlanStats setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
@@ -108,11 +112,12 @@ public class ActionPlanStats implements Serializable {
     return this;
   }
 
+  @CheckForNull
   public Date deadLine() {
     return deadLine;
   }
 
-  public ActionPlanStats setDeadLine(Date deadLine) {
+  public ActionPlanStats setDeadLine(@Nullable Date deadLine) {
     this.deadLine = deadLine;
     return this;
   }

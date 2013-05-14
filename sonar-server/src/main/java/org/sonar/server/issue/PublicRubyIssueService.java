@@ -23,19 +23,17 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.RubyIssueService;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +65,7 @@ public class PublicRubyIssueService implements RubyIssueService {
     builder.severities(RubyUtils.toStrings(props.get("severities")));
     builder.statuses(RubyUtils.toStrings(props.get("statuses")));
     builder.resolutions(RubyUtils.toStrings(props.get("resolutions")));
+    builder.resolved(RubyUtils.toBoolean(props.get("resolved")));
     builder.components(RubyUtils.toStrings(props.get("components")));
     builder.componentRoots(RubyUtils.toStrings(props.get("componentRoots")));
     builder.rules(toRules(props.get("rules")));
