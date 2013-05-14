@@ -36,12 +36,11 @@
         &nbsp;
       <% end %>
       <%
-         # TODO display assignee name instead of login
          if issue.assignee
       %>
         <%= image_tag 'sep12.png' -%>
         &nbsp;
-        <%= message('assigned_to') -%> <%= h(issue.assignee) -%>
+        <%= message('assigned_to') -%> <%= h(@issue_results.user(issue.assignee).name) -%>
         &nbsp;
       <% end %>
       <%

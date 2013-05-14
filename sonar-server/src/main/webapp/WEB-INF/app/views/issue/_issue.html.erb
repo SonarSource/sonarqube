@@ -61,14 +61,14 @@
         <%= message('assignee') -%>:
       </td>
       <td class="val">
-        <% assignee = @issue.assignee %>
+        <% assignee = @issue_results.user(@issue.assignee).name if @issue.assignee %>
         <%= assignee ? h(assignee) : '-' -%>
       </td>
       <td class="key">
         <%= message('author') -%>:
       </td>
       <td class="val">
-        <% author = @issue.userLogin %>
+        <% author = @issue_results.user(@issue.userLogin).name if @issue.userLogin %>
         <%= author ? h(author) : '-' -%>
       </td>
     </tr>
