@@ -111,11 +111,11 @@ public class DefaultActionPlan implements ActionPlan {
 
   @CheckForNull
   public Date deadLine() {
-    return deadLine;
+    return deadLine != null ? new Date(deadLine.getTime()) : null;
   }
 
   public DefaultActionPlan setDeadLine(@Nullable Date deadLine) {
-    this.deadLine = deadLine;
+    this.deadLine = deadLine != null ? new Date(deadLine.getTime()) : null;
     return this;
   }
 

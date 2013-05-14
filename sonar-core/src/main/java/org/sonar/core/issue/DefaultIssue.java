@@ -121,6 +121,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public String description() {
     return description;
   }
@@ -130,6 +131,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public Integer line() {
     return line;
   }
@@ -140,6 +142,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public Double effortToFix() {
     return effortToFix;
   }
@@ -170,6 +173,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public String userLogin() {
     return userLogin;
   }
@@ -179,6 +183,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public String assignee() {
     return assignee;
   }
@@ -197,6 +202,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public Date updateDate() {
     return updateDate;
   }
@@ -206,6 +212,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public Date closeDate() {
     return closeDate;
   }
@@ -224,6 +231,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public Date technicalCreationDate() {
     return technicalCreationDate;
   }
@@ -237,6 +245,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public Date technicalUpdateDate() {
     return technicalUpdateDate;
   }
@@ -250,6 +259,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @CheckForNull
   public String getChecksum() {
     return checksum;
   }
@@ -323,7 +333,7 @@ public class DefaultIssue implements Issue {
     return actionPlanKey;
   }
 
-  public DefaultIssue setActionPlanKey(String actionPlanKey) {
+  public DefaultIssue setActionPlanKey(@Nullable String actionPlanKey) {
     this.actionPlanKey = actionPlanKey;
     return this;
   }
