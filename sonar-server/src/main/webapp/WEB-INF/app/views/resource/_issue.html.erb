@@ -69,9 +69,13 @@
   <% if current_user %>
     <div class="code-issue-actions">
       <a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right"><%= message('reviews.comment') -%></a>
-
       <% unless issue.resolution %>
-        <a href='#' onclick="return issueForm('assign', this)" class="link-action spacer-right"><%= message('issues.action.assign.button') -%></a>
+        <span class="spacer-right">
+        <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issues.action.assign.button') -%></a>
+          <% if issue.assignee!=current_user.login %>
+          (<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('reviews.assign_to_me_submit') -%></a>)
+        <% end %>
+        </span>
       <% end %>
 
       <% Internal.issues.listTransitions(issue.key).each do |transition| %>

@@ -154,7 +154,8 @@ class IssueController < ApplicationController
     if action_type=='comment'
       Internal.issues.addComment(issue_key, params[:text])
     elsif action_type=='assign'
-      Internal.issues.assign(issue_key, params[:assignee])
+      assignee = (params[:me]=='true' ? current_user.login : params[:assignee])
+      Internal.issues.assign(issue_key, assignee)
     end
 
     @issue_results = Api.issues.find(issue_key)
