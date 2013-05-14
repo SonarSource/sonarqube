@@ -23,26 +23,6 @@ class Api::ActionPlansController < Api::ApiController
   before_filter :admin_required, :only => [ :create, :delete, :update, :close, :open ]
 
   #
-  # GET /api/action_plan/show?key=<key>
-  #
-  # -- Example
-  # curl -v -u 'http://localhost:9000/api/action_plans/show?key=9b6f89c0-3347-46f6-a6d1-dd6c761240e0'
-  #
-  def show
-    require_parameters :key
-
-    action_plan = Internal.issues.findActionPlan(params[:key])
-    hash = {}
-    hash[:actionPlan] = action_plan_to_hash(action_plan) if action_plan
-
-    respond_to do |format|
-      format.json { render :json => jsonp(hash) }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'actionPlan') }
-    end
-  end
-
-
-  #
   # GET /api/action_plans/search?project=<project>
   #
   # -- Example

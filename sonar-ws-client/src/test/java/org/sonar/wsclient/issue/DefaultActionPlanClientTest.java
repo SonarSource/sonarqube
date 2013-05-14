@@ -68,37 +68,6 @@ public class DefaultActionPlanClientTest {
   }
 
   @Test
-  public void should_find_action_plan() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
-    httpServer.doReturnBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\",\n" +
-        "\"name\": \"Long term\",\n" +
-        "\"status\": \"CLOSED\",\n" +
-        "\"project\": \"com.sonarsource.it.samples:simple-sample\",\n" +
-        "\"userLogin\": \"admin\",\n" +
-        "\"deadLine\": \"2013-05-30T00:00:00+0200\",\n" +
-        "\"totalIssues\": 0,\n" +
-        "\"openIssues\": 0,\n" +
-        "\"createdAt\": \"2013-05-13T12:50:29+0200\",\n" +
-        "\"updatedAt\": \"2013-05-13T12:50:44+0200\"}}");
-
-    ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
-    ActionPlan actionPlan = client.get("382f6f2e-ad9d-424a-b973-9b065e04348a");
-
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/show?key=382f6f2e-ad9d-424a-b973-9b065e04348a");
-    assertThat(actionPlan).isNotNull();
-    assertThat(actionPlan.key()).isEqualTo("382f6f2e-ad9d-424a-b973-9b065e04348a");
-    assertThat(actionPlan.name()).isEqualTo("Long term");
-    assertThat(actionPlan.project()).isEqualTo("com.sonarsource.it.samples:simple-sample");
-    assertThat(actionPlan.status()).isEqualTo("CLOSED");
-    assertThat(actionPlan.userLogin()).isEqualTo("admin");
-    assertThat(actionPlan.deadLine()).isNotNull();
-    assertThat(actionPlan.totalIssues()).isEqualTo(0);
-    assertThat(actionPlan.openIssues()).isEqualTo(0);
-    assertThat(actionPlan.createdAt()).isNotNull();
-    assertThat(actionPlan.updatedAt()).isNotNull();
-  }
-
-  @Test
   public void should_create_action_plan() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
     httpServer.doReturnBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");

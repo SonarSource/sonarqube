@@ -61,15 +61,6 @@ public class DefaultActionPlanClient implements ActionPlanClient {
   }
 
   @Override
-  public ActionPlan get(String actionPlanKey) {
-    HttpRequest request = requestFactory.get("/api/action_plans/show", EncodingUtils.toMap("key", actionPlanKey));
-    if (!request.ok()) {
-      throw new IllegalStateException("Fail to search action plan. Bad HTTP response status: " + request.code());
-    }
-    return createActionPlanResult(request);
-  }
-
-  @Override
   public ActionPlan create(NewActionPlan newActionPlan) {
     HttpRequest request = requestFactory.post(NewActionPlan.BASE_URL, newActionPlan.urlParams());
     if (!request.ok()) {

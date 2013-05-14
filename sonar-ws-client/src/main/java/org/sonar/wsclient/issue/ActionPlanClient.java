@@ -28,8 +28,6 @@ public interface ActionPlanClient {
 
   List<ActionPlan> find(String projectKey);
 
-  ActionPlan get(String actionPlanKey);
-
   ActionPlan create(NewActionPlan newActionPlan);
 
   ActionPlan update(UpdateActionPlan updateActionPlan);

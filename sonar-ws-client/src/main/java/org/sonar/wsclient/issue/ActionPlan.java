@@ -81,13 +81,14 @@ public class ActionPlan {
     return JsonUtils.getDateTime(json, "updatedAt");
   }
 
+  @CheckForNull
   public Integer totalIssues() {
     return JsonUtils.getInteger(json, "totalIssues");
   }
 
+  @CheckForNull
   public Integer openIssues() {
     return JsonUtils.getInteger(json, "openIssues");
   }
-
 
 }
