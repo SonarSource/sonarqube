@@ -2,11 +2,11 @@
    if has_role?(:user, @project)
 
      search_options = {}
-     search_options['components'] = @project.key
-     search_options['statuses'] = "RESOLVED"
-     search_options['resolutions'] = "FALSE_POSITIVE"
+     search_options['componentRoots'] = @project.key
+     search_options['resolved'] = 'true'
+     search_options['resolutions'] = 'FALSE-POSITIVE'
      
-     title = message('widget.false_positive_reviews2.name')
+     title = message('widget.false_positive_issues.name')
 %>
 
   <%= render :partial => 'project/widgets/issues/issues_list_widget',
