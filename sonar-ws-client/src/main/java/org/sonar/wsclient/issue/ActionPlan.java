@@ -22,6 +22,7 @@ package org.sonar.wsclient.issue;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.Map;
 
@@ -80,11 +81,11 @@ public class ActionPlan {
     return JsonUtils.getDateTime(json, "updatedAt");
   }
 
-  public int totalIssues() {
+  public Integer totalIssues() {
     return JsonUtils.getInteger(json, "totalIssues");
   }
 
-  public int openIssues() {
+  public Integer openIssues() {
     return JsonUtils.getInteger(json, "openIssues");
   }
 
