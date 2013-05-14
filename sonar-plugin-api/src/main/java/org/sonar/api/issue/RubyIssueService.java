@@ -33,6 +33,8 @@ import java.util.Map;
  */
 public interface RubyIssueService extends ServerComponent {
 
+  IssueQueryResult find(String issueKey);
+
   /**
    * Search for issues.
    * <p/>

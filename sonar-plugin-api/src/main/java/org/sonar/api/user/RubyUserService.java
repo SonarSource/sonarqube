@@ -38,6 +38,7 @@ public interface RubyUserService extends ServerComponent {
    * <p/>
    * Optional parameters are:
    * <ul>
+   *   <li><code>q</code> to match all the logins or names containing this search query</li>
    *   <li><code>logins</code>, as an array of strings (['simon', 'julien']) or a comma-separated list of logins ('simon,julien')</li>
    *   <li><code>includeDeactivated</code> as a boolean. By Default deactivated users are excluded from query.</li>
    * </ul>

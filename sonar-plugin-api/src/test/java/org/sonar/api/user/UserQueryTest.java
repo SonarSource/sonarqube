@@ -33,6 +33,8 @@ public class UserQueryTest {
   public void test_all_actives() throws Exception {
     assertThat(UserQuery.ALL_ACTIVES.includeDeactivated()).isFalse();
     assertThat(UserQuery.ALL_ACTIVES.logins()).isNull();
+    assertThat(UserQuery.ALL_ACTIVES.searchText()).isNull();
+    assertThat(UserQuery.ALL_ACTIVES.searchTextSql).isNull();
   }
 
   @Test
@@ -64,5 +66,12 @@ public class UserQueryTest {
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Max number of logins is 1000. Got 1010");
     }
+  }
+
+  @Test
+  public void test_searchText() throws Exception {
+    UserQuery query = UserQuery.builder().searchText("sim").build();
+    assertThat(query.searchText()).isEqualTo("sim");
+    assertThat(query.searchTextSql).isEqualTo("%sim%");
   }
 }

@@ -102,6 +102,26 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void selectUsersByQuery_search_by_login_text() throws Exception {
+    setupData("selectUsersByText");
+
+    UserQuery query = UserQuery.builder().searchText("sbr").build();
+    List<UserDto> users = dao.selectUsers(query);
+    assertThat(users).hasSize(1);
+    assertThat(users.get(0).getLogin()).isEqualTo("sbrandhof");
+  }
+
+  @Test
+  public void selectUsersByQuery_search_by_name_text() throws Exception {
+    setupData("selectUsersByText");
+
+    UserQuery query = UserQuery.builder().searchText("Simon").build();
+    List<UserDto> users = dao.selectUsers(query);
+    assertThat(users).hasSize(1);
+    assertThat(users.get(0).getLogin()).isEqualTo("sbrandhof");
+  }
+
+  @Test
   public void selectGroupByName() {
     setupData("selectGroupByName");
 

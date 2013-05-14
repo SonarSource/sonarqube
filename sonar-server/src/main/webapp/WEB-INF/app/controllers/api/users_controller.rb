@@ -29,9 +29,17 @@ class Api::UsersController < Api::ApiController
   #
   def search
     users = Api.users.find(params)
-    hash = {
-      :users => users.map { |user| User.to_hash(user) }
-    }
+
+    select2_format=(params[:f]=='s2')
+    if select2_format
+      hash = {
+        :more => false,
+        :results => users.map { |user| {:id => user.login, :text => "#{user.name} (#{user.login})"} }
+      }
+    else
+      hash = {:users => users.map { |user| User.to_hash(user) }}
+    end
+
 
     respond_to do |format|
       format.json { render :json => jsonp(hash) }

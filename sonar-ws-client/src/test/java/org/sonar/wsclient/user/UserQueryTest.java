@@ -48,4 +48,10 @@ public class UserQueryTest {
     UserQuery query = UserQuery.create().logins("simon").logins("loic");
     assertThat(query.urlParams().get("logins")).isEqualTo("loic");
   }
+
+  @Test
+  public void should_search_by_text() throws Exception {
+    UserQuery query = UserQuery.create().searchText("sim");
+    assertThat(query.urlParams().get("q")).isEqualTo("sim");
+  }
 }

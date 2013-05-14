@@ -42,6 +42,9 @@
       <if test="includeDeactivated==false">
         and u.active=${_true}
       </if>
+      <if test="searchText != null">
+        and (u.login like #{searchTextSql} or u.name like #{searchTextSql})
+      </if>
     </where>
     order by u.name
   </select>

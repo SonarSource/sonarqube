@@ -19,6 +19,8 @@
  */
 package org.sonar.api.user;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -33,10 +35,16 @@ public class UserQuery {
 
   private final Collection<String> logins;
   private final boolean includeDeactivated;
+  private final String searchText;
+
+  // for internal use in MyBatis
+  final String searchTextSql;
 
   private UserQuery(Builder builder) {
     this.logins = builder.logins;
     this.includeDeactivated = builder.includeDeactivated;
+    this.searchText = builder.searchText;
+    this.searchTextSql = (searchText !=null ? "%" + searchText + "%" : null);
   }
 
   @CheckForNull
@@ -48,6 +56,14 @@ public class UserQuery {
     return includeDeactivated;
   }
 
+  /**
+   * Search for logins or names containing a given string
+   */
+  @CheckForNull
+  public String searchText() {
+    return searchText;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -55,6 +71,7 @@ public class UserQuery {
   public static class Builder {
     private boolean includeDeactivated = false;
     private Collection<String> logins;
+    private String searchText;
 
     private Builder() {
     }
@@ -72,6 +89,11 @@ public class UserQuery {
 
     public Builder logins(String... logins) {
       this.logins = Arrays.asList(logins);
+      return this;
+    }
+
+    public Builder searchText(@Nullable String s) {
+      this.searchText = StringUtils.defaultIfBlank(s, null);
       return this;
     }
 

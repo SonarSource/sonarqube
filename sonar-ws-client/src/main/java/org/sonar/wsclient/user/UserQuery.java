@@ -21,6 +21,7 @@ package org.sonar.wsclient.user;
 
 import org.sonar.wsclient.internal.EncodingUtils;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +47,15 @@ public class UserQuery {
 
   public UserQuery logins(String... s) {
     params.put("logins", EncodingUtils.toQueryParam(s));
+    return this;
+  }
+
+  public UserQuery searchText(@Nullable String s) {
+    if (s != null) {
+      params.put("q", s);
+    } else {
+      params.remove("q");
+    }
     return this;
   }
 
