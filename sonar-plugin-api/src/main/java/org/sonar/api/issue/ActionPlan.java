@@ -45,7 +45,6 @@ public interface ActionPlan extends Serializable {
   @CheckForNull
   String description();
 
-  @CheckForNull
   String userLogin();
 
   String status();

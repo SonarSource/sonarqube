@@ -25,6 +25,9 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.core.issue.DefaultActionPlan;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -73,11 +76,12 @@ public class ActionPlanDto {
     return this;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
 
-  public ActionPlanDto setDescription(String description) {
+  public ActionPlanDto setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
@@ -109,11 +113,12 @@ public class ActionPlanDto {
     return this;
   }
 
+  @CheckForNull
   public Date getDeadLine() {
     return deadLine;
   }
 
-  public ActionPlanDto setDeadLine(Date deadLine) {
+  public ActionPlanDto setDeadLine(@Nullable Date deadLine) {
     this.deadLine = deadLine;
     return this;
   }

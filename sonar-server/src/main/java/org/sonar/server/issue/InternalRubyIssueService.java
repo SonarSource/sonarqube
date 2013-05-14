@@ -36,6 +36,8 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.platform.UserSession;
 
+import javax.annotation.Nullable;
+
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -187,7 +189,7 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   @VisibleForTesting
-  Result<ActionPlan> createActionPlanResult(Map<String, String> parameters, String oldName) {
+  Result<ActionPlan> createActionPlanResult(Map<String, String> parameters, @Nullable String oldName) {
     Result<ActionPlan> result = new Result<ActionPlan>();
 
     String name = parameters.get("name");

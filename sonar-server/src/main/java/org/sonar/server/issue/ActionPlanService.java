@@ -34,7 +34,6 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Date;
@@ -82,7 +81,8 @@ public class ActionPlanService implements ServerComponent {
     return actionPlanDto.toActionPlan();
   }
 
-  public ActionPlan findByKey(@CheckForNull String key) {
+  @CheckForNull
+  public ActionPlan findByKey(String key) {
     ActionPlanDto actionPlanDto = actionPlanDao.findByKey(key);
     if (actionPlanDto == null) {
       return null;
@@ -117,7 +117,7 @@ public class ActionPlanService implements ServerComponent {
   private Collection<ActionPlan> toActionPlans(Collection<ActionPlanDto> actionPlanDtos) {
     return newArrayList(Iterables.transform(actionPlanDtos, new Function<ActionPlanDto, ActionPlan>() {
       @Override
-      public ActionPlan apply(@Nullable ActionPlanDto actionPlanDto) {
+      public ActionPlan apply(ActionPlanDto actionPlanDto) {
         return actionPlanDto.toActionPlan();
       }
     }));
