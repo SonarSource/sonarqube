@@ -33,7 +33,9 @@
 
   <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
-          manual_severity="[false]" description="[null]" action_plan_key="[null]"
+          manual_severity="[false]"
+          message="[null]"
+          action_plan_key="[null]"
           created_at="[null]"
           updated_at="[null]"
           issue_creation_date="2013-04-16"
@@ -43,7 +45,9 @@
 
   <issues id="2" kee="ABCDF" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
-          manual_severity="[false]" description="[null]" action_plan_key="[null]"
+          manual_severity="[false]"
+          message="[null]"
+          action_plan_key="[null]"
           created_at="[null]"
           updated_at="[null]"
           issue_creation_date="2013-04-16"

@@ -64,7 +64,7 @@ public class IssueDtoTest {
         .setEffortToFix(15.0)
         .setLine(6)
         .setSeverity("BLOCKER")
-        .setDescription("message")
+        .setMessage("message")
         .setManualSeverity(true)
         .setReporter("arthur")
         .setAssignee("perceval")
@@ -83,7 +83,7 @@ public class IssueDtoTest {
     assertThat(issue.effortToFix()).isEqualTo(15.0);
     assertThat(issue.line()).isEqualTo(6);
     assertThat(issue.severity()).isEqualTo("BLOCKER");
-    assertThat(issue.description()).isEqualTo("message");
+    assertThat(issue.message()).isEqualTo("message");
     assertThat(issue.manualSeverity()).isTrue();
     assertThat(issue.reporter()).isEqualTo("arthur");
     assertThat(issue.assignee()).isEqualTo("perceval");

@@ -84,8 +84,8 @@ public class IssueHandlers implements BatchExtension {
     }
 
     @Override
-    public IssueHandler.Context setDescription(@Nullable String description) {
-      updater.setDescription(issue, description);
+    public IssueHandler.Context setMessage(@Nullable String s) {
+      updater.setMessage(issue, s);
       return this;
     }
 

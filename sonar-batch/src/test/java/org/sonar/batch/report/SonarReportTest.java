@@ -126,11 +126,13 @@ public class SonarReportTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("200")
       .setComponentKey("Action.java")
-      .setDescription("SystemPrintln")
+      .setMessage("SystemPrintln")
       .setSeverity("MINOR")
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
       .setLine(1)
+      .setEffortToFix(3.14)
+      .setReporter("julien")
       .setAssignee("simon")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setCreationDate(DateUtils.parseDate("2013-04-24"))
@@ -145,17 +147,19 @@ public class SonarReportTest {
     JSONArray issues = (JSONArray) json.get("issues");
     assertThat(issues).hasSize(1);
     JSONObject jsonIssue = (JSONObject) issues.get(0);
-    assertThat(jsonIssue.values()).hasSize(13);
+    assertThat(jsonIssue.values()).hasSize(15);
 
     assertThat(jsonIssue.get("key")).isEqualTo("200");
     assertThat(jsonIssue.get("component")).isEqualTo("Action.java");
     assertThat(jsonIssue.get("line")).isEqualTo(1);
-    assertThat(jsonIssue.get("description")).isEqualTo("SystemPrintln");
+    assertThat(jsonIssue.get("message")).isEqualTo("SystemPrintln");
     assertThat(jsonIssue.get("severity")).isEqualTo("MINOR");
     assertThat(jsonIssue.get("rule")).isEqualTo("squid:AvoidCycle");
     assertThat(jsonIssue.get("status")).isEqualTo("CLOSED");
     assertThat(jsonIssue.get("resolution")).isEqualTo("FALSE-POSITIVE");
     assertThat(jsonIssue.get("assignee")).isEqualTo("simon");
+    assertThat(jsonIssue.get("effortToFix")).isEqualTo(3.14);
+    assertThat(jsonIssue.get("reporter")).isEqualTo("julien");
     assertThat(jsonIssue.get("isNew")).isEqualTo(false);
     assertThat((String) jsonIssue.get("creationDate")).contains("2013-04-24T00:00");
     assertThat((String) jsonIssue.get("updateDate")).contains("2013-04-25T00:00");

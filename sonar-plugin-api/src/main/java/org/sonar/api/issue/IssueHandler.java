@@ -36,15 +36,15 @@ public interface IssueHandler extends BatchExtension {
     // TODO rename isClosed()
     boolean isAlive();
 
-    Context setLine(@Nullable Integer line);
+    Context setLine(@Nullable Integer i);
 
-    Context setDescription(@Nullable String description);
+    Context setMessage(@Nullable String s);
 
-    Context setSeverity(String severity);
+    Context setSeverity(String s);
 
-    Context setEffortToFix(@Nullable Double effortToFix);
+    Context setEffortToFix(@Nullable Double d);
 
-    Context setAuthorLogin(@Nullable String login);
+    Context setAuthorLogin(@Nullable String s);
 
     Context setAttribute(String key, @Nullable String value);
 

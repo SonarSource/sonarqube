@@ -38,11 +38,11 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private String componentKey;
   private RuleKey ruleKey;
   private Integer line;
-  private String description;
+  private String message;
   private String severity;
   private Double effortToFix;
-  private boolean manual = false;
   private Date createdDate;
+  private String reporter;
   private Map<String, String> attributes;
 
   public DefaultIssueBuilder() {
@@ -72,8 +72,8 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issuable.IssueBuilder description(String s) {
-    this.description = s;
+  public Issuable.IssueBuilder message(@Nullable String s) {
+    this.message = s;
     return this;
   }
 
@@ -90,8 +90,8 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issuable.IssueBuilder manual(boolean b) {
-    this.manual = b;
+  public Issuable.IssueBuilder reporter(@Nullable String s) {
+    this.reporter = s;
     return this;
   }
 
@@ -122,11 +122,12 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setUpdateDate(date);
     issue.setComponentKey(componentKey);
     issue.setRuleKey(ruleKey);
-    issue.setDescription(description);
+    issue.setMessage(message);
     issue.setSeverity(Objects.firstNonNull(severity, Severity.MAJOR));
     issue.setEffortToFix(effortToFix);
     issue.setLine(line);
-    issue.setManualSeverity(manual);
+    issue.setManualSeverity(false);
+    issue.setReporter(reporter);
     issue.setAttributes(attributes);
     issue.setNew(true);
     issue.setAlive(true);

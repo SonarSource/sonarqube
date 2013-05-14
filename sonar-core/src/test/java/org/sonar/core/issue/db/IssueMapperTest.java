@@ -53,7 +53,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setActionPlanKey("current_sprint");
     dto.setAttributes("JIRA=FOO-1234");
     dto.setChecksum("123456789");
-    dto.setDescription("the description");
+    dto.setMessage("the message");
 
     dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
     dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
@@ -86,7 +86,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setActionPlanKey("current_sprint");
     dto.setAttributes("JIRA=FOO-1234");
     dto.setChecksum("123456789");
-    dto.setDescription("the description");
+    dto.setMessage("the message");
 
     dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
     dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));

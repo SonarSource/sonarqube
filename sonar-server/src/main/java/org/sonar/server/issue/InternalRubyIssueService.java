@@ -103,13 +103,12 @@ public class InternalRubyIssueService implements ServerComponent {
     DefaultIssueBuilder builder = new DefaultIssueBuilder().componentKey(componentKey);
     String line = parameters.get("line");
     builder.line(line != null ? Integer.parseInt(line) : null);
-    builder.description(parameters.get("description"));
+    builder.message(parameters.get("message"));
     builder.severity(parameters.get("severity"));
     String effortToFix = parameters.get("effortToFix");
     builder.effortToFix(effortToFix != null ? Double.parseDouble(effortToFix) : null);
     // TODO verify existence of rule
     builder.ruleKey(RuleKey.parse(parameters.get("rule")));
-    builder.manual(true);
     Issue issue = builder.build();
     return issueService.create((DefaultIssue) issue, UserSession.get());
   }

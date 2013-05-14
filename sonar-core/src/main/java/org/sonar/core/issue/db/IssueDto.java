@@ -42,7 +42,7 @@ public final class IssueDto {
   private Integer ruleId;
   private String severity;
   private boolean manualSeverity;
-  private String description;
+  private String message;
   private Integer line;
   private Double effortToFix;
   private String status;
@@ -134,12 +134,12 @@ public final class IssueDto {
   }
 
   @CheckForNull
-  public String getDescription() {
-    return description;
+  public String getMessage() {
+    return message;
   }
 
-  public IssueDto setDescription(@Nullable String s) {
-    this.description = s;
+  public IssueDto setMessage(@Nullable String s) {
+    this.message = s;
     return this;
   }
 
@@ -314,7 +314,7 @@ public final class IssueDto {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
-      .setDescription(issue.description())
+      .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
@@ -340,7 +340,7 @@ public final class IssueDto {
     issue.setKey(kee);
     issue.setStatus(status);
     issue.setResolution(resolution);
-    issue.setDescription(description);
+    issue.setMessage(message);
     issue.setEffortToFix(effortToFix);
     issue.setLine(line);
     issue.setSeverity(severity);

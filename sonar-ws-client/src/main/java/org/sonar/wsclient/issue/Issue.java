@@ -54,9 +54,17 @@ public class Issue {
     return JsonUtils.getString(json, "severity");
   }
 
+  /**
+   * TODO to be removed
+   */
   @CheckForNull
   public String description() {
-    return JsonUtils.getString(json, "desc");
+    return JsonUtils.getString(json, "message");
+  }
+
+  @CheckForNull
+  public String message() {
+    return JsonUtils.getString(json, "message");
   }
 
   @CheckForNull

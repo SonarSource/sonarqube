@@ -54,7 +54,7 @@ public class DeprecatedViolations implements BatchComponent {
       .ruleKey(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
       .effortToFix(violation.getCost())
       .line(violation.getLineId())
-      .description(violation.getMessage())
+      .message(violation.getMessage())
       .severity(violation.getSeverity() != null ? violation.getSeverity().name() : Severity.MAJOR)
       .build();
   }

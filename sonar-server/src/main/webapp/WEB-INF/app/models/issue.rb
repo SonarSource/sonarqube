@@ -29,7 +29,7 @@ class Issue
     hash[:actionPlan] = issue.actionPlanKey if issue.actionPlanKey
     hash[:resolution] = issue.resolution if issue.resolution
     hash[:severity] = issue.severity if issue.severity
-    hash[:desc] = issue.description if issue.description
+    hash[:message] = issue.message if issue.message
     hash[:line] = issue.line.to_i if issue.line
     hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
     hash[:reporter] = issue.reporter if issue.reporter

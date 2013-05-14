@@ -33,7 +33,7 @@ public class DefaultIssueBuilderTest {
     String componentKey = "org.apache.struts:struts-core:Action.java";
     DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
       .componentKey(componentKey)
-      .description("the desc")
+      .message("the message")
       .line(123)
       .effortToFix(10000.0)
       .ruleKey(RuleKey.of("squid", "NullDereference"))
@@ -46,7 +46,7 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.key()).isNotNull();
     assertThat(issue.effortToFix()).isEqualTo(10000.0);
     assertThat(issue.componentKey()).isEqualTo(componentKey);
-    assertThat(issue.description()).isEqualTo("the desc");
+    assertThat(issue.message()).isEqualTo("the message");
     assertThat(issue.line()).isEqualTo(123);
     assertThat(issue.ruleKey().repository()).isEqualTo("squid");
     assertThat(issue.ruleKey().rule()).isEqualTo("NullDereference");

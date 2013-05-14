@@ -95,8 +95,8 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     issue.setAuthorLogin(authorLogin);
   }
 
-  public void setDescription(DefaultIssue issue, @Nullable String description) {
-    issue.setDescription(description);
+  public void setMessage(DefaultIssue issue, @Nullable String s) {
+    issue.setMessage(s);
   }
 
   public void addComment(DefaultIssue issue, String text, IssueChangeContext context) {

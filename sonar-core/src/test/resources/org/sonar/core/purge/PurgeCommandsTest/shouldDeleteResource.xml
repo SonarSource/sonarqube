@@ -27,7 +27,7 @@
   <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
-          description="[null]"
+          message="[null]"
           issue_creation_date="2013-04-16"
           issue_update_date="2013-04-16"
           issue_close_date="2013-04-16"

@@ -77,20 +77,20 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void description_should_be_abbreviated_if_too_long() {
-    issue.setDescription(StringUtils.repeat("a", 5000));
-    assertThat(issue.description()).hasSize(4000);
+  public void message_should_be_abbreviated_if_too_long() {
+    issue.setMessage(StringUtils.repeat("a", 5000));
+    assertThat(issue.message()).hasSize(4000);
   }
 
   @Test
-  public void description_should_be_trimmed() {
-    issue.setDescription("    foo     ");
-    assertThat(issue.description()).isEqualTo("foo");
+  public void message_should_be_trimmed() {
+    issue.setMessage("    foo     ");
+    assertThat(issue.message()).isEqualTo("foo");
   }
 
   @Test
-  public void description_could_be_null() {
-    issue.setDescription(null);
-    assertThat(issue.description()).isNull();
+  public void message_could_be_null() {
+    issue.setMessage(null);
+    assertThat(issue.message()).isNull();
   }
 }

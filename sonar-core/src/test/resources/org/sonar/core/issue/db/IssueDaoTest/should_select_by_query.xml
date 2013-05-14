@@ -7,7 +7,7 @@
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
-      description="[null]"
+      message="[null]"
       line="200"
       effort_to_fix="4.2"
       status="OPEN"

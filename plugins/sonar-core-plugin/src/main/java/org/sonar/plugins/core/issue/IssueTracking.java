@@ -337,7 +337,7 @@ public class IssueTracking implements BatchExtension {
   }
 
   private boolean isSameMessage(DefaultIssue newIssue, IssueDto pastIssue) {
-    return Objects.equal(newIssue.description(), pastIssue.getDescription());
+    return Objects.equal(newIssue.message(), pastIssue.getMessage());
   }
 
   private boolean isSameKey(DefaultIssue newIssue, IssueDto pastIssue) {

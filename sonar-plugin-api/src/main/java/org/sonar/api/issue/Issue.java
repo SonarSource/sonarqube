@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public interface Issue extends Serializable {
 
-  int DESCRIPTION_MAX_SIZE = 4000;
+  int MESSAGE_MAX_SIZE = 4000;
 
   String STATUS_OPEN = "OPEN";
   String STATUS_REOPENED = "REOPENED";
@@ -54,7 +54,8 @@ public interface Issue extends Serializable {
 
   String severity();
 
-  String description();
+  @CheckForNull
+  String message();
 
   @CheckForNull
   Integer line();

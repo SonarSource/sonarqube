@@ -25,7 +25,7 @@
       rule_id="200"
       severity="BLOCKER"
       manual_severity="[false]"
-      description="the description"
+      message="the message"
       line="500"
       effort_to_fix="3.14"
       status="RESOLVED"

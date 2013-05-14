@@ -39,7 +39,7 @@ public class IssueQuery {
   public static final int MAX_ISSUE_KEYS = 500;
 
   public static enum Sort {
-    CREATION_DATE, UPDATE_DATE, CLOSE_DATE, ASSIGNEE
+    CREATION_DATE, UPDATE_DATE, CLOSE_DATE, ASSIGNEE, SEVERITY
   }
 
   private final Collection<String> issueKeys;

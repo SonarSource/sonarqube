@@ -36,13 +36,13 @@ public interface Issuable extends Perspective {
 
     IssueBuilder line(@Nullable Integer line);
 
-    IssueBuilder description(String description);
+    IssueBuilder message(@Nullable String message);
 
     IssueBuilder severity(String severity);
 
-    IssueBuilder effortToFix(@Nullable Double d);
+    IssueBuilder reporter(String reporter);
 
-    IssueBuilder manual(boolean b);
+    IssueBuilder effortToFix(@Nullable Double d);
 
     IssueBuilder attribute(String key, @Nullable String value);
 

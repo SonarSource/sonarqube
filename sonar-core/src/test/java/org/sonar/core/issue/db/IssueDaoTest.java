@@ -54,7 +54,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
     assertThat(issue.isManualSeverity()).isFalse();
-    assertThat(issue.getDescription()).isNull();
+    assertThat(issue.getMessage()).isNull();
     assertThat(issue.getLine()).isEqualTo(200);
     assertThat(issue.getEffortToFix()).isEqualTo(4.2);
     assertThat(issue.getStatus()).isEqualTo("OPEN");

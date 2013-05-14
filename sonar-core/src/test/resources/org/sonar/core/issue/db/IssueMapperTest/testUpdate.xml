@@ -25,7 +25,7 @@
       rule_id="200"
       severity="INFO"
       manual_severity="[false]"
-      description="old"
+      message="old"
       line="[null]"
       effort_to_fix="[null]"
       status="OPEN"

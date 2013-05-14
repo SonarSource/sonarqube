@@ -49,7 +49,7 @@ public class DefaultIssue implements Issue {
   private RuleKey ruleKey;
   private String severity;
   private boolean manualSeverity = false;
-  private String description;
+  private String message;
   private Integer line;
   private Double effortToFix;
   private String status;
@@ -121,12 +121,12 @@ public class DefaultIssue implements Issue {
   }
 
   @CheckForNull
-  public String description() {
-    return description;
+  public String message() {
+    return message;
   }
 
-  public DefaultIssue setDescription(@Nullable String s) {
-    this.description = StringUtils.abbreviate(StringUtils.trim(s), DESCRIPTION_MAX_SIZE);
+  public DefaultIssue setMessage(@Nullable String s) {
+    this.message = StringUtils.abbreviate(StringUtils.trim(s), MESSAGE_MAX_SIZE);
     return this;
   }
 

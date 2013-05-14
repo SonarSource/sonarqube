@@ -10,7 +10,7 @@
       "status": "OPEN",
       "assignee": "karadoc",
       "effortToFix": 4.2,
-      "desc": "the desc",
+      "message": "the message",
       "title": "the title",
       "reporter": "perceval",
       "creationDate": "2013-05-18T12:45:34+0200",
