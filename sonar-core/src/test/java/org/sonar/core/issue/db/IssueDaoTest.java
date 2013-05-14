@@ -50,7 +50,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     IssueDto issue = dao.selectByKey("ABCDE");
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
-    assertThat(issue.getResourceId()).isEqualTo(400);
+    assertThat(issue.getResourceId()).isEqualTo(401);
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
     assertThat(issue.isManualSeverity()).isFalse();
@@ -129,6 +129,12 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     IssueQuery query = IssueQuery.builder().componentRoots(newArrayList("struts")).build();
     List<IssueDto> issues = newArrayList(dao.select(query));
+    assertThat(issues).hasSize(2);
+    assertThat(issues.get(0).getId()).isEqualTo(100);
+    assertThat(issues.get(1).getId()).isEqualTo(101);
+
+    query = IssueQuery.builder().componentRoots(newArrayList("struts-core")).build();
+    issues = newArrayList(dao.select(query));
     assertThat(issues).hasSize(2);
     assertThat(issues.get(0).getId()).isEqualTo(100);
     assertThat(issues.get(1).getId()).isEqualTo(101);
@@ -241,7 +247,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_open_issues() {
     setupData("shared", "should_select_open_issues");
 
-    List<IssueDto> dtos = dao.selectOpenIssues(399);
+    List<IssueDto> dtos = dao.selectOpenIssues(400);
     assertThat(dtos).hasSize(2);
 
     IssueDto issue = dtos.get(0);

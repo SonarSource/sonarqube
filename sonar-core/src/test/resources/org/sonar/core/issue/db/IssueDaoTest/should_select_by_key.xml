@@ -3,7 +3,7 @@
   <issues
       id="100"
       kee="ABCDE"
-      resource_id="400"
+      resource_id="401"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"

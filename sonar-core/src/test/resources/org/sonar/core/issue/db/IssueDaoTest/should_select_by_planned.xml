@@ -3,7 +3,7 @@
   <issues
       id="100"
       kee="ABCDE"
-      resource_id="400"
+      resource_id="401"
       rule_id="500"
       action_plan_key="ABC"
       severity="BLOCKER"
@@ -29,7 +29,7 @@
   <issues
       id="101"
       kee="ABCDF"
-      resource_id="400"
+      resource_id="401"
       rule_id="500"
       action_plan_key="ABC"
       severity="BLOCKER"
@@ -56,7 +56,7 @@
   <issues
       id="102"
       kee="ABCDG"
-      resource_id="400"
+      resource_id="401"
       rule_id="501"
       action_plan_key="[null]"
       severity="BLOCKER"

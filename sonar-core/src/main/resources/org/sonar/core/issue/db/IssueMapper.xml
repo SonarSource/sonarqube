@@ -149,7 +149,7 @@
         </foreach>
         and rootsnapshots.project_id=rootprojects.id
         and rootsnapshots.islast=${_true}
-        and (s.id=rootsnapshots.id or (s.root_snapshot_id=rootsnapshots.id and
+        and (s.id=rootsnapshots.id or ((s.root_snapshot_id=rootsnapshots.id or s.root_snapshot_id=rootsnapshots.parent_snapshot_id) and
         <choose>
           <when test="_databaseId == 'mssql'">
             s.path LIKE rootsnapshots.path + CAST(rootsnapshots.id AS varchar(15)) + '.%'
