@@ -22,9 +22,10 @@
       closeModalWindow();
       var commentElt = $j('#<%= params[:htmlId] -%>');
       var issueElt = commentElt.closest('[data-issue-key]');
-      issueElt.empty().append(html);
+      var replaced = $j(html);
+      issueElt.replaceWholeText(replaced);
 
       // re-enable the links opening modal popups
-      issueElt.find('.open-modal').modal();
+      replaced.find('.open-modal').modal();
     }});
 </script>
