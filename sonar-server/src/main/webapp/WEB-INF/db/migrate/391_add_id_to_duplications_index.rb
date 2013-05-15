@@ -23,8 +23,6 @@
 # SONAR-3340
 class AddIdToDuplicationsIndex < ActiveRecord::Migration
 
-  class ProjectMeasure < ActiveRecord::Base
-  end
 
   def self.up
     case dialect()
@@ -38,16 +36,24 @@ class AddIdToDuplicationsIndex < ActiveRecord::Migration
   private
 
   def self.upgrade_oracle
+    #Use CTAS with NOLOGGING for better performances and to avoid issues with REDO/UNDO logs
     execute_ddl('create sequence', 'CREATE SEQUENCE duplications_index_seq START WITH 1 INCREMENT BY 1 NOMAXVALUE')
-    execute_ddl('add id column', 'ALTER TABLE duplications_index add "ID" NUMBER(38)')
-    execute_ddl('create id for existing data','UPDATE duplications_index SET "ID" = duplications_index_seq.nextval')
-    execute_ddl('add primary key constraint', 'ALTER TABLE duplications_index ADD CONSTRAINT pk_duplications_index PRIMARY KEY( "ID" )')
+    execute_ddl('create new table with id', 'CREATE TABLE new_duplications_index ("ID" PRIMARY KEY, project_snapshot_id, snapshot_id, hash, index_in_file, start_line, end_line) NOLOGGING AS '\
+                                 'SELECT CAST(duplications_index_seq.nextval AS NUMBER(38)) "ID", project_snapshot_id, snapshot_id, hash, index_in_file, start_line, end_line FROM duplications_index')
+    execute_ddl('drop old table','DROP TABLE duplications_index CASCADE CONSTRAINTS PURGE')
+    execute_ddl('rename new table', 'RENAME new_duplications_index TO duplications_index')
+    
+    add_index :duplications_index, :project_snapshot_id, :name => 'duplications_index_psid'
+    add_index :duplications_index, :snapshot_id, :name => 'duplications_index_sid'
+    add_index :duplications_index, :hash, :name => 'duplications_index_hash'
+
+    execute_ddl('enable logging on new table', 'ALTER TABLE duplications_index LOGGING')
   end
 
   def self.execute_ddl(message, ddl)
     begin
       say_with_time(message) do
-        ProjectMeasure.connection.execute(ddl)
+        ActiveRecord::Base.connection.execute(ddl)
       end
     rescue
       # already executed
