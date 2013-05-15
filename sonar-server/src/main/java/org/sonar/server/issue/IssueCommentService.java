@@ -76,9 +76,21 @@ public class IssueCommentService implements ServerComponent {
     return comment;
   }
 
-  public IssueComment editComment(String key, String text, UserSession userSession) {
-    //TODO
-    return null;
+  public IssueComment editComment(String commentKey, String text, UserSession userSession) {
+    DefaultIssueComment comment = changeDao.selectCommentByKey(commentKey);
+    if (comment == null) {
+      // TODO throw 404
+      throw new IllegalStateException();
+    }
+    if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equal(comment.userLogin(), userSession.login())) {
+      // TODO throw unauthorized
+      throw new IllegalStateException();
+    }
+
+    // check authorization
+    finder.findByKey(comment.issueKey(), UserRole.USER);
+
+    return comment;
   }
 
   private void verifyLoggedIn(UserSession userSession) {

@@ -1,31 +1,27 @@
-<% if @action_plans.empty? %>
+<%
+  component_key = params[:component]
+  plans = Internal.issues.findOpenActionPlans(component_key)
 
-  <span class="error"><%= message('issues.an_action_plan_must_be_created_first') -%></span>
-
-  <%= link_to_remote message('issues.hide_this_message'), :url => {:action => 'show', :key => params[:issue]}, :update => 'issue' -%>
+  if plans.empty?
+%>
+  <span class="error"><%= message('issue.plan_must_be_created_first') -%></span>
+  &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>
 
 <% else %>
-
 <form method="POST">
-  <input type="hidden" name="issue" value="<%= @issue.key -%>"/>
+  <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
+  <input type="hidden" name="id" value="plan"/>
 
-  <%= message('issues.action_plan_label') -%>:
-  <select name="plan" id="plan">
-    <% @action_plans.each do |plan| %>
-      <option value="<%= plan.key() -%>" <%= 'selected' if @issue.actionPlanKey() == plan.key() -%>><%= h(plan.name()) -%></option>
+  <select name="plan">
+    <% plans.each do |plan| %>
+      <option value="<%= plan.key() -%>"><%= h(plan.name()) -%></option>
     <% end %>
   </select>
 
-  <textarea id="actionText" rows="4" name="text" style="width: 100%"></textarea>
-  <%= submit_to_remote "submit_btn", message('issues.action_plan_submit'), :url => {:action => 'plan'}, :html => {:id => "submit_btn"}, :update => 'issue' -%>
-  &nbsp;
-  
-  <% if @issue.actionPlanKey() %>
-    &nbsp;
-    <%= submit_to_remote "submit_btn", message('issues.unlink_action_plan_submit'), :url => {:action => 'unplan'}, :html => {:id => "submit_btn"}, :update => 'issue' -%>
-  <% end %>
-  
-  <%= link_to_remote message('cancel'), :url => {:action => 'show', :key => params[:issue]}, :update => 'issue' -%>
+  <input type="button" value="<%= message('issue.plan.submit') -%>" onclick="postIssueForm(this)">
+  &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
+  <span class="hidden"><%= image_tag 'loading.gif' -%></span>
+
 </form>
 
 <% end %>

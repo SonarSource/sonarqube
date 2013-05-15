@@ -21,7 +21,7 @@ function issueForm(actionType, elt) {
   return false;
 }
 
-function cancelIssueForm(elt) {
+function closeIssueForm(elt) {
   var issueElt = $j(elt).closest('[data-issue-key]');
   var actionsElt = issueElt.find('.code-issue-actions');
   var formElt = issueElt.find('.code-issue-form');
@@ -31,7 +31,7 @@ function cancelIssueForm(elt) {
   return false;
 }
 
-function doIssueAction(elt) {
+function postIssueForm(elt) {
   var formElt = $j(elt).closest('form');
   formElt.find('.loading').removeClass('hidden');
   formElt.find(':submit').prop('disabled', true);
@@ -41,33 +41,46 @@ function doIssueAction(elt) {
       data: formElt.serialize()}
   ).success(function (htmlResponse) {
       var issueElt = formElt.closest('[data-issue-key]');
-      issueElt.html(htmlResponse);
+      issueElt.empty().append(htmlResponse);
       // re-enable the links opening modal popups
       issueElt.find('.open-modal').modal();
     }
   ).fail(function (jqXHR, textStatus) {
-      cancelIssueForm(elt);
+      closeIssueForm(elt);
+      alert(textStatus);
+    });
+  return false;
+}
+
+function doIssueAction(elt, action, parameters) {
+  var issueElt = $j(elt).closest('[data-issue-key]');
+  var issueKey = issueElt.attr('data-issue-key');
+  parameters['issue']=issueKey;
+
+  $j.ajax({
+      type: "POST",
+      url: baseUrl + '/issue/do_action/' + action,
+      data: parameters
+    }
+  ).success(function (htmlResponse) {
+      issueElt.empty().append(htmlResponse);
+      // re-enable the links opening modal popups
+      issueElt.find('.open-modal').modal();
+    }
+  ).fail(function (jqXHR, textStatus) {
+      closeIssueForm(elt);
       alert(textStatus);
     });
   return false;
 }
 
 function assignIssueToMe(elt) {
-  var issueElt = $j(elt).closest('[data-issue-key]');
-  var issueKey = issueElt.attr('data-issue-key');
-  $j.ajax({
-      type: "POST",
-      url: baseUrl + '/issue/do_action/assign?me=true&issue=' + issueKey
-    }
-  ).success(function (htmlResponse) {
-      issueElt.html(htmlResponse);
-      // re-enable the links opening modal popups
-      issueElt.find('.open-modal').modal();
-    }
-  ).fail(function (jqXHR, textStatus) {
-      cancelIssueForm(elt);
-      alert(textStatus);
-    });
-  return false;
+  var parameters = {'me': true};
+  return doIssueAction(elt, 'assign', parameters)
+}
+
+function doIssueTransition(elt, transition) {
+  var parameters = {'transition': transition};
+  return doIssueAction(elt, 'transition', parameters)
 }
 

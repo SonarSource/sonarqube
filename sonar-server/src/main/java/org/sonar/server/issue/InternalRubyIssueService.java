@@ -113,15 +113,15 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueService.create((DefaultIssue) issue, UserSession.get());
   }
 
-  Collection<ActionPlan> findOpenActionPlans(String projectKey) {
+  public Collection<ActionPlan> findOpenActionPlans(String projectKey) {
     return actionPlanService.findOpenByProjectKey(projectKey);
   }
 
-  ActionPlan findActionPlan(String actionPlanKey) {
+  public ActionPlan findActionPlan(String actionPlanKey) {
     return actionPlanService.findByKey(actionPlanKey);
   }
 
-  List<ActionPlanStats> findActionPlanStats(String projectKey) {
+  public List<ActionPlanStats> findActionPlanStats(String projectKey) {
     return actionPlanService.findActionPlanStats(projectKey);
   }
 

@@ -1,4 +1,4 @@
-<div class="code-issue" data-issue-key="<%= issue.key -%>">
+<div class="code-issue" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>">
   <div class="code-issue-name">
     <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png">
     &nbsp;
@@ -10,14 +10,19 @@
     <%= image_tag 'sep12.png' -%>
     &nbsp;
 
-    <span><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></span>
+    <%
+       created_at = Api::Utils.java_to_ruby_datetime(issue.creationDate())
+       updated_at = Api::Utils.java_to_ruby_datetime(issue.updateDate())
+       dates_title = "Created at #{l created_at} and updated at #{l updated_at}"
+    %>
+    <span title="<%= h dates_title -%>"><%= distance_of_time_in_words_to_now(created_at) -%></span>
     &nbsp;
     <%
        if issue.resolution
     %>
       <%= image_tag 'sep12.png' -%>
       &nbsp;
-      <span><%= message("issues.resolution.#{issue.resolution}") -%></span>
+      <span><%= message("issue.resolution.#{issue.resolution}") -%></span>
       &nbsp;
     <% end %>
     <%
@@ -33,7 +38,7 @@
     %>
       <%= image_tag 'sep12.png' -%>
       &nbsp;
-      <%= message('issues.planned_for_x', :params => h(@issue_results.actionPlan(issue).name())) if @issue_results.actionPlan(issue) -%>
+      <%= message('issue.planned_for_x', :params => h(@issue_results.actionPlan(issue).name())) if @issue_results.actionPlan(issue) -%>
       &nbsp;
     <% end %>
 
@@ -45,8 +50,11 @@
     </div>
   <% end %>
 
-  <% issue.comments.each do |comment| %>
-    <div class="code-issue-comment">
+  <%
+     issue.comments.each do |comment|
+       comment_html_id = "comment-#{comment.key}-#{rand(100)}"
+  %>
+    <div class="code-issue-comment" id="<%= comment_html_id -%>">
       <h4>
         <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= @issue_results.user(comment.userLogin()).name() -%></b>
         (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.createdAt)) -%>)
@@ -54,8 +62,7 @@
           &nbsp;
           <%= image_tag 'sep12.png' -%>
           &nbsp;
-          <a class="link-action" href="#"><%= message('edit') -%></a>
-          <a class="link-action" href="#"><%= message('delete') -%></a>
+          <a class="link-action" href="<%= ApplicationController.root_context -%>/issue/delete_comment_form?key=<%= comment.key -%>&htmlId=<%=comment_html_id-%>" onclick="$j(this).openModal();return false"><%= message('delete') -%></a>
         <% end %>
       </h4>
       <%= Internal.text.markdownToHtml(comment.markdownText) -%>
@@ -69,26 +76,18 @@
         <span class="spacer-right">
         <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a>
           <% if issue.assignee!=current_user.login %>
-          (<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>)
+          [<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]
         <% end %>
         </span>
       <% end %>
 
       <% Internal.issues.listTransitions(issue.key).each do |transition| %>
-        <%= link_to_function message("issues.transition.#{transition.key}.button"), "displayIssueTransitionForm('#{issue.key}', '#{transition.key}')",
-                             :name => message("issues.transition.#{transition.key}.button"), :class => 'link-action spacer-right' -%>
+        <a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a>
       <% end %>
 
-      <% unless issue.resolution && issue.status == 'RESOLVED' %>
-        <div class="dropdown">
-          <a href="#" class="link-action link-more" onclick="showDropdownMenu('more<%= issue.key -%>');return false;"><%= message('more_actions') -%></a>
-          <ul style="display: none" class="dropdown-menu" id="more<%= issue.key -%>">
-            <li><%= link_to_function message('issues.action.change_severity.button'), "displayIssueChangeSeverityForm('#{issue.key}')",
-                                     :name => message('issues.action.change_severity.button') -%></li>
-            <li><%= link_to_function message('issues.action.plan.button'), "displayIssuePlanForm('#{issue.key}')",
-                                     :name => message('issues.action.plan.button') -%></li>
-          </ul>
-        </div>
+      <% unless issue.resolution %>
+        <a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a>
+        <a href="#" onclick="return issueForm('plan', this)" class="link-action spacer-right"><%= message("issue.do_plan") -%></a>
       <% end %>
     </div>
     <div class="code-issue-form hidden"></div>

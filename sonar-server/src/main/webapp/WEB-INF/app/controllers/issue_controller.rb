@@ -46,92 +46,6 @@ class IssueController < ApplicationController
     render_issue_detail
   end
 
-  def transition_form
-    require_parameters :issue, :transition
-
-    init_issue(params[:issue])
-    @transition = params[:transition]
-    bad_request('Missing transition') if @transition.blank?
-
-    render :partial => 'issue/transition_form'
-  end
-
-  def transition
-    verify_post_request
-    require_parameters :issue, :transition
-
-    @issue = Internal.issues.doTransition(params[:issue], params[:transition])
-    init_issue(params[:issue])
-    render_issue_detail
-  end
-
-  def assign_form
-    require_parameters :issue
-    init_issue(params[:issue])
-
-    render :partial => 'issue/assign_form'
-  end
-
-  def assign
-    verify_post_request
-    require_parameters :issue
-
-    assignee = nil
-    if params[:me]=='true'
-      assignee = current_user.login
-
-    elsif params[:issue_assignee_login].present?
-      assignee = params[:issue_assignee_login]
-    end
-
-    @issue = Internal.issues.assign(params[:issue], assignee)
-    init_issue(params[:issue])
-    render_issue_detail
-  end
-
-  def change_severity_form
-    require_parameters :issue
-    init_issue(params[:issue])
-
-    render :partial => 'issue/change_severity_form'
-  end
-
-  def change_severity
-    verify_post_request
-    require_parameters :issue, :severity
-
-    @issue = Internal.issues.setSeverity(params[:issue], params[:severity])
-    init_issue(params[:issue])
-    render_issue_detail
-  end
-
-  def plan_form
-    require_parameters :issue
-    init_issue(params[:issue])
-    init_resource
-    @action_plans = Internal.issues.findOpenActionPlans(@resource.key)
-
-    render :partial => 'issue/plan_form'
-  end
-
-  def plan
-    verify_post_request
-    require_parameters :issue, :plan
-
-    @issue = Internal.issues.plan(params[:issue], params[:plan])
-    init_issue(params[:issue])
-    render_issue_detail
-  end
-
-  def unplan
-    verify_post_request
-    require_parameters :issue
-
-    @issue = Internal.issues.plan(params[:issue], nil)
-    init_issue(params[:issue])
-    render_issue_detail
-  end
-
   def action_form
     verify_ajax_request
     require_parameters :id, :issue
@@ -156,11 +70,36 @@ class IssueController < ApplicationController
     elsif action_type=='assign'
       assignee = (params[:me]=='true' ? current_user.login : params[:assignee])
       Internal.issues.assign(issue_key, assignee)
+    elsif action_type=='transition'
+      Internal.issues.doTransition(issue_key, params[:transition])
+    elsif action_type=='severity'
+      Internal.issues.setSeverity(issue_key, params[:severity])
+    elsif action_type=='plan'
+      Internal.issues.plan(issue_key, params[:plan])
     end
 
     @issue_results = Api.issues.find(issue_key)
     render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
+
+  # modal window to delete comment
+  def delete_comment_form
+    verify_ajax_request
+    require_parameters :key
+
+    render :partial => 'issue/delete_comment_form'
+  end
+
+  def delete_comment
+    verify_post_request
+    require_parameters :key
+
+    comment = Internal.issues.deleteComment(params[:key])
+
+    @issue_results = Api.issues.find(comment.issueKey)
+    render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}
+  end
+
 
   #
   #

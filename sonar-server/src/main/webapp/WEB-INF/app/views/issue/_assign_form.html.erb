@@ -5,8 +5,8 @@
     <tr>
       <td style="vertical-align:top">
         <%= user_select_tag('assignee') -%>
-        <input type="button" value="<%= message('issue.assign.submit') -%>" onclick="doIssueAction(this)">
-        &nbsp;<%= link_to_function message('cancel'), 'cancelIssueForm(this)' -%>&nbsp;
+        <input type="button" value="<%= message('issue.assign.submit') -%>" onclick="postIssueForm(this)">
+        &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
         <span class="hidden"><%= image_tag 'loading.gif' -%></span>
       </td>
     </tr>

@@ -27,6 +27,8 @@ public interface IssueComment {
 
   String key();
 
+  String issueKey();
+
   @CheckForNull
   String userLogin();
 

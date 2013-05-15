@@ -20,6 +20,9 @@
 class MarkdownController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
+
+  # just for speed optimization...
+  skip_before_filter :check_database_version, :check_authentication
   
   def help
     verify_ajax_request
