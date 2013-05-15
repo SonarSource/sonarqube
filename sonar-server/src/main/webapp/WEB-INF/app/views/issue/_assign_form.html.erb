@@ -4,7 +4,7 @@
   <table class="width100">
     <tr>
       <td style="vertical-align:top">
-        <%= user_select_tag('assignee', :html_id => "assignee-#{params[:issue]}") -%>
+        <%= user_select_tag('assignee', :html_id => "assignee-#{params[:issue]}", :open => true) -%>
         <input type="button" value="<%= message('issue.assign.submit') -%>" onclick="submitIssueForm(this)">
         &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
         <span class="hidden"><%= image_tag 'loading.gif' -%></span>

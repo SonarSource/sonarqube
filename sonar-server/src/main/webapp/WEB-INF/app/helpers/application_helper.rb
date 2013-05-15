@@ -624,6 +624,9 @@ module ApplicationHelper
     if selected_id && selected_text
       js += "$j('##{html_id}').select2('data', {id: #{selected_id}, text: '#{escape_javascript(selected_text)}'});"
     end
+    if options[:open]
+      js += "$j('##{html_id}').select2('open');"
+    end
 
     "#{html}<script>#{js}</script>"
   end
@@ -640,6 +643,7 @@ module ApplicationHelper
   # * <tt>:selected_resource</tt> - the resource that is selected by default.
   # * <tt>:placeholder</tt> - the label to display when nothing is selected
   # * <tt>:allow_clear</tt> - true if resource can be de-selected. Default is false.
+  # * <tt>:open</tt> - true if the select-box must be open. Default is false.
   # * <tt>:select2_options</tt> - hash of select2 options
   #
   def resource_select_tag(name, options={})
@@ -670,7 +674,7 @@ module ApplicationHelper
   # * <tt>:html_class</tt> - The class of the HTML element. Default is empty.
   # * <tt>:selected_user</tt> - the user that is selected by default.
   # * <tt>:placeholder</tt> - the label to display when nothing is selected
-  # * <tt>:allow_clear</tt> - true if resource can be de-selected. Default is false.
+  # * <tt>:open</tt> - true if the select-box must be open. Default is false.
   # * <tt>:select2_options</tt> - hash of select2 options
   #
   def user_select_tag(name, options={})
