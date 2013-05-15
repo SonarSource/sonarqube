@@ -244,22 +244,20 @@ Treemap.prototype.initNodes = function () {
 
 (function ($j) {
   $j.fn.extend({
-    modal: function () {
+    openModal: function() {
       return this.each(function () {
         var obj = $j(this);
-        obj.unbind('click');
-        var $link = obj.bind('click', function () {
-          var $dialog = $j('#modal');
-          if (!$dialog.length) {
-            $dialog = $j('<div id="modal" class="ui-widget-overlay"></div>').appendTo('body');
-          }
-          var url = $link.attr('modal-url') || $link.attr('href');
-          $j.get(url,function (html) {
-            $dialog.removeClass('ui-widget-overlay');
-            $dialog.html(html);
-            $dialog
+        var $dialog = $j('#modal');
+        if (!$dialog.length) {
+          $dialog = $j('<div id="modal" class="ui-widget-overlay"></div>').appendTo('body');
+        }
+        var url = obj.attr('modal-url') || obj.attr('href');
+        $j.get(url,function (html) {
+          $dialog.removeClass('ui-widget-overlay');
+          $dialog.html(html);
+          $dialog
               .dialog({
-                width: ($link.attr('modal-width') || 540),
+                width: (obj.attr('modal-width') || 540),
                 draggable: false,
                 autoOpen: false,
                 modal: true,
@@ -269,18 +267,23 @@ Treemap.prototype.initNodes = function () {
                   $j('#modal').remove();
                 }
               });
-            $dialog.dialog("open");
-          }).error(function () {
-              alert("Server error. Please contact your administrator.");
-            }).complete(function () {
-              $dialog.removeClass('ui-widget-overlay');
-            });
+          $dialog.dialog("open");
+        }).fail(function () {
+            alert("Server error. Please contact your administrator.");
+        }).always(function () {
+            $dialog.removeClass('ui-widget-overlay');
+        });
 
-          $link.click(function () {
-            $dialog.dialog('open');
-            return false;
-          });
-
+        $dialog.dialog('open');
+        return false;
+      });
+    },
+    modal: function () {
+      return this.each(function () {
+        var obj = $j(this);
+        obj.unbind('click');
+        var $link = obj.bind('click', function () {
+          $link.openModal();
           return false;
         });
       });
