@@ -24,13 +24,13 @@ import org.sonar.core.issue.FieldDiffs;
 
 import java.util.Date;
 
-class ChangeDtoConverter {
+public class ChangeDtoConverter {
 
   private ChangeDtoConverter() {
     // only static methods
   }
 
-  static IssueChangeDto commentToDto(DefaultIssueComment comment) {
+  public static IssueChangeDto commentToDto(DefaultIssueComment comment) {
     IssueChangeDto dto = newDto(comment.issueKey());
     dto.setKey(comment.key());
     dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
@@ -39,7 +39,7 @@ class ChangeDtoConverter {
     return dto;
   }
 
-  static IssueChangeDto changeToDto(String issueKey, FieldDiffs diffs) {
+  public static IssueChangeDto changeToDto(String issueKey, FieldDiffs diffs) {
     IssueChangeDto dto = newDto(issueKey);
     dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
     dto.setChangeData(diffs.toString());

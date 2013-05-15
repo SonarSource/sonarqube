@@ -1,5 +1,5 @@
 <form id="delete-comment-form" method="post" action="<%= ApplicationController.root_context -%>/issue/delete_comment">
-  <input type="hidden" name="key" value="<%= params[:key] -%>">
+  <input type="hidden" name="id" value="<%= params[:id] -%>">
   <fieldset>
     <div class="modal-head">
       <h2><%= message 'issue.comment.delete_confirm_title' -%></h2>

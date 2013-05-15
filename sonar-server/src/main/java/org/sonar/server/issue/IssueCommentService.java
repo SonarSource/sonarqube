@@ -28,7 +28,9 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.db.ChangeDtoConverter;
 import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.platform.UserSession;
 
@@ -46,6 +48,10 @@ public class IssueCommentService implements ServerComponent {
     this.changeDao = changeDao;
     this.storage = storage;
     this.finder = finder;
+  }
+
+  public IssueComment findComment(String commentKey) {
+    return changeDao.selectCommentByKey(commentKey);
   }
 
   public IssueComment addComment(String issueKey, String text, UserSession userSession) {
@@ -89,6 +95,11 @@ public class IssueCommentService implements ServerComponent {
 
     // check authorization
     finder.findByKey(comment.issueKey(), UserRole.USER);
+
+    IssueChangeDto dto = ChangeDtoConverter.commentToDto(comment);
+    dto.setUpdatedAt(new Date());
+    dto.setChangeData(text);
+    changeDao.update(dto);
 
     return comment;
   }

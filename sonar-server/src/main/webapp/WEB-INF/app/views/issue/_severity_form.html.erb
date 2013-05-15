@@ -10,7 +10,7 @@
           <% end %>
         </select>
 
-        <input type="submit" value="<%= message('issue.set_severity.submit') -%>" onclick="return postIssueForm(this)">
+        <input type="submit" value="<%= message('issue.set_severity.submit') -%>" onclick="return submitIssueForm(this)">
         &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
         <span class="loading hidden"></span>
       </td>

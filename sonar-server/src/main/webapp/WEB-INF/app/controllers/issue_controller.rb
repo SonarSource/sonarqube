@@ -26,9 +26,12 @@ class IssueController < ApplicationController
     require_parameters :id
 
     @issue_results = Api.issues.find(params[:id])
-    params[:layout] = 'false'
-
-    render :action => 'show'
+    if request.xhr?
+      render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}
+    else
+      params[:layout] = 'false'
+      render :action => 'show'
+    end
   end
 
   def action_form
@@ -67,19 +70,40 @@ class IssueController < ApplicationController
     render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
 
+  # form to edit comment
+  def edit_comment_form
+    verify_ajax_request
+    require_parameters :id
+
+    @comment = Internal.issues.findComment(params[:id])
+
+    render :partial => 'issue/edit_comment_form'
+  end
+
+  def edit_comment
+    verify_post_request
+    require_parameters :key, :text
+
+    text = Api::Utils.read_post_request_param(params[:text])
+    comment = Internal.issues.editComment(params[:key], text)
+
+    @issue_results = Api.issues.find(comment.issueKey)
+    render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}
+  end
+
   # modal window to delete comment
   def delete_comment_form
     verify_ajax_request
-    require_parameters :key
+    require_parameters :id
 
     render :partial => 'issue/delete_comment_form'
   end
 
   def delete_comment
     verify_post_request
-    require_parameters :key
+    require_parameters :id
 
-    comment = Internal.issues.deleteComment(params[:key])
+    comment = Internal.issues.deleteComment(params[:id])
 
     @issue_results = Api.issues.find(comment.issueKey)
     render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}

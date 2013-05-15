@@ -1,3 +1,4 @@
+/* Open form for most common actions like comment, assign or plan */
 function issueForm(actionType, elt) {
   var issueElt = $j(elt).closest('[data-issue-key]');
   var issueKey = issueElt.attr('data-issue-key');
@@ -21,6 +22,7 @@ function issueForm(actionType, elt) {
   return false;
 }
 
+/* Close forms opened through the method issueForm()  */
 function closeIssueForm(elt) {
   var issueElt = $j(elt).closest('[data-issue-key]');
   var actionsElt = issueElt.find('.code-issue-actions');
@@ -36,7 +38,8 @@ function notifyIssueChange(issueKey) {
   $j(document).trigger('sonar.issue.updated', [issueKey]);
 }
 
-function postIssueForm(elt) {
+/* Submit forms opened through the method issueForm() */
+function submitIssueForm(elt) {
   var formElt = $j(elt).closest('form');
   formElt.find('.loading').removeClass('hidden');
   formElt.find(':submit').prop('disabled', true);
@@ -46,6 +49,7 @@ function postIssueForm(elt) {
       data: formElt.serialize()}
   ).success(function (htmlResponse) {
       var issueElt = formElt.closest('[data-issue-key]');
+      var issueKey = issueElt.attr('data-issue-key');
       var replaced = $j(htmlResponse);
       issueElt.replaceWith(replaced);
 
@@ -64,6 +68,8 @@ function postIssueForm(elt) {
 function doIssueAction(elt, action, parameters) {
   var issueElt = $j(elt).closest('[data-issue-key]');
   var issueKey = issueElt.attr('data-issue-key');
+
+  issueElt.find('.code-issue-actions').html("<img src='" + baseUrl + "/images/loading.gif'>");
   parameters['issue'] = issueKey;
 
   $j.ajax({
@@ -95,4 +101,59 @@ function assignIssueToMe(elt) {
 function doIssueTransition(elt, transition) {
   var parameters = {'transition': transition};
   return doIssueAction(elt, 'transition', parameters)
+}
+
+function formDeleteIssueComment(elt) {
+  var commentElt = $j(elt).closest("[data-comment-key]");
+  var htmlId = commentElt.attr('id');
+  var commentKey = commentElt.attr('data-comment-key');
+  return openModalWindow(baseUrl + '/issue/delete_comment_form/' + commentKey + '?htmlId=' + htmlId, {});
+}
+
+function formEditIssueComment(elt) {
+  var commentElt = $j(elt).closest("[data-comment-key]");
+  var commentKey = commentElt.attr('data-comment-key');
+  var issueElt = commentElt.closest('[data-issue-key]');
+
+  issueElt.find('.code-issue-actions').addClass('hidden');
+  commentElt.html("<img src='" + baseUrl + "/images/loading.gif'>");
+
+  $j.get(baseUrl + "/issue/edit_comment_form/" + commentKey, function (html) {
+    commentElt.html(html);
+  });
+  return false;
+}
+
+function doEditIssueComment(elt) {
+  var formElt = $j(elt).closest('form');
+  var issueElt = formElt.closest('[data-issue-key]');
+  var issueKey = issueElt.attr('data-issue-key');
+  $j.ajax({
+    type: "POST",
+    url: baseUrl + "/issue/edit_comment",
+    data: formElt.serialize(),
+    success: function (htmlResponse) {
+      var replaced = $j(htmlResponse);
+      issueElt.replaceWith(replaced);
+
+      // re-enable the links opening modal popups
+      replaced.find('.open-modal').modal();
+
+      notifyIssueChange(issueKey);
+    }
+  });
+  return false;
+}
+
+function refreshIssue(elt) {
+  var issueElt = $j(elt).closest('[data-issue-key]');
+  var issueKey = issueElt.attr('data-issue-key');
+  $j.get(baseUrl + "/issue/show/" + issueKey, function (html) {
+    var replaced = $j(html);
+    issueElt.replaceWith(replaced);
+
+    // re-enable the links opening modal popups
+    replaced.find('.open-modal').modal();
+  });
+  return false;
 }

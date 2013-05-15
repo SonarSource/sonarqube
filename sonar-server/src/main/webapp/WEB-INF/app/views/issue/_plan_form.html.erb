@@ -18,7 +18,7 @@
     <% end %>
   </select>
 
-  <input type="button" value="<%= message('issue.plan.submit') -%>" onclick="postIssueForm(this)">
+  <input type="button" value="<%= message('issue.plan.submit') -%>" onclick="submitIssueForm(this)">
   &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
   <span class="hidden"><%= image_tag 'loading.gif' -%></span>
 

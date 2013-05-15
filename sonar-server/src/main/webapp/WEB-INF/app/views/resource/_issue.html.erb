@@ -54,15 +54,16 @@
      issue.comments.each do |comment|
        comment_html_id = "comment-#{comment.key}-#{rand(100)}"
   %>
-    <div class="code-issue-comment" id="<%= comment_html_id -%>">
+    <div class="code-issue-comment" id="<%= comment_html_id -%>" data-comment-key="<%= comment.key -%>">
       <h4>
         <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= @issue_results.user(comment.userLogin()).name() -%></b>
         (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.createdAt)) -%>)
         <% if current_user && current_user.login==comment.userLogin %>
-          &nbsp;
-          <%= image_tag 'sep12.png' -%>
-          &nbsp;
-          <a class="link-action" href="<%= ApplicationController.root_context -%>/issue/delete_comment_form?key=<%= comment.key -%>&htmlId=<%=comment_html_id-%>" onclick="$j(this).openModal();return false"><%= message('delete') -%></a>
+            &nbsp;
+            <%= image_tag 'sep12.png' -%>
+            &nbsp;
+            <a class="link-action" href="#" onclick="return formEditIssueComment(this)"><%= message('edit') -%></a>
+            <a class="link-action spacer-right" href="#" onclick="return formDeleteIssueComment(this)"><%= message('delete') -%></a>
         <% end %>
       </h4>
       <%= Internal.text.markdownToHtml(comment.markdownText) -%>

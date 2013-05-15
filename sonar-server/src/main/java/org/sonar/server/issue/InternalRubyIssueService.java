@@ -96,6 +96,10 @@ public class InternalRubyIssueService implements ServerComponent {
     return commentService.editComment(commentKey, newText, UserSession.get());
   }
 
+  public IssueComment findComment(String commentKey) {
+    return commentService.findComment(commentKey);
+  }
+
   public Issue create(Map<String, String> parameters) {
     String componentKey = parameters.get("component");
     // TODO verify authorization

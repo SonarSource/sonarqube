@@ -85,7 +85,7 @@ public class IssueHandlers implements BatchExtension {
 
     @Override
     public IssueHandler.Context setMessage(@Nullable String s) {
-      updater.setMessage(issue, s);
+      updater.setMessage(issue, s, changeContext);
       return this;
     }
 
@@ -103,7 +103,7 @@ public class IssueHandlers implements BatchExtension {
 
     @Override
     public IssueHandler.Context setEffortToFix(@Nullable Double d) {
-      updater.setEffortToFix(issue, d);
+      updater.setEffortToFix(issue, d, changeContext);
       return this;
     }
 

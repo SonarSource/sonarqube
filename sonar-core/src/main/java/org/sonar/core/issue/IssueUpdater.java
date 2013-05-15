@@ -23,6 +23,7 @@ import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.IssueComment;
 
 import javax.annotation.Nullable;
 
@@ -40,6 +41,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     if (!Objects.equal(severity, issue.severity())) {
       issue.setFieldDiff(context, "severity", issue.severity(), severity);
       issue.setSeverity(severity);
+      issue.setUpdateDate(context.date());
       return true;
     }
     return false;
@@ -50,6 +52,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setFieldDiff(context, "severity", issue.severity(), severity);
       issue.setSeverity(severity);
       issue.setManualSeverity(true);
+      issue.setUpdateDate(context.date());
       return true;
     }
     return false;
@@ -60,6 +63,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     if (!Objects.equal(sanitizedAssignee, issue.assignee())) {
       issue.setFieldDiff(context, "assignee", issue.assignee(), sanitizedAssignee);
       issue.setAssignee(sanitizedAssignee);
+      issue.setUpdateDate(context.date());
       return true;
     }
     return false;
@@ -77,6 +81,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     if (!Objects.equal(resolution, issue.resolution())) {
       issue.setFieldDiff(context, "resolution", issue.resolution(), resolution);
       issue.setResolution(resolution);
+      issue.setUpdateDate(context.date());
       return true;
     }
     return false;
@@ -86,6 +91,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     if (!Objects.equal(status, issue.status())) {
       issue.setFieldDiff(context, "status", issue.status(), status);
       issue.setStatus(status);
+      issue.setUpdateDate(context.date());
       return true;
     }
     return false;
@@ -95,20 +101,23 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     issue.setAuthorLogin(authorLogin);
   }
 
-  public void setMessage(DefaultIssue issue, @Nullable String s) {
+  public void setMessage(DefaultIssue issue, @Nullable String s, IssueChangeContext context) {
     issue.setMessage(s);
+    issue.setUpdateDate(context.date());
   }
 
   public void addComment(DefaultIssue issue, String text, IssueChangeContext context) {
     issue.addComment(DefaultIssueComment.create(issue.key(), context.login(), text));
+    issue.setUpdateDate(context.date());
   }
 
   public void setCloseDate(DefaultIssue issue, @Nullable Date d) {
     issue.setCloseDate(d);
   }
 
-  public void setEffortToFix(DefaultIssue issue, @Nullable Double d) {
+  public void setEffortToFix(DefaultIssue issue, @Nullable Double d, IssueChangeContext context) {
     issue.setEffortToFix(d);
+    issue.setUpdateDate(context.date());
   }
 
   public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {
@@ -116,6 +125,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     if (!Objects.equal(oldValue, value)) {
       issue.setFieldDiff(context, key, oldValue, value);
       issue.setAttribute(key, value);
+      issue.setUpdateDate(context.date());
       return true;
     }
     return false;
@@ -126,6 +136,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     if (!Objects.equal(sanitizedActionPlanKey, issue.actionPlanKey())) {
       issue.setFieldDiff(context, "actionPlanKey", issue.actionPlanKey(), sanitizedActionPlanKey);
       issue.setActionPlanKey(sanitizedActionPlanKey);
+      issue.setUpdateDate(context.date());
       return true;
     }
     return false;
