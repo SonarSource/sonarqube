@@ -37,6 +37,7 @@ import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
+
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -79,7 +80,9 @@ public class IssueCountersDecorator implements Decorator {
       CoreMetrics.NEW_MINOR_ISSUES,
       CoreMetrics.NEW_INFO_ISSUES,
       CoreMetrics.FALSE_POSITIVE_ISSUES,
-      CoreMetrics.UNASSIGNED_ISSUES
+      CoreMetrics.UNASSIGNED_ISSUES,
+      CoreMetrics.UNPLANNED_ISSUES,
+      CoreMetrics.NEW_UNPLANNED_ISSUES
     );
   }
 
@@ -94,6 +97,7 @@ public class IssueCountersDecorator implements Decorator {
       ListMultimap<RulePriority, Issue> issuesPerSeverities = ArrayListMultimap.create();
       int countUnassigned = 0;
       int falsePositives = 0;
+      int unplanned = 0;
 
       for (Issue issue : issues) {
         severitiesBag.add(RulePriority.valueOf(issue.severity()));
@@ -107,6 +111,10 @@ public class IssueCountersDecorator implements Decorator {
         if (Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution())) {
           falsePositives++;
         }
+
+        if (issue.actionPlanKey() == null) {
+          unplanned++;
+        }
       }
 
       for (RulePriority ruleSeverity : RulePriority.values()) {
@@ -118,8 +126,11 @@ public class IssueCountersDecorator implements Decorator {
 
       saveTotalIssues(context, issues);
       saveNewIssues(context, issues, shouldSaveNewMetrics);
-      saveUnassignedIssues(context, countUnassigned);
-      saveFalsePositiveIssues(context, falsePositives);
+      saveNewUnplannedIssues(context, issues);
+
+      saveMeasure(context, CoreMetrics.UNASSIGNED_ISSUES, countUnassigned);
+      saveMeasure(context, CoreMetrics.FALSE_POSITIVE_ISSUES, falsePositives);
+      saveMeasure(context, CoreMetrics.UNPLANNED_ISSUES, unplanned);
     }
   }
 
@@ -228,12 +239,29 @@ public class IssueCountersDecorator implements Decorator {
     context.saveMeasure(measure);
   }
 
-  private void saveUnassignedIssues(DecoratorContext context, int countUnassigned) {
-    context.saveMeasure(CoreMetrics.UNASSIGNED_ISSUES, (double) (countUnassigned + sumChildren(context, CoreMetrics.UNASSIGNED_ISSUES)));
+  protected void saveNewUnplannedIssues(DecoratorContext context, Collection<Issue> issues) {
+    Measure measure = new Measure(CoreMetrics.NEW_UNPLANNED_ISSUES);
+    for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
+      int newUnplannedIssues = countNewUnplannedIssuesForSnapshot(pastSnapshot, issues);
+      int variationIndex = pastSnapshot.getIndex();
+      Collection<Measure> children = context.getChildrenMeasures(CoreMetrics.NEW_UNPLANNED_ISSUES);
+      double sumNewUnplannedIssues = MeasureUtils.sumOnVariation(true, variationIndex, children) + newUnplannedIssues;
+      measure.setVariation(variationIndex, sumNewUnplannedIssues);
+    }
+    context.saveMeasure(measure);
   }
 
-  private void saveFalsePositiveIssues(DecoratorContext context, int falsePositives) {
-    context.saveMeasure(CoreMetrics.FALSE_POSITIVE_ISSUES, (double) (falsePositives + sumChildren(context, CoreMetrics.FALSE_POSITIVE_ISSUES)));
+  protected int countNewUnplannedIssuesForSnapshot(final PastSnapshot pastSnapshot, Collection<Issue> issues) {
+    return newArrayList(Iterables.filter(issues, new Predicate<Issue>() {
+      @Override
+      public boolean apply(Issue issue) {
+        return isAfter(issue, pastSnapshot.getTargetDate()) && issue.actionPlanKey() == null;
+      }
+    })).size();
+  }
+
+  private void saveMeasure(DecoratorContext context, Metric metric, int value) {
+    context.saveMeasure(metric, (double) (value + sumChildren(context, metric)));
   }
 
   private int sumChildren(DecoratorContext context, Metric metric) {
