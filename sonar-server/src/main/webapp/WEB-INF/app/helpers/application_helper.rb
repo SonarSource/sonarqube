@@ -655,8 +655,8 @@ module ApplicationHelper
 
     selected_resource = options[:selected_resource]
     if selected_resource
-      options[:selected_id]=resource.id
-      options[:selected_text]=resource.name(true)
+      options[:selected_id]=selected_resource.id
+      options[:selected_text]=selected_resource.name(true)
     end
 
     select2_tag(name, ws_url, options)
