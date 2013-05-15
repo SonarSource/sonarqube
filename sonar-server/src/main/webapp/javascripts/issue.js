@@ -41,9 +41,11 @@ function postIssueForm(elt) {
       data: formElt.serialize()}
   ).success(function (htmlResponse) {
       var issueElt = formElt.closest('[data-issue-key]');
-      issueElt.empty().append(htmlResponse);
+      var replaced = $j(htmlResponse);
+      issueElt.replaceWith(replaced);
+
       // re-enable the links opening modal popups
-      issueElt.find('.open-modal').modal();
+      replaced.find('.open-modal').modal();
     }
   ).fail(function (jqXHR, textStatus) {
       closeIssueForm(elt);
@@ -63,9 +65,10 @@ function doIssueAction(elt, action, parameters) {
       data: parameters
     }
   ).success(function (htmlResponse) {
-      issueElt.empty().append(htmlResponse);
+      var replaced = $j(htmlResponse);
+      issueElt.replaceWith(replaced);
       // re-enable the links opening modal popups
-      issueElt.find('.open-modal').modal();
+      replaced.find('.open-modal').modal();
     }
   ).fail(function (jqXHR, textStatus) {
       closeIssueForm(elt);
