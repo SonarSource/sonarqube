@@ -267,7 +267,8 @@ class IssueController < ApplicationController
   #
 
   def widget_issues_list
-    @dashboard_configuration = Api::DashboardConfiguration.new(nil, :period_index => params[:period])
+    @snapshot = Snapshot.find(params[:snapshot_id]) if params[:snapshot_id]
+    @dashboard_configuration = Api::DashboardConfiguration.new(nil, :period_index => params[:period], :snapshot => @snapshot)
     render :partial => 'project/widgets/issues/issues_list'
   end
 

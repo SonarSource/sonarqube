@@ -1,7 +1,15 @@
 <%
    table_limit = params[:table_limit] unless table_limit
    widget_id = params[:widget_id] unless widget_id
-   search_options = params unless search_options
+   search_options = params.clone unless search_options
+
+   # Hack to delete params coming from pagination
+   search_options.delete(:controller)
+   search_options.delete(:action)
+   search_options.delete(:page_id)
+   search_options.delete(:table_limit)
+   search_options.delete(:widget_id)
+   search_options.delete(:period)
 
    search_options['sort'] = 'UPDATE_DATE'
    if @dashboard_configuration && @dashboard_configuration.selected_period?
@@ -43,9 +51,10 @@
         <%
            if page_count
              page_count = 20 if page_count>20
-             link_params = search_options
+             link_params = search_options.clone
              link_params[:controller] = 'issue'
              link_params[:action] = 'widget_issues_list'
+             link_params[:snapshot_id] = @snapshot.id if @snapshot
              link_params[:table_limit] = table_limit
              link_params[:widget_id] = widget_id
              link_params[:period] = params[:period]
