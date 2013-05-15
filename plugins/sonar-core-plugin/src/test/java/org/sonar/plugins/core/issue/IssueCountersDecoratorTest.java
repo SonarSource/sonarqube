@@ -111,7 +111,7 @@ public class IssueCountersDecoratorTest {
 
   @Test
   public void should_be_depended_upon_metric() {
-    assertThat(decorator.generatesIssuesMetrics()).hasSize(16);
+    assertThat(decorator.generatesIssuesMetrics()).hasSize(14);
   }
 
   @Test
