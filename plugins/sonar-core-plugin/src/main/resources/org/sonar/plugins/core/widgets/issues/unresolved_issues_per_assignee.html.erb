@@ -1,0 +1,93 @@
+<% 
+    options = {}
+    options['resolved'] = 'false'
+    options['componentRoots'] = @project.key
+    if @dashboard_configuration.selected_period?
+      options['createdAfter'] = Api::Utils.format_datetime(@dashboard_configuration.from_datetime)
+      options['createdBefore'] = Api::Utils.format_datetime(DateTime.now)
+    end
+    results = Api.issues.find(options)
+    issues = results.issues()
+
+    unless issues.empty?
+      issues_by_assignee = {}
+      counter_no_assignee = 0
+      issues.each do |issue|
+        assignee = issue.assignee()
+        if assignee
+          counter = issues_by_assignee[assignee]
+          if counter
+            issues_by_assignee[assignee] = counter+1
+          else
+            issues_by_assignee[assignee] = 1
+          end
+        else
+          counter_no_assignee += 1
+        end
+      end
+      counter_max = 0
+      counter_max = issues_by_assignee.values.max unless issues_by_assignee.empty?
+      counter_max = counter_no_assignee if counter_no_assignee > counter_max
+      
+      div_id = "unresolved-issues-per-assignee-widget-#{widget.id.to_s}"
+    end
+%>
+
+<h3><%= message('widget.unresolved_issues_per_assignee.name') -%></h3>
+
+<% if issues.size ==0 %>
+  <span class="empty_widget"><%= message('widget.unresolved_issues_per_assignee.name') -%></span>
+
+<% else %>
+<div id="<%= div_id -%>">
+
+  <table class="data width100">
+    <thead>
+      <tr>
+        <th coslpan="3">
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <%
+         issues_by_assignee.sort{|h1,h2| h2[1] <=> h1[1]}.each do |assignee, count|
+      %>
+        <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
+          <td class="max-width">
+            <%= link_to results.user(assignee).name, {:controller => 'issues', :action => 'index', :assignees => assignee}.merge(options) -%>
+          </td>
+          <td class="nowrap">
+            <%= '+' if @dashboard_configuration.selected_period? -%><%= count.to_s -%>
+          </td>
+          <% if counter_max > 0 %>
+            <td>
+              <%= barchart(:width => 100, :percent => (100 * count / counter_max).to_i) %>
+            </td>
+          <% end %>
+        </tr>
+      <%
+        end
+        # And now show the unassigned issues counter
+        unless counter_no_assignee==0
+      %>
+        <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
+          <td class="max-width">
+            <%= link_to message('widget.unresolved_issues_per_assignee.not_assigned'),
+                        {:controller => 'issues', :action => 'index', :assigned => 'false'}.merge(options) -%>
+          </td>
+          <td class="nowrap">
+            <%= '+' if @dashboard_configuration.selected_period? -%><%= counter_no_assignee.to_s -%>
+          </td>
+          <% if counter_max > 0 %>
+            <td>
+              <%= barchart(:width => 100, :percent => (100 * counter_no_assignee / counter_max).to_i) %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+</div>
+
+<% end %>

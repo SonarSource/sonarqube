@@ -3,7 +3,7 @@
      action_plans = Internal.issues.findActionPlanStats(@resource.key)
      open_action_plans = action_plans.select {|plan| plan.isOpen()}
 
-     div_id = "action-plan-widget-#{widget.id.to_s}"
+     div_id = "issues-action-plan-widget-#{widget.id.to_s}"
 %>
 
 <div class="line-block">

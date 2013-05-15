@@ -48,6 +48,7 @@ import org.sonar.plugins.core.widgets.*;
 import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.issues.FalsePositiveIssuesWidget;
 import org.sonar.plugins.core.widgets.issues.MyUnresolvedIssuesWidget;
+import org.sonar.plugins.core.widgets.issues.UnresolvedIssuesPerAssigneeWidget;
 import org.sonar.plugins.core.widgets.reviews.*;
 
 import java.util.List;
@@ -414,6 +415,7 @@ public final class CorePlugin extends SonarPlugin {
       UnplannedReviewsWidget.class,
       ActionPlansWidget.class,
       org.sonar.plugins.core.widgets.ActionPlansWidget.class,
+      UnresolvedIssuesPerAssigneeWidget.class,
 
       // batch
       ProfileSensor.class,
