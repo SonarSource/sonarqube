@@ -1,15 +1,4 @@
-<div style="min-width: 100px">
-<h3><a onclick="window.open(this.href,'markdown','height=350,width=520,scrollbars=1,resizable=1');return false;"
-       href="<%= url_for :controller => 'markdown', :action => 'help', :layout => 'false' -%>"><%= message('help_tips') -%></a></h3>
-<table>
-  <tr>
-    <td>*<%= message('bold') -%>*</td>
-  </tr>
-  <tr>
-    <td>``<%= message('code') -%>``</td>
-  </tr>
-  <tr>
-    <td>* <%= message('bulleted_point') -%></td>
-  </tr>
-</table>
+<div class="markdown-tips">
+  <a href="<%= ApplicationController.root_context -%>/markdown/help" onclick="$j(this).openModal();return false;"><%= message('markdown.helplink')-%></a> :
+  &nbsp; *<%= message('bold') -%>*  &nbsp;&nbsp; ``<%= message('code') -%>``  &nbsp;&nbsp; * <%= message('bulleted_point') -%>
 </div>

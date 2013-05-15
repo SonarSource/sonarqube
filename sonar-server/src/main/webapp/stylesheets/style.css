@@ -916,18 +916,6 @@ span.rulename a:hover {
   vertical-align: text-bottom;
 }
 
-.code-issue-link {
-  float: right;
-  margin: 0;
-  padding: 0 10px;
-}
-
-.code-issue-link a {
-  color: #777;
-  font-size: 11px;
-  padding: 0 0 0 20px;
-}
-
 .code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form {
   background-color: #EFEFEF;
   border: 1px solid #DDD;
@@ -1958,9 +1946,8 @@ ul.bullet li {
   width: 100%;
 }
 
-.markdown-tips {
-  vertical-align: top;
-  white-space: nowrap;
+.markdown-tips, .markdown-tips a {
+  font-size: 12px;
 }
 
 .rule_detail li {

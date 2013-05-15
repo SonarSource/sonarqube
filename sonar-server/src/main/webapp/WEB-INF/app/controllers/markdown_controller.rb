@@ -22,6 +22,8 @@ class MarkdownController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
   
   def help
+    verify_ajax_request
+    render :partial => 'markdown/help'
   end
   
 end

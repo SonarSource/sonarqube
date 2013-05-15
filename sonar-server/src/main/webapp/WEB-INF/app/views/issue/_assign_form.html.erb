@@ -5,7 +5,7 @@
     <tr>
       <td style="vertical-align:top">
         <%= user_select_tag('assignee') -%>
-        <input type="button" value="<%= message('issues.action.assign.button') -%>" onclick="doIssueAction(this)">
+        <input type="button" value="<%= message('issue.assign.submit') -%>" onclick="doIssueAction(this)">
         &nbsp;<%= link_to_function message('cancel'), 'cancelIssueForm(this)' -%>&nbsp;
         <span class="hidden"><%= image_tag 'loading.gif' -%></span>
       </td>

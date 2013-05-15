@@ -1,6 +1,5 @@
-<div id="markdown-full-help" style="width:500px">
-  <h2 class="spacer-bottom">Markdown Syntax</h2>
-
+<div class="modal-head"><h2>Markdown Syntax</h2></div>
+<div class="modal-body">
   <table class="width100 table table-bordered spacer-bottom">
     <thead>
     <tr>
@@ -39,14 +38,18 @@
         ``
       </td>
       <td valign="top"><pre style="border: 1px dashed #DDD;padding: 5px;color: #444;font-size: 12px;">
-        <code>
-// code on multiple lines
-public void foo() {
+<code>
+  // code on multiple lines
+  public void foo() {
   // do some logic here
-}
-        </code>
+  }
+</code>
       </pre>
       </td>
     </tr>
-  </tbody>
-</table>
+    </tbody>
+  </table>
+</div>
+<div class="modal-foot">
+  <input type="button" onclick="return closeModalWindow()" id="markdown-tip-close" value="<%= h message('close') -%>"/>
+</div>

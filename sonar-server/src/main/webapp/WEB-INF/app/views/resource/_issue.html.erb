@@ -1,9 +1,5 @@
 <div class="code-issue" data-issue-key="<%= issue.key -%>">
   <div class="code-issue-name">
-    <div class="code-issue-link">
-      <%= link_to image_tag('zoom.png'), :controller => "issue", :action => "view", :id => issue.key -%>
-    </div>
-
     <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png">
     &nbsp;
       <span class="rulename">
@@ -58,8 +54,8 @@
           &nbsp;
           <%= image_tag 'sep12.png' -%>
           &nbsp;
-          <a class="link-action" href="#"><%= message('reviews.edit') -%></a>
-          <a class="link-action" href="#"><%= message('reviews.delete') -%></a>
+          <a class="link-action" href="#"><%= message('edit') -%></a>
+          <a class="link-action" href="#"><%= message('delete') -%></a>
         <% end %>
       </h4>
       <%= Internal.text.markdownToHtml(comment.markdownText) -%>
@@ -68,12 +64,12 @@
 
   <% if current_user %>
     <div class="code-issue-actions">
-      <a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right"><%= message('reviews.comment') -%></a>
+      <a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right"><%= message('issue.comment.formlink') -%></a>
       <% unless issue.resolution %>
         <span class="spacer-right">
-        <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issues.action.assign.button') -%></a>
+        <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a>
           <% if issue.assignee!=current_user.login %>
-          (<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('reviews.assign_to_me_submit') -%></a>)
+          (<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>)
         <% end %>
         </span>
       <% end %>

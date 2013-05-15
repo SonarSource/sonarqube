@@ -38,17 +38,17 @@
         <td colspan="2"><%= rule.description %></td>
       </tr>
       <tr>
-        <td class="width100">
+        <td class="width100" colspan="2">
           <textarea name="text" id="<%= note_textarea_id -%>" rows="10" style="width:100%"><%= h(note.plain_text) if note -%></textarea>
-        </td>
-        <td class="markdown-tips">
-          <%= render :partial => 'markdown/tips' -%>
         </td>
       </tr>
     <tr>
-      <td colspan="2">
+      <td>
         <input type="submit" value="<%= message('rules_configuration.extend_description') -%>" name="commit" id="<%= submit_note_update_button_id -%>"/>
         <a href="#" onclick="$('<%= note_detail_div_id -%>').show();$('<%= note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
+      </td>
+      <td align="right">
+        <%= render :partial => 'markdown/tips' -%>
       </td>
     </tr>
     </tbody>

@@ -41,18 +41,18 @@
   <table id="<%= active_note_form_div_id -%>" style="display: none" class="admin table width100">
     <tbody>
       <tr>
-        <td class="width100">
+        <td class="width100" colspan="2">
           <textarea name="note" id="<%= active_note_textarea_id -%>" rows="10" style="width:100%"
                     onkeyup="if (this.value=='') $('<%= submit_active_note_update_button_id -%>').disabled=true; else $('<%= submit_active_note_update_button_id -%>').disabled=false;"><%= h(note.plain_text) if note -%></textarea>
         </td>
-        <td class="markdown-tips">
-          <%= render :partial => 'markdown/tips' -%>
-        </td>
       </tr>
     <tr>
-      <td colspan="2">
+      <td>
         <input type="submit" value="<%= note ? message('update_verb') : message('rules_configuration.add_note') -%>" name="submit-active-note" id="<%= submit_active_note_update_button_id -%>" disabled="disabled"/>
         <a href="#" onclick="$('<%= active_note_detail_div_id -%>').show();$('<%= active_note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
+      </td>
+      <td align="right">
+        <%= render :partial => 'markdown/tips' -%>
       </td>
     </tr>
     </tbody>
