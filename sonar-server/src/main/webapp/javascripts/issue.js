@@ -31,6 +31,11 @@ function closeIssueForm(elt) {
   return false;
 }
 
+/* Raise a Javascript event for Eclipse Web View */
+function notifyIssueChange(issueKey) {
+  $j(document).trigger('sonar.issue.updated', [issueKey]);
+}
+
 function postIssueForm(elt) {
   var formElt = $j(elt).closest('form');
   formElt.find('.loading').removeClass('hidden');
@@ -46,17 +51,14 @@ function postIssueForm(elt) {
 
       // re-enable the links opening modal popups
       replaced.find('.open-modal').modal();
+
+      notifyIssueChange(issueKey)
     }
   ).fail(function (jqXHR, textStatus) {
       closeIssueForm(elt);
       alert(textStatus);
     });
   return false;
-}
-
-/* Raise a Javascript event for Eclipse Web View */
-function notifyIssueChange(issueKey) {
-  $j(document).trigger('sonar.issue.updated', [issueKey]);
 }
 
 function doIssueAction(elt, action, parameters) {
