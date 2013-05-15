@@ -1,5 +1,5 @@
 <%
-   if !@project || has_role?(:user, @project)
+   if current_user && (!@project || has_role?(:user, @project))
 
      search_options = {}
      search_options['componentRoots'] = @project.key if @project
