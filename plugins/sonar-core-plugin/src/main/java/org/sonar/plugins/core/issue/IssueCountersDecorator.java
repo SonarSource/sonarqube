@@ -80,9 +80,7 @@ public class IssueCountersDecorator implements Decorator {
       CoreMetrics.NEW_MINOR_ISSUES,
       CoreMetrics.NEW_INFO_ISSUES,
       CoreMetrics.FALSE_POSITIVE_ISSUES,
-      CoreMetrics.UNASSIGNED_ISSUES,
-      CoreMetrics.UNPLANNED_ISSUES,
-      CoreMetrics.NEW_UNPLANNED_ISSUES
+      CoreMetrics.UNASSIGNED_ISSUES
     );
   }
 
@@ -126,11 +124,9 @@ public class IssueCountersDecorator implements Decorator {
 
       saveTotalIssues(context, issues);
       saveNewIssues(context, issues, shouldSaveNewMetrics);
-      saveNewUnplannedIssues(context, issues);
 
       saveMeasure(context, CoreMetrics.UNASSIGNED_ISSUES, countUnassigned);
       saveMeasure(context, CoreMetrics.FALSE_POSITIVE_ISSUES, falsePositives);
-      saveMeasure(context, CoreMetrics.UNPLANNED_ISSUES, unplanned);
     }
   }
 
@@ -237,27 +233,6 @@ public class IssueCountersDecorator implements Decorator {
       measure.setVariation(variationIndex, sum);
     }
     context.saveMeasure(measure);
-  }
-
-  protected void saveNewUnplannedIssues(DecoratorContext context, Collection<Issue> issues) {
-    Measure measure = new Measure(CoreMetrics.NEW_UNPLANNED_ISSUES);
-    for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
-      int newUnplannedIssues = countNewUnplannedIssuesForSnapshot(pastSnapshot, issues);
-      int variationIndex = pastSnapshot.getIndex();
-      Collection<Measure> children = context.getChildrenMeasures(CoreMetrics.NEW_UNPLANNED_ISSUES);
-      double sumNewUnplannedIssues = MeasureUtils.sumOnVariation(true, variationIndex, children) + newUnplannedIssues;
-      measure.setVariation(variationIndex, sumNewUnplannedIssues);
-    }
-    context.saveMeasure(measure);
-  }
-
-  protected int countNewUnplannedIssuesForSnapshot(final PastSnapshot pastSnapshot, Collection<Issue> issues) {
-    return newArrayList(Iterables.filter(issues, new Predicate<Issue>() {
-      @Override
-      public boolean apply(Issue issue) {
-        return isAfter(issue, pastSnapshot.getTargetDate()) && issue.actionPlanKey() == null;
-      }
-    })).size();
   }
 
   private void saveMeasure(DecoratorContext context, Metric metric, int value) {

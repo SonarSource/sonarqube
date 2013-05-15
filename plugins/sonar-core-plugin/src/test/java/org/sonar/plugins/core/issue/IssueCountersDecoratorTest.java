@@ -232,19 +232,6 @@ public class IssueCountersDecoratorTest {
   }
 
   @Test
-  public void should_save_unplanned_issues() {
-    List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setActionPlanKey("ABCD").setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
-    when(issuable.issues()).thenReturn(issues);
-
-    decorator.decorate(resource, context);
-
-    verify(context).saveMeasure(CoreMetrics.UNPLANNED_ISSUES, 2.0);
-  }
-
-  @Test
   public void same_rule_should_have_different_severities() {
     List<Issue> issues = newArrayList();
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
@@ -319,22 +306,6 @@ public class IssueCountersDecoratorTest {
     verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_MINOR_ISSUES)));
     verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_INFO_ISSUES)));
     verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_CRITICAL_ISSUES)));
-  }
-
-  @Test
-  public void should_save_new_unplanned_issues(){
-    List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setActionPlanKey("ABCD").setSeverity(RulePriority.CRITICAL.name()).setCreationDate(rightNow));
-    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(rightNow));
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setActionPlanKey("ABCD").setSeverity(RulePriority.CRITICAL.name()).setCreationDate(fiveDaysAgo));
-    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(fiveDaysAgo));
-    issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(tenDaysAgo));
-    when(issuable.issues()).thenReturn(issues);
-
-    decorator.decorate(resource, context);
-
-    // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_UNPLANNED_ISSUES, 1.0, 2.0)));
   }
 
   private List<Issue> createIssues() {
