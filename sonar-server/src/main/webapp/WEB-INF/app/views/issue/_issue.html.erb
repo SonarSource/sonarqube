@@ -1,6 +1,6 @@
 <div id="issue-<%= @issue.key -%>">
   <div class="reviewTitle">
-    <h2><%= h(@issue.description) -%></h2>
+    <h2><%= h(@issue.message) -%></h2>
   </div>
 
   <% if defined?(error_message) && error_message %>
@@ -68,7 +68,7 @@
         <%= message('author') -%>:
       </td>
       <td class="val">
-        <% author = @issue_results.user(@issue.userLogin).name if @issue.userLogin %>
+        <% author = @issue_results.user(@issue.reporter).name if @issue.reporter %>
         <%= author ? h(author) : '-' -%>
       </td>
     </tr>
@@ -135,7 +135,7 @@
 
   <div class="discussion marginbottom10">
     <div class="discussionComment first">
-      <%= h(@issue.description) -%>
+      <%= h(@issue.message) -%>
     </div>
   </div>
 

@@ -45,7 +45,7 @@
           <% end %>
         </td>
         <td>
-          <%= link_to h(issue.description), :controller => "issue", :action => "view", :id => issue.key -%>
+          <%= link_to h(issue.message), :controller => "issue", :action => "view", :id => issue.key -%>
         </td>
         <td>
           <%= h(@issue_results.component(issue).name) -%>
