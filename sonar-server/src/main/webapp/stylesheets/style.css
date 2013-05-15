@@ -892,6 +892,9 @@ span.rulename a:hover {
   vertical-align: text-bottom;
 }
 
+.code-global-issues {
+  padding: 10px;
+}
 .code-issues {
   background-color: #FFF;
   padding: 10px;
@@ -2386,6 +2389,10 @@ td.spacer-top {
   font-size: 93%;
   color: #777;
   padding: 4px 5px;
+}
+
+.table > tfoot > tr > td a {
+  color: #777;
 }
 
 .table-bordered > tbody {
