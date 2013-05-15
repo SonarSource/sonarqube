@@ -54,10 +54,15 @@ function postIssueForm(elt) {
   return false;
 }
 
+/* Raise a Javascript event for Eclipse Web View */
+function notifyIssueChange(issueKey) {
+  $j(document).trigger('sonar.issue.updated', [issueKey]);
+}
+
 function doIssueAction(elt, action, parameters) {
   var issueElt = $j(elt).closest('[data-issue-key]');
   var issueKey = issueElt.attr('data-issue-key');
-  parameters['issue']=issueKey;
+  parameters['issue'] = issueKey;
 
   $j.ajax({
       type: "POST",
@@ -67,8 +72,11 @@ function doIssueAction(elt, action, parameters) {
   ).success(function (htmlResponse) {
       var replaced = $j(htmlResponse);
       issueElt.replaceWith(replaced);
+
       // re-enable the links opening modal popups
       replaced.find('.open-modal').modal();
+
+      notifyIssueChange(issueKey);
     }
   ).fail(function (jqXHR, textStatus) {
       closeIssueForm(elt);
@@ -86,4 +94,3 @@ function doIssueTransition(elt, transition) {
   var parameters = {'transition': transition};
   return doIssueAction(elt, 'transition', parameters)
 }
-

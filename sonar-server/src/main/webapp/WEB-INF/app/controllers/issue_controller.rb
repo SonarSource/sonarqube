@@ -22,6 +22,15 @@ class IssueController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
+  def show
+    require_parameters :id
+
+    @issue_results = Api.issues.find(params[:id])
+    params[:layout] = 'false'
+
+    render :action => 'show'
+  end
+
   def action_form
     verify_ajax_request
     require_parameters :id, :issue

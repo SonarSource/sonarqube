@@ -23,7 +23,7 @@
       var commentElt = $j('#<%= params[:htmlId] -%>');
       var issueElt = commentElt.closest('[data-issue-key]');
       var replaced = $j(html);
-      issueElt.replaceWholeText(replaced);
+      issueElt.replaceWith(replaced);
 
       // re-enable the links opening modal popups
       replaced.find('.open-modal').modal();
