@@ -5,8 +5,8 @@
 
    search_options['sort'] = 'UPDATE_DATE'
    if @dashboard_configuration && @dashboard_configuration.selected_period?
-     search_options['createdAfter'] = @dashboard_configuration.from_datetime
-     search_options['createdBefore'] = DateTime.now
+     search_options['createdAfter'] = Api::Utils.format_datetime(@dashboard_configuration.from_datetime)
+     search_options['createdBefore'] = Api::Utils.format_datetime(DateTime.now)
    end
    results = Api.issues.find(search_options)
    issues = results.issues
@@ -79,7 +79,7 @@
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
         <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity() -%>.png" title="<%= message('severity.' + issue.severity()) -%>"/></td>
         <td>
-          <%= link_to h(issue.description()), :controller => "issue", :action => "view", :id => issue.key() -%>
+          <%= link_to h(issue.message()), :controller => "issue", :action => "view", :id => issue.key() -%>
           <% if last_comment %>
             <div class="comment-excerpt">
               <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>
