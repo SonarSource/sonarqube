@@ -31,6 +31,9 @@ class IssuesController < ApplicationController
     @filter = IssueFilter.new
     @filter.criteria=criteria_params
     @filter.execute
+
+    # TODO replace by project from issues result API
+    @project = Project.by_key(@filter.criteria('componentRoots')).root_project if @filter.criteria('componentRoots')
   end
 
 

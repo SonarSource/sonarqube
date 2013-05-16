@@ -611,6 +611,7 @@ module ApplicationHelper
   # * <tt>:placeholder</tt> - the label to display when nothing is selected
   # * <tt>:allow_clear</tt> - true if resource can be de-selected. Default is false.
   # * <tt>:open</tt> - true if the select-box must be open. Default is false.
+  # * <tt>:display_key</tt> - true if the resource key should be used instead of the resource id. Default is false.
   # * <tt>:select2_options</tt> - hash of select2 options
   #
   def resource_select_tag(name, options={})
@@ -624,9 +625,13 @@ module ApplicationHelper
       ws_url+="qp=#{options[:resource_type_property]}"
     end
 
+    if options[:display_key]
+      ws_url+='&display_key=true'
+    end
+
     selected_resource = options[:selected_resource]
     if selected_resource
-      options[:selected_id]=selected_resource.id
+      options[:selected_id]= options[:display_key] ? "'" + selected_resource.key + "'" : selected_resource.id
       options[:selected_text]=selected_resource.name(true)
     end
 

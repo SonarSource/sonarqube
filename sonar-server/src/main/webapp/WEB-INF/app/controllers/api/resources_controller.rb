@@ -21,10 +21,15 @@ class Api::ResourcesController < Api::ApiController
 
   # since version 3.3
   # Exemple : /api/resources/search?s=sonar
+  #
+  # -- Optional parameters
+  # 'display_key' is used to return the resource key instead of the resource id. Default is false
+  #
   def search
     search_text = params[:s]||''
     page=(params[:p] ? params[:p].to_i : 1)
     page_size=(params[:ps] ? params[:ps].to_i : 10)
+    display_key=params[:display_key]||false
     if params[:q]
       qualifiers=params[:q].split(',')
     elsif params[:qp]
@@ -74,12 +79,13 @@ class Api::ResourcesController < Api::ApiController
         resources_by_qualifier = resources.group_by(&:qualifier)
         json = {
           :more => false,
-          :results => resources_by_qualifier.map { |qualifier, grouped_resources| {:text => message("qualifiers.#{qualifier}"), :children => grouped_resources.map { |r| {:id => r.id, :text => r.name(true)} }} }
+          :results => resources_by_qualifier.map { |qualifier, grouped_resources| {:text => message("qualifiers.#{qualifier}"),
+                                                                                   :children => grouped_resources.map { |r| {:id => display_key ? r.key : r.id, :text => r.name(true)} }} }
         }
       else
         json = {
           :more => (page * page_size)<total,
-          :results => resources.map { |resource| {:id => resource.id, :text => resource.name(true)} }
+          :results => resources.map { |resource| {:id => display_key ? resource.key : resource.id, :text => resource.name(true)} }
         }
       end
     else

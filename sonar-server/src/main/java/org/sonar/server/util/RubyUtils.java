@@ -25,6 +25,7 @@ import com.google.common.primitives.Ints;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -80,7 +81,11 @@ public class RubyUtils {
       return (Date) o;
     }
     if (o instanceof String) {
-      return DateUtils.parseDateTime((String) o);
+      Date date = DateUtils.parseDateTimeQuietly((String) o);
+      if (date != null) {
+        return date;
+      }
+      return DateUtils.parseDate((String) o);
     }
     return null;
   }
