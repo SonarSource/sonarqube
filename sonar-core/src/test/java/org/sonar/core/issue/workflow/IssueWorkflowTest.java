@@ -36,7 +36,10 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class IssueWorkflowTest {
-  IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(new IssueUpdater()));
+
+
+  IssueUpdater updater = new IssueUpdater();
+  IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
 
   @Test
   public void should_init_state_machine() throws Exception {

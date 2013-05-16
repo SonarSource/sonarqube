@@ -26,6 +26,7 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueUpdater;
 
 import java.util.List;
 
@@ -33,9 +34,11 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
 
   private StateMachine machine;
   private final FunctionExecutor functionExecutor;
+  private final IssueUpdater updater;
 
-  public IssueWorkflow(FunctionExecutor functionExecutor) {
+  public IssueWorkflow(FunctionExecutor functionExecutor, IssueUpdater updater) {
     this.functionExecutor = functionExecutor;
+    this.updater = updater;
   }
 
   @Override
@@ -109,7 +112,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
     Transition transition = stateOf(issue).transition(transitionKey);
     if (transition != null && !transition.automatic()) {
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
-      issue.setStatus(transition.to());
+      updater.setStatus(issue, transition.to(), issueChangeContext);
       return true;
     }
     return false;
@@ -124,8 +127,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
     Transition transition = stateOf(issue).outAutomaticTransition(issue);
     if (transition != null) {
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
-      issue.setStatus(transition.to());
-      issue.setUpdateDate(issueChangeContext.date());
+      updater.setStatus(issue, transition.to(), issueChangeContext);
     }
   }
 
