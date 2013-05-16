@@ -1,0 +1,39 @@
+<%
+   manual_rules = Rule.manual_rules
+   is_admin = has_role?(:admin)
+   form_id = "create-issue-#{params[:component]}-#{params[:line]}"
+   if manual_rules.empty? && !is_admin
+%>
+  <div class="warning">
+    No rules. Please contact the administrator.
+    &nbsp;<%= link_to_function message('cancel'), 'closeMIF(this)' -%>
+  </div>
+
+<% else %>
+  <form action="" class="code-issue-create-form" id="<%= form_id -%>">
+    <input type="hidden" name="line" value="<%= params[:line] -%>"/>
+    <input type="hidden" name="component" value="<%= params[:component] -%>"/>
+
+    <div class="code-issue">
+      <div class="code-issue-name">
+        <% unless manual_rules.empty? %>
+          <%= dropdown_tag 'rule',
+                           options_for_select([[]].concat(manual_rules.map{|rule| [rule.name, rule.key] })),
+                           {:show_search_box => true, :placeholder => 'Select a Rule', :open => true},
+                           {:html_id => "#{form_id}-rules"} -%>
+        <% end %>
+        <% if is_admin %>
+          <a href="#">Add Rule</a>
+        <% end %>
+      </div>
+
+      <div class="code-issue-msg">
+        <textarea rows="4" name="message" class="width100 marginbottom5"></textarea>
+
+        <input type="submit" value="Create" onclick="return submitMIF(this);"> &nbsp;<%= link_to_function message('cancel'), 'closeMIF(this)' -%>
+      </div>
+      <div class="code-issue-form hidden"></div>
+    </div>
+  </form>
+
+<% end %>

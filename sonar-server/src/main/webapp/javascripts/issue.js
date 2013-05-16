@@ -157,3 +157,34 @@ function refreshIssue(elt) {
   });
   return false;
 }
+
+function openMIF(elt, componentId, line) {
+  // TODO check if form is already displayed (by using form id)
+  $j.get(baseUrl + "/issue/create_form?component=" + componentId + "&line=" + line, function (html) {
+    $j(elt).closest('tr').find('td.line').append($j(html));
+  });
+  return false;
+}
+
+function closeMIF(elt) {
+  $j(elt).closest('.code-issue-create-form').remove();
+  return false;
+}
+
+function submitMIF(elt) {
+  var formElt = $j(elt).closest('form');
+  formElt.find('.loading').removeClass('hidden');
+  formElt.find(':submit').prop('disabled', true);
+  $j.ajax({
+      type: "POST",
+      url: baseUrl + '/issue/create',
+      data: formElt.serialize()}
+  ).success(function (data) {
+      formElt.html(data);
+    }
+  ).fail(function (jqXHR, textStatus) {
+      alert(textStatus);
+    });
+  return false;
+}
+

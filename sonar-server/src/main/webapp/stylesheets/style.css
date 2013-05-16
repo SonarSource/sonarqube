@@ -897,13 +897,13 @@ span.rulename a:hover {
 }
 .code-issues {
   background-color: #FFF;
-  padding: 10px;
 }
 
 .code-issue {
   background-color: #FFF;
   margin: 0;
   font-size: 12px;
+  padding: 5px 10px;
 }
 
 .code-issue-name {

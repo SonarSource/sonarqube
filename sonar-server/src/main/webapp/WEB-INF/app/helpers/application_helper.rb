@@ -723,14 +723,14 @@ module ApplicationHelper
   # * <tt>:placeholder</tt> - the label to display when nothing is selected. Default is ''.
   # * <tt>:allow_clear</tt> - true if value can be de-selected. Default is false.
   # * <tt>:show_search_box</tt> - true to display the search box. Default is false.
-  # * <tt>:html_options</tt> - hash for html options (id, class, onchange, ...)
+  # * <tt>:open</tt> - true to open the select-box. Default is false. Since 3.6.
   # * <tt>:select2_options</tt> - hash of select2 options
   #
   def dropdown_tag(name, option_tags, options={}, html_options={})
     width=options[:width]||'250px'
     html_id=html_options[:id]||name
     show_search_box=options[:show_search_box]||false
-    minimumResultsForSearch=show_search_box ? 0 : option_tags.size + 1;
+    minimumResultsForSearch=show_search_box ? 0 : option_tags.size + 1
 
     js_options={
         'minimumResultsForSearch' => minimumResultsForSearch,
@@ -742,6 +742,9 @@ module ApplicationHelper
 
     html = select_tag(name, option_tags, html_options)
     js = "$j('##{html_id}').select2({#{js_options.map { |k, v| "#{k}:#{v}" }.join(',')}});"
+    if options[:open]
+      js += "$j('##{html_id}').select2('open');"
+    end
     "#{html}<script>#{js}</script>"
   end
 

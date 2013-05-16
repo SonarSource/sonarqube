@@ -110,6 +110,26 @@ class IssueController < ApplicationController
   end
 
 
+  def create_form
+    verify_ajax_request
+    render :partial => 'issue/create_form'
+  end
+
+  def create
+    verify_post_request
+    require_parameters :rule, :component
+
+    component_key = params[:component]
+    if Api::Utils.is_integer?(component_key)
+      component = Project.find(component_key)
+      component_key = (component ? component.key : nil)
+    end
+
+    issue = Internal.issues.create(params.merge({:component => component_key}))
+
+    @issue_results = Api.issues.find(issue.key)
+    render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
+  end
 
   #
   #
