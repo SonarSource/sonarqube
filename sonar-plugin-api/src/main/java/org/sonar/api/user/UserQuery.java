@@ -44,7 +44,18 @@ public class UserQuery {
     this.logins = builder.logins;
     this.includeDeactivated = builder.includeDeactivated;
     this.searchText = builder.searchText;
-    this.searchTextSql = (searchText !=null ? "%" + searchText + "%" : null);
+
+    this.searchTextSql = searchTextToSql(searchText);
+  }
+
+  private String searchTextToSql(@Nullable String s) {
+    String sql = null;
+    if (s != null) {
+      sql = StringUtils.replace(s, "%", "/%");
+      sql = StringUtils.replace(sql, "_", "/_");
+      sql = "%" + sql + "%";
+    }
+    return sql;
   }
 
   @CheckForNull

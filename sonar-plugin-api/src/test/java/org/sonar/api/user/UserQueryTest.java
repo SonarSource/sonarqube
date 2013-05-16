@@ -69,9 +69,16 @@ public class UserQueryTest {
   }
 
   @Test
-  public void test_searchText() throws Exception {
+  public void searchText() throws Exception {
     UserQuery query = UserQuery.builder().searchText("sim").build();
     assertThat(query.searchText()).isEqualTo("sim");
     assertThat(query.searchTextSql).isEqualTo("%sim%");
+  }
+
+  @Test
+  public void searchText_escape_special_characters_in_like() throws Exception {
+    UserQuery query = UserQuery.builder().searchText("%sim_").build();
+    assertThat(query.searchText()).isEqualTo("%sim_");
+    assertThat(query.searchTextSql).isEqualTo("%/%sim/_%");
   }
 }

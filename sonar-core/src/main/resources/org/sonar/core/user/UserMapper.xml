@@ -43,7 +43,7 @@
         and u.active=${_true}
       </if>
       <if test="searchText != null">
-        and (u.login like #{searchTextSql} or u.name like #{searchTextSql})
+        and (u.login like #{searchTextSql} escape '/' or u.name like #{searchTextSql} escape '/')
       </if>
     </where>
     order by u.name

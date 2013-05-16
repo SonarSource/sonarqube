@@ -122,6 +122,17 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void selectUsersByQuery_escape_special_characters_in_like() throws Exception {
+    setupData("selectUsersByText");
+
+    UserQuery query = UserQuery.builder().searchText("%s%").build();
+    // we expect really a login or name containing the 3 characters "%s%"
+
+    List<UserDto> users = dao.selectUsers(query);
+    assertThat(users).isEmpty();
+  }
+
+  @Test
   public void selectGroupByName() {
     setupData("selectGroupByName");
 
