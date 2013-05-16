@@ -9,7 +9,7 @@
     <% if @display_issues && @global_issues && @global_issues.size>0 -%>
       <div class="code-global-issues">
         <% @global_issues.each do |issue| %>
-          <%= render :partial => 'issue', :locals => {:issue => issue} -%></td>
+          <%= render :partial => 'issue/issue', :locals => {:issue => issue} -%></td>
         <% end %>
       </div>
     <% end %>

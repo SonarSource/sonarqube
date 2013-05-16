@@ -8,7 +8,7 @@
   <td class="lid"></td>
   <td class="code-issues">
     <% line.issues.each_with_index do |issue, index| %>
-      <%= render :partial => 'issue', :locals => {:issue => issue} -%>
+      <%= render :partial => 'issue/issue', :locals => {:issue => issue} -%>
       <% if index < line.issues.size-1 %>
         &nbsp;
       <% end %>

@@ -82,7 +82,7 @@
         </span>
       <% end %>
 
-      <% Internal.issues.listTransitions(issue.key).each do |transition| %>
+      <% Internal.issues.listTransitions(issue).each do |transition| %>
         <a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a>
       <% end %>
 

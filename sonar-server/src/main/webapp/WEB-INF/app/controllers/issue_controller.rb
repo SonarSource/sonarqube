@@ -27,7 +27,7 @@ class IssueController < ApplicationController
 
     @issue_results = Api.issues.find(params[:id])
     if request.xhr?
-      render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}
+      render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
     else
       params[:layout] = 'false'
       render :action => 'show'
@@ -67,7 +67,7 @@ class IssueController < ApplicationController
     end
 
     @issue_results = Api.issues.find(issue_key)
-    render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}
+    render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
 
   # form to edit comment
@@ -88,7 +88,7 @@ class IssueController < ApplicationController
     comment = Internal.issues.editComment(params[:key], text)
 
     @issue_results = Api.issues.find(comment.issueKey)
-    render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}
+    render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
 
   # modal window to delete comment
@@ -106,7 +106,7 @@ class IssueController < ApplicationController
     comment = Internal.issues.deleteComment(params[:id])
 
     @issue_results = Api.issues.find(comment.issueKey)
-    render :partial => 'resource/issue', :locals => {:issue => @issue_results.issues.get(0)}
+    render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
 
 

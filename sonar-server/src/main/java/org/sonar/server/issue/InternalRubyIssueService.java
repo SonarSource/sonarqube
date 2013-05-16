@@ -66,7 +66,11 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public List<Transition> listTransitions(String issueKey) {
-    return issueService.listTransitions(issueKey, UserSession.get());
+    return issueService.listTransitions(issueKey);
+  }
+
+  public List<Transition> listTransitions(Issue issue) {
+    return issueService.listTransitions(issue);
   }
 
   public Issue doTransition(String issueKey, String transitionKey) {
@@ -81,7 +85,7 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueService.setSeverity(issueKey, severity, UserSession.get());
   }
 
-  public Issue plan(String issueKey, String actionPlanKey) {
+  public Issue plan(String issueKey, @Nullable String actionPlanKey) {
     return issueService.plan(issueKey, actionPlanKey, UserSession.get());
   }
 

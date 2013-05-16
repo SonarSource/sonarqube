@@ -12,6 +12,7 @@
   <input type="hidden" name="id" value="plan"/>
 
   <select name="plan">
+    <option value=""></option>
     <% plans.each do |plan| %>
       <option value="<%= plan.key() -%>"><%= h(plan.name()) -%></option>
     <% end %>
