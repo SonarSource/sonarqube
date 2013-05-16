@@ -295,6 +295,8 @@ class Rule < ActiveRecord::Base
     elsif status == 'ACTIVE' || status == 'INACTIVE'
       # For retro compatibility for the Sqale plugin
       options[:activation] = status
+      conditions << ['status <> :status']
+      values[:status] = STATUS_REMOVED
     else
       conditions << "status IN (:status)"
       values[:status] = options[:status]
