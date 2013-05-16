@@ -20,10 +20,7 @@
 package org.sonar.core.issue.workflow;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 
 import javax.annotation.CheckForNull;
 import java.util.Arrays;
@@ -33,19 +30,27 @@ import java.util.Set;
 
 public class StateMachine {
 
-  private Map<String, State> states = Maps.newHashMap();
+  private final List<String> keys;
+  private final Map<String, State> byKey;
 
   private StateMachine(Builder builder) {
+    this.keys = ImmutableList.copyOf(builder.states);
+    ImmutableMap.Builder<String, State> mapBuilder = ImmutableMap.builder();
     for (String stateKey : builder.states) {
       List<Transition> outTransitions = builder.outTransitions.get(stateKey);
       State state = new State(stateKey, outTransitions.toArray(new Transition[outTransitions.size()]));
-      states.put(stateKey, state);
+      mapBuilder.put(stateKey, state);
     }
+    byKey = mapBuilder.build();
   }
 
   @CheckForNull
   public State state(String stateKey) {
-    return states.get(stateKey);
+    return byKey.get(stateKey);
+  }
+
+  public List<String> stateKeys() {
+    return keys;
   }
 
   public static Builder builder() {
@@ -53,9 +58,12 @@ public class StateMachine {
   }
 
   public static class Builder {
-    private final Set<String> states = Sets.newTreeSet();
+    private final Set<String> states = Sets.newLinkedHashSet();
     // transitions per originating state
     private final ListMultimap<String, Transition> outTransitions = ArrayListMultimap.create();
+
+    private Builder() {
+    }
 
     public Builder states(String... keys) {
       states.addAll(Arrays.asList(keys));

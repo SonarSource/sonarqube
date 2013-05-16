@@ -54,6 +54,13 @@ public class IssueWorkflowTest {
   }
 
   @Test
+  public void should_list_statuses() throws Exception {
+    workflow.start();
+    // order is important for UI
+    assertThat(workflow.statusKeys()).containsSequence(Issue.STATUS_OPEN, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED);
+  }
+
+  @Test
   public void should_list_out_manual_transitions() throws Exception {
     workflow.start();
 

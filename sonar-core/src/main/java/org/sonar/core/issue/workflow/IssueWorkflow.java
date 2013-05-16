@@ -44,7 +44,10 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
   @Override
   public void start() {
     machine = StateMachine.builder()
+
+      // order is important for UI
       .states(Issue.STATUS_OPEN, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED)
+
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FIXED))
@@ -129,6 +132,10 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
       updater.setStatus(issue, transition.to(), issueChangeContext);
     }
+  }
+
+  public List<String> statusKeys() {
+    return machine.stateKeys();
   }
 
   private State stateOf(DefaultIssue issue) {
