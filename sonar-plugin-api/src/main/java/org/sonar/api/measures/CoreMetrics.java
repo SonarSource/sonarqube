@@ -332,6 +332,11 @@ public final class CoreMetrics {
       .create();
 
   public static final String FUNCTION_COMPLEXITY_KEY = "function_complexity";
+
+  /**
+   * Information about the cyclomatic complexity per function, calculated by divided the complexity in functions by the number of functions.
+   * If the complexity in functions is not available, the complexity of the file is used.
+   */
   public static final Metric FUNCTION_COMPLEXITY = new Metric.Builder(FUNCTION_COMPLEXITY_KEY, "Complexity /method", Metric.ValueType.FLOAT)
       .setDescription("Complexity average by method")
       .setDirection(Metric.DIRECTION_WORST)

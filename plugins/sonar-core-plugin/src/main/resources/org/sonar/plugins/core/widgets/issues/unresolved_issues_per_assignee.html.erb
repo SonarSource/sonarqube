@@ -54,7 +54,8 @@
       %>
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
-            <%= link_to results.user(assignee).name, {:controller => 'issues', :action => 'index', :assignees => assignee}.merge(options) -%>
+            <%= link_to results.user(assignee).name,
+                        {:controller => 'issues', :action => 'search', :assignees => assignee}.merge(options) -%>
           </td>
           <td class="nowrap">
             <%= '+' if @dashboard_configuration.selected_period? -%><%= count.to_s -%>
@@ -73,7 +74,7 @@
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
             <%= link_to message('widget.unresolved_issues_per_assignee.not_assigned'),
-                        {:controller => 'issues', :action => 'index', :assigned => 'false'}.merge(options) -%>
+                        {:controller => 'issues', :action => 'search', :assigned => 'false'}.merge(options) -%>
           </td>
           <td class="nowrap">
             <%= '+' if @dashboard_configuration.selected_period? -%><%= counter_no_assignee.to_s -%>

@@ -9,6 +9,18 @@
                        {:width => '100%', :placeholder => message('issue_filter.criteria.severities')},
                        {:id => 'select-severities', :multiple => true}-%>
     </li>
+    <li id="criteria-status" class="marginbottom5">
+      <%= message 'issue_filter.criteria.status' -%>:
+      <%= dropdown_tag 'statuses[]', options_for_select(@options_for_status, @filter.criteria('statuses')),
+                       {:width => '100%', :placeholder => message('issue_filter.criteria.status')},
+                       {:id => 'select-status', :multiple => true}-%>
+    </li>
+    <li>
+      <%= message 'issue_filter.criteria.assignee' -%>:
+      <% selected_user = @filter.issues_result.user(@filter.criteria('assignees')) if @filter.issues_result %>
+      <%= user_select_tag('assignees', {:selected_user => selected_user, :width => '100%', :placeholder => message('issue_filter.criteria.assignee'),
+                        :html_id => 'select-assignee', :open => false, :allow_clear => true}) -%>
+    </li>
     <li>
       <input type="submit" name="search" value="<%= message('search_verb') -%>" id="search-button" />
       <a href="<%= ApplicationController.root_context -%>/issues" class="link-action"><%= message 'issue_filter.new_search' -%></a>

@@ -650,7 +650,8 @@ module ApplicationHelper
 
     user = options[:selected_user]
     if user
-      options[:selected_id]=user.login
+      # the login is a string so it have to be surrounded by quote to be taken in account by select2
+      options[:selected_id]="'" + user.login + "'"
       options[:selected_text]=user.name
     end
 

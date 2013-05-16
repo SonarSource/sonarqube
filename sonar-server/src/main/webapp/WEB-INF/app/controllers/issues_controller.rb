@@ -20,6 +20,8 @@
 
 class IssuesController < ApplicationController
 
+  before_filter :init
+
   def index
     @filter = IssueFilter.new
     render :action => 'search'
@@ -33,6 +35,11 @@ class IssuesController < ApplicationController
 
 
   private
+
+  def init
+    status = Internal.issues.listStatus()
+    @options_for_status = status.map {|s| [message('issue.status.' + s), s]}
+  end
 
   def criteria_params
     params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})
