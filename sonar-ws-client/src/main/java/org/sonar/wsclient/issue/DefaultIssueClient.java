@@ -95,8 +95,8 @@ public class DefaultIssueClient implements IssueClient {
     if (!request.ok()) {
       throw new IllegalStateException("Fail to add issue comment. Bad HTTP response status: " + request.code());
     }
-    String json = request.body();
-    return new IssueComment((Map) JSONValue.parse(json));
+    Map rootJson = (Map) JSONValue.parse(request.body());
+    return new IssueComment((Map)rootJson.get("comment"));
   }
 
   @Override

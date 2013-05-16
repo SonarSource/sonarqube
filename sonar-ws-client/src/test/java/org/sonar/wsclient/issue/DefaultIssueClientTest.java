@@ -19,6 +19,7 @@
  */
 package org.sonar.wsclient.issue;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
@@ -147,5 +148,21 @@ public class DefaultIssueClientTest {
     client.doTransition("ABCDE", "resolve");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_transition?issue=ABCDE&transition=resolve");
+  }
+
+  @Test
+  public void should_add_comment() throws Exception {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    httpServer.doReturnBody(IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/DefaultIssueClientTest/add_comment_result.json")));
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    IssueComment comment = client.addComment("ISSUE-1", "this is my comment");
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/add_comment?issue=ISSUE-1&text=this%20is%20my%20comment");
+    assertThat(comment).isNotNull();
+    assertThat(comment.key()).isEqualTo("COMMENT-123");
+    assertThat(comment.htmlText()).isEqualTo("this is my comment");
+    assertThat(comment.login()).isEqualTo("admin");
+    assertThat(comment.createdAt().getDate()).isEqualTo(18);
   }
 }
