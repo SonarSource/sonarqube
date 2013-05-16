@@ -57,12 +57,12 @@ public class ActionPlanService implements ServerComponent {
   }
 
   public ActionPlan create(ActionPlan actionPlan){
-    actionPlanDao.save(ActionPlanDto.toActionDto(actionPlan, findProject(actionPlan.projectKey()).getId()));
+    actionPlanDao.save(ActionPlanDto.toActionDto(actionPlan, findComponent(actionPlan.projectKey()).getId()));
     return actionPlan;
   }
 
   public ActionPlan update(ActionPlan actionPlan){
-    actionPlanDao.update(ActionPlanDto.toActionDto(actionPlan, findProject(actionPlan.projectKey()).getId()));
+    actionPlanDao.update(ActionPlanDto.toActionDto(actionPlan, findComponent(actionPlan.projectKey()).getId()));
     return actionPlan;
   }
 
@@ -95,13 +95,13 @@ public class ActionPlanService implements ServerComponent {
     return toActionPlans(actionPlanDtos);
   }
 
-  public Collection<ActionPlan> findOpenByProjectKey(String projectKey) {
-    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findOpenByProjectId(findProject(projectKey).getId());
+  public Collection<ActionPlan> findOpenByComponentKey(String componentKey) {
+    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findOpenByProjectId(findRootProject(componentKey).getId());
     return toActionPlans(actionPlanDtos);
   }
 
   public List<ActionPlanStats> findActionPlanStats(String projectKey) {
-    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findByProjectId(findProject(projectKey).getId());
+    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findByProjectId(findComponent(projectKey).getId());
     return newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
       @Override
       public ActionPlanStats apply(ActionPlanStatsDto actionPlanStatsDto) {
@@ -111,7 +111,7 @@ public class ActionPlanService implements ServerComponent {
   }
 
   public boolean isNameAlreadyUsedForProject(String name, String projectKey) {
-    return !actionPlanDao.findByNameAndProjectId(name, findProject(projectKey).getId()).isEmpty();
+    return !actionPlanDao.findByNameAndProjectId(name, findComponent(projectKey).getId()).isEmpty();
   }
 
   private Collection<ActionPlan> toActionPlans(Collection<ActionPlanDto> actionPlanDtos) {
@@ -123,10 +123,18 @@ public class ActionPlanService implements ServerComponent {
     }));
   }
 
-  private ResourceDto findProject(String projectKey){
-    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
+  private ResourceDto findComponent(String componentKey){
+    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
     if (resourceDto == null) {
-      throw new IllegalArgumentException("Project " + projectKey + " does not exists.");
+      throw new IllegalArgumentException("Component " + componentKey + " does not exists.");
+    }
+    return resourceDto;
+  }
+
+  private ResourceDto findRootProject(String componentKey){
+    ResourceDto resourceDto = resourceDao.getRootProjectByComponentKey(componentKey);
+    if (resourceDto == null) {
+      throw new IllegalArgumentException("Component " + componentKey + " does not exists.");
     }
     return resourceDto;
   }

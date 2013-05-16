@@ -25,6 +25,8 @@ import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -147,6 +149,26 @@ public class ResourceDao {
         components.add(toComponent(resourceDto));
       }
       return components;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  public ResourceDto getRootProjectByComponentKey(String componentKey) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(ResourceMapper.class).selectRootProjectByComponentKey(componentKey);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  public ResourceDto getRootProjectByComponentId(Long componentId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(ResourceMapper.class).selectRootProjectByComponentId(componentId);
     } finally {
       MyBatis.closeQuietly(session);
     }

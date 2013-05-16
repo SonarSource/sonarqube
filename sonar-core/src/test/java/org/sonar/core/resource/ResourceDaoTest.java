@@ -160,6 +160,34 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_find_root_project_by_component_key() {
+    setupData("fixture");
+
+    ResourceDto resource = dao.getRootProjectByComponentKey("org.struts:struts:org.struts.RequestContext");
+    assertThat(resource.getName()).isEqualTo("Struts");
+
+    resource = dao.getRootProjectByComponentKey("org.struts:struts:org.struts");
+    assertThat(resource.getName()).isEqualTo("Struts");
+
+    resource = dao.getRootProjectByComponentKey("org.struts:struts-core");
+    assertThat(resource.getName()).isEqualTo("Struts");
+  }
+
+  @Test
+  public void should_find_root_project_by_component_Id() {
+    setupData("fixture");
+
+    ResourceDto resource = dao.getRootProjectByComponentId(4l);
+    assertThat(resource.getName()).isEqualTo("Struts");
+
+    resource = dao.getRootProjectByComponentId(3l);
+    assertThat(resource.getName()).isEqualTo("Struts");
+
+    resource = dao.getRootProjectByComponentId(2l);
+    assertThat(resource.getName()).isEqualTo("Struts");
+  }
+
+  @Test
   public void should_update() {
     setupData("update");
 

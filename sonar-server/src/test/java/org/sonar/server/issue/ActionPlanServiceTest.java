@@ -102,17 +102,17 @@ public class ActionPlanServiceTest {
 
   @Test
   public void should_find_open_by_project_key() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
+    when(resourceDao.getRootProjectByComponentKey("org.sonar.Sample")).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
     when(actionPlanDao.findOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
-    Collection<ActionPlan> results = actionPlanService.findOpenByProjectKey("org.sonar.Sample");
+    Collection<ActionPlan> results = actionPlanService.findOpenByComponentKey("org.sonar.Sample");
     assertThat(results).hasSize(1);
     assertThat(results.iterator().next().key()).isEqualTo("ABCD");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void should_throw_exception_if_project_not_found_when_find_open_by_project_key() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
-    actionPlanService.findOpenByProjectKey("<Unkown>");
+    when(resourceDao.getRootProjectByComponentKey(anyString())).thenReturn(null);
+    actionPlanService.findOpenByComponentKey("<Unkown>");
   }
 
   @Test

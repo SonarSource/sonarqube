@@ -101,6 +101,25 @@
     select * from projects where scope='PRJ' and root_id=#{id}
   </select>
 
+  <select id="selectRootProjectByComponentKey" parameterType="string" resultMap="resourceResultMap">
+    select rootProject.*
+    from projects p, snapshots s, projects rootProject
+    <where>
+      and p.kee=#{componentKey}
+      and s.project_id=p.id
+      and rootProject.id=s.root_project_id
+    </where>
+  </select>
+
+  <select id="selectRootProjectByComponentId" parameterType="long" resultMap="resourceResultMap">
+    select rootProject.*
+    from snapshots s, projects rootProject
+    <where>
+      and s.project_id=#{componentId}
+      and rootProject.id=s.root_project_id
+    </where>
+  </select>
+
   <insert id="insert" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
     insert into projects
     (name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, enabled, created_at)

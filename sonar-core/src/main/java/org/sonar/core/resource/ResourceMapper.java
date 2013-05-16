@@ -55,6 +55,17 @@ public interface ResourceMapper {
    */
   List<ResourceDto> selectResourcesById(@Param("ids") List <List<Integer>> ids);
 
+  /**
+   * @since 3.6
+   */
+  ResourceDto selectRootProjectByComponentKey(@Param("componentKey") String componentKey);
+
+  /**
+   * @since 3.6
+   */
+  ResourceDto selectRootProjectByComponentId(@Param("componentId") Long componentId);
+
+
   void insert(ResourceDto resource);
 
   void update(ResourceDto resource);

@@ -128,7 +128,7 @@ public class IssueService implements ServerComponent {
     return issue;
   }
 
-  private DefaultIssue loadIssue(String issueKey) {
+  public DefaultIssue loadIssue(String issueKey) {
     return finder.findByKey(issueKey, UserRole.USER);
   }
 
