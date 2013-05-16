@@ -32,6 +32,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -140,6 +141,10 @@ public class IssueService implements ServerComponent {
 
   public DefaultIssue loadIssue(String issueKey) {
     return finder.findByKey(issueKey, UserRole.USER);
+  }
+
+  public List<String> listStatus(){
+    return workflow.statusKeys();
   }
 
   private void verifyLoggedIn(UserSession userSession) {

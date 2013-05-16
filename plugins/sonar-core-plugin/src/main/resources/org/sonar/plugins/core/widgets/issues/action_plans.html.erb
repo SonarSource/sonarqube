@@ -67,7 +67,7 @@
             <% if unresolved_issues_size == 0 %>
               <%= unresolved_issues_size -%>
             <% else %>
-              <a href="<%= url_for({:controller => 'issues', :action => 'index',
+              <a href="<%= url_for({:controller => 'issues', :action => 'search',
                                     :actionPlans => plan.key, :resolved => 'false'}) -%>"
                  title="<%= message('widget.issues_action_plans.x_unresolved_issues', :params => unresolved_issues_size.to_s) -%>"><%= unresolved_issues_size -%></a>
             <% end %>

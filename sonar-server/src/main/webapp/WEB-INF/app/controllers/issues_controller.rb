@@ -20,6 +20,8 @@
 
 class IssuesController < ApplicationController
 
+  before_filter :init
+
   def index
     @filter = IssueFilter.new
     render :action => 'search'
@@ -29,10 +31,18 @@ class IssuesController < ApplicationController
     @filter = IssueFilter.new
     @filter.criteria=criteria_params
     @filter.execute
+
+    # TODO replace by project from issues result API
+    @project = Project.by_key(@filter.criteria('componentRoots')).root_project if @filter.criteria('componentRoots')
   end
 
 
   private
+
+  def init
+    status = Internal.issues.listStatus()
+    @options_for_status = status.map {|s| [message('issue.status.' + s), s]}
+  end
 
   def criteria_params
     params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})

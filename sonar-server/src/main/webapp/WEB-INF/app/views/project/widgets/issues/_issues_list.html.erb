@@ -47,7 +47,7 @@
     <tfoot>
     <tr>
       <td colspan="3">
-        <%= link_to(total_number, {:controller => "issues", :action => "index" }.merge(search_options))  %> <%= message('results').downcase -%>
+        <%= link_to(total_number, {:controller => 'issues', :action => 'search' }.merge(search_options)) -%> <%= message('results').downcase -%>
         <%
            if page_count
              page_count = 20 if page_count>20

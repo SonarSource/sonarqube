@@ -73,6 +73,10 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueService.listTransitions(issue);
   }
 
+  public List<String> listStatus() {
+    return issueService.listStatus();
+  }
+
   public Issue doTransition(String issueKey, String transitionKey) {
     return issueService.doTransition(issueKey, transitionKey, UserSession.get());
   }

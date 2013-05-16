@@ -1,7 +1,6 @@
 <%
   unless action_plan.totalIssues()==0
-    # TODO add links to issues page
-    options = {:controller => 'issues', :action => 'index', :actionPlans => action_plan.key}
+    options = {:controller => 'issues', :action => 'search', :actionPlans => action_plan.key}
 
     resolved_issues_link = action_plan.resolvedIssues().to_s
     resolved_issues_link = link_to action_plan.resolvedIssues().to_s, options.merge({:resolved => 'true'}) unless action_plan.resolvedIssues()==0
