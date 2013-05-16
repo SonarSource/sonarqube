@@ -95,7 +95,6 @@ public class IssueCountersDecorator implements Decorator {
       ListMultimap<RulePriority, Issue> issuesPerSeverities = ArrayListMultimap.create();
       int countUnassigned = 0;
       int falsePositives = 0;
-      int unplanned = 0;
 
       for (Issue issue : issues) {
         severitiesBag.add(RulePriority.valueOf(issue.severity()));
@@ -108,10 +107,6 @@ public class IssueCountersDecorator implements Decorator {
         }
         if (Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution())) {
           falsePositives++;
-        }
-
-        if (issue.actionPlanKey() == null) {
-          unplanned++;
         }
       }
 
