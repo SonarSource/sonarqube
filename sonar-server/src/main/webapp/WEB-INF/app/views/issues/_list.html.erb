@@ -1,69 +1,85 @@
 <%
-   if @issues && !@issues.empty?
+   if @filter.issues && !@filter.issues.empty?
+    colspan = 8
 %>
-  <table id="issues-list" class="data width100">
-    <thead>
-    <tr>
-      <th width="1%" nowrap>
-        <%= message('status_abbreviated') -%>
-      </th>
-      <th width="1%" nowrap>
-        <%= message('severity_abbreviated') -%>
-      </th>
-      <th>
-        Message
-      </th>
-      <th width="1%" nowrap>
-        Component name
-      </th>
-      <th>
-        <%= message('assignee') -%>
-      </th>
-      <th>
-        Creation date
-      </th>
-    </tr>
-    </thead>
-    <tfoot>
-    <tr>
-      <td colspan="6">
-        <%= paginate_java(@paging) -%>
-      </td>
-    </tr>
-    </tfoot>
-    <tbody>
-    <%
-       @issues.each do |issue|
-    %>
-      <tr class="<%= cycle('even', 'odd') -%>">
-        <td>
-          <img src="<%= ApplicationController.root_context -%>/images/status/<%= issue.status -%>.png" title="<%= message(issue.status.downcase).capitalize -%>"/>
-        </td>
-        <td>
-          <% if issue.severity %>
+  <div>
+    <table class="data width100">
+      <thead>
+        <tr>
+          <th width="1%" nowrap>
+            <%= message('severity_abbreviated') -%>
+          </th>
+          <th width="1%" nowrap>
+            <%= message('status_abbreviated') -%>
+          </th>
+          <th>
+            <%= message('description') -%>
+          </th>
+          <th width="1%" nowrap>
+            <%= message('component') -%>
+          </th>
+          <th>
+            <%= message('issue_filter.header.assignee') -%>
+          </th>
+          <th>
+            <%= message('issue_filter.header.action_plan') -%>
+          </th>
+          <th>
+            <%= message('issue_filter.header.creation_date') -%>
+          </th>
+          <th>
+            <%= message('issue_filter.header.update_date') -%>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+      <%
+         @filter.issues.each do |issue|
+      %>
+        <tr class="<%= cycle('even', 'odd') -%>">
+          <td>
             <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= message(issue.severity.downcase).capitalize -%>"/>
-          <% end %>
-        </td>
-        <td>
-          <%= link_to h(issue.message), :controller => "issue", :action => "view", :id => issue.key -%>
-        </td>
-        <td>
-          <%= h(@issue_results.component(issue).name) -%>
-        </td>
-        <td>
-          <%= @issue_results.user(issue.assignee).name if issue.assignee -%>
-        </td>
-        <td>
-          <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%>
-        </td>
-      </tr>
-    <%
-       end
-    %>
-    </tbody>
-  </table>
+          </td>
+          <td>
+            <img src="<%= ApplicationController.root_context -%>/images/status/<%= issue.status -%>.png" title="<%= message(issue.status.downcase).capitalize -%>"/>
+          </td>
+          <td>
+            <%= link_to h(issue.message), :controller => 'issue', :action => 'view', :id => issue.key -%>
+          </td>
+          <td>
+            <%= h @filter.issues_result.component(issue).name -%>
+          </td>
+          <td>
+            <%= h @filter.issues_result.user(issue.assignee).name if issue.assignee -%>
+          </td>
+          <td>
+            <%= h @filter.issues_result.actionPlan(issue).name if issue.actionPlanKey() -%>
+          </td>
+          <td>
+            <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%>
+          </td>
+          <td>
+            <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.updateDate())) -%>
+          </td>
+        </tr>
+      <%
+         end
+      %>
+      <% if @filter.issues.empty? %>
+        <tr class="even">
+          <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
+        </tr>
+      <% end %>
+      </tbody>
+
+      <%= paginate_java(@filter.paging, :colspan => colspan, :include_loading_icon => true) { |label, page_id|
+        link_to(label, @filter.criteria.merge({:pageIndex => page_id}))
+      } -%>
+
+    </table>
+  </div>
 <%
-   elsif @issues
+   elsif @filter.issues
 %>
   <p><%= message('no_results') -%></p>
 <%

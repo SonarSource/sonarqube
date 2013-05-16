@@ -21,19 +21,21 @@
 class IssuesController < ApplicationController
 
   def index
-    init_params
-    @issue_results = Api.issues.find(params)
-    @paging = @issue_results.paging
-    @issues = @issue_results.issues
+    @filter = IssueFilter.new
+    render :action => 'search'
+  end
+
+  def search
+    @filter = IssueFilter.new
+    @filter.criteria=criteria_params
+    @filter.execute
   end
 
 
   private
 
-  def init_params
+  def criteria_params
     params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})
-    params['pageSize'] = 25
-    params['pageIndex'] ||= 1
   end
 
 end

@@ -535,39 +535,6 @@ module ApplicationHelper
   end
 
   #
-  # Creates a pagination section for the given array (items_array) if its size exceeds the pagination size (default: 20).
-  # Upon completion of this method, the HTML is returned and the given array contains only the selected elements.
-  #
-  # In any case, the HTML that is returned contains the message 'x results', where x is the total number of elements
-  # in the items_array object.
-  #
-  # === Optional parameters
-  # * page_size: the number of elements to display at the same time (= the pagination size)
-  #
-  def paginate_java(pagination)
-    total = pagination.total.to_i
-    page_index = pagination.pageIndex() ? pagination.pageIndex().to_i : 1
-    page_size = pagination.pageSize().to_i || 20
-    pages = pagination.pages().to_i
-
-    html = total.to_s + " " + message('results').downcase
-
-    if total > page_size
-      # render the pagination links
-      html += " | "
-      html += link_to_if page_index>1, message('paging_previous'), {:overwrite_params => {:pageIndex => page_index-1}}
-      html += " "
-      for index in 1..pages
-        html += link_to_unless index==page_index, index.to_s, {:overwrite_params => {:pageIndex => index}}
-        html += " "
-      end
-      html += link_to_if page_index<pages, message('paging_next'), {:overwrite_params => {:pageIndex => 1+page_index}}
-    end
-
-    html
-  end
-
-  #
   # Used on the reviews listing page (http://localhost:9000/project_reviews)
   # Prints a label for the given parameter that is used to filter the review list.
   # The label has:
@@ -870,5 +837,71 @@ module ApplicationHelper
     html += '</div></td></tr></tfoot>'
     html
   end
+
+
+  # Add a <tfoot> section to a table with pagination details and links.
+  # Options :
+  # :id HTML id of the <tfoot> node
+  # :colspan number of columns in the table
+  # :include_loading_icon add a hidden loading icon, only if value is true and if the option :id is set as well. The HTML id of the generated icon
+  #    is '<id>_loading'
+  def paginate_java(pagination, options={}, &block)
+    total = pagination.total.to_i
+    page_index = pagination.pageIndex() ? pagination.pageIndex().to_i : 1
+    pages = pagination.pages().to_i
+
+    html = '<tfoot'
+    html += " id='#{options[:id]}'" if options[:id]
+    html += "><tr><td"
+    html += " colspan='#{options[:colspan]}'" if options[:colspan]
+    html += '>'
+    if options[:include_loading_icon] && options[:id]
+      html += "<img src='#{ApplicationController.root_context}/images/loading-small.gif' style='display: none' id='#{options[:id]}_loading'>"
+    end
+    html += '<div'
+    html += " id='#{options[:id]}_pages'" if options[:id]
+    html += '>'
+    html += message('x_results', :params => [total]) if total>0
+
+    if pages > 1
+      max_pages = pages
+      current_page = page_index
+      start_page = 1
+      end_page = max_pages
+      if max_pages > 20
+        if current_page < 12
+          start_page = 1
+          end_page = 20
+        elsif current_page > max_pages-10
+          start_page = max_pages-20
+          end_page = max_pages
+        else
+          start_page = current_page-10
+          end_page = current_page+9
+        end
+      end
+
+      html += ' | '
+      if max_pages > 20 && start_page > 1
+        html += (current_page!=1 ? yield(message('paging_first'), 1) : message('paging_first'))
+        html += ' '
+      end
+      html += (page_index>1 ? yield(message('paging_previous'), current_page-1) : message('paging_previous'))
+      html += ' '
+      for index in start_page..end_page
+        html += (index != current_page ? yield(index.to_s, index) : index.to_s)
+        html += ' '
+      end
+      html += (page_index<pages ? yield(message('paging_next'), current_page+1) : message('paging_next'))
+      html += ' '
+      if max_pages > 20 && end_page < max_pages
+        html += (current_page != max_pages ? yield(message('paging_last'), max_pages) : message('paging_last'))
+        html += ' '
+      end
+    end
+    html += '</div></td></tr></tfoot>'
+    html
+  end
+
 
 end

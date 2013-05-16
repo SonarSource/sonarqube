@@ -1,0 +1,17 @@
+<ul class="sidebar gray-sidebar">
+  <form method="GET" action="<%= ApplicationController.root_context -%>/issues/search" >
+    <li class="sidebar-title">
+      <%= message('issue_filter.new_search') -%>
+    </li>
+    <li id="criteria-severity" class="marginbottom5">
+      <%= message 'issue_filter.criteria.severities' -%>:
+      <%= dropdown_tag 'severities[]', options_for_select(RulesConfigurationController::RULE_PRIORITIES, @filter.criteria('severities')),
+                       {:width => '100%', :placeholder => message('issue_filter.criteria.severities')},
+                       {:id => 'select-severities', :multiple => true}-%>
+    </li>
+    <li>
+      <input type="submit" name="search" value="<%= message('search_verb') -%>" id="search-button" />
+      <a href="<%= ApplicationController.root_context -%>/issues" class="link-action"><%= message 'issue_filter.new_search' -%></a>
+    </li>
+  </form>
+</ul>
