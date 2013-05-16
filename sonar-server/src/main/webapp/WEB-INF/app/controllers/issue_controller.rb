@@ -29,29 +29,27 @@ class IssueController < ApplicationController
     if request.xhr?
       render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
     else
+      # Used in Eclipse Plugin
       params[:layout] = 'false'
       render :action => 'show'
     end
   end
 
+  # Form used for: assign, comment, transition, change severity and plan
   def action_form
     verify_ajax_request
     require_parameters :id, :issue
-
     action_type = params[:id]
-
-    # not used yet
-    issue_key = params[:issue]
-
     render :partial => "issue/#{action_type}_form"
   end
 
   def do_action
+    verify_ajax_request
     verify_post_request
     require_parameters :id, :issue
 
-    issue_key = params[:issue]
     action_type = params[:id]
+    issue_key = params[:issue]
 
     if action_type=='comment'
       Internal.issues.addComment(issue_key, params[:text])
@@ -70,7 +68,7 @@ class IssueController < ApplicationController
     render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
 
-  # form to edit comment
+  # Form used to edit comment
   def edit_comment_form
     verify_ajax_request
     require_parameters :id
@@ -80,7 +78,9 @@ class IssueController < ApplicationController
     render :partial => 'issue/edit_comment_form'
   end
 
+  # Edit and save an existing comment
   def edit_comment
+    verify_ajax_request
     verify_post_request
     require_parameters :key, :text
 
@@ -91,16 +91,17 @@ class IssueController < ApplicationController
     render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
 
-  # modal window to delete comment
+  # Form in a modal window to delete comment
   def delete_comment_form
     verify_ajax_request
     require_parameters :id
-
     render :partial => 'issue/delete_comment_form'
   end
 
+  # Delete an existing comment
   def delete_comment
     verify_post_request
+    verify_ajax_request
     require_parameters :id
 
     comment = Internal.issues.deleteComment(params[:id])
@@ -109,14 +110,17 @@ class IssueController < ApplicationController
     render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
 
-
+  # Form used to create a manual issue
   def create_form
     verify_ajax_request
+    require_parameters :component
     render :partial => 'issue/create_form'
   end
 
+  # Create a manual issue
   def create
     verify_post_request
+    verify_ajax_request
     require_parameters :rule, :component
 
     component_key = params[:component]
@@ -130,6 +134,8 @@ class IssueController < ApplicationController
     @issue_results = Api.issues.find(issue.key)
     render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
+
+
 
   #
   #

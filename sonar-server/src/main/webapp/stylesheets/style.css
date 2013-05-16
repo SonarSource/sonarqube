@@ -699,7 +699,7 @@ ul.operations li img {
 }
 
 .sources2 tr.row:hover td.plus {
-  background: url("../images/add.png") no-repeat scroll left 50% #EFEFEF;
+  background: url("../images/add.png") no-repeat scroll left 0 #EFEFEF;
 }
 
 .sources2 td.plus a {
@@ -892,18 +892,24 @@ span.rulename a:hover {
   vertical-align: text-bottom;
 }
 
+.code-issue-create-form {
+  padding-bottom: 10px;
+}
+
 .code-global-issues {
   padding: 10px;
 }
+
 .code-issues {
   background-color: #FFF;
+  padding-bottom: 10px;
 }
 
 .code-issue {
   background-color: #FFF;
   margin: 0;
   font-size: 12px;
-  padding: 5px 10px;
+  padding: 10px 10px 0 10px;
 }
 
 .code-issue-name {

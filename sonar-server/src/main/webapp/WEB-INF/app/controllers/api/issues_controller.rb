@@ -205,7 +205,7 @@ class Api::IssuesController < Api::ApiController
   # -- Optional parameters
   # 'severity' is in BLOCKER, CRITICAL, ... INFO. Default value is MAJOR.
   # 'line' starts at 1
-  # 'description' is the plain-text description
+  # 'message' is the markdown message
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/create?component=commons-io:commons-io:org.apache.commons.io.filefilter.OrFileFilter&rule=pmd:ConstructorCallsOverridableMethod&line=2&severity=BLOCKER'

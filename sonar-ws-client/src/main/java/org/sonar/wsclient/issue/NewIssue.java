@@ -19,6 +19,7 @@
  */
 package org.sonar.wsclient.issue;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +41,10 @@ public class NewIssue {
     return params;
   }
 
-  public NewIssue severity(String s) {
+  /**
+   * Optionally set the severity, in INFO, MINOR, MAJOR, CRITICAL or BLOCKER. Default value is MAJOR.
+   */
+  public NewIssue severity(@Nullable String s) {
     params.put("severity", s);
     return this;
   }
@@ -50,31 +54,28 @@ public class NewIssue {
     return this;
   }
 
+  /**
+   * Rule key prefixed by the repository, for example "checkstyle:AvoidCycle".
+   */
   public NewIssue rule(String s) {
     params.put("rule", s);
     return this;
   }
 
   /**
-   * Optional line
+   * Optional line, starting from 1.
    */
-  public NewIssue line(int i) {
+  public NewIssue line(@Nullable Integer i) {
     params.put("line", i);
     return this;
   }
 
-  public NewIssue description(String s) {
-    params.put("desc", s);
+  public NewIssue message(@Nullable String s) {
+    params.put("message", s);
     return this;
   }
 
-  // TODO to be removed
-  public NewIssue cost(Double d) {
-    params.put("cost", d);
-    return this;
-  }
-
-  public NewIssue effortToFix(double d) {
+  public NewIssue effortToFix(@Nullable Double d) {
     params.put("effortToFix", d);
     return this;
   }

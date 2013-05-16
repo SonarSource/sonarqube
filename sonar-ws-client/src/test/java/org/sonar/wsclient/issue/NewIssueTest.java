@@ -35,7 +35,7 @@ public class NewIssueTest {
     NewIssue newIssue = NewIssue.create()
       .component("Action.java")
       .effortToFix(4.2)
-      .description("the desc")
+      .message("the message")
       .line(123)
       .rule("squid:AvoidCycle")
       .severity("BLOCKER")
@@ -44,11 +44,23 @@ public class NewIssueTest {
     assertThat(newIssue.urlParams()).hasSize(7).includes(
       entry("component", "Action.java"),
       entry("effortToFix", 4.2),
-      entry("desc", "the desc"),
+      entry("message", "the message"),
       entry("line", 123),
       entry("rule", "squid:AvoidCycle"),
       entry("severity", "BLOCKER"),
       entry("attr[JIRA]", "FOO-123")
+    );
+  }
+
+  @Test
+  public void create_with_only_required_parameters() {
+    NewIssue newIssue = NewIssue.create()
+      .component("Action.java")
+      .rule("squid:AvoidCycle");
+
+    assertThat(newIssue.urlParams()).hasSize(2).includes(
+      entry("component", "Action.java"),
+      entry("rule", "squid:AvoidCycle")
     );
   }
 }

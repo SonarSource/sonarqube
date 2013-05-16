@@ -36,9 +36,9 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.platform.UserSession;
+import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
-
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -114,12 +114,10 @@ public class InternalRubyIssueService implements ServerComponent {
     // TODO verify authorization
     // TODO check existence of component
     DefaultIssueBuilder builder = new DefaultIssueBuilder().componentKey(componentKey);
-    String line = parameters.get("line");
-    builder.line(line != null ? Integer.parseInt(line) : null);
+    builder.line(RubyUtils.toInteger(parameters.get("line")));
     builder.message(parameters.get("message"));
     builder.severity(parameters.get("severity"));
-    String effortToFix = parameters.get("effortToFix");
-    builder.effortToFix(effortToFix != null ? Double.parseDouble(effortToFix) : null);
+    builder.effortToFix(RubyUtils.toDouble(parameters.get("effortToFix")));
     // TODO verify existence of rule
     builder.ruleKey(RuleKey.parse(parameters.get("rule")));
     Issue issue = builder.build();
@@ -245,16 +243,16 @@ public class InternalRubyIssueService implements ServerComponent {
     }
 
     if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && !name.equals(oldName)
-          && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
+      && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
       result.addError("issues_action_plans.same_name_in_same_project");
     }
 
     if (result.ok()) {
       DefaultActionPlan actionPlan = DefaultActionPlan.create(name)
-                                       .setProjectKey(projectParam)
-                                       .setDescription(description)
-                                       .setUserLogin(UserSession.get().login())
-                                       .setDeadLine(deadLine);
+        .setProjectKey(projectParam)
+        .setDescription(description)
+        .setUserLogin(UserSession.get().login())
+        .setDeadLine(deadLine);
       result.setObject(actionPlan);
     }
     return result;

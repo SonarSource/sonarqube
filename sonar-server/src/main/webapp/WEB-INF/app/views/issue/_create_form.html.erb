@@ -16,24 +16,40 @@
 
     <div class="code-issue">
       <div class="code-issue-name">
-        <% unless manual_rules.empty? %>
-          <%= dropdown_tag 'rule',
-                           options_for_select([[]].concat(manual_rules.map{|rule| [rule.name, rule.key] })),
-                           {:show_search_box => true, :placeholder => 'Select a Rule', :open => true},
-                           {:html_id => "#{form_id}-rules"} -%>
-        <% end %>
-        <% if is_admin %>
-          <a href="#">Add Rule</a>
-        <% end %>
+        <table class="width100">
+          <tr>
+            <td class="thin spacer-right">
+              <% unless manual_rules.empty? %>
+                <%= dropdown_tag 'rule',
+                                 options_for_select([[]].concat(manual_rules.map { |rule| [rule.name, rule.key] })),
+                                 {:show_search_box => true, :placeholder => 'Select a Rule'},
+                                 {:html_id => "#{form_id}-rules"} -%>
+              <% end %>
+            </td>
+            <td align="left">
+              <% if is_admin %>
+                <a href="<%= ApplicationController.root_context -%>/manual_rules/index">Manage Rules</a>
+              <% end %>
+            </td>
+          </tr>
+        </table>
+
       </div>
 
       <div class="code-issue-msg">
-        <textarea rows="4" name="message" class="width100 marginbottom5"></textarea>
-
-        <input type="submit" value="Create" onclick="return submitMIF(this);"> &nbsp;<%= link_to_function message('cancel'), 'closeMIF(this)' -%>
+        <table class="width100">
+          <tr>
+            <td>
+              <textarea rows="4" name="message" class="width100 marginbottom5"></textarea>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input type="submit" value="Create" onclick="return submitMIF(this);"> &nbsp;<%= link_to_function message('cancel'), 'closeMIF(this)' -%>
+            </td>
+          </tr>
+        </table>
       </div>
-      <div class="code-issue-form hidden"></div>
     </div>
   </form>
-
 <% end %>
