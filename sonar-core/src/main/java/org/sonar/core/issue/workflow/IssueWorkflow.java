@@ -125,6 +125,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
     if (transition != null) {
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
       issue.setStatus(transition.to());
+      issue.setUpdateDate(issueChangeContext.date());
     }
   }
 

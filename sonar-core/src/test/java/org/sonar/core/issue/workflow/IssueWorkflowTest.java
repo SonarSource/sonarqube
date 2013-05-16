@@ -70,10 +70,12 @@ public class IssueWorkflowTest {
       .setStatus(Issue.STATUS_RESOLVED)
       .setNew(false)
       .setAlive(false);
-    workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(new Date()));
+    Date now = new Date();
+    workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
+    assertThat(issue.updateDate()).isEqualTo(now);
   }
 
   @Test
