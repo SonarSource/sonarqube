@@ -1,6 +1,5 @@
 <%
-  component_key = params[:component]
-  plans = Internal.issues.findOpenActionPlans(component_key)
+  plans = Internal.issues.findOpenActionPlans(params[:issue])
 
   if plans.empty?
 %>
