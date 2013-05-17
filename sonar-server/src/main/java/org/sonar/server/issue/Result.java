@@ -17,46 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.issue;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * @since 3.6
+ */
 public class Result<T> {
 
-  private T object;
-  private List<Message> errors;
+  private T object = null;
+  private List<Message> errors = newArrayList();
+  ;
 
-  public Result() {
-    errors = newArrayList();
-  }
-
-  public Result(T object) {
-    this();
+  private Result(@Nullable T object) {
     this.object = object;
   }
 
-  public void setObject(T object){
+  public static <T> Result<T> of(@Nullable T t) {
+    return new Result<T>(t);
+  }
+
+  public static <T> Result<T> of() {
+    return new Result<T>(null);
+  }
+
+  public Result<T> set(@Nullable T object) {
     this.object = object;
+    return this;
   }
 
   public T get() {
     return object;
   }
 
-  public void addError(String text, Object... params){
+  public Result<T> addError(String text, Object... params) {
     Message message = new Message(text, params);
     errors.add(message);
+    return this;
   }
 
-  public List<Message> errors(){
+  public List<Message> errors() {
     return errors;
   }
 
-  public boolean ok(){
+  public boolean ok() {
     return errors.isEmpty();
   }
 

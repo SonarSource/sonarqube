@@ -20,8 +20,6 @@
 
 class Api::ActionPlansController < Api::ApiController
 
-  before_filter :admin_required, :only => [ :create, :delete, :update, :close, :open ]
-
   #
   # GET /api/action_plans/search?project=<project>
   #
@@ -44,8 +42,8 @@ class Api::ActionPlansController < Api::ApiController
   # POST /api/action_plans/create
   #
   # -- Mandatory parameters
-  # 'name' is the action plan name
-  # 'project' is the project key to link the action plan to
+  # 'name' is the name of the action plan
+  # 'project' is the key of the project to link the action plan to
   #
   # -- Optional parameters
   # 'description' is the plain-text description
@@ -56,6 +54,7 @@ class Api::ActionPlansController < Api::ApiController
   #
   def create
     verify_post_request
+    access_denied unless has_role?(:admin)
     require_parameters :project, :name
 
     result = Internal.issues.createActionPlan(params)
@@ -78,6 +77,7 @@ class Api::ActionPlansController < Api::ApiController
   #
   def delete
     verify_post_request
+    access_denied unless has_role?(:admin)
     require_parameters :key
 
     result = Internal.issues.deleteActionPlan(params[:key])
@@ -102,6 +102,7 @@ class Api::ActionPlansController < Api::ApiController
   #
   def update
     verify_post_request
+    access_denied unless has_role?(:admin)
     require_parameters :key
 
     result = Internal.issues.updateActionPlan(params[:key], params)
@@ -124,6 +125,7 @@ class Api::ActionPlansController < Api::ApiController
   #
   def close
     verify_post_request
+    access_denied unless has_role?(:admin)
     require_parameters :key
 
     result = Internal.issues.closeActionPlan(params[:key])
@@ -146,6 +148,7 @@ class Api::ActionPlansController < Api::ApiController
   #
   def open
     verify_post_request
+    access_denied unless has_role?(:admin)
     require_parameters :key
 
     result = Internal.issues.openActionPlan(params[:key])

@@ -142,7 +142,7 @@ public class InternalRubyIssueService implements ServerComponent {
 
     Result<ActionPlan> result = createActionPlanResult(parameters);
     if (result.ok()) {
-      result.setObject(actionPlanService.create(result.get()));
+      result.set(actionPlanService.create(result.get()));
     }
     return result;
   }
@@ -152,7 +152,7 @@ public class InternalRubyIssueService implements ServerComponent {
 
     DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key);
     if (existingActionPlan == null) {
-      Result<ActionPlan> result = new Result<ActionPlan>();
+      Result<ActionPlan> result = Result.of();
       result.addError("issues_action_plans.errors.action_plan_does_not_exists", key);
       return result;
     } else {
@@ -161,7 +161,7 @@ public class InternalRubyIssueService implements ServerComponent {
         DefaultActionPlan actionPlan = (DefaultActionPlan) result.get();
         actionPlan.setKey(existingActionPlan.key());
         actionPlan.setUserLogin(existingActionPlan.userLogin());
-        result.setObject(actionPlanService.update(actionPlan));
+        result.set(actionPlanService.update(actionPlan));
       }
       return result;
     }
@@ -171,7 +171,7 @@ public class InternalRubyIssueService implements ServerComponent {
     // TODO verify authorization
     Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
     if (result.ok()) {
-      result.setObject(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED));
+      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED));
     }
     return result;
   }
@@ -180,7 +180,7 @@ public class InternalRubyIssueService implements ServerComponent {
     // TODO verify authorization
     Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
     if (result.ok()) {
-      result.setObject(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN));
+      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN));
     }
     return result;
   }
@@ -201,7 +201,7 @@ public class InternalRubyIssueService implements ServerComponent {
 
   @VisibleForTesting
   Result<ActionPlan> createActionPlanResult(Map<String, String> parameters, @Nullable String oldName) {
-    Result<ActionPlan> result = new Result<ActionPlan>();
+    Result<ActionPlan> result = Result.of();
 
     String name = parameters.get("name");
     String description = parameters.get("description");
@@ -253,13 +253,13 @@ public class InternalRubyIssueService implements ServerComponent {
         .setDescription(description)
         .setUserLogin(UserSession.get().login())
         .setDeadLine(deadLine);
-      result.setObject(actionPlan);
+      result.set(actionPlan);
     }
     return result;
   }
 
   private Result<ActionPlan> createResultForExistingActionPlan(String actionPlanKey) {
-    Result<ActionPlan> result = new Result<ActionPlan>();
+    Result<ActionPlan> result = Result.of();
     if (findActionPlan(actionPlanKey) == null) {
       result.addError("issues_action_plans.errors.action_plan_does_not_exists", actionPlanKey);
     }

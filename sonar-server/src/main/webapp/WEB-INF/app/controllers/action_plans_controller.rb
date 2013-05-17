@@ -22,7 +22,6 @@ class ActionPlansController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
   before_filter :load_resource
-  verify :method => :post, :only => [:save, :delete, :change_status], :redirect_to => {:action => :index}
 
   def index
     load_action_plans()
@@ -35,7 +34,8 @@ class ActionPlansController < ApplicationController
   end
 
   def save
-    @action_plan = ActionPlan.find params[:plan_id] unless params[:plan_id].blank?
+    verify_post_request
+    @action_plan = ActionPlan.find params[:plan_id] if params[:plan_id].present?
     unless @action_plan
       @action_plan = ActionPlan.new(
           :kee => Java::JavaUtil::UUID.randomUUID().toString(),
@@ -72,12 +72,14 @@ class ActionPlansController < ApplicationController
   end
 
   def delete
+    verify_post_request
     action_plan = ActionPlan.find params[:plan_id]
     action_plan.destroy
     redirect_to :action => 'index', :id => @resource.id
   end
 
   def change_status
+    verify_post_request
     action_plan = ActionPlan.find params[:plan_id]
     if action_plan
       action_plan.status = action_plan.open? ? ActionPlan::STATUS_CLOSED : ActionPlan::STATUS_OPEN
