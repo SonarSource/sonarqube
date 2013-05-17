@@ -235,7 +235,7 @@
         </foreach>
       </if>
       <if test="createdAfter != null">
-        and i.issue_creation_date &gt; #{createdAfter}
+        and i.issue_creation_date &gt;= #{createdAfter}
       </if>
       <if test="createdBefore != null">
         and i.issue_creation_date &lt; #{createdBefore}
