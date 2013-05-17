@@ -47,7 +47,7 @@ public class IssueParserTest {
     assertThat(first.assignee()).isEqualTo("karadoc");
     assertThat(first.message()).isEqualTo("the message");
     assertThat(first.effortToFix()).isEqualTo(4.2);
-    assertThat(first.userLogin()).isEqualTo("perceval");
+    assertThat(first.reporter()).isEqualTo("perceval");
     assertThat(first.creationDate()).isNotNull();
     assertThat(first.updateDate()).isNotNull();
     assertThat(first.closeDate()).isNotNull();
@@ -60,7 +60,7 @@ public class IssueParserTest {
     assertThat(second.key()).isEqualTo("FGHIJ");
     assertThat(second.line()).isNull();
     assertThat(second.effortToFix()).isNull();
-    assertThat(second.description()).isNull();
+    assertThat(second.reporter()).isNull();
     assertThat(second.attribute("JIRA")).isNull();
     assertThat(second.attributes()).isEmpty();
     assertThat(second.comments()).isEmpty();

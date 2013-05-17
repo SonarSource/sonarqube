@@ -54,14 +54,6 @@ public class Issue {
     return JsonUtils.getString(json, "severity");
   }
 
-  /**
-   * TODO to be removed
-   */
-  @CheckForNull
-  public String description() {
-    return JsonUtils.getString(json, "message");
-  }
-
   @CheckForNull
   public String message() {
     return JsonUtils.getString(json, "message");
@@ -87,15 +79,6 @@ public class Issue {
   @CheckForNull
   public String resolution() {
     return JsonUtils.getString(json, "resolution");
-  }
-
-  /**
-   * Login of the user who created the manual issue, else null.
-   * TODO to be removed
-   */
-  @CheckForNull
-  public String userLogin() {
-    return JsonUtils.getString(json, "reporter");
   }
 
   @CheckForNull

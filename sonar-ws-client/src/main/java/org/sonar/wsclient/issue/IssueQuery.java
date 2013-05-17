@@ -76,13 +76,6 @@ public class IssueQuery {
     return addParam("actionPlans", s);
   }
 
-  /**
-   * TODO To be removed
-   */
-  public IssueQuery userLogins(String... s) {
-    return addParam("reporters", s);
-  }
-
   public IssueQuery reporters(String... s) {
     return addParam("reporters", s);
   }
