@@ -63,10 +63,8 @@ public class DefaultRuleFinder implements RuleFinder {
       return Collections.emptyList();
     }
     DatabaseSession session = sessionFactory.getSession();
-    StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" r where r.id in (:ids) and status<>:status ");
-    Query hqlQuery = session.createQuery(hql.toString())
-      .setParameter("status", Rule.STATUS_REMOVED)
-      .setParameter("ids", ruleIds);
+    StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" r where r.id in (:ids)");
+    Query hqlQuery = session.createQuery(hql.toString()).setParameter("ids", ruleIds);
     return hqlQuery.getResultList();
   }
 

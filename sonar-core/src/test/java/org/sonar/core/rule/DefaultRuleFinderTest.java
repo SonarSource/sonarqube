@@ -50,8 +50,8 @@ public class DefaultRuleFinderTest extends AbstractDbUnitTestCase {
   public void should_find_by_ids() {
     setupData("shared");
     DefaultRuleFinder finder = new DefaultRuleFinder(getSessionFactory());
-    // 2 is disabled
-    assertThat(finder.findByIds(newArrayList(2, 3))).hasSize(1);
+    // 2 is returned even its status is REMOVED
+    assertThat(finder.findByIds(newArrayList(2, 3))).hasSize(2);
   }
 
   @Test
