@@ -2,40 +2,36 @@
    manual_rules = Rule.manual_rules
    is_admin = has_role?(:admin)
    form_id = "create-issue-#{params[:component]}-#{params[:line]}"
-   if manual_rules.empty? && !is_admin
+   rule_select_id = "#{form_id}-rules"
 %>
-  <div class="warning">
-    No rules. Please contact the administrator.
-    &nbsp;<%= link_to_function message('cancel'), 'closeMIF(this)' -%>
-  </div>
+<form action="" class="code-issue-create-form" id="<%= form_id -%>">
+  <%
+     if manual_rules.empty?
+  %>
+    <div class="warning" style="margin: 10px">
 
-<% else %>
-  <form action="" class="code-issue-create-form" id="<%= form_id -%>">
+      <%= message('issue.manual.no_rules') -%>
+      <% if is_admin %>
+        <a href="<%= ApplicationController.root_context -%>/manual_rules/index"><%= message('manage') -%></a>
+      <% else %>
+        <%= message('contact_admin') -%>
+      <% end %>
+
+      &nbsp;<%= link_to_function message('cancel'), 'closeCreateIssueForm(this)' -%>
+    </div>
+
+  <% else %>
+
     <input type="hidden" name="line" value="<%= params[:line] -%>"/>
     <input type="hidden" name="component" value="<%= params[:component] -%>"/>
 
     <div class="code-issue">
       <div class="code-issue-name">
-        <table class="width100">
-          <tr>
-            <td class="thin spacer-right">
-              <% unless manual_rules.empty? %>
-                <%= dropdown_tag 'rule',
-                                 options_for_select([[]].concat(manual_rules.map { |rule| [rule.name, rule.key] })),
-                                 {:show_search_box => true, :placeholder => 'Select a Rule'},
-                                 {:html_id => "#{form_id}-rules"} -%>
-              <% end %>
-            </td>
-            <td align="left">
-              <% if is_admin %>
-                <a href="<%= ApplicationController.root_context -%>/manual_rules/index">Manage Rules</a>
-              <% end %>
-            </td>
-          </tr>
-        </table>
-
+        <%= dropdown_tag 'rule',
+                         options_for_select([[]].concat(manual_rules.map { |rule| [rule.name, rule.key] })),
+                         {:show_search_box => true, :placeholder => 'Select a Rule'},
+                         {:html_id => rule_select_id} -%>
       </div>
-
       <div class="code-issue-msg">
         <table class="width100">
           <tr>
@@ -45,11 +41,14 @@
           </tr>
           <tr>
             <td>
-              <input type="submit" value="Create" onclick="return submitMIF(this);"> &nbsp;<%= link_to_function message('cancel'), 'closeMIF(this)' -%>
+              <input type="submit" value="Create" onclick="return submitCreateIssueForm(this);"> &nbsp;
+              <%= link_to_function message('cancel'), 'closeCreateIssueForm(this)' -%> &nbsp;
+              <span class="loading hidden"></span>
             </td>
           </tr>
         </table>
+        <div class="code-issue-errors hidden"></div>
       </div>
     </div>
-  </form>
-<% end %>
+  <% end %>
+</form>

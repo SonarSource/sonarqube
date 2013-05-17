@@ -20,9 +20,11 @@
 package org.sonar.server.util;
 
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
 
 import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class RubyUtilsTest {
   @Test
@@ -35,12 +37,96 @@ public class RubyUtilsTest {
   }
 
   @Test
+  public void toInteger() throws Exception {
+    assertThat(RubyUtils.toInteger(null)).isNull();
+    assertThat(RubyUtils.toInteger("")).isNull();
+    assertThat(RubyUtils.toInteger("   ")).isNull();
+    assertThat(RubyUtils.toInteger("123")).isEqualTo(123);
+    assertThat(RubyUtils.toInteger(123)).isEqualTo(123);
+    assertThat(RubyUtils.toInteger(123L)).isEqualTo(123);
+  }
+
+  @Test
+  public void toInteger_unexpected_class() throws Exception {
+    try {
+      RubyUtils.toInteger(1.2);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // ok
+    }
+  }
+
+  @Test
+  public void toDouble() throws Exception {
+    assertThat(RubyUtils.toDouble(null)).isNull();
+    assertThat(RubyUtils.toDouble("")).isNull();
+    assertThat(RubyUtils.toDouble("  ")).isNull();
+    assertThat(RubyUtils.toDouble("123")).isEqualTo(123.0);
+    assertThat(RubyUtils.toDouble("3.14")).isEqualTo(3.14);
+    assertThat(RubyUtils.toDouble(3.14)).isEqualTo(3.14);
+    assertThat(RubyUtils.toDouble(123)).isEqualTo(123.0);
+    assertThat(RubyUtils.toDouble(123L)).isEqualTo(123.0);
+  }
+
+  @Test
+  public void toDouble_unexpected_class() throws Exception {
+    try {
+      RubyUtils.toDouble(true);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // ok
+    }
+  }
+
+  @Test
   public void toBoolean() throws Exception {
     assertThat(RubyUtils.toBoolean(null)).isNull();
+    assertThat(RubyUtils.toBoolean("")).isNull();
+    assertThat(RubyUtils.toBoolean("  ")).isNull();
     assertThat(RubyUtils.toBoolean("true")).isTrue();
     assertThat(RubyUtils.toBoolean(true)).isTrue();
     assertThat(RubyUtils.toBoolean("false")).isFalse();
     assertThat(RubyUtils.toBoolean(false)).isFalse();
+  }
 
+  @Test
+  public void toBoolean_unexpected_class() throws Exception {
+    try {
+      RubyUtils.toBoolean(333);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // ok
+    }
+  }
+
+  @Test
+  public void toDate() throws Exception {
+    assertThat(RubyUtils.toDate(null)).isNull();
+    assertThat(RubyUtils.toDate("")).isNull();
+    assertThat(RubyUtils.toDate("   ")).isNull();
+    assertThat(RubyUtils.toDate("2013-01-18").getDate()).isEqualTo(18);
+    assertThat(RubyUtils.toDate("2013-01-18T15:38:19+0200").getDate()).isEqualTo(18);
+    assertThat(RubyUtils.toDate("2013-01-18T15:38:19+0200").getMinutes()).isEqualTo(38);
+    assertThat(RubyUtils.toDate(DateUtils.parseDate("2013-01-18")).getDate()).isEqualTo(18);
+  }
+
+  @Test
+  public void toDate_bad_format() throws Exception {
+    try {
+      RubyUtils.toDate("01/02/2013");
+      fail();
+    } catch (Exception e) {
+      // ok
+    }
+  }
+
+  @Test
+  public void toDate_unexpected_class() throws Exception {
+    try {
+      RubyUtils.toDate(333);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // ok
+    }
   }
 }

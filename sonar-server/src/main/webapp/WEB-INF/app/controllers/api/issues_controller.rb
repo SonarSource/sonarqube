@@ -52,7 +52,6 @@ class Api::IssuesController < Api::ApiController
   # curl -v -u admin:admin 'http://localhost:9000/api/issues/transitions?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0'
   #
   def transitions
-    # TODO deal with errors (404, ...)
     require_parameters :issue
     issue_key = params[:issue]
     transitions = Internal.issues.listTransitions(issue_key)
@@ -200,26 +199,33 @@ class Api::IssuesController < Api::ApiController
   #
   # -- Mandatory parameters
   # 'component' is the component key
-  # 'rule' includes the repository key and the rule key, for example 'squid:AvoidCycle'
+  # 'rule' is the rule key prefixed with "manual:", for example 'manual:performance'
   #
   # -- Optional parameters
   # 'severity' is in BLOCKER, CRITICAL, ... INFO. Default value is MAJOR.
   # 'line' starts at 1
-  # 'message' is the markdown message
+  # 'message' is the plain-text message
   #
   # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/create?component=commons-io:commons-io:org.apache.commons.io.filefilter.OrFileFilter&rule=pmd:ConstructorCallsOverridableMethod&line=2&severity=BLOCKER'
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/create?component=commons-io:commons-io:org.apache.commons.io.filefilter.OrFileFilter&rule=manual:performance&line=2&severity=BLOCKER'
   #
   def create
     verify_post_request
-    access_denied unless logged_in?
-    require_parameters :component, :rule
 
-    issue = Internal.issues.create(params)
-    render :json => jsonp({:issue => Issue.to_hash(issue)})
+    issue_result = Internal.issues.create(params)
+
+    http_status = (issue_result.ok ? 200 : 400)
+    hash = result_to_hash(issue_result)
+    hash[:issue] = Issue.to_hash(issue_result.get) if issue_result.get
+
+    respond_to do |format|
+      # if the request header "Accept" is "*/*", then the default format is the first one (json)
+      format.json { render :json => jsonp(hash), :status => issue_result.httpStatus }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
+    end
   end
 
-  private
+  protected
 
   def component_to_hash(component)
     hash = {
@@ -239,4 +245,17 @@ class Api::IssuesController < Api::ApiController
       :pages => paging.pages
     }
   end
+
+  def result_to_hash(result)
+    hash = {}
+    if result.errors
+      hash[:errors] = result.errors().map do |error|
+        {
+          :msg => (error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams))
+        }
+      end
+    end
+    hash
+  end
+
 end

@@ -109,19 +109,43 @@ public class InternalRubyIssueService implements ServerComponent {
     return commentService.findComment(commentKey);
   }
 
-  public Issue create(Map<String, String> parameters) {
-    String componentKey = parameters.get("component");
-    // TODO verify authorization
-    // TODO check existence of component
-    DefaultIssueBuilder builder = new DefaultIssueBuilder().componentKey(componentKey);
-    builder.line(RubyUtils.toInteger(parameters.get("line")));
-    builder.message(parameters.get("message"));
-    builder.severity(parameters.get("severity"));
-    builder.effortToFix(RubyUtils.toDouble(parameters.get("effortToFix")));
-    // TODO verify existence of rule
-    builder.ruleKey(RuleKey.parse(parameters.get("rule")));
-    Issue issue = builder.build();
-    return issueService.create((DefaultIssue) issue, UserSession.get());
+  /**
+   * Create manual issue
+   */
+  public Result<DefaultIssue> create(Map<String, String> params) {
+    Result<DefaultIssue> result = Result.of();
+    try {
+      // mandatory parameters
+      String componentKey = params.get("component");
+      if (StringUtils.isBlank(componentKey)) {
+        result.addError("Component is not set");
+      }
+      RuleKey ruleKey = null;
+      String rule = params.get("rule");
+      if (StringUtils.isBlank(rule)) {
+        result.addError(Result.Message.ofL10n("issue.manual.missing_rule"));
+      } else {
+        ruleKey = RuleKey.parse(rule);
+      }
+
+      if (result.ok()) {
+        DefaultIssue issue = (DefaultIssue)new DefaultIssueBuilder()
+          .componentKey(componentKey)
+          .line(RubyUtils.toInteger(params.get("line")))
+          .message(params.get("message"))
+          .severity(params.get("severity"))
+          .effortToFix(RubyUtils.toDouble(params.get("effortToFix")))
+          .ruleKey(ruleKey)
+          .reporter(UserSession.get().login())
+          .build();
+        issue = issueService.createManualIssue(issue, UserSession.get());
+        result.set(issue);
+      }
+
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
   }
 
   public Collection<ActionPlan> findOpenActionPlans(String issueKey) {
@@ -153,7 +177,7 @@ public class InternalRubyIssueService implements ServerComponent {
     DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key);
     if (existingActionPlan == null) {
       Result<ActionPlan> result = Result.of();
-      result.addError("issues_action_plans.errors.action_plan_does_not_exists", key);
+      result.addError(Result.Message.ofL10n("issues_action_plans.errors.action_plan_does_not_exists", key));
       return result;
     } else {
       Result<ActionPlan> result = createActionPlanResult(parameters, existingActionPlan.name());
@@ -210,23 +234,23 @@ public class InternalRubyIssueService implements ServerComponent {
     Date deadLine = null;
 
     if (Strings.isNullOrEmpty(name)) {
-      result.addError("errors.cant_be_empty", "name");
+      result.addError(Result.Message.ofL10n("errors.cant_be_empty", "name"));
     } else {
       if (name.length() > 200) {
-        result.addError("errors.is_too_long", "name", 200);
+        result.addError(Result.Message.ofL10n("errors.is_too_long", "name", 200));
       }
     }
 
     if (!Strings.isNullOrEmpty(description) && description.length() > 1000) {
-      result.addError("errors.is_too_long", "description", 1000);
+      result.addError(Result.Message.ofL10n("errors.is_too_long", "description", 1000));
     }
 
     if (Strings.isNullOrEmpty(projectParam) && oldName == null) {
-      result.addError("errors.cant_be_empty", "project");
+      result.addError(Result.Message.ofL10n("errors.cant_be_empty", "project"));
     } else {
       ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
       if (project == null) {
-        result.addError("issues_action_plans.errors.project_does_not_exists", projectParam);
+        result.addError(Result.Message.ofL10n("issues_action_plans.errors.project_does_not_exists", projectParam));
       }
     }
 
@@ -235,16 +259,16 @@ public class InternalRubyIssueService implements ServerComponent {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         deadLine = dateFormat.parse(deadLineParam);
         if (deadLine.before(new Date())) {
-          result.addError("issues_action_plans.date_cant_be_in_past");
+          result.addError(Result.Message.ofL10n("issues_action_plans.date_cant_be_in_past"));
         }
       } catch (Exception e) {
-        result.addError("errors.is_not_valid", "date");
+        result.addError(Result.Message.ofL10n("errors.is_not_valid", "date"));
       }
     }
 
     if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && !name.equals(oldName)
       && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
-      result.addError("issues_action_plans.same_name_in_same_project");
+      result.addError(Result.Message.ofL10n("issues_action_plans.same_name_in_same_project"));
     }
 
     if (result.ok()) {
@@ -261,7 +285,7 @@ public class InternalRubyIssueService implements ServerComponent {
   private Result<ActionPlan> createResultForExistingActionPlan(String actionPlanKey) {
     Result<ActionPlan> result = Result.of();
     if (findActionPlan(actionPlanKey) == null) {
-      result.addError("issues_action_plans.errors.action_plan_does_not_exists", actionPlanKey);
+      result.addError(Result.Message.ofL10n("issues_action_plans.errors.action_plan_does_not_exists", actionPlanKey));
     }
     return result;
   }

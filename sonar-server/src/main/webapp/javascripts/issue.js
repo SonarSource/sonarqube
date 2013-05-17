@@ -158,7 +158,8 @@ function refreshIssue(elt) {
   return false;
 }
 
-function openMIF(elt, componentId, line) {
+/* Open form for creating a manual issue */
+function openCIF(elt, componentId, line) {
   // TODO check if form is already displayed (by using form id)
   $j.get(baseUrl + "/issue/create_form?component=" + componentId + "&line=" + line, function (html) {
     $j(elt).closest('tr').find('td.line').append($j(html));
@@ -166,24 +167,36 @@ function openMIF(elt, componentId, line) {
   return false;
 }
 
-function closeMIF(elt) {
+/* Close the form used for creating a manual issue */
+function closeCreateIssueForm(elt) {
   $j(elt).closest('.code-issue-create-form').remove();
   return false;
 }
 
-function submitMIF(elt) {
+/* Create a manual issue */
+function submitCreateIssueForm(elt) {
   var formElt = $j(elt).closest('form');
-  formElt.find('.loading').removeClass('hidden');
-  formElt.find(':submit').prop('disabled', true);
+  var loadingElt = formElt.find('.loading');
+
+  loadingElt.removeClass('hidden');
   $j.ajax({
       type: "POST",
       url: baseUrl + '/issue/create',
       data: formElt.serialize()}
-  ).success(function (data) {
-      formElt.html(data);
+  ).success(function (html) {
+      var replaced = $j(html);
+      formElt.replaceWith(replaced);
+
+      // enable the links opening modal popups
+      replaced.find('.open-modal').modal();
     }
-  ).fail(function (jqXHR, textStatus) {
-      alert(textStatus);
+  ).error(function (jqXHR, textStatus, errorThrown) {
+      var errorsElt = formElt.find('.code-issue-errors');
+      errorsElt.html(jqXHR.responseText);
+      errorsElt.removeClass('hidden');
+    }
+  ).always(function() {
+      loadingElt.addClass('hidden');
     });
   return false;
 }

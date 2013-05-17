@@ -121,7 +121,6 @@ class IssueController < ApplicationController
   def create
     verify_post_request
     verify_ajax_request
-    require_parameters :rule, :component
 
     component_key = params[:component]
     if Api::Utils.is_integer?(component_key)
@@ -129,12 +128,14 @@ class IssueController < ApplicationController
       component_key = (component ? component.key : nil)
     end
 
-    issue = Internal.issues.create(params.merge({:component => component_key}))
-
-    @issue_results = Api.issues.find(issue.key)
-    render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
+    issue_result = Internal.issues.create(params.merge({:component => component_key}))
+    if issue_result.ok
+      @issue_results = Api.issues.find(issue_result.get.key)
+      render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
+    else
+      render :partial => 'shared/result_messages', :status => 500, :locals => {:result => issue_result}
+    end
   end
-
 
 
   #

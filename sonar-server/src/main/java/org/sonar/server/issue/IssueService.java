@@ -22,6 +22,8 @@ package org.sonar.server.issue;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -48,20 +50,32 @@ public class IssueService implements ServerComponent {
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
   private final ActionPlanService actionPlanService;
+  private final RuleFinder ruleFinder;
 
   public IssueService(DefaultIssueFinder finder,
                       IssueWorkflow workflow,
                       IssueStorage issueStorage,
-                      IssueUpdater issueUpdater, ActionPlanService actionPlanService) {
+                      IssueUpdater issueUpdater,
+                      ActionPlanService actionPlanService,
+                      RuleFinder ruleFinder) {
     this.finder = finder;
     this.workflow = workflow;
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
     this.actionPlanService = actionPlanService;
+    this.ruleFinder = ruleFinder;
   }
 
+  /**
+   * List of available transitions, ordered by key.
+   * <p/>
+   * Never return null, but return an empty list if the issue does not exist.
+   */
   public List<Transition> listTransitions(String issueKey) {
     DefaultIssue issue = loadIssue(issueKey);
+    if (issue == null) {
+      return Collections.emptyList();
+    }
     List<Transition> transitions = workflow.outTransitions(issue);
     Collections.sort(transitions, new Comparator<Transition>() {
       @Override
@@ -72,7 +86,13 @@ public class IssueService implements ServerComponent {
     return transitions;
   }
 
-  public List<Transition> listTransitions(Issue issue) {
+  /**
+   * Never return null, but an empty list if the issue does not exist.
+   */
+  public List<Transition> listTransitions(@Nullable Issue issue) {
+    if (issue == null) {
+      return Collections.emptyList();
+    }
     List<Transition> transitions = workflow.outTransitions(issue);
     Collections.sort(transitions, new Comparator<Transition>() {
       @Override
@@ -130,14 +150,24 @@ public class IssueService implements ServerComponent {
     return issue;
   }
 
-  public Issue create(DefaultIssue issue, UserSession userSession) {
-    // TODO merge with InternalRubyIssueService
-    issue.setReporter(userSession.login());
+  public DefaultIssue createManualIssue(DefaultIssue issue, UserSession userSession) {
+    verifyLoggedIn(userSession);
+    if (!"manual".equals(issue.ruleKey().repository())) {
+      throw new IllegalArgumentException("Issues can be created only on rules marked as 'manual': " + issue.ruleKey());
+    }
+    Rule rule = ruleFinder.findByKey(issue.ruleKey());
+    if (rule == null) {
+      throw new IllegalArgumentException("Unknown rule: " + issue.ruleKey());
+    }
+
+
+    // TODO check existence of component
+    // TODO verify authorization
 
     issueStorage.save(issue);
-
     return issue;
   }
+
 
   public DefaultIssue loadIssue(String issueKey) {
     return finder.findByKey(issueKey, UserRole.USER);

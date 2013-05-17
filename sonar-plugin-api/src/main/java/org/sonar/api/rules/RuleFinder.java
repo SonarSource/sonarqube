@@ -24,6 +24,7 @@ import org.sonar.api.task.TaskComponent;
 
 import org.sonar.api.ServerComponent;
 
+import javax.annotation.CheckForNull;
 import java.util.Collection;
 
 /**
@@ -34,10 +35,13 @@ public interface RuleFinder extends TaskComponent, ServerComponent {
   /**
    * @since 2.5
    */
+  @CheckForNull
   Rule findById(int ruleId);
 
+  @CheckForNull
   Rule findByKey(String repositoryKey, String key);
 
+  @CheckForNull
   Rule findByKey(RuleKey key);
 
   Rule find(RuleQuery query);

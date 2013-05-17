@@ -28,6 +28,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
+import javax.annotation.CheckForNull;
 import javax.persistence.Query;
 
 import java.util.Collection;
@@ -69,14 +70,17 @@ public class DefaultRuleFinder implements RuleFinder {
     return hqlQuery.getResultList();
   }
 
+  @CheckForNull
   public Rule findByKey(RuleKey key) {
     return findByKey(key.repository(), key.rule());
   }
 
+  @CheckForNull
   public Rule findByKey(String repositoryKey, String key) {
     return doFindByKey(repositoryKey, key);
   }
 
+  @CheckForNull
   protected final Rule doFindByKey(String repositoryKey, String key) {
     DatabaseSession session = sessionFactory.getSession();
     return session.getSingleResult(

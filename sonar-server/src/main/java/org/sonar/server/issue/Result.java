@@ -19,6 +19,9 @@
  */
 package org.sonar.server.issue;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
@@ -31,8 +34,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class Result<T> {
 
   private T object = null;
-  private List<Message> errors = newArrayList();
-  ;
+  private final List<Message> errors = newArrayList();
 
   private Result(@Nullable T object) {
     this.object = object;
@@ -55,35 +57,69 @@ public class Result<T> {
     return object;
   }
 
-  public Result<T> addError(String text, Object... params) {
-    Message message = new Message(text, params);
+  public Result<T> addError(String text) {
+    return addError(Message.of(text));
+  }
+
+  public Result<T> addError(Message message) {
     errors.add(message);
     return this;
   }
 
+  /**
+   * List of error messages. Empty if there are no errors.
+   */
   public List<Message> errors() {
     return errors;
   }
 
+  /**
+   * True if there are no errors.
+   */
   public boolean ok() {
     return errors.isEmpty();
   }
 
-  public static class Message {
-    private String text;
-    private Object[] params;
+  public int httpStatus() {
+    if (ok()) {
+      return 200;
+    }
+    // TODO support 401, 403 and 500
+    return 400;
+  }
 
-    public Message(String text, Object... params) {
+  public static class Message {
+    private final String l10nKey;
+    private final Object[] l10nParams;
+    private final String text;
+
+    private Message(@Nullable String l10nKey, @Nullable Object[] l10nParams, @Nullable String text) {
+      this.l10nKey = l10nKey;
+      this.l10nParams = l10nParams;
       this.text = text;
-      this.params = params;
     }
 
+    public static Message of(String text) {
+      return new Message(null, null, text);
+    }
+
+    public static Message ofL10n(String l10nKey, Object... l10nParams) {
+      return new Message(l10nKey, l10nParams, null);
+    }
+
+    @CheckForNull
     public String text() {
       return text;
     }
 
-    public Object[] params() {
-      return params;
+    @CheckForNull
+    public String l10nKey() {
+      return l10nKey;
+    }
+
+    @CheckForNull
+    public Object[] l10nParams() {
+      return l10nParams;
     }
 
     @Override
@@ -94,24 +130,32 @@ public class Result<T> {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-
       Message message = (Message) o;
 
-      if (!Arrays.equals(params, message.params)) {
+      if (l10nKey != null ? !l10nKey.equals(message.l10nKey) : message.l10nKey != null) {
+        return false;
+      }
+      // Probably incorrect - comparing Object[] arrays with Arrays.equals
+      if (!Arrays.equals(l10nParams, message.l10nParams)) {
         return false;
       }
       if (text != null ? !text.equals(message.text) : message.text != null) {
         return false;
       }
-
       return true;
     }
 
     @Override
     public int hashCode() {
-      int result = text != null ? text.hashCode() : 0;
-      result = 31 * result + (params != null ? Arrays.hashCode(params) : 0);
+      int result = l10nKey != null ? l10nKey.hashCode() : 0;
+      result = 31 * result + (l10nParams != null ? Arrays.hashCode(l10nParams) : 0);
+      result = 31 * result + (text != null ? text.hashCode() : 0);
       return result;
+    }
+
+    @Override
+    public String toString() {
+      return new ReflectionToStringBuilder(this).toString();
     }
   }
 }

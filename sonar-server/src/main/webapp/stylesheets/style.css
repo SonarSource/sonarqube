@@ -897,7 +897,7 @@ span.rulename a:hover {
 }
 
 .code-global-issues {
-  padding: 10px;
+  padding: 0 0 10px 0;
 }
 
 .code-issues {

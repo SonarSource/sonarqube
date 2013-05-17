@@ -1,0 +1,5 @@
+<% result.errors.each do |msg| %>
+  <div class="error"><%= h (msg.text ? msg.text : Api::Utils.message(msg.l10nKey, :params => msg.l10nParams)) -%></div>
+<% end %>
+
+

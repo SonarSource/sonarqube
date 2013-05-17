@@ -22,10 +22,11 @@ package org.sonar.server.util;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.List;
 
@@ -51,52 +52,84 @@ public class RubyUtils {
     return result;
   }
 
+  @CheckForNull
   public static Integer toInteger(@Nullable Object o) {
+    if (o == null) {
+      return null;
+    }
     if (o instanceof Integer) {
       return (Integer) o;
     }
     if (o instanceof Long) {
       return Ints.checkedCast((Long) o);
     }
-
     if (o instanceof String) {
+      if (StringUtils.isBlank((String)o)) {
+        return null;
+      }
       return Integer.parseInt((String) o);
     }
-    return null;
+    throw new IllegalArgumentException("Unsupported type for integer: " + o.getClass());
   }
 
+  @CheckForNull
   public static Double toDouble(@Nullable Object o) {
+    if (o == null) {
+      return null;
+    }
     if (o instanceof Double) {
       return (Double) o;
     }
+    if (o instanceof Integer) {
+      return ((Integer) o).doubleValue();
+    }
+    if (o instanceof Long) {
+      return ((Long) o).doubleValue();
+    }
     if (o instanceof String) {
+      if (StringUtils.isBlank((String)o)) {
+        return null;
+      }
       return Double.parseDouble((String) o);
     }
-    return null;
+    throw new IllegalArgumentException("Unsupported type for double: " + o.getClass());
   }
 
-
+  @CheckForNull
   public static Date toDate(@Nullable Object o) {
+    if (o == null) {
+      return null;
+    }
     if (o instanceof Date) {
       return (Date) o;
     }
     if (o instanceof String) {
+      if (StringUtils.isBlank((String)o)) {
+        return null;
+      }
       Date date = DateUtils.parseDateTimeQuietly((String) o);
       if (date != null) {
         return date;
       }
       return DateUtils.parseDate((String) o);
     }
-    return null;
+    throw new IllegalArgumentException("Unsupported type for date: " + o.getClass());
   }
 
+  @CheckForNull
   public static Boolean toBoolean(@Nullable Object o) {
+    if (o == null) {
+      return null;
+    }
     if (o instanceof Boolean) {
       return (Boolean) o;
     }
     if (o instanceof String) {
+      if (StringUtils.isBlank((String)o)) {
+        return null;
+      }
       return Boolean.parseBoolean((String) o);
     }
-    return null;
+    throw new IllegalArgumentException("Unsupported type for boolean: " + o.getClass());
   }
 }
