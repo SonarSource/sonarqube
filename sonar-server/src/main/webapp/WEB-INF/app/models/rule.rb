@@ -214,6 +214,7 @@ class Rule < ActiveRecord::Base
     hash = {:key => java_rule.ruleKey().toString()}
     hash[:name] = l10n_name if l10n_name
     hash[:desc] = l10n_desc if l10n_desc
+    hash[:status] = java_rule.getStatus() if java_rule.getStatus()
     hash
   end
 
