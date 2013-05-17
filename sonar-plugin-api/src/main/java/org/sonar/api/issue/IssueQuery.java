@@ -332,10 +332,9 @@ public class IssueQuery {
       } else {
         if (pageSize == null) {
           pageSize = DEFAULT_PAGE_SIZE;
-        } else if (pageSize > MAX_PAGE_SIZE) {
+        } else if (pageSize<=0 || pageSize > MAX_PAGE_SIZE) {
           pageSize = MAX_PAGE_SIZE;
         }
-        Preconditions.checkArgument(pageSize > 0, "Page size must be greater than 0 (got " + pageSize + ")");
       }
     }
 

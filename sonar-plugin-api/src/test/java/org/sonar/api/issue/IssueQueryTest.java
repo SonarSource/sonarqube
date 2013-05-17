@@ -74,15 +74,12 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void page_size_should_be_positive() throws Exception {
-    try {
-      IssueQuery.builder()
-        .pageSize(0)
-        .build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Page size must be greater than 0 (got 0)").isInstanceOf(IllegalArgumentException.class);
-    }
+  public void should_use_max_page_size_if_negative() throws Exception {
+    IssueQuery query = IssueQuery.builder().pageSize(0).build();
+    assertThat(query.pageSize()).isEqualTo(IssueQuery.MAX_PAGE_SIZE);
+
+    query = IssueQuery.builder().pageSize(-1).build();
+    assertThat(query.pageSize()).isEqualTo(IssueQuery.MAX_PAGE_SIZE);
   }
 
   @Test
@@ -93,7 +90,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void automatically_resize_page_size() throws Exception {
+  public void should_reset_to_max_page_size() throws Exception {
     IssueQuery query = IssueQuery.builder()
       .pageSize(IssueQuery.MAX_PAGE_SIZE + 100)
       .build();
