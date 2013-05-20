@@ -46,7 +46,7 @@ public class InitialOpenIssuesSensorTest {
     project.setId(1);
     sensor.analyse(project, null);
 
-    verify(issueDao).selectOpenIssues(1);
+    verify(issueDao).selectNonClosedIssuesByRootComponent(1);
     verify(stack).setIssues(anyListOf(IssueDto.class), any(Date.class));
   }
 }

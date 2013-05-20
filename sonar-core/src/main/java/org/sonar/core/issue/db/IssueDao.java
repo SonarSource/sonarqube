@@ -59,11 +59,11 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-  // TODO rename selectOpenIssuesByProject. Is it by module or project ??
-  public List<IssueDto> selectOpenIssues(Integer componentId) {
+  public List<IssueDto> selectNonClosedIssuesByRootComponent(int componentId) {
     SqlSession session = mybatis.openSession();
     try {
-      return session.selectList("org.sonar.core.issue.db.IssueMapper.selectOpenIssues", componentId);
+      IssueMapper mapper = session.getMapper(IssueMapper.class);
+      return mapper.selectNonClosedIssues(componentId);
     } finally {
       MyBatis.closeQuietly(session);
     }

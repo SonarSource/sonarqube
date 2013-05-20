@@ -80,7 +80,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         // Close the issues that do not exist anymore. Note that isAlive() is true on manual issues
       .transition(Transition.builder("automaticclose")
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_CLOSED)
-        .conditions(new IsAlive(false), new IsManual(false))
+        .conditions(new IsAlive(false))
         .functions(new SetResolution(Issue.RESOLUTION_FIXED), new SetCloseDate(true))
         .automatic()
         .build())

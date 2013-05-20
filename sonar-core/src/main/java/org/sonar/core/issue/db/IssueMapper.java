@@ -31,6 +31,8 @@ public interface IssueMapper {
 
   List<IssueDto> select(IssueQuery query);
 
+  List<IssueDto> selectNonClosedIssues(int rootComponentId);
+
   void insert(IssueDto issue);
 
   int update(IssueDto issue);

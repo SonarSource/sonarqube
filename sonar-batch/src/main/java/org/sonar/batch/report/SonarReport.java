@@ -35,6 +35,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.DefaultIssue;
@@ -58,17 +59,17 @@ public class SonarReport implements BatchComponent {
   private final ModuleFileSystem fileSystem;
   private final Server server;
   private final RuleI18nManager ruleI18nManager;
-  private final ScanIssues scanIssues;
+  private final IssueCache issueCache;
 
-  public SonarReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, ScanIssues scanIssues) {
+  public SonarReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
     this.ruleI18nManager = ruleI18nManager;
-    this.scanIssues = scanIssues;
+    this.issueCache = issueCache;
   }
 
-  public void execute(SensorContext context) {
+  public void execute() {
     if (settings.getBoolean(CoreProperties.DRY_RUN)) {
       exportResults();
     }
@@ -178,6 +179,6 @@ public class SonarReport implements BatchComponent {
 
   @VisibleForTesting
   Collection<DefaultIssue> getIssues() {
-    return scanIssues.issues();
+    return issueCache.all();
   }
 }

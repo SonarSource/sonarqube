@@ -33,11 +33,13 @@ import java.util.Collection;
 public class DefaultIssuable implements Issuable {
 
   private final ScanIssues scanIssues;
+  private final IssueCache cache;
   private final Component component;
 
-  DefaultIssuable(Component component, ScanIssues scanIssues) {
+  DefaultIssuable(Component component, ScanIssues scanIssues, IssueCache cache) {
     this.component = component;
     this.scanIssues = scanIssues;
+    this.cache = cache;
   }
 
   @Override
@@ -53,7 +55,7 @@ public class DefaultIssuable implements Issuable {
   @SuppressWarnings("unchecked")
   @Override
   public Collection<Issue> issues() {
-    return (Collection)scanIssues.issues(component.key());
+    return (Collection)cache.byComponent(component.key());
   }
 
   @Override

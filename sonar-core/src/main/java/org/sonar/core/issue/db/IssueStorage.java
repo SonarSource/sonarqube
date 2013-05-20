@@ -54,14 +54,15 @@ public abstract class IssueStorage {
       List<DefaultIssue> conflicts = Lists.newArrayList();
 
       for (DefaultIssue issue : issues) {
-        int ruleId = ruleId(issue);
-        int componentId = componentId(issue);
-
-        IssueDto dto = IssueDto.toDto(issue, componentId, ruleId);
         if (issue.isNew()) {
+          int componentId = componentId(issue);
+          int ruleId = ruleId(issue);
+          IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, ruleId);
           issueMapper.insert(dto);
+
         } else /* TODO if hasChanges */ {
           // TODO manage condition on update date
+          IssueDto dto = IssueDto.toDtoForUpdate(issue);
           int count = issueMapper.update(dto);
           if (count < 1) {
             conflicts.add(issue);

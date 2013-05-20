@@ -19,46 +19,57 @@
  */
 package org.sonar.plugins.core.issue;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.resources.Scopes;
-import org.sonar.batch.issue.ScanIssues;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
 import java.util.Collection;
-import java.util.Set;
 
 @DependedUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
 public class IssueTrackingDecorator implements Decorator {
 
-  private final ScanIssues scanIssues;
+  private final IssueCache issueCache;
   private final InitialOpenIssuesStack initialOpenIssues;
   private final IssueTracking tracking;
   private final IssueFilters filters;
   private final IssueHandlers handlers;
   private final IssueWorkflow workflow;
   private final IssueChangeContext changeContext;
+  private final ResourcePerspectives perspectives;
+  private final RuleFinder ruleFinder;
 
-  public IssueTrackingDecorator(ScanIssues scanIssues, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
+  public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
                                 IssueFilters filters, IssueHandlers handlers, IssueWorkflow workflow,
-                                Project project) {
-    this.scanIssues = scanIssues;
+                                Project project, ResourcePerspectives perspectives,
+                                RuleFinder ruleFinder) {
+    this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
     this.filters = filters;
     this.handlers = handlers;
     this.workflow = workflow;
     this.changeContext = IssueChangeContext.createScan(project.getAnalysisDate());
+    this.perspectives = perspectives;
+    this.ruleFinder = ruleFinder;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -66,40 +77,88 @@ public class IssueTrackingDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (canHaveIssues(resource)) {
-      // all the issues created by rule engines during this module scan
-      Collection<DefaultIssue> issues = Lists.newArrayList();
-      for (Issue issue : scanIssues.issues(resource.getEffectiveKey())) {
-        scanIssues.remove(issue);
-        if (filters.accept(issue)) {
-          issues.add((DefaultIssue) issue);
-        }
-      }
+    Issuable issuable = perspectives.as(Issuable.class, resource);
+    if (issuable != null) {
+      doDecorate(resource);
 
-      // all the issues that are open in db before starting this module scan
-      Collection<IssueDto> dbOpenIssues = initialOpenIssues.selectAndRemove(resource.getId());
-      Set<IssueDto> unmatchedDbIssues = tracking.track(resource, dbOpenIssues, issues);
-      // TODO register manual issues (isAlive=true, isNew=false) ? Or are they included in unmatchedDbIssues ?
-      addUnmatched(unmatchedDbIssues, issues);
-
-      if (ResourceUtils.isProject(resource)) {
-        // issues that relate to deleted components
-        addDead(issues);
-      }
-
-      for (DefaultIssue issue : issues) {
-        workflow.doAutomaticTransition(issue, changeContext);
-        handlers.execute(issue, changeContext);
-        scanIssues.addOrUpdate(issue);
-      }
     }
   }
 
-  private void addUnmatched(Set<IssueDto> unmatchedDbIssues, Collection<DefaultIssue> issues) {
-    for (IssueDto unmatchedDto : unmatchedDbIssues) {
+  @VisibleForTesting
+  void doDecorate(Resource resource) {
+    Collection<DefaultIssue> issues = Lists.newArrayList();
+    for (Issue issue : issueCache.byComponent(resource.getEffectiveKey())) {
+      issueCache.remove(issue);
+      if (filters.accept(issue)) {
+        issues.add((DefaultIssue) issue);
+      }
+    }
+    // issues = all the issues created by rule engines during this module scan and not excluded by filters
+
+    // all the issues that are not closed in db before starting this module scan, including manual issues
+    Collection<IssueDto> dbOpenIssues = initialOpenIssues.selectAndRemove(resource.getId());
+
+    IssueTrackingResult trackingResult = tracking.track(resource, dbOpenIssues, issues);
+
+    // unmatched = issues that have been resolved + issues on disabled/removed rules + manual issues
+    addUnmatched(trackingResult.unmatched(), issues);
+
+    mergeMatched(trackingResult);
+
+    if (ResourceUtils.isProject(resource)) {
+      // issues that relate to deleted components
+      addDead(issues);
+    }
+
+    for (DefaultIssue issue : issues) {
+      workflow.doAutomaticTransition(issue, changeContext);
+      handlers.execute(issue, changeContext);
+      issueCache.put(issue);
+    }
+  }
+
+  private void mergeMatched(IssueTrackingResult result) {
+    for (DefaultIssue issue : result.matched()) {
+      IssueDto ref = result.matching(issue);
+
+      issue.setKey(ref.getKee());
+      if (ref.isManualSeverity()) {
+        issue.setManualSeverity(true);
+        issue.setSeverity(ref.getSeverity());
+      } else if (!Objects.equal(ref.getSeverity(), issue.severity())) {
+        // TODO register diff
+      }
+      issue.setResolution(ref.getResolution());
+      issue.setStatus(ref.getStatus());
+      issue.setNew(false);
+      issue.setAlive(true);
+      issue.setAssignee(ref.getAssignee());
+      issue.setAuthorLogin(ref.getAuthorLogin());
+      issue.setAssignee(ref.getAssignee());
+      if (ref.getAttributes() != null) {
+        //FIXME do not override new attributes
+        issue.setAttributes(KeyValueFormat.parse(ref.getAttributes()));
+      }
+      issue.setTechnicalCreationDate(ref.getCreatedAt());
+      issue.setTechnicalUpdateDate(ref.getUpdatedAt());
+      issue.setCreationDate(ref.getIssueCreationDate());
+      // FIXME issue.setUpdateDate(project.getAnalysisDate());
+
+      // should be null
+      issue.setCloseDate(ref.getIssueCloseDate());
+    }
+  }
+
+  private void addUnmatched(Collection<IssueDto> unmatchedIssues, Collection<DefaultIssue> issues) {
+    for (IssueDto unmatchedDto : unmatchedIssues) {
       DefaultIssue unmatched = unmatchedDto.toDefaultIssue();
-      unmatched.setAlive(false);
       unmatched.setNew(false);
+
+      Rule rule = ruleFinder.findByKey(unmatched.ruleKey());
+      boolean manualIssue = !Strings.isNullOrEmpty(unmatched.reporter());
+      boolean onExistingRule = rule != null && !Rule.STATUS_REMOVED.equals(rule.getStatus());
+      unmatched.setAlive(manualIssue && onExistingRule);
+
       issues.add(unmatched);
     }
   }
@@ -111,10 +170,5 @@ public class IssueTrackingDecorator implements Decorator {
       dead.setNew(false);
       issues.add(dead);
     }
-  }
-
-  private boolean canHaveIssues(Resource resource) {
-    // TODO check existence of perspective Issuable ?
-    return Scopes.isHigherThanOrEquals(resource.getScope(), Scopes.FILE);
   }
 }

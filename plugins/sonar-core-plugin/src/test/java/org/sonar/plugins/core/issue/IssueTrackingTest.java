@@ -26,9 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.DefaultIssue;
@@ -37,7 +36,6 @@ import org.sonar.core.issue.db.IssueDto;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -49,62 +47,44 @@ public class IssueTrackingTest {
   private final Date analysisDate = DateUtils.parseDate("2013-04-11");
 
   IssueTracking tracking;
-  Project project;
-  RuleFinder ruleFinder;
+  Resource project;
   LastSnapshots lastSnapshots;
   long violationId = 0;
 
   @Before
   public void before() {
-    Rule rule1 = Rule.create("squid", "AvoidCycle");
-    rule1.setId(1);
-    Rule rule2 = Rule.create("squid", "NullDeref");
-    rule2.setId(2);
-    Rule rule3 = Rule.create("pmd", "UnusedLocalVariable");
-    rule3.setId(3);
-
-    ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.findById(1)).thenReturn(rule1);
-    when(ruleFinder.findById(2)).thenReturn(rule2);
-    when(ruleFinder.findById(3)).thenReturn(rule3);
-    when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule1);
-    when(ruleFinder.findByKey(RuleKey.of("squid", "NullDeref"))).thenReturn(rule2);
-    when(ruleFinder.findByKey(RuleKey.of("pmd", "UnusedLocalVariable"))).thenReturn(rule3);
-
     lastSnapshots = mock(LastSnapshots.class);
 
     project = mock(Project.class);
-    when(project.getAnalysisDate()).thenReturn(analysisDate);
-    tracking = new IssueTracking(project, ruleFinder, lastSnapshots, null);
+    tracking = new IssueTracking(lastSnapshots, null);
   }
 
   @Test
   public void key_should_be_the_prioritary_field_to_check() {
-    IssueDto referenceIssue1 = newReferenceIssue("message", 10, 1, "checksum1").setKee("100");
-    IssueDto referenceIssue2 = newReferenceIssue("message", 10, 1, "checksum2").setKee("200");
+    IssueDto referenceIssue1 = newReferenceIssue("message", 10, "squid", "AvoidCycle", "checksum1").setKee("100");
+    IssueDto referenceIssue2 = newReferenceIssue("message", 10, "squid", "AvoidCycle", "checksum2").setKee("200");
 
     // exactly the fields of referenceIssue1 but not the same key
     DefaultIssue newIssue = newDefaultIssue("message", 10, RuleKey.of("squid", "AvoidCycle"), "checksum1").setKey("200");
 
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue1, referenceIssue2));
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue1, referenceIssue2), null, null, result);
     // same key
-    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue2);
-    assertThat(newIssue.isNew()).isFalse();
+    assertThat(result.matching(newIssue)).isSameAs(referenceIssue2);
   }
 
   @Test
   public void checksum_should_have_greater_priority_than_line() {
-    IssueDto referenceIssue1 = newReferenceIssue("message", 1, 1, "checksum1");
-    IssueDto referenceIssue2 = newReferenceIssue("message", 3, 1, "checksum2");
+    IssueDto referenceIssue1 = newReferenceIssue("message", 1, "squid", "AvoidCycle", "checksum1");
+    IssueDto referenceIssue2 = newReferenceIssue("message", 3, "squid", "AvoidCycle", "checksum2");
 
     DefaultIssue newIssue1 = newDefaultIssue("message", 3, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     DefaultIssue newIssue2 = newDefaultIssue("message", 5, RuleKey.of("squid", "AvoidCycle"), "checksum2");
 
-    tracking.mapIssues(newArrayList(newIssue1, newIssue2), newArrayList(referenceIssue1, referenceIssue2));
-    assertThat(tracking.getReferenceIssue(newIssue1)).isSameAs(referenceIssue1);
-    assertThat(newIssue1.isNew()).isFalse();
-    assertThat(tracking.getReferenceIssue(newIssue2)).isSameAs(referenceIssue2);
-    assertThat(newIssue2.isNew()).isFalse();
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue1, newIssue2), newArrayList(referenceIssue1, referenceIssue2), null, null, result);
+    assertThat(result.matching(newIssue1)).isSameAs(referenceIssue1);
+    assertThat(result.matching(newIssue2)).isSameAs(referenceIssue2);
   }
 
   /**
@@ -113,51 +93,51 @@ public class IssueTrackingTest {
   @Test
   public void same_rule_and_null_line_and_checksum_but_different_messages() {
     DefaultIssue newIssue = newDefaultIssue("new message", null, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-    IssueDto referenceIssue = newReferenceIssue("old message", null, 1, "checksum1");
+    IssueDto referenceIssue = newReferenceIssue("old message", null, "squid", "AvoidCycle", "checksum1");
 
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
-    assertThat(newIssue.isNew()).isFalse();
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   @Test
   public void same_rule_and_line_and_checksum_but_different_messages() {
     DefaultIssue newIssue = newDefaultIssue("new message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-    IssueDto referenceIssue = newReferenceIssue("old message", 1, 1, "checksum1");
+    IssueDto referenceIssue = newReferenceIssue("old message", 1, "squid", "AvoidCycle", "checksum1");
 
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
-    assertThat(newIssue.isNew()).isFalse();
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   @Test
   public void same_rule_and_line_message() {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-    IssueDto referenceIssue = newReferenceIssue("message", 1, 1, "checksum2");
+    IssueDto referenceIssue = newReferenceIssue("message", 1, "squid", "AvoidCycle", "checksum2");
 
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
-    assertThat(newIssue.isNew()).isFalse();
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   @Test
   public void should_ignore_reference_measure_without_checksum() {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), null);
-    IssueDto referenceIssue = newReferenceIssue("message", 1, 2, null);
+    IssueDto referenceIssue = newReferenceIssue("message", 1, "squid", "NullDeref", null);
 
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(tracking.getReferenceIssue(newIssue)).isNull();
-    assertThat(newIssue.isNew()).isTrue();
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    assertThat(result.matching(newIssue)).isNull();
   }
 
   @Test
   public void same_rule_and_message_and_checksum_but_different_line() {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-    IssueDto referenceIssue = newReferenceIssue("message", 2, 1, "checksum1");
+    IssueDto referenceIssue = newReferenceIssue("message", 2, "squid", "AvoidCycle", "checksum1");
 
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
-    assertThat(newIssue.isNew()).isFalse();
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   /**
@@ -166,31 +146,31 @@ public class IssueTrackingTest {
   @Test
   public void same_checksum_and_rule_but_different_line_and_different_message() {
     DefaultIssue newIssue = newDefaultIssue("new message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-    IssueDto referenceIssue = newReferenceIssue("old message", 2, 1, "checksum1");
+    IssueDto referenceIssue = newReferenceIssue("old message", 2, "squid", "AvoidCycle", "checksum1");
 
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
-    assertThat(newIssue.isNew()).isFalse();
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   @Test
   public void should_create_new_issue_when_same_rule_same_message_but_different_line_and_checksum() {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-    IssueDto referenceIssue = newReferenceIssue("message", 2, 1, "checksum2");
+    IssueDto referenceIssue = newReferenceIssue("message", 2, "squid", "AvoidCycle", "checksum2");
 
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(tracking.getReferenceIssue(newIssue)).isNull();
-    assertThat(newIssue.isNew()).isTrue();
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    assertThat(result.matching(newIssue)).isNull();
   }
 
   @Test
   public void should_not_track_issue_if_different_rule() {
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-    IssueDto referenceIssue = newReferenceIssue("message", 1, 2, "checksum1");
+    IssueDto referenceIssue = newReferenceIssue("message", 1, "squid", "NullDeref", "checksum1");
 
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(tracking.getReferenceIssue(newIssue)).isNull();
-    assertThat(newIssue.isNew()).isTrue();
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    assertThat(result.matching(newIssue)).isNull();
   }
 
   @Test
@@ -198,37 +178,11 @@ public class IssueTrackingTest {
     // issue messages are trimmed and can be abbreviated when persisted in database.
     // Comparing issue messages must use the same format.
     DefaultIssue newIssue = newDefaultIssue("      message    ", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-    IssueDto referenceIssue = newReferenceIssue("message", 1, 1, "checksum2");
+    IssueDto referenceIssue = newReferenceIssue("message", 1, "squid", "AvoidCycle", "checksum2");
 
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(tracking.getReferenceIssue(newIssue)).isSameAs(referenceIssue);
-    assertThat(newIssue.isNew()).isFalse();
-  }
-
-  @Test
-  public void should_set_severity_if_severity_has_been_changed_by_user() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum").setSeverity("MAJOR");
-    IssueDto referenceIssue = newReferenceIssue("message", 1, 1, "checksum").setSeverity("MINOR").setManualSeverity(true);
-
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(newIssue.severity()).isEqualTo("MINOR");
-  }
-
-  @Test
-  public void should_copy_some_fields_when_not_new() {
-    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum");
-    IssueDto referenceIssue = newReferenceIssue("", 1, 1, "checksum").setAuthorLogin("arthur").setAssignee("perceval");
-    Date referenceDate = DateUtils.parseDate("2009-05-18");
-    referenceIssue.setIssueCreationDate(referenceDate);
-    assertThat(newIssue.creationDate()).isNull();
-
-    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue));
-    assertThat(mapping.size()).isEqualTo(1);
-    assertThat(newIssue.isNew()).isFalse();
-
-    assertThat(newIssue.creationDate()).isEqualTo(referenceDate);
-    assertThat(newIssue.assignee()).isEqualTo("perceval");
-    assertThat(newIssue.authorLogin()).isEqualTo("arthur");
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   @Test
@@ -237,16 +191,12 @@ public class IssueTrackingTest {
     String source = load("example2-v2");
 
     DefaultIssue newIssue = newDefaultIssue("Indentation", 9, RuleKey.of("squid", "AvoidCycle"), "foo");
-    IssueDto referenceIssue = newReferenceIssue("2 branches need to be covered", null, 1, null);
+    IssueDto referenceIssue = newReferenceIssue("2 branches need to be covered", null, "squid", "AvoidCycle", null);
 
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), source, project, result);
 
-    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
-      newArrayList(newIssue),
-      newArrayList(referenceIssue),
-      source, project);
-
-    assertThat(mapping.isEmpty()).isTrue();
-    assertThat(newIssue.isNew()).isTrue();
+    assertThat(result.matched()).isEmpty();
   }
 
   @Test
@@ -255,15 +205,12 @@ public class IssueTrackingTest {
     String source = load("example2-v2");
 
     DefaultIssue newIssue = newDefaultIssue("1 branch need to be covered", null, RuleKey.of("squid", "AvoidCycle"), "foo");
-    IssueDto referenceIssue = newReferenceIssue("Indentationd", 7, 1, null);
+    IssueDto referenceIssue = newReferenceIssue("Indentationd", 7, "squid", "AvoidCycle", null);
 
-    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
-      newArrayList(newIssue),
-      newArrayList(referenceIssue),
-      source, project);
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), source, project, result);
 
-    assertThat(mapping.isEmpty()).isTrue();
-    assertThat(newIssue.isNew()).isTrue();
+    assertThat(result.matched()).isEmpty();
   }
 
   /**
@@ -275,15 +222,12 @@ public class IssueTrackingTest {
     String source = load("example2-v2");
 
     DefaultIssue newIssue = newDefaultIssue("1 branch need to be covered", null, RuleKey.of("squid", "AvoidCycle"), null);
-    IssueDto referenceIssue = newReferenceIssue("2 branches need to be covered", null, 1, null);
+    IssueDto referenceIssue = newReferenceIssue("2 branches need to be covered", null, "squid", "AvoidCycle", null);
 
-    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
-      newArrayList(newIssue),
-      newArrayList(referenceIssue),
-      source, project);
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), source, project, result);
 
-    assertThat(newIssue.isNew()).isFalse();
-    assertThat(mapping.get(newIssue)).isEqualTo(referenceIssue);
+    assertThat(result.matching(newIssue)).isEqualTo(referenceIssue);
   }
 
   /**
@@ -294,25 +238,21 @@ public class IssueTrackingTest {
     when(lastSnapshots.getSource(project)).thenReturn(load("example1-v1"));
     String source = load("example1-v2");
 
-    IssueDto referenceIssue1 = newReferenceIssue("Indentation", 7, 1, null);
-    IssueDto referenceIssue2 = newReferenceIssue("Indentation", 11, 1, null);
+    IssueDto referenceIssue1 = newReferenceIssue("Indentation", 7, "squid", "AvoidCycle", null);
+    IssueDto referenceIssue2 = newReferenceIssue("Indentation", 11, "squid", "AvoidCycle", null);
 
     DefaultIssue newIssue1 = newDefaultIssue("Indentation", 9, RuleKey.of("squid", "AvoidCycle"), null);
     DefaultIssue newIssue2 = newDefaultIssue("Indentation", 13, RuleKey.of("squid", "AvoidCycle"), null);
     DefaultIssue newIssue3 = newDefaultIssue("Indentation", 17, RuleKey.of("squid", "AvoidCycle"), null);
     DefaultIssue newIssue4 = newDefaultIssue("Indentation", 21, RuleKey.of("squid", "AvoidCycle"), null);
 
-    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
-      Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4),
-      Arrays.asList(referenceIssue1, referenceIssue2),
-      source, project);
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4), Arrays.asList(referenceIssue1, referenceIssue2), source, project, result);
 
-    assertThat(newIssue1.isNew()).isTrue();
-    assertThat(newIssue2.isNew()).isTrue();
-    assertThat(newIssue3.isNew()).isFalse();
-    assertThat(mapping.get(newIssue3)).isEqualTo(referenceIssue1);
-    assertThat(newIssue4.isNew()).isFalse();
-    assertThat(mapping.get(newIssue4)).isEqualTo(referenceIssue2);
+    assertThat(result.matching(newIssue1)).isNull();
+    assertThat(result.matching(newIssue2)).isNull();
+    assertThat(result.matching(newIssue3)).isSameAs(referenceIssue1);
+    assertThat(result.matching(newIssue4)).isSameAs(referenceIssue2);
   }
 
   /**
@@ -323,21 +263,21 @@ public class IssueTrackingTest {
     when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
     String source = load("example2-v2");
 
-    IssueDto referenceIssue1 = newReferenceIssue("SystemPrintln", 5, 1, null);
+    IssueDto referenceIssue1 = newReferenceIssue("SystemPrintln", 5, "squid", "AvoidCycle", null);
 
     DefaultIssue newIssue1 = newDefaultIssue("SystemPrintln", 6, RuleKey.of("squid", "AvoidCycle"), null);
     DefaultIssue newIssue2 = newDefaultIssue("SystemPrintln", 10, RuleKey.of("squid", "AvoidCycle"), null);
     DefaultIssue newIssue3 = newDefaultIssue("SystemPrintln", 14, RuleKey.of("squid", "AvoidCycle"), null);
 
-    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(
       Arrays.asList(newIssue1, newIssue2, newIssue3),
       Arrays.asList(referenceIssue1),
-      source, project);
+      source, project, result);
 
-    assertThat(newIssue1.isNew()).isTrue();
-    assertThat(newIssue2.isNew()).isFalse();
-    assertThat(mapping.get(newIssue2)).isEqualTo(referenceIssue1);
-    assertThat(newIssue3.isNew()).isTrue();
+    assertThat(result.matching(newIssue1)).isNull();
+    assertThat(result.matching(newIssue2)).isSameAs(referenceIssue1);
+    assertThat(result.matching(newIssue3)).isNull();
   }
 
   @Test
@@ -345,9 +285,9 @@ public class IssueTrackingTest {
     when(lastSnapshots.getSource(project)).thenReturn(load("example3-v1"));
     String source = load("example3-v2");
 
-    IssueDto referenceIssue1 = newReferenceIssue("Avoid unused local variables such as 'j'.", 6, 1, "63c11570fc0a76434156be5f8138fa03");
-    IssueDto referenceIssue2 = newReferenceIssue("Avoid unused private methods such as 'myMethod()'.", 13, 2, "ef23288705d1ef1e512448ace287586e");
-    IssueDto referenceIssue3 = newReferenceIssue("Method 'avoidUtilityClass' is not designed for extension - needs to be abstract, final or empty.", 9, 3, "ed5cdd046fda82727d6fedd1d8e3a310");
+    IssueDto referenceIssue1 = newReferenceIssue("Avoid unused local variables such as 'j'.", 6, "squid", "AvoidCycle", "63c11570fc0a76434156be5f8138fa03");
+    IssueDto referenceIssue2 = newReferenceIssue("Avoid unused private methods such as 'myMethod()'.", 13, "squid", "NullDeref", "ef23288705d1ef1e512448ace287586e");
+    IssueDto referenceIssue3 = newReferenceIssue("Method 'avoidUtilityClass' is not designed for extension - needs to be abstract, final or empty.", 9, "pmd", "UnusedLocalVariable", "ed5cdd046fda82727d6fedd1d8e3a310");
 
     // New issue
     DefaultIssue newIssue1 = newDefaultIssue("Avoid unused local variables such as 'msg'.", 18, RuleKey.of("squid", "AvoidCycle"), "a24254126be2bf1a9b9a8db43f633733");
@@ -360,19 +300,17 @@ public class IssueTrackingTest {
     // Same as referenceIssue1
     DefaultIssue newIssue5 = newDefaultIssue("Avoid unused local variables such as 'j'.", 6, RuleKey.of("squid", "AvoidCycle"), "4432a2675ec3e1620daefe38386b51ef");
 
-    Map<DefaultIssue, IssueDto> mapping = tracking.mapIssues(
+    IssueTrackingResult result = new IssueTrackingResult();
+    tracking.mapIssues(
       Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4, newIssue5),
       Arrays.asList(referenceIssue1, referenceIssue2, referenceIssue3),
-      source, project);
+      source, project, result);
 
-    assertThat(newIssue1.isNew()).isTrue();
-    assertThat(newIssue2.isNew()).isFalse();
-    assertThat(newIssue3.isNew()).isFalse();
-    assertThat(newIssue4.isNew()).isTrue();
-    assertThat(newIssue5.isNew()).isFalse();
-    assertThat(mapping.get(newIssue2)).isEqualTo(referenceIssue2);
-    assertThat(mapping.get(newIssue3)).isEqualTo(referenceIssue3);
-    assertThat(mapping.get(newIssue5)).isEqualTo(referenceIssue1);
+    assertThat(result.matching(newIssue1)).isNull();
+    assertThat(result.matching(newIssue2)).isSameAs(referenceIssue2);
+    assertThat(result.matching(newIssue3)).isSameAs(referenceIssue3);
+    assertThat(result.matching(newIssue4)).isNull();
+    assertThat(result.matching(newIssue5)).isSameAs(referenceIssue1);
   }
 
   private static String load(String name) throws IOException {
@@ -383,18 +321,17 @@ public class IssueTrackingTest {
     return new DefaultIssue().setMessage(message).setLine(line).setRuleKey(ruleKey).setChecksum(checksum).setStatus(Issue.STATUS_OPEN);
   }
 
-  private IssueDto newReferenceIssue(String message, Integer lineId, int ruleId, String lineChecksum) {
+  private IssueDto newReferenceIssue(String message, Integer lineId, String ruleRepo, String ruleKey, String lineChecksum) {
     IssueDto referenceIssue = new IssueDto();
     Long id = violationId++;
     referenceIssue.setId(id);
     referenceIssue.setKee(Long.toString(id));
     referenceIssue.setLine(lineId);
     referenceIssue.setMessage(message);
-    referenceIssue.setRuleId(ruleId);
+    referenceIssue.setRuleKey_unit_test_only(ruleRepo, ruleKey);
     referenceIssue.setChecksum(lineChecksum);
     referenceIssue.setResolution(null);
     referenceIssue.setStatus(Issue.STATUS_OPEN);
     return referenceIssue;
   }
-
 }

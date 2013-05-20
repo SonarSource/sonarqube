@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.Server;
@@ -36,7 +35,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.issue.ScanIssues;
+import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.DefaultIssue;
 
@@ -54,13 +53,12 @@ public class SonarReportTest {
   @org.junit.Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   SonarReport sonarReport;
-  SensorContext sensorContext = mock(SensorContext.class);
   Resource resource = mock(Resource.class);
   ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
   Server server = mock(Server.class);
   RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
   Settings settings;
-  ScanIssues scanIssues = mock(ScanIssues.class);
+  IssueCache issueCache = mock(IssueCache.class);
 
   @Before
   public void before() {
@@ -69,7 +67,7 @@ public class SonarReportTest {
 
     settings = new Settings();
     settings.setProperty(CoreProperties.DRY_RUN, true);
-    sonarReport = new SonarReport(settings, fileSystem, server, ruleI18nManager, scanIssues);
+    sonarReport = new SonarReport(settings, fileSystem, server, ruleI18nManager, issueCache);
   }
 
   @Test
@@ -236,7 +234,7 @@ public class SonarReportTest {
     settings.setProperty("sonar.report.export.path", "output.json");
     when(fileSystem.workingDir()).thenReturn(sonarDirectory);
 
-    sonarReport.execute(sensorContext);
+    sonarReport.execute();
 
     assertThat(new File(sonarDirectory, "output.json")).exists();
   }

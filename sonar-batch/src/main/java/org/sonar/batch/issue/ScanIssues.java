@@ -19,16 +19,11 @@
  */
 package org.sonar.batch.issue;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.issue.DefaultIssue;
-
-import java.util.Collection;
 
 /**
  * Central component to manage issues
@@ -45,20 +40,6 @@ public class ScanIssues implements BatchComponent {
     this.project = project;
   }
 
-  public Collection<DefaultIssue> issues(String componentKey) {
-    return cache.byComponent(componentKey);
-  }
-
-  public Collection<DefaultIssue> issues() {
-    return cache.all();
-  }
-
-  public ScanIssues addOrUpdate(DefaultIssue issue) {
-    Preconditions.checkState(!Strings.isNullOrEmpty(issue.key()), "Missing issue key");
-    cache.put(issue);
-    return this;
-  }
-
   public boolean initAndAddIssue(DefaultIssue issue) {
     ActiveRule activeRule = qProfile.getActiveRule(issue.ruleKey().repository(), issue.ruleKey().rule());
     if (activeRule == null || activeRule.getRule() == null) {
@@ -73,10 +54,6 @@ public class ScanIssues implements BatchComponent {
     }
     cache.put(issue);
     return true;
-  }
-
-  public boolean remove(Issue issue) {
-    return cache.remove(issue);
   }
 
 }

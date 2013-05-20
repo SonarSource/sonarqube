@@ -121,7 +121,7 @@ public final class PhaseExecutor {
     persistenceManager.setDelayedMode(false);
 
     if (module.isRoot()) {
-      sonarReport.execute(sensorContext);
+      sonarReport.execute();
 
       LOGGER.info("Store results in database");
       for (ScanPersister persister : persisters) {

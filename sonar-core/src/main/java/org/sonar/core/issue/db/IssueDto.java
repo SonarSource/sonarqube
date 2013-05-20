@@ -310,7 +310,7 @@ public final class IssueDto {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public static IssueDto toDto(DefaultIssue issue, Integer componentId, Integer ruleId) {
+  public static IssueDto toDtoForInsert(DefaultIssue issue, Integer componentId, Integer ruleId) {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
@@ -329,6 +329,29 @@ public final class IssueDto {
       .setAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
       .setAuthorLogin(issue.authorLogin())
       .setCreatedAt(issue.technicalCreationDate())
+      .setUpdatedAt(issue.technicalUpdateDate())
+      .setIssueCreationDate(issue.creationDate())
+      .setIssueCloseDate(issue.closeDate())
+      .setIssueUpdateDate(issue.updateDate());
+  }
+
+  public static IssueDto toDtoForUpdate(DefaultIssue issue) {
+    // Invariant fields, like key and rule, can't be updated
+    return new IssueDto()
+      .setKee(issue.key())
+      .setLine(issue.line())
+      .setMessage(issue.message())
+      .setEffortToFix(issue.effortToFix())
+      .setResolution(issue.resolution())
+      .setStatus(issue.status())
+      .setSeverity(issue.severity())
+      .setChecksum(issue.getChecksum())
+      .setManualSeverity(issue.manualSeverity())
+      .setReporter(issue.reporter())
+      .setAssignee(issue.assignee())
+      .setActionPlanKey(issue.actionPlanKey())
+      .setAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
+      .setAuthorLogin(issue.authorLogin())
       .setUpdatedAt(issue.technicalUpdateDate())
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())

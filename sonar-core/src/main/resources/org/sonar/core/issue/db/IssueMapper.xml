@@ -59,10 +59,11 @@
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
 
+  <!--
+    IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
+  -->
   <update id="update" parameterType="Issue">
     update issues set
-    resource_id=#{resourceId},
-    rule_id=#{ruleId},
     action_plan_key=#{actionPlanKey},
     severity=#{severity},
     manual_severity=#{manualSeverity},
@@ -79,7 +80,6 @@
     issue_creation_date=#{issueCreationDate},
     issue_update_date=#{issueUpdateDate},
     issue_close_date=#{issueCloseDate},
-    created_at=#{createdAt},
     updated_at=#{updatedAt}
     where kee = #{kee}
   </update>
@@ -91,12 +91,12 @@
     where i.kee=#{kee} and i.rule_id=r.id and p.id=i.resource_id
   </select>
 
-  <select id="selectOpenIssues" parameterType="String" resultType="Issue">
+  <select id="selectNonClosedIssues" parameterType="int" resultType="Issue">
     select distinct
     <include refid="issueColumns"/>
     from issues i, rules r, projects p
     where i.status &lt;&gt; 'CLOSED'
-    and (p.root_id=#{componentId} or (p.root_id is null and p.id=#{componentId}))
+    and (p.root_id=#{id} or (p.root_id is null and p.id=#{id}))
     and i.resource_id=p.id
     and r.id=i.rule_id
   </select>

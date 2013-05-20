@@ -246,7 +246,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_open_issues() {
     setupData("shared", "should_select_open_issues");
 
-    List<IssueDto> dtos = dao.selectOpenIssues(400);
+    List<IssueDto> dtos = dao.selectNonClosedIssuesByRootComponent(400);
     assertThat(dtos).hasSize(2);
 
     IssueDto issue = dtos.get(0);

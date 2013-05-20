@@ -43,12 +43,6 @@ public class ScanIssuesTest {
   ScanIssues scanIssues = new ScanIssues(qProfile, cache, project);
 
   @Test
-  public void should_get_issues() throws Exception {
-    scanIssues.issues("key");
-    verify(cache).byComponent("key");
-  }
-
-  @Test
   public void should_ignore_null_active_rule() throws Exception {
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(null);
 

@@ -34,10 +34,12 @@ import javax.annotation.CheckForNull;
 public class IssuableFactory extends PerspectiveBuilder<Issuable> {
 
   private final ScanIssues scanIssues;
+  private final IssueCache cache;
 
-  public IssuableFactory(ScanIssues scanIssues) {
+  public IssuableFactory(ScanIssues scanIssues, IssueCache cache) {
     super(Issuable.class);
     this.scanIssues = scanIssues;
+    this.cache = cache;
   }
 
   @CheckForNull
@@ -47,6 +49,6 @@ public class IssuableFactory extends PerspectiveBuilder<Issuable> {
     if (component instanceof ResourceComponent) {
       supported = Scopes.isHigherThanOrEquals(((ResourceComponent) component).scope(), Scopes.FILE);
     }
-    return supported ? new DefaultIssuable(component, scanIssues) : null;
+    return supported ? new DefaultIssuable(component, scanIssues, cache) : null;
   }
 }
