@@ -38,6 +38,12 @@
           <td class="form-key-cell">Server:</td>
           <td><%= license.getServer() || '-' -%></td>
         </tr>
+        <% license.additionalProperties().each do |k,v| -%>
+        <tr>
+          <td class="form-key-cell"><%= k -%>:</td>
+          <td><%= v || '-' -%></td>
+        </tr>
+        <% end %>
       </table>
     </div>
   </div>

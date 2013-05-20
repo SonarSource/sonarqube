@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Calendar;
@@ -46,13 +47,30 @@ public final class License {
   private String expirationDate;
   private String type;
   private String server;
+  private Map<String, String> additionalProperties;
 
   private License(Map<String, String> properties) {
-    product = StringUtils.defaultString(properties.get("Product"), properties.get("Plugin"));
-    organization = StringUtils.defaultString(properties.get("Organisation"), properties.get("Name"));
-    expirationDate = StringUtils.defaultString(properties.get("Expiration"), properties.get("Expires"));
-    type = properties.get("Type");
-    server = properties.get("Server");
+    this.additionalProperties = Maps.newHashMap(properties);
+    product = StringUtils.defaultString(get("Product", properties), get("Plugin", properties));
+    organization = StringUtils.defaultString(get("Organisation", properties), get("Name", properties));
+    expirationDate = StringUtils.defaultString(get("Expiration", properties), get("Expires", properties));
+    type = get("Type", properties);
+    server = get("Server", properties);
+    // SONAR-4340 Don't expose Digest property
+    additionalProperties.remove("Digest");
+  }
+
+  private String get(String key, Map<String, String> properties) {
+    additionalProperties.remove(key);
+    return properties.get(key);
+  }
+
+  /**
+   * Get additional properties available on this license (like threshold conditions)
+   * @since 3.6
+   */
+  public Map<String, String> additionalProperties() {
+    return additionalProperties;
   }
 
   @Nullable

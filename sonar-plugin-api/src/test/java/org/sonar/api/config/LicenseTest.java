@@ -20,13 +20,10 @@
 package org.sonar.api.config;
 
 import org.apache.commons.codec.binary.Base64;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class LicenseTest {
 
@@ -42,63 +39,64 @@ public class LicenseTest {
     "Name: ABC \n" +
     "Plugin: SQALE\n" +
     "  Expires: 2012-05-18  \n" +
-    "Other: field\n";
+    "Other: field\n" +
+    "Digest: abcdef\n";
 
   @Test
   public void readPlainTest() {
     License license = License.readPlainText(V2_FORMAT);
 
-    assertThat(license.getOrganization(), Is.is("ABC"));
-    assertThat(license.getServer(), Is.is("12345"));
-    assertThat(license.getProduct(), Is.is("SQALE"));
-    assertThat(license.getExpirationDateAsString(), Is.is("2012-05-18"));
-    assertThat(license.getType(), Is.is("EVALUATION"));
+    assertThat(license.getOrganization()).isEqualTo("ABC");
+    assertThat(license.getServer()).isEqualTo("12345");
+    assertThat(license.getProduct()).isEqualTo("SQALE");
+    assertThat(license.getExpirationDateAsString()).isEqualTo("2012-05-18");
+    assertThat(license.getType()).isEqualTo("EVALUATION");
   }
 
   @Test
   public void readPlainText_empty_fields() {
     License license = License.readPlainText("");
 
-    assertThat(license.getOrganization(), nullValue());
-    assertThat(license.getServer(), nullValue());
-    assertThat(license.getProduct(), nullValue());
-    assertThat(license.getExpirationDateAsString(), nullValue());
-    assertThat(license.getExpirationDate(), nullValue());
-    assertThat(license.getType(), nullValue());
+    assertThat(license.getOrganization()).isNull();
+    assertThat(license.getServer()).isNull();
+    assertThat(license.getProduct()).isNull();
+    assertThat(license.getExpirationDateAsString()).isNull();
+    assertThat(license.getExpirationDate()).isNull();
+    assertThat(license.getType()).isNull();
   }
 
   @Test
   public void readPlainText_not_valid_input() {
     License license = License.readPlainText("old pond ... a frog leaps in water’s sound");
 
-    assertThat(license.getOrganization(), nullValue());
-    assertThat(license.getServer(), nullValue());
-    assertThat(license.getProduct(), nullValue());
-    assertThat(license.getExpirationDateAsString(), nullValue());
-    assertThat(license.getExpirationDate(), nullValue());
-    assertThat(license.getType(), nullValue());
+    assertThat(license.getOrganization()).isNull();
+    assertThat(license.getServer()).isNull();
+    assertThat(license.getProduct()).isNull();
+    assertThat(license.getExpirationDateAsString()).isNull();
+    assertThat(license.getExpirationDate()).isNull();
+    assertThat(license.getType()).isNull();
   }
 
   @Test
   public void readPlainTest_version_1() {
     License license = License.readPlainText(V1_FORMAT);
 
-    assertThat(license.getOrganization(), Is.is("ABC"));
-    assertThat(license.getServer(), nullValue());
-    assertThat(license.getProduct(), Is.is("SQALE"));
-    assertThat(license.getExpirationDateAsString(), Is.is("2012-05-18"));
-    assertThat(license.getType(), nullValue());
+    assertThat(license.getOrganization()).isEqualTo("ABC");
+    assertThat(license.getServer()).isNull();
+    assertThat(license.getProduct()).isEqualTo("SQALE");
+    assertThat(license.getExpirationDateAsString()).isEqualTo("2012-05-18");
+    assertThat(license.getType()).isNull();
   }
 
   @Test
   public void readBase64() {
     License license = License.readBase64(new String(Base64.encodeBase64(V2_FORMAT.getBytes())));
 
-    assertThat(license.getOrganization(), Is.is("ABC"));
-    assertThat(license.getServer(), Is.is("12345"));
-    assertThat(license.getProduct(), Is.is("SQALE"));
-    assertThat(license.getExpirationDateAsString(), Is.is("2012-05-18"));
-    assertThat(license.getType(), Is.is("EVALUATION"));
+    assertThat(license.getOrganization()).isEqualTo("ABC");
+    assertThat(license.getServer()).isEqualTo("12345");
+    assertThat(license.getProduct()).isEqualTo("SQALE");
+    assertThat(license.getExpirationDateAsString()).isEqualTo("2012-05-18");
+    assertThat(license.getType()).isEqualTo("EVALUATION");
   }
 
   @Test
@@ -109,32 +107,40 @@ public class LicenseTest {
 
     License license = License.readBase64(new String(encodedKeyWithTrailingWhiteSpaces.getBytes()));
 
-    assertThat(license.getOrganization(), Is.is("ABC"));
-    assertThat(license.getServer(), Is.is("12345"));
-    assertThat(license.getProduct(), Is.is("SQALE"));
-    assertThat(license.getExpirationDateAsString(), Is.is("2012-05-18"));
-    assertThat(license.getType(), Is.is("EVALUATION"));
+    assertThat(license.getOrganization()).isEqualTo("ABC");
+    assertThat(license.getServer()).isEqualTo("12345");
+    assertThat(license.getProduct()).isEqualTo("SQALE");
+    assertThat(license.getExpirationDateAsString()).isEqualTo("2012-05-18");
+    assertThat(license.getType()).isEqualTo("EVALUATION");
   }
 
   @Test
   public void readBase64_not_base64() {
     License license = License.readBase64("çé '123$@");
 
-    assertThat(license.getOrganization(), nullValue());
-    assertThat(license.getServer(), nullValue());
-    assertThat(license.getProduct(), nullValue());
-    assertThat(license.getExpirationDateAsString(), nullValue());
-    assertThat(license.getExpirationDate(), nullValue());
-    assertThat(license.getType(), nullValue());
+    assertThat(license.getOrganization()).isNull();
+    assertThat(license.getServer()).isNull();
+    assertThat(license.getProduct()).isNull();
+    assertThat(license.getExpirationDateAsString()).isNull();
+    assertThat(license.getExpirationDate()).isNull();
+    assertThat(license.getType()).isNull();
   }
 
   @Test
   public void isExpired() {
     License license = License.readPlainText(V2_FORMAT);
 
-    assertThat(license.isExpired(DateUtils.parseDate("2013-06-23")), is(true));
-    assertThat(license.isExpired(DateUtils.parseDate("2012-05-18")), is(true));
-    assertThat(license.isExpired(DateUtils.parseDateTime("2012-05-18T15:50:45+0100")), is(true));
-    assertThat(license.isExpired(DateUtils.parseDate("2011-01-01")), is(false));
+    assertThat(license.isExpired(DateUtils.parseDate("2013-06-23"))).isTrue();
+    assertThat(license.isExpired(DateUtils.parseDate("2012-05-18"))).isTrue();
+    assertThat(license.isExpired(DateUtils.parseDateTime("2012-05-18T15:50:45+0100"))).isTrue();
+    assertThat(license.isExpired(DateUtils.parseDate("2011-01-01"))).isFalse();
+  }
+
+  @Test
+  public void otherProperties() {
+    License license = License.readPlainText(V2_FORMAT);
+
+    assertThat(license.additionalProperties().get("Other")).isEqualTo("field");
+    assertThat(license.additionalProperties().containsKey("Digest")).isFalse();
   }
 }
