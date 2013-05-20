@@ -51,8 +51,6 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.ruleKey().repository()).isEqualTo("squid");
     assertThat(issue.ruleKey().rule()).isEqualTo("NullDereference");
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(issue.technicalCreationDate()).isNotNull();
-    assertThat(issue.technicalUpdateDate()).isNotNull();
     assertThat(issue.assignee()).isNull();
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.resolution()).isNull();

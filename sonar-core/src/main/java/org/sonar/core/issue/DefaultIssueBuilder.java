@@ -116,8 +116,6 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
     Date now = new Date();
     Date date = Objects.firstNonNull(createdDate, now);
-    issue.setTechnicalCreationDate(now);
-    issue.setTechnicalUpdateDate(now);
     issue.setCreationDate(date);
     issue.setUpdateDate(date);
     issue.setComponentKey(componentKey);
@@ -129,8 +127,6 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setManualSeverity(false);
     issue.setReporter(reporter);
     issue.setAttributes(attributes);
-    issue.setNew(true);
-    issue.setAlive(true);
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_OPEN);
     return issue;

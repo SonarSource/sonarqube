@@ -31,6 +31,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -50,6 +51,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   IssueFilters filters = mock(IssueFilters.class);
   IssueHandlers handlers = mock(IssueHandlers.class);
   IssueWorkflow workflow = mock(IssueWorkflow.class);
+  IssueUpdater updater = mock(IssueUpdater.class);
   ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
   Date loadedDate = new Date();
   RuleFinder ruleFinder = mock(RuleFinder.class);
@@ -61,7 +63,9 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       issueCache,
       initialOpenIssues,
       tracking,
-      filters, handlers, workflow,
+      filters, handlers,
+      workflow,
+      updater,
       mock(Project.class),
       perspectives,
       ruleFinder);

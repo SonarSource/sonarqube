@@ -20,7 +20,6 @@
 package org.sonar.plugins.core.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.Decorator;
@@ -39,6 +38,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
@@ -53,12 +53,14 @@ public class IssueTrackingDecorator implements Decorator {
   private final IssueFilters filters;
   private final IssueHandlers handlers;
   private final IssueWorkflow workflow;
+  private final IssueUpdater updater;
   private final IssueChangeContext changeContext;
   private final ResourcePerspectives perspectives;
   private final RuleFinder ruleFinder;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
                                 IssueFilters filters, IssueHandlers handlers, IssueWorkflow workflow,
+                                IssueUpdater updater,
                                 Project project, ResourcePerspectives perspectives,
                                 RuleFinder ruleFinder) {
     this.issueCache = issueCache;
@@ -67,6 +69,7 @@ public class IssueTrackingDecorator implements Decorator {
     this.filters = filters;
     this.handlers = handlers;
     this.workflow = workflow;
+    this.updater = updater;
     this.changeContext = IssueChangeContext.createScan(project.getAnalysisDate());
     this.perspectives = perspectives;
     this.ruleFinder = ruleFinder;
@@ -122,12 +125,6 @@ public class IssueTrackingDecorator implements Decorator {
       IssueDto ref = result.matching(issue);
 
       issue.setKey(ref.getKee());
-      if (ref.isManualSeverity()) {
-        issue.setManualSeverity(true);
-        issue.setSeverity(ref.getSeverity());
-      } else if (!Objects.equal(ref.getSeverity(), issue.severity())) {
-        // TODO register diff
-      }
       issue.setResolution(ref.getResolution());
       issue.setStatus(ref.getStatus());
       issue.setNew(false);
@@ -136,16 +133,25 @@ public class IssueTrackingDecorator implements Decorator {
       issue.setAuthorLogin(ref.getAuthorLogin());
       issue.setAssignee(ref.getAssignee());
       if (ref.getAttributes() != null) {
-        //FIXME do not override new attributes
         issue.setAttributes(KeyValueFormat.parse(ref.getAttributes()));
       }
-      issue.setTechnicalCreationDate(ref.getCreatedAt());
-      issue.setTechnicalUpdateDate(ref.getUpdatedAt());
       issue.setCreationDate(ref.getIssueCreationDate());
-      // FIXME issue.setUpdateDate(project.getAnalysisDate());
+
+      // must be done before the change of severity
+      issue.setUpdateDate(ref.getIssueUpdateDate());
 
       // should be null
       issue.setCloseDate(ref.getIssueCloseDate());
+
+      if (ref.isManualSeverity()) {
+        issue.setManualSeverity(true);
+        issue.setSeverity(ref.getSeverity());
+      } else {
+        // Emulate change of severity in the current scan.
+        String severity = issue.severity();
+        issue.setSeverity(ref.getSeverity());
+        updater.setSeverity(issue, severity, changeContext);
+      }
     }
   }
 
@@ -156,7 +162,7 @@ public class IssueTrackingDecorator implements Decorator {
 
       Rule rule = ruleFinder.findByKey(unmatched.ruleKey());
       boolean manualIssue = !Strings.isNullOrEmpty(unmatched.reporter());
-      boolean onExistingRule = rule != null && !Rule.STATUS_REMOVED.equals(rule.getStatus());
+      boolean onExistingRule = (rule != null && !Rule.STATUS_REMOVED.equals(rule.getStatus()));
       unmatched.setAlive(manualIssue && onExistingRule);
 
       issues.add(unmatched);

@@ -42,16 +42,6 @@ import java.util.*;
 
 public class IssueTracking implements BatchExtension {
 
-  private static final Comparator<LinePair> LINE_PAIR_COMPARATOR = new Comparator<LinePair>() {
-    public int compare(LinePair o1, LinePair o2) {
-      int weightDiff = o2.weight - o1.weight;
-      if (weightDiff != 0) {
-        return weightDiff;
-      } else {
-        return Math.abs(o1.lineA - o1.lineB) - Math.abs(o2.lineA - o2.lineB);
-      }
-    }
-  };
   private final LastSnapshots lastSnapshots;
   private final SonarIndex index;
 
@@ -60,9 +50,6 @@ public class IssueTracking implements BatchExtension {
     this.index = index;
   }
 
-  /**
-   * @return untracked issues
-   */
   public IssueTrackingResult track(Resource resource, Collection<IssueDto> dbIssues, Collection<DefaultIssue> newIssues) {
     IssueTrackingResult result = new IssueTrackingResult();
 
@@ -334,7 +321,7 @@ public class IssueTracking implements BatchExtension {
     return getClass().getSimpleName();
   }
 
-  static class LinePair {
+  private static class LinePair {
     int lineA;
     int lineB;
     int weight;
@@ -346,11 +333,22 @@ public class IssueTracking implements BatchExtension {
     }
   }
 
-  static class HashOccurrence {
+  private static class HashOccurrence {
     int lineA;
     int lineB;
     int countA;
     int countB;
   }
+
+  private static final Comparator<LinePair> LINE_PAIR_COMPARATOR = new Comparator<LinePair>() {
+    public int compare(LinePair o1, LinePair o2) {
+      int weightDiff = o2.weight - o1.weight;
+      if (weightDiff != 0) {
+        return weightDiff;
+      } else {
+        return Math.abs(o1.lineA - o1.lineB) - Math.abs(o2.lineA - o2.lineB);
+      }
+    }
+  };
 
 }

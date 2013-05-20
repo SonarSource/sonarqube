@@ -47,18 +47,21 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     comment.setKey("FGHIJ");
 
     Date date = DateUtils.parseDate("2013-05-18");
-    DefaultIssue issue = new DefaultIssue();
-    issue.setKey("ABCDE");
-    issue.setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-    issue.setLine(5000);
-    issue.setNew(true);
-    issue.setReporter("emmerik");
-    issue.setResolution("OPEN").setStatus("OPEN").setSeverity("BLOCKER");
-    issue.setAttribute("foo", "bar");
-    issue.addComment(comment);
-    issue.setCreationDate(date);
-    issue.setUpdateDate(date);
-    issue.setCloseDate(date);
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(true)
+
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setLine(5000)
+      .setReporter("emmerik")
+      .setResolution("OPEN")
+      .setStatus("OPEN")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .addComment(comment)
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date);
 
     saver.save(issue);
 
@@ -76,22 +79,30 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     comment.setKey("FGHIJ");
 
     Date date = DateUtils.parseDate("2013-05-18");
-    DefaultIssue issue = new DefaultIssue();
-    issue.setKey("ABCDE");
-    issue.setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-    issue.setLine(5000);
-    issue.setNew(false);
-    issue.setChecksum("FFFFF");
-    issue.setAuthorLogin("simon");
-    issue.setAssignee("loic");
-    issue.setFieldDiff(context, "severity", "INFO", "BLOCKER");
-    issue.setReporter("emmerik");
-    issue.setResolution("FIXED").setStatus("RESOLVED").setSeverity("BLOCKER");
-    issue.setAttribute("foo", "bar");
-    issue.addComment(comment);
-    issue.setCreationDate(date);
-    issue.setUpdateDate(date);
-    issue.setCloseDate(date);
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(false)
+      .setChanged(true)
+
+        // updated fields
+      .setLine(5000)
+      .setChecksum("FFFFF")
+      .setAuthorLogin("simon")
+      .setAssignee("loic")
+      .setFieldDiff(context, "severity", "INFO", "BLOCKER")
+      .setReporter("emmerik")
+      .setResolution("FIXED")
+      .setStatus("RESOLVED")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .addComment(comment)
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date)
+
+        // unmodifiable fields
+      .setRuleKey(RuleKey.of("xxx", "unknown"))
+      .setComponentKey("not:a:component");
 
     saver.save(issue);
 

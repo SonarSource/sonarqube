@@ -310,7 +310,7 @@ public final class IssueDto {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public static IssueDto toDtoForInsert(DefaultIssue issue, Integer componentId, Integer ruleId) {
+  public static IssueDto toDtoForInsert(DefaultIssue issue, Integer componentId, Integer ruleId, Date now) {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
@@ -328,14 +328,15 @@ public final class IssueDto {
       .setActionPlanKey(issue.actionPlanKey())
       .setAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
       .setAuthorLogin(issue.authorLogin())
-      .setCreatedAt(issue.technicalCreationDate())
-      .setUpdatedAt(issue.technicalUpdateDate())
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
-      .setIssueUpdateDate(issue.updateDate());
+      .setIssueUpdateDate(issue.updateDate())
+
+      .setCreatedAt(now)
+      .setUpdatedAt(now);
   }
 
-  public static IssueDto toDtoForUpdate(DefaultIssue issue) {
+  public static IssueDto toDtoForUpdate(DefaultIssue issue, Date now) {
     // Invariant fields, like key and rule, can't be updated
     return new IssueDto()
       .setKee(issue.key())
@@ -352,10 +353,10 @@ public final class IssueDto {
       .setActionPlanKey(issue.actionPlanKey())
       .setAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
       .setAuthorLogin(issue.authorLogin())
-      .setUpdatedAt(issue.technicalUpdateDate())
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
-      .setIssueUpdateDate(issue.updateDate());
+      .setIssueUpdateDate(issue.updateDate())
+      .setUpdatedAt(now);
   }
 
   public DefaultIssue toDefaultIssue() {
@@ -376,8 +377,6 @@ public final class IssueDto {
     issue.setActionPlanKey(actionPlanKey);
     issue.setAuthorLogin(authorLogin);
     issue.setNew(false);
-    issue.setTechnicalCreationDate(createdAt);
-    issue.setTechnicalUpdateDate(updatedAt);
     issue.setCreationDate(issueCreationDate);
     issue.setCloseDate(issueCloseDate);
     issue.setUpdateDate(issueUpdateDate);

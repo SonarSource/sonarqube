@@ -67,7 +67,7 @@ public class FunctionExecutor implements BatchComponent, ServerComponent {
 
     @Override
     public Function.Context setCloseDate(boolean b) {
-      updater.setCloseDate(issue, b ? changeContext.date() : null);
+      updater.setCloseDate(issue, b ? changeContext.date() : null, changeContext);
       return null;
     }
   }

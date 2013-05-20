@@ -97,7 +97,7 @@ public class IssueHandlers implements BatchExtension {
 
     @Override
     public IssueHandler.Context setAuthorLogin(@Nullable String login) {
-      updater.setAuthorLogin(issue, login);
+      updater.setAuthorLogin(issue, login, changeContext);
       return this;
     }
 

@@ -30,6 +30,7 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public abstract class IssueStorage {
@@ -50,19 +51,18 @@ public abstract class IssueStorage {
     SqlSession session = mybatis.openBatchSession();
     IssueMapper issueMapper = session.getMapper(IssueMapper.class);
     IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
+    Date now = new Date();
     try {
       List<DefaultIssue> conflicts = Lists.newArrayList();
-
       for (DefaultIssue issue : issues) {
         if (issue.isNew()) {
           int componentId = componentId(issue);
           int ruleId = ruleId(issue);
-          IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, ruleId);
+          IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, ruleId, now);
           issueMapper.insert(dto);
 
-        } else /* TODO if hasChanges */ {
-          // TODO manage condition on update date
-          IssueDto dto = IssueDto.toDtoForUpdate(issue);
+        } else if (issue.isChanged()) {
+          IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
           int count = issueMapper.update(dto);
           if (count < 1) {
             conflicts.add(issue);

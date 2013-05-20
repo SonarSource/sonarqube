@@ -26,7 +26,6 @@ class Issue
       :rule => issue.ruleKey.toString(),
       :status => issue.status
     }
-    hash[:actionPlan] = issue.actionPlanKey if issue.actionPlanKey
     hash[:resolution] = issue.resolution if issue.resolution
     hash[:severity] = issue.severity if issue.severity
     hash[:message] = issue.message if issue.message
@@ -34,6 +33,7 @@ class Issue
     hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
     hash[:reporter] = issue.reporter if issue.reporter
     hash[:assignee] = issue.assignee if issue.assignee
+    hash[:actionPlan] = issue.actionPlanKey if issue.actionPlanKey
     hash[:creationDate] = Api::Utils.format_datetime(issue.creationDate) if issue.creationDate
     hash[:updateDate] = Api::Utils.format_datetime(issue.updateDate) if issue.updateDate
     hash[:closeDate] = Api::Utils.format_datetime(issue.closeDate) if issue.closeDate

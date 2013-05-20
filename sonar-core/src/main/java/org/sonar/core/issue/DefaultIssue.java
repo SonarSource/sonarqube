@@ -35,7 +35,6 @@ import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -57,8 +56,6 @@ public class DefaultIssue implements Issue {
   private String reporter;
   private String assignee;
   private String checksum;
-  private boolean isNew = true;
-  private boolean isAlive = true;
   private Map<String, String> attributes = null;
   private String authorLogin = null;
   private FieldDiffs diffs = null;
@@ -70,9 +67,17 @@ public class DefaultIssue implements Issue {
   private Date updateDate;
   private Date closeDate;
 
-  // technical dates
-  private Date technicalCreationDate;
-  private Date technicalUpdateDate;
+  // The following states are used only during scan.
+
+  // true if the the issue did not exist in the previous scan.
+  private boolean isNew = true;
+
+  // true if the the issue did exist in the previous scan but not in the current one. That means
+  // that this issue should be closed.
+  private boolean isAlive = true;
+
+  // true if some fields have been changed since the previous scan
+  private boolean isChanged = false;
 
   public String key() {
     return key;
@@ -222,33 +227,6 @@ public class DefaultIssue implements Issue {
   }
 
 
-  /**
-   * The date when issue was physically created
-   */
-  public DefaultIssue setTechnicalCreationDate(@Nullable Date d) {
-    this.technicalCreationDate = d;
-    return this;
-  }
-
-  @CheckForNull
-  public Date technicalCreationDate() {
-    return technicalCreationDate;
-  }
-
-  /**
-   * The date when issue was physically updated for the last time
-   */
-
-  public DefaultIssue setTechnicalUpdateDate(@Nullable Date d) {
-    this.technicalUpdateDate = d;
-    return this;
-  }
-
-  @CheckForNull
-  public Date technicalUpdateDate() {
-    return technicalUpdateDate;
-  }
-
   @CheckForNull
   public String getChecksum() {
     return checksum;
@@ -274,6 +252,15 @@ public class DefaultIssue implements Issue {
 
   public DefaultIssue setAlive(boolean b) {
     isAlive = b;
+    return this;
+  }
+
+  public boolean isChanged() {
+    return isChanged;
+  }
+
+  public DefaultIssue setChanged(boolean b) {
+    isChanged = b;
     return this;
   }
 

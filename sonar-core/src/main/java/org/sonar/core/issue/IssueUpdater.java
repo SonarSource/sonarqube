@@ -23,10 +23,8 @@ import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.IssueComment;
 
 import javax.annotation.Nullable;
-
 import java.util.Date;
 
 /**
@@ -42,6 +40,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setFieldDiff(context, "severity", issue.severity(), severity);
       issue.setSeverity(severity);
       issue.setUpdateDate(context.date());
+      issue.setChanged(true);
       return true;
     }
     return false;
@@ -53,6 +52,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setSeverity(severity);
       issue.setManualSeverity(true);
       issue.setUpdateDate(context.date());
+      issue.setChanged(true);
       return true;
     }
     return false;
@@ -64,6 +64,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setFieldDiff(context, "assignee", issue.assignee(), sanitizedAssignee);
       issue.setAssignee(sanitizedAssignee);
       issue.setUpdateDate(context.date());
+      issue.setChanged(true);
       return true;
     }
     return false;
@@ -72,6 +73,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   public boolean setLine(DefaultIssue issue, @Nullable Integer line) {
     if (!Objects.equal(line, issue.line())) {
       issue.setLine(line);
+      issue.setChanged(true);
       return true;
     }
     return false;
@@ -82,6 +84,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setFieldDiff(context, "resolution", issue.resolution(), resolution);
       issue.setResolution(resolution);
       issue.setUpdateDate(context.date());
+      issue.setChanged(true);
       return true;
     }
     return false;
@@ -92,32 +95,50 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setFieldDiff(context, "status", issue.status(), status);
       issue.setStatus(status);
       issue.setUpdateDate(context.date());
+      issue.setChanged(true);
       return true;
     }
     return false;
   }
 
-  public void setAuthorLogin(DefaultIssue issue, @Nullable String authorLogin) {
-    issue.setAuthorLogin(authorLogin);
+  public void setAuthorLogin(DefaultIssue issue, @Nullable String authorLogin, IssueChangeContext context) {
+    if (!Objects.equal(authorLogin, issue.authorLogin())) {
+      issue.setFieldDiff(context, "author", issue.authorLogin(), authorLogin);
+      issue.setAuthorLogin(authorLogin);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+    }
   }
 
   public void setMessage(DefaultIssue issue, @Nullable String s, IssueChangeContext context) {
-    issue.setMessage(s);
-    issue.setUpdateDate(context.date());
+    if (!Objects.equal(s, issue.message())) {
+      issue.setFieldDiff(context, "message", issue.message(), s);
+      issue.setMessage(s);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+    }
   }
 
   public void addComment(DefaultIssue issue, String text, IssueChangeContext context) {
     issue.addComment(DefaultIssueComment.create(issue.key(), context.login(), text));
     issue.setUpdateDate(context.date());
+    issue.setChanged(true);
   }
 
-  public void setCloseDate(DefaultIssue issue, @Nullable Date d) {
-    issue.setCloseDate(d);
+  public void setCloseDate(DefaultIssue issue, @Nullable Date d, IssueChangeContext context) {
+    if (!Objects.equal(d, issue.closeDate())) {
+      issue.setCloseDate(d);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+    }
   }
 
   public void setEffortToFix(DefaultIssue issue, @Nullable Double d, IssueChangeContext context) {
-    issue.setEffortToFix(d);
-    issue.setUpdateDate(context.date());
+    if (!Objects.equal(d, issue.closeDate())) {
+      issue.setEffortToFix(d);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+    }
   }
 
   public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {
@@ -126,6 +147,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setFieldDiff(context, key, oldValue, value);
       issue.setAttribute(key, value);
       issue.setUpdateDate(context.date());
+      issue.setChanged(true);
       return true;
     }
     return false;
@@ -137,6 +159,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setFieldDiff(context, "actionPlanKey", issue.actionPlanKey(), sanitizedActionPlanKey);
       issue.setActionPlanKey(sanitizedActionPlanKey);
       issue.setUpdateDate(context.date());
+      issue.setChanged(true);
       return true;
     }
     return false;
