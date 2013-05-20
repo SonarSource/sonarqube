@@ -40,7 +40,8 @@ public class LicenseTest {
     "Plugin: SQALE\n" +
     "  Expires: 2012-05-18  \n" +
     "Other: field\n" +
-    "Digest: abcdef\n";
+    "Digest: abcdef\n" +
+    "Obeo: obeo\n";
 
   @Test
   public void readPlainTest() {
@@ -142,5 +143,6 @@ public class LicenseTest {
 
     assertThat(license.additionalProperties().get("Other")).isEqualTo("field");
     assertThat(license.additionalProperties().containsKey("Digest")).isFalse();
+    assertThat(license.additionalProperties().containsKey("Obeo")).isFalse();
   }
 }

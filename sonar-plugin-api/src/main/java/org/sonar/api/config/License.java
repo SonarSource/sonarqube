@@ -56,8 +56,9 @@ public final class License {
     expirationDate = StringUtils.defaultString(get("Expiration", properties), get("Expires", properties));
     type = get("Type", properties);
     server = get("Server", properties);
-    // SONAR-4340 Don't expose Digest property
+    // SONAR-4340 Don't expose Digest and Obeo properties
     additionalProperties.remove("Digest");
+    additionalProperties.remove("Obeo");
   }
 
   private String get(String key, Map<String, String> properties) {
