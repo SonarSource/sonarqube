@@ -36,7 +36,15 @@
         </tr>
         <tr>
           <td class="form-key-cell">Server:</td>
-          <td><%= license.getServer() || '-' -%></td>
+          <td>
+            <%  if license.getServer() &&
+                   license.getServer() != "*" &&
+                   controller.java_facade.getConfigurationValue("sonar.server_id") != license.getServer() %>
+              <span class='error'><%= license.getServer() -%></span>
+            <% else %>
+              <%= license.getServer() || '-' -%>
+            <% end %>            
+          </td>
         </tr>
         <% license.additionalProperties().each do |k,v| -%>
         <tr>
