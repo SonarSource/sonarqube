@@ -52,21 +52,21 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class IssueCountersDecoratorTest {
+public class CountOpenIssuesDecoratorTest {
 
-  private IssueCountersDecorator decorator;
-  private TimeMachineConfiguration timeMachineConfiguration;
-  private RuleFinder rulefinder;
-  private Issuable issuable;
-  private DecoratorContext context;
-  private Resource resource;
-  private Project project;
-  private Rule ruleA1;
-  private Rule ruleA2;
-  private Rule ruleB1;
-  private Date rightNow;
-  private Date tenDaysAgo;
-  private Date fiveDaysAgo;
+  CountOpenIssuesDecorator decorator;
+  TimeMachineConfiguration timeMachineConfiguration;
+  RuleFinder ruleFinder;
+  Issuable issuable;
+  DecoratorContext context;
+  Resource resource;
+  Project project;
+  Rule ruleA1;
+  Rule ruleA2;
+  Rule ruleB1;
+  Date rightNow;
+  Date tenDaysAgo;
+  Date fiveDaysAgo;
 
   @Before
   public void before() {
@@ -74,10 +74,10 @@ public class IssueCountersDecoratorTest {
     ruleA2 = Rule.create().setRepositoryKey("ruleA2").setKey("ruleA2").setName("nameA2");
     ruleB1 = Rule.create().setRepositoryKey("ruleB1").setKey("ruleB1").setName("nameB1");
 
-    rulefinder = mock(RuleFinder.class);
-    when(rulefinder.findByKey(ruleA1.getRepositoryKey(), ruleA1.getKey())).thenReturn(ruleA1);
-    when(rulefinder.findByKey(ruleA2.getRepositoryKey(), ruleA2.getKey())).thenReturn(ruleA2);
-    when(rulefinder.findByKey(ruleB1.getRepositoryKey(), ruleB1.getKey())).thenReturn(ruleB1);
+    ruleFinder = mock(RuleFinder.class);
+    when(ruleFinder.findByKey(ruleA1.getRepositoryKey(), ruleA1.getKey())).thenReturn(ruleA1);
+    when(ruleFinder.findByKey(ruleA2.getRepositoryKey(), ruleA2.getKey())).thenReturn(ruleA2);
+    when(ruleFinder.findByKey(ruleB1.getRepositoryKey(), ruleB1.getKey())).thenReturn(ruleB1);
 
     rightNow = new Date();
     tenDaysAgo = DateUtils.addDays(rightNow, -10);
@@ -106,12 +106,12 @@ public class IssueCountersDecoratorTest {
     issuable = mock(Issuable.class);
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(issuable);
-    decorator = new IssueCountersDecorator(perspectives, rulefinder, timeMachineConfiguration);
+    decorator = new CountOpenIssuesDecorator(perspectives, ruleFinder, timeMachineConfiguration);
   }
 
   @Test
   public void should_be_depended_upon_metric() {
-    assertThat(decorator.generatesIssuesMetrics()).hasSize(14);
+    assertThat(decorator.generatesIssuesMetrics()).hasSize(13);
   }
 
   @Test
@@ -129,7 +129,7 @@ public class IssueCountersDecoratorTest {
   public void should_do_nothing_when_issuable_is_null() {
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(null);
-    IssueCountersDecorator decorator = new IssueCountersDecorator(perspectives, rulefinder, timeMachineConfiguration);
+    CountOpenIssuesDecorator decorator = new CountOpenIssuesDecorator(perspectives, ruleFinder, timeMachineConfiguration);
 
     decorator.decorate(resource, context);
 
@@ -220,18 +220,6 @@ public class IssueCountersDecoratorTest {
   }
 
   @Test
-  public void should_save_false_positive_issues() {
-    List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setResolution(Issue.RESOLUTION_FALSE_POSITIVE).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setResolution(Issue.RESOLUTION_FIXED).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
-    when(issuable.issues()).thenReturn(issues);
-
-    decorator.decorate(resource, context);
-
-    verify(context).saveMeasure(CoreMetrics.FALSE_POSITIVE_ISSUES, 1.0);
-  }
-
-  @Test
   public void same_rule_should_have_different_severities() {
     List<Issue> issues = newArrayList();
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
@@ -308,16 +296,19 @@ public class IssueCountersDecoratorTest {
     verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_CRITICAL_ISSUES)));
   }
 
-  private List<Issue> createIssues() {
+  List<Issue> createIssues() {
     List<Issue> issues = newArrayList();
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setStatus(Issue.STATUS_OPEN));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setStatus(Issue.STATUS_REOPENED));
     issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()).setStatus(Issue.STATUS_REOPENED));
     issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setSeverity(RulePriority.MINOR.name()).setStatus(Issue.STATUS_OPEN));
+
+    // resolved
+    issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setResolution(Issue.RESOLUTION_FIXED).setStatus(Issue.STATUS_RESOLVED));
     return issues;
   }
 
-  private List<Issue> createIssuesForNewMetrics() {
+  List<Issue> createIssuesForNewMetrics() {
     List<Issue> issues = newArrayList();
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(rightNow).setStatus(Issue.STATUS_OPEN));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(tenDaysAgo).setStatus(Issue.STATUS_OPEN));
@@ -328,11 +319,11 @@ public class IssueCountersDecoratorTest {
     return issues;
   }
 
-  private class IsVariationRuleMeasure extends ArgumentMatcher<Measure> {
-    private Metric metric = null;
-    private Rule rule = null;
-    private Double var1 = null;
-    private Double var2 = null;
+  class IsVariationRuleMeasure extends ArgumentMatcher<Measure> {
+    Metric metric = null;
+    Rule rule = null;
+    Double var1 = null;
+    Double var2 = null;
 
     public IsVariationRuleMeasure(Metric metric, Rule rule, Double var1, Double var2) {
       this.metric = metric;
@@ -353,10 +344,10 @@ public class IssueCountersDecoratorTest {
     }
   }
 
-  private class IsVariationMeasure extends ArgumentMatcher<Measure> {
-    private Metric metric = null;
-    private Double var1 = null;
-    private Double var2 = null;
+  class IsVariationMeasure extends ArgumentMatcher<Measure> {
+    Metric metric = null;
+    Double var1 = null;
+    Double var2 = null;
 
     public IsVariationMeasure(Metric metric, Double var1, Double var2) {
       this.metric = metric;
@@ -376,8 +367,8 @@ public class IssueCountersDecoratorTest {
     }
   }
 
-  private class IsMetricMeasure extends ArgumentMatcher<Measure> {
-    private Metric metric = null;
+  class IsMetricMeasure extends ArgumentMatcher<Measure> {
+    Metric metric = null;
 
     public IsMetricMeasure(Metric metric) {
       this.metric = metric;

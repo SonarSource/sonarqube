@@ -48,13 +48,13 @@ import static com.google.common.collect.Lists.newArrayList;
  * @since 3.6
  */
 @DependsUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
-public class IssueCountersDecorator implements Decorator {
+public class CountOpenIssuesDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
   private final RuleFinder rulefinder;
   private final TimeMachineConfiguration timeMachineConfiguration;
 
-  public IssueCountersDecorator(ResourcePerspectives perspectives, RuleFinder rulefinder, TimeMachineConfiguration timeMachineConfiguration) {
+  public CountOpenIssuesDecorator(ResourcePerspectives perspectives, RuleFinder rulefinder, TimeMachineConfiguration timeMachineConfiguration) {
     this.perspectives = perspectives;
     this.rulefinder = rulefinder;
     this.timeMachineConfiguration = timeMachineConfiguration;
@@ -79,7 +79,6 @@ public class IssueCountersDecorator implements Decorator {
       CoreMetrics.NEW_MAJOR_ISSUES,
       CoreMetrics.NEW_MINOR_ISSUES,
       CoreMetrics.NEW_INFO_ISSUES,
-      CoreMetrics.FALSE_POSITIVE_ISSUES,
       CoreMetrics.UNASSIGNED_ISSUES
     );
   }
@@ -90,30 +89,26 @@ public class IssueCountersDecorator implements Decorator {
       Collection<Issue> issues = getOpenIssues(issuable.issues());
       boolean shouldSaveNewMetrics = shouldSaveNewMetrics(context);
 
-      Multiset<RulePriority> severitiesBag = HashMultiset.create();
+      Multiset<RulePriority> severityBag = HashMultiset.create();
       Map<RulePriority, Multiset<Rule>> rulesPerSeverity = Maps.newHashMap();
-      ListMultimap<RulePriority, Issue> issuesPerSeverities = ArrayListMultimap.create();
+      ListMultimap<RulePriority, Issue> issuesPerSeverity = ArrayListMultimap.create();
       int countUnassigned = 0;
-      int falsePositives = 0;
 
       for (Issue issue : issues) {
-        severitiesBag.add(RulePriority.valueOf(issue.severity()));
+        severityBag.add(RulePriority.valueOf(issue.severity()));
         Multiset<Rule> rulesBag = initRules(rulesPerSeverity, RulePriority.valueOf(issue.severity()));
         rulesBag.add(rulefinder.findByKey(issue.ruleKey().repository(), issue.ruleKey().rule()));
-        issuesPerSeverities.put(RulePriority.valueOf(issue.severity()), issue);
+        issuesPerSeverity.put(RulePriority.valueOf(issue.severity()), issue);
 
         if (issue.assignee() == null) {
           countUnassigned++;
         }
-        if (Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution())) {
-          falsePositives++;
-        }
       }
 
       for (RulePriority ruleSeverity : RulePriority.values()) {
-        saveIssuesForSeverity(context, ruleSeverity, severitiesBag);
+        saveIssuesForSeverity(context, ruleSeverity, severityBag);
         saveIssuesPerRules(context, ruleSeverity, rulesPerSeverity);
-        saveNewIssuesForSeverity(context, ruleSeverity, issuesPerSeverities, shouldSaveNewMetrics);
+        saveNewIssuesForSeverity(context, ruleSeverity, issuesPerSeverity, shouldSaveNewMetrics);
         saveNewIssuesPerRule(context, ruleSeverity, issues, shouldSaveNewMetrics);
       }
 
@@ -121,7 +116,6 @@ public class IssueCountersDecorator implements Decorator {
       saveNewIssues(context, issues, shouldSaveNewMetrics);
 
       saveMeasure(context, CoreMetrics.UNASSIGNED_ISSUES, countUnassigned);
-      saveMeasure(context, CoreMetrics.FALSE_POSITIVE_ISSUES, falsePositives);
     }
   }
 
@@ -277,7 +271,7 @@ public class IssueCountersDecorator implements Decorator {
     return newArrayList(Iterables.filter(issues, new Predicate<Issue>() {
       @Override
       public boolean apply(final Issue issue) {
-        return !Issue.STATUS_CLOSED.equals(issue.status());
+        return issue.resolution()==null;
       }
     }));
   }
