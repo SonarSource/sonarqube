@@ -44,7 +44,7 @@ public class IssueDtoTest {
     for (int i = 0; i < 4500; i++) {
       s.append('a');
     }
-    new IssueDto().setAttributes(s.toString());
+    new IssueDto().setIssueAttributes(s.toString());
   }
 
   @Test
@@ -68,7 +68,7 @@ public class IssueDtoTest {
         .setManualSeverity(true)
         .setReporter("arthur")
         .setAssignee("perceval")
-        .setAttributes("key=value")
+        .setIssueAttributes("key=value")
         .setAuthorLogin("pierre")
         .setIssueCreationDate(createdAt)
         .setIssueUpdateDate(updatedAt)

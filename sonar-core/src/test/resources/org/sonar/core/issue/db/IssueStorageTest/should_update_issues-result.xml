@@ -16,7 +16,7 @@
           created_at="2013-05-18"
           updated_at="2013-05-18"
           reporter="emmerik"
-          attributes="foo=bar"
+          issue_attributes="foo=bar"
           action_plan_key="[null]"
           issue_creation_date="2013-05-18 00:00:00.0"
           issue_update_date="2013-05-18 00:00:00.0"

@@ -62,7 +62,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getAuthorLogin()).isEqualTo("karadoc");
     assertThat(issue.getReporter()).isEqualTo("arthur");
     assertThat(issue.getAssignee()).isEqualTo("perceval");
-    assertThat(issue.getAttributes()).isEqualTo("JIRA=FOO-1234");
+    assertThat(issue.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(issue.getIssueCreationDate()).isNotNull();
     assertThat(issue.getIssueUpdateDate()).isNotNull();
     assertThat(issue.getIssueCloseDate()).isNotNull();

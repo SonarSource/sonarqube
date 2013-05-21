@@ -51,7 +51,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setAuthorLogin("morgan");
     dto.setAssignee("karadoc");
     dto.setActionPlanKey("current_sprint");
-    dto.setAttributes("JIRA=FOO-1234");
+    dto.setIssueAttributes("JIRA=FOO-1234");
     dto.setChecksum("123456789");
     dto.setMessage("the message");
 
@@ -84,7 +84,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setAuthorLogin("morgan");
     dto.setAssignee("karadoc");
     dto.setActionPlanKey("current_sprint");
-    dto.setAttributes("JIRA=FOO-1234");
+    dto.setIssueAttributes("JIRA=FOO-1234");
     dto.setChecksum("123456789");
     dto.setMessage("the message");
 

@@ -52,7 +52,7 @@ public final class IssueDto {
   private String assignee;
   private String authorLogin;
   private String actionPlanKey;
-  private String attributes;
+  private String issueAttributes;
 
   // functional dates
   private Date issueCreationDate;
@@ -220,14 +220,14 @@ public final class IssueDto {
     return this;
   }
 
-  public String getAttributes() {
-    return attributes;
+  public String getIssueAttributes() {
+    return issueAttributes;
   }
 
-  public IssueDto setAttributes(@Nullable String s) {
+  public IssueDto setIssueAttributes(@Nullable String s) {
     Preconditions.checkArgument(s == null || s.length() <= 4000,
       "Issue attributes must not exceed 4000 characters: " + s);
-    this.attributes = s;
+    this.issueAttributes = s;
     return this;
   }
 
@@ -326,7 +326,7 @@ public final class IssueDto {
       .setRuleId(ruleId)
       .setResourceId(componentId)
       .setActionPlanKey(issue.actionPlanKey())
-      .setAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
+      .setIssueAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
       .setAuthorLogin(issue.authorLogin())
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
@@ -351,7 +351,7 @@ public final class IssueDto {
       .setReporter(issue.reporter())
       .setAssignee(issue.assignee())
       .setActionPlanKey(issue.actionPlanKey())
-      .setAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
+      .setIssueAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
       .setAuthorLogin(issue.authorLogin())
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
@@ -370,7 +370,7 @@ public final class IssueDto {
     issue.setSeverity(severity);
     issue.setReporter(reporter);
     issue.setAssignee(assignee);
-    issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(attributes, "")));
+    issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(issueAttributes, "")));
     issue.setComponentKey(componentKey);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));

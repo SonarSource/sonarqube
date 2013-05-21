@@ -15,7 +15,7 @@
       reporter="emmerik"
       author_login="morgan"
       assignee="karadoc"
-      attributes="JIRA=FOO-1234"
+      issue_attributes="JIRA=FOO-1234"
       issue_creation_date="2013-05-18"
       issue_update_date="2013-05-19"
       issue_close_date="2013-05-20"

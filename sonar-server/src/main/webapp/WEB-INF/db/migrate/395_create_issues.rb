@@ -40,7 +40,7 @@ class CreateIssues < ActiveRecord::Migration
       t.column :assignee,             :string,    :null => true,	  :limit => 40
       t.column :author_login,         :string,    :null => true,    :limit => 100
       t.column :action_plan_key,      :string,    :null => true,    :limit => 50
-      t.column :attributes,           :string,    :null => true,    :limit => 4000
+      t.column :issue_attributes,           :string,    :null => true,    :limit => 4000
 
       # functional dates
       t.column :issue_creation_date,  :datetime,  :null => true
