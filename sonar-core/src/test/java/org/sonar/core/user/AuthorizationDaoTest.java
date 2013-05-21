@@ -106,4 +106,47 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
       null, "admin");
     assertThat(componentIds).isEmpty();
   }
+
+  @Test
+  public void should_return_root_project_ids_for_user() {
+    setupData("should_return_root_project_ids_for_user");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    Set<Integer> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "user");
+
+    assertThat(rootProjectIds).containsOnly(PROJECT);
+
+    // user does not have the role "admin"
+    rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "admin");
+    assertThat(rootProjectIds).isEmpty();
+  }
+
+  @Test
+  public void should_return_root_project_ids_for_group() {
+    // but user is not in an authorized group
+    setupData("should_return_root_project_ids_for_group");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    Set<Integer> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "user");
+
+    assertThat(rootProjectIds).containsOnly(PROJECT);
+
+    // user does not have the role "admin"
+    rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "admin");
+    assertThat(rootProjectIds).isEmpty();
+  }
+
+  @Test
+  public void should_return_root_project_ids_for_anonymous() {
+    setupData("should_return_root_project_ids_for_anonymous");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    Set<Integer> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(null, "user");
+
+    assertThat(rootProjectIds).containsOnly(PROJECT);
+
+    // group does not have the role "admin"
+    rootProjectIds = authorization.selectAuthorizedRootProjectsIds(null, "admin");
+    assertThat(rootProjectIds).isEmpty();
+  }
 }

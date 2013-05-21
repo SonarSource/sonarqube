@@ -302,6 +302,18 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_select_issue_and_project_ids() {
+    setupData("shared", "should_select_issue_and_project_ids");
+
+    IssueQuery query = IssueQuery.builder().build();
+    List<IssueDto> results = dao.selectIssueAndProjectIds(query, 5);
+    assertThat(results).hasSize(3);
+
+    results = dao.selectIssueAndProjectIds(query, 2);
+    assertThat(results).hasSize(2);
+  }
+
+  @Test
   public void should_select_open_issues() {
     setupData("shared", "should_select_open_issues");
 

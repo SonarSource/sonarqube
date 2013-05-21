@@ -22,6 +22,8 @@ package org.sonar.core.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -42,6 +44,8 @@ import static com.google.common.collect.Maps.newHashMap;
  * @since 3.6
  */
 public class IssueDao implements BatchComponent, ServerComponent {
+
+  private final static Integer MAX_RESULT = 10000;
 
   private final MyBatis mybatis;
 
@@ -96,6 +100,34 @@ public class IssueDao implements BatchComponent, ServerComponent {
   public List<IssueDto> selectIssueAndComponentIds(IssueQuery query, SqlSession session) {
     IssueMapper mapper = session.getMapper(IssueMapper.class);
     return mapper.selectIssueAndComponentIds(query);
+  }
+
+  @VisibleForTesting
+  List<IssueDto> selectIssueAndProjectIds(IssueQuery query, Integer maxResults) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectIssueAndProjectIds(query, maxResults, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  /**
+   * The returned IssueDto list contains only the issue id and the project id
+   */
+  public List<IssueDto> selectIssueAndProjectIds(IssueQuery query, final Integer maxResults, SqlSession session) {
+    final List<IssueDto> issues = newArrayList();
+    ResultHandler resultHandler = new ResultHandler(){
+      @Override
+      public void handleResult(ResultContext context) {
+        issues.add((IssueDto) context.getResultObject());
+        if (issues.size() >= maxResults) {
+          context.stop();
+        }
+      }
+    };
+    session.select("selectIssueAndProjectIds", query, resultHandler);
+    return issues;
   }
 
   @VisibleForTesting

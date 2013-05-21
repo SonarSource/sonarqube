@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class AuthorizationDao implements ServerComponent {
 
@@ -73,5 +74,30 @@ public class AuthorizationDao implements ServerComponent {
 
   public boolean isAuthorizedComponentId(int componentId, @Nullable Integer userId, String role) {
     return keepAuthorizedComponentIds(Sets.newHashSet(componentId), userId, role).size() == 1;
+  }
+
+  public Set<Integer> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectAuthorizedRootProjectsIds(userId, role, session);
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public Set<Integer> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role, SqlSession session) {
+    String sql;
+    Map<String, Object> params = newHashMap();
+    if (userId == null) {
+      sql = "selectAuthorizedRootProjectsIdsForAnonymous";
+      params.put("role", role);
+    } else {
+      sql = "selectAuthorizedRootProjectsIdsForUser";
+      params.put("userId", userId);
+      params.put("role", role);
+    }
+
+    return Sets.newHashSet(session.<Integer>selectList(sql, params));
   }
 }
