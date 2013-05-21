@@ -1,5 +1,5 @@
 <dataset>
-  <issues id="1" kee="ABCDE" resolution="OPEN" status="OPEN" severity="BLOCKER" manual_severity="[false]"
+  <issues id="1" kee="ABCDE" resolution="OPEN" status="OPEN" severity="5" manual_severity="[false]"
       assignee="[null]"
       author_login="[null]"
       checksum="[null]"

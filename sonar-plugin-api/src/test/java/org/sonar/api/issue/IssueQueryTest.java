@@ -71,6 +71,7 @@ public class IssueQueryTest {
     assertThat(query.pageSize()).isEqualTo(10);
     assertThat(query.pageIndex()).isEqualTo(2);
     assertThat(query.requiredRole()).isEqualTo(UserRole.CODEVIEWER);
+    assertThat(query.severitiesIndexSql).containsOnly(5);
   }
 
   @Test

@@ -63,7 +63,7 @@ public class IssueDtoTest {
         .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
         .setEffortToFix(15.0)
         .setLine(6)
-        .setSeverity("BLOCKER")
+        .setSeverity(5)
         .setMessage("message")
         .setManualSeverity(true)
         .setReporter("arthur")

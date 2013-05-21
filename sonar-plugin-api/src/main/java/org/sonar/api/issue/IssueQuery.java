@@ -19,15 +19,21 @@
  */
 package org.sonar.api.issue;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Date;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 3.6
@@ -68,6 +74,9 @@ public class IssueQuery {
   // index of selected page. Start with 1.
   private final int pageIndex;
 
+  // for internal use in MyBatis
+  protected final Collection<Integer> severitiesIndexSql;
+
   private IssueQuery(Builder builder) {
     this.issueKeys = builder.issueKeys;
     this.severities = builder.severities;
@@ -89,6 +98,8 @@ public class IssueQuery {
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
     this.requiredRole = builder.requiredRole;
+
+    this.severitiesIndexSql = severitiesIndexSql(severities);
   }
 
   public Collection<String> issueKeys() {
@@ -179,6 +190,23 @@ public class IssueQuery {
 
   public static Builder builder() {
     return new Builder();
+  }
+
+  private Collection<Integer> severitiesIndexSql(@Nullable Collection<String> severities) {
+    if (severities != null) {
+      return newArrayList(Iterables.transform(severities, new Function<String, Integer>() {
+        @Override
+        public Integer apply(final String currentSeverity) {
+          return Iterables.indexOf(Severity.ALL, new Predicate<String>() {
+            @Override
+            public boolean apply(String severity) {
+              return severity.equals(currentSeverity);
+            }
+          }) + 1;
+        };
+      }));
+    }
+    return null;
   }
 
   public static class Builder {

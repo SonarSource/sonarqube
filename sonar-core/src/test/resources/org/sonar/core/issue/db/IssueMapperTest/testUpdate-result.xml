@@ -23,7 +23,7 @@
       kee="ABCDE"
       resource_id="123"
       rule_id="200"
-      severity="BLOCKER"
+      severity="5"
       manual_severity="[false]"
       message="the message"
       line="500"

@@ -43,7 +43,6 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
 import java.util.Collection;
-import java.util.Map;
 
 @DependedUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
 public class IssueTrackingDecorator implements Decorator {
@@ -148,11 +147,11 @@ public class IssueTrackingDecorator implements Decorator {
       // fields to update with current values
       if (ref.isManualSeverity()) {
         issue.setManualSeverity(true);
-        issue.setSeverity(ref.getSeverity());
+        issue.setSeverity(ref.getSeverityLabel());
       } else {
         // Emulate change of severity in the current scan.
         String severity = issue.severity();
-        issue.setSeverity(ref.getSeverity());
+        issue.setSeverity(ref.getSeverityLabel());
         updater.setSeverity(issue, severity, changeContext);
       }
       Integer line = issue.line();

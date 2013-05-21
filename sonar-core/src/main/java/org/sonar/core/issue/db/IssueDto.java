@@ -21,14 +21,18 @@ package org.sonar.core.issue.db;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -40,7 +44,7 @@ public final class IssueDto {
   private String kee;
   private Integer resourceId;
   private Integer ruleId;
-  private String severity;
+  private Integer severity;
   private boolean manualSeverity;
   private String message;
   private Integer line;
@@ -115,11 +119,11 @@ public final class IssueDto {
   }
 
   @CheckForNull
-  public String getSeverity() {
+  public Integer getSeverity() {
     return severity;
   }
 
-  public IssueDto setSeverity(@Nullable String severity) {
+  public IssueDto setSeverity(@Nullable Integer severity) {
     this.severity = severity;
     return this;
   }
@@ -288,6 +292,11 @@ public final class IssueDto {
     return componentKey;
   }
 
+  @CheckForNull
+  public String getSeverityLabel() {
+    return severity != null ? Severity.ALL.get(severity - 1) : null;
+  }
+
   /**
    * Only for unit tests
    */
@@ -310,6 +319,18 @@ public final class IssueDto {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
+  private static Integer toSeverityIndex(final String severity){
+    if (severity != null) {
+      return Iterables.indexOf(Severity.ALL, new Predicate<String>() {
+        @Override
+        public boolean apply(String currentSeverity) {
+          return currentSeverity.equals(severity);
+        }
+      }) + 1;
+    }
+    return null;
+  }
+
   public static IssueDto toDtoForInsert(DefaultIssue issue, Integer componentId, Integer ruleId, Date now) {
     return new IssueDto()
       .setKee(issue.key())
@@ -318,7 +339,7 @@ public final class IssueDto {
       .setEffortToFix(issue.effortToFix())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
-      .setSeverity(issue.severity())
+      .setSeverity(toSeverityIndex(issue.severity()))
       .setChecksum(issue.getChecksum())
       .setManualSeverity(issue.manualSeverity())
       .setReporter(issue.reporter())
@@ -345,7 +366,7 @@ public final class IssueDto {
       .setEffortToFix(issue.effortToFix())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
-      .setSeverity(issue.severity())
+      .setSeverity(toSeverityIndex(issue.severity()))
       .setChecksum(issue.getChecksum())
       .setManualSeverity(issue.manualSeverity())
       .setReporter(issue.reporter())
@@ -367,7 +388,7 @@ public final class IssueDto {
     issue.setMessage(message);
     issue.setEffortToFix(effortToFix);
     issue.setLine(line);
-    issue.setSeverity(severity);
+    issue.setSeverity(getSeverityLabel());
     issue.setReporter(reporter);
     issue.setAssignee(assignee);
     issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(attributes, "")));

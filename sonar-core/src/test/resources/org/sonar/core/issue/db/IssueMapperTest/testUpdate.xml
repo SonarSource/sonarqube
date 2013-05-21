@@ -23,7 +23,7 @@
       kee="ABCDE"
       resource_id="123"
       rule_id="200"
-      severity="INFO"
+      severity="1"
       manual_severity="[false]"
       message="old"
       line="[null]"
