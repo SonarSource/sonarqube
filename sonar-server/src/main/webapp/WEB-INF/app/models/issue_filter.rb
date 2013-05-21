@@ -20,9 +20,6 @@
 require 'set'
 class IssueFilter
 
-  CRITERIA_SEPARATOR = '|'
-  CRITERIA_KEY_VALUE_SEPARATOR = ','
-
   attr_reader :paging, :issues, :issues_result
 
   def criteria(key=nil)
@@ -75,7 +72,9 @@ class IssueFilter
     @issues_result = nil
     @paging = nil
     @issues = nil
-    criteria['pageSize'] = 25
+    criteria['pageSize'] = 100
+    criteria['sort'] ||= 'CREATION_DATE'
+    criteria['asc'] ||= 'false'
     self
   end
 

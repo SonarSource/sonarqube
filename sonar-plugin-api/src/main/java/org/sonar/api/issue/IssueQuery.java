@@ -25,6 +25,7 @@ import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 
@@ -39,7 +40,7 @@ public class IssueQuery {
   public static final int MAX_ISSUE_KEYS = 500;
 
   public static enum Sort {
-    CREATION_DATE, UPDATE_DATE, CLOSE_DATE, ASSIGNEE, SEVERITY
+    CREATION_DATE, UPDATE_DATE, CLOSE_DATE, ASSIGNEE, SEVERITY, STATUS
   }
 
   private final Collection<String> issueKeys;
@@ -58,7 +59,7 @@ public class IssueQuery {
   private final Date createdAfter;
   private final Date createdBefore;
   private final Sort sort;
-  private final boolean asc;
+  private final Boolean asc;
   private final String requiredRole;
 
   // max results per page
@@ -154,7 +155,7 @@ public class IssueQuery {
     return sort;
   }
 
-  public boolean asc() {
+  public Boolean asc() {
     return asc;
   }
 
@@ -197,7 +198,7 @@ public class IssueQuery {
     private Date createdAfter;
     private Date createdBefore;
     private Sort sort;
-    private boolean asc = false;
+    private Boolean asc = false;
     private Integer pageSize;
     private Integer pageIndex;
     private String requiredRole;
@@ -297,7 +298,7 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder asc(boolean asc) {
+    public Builder asc(Boolean asc) {
       this.asc = asc;
       return this;
     }

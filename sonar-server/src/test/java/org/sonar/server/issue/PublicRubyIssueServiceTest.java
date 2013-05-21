@@ -74,6 +74,8 @@ public class PublicRubyIssueServiceTest {
     map.put("rules", "squid:AvoidCycle,findbugs:NullReference");
     map.put("pageSize", 10l);
     map.put("pageIndex", 50);
+    map.put("sort", "creation_date");
+    map.put("asc", true);
 
     IssueQuery query = new PublicRubyIssueService(finder).toQuery(map);
     assertThat(query.issueKeys()).containsOnly("ABCDE1234");
@@ -92,6 +94,8 @@ public class PublicRubyIssueServiceTest {
     assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));
     assertThat(query.pageSize()).isEqualTo(10);
     assertThat(query.pageIndex()).isEqualTo(50);
+    assertThat(query.sort()).isEqualTo(IssueQuery.Sort.CREATION_DATE);
+    assertThat(query.asc()).isTrue();
   }
 
   @Test

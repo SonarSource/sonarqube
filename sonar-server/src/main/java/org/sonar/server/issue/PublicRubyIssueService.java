@@ -32,6 +32,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -84,7 +85,8 @@ public class PublicRubyIssueService implements RubyIssueService {
     builder.pageIndex(RubyUtils.toInteger(props.get("pageIndex")));
     String sort = (String) props.get("sort");
     if (sort != null) {
-      builder.sort(IssueQuery.Sort.valueOf(sort));
+      builder.sort(IssueQuery.Sort.valueOf(sort.toUpperCase()));
+      builder.asc(RubyUtils.toBoolean(props.get("asc")));
     }
     return builder.build();
   }

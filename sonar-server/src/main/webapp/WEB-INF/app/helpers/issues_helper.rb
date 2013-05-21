@@ -17,34 +17,16 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+module IssuesHelper
 
-class IssuesController < ApplicationController
-
-  before_filter :init
-
-  def index
-    @filter = IssueFilter.new
-    render :action => 'search'
-  end
-
-  def search
-    @filter = IssueFilter.new
-    @filter.criteria=criteria_params
-    @filter.execute
-
-    @project = Project.by_key(@filter.criteria('componentRoots')).root_project if @filter.criteria('componentRoots')
-  end
-
-
-  private
-
-  def init
-    status = Internal.issues.listStatus()
-    @options_for_status = status.map {|s| [message('issue.status.' + s), s]}
-  end
-
-  def criteria_params
-    params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})
+  def column_html(filter, column_label, column_tooltip, sort)
+    filter_sort = filter.criteria[:sort]
+    filter_asc = filter.criteria[:asc] == 'true' ? true : false
+    html = link_to_function(h(column_label), "refreshList('#{escape_javascript sort}',#{!filter_asc}, #{filter.criteria[:page]||1})", :title => h(column_tooltip))
+    if sort == filter_sort
+      html << (filter_asc ? image_tag("asc12.png") : image_tag("desc12.png"))
+    end
+    html
   end
 
 end

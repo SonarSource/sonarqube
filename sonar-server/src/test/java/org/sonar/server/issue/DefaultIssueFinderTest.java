@@ -53,6 +53,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.*;
 
 public class DefaultIssueFinderTest {
@@ -82,7 +83,7 @@ public class DefaultIssueFinderTest {
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
-    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectByIds(anyCollection(), any(IssueQuery.Sort.class), anyBoolean(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueQueryResult results = finder.find(query);
     assertThat(results.issues()).hasSize(2);
@@ -107,11 +108,11 @@ public class DefaultIssueFinderTest {
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
     when(authorizationDao.keepAuthorizedComponentIds(anySet(), anyInt(), anyString(), any(SqlSession.class))).thenReturn(newHashSet(123));
-    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(issue1));
+    when(issueDao.selectByIds(anyCollection(), any(IssueQuery.Sort.class), anyBoolean(), any(SqlSession.class))).thenReturn(newArrayList(issue1));
 
     IssueQueryResult results = finder.find(query);
 
-    verify(issueDao).selectByIds(eq(newHashSet(1L)), any(SqlSession.class));
+    verify(issueDao).selectByIds(eq(newHashSet(1L)), any(IssueQuery.Sort.class), anyBoolean(), any(SqlSession.class));
     assertThat(results.securityExclusions()).isTrue();
   }
 
@@ -131,7 +132,7 @@ public class DefaultIssueFinderTest {
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
-    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectByIds(anyCollection(), any(IssueQuery.Sort.class), anyBoolean(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueQueryResult results = finder.find(query);
     assertThat(results.paging().offset()).isEqualTo(0);
@@ -139,7 +140,7 @@ public class DefaultIssueFinderTest {
     assertThat(results.paging().pages()).isEqualTo(2);
 
     // Only one result is expected because the limit is 1
-    verify(issueDao).selectByIds(eq(newHashSet(1L)), any(SqlSession.class));
+    verify(issueDao).selectByIds(eq(newHashSet(1L)), any(IssueQuery.Sort.class), anyBoolean(), any(SqlSession.class));
   }
 
   @Test
@@ -174,7 +175,7 @@ public class DefaultIssueFinderTest {
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
-    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectByIds(anyCollection(), any(IssueQuery.Sort.class), anyBoolean(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueQueryResult results = finder.find(query);
     assertThat(results.issues()).hasSize(2);
@@ -202,7 +203,7 @@ public class DefaultIssueFinderTest {
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
-    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectByIds(anyCollection(), any(IssueQuery.Sort.class), anyBoolean(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueQueryResult results = finder.find(query);
     assertThat(results.issues()).hasSize(2);
@@ -230,7 +231,7 @@ public class DefaultIssueFinderTest {
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(dtoList);
-    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectByIds(anyCollection(), any(IssueQuery.Sort.class), anyBoolean(), any(SqlSession.class))).thenReturn(dtoList);
     when(actionPlanService.findByKeys(anyCollection())).thenReturn(newArrayList(actionPlan1, actionPlan2));
 
     IssueQueryResult results = finder.find(query);
@@ -245,7 +246,7 @@ public class DefaultIssueFinderTest {
     grantAccessRights();
     IssueQuery query = IssueQuery.builder().build();
     when(issueDao.selectIssueAndComponentIds(eq(query), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
-    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
+    when(issueDao.selectByIds(anyCollection(), any(IssueQuery.Sort.class), anyBoolean(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
 
 
     IssueQueryResult results = finder.find(query);

@@ -46,6 +46,7 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +118,7 @@ public class DefaultIssueFinder implements IssueFinder {
       Set<Long> pagedIssueIds = pagedIssueIds(authorizedIssues, paging);
 
       // 4. Load issues and their related data (rules, components, comments, action plans, ...)
-      Collection<IssueDto> pagedIssues = issueDao.selectByIds(pagedIssueIds, sqlSession);
+      Collection<IssueDto> pagedIssues = issueDao.selectByIds(pagedIssueIds, query.sort(), query.asc(), sqlSession);
       Map<String, DefaultIssue> issuesByKey = newHashMap();
       List<Issue> issues = newArrayList();
       Set<Integer> ruleIds = Sets.newHashSet();

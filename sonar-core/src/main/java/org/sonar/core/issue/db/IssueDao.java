@@ -30,6 +30,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -97,21 +98,22 @@ public class IssueDao implements BatchComponent, ServerComponent {
     return mapper.selectIssueAndComponentIds(query);
   }
 
-  Collection<IssueDto> selectByIds(Collection<Long> ids) {
+  @VisibleForTesting
+  Collection<IssueDto> selectByIds(Collection<Long> ids, IssueQuery.Sort sort, boolean asc) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectByIds(ids, session);
+      return selectByIds(ids, sort, asc, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public Collection<IssueDto> selectByIds(Collection<Long> ids, SqlSession session) {
+  public Collection<IssueDto> selectByIds(Collection<Long> ids, IssueQuery.Sort sort, boolean asc, SqlSession session) {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
-    List<List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
-    Map<String, List<List<Long>>> params = ImmutableMap.of("ids", idsPartition);
+    Object idsPartition = Lists.partition(newArrayList(ids), 1000);
+    Map<String, Object> params = ImmutableMap.of("ids", idsPartition, "sort", sort, "asc", asc);
     return session.selectList("org.sonar.core.issue.db.IssueMapper.selectByIds", params);
   }
 }

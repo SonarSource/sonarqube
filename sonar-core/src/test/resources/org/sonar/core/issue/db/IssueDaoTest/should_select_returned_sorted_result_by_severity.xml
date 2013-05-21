@@ -1,12 +1,11 @@
 <dataset>
 
-  <!-- rule 500 -->
   <issues
       id="100"
       kee="ABCDE-1"
       resource_id="401"
       rule_id="500"
-      severity="BLOCKER"
+      severity="MINOR"
       manual_severity="[false]"
       message="[null]"
       line="200"
@@ -15,14 +14,14 @@
       resolution="FIXED"
       checksum="XXX"
       reporter="arthur"
-      assignee="perceval"
+      assignee="arthur"
       author_login="[null]"
       attributes="JIRA=FOO-1234"
-      issue_creation_date="2013-04-17"
-      issue_update_date="2013-04-17"
-      issue_close_date="2013-04-17"
-      created_at="2013-04-17"
-      updated_at="2013-04-17"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="2013-04-16"
+      updated_at="2013-04-16"
       />
 
   <issues
@@ -49,14 +48,12 @@
       updated_at="2013-04-16"
       />
 
-
-  <!-- rule 501 -->
   <issues
       id="102"
-      kee="ABCDE"
+      kee="ABCDE-3"
       resource_id="401"
       rule_id="501"
-      severity="BLOCKER"
+      severity="MAJOR"
       manual_severity="[false]"
       message="[null]"
       line="200"
@@ -65,13 +62,13 @@
       resolution="FIXED"
       checksum="XXX"
       reporter="arthur"
-      assignee="perceval"
+      assignee="henry"
       author_login="[null]"
       attributes="JIRA=FOO-1234"
-      issue_creation_date="2013-04-18"
-      issue_update_date="2013-04-18"
-      issue_close_date="2013-04-18"
-      created_at="2013-04-18"
-      updated_at="2013-04-18"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="2013-04-16"
+      updated_at="2013-04-16"
       />
 </dataset>

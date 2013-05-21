@@ -3,9 +3,14 @@
     <%= render :partial => 'issues/sidebar' -%>
   </div>
 
+
   <div class="page-split-right">
     <div id="content">
       <div class="marginbottom10">
+        <% if @filter.issues_result && @filter.issues_result.securityExclusions() %>
+          <p class="notes"><%= message('results_not_display_due_to_security') -%></p>
+        <% end %>
+
         <%= render :partial => 'list' -%>
       </div>
     </div>

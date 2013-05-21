@@ -1,3 +1,22 @@
+<% content_for :script do %>
+  <script>
+    var filterCriteria = <%= @filter.criteria.to_json -%>;
+
+    function refreshList(sort, asc, page) {
+      $j('#issue-filter-foot_pages').hide();
+      $j('#issue-filter-foot_loading').show();
+
+      filterCriteria['sort']=sort;
+      filterCriteria['asc']=asc;
+      filterCriteria['pageIndex']=page;
+      var url=baseUrl + '/issues/search?' + $j.param(filterCriteria);
+
+      window.location = url;
+      return false;
+    }
+  </script>
+<% end %>
+
 <%
    if @filter.issues && !@filter.issues.empty?
     colspan = 8
@@ -7,10 +26,10 @@
       <thead>
         <tr>
           <th width="1%" nowrap>
-            <%= message('severity_abbreviated') -%>
+            <%= column_html(@filter, message('severity_abbreviated'), message('severity'), 'SEVERITY') %>
           </th>
           <th width="1%" nowrap>
-            <%= message('status_abbreviated') -%>
+            <%= column_html(@filter, message('status_abbreviated'), message('status'), 'STATUS') %>
           </th>
           <th>
             <%= message('description') -%>
@@ -19,16 +38,16 @@
             <%= message('component') -%>
           </th>
           <th>
-            <%= message('issue_filter.header.assignee') -%>
+            <%= column_html(@filter, message('issue_filter.header.assignee'), message('issue_filter.header.assignee'), 'ASSIGNEE') %>
           </th>
           <th>
             <%= message('issue_filter.header.action_plan') -%>
           </th>
           <th>
-            <%= message('issue_filter.header.creation_date') -%>
+            <%= column_html(@filter, message('issue_filter.header.creation_date'), message('issue_filter.header.creation_date'), 'CREATION_DATE') %>
           </th>
           <th>
-            <%= message('issue_filter.header.update_date') -%>
+            <%= column_html(@filter, message('issue_filter.header.update_date'), message('issue_filter.header.update_date'), 'UPDATE_DATE') %>
           </th>
         </tr>
       </thead>
@@ -44,7 +63,7 @@
             <img src="<%= ApplicationController.root_context -%>/images/status/<%= issue.status -%>.png" title="<%= message(issue.status.downcase).capitalize -%>"/>
           </td>
           <td>
-            <%= link_to h(issue.message), :controller => 'issue', :action => 'view', :id => issue.key -%>
+            <%= link_to h(truncate(issue.message, :length => 100)), :controller => 'issue', :action => 'view', :id => issue.key -%>
           </td>
           <td>
             <%= h @filter.issues_result.component(issue).name -%>
@@ -72,7 +91,7 @@
       <% end %>
       </tbody>
 
-      <%= paginate_java(@filter.paging, :colspan => colspan, :include_loading_icon => true) { |label, page_id|
+      <%= paginate_java(@filter.paging, :colspan => colspan, :id => 'issue-filter-foot', :include_loading_icon => true) { |label, page_id|
         link_to(label, @filter.criteria.merge({:pageIndex => page_id}))
       } -%>
 

@@ -1,10 +1,13 @@
 <ul class="sidebar gray-sidebar">
   <form method="GET" action="<%= ApplicationController.root_context -%>/issues/search" >
+
+    <input type="hidden" name="sort" value="<%= @filter.criteria('sort')-%>"/>
+    <input type="hidden" name="asc" value="<%= @filter.criteria('asc') -%>"/>
+
     <li class="sidebar-title">
       <%= message('issue_filter.new_search') -%>
     </li>
     <li id="criteria-project" class="marginbottom5">
-      <!-- TODO replace by project from issues result API-->
       <% selected_project = @project if @filter.criteria('componentRoots') %>
       <%= message 'issue_filter.criteria.project' -%>:
       <%= resource_select_tag 'componentRoots', :resource_type_property => 'supportsGlobalDashboards', :width => '100%',
