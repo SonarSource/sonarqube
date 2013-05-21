@@ -31,7 +31,7 @@
 
   <review_comments id="1" created_at="[null]" updated_at="[null]" review_id="2" user_id="1223" review_text="abc"/>
 
-  <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="5"
+  <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]"
@@ -43,7 +43,7 @@
           issue_close_date="2013-04-16"
       />
 
-  <issues id="2" kee="ABCDF" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="5"
+  <issues id="2" kee="ABCDF" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]"

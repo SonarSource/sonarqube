@@ -3,7 +3,7 @@
           kee="ABCDE"
           resolution="FIXED"
           status="RESOLVED"
-          severity="5"
+          severity="BLOCKER"
           manual_severity="[false]"
           assignee="loic"
           author_login="simon"

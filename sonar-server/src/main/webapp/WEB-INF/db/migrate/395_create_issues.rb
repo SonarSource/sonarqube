@@ -28,7 +28,7 @@ class CreateIssues < ActiveRecord::Migration
       t.column :kee,                  :string,    :null => false,   :limit => 50
       t.column :resource_id,          :integer,   :null => false
       t.column :rule_id,              :integer,   :null => true
-      t.column :severity, 					  :integer,	  :null => true
+      t.column :severity, 					  :string, 	  :null => true,	  :limit => 10
       t.column :manual_severity,      :boolean,   :null => false
       t.column :message,              :string,    :null => true,    :limit => 4000
       t.column :line,                 :integer,   :null => true

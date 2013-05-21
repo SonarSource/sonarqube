@@ -46,7 +46,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setEffortToFix(3.14);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
-    dto.setSeverity(5);
+    dto.setSeverity("BLOCKER");
     dto.setReporter("emmerik");
     dto.setAuthorLogin("morgan");
     dto.setAssignee("karadoc");
@@ -79,7 +79,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setEffortToFix(3.14);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
-    dto.setSeverity(5);
+    dto.setSeverity("BLOCKER");
     dto.setReporter("emmerik");
     dto.setAuthorLogin("morgan");
     dto.setAssignee("karadoc");

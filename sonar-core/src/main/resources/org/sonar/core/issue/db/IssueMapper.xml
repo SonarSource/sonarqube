@@ -210,9 +210,9 @@
         <foreach item="key" index="index" collection="issueKeys" open="(" separator="," close=")">#{key}
         </foreach>
       </if>
-      <if test="severitiesIndexSql != null">
+      <if test="severities != null">
         and i.severity in
-        <foreach item="severity" index="index" collection="severitiesIndexSql" open="(" separator="," close=")">#{severity}
+        <foreach item="severity" index="index" collection="severities" open="(" separator="," close=")">#{severity}
         </foreach>
       </if>
       <if test="statuses != null">

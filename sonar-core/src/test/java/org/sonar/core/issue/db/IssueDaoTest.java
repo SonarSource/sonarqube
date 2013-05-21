@@ -51,7 +51,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getId()).isEqualTo(100L);
     assertThat(issue.getResourceId()).isEqualTo(401);
     assertThat(issue.getRuleId()).isEqualTo(500);
-    assertThat(issue.getSeverity()).isEqualTo(5);
+    assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
     assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.getMessage()).isNull();
     assertThat(issue.getLine()).isEqualTo(200);
@@ -227,9 +227,9 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.SEVERITY).asc(true).build();
     List<IssueDto> results = newArrayList(dao.select(query));
     assertThat(results).hasSize(3);
-    assertThat(results.get(0).getSeverityLabel()).isEqualTo("MINOR");
-    assertThat(results.get(1).getSeverityLabel()).isEqualTo("MAJOR");
-    assertThat(results.get(2).getSeverityLabel()).isEqualTo("BLOCKER");
+    assertThat(results.get(0).getSeverity()).isEqualTo("BLOCKER");
+    assertThat(results.get(1).getSeverity()).isEqualTo("MAJOR");
+    assertThat(results.get(2).getSeverity()).isEqualTo("MINOR");
   }
 
   @Test
