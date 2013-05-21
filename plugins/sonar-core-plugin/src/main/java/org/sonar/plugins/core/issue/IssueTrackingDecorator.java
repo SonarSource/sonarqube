@@ -43,6 +43,7 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
 import java.util.Collection;
+import java.util.Map;
 
 @DependedUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
 public class IssueTrackingDecorator implements Decorator {
@@ -124,25 +125,27 @@ public class IssueTrackingDecorator implements Decorator {
     for (DefaultIssue issue : result.matched()) {
       IssueDto ref = result.matching(issue);
 
+      // invariant fields
       issue.setKey(ref.getKee());
-      issue.setResolution(ref.getResolution());
-      issue.setStatus(ref.getStatus());
-      issue.setNew(false);
-      issue.setAlive(true);
-      issue.setAssignee(ref.getAssignee());
-      issue.setAuthorLogin(ref.getAuthorLogin());
-      issue.setAssignee(ref.getAssignee());
-      if (ref.getAttributes() != null) {
-        issue.setAttributes(KeyValueFormat.parse(ref.getAttributes()));
-      }
       issue.setCreationDate(ref.getIssueCreationDate());
-
-      // must be done before the change of severity
       issue.setUpdateDate(ref.getIssueUpdateDate());
-
-      // should be null
       issue.setCloseDate(ref.getIssueCloseDate());
 
+      // non-persisted fields
+      issue.setNew(false);
+      issue.setAlive(true);
+
+      // fields to update with old values
+      issue.setActionPlanKey(ref.getActionPlanKey());
+      issue.setResolution(ref.getResolution());
+      issue.setStatus(ref.getStatus());
+      issue.setAssignee(ref.getAssignee());
+      issue.setAuthorLogin(ref.getAuthorLogin());
+      if (ref.getAttributes() != null) {
+          issue.setAttributes(KeyValueFormat.parse(ref.getAttributes()));
+      }
+
+      // fields to update with current values
       if (ref.isManualSeverity()) {
         issue.setManualSeverity(true);
         issue.setSeverity(ref.getSeverity());
@@ -152,6 +155,9 @@ public class IssueTrackingDecorator implements Decorator {
         issue.setSeverity(ref.getSeverity());
         updater.setSeverity(issue, severity, changeContext);
       }
+      Integer line = issue.line();
+      issue.setLine(ref.getLine());
+      updater.setLine(issue, line);
     }
   }
 
