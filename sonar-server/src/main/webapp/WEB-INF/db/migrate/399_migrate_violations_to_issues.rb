@@ -42,12 +42,11 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
   PRIORITY_TO_SEVERITY = {1 => 'INFO', 2 => 'MINOR', 3 => 'MAJOR', 4 => 'CRITICAL', 5 => 'BLOCKER'}
 
   def self.up
-    # TODO another migration to delete duplications in reviews
     truncate_issues
 
     violation_ids = ActiveRecord::Base.connection.select_rows('select id from rule_failures')
 
-    say_with_time "Migrating #{violation_ids.size} violations to issues" do
+    say_with_time "Converting #{violation_ids.size} violations to issues" do
       logins_by_id = User.all.inject({}) do |result, user|
         result[user.id]=user.login
         result
@@ -127,6 +126,7 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
       end
     end
 
+    #TODO
     #drop_table('rule_failures')
     #drop_table('reviews')
     #drop_table('review_comments')
