@@ -21,7 +21,6 @@
 package org.sonar.core.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * @since 3.6
@@ -99,7 +99,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   @VisibleForTesting
-  Collection<IssueDto> selectByIds(Collection<Long> ids, IssueQuery.Sort sort, boolean asc) {
+  Collection<IssueDto> selectByIds(Collection<Long> ids, IssueQuery.Sort sort, Boolean asc) {
     SqlSession session = mybatis.openSession();
     try {
       return selectByIds(ids, sort, asc, session);
@@ -108,12 +108,15 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public Collection<IssueDto> selectByIds(Collection<Long> ids, IssueQuery.Sort sort, boolean asc, SqlSession session) {
+  public Collection<IssueDto> selectByIds(Collection<Long> ids, IssueQuery.Sort sort, Boolean asc, SqlSession session) {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
     Object idsPartition = Lists.partition(newArrayList(ids), 1000);
-    Map<String, Object> params = ImmutableMap.of("ids", idsPartition, "sort", sort, "asc", asc);
+    Map<String, Object> params = newHashMap();
+    params.put("ids", idsPartition);
+    params.put("sort", sort);
+    params.put("asc", asc);
     return session.selectList("org.sonar.core.issue.db.IssueMapper.selectByIds", params);
   }
 }
