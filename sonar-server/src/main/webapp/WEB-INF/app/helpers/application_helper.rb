@@ -31,6 +31,7 @@ module ApplicationHelper
   #
   # == Options
   # * :format - See Ruby on Rails localization options
+  # * :time_if_today - true to only display the time when the date is today.
   #
   def format_datetime(object, options={})
     return nil unless object
@@ -39,25 +40,37 @@ module ApplicationHelper
     else
       dt = object
     end
-    l(dt, options)
+    if options[:time_if_today] && (Date.today - date.to_date == 0)
+      dt.strftime('%H:%M')
+    else
+      l(dt, options)
+    end
   end
 
   # Since 3.6
   # java.util.Date is supported
   #
   # == Options
-  # * :format - See Ruby on Rails localization options
+  # * :format - values are :short, :default, :long. See Ruby on Rails localization for more details.
+  # * :time_if_today - true to only display the time when the date is today.
   #
   def format_date(object, options={})
     return nil unless object
+
+    dt = object
+    date = object
     if object.is_a?(Java::JavaUtil::Date)
-      date = Api::Utils.java_to_ruby_datetime(object).to_date
-    elsif object.respond_to?(:to_date)
+      dt = Api::Utils.java_to_ruby_datetime(object)
+      date = dt.to_date
+    elsif object.is_a?(DateTime)
+      dt = object
       date = object.to_date
-    else
-      date = object
     end
-    l(date, options)
+    if options[:time_if_today] && (Date.today - date.to_date == 0)
+      dt.strftime('%H:%M')
+    else
+      l(date, options)
+    end
   end
 
   def sonar_version

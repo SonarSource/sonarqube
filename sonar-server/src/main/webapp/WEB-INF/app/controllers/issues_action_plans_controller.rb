@@ -48,11 +48,7 @@ class IssuesActionPlansController < ApplicationController
       @action_plan = action_plan_result.get()
       redirect_to :action => 'index', :id => @resource.id
     else
-      flash[:error] = ""
-      action_plan_result.errors().each_with_index do |msg, index|
-        flash[:error] << message(msg.text(), {:params => msg.params()}).capitalize
-        flash[:error] += "<br/>" if index < action_plan_result.errors().size() - 1
-      end
+      flash[:error] = action_plan_result.errors().map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
       load_action_plans()
       render 'index'
     end

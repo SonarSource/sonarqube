@@ -1,6 +1,6 @@
 <%
    plans_select_box_id = "plans-#{params[:issue]}"
-   plans = Internal.issues.findOpenActionPlans(params[:issue]).sort_by { |plan| plan.deadLine }
+   plans = Internal.issues.findOpenActionPlans(params[:issue])
 
 
    if plans.empty?
@@ -10,7 +10,7 @@
 <%
    else
      first_plan = plans[0]
-     plan_options = options_for_select([[]] + plans.map { |plan|
+     plan_options = options_for_select([[message('issue.unplanned'), '']] + plans.map { |plan|
        if plan.deadLine
          label = "#{h plan.name} (#{format_date(plan.deadLine)})"
        else
