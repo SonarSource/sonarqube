@@ -125,6 +125,8 @@ public class IssueDao implements BatchComponent, ServerComponent {
         IssueDto issueDto = (IssueDto) context.getResultObject();
         if (authorizedRootProjectIds.contains(issueDto.getProjectId())) {
           issues.add(issueDto);
+        } else {
+          // reject because user not authorized
         }
         if (issues.size() >= maxResults) {
           context.stop();

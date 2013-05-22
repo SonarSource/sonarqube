@@ -22,9 +22,13 @@ module IssuesHelper
   def column_html(filter, column_label, column_tooltip, sort)
     filter_sort = filter.criteria[:sort]
     filter_asc = filter.criteria[:asc] == 'true' ? true : false
-    html = link_to_function(h(column_label), "refreshList('#{escape_javascript sort}',#{!filter_asc}, #{filter.criteria[:page]||1})", :title => h(column_tooltip))
-    if sort == filter_sort
-      html << (filter_asc ? image_tag("asc12.png") : image_tag("desc12.png"))
+    if !filter.issues_result.maxResultsReached()
+      html = link_to_function(h(column_label), "refreshList('#{escape_javascript sort}',#{!filter_asc}, #{filter.criteria[:page]||1})", :title => h(column_tooltip))
+      if sort == filter_sort
+        html << (filter_asc ? image_tag("asc12.png") : image_tag("desc12.png"))
+      end
+    else
+      html = h(column_label)
     end
     html
   end

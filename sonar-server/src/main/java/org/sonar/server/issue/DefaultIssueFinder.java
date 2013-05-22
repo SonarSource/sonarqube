@@ -156,7 +156,7 @@ public class DefaultIssueFinder implements IssueFinder {
                                  findUsers(users),
                                  paging,
                                  false,
-                                 authorizedIssues.size() != query.maxResults()
+                                 authorizedIssues.size() >= query.maxResults()
                                  // TODO
 //        authorizedIssues.size() != allIssues.size()
       );
