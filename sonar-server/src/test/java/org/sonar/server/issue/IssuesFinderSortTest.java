@@ -21,6 +21,7 @@
 package org.sonar.server.issue;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.fest.assertions.Assertions;
 import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.issue.db.IssueDto;
@@ -65,10 +66,10 @@ public class IssuesFinderSortTest {
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
 
-    assertThat(result).hasSize(3);
-    assertThat(result.get(0).getStatus()).isEqualTo("REOPENED");
-    assertThat(result.get(1).getStatus()).isEqualTo("OPEN");
-    assertThat(result.get(2).getStatus()).isEqualTo("CLOSED");
+    Assertions.assertThat(result).hasSize(3);
+    Assertions.assertThat(result.get(0).getStatus()).isEqualTo("REOPENED");
+    Assertions.assertThat(result.get(1).getStatus()).isEqualTo("OPEN");
+    Assertions.assertThat(result.get(2).getStatus()).isEqualTo("CLOSED");
   }
 
   @Test
@@ -83,10 +84,10 @@ public class IssuesFinderSortTest {
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
 
-    assertThat(result).hasSize(3);
-    assertThat(result.get(0).getSeverity()).isEqualTo("INFO");
-    assertThat(result.get(1).getSeverity()).isEqualTo("MAJOR");
-    assertThat(result.get(2).getSeverity()).isEqualTo("BLOCKER");
+    Assertions.assertThat(result).hasSize(3);
+    Assertions.assertThat(result.get(0).getSeverity()).isEqualTo("INFO");
+    Assertions.assertThat(result.get(1).getSeverity()).isEqualTo("MAJOR");
+    Assertions.assertThat(result.get(2).getSeverity()).isEqualTo("BLOCKER");
   }
 
   @Test
@@ -105,10 +106,10 @@ public class IssuesFinderSortTest {
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
 
-    assertThat(result).hasSize(3);
-    assertThat(result.get(0).getIssueCreationDate()).isEqualTo(date3);
-    assertThat(result.get(1).getIssueCreationDate()).isEqualTo(date2);
-    assertThat(result.get(2).getIssueCreationDate()).isEqualTo(date1);
+    Assertions.assertThat(result).hasSize(3);
+    Assertions.assertThat(result.get(0).getIssueCreationDate()).isEqualTo(date3);
+    Assertions.assertThat(result.get(1).getIssueCreationDate()).isEqualTo(date2);
+    Assertions.assertThat(result.get(2).getIssueCreationDate()).isEqualTo(date1);
   }
 
   @Test
@@ -127,10 +128,10 @@ public class IssuesFinderSortTest {
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
 
-    assertThat(result).hasSize(3);
-    assertThat(result.get(0).getIssueUpdateDate()).isEqualTo(date3);
-    assertThat(result.get(1).getIssueUpdateDate()).isEqualTo(date2);
-    assertThat(result.get(2).getIssueUpdateDate()).isEqualTo(date1);
+    Assertions.assertThat(result).hasSize(3);
+    Assertions.assertThat(result.get(0).getIssueUpdateDate()).isEqualTo(date3);
+    Assertions.assertThat(result.get(1).getIssueUpdateDate()).isEqualTo(date2);
+    Assertions.assertThat(result.get(2).getIssueUpdateDate()).isEqualTo(date1);
   }
 
   @Test
@@ -149,10 +150,10 @@ public class IssuesFinderSortTest {
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
 
-    assertThat(result).hasSize(3);
-    assertThat(result.get(0).getIssueCloseDate()).isEqualTo(date3);
-    assertThat(result.get(1).getIssueCloseDate()).isEqualTo(date2);
-    assertThat(result.get(2).getIssueCloseDate()).isEqualTo(date1);
+    Assertions.assertThat(result).hasSize(3);
+    Assertions.assertThat(result.get(0).getIssueCloseDate()).isEqualTo(date3);
+    Assertions.assertThat(result.get(1).getIssueCloseDate()).isEqualTo(date2);
+    Assertions.assertThat(result.get(2).getIssueCloseDate()).isEqualTo(date1);
   }
 
 }

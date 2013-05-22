@@ -28,9 +28,9 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.user.UserFinder;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
@@ -84,7 +84,7 @@ public class DefaultIssueFinderTest {
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueQueryResult results = finder.find(query);
-    verify(issueDao).selectIssueAndProjectIds(eq(query), eq(newHashSet(100)), any(SqlSession.class));
+    verify(issueDao).selectIssueAndProjectIds(eq(query), any(DefaultIssueQueryResult.class), eq(newHashSet(100)), any(SqlSession.class));
 
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
@@ -92,26 +92,6 @@ public class DefaultIssueFinderTest {
     assertThat(issue.projectKey()).isEqualTo("struts");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
     assertThat(results.securityExclusions()).isFalse();
-  }
-
-  @Test
-  public void should_find_only_authorized_issues() {
-    when(authorizationDao.selectAuthorizedRootProjectsIds(anyInt(), anyString(), any(SqlSession.class)))
-      .thenReturn(Collections.<Integer>emptySet());
-    IssueQuery query = IssueQuery.builder().pageSize(100).requiredRole(UserRole.USER).build();
-
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setResourceId(123).setProjectId(100)
-      .setComponentKey_unit_test_only("Action.java")
-      .setProjectKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
-      .setStatus("OPEN").setResolution("OPEN");
-    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(issue1));
-
-    finder.find(query);
-    verify(issueDao).selectIssueAndProjectIds(eq(query), eq(Collections.<Integer>emptySet()), any(SqlSession.class));
-
-    // TODO
-//    assertThat(results.securityExclusions()).isTrue();
   }
 
   @Test
@@ -132,7 +112,7 @@ public class DefaultIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueAndProjectIds(eq(query), eq(newHashSet(100)), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueAndProjectIds(eq(query), any(DefaultIssueQueryResult.class), eq(newHashSet(100)), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueQueryResult results = finder.find(query);
@@ -273,7 +253,7 @@ public class DefaultIssueFinderTest {
   public void should_get_empty_result_when_no_issue() {
     grantAccessRights();
     IssueQuery query = IssueQuery.builder().build();
-    when(issueDao.selectIssueAndProjectIds(eq(query), anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
+    when(issueDao.selectIssueAndProjectIds(eq(query), any(DefaultIssueQueryResult.class), anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
 
     IssueQueryResult results = finder.find(query);

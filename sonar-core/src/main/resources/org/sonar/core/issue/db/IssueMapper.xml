@@ -146,11 +146,6 @@
     </where>
   </select>
 
-  <select id="selectIssueAndComponentIds" parameterType="map" resultType="Issue">
-    select i.id, i.resource_id as resourceId
-    <include refid="selectQueryConditions"/>
-  </select>
-
   <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="500">
     select i.id, i.project_id as projectId
     <include refid="sortColumn"/>

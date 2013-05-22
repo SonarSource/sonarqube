@@ -20,20 +20,19 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.*;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
@@ -42,8 +41,6 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.platform.UserSession;
-
-import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -100,11 +97,13 @@ public class DefaultIssueFinder implements IssueFinder {
     LOG.debug("IssueQuery : {}", query);
     SqlSession sqlSession = myBatis.openSession();
     try {
+      DefaultIssueQueryResult defaultIssueQueryResult = new DefaultIssueQueryResult();
+
       // 1. Select all authorized root project ids for the user
       Collection<Integer> rootProjectIds = authorizationDao.selectAuthorizedRootProjectsIds(UserSession.get().userId(), query.requiredRole(), sqlSession);
 
       // 2. Select the authorized ids of all the issues that match the query
-      List<IssueDto> authorizedIssues = issueDao.selectIssueAndProjectIds(query, rootProjectIds, sqlSession);
+      List<IssueDto> authorizedIssues = issueDao.selectIssueAndProjectIds(query, defaultIssueQueryResult, rootProjectIds, sqlSession);
 
       // 3. Sort all authorized issues
       List<IssueDto> authorizedSortedIssues = sort(authorizedIssues, query, authorizedIssues.size());
@@ -148,24 +147,21 @@ public class DefaultIssueFinder implements IssueFinder {
         }
       }
 
-      return new DefaultResults(issues,
-                                 findRules(ruleIds),
-                                 findComponents(componentIds),
-                                 findProjects(projectIds),
-                                 findActionPlans(actionPlanKeys),
-                                 findUsers(users),
-                                 paging,
-                                 false,
-                                 authorizedIssues.size() >= query.maxResults()
-                                 // TODO
-//        authorizedIssues.size() != allIssues.size()
-      );
+      defaultIssueQueryResult.setIssues(issues)
+        .addRules(findRules(ruleIds))
+        .addComponents(findComponents(componentIds))
+        .addProjects(findProjects(projectIds))
+        .addActionPlans(findActionPlans(actionPlanKeys))
+        .addUsers(findUsers(users))
+        .setPaging(paging);
+
+      return defaultIssueQueryResult;
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
   }
 
-  private List<IssueDto> sort(List<IssueDto> issues, IssueQuery query, int allIssuesSize){
+  private List<IssueDto> sort(List<IssueDto> issues, IssueQuery query, int allIssuesSize) {
     if (allIssuesSize < query.maxResults()) {
       return new IssuesFinderSort(issues, query).sort();
     }
@@ -211,114 +207,4 @@ public class DefaultIssueFinder implements IssueFinder {
     return dto != null ? dto.toDefaultIssue() : null;
   }
 
-  static class DefaultResults implements IssueQueryResult {
-    private final List<Issue> issues;
-    private final Map<RuleKey, Rule> rulesByKey = Maps.newHashMap();
-    private final Map<String, Component> componentsByKey = Maps.newHashMap();
-    private final Map<String, Component> projectsByKey = Maps.newHashMap();
-    private final Map<String, ActionPlan> actionPlansByKey = Maps.newHashMap();
-    private final Map<String, User> usersByLogin = Maps.newHashMap();
-    private final boolean securityExclusions;
-    private final boolean maxResultsReached;
-    private final Paging paging;
-
-    DefaultResults(List<Issue> issues,
-                   Collection<Rule> rules,
-                   Collection<Component> components,
-                   Collection<Component> projects,
-                   Collection<ActionPlan> actionPlans,
-                   Collection<User> users,
-                   Paging paging, boolean securityExclusions, boolean maxResultsReached) {
-      this.issues = issues;
-      for (Rule rule : rules) {
-        rulesByKey.put(rule.ruleKey(), rule);
-      }
-      for (Component component : components) {
-        componentsByKey.put(component.key(), component);
-      }
-      for (Component project : projects) {
-        projectsByKey.put(project.key(), project);
-      }
-      for (ActionPlan actionPlan : actionPlans) {
-        actionPlansByKey.put(actionPlan.key(), actionPlan);
-      }
-      for (User user : users) {
-        usersByLogin.put(user.login(), user);
-      }
-      this.paging = paging;
-      this.securityExclusions = securityExclusions;
-      this.maxResultsReached = maxResultsReached;
-    }
-
-    @Override
-    public List<Issue> issues() {
-      return issues;
-    }
-
-    @Override
-    public Rule rule(Issue issue) {
-      return rulesByKey.get(issue.ruleKey());
-    }
-
-    @Override
-    public Collection<Rule> rules() {
-      return rulesByKey.values();
-    }
-
-    @Override
-    public Component component(Issue issue) {
-      return componentsByKey.get(issue.componentKey());
-    }
-
-    @Override
-    public Collection<Component> components() {
-      return componentsByKey.values();
-    }
-
-    @Override
-    public Component project(Issue issue) {
-      return projectsByKey.get(issue.projectKey());
-    }
-
-    @Override
-    public Collection<Component> projects() {
-      return projectsByKey.values();
-    }
-
-    @Override
-    public ActionPlan actionPlan(Issue issue) {
-      return actionPlansByKey.get(issue.actionPlanKey());
-    }
-
-    @Override
-    public Collection<ActionPlan> actionPlans() {
-      return actionPlansByKey.values();
-    }
-
-    @Override
-    public Collection<User> users() {
-      return usersByLogin.values();
-    }
-
-    @Override
-    @CheckForNull
-    public User user(String login) {
-      return usersByLogin.get(login);
-    }
-
-    @Override
-    public boolean securityExclusions() {
-      return securityExclusions;
-    }
-
-    @Override
-    public boolean maxResultsReached() {
-      return maxResultsReached;
-    }
-
-    @Override
-    public Paging paging() {
-      return paging;
-    }
-  }
 }

@@ -27,8 +27,6 @@ public interface IssueMapper {
 
   IssueDto selectByKey(String key);
 
-  List<IssueDto> selectIssueAndComponentIds(IssueQuery query);
-
   List<IssueDto> select(IssueQuery query);
 
   List<IssueDto> selectNonClosedIssues(int rootComponentId);
