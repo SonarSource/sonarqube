@@ -26,6 +26,40 @@ module ApplicationHelper
     super(location, options)
   end
 
+  # Since 3.6
+  # java.util.Date is supported
+  #
+  # == Options
+  # * :format - See Ruby on Rails localization options
+  #
+  def format_datetime(object, options={})
+    return nil unless object
+    if object.is_a?(Java::JavaUtil::Date)
+      dt = Api::Utils.java_to_ruby_datetime(object)
+    else
+      dt = object
+    end
+    l(dt, options)
+  end
+
+  # Since 3.6
+  # java.util.Date is supported
+  #
+  # == Options
+  # * :format - See Ruby on Rails localization options
+  #
+  def format_date(object, options={})
+    return nil unless object
+    if object.is_a?(Java::JavaUtil::Date)
+      date = Api::Utils.java_to_ruby_datetime(object).to_date
+    elsif object.respond_to?(:to_date)
+      date = object.to_date
+    else
+      date = object
+    end
+    l(date, options)
+  end
+
   def sonar_version
     Java::OrgSonarServerPlatform::Platform.getServer().getVersion()
   end
@@ -724,6 +758,7 @@ module ApplicationHelper
 
   #
   # Creates a dropdown selection box.
+  #
   # ==== Options
   # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
   # * <tt>:placeholder</tt> - the label to display when nothing is selected. Default is ''.
@@ -732,6 +767,9 @@ module ApplicationHelper
   # * <tt>:open</tt> - true to open the select-box. Default is false. Since 3.6.
   # * <tt>:select2_options</tt> - hash of select2 options
   #
+  # ==== Example
+  # dropdown_tag('user', [['Morgan', 'morgan'], ['Simon', 'simon']], {:show_search_box => false}, {:id => 'users_123'})
+  #
   def dropdown_tag(name, option_tags, options={}, html_options={})
     width=options[:width]||'250px'
     html_id=html_options[:id]||name
@@ -739,8 +777,8 @@ module ApplicationHelper
     minimumResultsForSearch=show_search_box ? 0 : option_tags.size + 1
 
     js_options={
-        'minimumResultsForSearch' => minimumResultsForSearch,
-        'allowClear' => options[:allow_clear]||false,
+      'minimumResultsForSearch' => minimumResultsForSearch,
+      'allowClear' => options[:allow_clear]||false,
     }
     js_options['placeholder']= options.has_key?(:placeholder) ? "'#{options[:placeholder]}'" : "''"
     js_options['width']= "'#{width}'" if width

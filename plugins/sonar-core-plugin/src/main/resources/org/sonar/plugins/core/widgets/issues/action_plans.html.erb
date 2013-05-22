@@ -45,11 +45,10 @@
     <tbody>
       <%
          open_action_plans.each do |plan|
-           deadline = Api::Utils.java_to_ruby_datetime(plan.deadLine()) if plan.deadLine()
       %>
       <tr class="<%= show_resolved_issues ? '' : cycle("even", "odd", :name => "action_plan_" + widget.id.to_s) -%>">
         <td class="nowrap <%= line_class -%>"><%= h(plan.name) -%></td>
-        <td class="nowrap small <%= line_class -%> <%= 'over-due' if plan.overDue() -%>" style="text-align: right; padding-left:10px"><%= deadline ? deadline.strftime("%d %b %Y") : ' '  -%></td>
+        <td class="nowrap small <%= line_class -%> <%= 'over-due' if plan.overDue() -%>" style="text-align: right; padding-left:10px"><%= format_date(plan.deadLine())  -%></td>
         
         <% if show_resolved_issues %>
           <% if plan.totalIssues()==0 %>

@@ -1,27 +1,41 @@
 <%
-  plans = Internal.issues.findOpenActionPlans(params[:issue])
+   plans_select_box_id = "plans-#{params[:issue]}"
+   plans = Internal.issues.findOpenActionPlans(params[:issue]).sort_by { |plan| plan.deadLine }
 
-  if plans.empty?
+
+   if plans.empty?
 %>
   <span class="error"><%= message('issue.plan_must_be_created_first') -%></span>
   &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>
+<%
+   else
+     first_plan = plans[0]
+     plan_options = options_for_select([[]] + plans.map { |plan|
+       if plan.deadLine
+         label = "#{h plan.name} (#{format_date(plan.deadLine)})"
+       else
+         label = h plan.name
+       end
+       [label, plan.key]
+     }, first_plan.key)
 
-<% else %>
-<form method="POST">
-  <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
-  <input type="hidden" name="id" value="plan"/>
+%>
+  <form method="POST">
+    <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
+    <input type="hidden" name="id" value="plan"/>
 
-  <select name="plan">
-    <option value=""></option>
-    <% plans.each do |plan| %>
-      <option value="<%= plan.key() -%>"><%= h(plan.name()) -%></option>
+    <%= dropdown_tag('plan', plan_options, {:show_search_box => false}, {:id => plans_select_box_id}) -%>
+
+    <input type="button" value="<%= message('issue.plan.submit') -%>" onclick="submitIssueForm(this)">
+    &nbsp;
+    <% if @issue.actionPlanKey %>
+      <%= image_tag 'sep12.png' -%>
+      &nbsp;
+      <input type="button" value="<%= message('issue.unplan.submit') -%>" onclick="$j('#<%= plans_select_box_id -%>').val('');$j('#<%= plans_select_box_id -%>').prop('disabled', false);submitIssueForm(this)">
     <% end %>
-  </select>
+    <%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
+    <span class="loading hidden"></span>
 
-  <input type="button" value="<%= message('issue.plan.submit') -%>" onclick="submitIssueForm(this)">
-  &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
-  <span class="loading hidden"></span>
-
-</form>
+  </form>
 
 <% end %>

@@ -39,6 +39,10 @@ class IssueController < ApplicationController
   def action_form
     verify_ajax_request
     require_parameters :id, :issue
+
+    @issue_result = Api.issues.find(params[:issue])
+    @issue = @issue_result.issues().get(0)
+
     action_type = params[:id]
     render :partial => "issue/#{action_type}_form"
   end

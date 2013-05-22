@@ -13,7 +13,7 @@
     <%
        created_at = Api::Utils.java_to_ruby_datetime(issue.creationDate())
        updated_at = Api::Utils.java_to_ruby_datetime(issue.updateDate())
-       dates_title = "Created at #{l created_at} and updated at #{l updated_at}"
+       dates_title = "Created at #{format_datetime(created_at)} and updated at #{format_datetime(updated_at)}"
     %>
     <span title="<%= h dates_title -%>"><%= distance_of_time_in_words_to_now(created_at) -%></span>
     &nbsp;

@@ -281,7 +281,7 @@ public class IssueQuery {
      * If true, it will return all issues linked to an action plan
      * If false, it will return all issues not linked to an action plan
      */
-    public Builder planned(Boolean planned) {
+    public Builder planned(@Nullable Boolean planned) {
       this.planned = planned;
       return this;
     }
