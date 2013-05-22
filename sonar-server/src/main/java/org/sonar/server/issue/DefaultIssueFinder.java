@@ -19,8 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -102,16 +100,11 @@ public class DefaultIssueFinder implements IssueFinder {
     LOG.debug("IssueQuery : {}", query);
     SqlSession sqlSession = myBatis.openSession();
     try {
-      // 1. Select the ids of all the issues that match the query
-      List<IssueDto> allIssues = issueDao.selectIssueAndComponentIds(query, sqlSession);
+      // 1. Select all authorized root project ids for the user
+      Collection<Integer> rootProjectIds = authorizationDao.selectAuthorizedRootProjectsIds(UserSession.get().userId(), query.requiredRole(), sqlSession);
 
-      // 2. Apply security, if needed
-      List<IssueDto> authorizedIssues;
-      if (query.requiredRole() != null) {
-        authorizedIssues = keepAuthorized(allIssues, query.requiredRole(), sqlSession);
-      } else {
-        authorizedIssues = allIssues;
-      }
+      // 2. Select the authorized ids of all the issues that match the query
+      List<IssueDto> authorizedIssues = issueDao.selectIssueAndProjectIds(query, rootProjectIds, sqlSession);
 
       // 3. Apply pagination
       Paging paging = Paging.create(query.pageSize(), query.pageIndex(), authorizedIssues.size());
@@ -123,6 +116,7 @@ public class DefaultIssueFinder implements IssueFinder {
       List<Issue> issues = newArrayList();
       Set<Integer> ruleIds = Sets.newHashSet();
       Set<Integer> componentIds = Sets.newHashSet();
+      Set<Integer> projectIds = Sets.newHashSet();
       Set<String> actionPlanKeys = Sets.newHashSet();
       Set<String> users = Sets.newHashSet();
       for (IssueDto dto : pagedIssues) {
@@ -131,6 +125,7 @@ public class DefaultIssueFinder implements IssueFinder {
         issues.add(defaultIssue);
         ruleIds.add(dto.getRuleId());
         componentIds.add(dto.getResourceId());
+        projectIds.add(dto.getProjectId());
         actionPlanKeys.add(dto.getActionPlanKey());
         if (dto.getReporter() != null) {
           users.add(dto.getReporter());
@@ -151,36 +146,18 @@ public class DefaultIssueFinder implements IssueFinder {
       return new DefaultResults(issues,
         findRules(ruleIds),
         findComponents(componentIds),
+        findProjects(projectIds),
         findActionPlans(actionPlanKeys),
         findUsers(users),
         paging,
-        authorizedIssues.size() != allIssues.size());
+        false,
+        authorizedIssues.size() != query.maxResults()
+        // TODO
+//        authorizedIssues.size() != allIssues.size()
+      );
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
-  }
-
-  private List<IssueDto> keepAuthorized(List<IssueDto> issues, String requiredRole, SqlSession sqlSession) {
-    final Set<Integer> authorizedComponentIds = authorizationDao.keepAuthorizedComponentIds(
-      extractResourceIds(issues),
-      UserSession.get().userId(),
-      requiredRole,
-      sqlSession
-    );
-    return newArrayList(Iterables.filter(issues, new Predicate<IssueDto>() {
-      @Override
-      public boolean apply(IssueDto issueDto) {
-        return authorizedComponentIds.contains(issueDto.getResourceId());
-      }
-    }));
-  }
-
-  private Set<Integer> extractResourceIds(List<IssueDto> issues) {
-    Set<Integer> componentIds = Sets.newLinkedHashSet();
-    for (IssueDto issue : issues) {
-      componentIds.add(issue.getResourceId());
-    }
-    return componentIds;
   }
 
   private Set<Long> pagedIssueIds(Collection<IssueDto> issues, Paging paging) {
@@ -209,6 +186,10 @@ public class DefaultIssueFinder implements IssueFinder {
     return resourceDao.findByIds(componentIds);
   }
 
+  private Collection<Component> findProjects(Set<Integer> projectIds) {
+    return resourceDao.findByIds(projectIds);
+  }
+
   private Collection<ActionPlan> findActionPlans(Set<String> actionPlanKeys) {
     return actionPlanService.findByKeys(actionPlanKeys);
   }
@@ -222,23 +203,29 @@ public class DefaultIssueFinder implements IssueFinder {
     private final List<Issue> issues;
     private final Map<RuleKey, Rule> rulesByKey = Maps.newHashMap();
     private final Map<String, Component> componentsByKey = Maps.newHashMap();
+    private final Map<String, Component> projectsByKey = Maps.newHashMap();
     private final Map<String, ActionPlan> actionPlansByKey = Maps.newHashMap();
     private final Map<String, User> usersByLogin = Maps.newHashMap();
     private final boolean securityExclusions;
+    private final boolean maxResultsReached;
     private final Paging paging;
 
     DefaultResults(List<Issue> issues,
                    Collection<Rule> rules,
                    Collection<Component> components,
+                   Collection<Component> projects,
                    Collection<ActionPlan> actionPlans,
                    Collection<User> users,
-                   Paging paging, boolean securityExclusions) {
+                   Paging paging, boolean securityExclusions, boolean maxResultsReached) {
       this.issues = issues;
       for (Rule rule : rules) {
         rulesByKey.put(rule.ruleKey(), rule);
       }
       for (Component component : components) {
         componentsByKey.put(component.key(), component);
+      }
+      for (Component project : projects) {
+        projectsByKey.put(project.key(), project);
       }
       for (ActionPlan actionPlan : actionPlans) {
         actionPlansByKey.put(actionPlan.key(), actionPlan);
@@ -248,6 +235,7 @@ public class DefaultIssueFinder implements IssueFinder {
       }
       this.paging = paging;
       this.securityExclusions = securityExclusions;
+      this.maxResultsReached = maxResultsReached;
     }
 
     @Override
@@ -276,6 +264,16 @@ public class DefaultIssueFinder implements IssueFinder {
     }
 
     @Override
+    public Component project(Issue issue) {
+      return projectsByKey.get(issue.projectKey());
+    }
+
+    @Override
+    public Collection<Component> projects() {
+      return projectsByKey.values();
+    }
+
+    @Override
     public ActionPlan actionPlan(Issue issue) {
       return actionPlansByKey.get(issue.actionPlanKey());
     }
@@ -299,6 +297,11 @@ public class DefaultIssueFinder implements IssueFinder {
     @Override
     public boolean securityExclusions() {
       return securityExclusions;
+    }
+
+    @Override
+    public boolean maxResultsReached() {
+      return maxResultsReached;
     }
 
     @Override

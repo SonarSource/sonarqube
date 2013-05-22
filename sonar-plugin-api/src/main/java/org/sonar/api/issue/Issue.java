@@ -50,6 +50,8 @@ public interface Issue extends Serializable {
 
   String componentKey();
 
+  String projectKey();
+
   RuleKey ruleKey();
 
   String severity();

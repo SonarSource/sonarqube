@@ -61,7 +61,14 @@ class IssueParser {
     List<Map> jsonComponents = (List) jsonRoot.get("components");
     if (jsonComponents != null) {
       for (Map jsonComponent : jsonComponents) {
-        result.add(new Component(jsonComponent));
+        result.addComponent(new Component(jsonComponent));
+      }
+    }
+
+    List<Map> jsonProjects = (List) jsonRoot.get("projects");
+    if (jsonProjects != null) {
+      for (Map jsonProject : jsonProjects) {
+        result.addProject(new Component(jsonProject));
       }
     }
 

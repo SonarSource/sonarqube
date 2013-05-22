@@ -25,6 +25,7 @@ import org.sonar.api.user.User;
 import org.sonar.api.utils.Paging;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -48,6 +49,14 @@ public interface IssueQueryResult {
    */
   Collection<Component> components();
 
+  Component project(Issue issue);
+
+  /**
+   * The projects involved in the paginated {@link #issues()}.
+   */
+  Collection<Component> projects();
+
+
   @CheckForNull
   ActionPlan actionPlan(Issue issue);
 
@@ -65,4 +74,6 @@ public interface IssueQueryResult {
   Paging paging();
 
   boolean securityExclusions();
+
+  boolean maxResultsReached();
 }

@@ -3,6 +3,7 @@
     {
       "key": "ABCDE",
       "component": "Action.java",
+      "project": "struts",
       "rule": "squid:CycleBetweenPackages",
       "severity": "CRITICAL",
       "line": 10,
@@ -23,6 +24,7 @@
     {
       "key": "FGHIJ",
       "component": "Filter.java",
+      "project": "struts",
       "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck",
       "severity": "BLOCKER",
       "resolution": "FIXED",

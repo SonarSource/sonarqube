@@ -22,6 +22,7 @@ package org.sonar.api.issue;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.web.UserRole;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -36,6 +37,7 @@ public class IssueQuery {
 
   public static final int DEFAULT_PAGE_INDEX = 1;
   public static final int DEFAULT_PAGE_SIZE = 100;
+  public static final int MAX_RESULTS = 5000;
   public static final int MAX_PAGE_SIZE = 500;
   public static final int MAX_ISSUE_KEYS = 500;
 
@@ -174,7 +176,10 @@ public class IssueQuery {
     return pageIndex;
   }
 
-  @CheckForNull
+  public int maxResults() {
+    return MAX_RESULTS;
+  }
+
   public String requiredRole() {
     return requiredRole;
   }
@@ -208,7 +213,7 @@ public class IssueQuery {
     private Boolean asc = false;
     private Integer pageSize;
     private Integer pageIndex;
-    private String requiredRole;
+    private String requiredRole = UserRole.CODEVIEWER;
 
     private Builder() {
     }

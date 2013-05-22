@@ -103,10 +103,10 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   @VisibleForTesting
-  List<IssueDto> selectIssueAndProjectIds(IssueQuery query, Integer maxResults) {
+  List<IssueDto> selectIssueAndProjectIds(IssueQuery query, Collection<Integer> authorizedRootProjectIds, Integer maxResults) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectIssueAndProjectIds(query, maxResults, session);
+      return selectIssueAndProjectIds(query, authorizedRootProjectIds, maxResults, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -115,12 +115,19 @@ public class IssueDao implements BatchComponent, ServerComponent {
   /**
    * The returned IssueDto list contains only the issue id and the project id
    */
-  public List<IssueDto> selectIssueAndProjectIds(IssueQuery query, final Integer maxResults, SqlSession session) {
+  public List<IssueDto> selectIssueAndProjectIds(final IssueQuery query, final Collection<Integer> authorizedRootProjectIds, SqlSession session) {
+    return selectIssueAndProjectIds(query, authorizedRootProjectIds, query.maxResults(), session);
+  }
+
+  private List<IssueDto> selectIssueAndProjectIds(final IssueQuery query, final Collection<Integer> authorizedRootProjectIds, final Integer maxResults, SqlSession session) {
     final List<IssueDto> issues = newArrayList();
     ResultHandler resultHandler = new ResultHandler(){
       @Override
       public void handleResult(ResultContext context) {
-        issues.add((IssueDto) context.getResultObject());
+        IssueDto issueDto = (IssueDto) context.getResultObject();
+        if (authorizedRootProjectIds.contains(issueDto.getProjectId())) {
+          issues.add(issueDto);
+        }
         if (issues.size() >= maxResults) {
           context.stop();
         }

@@ -27,6 +27,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -309,11 +310,14 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_issue_and_project_ids");
 
     IssueQuery query = IssueQuery.builder().build();
-    List<IssueDto> results = dao.selectIssueAndProjectIds(query, 5);
+    List<IssueDto> results = dao.selectIssueAndProjectIds(query, newArrayList(399), 1000);
     assertThat(results).hasSize(3);
 
-    results = dao.selectIssueAndProjectIds(query, 2);
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399), 2);
     assertThat(results).hasSize(2);
+
+    results = dao.selectIssueAndProjectIds(query, Collections.<Integer>emptyList(), 1000);
+    assertThat(results).isEmpty();
   }
 
   @Test

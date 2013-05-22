@@ -39,6 +39,7 @@ public class IssueParserTest {
     Issue first = list.get(0);
     assertThat(first.key()).isEqualTo("ABCDE");
     assertThat(first.componentKey()).isEqualTo("Action.java");
+    assertThat(first.projectKey()).isEqualTo("struts");
     assertThat(first.ruleKey()).isEqualTo("squid:CycleBetweenPackages");
     assertThat(first.severity()).isEqualTo("CRITICAL");
     assertThat(first.line()).isEqualTo(10);
@@ -154,5 +155,19 @@ public class IssueParserTest {
     assertThat(component.qualifier()).isEqualTo("CLA");
     assertThat(component.name()).isEqualTo("Action");
     assertThat(component.longName()).isEqualTo("org.struts.Action");
+  }
+
+  @Test
+  public void should_parse_projects() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-projects.json"));
+    Issues issues = new IssueParser().parseIssues(json);
+
+    assertThat(issues.projects()).hasSize(1);
+
+    Component component = issues.project(issues.list().get(0));
+    assertThat(component.key()).isEqualTo("struts");
+    assertThat(component.qualifier()).isEqualTo("TRK");
+    assertThat(component.name()).isEqualTo("Struts");
+    assertThat(component.longName()).isEqualTo("org.struts");
   }
 }

@@ -24,6 +24,7 @@ import org.sonar.wsclient.rule.Rule;
 import org.sonar.wsclient.user.User;
 
 import javax.annotation.CheckForNull;
+
 import java.util.*;
 
 /**
@@ -35,6 +36,7 @@ public class Issues {
   private final Map<String, Rule> rulesByKey = new HashMap<String, Rule>();
   private final Map<String, User> usersByKey = new HashMap<String, User>();
   private final Map<String, Component> componentsByKey = new HashMap<String, Component>();
+  private final Map<String, Component> projectsByKey = new HashMap<String, Component>();
   private Paging paging;
   private Boolean securityExclusions;
 
@@ -72,6 +74,15 @@ public class Issues {
     return componentsByKey.get(issue.componentKey());
   }
 
+  public Collection<Component> projects() {
+    return projectsByKey.values();
+  }
+
+  @CheckForNull
+  public Component project(Issue issue) {
+    return projectsByKey.get(issue.projectKey());
+  }
+
   public Paging paging() {
     return paging;
   }
@@ -95,8 +106,13 @@ public class Issues {
     return this;
   }
 
-  Issues add(Component c) {
+  Issues addComponent(Component c) {
     componentsByKey.put(c.key(), c);
+    return this;
+  }
+
+  Issues addProject(Component c) {
+    projectsByKey.put(c.key(), c);
     return this;
   }
 

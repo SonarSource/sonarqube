@@ -40,6 +40,14 @@
       "longName": "org.struts.Action"
     }
   ],
+  "projects": [
+    {
+      "key": "struts",
+      "name": "Struts",
+      "qualifier": "TRK",
+      "longName": "org.struts"
+    }
+  ],
   "paging": {
     "pageIndex": 1,
     "pageSize": 100,

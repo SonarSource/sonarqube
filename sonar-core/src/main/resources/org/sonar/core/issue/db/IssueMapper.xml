@@ -162,7 +162,7 @@
   </select>
 
   <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue">
-    select i.id, i.resource_id as resourceId
+    select i.id, i.project_id as projectId
     <include refid="selectQueryConditions"/>
   </select>
 

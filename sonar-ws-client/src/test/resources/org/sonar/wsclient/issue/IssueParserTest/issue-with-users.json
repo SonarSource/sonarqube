@@ -3,6 +3,7 @@
         {
             "key": "ABCDE",
             "component": "Action.java",
+            "project": "struts",
             "rule": "squid:CycleBetweenPackages",
             "severity": "CRITICAL",
             "status": "OPEN",

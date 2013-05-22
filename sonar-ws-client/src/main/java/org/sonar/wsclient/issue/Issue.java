@@ -22,6 +22,7 @@ package org.sonar.wsclient.issue;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.util.*;
 
 /**
@@ -44,6 +45,10 @@ public class Issue {
 
   public String componentKey() {
     return JsonUtils.getString(json, "component");
+  }
+
+  public String projectKey() {
+    return JsonUtils.getString(json, "project");
   }
 
   public String ruleKey() {
