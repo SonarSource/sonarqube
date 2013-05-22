@@ -31,15 +31,15 @@ import java.util.List;
 
 class IssuesFinderSort {
 
-  private Collection<IssueDto> issues;
+  private List<IssueDto> issues;
   private IssueQuery query;
 
-  public IssuesFinderSort(Collection<IssueDto> issues, IssueQuery query) {
+  public IssuesFinderSort(List<IssueDto> issues, IssueQuery query) {
     this.issues = issues;
     this.query = query;
   }
 
-  public Collection<IssueDto> sort() {
+  public List<IssueDto> sort() {
     if (query.sort() != null) {
       IssueProcessor issueProcessor;
       switch (query.sort()) {

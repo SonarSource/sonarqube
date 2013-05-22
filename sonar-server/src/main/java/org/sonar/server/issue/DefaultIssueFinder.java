@@ -107,15 +107,15 @@ public class DefaultIssueFinder implements IssueFinder {
       List<IssueDto> authorizedIssues = issueDao.selectIssueAndProjectIds(query, rootProjectIds, sqlSession);
 
       // 3. Sort all authorized issues
-      Collection<IssueDto> authorizedSortedIssues = new IssuesFinderSort(authorizedIssues, query).sort();
+      List<IssueDto> authorizedSortedIssues = sort(authorizedIssues, query, authorizedIssues.size());
 
       // 4. Apply pagination
       Paging paging = Paging.create(query.pageSize(), query.pageIndex(), authorizedSortedIssues.size());
       Set<Long> pagedIssueIds = pagedIssueIds(authorizedSortedIssues, paging);
 
       // 5. Load issues and their related data (rules, components, projects, comments, action plans, ...) and sort then again
-      Collection<IssueDto> pagedIssues = issueDao.selectByIds(pagedIssueIds, sqlSession);
-      Collection<IssueDto> pagedSortedIssues = new IssuesFinderSort(pagedIssues, query).sort();
+      List<IssueDto> pagedIssues = issueDao.selectByIds(pagedIssueIds, sqlSession);
+      List<IssueDto> pagedSortedIssues = sort(pagedIssues, query, authorizedIssues.size());
 
       Map<String, DefaultIssue> issuesByKey = newHashMap();
       List<Issue> issues = newArrayList();
@@ -163,6 +163,13 @@ public class DefaultIssueFinder implements IssueFinder {
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
+  }
+
+  private List<IssueDto> sort(List<IssueDto> issues, IssueQuery query, int allIssuesSize){
+    if (allIssuesSize < query.maxResults()) {
+      return new IssuesFinderSort(issues, query).sort();
+    }
+    return issues;
   }
 
   private Set<Long> pagedIssueIds(Collection<IssueDto> issues, Paging paging) {

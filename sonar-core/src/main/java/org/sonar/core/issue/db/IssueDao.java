@@ -138,7 +138,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   @VisibleForTesting
-  Collection<IssueDto> selectByIds(Collection<Long> ids) {
+  List<IssueDto> selectByIds(Collection<Long> ids) {
     SqlSession session = mybatis.openSession();
     try {
       return selectByIds(ids, session);
@@ -147,7 +147,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public Collection<IssueDto> selectByIds(Collection<Long> ids, SqlSession session) {
+  public List<IssueDto> selectByIds(Collection<Long> ids, SqlSession session) {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
