@@ -25,12 +25,12 @@ import org.sonar.core.issue.FieldDiffs;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ChangeDtoConverterTest {
+public class IssueChangeDtoTest {
   @Test
-  public void testToChangeDtos() throws Exception {
+  public void create_from_comment() throws Exception {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
 
-    IssueChangeDto dto = ChangeDtoConverter.commentToDto(comment);
+    IssueChangeDto dto = IssueChangeDto.of(comment);
 
     assertThat(dto.getChangeData()).isEqualTo("the comment");
     assertThat(dto.getChangeType()).isEqualTo("comment");
@@ -41,12 +41,12 @@ public class ChangeDtoConverterTest {
   }
 
   @Test
-  public void testToDiffsDtos() throws Exception {
+  public void create_from_diff() throws Exception {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
     diffs.setUserLogin("emmerik");
 
-    IssueChangeDto dto = ChangeDtoConverter.changeToDto("ABCDE", diffs);
+    IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
 
     assertThat(dto.getChangeData()).isEqualTo("severity=INFO|BLOCKER");
     assertThat(dto.getChangeType()).isEqualTo("diff");

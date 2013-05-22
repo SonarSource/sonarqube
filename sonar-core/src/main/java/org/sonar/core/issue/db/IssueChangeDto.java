@@ -21,6 +21,8 @@ package org.sonar.core.issue.db;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -121,4 +123,50 @@ public final class IssueChangeDto {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
+  public static IssueChangeDto of(DefaultIssueComment comment) {
+    IssueChangeDto dto = newDto(comment.issueKey());
+    dto.setKey(comment.key());
+    dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
+    dto.setChangeData(comment.markdownText());
+    dto.setUserLogin(comment.userLogin());
+    return dto;
+  }
+
+  public static IssueChangeDto of(String issueKey, FieldDiffs diffs) {
+    IssueChangeDto dto = newDto(issueKey);
+    dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
+    dto.setChangeData(diffs.toString());
+    dto.setUserLogin(diffs.userLogin());
+    return dto;
+  }
+
+  private static IssueChangeDto newDto(String issueKey) {
+    IssueChangeDto dto = new IssueChangeDto();
+    dto.setIssueKey(issueKey);
+
+    // technical dates - do not use the context date
+    Date now = new Date();
+    dto.setCreatedAt(now);
+    dto.setUpdatedAt(new Date());
+    return dto;
+  }
+
+  public DefaultIssueComment toComment() {
+    return new DefaultIssueComment()
+      .setMarkdownText(changeData)
+      .setKey(kee)
+      .setCreatedAt(createdAt)
+      .setUpdatedAt(updatedAt)
+      .setUserLogin(userLogin)
+      .setIssueKey(issueKey)
+      .setNew(false);
+  }
+
+  public FieldDiffs toFieldDiffs() {
+    FieldDiffs diffs = FieldDiffs.parse(changeData);
+    diffs.setUserLogin(userLogin);
+    diffs.setCreatedAt(createdAt);
+    diffs.setUpdatedAt(updatedAt);
+    return diffs;
+  }
 }

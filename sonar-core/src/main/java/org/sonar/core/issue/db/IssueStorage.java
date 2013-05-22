@@ -27,6 +27,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
@@ -82,12 +83,13 @@ public abstract class IssueStorage {
     for (IssueComment comment : issue.comments()) {
       DefaultIssueComment c = (DefaultIssueComment) comment;
       if (c.isNew()) {
-        IssueChangeDto changeDto = ChangeDtoConverter.commentToDto(c);
+        IssueChangeDto changeDto = IssueChangeDto.of(c);
         mapper.insert(changeDto);
       }
     }
-    if (issue.diffs() != null) {
-      IssueChangeDto changeDto = ChangeDtoConverter.changeToDto(issue.key(), issue.diffs());
+    FieldDiffs diffs = issue.diffs();
+    if (diffs != null) {
+      IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), diffs);
       mapper.insert(changeDto);
     }
   }

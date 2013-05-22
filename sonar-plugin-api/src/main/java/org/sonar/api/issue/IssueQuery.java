@@ -131,30 +131,37 @@ public class IssueQuery {
     return assignees;
   }
 
+  @CheckForNull
   public Boolean assigned() {
     return assigned;
   }
 
+  @CheckForNull
   public Boolean planned() {
     return planned;
   }
 
+  @CheckForNull
   public Boolean resolved() {
     return resolved;
   }
 
+  @CheckForNull
   public Date createdAfter() {
     return createdAfter;
   }
 
+  @CheckForNull
   public Date createdBefore() {
     return createdBefore;
   }
 
+  @CheckForNull
   public Sort sort() {
     return sort;
   }
 
+  @CheckForNull
   public Boolean asc() {
     return asc;
   }
@@ -260,8 +267,8 @@ public class IssueQuery {
      * If true, it will return all issues assigned to someone
      * If false, it will return all issues not assigned to someone
      */
-    public Builder assigned(Boolean assigned) {
-      this.assigned = assigned;
+    public Builder assigned(@Nullable Boolean b) {
+      this.assigned = b;
       return this;
     }
 
@@ -278,18 +285,18 @@ public class IssueQuery {
      * If true, it will return all resolved issues
      * If false, it will return all none resolved issues
      */
-    public Builder resolved(Boolean resolved) {
+    public Builder resolved(@Nullable Boolean resolved) {
       this.resolved = resolved;
       return this;
     }
 
-    public Builder createdAfter(Date createdAfter) {
-      this.createdAfter = createdAfter;
+    public Builder createdAfter(@Nullable Date d) {
+      this.createdAfter = d;
       return this;
     }
 
-    public Builder createdBefore(Date createdBefore) {
-      this.createdBefore = createdBefore;
+    public Builder createdBefore(@Nullable Date d) {
+      this.createdBefore = d;
       return this;
     }
 
@@ -298,7 +305,7 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder asc(Boolean asc) {
+    public Builder asc(@Nullable Boolean asc) {
       this.asc = asc;
       return this;
     }

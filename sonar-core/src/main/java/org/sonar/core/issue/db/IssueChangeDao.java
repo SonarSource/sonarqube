@@ -53,7 +53,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       IssueChangeDto dto = mapper.selectByKeyAndType(commentKey, IssueChangeDto.TYPE_COMMENT);
-      return dto != null ? ChangeDtoConverter.dtoToComment(dto) : null;
+      return dto != null ? dto.toComment() : null;
 
     } finally {
       MyBatis.closeQuietly(session);
@@ -67,7 +67,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       List<IssueChangeDto> dtos = mapper.selectByIssuesAndType(issueKeys, changeType);
       for (IssueChangeDto dto : dtos) {
-        result.add(ChangeDtoConverter.dtoToComment(dto));
+        result.add(dto.toComment());
       }
     }
     return result;
