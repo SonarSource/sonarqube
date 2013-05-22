@@ -27,6 +27,7 @@ class CreateIssues < ActiveRecord::Migration
     create_table :issues do |t|
       t.column :kee,                  :string,    :null => false,   :limit => 50
       t.column :resource_id,          :integer,   :null => false
+      t.column :project_id,           :integer,   :null => true
       t.column :rule_id,              :integer,   :null => true
       t.column :severity, 					  :string, 	  :null => true,	  :limit => 10
       t.column :manual_severity,      :boolean,   :null => false
@@ -54,6 +55,7 @@ class CreateIssues < ActiveRecord::Migration
 
     add_index :issues,  :kee,                 :name => 'issues_kee',         :unique => true
     add_index :issues,  :resource_id,         :name => 'issues_resource_id'
+    add_index :issues,  :project_id,          :name => 'issues_project_id'
     add_index :issues,  :rule_id,             :name => 'issues_rule_id'
     add_index :issues,  :severity,            :name => 'issues_severity'
     add_index :issues,  :status,              :name => 'issues_status'

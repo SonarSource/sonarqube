@@ -7,6 +7,7 @@
       message="[null]"
       line="5000"
       resource_id="100"
+      project_id="10"
       rule_id="200"
       created_at="[null]"
       updated_at="[null]"

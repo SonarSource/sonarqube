@@ -40,6 +40,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
   public void testInsert() throws Exception {
     IssueDto dto = new IssueDto();
     dto.setResourceId(123);
+    dto.setProjectId(100);
     dto.setRuleId(200);
     dto.setKee("ABCDE");
     dto.setLine(500);
@@ -73,6 +74,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
 
     IssueDto dto = new IssueDto();
     dto.setResourceId(123);
+    dto.setProjectId(100);
     dto.setRuleId(200);
     dto.setKee("ABCDE");
     dto.setLine(500);

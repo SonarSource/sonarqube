@@ -118,6 +118,11 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     protected int componentId(DefaultIssue issue) {
       return 100;
     }
+
+    @Override
+    protected int projectId(DefaultIssue issue) {
+      return 10;
+    }
   }
 
   static class FakeRuleFinder implements RuleFinder {

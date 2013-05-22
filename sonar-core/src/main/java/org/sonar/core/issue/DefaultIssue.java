@@ -35,6 +35,7 @@ import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -45,6 +46,7 @@ public class DefaultIssue implements Issue {
 
   private String key;
   private String componentKey;
+  private String projectKey;
   private RuleKey ruleKey;
   private String severity;
   private boolean manualSeverity = false;
@@ -94,6 +96,15 @@ public class DefaultIssue implements Issue {
 
   public DefaultIssue setComponentKey(String s) {
     this.componentKey = s;
+    return this;
+  }
+
+  public String projectKey() {
+    return projectKey;
+  }
+
+  public DefaultIssue setProjectKey(String projectKey) {
+    this.projectKey = projectKey;
     return this;
   }
 

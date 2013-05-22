@@ -3,6 +3,7 @@
       id="100"
       kee="ABCDE"
       resource_id="123"
+      project_id="100"
       rule_id="200"
       severity="BLOCKER"
       manual_severity="[false]"

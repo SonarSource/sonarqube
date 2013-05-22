@@ -29,6 +29,7 @@ import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -39,6 +40,7 @@ public final class IssueDto {
   private Long id;
   private String kee;
   private Integer resourceId;
+  private Integer projectId;
   private Integer ruleId;
   private String severity;
   private boolean manualSeverity;
@@ -67,6 +69,7 @@ public final class IssueDto {
   private transient String ruleKey;
   private transient String ruleRepo;
   private transient String componentKey;
+  private transient String projectKey;
 
   public Long getId() {
     return id;
@@ -92,6 +95,15 @@ public final class IssueDto {
 
   public IssueDto setResourceId(Integer resourceId) {
     this.resourceId = resourceId;
+    return this;
+  }
+
+  public Integer getProjectId() {
+    return projectId;
+  }
+
+  public IssueDto setProjectId(Integer projectId) {
+    this.projectId = projectId;
     return this;
   }
 
@@ -288,6 +300,10 @@ public final class IssueDto {
     return componentKey;
   }
 
+  public String getProjectKey() {
+    return projectKey;
+  }
+
   /**
    * Only for unit tests
    */
@@ -305,12 +321,20 @@ public final class IssueDto {
     return this;
   }
 
+  /**
+   * Only for unit tests
+   */
+  public IssueDto setProjectKey_unit_test_only(String projectKey) {
+    this.projectKey = projectKey;
+    return this;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public static IssueDto toDtoForInsert(DefaultIssue issue, Integer componentId, Integer ruleId, Date now) {
+  public static IssueDto toDtoForInsert(DefaultIssue issue, Integer componentId, Integer projectId, Integer ruleId, Date now) {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
@@ -325,6 +349,7 @@ public final class IssueDto {
       .setAssignee(issue.assignee())
       .setRuleId(ruleId)
       .setResourceId(componentId)
+      .setProjectId(projectId)
       .setActionPlanKey(issue.actionPlanKey())
       .setIssueAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
       .setAuthorLogin(issue.authorLogin())
@@ -372,6 +397,7 @@ public final class IssueDto {
     issue.setAssignee(assignee);
     issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(issueAttributes, "")));
     issue.setComponentKey(componentKey);
+    issue.setProjectKey(projectKey);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));
     issue.setActionPlanKey(actionPlanKey);

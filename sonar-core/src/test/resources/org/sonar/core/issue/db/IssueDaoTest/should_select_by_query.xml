@@ -4,6 +4,7 @@
       id="100"
       kee="ABCDE"
       resource_id="401"
+      project_id="399"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"

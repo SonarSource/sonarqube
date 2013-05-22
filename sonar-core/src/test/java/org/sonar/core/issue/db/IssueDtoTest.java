@@ -57,8 +57,10 @@ public class IssueDtoTest {
         .setKee("100")
         .setRuleId(1)
         .setRuleKey_unit_test_only("squid", "AvoidCycle")
-        .setComponentKey_unit_test_only("component-key")
+        .setComponentKey_unit_test_only("org.sonar.sample:Sample")
+        .setProjectKey_unit_test_only("org.sonar.sample")
         .setResourceId(1)
+        .setProjectId(1)
         .setStatus(Issue.STATUS_CLOSED)
         .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
         .setEffortToFix(15.0)
@@ -77,7 +79,8 @@ public class IssueDtoTest {
     DefaultIssue issue = dto.toDefaultIssue();
     assertThat(issue.key()).isEqualTo("100");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
-    assertThat(issue.componentKey()).isEqualTo("component-key");
+    assertThat(issue.componentKey()).isEqualTo("org.sonar.sample:Sample");
+    assertThat(issue.projectKey()).isEqualTo("org.sonar.sample");
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.effortToFix()).isEqualTo(15.0);

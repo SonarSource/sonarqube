@@ -58,8 +58,9 @@ public abstract class IssueStorage {
       for (DefaultIssue issue : issues) {
         if (issue.isNew()) {
           int componentId = componentId(issue);
+          int projectId = projectId(issue);
           int ruleId = ruleId(issue);
-          IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, ruleId, now);
+          IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
           issueMapper.insert(dto);
 
         } else if (issue.isChanged()) {
@@ -95,6 +96,8 @@ public abstract class IssueStorage {
   }
 
   protected abstract int componentId(DefaultIssue issue);
+
+  protected abstract int projectId(DefaultIssue issue);
 
   private int ruleId(Issue issue) {
     Rule rule = ruleFinder.findByKey(issue.ruleKey());
