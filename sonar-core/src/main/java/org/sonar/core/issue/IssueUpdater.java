@@ -133,12 +133,14 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     }
   }
 
-  public void setEffortToFix(DefaultIssue issue, @Nullable Double d, IssueChangeContext context) {
-    if (!Objects.equal(d, issue.closeDate())) {
+  public boolean setEffortToFix(DefaultIssue issue, @Nullable Double d, IssueChangeContext context) {
+    if (!Objects.equal(d, issue.effortToFix())) {
       issue.setEffortToFix(d);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
+      return true;
     }
+    return false;
   }
 
   public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {

@@ -232,4 +232,21 @@ public class IssueUpdaterTest {
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("ABCD");
   }
+
+  @Test
+  public void should_set_effort_to_fix() throws Exception {
+    boolean updated = updater.setEffortToFix(issue, 3.14, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.isChanged()).isTrue();
+    assertThat(issue.effortToFix()).isEqualTo(3.14);
+  }
+
+  @Test
+  public void should_not_set_effort_to_fix_if_unchanged() throws Exception {
+    issue.setEffortToFix(3.14);
+    boolean updated = updater.setEffortToFix(issue, 3.14, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.isChanged()).isFalse();
+    assertThat(issue.effortToFix()).isEqualTo(3.14);
+  }
 }
