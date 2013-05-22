@@ -32,7 +32,7 @@ class IssuesController < ApplicationController
     @filter.criteria=criteria_params
     @filter.execute
 
-    @project = Project.by_key(@filter.criteria('componentRoots')).root_project if @filter.criteria('componentRoots')
+    @selected_project = @filter.issues_result.projects.first if !@filter.issues.isEmpty() && @filter.criteria('componentRoots')
   end
 
 

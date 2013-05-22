@@ -8,10 +8,9 @@
       <%= message('issue_filter.new_search') -%>
     </li>
     <li id="criteria-project" class="marginbottom5">
-      <% selected_project = @project if @filter.criteria('componentRoots') %>
       <%= message 'issue_filter.criteria.project' -%>:
-      <%= resource_select_tag 'componentRoots', :resource_type_property => 'supportsGlobalDashboards', :width => '100%',
-                              :selected_resource => selected_project,
+      <%= component_select_tag 'componentRoots', :resource_type_property => 'supportsGlobalDashboards', :width => '100%',
+                              :selected_resource => @selected_project,
                               :display_key => true,
                               :placeholder => message('issue_filter.criteria.project'),
                               :html_id => 'select-project',

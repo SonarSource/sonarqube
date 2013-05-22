@@ -34,7 +34,10 @@
           <th>
             <%= message('description') -%>
           </th>
-          <th width="1%" nowrap>
+          <th nowrap>
+            <%= message('project') -%>
+          </th>
+          <th nowrap>
             <%= message('component') -%>
           </th>
           <th>
@@ -63,7 +66,10 @@
             <img src="<%= ApplicationController.root_context -%>/images/status/<%= issue.status -%>.png" title="<%= message(issue.status.downcase).capitalize -%>"/>
           </td>
           <td>
-            <%= link_to h(truncate(issue.message, :length => 100)), :controller => 'issue', :action => 'view', :id => issue.key -%>
+            <%= link_to h(truncate(issue.message, :length => 200)), :controller => 'issue', :action => 'view', :id => issue.key -%>
+          </td>
+          <td>
+            <%= h h(truncate(@filter.issues_result.project(issue).name, :length => 100)) -%>
           </td>
           <td>
             <%= h @filter.issues_result.component(issue).name -%>

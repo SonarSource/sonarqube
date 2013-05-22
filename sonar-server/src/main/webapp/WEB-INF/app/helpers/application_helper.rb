@@ -658,7 +658,6 @@ module ApplicationHelper
   # * <tt>:placeholder</tt> - the label to display when nothing is selected
   # * <tt>:allow_clear</tt> - true if resource can be de-selected. Default is false.
   # * <tt>:open</tt> - true if the select-box must be open. Default is false.
-  # * <tt>:display_key</tt> - true if the resource key should be used instead of the resource id. Default is false.
   # * <tt>:select2_options</tt> - hash of select2 options
   #
   def resource_select_tag(name, options={})
@@ -672,14 +671,47 @@ module ApplicationHelper
       ws_url+="qp=#{options[:resource_type_property]}"
     end
 
-    if options[:display_key]
-      ws_url+='&display_key=true'
+    selected_resource = options[:selected_resource]
+    if selected_resource
+      options[:selected_id] = selected_resource.id
+      options[:selected_text] = selected_resource.name(true)
     end
+
+    select2_tag(name, ws_url, options)
+  end
+
+  #
+  # Creates an enhanced dropdown selection box of components. Values are loaded on the fly via Ajax requests.
+  # ==== Options
+  # * <tt>:width</tt> - The width suffixed with unit, for example '300px' or '100%'. Default is '250px'
+  # * <tt>:html_id</tt> - The id of the HTML element. Default is the name.
+  # * <tt>:html_class</tt> - The class of the HTML element. Default is empty.
+  # * <tt>:qualifiers</tt> - Array of resource qualifiers to filter.
+  # * <tt>:resource_type_property</tt> -Filter on resource types on which the property is enabled, for example 'supportsGlobalDashboards'.
+  # * <tt>:selected_resource</tt> - the resource that is selected by default.
+  # * <tt>:placeholder</tt> - the label to display when nothing is selected
+  # * <tt>:allow_clear</tt> - true if resource can be de-selected. Default is false.
+  # * <tt>:open</tt> - true if the select-box must be open. Default is false.
+  # * <tt>:select2_options</tt> - hash of select2 options
+  #
+  def component_select_tag(name, options={})
+    # see limitation in /api/resources/search
+    options[:min_length]=3
+
+    ws_url="#{ApplicationController::root_context}/api/resources/search?f=s2&"
+    if options[:qualifiers]
+      ws_url+="q=#{options[:qualifiers].join(',')}"
+    elsif options[:resource_type_property]
+      ws_url+="qp=#{options[:resource_type_property]}"
+    end
+
+    # The WS should return component key instead of component id
+    ws_url+='&display_key=true'
 
     selected_resource = options[:selected_resource]
     if selected_resource
-      options[:selected_id]= options[:display_key] ? "'" + selected_resource.key + "'" : selected_resource.id
-      options[:selected_text]=selected_resource.name(true)
+      options[:selected_id]= "'" + selected_resource.key + "'"
+      options[:selected_text] = selected_resource.name
     end
 
     select2_tag(name, ws_url, options)
