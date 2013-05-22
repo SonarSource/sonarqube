@@ -34,36 +34,27 @@
     root.kee as projectKey
   </sql>
 
-  <sql id="sortFilter">
-    <if test="sort != null">
-      order by
+  <sql id="sortColumn">
+    <if test="sort != null">,
       <choose>
         <when test="'SEVERITY'.equals(sort.name())">
-          i.severity
+          i.severity as severity
         </when>
         <when test="'STATUS'.equals(sort.name())">
-          i.status
+          i.status as status
         </when>
         <when test="'ASSIGNEE'.equals(sort.name())">
-          i.assignee
+          i.assignee as assignee
         </when>
         <when test="'CREATION_DATE'.equals(sort.name())">
-          i.issue_creation_date
+          i.issue_creation_date as issueCreationDate
         </when>
         <when test="'UPDATE_DATE'.equals(sort.name())">
-          i.issue_update_date
+          i.issue_update_date as issueUpdateDate
         </when>
         <when test="'CLOSE_DATE'.equals(sort.name())">
-          i.issue_close_date
+          i.issue_close_date as issueCloseDate
         </when>
-      </choose>
-      <choose>
-        <when test="true.equals(asc)">
-          asc
-        </when>
-        <otherwise>
-          desc
-        </otherwise>
       </choose>
     </if>
   </sql>
@@ -153,7 +144,6 @@
       and p.id=i.resource_id
       and i.project_id=root.id
     </where>
-    <include refid="sortFilter"/>
   </select>
 
   <select id="selectIssueAndComponentIds" parameterType="map" resultType="Issue">
@@ -163,6 +153,7 @@
 
   <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue">
     select i.id, i.project_id as projectId
+    <include refid="sortColumn"/>
     <include refid="selectQueryConditions"/>
   </select>
 
@@ -286,10 +277,7 @@
         and i.issue_creation_date &lt; #{createdBefore}
       </if>
     </where>
-    <if test="sort == null">
-      order by i.id
-    </if>
-    <include refid="sortFilter"/>
+    order by i.id
   </sql>
 
 </mapper>

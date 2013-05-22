@@ -45,8 +45,6 @@ import static com.google.common.collect.Maps.newHashMap;
  */
 public class IssueDao implements BatchComponent, ServerComponent {
 
-  private final static Integer MAX_RESULT = 10000;
-
   private final MyBatis mybatis;
 
   public IssueDao(MyBatis mybatis) {
@@ -113,7 +111,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   /**
-   * The returned IssueDto list contains only the issue id and the project id
+   * The returned IssueDto list contains only the issue id, the project id and the sort column
    */
   public List<IssueDto> selectIssueAndProjectIds(final IssueQuery query, final Collection<Integer> authorizedRootProjectIds, SqlSession session) {
     return selectIssueAndProjectIds(query, authorizedRootProjectIds, query.maxResults(), session);
@@ -138,24 +136,22 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   @VisibleForTesting
-  Collection<IssueDto> selectByIds(Collection<Long> ids, IssueQuery.Sort sort, Boolean asc) {
+  Collection<IssueDto> selectByIds(Collection<Long> ids) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectByIds(ids, sort, asc, session);
+      return selectByIds(ids, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public Collection<IssueDto> selectByIds(Collection<Long> ids, IssueQuery.Sort sort, Boolean asc, SqlSession session) {
+  public Collection<IssueDto> selectByIds(Collection<Long> ids, SqlSession session) {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
     Object idsPartition = Lists.partition(newArrayList(ids), 1000);
     Map<String, Object> params = newHashMap();
     params.put("ids", idsPartition);
-    params.put("sort", sort);
-    params.put("asc", asc);
     return session.selectList("org.sonar.core.issue.db.IssueMapper.selectByIds", params);
   }
 }

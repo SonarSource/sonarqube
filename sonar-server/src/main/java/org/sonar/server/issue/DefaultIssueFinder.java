@@ -106,12 +106,17 @@ public class DefaultIssueFinder implements IssueFinder {
       // 2. Select the authorized ids of all the issues that match the query
       List<IssueDto> authorizedIssues = issueDao.selectIssueAndProjectIds(query, rootProjectIds, sqlSession);
 
-      // 3. Apply pagination
-      Paging paging = Paging.create(query.pageSize(), query.pageIndex(), authorizedIssues.size());
-      Set<Long> pagedIssueIds = pagedIssueIds(authorizedIssues, paging);
+      // 3. Sort all authorized issues
+      Collection<IssueDto> authorizedSortedIssues = new IssuesFinderSort(authorizedIssues, query).sort();
 
-      // 4. Load issues and their related data (rules, components, comments, action plans, ...)
-      Collection<IssueDto> pagedIssues = issueDao.selectByIds(pagedIssueIds, query.sort(), query.asc(), sqlSession);
+      // 4. Apply pagination
+      Paging paging = Paging.create(query.pageSize(), query.pageIndex(), authorizedSortedIssues.size());
+      Set<Long> pagedIssueIds = pagedIssueIds(authorizedSortedIssues, paging);
+
+      // 5. Load issues and their related data (rules, components, projects, comments, action plans, ...) and sort then again
+      Collection<IssueDto> pagedIssues = issueDao.selectByIds(pagedIssueIds, sqlSession);
+      Collection<IssueDto> pagedSortedIssues = new IssuesFinderSort(pagedIssues, query).sort();
+
       Map<String, DefaultIssue> issuesByKey = newHashMap();
       List<Issue> issues = newArrayList();
       Set<Integer> ruleIds = Sets.newHashSet();
@@ -119,7 +124,7 @@ public class DefaultIssueFinder implements IssueFinder {
       Set<Integer> projectIds = Sets.newHashSet();
       Set<String> actionPlanKeys = Sets.newHashSet();
       Set<String> users = Sets.newHashSet();
-      for (IssueDto dto : pagedIssues) {
+      for (IssueDto dto : pagedSortedIssues) {
         DefaultIssue defaultIssue = dto.toDefaultIssue();
         issuesByKey.put(dto.getKee(), defaultIssue);
         issues.add(defaultIssue);
@@ -144,15 +149,15 @@ public class DefaultIssueFinder implements IssueFinder {
       }
 
       return new DefaultResults(issues,
-        findRules(ruleIds),
-        findComponents(componentIds),
-        findProjects(projectIds),
-        findActionPlans(actionPlanKeys),
-        findUsers(users),
-        paging,
-        false,
-        authorizedIssues.size() != query.maxResults()
-        // TODO
+                                 findRules(ruleIds),
+                                 findComponents(componentIds),
+                                 findProjects(projectIds),
+                                 findActionPlans(actionPlanKeys),
+                                 findUsers(users),
+                                 paging,
+                                 false,
+                                 authorizedIssues.size() != query.maxResults()
+                                 // TODO
 //        authorizedIssues.size() != allIssues.size()
       );
     } finally {

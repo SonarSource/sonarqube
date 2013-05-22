@@ -225,78 +225,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_sort_by_severity() {
-    setupData("shared", "should_select_returned_sorted_result_by_severity");
-
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.SEVERITY).asc(true).build();
-    List<IssueDto> results = newArrayList(dao.select(query));
-    assertThat(results).hasSize(3);
-    assertThat(results.get(0).getSeverity()).isEqualTo("BLOCKER");
-    assertThat(results.get(1).getSeverity()).isEqualTo("MAJOR");
-    assertThat(results.get(2).getSeverity()).isEqualTo("MINOR");
-  }
-
-  @Test
-  public void should_select_sort_by_status() {
-    setupData("shared", "should_select_returned_sorted_result_by_status");
-
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.STATUS).asc(true).build();
-    List<IssueDto> results = newArrayList(dao.select(query));
-    assertThat(results).hasSize(3);
-    assertThat(results.get(0).getStatus()).isEqualTo("CLOSED");
-    assertThat(results.get(1).getStatus()).isEqualTo("OPEN");
-    assertThat(results.get(2).getStatus()).isEqualTo("REOPEN");
-  }
-
-  @Test
-  public void should_select_sort_by_assignee() {
-    setupData("shared", "should_select_returned_sorted_result_by_assignee");
-
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.ASSIGNEE).asc(true).build();
-    List<IssueDto> results = newArrayList(dao.select(query));
-    assertThat(results).hasSize(3);
-    assertThat(results.get(0).getAssignee()).isEqualTo("arthur");
-    assertThat(results.get(1).getAssignee()).isEqualTo("henry");
-    assertThat(results.get(2).getAssignee()).isEqualTo("perceval");
-  }
-
-  @Test
-  public void should_select_sort_by_creation_date() {
-    setupData("shared", "should_select_returned_sorted_result_by_creation_date");
-
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.CREATION_DATE).asc(false).build();
-    List<IssueDto> results = newArrayList(dao.select(query));
-    assertThat(results).hasSize(3);
-    assertThat(results.get(0).getId()).isEqualTo(102);
-    assertThat(results.get(1).getId()).isEqualTo(100);
-    assertThat(results.get(2).getId()).isEqualTo(101);
-  }
-
-  @Test
-  public void should_select_sort_by_update_date() {
-    setupData("shared", "should_select_returned_sorted_result_by_update_date");
-
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.UPDATE_DATE).asc(false).build();
-    List<IssueDto> results = newArrayList(dao.select(query));
-    assertThat(results).hasSize(3);
-    assertThat(results.get(0).getId()).isEqualTo(102);
-    assertThat(results.get(1).getId()).isEqualTo(100);
-    assertThat(results.get(2).getId()).isEqualTo(101);
-  }
-
-  @Test
-  public void should_select_sort_by_close_date() {
-    setupData("shared", "should_select_returned_sorted_result_by_close_date");
-
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.CLOSE_DATE).asc(false).build();
-    List<IssueDto> results = newArrayList(dao.select(query));
-    assertThat(results).hasSize(3);
-    assertThat(results.get(0).getId()).isEqualTo(102);
-    assertThat(results.get(1).getId()).isEqualTo(100);
-    assertThat(results.get(2).getId()).isEqualTo(101);
-  }
-
-  @Test
   public void should_select_issue_and_component_ids() {
     setupData("shared", "should_select_issue_and_component_ids");
 
@@ -313,11 +241,44 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     List<IssueDto> results = dao.selectIssueAndProjectIds(query, newArrayList(399), 1000);
     assertThat(results).hasSize(3);
 
+    IssueDto issueDto = results.get(0);
+    assertThat(issueDto.getId()).isNotNull();
+    assertThat(issueDto.getProjectId()).isNotNull();
+
     results = dao.selectIssueAndProjectIds(query, newArrayList(399), 2);
     assertThat(results).hasSize(2);
 
     results = dao.selectIssueAndProjectIds(query, Collections.<Integer>emptyList(), 1000);
     assertThat(results).isEmpty();
+  }
+
+  @Test
+  public void should_select_issue_and_project_ids_with_sort_column() {
+    setupData("shared", "should_select_issue_and_project_ids");
+
+    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.ASSIGNEE).build();
+    List<IssueDto> results = dao.selectIssueAndProjectIds(query, newArrayList(399), 1000);
+    assertThat(results.get(0).getAssignee()).isNotNull();
+
+    query = IssueQuery.builder().sort(IssueQuery.Sort.SEVERITY).build();
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399), 1000);
+    assertThat(results.get(0).getSeverity()).isNotNull();
+
+    query = IssueQuery.builder().sort(IssueQuery.Sort.STATUS).build();
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399), 1000);
+    assertThat(results.get(0).getStatus()).isNotNull();
+
+    query = IssueQuery.builder().sort(IssueQuery.Sort.CREATION_DATE).build();
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399), 1000);
+    assertThat(results.get(0).getIssueCreationDate()).isNotNull();
+
+    query = IssueQuery.builder().sort(IssueQuery.Sort.UPDATE_DATE).build();
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399), 1000);
+    assertThat(results.get(0).getIssueUpdateDate()).isNotNull();
+
+    query = IssueQuery.builder().sort(IssueQuery.Sort.CLOSE_DATE).build();
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399), 1000);
+    assertThat(results.get(0).getIssueCloseDate()).isNotNull();
   }
 
   @Test
@@ -337,10 +298,10 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_by_ids() {
     setupData("shared", "should_select_by_ids");
 
-    List<IssueDto> results = newArrayList(dao.selectByIds(newArrayList(100l, 101l, 102l), IssueQuery.Sort.CREATION_DATE, false));
+    List<IssueDto> results = newArrayList(dao.selectByIds(newArrayList(100l, 101l, 102l)));
     assertThat(results).hasSize(3);
-    assertThat(results.get(0).getId()).isEqualTo(102);
-    assertThat(results.get(1).getId()).isEqualTo(100);
-    assertThat(results.get(2).getId()).isEqualTo(101);
+    assertThat(results.get(0).getId()).isEqualTo(100);
+    assertThat(results.get(1).getId()).isEqualTo(101);
+    assertThat(results.get(2).getId()).isEqualTo(102);
   }
 }
