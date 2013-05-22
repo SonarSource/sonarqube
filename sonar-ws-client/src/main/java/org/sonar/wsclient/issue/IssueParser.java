@@ -75,6 +75,7 @@ class IssueParser {
     Map paging = (Map) jsonRoot.get("paging");
     result.setPaging(new Paging(paging));
     result.setSecurityExclusions(JsonUtils.getBoolean(jsonRoot, "securityExclusions"));
+    result.setMaxResultsReached(JsonUtils.getBoolean(jsonRoot, "maxResultsReached"));
     return result;
   }
 

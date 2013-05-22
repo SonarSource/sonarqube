@@ -79,6 +79,7 @@ public class IssueParserTest {
     assertThat(paging.total()).isEqualTo(2);
 
     assertThat(issues.securityExclusions()).isTrue();
+    assertThat(issues.maxResultsReached()).isTrue();
   }
 
   @Test
@@ -89,7 +90,6 @@ public class IssueParserTest {
     assertThat(issues.list()).isEmpty();
     assertThat(issues.rules()).isEmpty();
   }
-
 
   @Test
   public void test_GET_transitions() throws Exception {

@@ -31,6 +31,7 @@ class Api::IssuesController < Api::ApiController
     results = Api.issues.find(params)
     hash = {
       :securityExclusions => results.securityExclusions,
+      :maxResultsReached => results.maxResultsReached,
       :paging => paging_to_hash(results.paging),
       :issues => results.issues.map { |issue| Issue.to_hash(issue) },
       :components => results.components.map { |component| component_to_hash(component) },

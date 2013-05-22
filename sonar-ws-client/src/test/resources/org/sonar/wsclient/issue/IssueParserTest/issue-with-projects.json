@@ -54,5 +54,6 @@
     "total": 2,
     "pages": 1
   },
-  "securityExclusions": true
+  "securityExclusions": true,
+  "maxResultsReached": false
 }
