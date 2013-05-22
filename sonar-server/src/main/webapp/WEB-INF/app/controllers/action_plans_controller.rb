@@ -22,68 +22,51 @@ class ActionPlansController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
   before_filter :load_resource
+  verify :method => :post, :only => [:save, :delete, :change_status], :redirect_to => {:action => :index}
 
   def index
     load_action_plans()
   end
 
   def edit
-    @action_plan = ActionPlan.find params[:plan_id]
+    @action_plan = find_by_key(params[:plan_key])
     load_action_plans()
     render 'index'
   end
 
   def save
-    verify_post_request
-    @action_plan = ActionPlan.find params[:plan_id] if params[:plan_id].present?
-    unless @action_plan
-      @action_plan = ActionPlan.new(
-          :kee => Java::JavaUtil::UUID.randomUUID().toString(),
-          :user_login => current_user.login,
-          :project_id => @resource.id,
-          :status => ActionPlan::STATUS_OPEN)
-    end
-    
-    @action_plan.name = params[:name]
-    @action_plan.description = params[:description]
-    unless params[:deadline].blank?
-      begin
-        deadline = DateTime.strptime(params[:deadline], '%d/%m/%Y')
-        # we check if the date is today or in the future
-        if deadline > 1.day.ago
-          @action_plan.deadline = deadline
-        else
-          date_not_valid = message('action_plans.date_cant_be_in_past')
-        end 
-      rescue
-        date_not_valid = message('action_plans.date_not_valid')
-      end
+    options = {'project' => @resource.key, 'name' => params[:name], 'description' => params[:description], 'deadLine' => params[:deadline]}
+
+    exiting_action_plan = find_by_key(params[:plan_key]) unless params[:plan_key].blank?
+    if exiting_action_plan
+      action_plan_result = Internal.issues.updateActionPlan(params[:plan_key], options)
+    else
+      action_plan_result = Internal.issues.createActionPlan(options)
     end
 
-    if date_not_valid || !@action_plan.valid?
-      @action_plan.errors.add :base, date_not_valid if date_not_valid
-      flash[:error] = @action_plan.errors.full_messages.join('<br/>')
+    if action_plan_result.ok()
+      @action_plan = action_plan_result.get()
+      redirect_to :action => 'index', :id => @resource.id
+    else
+      flash[:error] = action_plan_result.errors().map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
       load_action_plans()
       render 'index'
-    else
-      @action_plan.save
-      redirect_to :action => 'index', :id => @resource.id
     end
   end
 
   def delete
-    verify_post_request
-    action_plan = ActionPlan.find params[:plan_id]
-    action_plan.destroy
+    Internal.issues.deleteActionPlan(params[:plan_key])
     redirect_to :action => 'index', :id => @resource.id
   end
 
   def change_status
-    verify_post_request
-    action_plan = ActionPlan.find params[:plan_id]
+    action_plan = find_by_key(params[:plan_key])
     if action_plan
-      action_plan.status = action_plan.open? ? ActionPlan::STATUS_CLOSED : ActionPlan::STATUS_OPEN
-      action_plan.save
+      if action_plan.status == 'OPEN'
+        Internal.issues.closeActionPlan(params[:plan_key])
+      else
+        Internal.issues.openActionPlan(params[:plan_key])
+      end
     end
     redirect_to :action => 'index', :id => @resource.id
   end
@@ -95,10 +78,17 @@ class ActionPlansController < ApplicationController
     return redirect_to home_path unless @resource
     access_denied unless has_role?(:admin, @resource)
   end
-  
+
   def load_action_plans
-    @open_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_OPEN, @resource.id], :include => 'reviews', :order => 'deadline ASC')
-    @closed_action_plans = ActionPlan.find(:all, :conditions => ['status=? AND project_id=?', ActionPlan::STATUS_CLOSED, @resource.id], :include => 'reviews', :order => 'deadline DESC')
+    action_plans = Internal.issues.findActionPlanStats(@resource.key)
+    @open_action_plans = action_plans.select {|plan| plan.isOpen()}
+    @closed_action_plans = action_plans.reject {|plan| plan.isOpen()}
+    users = Api.users.find('logins' => (@open_action_plans + @closed_action_plans).collect {|action_plan| action_plan.userLogin()}.join(","))
+    @users = Hash[users.collect { |user| [user.login(), user.name()] }]
+  end
+
+  def find_by_key(key)
+    Internal.issues.findActionPlan(key)
   end
 
 end

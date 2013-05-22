@@ -17,10 +17,6 @@
         <li><a href="<%= ApplicationController.root_context -%>/action_plans/index/<%= @project.id -%>"><%= message('action_plans.page') -%></a></li>
       <% end %>
       <% if (is_admin && @project.project?) %>
-        <li><a href="<%= ApplicationController.root_context -%>/issues_action_plans/index/<%= @project.id -%>"><%= message('issues_action_plans.page') -%></a></li>
-      <% end %>
-
-      <% if (is_admin && @project.project?) %>
          <li><a href="<%= ApplicationController.root_context -%>/project/links/<%= @project.id -%>"><%= message('project_links.page') -%></a></li>
       <% end %>
       <%

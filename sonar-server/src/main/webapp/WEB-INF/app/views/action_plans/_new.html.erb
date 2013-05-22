@@ -1,39 +1,40 @@
 <table class="admintable" width="100%">
   <form action="<%= url_for :action => 'save' -%>" method="POST" id="create-action-plan-form">
     <input type="hidden" name="id" value="<%= @resource.id -%>"/>
-    <input type="hidden" name="plan_id" value="<%= @action_plan.id if @action_plan -%>"/>
+    <input type="hidden" name="plan_key" value="<%= @action_plan.key() if @action_plan -%>"/>
     <tbody>
-      <tr>
-        <td colspan="2"><h1 class="marginbottom10"><%= @action_plan && @action_plan.id ? message('action_plans.edit_action_plan') : message('action_plans.create_new_action_plan') -%></h1></h1></td>
-      </tr>
-      <tr>
-        <td class="left" valign="top">
+    <tr>
+      <td colspan="2"><h1 class="marginbottom10"><%= @action_plan && @action_plan.key() ? message('action_plans.edit_action_plan') : message('action_plans.create_form_title') -%></h1></td>
+    </tr>
+    <tr>
+      <td class="left" valign="top">
         <%= message('action_plans.col.name') -%>:
         <br/>
-        <input type="text" name="name" id="name" value="<%= @action_plan ? @action_plan.name : params[:name] -%>"/>
-        </td>
-      </tr>
-      <tr>
-        <td class="left" valign="top">
+        <input type="text" name="name" id="name" value="<%= @action_plan ? @action_plan.name() : params[:name] -%>"/>
+      </td>
+    </tr>
+    <tr>
+      <td class="left" valign="top">
         <%= message('action_plans.col.due_for') -%>:
         <br/>
-        <input type="text" name="deadline" id="deadline" value="<%= @action_plan && @action_plan.deadline ? @action_plan.deadline.strftime('%d/%m/%Y') : params[:deadline] -%>"/>
+        <% deadline = Api::Utils.java_to_ruby_datetime(@action_plan.deadLine()) if @action_plan && @action_plan.deadLine() %>
+        <input type="text" name="deadline" id="deadline" value="<%= @action_plan && deadline ? deadline.strftime('%d/%m/%Y') : params[:deadline] -%>"/>
         <br/>
         <span class="note"><%= message('action_plans.date_format_help') -%></span>
-        </td>
-      </tr>
-      <tr>
-        <td class="left" valign="top">
+      </td>
+    </tr>
+    <tr>
+      <td class="left" valign="top">
         <%= message('action_plans.col.description') -%>:
         <br/>
-        <textarea rows="5" cols="80" name="description" id="description" class="width100"><%= @action_plan ? @action_plan.description : params['description'] -%></textarea>
-        </td>
-      </tr>
-      <tr>
-        <td class="left" valign="top">
-        <input type="submit" value="<%= @action_plan && @action_plan.id ? message('action_plans.edit_action_plan') : message('action_plans.create_action_plan') -%>"/>
-        </td>
-      </tr>
+        <textarea rows="5" cols="80" name="description" id="description" class="width100"><%= @action_plan ? @action_plan.description() : params['description'] -%></textarea>
+      </td>
+    </tr>
+    <tr>
+      <td class="left" valign="top">
+        <input type="submit" value="<%= @action_plan && @action_plan.key() ? message('edit') : message('create') -%>"/>
+      </td>
+    </tr>
     </tbody>
   </form>
 </table>
