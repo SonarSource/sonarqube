@@ -22,12 +22,11 @@
         <% end %>
         <%
            @open_action_plans.each do |plan|
-             deadline = Api::Utils.java_to_ruby_datetime(plan.deadLine()) if plan.deadLine()
         %>
-          <tr>
+          <tr class="<%= cycle('even', 'odd', :name => 'open_plans') -%>">
             <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message('issues_action_plans.status' + plan.status()) -%>"/></td>
             <td class="thin nowrap"><%= h(plan.name()) -%></td>
-            <td class="thin nowrap <%= 'over-due' if plan.overDue() -%>" align="right" x="<%= deadline ? deadline.tv_sec : '' -%>"><%= format_date(plan.deadLine(), :time_if_today => true)  -%></td>
+            <td class="thin nowrap <%= 'over-due' if plan.overDue() -%>" align="right"><%= format_date(plan.deadLine(), :time_if_today => true)  -%></td>
             <% if plan.totalIssues()==0 %>
               <td class="noprogress thin nowrap">
                 <%= message('issues_action_plans.no_issues_linked_to_action_plan') -%>
@@ -57,7 +56,6 @@
         <% end %>
         </tbody>
       </table>
-      <script>TableKit.Sortable.init('openActionPlans');</script>
 
       <% unless @closed_action_plans.empty? %>
         <br/><br/>
@@ -79,14 +77,12 @@
           <tbody>
           <%
              @closed_action_plans.each do |plan|
-               deadline = Api::Utils.java_to_ruby_datetime(plan.deadLine()) if plan.deadLine()
-               updated_at = Api::Utils.java_to_ruby_datetime(plan.updatedAt())
           %>
-            <tr>
+            <tr class="<%= cycle('even', 'odd', :name => 'closed_plans') -%>">
               <td class="thin nowrap center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message(plan.status()) -%>"/></td>
               <td class="thin nowrap"><%= h(plan.name) -%></td>
-              <td class="thin nowrap <%= 'over-due' if plan.overDue() -%>" align="right" x="<%= deadline ? deadline.tv_sec : '' -%>"><%= format_date(plan.deadLine()) -%></td>
-              <td class="thin nowrap" align="right" x="<%= updated_at.tv_sec -%>"><%= format_date(plan.updatedAt()) -%></td>
+              <td class="thin nowrap <%= 'over-due' if plan.overDue() -%>" align="right"><%= format_date(plan.deadLine()) -%></td>
+              <td class="thin nowrap" align="right"><%= format_date(plan.updatedAt()) -%></td>
               <% if plan.totalIssues()==0 %>
                 <td class="noprogress thin nowrap">
                   <%= message('issues_action_plans.no_issues_linked_to_action_plan') -%>
@@ -100,15 +96,14 @@
               <td id="desc"><%= h(@users[plan.userLogin()]) -%></td>
               <td class="thin nowrap right">
                 <%= link_to message('issues_action_plans.reopen'),
-                            {:action => 'change_status', :id => @resource.id, :plan_key => plan.key}, {:method => 'POST', :class => 'action'} -%>
+                            {:action => 'change_status', :id => @resource.id, :plan_key => plan.key}, {:method => 'POST', :class => 'link-action'} -%>
                 &nbsp;
-                <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_key => plan.key}, {:method => 'POST', :confirm => message('issues_action_plans.confirm_delete'), :class => 'action'} -%>
+                <%= link_to message('delete'), {:action => 'delete', :id => @resource.id, :plan_key => plan.key}, {:method => 'POST', :confirm => message('issues_action_plans.confirm_delete'), :class => 'link-action link-red'} -%>
               </td>
             </tr>
           <% end %>
           </tbody>
         </table>
-        <script>TableKit.Sortable.init('closedActionPlans');</script>
       <% end %>
 
     </td>

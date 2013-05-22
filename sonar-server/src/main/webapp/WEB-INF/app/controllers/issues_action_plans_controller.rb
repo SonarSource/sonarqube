@@ -82,7 +82,7 @@ class IssuesActionPlansController < ApplicationController
   def load_action_plans
     action_plans = Internal.issues.findActionPlanStats(@resource.key)
     @open_action_plans = action_plans.select {|plan| plan.isOpen()}
-    @closed_action_plans = action_plans.select {|plan| !plan.isOpen()}
+    @closed_action_plans = action_plans.reject {|plan| plan.isOpen()}
     users = Api.users.find('logins' => (@open_action_plans + @closed_action_plans).collect {|action_plan| action_plan.userLogin()}.join(","))
     @users = Hash[users.collect { |user| [user.login(), user.name()] }]
   end
