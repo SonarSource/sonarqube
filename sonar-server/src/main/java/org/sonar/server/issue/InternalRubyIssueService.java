@@ -22,6 +22,7 @@ package org.sonar.server.issue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
@@ -177,7 +178,7 @@ public class InternalRubyIssueService implements ServerComponent {
     DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key);
     if (existingActionPlan == null) {
       Result<ActionPlan> result = Result.of();
-      result.addError(Result.Message.ofL10n("issues_action_plans.errors.action_plan_does_not_exists", key));
+      result.addError(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", key));
       return result;
     } else {
       Result<ActionPlan> result = createActionPlanResult(parameters, existingActionPlan.name());
@@ -250,7 +251,7 @@ public class InternalRubyIssueService implements ServerComponent {
     } else {
       ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
       if (project == null) {
-        result.addError(Result.Message.ofL10n("issues_action_plans.errors.project_does_not_exists", projectParam));
+        result.addError(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", projectParam));
       }
     }
 
@@ -258,8 +259,9 @@ public class InternalRubyIssueService implements ServerComponent {
       try {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         deadLine = dateFormat.parse(deadLineParam);
-        if (deadLine.before(new Date())) {
-          result.addError(Result.Message.ofL10n("issues_action_plans.date_cant_be_in_past"));
+        Date today = new Date();
+        if (deadLine.before(today) && !DateUtils.isSameDay(deadLine, today)) {
+          result.addError(Result.Message.ofL10n("action_plans.date_cant_be_in_past"));
         }
       } catch (Exception e) {
         result.addError(Result.Message.ofL10n("errors.is_not_valid", "date"));
@@ -268,7 +270,7 @@ public class InternalRubyIssueService implements ServerComponent {
 
     if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && !name.equals(oldName)
       && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
-      result.addError(Result.Message.ofL10n("issues_action_plans.same_name_in_same_project"));
+      result.addError(Result.Message.ofL10n("action_plans.same_name_in_same_project"));
     }
 
     if (result.ok()) {
@@ -285,7 +287,7 @@ public class InternalRubyIssueService implements ServerComponent {
   private Result<ActionPlan> createResultForExistingActionPlan(String actionPlanKey) {
     Result<ActionPlan> result = Result.of();
     if (findActionPlan(actionPlanKey) == null) {
-      result.addError(Result.Message.ofL10n("issues_action_plans.errors.action_plan_does_not_exists", actionPlanKey));
+      result.addError(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", actionPlanKey));
     }
     return result;
   }

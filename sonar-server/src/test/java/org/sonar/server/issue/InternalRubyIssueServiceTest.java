@@ -127,7 +127,7 @@ public class InternalRubyIssueServiceTest {
 
     Result result = internalRubyIssueService.updateActionPlan("ABCD", null);
     assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("issues_action_plans.errors.action_plan_does_not_exists", "ABCD"));
+    assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", "ABCD"));
   }
 
   @Test
@@ -146,7 +146,7 @@ public class InternalRubyIssueServiceTest {
     Result result = internalRubyIssueService.deleteActionPlan("ABCD");
     verify(actionPlanService, never()).delete("ABCD");
     assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("issues_action_plans.errors.action_plan_does_not_exists", "ABCD"));
+    assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", "ABCD"));
   }
 
   @Test
@@ -237,7 +237,7 @@ public class InternalRubyIssueServiceTest {
 
     Result result = internalRubyIssueService.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("issues_action_plans.date_cant_be_in_past"));
+    assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.date_cant_be_in_past"));
   }
 
   @Test
@@ -251,7 +251,7 @@ public class InternalRubyIssueServiceTest {
 
     Result result = internalRubyIssueService.createActionPlanResult(parameters, "Short term");
     assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("issues_action_plans.same_name_in_same_project"));
+    assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.same_name_in_same_project"));
   }
 
   @Test
@@ -265,7 +265,7 @@ public class InternalRubyIssueServiceTest {
 
     Result result = internalRubyIssueService.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("issues_action_plans.errors.project_does_not_exists", "org.sonar.Sample"));
+    assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", "org.sonar.Sample"));
   }
   public String createLongString(int size) {
     String result = "";
