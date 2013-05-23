@@ -63,7 +63,7 @@
             <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= message(issue.severity.downcase).capitalize -%>"/>
           </td>
           <td>
-            <%= message(issue.status.downcase).capitalize -%>
+            <%= message("issue.status.#{issue.status}") -%>
           </td>
           <td>
             <%= link_to h(truncate(issue.message, :length => 200)), :controller => 'issue', :action => 'view', :id => issue.key -%>

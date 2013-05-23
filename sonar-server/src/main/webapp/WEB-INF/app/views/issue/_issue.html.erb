@@ -24,6 +24,11 @@
       &nbsp;
       <span><%= message("issue.resolution.#{issue.resolution}") -%></span>
       &nbsp;
+    <% else %>
+      <%= image_tag 'sep12.png' -%>
+      &nbsp;
+      <span><%= message("issue.status.#{issue.status}") -%></span>
+      &nbsp;
     <% end %>
     <%
        if issue.assignee
