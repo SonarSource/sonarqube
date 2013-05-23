@@ -1,12 +1,12 @@
 <%
-  issues = @snapshot.measure('issues') # TODO replace by violations
-  false_positive_issues = @snapshot.measure('false_positive_issues') # TODO replace by false_positive_reviews
-  blocker_issues = @snapshot.measure('blocker_issues') # TODO replace by violations...
-  critical_issues = @snapshot.measure('critical_issues')
-  major_issues = @snapshot.measure('major_issues')
-  minor_issues = @snapshot.measure('minor_issues')
-  info_issues = @snapshot.measure('info_issues')
-  new_issues = @snapshot.measure('new_issues')
+  issues = @snapshot.measure('violations')
+  false_positive_issues = @snapshot.measure('false_positive_violations')
+  blocker_issues = @snapshot.measure('blocker_violations')
+  critical_issues = @snapshot.measure('critical_violations')
+  major_issues = @snapshot.measure('major_violations')
+  minor_issues = @snapshot.measure('minor_violations')
+  info_issues = @snapshot.measure('info_violations')
+  new_issues = @snapshot.measure('new_violations')
 %>
 <table width="100%">
   <tr>
