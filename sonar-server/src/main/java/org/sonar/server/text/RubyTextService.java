@@ -26,6 +26,9 @@ import org.sonar.markdown.Markdown;
 
 import java.util.List;
 
+/**
+ * @since 3.6
+ */
 public class RubyTextService implements ServerComponent {
 
   private final MacroInterpreter macroInterpreter;
@@ -36,15 +39,18 @@ public class RubyTextService implements ServerComponent {
     this.sourceDecorator = sourceDecorator;
   }
 
+  // TODO add ruby example
   public String interpretMacros(String text) {
     return macroInterpreter.interpret(text);
   }
 
+  // TODO add ruby example
   public String markdownToHtml(String markdown) {
     // TODO move HTML escaping to sonar-markdown
     return Markdown.convertToHtml(StringEscapeUtils.escapeHtml(markdown));
   }
 
+  // TODO add ruby example
   public List<String> highlightedSourceLines(long snapshotId) {
     return sourceDecorator.getDecoratedSourceAsHtml(snapshotId);
   }

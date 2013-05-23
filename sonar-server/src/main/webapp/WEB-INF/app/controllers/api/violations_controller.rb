@@ -33,29 +33,31 @@ class Api::ViolationsController < Api::ApiController
 
     resource = params[:resource]
     depth=(params['depth'] ? params['depth'].to_i : 0)
-    if depth==0
-      conditions[:components] = resource
-    elsif depth>0
-      rest_error('The parameter "depth" is not supported since version 3.6.')
-    else
-      # negative : all the resource tree
-      conditions[:componentRoots] = resource
+    if resource
+      if depth==0
+        conditions['components'] = resource
+      elsif depth>0
+        rest_error('The parameter "depth" is not supported since version 3.6.')
+      else
+        # negative : all the resource tree
+        conditions['componentRoots'] = resource
+      end
     end
-    
+
     if params[:rules]
-      conditions[:rules] = params[:rules].split(',')
+      conditions['rules'] = params[:rules].split(',')
     end
 
     if params[:priorities]
-      conditions[:severities] = params[:priorities].split(',')
-    end
-    
-    if params[:switched_off] == 'true'
-      conditions[:resolutions]='FALSE-POSITIVE'
+      conditions['severities'] = params[:priorities].split(',')
     end
 
-    limit = (params[:limit] ? [params[:limit].to_i,5000].min : 5000)
-    conditions[:pageSize]=limit
+    if params[:switched_off] == 'true'
+      conditions['resolutions']='FALSE-POSITIVE'
+    end
+
+    limit = (params[:limit] ? [params[:limit].to_i, 5000].min : 5000)
+    conditions['pageSize']=limit
 
     results = Api.issues.find(conditions)
 
@@ -68,7 +70,7 @@ class Api::ViolationsController < Api::ApiController
       hash[:switchedOff]=true if issue.resolution=='FALSE-POSITIVE'
       rule = results.rule(issue)
       if rule
-        hash[:rule] = {:key => rule.ruleKey, :name => Internal.rules.ruleL10nName(rule)}
+        hash[:rule] = {:key => rule.ruleKey.toString(), :name => Internal.rules.ruleL10nName(rule)}
       end
       resource = results.component(issue)
       if resource

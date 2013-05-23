@@ -144,8 +144,8 @@ public class CountOpenIssuesDecoratorTest {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(issuable.issues()).thenReturn(createIssues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
-    when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.ISSUES, 3000.0));
-    when(context.getMeasure(CoreMetrics.MAJOR_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.MAJOR_ISSUES, 500.0));
+    when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 3000.0));
+    when(context.getMeasure(CoreMetrics.MAJOR_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.MAJOR_VIOLATIONS, 500.0));
 
     decorator.decorate(resource, context);
 
@@ -204,19 +204,6 @@ public class CountOpenIssuesDecoratorTest {
     verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.CRITICAL_VIOLATIONS, ruleA1, 2.0)));
     verify(context, never()).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MAJOR_VIOLATIONS, ruleA1, 0.0)));
     verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MAJOR_VIOLATIONS, ruleA2, 1.0)));
-  }
-
-  @Test
-  public void should_save_unassigned_issues() {
-    List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_REOPENED).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setStatus(Issue.STATUS_OPEN).setAssignee("arthur").setSeverity(RulePriority.CRITICAL.name()));
-    when(issuable.issues()).thenReturn(issues);
-
-    decorator.decorate(resource, context);
-
-    verify(context).saveMeasure(CoreMetrics.UNASSIGNED_ISSUES, 2.0);
   }
 
   @Test

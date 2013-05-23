@@ -27,15 +27,15 @@ public class ViolationQuery extends Query<Violation> {
 
   public static final String BASE_URL = "/api/violations";
 
-  private String resourceKeyOrId;
+  private String resourceKey;
   private int depth = 0;
   private String[] qualifiers;
   private String[] ruleKeys;
   private String[] severities;
   private Integer limit;
 
-  public ViolationQuery(String resourceKeyOrId) {
-    this.resourceKeyOrId = resourceKeyOrId;
+  public ViolationQuery(String resourceKey) {
+    this.resourceKey = resourceKey;
   }
 
   public String[] getQualifiers() {
@@ -116,7 +116,7 @@ public class ViolationQuery extends Query<Violation> {
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
     url.append('?');
-    appendUrlParameter(url, "resource", resourceKeyOrId);
+    appendUrlParameter(url, "resource", resourceKey);
     if (depth != 0) {
       url.append("depth=").append(depth).append("&");
     }
@@ -124,7 +124,7 @@ public class ViolationQuery extends Query<Violation> {
     appendUrlParameter(url, "qualifiers", qualifiers);
     appendUrlParameter(url, "rules", ruleKeys);
     appendUrlParameter(url, "priorities", severities);
-      return url.toString();
+    return url.toString();
   }
 
   @Override
