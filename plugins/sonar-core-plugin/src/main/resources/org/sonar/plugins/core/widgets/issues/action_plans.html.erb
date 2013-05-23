@@ -55,7 +55,7 @@
             <td class="noprogress nowrap <%= line_class -%>"><%= message('action_plans.no_issues_linked_to_action_plan') -%></td>
           <% else %>
             <td class="progress <%= line_class -%>">
-              <%= render :partial => 'issues_action_plans/progress', :locals => {:action_plan => plan} -%>
+              <%= render :partial => 'action_plans/progress', :locals => {:action_plan => plan} -%>
             </td>
           <% end %>
         <% 
