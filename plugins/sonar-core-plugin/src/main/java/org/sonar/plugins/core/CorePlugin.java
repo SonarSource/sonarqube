@@ -365,7 +365,7 @@ public final class CorePlugin extends SonarPlugin {
       DescriptionWidget.class,
       ComplexityWidget.class,
       RulesWidget.class,
-      RulesWidget2.class,
+      IssuesBySeverity.class,
       SizeWidget.class,
       EventsWidget.class,
       CustomMeasuresWidget.class,

@@ -1,7 +1,7 @@
 <%
-  issues = @snapshot.measure('issues')
-  density = @snapshot.measure('issues_density')
-  blocker_issues = @snapshot.measure('blocker_issues')
+  issues = @snapshot.measure('issues') # TODO replace by violations
+  false_positive_issues = @snapshot.measure('false_positive_issues') # TODO replace by false_positive_reviews
+  blocker_issues = @snapshot.measure('blocker_issues') # TODO replace by violations...
   critical_issues = @snapshot.measure('critical_issues')
   major_issues = @snapshot.measure('major_issues')
   minor_issues = @snapshot.measure('minor_issues')
@@ -12,7 +12,7 @@
   <tr>
     <td valign="top">
       <div class="dashbox">
-        <h3><%= message('widget.rules.issues') -%></h3>
+        <h3><%= message('widget.issues_by_severity.issues') -%></h3>
         <div class="marginbottom10">
             <span class="big">
               <%= format_measure(issues, :url => url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key)) -%>
@@ -27,28 +27,27 @@
               <% if new_issues_variation && new_issues_variation > 0 %>
                 <br/>
                 <span style="font-weight: bold">
-                  <%= message('widget.rules.added') -%>&nbsp;
-                  <a href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key, :period => dashboard_configuration.period_index) -%>" class="varw"><%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
+                  <%= message('widget.issues_by_severity.added') -%>&nbsp;
+                  <a href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key, :period => dashboard_configuration.period_index) -%>" class="varw">
+                    <%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
                 </span>
               <% end %>
               <% if estimated_cleared_issues && estimated_cleared_issues > 0 %>
                 <br/>
                 <span style="font-weight: bold">
-                  <%= message('widget.rules.removed') -%>&nbsp;
+                  <%= message('widget.issues_by_severity.removed') -%>&nbsp;
                   <span class="varb"><%= estimated_cleared_issues -%></span>
                 </span>
               <% end %>
             <% end %>
         </div>
-        <% if density %>
-        <h3><%= message('widget.rules.rules_compliance') -%></h3>
+        <h3><%= message('widget.issues_by_severity.false_positives') -%></h3>
         <div>
           <span class="big">
-            <%= format_measure(density, :url => url_for_drilldown('weighted_issues', {:highlight => 'weighted_issues'})) -%>
+            <%= format_measure(false_positive_issues, :url => url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key)) -%>
           </span>
-          <%= dashboard_configuration.selected_period? ? format_variation(density) : trend_icon(density) -%>
+          <%= dashboard_configuration.selected_period? ? format_variation(false_positive_issues) : trend_icon(false_positive_issues) -%>
         </div>
-        <% end %>
       </div>
     </td>
 

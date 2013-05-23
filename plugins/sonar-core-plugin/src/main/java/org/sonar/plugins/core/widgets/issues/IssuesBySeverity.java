@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.widgets;
+package org.sonar.plugins.core.widgets.issues;
 
 import org.sonar.api.web.WidgetCategory;
+import org.sonar.plugins.core.widgets.CoreWidget;
 
-@WidgetCategory({"Rules"})
-public class RulesWidget2 extends CoreWidget {
+@WidgetCategory({"Issues"})
+public class IssuesBySeverity extends CoreWidget {
 
-  public RulesWidget2() {
-    super("rules2", "Rules Compliance 2", "/org/sonar/plugins/core/widgets/rules2.html.erb");
+  public IssuesBySeverity() {
+//    super("issues_by_severity", "Issues by Severity", "/org/sonar/plugins/core/widgets/issues/issues_by_severity.html.erb");
+    super("issues_by_severity", "Issues by Severity",
+      "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/issues/issues_by_severity.html.erb");
   }
 }
