@@ -52,7 +52,7 @@
         
         <% if show_resolved_issues %>
           <% if plan.totalIssues()==0 %>
-            <td class="noprogress nowrap <%= line_class -%>"><%= message('issues_action_plans.no_issues_linked_to_action_plan') -%></td>
+            <td class="noprogress nowrap <%= line_class -%>"><%= message('action_plans.no_issues_linked_to_action_plan') -%></td>
           <% else %>
             <td class="progress <%= line_class -%>">
               <%= render :partial => 'issues_action_plans/progress', :locals => {:action_plan => plan} -%>
