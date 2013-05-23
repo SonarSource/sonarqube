@@ -111,6 +111,12 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .functions(new SetResolution(Issue.RESOLUTION_FIXED), new SetCloseDate(true))
         .automatic()
         .build())
+      .transition(Transition.builder("automaticclose")
+        .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_CLOSED)
+        .conditions(new IsAlive(false))
+        .functions(new SetResolution(Issue.RESOLUTION_FIXED), new SetCloseDate(true))
+        .automatic()
+        .build())
         // Close the issues marked as resolved and that do not exist anymore.
         // Note that false-positives are kept resolved and are not closed.
       .transition(Transition.builder("automaticclose")

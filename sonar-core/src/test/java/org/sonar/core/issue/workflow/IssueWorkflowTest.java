@@ -121,6 +121,61 @@ public class IssueWorkflowTest {
   }
 
   @Test
+  public void should_close_open_dead_issue() throws Exception {
+    workflow.start();
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setResolution(null)
+      .setStatus(Issue.STATUS_OPEN)
+      .setNew(false)
+      .setAlive(false);
+    Date now = new Date();
+    workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(issue.closeDate()).isNotNull();
+    assertThat(issue.updateDate()).isEqualTo(now);
+  }
+
+  @Test
+  public void should_close_reopened_dead_issue() throws Exception {
+    workflow.start();
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setResolution(null)
+      .setStatus(Issue.STATUS_REOPENED)
+      .setNew(false)
+      .setAlive(false);
+    Date now = new Date();
+    workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(issue.closeDate()).isNotNull();
+    assertThat(issue.updateDate()).isEqualTo(now);
+  }
+
+  @Test
+  public void should_close_confirmed_dead_issue() throws Exception {
+    workflow.start();
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setResolution(null)
+      .setStatus(Issue.STATUS_CONFIRMED)
+      .setNew(false)
+      .setAlive(false);
+    Date now = new Date();
+    workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(issue.closeDate()).isNotNull();
+    assertThat(issue.updateDate()).isEqualTo(now);
+  }
+
+
+  @Test
   public void should_fail_if_unknown_status() throws Exception {
     workflow.start();
 
