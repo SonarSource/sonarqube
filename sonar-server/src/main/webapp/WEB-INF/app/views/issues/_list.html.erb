@@ -29,7 +29,7 @@
             <%= column_html(@filter, message('severity_abbreviated'), message('severity'), 'SEVERITY') %>
           </th>
           <th width="1%" nowrap>
-            <%= column_html(@filter, message('status_abbreviated'), message('status'), 'STATUS') %>
+            <%= column_html(@filter, message('status'), message('status'), 'STATUS') %>
           </th>
           <th>
             <%= message('description') -%>
@@ -63,13 +63,13 @@
             <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= message(issue.severity.downcase).capitalize -%>"/>
           </td>
           <td>
-            <img src="<%= ApplicationController.root_context -%>/images/status/<%= issue.status -%>.png" title="<%= message(issue.status.downcase).capitalize -%>"/>
+            <%= message(issue.status.downcase).capitalize -%>
           </td>
           <td>
             <%= link_to h(truncate(issue.message, :length => 200)), :controller => 'issue', :action => 'view', :id => issue.key -%>
           </td>
           <td>
-            <%= h h(truncate(@filter.issues_result.project(issue).name, :length => 100)) -%>
+            <%= h (truncate(@filter.issues_result.project(issue).name, :length => 100)) -%>
           </td>
           <td>
             <%= h @filter.issues_result.component(issue).name -%>
