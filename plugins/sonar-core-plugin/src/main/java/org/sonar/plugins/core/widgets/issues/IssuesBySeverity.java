@@ -26,8 +26,6 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 public class IssuesBySeverity extends CoreWidget {
 
   public IssuesBySeverity() {
-//    super("issues_by_severity", "Issues by Severity", "/org/sonar/plugins/core/widgets/issues/issues_by_severity.html.erb");
-    super("issues_by_severity", "Issues by Severity",
-      "/Users/julienlancelot/Dev/Sources/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/issues/issues_by_severity.html.erb");
+    super("issues_by_severity", "Issues by Severity", "/org/sonar/plugins/core/widgets/issues/issues_by_severity.html.erb");
   }
 }
