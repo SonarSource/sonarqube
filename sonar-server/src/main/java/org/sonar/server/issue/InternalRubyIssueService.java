@@ -40,6 +40,7 @@ import org.sonar.server.platform.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
+
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -76,6 +77,10 @@ public class InternalRubyIssueService implements ServerComponent {
 
   public List<String> listStatus() {
     return issueService.listStatus();
+  }
+
+  public List<String> listResolutions() {
+    return Issue.RESOLUTIONS;
   }
 
   public Issue doTransition(String issueKey, String transitionKey) {

@@ -73,8 +73,6 @@ class IssueFilter
     @paging = nil
     @issues = nil
     criteria['pageSize'] = 100
-    criteria['sort'] ||= 'SEVERITY'
-    criteria['asc'] ||= 'false'
     self
   end
 

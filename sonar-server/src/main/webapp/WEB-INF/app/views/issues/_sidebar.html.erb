@@ -25,9 +25,15 @@
     </li>
     <li id="criteria-status" class="marginbottom5">
       <%= message 'issue_filter.criteria.status' -%>:
-      <%= dropdown_tag 'statuses[]', options_for_select(@options_for_status, @filter.criteria('statuses')),
+      <%= dropdown_tag 'statuses[]', options_for_select(@options_for_statuses, @filter.criteria('statuses')),
                        {:width => '100%', :placeholder => message('issue_filter.criteria.status')},
                        {:id => 'select-status', :multiple => true}-%>
+    </li>
+    <li id="criteria-resolution" class="marginbottom5">
+      <%= message 'issue_filter.criteria.resolution' -%>:
+      <%= dropdown_tag 'resolutions[]', options_for_select(@options_for_resolutions, @filter.criteria('resolutions')),
+                       {:width => '100%', :placeholder => message('issue_filter.criteria.resolution')},
+                       {:id => 'select-resolution', :multiple => true}-%>
     </li>
     <li>
       <%= message 'issue_filter.criteria.assignee' -%>:

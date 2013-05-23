@@ -31,6 +31,9 @@
           <th width="1%" nowrap>
             <%= column_html(@filter, message('status'), message('status'), 'STATUS') %>
           </th>
+          <th width="1%" nowrap>
+            <%= message('issue_filter.header.resolution') -%>
+          </th>
           <th>
             <%= message('description') -%>
           </th>
@@ -66,7 +69,10 @@
             <%= message("issue.status.#{issue.status}") -%>
           </td>
           <td>
-            <%= link_to h(truncate(issue.message, :length => 200)), :controller => 'issue', :action => 'view', :id => issue.key -%>
+            <%= message("issue.resolution.#{issue.resolution}") if issue.resolution -%>
+          </td>
+          <td>
+            <%= link_to h(truncate(issue.message, :length => 100)), :controller => 'issue', :action => 'view', :id => issue.key -%>
           </td>
           <td>
             <%= h (truncate(@filter.issues_result.project(issue).name, :length => 100)) -%>
@@ -106,7 +112,7 @@
 <%
    elsif @filter.issues
 %>
-  <p><%= message('no_results') -%></p>
+  <p><%= message('issue_filter.no_result') -%></p>
 <%
    end
 %>

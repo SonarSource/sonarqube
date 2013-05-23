@@ -19,6 +19,7 @@
  */
 package org.sonar.api.issue;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
@@ -43,6 +44,8 @@ public interface Issue extends Serializable {
 
   String RESOLUTION_FIXED = "FIXED";
   String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
+
+  List<String> RESOLUTIONS = ImmutableList.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED);
 
   /**
    * Unique generated key

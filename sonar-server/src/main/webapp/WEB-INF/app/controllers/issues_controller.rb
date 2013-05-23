@@ -23,8 +23,7 @@ class IssuesController < ApplicationController
   before_filter :init
 
   def index
-    @filter = IssueFilter.new
-    render :action => 'search'
+    redirect_to :action => 'search'
   end
 
   def search
@@ -39,8 +38,8 @@ class IssuesController < ApplicationController
   private
 
   def init
-    status = Internal.issues.listStatus()
-    @options_for_status = status.map {|s| [message('issue.status.' + s), s]}
+    @options_for_statuses = Internal.issues.listStatus().map {|s| [message('issue.status.' + s), s]}
+    @options_for_resolutions = Internal.issues.listResolutions().map {|s| [message('issue.resolution.' + s), s]}
   end
 
   def criteria_params
