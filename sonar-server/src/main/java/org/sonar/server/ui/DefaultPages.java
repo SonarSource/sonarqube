@@ -28,7 +28,7 @@ import org.sonar.api.web.*;
  */
 public final class DefaultPages {
 
-  private static final View[] PAGES = {new SourceTab(), new CoverageTab(), new ViolationsTab(), new IssuesTab(), new DuplicationsTab()};
+  private static final View[] PAGES = {new SourceTab(), new CoverageTab(), new IssuesTab(), new DuplicationsTab()};
 
   private DefaultPages() {
   }
@@ -98,39 +98,11 @@ public final class DefaultPages {
 
   @NavigationSection(NavigationSection.RESOURCE_TAB)
   @DefaultTab(
-    metrics = {CoreMetrics.VIOLATIONS_DENSITY_KEY, CoreMetrics.WEIGHTED_VIOLATIONS_KEY, CoreMetrics.VIOLATIONS_KEY, CoreMetrics.BLOCKER_VIOLATIONS_KEY,
-      CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY,
-      CoreMetrics.NEW_VIOLATIONS_KEY, CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY, CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY, CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY,
-      CoreMetrics.NEW_MINOR_VIOLATIONS_KEY, CoreMetrics.NEW_INFO_VIOLATIONS_KEY, CoreMetrics.ACTIVE_REVIEWS_KEY, CoreMetrics.UNASSIGNED_REVIEWS_KEY,
-      CoreMetrics.UNPLANNED_REVIEWS_KEY, CoreMetrics.FALSE_POSITIVE_REVIEWS_KEY, CoreMetrics.UNREVIEWED_VIOLATIONS_KEY, CoreMetrics.NEW_UNREVIEWED_VIOLATIONS_KEY})
-  @ResourceQualifier(
-    value = {Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.PACKAGE, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.CLASS,
-      Qualifiers.UNIT_TEST_FILE})
-  @UserRole(UserRole.CODEVIEWER)
-  private static final class ViolationsTab implements RubyRailsPage {
-    public String getTemplate() {
-      // not used, hardcoded in BrowseController
-      return "browse/index";
-    }
-
-    public String getId() {
-      return "violations";
-    }
-
-    public String getTitle() {
-      return "Violations";
-    }
-  }
-
-  @NavigationSection(NavigationSection.RESOURCE_TAB)
-  @DefaultTab(
-      metrics = {CoreMetrics.ISSUES_DENSITY_KEY, CoreMetrics.WEIGHTED_ISSUES_KEY, CoreMetrics.ISSUES_KEY, CoreMetrics.BLOCKER_ISSUES_KEY,
-          CoreMetrics.CRITICAL_ISSUES_KEY, CoreMetrics.MAJOR_ISSUES_KEY, CoreMetrics.MINOR_ISSUES_KEY, CoreMetrics.INFO_ISSUES_KEY,
-          CoreMetrics.NEW_ISSUES_KEY, CoreMetrics.NEW_BLOCKER_ISSUES_KEY, CoreMetrics.NEW_CRITICAL_ISSUES_KEY, CoreMetrics.NEW_MAJOR_ISSUES_KEY,
-          CoreMetrics.NEW_MINOR_ISSUES_KEY, CoreMetrics.NEW_INFO_ISSUES_KEY,
-          CoreMetrics.UNASSIGNED_ISSUES_KEY, CoreMetrics.FALSE_POSITIVE_ISSUES_KEY
-        // TODO
-//          CoreMetrics.UNPLANNED_REVIEWS_KEY
+      metrics = {CoreMetrics.VIOLATIONS_DENSITY_KEY, CoreMetrics.WEIGHTED_VIOLATIONS_KEY, CoreMetrics.VIOLATIONS_KEY, CoreMetrics.BLOCKER_VIOLATIONS_KEY,
+          CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY,
+          CoreMetrics.NEW_VIOLATIONS_KEY, CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY, CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY, CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY,
+          CoreMetrics.NEW_MINOR_VIOLATIONS_KEY, CoreMetrics.NEW_INFO_VIOLATIONS_KEY,
+          CoreMetrics.FALSE_POSITIVE_ISSUES_KEY
       })
   @ResourceQualifier(
       value = {Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.PACKAGE, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.CLASS,

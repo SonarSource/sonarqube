@@ -3,9 +3,4 @@
   <snapshots id="1000" project_id="100" status="P" islast="[false]" purge_status="[null]"/>
   <snapshots id="1100" project_id="100" status="P" islast="[true]" purge_status="[null]"/>
   <snapshot_sources ID="10000" SNAPSHOT_ID="1100" DATA="this is bar"/>
-  <rule_failures ID="1000000" SNAPSHOT_ID="1100" RULE_ID="1"
-                 switched_off="[null]" permanent_id="[null]" FAILURE_LEVEL="2"
-                 MESSAGE="msg1" LINE="[null]" COST="[null]"
-                 created_at="2008-12-02 13:58:00.00"
-                 checksum="ABCDE" person_id="[null]"/>
 </dataset>

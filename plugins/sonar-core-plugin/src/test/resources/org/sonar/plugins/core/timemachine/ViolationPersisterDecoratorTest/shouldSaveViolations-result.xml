@@ -17,14 +17,4 @@
              scope="FIL" qualifier="CLA" created_at="2008-11-01 13:58:00.00" build_date="2008-11-01 13:58:00.00" version="[null]" path=""
              status="U" islast="false" depth="3"/>
 
-  <rule_failures switched_off="false" permanent_id="1" ID="1" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="3" MESSAGE="old message" LINE="10" COST="[null]"
-                 created_at="2008-11-01 13:58:00.00" checksum="[null]" person_id="[null]"/>
-  <rule_failures switched_off="true" permanent_id="2" ID="2" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="3" MESSAGE="old message" LINE="10" COST="[null]"
-                 created_at="2008-11-01 13:58:00.00" checksum="[null]" person_id="[null]"/>
-  <rule_failures switched_off="false" permanent_id="3" ID="3" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="3" MESSAGE="the message" LINE="20" COST="55.6"
-                 created_at="2010-12-25 00:00:00.00" checksum="checksum" person_id="[null]"/>
-  <rule_failures switched_off="false" permanent_id="4" ID="4" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="3" MESSAGE="[null]" LINE="50" COST="80" created_at="[null]"
-                 checksum="[null]" person_id="[null]"/>
-  <rule_failures switched_off="true" permanent_id="5" ID="5" SNAPSHOT_ID="1000" RULE_ID="31" FAILURE_LEVEL="1" MESSAGE="[null]" LINE="[null]" COST="[null]" created_at="[null]"
-                 checksum="[null]" person_id="[null]"/>
 </dataset>

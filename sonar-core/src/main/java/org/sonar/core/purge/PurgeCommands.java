@@ -100,27 +100,6 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
-    profiler.start("deleteResourceReviewComments (review_comments)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceReviewComments(resourceId);
-    }
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteResourceActionPlansReviews (action_plans_reviews)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceActionPlansReviews(resourceId);
-    }
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteResourceReviews (reviews)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceReviews(resourceId);
-    }
-    session.commit();
-    profiler.stop();
-
     profiler.start("deleteResourceIssueChanges (issue_changes)");
     for (Long resourceId : resourceIds) {
       purgeMapper.deleteResourceIssueChanges(resourceId);
@@ -204,8 +183,6 @@ class PurgeCommands {
 
     deleteSnapshotSources(snapshotIds);
 
-    deleteSnapshotViolations(snapshotIds);
-
     deleteSnapshotGraphs(snapshotIds);
 
     deleteSnapshotData(snapshotIds);
@@ -230,8 +207,6 @@ class PurgeCommands {
     deleteSnapshotDuplications(snapshotIds);
 
     deleteSnapshotSources(snapshotIds);
-
-    deleteSnapshotViolations(snapshotIds);
 
     deleteSnapshotGraphs(snapshotIds);
 
@@ -281,15 +256,6 @@ class PurgeCommands {
     profiler.start("deleteSnapshotGraphs (graphs)");
     for (Long snapshotId : snapshotIds) {
       purgeMapper.deleteSnapshotGraphs(snapshotId);
-    }
-    session.commit();
-    profiler.stop();
-  }
-
-  private void deleteSnapshotViolations(final List<Long> snapshotIds) {
-    profiler.start("deleteSnapshotViolations (rule_failures)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotViolations(snapshotId);
     }
     session.commit();
     profiler.stop();

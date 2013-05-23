@@ -9,12 +9,6 @@ ActionController::Routing::Routes.draw do |map|
     api.resources :projects, :only => [:index, :destroy], :requirements => { :id => /.*/ }
     api.resources :favourites, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
     api.resources :manual_measures, :only => [:index, :create, :destroy], :requirements => { :id => /.*/ }
-    api.resources :reviews, :only => [:index, :show, :create], :member => {
-      :add_comment => :put,
-      :reassign => :put,
-      :resolve => :put,
-      :reopen => :put
-    }
   end
 
   map.connect 'api/metrics', :controller => 'api/metrics', :action => 'index', :conditions => { :method => :get }
@@ -25,7 +19,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'api/server/:action', :controller => 'api/server'
   map.connect 'api/resoures', :controller => 'api/resources', :action => 'index'
   map.connect 'api/sources', :controller => 'api/sources', :action => 'index'
-  map.connect 'api/violations', :controller => 'api/violations', :action => 'index'
 
   map.resources 'rules', :path_prefix => 'api', :controller => 'api/rules'
   map.resources 'properties', :path_prefix => 'api', :controller => 'api/properties', :requirements => { :id => /.*/ }

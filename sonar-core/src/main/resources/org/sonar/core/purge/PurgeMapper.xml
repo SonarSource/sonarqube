@@ -96,10 +96,6 @@
     delete from snapshot_sources where snapshot_id=#{id}
   </delete>
 
-  <delete id="deleteSnapshotViolations" parameterType="long">
-    delete from rule_failures where snapshot_id=#{id}
-  </delete>
-
   <delete id="deleteSnapshotGraphs" parameterType="long">
     delete from graphs where snapshot_id=#{id}
   </delete>
@@ -142,11 +138,6 @@
     update projects set enabled=${_false} where id=#{id}
   </update>
 
-  <update id="closeResourceReviews" parameterType="long">
-    update reviews set status='CLOSED', updated_at=CURRENT_TIMESTAMP where resource_id=#{id}
-  </update>
-
-
   <delete id="deleteResourceIndex" parameterType="long">
     delete from resource_index where resource_id=#{id}
   </delete>
@@ -179,10 +170,6 @@
     delete from manual_measures where resource_id=#{id}
   </delete>
 
-  <delete id="deleteResourceReviews" parameterType="long">
-    delete from reviews where resource_id=#{id}
-  </delete>
-
   <delete id="deleteResourceEvents" parameterType="long">
     delete from events where resource_id=#{id}
   </delete>
@@ -203,40 +190,8 @@
     update snapshots set islast=${_false} where project_id=#{id}
   </update>
 
-  <delete id="deleteResourceReviewComments" parameterType="long">
-    delete from review_comments rc where exists (select * from reviews r where rc.review_id=r.id and
-    r.resource_id=#{id})
-  </delete>
-
-  <delete id="deleteResourceActionPlansReviews" parameterType="long">
-    delete from action_plans_reviews apr where exists (select * from action_plans ap where ap.id=apr.action_plan_id and
-    ap.project_id=#{id})
-  </delete>
-
   <delete id="deleteSnapshotData" parameterType="long">
     delete from snapshot_data where snapshot_id=#{id}
-  </delete>
-
-  <!-- Mssql -->
-  <delete id="deleteResourceReviewComments" databaseId="mssql" parameterType="long">
-    delete review_comments from review_comments
-    inner join reviews on review_comments.review_id=reviews.id
-    where reviews.resource_id=#{id}
-  </delete>
-
-  <delete id="deleteResourceActionPlansReviews" databaseId="mssql" parameterType="long">
-    delete action_plans_reviews from action_plans_reviews
-    inner join action_plans on action_plans.id=action_plans_reviews.action_plan_id
-    where action_plans.project_id=#{id}
-  </delete>
-
-  <!-- Mysql -->
-  <delete id="deleteResourceReviewComments" databaseId="mysql" parameterType="long">
-    delete rc from review_comments as rc, reviews as r where rc.review_id=r.id and r.resource_id=#{id}
-  </delete>
-
-  <delete id="deleteResourceActionPlansReviews" databaseId="mysql" parameterType="long">
-    delete apr from action_plans_reviews as apr, action_plans as ap where ap.id=apr.action_plan_id and ap.project_id=#{id}
   </delete>
 
   <delete id="deleteResourceIssueChanges" parameterType="long">

@@ -18,95 +18,68 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-require 'json'
+class Api::ViolationsController < Api::ApiController
 
-class Api::ViolationsController < Api::ResourceRestController
+  def index
+    conditions={}
 
-  def rest_call
-    snapshot = @resource.last_snapshot
-    
-    conditions=[]
-    values={}
     if params['scopes']
-      conditions << 'snapshots.scope in (:scopes)'
-      values[:scopes]=params['scopes'].split(',')
-    end
-    if params['qualifiers']
-      conditions << 'snapshots.qualifier in (:qualifiers)'
-      values[:qualifiers]=params['qualifiers'].split(',')
+      rest_error('The parameter "scopes" is not supported since version 3.6.')
     end
 
+    if params['qualifiers']
+      rest_error('The parameter "qualifiers" is not supported since version 3.6.')
+    end
+
+    resource = params[:resource]
     depth=(params['depth'] ? params['depth'].to_i : 0)
     if depth==0
-      conditions << 'snapshots.id=:sid'
-      values[:sid]=snapshot.id
-      
+      conditions[:components] = resource
     elsif depth>0
-      # all the resource tree
-      conditions << 'snapshots.root_snapshot_id=:root_sid'
-      values[:root_sid] = (snapshot.root_snapshot_id || snapshot.id)
-
-      conditions << 'snapshots.path LIKE :path'
-      values[:path]="#{snapshot.path}#{snapshot.id}.%"
-
-      conditions << 'snapshots.depth=:depth'
-      values[:depth] = snapshot.depth + depth
-
+      rest_error('The parameter "depth" is not supported since version 3.6.')
     else
       # negative : all the resource tree
-      conditions << '(snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
-      values[:sid] = snapshot.id
-      values[:root_sid] = (snapshot.root_snapshot_id || snapshot.id)
-      values[:path]="#{snapshot.path}#{snapshot.id}.%"
+      conditions[:componentRoots] = resource
     end
     
     if params[:rules]
-      rule_ids=params[:rules].split(',').map do |key_or_id|
-        Rule.to_i(key_or_id)
-      end.compact
-      conditions << 'rule_failures.rule_id IN (:rule_ids)'
-      values[:rule_ids] = rule_ids
+      conditions[:rules] = params[:rules].split(',')
     end
+
     if params[:priorities]
-      conditions << 'rule_failures.failure_level IN (:priorities)'
-      values[:priorities]=params[:priorities].split(',').map do |p|
-        Sonar::RulePriority.id(p)
-      end.compact
+      conditions[:severities] = params[:priorities].split(',')
     end
     
-    if params[:switched_off] == "true"
-      conditions << 'rule_failures.switched_off=:switched_off'
-      values[:switched_off] = true
-    else
-      conditions << '(rule_failures.switched_off IS NULL OR rule_failures.switched_off=:switched_off)'
-      values[:switched_off] = false
+    if params[:switched_off] == 'true'
+      conditions[:resolutions]='FALSE-POSITIVE'
     end
 
-    limit = (params[:limit] ? [params[:limit].to_i,5000].min : 5000) 
-    violations = RuleFailure.all(
-      :conditions => [ conditions.join(' AND '), values],
-      :include => [:snapshot, {:snapshot => :project}, :rule, :review],
-      :order => 'rule_failures.failure_level DESC',
-      :limit => limit)
-    rest_render(violations)
-  end
+    limit = (params[:limit] ? [params[:limit].to_i,5000].min : 5000)
+    conditions[:pageSize]=limit
 
-  def rest_to_json(rule_failures)
-    include_review=(params['include_review']=='true')
-    convert_markdown=(params[:output]=='HTML')
-    JSON(rule_failures.collect{|rule_failure| rule_failure.to_json(include_review, convert_markdown)})
-  end
+    results = Api.issues.find(conditions)
 
-  def rest_to_xml(rule_failures)
-    include_review=(params['include_review']=='true')
-    convert_markdown=(params[:output]=='HTML')
-    xml = Builder::XmlMarkup.new(:indent => 0)
-    xml.instruct!
-    xml.violations do
-      rule_failures.each do |rule_failure|
-        rule_failure.to_xml(xml, include_review, convert_markdown)
+    array = results.issues.map do |issue|
+      hash={:id => issue.key}
+      hash[:message] = issue.message if issue.message
+      hash[:line] = issue.line.to_i if issue.line
+      hash[:priority] = issue.severity if issue.severity
+      hash[:createdAt] = Api::Utils.format_datetime(issue.creationDate) if issue.creationDate
+      hash[:switchedOff]=true if issue.resolution=='FALSE-POSITIVE'
+      rule = results.rule(issue)
+      if rule
+        hash[:rule] = {:key => rule.ruleKey, :name => Internal.rules.ruleL10nName(rule)}
       end
+      resource = results.component(issue)
+      if resource
+        hash[:resource] = {:key => resource.key, :name => resource.name, :qualifier => resource.qualifier}
+      end
+      hash
+    end
+
+    respond_to do |format|
+      format.json { render :json => jsonp(array) }
+      format.xml { render :xml => array.to_xml(:skip_types => true, :root => 'violations') }
     end
   end
-
 end

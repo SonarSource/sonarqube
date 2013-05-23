@@ -37,20 +37,20 @@ import static org.mockito.Mockito.*;
 public class WeightedIssuesDecoratorTest {
 
   @Test
-  public void test_weighted_issues() {
+  public void test_weighted_VIOLATIONS() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.CORE_RULE_WEIGHTS_PROPERTY, "BLOCKER=10;CRITICAL=5;MAJOR=2;MINOR=1;INFO=0");
     WeightedIssuesDecorator decorator = new WeightedIssuesDecorator(settings);
     DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getMeasure(CoreMetrics.INFO_ISSUES)).thenReturn(new Measure(CoreMetrics.INFO_ISSUES, 50.0));
-    when(context.getMeasure(CoreMetrics.CRITICAL_ISSUES)).thenReturn(new Measure(CoreMetrics.CRITICAL_ISSUES, 80.0));
-    when(context.getMeasure(CoreMetrics.BLOCKER_ISSUES)).thenReturn(new Measure(CoreMetrics.BLOCKER_ISSUES, 100.0));
+    when(context.getMeasure(CoreMetrics.INFO_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.INFO_VIOLATIONS, 50.0));
+    when(context.getMeasure(CoreMetrics.CRITICAL_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.CRITICAL_VIOLATIONS, 80.0));
+    when(context.getMeasure(CoreMetrics.BLOCKER_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.BLOCKER_VIOLATIONS, 100.0));
 
     decorator.start();
     decorator.decorate(context);
 
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.WEIGHTED_ISSUES, (double) (100 * 10 + 80 * 5 + 50 * 0))));
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.WEIGHTED_ISSUES, "INFO=50;CRITICAL=80;BLOCKER=100")));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.WEIGHTED_VIOLATIONS, (double) (100 * 10 + 80 * 5 + 50 * 0))));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.WEIGHTED_VIOLATIONS, "INFO=50;CRITICAL=80;BLOCKER=100")));
   }
 
   // SONAR-3092

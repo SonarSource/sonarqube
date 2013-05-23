@@ -27,8 +27,6 @@ class ResourceController < ApplicationController
   helper :dashboard
   helper SourceHelper, UsersHelper
 
-  verify :method => :post, :only => [:create_violation]
-
   def index
     if request.xhr?
       @resource = Project.by_key(params[:id])
@@ -43,12 +41,9 @@ class ResourceController < ApplicationController
         load_extensions()
 
         if @extension
-          if @extension.getId()=='violations'
-            render_violations()
-            render_partial_index()
-          elsif @extension.getId()=='issues'
+          if @extension.getId()=='issues'
             render_issues()
-            render :partial => 'index_issues'
+            render_partial_index()
           elsif (@extension.getId()=='coverage')
             render_coverage()
             render_partial_index()
@@ -83,46 +78,6 @@ class ResourceController < ApplicationController
     render :partial => 'duplications_source_snippet',
            :locals => {:resource => resource, :original_resource => original_resource, :from_line => params[:from_line].to_i, :to_line => params[:to_line].to_i, :lines_count => params[:lines_count].to_i,
                        :group_index => params[:group_index], :external => (resource.root_id != original_resource.root_id)}
-  end
-
-  # Ajax request to display a form to create a review anywhere in source code
-  def show_create_violation_form
-    @line = params[:line].to_i
-    @rules = Rule.manual_rules
-    @html_id="#{params[:resource]}_#{@line}"
-    render :partial => 'resource/create_violation_form'
-  end
-
-  def create_violation
-    resource = Project.by_key(params[:resource])
-    access_denied unless resource && current_user
-
-    rule_id_or_name = params[:rule]
-    if rule_id_or_name.blank?
-      access_denied if params[:new_rule].present? && !has_role?(:admin)
-      rule_id_or_name = params[:new_rule]
-    end
-    bad_request(message('code_viewer.create_violation.missing_rule')) if rule_id_or_name.blank?
-    bad_request(message('code_viewer.create_violation.missing_message')) if params[:message].blank?
-    bad_request(message('code_viewer.create_violation.missing_severity')) if params[:severity].blank?
-
-    assignee=nil
-    if params[:assignee_login].present?
-      assignee = User.first(:conditions => ["login = ?", params[:assignee_login]])
-      bad_request(message('code_viewer.create_violation.bad_assignee')) unless assignee
-    end
-    violation = nil
-    Review.transaction do
-      rule = Rule.find_or_create_manual_rule(rule_id_or_name, true)
-      violation = rule.create_violation!(resource, params)
-      violation.create_review!(
-          :assignee => assignee,
-          :user => current_user,
-          :status => Review::STATUS_OPEN,
-          :manual_violation => true)
-    end
-
-    render :partial => 'resource/violation', :locals => {:violation => violation}
   end
 
   private
@@ -330,81 +285,6 @@ class ResourceController < ApplicationController
     @duplication_group_warning = message('duplications.dups_found_on_deleted_resource') if dups_found_on_deleted_resource
   end
 
-
-  def render_violations
-    load_sources()
-    @display_violations=true
-    @global_violations=[]
-    @expandable=(@lines!=nil)
-    @filtered=!@expanded
-    rule_param=params[:rule]
-
-    options={:snapshot_id => @snapshot.id}
-
-    if rule_param.blank? && params[:metric]
-      metric = Metric.by_id(params[:metric])
-      if metric && (metric.name=='active_reviews' || metric.name=='unassigned_reviews' || metric.name=='unplanned_reviews' || metric.name=='false_positive_reviews'|| metric.name=='unreviewed_violations' || metric.name=='new_unreviewed_violations')
-        rule_param = metric.name.gsub(/new_/, '')
-
-        # hack to select the correct option in the rule filter select-box
-        params[:rule] = rule_param
-      end
-    end
-
-    if !rule_param.blank? && rule_param!='all'
-      if rule_param=='false_positive_reviews'
-        options[:switched_off]=true
-
-      elsif rule_param=='active_reviews'
-        options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
-
-      elsif rule_param=='unassigned_reviews'
-        options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
-        options[:review_assignee_id]=nil
-
-      elsif rule_param=='unplanned_reviews'
-        options[:review_statuses]=[Review::STATUS_OPEN, Review::STATUS_REOPENED, nil]
-        options[:planned]=false
-
-      elsif rule_param=='unreviewed_violations'
-        options[:review_statuses]=[nil]
-
-      elsif Sonar::RulePriority.id(rule_param)
-        options[:severity]=rule_param
-
-      else
-        options[:rule_id]=rule_param
-      end
-    end
-
-
-    if @period && @period != 0
-      date=@snapshot.period_datetime(@period)
-      if date
-        options[:created_after]=date.advance(:minutes => 1)
-      end
-    end
-
-    violations = RuleFailure.search(options)
-    violations.each do |violation|
-      # sorted by severity => from blocker to info
-      if @lines && violation.line && violation.line>0 && violation.line<=@lines.size
-        @lines[violation.line-1].add_violation(violation)
-      else
-        @global_violations<<violation
-      end
-    end
-
-    if !@expanded && @lines
-      filter_lines { |line| line.violations? }
-    end
-
-    @review_screens_by_vid=nil
-    if current_user && has_role?(:user, @resource)
-      @review_screens_by_vid = RuleFailure.available_java_screens_for_violations(violations, @resource, current_user)
-    end
-  end
-
   def render_issues
     load_sources()
     @display_issues = true
@@ -466,11 +346,6 @@ class ResourceController < ApplicationController
       filter_lines { |line| line.issues? }
     end
 
-    # TODO
-    #@review_screens_by_vid=nil
-    #if current_user && has_role?(:user, @resource)
-    #  @review_screens_by_vid = RuleFailure.available_java_screens_for_violations(violations, @resource, current_user)
-    #end
   end
 
   def render_source

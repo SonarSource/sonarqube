@@ -1,6 +1,6 @@
 <%
    displayed_resource = @resource || @project
-   display_only_root = @review || @issue
+   display_only_root = @issue
 %>
 
 <% if @breadcrumbs %>
@@ -82,15 +82,6 @@
         <%
            end
            end
-
-           # ======== Path for review ========
-           if @review
-        %>
-        <li>
-          <%= link_to message('review') + ' #' + @review.id.to_s -%>
-        </li>
-      <%
-         end
 
          # ======== Path for issue ========
          if @issue

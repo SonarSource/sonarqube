@@ -135,32 +135,14 @@ module SourceHelper
       @id=id
     end
 
-    def add_violation(violation)
-      @violations||=[]
-      @violations<<violation
-      @visible=true
-    end
-
     def add_issue(issue)
       @issues||=[]
       @issues<<issue
       @visible=true
     end
 
-    def violations?
-      @violations && @violations.size>0
-    end
-
     def issues?
       @issues && @issues.size>0
-    end
-
-    def violation_severity
-      if @violations && @violations.size>0
-        @violations[0].failure_level
-      else
-        nil
-      end
     end
 
     def issue_severity

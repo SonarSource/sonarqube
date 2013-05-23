@@ -52,23 +52,6 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldCloseReviewWhenDisablingResource() {
-    setupData("shouldCloseReviewWhenDisablingResource");
-
-    SqlSession session = getMyBatis().openSession();
-    try {
-      dao.disableResource(1L, session.getMapper(PurgeMapper.class));
-
-      // the above method does not commit and close the session
-      session.commit();
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    checkTables("shouldCloseReviewWhenDisablingResource", /* excluded column */new String[] {"updated_at"}, "reviews");
-  }
-
-  @Test
   public void shouldPurgeProject() {
     setupData("shouldPurgeProject");
     dao.purge(1, new String[0]);
@@ -111,7 +94,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   public void shouldDeleteProject() {
     setupData("shouldDeleteProject");
     dao.deleteResourceTree(1L);
-    assertEmptyTables("projects", "snapshots", "action_plans", "action_plans_reviews", "reviews", "review_comments", "issues", "issue_changes");
+    assertEmptyTables("projects", "snapshots", "action_plans", "issues", "issue_changes");
   }
 
   static final class SnapshotMatcher extends BaseMatcher<PurgeableSnapshotDto> {

@@ -19,32 +19,23 @@
  */
 package org.sonar.wsclient.services;
 
+/**
+ * @deprecated in 3.6. Replaced by issues.
+ */
+@Deprecated
 public class ViolationQuery extends Query<Violation> {
 
   public static final String BASE_URL = "/api/violations";
 
   private String resourceKeyOrId;
   private int depth = 0;
-  private String[] scopes;
   private String[] qualifiers;
   private String[] ruleKeys;
-  private String[] categories;
   private String[] severities;
   private Integer limit;
-  private Boolean includeReview;
-  private String output;
 
   public ViolationQuery(String resourceKeyOrId) {
     this.resourceKeyOrId = resourceKeyOrId;
-  }
-
-  public String[] getScopes() {
-    return scopes;
-  }
-
-  public ViolationQuery setScopes(String... scopes) {
-    this.scopes = scopes;
-    return this;
   }
 
   public String[] getQualifiers() {
@@ -62,15 +53,6 @@ public class ViolationQuery extends Query<Violation> {
 
   public ViolationQuery setRuleKeys(String... ruleKeys) {
     this.ruleKeys = ruleKeys;
-    return this;
-  }
-
-  public String[] getCategories() {
-    return categories;
-  }
-
-  public ViolationQuery setCategories(String... categories) {
-    this.categories = categories;
     return this;
   }
 
@@ -130,36 +112,6 @@ public class ViolationQuery extends Query<Violation> {
     return this;
   }
 
-  /**
-   * @since 2.8
-   */
-  public Boolean getIncludeReview() {
-    return includeReview;
-  }
-
-  /**
-   * @since 2.8
-   */
-  public ViolationQuery setIncludeReview(Boolean includeReview) {
-    this.includeReview = includeReview;
-    return this;
-  }
-
-  /**
-   * @since 2.8
-   */
-  public String getOutput() {
-    return output;
-  }
-
-  /**
-   * @since 2.8
-   */
-  public ViolationQuery setOutput(String output) {
-    this.output = output;
-    return this;
-  }
-
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
@@ -169,15 +121,10 @@ public class ViolationQuery extends Query<Violation> {
       url.append("depth=").append(depth).append("&");
     }
     appendUrlParameter(url, "limit", limit);
-    appendUrlParameter(url, "scopes", scopes);
     appendUrlParameter(url, "qualifiers", qualifiers);
     appendUrlParameter(url, "rules", ruleKeys);
-    appendUrlParameter(url, "categories", categories);
     appendUrlParameter(url, "priorities", severities);
-    appendUrlParameter(url, "include_review", includeReview);
-    appendUrlParameter(url, "output", output);
-
-    return url.toString();
+      return url.toString();
   }
 
   @Override

@@ -19,18 +19,6 @@
   <action_plans id="1" kee="ABCD" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
                 user_login="igor" status="[null]" created_at="[null]" updated_at="[null]" />
 
-  <action_plans_reviews action_plan_id="1" review_id="250" />
-
-  <reviews id="1" project_id="1" resource_id="1" status="CLOSED"
-        rule_failure_permanent_id="1" resolution="[null]" created_at="[null]" resource_line="200" severity="BLOCKER"
-        user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]"/>
-
-  <reviews id="2" project_id="1" resource_id="1" status="CLOSED"
-          rule_failure_permanent_id="2" resolution="[null]" created_at="[null]" resource_line="200" severity="BLOCKER"
-          user_id="300" assignee_id="300" rule_id="500" manual_violation="[true]" manual_severity="[false]" title="[null]"/>
-
-  <review_comments id="1" created_at="[null]" updated_at="[null]" review_id="2" user_id="1223" review_text="abc"/>
-
   <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"

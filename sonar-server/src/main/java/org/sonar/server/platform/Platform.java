@@ -59,7 +59,6 @@ import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.HibernateUserFinder;
-import org.sonar.core.workflow.ReviewDatabaseStore;
 import org.sonar.core.workflow.WorkflowEngine;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.dao.ProfilesDao;
@@ -209,7 +208,6 @@ public final class Platform {
   private void startServiceComponents() {
     servicesContainer = coreContainer.createChild();
     servicesContainer.addSingleton(DefaultWorkflow.class);
-    servicesContainer.addSingleton(ReviewDatabaseStore.class);
     servicesContainer.addSingleton(WorkflowEngine.class);
     servicesContainer.addSingleton(HttpDownloader.class);
     servicesContainer.addSingleton(UriReader.class);

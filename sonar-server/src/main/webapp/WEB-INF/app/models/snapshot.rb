@@ -34,7 +34,6 @@ class Snapshot < ActiveRecord::Base
 
   has_many :events, :dependent => :destroy, :order => 'event_date DESC'
   has_one :source, :class_name => 'SnapshotSource', :dependent => :destroy
-  has_many :violations, :class_name => 'RuleFailure'
 
   STATUS_UNPROCESSED = 'U'
   STATUS_PROCESSED = 'P'

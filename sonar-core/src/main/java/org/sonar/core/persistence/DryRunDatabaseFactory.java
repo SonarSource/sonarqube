@@ -25,11 +25,9 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.review.ReviewDto;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -82,9 +80,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
       String snapshotCondition = "islast=" + database.getDialect().getTrueSqlValue() + " and (project_id=" + projectId + " or root_project_id=" + projectId + ")";
       template
         .copyTable(source, dest, "projects", "(id=" + projectId + " or root_id=" + projectId + ")")
-        .copyTable(source, dest, "reviews", "project_id=" + projectId, "status<>'" + ReviewDto.STATUS_CLOSED + "'")
-        .copyTable(source, dest, "rule_failures", "snapshot_id in (select id from snapshots where " + snapshotCondition + ")")
-        .copyTable(source, dest, "issues", "resource_id in (" + projectsConditionForIssues + ")", "status<>'"+ Issue.STATUS_CLOSED + "'")
+        .copyTable(source, dest, "issues", "resource_id in (" + projectsConditionForIssues + ")", "status<>'" + Issue.STATUS_CLOSED + "'")
         .copyTable(source, dest, "snapshots", snapshotCondition);
     }
   }

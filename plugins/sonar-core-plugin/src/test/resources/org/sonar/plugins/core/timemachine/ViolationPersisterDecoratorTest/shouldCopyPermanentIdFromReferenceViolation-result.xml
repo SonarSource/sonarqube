@@ -18,11 +18,4 @@
              scope="FIL" qualifier="CLA" created_at="2008-11-01 13:58:00.00" build_date="2008-11-01 13:58:00.00" version="[null]" path=""
              status="U" islast="false" depth="3"/>
 
-  <rule_failures switched_off="false" permanent_id="1" ID="1" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="3" MESSAGE="old message" LINE="10" COST="[null]"
-                 created_at="2008-11-01 13:58:00.00" checksum="[null]" person_id="[null]"/>
-  <rule_failures switched_off="true" permanent_id="2" ID="2" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="3" MESSAGE="old message" LINE="10" COST="[null]"
-                 created_at="2008-11-01 13:58:00.00" checksum="[null]" person_id="[null]"/>
-
-  <rule_failures switched_off="false" permanent_id="1" ID="3" SNAPSHOT_ID="1000" RULE_ID="30" FAILURE_LEVEL="2" MESSAGE="new message" LINE="[null]" COST="[null]"
-                 created_at="[null]" checksum="[null]" person_id="[null]"/>
 </dataset>

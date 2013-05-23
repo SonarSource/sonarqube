@@ -21,9 +21,13 @@ package org.sonar.wsclient.services;
 
 import java.util.Date;
 
+/**
+ * @deprecated in 3.6. Replaced by issues.
+ */
+@Deprecated
 public class Violation extends Model {
 
-  private Long id = null;
+  private String id = null;
   private String message = null;
   private String severity = null;
   private Integer line = null;
@@ -31,11 +35,9 @@ public class Violation extends Model {
   private String ruleName = null;
   private String resourceKey = null;
   private String resourceName = null;
-  private String resourceScope = null;
   private String resourceQualifier = null;
   private Date createdAt = null;
   private boolean switchedOff;
-  private Review review = null;
 
   public String getMessage() {
     return message;
@@ -138,15 +140,6 @@ public class Violation extends Model {
     return this;
   }
 
-  public String getResourceScope() {
-    return resourceScope;
-  }
-
-  public Violation setResourceScope(String resourceScope) {
-    this.resourceScope = resourceScope;
-    return this;
-  }
-
   public String getResourceQualifier() {
     return resourceQualifier;
   }
@@ -193,32 +186,12 @@ public class Violation extends Model {
     return switchedOff;
   }
 
-  /**
-   * @since 2.8
-   */
-  public Review getReview() {
-    return review;
-  }
-
-  /**
-   * @since 2.8
-   */
-  public Violation setReview(Review review) {
-    this.review = review;
-    return this;
-  }
-
-  /**
-   * @since 2.9
-   */
-  public Long getId() {
+  public String getKey() {
     return id;
   }
 
-  /**
-   * @since 2.9
-   */
-  public void setId(Long id) {
+  public Violation setKey(String id) {
     this.id = id;
+    return this;
   }
 }

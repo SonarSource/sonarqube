@@ -29,8 +29,12 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 
 import org.junit.Test;
-import org.sonar.wsclient.services.Review;
 import org.sonar.wsclient.services.Violation;
+
+/**
+ * @deprecated in 3.6. Replaced by issues.
+ */
+@Deprecated
 
 public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
 
@@ -43,7 +47,7 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(violations.size(), is(2));
 
     violation = violations.get(0);
-    assertThat(violation.getId(), is(1L));
+    assertThat(violation.getKey(), is("1"));
     assertThat(violation.getMessage(), is("throw java.lang.Exception"));
     assertThat(violation.hasLine(), is(true));
     assertThat(violation.getLine(), is(97));
@@ -55,9 +59,7 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
         is("org.apache.excalibur.components:excalibur-pool-instrumented:org.apache.avalon.excalibur.pool.TraceableResourceLimitingPool"));
     assertThat(violation.getResourceName(), is("TraceableResourceLimitingPool"));
     assertThat(violation.getResourceQualifier(), is("CLA"));
-    assertThat(violation.getResourceScope(), is("FIL"));
     assertThat(violation.isSwitchedOff(), is(false));
-    assertThat(violation.getReview(), nullValue());
   }
 
   @Test
@@ -73,16 +75,6 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
   public void testSwitchedOff() {
     Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/false-positive.json"));
     assertThat(violation.isSwitchedOff(), is(true));
-  }
-
-  @Test
-  public void testViolationDecoratedWithReview() {
-    Violation violation = new ViolationUnmarshaller().toModel(loadFile("/violations/violation-with-review.json"));
-    Review review = violation.getReview();
-    assertNotNull(review);
-    assertThat(review.getId(), is(3L));
-    assertThat(review.getComments().size(), is(4));
-    assertThat(review.getComments().get(1).getText(), is("<em>Bold on multiple line?</em>"));
   }
 
   /**

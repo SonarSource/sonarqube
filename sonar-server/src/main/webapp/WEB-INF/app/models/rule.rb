@@ -33,7 +33,6 @@ class Rule < ActiveRecord::Base
   validates_presence_of :plugin_rule_key, :if => 'name.present?'
 
   has_many :rules_parameters, :inverse_of => :rule
-  has_many :rule_failures, :inverse_of => :rule
   has_many :active_rules, :inverse_of => :rule
   belongs_to :parent, :class_name => 'Rule', :foreign_key => 'parent_id'
   has_one :rule_note, :inverse_of => :rule
@@ -191,21 +190,6 @@ class Rule < ActiveRecord::Base
       end
     end
     rule
-  end
-
-  def create_violation!(resource, options={})
-    line = options['line']
-    checksum = nil
-    level = Sonar::RulePriority.id(options['severity']||Severity::MAJOR)
-    RuleFailure.create!(
-      :snapshot => resource.last_snapshot,
-      :rule => self,
-      :failure_level => level,
-      :message => options['message'],
-      :cost => (options['cost'] ? options['cost'].to_f : nil),
-      :switched_off => false,
-      :line => line,
-      :checksum => checksum)
   end
 
   def self.to_hash(java_rule)

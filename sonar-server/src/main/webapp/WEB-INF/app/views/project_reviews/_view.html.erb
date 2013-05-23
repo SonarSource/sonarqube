@@ -1,7 +1,0 @@
-<div id="review">
-  <%
-    # hack in case 'error_message' is nil (this should disappear when refactoring the '_view' and '_review' partials) 
-    error_message = error_message 
-  %>
-  <%= render :partial => 'project_reviews/review', :locals => {:workflow => @review, :error_message => error_message} -%>
-</div>

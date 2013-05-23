@@ -40,10 +40,9 @@ public class ViolationQueryTest extends QueryTestCase {
         .setLimit(20)
         .setSeverities("MAJOR", "BLOCKER")
         .setQualifiers("FIL")
-        .setRuleKeys("checkstyle:foo", "pmd:bar")
-        .setOutput("html");
+        .setRuleKeys("checkstyle:foo", "pmd:bar");
     assertThat(
         query.getUrl(),
-        is("/api/violations?resource=myproject&depth=-1&limit=20&qualifiers=FIL&rules=checkstyle%3Afoo,pmd%3Abar&priorities=MAJOR,BLOCKER&output=html&"));
+        is("/api/violations?resource=myproject&depth=-1&limit=20&qualifiers=FIL&rules=checkstyle%3Afoo,pmd%3Abar&priorities=MAJOR,BLOCKER&"));
   }
 }

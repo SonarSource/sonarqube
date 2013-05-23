@@ -42,12 +42,12 @@ public class IssuesDensityDecorator implements Decorator {
 
   @DependsUpon
   public List<Metric> dependsUponWeightedIissuesAndNcloc() {
-    return Arrays.asList(CoreMetrics.WEIGHTED_ISSUES, CoreMetrics.NCLOC);
+    return Arrays.asList(CoreMetrics.WEIGHTED_VIOLATIONS, CoreMetrics.NCLOC);
   }
 
   @DependedUpon
   public Metric generatesIssuesDensity() {
-    return CoreMetrics.ISSUES_DENSITY;
+    return CoreMetrics.VIOLATIONS_DENSITY;
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
@@ -57,7 +57,7 @@ public class IssuesDensityDecorator implements Decorator {
   }
 
   protected boolean shouldDecorateResource(DecoratorContext context) {
-    return context.getMeasure(CoreMetrics.ISSUES_DENSITY) == null;
+    return context.getMeasure(CoreMetrics.VIOLATIONS_DENSITY) == null;
   }
 
   private void decorateDensity(DecoratorContext context) {
@@ -68,13 +68,13 @@ public class IssuesDensityDecorator implements Decorator {
   }
 
   private void saveDensity(DecoratorContext context, int ncloc) {
-    Measure debt = context.getMeasure(CoreMetrics.WEIGHTED_ISSUES);
+    Measure debt = context.getMeasure(CoreMetrics.WEIGHTED_VIOLATIONS);
     Integer debtValue = 0;
     if (MeasureUtils.hasValue(debt)) {
       debtValue = debt.getValue().intValue();
     }
     double density = calculate(debtValue, ncloc);
-    context.saveMeasure(CoreMetrics.ISSUES_DENSITY, density);
+    context.saveMeasure(CoreMetrics.VIOLATIONS_DENSITY, density);
   }
 
   protected static double calculate(int debt, int ncloc) {

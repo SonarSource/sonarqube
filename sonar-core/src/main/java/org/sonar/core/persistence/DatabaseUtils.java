@@ -42,7 +42,6 @@ public final class DatabaseUtils {
    */
   static final String[] TABLE_NAMES = {
     "action_plans",
-    "action_plans_reviews",
     "active_dashboards",
     "active_rules",
     "active_rule_changes",
@@ -76,12 +75,9 @@ public final class DatabaseUtils {
     "properties",
     "quality_models",
     "resource_index",
-    "reviews",
-    "review_comments",
     "rules",
     "rules_parameters",
     "rules_profiles",
-    "rule_failures",
     "semaphores",
     "schema_migrations",
     "snapshots",

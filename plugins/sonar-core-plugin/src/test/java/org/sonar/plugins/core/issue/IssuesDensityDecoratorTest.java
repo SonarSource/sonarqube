@@ -55,33 +55,33 @@ public class IssuesDensityDecoratorTest {
   public void decorate_density() {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 200.0));
-    when(context.getMeasure(CoreMetrics.WEIGHTED_ISSUES)).thenReturn(new Measure(CoreMetrics.WEIGHTED_ISSUES, 50.0));
+    when(context.getMeasure(CoreMetrics.WEIGHTED_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, 50.0));
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.ISSUES_DENSITY, 75.0);
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS_DENSITY, 75.0);
   }
 
   @Test
   public void no_density_if_no_ncloc() {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 0.0));
-    when(context.getMeasure(CoreMetrics.WEIGHTED_ISSUES)).thenReturn(new Measure(CoreMetrics.WEIGHTED_ISSUES, 50.0));
+    when(context.getMeasure(CoreMetrics.WEIGHTED_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, 50.0));
 
     decorator.decorate(resource, context);
 
-    verify(context, never()).saveMeasure(Matchers.eq(CoreMetrics.ISSUES_DENSITY), Matchers.anyDouble());
+    verify(context, never()).saveMeasure(Matchers.eq(CoreMetrics.VIOLATIONS_DENSITY), Matchers.anyDouble());
   }
 
   @Test
   public void save_density_if_value_is_zero() {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 200.0));
-    when(context.getMeasure(CoreMetrics.WEIGHTED_ISSUES)).thenReturn(new Measure(CoreMetrics.WEIGHTED_ISSUES, 5000.0));
+    when(context.getMeasure(CoreMetrics.WEIGHTED_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, 5000.0));
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.ISSUES_DENSITY, 0.0);
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS_DENSITY, 0.0);
   }
 
   @Test
@@ -91,17 +91,17 @@ public class IssuesDensityDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.ISSUES_DENSITY, 100.0);
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS_DENSITY, 100.0);
   }
 
   @Test
   public void density_is_hundred_when_debt_is_zero() {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 200.0));
-    when(context.getMeasure(CoreMetrics.WEIGHTED_ISSUES)).thenReturn(new Measure(CoreMetrics.WEIGHTED_ISSUES, 0.0));
+    when(context.getMeasure(CoreMetrics.WEIGHTED_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, 0.0));
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.ISSUES_DENSITY, 100.0);
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS_DENSITY, 100.0);
   }
 }

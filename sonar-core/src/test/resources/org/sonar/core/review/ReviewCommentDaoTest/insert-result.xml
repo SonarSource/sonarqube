@@ -1,9 +1,0 @@
-<dataset>
-
-  <review_comments
-      review_id="12"
-      user_id="8"
-      review_text="Hello"
-      />
-
-</dataset>

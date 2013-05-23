@@ -581,29 +581,6 @@ module ApplicationHelper
     html
   end
 
-  #
-  # Used on the reviews listing page (http://localhost:9000/project_reviews)
-  # Prints a label for the given parameter that is used to filter the review list.
-  # The label has:
-  # * a name (=the param name) with a tooltip (=the param value)
-  # * a 'x' action to remove this filter
-  #
-  # === Optional parameters
-  # * title: to overwrite the tooltip of the parameter
-  #
-  def review_filter_tag(param_name, params, options={})
-    html = "<span class=\"review-filter\" title=\""
-    html += options[:title] ? options[:title] : params[param_name]
-    html += "\">"
-    html += message('reviews.filtered_by.' + param_name)
-    html += "<a href=\""
-    html += url_for params.reject { |key, value| key==param_name }
-    html += "\" title=\""
-    html += message('reviews.remove_this_filter')
-    html += "\">X</a></span>"
-  end
-
-
   def select2_tag(name, ws_url, options={})
     width=options[:width]||'250px'
     html_id=options[:html_id]||name

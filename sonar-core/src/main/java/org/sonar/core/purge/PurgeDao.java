@@ -163,7 +163,7 @@ public class PurgeDao {
     mapper.deleteResourceIndex(resourceId);
     mapper.setSnapshotIsLastToFalse(resourceId);
     mapper.disableResource(resourceId);
-    mapper.closeResourceReviews(resourceId);
+    //TODO mapper.closeResourceReviews(resourceId);
   }
 
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {

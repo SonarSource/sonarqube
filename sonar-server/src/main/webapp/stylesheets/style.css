@@ -737,80 +737,9 @@ ul.operations li img {
   font-size: 12px;
 }
 
-.sources2 td.reviewForm {
-  width: 100%;
-  padding: 10px;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-div.vtitle {
-  background-color: #E4ECF3;
-  margin: 0;
-  padding: 5px 10px;
-  line-height: 16px;
-  color: #777;
-  border-bottom: 1px solid #DDDDDD;
-}
-
-div.vtitle img {
-  vertical-align: text-bottom;
-}
-
-div.vActions {
-  padding: 5px 10px;
-  border-top: 1px solid #DDD;
-  background-color: #EFEFEF;
-  line-height: 16px;
-}
-
-span.falsePositive, span.reviewResolutionFALSE-POSITIVE {
-  background-color: #FFF6BF;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-span.reviewResolved, span.reviewStatusRESOLVED {
-  background-color: #4B9FD5;
-  color: #FFF;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-span.reviewReopened, span.reviewStatusREOPENED {
-  background-color: #FDC596;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
 span.rulename, span.rulename a {
   color: #444;
   font-weight: bold;
-}
-
-div.review_permalink {
-  float: right;
-  color: #333;
-  font-weight: bold;
-  margin: 0;
-  padding: 0 10px;
-  text-shadow: 1px 1px 0 #FFFFFF;
-}
-
-span.review_permalink a {
-  color: #777;
-  font-size: 11px;
-  padding: 0 0 0 20px;
 }
 
 span.rulename a:hover {
@@ -1055,49 +984,6 @@ span.rulename a:hover {
   padding: 10px;
 }
 
-/* REVIEWS */
-div.reviewTitle {
-  background-color: #E4ECF3;
-  color: #4B9FD5;
-  line-height: 2.2em;
-  margin: 0;
-  margin-bottom: 10px;
-  padding: 0 10px;
-  border: 1px solid #4B9FD5;
-}
-
-div.reviewTitle h2 {
-  color: #4183C4;
-  font-weight: bold;
-  font-size: 100%;
-  text-shadow: 0 1px 0 #FFFFFF;
-}
-
-div.reviewTitle span.actions {
-  font-size: 12px;
-}
-
-table.reviewDetails {
-  width: 100%;
-  border: 0;
-}
-
-table.reviewDetails td {
-  vertical-align: top;
-  text-align: left;
-  padding: 5px 10px;
-}
-
-table.reviewDetails td.key {
-  white-space: nowrap;
-  min-width: 1%;
-  color: #777;
-}
-
-table.reviewDetails td img {
-  vertical-align: bottom;
-}
-
 .discussion {
   width: 100%;
   border: 1px solid #DDDDDD;
@@ -1141,26 +1027,6 @@ div.comment-excerpt {
   margin-bottom: 5px;
   color: #777777;
   font-size: 90%;
-}
-
-div.review-filters {
-  font-size: 93%;
-  margin: 10px;
-}
-
-span.review-filter {
-  background-color: #CAE3F2;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin-left: 5px;
-}
-
-span.review-filter a {
-  color: #777777;
-  font-size: 80%;
-  margin-left: 6px;
-  text-decoration: none;
-  text-shadow: 1px 1px 0 #FFFFFF;
 }
 
 /* ACTION PLANS */

@@ -1,25 +1,20 @@
-<div>
+<% accordionId = rand(10000) %>
+<div id="accordion<%= accordionId -%>">
   <div class="accordion-item-header">
     <%= render :partial => 'tabs' -%>
   </div>
   <div class="accordion-item-body">
     <%= render :partial => "resource/header_#{@extension.getId()}" -%>
 
-    <% if @display_violations && @global_violations && @global_violations.size>0 -%>
-      <table class="global_violations" cellpadding="0" cellspacing="0" border="0">
-        <% @global_violations.each do |violation| %>
-          <tr>
-            <td>
-                <%= render :partial => 'violation', :locals => {:violation => violation, \
-                                                                :review_screens => @review_screens_by_vid ? @review_screens_by_vid.get(violation.id) : []} -%>
-            </td>
-          </tr>
+    <% if @display_issues && @global_issues && @global_issues.size>0 -%>
+      <div class="code-global-issues">
+        <% @global_issues.each do |issue| %>
+          <%= render :partial => 'issue/issue', :locals => {:issue => issue} -%></td>
         <% end %>
-      </table>
+      </div>
     <% end %>
 
     <% if @lines && @lines.size>0 %>
-
       <%= render :partial => "shared/source_display", :locals => { :display_manual_violation_form => @display_manual_violation_form, \
                                                                    :scm_available => @scm_available, \
                                                                    :display_coverage => @display_coverage, \
@@ -32,7 +27,6 @@
                                                                    :review_screens_by_vid => @review_screens_by_vid, \
                                                                    :filtered => @filtered}
       %>
-
     <% end %>
 
     <% if @duplication_groups %>
@@ -41,5 +35,7 @@
 
   </div>
 </div>
-
+<script>
+  $j('#accordion<%= accordionId -%> .open-modal').modal();
+</script>
 

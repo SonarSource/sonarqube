@@ -19,9 +19,6 @@
           <a href="<%= ApplicationController.root_context -%>/measures"><%= message('layout.measures') -%></a>
         </li>
         <li>
-          <a href="<%= ApplicationController.root_context -%>/reviews/index"><%= message('reviews.page') -%></a>
-        </li>
-        <li>
           <a href="<%= ApplicationController.root_context -%>/issues/index"><%= message('issues.page') -%></a>
         </li>
       </ul>
@@ -81,9 +78,6 @@
             <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
             <li class="<%= 'active' if request.request_uri.include?('/components/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>"><%= message('components.page') -%></a>
-            </li>
-            <li class="<%= 'active' if request.request_uri.include?('/drilldown/violations') -%>">
-              <a href="<%= ApplicationController.root_context -%>/drilldown/violations/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('violations_drilldown.page') -%></a>
             </li>
             <li class="<%= 'active' if request.request_uri.include?('/drilldown/issues') -%>">
               <a href="<%= ApplicationController.root_context -%>/drilldown/issues/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('issues_drilldown.page') -%></a>

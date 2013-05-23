@@ -52,10 +52,6 @@ import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 import org.sonar.core.resource.*;
-import org.sonar.core.review.ReviewCommentDto;
-import org.sonar.core.review.ReviewCommentMapper;
-import org.sonar.core.review.ReviewDto;
-import org.sonar.core.review.ReviewMapper;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
@@ -107,8 +103,6 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Resource", ResourceDto.class);
     loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
     loadAlias(conf, "ResourceSnapshot", ResourceSnapshotDto.class);
-    loadAlias(conf, "Review", ReviewDto.class);
-    loadAlias(conf, "ReviewComment", ReviewCommentDto.class);
     loadAlias(conf, "Rule", RuleDto.class);
     loadAlias(conf, "Snapshot", SnapshotDto.class);
     loadAlias(conf, "Semaphore", SemaphoreDto.class);
@@ -128,7 +122,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class, IssueMapper.class, IssueChangeMapper.class, LoadedTemplateMapper.class,
       MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class, ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceMapper.class,
-      ResourceSnapshotMapper.class, ReviewCommentMapper.class, ReviewMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class,
+      ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class,
       SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class, MeasureMapper.class, SnapshotDataMapper.class,
       SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class
     };
@@ -188,15 +182,15 @@ public class MyBatis implements BatchComponent, ServerComponent {
   }
 
   private void loadMapper(Configuration configuration, String mapperName) {
-      InputStream input = null;
-      try {
-        input = getClass().getResourceAsStream("/" + mapperName.replace('.', '/') + ".xml");
-        new XMLMapperBuilder(input, configuration, mapperName, configuration.getSqlFragments()).parse();
-        configuration.addLoadedResource(mapperName);
-      } finally {
-        Closeables.closeQuietly(input);
-      }
+    InputStream input = null;
+    try {
+      input = getClass().getResourceAsStream("/" + mapperName.replace('.', '/') + ".xml");
+      new XMLMapperBuilder(input, configuration, mapperName, configuration.getSqlFragments()).parse();
+      configuration.addLoadedResource(mapperName);
+    } finally {
+      Closeables.closeQuietly(input);
     }
+  }
 
   private void loadAlias(Configuration conf, String alias, Class dtoClass) {
     conf.getTypeAliasRegistry().registerAlias(alias, dtoClass);

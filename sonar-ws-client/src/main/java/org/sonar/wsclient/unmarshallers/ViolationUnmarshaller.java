@@ -29,18 +29,12 @@ public class ViolationUnmarshaller extends AbstractUnmarshaller<Violation> {
     WSUtils utils = WSUtils.getINSTANCE();
 
     Violation violation = new Violation();
-    violation.setId(utils.getLong(json, "id"));
+    violation.setKey(utils.getString(json, "id"));
     violation.setMessage(utils.getString(json, "message"));
     violation.setLine(utils.getInteger(json, "line"));
     violation.setSeverity(utils.getString(json, "priority"));
     violation.setCreatedAt(utils.getDateTime(json, "createdAt"));
     violation.setSwitchedOff(utils.getBoolean(json, "switchedOff"));
-
-    Object review = utils.getField(json, "review");
-    if (review != null) {
-      ReviewUnmarshaller reviewUnmarshaller = new ReviewUnmarshaller();
-      violation.setReview(reviewUnmarshaller.parse(review));
-    }
 
     Object rule = utils.getField(json, "rule");
     if (rule != null) {
@@ -53,7 +47,6 @@ public class ViolationUnmarshaller extends AbstractUnmarshaller<Violation> {
       violation.setResourceKey(utils.getString(resource, "key"));
       violation.setResourceName(utils.getString(resource, "name"));
       violation.setResourceQualifier(utils.getString(resource, "qualifier"));
-      violation.setResourceScope(utils.getString(resource, "scope"));
     }
     return violation;
   }

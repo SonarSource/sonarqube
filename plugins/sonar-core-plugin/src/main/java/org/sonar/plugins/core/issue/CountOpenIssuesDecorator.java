@@ -67,19 +67,18 @@ public class CountOpenIssuesDecorator implements Decorator {
   @DependedUpon
   public List<Metric> generatesIssuesMetrics() {
     return ImmutableList.of(
-      CoreMetrics.ISSUES,
-      CoreMetrics.BLOCKER_ISSUES,
-      CoreMetrics.CRITICAL_ISSUES,
-      CoreMetrics.MAJOR_ISSUES,
-      CoreMetrics.MINOR_ISSUES,
-      CoreMetrics.INFO_ISSUES,
-      CoreMetrics.NEW_ISSUES,
-      CoreMetrics.NEW_BLOCKER_ISSUES,
-      CoreMetrics.NEW_CRITICAL_ISSUES,
-      CoreMetrics.NEW_MAJOR_ISSUES,
-      CoreMetrics.NEW_MINOR_ISSUES,
-      CoreMetrics.NEW_INFO_ISSUES,
-      CoreMetrics.UNASSIGNED_ISSUES,
+      CoreMetrics.VIOLATIONS,
+      CoreMetrics.BLOCKER_VIOLATIONS,
+      CoreMetrics.CRITICAL_VIOLATIONS,
+      CoreMetrics.MAJOR_VIOLATIONS,
+      CoreMetrics.MINOR_VIOLATIONS,
+      CoreMetrics.INFO_VIOLATIONS,
+      CoreMetrics.NEW_VIOLATIONS,
+      CoreMetrics.NEW_BLOCKER_VIOLATIONS,
+      CoreMetrics.NEW_CRITICAL_VIOLATIONS,
+      CoreMetrics.NEW_MAJOR_VIOLATIONS,
+      CoreMetrics.NEW_MINOR_VIOLATIONS,
+      CoreMetrics.NEW_INFO_VIOLATIONS,
       CoreMetrics.OPEN_ISSUES,
       CoreMetrics.REOPENED_ISSUES,
       CoreMetrics.CONFIRMED_ISSUES
@@ -95,7 +94,6 @@ public class CountOpenIssuesDecorator implements Decorator {
       Multiset<RulePriority> severityBag = HashMultiset.create();
       Map<RulePriority, Multiset<Rule>> rulesPerSeverity = Maps.newHashMap();
       ListMultimap<RulePriority, Issue> issuesPerSeverity = ArrayListMultimap.create();
-      int countUnassigned = 0;
       int countOpen = 0;
       int countReopened = 0;
       int countConfirmed = 0;
@@ -106,9 +104,6 @@ public class CountOpenIssuesDecorator implements Decorator {
         rulesBag.add(rulefinder.findByKey(issue.ruleKey().repository(), issue.ruleKey().rule()));
         issuesPerSeverity.put(RulePriority.valueOf(issue.severity()), issue);
 
-        if (issue.assignee() == null) {
-          countUnassigned++;
-        }
         if (Issue.STATUS_OPEN.equals(issue.status())){
           countOpen++;
         }
@@ -130,7 +125,6 @@ public class CountOpenIssuesDecorator implements Decorator {
       saveTotalIssues(context, issues);
       saveNewIssues(context, issues, shouldSaveNewMetrics);
 
-      saveMeasure(context, CoreMetrics.UNASSIGNED_ISSUES, countUnassigned);
       saveMeasure(context, CoreMetrics.OPEN_ISSUES, countOpen);
       saveMeasure(context, CoreMetrics.REOPENED_ISSUES, countReopened);
       saveMeasure(context, CoreMetrics.CONFIRMED_ISSUES, countConfirmed);
@@ -138,16 +132,16 @@ public class CountOpenIssuesDecorator implements Decorator {
   }
 
   private void saveTotalIssues(DecoratorContext context, Collection<Issue> issues) {
-    if (context.getMeasure(CoreMetrics.ISSUES) == null) {
-      Collection<Measure> childrenIssues = context.getChildrenMeasures(CoreMetrics.ISSUES);
+    if (context.getMeasure(CoreMetrics.VIOLATIONS) == null) {
+      Collection<Measure> childrenIssues = context.getChildrenMeasures(CoreMetrics.VIOLATIONS);
       Double sum = MeasureUtils.sum(true, childrenIssues);
-      context.saveMeasure(CoreMetrics.ISSUES, sum + issues.size());
+      context.saveMeasure(CoreMetrics.VIOLATIONS, sum + issues.size());
     }
   }
 
   private void saveNewIssues(DecoratorContext context, Collection<Issue> issues, boolean shouldSaveNewMetrics) {
     if (shouldSaveNewMetrics) {
-      Measure measure = new Measure(CoreMetrics.NEW_ISSUES);
+      Measure measure = new Measure(CoreMetrics.NEW_VIOLATIONS);
       saveNewIssues(context, measure, issues);
     }
   }
@@ -282,7 +276,7 @@ public class CountOpenIssuesDecorator implements Decorator {
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {
-    return context.getProject().isLatestAnalysis() && context.getMeasure(CoreMetrics.NEW_ISSUES) == null;
+    return context.getProject().isLatestAnalysis() && context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
   }
 
   private Collection<Issue> getOpenIssues(Collection<Issue> issues) {

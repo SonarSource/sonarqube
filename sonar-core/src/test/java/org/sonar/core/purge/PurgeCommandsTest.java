@@ -50,7 +50,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldDeleteSnapshot",
-        "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "snapshot_data");
+        "snapshots", "project_measures", "measure_data", "snapshot_sources", "duplications_index", "events", "dependencies", "snapshot_data");
   }
 
   /**
@@ -67,7 +67,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldPurgeSnapshot",
-        "snapshots", "project_measures", "measure_data", "rule_failures", "snapshot_sources", "duplications_index", "events", "dependencies", "reviews", "snapshot_data");
+        "snapshots", "project_measures", "measure_data", "snapshot_sources", "duplications_index", "events", "dependencies", "snapshot_data");
   }
 
   @Test
@@ -92,7 +92,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
     } finally {
       MyBatis.closeQuietly(session);
     }
-    assertEmptyTables("projects", "snapshots", "events", "reviews", "review_comments", "issues", "issue_changes", "authors");
+    assertEmptyTables("projects", "snapshots", "events", "issues", "issue_changes", "authors");
   }
 
 }

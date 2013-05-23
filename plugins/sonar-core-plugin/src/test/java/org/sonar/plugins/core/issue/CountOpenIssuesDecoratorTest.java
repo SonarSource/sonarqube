@@ -101,7 +101,7 @@ public class CountOpenIssuesDecoratorTest {
     context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(resource);
     when(context.getProject()).thenReturn(project);
-    when(context.getMeasure(CoreMetrics.NEW_ISSUES)).thenReturn(null);
+    when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(null);
 
     issuable = mock(Issuable.class);
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
@@ -111,7 +111,7 @@ public class CountOpenIssuesDecoratorTest {
 
   @Test
   public void should_be_depended_upon_metric() {
-    assertThat(decorator.generatesIssuesMetrics()).hasSize(16);
+    assertThat(decorator.generatesIssuesMetrics()).hasSize(15);
   }
 
   @Test
@@ -122,7 +122,7 @@ public class CountOpenIssuesDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.ISSUES, 4.0);
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS, 4.0);
   }
 
   @Test
@@ -144,14 +144,14 @@ public class CountOpenIssuesDecoratorTest {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
     when(issuable.issues()).thenReturn(createIssues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
-    when(context.getMeasure(CoreMetrics.ISSUES)).thenReturn(new Measure(CoreMetrics.ISSUES, 3000.0));
-    when(context.getMeasure(CoreMetrics.MAJOR_ISSUES)).thenReturn(new Measure(CoreMetrics.MAJOR_ISSUES, 500.0));
+    when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.ISSUES, 3000.0));
+    when(context.getMeasure(CoreMetrics.MAJOR_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.MAJOR_ISSUES, 500.0));
 
     decorator.decorate(resource, context);
 
-    verify(context, never()).saveMeasure(eq(CoreMetrics.ISSUES), anyDouble());// not changed
-    verify(context, never()).saveMeasure(eq(CoreMetrics.MAJOR_ISSUES), anyDouble());// not changed
-    verify(context, times(1)).saveMeasure(eq(CoreMetrics.CRITICAL_ISSUES), anyDouble());// did not exist
+    verify(context, never()).saveMeasure(eq(CoreMetrics.VIOLATIONS), anyDouble());// not changed
+    verify(context, never()).saveMeasure(eq(CoreMetrics.MAJOR_VIOLATIONS), anyDouble());// not changed
+    verify(context, times(1)).saveMeasure(eq(CoreMetrics.CRITICAL_VIOLATIONS), anyDouble());// did not exist
   }
 
   @Test
@@ -162,7 +162,7 @@ public class CountOpenIssuesDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.ISSUES, 0.0);
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS, 0.0);
   }
 
   @Test
@@ -173,7 +173,7 @@ public class CountOpenIssuesDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.ISSUES, 0.0);
+    verify(context).saveMeasure(CoreMetrics.VIOLATIONS, 0.0);
   }
 
   @Test
@@ -184,11 +184,11 @@ public class CountOpenIssuesDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(CoreMetrics.BLOCKER_ISSUES, 0.0);
-    verify(context).saveMeasure(CoreMetrics.CRITICAL_ISSUES, 2.0);
-    verify(context).saveMeasure(CoreMetrics.MAJOR_ISSUES, 1.0);
-    verify(context).saveMeasure(CoreMetrics.MINOR_ISSUES, 1.0);
-    verify(context).saveMeasure(CoreMetrics.INFO_ISSUES, 0.0);
+    verify(context).saveMeasure(CoreMetrics.BLOCKER_VIOLATIONS, 0.0);
+    verify(context).saveMeasure(CoreMetrics.CRITICAL_VIOLATIONS, 2.0);
+    verify(context).saveMeasure(CoreMetrics.MAJOR_VIOLATIONS, 1.0);
+    verify(context).saveMeasure(CoreMetrics.MINOR_VIOLATIONS, 1.0);
+    verify(context).saveMeasure(CoreMetrics.INFO_VIOLATIONS, 0.0);
   }
 
   @Test
@@ -201,9 +201,9 @@ public class CountOpenIssuesDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.CRITICAL_ISSUES, ruleA1, 2.0)));
-    verify(context, never()).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MAJOR_ISSUES, ruleA1, 0.0)));
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MAJOR_ISSUES, ruleA2, 1.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.CRITICAL_VIOLATIONS, ruleA1, 2.0)));
+    verify(context, never()).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MAJOR_VIOLATIONS, ruleA1, 0.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MAJOR_VIOLATIONS, ruleA2, 1.0)));
   }
 
   @Test
@@ -220,46 +220,6 @@ public class CountOpenIssuesDecoratorTest {
   }
 
   @Test
-  public void should_save_open_issues() {
-    List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_REOPENED).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
-    when(issuable.issues()).thenReturn(issues);
-
-    decorator.decorate(resource, context);
-
-    verify(context).saveMeasure(CoreMetrics.OPEN_ISSUES, 2.0);
-  }
-
-  @Test
-  public void should_save_reopened_issues() {
-    List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_REOPENED).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
-    when(issuable.issues()).thenReturn(issues);
-
-    decorator.decorate(resource, context);
-
-    verify(context).saveMeasure(CoreMetrics.REOPENED_ISSUES, 1.0);
-  }
-
-
-  @Test
-  public void should_save_confirmed_issues() {
-    List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_CONFIRMED).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_REOPENED).setSeverity(RulePriority.CRITICAL.name()));
-    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setStatus(Issue.STATUS_CONFIRMED).setSeverity(RulePriority.CRITICAL.name()));
-    when(issuable.issues()).thenReturn(issues);
-
-    decorator.decorate(resource, context);
-
-    verify(context).saveMeasure(CoreMetrics.CONFIRMED_ISSUES, 2.0);
-  }
-
-  @Test
   public void same_rule_should_have_different_severities() {
     List<Issue> issues = newArrayList();
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
@@ -269,8 +229,8 @@ public class CountOpenIssuesDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.CRITICAL_ISSUES, ruleA1, 2.0)));
-    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MINOR_ISSUES, ruleA1, 1.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.CRITICAL_VIOLATIONS, ruleA1, 2.0)));
+    verify(context).saveMeasure(argThat(new IsRuleMeasure(CoreMetrics.MINOR_VIOLATIONS, ruleA1, 1.0)));
   }
 
   @Test
@@ -291,8 +251,8 @@ public class CountOpenIssuesDecoratorTest {
     decorator.decorate(resource, context);
     decorator.decorate(resource, context);
 
-    verify(context, times(2)).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_CRITICAL_ISSUES, 1.0, 1.0)));
-    verify(context, never()).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_CRITICAL_ISSUES, 2.0, 2.0)));
+    verify(context, times(2)).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS, 1.0, 1.0)));
+    verify(context, never()).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS, 2.0, 2.0)));
   }
 
   @Test
@@ -302,11 +262,11 @@ public class CountOpenIssuesDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_BLOCKER_ISSUES, 0.0, 0.0)));
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_CRITICAL_ISSUES, 1.0, 1.0)));
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_MAJOR_ISSUES, 0.0, 1.0)));
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_MINOR_ISSUES, 0.0, 1.0)));
-    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_INFO_ISSUES, 0.0, 0.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_BLOCKER_VIOLATIONS, 0.0, 0.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS, 1.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_MAJOR_VIOLATIONS, 0.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_MINOR_VIOLATIONS, 0.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationMeasure(CoreMetrics.NEW_INFO_VIOLATIONS, 0.0, 0.0)));
   }
 
   @Test
@@ -316,9 +276,9 @@ public class CountOpenIssuesDecoratorTest {
     decorator.decorate(resource, context);
 
     // remember : period1 is 5daysAgo, period2 is 10daysAgo
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_CRITICAL_ISSUES, ruleA1, 1.0, 1.0)));
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_MAJOR_ISSUES, ruleA2, 0.0, 1.0)));
-    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_MINOR_ISSUES, ruleB1, 0.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS, ruleA1, 1.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_MAJOR_VIOLATIONS, ruleA2, 0.0, 1.0)));
+    verify(context).saveMeasure(argThat(new IsVariationRuleMeasure(CoreMetrics.NEW_MINOR_VIOLATIONS, ruleB1, 0.0, 1.0)));
   }
 
   @Test
@@ -328,12 +288,12 @@ public class CountOpenIssuesDecoratorTest {
 
     decorator.decorate(resource, context);
 
-    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_BLOCKER_ISSUES)));
-    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_CRITICAL_ISSUES)));
-    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_MAJOR_ISSUES)));
-    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_MINOR_ISSUES)));
-    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_INFO_ISSUES)));
-    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_CRITICAL_ISSUES)));
+    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_BLOCKER_VIOLATIONS)));
+    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS)));
+    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_MAJOR_VIOLATIONS)));
+    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_MINOR_VIOLATIONS)));
+    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_INFO_VIOLATIONS)));
+    verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS)));
   }
 
   List<Issue> createIssues() {

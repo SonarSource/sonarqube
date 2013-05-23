@@ -27,17 +27,17 @@
          value_column = (@period ? "variation_value_#{@period}" : 'value')
          max = 0
          if @period
-           blocker_issues=@snapshot.measure('new_blocker_issues')
-           critical_issues=@snapshot.measure('new_critical_issues')
-           major_issues=@snapshot.measure('new_major_issues')
-           minor_issues=@snapshot.measure('new_minor_issues')
-           info_issues=@snapshot.measure('new_info_issues')
+           blocker_issues=@snapshot.measure('new_blocker_violations')
+           critical_issues=@snapshot.measure('new_critical_violations')
+           major_issues=@snapshot.measure('new_major_violations')
+           minor_issues=@snapshot.measure('new_minor_violations')
+           info_issues=@snapshot.measure('new_info_violations')
          else
-           blocker_issues=@snapshot.measure('blocker_issues')
-           critical_issues=@snapshot.measure('critical_issues')
-           major_issues=@snapshot.measure('major_issues')
-           minor_issues=@snapshot.measure('minor_issues')
-           info_issues=@snapshot.measure('info_issues')
+           blocker_issues=@snapshot.measure('blocker_violations')
+           critical_issues=@snapshot.measure('critical_violations')
+           major_issues=@snapshot.measure('major_violations')
+           minor_issues=@snapshot.measure('minor_violations')
+           info_issues=@snapshot.measure('info_violations')
          end
 
          [blocker_issues, critical_issues, major_issues, minor_issues, info_issues].each do |m|
@@ -47,11 +47,11 @@
       %>
       <h3><%= message('issues_drilldown.col.severity') -%></h3>
       <table class="spacedicon" style="border: 1px solid #ccc;">
-        <%= render :partial => 'severity_issues', :locals => {:css => 'even', :severity => 'BLOCKER', :max => max, :measure => blocker_issues} %>
-        <%= render :partial => 'severity_issues', :locals => {:css => 'odd', :severity => 'CRITICAL', :max => max, :measure => critical_issues} %>
-        <%= render :partial => 'severity_issues', :locals => {:css => 'even', :severity => 'MAJOR', :max => max, :measure => major_issues} %>
-        <%= render :partial => 'severity_issues', :locals => {:css => 'odd', :severity => 'MINOR', :max => max, :measure => minor_issues} %>
-        <%= render :partial => 'severity_issues', :locals => {:css => 'even', :severity => 'INFO', :max => max, :measure => info_issues} %>
+        <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'BLOCKER', :max => max, :measure => blocker_issues} %>
+        <%= render :partial => 'severity', :locals => {:css => 'odd', :severity => 'CRITICAL', :max => max, :measure => critical_issues} %>
+        <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'MAJOR', :max => max, :measure => major_issues} %>
+        <%= render :partial => 'severity', :locals => {:css => 'odd', :severity => 'MINOR', :max => max, :measure => minor_issues} %>
+        <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'INFO', :max => max, :measure => info_issues} %>
       </table>
     </td>
     <td align="left" style="white-space: normal;" valign="top">

@@ -20,7 +20,8 @@
 
 require "json"
 
-# Google Wire Protocol controller helper
+# Google Wire Protocol controller helper.
+# Used by the MotionChart plugin.
 class Api::GwpResourcesController < Api::ResourceRestController
 
   before_filter :parse_gwp_params

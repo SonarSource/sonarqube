@@ -20,7 +20,6 @@
     <class>org.sonar.api.measures.Metric</class>
     <class>org.sonar.api.database.model.ResourceModel</class>
     <class>org.sonar.api.database.model.SnapshotSource</class>
-    <class>org.sonar.api.database.model.RuleFailureModel</class>
     <class>org.sonar.api.rules.Rule</class>
     <class>org.sonar.api.rules.RuleParam</class>
     <class>org.sonar.api.resources.ProjectLink</class>

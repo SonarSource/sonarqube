@@ -84,19 +84,6 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_create_database_with_violations_and_reviews() throws IOException, SQLException {
-    setupData("should_create_database_with_violations_and_reviews");
-
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.getRoot());
-
-    byte[] database = localDatabaseFactory.createDatabaseForDryRun(123L);
-    dataSource = createDatabase(database);
-
-    assertThat(rowCount("rule_failures")).isEqualTo(1);
-    assertThat(rowCount("reviews")).isEqualTo(1);
-  }
-
-  @Test
   public void should_create_database_with_issues() throws IOException, SQLException {
     setupData("should_create_database_with_issues");
 

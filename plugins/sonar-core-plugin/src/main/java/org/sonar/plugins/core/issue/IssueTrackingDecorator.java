@@ -22,10 +22,7 @@ package org.sonar.plugins.core.issue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
@@ -45,7 +42,8 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import java.util.Collection;
 import java.util.Map;
 
-@DependedUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
+@DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
+@DependedUpon({DecoratorBarriers.END_OF_VIOLATION_TRACKING,DecoratorBarriers.END_OF_ISSUES_UPDATES})
 public class IssueTrackingDecorator implements Decorator {
 
   private final IssueCache issueCache;

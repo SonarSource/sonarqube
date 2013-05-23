@@ -63,13 +63,13 @@ public class WeightedIssuesDecorator implements Decorator {
 
   @DependsUpon
   public List<Metric> dependsUponIssues() {
-    return Arrays.asList(CoreMetrics.BLOCKER_ISSUES, CoreMetrics.CRITICAL_ISSUES,
-        CoreMetrics.MAJOR_ISSUES, CoreMetrics.MINOR_ISSUES, CoreMetrics.INFO_ISSUES);
+    return Arrays.asList(CoreMetrics.BLOCKER_VIOLATIONS, CoreMetrics.CRITICAL_VIOLATIONS,
+        CoreMetrics.MAJOR_VIOLATIONS, CoreMetrics.MINOR_VIOLATIONS, CoreMetrics.INFO_VIOLATIONS);
   }
 
   @DependedUpon
   public Metric generatesWeightedIssues() {
-    return CoreMetrics.WEIGHTED_ISSUES;
+    return CoreMetrics.WEIGHTED_VIOLATIONS;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -115,7 +115,7 @@ public class WeightedIssuesDecorator implements Decorator {
       }
     }
 
-    Measure debtMeasure = new Measure(CoreMetrics.WEIGHTED_ISSUES, debt, KeyValueFormat.format(distribution));
+    Measure debtMeasure = new Measure(CoreMetrics.WEIGHTED_VIOLATIONS, debt, KeyValueFormat.format(distribution));
     context.saveMeasure(debtMeasure);
   }
 

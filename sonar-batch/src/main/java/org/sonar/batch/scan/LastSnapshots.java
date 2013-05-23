@@ -24,7 +24,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.database.model.RuleFailureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Resource;
@@ -32,10 +31,7 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrap.ServerClient;
 
-import javax.annotation.CheckForNull;
 import javax.persistence.Query;
-
-import java.util.List;
 
 public class LastSnapshots implements BatchComponent {
 
@@ -47,18 +43,6 @@ public class LastSnapshots implements BatchComponent {
     this.settings = settings;
     this.session = session;
     this.server = server;
-  }
-
-  /**
-   * Return null if this is the first scan (no last scan).
-   */
-  @CheckForNull
-  public List<RuleFailureModel> getViolations(Resource resource) {
-    Snapshot snapshot = getSnapshot(resource);
-    if (snapshot != null) {
-      return session.getResults(RuleFailureModel.class, "snapshotId", snapshot.getId());
-    }
-    return null;
   }
 
   public String getSource(Resource resource) {
