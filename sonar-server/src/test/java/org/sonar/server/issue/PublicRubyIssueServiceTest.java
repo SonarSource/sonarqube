@@ -45,7 +45,7 @@ public class PublicRubyIssueServiceTest {
 
   @Test
   public void find() throws Exception {
-    facade.find(ImmutableMap.<String, Object>of("issueKeys", Lists.newArrayList("ABCDE")));
+    facade.find(ImmutableMap.<String, Object>of("issues", Lists.newArrayList("ABCDE")));
     verify(finder).find(argThat(new ArgumentMatcher<IssueQuery>() {
       @Override
       public boolean matches(Object o) {
@@ -58,7 +58,7 @@ public class PublicRubyIssueServiceTest {
   @Test
   public void should_create_query_from_parameters() {
     Map<String, Object> map = newHashMap();
-    map.put("issueKeys", newArrayList("ABCDE1234"));
+    map.put("issues", newArrayList("ABCDE1234"));
     map.put("severities", newArrayList("MAJOR", "MINOR"));
     map.put("statuses", newArrayList("CLOSED"));
     map.put("resolutions", newArrayList("FALSE-POSITIVE"));

@@ -66,7 +66,7 @@ public class PublicRubyIssueService implements RubyIssueService {
   IssueQuery toQuery(Map<String, Object> props) {
     IssueQuery.Builder builder = IssueQuery.builder();
     builder.requiredRole(UserRole.CODEVIEWER);
-    builder.issueKeys(RubyUtils.toStrings(props.get("issueKeys")));
+    builder.issueKeys(RubyUtils.toStrings(props.get("issues")));
     builder.severities(RubyUtils.toStrings(props.get("severities")));
     builder.statuses(RubyUtils.toStrings(props.get("statuses")));
     builder.resolutions(RubyUtils.toStrings(props.get("resolutions")));
