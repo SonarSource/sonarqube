@@ -36,6 +36,7 @@ public interface Issue extends Serializable {
   int MESSAGE_MAX_SIZE = 4000;
 
   String STATUS_OPEN = "OPEN";
+  String STATUS_CONFIRMED = "CONFIRMED";
   String STATUS_REOPENED = "REOPENED";
   String STATUS_RESOLVED = "RESOLVED";
   String STATUS_CLOSED = "CLOSED";

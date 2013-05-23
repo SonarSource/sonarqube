@@ -32,9 +32,9 @@ import java.util.List;
 
 public class IssueWorkflow implements BatchComponent, ServerComponent, Startable {
 
-  private StateMachine machine;
   private final FunctionExecutor functionExecutor;
   private final IssueUpdater updater;
+  private StateMachine machine;
 
   public IssueWorkflow(FunctionExecutor functionExecutor, IssueUpdater updater) {
     this.functionExecutor = functionExecutor;
@@ -46,14 +46,30 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
     machine = StateMachine.builder()
 
       // order is important for UI
-      .states(Issue.STATUS_OPEN, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED)
+      .states(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED)
 
+      .transition(Transition.builder(DefaultTransitions.CONFIRM)
+        .from(Issue.STATUS_OPEN).to(Issue.STATUS_CONFIRMED)
+        .functions(new SetResolution(null))
+        .build())
+      .transition(Transition.builder(DefaultTransitions.CONFIRM)
+        .from(Issue.STATUS_REOPENED).to(Issue.STATUS_CONFIRMED)
+        .functions(new SetResolution(null))
+        .build())
+      .transition(Transition.builder(DefaultTransitions.UNCONFIRM)
+        .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_OPEN)
+        .functions(new SetResolution(null))
+        .build())
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FIXED))
         .build())
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
+        .functions(new SetResolution(Issue.RESOLUTION_FIXED))
+        .build())
+      .transition(Transition.builder(DefaultTransitions.RESOLVE)
+        .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FIXED))
         .build())
       .transition(Transition.builder(DefaultTransitions.REOPEN)
@@ -71,6 +87,11 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .build())
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
+        .conditions(new IsManual(false))
+        .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE))
+        .build())
+      .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
+        .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
         .conditions(new IsManual(false))
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE))
         .build())
@@ -124,7 +145,6 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
   public List<Transition> outTransitions(Issue issue) {
     return machine.state(issue.status()).outManualTransitions(issue);
   }
-
 
   public void doAutomaticTransition(DefaultIssue issue, IssueChangeContext issueChangeContext) {
     Transition transition = stateOf(issue).outAutomaticTransition(issue);

@@ -28,6 +28,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +48,7 @@ public class IssueWorkflowTest {
     workflow.start();
     assertThat(workflow.machine()).isNotNull();
     assertThat(workflow.machine().state(Issue.STATUS_OPEN)).isNotNull();
+    assertThat(workflow.machine().state(Issue.STATUS_CONFIRMED)).isNotNull();
     assertThat(workflow.machine().state(Issue.STATUS_CLOSED)).isNotNull();
     assertThat(workflow.machine().state(Issue.STATUS_REOPENED)).isNotNull();
     assertThat(workflow.machine().state(Issue.STATUS_RESOLVED)).isNotNull();
@@ -57,17 +59,47 @@ public class IssueWorkflowTest {
   public void should_list_statuses() throws Exception {
     workflow.start();
     // order is important for UI
-    assertThat(workflow.statusKeys()).containsSequence(Issue.STATUS_OPEN, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED);
+    assertThat(workflow.statusKeys()).containsSequence(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED);
   }
 
   @Test
-  public void should_list_out_manual_transitions() throws Exception {
+  public void should_list_out_manual_transitions_from_status_open() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
     List<Transition> transitions = workflow.outTransitions(issue);
-    assertThat(transitions).hasSize(2);
-    assertThat(keys(transitions)).containsOnly("falsepositive", "resolve");
+    assertThat(transitions).hasSize(3);
+    assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve");
+  }
+
+  @Test
+  public void should_list_out_manual_transitions_from_status_confirmed() throws Exception {
+    workflow.start();
+
+    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CONFIRMED);
+    List<Transition> transitions = workflow.outTransitions(issue);
+    assertThat(transitions).hasSize(3);
+    assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve");
+  }
+
+  @Test
+  public void should_list_out_manual_transitions_from_status_resolved() throws Exception {
+    workflow.start();
+
+    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_RESOLVED);
+    List<Transition> transitions = workflow.outTransitions(issue);
+    assertThat(transitions).hasSize(1);
+    assertThat(keys(transitions)).containsOnly("reopen");
+  }
+
+  @Test
+  public void should_list_out_manual_transitions_from_status_reopen() throws Exception {
+    workflow.start();
+
+    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_REOPENED);
+    List<Transition> transitions = workflow.outTransitions(issue);
+    assertThat(transitions).hasSize(3);
+    assertThat(keys(transitions)).containsOnly("confirm", "resolve", "falsepositive");
   }
 
   @Test

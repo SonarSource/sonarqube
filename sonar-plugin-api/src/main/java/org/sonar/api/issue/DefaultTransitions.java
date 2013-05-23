@@ -23,6 +23,8 @@ package org.sonar.api.issue;
  * @since 3.6
  */
 public interface DefaultTransitions {
+  String CONFIRM = "confirm";
+  String UNCONFIRM = "unconfirm";
   String REOPEN = "reopen";
   String RESOLVE = "resolve";
   String FALSE_POSITIVE = "falsepositive";
