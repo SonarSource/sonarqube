@@ -111,7 +111,7 @@ public class CountOpenIssuesDecoratorTest {
 
   @Test
   public void should_be_depended_upon_metric() {
-    assertThat(decorator.generatesIssuesMetrics()).hasSize(13);
+    assertThat(decorator.generatesIssuesMetrics()).hasSize(16);
   }
 
   @Test
@@ -217,6 +217,46 @@ public class CountOpenIssuesDecoratorTest {
     decorator.decorate(resource, context);
 
     verify(context).saveMeasure(CoreMetrics.UNASSIGNED_ISSUES, 2.0);
+  }
+
+  @Test
+  public void should_save_open_issues() {
+    List<Issue> issues = newArrayList();
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_REOPENED).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
+    when(issuable.issues()).thenReturn(issues);
+
+    decorator.decorate(resource, context);
+
+    verify(context).saveMeasure(CoreMetrics.OPEN_ISSUES, 2.0);
+  }
+
+  @Test
+  public void should_save_reopened_issues() {
+    List<Issue> issues = newArrayList();
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_REOPENED).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setStatus(Issue.STATUS_OPEN).setSeverity(RulePriority.CRITICAL.name()));
+    when(issuable.issues()).thenReturn(issues);
+
+    decorator.decorate(resource, context);
+
+    verify(context).saveMeasure(CoreMetrics.REOPENED_ISSUES, 1.0);
+  }
+
+
+  @Test
+  public void should_save_confirmed_issues() {
+    List<Issue> issues = newArrayList();
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_CONFIRMED).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setStatus(Issue.STATUS_REOPENED).setSeverity(RulePriority.CRITICAL.name()));
+    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setStatus(Issue.STATUS_CONFIRMED).setSeverity(RulePriority.CRITICAL.name()));
+    when(issuable.issues()).thenReturn(issues);
+
+    decorator.decorate(resource, context);
+
+    verify(context).saveMeasure(CoreMetrics.CONFIRMED_ISSUES, 2.0);
   }
 
   @Test

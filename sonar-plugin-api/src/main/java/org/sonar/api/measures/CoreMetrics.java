@@ -1820,13 +1820,13 @@ public final class CoreMetrics {
   /**
    * @since 3.6
    */
-  public static final String UNPLANNED_ISSUES_KEY = "unplanned_issues";
+  public static final String OPEN_ISSUES_KEY = "open_issues";
 
   /**
    * @since 3.6
    */
-  public static final Metric UNPLANNED_ISSUES = new Metric.Builder(UNPLANNED_ISSUES_KEY, "Unplanned issues", Metric.ValueType.INT)
-    .setDescription("Active unplanned issues")
+  public static final Metric OPEN_ISSUES = new Metric.Builder(OPEN_ISSUES_KEY, "Open issues", Metric.ValueType.INT)
+    .setDescription("Open issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
@@ -1836,13 +1836,31 @@ public final class CoreMetrics {
   /**
    * @since 3.6
    */
-  public static final String NEW_UNPLANNED_ISSUES_KEY = "new_unplanned_issues";
+  public static final String REOPENED_ISSUES_KEY = "reopened_issues";
 
   /**
    * @since 3.6
    */
-  public static final Metric NEW_UNPLANNED_ISSUES = new Metric.Builder(NEW_UNPLANNED_ISSUES_KEY, "New unplanned issues", Metric.ValueType.INT)
-    .setDescription("New issues that have not been planned yet")
+  public static final Metric REOPENED_ISSUES = new Metric.Builder(REOPENED_ISSUES_KEY, "Reopened issues", Metric.ValueType.INT)
+    .setDescription("Reopened issues")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(true)
+    .setDomain(DOMAIN_ISSUES)
+    .setBestValue(0.0)
+    .setOptimizedBestValue(true)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 3.6
+   */
+  public static final String CONFIRMED_ISSUES_KEY = "confirmed_issues";
+
+  /**
+   * @since 3.6
+   */
+  public static final Metric CONFIRMED_ISSUES = new Metric.Builder(CONFIRMED_ISSUES_KEY, "Confirmed issues", Metric.ValueType.INT)
+    .setDescription("Confirmed issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setDomain(DOMAIN_ISSUES)

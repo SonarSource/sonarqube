@@ -79,7 +79,10 @@ public class CountOpenIssuesDecorator implements Decorator {
       CoreMetrics.NEW_MAJOR_ISSUES,
       CoreMetrics.NEW_MINOR_ISSUES,
       CoreMetrics.NEW_INFO_ISSUES,
-      CoreMetrics.UNASSIGNED_ISSUES
+      CoreMetrics.UNASSIGNED_ISSUES,
+      CoreMetrics.OPEN_ISSUES,
+      CoreMetrics.REOPENED_ISSUES,
+      CoreMetrics.CONFIRMED_ISSUES
     );
   }
 
@@ -93,6 +96,9 @@ public class CountOpenIssuesDecorator implements Decorator {
       Map<RulePriority, Multiset<Rule>> rulesPerSeverity = Maps.newHashMap();
       ListMultimap<RulePriority, Issue> issuesPerSeverity = ArrayListMultimap.create();
       int countUnassigned = 0;
+      int countOpen = 0;
+      int countReopened = 0;
+      int countConfirmed = 0;
 
       for (Issue issue : issues) {
         severityBag.add(RulePriority.valueOf(issue.severity()));
@@ -102,6 +108,15 @@ public class CountOpenIssuesDecorator implements Decorator {
 
         if (issue.assignee() == null) {
           countUnassigned++;
+        }
+        if (Issue.STATUS_OPEN.equals(issue.status())){
+          countOpen++;
+        }
+        if (Issue.STATUS_REOPENED.equals(issue.status())){
+          countReopened++;
+        }
+        if (Issue.STATUS_CONFIRMED.equals(issue.status())){
+          countConfirmed++;
         }
       }
 
@@ -116,6 +131,9 @@ public class CountOpenIssuesDecorator implements Decorator {
       saveNewIssues(context, issues, shouldSaveNewMetrics);
 
       saveMeasure(context, CoreMetrics.UNASSIGNED_ISSUES, countUnassigned);
+      saveMeasure(context, CoreMetrics.OPEN_ISSUES, countOpen);
+      saveMeasure(context, CoreMetrics.REOPENED_ISSUES, countReopened);
+      saveMeasure(context, CoreMetrics.CONFIRMED_ISSUES, countConfirmed);
     }
   }
 
