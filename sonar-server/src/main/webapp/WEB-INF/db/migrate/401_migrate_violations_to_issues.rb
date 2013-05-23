@@ -80,11 +80,13 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
                 :issue_attributes => violation[15],
                 :issue_creation_date => created_at,
                 :issue_close_date => nil,
-                :created_at => created_at
+                :created_at => created_at,
+                :project_id => violation[17]
               )
               if review_id.present?
                 # has review
-                issue.status=violation[11]
+                status = violation[11]
+                issue.status=(status=='OPEN' ? 'CONFIRMED' : status)
                 issue.issue_update_date=violation[16]
                 issue.updated_at=violation[16]
                 issue.severity=violation[12]
@@ -126,11 +128,10 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
       end
     end
 
-    #TODO
-    #drop_table('rule_failures')
-    #drop_table('reviews')
-    #drop_table('review_comments')
-    #drop_table('action_plans_reviews')
+    drop_table('rule_failures')
+    drop_table('reviews')
+    drop_table('review_comments')
+    drop_table('action_plans_reviews')
   end
 
   def self.truncate_issues
@@ -142,7 +143,7 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
     "select rev.id, s.project_id, rf.rule_id, rf.failure_level, rf.message, rf.line, rf.cost, rf.created_at,
            rf.checksum,
            rev.user_id, rev.assignee_id, rev.status, rev.severity, rev.resolution, rev.manual_severity, rev.data,
-           rev.updated_at
+           rev.updated_at, s.root_project_id
     from rule_failures rf
     inner join snapshots s on s.id=rf.snapshot_id
     left join reviews rev on rev.rule_failure_permanent_id=rf.permanent_id
