@@ -22,9 +22,9 @@ package org.sonar.api.source;
 
 public interface Symbol {
 
-  public int getDeclarationStartOffset();
+  int getDeclarationStartOffset();
 
-  public int getDeclarationEndOffset();
+  int getDeclarationEndOffset();
 
-  public String getFullyQualifiedName();
+  String getFullyQualifiedName();
 }

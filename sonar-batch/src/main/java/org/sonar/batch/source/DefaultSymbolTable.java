@@ -37,6 +37,10 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
     this.referencesBySymbol = referencesBySymbol;
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public Multimap<Symbol, Integer> getReferencesBySymbol() {
     return referencesBySymbol;
   }
@@ -79,14 +83,14 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
       return new DefaultSymbolTable(referencesBySymbol);
     }
 
-    private class SymbolComparator implements Comparator<Symbol> {
+    private static class SymbolComparator implements Comparator<Symbol> {
       @Override
       public int compare(Symbol left, Symbol right) {
         return left.getDeclarationStartOffset() - right.getDeclarationStartOffset();
       }
     }
 
-    private class ReferenceComparator implements Comparator<Integer> {
+    private static class ReferenceComparator implements Comparator<Integer> {
       @Override
       public int compare(Integer left, Integer right) {
         int result;
