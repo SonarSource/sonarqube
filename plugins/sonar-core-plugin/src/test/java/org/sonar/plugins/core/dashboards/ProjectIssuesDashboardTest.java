@@ -17,42 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.plugins.core.dashboards;
 
+import org.junit.Test;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
-import org.sonar.api.web.DashboardTemplate;
+import org.sonar.plugins.core.CorePlugin;
 
-/**
- * Issues dashboard for Sonar
- *
- * @since 3.6
- */
-public final class ProjectIssuesDashboard extends DashboardTemplate {
+import static org.fest.assertions.Assertions.assertThat;
 
-  @Override
-  public String getName() {
-    return "Issues";
+public class ProjectIssuesDashboardTest {
+
+  ProjectIssuesDashboard template = new ProjectIssuesDashboard();
+
+  @Test
+  public void should_have_a_name() {
+    assertThat(template.getName()).isEqualTo("Issues");
   }
 
-  @Override
-  public Dashboard createDashboard() {
-    Dashboard dashboard = Dashboard.create();
-    dashboard.setLayout(DashboardLayout.TWO_COLUMNS);
-    addFirstColumn(dashboard);
-    addSecondColumn(dashboard);
-    return dashboard;
+  @Test
+  public void should_be_registered_as_an_extension() {
+    assertThat(new CorePlugin().getExtensions()).contains(template.getClass());
   }
 
-  private void addFirstColumn(Dashboard dashboard) {
-    dashboard.addWidget("unresolved_issues_statuses", 1);
-    dashboard.addWidget("issues_action_plans", 2);
-  }
+  @Test
+  public void should_create_dashboard() {
+    Dashboard dashboard = template.createDashboard();
 
-  private void addSecondColumn(Dashboard dashboard) {
-    dashboard.addWidget("unresolved_issues_per_assignee", 2);
-    dashboard.addWidget("my_unresolved_issues", 2);
-    dashboard.addWidget("false_positive_issues", 2);
+    assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
+    assertThat(dashboard.getWidgets()).hasSize(5);
   }
 
 }

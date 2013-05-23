@@ -1848,7 +1848,6 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
-    .setDeleteHistoricalData(true)
     .create();
 
   /**
@@ -1866,7 +1865,6 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
-    .setDeleteHistoricalData(true)
     .create();
 
 

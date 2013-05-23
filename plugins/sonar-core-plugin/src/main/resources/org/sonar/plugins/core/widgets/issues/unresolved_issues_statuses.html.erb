@@ -1,0 +1,58 @@
+<%
+   issues = @snapshot.measure('violations')
+   open_issues = @snapshot.measure('open_issues')
+   reopened_issues = @snapshot.measure('reopened_issues')
+   confirmed_issues = @snapshot.measure('confirmed_issues')
+
+   issues_search_options = {}
+   issues_search_options['resolved'] = 'false'
+   issues_search_options['componentRoots'] = @project.key
+%>
+<table width="100%">
+  <tr>
+    <td valign="top" width="25%">
+      <div class="dashbox">
+        <h3><%= message('issues') -%></h3>
+        <div class="marginbottom10">
+          <span class="big">
+            <%= format_measure(issues, :url => url_for({:controller => 'issues', :action => 'search' }.merge(issues_search_options))) -%>
+          </span>
+          <%= dashboard_configuration.selected_period? ? format_variation(issues) : trend_icon(issues) -%>
+        </div>
+      </div>
+    </td>
+    <td valign="top" width="25%">
+      <div class="dashbox">
+        <h3><%= message('issue.status.OPEN') -%></h3>
+        <div class="marginbottom10">
+          <span class="big">
+            <%= format_measure(open_issues, :url => url_for({:controller => 'issues', :action => 'search', :statuses => 'OPEN'}.merge(issues_search_options))) -%>
+          </span>
+          <%= dashboard_configuration.selected_period? ? format_variation(open_issues) : trend_icon(open_issues) -%>
+        </div>
+      </div>
+    </td>
+    <td valign="top" width="25%">
+      <div class="dashbox">
+        <h3><%= message('issue.status.REOPENED') -%></h3>
+        <div class="marginbottom10">
+          <span class="big">
+            <%= format_measure(reopened_issues, :url => url_for({:controller => 'issues', :action => 'search', :statuses => 'REOPENED'}.merge(issues_search_options))) -%>
+          </span>
+          <%= dashboard_configuration.selected_period? ? format_variation(reopened_issues) : trend_icon(reopened_issues) -%>
+        </div>
+      </div>
+    </td>
+    <td valign="top" width="25%">
+      <div class="dashbox">
+        <h3><%= message('issue.status.CONFIRMED') -%></h3>
+        <div class="marginbottom10">
+          <span class="big">
+            <%= format_measure(confirmed_issues, :url => url_for({:controller => 'issues', :action => 'search', :statuses => 'CONFIRMED'}.merge(issues_search_options))) -%>
+          </span>
+          <%= dashboard_configuration.selected_period? ? format_variation(confirmed_issues) : trend_icon(confirmed_issues) -%>
+        </div>
+      </div>
+    </td>
+ </tr>
+</table>
