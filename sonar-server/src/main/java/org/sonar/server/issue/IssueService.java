@@ -36,7 +36,6 @@ import org.sonar.server.platform.UserSession;
 import javax.annotation.Nullable;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -67,23 +66,12 @@ public class IssueService implements ServerComponent {
   }
 
   /**
-   * List of available transitions, ordered by key.
+   * List of available transitions.
    * <p/>
    * Never return null, but return an empty list if the issue does not exist.
    */
   public List<Transition> listTransitions(String issueKey) {
-    DefaultIssue issue = loadIssue(issueKey);
-    if (issue == null) {
-      return Collections.emptyList();
-    }
-    List<Transition> transitions = workflow.outTransitions(issue);
-    Collections.sort(transitions, new Comparator<Transition>() {
-      @Override
-      public int compare(Transition transition, Transition transition2) {
-        return transition.key().compareTo(transition2.key());
-      }
-    });
-    return transitions;
+    return listTransitions(loadIssue(issueKey));
   }
 
   /**
@@ -93,14 +81,7 @@ public class IssueService implements ServerComponent {
     if (issue == null) {
       return Collections.emptyList();
     }
-    List<Transition> transitions = workflow.outTransitions(issue);
-    Collections.sort(transitions, new Comparator<Transition>() {
-      @Override
-      public int compare(Transition transition, Transition transition2) {
-        return transition.key().compareTo(transition2.key());
-      }
-    });
-    return transitions;
+    return workflow.outTransitions(issue);
   }
 
   public Issue doTransition(String issueKey, String transition, UserSession userSession) {

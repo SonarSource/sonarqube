@@ -7,19 +7,7 @@
         <a class="open-modal" modal-width="800" href="<%= url_for :controller => 'rules', :action => 'show', :id => issue.rule_key.to_s, :modal => 'true', :layout => 'false' -%>"><%= h rule_name -%></a>
       </span>
     &nbsp;
-    <%= image_tag 'sep12.png' -%>
-    &nbsp;
-
-    <%
-       created_at = Api::Utils.java_to_ruby_datetime(issue.creationDate())
-       updated_at = Api::Utils.java_to_ruby_datetime(issue.updateDate())
-       dates_title = "Created at #{format_datetime(created_at)} and updated at #{format_datetime(updated_at)}"
-    %>
-    <span title="<%= h dates_title -%>"><%= distance_of_time_in_words_to_now(created_at) -%></span>
-    &nbsp;
-    <%
-       if issue.resolution
-    %>
+    <% if issue.resolution %>
       <%= image_tag 'sep12.png' -%>
       &nbsp;
       <span><%= message("issue.resolution.#{issue.resolution}") -%></span>
@@ -30,23 +18,21 @@
       <span><%= message("issue.status.#{issue.status}") -%></span>
       &nbsp;
     <% end %>
+    <%= image_tag 'sep12.png' -%>
+    &nbsp;
     <%
-       if issue.assignee
+       created_at = Api::Utils.java_to_ruby_datetime(issue.creationDate())
+       updated_at = Api::Utils.java_to_ruby_datetime(issue.updateDate())
+       dates_title = "Created at #{format_datetime(created_at)} and updated at #{format_datetime(updated_at)}"
     %>
+    <span title="<%= h dates_title -%>"><%= distance_of_time_in_words_to_now(created_at) -%></span>
+    &nbsp;
+    <% if issue.reporter %>
       <%= image_tag 'sep12.png' -%>
       &nbsp;
-      <%= message('assigned_to') -%> <%= h(@issue_results.user(issue.assignee).name) -%>
+      <span><%= message('issue.reported_by') -%> <%= @issue_results.user(issue.reporter).name -%></span>
       &nbsp;
     <% end %>
-    <%
-       if issue.actionPlanKey()
-    %>
-      <%= image_tag 'sep12.png' -%>
-      &nbsp;
-      <%= message('issue.planned_for_x', :params => h(@issue_results.actionPlan(issue).name())) if @issue_results.actionPlan(issue) -%>
-      &nbsp;
-    <% end %>
-
   </div>
 
   <% unless issue.message.blank? %>
@@ -76,24 +62,61 @@
   <% end %>
 
   <% if current_user %>
+    <% transitions = Internal.issues.listTransitions(issue) %>
+
     <div class="code-issue-actions">
       <a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right"><%= message('issue.comment.formlink') -%></a>
       <% unless issue.resolution %>
+        <%= image_tag 'sep12.png' -%>
+        &nbsp;
         <span class="spacer-right">
-        <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a>
+        <% if !issue.assignee %>
+          <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a>
           <% if issue.assignee!=current_user.login %>
-          [<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]
+            [<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]
+          <% end %>
+        <% else %>
+          <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('assigned_to') -%></a> <%= @issue_results.user(issue.assignee).name -%>
         <% end %>
         </span>
       <% end %>
 
-      <% Internal.issues.listTransitions(issue).each do |transition| %>
+      <% unless issue.resolution %>
+        <%= image_tag 'sep12.png' -%>
+        &nbsp;
+        <span class="spacer-right">
+          <% if !@issue_results.actionPlan(issue) %>
+            <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.do_plan') -%></a>
+          <% else %>
+            <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.planned_for') -%></a> <%= h(@issue_results.actionPlan(issue).name()) -%>
+          <% end %>
+        </span>
+      <% end %>
+
+      <%
+         if transitions.size > 0 && transitions.first
+         transition = transitions.first
+      %>
+        <%= image_tag 'sep12.png' -%>
+        &nbsp;
         <a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a>
       <% end %>
 
-      <% unless issue.resolution %>
-        <a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a>
-        <a href="#" onclick="return issueForm('plan', this)" class="link-action spacer-right"><%= message("issue.do_plan") -%></a>
+      <%
+         if transitions.size > 1 || !issue.resolution
+           transitions.remove(0)
+      %>
+        <div class="dropdown">
+          <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
+          <ul style="display: none" class="dropdown-menu">
+            <% unless issue.resolution %>
+              <li><a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a></li>
+            <% end %>
+            <% transitions.each do |transition| %>
+              <li><a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a></li>
+            <% end %>
+          </ul>
+        </div>
       <% end %>
     </div>
     <div class="code-issue-form hidden"></div>

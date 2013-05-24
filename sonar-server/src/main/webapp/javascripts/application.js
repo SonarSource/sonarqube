@@ -425,9 +425,8 @@ function expandAccordionItem(elt) {
 var currentlyDisplayedDropdownMenu;
 
 var hideCurrentDropdownMenu = function () {
-  menu = $j('#' + currentlyDisplayedDropdownMenu);
-  if (menu) {
-    menu.hide();
+  if (currentlyDisplayedDropdownMenu) {
+    currentlyDisplayedDropdownMenu.hide();
   }
   $j(document).unbind('mouseup', hideCurrentDropdownMenu);
 }
@@ -447,14 +446,21 @@ var clickOnDropdownMenuLink = function (event) {
 }
 
 function showDropdownMenu(menuId) {
-  if (menuId == currentlyDisplayedDropdownMenu) {
+  showDropdownMenuOnElement($j('#' + menuId));
+}
+
+function showDropdownMenuOnElement(elt) {
+  var dropdownElt = $j(elt);
+  var dropdownChildren = dropdownElt.children('li');
+
+  if (dropdownElt == currentlyDisplayedDropdownMenu) {
     currentlyDisplayedDropdownMenu = "";
   } else {
-    currentlyDisplayedDropdownMenu = menuId;
+    currentlyDisplayedDropdownMenu = dropdownElt;
     $j(document).mouseup(hideCurrentDropdownMenu);
-    $j('#' + currentlyDisplayedDropdownMenu + ' li').unbind('click');
-    $j('#' + currentlyDisplayedDropdownMenu + ' li').click(clickOnDropdownMenuLink);
-    $j('#' + currentlyDisplayedDropdownMenu).show();
+    dropdownChildren.unbind('click');
+    dropdownChildren.click(clickOnDropdownMenuLink);
+    dropdownElt.show();
   }
 }
 
