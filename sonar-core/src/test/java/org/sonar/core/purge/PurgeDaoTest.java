@@ -19,14 +19,12 @@
  */
 package org.sonar.core.purge;
 
-import org.apache.ibatis.session.SqlSession;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
 import java.util.List;
@@ -47,28 +45,28 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   @Test
   public void shouldDeleteAbortedBuilds() {
     setupData("shouldDeleteAbortedBuilds");
-    dao.purge(1L, new String[0]);
+    dao.purge(new PurgeConfiguration(1L, new String[0], 30));
     checkTables("shouldDeleteAbortedBuilds", "snapshots");
   }
 
   @Test
   public void shouldPurgeProject() {
     setupData("shouldPurgeProject");
-    dao.purge(1, new String[0]);
+    dao.purge(new PurgeConfiguration(1L, new String[0], 30));
     checkTables("shouldPurgeProject", "projects", "snapshots");
   }
 
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     setupData("shouldDeleteHistoricalDataOfDirectoriesAndFiles");
-    dao.purge(1, new String[] {Scopes.DIRECTORY, Scopes.FILE});
+    dao.purge(new PurgeConfiguration(1L, new String[]{Scopes.DIRECTORY, Scopes.FILE}, 30));
     checkTables("shouldDeleteHistoricalDataOfDirectoriesAndFiles", "projects", "snapshots");
   }
 
   @Test
   public void shouldDisableResourcesWithoutLastSnapshot() {
     setupData("shouldDisableResourcesWithoutLastSnapshot");
-    dao.purge(1, new String[0]);
+    dao.purge(new PurgeConfiguration(1L, new String[0], 30));
     checkTables("shouldDisableResourcesWithoutLastSnapshot", "projects", "snapshots");
   }
 
@@ -97,6 +95,21 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
     assertEmptyTables("projects", "snapshots", "action_plans", "issues", "issue_changes");
   }
 
+  @Test
+  public void should_delete_old_closed_issues() {
+    setupData("should_delete_old_closed_issues");
+    dao.purge(new PurgeConfiguration(1L, new String[0], 30));
+    checkTables("should_delete_old_closed_issues", "issues", "issue_changes");
+  }
+
+  @Test
+  public void should_delete_all_closed_issues() {
+    setupData("should_delete_all_closed_issues");
+    dao.purge(new PurgeConfiguration(1L, new String[0], 0));
+    checkTables("should_delete_all_closed_issues", "issues", "issue_changes");
+  }
+
+
   static final class SnapshotMatcher extends BaseMatcher<PurgeableSnapshotDto> {
     long snapshotId;
     boolean isLast;
@@ -115,9 +128,9 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
 
     public void describeTo(Description description) {
       description
-          .appendText("snapshotId").appendValue(snapshotId)
-          .appendText("isLast").appendValue(isLast)
-          .appendText("hasEvents").appendValue(hasEvents);
+        .appendText("snapshotId").appendValue(snapshotId)
+        .appendText("isLast").appendValue(isLast)
+        .appendText("hasEvents").appendValue(hasEvents);
     }
   }
 }

@@ -56,14 +56,30 @@ import java.util.List;
     description = "After this number of weeks, all snapshots are fully deleted.",
     global = true,
     project = true,
+    type = PropertyType.INTEGER),
+  @Property(
+    key = DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY,
+    defaultValue = "true",
+    name = "Clean history data of directories/packages",
+    global = true,
+    project = true,
+    module = false,
+    type = PropertyType.BOOLEAN),
+  @Property(
+    key = DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES,
+    defaultValue = "30",
+    name = "Number of days before deleting closed Issues",
+    description = "Issues are deleted after this number of days in the status CLOSED.",
+    global = true,
+    project = true,
     type = PropertyType.INTEGER)
 })
 public final class DbCleanerPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return ImmutableList.of(
-        DefaultPeriodCleaner.class,
-        DefaultPurgeTask.class,
-        ProjectPurgePostJob.class);
+      DefaultPeriodCleaner.class,
+      DefaultPurgeTask.class,
+      ProjectPurgePostJob.class);
   }
 }

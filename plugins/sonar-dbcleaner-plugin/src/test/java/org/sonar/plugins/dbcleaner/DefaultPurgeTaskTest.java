@@ -20,10 +20,12 @@
 package org.sonar.plugins.dbcleaner;
 
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Scopes;
+import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
@@ -37,46 +39,62 @@ public class DefaultPurgeTaskTest {
   @Test
   public void shouldNotDeleteHistoricalDataOfDirectories() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    Settings settings = new Settings(new PropertyDefinitions(DefaultPurgeTask.class));
+    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.class));
     settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, "false");
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
     task.purge(1L);
 
-    verify(purgeDao).purge(1L, new String[] {Scopes.FILE});
+    verify(purgeDao).purge(argThat(new ArgumentMatcher<PurgeConfiguration>() {
+      @Override
+      public boolean matches(Object o) {
+        PurgeConfiguration conf = (PurgeConfiguration)o;
+        return conf.rootProjectId()==1L && conf.scopesWithoutHistoricalData().length==1 && conf.scopesWithoutHistoricalData()[0].equals(Scopes.FILE);
+      }
+    }));
   }
 
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesByDefault() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    Settings settings = new Settings(new PropertyDefinitions(DefaultPurgeTask.class));
+    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.class));
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
     task.purge(1L);
 
-    verify(purgeDao).purge(1L, new String[] {Scopes.DIRECTORY, Scopes.FILE});
+    verify(purgeDao).purge(argThat(new ArgumentMatcher<PurgeConfiguration>() {
+      @Override
+      public boolean matches(Object o) {
+        PurgeConfiguration conf = (PurgeConfiguration)o;
+        return conf.rootProjectId()==1L &&
+          conf.scopesWithoutHistoricalData().length==2 &&
+          conf.scopesWithoutHistoricalData()[0].equals(Scopes.DIRECTORY) &&
+          conf.scopesWithoutHistoricalData()[1].equals(Scopes.FILE);
+      }
+    }));
   }
 
   @Test
   public void shouldNotFailOnErrors() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    when(purgeDao.purge(anyLong(), (String[]) any())).thenThrow(new RuntimeException());
+    when(purgeDao.purge(any(PurgeConfiguration.class))).thenThrow(new RuntimeException());
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, new Settings(), mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
     task.purge(1L);
 
-    verify(purgeDao).purge(anyLong(), (String[]) any());
+    verify(purgeDao, times(1)).purge(any(PurgeConfiguration.class));
   }
 
   @Test
   public void shouldDumpProfiling() {
+    PurgeConfiguration conf = new PurgeConfiguration(1L, new String[0], 30);
     PurgeDao purgeDao = mock(PurgeDao.class);
-    when(purgeDao.purge(anyLong(), (String[]) any())).thenThrow(new RuntimeException());
-    Settings settings = new Settings();
+    when(purgeDao.purge(conf)).thenThrow(new RuntimeException());
+    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.class));
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
     PurgeProfiler profiler = mock(PurgeProfiler.class);
-    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), profiler);
 
+    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), profiler);
     task.purge(1L);
 
     verify(profiler).dump(anyLong());

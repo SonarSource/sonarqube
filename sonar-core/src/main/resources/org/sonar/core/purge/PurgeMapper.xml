@@ -215,5 +215,66 @@
     delete from issues where resource_id=#{id}
   </delete>
 
+
+  <delete id="deleteOldClosedIssueChanges" parameterType="map">
+    delete from issue_changes ic
+    where exists (
+    select * from issues i
+    where i.project_id=#{rootProjectId} and i.kee=ic.issue_key
+    <choose>
+      <when test="toDate == null">
+        and i.issue_close_date is not null
+      </when>
+      <otherwise>
+        and i.issue_close_date &lt; #{toDate}
+      </otherwise>
+    </choose>
+    )
+  </delete>
+
+  <!-- Mssql -->
+  <delete id="deleteOldClosedIssueChanges" databaseId="mssql" parameterType="map">
+    delete issue_changes from issue_changes
+    inner join issues on issue_changes.issue_key=issues.kee
+    where issues.project_id=#{rootProjectId}
+    <choose>
+      <when test="toDate == null">
+        and issues.issue_close_date is not null
+      </when>
+      <otherwise>
+        and issues.issue_close_date &lt; #{toDate}
+      </otherwise>
+    </choose>
+  </delete>
+
+  <!-- Mysql -->
+  <delete id="deleteOldClosedIssueChanges" databaseId="mysql" parameterType="map">
+    delete ic
+    from issue_changes as ic, issues as i
+    where i.project_id=#{rootProjectId}
+    and ic.issue_key=i.kee
+    <choose>
+      <when test="toDate == null">
+        and i.issue_close_date is not null
+      </when>
+      <otherwise>
+        and i.issue_close_date &lt; #{toDate}
+      </otherwise>
+    </choose>
+  </delete>
+
+  <delete id="deleteOldClosedIssues" parameterType="map">
+    delete from issues
+    where project_id=#{rootProjectId}
+    <choose>
+      <when test="toDate == null">
+        and issue_close_date is not null
+      </when>
+      <otherwise>
+        and issue_close_date &lt; #{toDate}
+      </otherwise>
+    </choose>
+  </delete>
+
 </mapper>
 

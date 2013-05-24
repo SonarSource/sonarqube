@@ -32,6 +32,7 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -49,56 +50,65 @@ public class PurgeDao {
     this.profiler = profiler;
   }
 
-  public PurgeDao purge(long rootResourceId, String[] scopesWithoutHistoricalData) {
+
+  public PurgeDao purge(PurgeConfiguration conf) {
     SqlSession session = mybatis.openBatchSession();
-    PurgeMapper purgeMapper = session.getMapper(PurgeMapper.class);
-    PurgeCommands commands = new PurgeCommands(session, purgeMapper, profiler);
+    PurgeMapper mapper = session.getMapper(PurgeMapper.class);
+    PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     try {
-      List<ResourceDto> projects = getProjects(rootResourceId, session);
+      List<ResourceDto> projects = getProjects(conf.rootProjectId(), session);
       for (ResourceDto project : projects) {
         LOG.info("-> Clean " + project.getLongName() + " [id=" + project.getId() + "]");
         deleteAbortedBuilds(project, commands);
-        purge(project, scopesWithoutHistoricalData, commands);
+        purge(project, conf.scopesWithoutHistoricalData(), commands);
       }
       for (ResourceDto project : projects) {
-        disableOrphanResources(project, session, purgeMapper);
+        disableOrphanResources(project, session, mapper);
       }
+      deleteOldClosedIssues(conf, mapper);
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
     return this;
   }
 
+  private void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper) {
+    Date toDate = conf.maxLiveDateOfClosedIssues();
+    mapper.deleteOldClosedIssueChanges(conf.rootProjectId(), toDate);
+    mapper.deleteOldClosedIssues(conf.rootProjectId(), toDate);
+  }
+
   private void deleteAbortedBuilds(ResourceDto project, PurgeCommands commands) {
     if (hasAbortedBuilds(project.getId(), commands)) {
       LOG.info("<- Delete aborted builds");
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-          .setIslast(false)
-          .setStatus(new String[] {"U"})
-          .setRootProjectId(project.getId());
+        .setIslast(false)
+        .setStatus(new String[]{"U"})
+        .setRootProjectId(project.getId());
       commands.deleteSnapshots(query);
     }
   }
 
   private boolean hasAbortedBuilds(Long projectId, PurgeCommands commands) {
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-        .setIslast(false)
-        .setStatus(new String[] {"U"})
-        .setResourceId(projectId);
+      .setIslast(false)
+      .setStatus(new String[]{"U"})
+      .setResourceId(projectId);
     return !commands.selectSnapshotIds(query).isEmpty();
   }
 
   private void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
     List<Long> projectSnapshotIds = purgeCommands.selectSnapshotIds(
-        PurgeSnapshotQuery.create().setResourceId(project.getId()).setIslast(false).setNotPurged(true)
-        );
+      PurgeSnapshotQuery.create().setResourceId(project.getId()).setIslast(false).setNotPurged(true)
+    );
     for (final Long projectSnapshotId : projectSnapshotIds) {
       LOG.info("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
         PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-            .setIslast(false)
-            .setScopes(scopesWithoutHistoricalData)
-            .setRootSnapshotId(projectSnapshotId);
+          .setIslast(false)
+          .setScopes(scopesWithoutHistoricalData)
+          .setRootSnapshotId(projectSnapshotId);
         purgeCommands.deleteSnapshots(query);
       }
 
@@ -163,7 +173,6 @@ public class PurgeDao {
     mapper.deleteResourceIndex(resourceId);
     mapper.setSnapshotIsLastToFalse(resourceId);
     mapper.disableResource(resourceId);
-    //TODO mapper.closeResourceReviews(resourceId);
   }
 
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {

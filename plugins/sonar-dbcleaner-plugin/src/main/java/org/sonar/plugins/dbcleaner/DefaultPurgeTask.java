@@ -28,6 +28,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.TimeUtils;
+import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
@@ -37,16 +38,6 @@ import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 /**
  * @since 2.14
  */
-@Properties({
-  @Property(
-    key = DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY,
-    defaultValue = "true",
-    name = "Clean history data of directories/packages",
-    global = true,
-    project = true,
-    module = false,
-    type = PropertyType.BOOLEAN)
-})
 public class DefaultPurgeTask implements PurgeTask {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPurgeTask.class);
 
@@ -90,19 +81,20 @@ public class DefaultPurgeTask implements PurgeTask {
     }
   }
 
-  private String[] getScopesWithoutHistoricalData() {
-    if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
-      return new String[] {Scopes.DIRECTORY, Scopes.FILE};
-    }
-    return new String[] {Scopes.FILE};
-  }
-
   private void doPurge(long resourceId) {
     try {
-      purgeDao.purge(resourceId, getScopesWithoutHistoricalData());
+      purgeDao.purge(newConf(resourceId));
     } catch (Exception e) {
       // purge errors must no fail the batch
       LOG.error("Fail to purge data [id=" + resourceId + "]", e);
     }
+  }
+
+  private PurgeConfiguration newConf(long resourceId) {
+    String[] scopes = new String[] {Scopes.FILE};
+    if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
+      scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};
+    }
+    return new PurgeConfiguration(resourceId, scopes, settings.getInt(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES));
   }
 }

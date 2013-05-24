@@ -21,6 +21,8 @@ package org.sonar.core.purge;
 
 import org.apache.ibatis.annotations.Param;
 
+import javax.annotation.Nullable;
+import java.util.Date;
 import java.util.List;
 
 public interface PurgeMapper {
@@ -95,4 +97,7 @@ public interface PurgeMapper {
 
   void deleteResourceIssues(long resourceId);
 
+  void deleteOldClosedIssueChanges(@Param("rootProjectId") long rootProjectId, @Nullable @Param("toDate") Date toDate);
+
+  void deleteOldClosedIssues(@Param("rootProjectId") long rootProjectId, @Nullable @Param("toDate") Date toDate);
 }
