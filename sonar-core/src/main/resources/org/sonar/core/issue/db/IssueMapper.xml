@@ -146,12 +146,25 @@
     </where>
   </select>
 
-  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="2147483647">
-    select
-    <if test="_databaseId == 'mssql' ">
-      top #{maxResults}
-    </if>
-    i.id, i.project_id as projectId
+  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="1000000">
+    select i.id, i.project_id as projectId
+    <include refid="sortColumn"/>
+    <include refid="selectQueryConditions"/>
+    limit #{maxResults}
+  </select>
+
+  <!-- Oracle -->
+  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="1000000" databaseId="oracle">
+    select * from (
+      select i.id, i.project_id as projectId
+      <include refid="sortColumn"/>
+      <include refid="selectQueryConditions"/>
+    ) where rownum &lt;= #{maxResults}
+  </select>
+
+  <!-- SQL Server -->
+  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="1000000" databaseId="mssql">
+    select top #{maxResults} i.id, i.project_id as projectId
     <include refid="sortColumn"/>
     <include refid="selectQueryConditions"/>
   </select>
@@ -275,14 +288,7 @@
       <if test="query.createdBefore() != null">
         and i.issue_creation_date &lt; #{query.createdBefore}
       </if>
-      <if test="_databaseId == 'oracle' ">
-        and rownum &lt;= #{maxResults}
-      </if>
     </where>
-    order by i.id
-    <if test="_databaseId != 'oracle' and _databaseId != 'mssql'">
-      limit #{maxResults}
-    </if>
   </sql>
 
 </mapper>
