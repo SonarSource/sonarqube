@@ -22,8 +22,11 @@ package org.sonar.core.issue.workflow;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import org.junit.Test;
+import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 
@@ -191,7 +194,25 @@ public class IssueWorkflowTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Unknown status: xxx [issue=ABCDE]");
     }
+  }
 
+  @Test
+  public void should_flag_as_false_positive() throws Exception {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setStatus(Issue.STATUS_OPEN)
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setAssignee("morgan")
+      .setReporter("simon");
+
+    workflow.start();
+    workflow.doTransition(issue, DefaultTransitions.FALSE_POSITIVE, IssueChangeContext.createScan(new Date()));
+
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
+
+    // should remove assignee
+    assertThat(issue.assignee()).isNull();
   }
 
   private Collection<String> keys(List<Transition> transitions) {

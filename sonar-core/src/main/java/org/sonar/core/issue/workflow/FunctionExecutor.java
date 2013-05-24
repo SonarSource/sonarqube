@@ -26,6 +26,8 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 
+import javax.annotation.Nullable;
+
 public class FunctionExecutor implements BatchComponent, ServerComponent {
 
   private final IssueUpdater updater;
@@ -60,7 +62,13 @@ public class FunctionExecutor implements BatchComponent, ServerComponent {
     }
 
     @Override
-    public Function.Context setResolution(String s) {
+    public Function.Context setAssignee(@Nullable String s) {
+      updater.assign(issue, s, changeContext);
+      return this;
+    }
+
+    @Override
+    public Function.Context setResolution(@Nullable String s) {
       updater.setResolution(issue, s, changeContext);
       return this;
     }

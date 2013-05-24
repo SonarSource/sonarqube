@@ -80,20 +80,22 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .from(Issue.STATUS_CLOSED).to(Issue.STATUS_REOPENED)
         .functions(new SetResolution(null), new SetCloseDate(false))
         .build())
+
+      // resolve as false-positive
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .conditions(new IsManual(false))
-        .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE))
+        .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), SetAssignee.UNASSIGN)
         .build())
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_RESOLVED)
         .conditions(new IsManual(false))
-        .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE))
+        .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), SetAssignee.UNASSIGN)
         .build())
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
         .conditions(new IsManual(false))
-        .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE))
+        .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), SetAssignee.UNASSIGN)
         .build())
 
         // automatic transitions

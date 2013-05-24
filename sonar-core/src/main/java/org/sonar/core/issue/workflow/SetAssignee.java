@@ -19,17 +19,19 @@
  */
 package org.sonar.core.issue.workflow;
 
-import org.sonar.api.issue.Issue;
-
 import javax.annotation.Nullable;
 
-interface Function {
-  interface Context {
-    Issue issue();
-    Context setAssignee(@Nullable String s);
-    Context setResolution(@Nullable String s);
-    Context setCloseDate(boolean b);
+public class SetAssignee implements Function {
+  public static final SetAssignee UNASSIGN = new SetAssignee(null);
+
+  private final String assignee;
+
+  public SetAssignee(@Nullable String assignee) {
+    this.assignee = assignee;
   }
 
-  void execute(Context context);
+  @Override
+  public void execute(Context context) {
+    context.setAssignee(assignee);
+  }
 }
