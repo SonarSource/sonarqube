@@ -271,14 +271,9 @@
       <if test="query.createdBefore() != null">
         and i.issue_creation_date &lt; #{query.createdBefore}
       </if>
-      <if test="_databaseId == 'mssql' or _databaseId == 'oracle' ">
-        and rownum &lt;= #{maxResults}
-      </if>
     </where>
     order by i.id
-    <if test="_databaseId != 'mssql' and _databaseId != 'oracle' ">
-      limit #{maxResults}
-    </if>
+    limit #{maxResults}
   </sql>
 
 </mapper>
