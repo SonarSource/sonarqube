@@ -451,13 +451,14 @@ function showDropdownMenu(menuId) {
 
 function showDropdownMenuOnElement(elt) {
   var dropdownElt = $j(elt);
-  var dropdownChildren = dropdownElt.children('li');
 
   if (dropdownElt == currentlyDisplayedDropdownMenu) {
     currentlyDisplayedDropdownMenu = "";
   } else {
     currentlyDisplayedDropdownMenu = dropdownElt;
     $j(document).mouseup(hideCurrentDropdownMenu);
+
+    var dropdownChildren = dropdownElt.find('li');
     dropdownChildren.unbind('click');
     dropdownChildren.click(clickOnDropdownMenuLink);
     dropdownElt.show();
