@@ -138,6 +138,11 @@ class DrilldownController < ApplicationController
     @display_viewers=display_issue_viewers?(@drilldown.highlighted_snapshot || @snapshot)
   end
 
+  # Deprecated in 3.6. Kept for backward-compatibility, for example with SQALE (http://jira.sonarsource.com/browse/SQALE-185)
+  def violations
+    redirect_to(params.merge({:action => 'issues'}))
+  end
+
   private
 
   def select_metric(metric_key, default_key)
