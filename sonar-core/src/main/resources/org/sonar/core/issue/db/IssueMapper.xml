@@ -150,16 +150,9 @@
     select i.id, i.project_id as projectId
     <include refid="sortColumn"/>
     <include refid="selectQueryConditions"/>
-    limit #{maxResults}
-  </select>
-
-  <!-- Oracle -->
-  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="1000000" databaseId="oracle">
-    select * from (
-      select i.id, i.project_id as projectId
-      <include refid="sortColumn"/>
-      <include refid="selectQueryConditions"/>
-    ) where rownum &lt;= #{maxResults}
+    <if test="_databaseId != 'oracle'">
+      limit #{maxResults}
+    </if>
   </select>
 
   <!-- SQL Server -->
@@ -287,6 +280,12 @@
       </if>
       <if test="query.createdBefore() != null">
         and i.issue_creation_date &lt; #{query.createdBefore}
+      </if>
+      <if test="query.createdBefore() != null">
+        and i.issue_creation_date &lt; #{query.createdBefore}
+      </if>
+      <if test="_databaseId == 'oracle'">
+        and rownum &lt;= #{maxResults}
       </if>
     </where>
   </sql>
