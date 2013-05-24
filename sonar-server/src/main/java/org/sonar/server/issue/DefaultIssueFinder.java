@@ -97,13 +97,11 @@ public class DefaultIssueFinder implements IssueFinder {
     LOG.debug("IssueQuery : {}", query);
     SqlSession sqlSession = myBatis.openSession();
     try {
-      DefaultIssueQueryResult defaultIssueQueryResult = new DefaultIssueQueryResult();
-
       // 1. Select all authorized root project ids for the user
       Collection<Integer> rootProjectIds = authorizationDao.selectAuthorizedRootProjectsIds(UserSession.get().userId(), query.requiredRole(), sqlSession);
 
       // 2. Select the authorized ids of all the issues that match the query
-      List<IssueDto> authorizedIssues = issueDao.selectIssueAndProjectIds(query, defaultIssueQueryResult, rootProjectIds, sqlSession);
+      List<IssueDto> authorizedIssues = issueDao.selectIssueAndProjectIds(query, rootProjectIds, sqlSession);
 
       // 3. Sort all authorized issues
       List<IssueDto> authorizedSortedIssues = sort(authorizedIssues, query, authorizedIssues.size());
@@ -147,6 +145,8 @@ public class DefaultIssueFinder implements IssueFinder {
         }
       }
 
+      DefaultIssueQueryResult defaultIssueQueryResult = new DefaultIssueQueryResult();
+      defaultIssueQueryResult.setMaxResultsReached(authorizedIssues.size() == query.maxResults());
       defaultIssueQueryResult.setIssues(issues)
         .addRules(findRules(ruleIds))
         .addComponents(findComponents(componentIds))

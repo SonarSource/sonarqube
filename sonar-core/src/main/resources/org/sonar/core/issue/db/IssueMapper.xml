@@ -35,24 +35,24 @@
   </sql>
 
   <sql id="sortColumn">
-    <if test="sort != null">,
+    <if test="query.sort() != null">,
       <choose>
-        <when test="'SEVERITY'.equals(sort.name())">
+        <when test="'SEVERITY'.equals(query.sort().name())">
           i.severity as severity
         </when>
-        <when test="'STATUS'.equals(sort.name())">
+        <when test="'STATUS'.equals(query.sort().name())">
           i.status as status
         </when>
-        <when test="'ASSIGNEE'.equals(sort.name())">
+        <when test="'ASSIGNEE'.equals(query.sort().name())">
           i.assignee as assignee
         </when>
-        <when test="'CREATION_DATE'.equals(sort.name())">
+        <when test="'CREATION_DATE'.equals(query.sort().name())">
           i.issue_creation_date as issueCreationDate
         </when>
-        <when test="'UPDATE_DATE'.equals(sort.name())">
+        <when test="'UPDATE_DATE'.equals(query.sort().name())">
           i.issue_update_date as issueUpdateDate
         </when>
-        <when test="'CLOSE_DATE'.equals(sort.name())">
+        <when test="'CLOSE_DATE'.equals(query.sort().name())">
           i.issue_close_date as issueCloseDate
         </when>
       </choose>
@@ -146,34 +146,34 @@
     </where>
   </select>
 
-  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="500">
+  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="2147483647">
     select i.id, i.project_id as projectId
     <include refid="sortColumn"/>
     <include refid="selectQueryConditions"/>
   </select>
 
-  <select id="select" parameterType="map" resultType="Issue">
-    select
-    <include refid="issueColumns"/>
-    <include refid="selectQueryConditions"/>
-  </select>
-
   <sql id="selectQueryConditions">
     from issues i, projects p, rules r, projects root
-    <if test="componentRoots != null and componentRoots.size() > 0">
+    <if test="query.componentRoots() != null and query.componentRoots().size() > 0">
       , projects rootprojects, snapshots rootsnapshots, snapshots s
     </if>
-    <if test="components != null and components.size() > 0">
+    <if test="query.components() != null and query.components().size() > 0">
       , projects project_component
     </if>
     <where>
       and i.resource_id=p.id
       and i.project_id=root.id
+      and
+      <foreach collection="authorizedRootProjectIds" open="i.project_id in (" close=")" item="list" separator=") or i.project_id in in (">
+        <foreach collection="list" item="element" separator=",">
+          #{element}
+        </foreach>
+      </foreach>
       and i.rule_id=r.id
-      <if test="componentRoots != null and componentRoots.size() > 0">
+      <if test="query.componentRoots() != null and query.componentRoots().size() > 0">
         and rootprojects.enabled=${_true}
         and rootprojects.kee in
-        <foreach item="componentRoot" index="index" collection="componentRoots" open="(" separator="," close=")">
+        <foreach item="componentRoot" index="index" collection="query.componentRoots()" open="(" separator="," close=")">
           #{componentRoot}
         </foreach>
         and rootsnapshots.project_id=rootprojects.id
@@ -194,85 +194,91 @@
         and s.islast=${_true}
         and i.resource_id=s.project_id
       </if>
-      <if test="components != null">
+      <if test="query.components() != null">
         and project_component.enabled=${_true}
         and project_component.kee in
-        <foreach item="component" index="index" collection="components" open="(" separator="," close=")">#{component}
+        <foreach item="component" index="index" collection="query.components()" open="(" separator="," close=")">#{component}
         </foreach>
         and i.resource_id=project_component.id
       </if>
-      <if test="issueKeys != null">
+      <if test="query.issueKeys() != null">
         and i.kee in
-        <foreach item="key" index="index" collection="issueKeys" open="(" separator="," close=")">#{key}
+        <foreach item="key" index="index" collection="query.issueKeys()" open="(" separator="," close=")">#{key}
         </foreach>
       </if>
-      <if test="severities != null">
+      <if test="query.severities() != null">
         and i.severity in
-        <foreach item="severity" index="index" collection="severities" open="(" separator="," close=")">#{severity}
+        <foreach item="severity" index="index" collection="query.severities()" open="(" separator="," close=")">#{severity}
         </foreach>
       </if>
-      <if test="statuses != null">
+      <if test="query.statuses() != null">
         and i.status in
-        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">#{status}
+        <foreach item="status" index="index" collection="query.statuses()" open="(" separator="," close=")">#{status}
         </foreach>
       </if>
-      <if test="resolutions != null">
+      <if test="query.resolutions() != null">
         and i.resolution in
-        <foreach item="resolution" index="index" collection="resolutions" open="(" separator="," close=")">#{resolution}
+        <foreach item="resolution" index="index" collection="query.resolutions()" open="(" separator="," close=")">#{resolution}
         </foreach>
       </if>
-      <if test="resolved != null">
-        <if test="resolved == true">
+      <if test="query.resolved() != null">
+        <if test="query.resolved() == true">
           and i.resolution is not null
         </if>
-        <if test="resolved == false">
+        <if test="query.resolved() == false">
           and i.resolution is null
         </if>
       </if>
-      <if test="reporters != null">
+      <if test="query.reporters() != null">
         and i.reporter in
-        <foreach item="reporter" index="index" collection="reporters" open="(" separator="," close=")">#{reporter}
+        <foreach item="reporter" index="index" collection="query.reporters()" open="(" separator="," close=")">#{reporter}
         </foreach>
       </if>
-      <if test="assignees != null">
+      <if test="query.assignees() != null">
         and i.assignee in
-        <foreach item="assignee" index="index" collection="assignees" open="(" separator="," close=")">#{assignee}
+        <foreach item="assignee" index="index" collection="query.assignees()" open="(" separator="," close=")">#{assignee}
         </foreach>
       </if>
-      <if test="assigned != null">
-        <if test="assigned == true">
+      <if test="query.assigned() != null">
+        <if test="query.assigned() == true">
           and i.assignee is not null
         </if>
-        <if test="assigned == false">
+        <if test="query.assigned() == false">
           and i.assignee is null
         </if>
       </if>
-      <if test="planned != null">
-        <if test="planned == true">
+      <if test="query.planned() != null">
+        <if test="query.planned() == true">
           and i.action_plan_key is not null
         </if>
-        <if test="planned == false">
+        <if test="query.planned() == false">
           and i.action_plan_key is null
         </if>
       </if>
-      <if test="rules != null and rules.size() > 0">
-        and (<foreach item="rule" index="index" collection="rules" open="(" separator=" or " close=")">
+      <if test="query.rules() != null and query.rules().size() > 0">
+        and (<foreach item="rule" index="index" collection="query.rules()" open="(" separator=" or " close=")">
         r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
       </if>
-      <if test="actionPlans != null">
+      <if test="query.actionPlans() != null">
         and i.action_plan_key in
-        <foreach item="action_plan" index="index" collection="actionPlans" open="(" separator="," close=")">
+        <foreach item="action_plan" index="index" collection="query.actionPlans()" open="(" separator="," close=")">
           #{action_plan}
         </foreach>
       </if>
-      <if test="createdAfter != null">
-        and i.issue_creation_date &gt;= #{createdAfter}
+      <if test="query.createdAfter() != null">
+        and i.issue_creation_date &gt;= #{query.createdAfter}
       </if>
-      <if test="createdBefore != null">
-        and i.issue_creation_date &lt; #{createdBefore}
+      <if test="query.createdBefore() != null">
+        and i.issue_creation_date &lt; #{query.createdBefore}
+      </if>
+      <if test="_databaseId == 'mssql' or _databaseId == 'oracle' ">
+        and rownum &lt;= #{maxResults}
       </if>
     </where>
     order by i.id
+    <if test="_databaseId != 'mssql' and _databaseId != 'oracle' ">
+      limit #{maxResults}
+    </if>
   </sql>
 
 </mapper>

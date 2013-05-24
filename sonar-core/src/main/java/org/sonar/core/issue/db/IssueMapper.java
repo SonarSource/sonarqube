@@ -19,6 +19,7 @@
  */
 package org.sonar.core.issue.db;
 
+import org.apache.ibatis.annotations.Param;
 import org.sonar.api.issue.IssueQuery;
 
 import java.util.List;
@@ -27,9 +28,10 @@ public interface IssueMapper {
 
   IssueDto selectByKey(String key);
 
-  List<IssueDto> select(IssueQuery query);
-
   List<IssueDto> selectNonClosedIssues(int rootComponentId);
+
+  List<IssueDto> selectIssueAndProjectIds(@Param("query") IssueQuery query, @Param("authorizedRootProjectIds") List<List<Integer>> authorizedRootProjectIds,
+                                          @Param("maxResults") Integer maxResult);
 
   void insert(IssueDto issue);
 

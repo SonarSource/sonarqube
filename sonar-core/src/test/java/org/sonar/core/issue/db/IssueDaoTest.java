@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collections;
@@ -33,8 +32,6 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 public class IssueDaoTest extends AbstractDaoTestCase {
@@ -80,41 +77,17 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_by_query() {
-    setupData("shared", "should_select_by_query");
-
-    IssueQuery query = IssueQuery.builder()
-      .issueKeys(newArrayList("ABCDE"))
-      .reporters(newArrayList("arthur", "otherguy"))
-      .assignees(newArrayList("perceval", "otherguy"))
-      .components(newArrayList("Action.java"))
-      .resolutions(newArrayList("FIXED"))
-      .severities(newArrayList("BLOCKER"))
-      .rules(newArrayList(RuleKey.of("squid", "AvoidCycle")))
-      .build();
-
-    assertThat(dao.select(query)).hasSize(1);
-
-    IssueDto issue = dao.select(query).get(0);
-    assertThat(issue.getId()).isEqualTo(100);
-    assertThat(issue.getRuleRepo()).isEqualTo("squid");
-    assertThat(issue.getRule()).isEqualTo("AvoidCycle");
-    assertThat(issue.getComponentKey()).isEqualTo("Action.java");
-    assertThat(issue.getProjectKey()).isEqualTo("struts");
-  }
-
-  @Test
   public void should_select_by_rules() {
     setupData("shared", "should_select_by_rules");
 
     IssueQuery query = IssueQuery.builder().rules(newArrayList(RuleKey.of("squid", "AvoidCycle"))).build();
-    assertThat(dao.select(query)).hasSize(2);
+    assertThat(dao.selectIssueAndProjectIds(query, newArrayList(399))).hasSize(2);
 
     query = IssueQuery.builder().rules(newArrayList(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("squid", "NullRef"))).build();
-    assertThat(dao.select(query)).hasSize(3);
+    assertThat(dao.selectIssueAndProjectIds(query, newArrayList(399))).hasSize(3);
 
     query = IssueQuery.builder().rules(newArrayList(RuleKey.of("squid", "Other"))).build();
-    assertThat(dao.select(query)).isEmpty();
+    assertThat(dao.selectIssueAndProjectIds(query, newArrayList(399))).isEmpty();
   }
 
   @Test
@@ -122,10 +95,10 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_by_date_creation");
 
     IssueQuery query = IssueQuery.builder().createdAfter(DateUtils.parseDate("2013-04-15")).build();
-    assertThat(dao.select(query)).hasSize(1);
+    assertThat(dao.selectIssueAndProjectIds(query, newArrayList(399))).hasSize(1);
 
     query = IssueQuery.builder().createdBefore(DateUtils.parseDate("2013-04-17")).build();
-    assertThat(dao.select(query)).hasSize(2);
+    assertThat(dao.selectIssueAndProjectIds(query, newArrayList(399))).hasSize(2);
   }
 
   @Test
@@ -133,24 +106,24 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_by_component_root");
 
     IssueQuery query = IssueQuery.builder().componentRoots(newArrayList("struts")).build();
-    List<IssueDto> issues = newArrayList(dao.select(query));
+    List<IssueDto> issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(2);
     assertThat(issues.get(0).getId()).isEqualTo(100);
     assertThat(issues.get(1).getId()).isEqualTo(101);
 
     query = IssueQuery.builder().componentRoots(newArrayList("struts-core")).build();
-    issues = newArrayList(dao.select(query));
+    issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(2);
     assertThat(issues.get(0).getId()).isEqualTo(100);
     assertThat(issues.get(1).getId()).isEqualTo(101);
 
     query = IssueQuery.builder().componentRoots(newArrayList("Filter.java")).build();
-    issues = newArrayList(dao.select(query));
+    issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).getId()).isEqualTo(101);
 
     query = IssueQuery.builder().componentRoots(newArrayList("not-found")).build();
-    issues = newArrayList(dao.select(query));
+    issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).isEmpty();
   }
 
@@ -159,15 +132,15 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_by_assigned");
 
     IssueQuery query = IssueQuery.builder().assigned(true).build();
-    List<IssueDto> issues = newArrayList(dao.select(query));
+    List<IssueDto> issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(2);
 
     query = IssueQuery.builder().assigned(false).build();
-    issues = newArrayList(dao.select(query));
+    issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(1);
 
     query = IssueQuery.builder().assigned(null).build();
-    issues = newArrayList(dao.select(query));
+    issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(3);
   }
 
@@ -176,15 +149,15 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_by_planned");
 
     IssueQuery query = IssueQuery.builder().planned(true).build();
-    List<IssueDto> issues = newArrayList(dao.select(query));
+    List<IssueDto> issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(2);
 
     query = IssueQuery.builder().planned(false).build();
-    issues = newArrayList(dao.select(query));
+    issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(1);
 
     query = IssueQuery.builder().planned(null).build();
-    issues = newArrayList(dao.select(query));
+    issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(3);
   }
 
@@ -193,15 +166,15 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_by_resolved");
 
     IssueQuery query = IssueQuery.builder().resolved(true).build();
-    List<IssueDto> issues = newArrayList(dao.select(query));
+    List<IssueDto> issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(2);
 
     query = IssueQuery.builder().resolved(false).build();
-    issues = newArrayList(dao.select(query));
+    issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(1);
 
     query = IssueQuery.builder().resolved(null).build();
-    issues = newArrayList(dao.select(query));
+    issues = newArrayList(dao.selectIssueAndProjectIds(query, newArrayList(399)));
     assertThat(issues).hasSize(3);
   }
 
@@ -210,13 +183,13 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_by_action_plans");
 
     IssueQuery query = IssueQuery.builder().actionPlans(newArrayList("ABC")).build();
-    assertThat(dao.select(query)).hasSize(2);
+    assertThat(dao.selectIssueAndProjectIds(query, newArrayList(399))).hasSize(2);
 
     query = IssueQuery.builder().actionPlans(newArrayList("ABC", "DEF")).build();
-    assertThat(dao.select(query)).hasSize(3);
+    assertThat(dao.selectIssueAndProjectIds(query, newArrayList(399))).hasSize(3);
 
     query = IssueQuery.builder().actionPlans(newArrayList("<Unkown>")).build();
-    assertThat(dao.select(query)).isEmpty();
+    assertThat(dao.selectIssueAndProjectIds(query, newArrayList(399))).isEmpty();
   }
 
   @Test
@@ -224,65 +197,54 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_all");
 
     IssueQuery query = IssueQuery.builder().build();
-    assertThat(dao.select(query)).hasSize(3);
+    assertThat(dao.selectIssueAndProjectIds(query, newArrayList(399))).hasSize(3);
   }
 
   @Test
   public void should_select_issue_and_project_ids() {
     setupData("shared", "should_select_issue_and_project_ids");
 
-    DefaultIssueQueryResult defaultIssueQueryResult = new DefaultIssueQueryResult();
-    IssueQuery query = mock(IssueQuery.class);
-    when(query.maxResults()).thenReturn(1000);
-    List<IssueDto> results = dao.selectIssueAndProjectIds(query, defaultIssueQueryResult, newArrayList(399));
+    IssueQuery query = IssueQuery.builder().build();
+    List<IssueDto> results = dao.selectIssueAndProjectIds(query, newArrayList(399));
     assertThat(results).hasSize(3);
-    assertThat(defaultIssueQueryResult.maxResultsReached()).isFalse();
-    assertThat(defaultIssueQueryResult.securityExclusions()).isFalse();
 
     IssueDto issueDto = results.get(0);
     assertThat(issueDto.getId()).isNotNull();
     assertThat(issueDto.getProjectId()).isNotNull();
 
-    results = dao.selectIssueAndProjectIds(query, defaultIssueQueryResult, Collections.<Integer>emptyList());
+    results = dao.selectIssueAndProjectIds(query, Collections.<Integer>emptyList());
     assertThat(results).isEmpty();
-    assertThat(defaultIssueQueryResult.maxResultsReached()).isFalse();
-    assertThat(defaultIssueQueryResult.securityExclusions()).isTrue();
 
-    when(query.maxResults()).thenReturn(2);
-    results = dao.selectIssueAndProjectIds(query, defaultIssueQueryResult, newArrayList(399));
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399), 2);
     assertThat(results).hasSize(2);
-    assertThat(defaultIssueQueryResult.maxResultsReached()).isTrue();
-    assertThat(defaultIssueQueryResult.securityExclusions()).isTrue();
   }
 
   @Test
   public void should_select_issue_and_project_ids_with_sort_column() {
     setupData("shared", "should_select_issue_and_project_ids");
 
-    DefaultIssueQueryResult defaultIssueQueryResult = new DefaultIssueQueryResult();
-
     IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.ASSIGNEE).build();
-    List<IssueDto> results = dao.selectIssueAndProjectIds(query, defaultIssueQueryResult, newArrayList(399));
+    List<IssueDto> results = dao.selectIssueAndProjectIds(query, newArrayList(399));
     assertThat(results.get(0).getAssignee()).isNotNull();
 
     query = IssueQuery.builder().sort(IssueQuery.Sort.SEVERITY).build();
-    results = dao.selectIssueAndProjectIds(query, defaultIssueQueryResult, newArrayList(399));
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399));
     assertThat(results.get(0).getSeverity()).isNotNull();
 
     query = IssueQuery.builder().sort(IssueQuery.Sort.STATUS).build();
-    results = dao.selectIssueAndProjectIds(query, defaultIssueQueryResult, newArrayList(399));
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399));
     assertThat(results.get(0).getStatus()).isNotNull();
 
     query = IssueQuery.builder().sort(IssueQuery.Sort.CREATION_DATE).build();
-    results = dao.selectIssueAndProjectIds(query, defaultIssueQueryResult, newArrayList(399));
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399));
     assertThat(results.get(0).getIssueCreationDate()).isNotNull();
 
     query = IssueQuery.builder().sort(IssueQuery.Sort.UPDATE_DATE).build();
-    results = dao.selectIssueAndProjectIds(query, defaultIssueQueryResult, newArrayList(399));
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399));
     assertThat(results.get(0).getIssueUpdateDate()).isNotNull();
 
     query = IssueQuery.builder().sort(IssueQuery.Sort.CLOSE_DATE).build();
-    results = dao.selectIssueAndProjectIds(query, defaultIssueQueryResult, newArrayList(399));
+    results = dao.selectIssueAndProjectIds(query, newArrayList(399));
     assertThat(results.get(0).getIssueCloseDate()).isNotNull();
   }
 

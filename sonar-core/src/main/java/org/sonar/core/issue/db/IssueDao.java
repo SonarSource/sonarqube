@@ -22,13 +22,10 @@ package org.sonar.core.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueQuery;
-import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -73,22 +70,20 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<IssueDto> select(IssueQuery query) {
+  @VisibleForTesting
+  List<IssueDto> selectIssueAndProjectIds(IssueQuery query, Collection<Integer> authorizedRootProjectIds, Integer maxResult) {
     SqlSession session = mybatis.openSession();
     try {
-      IssueMapper mapper = session.getMapper(IssueMapper.class);
-      return mapper.select(query);
+      return selectIssueAndProjectIds(query, authorizedRootProjectIds, maxResult, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  @VisibleForTesting
-  List<IssueDto> selectIssueAndProjectIds(final IssueQuery query, final DefaultIssueQueryResult defaultIssueQueryResult,
-                                          final Collection<Integer> authorizedRootProjectIds) {
+  List<IssueDto> selectIssueAndProjectIds(IssueQuery query, Collection<Integer> authorizedRootProjectIds) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectIssueAndProjectIds(query, defaultIssueQueryResult, authorizedRootProjectIds, session);
+      return selectIssueAndProjectIds(query, authorizedRootProjectIds, Integer.MAX_VALUE, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -97,26 +92,17 @@ public class IssueDao implements BatchComponent, ServerComponent {
   /**
    * The returned IssueDto list contains only the issue id, the project id and the sort column
    */
-  public List<IssueDto> selectIssueAndProjectIds(final IssueQuery query, final DefaultIssueQueryResult defaultIssueQueryResult,
-                                                  final Collection<Integer> authorizedRootProjectIds, SqlSession sqlSession){
-    final List<IssueDto> authorizedIssues = newArrayList();
-    ResultHandler resultHandler = new ResultHandler(){
-      @Override
-      public void handleResult(ResultContext context) {
-        IssueDto issueDto = (IssueDto) context.getResultObject();
-        if (authorizedRootProjectIds.contains(issueDto.getProjectId())) {
-          authorizedIssues.add(issueDto);
-        } else {
-          defaultIssueQueryResult.setSecurityExclusions(true);
-        }
-        if (authorizedIssues.size() >= query.maxResults()) {
-          defaultIssueQueryResult.setMaxResultsReached(true);
-          context.stop();
-        }
-      }
-    };
-    sqlSession.select("selectIssueAndProjectIds", query, resultHandler);
-    return authorizedIssues;
+  public List<IssueDto> selectIssueAndProjectIds(IssueQuery query, Collection<Integer> authorizedRootProjectIds, SqlSession session){
+    return selectIssueAndProjectIds(query, authorizedRootProjectIds, query.maxResults(), session);
+  }
+
+  private List<IssueDto> selectIssueAndProjectIds(IssueQuery query, Collection<Integer> authorizedRootProjectIds, Integer maxResult, SqlSession session){
+    if (authorizedRootProjectIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+    IssueMapper mapper = session.getMapper(IssueMapper.class);
+    List<List<Integer>> idsPartition = Lists.partition(newArrayList(authorizedRootProjectIds), 1000);
+    return mapper.selectIssueAndProjectIds(query, idsPartition, maxResult);
   }
 
   @VisibleForTesting

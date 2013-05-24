@@ -30,7 +30,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
-import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
@@ -84,7 +83,7 @@ public class DefaultIssueFinderTest {
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueQueryResult results = finder.find(query);
-    verify(issueDao).selectIssueAndProjectIds(eq(query), any(DefaultIssueQueryResult.class), eq(newHashSet(100)), any(SqlSession.class));
+    verify(issueDao).selectIssueAndProjectIds(eq(query), eq(newHashSet(100)), any(SqlSession.class));
 
     assertThat(results.issues()).hasSize(2);
     Issue issue = results.issues().iterator().next();
@@ -112,7 +111,7 @@ public class DefaultIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssueAndProjectIds(eq(query), any(DefaultIssueQueryResult.class), eq(newHashSet(100)), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueAndProjectIds(eq(query), eq(newHashSet(100)), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueQueryResult results = finder.find(query);
@@ -253,7 +252,7 @@ public class DefaultIssueFinderTest {
   public void should_get_empty_result_when_no_issue() {
     grantAccessRights();
     IssueQuery query = IssueQuery.builder().build();
-    when(issueDao.selectIssueAndProjectIds(eq(query), any(DefaultIssueQueryResult.class), anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
+    when(issueDao.selectIssueAndProjectIds(eq(query), anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
 
     IssueQueryResult results = finder.find(query);
