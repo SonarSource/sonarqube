@@ -24,6 +24,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.core.issue.ActionPlanDeadlineComparator;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.issue.db.ActionPlanDto;
@@ -36,6 +37,7 @@ import org.sonar.core.resource.ResourceQuery;
 import javax.annotation.CheckForNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -90,14 +92,16 @@ public class ActionPlanService implements ServerComponent {
     return actionPlanDto.toActionPlan();
   }
 
-  public Collection<ActionPlan> findByKeys(Collection<String> keys) {
-    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findByKeys(keys);
+  public List<ActionPlan> findByKeys(Collection<String> keys) {
+    List<ActionPlanDto> actionPlanDtos = actionPlanDao.findByKeys(keys);
     return toActionPlans(actionPlanDtos);
   }
 
   public Collection<ActionPlan> findOpenByComponentKey(String componentKey) {
-    Collection<ActionPlanDto> actionPlanDtos = actionPlanDao.findOpenByProjectId(findRootProject(componentKey).getId());
-    return toActionPlans(actionPlanDtos);
+    List<ActionPlanDto> dtos = actionPlanDao.findOpenByProjectId(findRootProject(componentKey).getId());
+    List<ActionPlan> plans = toActionPlans(dtos);
+    Collections.sort(plans, new ActionPlanDeadlineComparator());
+    return plans;
   }
 
   public List<ActionPlanStats> findActionPlanStats(String projectKey) {
@@ -114,7 +118,7 @@ public class ActionPlanService implements ServerComponent {
     return !actionPlanDao.findByNameAndProjectId(name, findComponent(projectKey).getId()).isEmpty();
   }
 
-  private Collection<ActionPlan> toActionPlans(Collection<ActionPlanDto> actionPlanDtos) {
+  private List<ActionPlan> toActionPlans(List<ActionPlanDto> actionPlanDtos) {
     return newArrayList(Iterables.transform(actionPlanDtos, new Function<ActionPlanDto, ActionPlan>() {
       @Override
       public ActionPlan apply(ActionPlanDto actionPlanDto) {

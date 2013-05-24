@@ -78,7 +78,6 @@
       and ap.status='OPEN'
       and ap.project_id=p.id
     </where>
-    order by deadline
   </select>
 
   <select id="findByNameAndProjectId" parameterType="long" resultType="ActionPlanIssue">

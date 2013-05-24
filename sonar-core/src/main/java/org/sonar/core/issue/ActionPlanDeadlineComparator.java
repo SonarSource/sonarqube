@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.issue;
 
-package org.sonar.core.issue.db;
+import org.sonar.api.issue.ActionPlan;
 
-import org.apache.ibatis.annotations.Param;
-
-import java.util.Collection;
-import java.util.List;
+import java.util.Comparator;
+import java.util.Date;
 
 /**
- * @since 3.6
+ * Sort action plans by chronological deadlines. Plans without deadline are
+ * located after plans with deadline.
  */
-public interface ActionPlanMapper {
+public class ActionPlanDeadlineComparator implements Comparator<ActionPlan> {
 
-  void insert(ActionPlanDto actionPlanDto);
-
-  void update(ActionPlanDto actionPlanDto);
-
-  void delete(@Param("key") String key);
-
-  List<ActionPlanDto> findByKeys(@Param("keys") List <List<String>> keys);
-
-  ActionPlanDto findByKey(@Param("key") String key);
-
-  List<ActionPlanDto> findOpenByProjectId(@Param("projectId") Long projectId);
-
-  List<ActionPlanDto> findByNameAndProjectId(@Param("name")String name, @Param("projectId") Long projectId);
+  @Override
+  public int compare(ActionPlan a1, ActionPlan a2) {
+    Date d1 = a1.deadLine();
+    Date d2 = a2.deadLine();
+    if (d1 != null && d2 != null) {
+      return d1.compareTo(d2);
+    }
+    if (d1 != null) {
+      return -1;
+    }
+    return 1;
+  }
 }

@@ -82,7 +82,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public Collection<ActionPlanDto> findByKeys(Collection<String> keys) {
+  public List<ActionPlanDto> findByKeys(Collection<String> keys) {
     if (keys.isEmpty()) {
       return Collections.emptyList();
     }
@@ -95,7 +95,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public Collection<ActionPlanDto> findOpenByProjectId(Long projectId) {
+  public List<ActionPlanDto> findOpenByProjectId(Long projectId) {
     SqlSession session = mybatis.openSession();
     try {
       return session.getMapper(ActionPlanMapper.class).findOpenByProjectId(projectId);
@@ -104,7 +104,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public Collection<ActionPlanDto> findByNameAndProjectId(String name, Long projectId) {
+  public List<ActionPlanDto> findByNameAndProjectId(String name, Long projectId) {
     SqlSession session = mybatis.openSession();
     try {
       return session.getMapper(ActionPlanMapper.class).findByNameAndProjectId(name, projectId);

@@ -177,7 +177,8 @@ public class ActionPlanDto {
   }
 
   public DefaultActionPlan toActionPlan() {
-    return DefaultActionPlan.create(name)
+    return new DefaultActionPlan()
+      .setName(name)
       .setKey(kee)
       .setProjectKey(projectKey)
       .setDescription(description)

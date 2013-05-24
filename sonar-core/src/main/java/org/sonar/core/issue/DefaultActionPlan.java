@@ -40,7 +40,7 @@ public class DefaultActionPlan implements ActionPlan {
   private Date createdAt;
   private Date updatedAt;
 
-  private DefaultActionPlan(){
+  public DefaultActionPlan(){
 
   }
 
