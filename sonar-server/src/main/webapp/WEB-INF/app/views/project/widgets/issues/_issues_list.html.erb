@@ -89,7 +89,8 @@
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
         <td><img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity() -%>.png" title="<%= message('severity.' + issue.severity()) -%>"/></td>
         <td>
-          <%= link_to h(issue.message()), :controller => "issue", :action => "view", :id => issue.key() -%>
+          <a class='open-modal rule-modal' modal-width='800' href='<%= url_for :controller => 'issue', :action => 'view', :id => issue.key %>'>
+            <%= h truncate(issue.message, :length => 100) -%></a>
           <% if last_comment %>
             <div class="comment-excerpt">
               <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>

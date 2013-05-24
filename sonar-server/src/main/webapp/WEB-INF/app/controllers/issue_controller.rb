@@ -20,19 +20,26 @@
 
 class IssueController < ApplicationController
 
-  SECTION=Navigation::SECTION_RESOURCE
+  helper SourceHelper
 
+  def view
+    require_parameters :id
+    init_issue
+
+    if request.xhr?
+      render :partial => 'issue/view', :locals => {:issue => @issue, :issue_results => @issue_results, :snapshot =>  @snapshot}
+    else
+      render :action => 'view'
+    end
+  end
+
+  # Used in Eclipse Plugin
   def show
     require_parameters :id
+    init_issue
 
-    @issue_results = Api.issues.find(params[:id])
-    if request.xhr?
-      render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
-    else
-      # Used in Eclipse Plugin
-      params[:layout] = 'false'
-      render :action => 'show'
-    end
+    params[:layout] = 'false'
+    render :action => 'view'
   end
 
   # Form used for: assign, comment, transition, change severity and plan
@@ -154,5 +161,15 @@ class IssueController < ApplicationController
     render :partial => 'project/widgets/issues/issues_list'
   end
 
+
+  private
+
+  def init_issue
+    @issue_results = Api.issues.find(params[:id])
+    @issue = @issue_results.issues.get(0)
+
+    resource = Project.by_key(@issue.componentKey())
+    @snapshot = resource.last_snapshot if resource.last_snapshot
+  end
 
 end

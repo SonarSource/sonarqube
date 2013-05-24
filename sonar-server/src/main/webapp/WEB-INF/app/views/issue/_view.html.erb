@@ -1,0 +1,19 @@
+<div id="content">
+  <div style="border: 1px solid #DDDDDD">
+    <div class="violations_header tab_header">
+      <h3>Issue #<%= issue.key %></h3>
+      <h3><%= h issue_results.project(issue).name -%></h3>
+      <h3><%= h issue_results.component(issue).name -%></h3>
+    </div>
+
+    <div class="marginbottom10">
+      <%= render :partial => 'issue/issue', :locals => {:issue => issue_results.issues.get(0)} -%>
+    </div>
+
+    <% if snapshot && issue.line%>
+    <div>
+      <%= snapshot_html_source(snapshot, {:line_range => (issue.line-5)..(issue.line+5), :highlighted_lines => [issue.line]}) -%>
+    </div>
+    <% end %>
+  </div>
+</div>

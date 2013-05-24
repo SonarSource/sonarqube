@@ -72,7 +72,8 @@
             <%= message("issue.resolution.#{issue.resolution}") if issue.resolution -%>
           </td>
           <td>
-            <%= link_to h(truncate(issue.message, :length => 100)), :controller => 'issue', :action => 'view', :id => issue.key -%>
+            <a class='open-modal rule-modal' modal-width='800' href='<%= url_for :controller => 'issue', :action => 'view', :id => issue.key %>'>
+              <%= h truncate(issue.message, :length => 100) -%></a>
           </td>
           <td>
             <%= h (truncate(@filter.issues_result.project(issue).name, :length => 100)) -%>
