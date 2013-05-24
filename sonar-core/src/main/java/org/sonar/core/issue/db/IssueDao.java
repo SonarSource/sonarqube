@@ -96,13 +96,13 @@ public class IssueDao implements BatchComponent, ServerComponent {
     return selectIssueAndProjectIds(query, authorizedRootProjectIds, query.maxResults(), session);
   }
 
-  private List<IssueDto> selectIssueAndProjectIds(IssueQuery query, Collection<Integer> authorizedRootProjectIds, Integer maxResult, SqlSession session){
+  private List<IssueDto> selectIssueAndProjectIds(IssueQuery query, Collection<Integer> authorizedRootProjectIds, Integer maxResults, SqlSession session){
     if (authorizedRootProjectIds.isEmpty()) {
       return Collections.emptyList();
     }
     IssueMapper mapper = session.getMapper(IssueMapper.class);
     List<List<Integer>> idsPartition = Lists.partition(newArrayList(authorizedRootProjectIds), 1000);
-    return mapper.selectIssueAndProjectIds(query, idsPartition, maxResult);
+    return mapper.selectIssueAndProjectIds(query, idsPartition, maxResults);
   }
 
   @VisibleForTesting
