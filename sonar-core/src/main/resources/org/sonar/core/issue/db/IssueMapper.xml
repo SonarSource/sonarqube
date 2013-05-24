@@ -164,7 +164,7 @@
 
   <!-- SQL Server -->
   <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="1000000" databaseId="mssql">
-    select top #{maxResults} i.id, i.project_id as projectId
+    select TOP #{maxResults} i.id, i.project_id as projectId
     <include refid="sortColumn"/>
     <include refid="selectQueryConditions"/>
   </select>
