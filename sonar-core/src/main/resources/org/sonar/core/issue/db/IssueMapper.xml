@@ -146,7 +146,7 @@
     </where>
   </select>
 
-  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="1000000">
+  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" >
     select i.id, i.project_id as projectId
     <include refid="sortColumn"/>
     <include refid="selectQueryConditions"/>
@@ -156,8 +156,8 @@
   </select>
 
   <!-- SQL Server -->
-  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="1000000" databaseId="mssql">
-    select TOP #{maxResults} i.id, i.project_id as projectId
+  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" databaseId="mssql">
+    select top (#{maxResults}) i.id, i.project_id as projectId
     <include refid="sortColumn"/>
     <include refid="selectQueryConditions"/>
   </select>
