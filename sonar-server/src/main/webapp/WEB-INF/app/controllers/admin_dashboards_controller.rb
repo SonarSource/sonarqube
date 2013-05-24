@@ -21,7 +21,6 @@ class AdminDashboardsController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
 
-  verify :method => :post, :only => [:up, :down, :remove, :add], :redirect_to => {:action => :index}
   before_filter :admin_required
   before_filter :load_default_dashboards
 
@@ -32,16 +31,19 @@ class AdminDashboardsController < ApplicationController
   end
 
   def down
+    verify_post_request
     position(+1)
     redirect_to :action => 'index'
   end
 
   def up
+    verify_post_request
     position(-1)
     redirect_to :action => 'index'
   end
 
   def add
+    verify_post_request
     dashboard=Dashboard.find(params[:id])
     if dashboard and dashboard.shared?
       last_index = @actives.max_by(&:order_index).order_index
@@ -54,6 +56,7 @@ class AdminDashboardsController < ApplicationController
   end
 
   def remove
+    verify_post_request
     if @actives.size<=1
       flash[:error]='At least one dashboard must be defined as default.'
     else

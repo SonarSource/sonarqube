@@ -21,7 +21,6 @@ class ManualMeasuresController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
   before_filter :init_resource_for_admin_role
-  verify :method => :post, :only => [:save, :delete], :redirect_to => {:action => :index}
   helper MetricsHelper
   
   def index
@@ -39,6 +38,7 @@ class ManualMeasuresController < ApplicationController
   end
 
   def save
+    verify_post_request
     @metric=Metric.by_key(params[:metric])
     @measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, @metric.id])
     if @measure.nil?
@@ -60,6 +60,7 @@ class ManualMeasuresController < ApplicationController
   end
 
   def delete
+    verify_post_request
     metric=Metric.by_key(params[:metric])
     ManualMeasure.destroy_all(['resource_id=? and metric_id=?', @resource.id, metric.id])
     redirect_to :action => 'index', :id => params[:id], :metric => params[:metric]

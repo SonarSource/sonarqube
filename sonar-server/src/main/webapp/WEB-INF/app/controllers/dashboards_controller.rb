@@ -21,7 +21,6 @@ class DashboardsController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
-  verify :method => :post, :only => [:create, :update, :delete, :up, :down, :follow, :unfollow], :redirect_to => {:action => :index}
   before_filter :login_required
 
   def index
@@ -47,6 +46,7 @@ class DashboardsController < ApplicationController
   end
 
   def create
+    verify_post_request
     @dashboard=Dashboard.new()
     @dashboard.user_id=current_user.id
     load_dashboard_from_params(@dashboard)
@@ -79,6 +79,7 @@ class DashboardsController < ApplicationController
   end
 
   def update
+    verify_post_request
     dashboard=Dashboard.find(params[:id])
     if dashboard.editable_by?(current_user)
       load_dashboard_from_params(dashboard)
@@ -92,6 +93,7 @@ class DashboardsController < ApplicationController
   end
 
   def delete
+    verify_post_request
     dashboard=Dashboard.find(params[:id])
 
     access_denied unless dashboard.editable_by?(current_user)
@@ -106,14 +108,17 @@ class DashboardsController < ApplicationController
   end
 
   def down
+    verify_post_request
     position(+1)
   end
 
   def up
+    verify_post_request
     position(-1)
   end
 
   def follow
+    verify_post_request
     dashboard=Dashboard.find(params[:id])
 
     add_default_dashboards_if_first_user_dashboard(dashboard.global?)
@@ -129,6 +134,7 @@ class DashboardsController < ApplicationController
   end
 
   def unfollow
+    verify_post_request
     dashboard=Dashboard.find(params[:id])
 
     add_default_dashboards_if_first_user_dashboard(dashboard.global?)

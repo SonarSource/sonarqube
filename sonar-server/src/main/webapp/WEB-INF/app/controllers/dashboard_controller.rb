@@ -21,7 +21,6 @@ class DashboardController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
-  verify :method => :post, :only => [:set_layout, :add_widget, :set_dashboard, :save_widget], :redirect_to => {:action => :index}
   before_filter :login_required, :except => [:index]
 
   def index
@@ -48,6 +47,7 @@ class DashboardController < ApplicationController
   end
 
   def set_layout
+    verify_post_request
     dashboard=Dashboard.find(params[:did])
     if dashboard.editable_by?(current_user)
       dashboard.column_layout=params[:layout]
@@ -62,6 +62,7 @@ class DashboardController < ApplicationController
   end
 
   def set_dashboard
+    verify_post_request
     load_dashboard()
 
     dashboardstate=params[:dashboardstate]
@@ -87,6 +88,7 @@ class DashboardController < ApplicationController
   end
 
   def add_widget
+    verify_post_request
     dashboard=Dashboard.find(params[:did])
     widget_id=nil
     if dashboard.editable_by?(current_user)
@@ -109,6 +111,7 @@ class DashboardController < ApplicationController
   end
 
   def save_widget
+    verify_post_request
     widget=Widget.find(params[:wid])
     #TODO check owner of dashboard
     Widget.transaction do

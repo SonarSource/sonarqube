@@ -20,7 +20,6 @@
 class ManualRulesController < ApplicationController
 
   before_filter :admin_required
-  verify :method => :post, :only => [:create], :redirect_to => {:action => :index}
   verify :method => :delete, :only => [:delete], :redirect_to => {:action => :index}
 
   SECTION=Navigation::SECTION_CONFIGURATION
@@ -39,6 +38,7 @@ class ManualRulesController < ApplicationController
   end
 
   def create
+    verify_post_request
     access_denied unless is_admin?
     begin
       if params[:id].to_i>0

@@ -22,7 +22,6 @@ class BulkDeletionController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   before_filter :admin_required
-  verify :method => :post, :only => [:delete_resources], :redirect_to => { :action => :index }
 
   def index
     if pending_mass_deletion?
@@ -79,6 +78,7 @@ class BulkDeletionController < ApplicationController
   end
   
   def delete_resources
+    verify_post_request
     resource_to_delete = params[:resources] || []
     resource_to_delete = params[:all_resources].split(',') if params[:all_resources] && !params[:all_resources].blank?
     

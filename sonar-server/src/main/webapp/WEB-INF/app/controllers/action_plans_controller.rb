@@ -22,7 +22,6 @@ class ActionPlansController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
   before_filter :load_resource
-  verify :method => :post, :only => [:save, :delete, :change_status], :redirect_to => {:action => :index}
 
   def index
     load_action_plans()
@@ -35,6 +34,7 @@ class ActionPlansController < ApplicationController
   end
 
   def save
+    verify_post_request
     options = {'project' => @resource.key, 'name' => params[:name], 'description' => params[:description], 'deadLine' => params[:deadline]}
 
     exiting_action_plan = find_by_key(params[:plan_key]) unless params[:plan_key].blank?
@@ -55,11 +55,13 @@ class ActionPlansController < ApplicationController
   end
 
   def delete
+    verify_post_request
     Internal.issues.deleteActionPlan(params[:plan_key])
     redirect_to :action => 'index', :id => @resource.id
   end
 
   def change_status
+    verify_post_request
     action_plan = find_by_key(params[:plan_key])
     if action_plan
       if action_plan.status == 'OPEN'
