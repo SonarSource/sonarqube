@@ -102,6 +102,8 @@ class ResourceController < ApplicationController
     end
 
     if params[:tab].present?
+      # Hack to manage violations as issues.
+      params[:tab] = 'issues' if params[:tab] == 'violations'
       @extension=@extensions.find { |extension| extension.getId()==params[:tab] }
 
     elsif !params[:metric].blank?
