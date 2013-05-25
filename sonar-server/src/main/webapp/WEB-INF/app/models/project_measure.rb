@@ -218,10 +218,6 @@ class ProjectMeasure < ActiveRecord::Base
     ProjectMeasure.find(:all, :conditions => {:snapshot_id => snapshot_ids, :metric_id => metric_ids})
   end
 
-  def review?
-    measure_date != nil
-  end
-
   def short_name
     metric.short_name
   end

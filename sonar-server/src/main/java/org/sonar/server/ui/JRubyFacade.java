@@ -464,28 +464,6 @@ public final class JRubyFacade {
     return Platform.getInstance().getContainer();
   }
 
-  // REVIEWS ------------------------------------------------------------------
-  public List<Screen> listAvailableReviewScreens(Review review, DefaultWorkflowContext context) {
-    return get(WorkflowEngine.class).listAvailableScreens(review, context, true);
-  }
-
-  public ListMultimap<Long, Screen> listAvailableReviewsScreens(DefaultReview[] reviews, DefaultWorkflowContext context) {
-    return get(WorkflowEngine.class).listAvailableScreens(reviews, context, true);
-  }
-
-  public Screen getReviewScreen(String commandKey) {
-    return get(WorkflowEngine.class).getScreen(commandKey);
-  }
-
-  public void executeReviewCommand(String commandKey, DefaultReview review, DefaultWorkflowContext context, Map<String, String> parameters) {
-    try {
-      get(WorkflowEngine.class).execute(commandKey, review, context, parameters);
-    } catch (RuntimeException e) {
-      LoggerFactory.getLogger(JRubyFacade.class).error("Fail to execute command: " + commandKey + " on review " + review.getReviewId(), e);
-      throw e;
-    }
-  }
-
   // UPDATE PROJECT KEY ------------------------------------------------------------------
   public void updateResourceKey(long projectId, String newKey) {
     get(ResourceKeyUpdaterDao.class).updateKey(projectId, newKey);
