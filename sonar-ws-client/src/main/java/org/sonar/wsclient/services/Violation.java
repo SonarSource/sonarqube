@@ -27,7 +27,6 @@ import java.util.Date;
 @Deprecated
 public class Violation extends Model {
 
-  private String id = null;
   private String message = null;
   private String severity = null;
   private Integer line = null;
@@ -186,12 +185,4 @@ public class Violation extends Model {
     return switchedOff;
   }
 
-  public String getKey() {
-    return id;
-  }
-
-  public Violation setKey(String id) {
-    this.id = id;
-    return this;
-  }
 }

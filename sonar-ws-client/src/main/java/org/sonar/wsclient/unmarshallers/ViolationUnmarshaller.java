@@ -29,7 +29,6 @@ public class ViolationUnmarshaller extends AbstractUnmarshaller<Violation> {
     WSUtils utils = WSUtils.getINSTANCE();
 
     Violation violation = new Violation();
-    violation.setKey(utils.getString(json, "id"));
     violation.setMessage(utils.getString(json, "message"));
     violation.setLine(utils.getInteger(json, "line"));
     violation.setSeverity(utils.getString(json, "priority"));

@@ -47,7 +47,6 @@ public class ViolationUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(violations.size(), is(2));
 
     violation = violations.get(0);
-    assertThat(violation.getKey(), is("1"));
     assertThat(violation.getMessage(), is("throw java.lang.Exception"));
     assertThat(violation.hasLine(), is(true));
     assertThat(violation.getLine(), is(97));

@@ -62,7 +62,7 @@ class Api::ViolationsController < Api::ApiController
     results = Api.issues.find(conditions)
 
     array = results.issues.map do |issue|
-      hash={:id => issue.key}
+      hash={}
       hash[:message] = issue.message if issue.message
       hash[:line] = issue.line.to_i if issue.line
       hash[:priority] = issue.severity if issue.severity
