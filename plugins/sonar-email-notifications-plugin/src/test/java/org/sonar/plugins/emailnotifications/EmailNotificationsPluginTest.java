@@ -26,6 +26,6 @@ import static org.fest.assertions.Assertions.assertThat;
 public class EmailNotificationsPluginTest {
   @Test
   public void should_get_extensions() {
-    assertThat(new EmailNotificationsPlugin().getExtensions()).hasSize(4);
+    assertThat(new EmailNotificationsPlugin().getExtensions()).hasSize(3);
   }
 }

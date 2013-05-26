@@ -19,25 +19,20 @@
  */
 package org.sonar.plugins.emailnotifications;
 
-import org.sonar.plugins.emailnotifications.templates.reviews.ReviewEmailTemplate;
-
-import org.sonar.plugins.emailnotifications.templates.violations.NewViolationsEmailTemplate;
-
-import org.sonar.plugins.emailnotifications.templates.alerts.AlertsEmailTemplate;
-
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.SonarPlugin;
+import org.sonar.plugins.emailnotifications.templates.alerts.AlertsEmailTemplate;
+import org.sonar.plugins.emailnotifications.templates.reviews.ReviewEmailTemplate;
 
 import java.util.List;
 
 public class EmailNotificationsPlugin extends SonarPlugin {
   public List<?> getExtensions() {
     return ImmutableList.of(
-        EmailNotificationChannel.class,
+      EmailNotificationChannel.class,
 
-        // Email templates
-        NewViolationsEmailTemplate.class,
-        ReviewEmailTemplate.class,
-        AlertsEmailTemplate.class);
+      // Email templates
+      ReviewEmailTemplate.class,
+      AlertsEmailTemplate.class);
   }
 }

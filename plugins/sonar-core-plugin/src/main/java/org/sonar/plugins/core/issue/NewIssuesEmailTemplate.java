@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.emailnotifications.templates.violations;
+package org.sonar.plugins.core.issue;
 
-import org.sonar.api.notifications.Notification;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.notifications.Notification;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
@@ -29,32 +29,30 @@ import org.sonar.plugins.emailnotifications.api.EmailTemplate;
  * 
  * @since 2.10
  */
-public class NewViolationsEmailTemplate extends EmailTemplate {
+public class NewIssuesEmailTemplate extends EmailTemplate {
 
-  private EmailSettings configuration;
+  private final EmailSettings settings;
 
-  public NewViolationsEmailTemplate(EmailSettings configuration) {
-    this.configuration = configuration;
+  public NewIssuesEmailTemplate(EmailSettings settings) {
+    this.settings = settings;
   }
 
   @Override
   public EmailMessage format(Notification notification) {
-    if (!"new-violations".equals(notification.getType())) {
+    if (!"new-issues".equals(notification.getType())) {
       return null;
     }
-    StringBuilder sb = new StringBuilder();
-
     String projectName = notification.getFieldValue("projectName");
     String violationsCount = notification.getFieldValue("count");
-    String fromDate = notification.getFieldValue("fromDate");
 
+    StringBuilder sb = new StringBuilder();
     sb.append("Project: ").append(projectName).append('\n');
-    sb.append(violationsCount).append(" new violations introduced since ").append(fromDate).append('\n');
+    sb.append(violationsCount).append(" new issues").append('\n');
     appendFooter(sb, notification);
 
     EmailMessage message = new EmailMessage()
-        .setMessageId("new-violations/" + notification.getFieldValue("projectId"))
-        .setSubject("New violations for project " + projectName)
+        .setMessageId("new-issues/" + notification.getFieldValue("projectId"))
+        .setSubject("New issues for project " + projectName)
         .setMessage(sb.toString());
 
     return message;
@@ -63,8 +61,8 @@ public class NewViolationsEmailTemplate extends EmailTemplate {
   private void appendFooter(StringBuilder sb, Notification notification) {
     String projectKey = notification.getFieldValue("projectKey");
     sb.append("\n")
-        .append("See it in Sonar: ").append(configuration.getServerBaseURL()).append("/drilldown/measures/").append(projectKey)
-        .append("?metric=new_violations&period=1\n");
+        .append("See it in Sonar: ").append(settings.getServerBaseURL()).append("/drilldown/measures/").append(projectKey)
+        .append("?metric=new_violations\n");
   }
 
 }

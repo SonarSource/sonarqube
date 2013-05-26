@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.emailnotifications.templates.violations;
-
-import org.sonar.plugins.emailnotifications.templates.violations.NewViolationsEmailTemplate;
+package org.sonar.plugins.core.issue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,15 +31,15 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class NewViolationsEmailTemplateTest {
+public class NewIssuesEmailTemplateTest {
 
-  private NewViolationsEmailTemplate template;
+  NewIssuesEmailTemplate template;
 
   @Before
   public void setUp() {
-    EmailSettings configuration = mock(EmailSettings.class);
-    when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
-    template = new NewViolationsEmailTemplate(configuration);
+    EmailSettings settings = mock(EmailSettings.class);
+    when(settings.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
+    template = new NewIssuesEmailTemplate(settings);
   }
 
   @Test
@@ -53,32 +51,31 @@ public class NewViolationsEmailTemplateTest {
 
   /**
    * <pre>
-   * Subject: New violations for project Foo
+   * Subject: New issues for project Foo
    * From: Sonar
-   * 
+   *
    * Project: Foo
-   * 32 new violations introduced since 2012-01-02
-   * 
-   * See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=1
+   * 32 new issues
+   *
+   * See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations
    * </pre>
    */
   @Test
   public void shouldFormatCommentAdded() {
-    Notification notification = new Notification("new-violations")
-        .setFieldValue("count", "32")
-        .setFieldValue("projectName", "Foo")
-        .setFieldValue("projectKey", "org.sonar.foo:foo")
-        .setFieldValue("projectId", "45")
-        .setFieldValue("fromDate", "2012-01-02");
+    Notification notification = new Notification("new-issues")
+      .setFieldValue("count", "32")
+      .setFieldValue("projectName", "Foo")
+      .setFieldValue("projectKey", "org.sonar.foo:foo")
+      .setFieldValue("projectId", "45");
 
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("new-violations/45"));
-    assertThat(message.getSubject(), is("New violations for project Foo"));
+    assertThat(message.getMessageId(), is("new-issues/45"));
+    assertThat(message.getSubject(), is("New issues for project Foo"));
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
-      "32 new violations introduced since 2012-01-02\n" +
+      "32 new issues\n" +
       "\n" +
-      "See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations&period=1\n"));
+      "See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations\n"));
   }
 
 }

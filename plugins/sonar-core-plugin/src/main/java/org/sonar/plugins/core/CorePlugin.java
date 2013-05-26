@@ -415,6 +415,12 @@ public final class CorePlugin extends SonarPlugin {
       org.sonar.plugins.core.widgets.ActionPlansWidget.class,
       UnresolvedIssuesPerAssigneeWidget.class,
       UnresolvedIssuesStatusesWidget.class,
+      NewIssuesEmailTemplate.class,
+      NewIssuesNotificationDispatcher.class,
+      NewIssuesNotificationPostJob.class,
+      NotificationDispatcherMetadata.create("NewIssues")
+        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+        .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)),
 
       // batch
       ProfileSensor.class,
@@ -451,12 +457,6 @@ public final class CorePlugin extends SonarPlugin {
       NewOverallCoverageFileAnalyzer.class,
       NewCoverageAggregator.class,
 
-      // notifications
-      // Notify incoming violations on my favourite projects
-      NewViolationsOnFirstDifferentialPeriod.class,
-      NotificationDispatcherMetadata.create("NewViolationsOnFirstDifferentialPeriod")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
-        .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)),
       // Notify alerts on my favourite projects
       NewAlerts.class,
       NotificationDispatcherMetadata.create("NewAlerts")

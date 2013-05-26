@@ -19,6 +19,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.codehaus.sonar.plugins</groupId>
+      <artifactId>sonar-email-notifications-plugin</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-core</artifactId>
       <scope>provided</scope>
