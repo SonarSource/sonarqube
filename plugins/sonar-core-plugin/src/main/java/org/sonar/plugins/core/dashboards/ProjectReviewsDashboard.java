@@ -44,10 +44,7 @@ public final class ProjectReviewsDashboard extends DashboardTemplate {
   }
 
   private void addFirstColumn(Dashboard dashboard) {
-    dashboard.addWidget("reviews_metrics", 1);
     dashboard.addWidget("action_plans", 1);
-    dashboard.addWidget("planned_reviews", 1);
-    dashboard.addWidget("unplanned_reviews", 1);
   }
 
   private void addSecondColumn(Dashboard dashboard) {
