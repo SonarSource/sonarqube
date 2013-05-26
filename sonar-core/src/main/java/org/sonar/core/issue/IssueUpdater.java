@@ -79,7 +79,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
-  public boolean setResolution(DefaultIssue issue, String resolution, IssueChangeContext context) {
+  public boolean setResolution(DefaultIssue issue, @Nullable String resolution, IssueChangeContext context) {
     if (!Objects.equal(resolution, issue.resolution())) {
       issue.setFieldDiff(context, "resolution", issue.resolution(), resolution);
       issue.setResolution(resolution);
