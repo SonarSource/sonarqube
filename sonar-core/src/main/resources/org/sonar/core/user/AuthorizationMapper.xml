@@ -45,30 +45,39 @@
         </foreach>
   </select>
 
-  <select id="selectAuthorizedRootProjectsIdsForUser" parameterType="map" resultType="int">
-    SELECT s.root_project_id
-    FROM group_roles gr, snapshots s
-    WHERE
-    gr.role=#{role}
-    and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
-    and gr.resource_id = s.root_project_id
-    and s.islast = ${_true}
-    UNION
-    SELECT s.root_project_id
-    FROM user_roles ur, snapshots s
-    WHERE
-    ur.role=#{role}
-    and ur.user_id=#{userId} and s.project_id=ur.resource_id
-    and s.islast = ${_true}
+  <select id="selectAuthorizedRootProjectsIds" parameterType="map" resultType="int">
+    <include refid="selectAuthorizedRootProjectsIdsQuery" />
   </select>
 
-  <select id="selectAuthorizedRootProjectsIdsForAnonymous" parameterType="map" resultType="int">
-    SELECT s.root_project_id
-    FROM group_roles gr, snapshots s
-    WHERE
-    gr.role=#{role}
-    and gr.group_id is null
-    and gr.resource_id = s.root_project_id
-  </select>
+  <sql id="selectAuthorizedRootProjectsIdsQuery">
+    <choose>
+      <when test="userId != null">
+        SELECT s.root_project_id
+        FROM group_roles gr, snapshots s
+        WHERE
+        gr.role=#{role}
+        and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+        and gr.resource_id = s.root_project_id
+        and s.islast = ${_true}
+        UNION
+        SELECT s.root_project_id
+        FROM user_roles ur, snapshots s
+        WHERE
+        ur.role=#{role}
+        and ur.user_id=#{userId} and s.project_id=ur.resource_id
+        and s.islast = ${_true}
+        group by s.root_project_id
+      </when>
+      <otherwise>
+        SELECT s.root_project_id
+        FROM group_roles gr, snapshots s
+        WHERE
+        gr.role=#{role}
+        and gr.group_id is null
+        and gr.resource_id = s.root_project_id
+        group by s.root_project_id
+      </otherwise>
+    </choose>
+  </sql>
 
 </mapper>

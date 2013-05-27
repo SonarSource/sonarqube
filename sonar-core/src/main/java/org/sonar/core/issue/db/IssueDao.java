@@ -29,6 +29,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -71,39 +72,35 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   @VisibleForTesting
-  List<IssueDto> selectIssues(IssueQuery query, Collection<Integer> authorizedRootProjectIds, Integer maxResult) {
+  List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, Integer maxResult) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectIssues(query, authorizedRootProjectIds, maxResult, session);
+      return selectIssues(query, userId, maxResult, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @VisibleForTesting
-  List<IssueDto> selectIssues(IssueQuery query, Collection<Integer> authorizedRootProjectIds) {
+  List<IssueDto> selectIssues(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectIssues(query, authorizedRootProjectIds, Integer.MAX_VALUE, session);
+      return selectIssues(query, null, Integer.MAX_VALUE, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   /**
-   * The returned IssueDto list contains only the issue id, the project id and the sort column
+   * The returned IssueDto list contains only the issue id and the sort column
    */
-  public List<IssueDto> selectIssues(IssueQuery query, Collection<Integer> authorizedRootProjectIds, SqlSession session){
-    return selectIssues(query, authorizedRootProjectIds, query.maxResults(), session);
+  public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, SqlSession session){
+    return selectIssues(query, userId, query.maxResults(), session);
   }
 
-  private List<IssueDto> selectIssues(IssueQuery query, Collection<Integer> authorizedRootProjectIds, Integer maxResults, SqlSession session){
-    if (authorizedRootProjectIds.isEmpty()) {
-      return Collections.emptyList();
-    }
+  private List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
     IssueMapper mapper = session.getMapper(IssueMapper.class);
-    List<List<Integer>> idsPartition = Lists.partition(newArrayList(authorizedRootProjectIds), 1000);
-    return mapper.selectIssues(query, idsPartition, maxResults);
+    return mapper.selectIssues(query, userId, query.requiredRole(), maxResults);
   }
 
   @VisibleForTesting

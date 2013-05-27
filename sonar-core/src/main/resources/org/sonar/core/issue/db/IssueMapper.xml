@@ -30,12 +30,8 @@
     i.updated_at as updatedAt,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
-    p.kee as componentKey
-  </sql>
-
-  <sql id="issueColumnsWitRoot">
-    <include refid="issueColumns"/>
-    , root.kee as projectKey
+    p.kee as componentKey,
+    root.kee as projectKey
   </sql>
 
   <sql id="sortColumn">
@@ -117,14 +113,14 @@
 
   <select id="selectByKey" parameterType="String" resultType="Issue">
     select
-    <include refid="issueColumnsWitRoot"/>
+    <include refid="issueColumns"/>
     from issues i, rules r, projects p, projects root
     where i.kee=#{kee} and i.rule_id=r.id and p.id=i.resource_id and i.project_id=root.id
   </select>
 
   <select id="selectNonClosedIssues" parameterType="int" resultType="Issue">
     select distinct
-    <include refid="issueColumnsWitRoot"/>
+    <include refid="issueColumns"/>
     from issues i, rules r, projects p, projects root
     where i.status &lt;&gt; 'CLOSED'
     and (p.root_id=#{id} or (p.root_id is null and p.id=#{id}))
@@ -135,7 +131,7 @@
 
   <select id="selectByIds" parameterType="map" resultType="Issue">
     select
-    <include refid="issueColumnsWitRoot"/>
+    <include refid="issueColumns"/>
     from issues i, rules r, projects p, projects root
     <where>
       and
@@ -160,60 +156,46 @@
   </select>
 
   <!-- SQL Server -->
-  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="100000" databaseId="mssql">
-    select top (#{maxResults}) i.id, i.project_id as projectId
+  <select id="selectIssues" parameterType="map" resultType="Issue" fetchSize="100000" databaseId="mssql">
+    select top (#{maxResults}) i.id
     <include refid="sortColumn"/>
     <include refid="selectQueryConditions"/>
   </select>
 
   <sql id="selectQueryConditions">
-    from issues i, projects p, rules r
+    from issues i
+    inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />) authorizedProjects on authorizedProjects.root_project_id=i.project_id
     <if test="query.componentRoots() != null and query.componentRoots().size() > 0">
-      , projects rootprojects, snapshots rootsnapshots, snapshots s
+      inner join projects rootprojects on rootprojects.enabled=${_true} and rootprojects.kee in
+      <foreach item="componentRoot" index="index" collection="query.componentRoots()" open="(" separator="," close=")">
+        #{componentRoot}
+      </foreach>
+      inner join snapshots rootsnapshots on rootsnapshots.project_id=rootprojects.id and rootsnapshots.islast=${_true}
+      inner join snapshots s on s.project_id=i.resource_id and s.islast=${_true} and
+      (s.id=rootsnapshots.id or ((s.root_snapshot_id=rootsnapshots.id or s.root_snapshot_id=rootsnapshots.root_snapshot_id) and
+      <choose>
+        <when test="_databaseId == 'mssql'">
+          s.path LIKE rootsnapshots.path + CAST(rootsnapshots.id AS varchar(15)) + '.%'
+        </when>
+        <when test="_databaseId == 'mysql'">
+          s.path LIKE concat(rootsnapshots.path, rootsnapshots.id, '.%')
+        </when>
+        <otherwise>
+          s.path LIKE rootsnapshots.path || rootsnapshots.id || '.%'
+        </otherwise>
+      </choose>
+      ))
     </if>
     <if test="query.components() != null and query.components().size() > 0">
-      , projects project_component
+      inner join projects project_component on project_component.id=i.resource_id and project_component.enabled=${_true} and project_component.kee in
+      <foreach item="component" index="index" collection="query.components()" open="(" separator="," close=")">#{component}
+      </foreach>
+    </if>
+    <if test="query.rules() != null and query.rules().size() > 0">
+      inner join rules r on r.id=i.rule_id and (<foreach item="rule" index="index" collection="query.rules()" open="(" separator=" or " close=")">
+      r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
     </if>
     <where>
-      and i.resource_id=p.id
-      and
-      <foreach collection="authorizedRootProjectIds" open="i.project_id in (" close=")" item="list" separator=") or i.project_id in in (">
-        <foreach collection="list" item="element" separator=",">
-          #{element}
-        </foreach>
-      </foreach>
-      and i.rule_id=r.id
-      <if test="query.componentRoots() != null and query.componentRoots().size() > 0">
-        and rootprojects.enabled=${_true}
-        and rootprojects.kee in
-        <foreach item="componentRoot" index="index" collection="query.componentRoots()" open="(" separator="," close=")">
-          #{componentRoot}
-        </foreach>
-        and rootsnapshots.project_id=rootprojects.id
-        and rootsnapshots.islast=${_true}
-        and (s.id=rootsnapshots.id or ((s.root_snapshot_id=rootsnapshots.id or s.root_snapshot_id=rootsnapshots.root_snapshot_id) and
-        <choose>
-          <when test="_databaseId == 'mssql'">
-            s.path LIKE rootsnapshots.path + CAST(rootsnapshots.id AS varchar(15)) + '.%'
-          </when>
-          <when test="_databaseId == 'mysql'">
-            s.path LIKE concat(rootsnapshots.path, rootsnapshots.id, '.%')
-          </when>
-          <otherwise>
-            s.path LIKE rootsnapshots.path || rootsnapshots.id || '.%'
-          </otherwise>
-        </choose>
-        ))
-        and s.islast=${_true}
-        and i.resource_id=s.project_id
-      </if>
-      <if test="query.components() != null">
-        and project_component.enabled=${_true}
-        and project_component.kee in
-        <foreach item="component" index="index" collection="query.components()" open="(" separator="," close=")">#{component}
-        </foreach>
-        and i.resource_id=project_component.id
-      </if>
       <if test="query.issueKeys() != null">
         and i.kee in
         <foreach item="key" index="index" collection="query.issueKeys()" open="(" separator="," close=")">#{key}
@@ -267,10 +249,6 @@
         <if test="query.planned() == false">
           and i.action_plan_key is null
         </if>
-      </if>
-      <if test="query.rules() != null and query.rules().size() > 0">
-        and (<foreach item="rule" index="index" collection="query.rules()" open="(" separator=" or " close=")">
-        r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
       </if>
       <if test="query.actionPlans() != null">
         and i.action_plan_key in

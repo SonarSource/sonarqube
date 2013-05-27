@@ -1,5 +1,7 @@
 <dataset>
 
+  <group_roles id="1" group_id="[null]" resource_id="399" role="user"/>
+
   <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" />
   <projects id="400" kee="struts-core" root_id="399" qualifier="BRC" />
   <projects id="401" kee="Action.java" root_id="400" qualifier="CLA" />

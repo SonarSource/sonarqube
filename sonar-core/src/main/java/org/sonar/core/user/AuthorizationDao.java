@@ -28,10 +28,7 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -60,7 +57,7 @@ public class AuthorizationDao implements ServerComponent {
     }
     String sql;
     Map<String, Object> params;
-    List <List<Integer>> componentIdsPartition = Lists.partition(newArrayList(componentIds), 1000);
+    List<List<Integer>> componentIdsPartition = Lists.partition(newArrayList(componentIds), 1000);
     if (userId == null) {
       sql = "keepAuthorizedComponentIdsForAnonymous";
       params = ImmutableMap.of("role", role, "componentIds", componentIdsPartition);
@@ -76,7 +73,7 @@ public class AuthorizationDao implements ServerComponent {
     return keepAuthorizedComponentIds(Sets.newHashSet(componentId), userId, role).size() == 1;
   }
 
-  public Set<Integer> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role) {
+  public Collection<Integer> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role) {
     SqlSession session = mybatis.openSession();
     try {
       return selectAuthorizedRootProjectsIds(userId, role, session);
@@ -86,18 +83,13 @@ public class AuthorizationDao implements ServerComponent {
     }
   }
 
-  public Set<Integer> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role, SqlSession session) {
+  public Collection<Integer> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role, SqlSession session) {
     String sql;
     Map<String, Object> params = newHashMap();
-    if (userId == null) {
-      sql = "selectAuthorizedRootProjectsIdsForAnonymous";
-      params.put("role", role);
-    } else {
-      sql = "selectAuthorizedRootProjectsIdsForUser";
-      params.put("userId", userId);
-      params.put("role", role);
-    }
+    sql = "selectAuthorizedRootProjectsIds";
+    params.put("userId", userId);
+    params.put("role", role);
 
-    return Sets.newHashSet(session.<Integer>selectList(sql, params));
+    return session.selectList(sql, params);
   }
 }

@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
+import java.util.Collection;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -112,7 +113,7 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     setupData("should_return_root_project_ids_for_user");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Set<Integer> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "user");
+    Collection<Integer> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
 
@@ -127,7 +128,7 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     setupData("should_return_root_project_ids_for_group");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Set<Integer> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "user");
+    Collection<Integer> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(USER, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
 
@@ -141,7 +142,7 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     setupData("should_return_root_project_ids_for_anonymous");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Set<Integer> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(null, "user");
+    Collection<Integer> rootProjectIds = authorization.selectAuthorizedRootProjectsIds(null, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
 

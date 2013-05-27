@@ -30,7 +30,7 @@ public interface IssueMapper {
 
   List<IssueDto> selectNonClosedIssues(int rootComponentId);
 
-  List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Param("authorizedRootProjectIds") List<List<Integer>> authorizedRootProjectIds,
+  List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Param("userId") Integer userId, @Param("role") String role,
                                           @Param("maxResults") Integer maxResult);
 
   void insert(IssueDto issue);

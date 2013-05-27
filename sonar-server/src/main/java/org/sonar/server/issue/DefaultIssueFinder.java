@@ -101,7 +101,7 @@ public class DefaultIssueFinder implements IssueFinder {
       Collection<Integer> rootProjectIds = authorizationDao.selectAuthorizedRootProjectsIds(UserSession.get().userId(), query.requiredRole(), sqlSession);
 
       // 2. Select the authorized ids of all the issues that match the query
-      List<IssueDto> authorizedIssues = issueDao.selectIssues(query, rootProjectIds, sqlSession);
+      List<IssueDto> authorizedIssues = issueDao.selectIssues(query, UserSession.get().userId(), sqlSession);
 
       // 3. Sort all authorized issues
       List<IssueDto> authorizedSortedIssues = sort(authorizedIssues, query, authorizedIssues.size());

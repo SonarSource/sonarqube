@@ -1,0 +1,53 @@
+<dataset>
+
+  <issues
+      id="100"
+      kee="100"
+      resource_id="401"
+      project_id="399"
+      rule_id="500"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      message="[null]"
+      line="200"
+      effort_to_fix="[null]"
+      status="OPEN"
+      resolution="[null]"
+      checksum="[null]"
+      reporter="user"
+      assignee="user"
+      author_login="[null]"
+      issue_attributes="[null]"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="[null]"
+      updated_at="[null]"
+      />
+
+  <issues
+      id="101"
+      kee="101"
+      resource_id="402"
+      project_id="399"
+      rule_id="501"
+      severity="MAJOR"
+      manual_severity="[false]"
+      message="[null]"
+      line="120"
+      effort_to_fix="[null]"
+      status="CLOSED"
+      resolution="FIXED"
+      checksum="[null]"
+      reporter="[null]"
+      assignee="user"
+      author_login="[null]"
+      issue_attributes="[null]"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="[null]"
+      updated_at="[null]"
+      />
+
+</dataset>

@@ -1,0 +1,91 @@
+<dataset>
+
+  <!-- user 100 has the role "user" on the project 399 and in group 200 -->
+  <user_roles id="1" user_id="100" resource_id="399" role="user"/>
+  <groups_users user_id="100" group_id="200"/>
+
+  <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" />
+  <snapshots id="100" project_id="399" root_snapshot_id="[null]" parent_snapshot_id="[null]" root_project_id="399" path="" islast="[true]" />
+
+  <projects id="400" kee="sonar" root_id="[null]" qualifier="TRK" />
+  <snapshots id="101" project_id="400" root_snapshot_id="[null]" parent_snapshot_id="[null]" root_project_id="400" path="" islast="[true]" />
+
+
+  <!-- project struts -->
+  <issues
+      id="100"
+      kee="ABCDE-1"
+      resource_id="401"
+      project_id="399"
+      rule_id="500"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      message="[null]"
+      line="200"
+      effort_to_fix="4.2"
+      status="OPEN"
+      resolution="FIXED"
+      checksum="XXX"
+      reporter="arthur"
+      assignee="perceval"
+      author_login="[null]"
+      issue_attributes="JIRA=FOO-1234"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="2013-04-16"
+      updated_at="2013-04-16"
+      />
+
+  <issues
+      id="101"
+      kee="ABCDE-2"
+      resource_id="401"
+      project_id="399"
+      rule_id="500"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      message="[null]"
+      line="200"
+      effort_to_fix="4.2"
+      status="OPEN"
+      resolution="FIXED"
+      checksum="XXX"
+      reporter="arthur"
+      assignee="perceval"
+      author_login="[null]"
+      issue_attributes="JIRA=FOO-1234"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="2013-04-16"
+      updated_at="2013-04-16"
+      />
+
+
+  <!-- project sonar -->
+  <issues
+      id="102"
+      kee="ABCDE-3"
+      resource_id="402"
+      project_id="400"
+      rule_id="501"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      message="[null]"
+      line="200"
+      effort_to_fix="4.2"
+      status="OPEN"
+      resolution="FIXED"
+      checksum="XXX"
+      reporter="arthur"
+      assignee="perceval"
+      author_login="[null]"
+      attrissue_attributesibutes="JIRA=FOO-1234"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="2013-04-16"
+      updated_at="2013-04-16"
+      />
+</dataset>
