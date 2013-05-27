@@ -22,7 +22,6 @@ package org.sonar.plugins.emailnotifications;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.emailnotifications.templates.alerts.AlertsEmailTemplate;
-import org.sonar.plugins.emailnotifications.templates.reviews.ReviewEmailTemplate;
 
 import java.util.List;
 
@@ -32,7 +31,6 @@ public class EmailNotificationsPlugin extends SonarPlugin {
       EmailNotificationChannel.class,
 
       // Email templates
-      ReviewEmailTemplate.class,
       AlertsEmailTemplate.class);
   }
 }

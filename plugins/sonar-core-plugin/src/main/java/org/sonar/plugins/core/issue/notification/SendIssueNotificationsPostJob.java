@@ -17,27 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.issue;
+package org.sonar.plugins.core.issue.notification;
 
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueNotifications;
 
 /**
  * @since 3.6
  */
-public class NewIssuesNotificationPostJob implements PostJob {
+public class SendIssueNotificationsPostJob implements PostJob {
 
   private final IssueCache issueCache;
-  private final NotificationManager notifications;
+  private final IssueNotifications notifications;
+  private final RuleFinder ruleFinder;
 
-  public NewIssuesNotificationPostJob(IssueCache issueCache, NotificationManager notifications) {
+  public SendIssueNotificationsPostJob(IssueCache issueCache, IssueNotifications notifications, RuleFinder ruleFinder) {
     this.issueCache = issueCache;
     this.notifications = notifications;
+    this.ruleFinder = ruleFinder;
   }
 
   @Override
@@ -49,20 +53,18 @@ public class NewIssuesNotificationPostJob implements PostJob {
 
   private void sendNotifications(Project project) {
     int newIssues = 0;
+    IssueChangeContext context = IssueChangeContext.createScan(project.getAnalysisDate());
     for (DefaultIssue issue : issueCache.all()) {
-      if (issue.isNew()) {
+      if (issue.isNew() && issue.resolution() == null) {
         newIssues++;
+      }
+      if (issue.isChanged() && issue.diffs() != null) {
+        Rule rule = ruleFinder.findByKey(issue.ruleKey());
+        notifications.sendChanges(issue, context, rule, project, null);
       }
     }
     if (newIssues > 0) {
-      Notification notification = new Notification("new-issues")
-        .setDefaultMessage(newIssues + " new issues on " + project.getLongName() + ".")
-        .setFieldValue("count", String.valueOf(newIssues))
-        .setFieldValue("projectName", project.getLongName())
-        .setFieldValue("projectKey", project.getKey())
-        .setFieldValue("projectId", String.valueOf(project.getId()));
-      notifications.scheduleForSending(notification);
+      notifications.sendNewIssues(project, newIssues);
     }
   }
-
 }

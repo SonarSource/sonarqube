@@ -27,12 +27,10 @@ import java.util.Map;
 /**
  * <p>
  * Notification dispatchers (see {@link NotificationDispatcher}) can define their own metadata class in order
- * to tell more about them. 
- * <br/>
- * Instances of those classes must be passed to Pico container (generally in the 
- * {@link SonarPlugin#getExtensions()} method implementation).
- * </p> 
- * 
+ * to tell more about them.
+ * <p/>
+ * Instances of these classes must be declared in {@link org.sonar.api.SonarPlugin#getExtensions()}.
+ *
  * @since 3.5
  */
 public final class NotificationDispatcherMetadata implements ServerExtension {
@@ -50,6 +48,9 @@ public final class NotificationDispatcherMetadata implements ServerExtension {
 
   /**
    * Creates a new metadata instance for the given dispatcher.
+   * <p/>
+   * By default the key is the class name without package. It can be changed by overriding
+   * {@link org.sonar.api.notifications.NotificationDispatcher#getKey()}.
    */
   public static NotificationDispatcherMetadata create(String dispatcherKey) {
     return new NotificationDispatcherMetadata(dispatcherKey);

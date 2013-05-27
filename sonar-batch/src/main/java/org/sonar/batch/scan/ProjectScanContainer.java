@@ -43,6 +43,7 @@ import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
 import org.sonar.core.component.ScanGraph;
+import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -99,6 +100,7 @@ public class ProjectScanContainer extends ComponentContainer {
       IssueCache.class,
       ScanIssueStorage.class,
       IssuePersister.class,
+      IssueNotifications.class,
 
       // tests
       TestPlanPerspectiveLoader.class,

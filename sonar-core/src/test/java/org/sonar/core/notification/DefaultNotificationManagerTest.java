@@ -116,7 +116,7 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
     when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", null)).thenReturn(Lists.newArrayList("user3"));
     when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", null)).thenReturn(Lists.newArrayList("user4"));
 
-    Multimap<String, NotificationChannel> multiMap = manager.findSubscribedRecipientsForDispatcher(dispatcher, null);
+    Multimap<String, NotificationChannel> multiMap = manager.findSubscribedRecipientsForDispatcher(dispatcher, (Integer)null);
     assertThat(multiMap.entries()).hasSize(3);
 
     Map<String, Collection<NotificationChannel>> map = multiMap.asMap();
@@ -126,4 +126,17 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
     assertThat(map.get("user4")).isNull();
   }
 
+  @Test
+  public void findNotificationSubscribers() {
+    when(propertiesDao.findNotificationSubscribers("NewViolations", "Email", "struts")).thenReturn(Lists.newArrayList("user1", "user2"));
+    when(propertiesDao.findNotificationSubscribers("NewViolations", "Twitter", "struts")).thenReturn(Lists.newArrayList("user2"));
+
+    Multimap<String, NotificationChannel> multiMap = manager.findNotificationSubscribers(dispatcher, "struts");
+    assertThat(multiMap.entries()).hasSize(3);
+
+    Map<String, Collection<NotificationChannel>> map = multiMap.asMap();
+    assertThat(map.get("user1")).containsOnly(emailChannel);
+    assertThat(map.get("user2")).containsOnly(emailChannel, twitterChannel);
+    assertThat(map.get("other")).isNull();
+  }
 }

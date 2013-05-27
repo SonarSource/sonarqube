@@ -49,10 +49,10 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     setupData("shouldFindUsersForNotification");
 
     List<String> users = dao.findUsersForNotification("NewViolations", "Email", null);
-    assertThat(users).hasSize(0);
+    assertThat(users).isEmpty();
 
     users = dao.findUsersForNotification("NewViolations", "Email", 78L);
-    assertThat(users).hasSize(0);
+    assertThat(users).isEmpty();
 
     users = dao.findUsersForNotification("NewViolations", "Email", 45L);
     assertThat(users).hasSize(1);
@@ -63,11 +63,35 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     assertThat(users).containsOnly("user3");
 
     users = dao.findUsersForNotification("NewViolations", "Twitter", 78L);
-    assertThat(users).hasSize(0);
+    assertThat(users).isEmpty();
 
     users = dao.findUsersForNotification("NewViolations", "Twitter", 56L);
     assertThat(users).hasSize(2);
     assertThat(users).containsOnly("user1", "user3");
+  }
+
+  @Test
+  public void findNotificationSubscribers() {
+    setupData("findNotificationSubscribers");
+
+    // Nobody is subscribed
+    List<String> users = dao.findNotificationSubscribers("NotSexyDispatcher", "Email", "org.apache:struts");
+    assertThat(users).isEmpty();
+
+    // Global subscribers
+    users = dao.findNotificationSubscribers("DispatcherWithGlobalSubscribers", "Email", "org.apache:struts");
+    assertThat(users).containsOnly("simon");
+
+    users = dao.findNotificationSubscribers("DispatcherWithGlobalSubscribers", "Email", null);
+    assertThat(users).containsOnly("simon");
+
+    // Project subscribers
+    users = dao.findNotificationSubscribers("DispatcherWithProjectSubscribers", "Email", "org.apache:struts");
+    assertThat(users).containsOnly("eric");
+
+    // Global + Project subscribers
+    users = dao.findNotificationSubscribers("DispatcherWithGlobalAndProjectSubscribers", "Email", "org.apache:struts");
+    assertThat(users).containsOnly("eric", "simon");
   }
 
   @Test

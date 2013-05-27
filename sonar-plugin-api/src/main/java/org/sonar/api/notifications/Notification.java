@@ -23,8 +23,11 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -44,10 +47,8 @@ public class Notification implements Serializable {
 
   private static final String DEFAULT_MESSAGE_KEY = "default_message";
 
-  private String type;
-
-  private HashMap<String, String> fields = Maps.newHashMap(); // NOSONAR false-positive due to serialization : usage of HashMap instead of
-                                                              // Map
+  private final String type;
+  private final Map<String, String> fields = Maps.newHashMap();
 
   /**
    * <p>
@@ -105,7 +106,7 @@ public class Notification implements Serializable {
    * @param value the value of the field
    * @return the notification itself
    */
-  public Notification setFieldValue(String field, String value) {
+  public Notification setFieldValue(String field, @Nullable String value) {
     fields.put(field, value);
     return this;
   }
@@ -116,6 +117,7 @@ public class Notification implements Serializable {
    * @param field the field
    * @return the value of the field
    */
+  @CheckForNull
   public String getFieldValue(String field) {
     return fields.get(field);
   }

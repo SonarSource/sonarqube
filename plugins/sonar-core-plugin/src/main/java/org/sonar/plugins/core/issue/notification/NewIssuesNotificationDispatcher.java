@@ -17,24 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.issue;
+package org.sonar.plugins.core.issue.notification;
 
 import com.google.common.collect.Multimap;
-import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.notifications.NotificationDispatcher;
-import org.sonar.api.notifications.NotificationManager;
+import org.sonar.api.notifications.*;
 
 import java.util.Collection;
 import java.util.Map;
 
 /**
  * This dispatcher means: "notify me when new issues are introduced during project scan".
- * 
+ *
  * @since 2.14
  */
 public class NewIssuesNotificationDispatcher extends NotificationDispatcher {
 
+  public static final String KEY = "NewIssues";
   private final NotificationManager manager;
 
   public NewIssuesNotificationDispatcher(NotificationManager manager) {
@@ -43,9 +41,20 @@ public class NewIssuesNotificationDispatcher extends NotificationDispatcher {
   }
 
   @Override
+  public String getKey() {
+    return KEY;
+  }
+
+  public static NotificationDispatcherMetadata newMetadata() {
+    return NotificationDispatcherMetadata.create(KEY)
+      .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+      .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
+  }
+
+  @Override
   public void dispatch(Notification notification, Context context) {
-    int projectId = Integer.parseInt(notification.getFieldValue("projectId"));
-    Multimap<String, NotificationChannel> subscribedRecipients = manager.findSubscribedRecipientsForDispatcher(this, projectId);
+    String projectKey = notification.getFieldValue("projectKey");
+    Multimap<String, NotificationChannel> subscribedRecipients = manager.findNotificationSubscribers(this, projectKey);
 
     for (Map.Entry<String, Collection<NotificationChannel>> channelsByRecipients : subscribedRecipients.asMap().entrySet()) {
       String userLogin = channelsByRecipients.getKey();

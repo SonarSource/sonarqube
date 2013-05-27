@@ -25,7 +25,6 @@ import org.sonar.api.user.User;
 import org.sonar.api.utils.Paging;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -34,6 +33,9 @@ import java.util.List;
  */
 public interface IssueQueryResult {
   List<Issue> issues();
+
+  @CheckForNull
+  Issue first();
 
   Rule rule(Issue issue);
 

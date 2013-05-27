@@ -17,16 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.issue;
+package org.sonar.plugins.core.issue.notification;
 
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
+import java.net.URLEncoder;
+import java.util.Date;
+
 /**
- * Creates email message for notification "new-violations".
- * 
+ * Creates email message for notification "new-issues".
+ *
  * @since 2.10
  */
 public class NewIssuesEmailTemplate extends EmailTemplate {
@@ -51,18 +55,22 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     appendFooter(sb, notification);
 
     EmailMessage message = new EmailMessage()
-        .setMessageId("new-issues/" + notification.getFieldValue("projectId"))
-        .setSubject("New issues for project " + projectName)
-        .setMessage(sb.toString());
+      .setMessageId("new-issues/" + notification.getFieldValue("projectKey"))
+      .setSubject("New issues for project " + projectName)
+      .setMessage(sb.toString());
 
     return message;
   }
 
   private void appendFooter(StringBuilder sb, Notification notification) {
     String projectKey = notification.getFieldValue("projectKey");
+    String dateString = notification.getFieldValue("projectDate");
+    Date date = DateUtils.parseDateTime(dateString);
+    String url = String.format("%s/issues/search?componentRoots=%s&createdAfter=%s", settings.getServerBaseURL(), URLEncoder.encode(projectKey), DateUtils.formatDate(date));
     sb.append("\n")
-        .append("See it in Sonar: ").append(settings.getServerBaseURL()).append("/drilldown/measures/").append(projectKey)
-        .append("?metric=new_violations\n");
+      .append("See it in Sonar: ")
+      .append(url)
+      .append("\n");
   }
 
 }

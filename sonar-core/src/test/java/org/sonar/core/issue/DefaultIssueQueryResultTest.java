@@ -17,15 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.emailnotifications;
+package org.sonar.core.issue;
 
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
+
+import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class EmailNotificationsPluginTest {
+public class DefaultIssueQueryResultTest {
   @Test
-  public void should_get_extensions() {
-    assertThat(new EmailNotificationsPlugin().getExtensions()).hasSize(2);
+  public void test_first_issue() {
+    DefaultIssueQueryResult result = new DefaultIssueQueryResult();
+    assertThat(result.first()).isNull();
+
+    Issue first = new DefaultIssue();
+    Issue second = new DefaultIssue();
+    result.setIssues(Arrays.asList(first, second));
+    assertThat(result.first()).isSameAs(first);
   }
 }

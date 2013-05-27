@@ -22,11 +22,14 @@ package org.sonar.server.issue;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -34,7 +37,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
-
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -50,19 +53,22 @@ public class IssueService implements ServerComponent {
   private final IssueStorage issueStorage;
   private final ActionPlanService actionPlanService;
   private final RuleFinder ruleFinder;
+  private final IssueNotifications issueNotifications;
 
   public IssueService(DefaultIssueFinder finder,
                       IssueWorkflow workflow,
                       IssueStorage issueStorage,
                       IssueUpdater issueUpdater,
                       ActionPlanService actionPlanService,
-                      RuleFinder ruleFinder) {
+                      RuleFinder ruleFinder,
+                      IssueNotifications issueNotifications) {
     this.finder = finder;
     this.workflow = workflow;
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
     this.actionPlanService = actionPlanService;
     this.ruleFinder = ruleFinder;
+    this.issueNotifications = issueNotifications;
   }
 
   /**
@@ -71,7 +77,7 @@ public class IssueService implements ServerComponent {
    * Never return null, but return an empty list if the issue does not exist.
    */
   public List<Transition> listTransitions(String issueKey) {
-    return listTransitions(loadIssue(issueKey));
+    return listTransitions(loadIssue(issueKey).first());
   }
 
   /**
@@ -86,22 +92,26 @@ public class IssueService implements ServerComponent {
 
   public Issue doTransition(String issueKey, String transition, UserSession userSession) {
     verifyLoggedIn(userSession);
-    DefaultIssue issue = loadIssue(issueKey);
+    IssueQueryResult queryResult = loadIssue(issueKey);
+    DefaultIssue issue = (DefaultIssue) queryResult.first();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (workflow.doTransition(issue, transition, context)) {
       issueStorage.save(issue);
+      issueNotifications.sendChanges(issue, context, queryResult);
     }
     return issue;
   }
 
-  public Issue assign(String issueKey, @Nullable String assigneeLogin, UserSession userSession) {
+  public Issue assign(String issueKey, @Nullable String assignee, UserSession userSession) {
     verifyLoggedIn(userSession);
-    DefaultIssue issue = loadIssue(issueKey);
+    IssueQueryResult queryResult = loadIssue(issueKey);
+    DefaultIssue issue = (DefaultIssue) queryResult.first();
 
     // TODO check that assignee exists
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
-    if (issueUpdater.assign(issue, assigneeLogin, context)) {
+    if (issueUpdater.assign(issue, assignee, context)) {
       issueStorage.save(issue);
+      issueNotifications.sendChanges(issue, context, queryResult);
     }
     return issue;
   }
@@ -112,21 +122,24 @@ public class IssueService implements ServerComponent {
     }
 
     verifyLoggedIn(userSession);
-    DefaultIssue issue = loadIssue(issueKey);
+    IssueQueryResult queryResult = loadIssue(issueKey);
+    DefaultIssue issue = (DefaultIssue) queryResult.first();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.plan(issue, actionPlanKey, context)) {
       issueStorage.save(issue);
+      issueNotifications.sendChanges(issue, context, queryResult);
     }
     return issue;
   }
 
   public Issue setSeverity(String issueKey, String severity, UserSession userSession) {
     verifyLoggedIn(userSession);
-    DefaultIssue issue = loadIssue(issueKey);
-
+    IssueQueryResult queryResult = loadIssue(issueKey);
+    DefaultIssue issue = (DefaultIssue) queryResult.first();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.setManualSeverity(issue, severity, context)) {
       issueStorage.save(issue);
+      issueNotifications.sendChanges(issue, context, queryResult);
     }
     return issue;
   }
@@ -150,11 +163,12 @@ public class IssueService implements ServerComponent {
   }
 
 
-  public DefaultIssue loadIssue(String issueKey) {
-    return finder.findByKey(issueKey, UserRole.USER);
+  public IssueQueryResult loadIssue(String issueKey) {
+    IssueQuery query = IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build();
+    return finder.find(query);
   }
 
-  public List<String> listStatus(){
+  public List<String> listStatus() {
     return workflow.statusKeys();
   }
 

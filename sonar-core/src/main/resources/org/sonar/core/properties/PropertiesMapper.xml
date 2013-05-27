@@ -15,6 +15,18 @@
     </if>
   </select>
 
+  <select id="findNotificationSubscribers" parameterType="map" resultType="String">
+    SELECT U.login
+    FROM properties P, users U
+    WHERE P.user_id = U.id AND P.prop_key = #{propKey} AND P.text_value LIKE 'true'
+    AND (
+      P.resource_id is null
+    <if test="componentKey != null">
+      OR P.resource_id in (select id from projects where kee=#{componentKey})
+    </if>
+    )
+  </select>
+
   <select id="selectGlobalProperties" resultType="Property">
     select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
     from properties p

@@ -50,6 +50,8 @@ class IssueController < ApplicationController
     @issue_result = Api.issues.find(params[:issue])
     @issue = @issue_result.issues().get(0)
 
+    bad_request('Unknown issue') unless @issue
+
     action_type = params[:id]
     render :partial => "issue/#{action_type}_form"
   end

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.issue;
+package org.sonar.plugins.core.issue.notification;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,9 +25,7 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +44,7 @@ public class NewIssuesEmailTemplateTest {
   public void shouldNotFormatIfNotCorrectNotification() {
     Notification notification = new Notification("other-notif");
     EmailMessage message = template.format(notification);
-    assertThat(message, nullValue());
+    assertThat(message).isNull();
   }
 
   /**
@@ -64,18 +62,18 @@ public class NewIssuesEmailTemplateTest {
   public void shouldFormatCommentAdded() {
     Notification notification = new Notification("new-issues")
       .setFieldValue("count", "32")
-      .setFieldValue("projectName", "Foo")
-      .setFieldValue("projectKey", "org.sonar.foo:foo")
-      .setFieldValue("projectId", "45");
+      .setFieldValue("projectName", "Struts")
+      .setFieldValue("projectKey", "org.apache:struts")
+      .setFieldValue("projectDate", "2010-05-18T15:50:45+0100");
 
     EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId(), is("new-issues/45"));
-    assertThat(message.getSubject(), is("New issues for project Foo"));
-    assertThat(message.getMessage(), is("" +
-      "Project: Foo\n" +
+    assertThat(message.getMessageId()).isEqualTo("new-issues/org.apache:struts");
+    assertThat(message.getSubject()).isEqualTo("New issues for project Struts");
+    assertThat(message.getMessage()).isEqualTo("" +
+      "Project: Struts\n" +
       "32 new issues\n" +
       "\n" +
-      "See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations\n"));
+      "See it in Sonar: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAfter=2010-05-18\n");
   }
 
 }

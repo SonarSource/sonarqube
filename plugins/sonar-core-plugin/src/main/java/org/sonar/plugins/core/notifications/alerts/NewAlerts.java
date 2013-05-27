@@ -20,32 +20,41 @@
 package org.sonar.plugins.core.notifications.alerts;
 
 import com.google.common.collect.Multimap;
-import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.notifications.NotificationDispatcher;
-import org.sonar.api.notifications.NotificationManager;
+import org.sonar.api.notifications.*;
 
 import java.util.Collection;
 import java.util.Map;
 
 /**
  * This dispatcher means: "notify me each new alert event".
- * 
+ *
  * @since 3.5
  */
 public class NewAlerts extends NotificationDispatcher {
 
-  private NotificationManager notificationManager;
+  public static final String KEY = "NewAlerts";
+  private final NotificationManager notifications;
 
-  public NewAlerts(NotificationManager notificationManager) {
+  public NewAlerts(NotificationManager notifications) {
     super("alerts");
-    this.notificationManager = notificationManager;
+    this.notifications = notifications;
+  }
+
+  @Override
+  public String getKey() {
+    return KEY;
+  }
+
+  public static NotificationDispatcherMetadata newMetadata() {
+    return NotificationDispatcherMetadata.create(KEY)
+      .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
+      .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
   }
 
   @Override
   public void dispatch(Notification notification, Context context) {
     int projectId = Integer.parseInt(notification.getFieldValue("projectId"));
-    Multimap<String, NotificationChannel> subscribedRecipients = notificationManager.findSubscribedRecipientsForDispatcher(this, projectId);
+    Multimap<String, NotificationChannel> subscribedRecipients = notifications.findSubscribedRecipientsForDispatcher(this, projectId);
 
     for (Map.Entry<String, Collection<NotificationChannel>> channelsByRecipients : subscribedRecipients.asMap().entrySet()) {
       String userLogin = channelsByRecipients.getKey();

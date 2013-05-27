@@ -29,9 +29,9 @@ import org.sonar.api.ServerExtension;
  * </p>
  * For example:
  * <ul>
- * <li>notify me by email when someone comments on review created by me</li>
- * <li>notify me by twitter when someone comments on review assigned to me</li>
- * <li>notify me by Jabber when someone mentions me in comment for review</li>
+ * <li>notify me by email when someone comments an issue reported by me</li>
+ * <li>notify me by twitter when someone comments an issue assigned to me</li>
+ * <li>notify me by Jabber when someone mentions me in an issue comment</li>
  * <li>send me by SMS when there are system notifications (like password reset, account creation, ...)</li>
  * </ul> 
  * 
@@ -74,7 +74,7 @@ public abstract class NotificationDispatcher implements ServerExtension {
 
   /**
    * Creates a new generic dispatcher, used for any kind of notification. 
-   * <br/>
+   * <p/>
    * Should be avoided and replaced by the other constructor - as it is easier to understand that a
    * dispatcher listens for a specific type of notification.
    */
@@ -83,9 +83,9 @@ public abstract class NotificationDispatcher implements ServerExtension {
   }
 
   /**
-   * Returns the unique key of this dispatcher. 
-   * 
-   * @return the key
+   * The unique key of this dispatcher. By default it's the class name without the package prefix.
+   * <p/>
+   * The related label in l10n bundles is 'notification.dispatcher.<key>', for example 'notification.dispatcher.NewFalsePositive'.
    */
   public String getKey() {
     return getClass().getSimpleName();
@@ -95,9 +95,6 @@ public abstract class NotificationDispatcher implements ServerExtension {
    * <p>
    * Performs the dispatch.
    * </p>
-   * 
-   * @param notification the notification that will be sent
-   * @param the context linked to this notification
    */
   public final void performDispatch(Notification notification, Context context) {
     if (StringUtils.equals(notification.getType(), notificationType) || StringUtils.equals("", notificationType)) {
@@ -110,9 +107,6 @@ public abstract class NotificationDispatcher implements ServerExtension {
    * Implements the logic that defines which users will receive the notification.
    * </p>
    * The purpose of this method is to populate the context object with users, based on the type of notification and the content of the notification.
-   * 
-   * @param notification the notification that will be sent
-   * @param the context linked to this notification
    */
   public abstract void dispatch(Notification notification, Context context);
 

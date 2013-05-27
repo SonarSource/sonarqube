@@ -31,6 +31,7 @@ import org.sonar.api.notifications.NotificationManager;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -97,7 +98,7 @@ public class DefaultNotificationManager implements NotificationManager {
   /**
    * {@inheritDoc}
    */
-  public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, Integer resourceId) {
+  public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, @Nullable Integer resourceId) {
     String dispatcherKey = dispatcher.getKey();
 
     SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
@@ -111,6 +112,18 @@ public class DefaultNotificationManager implements NotificationManager {
         // Find users subscribed to the dispatcher specifically for the resource
         addUsersToRecipientListForChannel(propertiesDao.findUsersForNotification(dispatcherKey, channelKey, resourceId.longValue()), recipients, channel);
       }
+    }
+
+    return recipients;
+  }
+
+  @Override
+  public Multimap<String, NotificationChannel> findNotificationSubscribers(NotificationDispatcher dispatcher, @Nullable String componentKey) {
+    String dispatcherKey = dispatcher.getKey();
+
+    SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
+    for (NotificationChannel channel : notificationChannels) {
+      addUsersToRecipientListForChannel(propertiesDao.findNotificationSubscribers(dispatcherKey, channel.getKey(), componentKey), recipients, channel);
     }
 
     return recipients;

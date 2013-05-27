@@ -60,4 +60,5 @@ public interface NotificationManager extends ServerComponent, BatchComponent {
    */
   Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, @Nullable Integer resourceId);
 
+  Multimap<String, NotificationChannel> findNotificationSubscribers(NotificationDispatcher dispatcher, @Nullable String componentKey);
 }

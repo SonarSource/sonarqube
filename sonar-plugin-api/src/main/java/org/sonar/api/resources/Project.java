@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.component.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,7 +37,7 @@ import java.util.List;
  * 
  * @since 1.10
  */
-public class Project extends Resource {
+public class Project extends Resource implements Component {
 
   public static final String SCOPE = Scopes.PROJECT;
 
@@ -458,5 +459,25 @@ public class Project extends Resource {
         .append("key", getKey())
         .append("qualifier", getQualifier())
         .toString();
+  }
+
+  @Override
+  public String key() {
+    return getKey();
+  }
+
+  @Override
+  public String name() {
+    return getName();
+  }
+
+  @Override
+  public String longName() {
+    return getLongName();
+  }
+
+  @Override
+  public String qualifier() {
+    return getQualifier();
   }
 }

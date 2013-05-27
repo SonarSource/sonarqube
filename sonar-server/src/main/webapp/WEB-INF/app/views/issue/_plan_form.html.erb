@@ -1,6 +1,6 @@
 <%
    plans_select_box_id = "plans-#{params[:issue]}"
-   plans = Internal.issues.findOpenActionPlans(params[:issue])
+   plans = Internal.issues.findOpenActionPlansForComponent(@issue.componentKey())
 
 
    if plans.empty?

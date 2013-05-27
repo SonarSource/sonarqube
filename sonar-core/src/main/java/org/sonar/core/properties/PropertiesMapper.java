@@ -29,6 +29,8 @@ public interface PropertiesMapper {
 
   List<String> findUsersForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("rId") Long resourceId);
 
+  List<String> findNotificationSubscribers(@Param("propKey") String propertyKey, @Nullable @Param("componentKey") String componentKey);
+
   List<PropertyDto> selectGlobalProperties();
 
   List<PropertyDto> selectProjectProperties(String resourceKey);

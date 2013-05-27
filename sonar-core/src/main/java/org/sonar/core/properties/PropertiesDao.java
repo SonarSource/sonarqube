@@ -59,6 +59,16 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public List<String> findNotificationSubscribers(String notificationDispatcherKey, String notificationChannelKey, @Nullable String componentKey) {
+    SqlSession session = mybatis.openSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      return mapper.findNotificationSubscribers("notification." + notificationDispatcherKey + "." + notificationChannelKey, componentKey);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public List<PropertyDto> selectGlobalProperties() {
     SqlSession session = mybatis.openSession();
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);

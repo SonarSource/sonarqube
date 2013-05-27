@@ -40,7 +40,6 @@ import org.sonar.server.platform.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
-
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -141,7 +140,7 @@ public class InternalRubyIssueService implements ServerComponent {
       }
 
       if (result.ok()) {
-        DefaultIssue issue = (DefaultIssue)new DefaultIssueBuilder()
+        DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
           .componentKey(componentKey)
           .line(RubyUtils.toInteger(params.get("line")))
           .message(params.get("message"))
@@ -160,8 +159,7 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
-  public Collection<ActionPlan> findOpenActionPlans(String issueKey) {
-    String componentKey = issueService.loadIssue(issueKey).componentKey();
+  public Collection<ActionPlan> findOpenActionPlansForComponent(String componentKey) {
     return actionPlanService.findOpenByComponentKey(componentKey);
   }
 

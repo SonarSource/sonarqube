@@ -1,0 +1,50 @@
+<dataset>
+
+  <users
+      id="1"
+      login="eric"
+      />
+
+  <users
+      id="2"
+      login="simon"
+      />
+
+  <projects id="42" kee="org.apache:struts"/>
+
+  <properties
+      id="1"
+      prop_key="notification.DispatcherWithGlobalSubscribers.Email"
+      text_value="true"
+      resource_id="[null]"
+      user_id="2"/>
+
+  <properties
+      id="2"
+      prop_key="notification.DispatcherWithProjectSubscribers.Email"
+      text_value="true"
+      resource_id="42"
+      user_id="1"/>
+
+  <properties
+      id="3"
+      prop_key="notification.DispatcherWithGlobalAndProjectSubscribers.Email"
+      text_value="true"
+      resource_id="56"
+      user_id="1"/>
+
+  <properties
+      id="4"
+      prop_key="notification.DispatcherWithGlobalAndProjectSubscribers.Email"
+      text_value="true"
+      resource_id="42"
+      user_id="1"/>
+
+  <properties
+      id="5"
+      prop_key="notification.DispatcherWithGlobalAndProjectSubscribers.Email"
+      text_value="true"
+      resource_id="[null]"
+      user_id="2"/>
+
+</dataset>

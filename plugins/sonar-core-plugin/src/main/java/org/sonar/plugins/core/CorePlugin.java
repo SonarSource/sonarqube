@@ -23,7 +23,6 @@ package org.sonar.plugins.core;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
-import org.sonar.api.notifications.NotificationDispatcherMetadata;
 import org.sonar.api.resources.Java;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
@@ -33,18 +32,25 @@ import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.dashboards.*;
 import org.sonar.plugins.core.issue.*;
+import org.sonar.plugins.core.issue.notification.*;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
 import org.sonar.plugins.core.notifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
 import org.sonar.plugins.core.notifications.reviews.NewFalsePositiveReview;
+import org.sonar.plugins.core.notifications.violations.NewViolationsOnFirstDifferentialPeriod;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
+import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.issues.*;
+import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.ReviewsPerDeveloperWidget;
 
 import java.util.List;
 
@@ -406,12 +412,17 @@ public final class CorePlugin extends SonarPlugin {
       ActionPlansWidget.class,
       UnresolvedIssuesPerAssigneeWidget.class,
       UnresolvedIssuesStatusesWidget.class,
+
+      // issue notifications
+      SendIssueNotificationsPostJob.class,
       NewIssuesEmailTemplate.class,
+      IssueChangesEmailTemplate.class,
+      ChangesOnMyIssueNotificationDispatcher.class,
+      ChangesOnMyIssueNotificationDispatcher.newMetadata(),
       NewIssuesNotificationDispatcher.class,
-      NewIssuesNotificationPostJob.class,
-      NotificationDispatcherMetadata.create("NewIssues")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
-        .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)),
+      NewIssuesNotificationDispatcher.newMetadata(),
+      NewFalsePositiveNotificationDispatcher.class,
+      NewFalsePositiveNotificationDispatcher.newMetadata(),
 
       // batch
       ProfileSensor.class,
@@ -450,19 +461,7 @@ public final class CorePlugin extends SonarPlugin {
 
       // Notify alerts on my favourite projects
       NewAlerts.class,
-      NotificationDispatcherMetadata.create("NewAlerts")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
-        .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)),
-      // Notify reviews changes
-      ChangesInReviewAssignedToMeOrCreatedByMe.class,
-      NotificationDispatcherMetadata.create("ChangesInReviewAssignedToMeOrCreatedByMe")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
-        .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true)),
-      // Notify new false positive resolution
-      NewFalsePositiveReview.class,
-      NotificationDispatcherMetadata.create("NewFalsePositiveReview")
-        .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(true))
-        .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true))
+      NewAlerts.newMetadata()
     );
   }
 }

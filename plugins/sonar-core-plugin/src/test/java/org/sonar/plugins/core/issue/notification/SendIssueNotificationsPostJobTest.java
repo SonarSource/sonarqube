@@ -17,27 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.issue;
+package org.sonar.plugins.core.issue.notification;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueNotifications;
 
 import java.util.Arrays;
 
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NewIssuesNotificationPostJobTest {
+public class SendIssueNotificationsPostJobTest {
   @Mock
   Project project;
 
@@ -45,7 +44,10 @@ public class NewIssuesNotificationPostJobTest {
   IssueCache issueCache;
 
   @Mock
-  NotificationManager notifications;
+  IssueNotifications notifications;
+
+  @Mock
+  RuleFinder ruleFinder;
 
   @Mock
   SensorContext sensorContext;
@@ -53,41 +55,38 @@ public class NewIssuesNotificationPostJobTest {
   @Test
   public void should_not_send_notif_if_past_scan() throws Exception {
     when(project.isLatestAnalysis()).thenReturn(false);
+    when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
 
-    NewIssuesNotificationPostJob job = new NewIssuesNotificationPostJob(issueCache, notifications);
+    SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
 
-    verifyZeroInteractions(notifications, issueCache, sensorContext);
+    verifyZeroInteractions(notifications, issueCache, ruleFinder, sensorContext);
   }
 
   @Test
   public void should_send_notif_if_new_issues() throws Exception {
     when(project.isLatestAnalysis()).thenReturn(true);
+    when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
     when(issueCache.all()).thenReturn(Arrays.asList(
       new DefaultIssue().setNew(true),
       new DefaultIssue().setNew(false)
     ));
 
-    NewIssuesNotificationPostJob job = new NewIssuesNotificationPostJob(issueCache, notifications);
+    SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
 
-    verify(notifications).scheduleForSending(argThat(new ArgumentMatcher<Notification>() {
-      @Override
-      public boolean matches(Object o) {
-        Notification n = (Notification) o;
-        return n.getType().equals("new-issues") && n.getFieldValue("count").equals("1");
-      }
-    }));
+    verify(notifications).sendNewIssues(project, 1);
   }
 
   @Test
   public void should_not_send_notif_if_no_new_issues() throws Exception {
     when(project.isLatestAnalysis()).thenReturn(true);
+    when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
     when(issueCache.all()).thenReturn(Arrays.asList(
       new DefaultIssue().setNew(false)
     ));
 
-    NewIssuesNotificationPostJob job = new NewIssuesNotificationPostJob(issueCache, notifications);
+    SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
 
     verifyZeroInteractions(notifications);

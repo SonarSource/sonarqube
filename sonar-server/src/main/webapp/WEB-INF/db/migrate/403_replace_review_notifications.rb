@@ -20,6 +20,7 @@
 
 #
 # Sonar 3.6
+# See SONAR-4283
 #
 class ReplaceReviewNotifications < ActiveRecord::Migration
 
@@ -31,5 +32,16 @@ class ReplaceReviewNotifications < ActiveRecord::Migration
       prop.prop_key = prop.prop_key.gsub(/NewViolationsOnFirstDifferentialPeriod/, 'NewIssues')
       prop.save
     end
+
+    Property.find(:all, :conditions => ['prop_key like ?', 'notification.ChangesInReviewAssignedToMeOrCreatedByMe.%']).each do |prop|
+      prop.prop_key = prop.prop_key.gsub(/ChangesInReviewAssignedToMeOrCreatedByMe/, 'ChangesOnMyIssue')
+      prop.save
+    end
+
+    Property.find(:all, :conditions => ['prop_key like ?', 'notification.NewFalsePositiveReview.%']).each do |prop|
+      prop.prop_key = prop.prop_key.gsub(/NewFalsePositiveReview/, 'NewFalsePositiveIssue')
+      prop.save
+    end
+
   end
 end

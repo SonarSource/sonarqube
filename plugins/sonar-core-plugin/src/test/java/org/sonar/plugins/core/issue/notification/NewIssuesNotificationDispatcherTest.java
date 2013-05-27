@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.notifications.violations;
+package org.sonar.plugins.core.issue.notification;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -31,15 +31,12 @@ import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.notifications.NotificationManager;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class NewViolationsOnFirstDifferentialPeriodTest {
+public class NewIssuesNotificationDispatcherTest {
 
   @Mock
-  private NotificationManager notificationManager;
+  private NotificationManager notifications;
 
   @Mock
   private NotificationDispatcher.Context context;
@@ -50,12 +47,12 @@ public class NewViolationsOnFirstDifferentialPeriodTest {
   @Mock
   private NotificationChannel twitterChannel;
 
-  private NewViolationsOnFirstDifferentialPeriod dispatcher;
+  private NewIssuesNotificationDispatcher dispatcher;
 
   @Before
   public void init() {
     MockitoAnnotations.initMocks(this);
-    dispatcher = new NewViolationsOnFirstDifferentialPeriod(notificationManager);
+    dispatcher = new NewIssuesNotificationDispatcher(notifications);
   }
 
   @Test
@@ -71,14 +68,13 @@ public class NewViolationsOnFirstDifferentialPeriodTest {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, 34)).thenReturn(recipients);
+    when(notifications.findNotificationSubscribers(dispatcher, "struts")).thenReturn(recipients);
 
-    Notification notification = new Notification("new-violations").setFieldValue("projectId", "34");
+    Notification notification = new Notification("new-issues").setFieldValue("projectKey", "struts");
     dispatcher.performDispatch(notification, context);
 
     verify(context).addUser("user1", emailChannel);
     verify(context).addUser("user2", twitterChannel);
     verifyNoMoreInteractions(context);
   }
-
 }
