@@ -25,8 +25,6 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.db.IssueDto;
 
-import javax.annotation.Nonnull;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -36,15 +34,16 @@ class IssuesFinderSort {
   private List<IssueDto> issues;
   private IssueQuery query;
 
-  public IssuesFinderSort(List<IssueDto> issues, @Nonnull IssueQuery query) {
+  public IssuesFinderSort(List<IssueDto> issues, IssueQuery query) {
     this.issues = issues;
     this.query = query;
   }
 
   public List<IssueDto> sort() {
-    if (query.sort() != null) {
+    IssueQuery.Sort sort = query.sort();
+    if (sort != null) {
       IssueProcessor issueProcessor;
-      switch (query.sort()) {
+      switch (sort) {
         case ASSIGNEE:
           issueProcessor = new AssigneeSortIssueProcessor();
           break;
