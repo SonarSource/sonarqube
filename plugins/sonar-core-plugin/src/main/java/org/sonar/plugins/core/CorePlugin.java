@@ -376,7 +376,6 @@ public final class CorePlugin extends SonarPlugin {
       // dashboards
       ProjectDefaultDashboard.class,
       ProjectHotspotDashboard.class,
-      ProjectReviewsDashboard.class,
       ProjectIssuesDashboard.class,
       ProjectTimeMachineDashboard.class,
       GlobalDefaultDashboard.class,

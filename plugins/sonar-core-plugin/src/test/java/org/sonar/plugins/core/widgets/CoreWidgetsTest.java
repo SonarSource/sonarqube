@@ -87,11 +87,11 @@ public class CoreWidgetsTest {
 
   @Test
   public void should_find_core_widgets() {
-    assertThat(widgets().size()).isGreaterThan(25);
+    assertThat(widgets().size()).isGreaterThan(23);
   }
 
   private Set<Class<? extends CoreWidget>> widgetClasses() {
-    String[] packages = {"org.sonar.plugins.core.widgets", "org.sonar.plugins.core.widgets.reviews"};
+    String[] packages = {"org.sonar.plugins.core.widgets", "org.sonar.plugins.core.widgets.issues"};
     return new Reflections(packages).getSubTypesOf(CoreWidget.class);
   }
 
