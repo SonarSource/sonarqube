@@ -31,6 +31,6 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 })
 public class ActionPlansWidget extends CoreWidget {
   public ActionPlansWidget() {
-    super("issues_action_plans", "Issues action plans", "/org/sonar/plugins/core/widgets/issues/action_plans.html.erb");
+    super("action_plans", "Issues action plans", "/org/sonar/plugins/core/widgets/issues/action_plans.html.erb");
   }
 }

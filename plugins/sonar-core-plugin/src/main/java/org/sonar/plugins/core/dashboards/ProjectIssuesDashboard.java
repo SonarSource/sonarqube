@@ -46,7 +46,7 @@ public final class ProjectIssuesDashboard extends DashboardTemplate {
 
   private void addFirstColumn(Dashboard dashboard) {
     dashboard.addWidget("unresolved_issues_statuses", 1);
-    dashboard.addWidget("issues_action_plans", 1);
+    dashboard.addWidget("action_plans", 1);
   }
 
   private void addSecondColumn(Dashboard dashboard) {

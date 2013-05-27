@@ -15,7 +15,7 @@
   </div>
   <% end %>
   
-  <h3><%= message('widget.issues_action_plans.title') -%></h3>
+  <h3><%= message('widget.action_plans.title') -%></h3>
 </div>
 
 
@@ -23,7 +23,7 @@
 
 <% if open_action_plans.size ==0 %>
 
-  <span class="empty_widget"><%= message('widget.issues_action_plans.no_action_plan') -%></span>
+  <span class="empty_widget"><%= message('widget.action_plans.no_action_plan') -%></span>
 
 <% 
    else
@@ -68,7 +68,7 @@
             <% else %>
               <a href="<%= url_for({:controller => 'issues', :action => 'search',
                                     :actionPlans => plan.key, :resolved => 'false'}) -%>"
-                 title="<%= message('widget.issues_action_plans.x_unresolved_issues', :params => unresolved_issues_size.to_s) -%>"><%= unresolved_issues_size -%></a>
+                 title="<%= message('widget.action_plans.x_unresolved_issues', :params => unresolved_issues_size.to_s) -%>"><%= unresolved_issues_size -%></a>
             <% end %>
           </td>
           <td class="<%= line_class -%>" style="padding: 0 40px 0 10px; width: 300px;">

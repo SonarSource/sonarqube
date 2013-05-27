@@ -44,7 +44,6 @@ import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
-import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.issues.*;
 import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
 
@@ -408,7 +407,6 @@ public final class CorePlugin extends SonarPlugin {
       ProjectReviewsWidget.class,
       FalsePositiveIssuesWidget.class,
       ActionPlansWidget.class,
-      org.sonar.plugins.core.widgets.ActionPlansWidget.class,
       UnresolvedIssuesPerAssigneeWidget.class,
       UnresolvedIssuesStatusesWidget.class,
       NewIssuesEmailTemplate.class,
