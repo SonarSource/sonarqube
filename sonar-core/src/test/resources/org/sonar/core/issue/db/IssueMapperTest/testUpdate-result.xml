@@ -2,8 +2,8 @@
   <issues
       id="100"
       kee="ABCDE"
-      resource_id="123"
-      project_id="100"
+      component_id="123"
+      root_component_id="100"
       rule_id="200"
       severity="BLOCKER"
       manual_severity="[false]"

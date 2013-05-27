@@ -39,8 +39,8 @@ public final class IssueDto {
 
   private Long id;
   private String kee;
-  private Integer resourceId;
-  private Integer projectId;
+  private Integer componentId;
+  private Integer rootComponentId;
   private Integer ruleId;
   private String severity;
   private boolean manualSeverity;
@@ -69,7 +69,7 @@ public final class IssueDto {
   private transient String ruleKey;
   private transient String ruleRepo;
   private transient String componentKey;
-  private transient String projectKey;
+  private transient String rootComponentKey;
 
   public Long getId() {
     return id;
@@ -89,21 +89,21 @@ public final class IssueDto {
     return this;
   }
 
-  public Integer getResourceId() {
-    return resourceId;
+  public Integer getComponentId() {
+    return componentId;
   }
 
-  public IssueDto setResourceId(Integer resourceId) {
-    this.resourceId = resourceId;
+  public IssueDto setComponentId(Integer componentId) {
+    this.componentId = componentId;
     return this;
   }
 
-  public Integer getProjectId() {
-    return projectId;
+  public Integer getRootComponentId() {
+    return rootComponentId;
   }
 
-  public IssueDto setProjectId(Integer projectId) {
-    this.projectId = projectId;
+  public IssueDto setRootComponentId(Integer rootComponentId) {
+    this.rootComponentId = rootComponentId;
     return this;
   }
 
@@ -300,8 +300,8 @@ public final class IssueDto {
     return componentKey;
   }
 
-  public String getProjectKey() {
-    return projectKey;
+  public String getRootComponentKey() {
+    return rootComponentKey;
   }
 
   /**
@@ -324,8 +324,8 @@ public final class IssueDto {
   /**
    * Only for unit tests
    */
-  public IssueDto setProjectKey_unit_test_only(String projectKey) {
-    this.projectKey = projectKey;
+  public IssueDto setRootComponentKey_unit_test_only(String rootComponentKey) {
+    this.rootComponentKey = rootComponentKey;
     return this;
   }
 
@@ -334,7 +334,7 @@ public final class IssueDto {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public static IssueDto toDtoForInsert(DefaultIssue issue, Integer componentId, Integer projectId, Integer ruleId, Date now) {
+  public static IssueDto toDtoForInsert(DefaultIssue issue, Integer componentId, Integer rootComponentId, Integer ruleId, Date now) {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
@@ -348,8 +348,8 @@ public final class IssueDto {
       .setReporter(issue.reporter())
       .setAssignee(issue.assignee())
       .setRuleId(ruleId)
-      .setResourceId(componentId)
-      .setProjectId(projectId)
+      .setComponentId(componentId)
+      .setRootComponentId(rootComponentId)
       .setActionPlanKey(issue.actionPlanKey())
       .setIssueAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
       .setAuthorLogin(issue.authorLogin())
@@ -397,7 +397,7 @@ public final class IssueDto {
     issue.setAssignee(assignee);
     issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(issueAttributes, "")));
     issue.setComponentKey(componentKey);
-    issue.setProjectKey(projectKey);
+    issue.setProjectKey(rootComponentKey);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));
     issue.setActionPlanKey(actionPlanKey);

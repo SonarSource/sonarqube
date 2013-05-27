@@ -44,7 +44,7 @@ public class InitialOpenIssuesStack implements BatchExtension {
   public void setIssues(List<IssueDto> issues, Date loadedDate) {
     this.loadedDate = loadedDate;
     for (IssueDto issueDto : issues) {
-      issuesByResourceId.put(issueDto.getResourceId(), issueDto);
+      issuesByResourceId.put(issueDto.getComponentId(), issueDto);
     }
   }
 

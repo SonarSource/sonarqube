@@ -49,8 +49,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     IssueDto issue = dao.selectByKey("ABCDE");
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
-    assertThat(issue.getResourceId()).isEqualTo(401);
-    assertThat(issue.getProjectId()).isEqualTo(399);
+    assertThat(issue.getComponentId()).isEqualTo(401);
+    assertThat(issue.getRootComponentId()).isEqualTo(399);
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
     assertThat(issue.isManualSeverity()).isFalse();
@@ -72,7 +72,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRuleRepo()).isEqualTo("squid");
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
-    assertThat(issue.getProjectKey()).isEqualTo("struts");
+    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
   }
 
   @Test

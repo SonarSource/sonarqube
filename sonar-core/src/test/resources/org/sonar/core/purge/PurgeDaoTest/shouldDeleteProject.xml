@@ -19,7 +19,7 @@
   <action_plans id="1" kee="ABCD" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
                 user_login="igor" status="[null]" created_at="[null]" updated_at="[null]" />
 
-  <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
+  <issues id="1" kee="ABCDE" component_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]"
@@ -31,7 +31,7 @@
           issue_close_date="2013-04-16"
       />
 
-  <issues id="2" kee="ABCDF" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
+  <issues id="2" kee="ABCDF" component_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]"

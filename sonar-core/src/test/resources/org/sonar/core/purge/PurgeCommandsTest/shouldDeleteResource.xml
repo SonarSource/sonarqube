@@ -18,7 +18,7 @@
   <events id="1" name="Version 1.0" resource_id="1" snapshot_id="1" category="VERSION" description="[null]"
           event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
 
-  <issues id="1" kee="ABCDE" resource_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
+  <issues id="1" kee="ABCDE" component_id="1" status="CLOSED" resolution="[null]" line="200" severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]"

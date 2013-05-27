@@ -6,7 +6,7 @@
   <issues
       id="100"
       kee="ABCDE"
-      resource_id="400"
+      component_id="400"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
@@ -30,7 +30,7 @@
   <issues
       id="101"
       kee="ABCDF"
-      resource_id="400"
+      component_id="400"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
@@ -54,7 +54,7 @@
   <issues
       id="102"
       kee="ABCDG"
-      resource_id="400"
+      component_id="400"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"

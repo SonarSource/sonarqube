@@ -87,7 +87,7 @@ public class DefaultIssueFinder implements IssueFinder {
     if (dto == null) {
       throw new IllegalStateException("Unknown issue: " + issueKey);
     }
-    if (!authorizationDao.isAuthorizedComponentId(dto.getResourceId(), UserSession.get().userId(), requiredRole)) {
+    if (!authorizationDao.isAuthorizedComponentId(dto.getComponentId(), UserSession.get().userId(), requiredRole)) {
       throw new IllegalStateException("User does not have the role " + requiredRole + " required to change the issue: " + issueKey);
     }
     return dto.toDefaultIssue();
@@ -126,8 +126,8 @@ public class DefaultIssueFinder implements IssueFinder {
         issuesByKey.put(dto.getKee(), defaultIssue);
         issues.add(defaultIssue);
         ruleIds.add(dto.getRuleId());
-        componentIds.add(dto.getResourceId());
-        projectIds.add(dto.getProjectId());
+        componentIds.add(dto.getComponentId());
+        projectIds.add(dto.getRootComponentId());
         actionPlanKeys.add(dto.getActionPlanKey());
         if (dto.getReporter() != null) {
           users.add(dto.getReporter());

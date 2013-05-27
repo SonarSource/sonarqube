@@ -3,8 +3,8 @@
   <issues
       id="100"
       kee="100"
-      resource_id="401"
-      project_id="399"
+      component_id="401"
+      root_component_id="399"
       rule_id="500"
       severity="BLOCKER"
       manual_severity="[false]"
@@ -28,8 +28,8 @@
   <issues
       id="101"
       kee="101"
-      resource_id="402"
-      project_id="399"
+      component_id="402"
+      root_component_id="399"
       rule_id="501"
       severity="MAJOR"
       manual_severity="[false]"

@@ -42,7 +42,7 @@ public class InitialOpenIssuesStackTest {
   @Test
   public void should_get_and_remove() {
     Date loadedDate = new Date();
-    IssueDto issueDto = new IssueDto().setResourceId(10).setId(1L);
+    IssueDto issueDto = new IssueDto().setComponentId(10).setId(1L);
     initialOpenIssuesStack.setIssues(newArrayList(issueDto), loadedDate);
 
     List<IssueDto> issueDtos = initialOpenIssuesStack.selectAndRemove(10);
@@ -56,8 +56,8 @@ public class InitialOpenIssuesStackTest {
   @Test
   public void should_get_and_remove_with_many_issues_on_same_resource() {
     initialOpenIssuesStack.setIssues(newArrayList(
-        new IssueDto().setResourceId(10).setId(1L),
-        new IssueDto().setResourceId(10).setId(2L)
+        new IssueDto().setComponentId(10).setId(1L),
+        new IssueDto().setComponentId(10).setId(2L)
     ), new Date());
 
     List<IssueDto> issueDtos = initialOpenIssuesStack.selectAndRemove(10);
@@ -68,7 +68,7 @@ public class InitialOpenIssuesStackTest {
 
   @Test
   public void should_do_nothing_if_resource_not_found() {
-    IssueDto issueDto = new IssueDto().setResourceId(10).setId(1L);
+    IssueDto issueDto = new IssueDto().setComponentId(10).setId(1L);
     initialOpenIssuesStack.setIssues(newArrayList(issueDto), new Date());
 
     List<IssueDto> issueDtos = initialOpenIssuesStack.selectAndRemove(999);

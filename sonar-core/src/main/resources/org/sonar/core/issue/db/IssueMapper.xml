@@ -7,8 +7,8 @@
   <sql id="issueColumns">
     i.id,
     i.kee as kee,
-    i.resource_id as resourceId,
-    i.project_id as projectId,
+    i.component_id as componentId,
+    i.root_component_id as rootComponentId,
     i.rule_id as ruleId,
     i.action_plan_key as actionPlanKey,
     i.severity as severity,
@@ -31,7 +31,7 @@
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
     p.kee as componentKey,
-    root.kee as projectKey
+    root.kee as rootComponentKey
   </sql>
 
   <sql id="sortColumn">
@@ -60,11 +60,11 @@
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
-    INSERT INTO issues (kee, resource_id, project_id, rule_id, action_plan_key, severity, manual_severity,
+    INSERT INTO issues (kee, component_id, root_component_id, rule_id, action_plan_key, severity, manual_severity,
     message, line, effort_to_fix, status,
     resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{kee}, #{resourceId}, #{projectId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity},
+    VALUES (#{kee}, #{componentId}, #{rootComponentId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity},
     #{message}, #{line}, #{effortToFix}, #{status},
     #{resolution}, #{checksum}, #{reporter}, #{assignee}, #{authorLogin}, #{issueAttributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
@@ -76,11 +76,11 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issues_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issues (id, kee, resource_id, project_id, rule_id, action_plan_key, severity, manual_severity,
+    INSERT INTO issues (id, kee, component_id, root_component_id, rule_id, action_plan_key, severity, manual_severity,
     message, line, effort_to_fix, status,
     resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at)
-    VALUES (#{id}, #{kee}, #{resourceId}, #{projectId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity},
+    VALUES (#{id}, #{kee}, #{componentId}, #{rootComponentId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity},
     #{message}, #{line}, #{effortToFix}, #{status},
     #{resolution}, #{checksum}, #{reporter}, #{assignee}, #{authorLogin}, #{issueAttributes}, #{issueCreationDate},
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
@@ -115,7 +115,7 @@
     select
     <include refid="issueColumns"/>
     from issues i, rules r, projects p, projects root
-    where i.kee=#{kee} and i.rule_id=r.id and p.id=i.resource_id and i.project_id=root.id
+    where i.kee=#{kee} and i.rule_id=r.id and p.id=i.component_id and i.root_component_id=root.id
   </select>
 
   <select id="selectNonClosedIssues" parameterType="int" resultType="Issue">
@@ -124,8 +124,8 @@
     from issues i, rules r, projects p, projects root
     where i.status &lt;&gt; 'CLOSED'
     and (p.root_id=#{id} or (p.root_id is null and p.id=#{id}))
-    and i.resource_id=p.id
-    and i.project_id=root.id
+    and i.component_id=p.id
+    and i.root_component_id=root.id
     and r.id=i.rule_id
   </select>
 
@@ -141,8 +141,8 @@
         </foreach>
       </foreach>
       and i.rule_id=r.id
-      and p.id=i.resource_id
-      and i.project_id=root.id
+      and p.id=i.component_id
+      and i.root_component_id=root.id
     </where>
   </select>
 
@@ -164,14 +164,14 @@
 
   <sql id="selectQueryConditions">
     from issues i
-    inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />) authorizedProjects on authorizedProjects.root_project_id=i.project_id
+    inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />) authorizedProjects on authorizedProjects.root_project_id=i.root_component_id
     <if test="query.componentRoots() != null and query.componentRoots().size() > 0">
       inner join projects rootprojects on rootprojects.enabled=${_true} and rootprojects.kee in
       <foreach item="componentRoot" index="index" collection="query.componentRoots()" open="(" separator="," close=")">
         #{componentRoot}
       </foreach>
       inner join snapshots rootsnapshots on rootsnapshots.project_id=rootprojects.id and rootsnapshots.islast=${_true}
-      inner join snapshots s on s.project_id=i.resource_id and s.islast=${_true} and
+      inner join snapshots s on s.project_id=i.component_id and s.islast=${_true} and
       (s.id=rootsnapshots.id or ((s.root_snapshot_id=rootsnapshots.id or s.root_snapshot_id=rootsnapshots.root_snapshot_id) and
       <choose>
         <when test="_databaseId == 'mssql'">
@@ -187,7 +187,7 @@
       ))
     </if>
     <if test="query.components() != null and query.components().size() > 0">
-      inner join projects project_component on project_component.id=i.resource_id and project_component.enabled=${_true} and project_component.kee in
+      inner join projects project_component on project_component.id=i.component_id and project_component.enabled=${_true} and project_component.kee in
       <foreach item="component" index="index" collection="query.components()" open="(" separator="," close=")">#{component}
       </foreach>
     </if>
