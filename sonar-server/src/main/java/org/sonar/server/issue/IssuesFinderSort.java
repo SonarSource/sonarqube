@@ -63,7 +63,7 @@ class IssuesFinderSort {
           issueProcessor = new CloseDateSortIssueProcessor();
           break;
         default:
-          throw new IllegalArgumentException("Cannot sort issues on field : " + query.sort().name());
+          throw new IllegalArgumentException("Cannot sort issues on field : " + sort.name());
       }
       return issueProcessor.sort(issues, query.asc());
     }
