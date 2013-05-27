@@ -76,8 +76,7 @@ public class IssueNotificationsTest {
       .setFieldDiff(context, "status", "OPEN", "RESOLVED")
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult();
-    queryResult.setIssues(Arrays.<Issue>asList(issue));
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
     queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
 
     Notification notification = issueNotifications.sendChanges(issue, context, queryResult);

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.plugins.core;
 
 import com.google.common.collect.ImmutableList;
@@ -36,21 +35,13 @@ import org.sonar.plugins.core.issue.notification.*;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
-import org.sonar.plugins.core.notifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
-import org.sonar.plugins.core.notifications.reviews.NewFalsePositiveReview;
-import org.sonar.plugins.core.notifications.violations.NewViolationsOnFirstDifferentialPeriod;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
-import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.issues.*;
-import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
-import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
-import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
-import org.sonar.plugins.core.widgets.reviews.ReviewsPerDeveloperWidget;
 
 import java.util.List;
 
@@ -446,7 +437,6 @@ public final class CorePlugin extends SonarPlugin {
       NoSonarFilter.class,
       DirectoriesDecorator.class,
       FilesDecorator.class,
-      ReviewNotifications.class,
       IndexProjectPostJob.class,
       ManualMeasureDecorator.class,
 

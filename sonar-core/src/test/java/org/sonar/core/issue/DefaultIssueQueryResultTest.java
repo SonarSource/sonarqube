@@ -23,18 +23,19 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultIssueQueryResultTest {
   @Test
   public void test_first_issue() {
-    DefaultIssueQueryResult result = new DefaultIssueQueryResult();
+    DefaultIssueQueryResult result = new DefaultIssueQueryResult(Collections.<Issue>emptyList());
     assertThat(result.first()).isNull();
 
     Issue first = new DefaultIssue();
     Issue second = new DefaultIssue();
-    result.setIssues(Arrays.asList(first, second));
+    result = new DefaultIssueQueryResult(Arrays.asList(first, second));
     assertThat(result.first()).isSameAs(first);
   }
 }
