@@ -46,7 +46,6 @@ import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
 import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.issues.*;
-import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
 
 import java.util.List;
@@ -405,7 +404,6 @@ public final class CorePlugin extends SonarPlugin {
       InitialOpenIssuesStack.class,
       HotspotMostViolatedResourcesWidget.class,
       HotspotMostViolatedRulesWidget.class,
-      MyReviewsWidget.class,
       MyUnresolvedIssuesWidget.class,
       ProjectReviewsWidget.class,
       FalsePositiveIssuesWidget.class,
