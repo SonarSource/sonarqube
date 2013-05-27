@@ -33,6 +33,7 @@ class DeleteReviewWidgets < ActiveRecord::Migration
     delete_widget 'reviews_metrics'
     delete_widget 'planned_reviews'
     delete_widget 'unplanned_reviews'
+    delete_widget 'project_reviews'
   end
 
   def self.delete_widget(widget_key)

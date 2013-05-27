@@ -45,7 +45,6 @@ import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
 import org.sonar.plugins.core.widgets.issues.*;
-import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
 
 import java.util.List;
 
@@ -404,7 +403,6 @@ public final class CorePlugin extends SonarPlugin {
       HotspotMostViolatedResourcesWidget.class,
       HotspotMostViolatedRulesWidget.class,
       MyUnresolvedIssuesWidget.class,
-      ProjectReviewsWidget.class,
       FalsePositiveIssuesWidget.class,
       ActionPlansWidget.class,
       UnresolvedIssuesPerAssigneeWidget.class,
