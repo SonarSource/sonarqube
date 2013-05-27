@@ -108,37 +108,5 @@ module UsersHelper
       link_to_login_with_IP content_text, options
     end
   end
-  
-  #
-  # Generates a text input field that knows how to contact the server to retrieve 
-  # and suggest a list of user names & IDs based on the first letters typed by
-  # the user.
-  # The text input displays a string (the name of the user) but the real input 
-  # field that is submitted is a hidden one that contains the user ID that corresponds
-  # to the typed name (if the user exists, of course).
-  #
-  # The 'options' argument can be used to pass HTML elements to the text field.
-  # (for the moment 'class' is supported).
-  #
-  # Example:
-  #   <%= user_autocomplete_field "assignee_login", @assignee_login -%>
-  #   # => generates an input field for the parameter 'assignee_login'
-  #
-  def user_autocomplete_field(param_id, param_value, options={})
-    param_id_name = param_id
-    param_id_value = param_value
-    
-    unless param_id_value.blank?
-      user = User.find(:first, :conditions => [ "login = ?", param_id_value ])
-      param_displayed_value = user.name if user
-      param_displayed_value += " (#{message('me').downcase})" if user && current_user && current_user.login == param_id_value
-    end
-    
-    server_url = url_for :controller => 'users', :action => 'autocomplete'
-    
-    render :partial => 'autocomplete/text_field', :locals => {:param_id_name => param_id_name, :param_id_value => param_id_value, 
-                                                              :param_displayed_value => param_displayed_value, :server_url => server_url,
-                                                              :options => options.to_options}
-  end
 
 end
