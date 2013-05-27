@@ -263,6 +263,7 @@ public final class Platform {
     servicesContainer.addSingleton(IssueService.class);
     servicesContainer.addSingleton(IssueCommentService.class);
     servicesContainer.addSingleton(DefaultIssueFinder.class);
+    servicesContainer.addSingleton(IssueStatsFinder.class);
     servicesContainer.addSingleton(PublicRubyIssueService.class);
     servicesContainer.addSingleton(InternalRubyIssueService.class);
     servicesContainer.addSingleton(ActionPlanService.class);

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 import org.sonar.api.component.Component;
@@ -27,6 +28,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
@@ -37,6 +39,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.AuthorizationDao;
+import org.sonar.core.user.DefaultUser;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +51,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyListOf;
 import static org.mockito.Mockito.*;
 
 public class DefaultIssueFinderTest {
@@ -239,6 +243,32 @@ public class DefaultIssueFinderTest {
     assertThat(results.actionPlans()).hasSize(2);
     Issue issue = results.issues().iterator().next();
     assertThat(results.actionPlan(issue)).isNotNull();
+  }
+
+  @Test
+  public void should_get_user_from_result() {
+    when(userFinder.findByLogins(anyListOf(String.class))).thenReturn(Lists.<User>newArrayList(
+      new DefaultUser().setLogin("perceval").setName("Perceval"),
+      new DefaultUser().setLogin("arthur").setName("Roi Arthur")
+    ));
+
+    IssueQuery query = IssueQuery.builder().build();
+
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100).setKee("ABC").setAssignee("perceval")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123).setRootComponentId(100).setKee("DEF").setReporter("arthur")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
+    List<IssueDto> dtoList = newArrayList(issue1, issue2);
+    when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
+
+    IssueQueryResult results = finder.find(query);
+    assertThat(results.issues()).hasSize(2);
+
+    assertThat(results.users()).hasSize(2);
+    assertThat(results.user("perceval").name()).isEqualTo("Perceval");
+    assertThat(results.user("arthur").name()).isEqualTo("Roi Arthur");
   }
 
   @Test

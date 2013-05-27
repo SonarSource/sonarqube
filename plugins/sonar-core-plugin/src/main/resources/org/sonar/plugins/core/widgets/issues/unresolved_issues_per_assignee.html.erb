@@ -6,14 +6,13 @@
       options['createdAfter'] = Api::Utils.format_datetime(@dashboard_configuration.from_datetime)
       options['createdBefore'] = Api::Utils.format_datetime(DateTime.now)
     end
-    results = Api.issues.find(options)
-    issues = results.issues()
+    results = Internal.issues.findIssueAssignees(options)
+    assignees = results.results
 
-    unless issues.empty?
+    unless assignees.empty?
       issues_by_assignee = {}
       counter_no_assignee = 0
-      issues.each do |issue|
-        assignee = issue.assignee()
+      assignees.each do |assignee|
         if assignee
           counter = issues_by_assignee[assignee]
           if counter
@@ -35,7 +34,7 @@
 
 <h3><%= message('widget.unresolved_issues_per_assignee.name') -%></h3>
 
-<% if issues.size ==0 %>
+<% if assignees.size ==0 %>
   <span class="empty_widget"><%= message('widget.unresolved_issues_per_assignee.name') -%></span>
 
 <% else %>

@@ -55,16 +55,22 @@ public class InternalRubyIssueService implements ServerComponent {
   private final IssueService issueService;
   private final IssueCommentService commentService;
   private final ActionPlanService actionPlanService;
+  private final IssueStatsFinder issueStatsFinder;
   private final ResourceDao resourceDao;
 
   public InternalRubyIssueService(IssueService issueService,
                                   IssueCommentService commentService,
                                   ActionPlanService actionPlanService,
-                                  ResourceDao resourceDao) {
+                                  IssueStatsFinder issueStatsFinder, ResourceDao resourceDao) {
     this.issueService = issueService;
     this.commentService = commentService;
     this.actionPlanService = actionPlanService;
+    this.issueStatsFinder = issueStatsFinder;
     this.resourceDao = resourceDao;
+  }
+
+  public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params){
+    return issueStatsFinder.findIssueAssignees(PublicRubyIssueService.toQuery(params));
   }
 
   public List<Transition> listTransitions(String issueKey) {

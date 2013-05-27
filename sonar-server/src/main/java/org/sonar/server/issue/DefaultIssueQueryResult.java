@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.issue;
+package org.sonar.server.issue;
 
 import com.google.common.collect.Maps;
 import org.sonar.api.component.Component;
@@ -47,9 +47,8 @@ public class DefaultIssueQueryResult implements IssueQueryResult {
   private boolean maxResultsReached;
   private Paging paging;
 
-  public DefaultIssueQueryResult setIssues(List<Issue> issues){
+  public DefaultIssueQueryResult(List<Issue> issues){
     this.issues = issues;
-    return this;
   }
 
   public DefaultIssueQueryResult addRules(Collection<Rule> rules){

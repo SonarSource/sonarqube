@@ -63,7 +63,7 @@ public class PublicRubyIssueService implements RubyIssueService {
     return finder.find(toQuery(params));
   }
 
-  IssueQuery toQuery(Map<String, Object> props) {
+  static IssueQuery toQuery(Map<String, Object> props) {
     IssueQuery.Builder builder = IssueQuery.builder();
     builder.requiredRole(UserRole.CODEVIEWER);
     builder.issueKeys(RubyUtils.toStrings(props.get("issues")));

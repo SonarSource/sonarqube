@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
+
+<mapper namespace="org.sonar.core.issue.db.IssueStatsMapper">
+
+  <select id="selectIssuesColumn" parameterType="map" resultType="Object" fetchSize="100000">
+    select
+    <if test="'ASSIGNEE'.equals(column)">
+      i.assignee
+    </if>
+    <include refid="org.sonar.core.issue.db.IssueMapper.selectQueryConditions"/>
+  </select>
+
+</mapper>

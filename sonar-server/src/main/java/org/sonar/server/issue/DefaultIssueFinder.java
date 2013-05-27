@@ -32,7 +32,6 @@ import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
@@ -93,6 +92,7 @@ public class DefaultIssueFinder implements IssueFinder {
     return dto.toDefaultIssue();
   }
 
+  @Override
   public IssueQueryResult find(IssueQuery query) {
     LOG.debug("IssueQuery : {}", query);
     SqlSession sqlSession = myBatis.openSession();
@@ -142,17 +142,14 @@ public class DefaultIssueFinder implements IssueFinder {
         }
       }
 
-      DefaultIssueQueryResult defaultIssueQueryResult = new DefaultIssueQueryResult();
-      defaultIssueQueryResult.setMaxResultsReached(authorizedIssues.size() == query.maxResults());
-      defaultIssueQueryResult.setIssues(issues)
+      return new DefaultIssueQueryResult(issues)
+        .setMaxResultsReached(authorizedIssues.size() == query.maxResults())
         .addRules(findRules(ruleIds))
         .addComponents(findComponents(componentIds))
         .addProjects(findProjects(projectIds))
         .addActionPlans(findActionPlans(actionPlanKeys))
         .addUsers(findUsers(users))
         .setPaging(paging);
-
-      return defaultIssueQueryResult;
     } finally {
       MyBatis.closeQuietly(sqlSession);
     }
