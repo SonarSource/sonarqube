@@ -33,9 +33,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.plugins.core.timemachine.SourceChecksum;
-import org.sonar.plugins.core.timemachine.ViolationTrackingBlocksRecognizer;
-import org.sonar.plugins.core.timemachine.tracking.*;
+import org.sonar.plugins.core.issue.tracking.*;
+import org.sonar.plugins.core.issue.tracking.SourceChecksum;
+import org.sonar.plugins.core.issue.tracking.ViolationTrackingBlocksRecognizer;
 
 import javax.annotation.Nullable;
 import java.util.*;

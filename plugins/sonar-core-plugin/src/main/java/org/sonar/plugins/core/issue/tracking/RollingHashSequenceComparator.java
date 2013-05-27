@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.timemachine.tracking;
+package org.sonar.plugins.core.issue.tracking;
 
 /**
- * Equivalence function for a {@link Sequence}.
+ * Wrap another {@link SequenceComparator} for use with {@link RollingHashSequence}.
  */
-public interface SequenceComparator<S extends Sequence> {
+public class RollingHashSequenceComparator<S extends Sequence> implements SequenceComparator<RollingHashSequence<S>> {
 
-  /**
-   * Compare two items to determine if they are equivalent.
-   */
-  boolean equals(S a, int ai, S b, int bi);
+  private final SequenceComparator<? super S> cmp;
 
-  /**
-   * Get a hash value for an item in a sequence.
-   *
-   * If two items are equal according to this comparator's
-   * {@link #equals(Sequence, int, Sequence, int)} method,
-   * then this hash method must produce the same integer result for both items.
-   * However not required to have different hash values for different items.
-   */
-  int hash(S seq, int i);
+  public RollingHashSequenceComparator(SequenceComparator<? super S> cmp) {
+    this.cmp = cmp;
+  }
+
+  public boolean equals(RollingHashSequence<S> a, int ai, RollingHashSequence<S> b, int bi) {
+    if (a.hashes[ai] == b.hashes[bi]) {
+      return cmp.equals(a.base, ai, b.base, bi);
+    }
+    return false;
+  }
+
+  public int hash(RollingHashSequence<S> seq, int i) {
+    return seq.hashes[i];
+  }
 
 }

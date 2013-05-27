@@ -17,32 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.timemachine.tracking;
+package org.sonar.plugins.core.issue.tracking;
 
 /**
- * Wraps a {@link Sequence} to assign hash codes to elements.
+ * Equivalence function for a {@link Sequence}.
  */
-public final class HashedSequence<S extends Sequence> implements Sequence {
+public interface SequenceComparator<S extends Sequence> {
 
-  final S base;
-  final int[] hashes;
+  /**
+   * Compare two items to determine if they are equivalent.
+   */
+  boolean equals(S a, int ai, S b, int bi);
 
-  public static <S extends Sequence> HashedSequence<S> wrap(S base, SequenceComparator<S> cmp) {
-    int size = base.length();
-    int[] hashes = new int[size];
-    for (int i = 0; i < size; i++) {
-      hashes[i] = cmp.hash(base, i);
-    }
-    return new HashedSequence<S>(base, hashes);
-  }
-
-  private HashedSequence(S base, int[] hashes) {
-    this.base = base;
-    this.hashes = hashes;
-  }
-
-  public int length() {
-    return base.length();
-  }
+  /**
+   * Get a hash value for an item in a sequence.
+   *
+   * If two items are equal according to this comparator's
+   * {@link #equals(Sequence, int, Sequence, int)} method,
+   * then this hash method must produce the same integer result for both items.
+   * However not required to have different hash values for different items.
+   */
+  int hash(S seq, int i);
 
 }

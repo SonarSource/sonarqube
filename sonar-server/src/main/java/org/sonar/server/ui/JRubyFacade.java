@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ui;
 
-import com.google.common.collect.ListMultimap;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.License;
@@ -42,10 +41,6 @@ import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.web.*;
-import org.sonar.api.workflow.Review;
-import org.sonar.api.workflow.internal.DefaultReview;
-import org.sonar.api.workflow.internal.DefaultWorkflowContext;
-import org.sonar.api.workflow.screen.Screen;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.measure.MeasureFilterEngine;
@@ -57,10 +52,8 @@ import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
-import org.sonar.core.workflow.WorkflowEngine;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
-import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.platform.*;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
@@ -454,10 +447,6 @@ public final class JRubyFacade {
 
   public String getServerHome() {
     return get(Settings.class).getString(CoreProperties.SONAR_HOME);
-  }
-
-  public ReviewsNotificationManager getReviewsNotificationManager() {
-    return get(ReviewsNotificationManager.class);
   }
 
   public ComponentContainer getContainer() {

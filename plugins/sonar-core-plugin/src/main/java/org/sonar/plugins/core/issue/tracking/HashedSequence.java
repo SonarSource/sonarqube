@@ -17,7 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.plugins.core.issue.tracking;
 
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.plugins.core.timemachine.tracking;
+/**
+ * Wraps a {@link Sequence} to assign hash codes to elements.
+ */
+public final class HashedSequence<S extends Sequence> implements Sequence {
 
+  final S base;
+  final int[] hashes;
+
+  public static <S extends Sequence> HashedSequence<S> wrap(S base, SequenceComparator<S> cmp) {
+    int size = base.length();
+    int[] hashes = new int[size];
+    for (int i = 0; i < size; i++) {
+      hashes[i] = cmp.hash(base, i);
+    }
+    return new HashedSequence<S>(base, hashes);
+  }
+
+  private HashedSequence(S base, int[] hashes) {
+    this.base = base;
+    this.hashes = hashes;
+  }
+
+  public int length() {
+    return base.length();
+  }
+
+}

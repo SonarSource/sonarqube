@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.report;
+package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
 import org.json.simple.JSONArray;
@@ -36,6 +36,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.scan.JsonReport;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.DefaultIssue;
 
@@ -48,11 +49,12 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SonarReportTest {
+public class JsonReportTest {
 
   @org.junit.Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
-  SonarReport sonarReport;
+
+  JsonReport jsonReport;
   Resource resource = mock(Resource.class);
   ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
   Server server = mock(Server.class);
@@ -67,7 +69,7 @@ public class SonarReportTest {
 
     settings = new Settings();
     settings.setProperty(CoreProperties.DRY_RUN, true);
-    sonarReport = new SonarReport(settings, fileSystem, server, ruleI18nManager, issueCache);
+    jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache);
   }
 
   @Test
@@ -78,9 +80,9 @@ public class SonarReportTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setNew(false);
 
-    when(sonarReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
 
-    JSONObject json = sonarReport.createJson();
+    JSONObject json = jsonReport.createJson();
     assertThat(json.values()).hasSize(4);
 
     assertThat(json.get("version")).isEqualTo("3.6");
@@ -106,9 +108,9 @@ public class SonarReportTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setNew(false);
 
-    when(sonarReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
 
-    JSONObject json = sonarReport.createJson();
+    JSONObject json = jsonReport.createJson();
     assertThat(json.get("version")).isEqualTo("3.6");
 
     assertThat(json.get("components")).isNotNull();
@@ -138,9 +140,9 @@ public class SonarReportTest {
       .setCloseDate(DateUtils.parseDate("2013-04-26"))
       .setNew(false);
 
-    when(sonarReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
 
-    JSONObject json = sonarReport.createJson();
+    JSONObject json = jsonReport.createJson();
     assertThat(json.get("issues")).isNotNull();
     JSONArray issues = (JSONArray) json.get("issues");
     assertThat(issues).hasSize(1);
@@ -172,9 +174,9 @@ public class SonarReportTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
     when(ruleI18nManager.getName("squid", "AvoidCycle", Locale.getDefault())).thenReturn("Avoid Cycle");
-    when(sonarReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
 
-    JSONObject root = sonarReport.createJson();
+    JSONObject root = jsonReport.createJson();
 
     assertThat(root.get("rules")).isNotNull();
     JSONArray rules = (JSONArray) root.get("rules");
@@ -196,9 +198,9 @@ public class SonarReportTest {
       .setLine(null)
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
-    when(sonarReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
 
-    JSONObject json = sonarReport.createJson();
+    JSONObject json = jsonReport.createJson();
     assertThat(json.get("issues")).isNotNull();
 
     JSONArray issues = (JSONArray) json.get("issues");
@@ -209,9 +211,9 @@ public class SonarReportTest {
 
   @Test
   public void should_ignore_resources_without_issue() {
-    when(sonarReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
+    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
 
-    JSONObject json = sonarReport.createJson();
+    JSONObject json = jsonReport.createJson();
     assertThat(json.get("version")).isEqualTo("3.6");
 
     assertThat(json.get("components")).isNotNull();
@@ -229,12 +231,12 @@ public class SonarReportTest {
 
     Rule rule = Rule.create("squid", "AvoidCycle");
     when(ruleI18nManager.getName(rule, Locale.getDefault())).thenReturn("Avoid Cycle");
-    when(sonarReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
+    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
 
     settings.setProperty("sonar.report.export.path", "output.json");
     when(fileSystem.workingDir()).thenReturn(sonarDirectory);
 
-    sonarReport.execute();
+    jsonReport.execute();
 
     assertThat(new File(sonarDirectory, "output.json")).exists();
   }

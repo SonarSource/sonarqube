@@ -17,28 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.timemachine.tracking;
+package org.sonar.plugins.core.issue.tracking;
 
-/**
- * Wrap another {@link SequenceComparator} for use with {@link HashedSequence}.
- */
-public class HashedSequenceComparator<S extends Sequence> implements SequenceComparator<HashedSequence<S>> {
+import org.junit.Test;
+import org.sonar.plugins.core.issue.tracking.StringText;
 
-  private final SequenceComparator<? super S> cmp;
+import static org.fest.assertions.Assertions.assertThat;
 
-  public HashedSequenceComparator(SequenceComparator<? super S> cmp) {
-    this.cmp = cmp;
+public class StringTextTest {
+
+  @Test
+  public void testEmpty() {
+    StringText r = new StringText("");
+    assertThat(r.length()).isEqualTo(0);
   }
 
-  public boolean equals(HashedSequence<S> a, int ai, HashedSequence<S> b, int bi) {
-    if (a.hashes[ai] == b.hashes[bi]) {
-      return cmp.equals(a.base, ai, b.base, bi);
-    }
-    return false;
-  }
-
-  public int hash(HashedSequence<S> seq, int i) {
-    return seq.hashes[i];
+  @Test
+  public void testTwoLines() {
+    StringText r = new StringText("a\nb");
+    assertThat(r.length()).isEqualTo(2);
   }
 
 }

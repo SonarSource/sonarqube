@@ -17,27 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.timemachine.tracking;
+package org.sonar.plugins.core.issue.tracking;
 
 import org.junit.Test;
+import org.sonar.plugins.core.issue.tracking.ViolationTrackingBlocksRecognizer;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-
-public class StringTextComparatorTest {
+public class ViolationTrackingBlocksRecognizerTest {
 
   @Test
-  public void testEquals() {
-    StringTextComparator cmp = StringTextComparator.IGNORE_WHITESPACE;
+  public void test() {
+    assertThat(compute(t("abcde"), t("abcde"), 3, 3)).isEqualTo(5);
+    assertThat(compute(t("abcde"), t("abcd"), 3, 3)).isEqualTo(4);
+    assertThat(compute(t("bcde"), t("abcde"), 3, 3)).isEqualTo(0);
+    assertThat(compute(t("bcde"), t("abcde"), 2, 3)).isEqualTo(4);
+  }
 
-    StringText a = new StringText("abc\nabc\na bc");
-    StringText b = new StringText("abc\nabc d\nab c");
+  private static int compute(String a, String b, int ai, int bi) {
+    ViolationTrackingBlocksRecognizer rec = new ViolationTrackingBlocksRecognizer(a, b);
+    return rec.computeLengthOfMaximalBlock(ai, bi);
+  }
 
-    assertThat(cmp.equals(a, 0, b, 0)).as("abc == abc").isTrue();
-    assertThat(cmp.equals(a, 1, b, 1)).as("abc != abc d").isFalse();
-    assertThat(cmp.equals(a, 2, b, 2)).as("a bc == ab c").isTrue();
-    assertThat(cmp.hash(a, 0)).isEqualTo(cmp.hash(b, 0));
-    assertThat(cmp.hash(a, 2)).isEqualTo(cmp.hash(b, 2));
+  private static String t(String text) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < text.length(); i++) {
+      sb.append(text.charAt(i)).append('\n');
+    }
+    return sb.toString();
   }
 
 }

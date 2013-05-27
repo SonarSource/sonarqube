@@ -60,7 +60,6 @@ import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.HibernateUserFinder;
-import org.sonar.core.workflow.WorkflowEngine;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
@@ -75,7 +74,6 @@ import org.sonar.server.database.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.*;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
-import org.sonar.server.notifications.reviews.ReviewsNotificationManager;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rule.RubyRuleService;
@@ -209,7 +207,6 @@ public final class Platform {
   private void startServiceComponents() {
     servicesContainer = coreContainer.createChild();
     servicesContainer.addSingleton(DefaultWorkflow.class);
-    servicesContainer.addSingleton(WorkflowEngine.class);
     servicesContainer.addSingleton(HttpDownloader.class);
     servicesContainer.addSingleton(UriReader.class);
     servicesContainer.addSingleton(UpdateCenterClient.class);
@@ -282,7 +279,6 @@ public final class Platform {
     servicesContainer.addSingleton(NotificationService.class);
     servicesContainer.addSingleton(NotificationCenter.class);
     servicesContainer.addSingleton(DefaultNotificationManager.class);
-    servicesContainer.addSingleton(ReviewsNotificationManager.class);
 
     // graphs and perspective related classes
     servicesContainer.addSingleton(TestablePerspectiveLoader.class);

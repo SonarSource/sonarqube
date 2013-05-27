@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.report;
+package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Closeables;
@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
@@ -36,7 +35,6 @@ import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.DefaultIssue;
 
@@ -52,16 +50,16 @@ import static com.google.common.collect.Sets.newHashSet;
  * @since 3.6
  */
 
-public class SonarReport implements BatchComponent {
+public class JsonReport implements BatchComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SonarReport.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JsonReport.class);
   private final Settings settings;
   private final ModuleFileSystem fileSystem;
   private final Server server;
   private final RuleI18nManager ruleI18nManager;
   private final IssueCache issueCache;
 
-  public SonarReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache) {
+  public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;

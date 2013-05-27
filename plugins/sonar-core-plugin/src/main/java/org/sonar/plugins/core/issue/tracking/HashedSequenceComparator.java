@@ -17,33 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.plugins.core.issue.tracking;
 
-import org.junit.Test;
+/**
+ * Wrap another {@link SequenceComparator} for use with {@link HashedSequence}.
+ */
+public class HashedSequenceComparator<S extends Sequence> implements SequenceComparator<HashedSequence<S>> {
 
-import static org.fest.assertions.Assertions.assertThat;
+  private final SequenceComparator<? super S> cmp;
 
-public class ViolationTrackingBlocksRecognizerTest {
-
-  @Test
-  public void test() {
-    assertThat(compute(t("abcde"), t("abcde"), 3, 3)).isEqualTo(5);
-    assertThat(compute(t("abcde"), t("abcd"), 3, 3)).isEqualTo(4);
-    assertThat(compute(t("bcde"), t("abcde"), 3, 3)).isEqualTo(0);
-    assertThat(compute(t("bcde"), t("abcde"), 2, 3)).isEqualTo(4);
+  public HashedSequenceComparator(SequenceComparator<? super S> cmp) {
+    this.cmp = cmp;
   }
 
-  private static int compute(String a, String b, int ai, int bi) {
-    ViolationTrackingBlocksRecognizer rec = new ViolationTrackingBlocksRecognizer(a, b);
-    return rec.computeLengthOfMaximalBlock(ai, bi);
-  }
-
-  private static String t(String text) {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < text.length(); i++) {
-      sb.append(text.charAt(i)).append('\n');
+  public boolean equals(HashedSequence<S> a, int ai, HashedSequence<S> b, int bi) {
+    if (a.hashes[ai] == b.hashes[bi]) {
+      return cmp.equals(a.base, ai, b.base, bi);
     }
-    return sb.toString();
+    return false;
+  }
+
+  public int hash(HashedSequence<S> seq, int i) {
+    return seq.hashes[i];
   }
 
 }

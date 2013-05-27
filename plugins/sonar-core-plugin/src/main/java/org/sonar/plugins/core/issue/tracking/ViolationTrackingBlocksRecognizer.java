@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.timemachine;
+package org.sonar.plugins.core.issue.tracking;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.plugins.core.timemachine.tracking.HashedSequence;
-import org.sonar.plugins.core.timemachine.tracking.HashedSequenceComparator;
-import org.sonar.plugins.core.timemachine.tracking.StringText;
-import org.sonar.plugins.core.timemachine.tracking.StringTextComparator;
+import org.sonar.plugins.core.issue.tracking.HashedSequence;
+import org.sonar.plugins.core.issue.tracking.HashedSequenceComparator;
+import org.sonar.plugins.core.issue.tracking.StringText;
+import org.sonar.plugins.core.issue.tracking.StringTextComparator;
 
 public class ViolationTrackingBlocksRecognizer {
 

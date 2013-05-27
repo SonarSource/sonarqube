@@ -17,9 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.timemachine.tracking;
+package org.sonar.plugins.core.issue.tracking;
 
 import org.junit.Test;
+import org.sonar.plugins.core.issue.tracking.RollingHashSequence;
+import org.sonar.plugins.core.issue.tracking.RollingHashSequenceComparator;
+import org.sonar.plugins.core.issue.tracking.StringText;
+import org.sonar.plugins.core.issue.tracking.StringTextComparator;
 
 import static org.fest.assertions.Assertions.assertThat;
 
