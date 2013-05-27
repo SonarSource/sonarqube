@@ -50,7 +50,7 @@ public final class ProjectIssuesDashboard extends DashboardTemplate {
   }
 
   private void addSecondColumn(Dashboard dashboard) {
-    dashboard.addWidget("unresolved_issues_per_assignee", 2);
+    dashboard.addWidget("reviews_per_developer", 2);
     dashboard.addWidget("my_unresolved_issues", 2);
     dashboard.addWidget("false_positive_issues", 2);
   }

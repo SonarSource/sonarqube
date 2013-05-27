@@ -38,7 +38,6 @@ import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
 import org.sonar.plugins.core.notifications.reviews.ChangesInReviewAssignedToMeOrCreatedByMe;
 import org.sonar.plugins.core.notifications.reviews.NewFalsePositiveReview;
-import org.sonar.plugins.core.notifications.violations.NewViolationsOnFirstDifferentialPeriod;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
 import org.sonar.plugins.core.timemachine.*;
@@ -47,7 +46,9 @@ import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
 import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.issues.*;
-import org.sonar.plugins.core.widgets.reviews.*;
+import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
+import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
 
 import java.util.List;
 
@@ -410,7 +411,6 @@ public final class CorePlugin extends SonarPlugin {
       ProjectReviewsWidget.class,
       FalsePositiveReviewsWidget.class,
       FalsePositiveIssuesWidget.class,
-      ReviewsPerDeveloperWidget.class,
       ActionPlansWidget.class,
       org.sonar.plugins.core.widgets.ActionPlansWidget.class,
       UnresolvedIssuesPerAssigneeWidget.class,

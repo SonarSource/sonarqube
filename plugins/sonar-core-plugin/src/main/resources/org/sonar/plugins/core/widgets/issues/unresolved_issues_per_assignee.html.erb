@@ -32,10 +32,10 @@
     end
 %>
 
-<h3><%= message('widget.unresolved_issues_per_assignee.name') -%></h3>
+<h3><%= message('widget.reviews_per_developer.name') -%></h3>
 
 <% if assignees.size ==0 %>
-  <span class="empty_widget"><%= message('widget.unresolved_issues_per_assignee.name') -%></span>
+  <span class="empty_widget"><%= message('widget.reviews_per_developer.name') -%></span>
 
 <% else %>
 <div id="<%= div_id -%>">
@@ -72,7 +72,7 @@
       %>
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
-            <%= link_to message('widget.unresolved_issues_per_assignee.not_assigned'),
+            <%= link_to message('widget.reviews_per_developer.not_assigned'),
                         {:controller => 'issues', :action => 'search', :assigned => 'false'}.merge(options) -%>
           </td>
           <td class="nowrap">

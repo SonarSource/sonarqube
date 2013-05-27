@@ -25,6 +25,6 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 @WidgetCategory({"Issues"})
 public class UnresolvedIssuesPerAssigneeWidget extends CoreWidget {
   public UnresolvedIssuesPerAssigneeWidget() {
-    super("unresolved_issues_per_assignee", "Unresolved issues per assignee", "/org/sonar/plugins/core/widgets/issues/unresolved_issues_per_assignee.html.erb");
+    super("reviews_per_developer", "Unresolved issues per assignee", "/org/sonar/plugins/core/widgets/issues/unresolved_issues_per_assignee.html.erb");
   }
 }
