@@ -47,7 +47,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -65,8 +64,6 @@ public class DefaultIssueFinderTest {
 
   @Test
   public void should_find_issues() {
-    when(authorizationDao.selectAuthorizedRootProjectsIds(anyInt(), anyString(), any(SqlSession.class)))
-      .thenReturn(newHashSet(100));
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100)
@@ -94,9 +91,6 @@ public class DefaultIssueFinderTest {
 
   @Test
   public void should_find_paginate_result() {
-    when(authorizationDao.selectAuthorizedRootProjectsIds(anyInt(), anyString(), any(SqlSession.class)))
-      .thenReturn(newHashSet(100));
-
     IssueQuery query = IssueQuery.builder().pageSize(1).pageIndex(1).build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100)
@@ -200,15 +194,15 @@ public class DefaultIssueFinderTest {
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100)
-                        .setComponentKey_unit_test_only("Action.java")
-                        .setRootComponentKey_unit_test_only("struts")
-                        .setRuleKey_unit_test_only("squid", "AvoidCycle")
-                        .setStatus("OPEN").setResolution("OPEN");
+      .setComponentKey_unit_test_only("Action.java")
+      .setRootComponentKey_unit_test_only("struts")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123).setRootComponentId(100)
-                        .setComponentKey_unit_test_only("Action.java")
-                        .setRootComponentKey_unit_test_only("struts")
-                        .setRuleKey_unit_test_only("squid", "AvoidCycle")
-                        .setStatus("OPEN").setResolution("OPEN");
+      .setComponentKey_unit_test_only("Action.java")
+      .setRootComponentKey_unit_test_only("struts")
+      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
@@ -249,7 +243,6 @@ public class DefaultIssueFinderTest {
 
   @Test
   public void should_get_empty_result_when_no_issue() {
-    grantAccessRights();
     IssueQuery query = IssueQuery.builder().build();
     when(issueDao.selectIssues(eq(query), anyInt(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
@@ -261,8 +254,4 @@ public class DefaultIssueFinderTest {
     assertThat(results.actionPlans()).isEmpty();
   }
 
-  private void grantAccessRights() {
-    when(authorizationDao.selectAuthorizedRootProjectsIds(anyInt(), anyString(), any(SqlSession.class)))
-      .thenReturn(newHashSet(100));
-  }
 }

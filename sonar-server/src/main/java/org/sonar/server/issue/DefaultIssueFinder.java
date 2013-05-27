@@ -97,20 +97,17 @@ public class DefaultIssueFinder implements IssueFinder {
     LOG.debug("IssueQuery : {}", query);
     SqlSession sqlSession = myBatis.openSession();
     try {
-      // 1. Select all authorized root project ids for the user
-      Collection<Integer> rootProjectIds = authorizationDao.selectAuthorizedRootProjectsIds(UserSession.get().userId(), query.requiredRole(), sqlSession);
-
-      // 2. Select the authorized ids of all the issues that match the query
+      // 1. Select the authorized ids of all the issues that match the query
       List<IssueDto> authorizedIssues = issueDao.selectIssues(query, UserSession.get().userId(), sqlSession);
 
-      // 3. Sort all authorized issues
+      // 2. Sort all authorized issues
       List<IssueDto> authorizedSortedIssues = sort(authorizedIssues, query, authorizedIssues.size());
 
-      // 4. Apply pagination
+      // 3. Apply pagination
       Paging paging = Paging.create(query.pageSize(), query.pageIndex(), authorizedSortedIssues.size());
       Set<Long> pagedIssueIds = pagedIssueIds(authorizedSortedIssues, paging);
 
-      // 5. Load issues and their related data (rules, components, projects, comments, action plans, ...) and sort then again
+      // 4. Load issues and their related data (rules, components, projects, comments, action plans, ...) and sort then again
       List<IssueDto> pagedIssues = issueDao.selectByIds(pagedIssueIds, sqlSession);
       List<IssueDto> pagedSortedIssues = sort(pagedIssues, query, authorizedIssues.size());
 
