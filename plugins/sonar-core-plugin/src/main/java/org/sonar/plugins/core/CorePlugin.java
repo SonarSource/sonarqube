@@ -46,7 +46,6 @@ import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.*;
 import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
 import org.sonar.plugins.core.widgets.issues.*;
-import org.sonar.plugins.core.widgets.reviews.FalsePositiveReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.MyReviewsWidget;
 import org.sonar.plugins.core.widgets.reviews.ProjectReviewsWidget;
 
@@ -409,7 +408,6 @@ public final class CorePlugin extends SonarPlugin {
       MyReviewsWidget.class,
       MyUnresolvedIssuesWidget.class,
       ProjectReviewsWidget.class,
-      FalsePositiveReviewsWidget.class,
       FalsePositiveIssuesWidget.class,
       ActionPlansWidget.class,
       org.sonar.plugins.core.widgets.ActionPlansWidget.class,
