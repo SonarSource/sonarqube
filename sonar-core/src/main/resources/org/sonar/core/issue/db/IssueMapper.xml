@@ -30,8 +30,12 @@
     i.updated_at as updatedAt,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
-    p.kee as componentKey,
-    root.kee as projectKey
+    p.kee as componentKey
+  </sql>
+
+  <sql id="issueColumnsWitRoot">
+    <include refid="issueColumns"/>
+    , root.kee as projectKey
   </sql>
 
   <sql id="sortColumn">
@@ -113,14 +117,14 @@
 
   <select id="selectByKey" parameterType="String" resultType="Issue">
     select
-    <include refid="issueColumns"/>
+    <include refid="issueColumnsWitRoot"/>
     from issues i, rules r, projects p, projects root
     where i.kee=#{kee} and i.rule_id=r.id and p.id=i.resource_id and i.project_id=root.id
   </select>
 
   <select id="selectNonClosedIssues" parameterType="int" resultType="Issue">
     select distinct
-    <include refid="issueColumns"/>
+    <include refid="issueColumnsWitRoot"/>
     from issues i, rules r, projects p, projects root
     where i.status &lt;&gt; 'CLOSED'
     and (p.root_id=#{id} or (p.root_id is null and p.id=#{id}))
@@ -131,7 +135,7 @@
 
   <select id="selectByIds" parameterType="map" resultType="Issue">
     select
-    <include refid="issueColumns"/>
+    <include refid="issueColumnsWitRoot"/>
     from issues i, rules r, projects p, projects root
     <where>
       and
@@ -146,8 +150,8 @@
     </where>
   </select>
 
-  <select id="selectIssueAndProjectIds" parameterType="map" resultType="Issue" fetchSize="100000">
-    select i.id, i.project_id as projectId
+  <select id="selectIssues" parameterType="map" resultType="Issue" fetchSize="100000">
+    select i.id
     <include refid="sortColumn"/>
     <include refid="selectQueryConditions"/>
     <if test="_databaseId != 'oracle'">
@@ -163,7 +167,7 @@
   </select>
 
   <sql id="selectQueryConditions">
-    from issues i, projects p, rules r, projects root
+    from issues i, projects p, rules r
     <if test="query.componentRoots() != null and query.componentRoots().size() > 0">
       , projects rootprojects, snapshots rootsnapshots, snapshots s
     </if>
@@ -172,7 +176,6 @@
     </if>
     <where>
       and i.resource_id=p.id
-      and i.project_id=root.id
       and
       <foreach collection="authorizedRootProjectIds" open="i.project_id in (" close=")" item="list" separator=") or i.project_id in in (">
         <foreach collection="list" item="element" separator=",">
