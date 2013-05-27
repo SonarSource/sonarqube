@@ -44,7 +44,6 @@ public class DefaultIssueQueryResult implements IssueQueryResult {
   private final Map<String, Component> projectsByKey = Maps.newHashMap();
   private final Map<String, ActionPlan> actionPlansByKey = Maps.newHashMap();
   private final Map<String, User> usersByLogin = Maps.newHashMap();
-  private boolean securityExclusions;
   private boolean maxResultsReached;
   private Paging paging;
 
@@ -85,11 +84,6 @@ public class DefaultIssueQueryResult implements IssueQueryResult {
     for (User user : users) {
       usersByLogin.put(user.login(), user);
     }
-    return this;
-  }
-
-  public DefaultIssueQueryResult setSecurityExclusions(boolean securityExclusions){
-    this.securityExclusions = securityExclusions;
     return this;
   }
 
@@ -157,11 +151,6 @@ public class DefaultIssueQueryResult implements IssueQueryResult {
   @CheckForNull
   public User user(String login) {
     return usersByLogin.get(login);
-  }
-
-  @Override
-  public boolean securityExclusions() {
-    return securityExclusions;
   }
 
   @Override

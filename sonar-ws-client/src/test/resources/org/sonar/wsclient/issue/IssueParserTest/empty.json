@@ -5,5 +5,5 @@
     "total": 0,
     "pages": 0
   },
-  "securityExclusions": true
+  "maxResultsReached": false
 }

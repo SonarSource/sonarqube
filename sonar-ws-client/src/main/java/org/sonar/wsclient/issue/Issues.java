@@ -38,7 +38,6 @@ public class Issues {
   private final Map<String, Component> componentsByKey = new HashMap<String, Component>();
   private final Map<String, Component> projectsByKey = new HashMap<String, Component>();
   private Paging paging;
-  private Boolean securityExclusions;
   private Boolean maxResultsReached;
 
   public List<Issue> list() {
@@ -88,10 +87,6 @@ public class Issues {
     return paging;
   }
 
-  public Boolean securityExclusions() {
-    return securityExclusions;
-  }
-
   public Boolean maxResultsReached() {
     return maxResultsReached;
   }
@@ -123,11 +118,6 @@ public class Issues {
 
   Issues setPaging(Paging paging) {
     this.paging = paging;
-    return this;
-  }
-
-  Issues setSecurityExclusions(Boolean securityExclusions) {
-    this.securityExclusions = securityExclusions;
     return this;
   }
 

@@ -30,7 +30,6 @@ class Api::IssuesController < Api::ApiController
   def search
     results = Api.issues.find(params)
     hash = {
-      :securityExclusions => results.securityExclusions,
       :maxResultsReached => results.maxResultsReached,
       :paging => paging_to_hash(results.paging),
       :issues => results.issues.map { |issue| Issue.to_hash(issue) },

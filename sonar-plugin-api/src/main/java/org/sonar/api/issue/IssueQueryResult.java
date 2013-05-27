@@ -73,7 +73,5 @@ public interface IssueQueryResult {
 
   Paging paging();
 
-  boolean securityExclusions();
-
   boolean maxResultsReached();
 }

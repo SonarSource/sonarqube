@@ -78,7 +78,6 @@ public class IssueParserTest {
     assertThat(paging.pages()).isEqualTo(1);
     assertThat(paging.total()).isEqualTo(2);
 
-    assertThat(issues.securityExclusions()).isTrue();
     assertThat(issues.maxResultsReached()).isTrue();
   }
 
@@ -89,6 +88,7 @@ public class IssueParserTest {
     assertThat(issues).isNotNull();
     assertThat(issues.list()).isEmpty();
     assertThat(issues.rules()).isEmpty();
+    assertThat(issues.maxResultsReached()).isFalse();
   }
 
   @Test

@@ -90,7 +90,6 @@ public class DefaultIssueFinderTest {
     assertThat(issue.componentKey()).isEqualTo("Action.java");
     assertThat(issue.projectKey()).isEqualTo("struts");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
-    assertThat(results.securityExclusions()).isFalse();
   }
 
   @Test
