@@ -68,7 +68,7 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
             if resource_id.present?
               issue = Issue.new(
                 :kee => issue_key,
-                :resource_id => violation[1],
+                :component_id => violation[1],
                 :rule_id => violation[2],
                 :severity => PRIORITY_TO_SEVERITY[violation[3].to_i],
                 :message => violation[4],
@@ -81,7 +81,7 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
                 :issue_creation_date => created_at,
                 :issue_close_date => nil,
                 :created_at => created_at,
-                :project_id => violation[17]
+                :root_component_id => violation[17]
               )
               if review_id.present?
                 # has review
