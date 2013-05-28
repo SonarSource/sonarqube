@@ -1,29 +1,29 @@
 <%
    if @period
-     blocker_violations = @snapshot.measure('new_blocker_violations')
-     critical_violations = @snapshot.measure('new_critical_violations')
-     major_violations = @snapshot.measure('new_major_violations')
-     minor_violations = @snapshot.measure('new_minor_violations')
-     info_violations = @snapshot.measure('new_info_violations')
+     blocker_issues = @snapshot.measure('new_blocker_violations')
+     critical_issues = @snapshot.measure('new_critical_violations')
+     major_issues = @snapshot.measure('new_major_violations')
+     minor_issues = @snapshot.measure('new_minor_violations')
+     info_issues = @snapshot.measure('new_info_violations')
      metrics = [
-       Metric.by_key("new_blocker_violations"),
-       Metric.by_key("new_critical_violations"),
-       Metric.by_key("new_major_violations"),
-       Metric.by_key("new_minor_violations"),
-       Metric.by_key("new_info_violations")
+         Metric.by_key('new_blocker_violations'),
+         Metric.by_key('new_critical_violations'),
+         Metric.by_key('new_major_violations'),
+         Metric.by_key('new_minor_violations'),
+         Metric.by_key('new_info_violations')
      ]
    else
-     blocker_violations = @snapshot.measure('blocker_violations')
-     critical_violations = @snapshot.measure('critical_violations')
-     major_violations = @snapshot.measure('major_violations')
-     minor_violations = @snapshot.measure('minor_violations')
-     info_violations = @snapshot.measure('info_violations')
+     blocker_issues = @snapshot.measure('blocker_violations')
+     critical_issues = @snapshot.measure('critical_violations')
+     major_issues = @snapshot.measure('major_violations')
+     minor_issues = @snapshot.measure('minor_violations')
+     info_issues = @snapshot.measure('info_violations')
      metrics = [
-       Metric.by_key("blocker_violations"),
-       Metric.by_key("critical_violations"),
-       Metric.by_key("major_violations"),
-       Metric.by_key("minor_violations"),
-       Metric.by_key("info_violations")
+         Metric.by_key('blocker_violations'),
+         Metric.by_key('critical_violations'),
+         Metric.by_key('major_violations'),
+         Metric.by_key('minor_violations'),
+         Metric.by_key('info_violations')
      ]
    end
 
@@ -44,77 +44,62 @@
 
 <select name="rule" onchange="applyOptions(this)">
 
-  <option value="all"><%= message('all_violations') -%></option>
+  <option value="all"><%= message('all_issues') -%></option>
 
-  <optgroup label="<%= message('reviews') -%>">
-    <option value="false_positive_reviews" <%= 'selected' if params[:rule]=="false_positive_reviews" -%>>
-      <%= message('violations_viewer.review_filter.false_positives') -%>
-    </option>
-    <option value="active_reviews" <%= 'selected' if params[:rule]=="active_reviews" -%>>
-      <%= message('violations_viewer.review_filter.active') -%>
-    </option>
-    <option value="unassigned_reviews" <%= 'selected' if params[:rule]=="unassigned_reviews" -%>>
-      <%= message('violations_viewer.review_filter.unassigned') -%>
-    </option>
-    <option value="unplanned_reviews" <%= 'selected' if params[:rule]=="unplanned_reviews" -%>>
-      <%= message('violations_viewer.review_filter.unplanned') -%>
-    </option>
-    <option value="unreviewed_violations" <%= 'selected' if params[:rule]=="unreviewed_violations" -%>>
-      <%= message('violations_viewer.review_filter.unreviewed_violations') -%>
-    </option>
-  </optgroup>
-  
-  
+  <option value="false_positive_issues" <%= 'selected' if params[:rule]=="false_positive_issues" -%>>
+    <%= message('issues_viewer.issue_filter.false_positives') -%>
+  </option>
+
   <optgroup label="<%= message('severity') -%>">
-    <% if blocker_violations
-         value=(@period ? blocker_violations.variation(@period) : blocker_violations.value)
+    <% if blocker_issues
+         value=(@period ? blocker_issues.variation(@period) : blocker_issues.value)
          if value && value>0
     %>
         <option value="<%= Sonar::RulePriority::BLOCKER.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::BLOCKER.to_s -%>><%= message('severity.BLOCKER') %>
-          (<%= blocker_violations.format_numeric_value(value) -%>)
+          (<%= blocker_issues.format_numeric_value(value) -%>)
         </option>
       <% end
          end %>
 
-    <% if critical_violations
-         value=(@period ? critical_violations.variation(@period) : critical_violations.value)
+    <% if critical_issues
+         value=(@period ? critical_issues.variation(@period) : critical_issues.value)
          if value && value>0
     %>
         <option value="<%= Sonar::RulePriority::CRITICAL.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::CRITICAL.to_s -%>><%= message('severity.CRITICAL') %>
-          (<%= critical_violations.format_numeric_value(value) -%>)
+          (<%= critical_issues.format_numeric_value(value) -%>)
         </option>
       <% end
          end
       %>
 
-    <% if major_violations
-         value=(@period ? major_violations.variation(@period) : major_violations.value)
+    <% if major_issues
+         value=(@period ? major_issues.variation(@period) : major_issues.value)
          if value && value>0
     %>
         <option value="<%= Sonar::RulePriority::MAJOR.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::MAJOR.to_s -%>><%= message('severity.MAJOR') %>
-          (<%= major_violations.format_numeric_value(value) -%>)
+          (<%= major_issues.format_numeric_value(value) -%>)
         </option>
       <% end
          end
       %>
 
-    <% if minor_violations
-         value=(@period ? minor_violations.variation(@period) : minor_violations.value)
+    <% if minor_issues
+         value=(@period ? minor_issues.variation(@period) : minor_issues.value)
          if value && value>0
     %>
         <option value="<%= Sonar::RulePriority::MINOR.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::MINOR.to_s -%>><%= message('severity.MINOR') %>
-          (<%= minor_violations.format_numeric_value(value) -%>)
+          (<%= minor_issues.format_numeric_value(value) -%>)
         </option>
       <% end
          end
       %>
 
-    <% if info_violations
-         value=(@period ? info_violations.variation(@period) : info_violations.value)
+    <% if info_issues
+         value=(@period ? info_issues.variation(@period) : info_issues.value)
          if value && value>0
     %>
         <option value="<%= Sonar::RulePriority::INFO.to_s -%>" <%= 'selected' if params[:rule]==Sonar::RulePriority::INFO.to_s -%>><%= message('severity.INFO') %>
-          (<%= info_violations.format_numeric_value(value) -%>)
+          (<%= info_issues.format_numeric_value(value) -%>)
         </option>
       <% end
          end
@@ -125,5 +110,5 @@
   <optgroup label="<%= message('rule') -%>">
     <%= options_for_select(rule_options, params[:rule].to_i) -%>
   </optgroup>
-  
+
 </select>

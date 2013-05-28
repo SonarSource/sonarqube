@@ -1,4 +1,4 @@
-<% display_options = @scm_available || @expandable || @filtered || @display_violations
+<% display_options = @scm_available || @expandable || @filtered || @display_issues
    if display_options
 %>
 
@@ -29,7 +29,7 @@
           <% first=false
              end %>
 
-          <% if @scm_available && !@display_violations && @snapshot.project_snapshot.periods? %>
+          <% if @scm_available && !@display_issues && @snapshot.project_snapshot.periods? %>
             <td class="<%= 'first' if first -%>">
               <select name="period" class="period" onchange="applyOptions(this)">
                 <option value=""><%= message('time_changes') -%>...</option>
@@ -44,7 +44,7 @@
              first=false
              end %>
 
-          <% if @display_violations %>
+          <% if @display_issues %>
             <td class="<%= 'first' if first -%>">
               <select name="period" class="period" onchange="applyOptions(this)">
                 <option value=""><%= message('time_changes') -%>...</option>
