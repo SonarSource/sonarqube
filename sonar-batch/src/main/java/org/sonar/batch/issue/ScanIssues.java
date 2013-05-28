@@ -77,7 +77,6 @@ public class ScanIssues implements BatchComponent {
     }
     issue.setCreationDate(project.getAnalysisDate());
     issue.setUpdateDate(project.getAnalysisDate());
-    issue.setCloseDate(project.getAnalysisDate());
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }

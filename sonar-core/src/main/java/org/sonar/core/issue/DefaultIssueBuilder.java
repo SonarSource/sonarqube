@@ -43,7 +43,6 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private String message;
   private String severity;
   private Double effortToFix;
-  private Date createdDate;
   private String reporter;
   private Map<String, String> attributes;
 
@@ -58,11 +57,6 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
   public DefaultIssueBuilder projectKey(String projectKey) {
     this.projectKey = projectKey;
-    return this;
-  }
-
-  public DefaultIssueBuilder createdDate(@Nullable Date date) {
-    this.createdDate = date;
     return this;
   }
 
@@ -122,23 +116,19 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     String key = UUID.randomUUID().toString();
     Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
     issue.setKey(key);
-
-    Date now = new Date();
-    Date date = Objects.firstNonNull(createdDate, now);
-    issue.setCreationDate(date);
-    issue.setUpdateDate(date);
     issue.setComponentKey(componentKey);
     issue.setProjectKey(projectKey);
     issue.setRuleKey(ruleKey);
     issue.setMessage(message);
     issue.setSeverity(Objects.firstNonNull(severity, Severity.MAJOR));
+    issue.setManualSeverity(false);
     issue.setEffortToFix(effortToFix);
     issue.setLine(line);
-    issue.setManualSeverity(false);
     issue.setReporter(reporter);
     issue.setAttributes(attributes);
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_OPEN);
+    issue.setCloseDate(null);
     issue.setNew(true);
     issue.setEndOfLife(false);
     issue.setOnDisabledRule(false);
