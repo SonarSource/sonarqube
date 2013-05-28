@@ -34,7 +34,7 @@ class RolesController < ApplicationController
   def projects
     # for backward-compatibility with versions of views plugin that do not depend on sonar 3.0
     if java_facade.hasPlugin('views')
-      @qualifiers = (['VW', 'SVW'] + java_facade.getQualifiersWithProperty('hasRolePolicy').to_a).compact.uniq
+      @qualifiers = (['VW'] + java_facade.getQualifiersWithProperty('hasRolePolicy').to_a).compact.uniq
     else
       @qualifiers = java_facade.getQualifiersWithProperty('hasRolePolicy')
     end

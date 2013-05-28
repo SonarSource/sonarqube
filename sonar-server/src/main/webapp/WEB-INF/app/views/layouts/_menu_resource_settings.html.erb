@@ -20,13 +20,13 @@
          <li><a href="<%= ApplicationController.root_context -%>/project/links/<%= @project.id -%>"><%= message('project_links.page') -%></a></li>
       <% end %>
       <%
-         # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
-         if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') || @project.view? || @project.subview?)
+         # NOTE: we keep "@project.view?" in the test for backward compatibility with the Views plugin
+         if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') || @project.view?)
       %>
       <li><a href="<%= ApplicationController.root_context -%>/project_roles/index/<%= @project.id -%>"><%= message('roles.page') -%></a></li>
       <% end %>
       <%
-         # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
+         # NOTE: we keep "@project.view?" in the test for backward compatibility with the Views plugin
          if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view?)
       %>
         <li><a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
