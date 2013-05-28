@@ -133,7 +133,6 @@ public class JsonReport implements BatchComponent {
     JSONArray json = new JSONArray();
     for (String componentKey : componentKeyList) {
       JSONObject jsonComponent = new JSONObject();
-      // TODO add module key
       put(jsonComponent, "key", componentKey);
       json.add(jsonComponent);
     }
