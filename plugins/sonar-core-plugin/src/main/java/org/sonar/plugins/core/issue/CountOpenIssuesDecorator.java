@@ -22,6 +22,7 @@ package org.sonar.plugins.core.issue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
+import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.*;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
@@ -229,7 +230,8 @@ public class CountOpenIssuesDecorator implements Decorator {
     for (PastSnapshot pastSnapshot : timeMachineConfiguration.getProjectPastSnapshots()) {
       int variationIndex = pastSnapshot.getIndex();
       Collection<Measure> children = context.getChildrenMeasures(measure.getMetric());
-      int count = countIssuesAfterDate(issues, pastSnapshot.getTargetDate());
+      Date targetDatePlusOneSecond = pastSnapshot.getTargetDate() != null ? DateUtils.addSeconds(pastSnapshot.getTargetDate(), 1) : null;
+      int count = countIssuesAfterDate(issues, targetDatePlusOneSecond);
       double sum = MeasureUtils.sumOnVariation(true, variationIndex, children) + count;
       measure.setVariation(variationIndex, sum);
     }
