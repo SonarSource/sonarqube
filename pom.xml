@@ -70,7 +70,7 @@
   </prerequisites>
 
   <properties>
-    <sonarUpdateCenter.version>1.5</sonarUpdateCenter.version>
+    <sonarUpdateCenter.version>1.7-SNAPSHOT</sonarUpdateCenter.version>
     <sonarJava.version>1.3-SNAPSHOT</sonarJava.version>
     <sonarGwt.version>3.3.1</sonarGwt.version>
     <h2.version>1.3.167</h2.version>
@@ -266,7 +266,8 @@
         <plugin>
           <groupId>org.codehaus.sonar</groupId>
           <artifactId>sonar-packaging-maven-plugin</artifactId>
-          <version>${sonarUpdateCenter.version}</version>
+          <!-- TODO version has to be replaced by ${sonarJava.version} when update center release will be done -->
+          <version>1.6</version>
         </plugin>
       </plugins>
     </pluginManagement>
