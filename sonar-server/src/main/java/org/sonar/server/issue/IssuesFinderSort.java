@@ -42,32 +42,28 @@ class IssuesFinderSort {
   public List<IssueDto> sort() {
     IssueQuery.Sort sort = query.sort();
     if (sort != null) {
-      IssueProcessor issueProcessor;
-      switch (sort) {
-        case ASSIGNEE:
-          issueProcessor = new AssigneeSortIssueProcessor();
-          break;
-        case SEVERITY:
-          issueProcessor = new SeveritySortIssueProcessor();
-          break;
-        case STATUS:
-          issueProcessor = new StatusSortIssueProcessor();
-          break;
-        case CREATION_DATE:
-          issueProcessor = new CreationDateSortIssueProcessor();
-          break;
-        case UPDATE_DATE:
-          issueProcessor = new UpdateDateSortIssueProcessor();
-          break;
-        case CLOSE_DATE:
-          issueProcessor = new CloseDateSortIssueProcessor();
-          break;
-        default:
-          throw new IllegalArgumentException("Cannot sort issues on field : " + sort.name());
-      }
-      return issueProcessor.sort(issues, query.asc());
+      return getIssueProcessor(sort).sort(issues, query.asc());
     }
     return issues;
+  }
+
+  private IssueProcessor getIssueProcessor(IssueQuery.Sort sort){
+    switch (sort) {
+      case ASSIGNEE:
+        return new AssigneeSortIssueProcessor();
+      case SEVERITY:
+        return new SeveritySortIssueProcessor();
+      case STATUS:
+        return new StatusSortIssueProcessor();
+      case CREATION_DATE:
+        return new CreationDateSortIssueProcessor();
+      case UPDATE_DATE:
+        return new UpdateDateSortIssueProcessor();
+      case CLOSE_DATE:
+        return new CloseDateSortIssueProcessor();
+      default:
+        throw new IllegalArgumentException("Cannot sort issues on field : " + sort.name());
+    }
   }
 
   abstract static class IssueProcessor {
