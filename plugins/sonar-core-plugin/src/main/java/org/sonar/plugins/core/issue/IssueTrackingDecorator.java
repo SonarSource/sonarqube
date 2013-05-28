@@ -165,20 +165,21 @@ public class IssueTrackingDecorator implements Decorator {
   private void addUnmatched(Collection<IssueDto> unmatchedIssues, Collection<DefaultIssue> issues) {
     for (IssueDto unmatchedDto : unmatchedIssues) {
       DefaultIssue unmatched = unmatchedDto.toDefaultIssue();
-      boolean manualIssue = !Strings.isNullOrEmpty(unmatched.reporter());
-      Rule rule = ruleFinder.findByKey(RuleKey.of(unmatchedDto.getRuleRepo(), unmatchedDto.getRule()));
+      unmatched.setNew(false);
 
-      boolean onDisabledRule = (rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus()));
+      boolean manualIssue = !Strings.isNullOrEmpty(unmatched.reporter());
+      Rule rule = ruleFinder.findByKey(unmatched.ruleKey());
       if (manualIssue) {
         // Manual rules are not declared in Quality profiles, so no need to check ActiveRule
+        boolean onDisabledRule = (rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus()));
         unmatched.setEndOfLife(onDisabledRule);
+        unmatched.setOnDisabledRule(onDisabledRule);
       } else {
-        ActiveRule activeRule = rulesProfile.getActiveRule(unmatchedDto.getRuleRepo(), unmatchedDto.getRule());
-        onDisabledRule &= (activeRule == null);
+        ActiveRule activeRule = rulesProfile.getActiveRule(unmatched.ruleKey().repository(), unmatched.ruleKey().rule());
         unmatched.setEndOfLife(true);
+        unmatched.setOnDisabledRule(activeRule == null || rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus()));
       }
-      unmatched.setNew(false);
-      unmatched.setOnDisabledRule(onDisabledRule);
+
       issues.add(unmatched);
     }
   }
