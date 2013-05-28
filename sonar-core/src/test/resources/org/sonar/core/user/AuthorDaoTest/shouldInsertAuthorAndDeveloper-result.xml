@@ -1,0 +1,4 @@
+<dataset>
+  <projects id="1" name="developer@company.net" qualifier="DEV" />
+  <authors id="1" person_id="1" login="developer@company.net" />
+</dataset>
