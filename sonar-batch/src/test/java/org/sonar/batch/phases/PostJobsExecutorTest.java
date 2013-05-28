@@ -26,7 +26,7 @@ import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.events.EventBus;
-import org.sonar.batch.local.DryRunExporter;
+import org.sonar.batch.scan.DeprecatedJsonReport;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
@@ -42,7 +42,7 @@ public class PostJobsExecutorTest {
   Project project = new Project("project");
   BatchExtensionDictionnary selector = mock(BatchExtensionDictionnary.class);
   MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
-  DryRunExporter localModeExporter = mock(DryRunExporter.class);
+  DeprecatedJsonReport localModeExporter = mock(DeprecatedJsonReport.class);
   PostJob job1 = mock(PostJob.class);
   PostJob job2 = mock(PostJob.class);
   SensorContext context = mock(SensorContext.class);
@@ -67,6 +67,6 @@ public class PostJobsExecutorTest {
   public void should_export_local_mode_results() {
     executor.execute(context);
 
-    verify(localModeExporter).execute(context);
+    verify(localModeExporter).execute();
   }
 }

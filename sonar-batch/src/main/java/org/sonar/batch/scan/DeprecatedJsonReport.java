@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.local;
+package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Closeables;
@@ -26,49 +26,50 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.Violation;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.issue.DefaultIssue;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 
 /**
+ * Used by Eclipse until version 3.1. Eclipse 3.2 uses issues exported by {@link org.sonar.batch.scan.JsonReport}.
+ *
  * @since 3.4
+ * @deprecated in 3.6. Replaced by issues.
  */
-public class DryRunExporter implements BatchComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(DryRunExporter.class);
+@Deprecated
+public class DeprecatedJsonReport implements BatchComponent {
+  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedJsonReport.class);
 
   private final Settings settings;
   private final DefaultIndex sonarIndex;
   private final ModuleFileSystem fileSystem;
   private final Server server;
   private final RuleI18nManager ruleI18nManager;
+  private final IssueCache issueCache;
 
-  public DryRunExporter(Settings settings, DefaultIndex sonarIndex, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager) {
+  public DeprecatedJsonReport(Settings settings, DefaultIndex sonarIndex, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache) {
     this.settings = settings;
     this.sonarIndex = sonarIndex;
     this.fileSystem = fileSystem;
     this.server = server;
     this.ruleI18nManager = ruleI18nManager;
+    this.issueCache = issueCache;
   }
 
-  public void execute(SensorContext context) {
+  public void execute() {
     if (settings.getBoolean(CoreProperties.DRY_RUN)) {
       exportResults(sonarIndex.getResources());
     }
@@ -102,26 +103,26 @@ public class DryRunExporter implements BatchComponent {
         .beginObject();
 
       for (Resource resource : resources) {
-        List<Violation> violations = getViolations(resource);
-        if (violations.isEmpty()) {
+        Collection<DefaultIssue> issues = getIssues(resource);
+        if (issues.isEmpty()) {
           continue;
         }
 
         json.name(resource.getKey())
           .beginArray();
 
-        for (Violation violation : violations) {
+        for (DefaultIssue issue : issues) {
           json.beginObject()
-            .name("line").value(violation.getLineId())
-            .name("message").value(violation.getMessage())
-            .name("severity").value(violation.getSeverity().name())
-            .name("rule_key").value(violation.getRule().getKey())
-            .name("rule_repository").value(violation.getRule().getRepositoryKey())
-            .name("rule_name").value(name(violation.getRule()))
-            .name("switched_off").value(violation.isSwitchedOff())
-            .name("is_new").value(violation.isNew());
-          if (violation.getCreatedAt() != null) {
-            json.name("created_at").value(DateUtils.formatDateTime(violation.getCreatedAt()));
+            .name("line").value(issue.line())
+            .name("message").value(issue.message())
+            .name("severity").value(issue.severity())
+            .name("rule_key").value(issue.ruleKey().rule())
+            .name("rule_repository").value(issue.ruleKey().repository())
+            .name("rule_name").value(ruleName(issue.ruleKey()))
+            .name("switched_off").value(Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution()))
+            .name("is_new").value((issue.isNew()));
+          if (issue.creationDate() != null) {
+            json.name("created_at").value(DateUtils.formatDateTime(issue.creationDate()));
           }
           json.endObject();
         }
@@ -139,12 +140,12 @@ public class DryRunExporter implements BatchComponent {
     }
   }
 
-  private String name(Rule rule) {
-    return ruleI18nManager.getName(rule, Locale.getDefault());
+  private String ruleName(RuleKey key) {
+    return ruleI18nManager.getName(key.repository(), key.rule(), Locale.getDefault());
   }
 
   @VisibleForTesting
-  List<Violation> getViolations(Resource resource) {
-    return sonarIndex.getViolations(ViolationQuery.create().setSwitchMode(ViolationQuery.SwitchMode.BOTH).forResource(resource));
+  Collection<DefaultIssue> getIssues(Resource resource) {
+    return issueCache.byComponent(resource.getEffectiveKey());
   }
 }
