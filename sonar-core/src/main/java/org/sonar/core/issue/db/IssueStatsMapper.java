@@ -23,11 +23,13 @@ package org.sonar.core.issue.db;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.api.issue.IssueQuery;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public interface IssueStatsMapper {
 
   List<Object> selectIssuesColumn(@Param("query") IssueQuery query, @Param("column") String column,
-                                  @Param("userId") Integer userId, @Param("role") String role);
+                                  @Nullable @Param("userId") Integer userId, @Param("role") String role);
 
 }
