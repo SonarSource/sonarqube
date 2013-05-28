@@ -61,28 +61,6 @@ public class AuthorDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public void insert(AuthorDto authorDto) {
-    SqlSession session = mybatis.openSession();
-    AuthorMapper mapper = session.getMapper(AuthorMapper.class);
-    try {
-      mapper.insert(authorDto);
-      session.commit();
-    } catch (RuntimeException e) {
-      // break the unique index on LOGIN ?
-      session.rollback();
-      AuthorDto persistedAuthor = mapper.selectByLogin(authorDto.getLogin());
-      if (persistedAuthor != null) {
-        authorDto.setId(persistedAuthor.getId());
-        authorDto.setPersonId(persistedAuthor.getPersonId());
-      } else {
-        throw e;
-      }
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public void insertAuthor(String login, long personId) {
     SqlSession session = mybatis.openSession();
     try {
