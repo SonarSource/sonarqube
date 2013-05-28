@@ -37,6 +37,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.platform.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -154,6 +155,9 @@ public class IssueService implements ServerComponent {
       throw new IllegalArgumentException("Unknown rule: " + issue.ruleKey());
     }
 
+    Date now = new Date();
+    issue.setCreationDate(now);
+    issue.setUpdateDate(now);
 
     // TODO check existence of component
     // TODO verify authorization
