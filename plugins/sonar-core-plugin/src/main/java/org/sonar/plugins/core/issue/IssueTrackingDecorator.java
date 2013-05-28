@@ -30,7 +30,10 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.DefaultIssue;
@@ -54,12 +57,15 @@ public class IssueTrackingDecorator implements Decorator {
   private final IssueChangeContext changeContext;
   private final ResourcePerspectives perspectives;
   private final RulesProfile rulesProfile;
+  private final RuleFinder ruleFinder;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
                                 IssueHandlers handlers, IssueWorkflow workflow,
                                 IssueUpdater updater,
-                                Project project, ResourcePerspectives perspectives,
-                                RulesProfile rulesProfile) {
+                                Project project,
+                                ResourcePerspectives perspectives,
+                                RulesProfile rulesProfile,
+                                RuleFinder ruleFinder) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
@@ -69,6 +75,7 @@ public class IssueTrackingDecorator implements Decorator {
     this.changeContext = IssueChangeContext.createScan(project.getAnalysisDate());
     this.perspectives = perspectives;
     this.rulesProfile = rulesProfile;
+    this.ruleFinder = ruleFinder;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -158,13 +165,19 @@ public class IssueTrackingDecorator implements Decorator {
   private void addUnmatched(Collection<IssueDto> unmatchedIssues, Collection<DefaultIssue> issues) {
     for (IssueDto unmatchedDto : unmatchedIssues) {
       DefaultIssue unmatched = unmatchedDto.toDefaultIssue();
-
-      ActiveRule activeRule = rulesProfile.getActiveRule(unmatchedDto.getRuleRepo(), unmatchedDto.getRule());
       boolean manualIssue = !Strings.isNullOrEmpty(unmatched.reporter());
-      boolean onDisabledRule = (activeRule == null);
+      Rule rule = ruleFinder.findByKey(RuleKey.of(unmatchedDto.getRuleRepo(), unmatchedDto.getRule()));
 
+      boolean onDisabledRule = (rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus()));
+      if (manualIssue) {
+        // Manual rules are not declared in Quality profiles, so no need to check ActiveRule
+        unmatched.setEndOfLife(onDisabledRule);
+      } else {
+        ActiveRule activeRule = rulesProfile.getActiveRule(unmatchedDto.getRuleRepo(), unmatchedDto.getRule());
+        onDisabledRule &= (activeRule == null);
+        unmatched.setEndOfLife(true);
+      }
       unmatched.setNew(false);
-      unmatched.setEndOfLife(!manualIssue);
       unmatched.setOnDisabledRule(onDisabledRule);
       issues.add(unmatched);
     }

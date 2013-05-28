@@ -21,6 +21,7 @@ package org.sonar.plugins.core.issue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.component.ResourcePerspectives;
@@ -28,6 +29,9 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -54,6 +58,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
   Date loadedDate = new Date();
   RulesProfile profile = mock(RulesProfile.class);
+  RuleFinder ruleFinder = mock(RuleFinder.class);
 
   @Before
   public void init() {
@@ -67,7 +72,8 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       updater,
       mock(Project.class),
       perspectives,
-      profile);
+      profile,
+      ruleFinder);
   }
 
   @Test
@@ -117,14 +123,12 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_register_unmatched_issues() throws Exception {
+  public void should_register_unmatched_issues_as_end_of_life() throws Exception {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
-    DefaultIssue openIssue = new DefaultIssue();
 
-    // INPUT : one issue, one open issue during previous scan, no filtering
-    when(issueCache.byComponent("struts:Action.java")).thenReturn(Arrays.asList(openIssue));
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
+    // INPUT : one issue existing during previous scan
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
     trackingResult.addUnmatched(unmatchedIssue);
@@ -133,17 +137,74 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
     decorator.doDecorate(file);
 
-    verify(workflow, times(2)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
-    verify(handlers, times(2)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
-    verify(issueCache, times(2)).put(any(DefaultIssue.class));
+    verify(workflow, times(1)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
+    verify(handlers, times(1)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
 
-    verify(issueCache).put(argThat(new ArgumentMatcher<DefaultIssue>() {
-      @Override
-      public boolean matches(Object o) {
-        DefaultIssue issue = (DefaultIssue) o;
-        return "ABCDE".equals(issue.key());
-      }
-    }));
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueCache).put(argument.capture());
+
+    DefaultIssue issue = argument.getValue();
+    assertThat(issue.key()).isEqualTo("ABCDE");
+    assertThat(issue.isNew()).isFalse();
+    assertThat(issue.isEndOfLife()).isTrue();
+  }
+
+  @Test
+  public void manual_issues_should_be_kept_open() throws Exception {
+    // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
+    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+
+    // INPUT : one issue existing during previous scan
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
+
+    IssueTrackingResult trackingResult = new IssueTrackingResult();
+    trackingResult.addUnmatched(unmatchedIssue);
+
+    when(tracking.track(eq(file), anyCollection(), anyCollection())).thenReturn(trackingResult);
+
+    decorator.doDecorate(file);
+
+    verify(workflow, times(1)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
+    verify(handlers, times(1)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueCache).put(argument.capture());
+
+    DefaultIssue issue = argument.getValue();
+    assertThat(issue.key()).isEqualTo("ABCDE");
+    assertThat(issue.isNew()).isFalse();
+    assertThat(issue.isEndOfLife()).isFalse();
+    assertThat(issue.isOnDisabledRule()).isFalse();
+  }
+
+  @Test
+  public void manual_issues_should_be_closed_if_manual_rule_is_removed() throws Exception {
+    // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
+    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+
+    // INPUT : one issue existing during previous scan
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance").setStatus(Rule.STATUS_REMOVED));
+
+    IssueTrackingResult trackingResult = new IssueTrackingResult();
+    trackingResult.addUnmatched(unmatchedIssue);
+
+    when(tracking.track(eq(file), anyCollection(), anyCollection())).thenReturn(trackingResult);
+
+    decorator.doDecorate(file);
+
+    verify(workflow, times(1)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
+    verify(handlers, times(1)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueCache).put(argument.capture());
+
+    DefaultIssue issue = argument.getValue();
+    assertThat(issue.key()).isEqualTo("ABCDE");
+    assertThat(issue.isNew()).isFalse();
+    assertThat(issue.isEndOfLife()).isTrue();
+    assertThat(issue.isOnDisabledRule()).isTrue();
   }
 
   @Test
@@ -151,7 +212,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Project project = new Project("struts");
     DefaultIssue openIssue = new DefaultIssue();
     when(issueCache.byComponent("struts")).thenReturn(Arrays.asList(openIssue));
-    IssueDto deadIssue = new IssueDto().setKee("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
+    IssueDto deadIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
     when(initialOpenIssues.getAllIssues()).thenReturn(Arrays.asList(deadIssue));
 
     decorator.doDecorate(project);

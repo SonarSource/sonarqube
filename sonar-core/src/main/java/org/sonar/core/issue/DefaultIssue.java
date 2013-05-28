@@ -259,6 +259,14 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  /**
+   * True when one of the following conditions is true :
+   * <ul>
+   *   <li>the related component has been deleted or renamed</li>
+   *   <li>the rule has been deleted (eg. on plugin uninstall)</li>
+   *   <li>the rule has been disabled in the Quality profile</li>
+   * </ul>
+   */
   public boolean isEndOfLife() {
     return endOfLife;
   }
