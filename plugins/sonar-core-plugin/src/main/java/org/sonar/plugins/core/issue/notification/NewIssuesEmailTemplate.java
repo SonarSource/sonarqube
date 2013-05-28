@@ -68,7 +68,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     Date date = DateUtils.parseDateTime(dateString);
     String url = String.format("%s/issues/search?componentRoots=%s&createdAfter=%s", settings.getServerBaseURL(), URLEncoder.encode(projectKey), DateUtils.formatDate(date));
     sb.append("\n")
-      .append("See it in Sonar: ")
+      .append("See it in SonarQube: ")
       .append(url)
       .append("\n");
   }

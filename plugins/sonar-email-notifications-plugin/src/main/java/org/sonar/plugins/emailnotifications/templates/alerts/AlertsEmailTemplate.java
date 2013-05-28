@@ -99,7 +99,7 @@ public class AlertsEmailTemplate extends EmailTemplate {
       }
     }
 
-    messageBody.append("\n").append("See it in Sonar: ").append(configuration.getServerBaseURL()).append("/dashboard/index/").append(projectKey);
+    messageBody.append("\n").append("See it in SonarQube: ").append(configuration.getServerBaseURL()).append("/dashboard/index/").append(projectKey);
 
     return messageBody.toString();
   }

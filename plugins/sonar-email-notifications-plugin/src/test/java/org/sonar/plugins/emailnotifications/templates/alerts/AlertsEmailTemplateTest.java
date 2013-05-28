@@ -66,7 +66,7 @@ public class AlertsEmailTemplateTest {
       "  - violations > 4\n" +
       "  - coverage < 75%\n" +
       "\n" +
-      "See it in Sonar: http://nemo.sonarsource.org/dashboard/index/org.sonar.foo:foo"));
+      "See it in SonarQube: http://nemo.sonarsource.org/dashboard/index/org.sonar.foo:foo"));
   }
 
   @Test
@@ -84,7 +84,7 @@ public class AlertsEmailTemplateTest {
       "  - violations > 4\n" +
       "  - coverage < 75%\n" +
       "\n" +
-      "See it in Sonar: http://nemo.sonarsource.org/dashboard/index/org.sonar.foo:foo"));
+      "See it in SonarQube: http://nemo.sonarsource.org/dashboard/index/org.sonar.foo:foo"));
   }
 
   @Test
@@ -100,7 +100,7 @@ public class AlertsEmailTemplateTest {
       "\n" +
       "New alert: violations > 4\n" +
       "\n" +
-      "See it in Sonar: http://nemo.sonarsource.org/dashboard/index/org.sonar.foo:foo"));
+      "See it in SonarQube: http://nemo.sonarsource.org/dashboard/index/org.sonar.foo:foo"));
   }
 
   @Test
@@ -115,7 +115,7 @@ public class AlertsEmailTemplateTest {
       "Alert level: Green (was Red)\n" +
       "\n" +
       "\n" +
-      "See it in Sonar: http://nemo.sonarsource.org/dashboard/index/org.sonar.foo:foo"));
+      "See it in SonarQube: http://nemo.sonarsource.org/dashboard/index/org.sonar.foo:foo"));
   }
 
   private Notification createNotification(String alertName, String alertText, String alertLevel, String isNewAlert) {

@@ -76,7 +76,7 @@ public class IssueChangesEmailTemplateTest {
     assertThat(message.getMessage()).contains("Message: Has 3 cycles");
     assertThat(message.getMessage()).contains("Assignee: louis (was simon)");
     assertThat(message.getMessage()).contains("Resolution: FALSE-POSITIVE");
-    assertThat(message.getMessage()).contains("See it in Sonar: http://nemo.sonarsource.org/issue/show/ABCDE");
+    assertThat(message.getMessage()).contains("See it in SonarQube: http://nemo.sonarsource.org/issue/show/ABCDE");
     assertThat(message.getFrom()).isNull();
   }
 

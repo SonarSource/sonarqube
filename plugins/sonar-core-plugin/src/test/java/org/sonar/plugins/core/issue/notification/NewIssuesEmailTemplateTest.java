@@ -55,7 +55,7 @@ public class NewIssuesEmailTemplateTest {
    * Project: Foo
    * 32 new issues
    *
-   * See it in Sonar: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations
+   * See it in SonarQube: http://nemo.sonarsource.org/drilldown/measures/org.sonar.foo:foo?metric=new_violations
    * </pre>
    */
   @Test
@@ -73,7 +73,7 @@ public class NewIssuesEmailTemplateTest {
       "Project: Struts\n" +
       "32 new issues\n" +
       "\n" +
-      "See it in Sonar: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAfter=2010-05-18\n");
+      "See it in SonarQube: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAfter=2010-05-18\n");
   }
 
 }
