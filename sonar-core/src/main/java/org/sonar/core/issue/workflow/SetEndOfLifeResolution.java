@@ -19,25 +19,20 @@
  */
 package org.sonar.core.issue.workflow;
 
-import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class IsAliveTest {
-  DefaultIssue issue = new DefaultIssue();
-
-  @Test
-  public void should_match_alive() throws Exception {
-    IsAlive condition = new IsAlive(true);
-    assertThat(condition.matches(issue.setAlive(true))).isTrue();
-    assertThat(condition.matches(issue.setAlive(false))).isFalse();
-  }
-
-  @Test
-  public void should_match_dead() throws Exception {
-    IsAlive condition = new IsAlive(false);
-    assertThat(condition.matches(issue.setAlive(true))).isFalse();
-    assertThat(condition.matches(issue.setAlive(false))).isTrue();
+public class SetEndOfLifeResolution implements Function {
+  @Override
+  public void execute(Context context) {
+    DefaultIssue issue = (DefaultIssue) context.issue();
+    if (!issue.isEndOfLife()) {
+      throw new IllegalStateException("Issue is still alive: " + issue);
+    }
+    if (issue.isOnDisabledRule()) {
+      context.setResolution(Issue.RESOLUTION_REMOVED);
+    } else {
+      context.setResolution(Issue.RESOLUTION_FIXED);
+    }
   }
 }

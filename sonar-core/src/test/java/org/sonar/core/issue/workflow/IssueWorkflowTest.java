@@ -114,7 +114,7 @@ public class IssueWorkflowTest {
       .setResolution(Issue.RESOLUTION_FIXED)
       .setStatus(Issue.STATUS_RESOLVED)
       .setNew(false)
-      .setAlive(false);
+      .setEndOfLife(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
@@ -132,7 +132,7 @@ public class IssueWorkflowTest {
       .setResolution(null)
       .setStatus(Issue.STATUS_OPEN)
       .setNew(false)
-      .setAlive(false);
+      .setEndOfLife(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
@@ -150,7 +150,7 @@ public class IssueWorkflowTest {
       .setResolution(null)
       .setStatus(Issue.STATUS_REOPENED)
       .setNew(false)
-      .setAlive(false);
+      .setEndOfLife(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
@@ -168,7 +168,7 @@ public class IssueWorkflowTest {
       .setResolution(null)
       .setStatus(Issue.STATUS_CONFIRMED)
       .setNew(false)
-      .setAlive(false);
+      .setEndOfLife(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
@@ -187,7 +187,7 @@ public class IssueWorkflowTest {
       .setResolution(Issue.RESOLUTION_FIXED)
       .setStatus("xxx")
       .setNew(false)
-      .setAlive(false);
+      .setEndOfLife(true);
     try {
       workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(new Date()));
       fail();

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -54,7 +55,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   IssueUpdater updater = mock(IssueUpdater.class);
   ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
   Date loadedDate = new Date();
-  RuleFinder ruleFinder = mock(RuleFinder.class);
+  RulesProfile profile = mock(RulesProfile.class);
 
   @Before
   public void init() {
@@ -68,7 +69,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       updater,
       mock(Project.class),
       perspectives,
-      ruleFinder);
+      profile);
   }
 
   @Test
@@ -170,7 +171,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       @Override
       public boolean matches(Object o) {
         DefaultIssue dead = (DefaultIssue) o;
-        return "ABCDE".equals(dead.key()) && !dead.isNew() && !dead.isAlive();
+        return "ABCDE".equals(dead.key()) && !dead.isNew() && dead.isEndOfLife();
       }
     }));
   }

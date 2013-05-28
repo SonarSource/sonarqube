@@ -74,9 +74,11 @@ public class DefaultIssue implements Issue {
   // true if the the issue did not exist in the previous scan.
   private boolean isNew = true;
 
-  // true if the the issue did exist in the previous scan but not in the current one. That means
+  // True if the the issue did exist in the previous scan but not in the current one. That means
   // that this issue should be closed.
-  private boolean isAlive = true;
+  private boolean endOfLife = false;
+
+  private boolean onDisabledRule = false;
 
   // true if some fields have been changed since the previous scan
   private boolean isChanged = false;
@@ -257,12 +259,21 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
-  public boolean isAlive() {
-    return isAlive;
+  public boolean isEndOfLife() {
+    return endOfLife;
   }
 
-  public DefaultIssue setAlive(boolean b) {
-    isAlive = b;
+  public DefaultIssue setEndOfLife(boolean b) {
+    endOfLife = b;
+    return this;
+  }
+
+  public boolean isOnDisabledRule() {
+    return onDisabledRule;
+  }
+
+  public DefaultIssue setOnDisabledRule(boolean b) {
+    onDisabledRule = b;
     return this;
   }
 

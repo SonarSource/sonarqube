@@ -81,7 +81,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .functions(new SetResolution(null), new SetCloseDate(false))
         .build())
 
-      // resolve as false-positive
+        // resolve as false-positive
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .conditions(new IsManual(false))
@@ -100,37 +100,37 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
 
         // automatic transitions
 
-        // Close the issues that do not exist anymore. Note that isAlive() is true on manual issues
+        // Close the issues that do not exist anymore. Note that isEndOfLife() is false on manual issues
       .transition(Transition.builder("automaticclose")
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_CLOSED)
-        .conditions(new IsAlive(false))
-        .functions(new SetResolution(Issue.RESOLUTION_FIXED), new SetCloseDate(true))
+        .conditions(new IsEndOfLife(true))
+        .functions(new SetEndOfLifeResolution(), new SetCloseDate(true))
         .automatic()
         .build())
       .transition(Transition.builder("automaticclose")
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_CLOSED)
-        .conditions(new IsAlive(false))
-        .functions(new SetResolution(Issue.RESOLUTION_FIXED), new SetCloseDate(true))
+        .conditions(new IsEndOfLife(true))
+        .functions(new SetEndOfLifeResolution(), new SetCloseDate(true))
         .automatic()
         .build())
       .transition(Transition.builder("automaticclose")
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_CLOSED)
-        .conditions(new IsAlive(false))
-        .functions(new SetResolution(Issue.RESOLUTION_FIXED), new SetCloseDate(true))
+        .conditions(new IsEndOfLife(true))
+        .functions(new SetEndOfLifeResolution(), new SetCloseDate(true))
         .automatic()
         .build())
         // Close the issues marked as resolved and that do not exist anymore.
         // Note that false-positives are kept resolved and are not closed.
       .transition(Transition.builder("automaticclose")
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_CLOSED)
-        .conditions(new IsAlive(false))
-        .functions(new SetCloseDate(true))
+        .conditions(new IsEndOfLife(true))
+        .functions(new SetEndOfLifeResolution(), new SetCloseDate(true))
         .automatic()
         .build())
       .transition(Transition.builder("automaticreopen")
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
-        .conditions(new IsAlive(true), new HasResolution(Issue.RESOLUTION_FIXED))
-        .functions(new SetResolution(null))
+        .conditions(new IsEndOfLife(false), new HasResolution(Issue.RESOLUTION_FIXED))
+        .functions(new SetResolution(null), new SetCloseDate(false))
         .automatic()
         .build())
       .build();
@@ -168,7 +168,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
 
   private State stateOf(DefaultIssue issue) {
     State state = machine.state(issue.status());
-    if (state==null) {
+    if (state == null) {
       throw new IllegalStateException("Unknown status: " + issue.status() + " [issue=" + issue.key() + "]");
     }
     return state;

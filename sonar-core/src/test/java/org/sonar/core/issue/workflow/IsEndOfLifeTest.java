@@ -17,42 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue;
+package org.sonar.core.issue.workflow;
 
-import org.sonar.api.BatchExtension;
+import org.junit.Test;
+import org.sonar.core.issue.DefaultIssue;
 
-import javax.annotation.Nullable;
+import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * @since 3.6
- */
-public interface IssueHandler extends BatchExtension {
+public class IsEndOfLifeTest {
+  DefaultIssue issue = new DefaultIssue();
 
-  interface Context {
-    Issue issue();
-
-    boolean isNew();
-
-    boolean isEndOfLife();
-
-    Context setLine(@Nullable Integer i);
-
-    Context setMessage(@Nullable String s);
-
-    Context setSeverity(String s);
-
-    Context setEffortToFix(@Nullable Double d);
-
-    Context setAuthorLogin(@Nullable String s);
-
-    Context setAttribute(String key, @Nullable String value);
-
-    Context assign(@Nullable String login);
-
-    Context addComment(String text);
-
+  @Test
+  public void should_be_end_of_life() throws Exception {
+    IsEndOfLife condition = new IsEndOfLife(true);
+    assertThat(condition.matches(issue.setEndOfLife(true))).isTrue();
+    assertThat(condition.matches(issue.setEndOfLife(false))).isFalse();
   }
 
-  void onIssue(Context context);
-
+  @Test
+  public void should_not_be_end_of_life() throws Exception {
+    IsEndOfLife condition = new IsEndOfLife(false);
+    assertThat(condition.matches(issue.setEndOfLife(true))).isFalse();
+    assertThat(condition.matches(issue.setEndOfLife(false))).isTrue();
+  }
 }

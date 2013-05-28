@@ -22,16 +22,16 @@ package org.sonar.core.issue.workflow;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 
-class IsAlive implements Condition {
+class IsEndOfLife implements Condition {
 
-  private final boolean alive;
+  private final boolean endOfLife;
 
-  IsAlive(boolean alive) {
-    this.alive = alive;
+  IsEndOfLife(boolean endOfLife) {
+    this.endOfLife = endOfLife;
   }
 
   @Override
   public boolean matches(Issue issue) {
-    return ((DefaultIssue) issue).isAlive() == alive;
+    return ((DefaultIssue) issue).isEndOfLife() == endOfLife;
   }
 }

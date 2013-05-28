@@ -139,6 +139,9 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setAttributes(attributes);
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_OPEN);
+    issue.setNew(true);
+    issue.setEndOfLife(false);
+    issue.setOnDisabledRule(false);
     return issue;
   }
 }

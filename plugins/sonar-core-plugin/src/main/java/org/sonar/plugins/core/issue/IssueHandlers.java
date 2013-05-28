@@ -73,8 +73,8 @@ public class IssueHandlers implements BatchExtension {
     }
 
     @Override
-    public boolean isAlive() {
-      return issue.isAlive();
+    public boolean isEndOfLife() {
+      return issue.isEndOfLife();
     }
 
     @Override

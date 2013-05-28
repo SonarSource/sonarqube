@@ -26,9 +26,11 @@ import org.sonar.api.batch.*;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
@@ -55,13 +57,13 @@ public class IssueTrackingDecorator implements Decorator {
   private final IssueUpdater updater;
   private final IssueChangeContext changeContext;
   private final ResourcePerspectives perspectives;
-  private final RuleFinder ruleFinder;
+  private final RulesProfile rulesProfile;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
                                 IssueFilters filters, IssueHandlers handlers, IssueWorkflow workflow,
                                 IssueUpdater updater,
                                 Project project, ResourcePerspectives perspectives,
-                                RuleFinder ruleFinder) {
+                                RulesProfile rulesProfile) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
@@ -71,7 +73,7 @@ public class IssueTrackingDecorator implements Decorator {
     this.updater = updater;
     this.changeContext = IssueChangeContext.createScan(project.getAnalysisDate());
     this.perspectives = perspectives;
-    this.ruleFinder = ruleFinder;
+    this.rulesProfile = rulesProfile;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -131,7 +133,8 @@ public class IssueTrackingDecorator implements Decorator {
 
       // non-persisted fields
       issue.setNew(false);
-      issue.setAlive(true);
+      issue.setEndOfLife(false);
+      issue.setOnDisabledRule(false);
 
       // fields to update with old values
       issue.setActionPlanKey(ref.getActionPlanKey());
@@ -162,13 +165,14 @@ public class IssueTrackingDecorator implements Decorator {
   private void addUnmatched(Collection<IssueDto> unmatchedIssues, Collection<DefaultIssue> issues) {
     for (IssueDto unmatchedDto : unmatchedIssues) {
       DefaultIssue unmatched = unmatchedDto.toDefaultIssue();
-      unmatched.setNew(false);
 
-      Rule rule = ruleFinder.findByKey(unmatched.ruleKey());
+      ActiveRule activeRule = rulesProfile.getActiveRule(unmatchedDto.getRuleRepo(), unmatchedDto.getRule());
       boolean manualIssue = !Strings.isNullOrEmpty(unmatched.reporter());
-      boolean onExistingRule = (rule != null && !Rule.STATUS_REMOVED.equals(rule.getStatus()));
-      unmatched.setAlive(manualIssue && onExistingRule);
+      boolean onDisabledRule = (activeRule==null);
 
+      unmatched.setNew(false);
+      unmatched.setEndOfLife(!manualIssue);
+      unmatched.setOnDisabledRule(onDisabledRule);
       issues.add(unmatched);
     }
   }
@@ -176,8 +180,10 @@ public class IssueTrackingDecorator implements Decorator {
   private void addDead(Collection<DefaultIssue> issues) {
     for (IssueDto deadDto : initialOpenIssues.getAllIssues()) {
       DefaultIssue dead = deadDto.toDefaultIssue();
-      dead.setAlive(false);
+      ActiveRule activeRule = rulesProfile.getActiveRule(deadDto.getRuleRepo(), deadDto.getRule());
       dead.setNew(false);
+      dead.setEndOfLife(true);
+      dead.setOnDisabledRule(activeRule==null);
       issues.add(dead);
     }
   }

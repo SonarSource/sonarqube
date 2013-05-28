@@ -44,8 +44,9 @@ public interface Issue extends Serializable {
 
   String RESOLUTION_FIXED = "FIXED";
   String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
+  String RESOLUTION_REMOVED = "REMOVED";
 
-  List<String> RESOLUTIONS = ImmutableList.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED);
+  List<String> RESOLUTIONS = ImmutableList.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED, RESOLUTION_REMOVED);
 
   /**
    * Unique generated key
