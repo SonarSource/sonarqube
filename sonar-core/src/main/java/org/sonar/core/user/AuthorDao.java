@@ -23,6 +23,10 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+
+import java.util.Date;
 
 /**
  * @since 3.0
@@ -30,9 +34,11 @@ import org.sonar.core.persistence.MyBatis;
 public class AuthorDao implements BatchComponent, ServerComponent {
 
   private final MyBatis mybatis;
+  private final ResourceDao resourceDao;
 
-  public AuthorDao(MyBatis mybatis) {
+  public AuthorDao(MyBatis mybatis, ResourceDao resourceDao) {
     this.mybatis = mybatis;
+    this.resourceDao = resourceDao;
   }
 
   public AuthorDto selectByLogin(String login) {
@@ -77,4 +83,36 @@ public class AuthorDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public void insertAuthor(String login, long personId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      insertAuthor(login, personId, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void insertAuthorAndDeveloper(String login, ResourceDto resourceDto) {
+    SqlSession session = mybatis.openSession();
+    try {
+      resourceDao.insertUsingExistingSession(resourceDto, session);
+      insertAuthor(login, resourceDto.getId(), session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private void insertAuthor(String login, long personId, SqlSession session) {
+    AuthorMapper authorMapper = session.getMapper(AuthorMapper.class);
+    Date now = new Date();
+    AuthorDto authorDto = new AuthorDto()
+      .setLogin(login)
+      .setPersonId(personId)
+      .setCreatedAt(now)
+      .setUpdatedAt(now);
+
+    authorMapper.insert(authorDto);
+  }
 }

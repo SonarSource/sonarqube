@@ -22,8 +22,11 @@ package org.sonar.core.user;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class AuthorDaoTest extends AbstractDaoTestCase {
 
@@ -31,7 +34,7 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
 
   @Before
   public void setUp() {
-    dao = new AuthorDao(getMyBatis());
+    dao = new AuthorDao(getMyBatis(), new ResourceDao(getMyBatis()));
   }
 
   @Test
@@ -47,16 +50,12 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldInsert() {
-    setupData("shouldInsert");
+  public void shouldInsertAuthor() {
+    setupData("shouldInsertAuthor");
 
-    AuthorDto authorDto = new AuthorDto()
-      .setLogin("godin")
-      .setPersonId(13L);
+    dao.insertAuthor("godin", 13L);
 
-    dao.insert(authorDto);
-
-    checkTables("shouldInsert", new String[]{"created_at", "updated_at"}, "authors");
+    checkTables("shouldInsertAuthor", new String[]{"created_at", "updated_at"}, "authors");
   }
 
   @Test
@@ -68,17 +67,46 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldPreventConcurrentInserts() {
-    setupData("shouldPreventConcurrentInserts");
+  public void shouldInsertAuthorAndDeveloper() throws Exception {
+    setupData("shouldInsertAuthorAndDeveloper");
 
-    // already exists in database with id 1
-    AuthorDto authorDto = new AuthorDto()
-      .setLogin("godin")
-      .setPersonId(13L);
-    dao.insert(authorDto);
+    String login = "developer@company.net";
+    ResourceDto resourceDto = new ResourceDto().setName(login).setQualifier("DEV");
+    dao.insertAuthorAndDeveloper(login, resourceDto);
 
-    checkTables("shouldPreventConcurrentInserts", new String[]{"created_at", "updated_at"}, "authors");
-    assertThat(authorDto.getId()).isEqualTo(1L);
-    assertThat(authorDto.getPersonId()).isEqualTo(100L);
+    checkTables("shouldInsertAuthorAndDeveloper",
+      new String[]{"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "language", "long_name", "person_id", "root_id", "scope"},
+      "authors", "projects");
+  }
+
+  @Test
+  public void shouldPreventAuthorsDuplication() {
+    setupData("shouldPreventAuthorsDuplication");
+
+    try {
+      dao.insertAuthor("godin", 20L);
+      fail();
+    } catch (RuntimeException ex) {
+    }
+
+    checkTables("shouldPreventAuthorsDuplication", new String[]{"created_at", "updated_at"}, "authors");
+  }
+
+  @Test
+  public void shouldPreventAuthorsAndDevelopersDuplication() throws Exception {
+    setupData("shouldPreventAuthorsAndDevelopersDuplication");
+
+    String login = "developer@company.net";
+    ResourceDto resourceDto = new ResourceDto().setName(login).setQualifier("DEV");
+
+    try {
+      dao.insertAuthorAndDeveloper("developer@company.net", resourceDto);
+      fail();
+    } catch (RuntimeException ex) {
+    }
+
+    checkTables("shouldPreventAuthorsAndDevelopersDuplication",
+      new String[]{"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "language", "long_name", "person_id", "root_id", "scope"},
+      "authors", "projects");
   }
 }

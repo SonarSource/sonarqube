@@ -181,4 +181,9 @@ public class ResourceDao {
       .setName(resourceDto.getName())
       .setQualifier(resourceDto.getQualifier());
   }
+
+  public void insertUsingExistingSession(ResourceDto resourceDto, SqlSession session) {
+    ResourceMapper resourceMapper = session.getMapper(ResourceMapper.class);
+    resourceMapper.insert(resourceDto);
+  }
 }

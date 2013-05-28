@@ -19,6 +19,7 @@
  */
 package org.sonar.core.resource;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.component.Component;
@@ -222,5 +223,26 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
     ResourceDto fileLoadedFromDB = dao.getResource(file1.getId());
     assertThat(fileLoadedFromDB.getCreatedAt()).isNotNull();
+  }
+
+  @Test
+  public void should_insert_using_existing_session() throws Exception {
+    setupData("insert");
+
+    ResourceDto file1 = new ResourceDto()
+      .setKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+      .setLanguage("java").setName("Action").setLongName("org.struts.Action");
+    ResourceDto file2 = new ResourceDto()
+      .setKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+      .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
+
+    SqlSession session = getMyBatis().openSession();
+
+    dao.insertUsingExistingSession(file1, session);
+    dao.insertUsingExistingSession(file2, session);
+
+    session.rollback();
+
+    assertEmptyTables("projects");
   }
 }
