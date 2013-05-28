@@ -294,13 +294,11 @@ class ResourceController < ApplicationController
     @expandable = (@lines != nil)
     @filtered = !@expanded
     rule_param = params[:rule]
-
-    # TODO Display only status not closed and resolution not false-positive
-    options = {'components' => @resource.key, 'statuses' => ['OPEN', 'REOPENED', 'RESOLVED']}
+    options = {'components' => @resource.key, 'resolved' => 'false'}
 
     if rule_param.blank? && params[:metric]
       metric = Metric.by_id(params[:metric])
-      if metric && (metric.name=='unassigned_issues' || metric.name=='unplanned_issues' || metric.name=='false_positive_issues')
+      if metric && (metric.name=='false_positive_issues')
         rule_param = metric.name.gsub(/new_/, '')
 
         # hack to select the correct option in the rule filter select-box
@@ -311,12 +309,7 @@ class ResourceController < ApplicationController
     if !rule_param.blank? && rule_param != 'all'
       if rule_param=='false_positive_issues'
         options['resolutions'] = 'FALSE-POSITIVE'
-
-      elsif rule_param=='unassigned_issues'
-        options['assigned'] = false
-
-      elsif rule_param=='unplanned_issues'
-        options['planned'] = false
+        options['resolved'] = 'true'
 
       elsif Sonar::RulePriority.id(rule_param)
         options['severities'] = rule_param
