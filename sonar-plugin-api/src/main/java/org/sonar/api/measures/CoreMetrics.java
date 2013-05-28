@@ -304,6 +304,7 @@ public final class CoreMetrics {
     .setQualitative(false)
     .setDomain(DOMAIN_COMPLEXITY)
     .setFormula(new SumChildValuesFormula(false))
+    .setDeleteHistoricalData(true)
     .create();
 
   public static final String CLASS_COMPLEXITY_KEY = "class_complexity";
@@ -334,6 +335,7 @@ public final class CoreMetrics {
     .setQualitative(false)
     .setDomain(DOMAIN_COMPLEXITY)
     .setFormula(new SumChildValuesFormula(false))
+    .setDeleteHistoricalData(true)
     .create();
 
   public static final String FUNCTION_COMPLEXITY_KEY = "function_complexity";
