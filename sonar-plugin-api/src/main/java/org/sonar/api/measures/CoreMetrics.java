@@ -1918,6 +1918,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_REVIEWS)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -1940,6 +1941,7 @@ public final class CoreMetrics {
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -1960,6 +1962,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_REVIEWS)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -1980,6 +1983,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_REVIEWS)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -2000,6 +2004,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_REVIEWS)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
   /**
@@ -2020,6 +2025,7 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_REVIEWS)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
+    .setHidden(true)
     .create();
 
   // --------------------------------------------------------------------------------------------------------------------
