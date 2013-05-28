@@ -25,7 +25,9 @@ import org.sonar.api.resources.Resource;
  * Class that allows to query the Sonar index about violations.
  * 
  * @since 2.8
+ * @deprecated in 3.6 for the merge of violations and reviews into issues.
  */
+@Deprecated
 public final class ViolationQuery {
 
   public static enum SwitchMode {

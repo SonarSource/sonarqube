@@ -19,12 +19,14 @@
  */
 package org.sonar.api.resources;
 
+import java.io.Serializable;
+
 /**
  * The interface to implement to create a resource in Sonar
  * 
  * @since 1.10
  */
-public abstract class Resource<P extends Resource> {
+public abstract class Resource<P extends Resource> implements Serializable {
 
   /**
    * @deprecated since 2.6. Use Scopes.PROJECT.

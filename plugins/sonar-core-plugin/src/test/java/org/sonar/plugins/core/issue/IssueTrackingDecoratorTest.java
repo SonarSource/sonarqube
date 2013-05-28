@@ -28,7 +28,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -49,7 +48,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   IssueCache issueCache = mock(IssueCache.class);
   InitialOpenIssuesStack initialOpenIssues = mock(InitialOpenIssuesStack.class);
   IssueTracking tracking = mock(IssueTracking.class, RETURNS_MOCKS);
-  IssueFilters filters = mock(IssueFilters.class);
   IssueHandlers handlers = mock(IssueHandlers.class);
   IssueWorkflow workflow = mock(IssueWorkflow.class);
   IssueUpdater updater = mock(IssueUpdater.class);
@@ -64,7 +62,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       issueCache,
       initialOpenIssues,
       tracking,
-      filters, handlers,
+      handlers,
       workflow,
       updater,
       mock(Project.class),
@@ -90,7 +88,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   public void should_not_be_executed_on_classes_not_methods() throws Exception {
     DecoratorContext context = mock(DecoratorContext.class);
     decorator.decorate(JavaClass.create("org.foo.Bar"), context);
-    verifyZeroInteractions(context, issueCache, tracking, filters, handlers, workflow);
+    verifyZeroInteractions(context, issueCache, tracking, handlers, workflow);
   }
 
   @Test
@@ -100,14 +98,12 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
     // INPUT : one issue, no open issues during previous scan, no filtering
     when(issueCache.byComponent("struts:Action.java")).thenReturn(Arrays.asList(issue));
-    when(filters.accept(issue)).thenReturn(true);
     List<IssueDto> dbIssues = Collections.emptyList();
     when(initialOpenIssues.selectAndRemove(123)).thenReturn(dbIssues);
 
     decorator.doDecorate(file);
 
     // Apply filters, track, apply transitions, notify extensions then update cache
-    verify(filters).accept(issue);
     verify(tracking).track(eq(file), eq(dbIssues), argThat(new ArgumentMatcher<Collection<DefaultIssue>>() {
       @Override
       public boolean matches(Object o) {
@@ -128,7 +124,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
     // INPUT : one issue, one open issue during previous scan, no filtering
     when(issueCache.byComponent("struts:Action.java")).thenReturn(Arrays.asList(openIssue));
-    when(filters.accept(openIssue)).thenReturn(true);
     IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -156,7 +151,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Project project = new Project("struts");
     DefaultIssue openIssue = new DefaultIssue();
     when(issueCache.byComponent("struts")).thenReturn(Arrays.asList(openIssue));
-    when(filters.accept(openIssue)).thenReturn(true);
     IssueDto deadIssue = new IssueDto().setKee("ABCDE").setResolution("OPEN").setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
     when(initialOpenIssues.getAllIssues()).thenReturn(Arrays.asList(deadIssue));
 

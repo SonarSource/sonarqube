@@ -27,8 +27,10 @@ import org.sonar.api.batch.DependedUpon;
  * Filter violations to save. For example, ignore a violation if it occurs on a line of code commented with //NOSONAR
  *
  * @since 1.12
+ * @deprecated in 3.6. Replaced by {@link org.sonar.api.issue.IssueFilter}.
  */
 @DependedUpon(value = DecoratorBarriers.START_VIOLATIONS_GENERATION)
+@Deprecated
 public interface ViolationFilter extends BatchExtension {
 
   /**

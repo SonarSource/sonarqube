@@ -31,15 +31,15 @@ public class ViolationFilters {
   private ViolationFilter[] filters;
 
   public ViolationFilters(ViolationFilter[] filters) {
-    this.filters = (filters==null ? new ViolationFilter[0] : filters);
+    this.filters = filters;
   }
 
   public ViolationFilters() {
-    this(null);
+    this(new ViolationFilter[0]);
   }
 
-  public ViolationFilter[] getFilters() {
-    return filters;
+  public boolean isEmpty() {
+    return filters.length==0;
   }
 
   /**

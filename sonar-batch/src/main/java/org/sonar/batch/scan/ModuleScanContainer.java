@@ -25,7 +25,6 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
@@ -40,6 +39,7 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.IssuableFactory;
+import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.issue.ScanIssues;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
@@ -103,6 +103,7 @@ public class ModuleScanContainer extends ComponentContainer {
       BatchExtensionDictionnary.class,
       DefaultTimeMachine.class,
       ViolationFilters.class,
+      IssueFilters.class,
       ResourceFilters.class,
       DeprecatedJsonReport.class,
       JsonReport.class,
@@ -136,8 +137,7 @@ public class ModuleScanContainer extends ComponentContainer {
     DefaultIndex index = getComponentByType(DefaultIndex.class);
     index.setCurrentProject(module,
       getComponentByType(ResourceFilters.class),
-      getComponentByType(ViolationFilters.class),
-      getComponentByType(RulesProfile.class));
+      getComponentByType(ScanIssues.class));
 
     getComponentByType(PhaseExecutor.class).execute(module);
   }

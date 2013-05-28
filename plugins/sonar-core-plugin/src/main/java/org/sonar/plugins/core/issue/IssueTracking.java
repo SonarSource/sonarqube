@@ -295,7 +295,7 @@ public class IssueTracking implements BatchExtension {
   }
 
   private boolean isSameChecksum(DefaultIssue newIssue, IssueDto pastIssue) {
-    return Objects.equal(pastIssue.getChecksum(), newIssue.getChecksum());
+    return Objects.equal(pastIssue.getChecksum(), newIssue.checksum());
   }
 
   private boolean isSameLine(DefaultIssue newIssue, IssueDto pastIssue) {

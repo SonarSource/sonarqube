@@ -31,8 +31,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.DefaultIssue;
@@ -42,16 +40,14 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 
 import java.util.Collection;
-import java.util.Map;
 
 @DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
-@DependedUpon({DecoratorBarriers.END_OF_VIOLATION_TRACKING,DecoratorBarriers.END_OF_ISSUES_UPDATES})
+@DependedUpon({DecoratorBarriers.END_OF_VIOLATION_TRACKING, DecoratorBarriers.END_OF_ISSUES_UPDATES})
 public class IssueTrackingDecorator implements Decorator {
 
   private final IssueCache issueCache;
   private final InitialOpenIssuesStack initialOpenIssues;
   private final IssueTracking tracking;
-  private final IssueFilters filters;
   private final IssueHandlers handlers;
   private final IssueWorkflow workflow;
   private final IssueUpdater updater;
@@ -60,14 +56,13 @@ public class IssueTrackingDecorator implements Decorator {
   private final RulesProfile rulesProfile;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
-                                IssueFilters filters, IssueHandlers handlers, IssueWorkflow workflow,
+                                IssueHandlers handlers, IssueWorkflow workflow,
                                 IssueUpdater updater,
                                 Project project, ResourcePerspectives perspectives,
                                 RulesProfile rulesProfile) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
-    this.filters = filters;
     this.handlers = handlers;
     this.workflow = workflow;
     this.updater = updater;
@@ -93,9 +88,7 @@ public class IssueTrackingDecorator implements Decorator {
     Collection<DefaultIssue> issues = Lists.newArrayList();
     for (Issue issue : issueCache.byComponent(resource.getEffectiveKey())) {
       issueCache.remove(issue);
-      if (filters.accept(issue)) {
-        issues.add((DefaultIssue) issue);
-      }
+      issues.add((DefaultIssue) issue);
     }
     // issues = all the issues created by rule engines during this module scan and not excluded by filters
 
@@ -143,7 +136,7 @@ public class IssueTrackingDecorator implements Decorator {
       issue.setAssignee(ref.getAssignee());
       issue.setAuthorLogin(ref.getAuthorLogin());
       if (ref.getIssueAttributes() != null) {
-          issue.setAttributes(KeyValueFormat.parse(ref.getIssueAttributes()));
+        issue.setAttributes(KeyValueFormat.parse(ref.getIssueAttributes()));
       }
 
       // fields to update with current values
@@ -168,7 +161,7 @@ public class IssueTrackingDecorator implements Decorator {
 
       ActiveRule activeRule = rulesProfile.getActiveRule(unmatchedDto.getRuleRepo(), unmatchedDto.getRule());
       boolean manualIssue = !Strings.isNullOrEmpty(unmatched.reporter());
-      boolean onDisabledRule = (activeRule==null);
+      boolean onDisabledRule = (activeRule == null);
 
       unmatched.setNew(false);
       unmatched.setEndOfLife(!manualIssue);
@@ -183,7 +176,7 @@ public class IssueTrackingDecorator implements Decorator {
       ActiveRule activeRule = rulesProfile.getActiveRule(deadDto.getRuleRepo(), deadDto.getRule());
       dead.setNew(false);
       dead.setEndOfLife(true);
-      dead.setOnDisabledRule(activeRule==null);
+      dead.setOnDisabledRule(activeRule == null);
       issues.add(dead);
     }
   }

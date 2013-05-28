@@ -389,7 +389,6 @@ public final class CorePlugin extends SonarPlugin {
       IssueTrackingDecorator.class,
       IssueTracking.class,
       IssueHandlers.class,
-      IssueFilters.class,
       CountOpenIssuesDecorator.class,
       CountFalsePositivesDecorator.class,
       WeightedIssuesDecorator.class,

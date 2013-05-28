@@ -36,9 +36,9 @@ import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
 public class BucketTest {
 
-  private JavaPackage javaPackage = new JavaPackage("org.foo");
-  private JavaFile javaFile = new JavaFile("org.foo.Bar");
-  private Metric ncloc = new Metric("ncloc");
+  JavaPackage javaPackage = new JavaPackage("org.foo");
+  JavaFile javaFile = new JavaFile("org.foo.Bar");
+  Metric ncloc = new Metric("ncloc");
 
   @Test
   public void shouldManageRelationships() {
@@ -49,15 +49,6 @@ public class BucketTest {
     assertThat(fileBucket.getParent(), is(packageBucket));
     assertThat(packageBucket.getChildren().size(), is(1));
     assertThat(packageBucket.getChildren(), hasItem(fileBucket));
-  }
-
-  @Test
-  public void shouldCacheViolations() {
-    Bucket fileBucket = new Bucket(javaFile);
-    Violation violation = Violation.create(Rule.create("checkstyle", "rule1", "Rule one"), javaFile);
-    fileBucket.addViolation(violation);
-    assertThat(fileBucket.getViolations().size(), is(1));
-    assertThat(fileBucket.getViolations(), hasItem(violation));
   }
 
   @Test

@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.issue;
+package org.sonar.batch.issue;
 
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFilter;
+import org.sonar.api.rules.Violation;
+import org.sonar.batch.ViolationFilters;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -30,27 +32,42 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class IssueFiltersTest {
+
+  DeprecatedViolations deprecatedViolations = mock(DeprecatedViolations.class);
+  ViolationFilters deprecatedFilters = mock(ViolationFilters.class);
+
   @Test
-  public void test_accept() throws Exception {
+  public void accept() throws Exception {
     IssueFilter ok = mock(IssueFilter.class);
     when(ok.accept(any(Issue.class))).thenReturn(true);
 
     IssueFilter ko = mock(IssueFilter.class);
     when(ko.accept(any(Issue.class))).thenReturn(false);
 
-    IssueFilters filters = new IssueFilters(new IssueFilter[]{ok, ko});
-    assertThat(filters.accept(new DefaultIssue())).isFalse();
+    when(deprecatedFilters.isEmpty()).thenReturn(true);
+    IssueFilters filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new IssueFilter[]{ok, ko});
+    assertThat(filters.accept(new DefaultIssue(), null)).isFalse();
 
-    filters = new IssueFilters(new IssueFilter[]{ok});
-    assertThat(filters.accept(new DefaultIssue())).isTrue();
+    filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new IssueFilter[]{ok});
+    assertThat(filters.accept(new DefaultIssue(), null)).isTrue();
 
-    filters = new IssueFilters(new IssueFilter[]{ko});
-    assertThat(filters.accept(new DefaultIssue())).isFalse();
+    filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new IssueFilter[]{ko});
+    assertThat(filters.accept(new DefaultIssue(), null)).isFalse();
   }
 
   @Test
   public void should_always_accept_if_no_filters() {
-    IssueFilters filters = new IssueFilters();
-    assertThat(filters.accept(new DefaultIssue())).isTrue();
+    when(deprecatedFilters.isEmpty()).thenReturn(true);
+    IssueFilters filters = new IssueFilters(deprecatedFilters, deprecatedViolations);
+    assertThat(filters.accept(new DefaultIssue(), null)).isTrue();
+  }
+
+  @Test
+  public void should_check_deprecated_violation_filters() throws Exception {
+    when(deprecatedFilters.isEmpty()).thenReturn(false);
+    when(deprecatedFilters.isIgnored(any(Violation.class))).thenReturn(true);
+    IssueFilters filters = new IssueFilters(deprecatedFilters, deprecatedViolations, new IssueFilter[0]);
+    assertThat(filters.accept(new DefaultIssue(), null)).isFalse();
+
   }
 }

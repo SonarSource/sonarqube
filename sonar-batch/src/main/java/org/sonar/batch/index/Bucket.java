@@ -37,7 +37,6 @@ public final class Bucket {
 
   private Resource resource;
   private ListMultimap<String, Measure> measuresByMetric = ArrayListMultimap.create();
-  private List<Violation> violations = Lists.newLinkedList();
 
   private Bucket parent;
   private List<Bucket> children;
@@ -80,14 +79,6 @@ public final class Bucket {
     return parent;
   }
 
-  public void addViolation(Violation violation) {
-    violations.add(violation);
-  }
-
-  public List<Violation> getViolations() {
-    return violations;
-  }
-
   public void addMeasure(Measure measure) {
     List<Measure> metricMeasures = measuresByMetric.get(measure.getMetric().getKey());
 
@@ -109,7 +100,6 @@ public final class Bucket {
 
   public void clear() {
     measuresByMetric = null;
-    violations = null;
     children = null;
     if (parent != null) {
       parent.removeChild(this);

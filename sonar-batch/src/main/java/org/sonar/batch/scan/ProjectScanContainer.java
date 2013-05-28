@@ -89,6 +89,7 @@ public class ProjectScanContainer extends ComponentContainer {
       LastSnapshots.class,
       Caches.class,
       SnapshotCache.class,
+      ResourceCache.class,
       ComponentDataCache.class,
       ComponentDataPersister.class,
 

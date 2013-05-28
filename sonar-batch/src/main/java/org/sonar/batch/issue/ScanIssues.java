@@ -22,25 +22,54 @@ package org.sonar.batch.issue;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Violation;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueBuilder;
+
+import javax.annotation.Nullable;
 
 /**
- * Central component to manage issues
+ * Initialize the issues raised during scan.
  */
 public class ScanIssues implements BatchComponent {
 
   private final RulesProfile qProfile;
   private final IssueCache cache;
   private final Project project;
+  private final IssueFilters filters;
 
-  public ScanIssues(RulesProfile qProfile, IssueCache cache, Project project) {
+  public ScanIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters) {
     this.qProfile = qProfile;
     this.cache = cache;
     this.project = project;
+    this.filters = filters;
   }
 
   public boolean initAndAddIssue(DefaultIssue issue) {
+    return initAndAddIssue(issue, null);
+  }
+
+  public boolean initAndAddViolation(Violation violation) {
+    DefaultIssue issue = newIssue(violation);
+    return initAndAddIssue(issue, violation);
+  }
+
+  private DefaultIssue newIssue(Violation violation) {
+    return (DefaultIssue) new DefaultIssueBuilder()
+      .componentKey(violation.getResource().getEffectiveKey())
+      .ruleKey(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
+      .effortToFix(violation.getCost())
+      .line(violation.getLineId())
+      .message(violation.getMessage())
+      .severity(violation.getSeverity() != null ? violation.getSeverity().name() : null)
+      .build();
+  }
+
+  private boolean initAndAddIssue(DefaultIssue issue, @Nullable Violation violation) {
+    // TODO fail fast : if rule does not exist
+
     ActiveRule activeRule = qProfile.getActiveRule(issue.ruleKey().repository(), issue.ruleKey().rule());
     if (activeRule == null || activeRule.getRule() == null) {
       // rule does not exist or is not enabled -> ignore the issue
@@ -52,8 +81,12 @@ public class ScanIssues implements BatchComponent {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }
-    cache.put(issue);
-    return true;
+
+    if (filters.accept(issue, violation)) {
+      cache.put(issue);
+      return true;
+    }
+    return false;
   }
 
 }

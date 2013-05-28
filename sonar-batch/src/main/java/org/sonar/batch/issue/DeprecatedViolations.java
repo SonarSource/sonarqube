@@ -19,43 +19,58 @@
  */
 package org.sonar.batch.issue;
 
+import com.google.common.collect.Lists;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueBuilder;
 
 import java.util.Collection;
-import java.util.Date;
+import java.util.List;
 
+/**
+ * Bridge with violations, that have been deprecated in 3.6.
+ * @since 3.6
+ */
 public class DeprecatedViolations implements BatchComponent {
 
-  private final IssueCache cache;
+  private final IssueCache issueCache;
+  private final RuleFinder ruleFinder;
+  private final ResourceCache resourceCache;
 
-  public DeprecatedViolations(IssueCache cache) {
-    this.cache = cache;
+  public DeprecatedViolations(IssueCache issueCache, RuleFinder ruleFinder, ResourceCache resourceCache) {
+    this.issueCache = issueCache;
+    this.ruleFinder = ruleFinder;
+    this.resourceCache = resourceCache;
   }
 
-  public void add(Violation violation, Date creationDate) {
-    DefaultIssue issue = toIssue(violation, creationDate);
-    cache.put(issue);
+  public List<Violation> get(String componentKey) {
+    Collection<DefaultIssue> issues = issueCache.byComponent(componentKey);
+    List<Violation> violations = Lists.newArrayList();
+    for (DefaultIssue issue : issues) {
+      violations.add(toViolation(issue));
+    }
+    return violations;
   }
 
-  public Collection<Violation> get(Resource resource) {
-    throw new UnsupportedOperationException("TODO");
-  }
-
-  DefaultIssue toIssue(Violation violation, Date creationDate) {
-    return (DefaultIssue) new DefaultIssueBuilder()
-      .createdDate(creationDate)
-      .componentKey(violation.getResource().getEffectiveKey())
-      .ruleKey(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
-      .effortToFix(violation.getCost())
-      .line(violation.getLineId())
-      .message(violation.getMessage())
-      .severity(violation.getSeverity() != null ? violation.getSeverity().name() : Severity.MAJOR)
-      .build();
+  public Violation toViolation(DefaultIssue issue) {
+    Rule rule = ruleFinder.findByKey(issue.ruleKey());
+    Resource resource = resourceCache.get(issue.componentKey());
+    Violation violation = new Violation(rule, resource);
+    violation.setNew(issue.isNew());
+    violation.setChecksum(issue.checksum());
+    violation.setMessage(issue.message());
+    violation.setCost(issue.effortToFix());
+    violation.setLineId(issue.line());
+    violation.setCreatedAt(issue.creationDate());
+    violation.setManual(issue.reporter() != null);
+    violation.setSeverity(RulePriority.valueOf(issue.severity()));
+    violation.setSwitchedOff(Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution()));
+    return violation;
   }
 }

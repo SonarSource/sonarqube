@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
 
 public class SnapshotCacheTest {
 
-  private Snapshot snapshot = mock(Snapshot.class);
+  Snapshot snapshot = mock(Snapshot.class);
 
   @Test
   public void should_cache_snapshots() throws Exception {
@@ -49,6 +49,7 @@ public class SnapshotCacheTest {
       fail();
     } catch (IllegalStateException e) {
       // success
+      assertThat(e).hasMessage("Component is already registered: org.apache.struts:struts-core");
     }
   }
 }

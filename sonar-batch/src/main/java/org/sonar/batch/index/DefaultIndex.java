@@ -32,19 +32,16 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.*;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.*;
-import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
-import org.sonar.batch.ViolationFilters;
 import org.sonar.batch.issue.DeprecatedViolations;
+import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.component.ScanGraph;
 
 import java.util.*;
@@ -53,16 +50,14 @@ public class DefaultIndex extends SonarIndex {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIndex.class);
 
-  private RulesProfile profile;
   private PersistenceManager persistence;
   private DefaultResourceCreationLock lock;
   private MetricFinder metricFinder;
-  private RuleFinder ruleFinder;
-  private ScanGraph graph;
-  private SnapshotCache snapshotCache;
+  private final ScanGraph graph;
+  private final SnapshotCache snapshotCache;
+  private final ResourceCache resourceCache;
 
   // filters
-  private ViolationFilters violationFilters;
   private ResourceFilters resourceFilters;
 
   // caches
@@ -73,17 +68,18 @@ public class DefaultIndex extends SonarIndex {
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newHashMap();
   private ProjectTree projectTree;
   private final DeprecatedViolations deprecatedViolations;
+  private ScanIssues scanIssues;
 
   public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder,
-                      RuleFinder ruleFinder, ScanGraph graph, DeprecatedViolations deprecatedViolations, SnapshotCache snapshotCache) {
+                      ScanGraph graph, SnapshotCache snapshotCache, ResourceCache resourceCache, DeprecatedViolations deprecatedViolations) {
     this.persistence = persistence;
     this.lock = lock;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
-    this.ruleFinder = ruleFinder;
     this.graph = graph;
-    this.deprecatedViolations = deprecatedViolations;
     this.snapshotCache = snapshotCache;
+    this.resourceCache = resourceCache;
+    this.deprecatedViolations = deprecatedViolations;
   }
 
   public void start() {
@@ -116,13 +112,12 @@ public class DefaultIndex extends SonarIndex {
     return currentProject;
   }
 
-  public void setCurrentProject(Project project, ResourceFilters resourceFilters, ViolationFilters violationFilters, RulesProfile profile) {
+  public void setCurrentProject(Project project, ResourceFilters resourceFilters, ScanIssues scanIssues) {
     this.currentProject = project;
 
-    // the following components depend on the current project, so they need to be reloaded.
+    // the following components depend on the current module, so they need to be reloaded.
     this.resourceFilters = resourceFilters;
-    this.violationFilters = violationFilters;
-    this.profile = profile;
+    this.scanIssues = scanIssues;
   }
 
   /**
@@ -321,10 +316,13 @@ public class DefaultIndex extends SonarIndex {
       return Collections.emptyList();
     }
 
+    List<Violation> violations = deprecatedViolations.get(bucket.getResource().getEffectiveKey());
+    if (violationQuery.getSwitchMode() == ViolationQuery.SwitchMode.BOTH) {
+      return violations;
+    }
     List<Violation> filteredViolations = Lists.newArrayList();
-    ViolationQuery.SwitchMode mode = violationQuery.getSwitchMode();
-    for (Violation violation : bucket.getViolations()) {
-      if (isFiltered(violation, mode)) {
+    for (Violation violation : violations) {
+      if (isFiltered(violation, violationQuery.getSwitchMode())) {
         filteredViolations.add(violation);
       }
     }
@@ -352,47 +350,13 @@ public class DefaultIndex extends SonarIndex {
       return;
     }
 
-    if (rule.getId() == null) {
-      Rule persistedRule = ruleFinder.findByKey(rule.getRepositoryKey(), rule.getKey());
-      if (persistedRule == null) {
-        LOG.warn("Rule does not exist. Ignoring violation {}", violation);
-        return;
-      }
-      violation.setRule(persistedRule);
-    }
-
     Bucket bucket = checkIndexed(resource);
     if (bucket == null || bucket.isExcluded()) {
       return;
     }
 
     violation.setResource(bucket.getResource());
-    if (addViolation(violation, bucket, force)) {
-      deprecatedViolations.add(violation, currentProject.getAnalysisDate());
-    }
-  }
-
-  private boolean addViolation(Violation violation, Bucket bucket, boolean force) {
-    boolean isIgnored = !force && violationFilters != null && violationFilters.isIgnored(violation);
-    if (isIgnored) {
-      return false;
-    }
-
-    // TODO this code is not the responsibility of this index. It should be moved somewhere else.
-    if (!violation.isManual()) {
-      ActiveRule activeRule = profile.getActiveRule(violation.getRule());
-      if (activeRule != null) {
-        violation.setSeverity(activeRule.getSeverity());
-      } else if (currentProject.getReuseExistingRulesConfig()) {
-        violation.setSeverity(violation.getRule().getSeverity());
-      } else {
-        LoggerFactory.getLogger(getClass()).debug("Rule is not activated, ignoring violation {}", violation);
-        return false;
-      }
-    }
-
-    bucket.addViolation(violation);
-    return true;
+    scanIssues.initAndAddViolation(violation);
   }
 
 
@@ -569,6 +533,7 @@ public class DefaultIndex extends SonarIndex {
       if (ResourceUtils.isPersistable(resource) && !Qualifiers.LIBRARY.equals(resource.getQualifier())) {
         graph.addComponent(resource, snapshot);
         snapshotCache.put(resource.getEffectiveKey(), snapshot);
+        resourceCache.add(resource);
       }
     }
 

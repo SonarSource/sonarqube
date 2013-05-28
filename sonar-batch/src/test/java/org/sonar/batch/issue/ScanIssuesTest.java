@@ -22,12 +22,15 @@ package org.sonar.batch.issue;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.Violation;
 import org.sonar.core.issue.DefaultIssue;
 
 import java.util.Date;
@@ -40,7 +43,8 @@ public class ScanIssuesTest {
   IssueCache cache = mock(IssueCache.class);
   RulesProfile qProfile = mock(RulesProfile.class);
   Project project = mock(Project.class);
-  ScanIssues scanIssues = new ScanIssues(qProfile, cache, project);
+  IssueFilters filters = mock(IssueFilters.class);
+  ScanIssues scanIssues = new ScanIssues(qProfile, cache, project, filters);
 
   @Test
   public void should_ignore_null_active_rule() throws Exception {
@@ -68,11 +72,11 @@ public class ScanIssuesTest {
 
   @Test
   public void should_add_issue_to_cache() throws Exception {
-    Rule rule = Rule.create("repoKey", "ruleKey");
+    Rule rule = Rule.create("squid", "AvoidCycle");
     ActiveRule activeRule = mock(ActiveRule.class);
     when(activeRule.getRule()).thenReturn(rule);
     when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
-    when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
+    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
 
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
@@ -81,6 +85,8 @@ public class ScanIssuesTest {
       .setKey("ABCDE")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setSeverity(Severity.CRITICAL);
+    when(filters.accept(issue, null)).thenReturn(true);
+
     boolean added = scanIssues.initAndAddIssue(issue);
 
     assertThat(added).isTrue();
@@ -92,21 +98,72 @@ public class ScanIssuesTest {
 
   @Test
   public void should_use_severity_from_active_rule_if_no_severity() throws Exception {
-    Rule rule = Rule.create("repoKey", "ruleKey");
+    Rule rule = Rule.create("squid", "AvoidCycle");
     ActiveRule activeRule = mock(ActiveRule.class);
     when(activeRule.getRule()).thenReturn(rule);
     when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
-    when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
+    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
 
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle")).setSeverity(null);
+    when(filters.accept(issue, null)).thenReturn(true);
     scanIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
     assertThat(argument.getValue().severity()).isEqualTo(Severity.INFO);
     assertThat(argument.getValue().creationDate()).isEqualTo(analysisDate);
+  }
+
+  @Test
+  public void should_add_deprecated_violation() throws Exception {
+    Rule rule = Rule.create("squid", "AvoidCycle");
+    Resource resource = new JavaFile("org.struts.Action").setEffectiveKey("struts:org.struts.Action");
+    Violation violation = new Violation(rule, resource);
+    violation.setLineId(42);
+    violation.setSeverity(RulePriority.CRITICAL);
+    violation.setMessage("the message");
+
+    ActiveRule activeRule = mock(ActiveRule.class);
+    when(activeRule.getRule()).thenReturn(rule);
+    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
+    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
+    when(filters.accept(any(DefaultIssue.class), eq(violation))).thenReturn(true);
+
+    boolean added = scanIssues.initAndAddViolation(violation);
+    assertThat(added).isTrue();
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(cache).put(argument.capture());
+    DefaultIssue issue = argument.getValue();
+    assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(issue.line()).isEqualTo(42);
+    assertThat(issue.message()).isEqualTo("the message");
+    assertThat(issue.key()).isNotEmpty();
+    assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
+    assertThat(issue.componentKey().toString()).isEqualTo("struts:org.struts.Action");
+  }
+
+  @Test
+  public void should_filter_issue() throws Exception {
+    Rule rule = Rule.create("squid", "AvoidCycle");
+    ActiveRule activeRule = mock(ActiveRule.class);
+    when(activeRule.getRule()).thenReturn(rule);
+    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
+    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setSeverity(Severity.CRITICAL);
+
+    when(filters.accept(issue, null)).thenReturn(false);
+
+    boolean added = scanIssues.initAndAddIssue(issue);
+
+    assertThat(added).isFalse();
+    verifyZeroInteractions(cache);
   }
 }

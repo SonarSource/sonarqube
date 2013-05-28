@@ -274,7 +274,7 @@ public class CountOpenIssuesDecorator implements Decorator {
   }
 
   private boolean isAfter(Issue issue, @Nullable Date date) {
-    return date == null || issue.creationDate() != null && issue.creationDate().after(date);
+    return date == null || (issue.creationDate() != null && issue.creationDate().after(date));
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {

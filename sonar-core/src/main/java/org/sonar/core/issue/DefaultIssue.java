@@ -241,7 +241,7 @@ public class DefaultIssue implements Issue {
 
 
   @CheckForNull
-  public String getChecksum() {
+  public String checksum() {
     return checksum;
   }
 

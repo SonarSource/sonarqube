@@ -27,7 +27,9 @@ import java.util.Date;
 
 /**
  * A class that represents a violation. A violation happens when a resource does not respect a defined rule.
+ * @deprecated in 3.6. Replaced by {@link org.sonar.api.issue.Issue}.
  */
+@Deprecated
 public class Violation {
 
   private Resource resource;

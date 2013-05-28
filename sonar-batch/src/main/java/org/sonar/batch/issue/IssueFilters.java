@@ -17,28 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.issue;
+package org.sonar.batch.issue;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFilter;
+import org.sonar.api.rules.Violation;
+import org.sonar.batch.ViolationFilters;
+import org.sonar.core.issue.DefaultIssue;
+
+import javax.annotation.Nullable;
 
 public class IssueFilters implements BatchExtension {
+
+  private final ViolationFilters deprecatedFilters;
+  private final DeprecatedViolations deprecatedViolations;
   private final IssueFilter[] filters;
 
-  public IssueFilters(IssueFilter[] filters) {
+  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations, IssueFilter[] filters) {
+    this.deprecatedFilters = deprecatedFilters;
+    this.deprecatedViolations = deprecatedViolations;
     this.filters = filters;
   }
 
-  public IssueFilters() {
-    this(new IssueFilter[0]);
+  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations) {
+    this(deprecatedFilters, deprecatedViolations, new IssueFilter[0]);
   }
 
-  public boolean accept(Issue issue) {
+  public boolean accept(DefaultIssue issue, @Nullable Violation violation) {
     for (IssueFilter filter : filters) {
       if (!filter.accept(issue)) {
         return false;
       }
+    }
+    if (!deprecatedFilters.isEmpty()) {
+      Violation v = (violation != null ? violation : deprecatedViolations.toViolation(issue));
+      return !deprecatedFilters.isIgnored(v);
     }
     return true;
   }
