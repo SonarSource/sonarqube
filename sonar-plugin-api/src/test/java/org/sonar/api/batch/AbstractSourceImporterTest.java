@@ -41,9 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -70,7 +68,7 @@ public class AbstractSourceImporterTest {
   public void shouldBeEnabledByDefault() {
     Project pom = mock(Project.class);
     when(pom.getConfiguration()).thenReturn(new PropertiesConfiguration());
-    assertTrue(importer.isEnabled(pom));
+    assertThat(importer.isEnabled(pom)).isTrue();
   }
 
   @Test
@@ -176,10 +174,10 @@ public class AbstractSourceImporterTest {
     unitTestDirs.add(unitTestDir);
 
     Resource unitTest = importer.createResource(unitTestFile, unitTestDirs, true);
-    assertThat(unitTest.getQualifier(), is("UTS"));
+    assertThat(unitTest.getQualifier()).isEqualTo("UTS");
 
     Resource srcTest = importer.createResource(unitTestFile, unitTestDirs, false);
-    assertThat(srcTest.getQualifier(), is("FIL"));
+    assertThat(srcTest.getQualifier()).isEqualTo("FIL");
   }
 
   private static class FakeSourceImporter extends AbstractSourceImporter {

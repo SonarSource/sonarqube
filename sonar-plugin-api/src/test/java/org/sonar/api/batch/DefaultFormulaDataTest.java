@@ -25,8 +25,7 @@ import org.sonar.api.measures.Metric;
 
 import java.util.Arrays;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -60,6 +59,6 @@ public class DefaultFormulaDataTest {
     when(context.getChildren()).thenReturn(Arrays.asList(child1, child2));
 
     DefaultFormulaData data = new DefaultFormulaData(context);
-    assertThat(data.getChildren().size(), is(2));
+    assertThat(data.getChildren()).hasSize(2);
   }
 }

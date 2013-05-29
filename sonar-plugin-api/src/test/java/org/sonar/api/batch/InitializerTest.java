@@ -19,19 +19,18 @@
  */
 package org.sonar.api.batch;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
 import org.junit.Test;
 import org.sonar.api.resources.Project;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class InitializerTest {
 
   @Test
   public void shouldBeExecutedByDefault() {
     Project project = mock(Project.class);
-    assertThat(new FakeInitializer().shouldExecuteOnProject(project), is(true));
+    assertThat(new FakeInitializer().shouldExecuteOnProject(project)).isTrue();
   }
 
   private class FakeInitializer extends Initializer {

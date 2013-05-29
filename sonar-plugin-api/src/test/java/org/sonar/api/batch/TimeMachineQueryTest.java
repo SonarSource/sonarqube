@@ -19,26 +19,24 @@
  */
 package org.sonar.api.batch;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
-import static org.junit.matchers.JUnitMatchers.hasItems;
 import org.sonar.api.measures.CoreMetrics;
 
 import java.util.Arrays;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class TimeMachineQueryTest {
 
   @Test
   public void setNullMetrics() {
     TimeMachineQuery query = new TimeMachineQuery(null).setMetrics(Arrays.asList(CoreMetrics.LINES));
-    assertThat(query.getMetrics(), hasItem(CoreMetrics.LINES));
+    assertThat(query.getMetrics()).contains(CoreMetrics.LINES);
 
     query.unsetMetrics();
-    assertThat(query.getMetrics(), nullValue());
+    assertThat(query.getMetrics()).isNull();
 
     query.setMetrics(CoreMetrics.LINES, CoreMetrics.COVERAGE);
-    assertThat(query.getMetrics(), hasItems(CoreMetrics.LINES, CoreMetrics.COVERAGE));
+    assertThat(query.getMetrics()).contains(CoreMetrics.LINES, CoreMetrics.COVERAGE);
   }
 }

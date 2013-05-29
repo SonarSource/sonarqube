@@ -19,12 +19,11 @@
  */
 package org.sonar.api.batch;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
+
+import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -90,9 +89,9 @@ public class AbstractDivisionDecoratorTest {
   @Test
   public void defineDependencies() {
     AbstractDivisionDecorator decorator = createDecorator();
-    assertThat(decorator.dependsUponMetrics(), hasItem(CoreMetrics.CLASSES));
-    assertThat(decorator.dependsUponMetrics(), hasItem(CoreMetrics.COMPLEXITY));
-    assertThat(decorator.generatesMetric(), is(CoreMetrics.CLASS_COMPLEXITY));
+    assertThat(decorator.dependsUponMetrics()).contains(CoreMetrics.CLASSES);
+    assertThat(decorator.dependsUponMetrics()).contains(CoreMetrics.COMPLEXITY);
+    assertThat(decorator.generatesMetric()).isEqualTo(CoreMetrics.CLASS_COMPLEXITY);
   }
 
 

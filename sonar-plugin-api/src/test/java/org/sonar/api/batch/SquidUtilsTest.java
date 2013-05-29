@@ -23,30 +23,28 @@ import org.junit.Test;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class SquidUtilsTest {
 
   @Test
   public void convertJavaFileKeyFromSquidFormat() {
-    assertEquals(new JavaFile("java.lang.String"), SquidUtils.convertJavaFileKeyFromSquidFormat("java/lang/String"));
-    assertEquals(new JavaFile("java.lang.String"), SquidUtils.convertJavaFileKeyFromSquidFormat("java/lang/String.java"));
-    assertEquals(new JavaFile("String"), SquidUtils.convertJavaFileKeyFromSquidFormat("String.java"));
-    assertEquals(new JavaFile("String"), SquidUtils.convertJavaFileKeyFromSquidFormat("String"));
+    assertThat(new JavaFile("java.lang.String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("java/lang/String"));
+    assertThat(new JavaFile("java.lang.String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("java/lang/String.java"));
+    assertThat(new JavaFile("String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("String.java"));
+    assertThat(new JavaFile("String")).isEqualTo(SquidUtils.convertJavaFileKeyFromSquidFormat("String"));
   }
 
   @Test
   public void shouldConvertJavaPackageKeyFromSquidFormat() {
-    assertEquals(new JavaPackage("java.lang"), SquidUtils.convertJavaPackageKeyFromSquidFormat("java/lang"));
-    assertEquals(new JavaPackage(""), SquidUtils.convertJavaPackageKeyFromSquidFormat(""));
-    assertEquals(new JavaPackage("singlepackage"), SquidUtils.convertJavaPackageKeyFromSquidFormat("singlepackage"));
+    assertThat(new JavaPackage("java.lang")).isEqualTo(SquidUtils.convertJavaPackageKeyFromSquidFormat("java/lang"));
+    assertThat(new JavaPackage("")).isEqualTo(SquidUtils.convertJavaPackageKeyFromSquidFormat(""));
+    assertThat(new JavaPackage("singlepackage")).isEqualTo(SquidUtils.convertJavaPackageKeyFromSquidFormat("singlepackage"));
   }
 
   @Test
   public void shouldConvertToSquidKeyFormat() {
-    assertThat(SquidUtils.convertToSquidKeyFormat(new JavaFile("com.foo.Bar")), is("com/foo/Bar.java"));
-    assertThat(SquidUtils.convertToSquidKeyFormat(new JavaFile("Bar")), is("Bar.java"));
+    assertThat(SquidUtils.convertToSquidKeyFormat(new JavaFile("com.foo.Bar"))).isEqualTo(("com/foo/Bar.java"));
+    assertThat(SquidUtils.convertToSquidKeyFormat(new JavaFile("Bar"))).isEqualTo(("Bar.java"));
   }
 }
