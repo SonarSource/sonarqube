@@ -105,13 +105,15 @@ public class ActionPlanService implements ServerComponent {
   }
 
   public List<ActionPlanStats> findActionPlanStats(String projectKey) {
-    Collection<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findByProjectId(findComponent(projectKey).getId());
-    return newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
+    List<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findByProjectId(findComponent(projectKey).getId());
+    List<ActionPlanStats> actionPlanStats = newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
       @Override
       public ActionPlanStats apply(ActionPlanStatsDto actionPlanStatsDto) {
         return actionPlanStatsDto.toActionPlanStat();
       }
     }));
+    Collections.sort(actionPlanStats, new ActionPlanDeadlineComparator());
+    return actionPlanStats;
   }
 
   public boolean isNameAlreadyUsedForProject(String name, String projectKey) {

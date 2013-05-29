@@ -25,7 +25,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -38,7 +38,7 @@ public class ActionPlanStatsDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public Collection<ActionPlanStatsDto> findByProjectId(Long projectId) {
+  public List<ActionPlanStatsDto> findByProjectId(Long projectId) {
     SqlSession session = mybatis.openSession();
     try {
       return session.getMapper(ActionPlanStatsMapper.class).findByProjectId(projectId);

@@ -22,24 +22,11 @@ package org.sonar.core.issue;
 
 import org.sonar.api.issue.ActionPlan;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
-public class ActionPlanStats implements Serializable {
+public class ActionPlanStats extends DefaultActionPlan {
 
-  private String key;
-  private String name;
-  private String projectKey;
-  private String description;
-  private String userLogin;
-  private String status;
-  private Date deadLine;
-  private Date createdAt;
-  private Date updatedAt;
   private int totalIssues;
   private int unresolvedIssues;
 
@@ -55,89 +42,6 @@ public class ActionPlanStats implements Serializable {
     actionPlan.setStatus(ActionPlan.STATUS_OPEN);
     actionPlan.setCreatedAt(now).setUpdatedAt(now);
     return actionPlan;
-  }
-
-  public String key() {
-    return key;
-  }
-
-  public ActionPlanStats setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public String name() {
-    return name;
-  }
-
-  public ActionPlanStats setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public String projectKey() {
-    return projectKey;
-  }
-
-  public ActionPlanStats setProjectKey(String projectKey) {
-    this.projectKey = projectKey;
-    return this;
-  }
-
-  @CheckForNull
-  public String description() {
-    return description;
-  }
-
-  public ActionPlanStats setDescription(@Nullable String description) {
-    this.description = description;
-    return this;
-  }
-
-  public String userLogin() {
-    return userLogin;
-  }
-
-  public ActionPlanStats setUserLogin(String userLogin) {
-    this.userLogin = userLogin;
-    return this;
-  }
-
-  public String status() {
-    return status;
-  }
-
-  public ActionPlanStats setStatus(String status) {
-    this.status = status;
-    return this;
-  }
-
-  @CheckForNull
-  public Date deadLine() {
-    return deadLine != null ? new Date(deadLine.getTime()) : null;
-  }
-
-  public ActionPlanStats setDeadLine(@Nullable Date deadLine) {
-    this.deadLine = deadLine != null ? new Date(deadLine.getTime()) : null;
-    return this;
-  }
-
-  public Date createdAt() {
-    return createdAt;
-  }
-
-  public ActionPlanStats setCreatedAt(Date creationDate) {
-    this.createdAt = creationDate;
-    return this;
-  }
-
-  public Date updatedAt() {
-    return updatedAt;
-  }
-
-  public ActionPlanStats setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
   }
 
   public int totalIssues() {
@@ -163,10 +67,10 @@ public class ActionPlanStats implements Serializable {
   }
 
   public boolean isOpen(){
-    return ActionPlan.STATUS_OPEN.equals(status);
+    return ActionPlan.STATUS_OPEN.equals(super.status());
   }
 
   public boolean overDue(){
-    return status == ActionPlan.STATUS_OPEN && new Date().after(deadLine);
+    return super.status() == ActionPlan.STATUS_OPEN && new Date().after(super.deadLine());
   }
 }

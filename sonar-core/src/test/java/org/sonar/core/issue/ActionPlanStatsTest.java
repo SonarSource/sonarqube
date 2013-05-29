@@ -35,10 +35,10 @@ public class ActionPlanStatsTest {
     Date yesterday = DateUtils.addDays(new Date(), -1);
     Date tomorrow = DateUtils.addDays(new Date(), 1);
 
-    assertThat(ActionPlanStats.create("Short term").setStatus(ActionPlan.STATUS_OPEN).setDeadLine(tomorrow).overDue()).isFalse();
-    assertThat(ActionPlanStats.create("Short term").setStatus(ActionPlan.STATUS_OPEN).setDeadLine(yesterday).overDue()).isTrue();
-    assertThat(ActionPlanStats.create("Short term").setStatus(ActionPlan.STATUS_CLOSED).setDeadLine(tomorrow).overDue()).isFalse();
-    assertThat(ActionPlanStats.create("Short term").setStatus(ActionPlan.STATUS_CLOSED).setDeadLine(yesterday).overDue()).isFalse();
-    assertThat(ActionPlanStats.create("Short term").setStatus(ActionPlan.STATUS_CLOSED).overDue()).isFalse();
+    assertThat(((ActionPlanStats) ActionPlanStats.create("Short term").setStatus(ActionPlan.STATUS_OPEN).setDeadLine(tomorrow)).overDue()).isFalse();
+    assertThat(((ActionPlanStats) ActionPlanStats.create("Short term").setStatus(ActionPlan.STATUS_OPEN).setDeadLine(yesterday)).overDue()).isTrue();
+    assertThat(((ActionPlanStats) ActionPlanStats.create("Short term").setStatus(ActionPlan.STATUS_CLOSED).setDeadLine(tomorrow)).overDue()).isFalse();
+    assertThat(((ActionPlanStats) ActionPlanStats.create("Short term").setStatus(ActionPlan.STATUS_CLOSED).setDeadLine(yesterday)).overDue()).isFalse();
+    assertThat(((ActionPlanStats) ActionPlanStats.create("Short term").setStatus(ActionPlan.STATUS_CLOSED)).overDue()).isFalse();
   }
 }

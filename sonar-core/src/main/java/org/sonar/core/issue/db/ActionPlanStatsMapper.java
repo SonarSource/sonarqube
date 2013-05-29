@@ -22,7 +22,7 @@ package org.sonar.core.issue.db;
 
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -32,5 +32,5 @@ public interface ActionPlanStatsMapper {
   /**
    * @since3.6
    */
-  Collection<ActionPlanStatsDto> findByProjectId(@Param("projectId") Long projectId);
+  List<ActionPlanStatsDto> findByProjectId(@Param("projectId") Long projectId);
 }

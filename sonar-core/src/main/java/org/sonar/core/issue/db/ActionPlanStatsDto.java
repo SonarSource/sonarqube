@@ -172,7 +172,7 @@ public class ActionPlanStatsDto {
   }
 
   public ActionPlanStats toActionPlanStat() {
-    return ActionPlanStats.create(name)
+    return ((ActionPlanStats) ActionPlanStats.create(name)
              .setKey(kee)
              .setProjectKey(projectKey)
              .setDescription(description)
@@ -180,7 +180,7 @@ public class ActionPlanStatsDto {
              .setDeadLine(deadLine)
              .setUserLogin(userLogin)
              .setCreatedAt(createdAt)
-             .setUpdatedAt(updatedAt)
+             .setUpdatedAt(updatedAt))
              .setTotalIssues(totalIssues)
              .setUnresolvedIssues(unresolvedIssues);
   }
