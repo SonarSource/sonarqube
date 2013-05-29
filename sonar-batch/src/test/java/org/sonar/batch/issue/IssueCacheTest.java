@@ -21,6 +21,7 @@ package org.sonar.batch.issue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -69,7 +71,7 @@ public class IssueCacheTest {
     issue.setSeverity(Severity.MINOR);
     cache.put(issue);
 
-    Collection<DefaultIssue> issues = cache.byComponent("org.struts.Action");
+    List<DefaultIssue> issues = ImmutableList.copyOf(cache.byComponent("org.struts.Action"));
     assertThat(issues).hasSize(1);
     Issue reloaded = issues.iterator().next();
     assertThat(reloaded.key()).isEqualTo("111");
@@ -83,12 +85,12 @@ public class IssueCacheTest {
     DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Filter").setSeverity(Severity.INFO);
     cache.put(issue1).put(issue2);
 
-    Collection<DefaultIssue> issues = cache.all();
-    assertThat(issues).hasSize(2).containsOnly(issue1, issue2);
+    List<DefaultIssue> issues = ImmutableList.copyOf(cache.all());
+    assertThat(issues).containsOnly(issue1, issue2);
   }
 
-  private Collection<String> issueKeys(Collection<DefaultIssue> issues) {
-    return Collections2.transform(issues, new Function<DefaultIssue, String>() {
+  private Collection<String> issueKeys(Iterable<DefaultIssue> issues) {
+    return Collections2.transform(ImmutableList.copyOf(issues), new Function<DefaultIssue, String>() {
       @Override
       public String apply(@Nullable DefaultIssue issue) {
         return issue.key();

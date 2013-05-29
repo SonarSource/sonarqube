@@ -175,7 +175,7 @@ public class JsonReport implements BatchComponent {
   }
 
   @VisibleForTesting
-  Collection<DefaultIssue> getIssues() {
+  Iterable<DefaultIssue> getIssues() {
     return issueCache.all();
   }
 }

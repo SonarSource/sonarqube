@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Highlightable;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.component.ResourceComponent;
@@ -37,7 +38,8 @@ public class HighlightableBuilderTest {
 
   @Test
   public void should_load_default_perspective() throws Exception {
-    Component component = new ResourceComponent(new File("foo/bar.c"));
+    Resource file = new File("foo.c").setEffectiveKey("myproject:path/to/foo.c");
+    Component component = new ResourceComponent(file);
 
     HighlightableBuilder builder = new HighlightableBuilder(cache);
     Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
@@ -48,7 +50,7 @@ public class HighlightableBuilderTest {
 
   @Test
   public void project_should_not_be_highlightable() {
-    Component component = new ResourceComponent(new Project("Foo"));
+    Component component = new ResourceComponent(new Project("struts").setEffectiveKey("org.struts"));
 
     HighlightableBuilder builder = new HighlightableBuilder(cache);
     Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
@@ -58,7 +60,7 @@ public class HighlightableBuilderTest {
 
   @Test
   public void java_class_should_not_be_highlightable() {
-    Component component = new ResourceComponent(JavaClass.create("foo", "Bar"));
+    Component component = new ResourceComponent(JavaClass.create("org.struts.Action").setEffectiveKey("struts:org.struts.Action"));
 
     HighlightableBuilder builder = new HighlightableBuilder(cache);
     Highlightable perspective = builder.loadPerspective(Highlightable.class, component);

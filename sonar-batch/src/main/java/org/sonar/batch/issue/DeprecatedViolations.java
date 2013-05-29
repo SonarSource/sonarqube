@@ -50,7 +50,7 @@ public class DeprecatedViolations implements BatchComponent {
   }
 
   public List<Violation> get(String componentKey) {
-    Collection<DefaultIssue> issues = issueCache.byComponent(componentKey);
+    Iterable<DefaultIssue> issues = issueCache.byComponent(componentKey);
     List<Violation> violations = Lists.newArrayList();
     for (DefaultIssue issue : issues) {
       violations.add(toViolation(issue));

@@ -24,7 +24,7 @@ import org.sonar.api.component.Perspective;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -56,5 +56,5 @@ public interface Issuable extends Perspective {
    */
   boolean addIssue(Issue issue);
 
-  Collection<Issue> issues();
+  List<Issue> issues();
 }

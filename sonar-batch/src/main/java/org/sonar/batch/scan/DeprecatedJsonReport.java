@@ -91,10 +91,10 @@ public class DeprecatedJsonReport implements BatchComponent {
   }
 
   @VisibleForTesting
-  void writeJson(Collection<Resource> resources, Writer output) {
+  void writeJson(Collection<Resource> resources, Writer writer) {
     JsonWriter json = null;
     try {
-      json = new JsonWriter(output);
+      json = new JsonWriter(writer);
       json.setSerializeNulls(false);
 
       json.beginObject()
@@ -103,16 +103,15 @@ public class DeprecatedJsonReport implements BatchComponent {
         .beginObject();
 
       for (Resource resource : resources) {
-        Collection<DefaultIssue> issues = getIssues(resource);
-        if (issues.isEmpty()) {
-          continue;
-        }
-
-        json.name(resource.getKey())
-          .beginArray();
-
+        Iterable<DefaultIssue> issues = getIssues(resource);
+        boolean hasViolation = false;
         for (DefaultIssue issue : issues) {
-          json.beginObject()
+          if (!hasViolation) {
+            json.name(resource.getKey()).beginArray();
+            hasViolation = true;
+          }
+          json
+            .beginObject()
             .name("line").value(issue.line())
             .name("message").value(issue.message())
             .name("severity").value(issue.severity())
@@ -120,19 +119,16 @@ public class DeprecatedJsonReport implements BatchComponent {
             .name("rule_repository").value(issue.ruleKey().repository())
             .name("rule_name").value(ruleName(issue.ruleKey()))
             .name("switched_off").value(Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution()))
-            .name("is_new").value((issue.isNew()));
-          if (issue.creationDate() != null) {
-            json.name("created_at").value(DateUtils.formatDateTime(issue.creationDate()));
-          }
-          json.endObject();
+            .name("is_new").value((issue.isNew()))
+            .name("created_at").value(DateUtils.formatDateTime(issue.creationDate()))
+            .endObject();
         }
-
-        json.endArray();
+        if (hasViolation) {
+          json.endArray();
+        }
       }
 
-      json.endObject()
-        .endObject()
-        .flush();
+      json.endObject().endObject().flush();
     } catch (IOException e) {
       throw new SonarException("Unable to export results", e);
     } finally {
@@ -145,7 +141,7 @@ public class DeprecatedJsonReport implements BatchComponent {
   }
 
   @VisibleForTesting
-  Collection<DefaultIssue> getIssues(Resource resource) {
+  Iterable<DefaultIssue> getIssues(Resource resource) {
     return issueCache.byComponent(resource.getEffectiveKey());
   }
 }

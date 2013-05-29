@@ -19,6 +19,7 @@
  */
 package org.sonar.core.component;
 
+import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Resource;
@@ -36,6 +37,9 @@ public class ResourceComponent implements Component {
 
   public ResourceComponent(Resource resource, @Nullable Snapshot snapshot) {
     this.key = resource.getEffectiveKey();
+    if (Strings.isNullOrEmpty(key)) {
+      throw new IllegalArgumentException("Missing component key");
+    }
     this.name = resource.getName();
     this.longName = resource.getLongName();
     this.qualifier = resource.getQualifier();

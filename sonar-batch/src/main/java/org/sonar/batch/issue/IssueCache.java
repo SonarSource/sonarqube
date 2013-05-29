@@ -25,10 +25,6 @@ import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 import org.sonar.core.issue.DefaultIssue;
 
-import java.util.Collection;
-
-import static com.google.common.collect.Lists.newArrayList;
-
 /**
  * Shared issues among all project modules
  */
@@ -41,12 +37,12 @@ public class IssueCache implements BatchComponent {
     cache = caches.createCache("issues");
   }
 
-  public Collection<DefaultIssue> byComponent(String componentKey) {
+  public Iterable<DefaultIssue> byComponent(String componentKey) {
     return cache.values(componentKey);
   }
 
-  public Collection<DefaultIssue> all() {
-    return newArrayList(cache.allValues());
+  public Iterable<DefaultIssue> all() {
+    return cache.allValues();
   }
 
   public IssueCache put(DefaultIssue issue) {

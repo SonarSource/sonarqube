@@ -20,6 +20,7 @@
 package org.sonar.batch.issue;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.File;
@@ -33,13 +34,13 @@ import static org.mockito.Mockito.mock;
 
 public class IssuableFactoryTest {
 
-  ScanIssues issueFactory = mock(ScanIssues.class);
-  IssueCache cache = mock(IssueCache.class);
+  ScanIssues scanIssues = mock(ScanIssues.class);
+  IssueCache cache = mock(IssueCache.class, Mockito.RETURNS_MOCKS);
 
   @Test
   public void file_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(issueFactory, cache);
-    Component component = new ResourceComponent(new File("foo/bar.c"));
+    IssuableFactory factory = new IssuableFactory(scanIssues, cache);
+    Component component = new ResourceComponent(new File("foo/bar.c").setEffectiveKey("foo/bar.c"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
     assertThat(issuable).isNotNull();
@@ -49,8 +50,8 @@ public class IssuableFactoryTest {
 
   @Test
   public void project_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(issueFactory, cache);
-    Component component = new ResourceComponent(new Project("Foo"));
+    IssuableFactory factory = new IssuableFactory(scanIssues, cache);
+    Component component = new ResourceComponent(new Project("Foo").setEffectiveKey("foo"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
     assertThat(issuable).isNotNull();
@@ -60,8 +61,8 @@ public class IssuableFactoryTest {
 
   @Test
   public void java_file_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(issueFactory, cache);
-    Component component = new ResourceComponent(new JavaFile("bar.Foo"));
+    IssuableFactory factory = new IssuableFactory(scanIssues, cache);
+    Component component = new ResourceComponent(new JavaFile("org.apache.Action").setEffectiveKey("struts:org.apache.Action"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
     assertThat(issuable).isNotNull();
@@ -71,8 +72,8 @@ public class IssuableFactoryTest {
 
   @Test
   public void java_class_should_not_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(issueFactory, cache);
-    Component component = new ResourceComponent(JavaClass.create("bar", "Foo"));
+    IssuableFactory factory = new IssuableFactory(scanIssues, cache);
+    Component component = new ResourceComponent(JavaClass.create("org.apache.Action").setEffectiveKey("struts:org.apache.Action"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
     assertThat(issuable).isNull();

@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.persistit.Exchange;
 import com.persistit.Key;
@@ -28,9 +27,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -41,7 +38,6 @@ import java.util.Set;
 public class Cache<K, V extends Serializable> {
 
   private static final String DEFAULT_GROUP = "_";
-  // TODO improve exception messages by using this cache name
   private final String name;
   private final Exchange exchange;
 
@@ -62,7 +58,7 @@ public class Cache<K, V extends Serializable> {
       exchange.store();
       return this;
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to put element in cache", e);
+      throw new IllegalStateException("Fail to put element in the cache " + name, e);
     }
   }
 
@@ -84,7 +80,7 @@ public class Cache<K, V extends Serializable> {
       }
       return (V) exchange.getValue().get();
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get element from cache", e);
+      throw new IllegalStateException("Fail to get element from cache " + name, e);
     }
   }
 
@@ -106,7 +102,7 @@ public class Cache<K, V extends Serializable> {
       exchange.append(group).append(key);
       return exchange.remove();
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get element from cache", e);
+      throw new IllegalStateException("Fail to get element from cache " + name, e);
     }
   }
 
@@ -128,7 +124,7 @@ public class Cache<K, V extends Serializable> {
       exchange.removeKeyRange(exchange.getKey(), key);
       return this;
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to clear cache group: " + group, e);
+      throw new IllegalStateException("Fail to clear group '" + group + "' from cache " + name, e);
     }
   }
 
@@ -173,7 +169,7 @@ public class Cache<K, V extends Serializable> {
       }
       return keys;
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get cache keys", e);
+      throw new IllegalStateException("Fail to get keys from cache " + name, e);
     }
   }
 
@@ -187,40 +183,38 @@ public class Cache<K, V extends Serializable> {
     return keySet(DEFAULT_GROUP);
   }
 
-  // TODO implement a lazy-loading equivalent with Iterator/Iterable
-  public Collection<V> values(String group) {
+  /**
+   * Lazy-loading values for a given group
+   */
+  public Iterable<V> values(String group) {
     try {
-      List<V> values = Lists.newArrayList();
       exchange.clear();
       Exchange iteratorExchange = new Exchange(exchange);
       iteratorExchange.append(group).append(Key.BEFORE);
-      while (iteratorExchange.next(false)) {
-        if (iteratorExchange.getValue().isDefined()) {
-          values.add((V) iteratorExchange.getValue().get());
-        }
-      }
-      return values;
+      return new ValueIterable<V>(iteratorExchange, false);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get cache values", e);
+      throw new IllegalStateException("Fail to get values from cache " + name, e);
     }
   }
 
+  /**
+   * Lazy-loading values
+   */
   public Iterable<V> values() {
     return values(DEFAULT_GROUP);
   }
 
-  public Collection<V> allValues() {
+  /**
+   * Lazy-loading values of all groups
+   */
+  public Iterable<V> allValues() {
     try {
-      List<V> values = Lists.newArrayList();
       exchange.clear();
       Exchange iteratorExchange = new Exchange(exchange);
       iteratorExchange.append(Key.BEFORE);
-      while (iteratorExchange.next(true)) {
-        values.add((V) iteratorExchange.getValue().get());
-      }
-      return values;
+      return new ValueIterable<V>(iteratorExchange, true);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get cache values", e);
+      throw new IllegalStateException("Fail to get values from cache " + name, e);
     }
   }
 
@@ -235,7 +229,7 @@ public class Cache<K, V extends Serializable> {
       }
       return groups;
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get cache values", e);
+      throw new IllegalStateException("Fail to get values from cache " + name, e);
     }
   }
 
@@ -247,6 +241,56 @@ public class Cache<K, V extends Serializable> {
   public <T extends Serializable> Iterable<Entry<T>> entries(String group) {
     exchange.clear().append(group).append(Key.BEFORE);
     return new EntryIterable(new Exchange(exchange), false);
+  }
+
+
+  //
+  // LAZY ITERATORS AND ITERABLES
+  //
+
+  private static class ValueIterable<T extends Serializable> implements Iterable<T> {
+    private final Iterator<T> iterator;
+
+    private ValueIterable(Exchange exchange, boolean deep) {
+      this.iterator = new ValueIterator<T>(exchange, deep);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+      return iterator;
+    }
+  }
+
+  private static class ValueIterator<T extends Serializable> implements Iterator<T> {
+    private final Exchange exchange;
+    private final boolean deep;
+
+    private ValueIterator(Exchange exchange, boolean deep) {
+      this.exchange = exchange;
+      this.deep = deep;
+    }
+
+    @Override
+    public boolean hasNext() {
+      try {
+        return exchange.next(deep);
+      } catch (PersistitException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+
+    @Override
+    public T next() {
+      T value = null;
+      if (exchange.getValue().isDefined()) {
+        value = (T) exchange.getValue().get();
+      }
+      return value;
+    }
+
+    @Override
+    public void remove() {
+    }
   }
 
   private static class EntryIterable<T extends Serializable> implements Iterable<Entry<T>> {

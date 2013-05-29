@@ -49,7 +49,7 @@ import static org.mockito.Mockito.*;
 public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
   IssueTrackingDecorator decorator;
-  IssueCache issueCache = mock(IssueCache.class);
+  IssueCache issueCache = mock(IssueCache.class, RETURNS_MOCKS);
   InitialOpenIssuesStack initialOpenIssues = mock(InitialOpenIssuesStack.class);
   IssueTracking tracking = mock(IssueTracking.class, RETURNS_MOCKS);
   IssueHandlers handlers = mock(IssueHandlers.class);

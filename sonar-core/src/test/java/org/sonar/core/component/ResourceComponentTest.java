@@ -22,13 +22,18 @@ package org.sonar.core.component;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.File;
+import org.sonar.api.resources.Resource;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class ResourceComponentTest {
+
+  Resource file = new File("foo.c").setEffectiveKey("myproject:path/to/foo.c");
+
   @Test
   public void db_ids_should_be_optional() {
-    ResourceComponent component = new ResourceComponent(new File("foo.c"), new Snapshot());
+    ResourceComponent component = new ResourceComponent(file, new Snapshot());
 
     assertThat(component.snapshotId()).isNull();
     assertThat(component.resourceId()).isNull();
@@ -39,7 +44,7 @@ public class ResourceComponentTest {
     Snapshot snapshot = new Snapshot();
     snapshot.setId(123);
     snapshot.setResourceId(456);
-    ResourceComponent component = new ResourceComponent(new File("foo.c"), snapshot);
+    ResourceComponent component = new ResourceComponent(file, snapshot);
 
     assertThat(component.snapshotId()).isEqualTo(123);
     assertThat(component.resourceId()).isEqualTo(456);
@@ -47,10 +52,18 @@ public class ResourceComponentTest {
 
   @Test
   public void should_use_effective_key() {
-    File file = new File("foo.c");
-    file.setEffectiveKey("myproject:path/to/foo.c");
     ResourceComponent component = new ResourceComponent(file);
-
     assertThat(component.key()).isEqualTo("myproject:path/to/foo.c");
+  }
+
+  @Test
+  public void effective_key_should_be_set() {
+    try {
+      File file = new File("foo.c");
+      new ResourceComponent(file);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Missing component key");
+    }
   }
 }

@@ -124,6 +124,7 @@ public class CacheTest {
     cache.put("org/apache/struts/Filter.java", "lines", 500f);
     assertThat(cache.values("org/apache/struts/Action.java")).containsOnly(123f, 200f);
     assertThat(cache.values("org/apache/struts/Filter.java")).containsOnly(500f);
+    assertThat(cache.values("other")).isEmpty();
   }
 
   @Test

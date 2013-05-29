@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.issue;
 
+import com.google.common.collect.Lists;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -49,13 +50,14 @@ public class DefaultIssuable implements Issuable {
 
   @Override
   public boolean addIssue(Issue issue) {
-    return scanIssues.initAndAddIssue(((DefaultIssue)issue));
+    return scanIssues.initAndAddIssue(((DefaultIssue) issue));
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Issue> issues() {
-    return (Collection)cache.byComponent(component.key());
+  public List<Issue> issues() {
+    Iterable<DefaultIssue> elements = cache.byComponent(component.key());
+    return Lists.<Issue>newArrayList(elements);
   }
 
   @Override
