@@ -129,7 +129,7 @@ public class SemaphoreDao {
     Semaphores.Semaphore semaphore = new Semaphores.Semaphore()
         .setName(dto.getName())
         .setLocked(acquired)
-        .setLocketAt(dto.getLockedAt())
+        .setLockedAt(dto.getLockedAt())
         .setCreatedAt(dto.getCreatedAt())
         .setUpdatedAt(dto.getUpdatedAt());
     if (!acquired) {
@@ -141,8 +141,8 @@ public class SemaphoreDao {
   private long getDurationSinceLocked(SemaphoreDto semaphore, SqlSession session) {
     long now = now(session).getTime();
     semaphore.getLockedAt();
-    long locketAt = semaphore.getLockedAt().getTime();
-    return now - locketAt;
+    long lockedAt = semaphore.getLockedAt().getTime();
+    return now - lockedAt;
   }
 
   protected SemaphoreDto selectSemaphore(String name, SqlSession session) {

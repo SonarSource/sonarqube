@@ -67,7 +67,7 @@ public interface Semaphores extends TaskComponent, ServerComponent {
 
     private String name;
     private boolean locked;
-    private Date locketAt;
+    private Date lockedAt;
     private Date createdAt;
     private Date updatedAt;
     private Long durationSinceLocked;
@@ -90,12 +90,12 @@ public interface Semaphores extends TaskComponent, ServerComponent {
       return this;
     }
 
-    public Date getLocketAt() {
-      return locketAt;
+    public Date getLockedAt() {
+      return lockedAt;
     }
 
-    public Semaphore setLocketAt(Date locketAt) {
-      this.locketAt = locketAt;
+    public Semaphore setLockedAt(Date lockedAt) {
+      this.lockedAt = lockedAt;
       return this;
     }
 
