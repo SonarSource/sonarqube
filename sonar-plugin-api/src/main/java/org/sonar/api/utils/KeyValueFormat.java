@@ -477,8 +477,8 @@ public final class KeyValueFormat {
    * @deprecated since 2.7. Replaced by Converter
    */
   @Deprecated
-  public interface Transformer<KEY, VALUE> {
-    KeyValue<KEY, VALUE> transform(String key, String value);
+  public interface Transformer<K, V> {
+    KeyValue<K, V> transform(String key, String value);
   }
 
   /**

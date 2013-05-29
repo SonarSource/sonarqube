@@ -74,7 +74,6 @@ public class Project extends Resource implements Component {
   private Date analysisDate;
   private AnalysisType analysisType;
   private String analysisVersion;
-  private boolean latestAnalysis;
 
   // modules tree
   private Project parent;
@@ -212,12 +211,14 @@ public class Project extends Resource implements Component {
   /**
    * For internal use only.
    *
-   * @deprecated in 3.6. It's not possible to do an analyse before the latest known quality snapshot. See http://jira.codehaus.org/browse/SONAR-4334
+   * @deprecated in 3.6. It's not possible to analyze a project before the latest known quality snapshot.
+   * See http://jira.codehaus.org/browse/SONAR-4334
    */
   @Deprecated
   public Project setLatestAnalysis(boolean b) {
-    if (b == false) {
-      throw new UnsupportedOperationException("The analysis is always the latest one. Past analysis must be done in a chronological order.");
+    if (!b) {
+      throw new UnsupportedOperationException("The analysis is always the latest one. " +
+        "Past analysis must be done in a chronological order.");
     }
     return this;
   }

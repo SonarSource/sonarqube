@@ -23,10 +23,10 @@ import org.sonar.wsclient.services.Model;
 
 import java.util.List;
 
-public interface Unmarshaller<MODEL extends Model> {
+public interface Unmarshaller<M extends Model> {
 
-  MODEL toModel(String json);
+  M toModel(String json);
 
-  List<MODEL> toModels(String json);
+  List<M> toModels(String json);
 
 }
