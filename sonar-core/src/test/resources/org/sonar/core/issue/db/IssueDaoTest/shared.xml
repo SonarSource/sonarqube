@@ -2,10 +2,10 @@
 
   <group_roles id="1" group_id="[null]" resource_id="399" role="user"/>
 
-  <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" />
-  <projects id="400" kee="struts-core" root_id="399" qualifier="BRC" />
-  <projects id="401" kee="Action.java" root_id="400" qualifier="CLA" />
-  <projects id="402" kee="Filter.java" root_id="400" qualifier="CLA" />
+  <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" />
+  <projects id="400" kee="struts-core" root_id="399" qualifier="BRC" scope="PRJ" />
+  <projects id="401" kee="Action.java" root_id="400" qualifier="CLA" scope="PRJ" />
+  <projects id="402" kee="Filter.java" root_id="400" qualifier="CLA" scope="PRJ" />
 
   <snapshots id="100" project_id="399" root_snapshot_id="[null]" parent_snapshot_id="[null]" root_project_id="399" path="" islast="[true]" />
   <snapshots id="101" project_id="400" root_snapshot_id="100" parent_snapshot_id="100" root_project_id="399" path="100." islast="[true]" />

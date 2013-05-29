@@ -52,30 +52,27 @@
   <sql id="selectAuthorizedRootProjectsIdsQuery">
     <choose>
       <when test="userId != null">
-        SELECT s.root_project_id
-        FROM group_roles gr, snapshots s
+        SELECT p.id as root_project_id
+        FROM group_roles gr
+        INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
         WHERE
         gr.role=#{role}
         and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
-        and gr.resource_id = s.root_project_id
-        and s.islast = ${_true}
         UNION
-        SELECT s.root_project_id
-        FROM user_roles ur, snapshots s
+        SELECT p.id as root_project_id
+        FROM user_roles ur
+        INNER JOIN projects p on p.id = ur.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
         WHERE
         ur.role=#{role}
-        and ur.user_id=#{userId} and s.project_id=ur.resource_id
-        and s.islast = ${_true}
-        group by s.root_project_id
+        and ur.user_id = #{userId}
       </when>
       <otherwise>
-        SELECT s.root_project_id
-        FROM group_roles gr, snapshots s
+        SELECT p.id as root_project_id
+        FROM group_roles gr
+        INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
         WHERE
         gr.role=#{role}
         and gr.group_id is null
-        and gr.resource_id = s.root_project_id
-        group by s.root_project_id
       </otherwise>
     </choose>
   </sql>

@@ -4,12 +4,8 @@
   <user_roles id="1" user_id="100" resource_id="399" role="user"/>
   <groups_users user_id="100" group_id="200"/>
 
-  <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" />
-  <snapshots id="100" project_id="399" root_snapshot_id="[null]" parent_snapshot_id="[null]" root_project_id="399" path="" islast="[true]" />
-
-  <projects id="400" kee="sonar" root_id="[null]" qualifier="TRK" />
-  <snapshots id="101" project_id="400" root_snapshot_id="[null]" parent_snapshot_id="[null]" root_project_id="400" path="" islast="[true]" />
-
+  <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ"/>
+  <projects id="400" kee="sonar" root_id="[null]" qualifier="TRK" scope="PRJ"/>
 
   <!-- project struts -->
   <issues

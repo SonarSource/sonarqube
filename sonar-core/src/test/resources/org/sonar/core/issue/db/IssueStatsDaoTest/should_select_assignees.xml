@@ -1,7 +1,7 @@
 <dataset>
 
   <group_roles id="1" group_id="[null]" resource_id="399" role="user"/>
-  <snapshots id="100" project_id="399" root_snapshot_id="[null]" parent_snapshot_id="[null]" root_project_id="399" path="" islast="[true]" />
+  <projects id="399" root_id="[null]" qualifier="TRK" scope="PRJ"/>
 
   <issues
       id="100"
