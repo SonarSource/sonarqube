@@ -20,6 +20,7 @@
 package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -28,6 +29,7 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssue;
@@ -144,7 +146,7 @@ public class InternalRubyIssueService implements ServerComponent {
           .componentKey(componentKey)
           .line(RubyUtils.toInteger(params.get("line")))
           .message(params.get("message"))
-          .severity(params.get("severity"))
+          .severity(Objects.firstNonNull(params.get("severity"), Severity.MAJOR))
           .effortToFix(RubyUtils.toDouble(params.get("effortToFix")))
           .ruleKey(ruleKey)
           .reporter(UserSession.get().login())

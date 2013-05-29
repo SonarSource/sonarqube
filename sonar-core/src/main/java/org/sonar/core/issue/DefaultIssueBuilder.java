@@ -19,18 +19,14 @@
  */
 package org.sonar.core.issue;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 
 import javax.annotation.Nullable;
-
-import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
@@ -120,7 +116,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setProjectKey(projectKey);
     issue.setRuleKey(ruleKey);
     issue.setMessage(message);
-    issue.setSeverity(Objects.firstNonNull(severity, Severity.MAJOR));
+    issue.setSeverity(severity);
     issue.setManualSeverity(false);
     issue.setEffortToFix(effortToFix);
     issue.setLine(line);

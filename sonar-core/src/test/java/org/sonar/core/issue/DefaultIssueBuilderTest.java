@@ -59,4 +59,14 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.attribute("YOUTRACK")).isEqualTo("YT-123");
     assertThat(issue.attributes()).hasSize(2);
   }
+
+  @Test
+  public void should_not_set_default_severity() {
+    DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
+      .componentKey("Action.java")
+      .ruleKey(RuleKey.of("squid", "NullDereference"))
+      .build();
+
+    assertThat(issue.severity()).isNull();
+  }
 }
