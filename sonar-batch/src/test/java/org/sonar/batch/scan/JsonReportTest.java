@@ -21,11 +21,11 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
@@ -36,12 +36,13 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.scan.JsonReport;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Locale;
 
@@ -63,7 +64,7 @@ public class JsonReportTest {
   IssueCache issueCache = mock(IssueCache.class);
 
   @Before
-  public void before() {
+  public void setUp() {
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
 
@@ -73,59 +74,11 @@ public class JsonReportTest {
   }
 
   @Test
-  public void should_export_json() {
+  public void should_write_json() throws JSONException {
     DefaultIssue issue = new DefaultIssue()
       .setKey("200")
-      .setComponentKey("Action.java")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setNew(false);
-
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
-
-    JSONObject json = jsonReport.createJson();
-    assertThat(json.values()).hasSize(4);
-
-    assertThat(json.get("version")).isEqualTo("3.6");
-
-    assertThat(json.get("components")).isNotNull();
-    JSONArray components = (JSONArray) json.get("components");
-    assertThat(components).hasSize(1);
-
-    assertThat(json.get("issues")).isNotNull();
-    JSONArray issues = (JSONArray) json.get("issues");
-    assertThat(issues).hasSize(1);
-
-    assertThat(json.get("rules")).isNotNull();
-    JSONArray rules = (JSONArray) json.get("rules");
-    assertThat(rules).hasSize(1);
-  }
-
-  @Test
-  public void should_export_components() {
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("200")
-      .setComponentKey("Action.java")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setNew(false);
-
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
-
-    JSONObject json = jsonReport.createJson();
-    assertThat(json.get("version")).isEqualTo("3.6");
-
-    assertThat(json.get("components")).isNotNull();
-    JSONArray components = (JSONArray) json.get("components");
-    assertThat(components).hasSize(1);
-    JSONObject jsonComponent = (JSONObject) components.get(0);
-    assertThat(jsonComponent.values()).hasSize(1);
-    assertThat(jsonComponent.get("key")).isEqualTo("Action.java");
-  }
-
-  @Test
-  public void should_export_issues() {
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("200")
-      .setComponentKey("Action.java")
+      .setComponentKey("struts:org.apache.struts.Action")
+      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
       .setMessage("SystemPrintln")
       .setSeverity("MINOR")
       .setStatus(Issue.STATUS_CLOSED)
@@ -134,103 +87,37 @@ public class JsonReportTest {
       .setEffortToFix(3.14)
       .setReporter("julien")
       .setAssignee("simon")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
       .setCreationDate(DateUtils.parseDate("2013-04-24"))
       .setUpdateDate(DateUtils.parseDate("2013-04-25"))
       .setCloseDate(DateUtils.parseDate("2013-04-26"))
       .setNew(false);
-
+    when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
     when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
 
-    JSONObject json = jsonReport.createJson();
-    assertThat(json.get("issues")).isNotNull();
-    JSONArray issues = (JSONArray) json.get("issues");
-    assertThat(issues).hasSize(1);
-    JSONObject jsonIssue = (JSONObject) issues.get(0);
-    assertThat(jsonIssue.values()).hasSize(15);
+    StringWriter writer = new StringWriter();
+    jsonReport.writeJson(writer);
 
-    assertThat(jsonIssue.get("key")).isEqualTo("200");
-    assertThat(jsonIssue.get("component")).isEqualTo("Action.java");
-    assertThat(jsonIssue.get("line")).isEqualTo(1);
-    assertThat(jsonIssue.get("message")).isEqualTo("SystemPrintln");
-    assertThat(jsonIssue.get("severity")).isEqualTo("MINOR");
-    assertThat(jsonIssue.get("rule")).isEqualTo("squid:AvoidCycle");
-    assertThat(jsonIssue.get("status")).isEqualTo("CLOSED");
-    assertThat(jsonIssue.get("resolution")).isEqualTo("FALSE-POSITIVE");
-    assertThat(jsonIssue.get("assignee")).isEqualTo("simon");
-    assertThat(jsonIssue.get("effortToFix")).isEqualTo(3.14);
-    assertThat(jsonIssue.get("reporter")).isEqualTo("julien");
-    assertThat(jsonIssue.get("isNew")).isEqualTo(false);
-    assertThat((String) jsonIssue.get("creationDate")).contains("2013-04-24T00:00");
-    assertThat((String) jsonIssue.get("updateDate")).contains("2013-04-25T00:00");
-    assertThat((String) jsonIssue.get("closeDate")).contains("2013-04-26T00:00");
+    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/JsonReportTest/report.json"),
+      writer.toString(), false);
   }
 
   @Test
-  public void should_export_rules() {
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("200")
-      .setComponentKey("Action.java")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-
-    when(ruleI18nManager.getName("squid", "AvoidCycle", Locale.getDefault())).thenReturn("Avoid Cycle");
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
-
-    JSONObject root = jsonReport.createJson();
-
-    assertThat(root.get("rules")).isNotNull();
-    JSONArray rules = (JSONArray) root.get("rules");
-    assertThat(rules).hasSize(1);
-    JSONObject json = (JSONObject) rules.get(0);
-    assertThat(json.values()).hasSize(4);
-
-    assertThat(json.get("key")).isEqualTo("squid:AvoidCycle");
-    assertThat(json.get("rule")).isEqualTo("AvoidCycle");
-    assertThat(json.get("repository")).isEqualTo("squid");
-    assertThat(json.get("name")).isEqualTo("Avoid Cycle");
-  }
-
-  @Test
-  public void should_export_issues_with_no_line() {
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("200")
-      .setComponentKey("Action.java")
-      .setLine(null)
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
-
-    JSONObject json = jsonReport.createJson();
-    assertThat(json.get("issues")).isNotNull();
-
-    JSONArray issues = (JSONArray) json.get("issues");
-    JSONObject jsonIssue = (JSONObject) issues.get(0);
-    assertThat(jsonIssue.get("key")).isEqualTo("200");
-    assertThat(jsonIssue.containsKey("line")).isFalse();
-  }
-
-  @Test
-  public void should_ignore_resources_without_issue() {
+  public void should_ignore_components_without_issue() throws JSONException {
     when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
 
-    JSONObject json = jsonReport.createJson();
-    assertThat(json.get("version")).isEqualTo("3.6");
+    StringWriter writer = new StringWriter();
+    jsonReport.writeJson(writer);
 
-    assertThat(json.get("components")).isNotNull();
-    JSONArray components = (JSONArray) json.get("components");
-    assertThat(components).isEmpty();
-
-    assertThat(json.get("issues")).isNotNull();
-    JSONArray issues = (JSONArray) json.get("issues");
-    assertThat(issues).isEmpty();
+    JSONAssert.assertEquals("{\"version\":\"3.6\"}", writer.toString(), false);
   }
 
   @Test
   public void should_export_issues_to_file() throws IOException {
     File sonarDirectory = temporaryFolder.newFolder("sonar");
 
-    Rule rule = Rule.create("squid", "AvoidCycle");
-    when(ruleI18nManager.getName(rule, Locale.getDefault())).thenReturn("Avoid Cycle");
+    Rule rule = Rule.create("squid", "AvoidCycles");
+    when(ruleI18nManager.getName(rule, Locale.getDefault())).thenReturn("Avoid Cycles");
     when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
 
     settings.setProperty("sonar.report.export.path", "output.json");

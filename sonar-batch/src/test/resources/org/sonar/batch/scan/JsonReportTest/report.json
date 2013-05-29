@@ -1,0 +1,29 @@
+{"version": "3.6", "issues": [
+  {
+    "key": "200",
+    "component": "struts:org.apache.struts.Action",
+    "line": 1,
+    "message": "SystemPrintln",
+    "severity": "MINOR",
+    "rule": "squid:AvoidCycles",
+    "status": "CLOSED",
+    "resolution": "FALSE-POSITIVE",
+    "isNew": false,
+    "reporter": "julien",
+    "assignee": "simon",
+    "effortToFix": 3.14,
+    "creationDate": "2013-04-24T00:00:00+0200",
+    "updateDate": "2013-04-25T00:00:00+0200",
+    "closeDate": "2013-04-26T00:00:00+0200"
+  }
+], "components": [
+  {
+    "key": "struts:org.apache.struts.Action"
+  }
+], "rules": [
+  {
+    "key": "squid:AvoidCycles",
+    "rule": "AvoidCycles",
+    "repository": "squid"
+  }
+]}

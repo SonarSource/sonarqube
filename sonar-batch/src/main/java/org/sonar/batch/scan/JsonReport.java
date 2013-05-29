@@ -22,8 +22,7 @@ package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Closeables;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import com.google.gson.stream.JsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -39,8 +38,6 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.DefaultIssue;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 
@@ -80,7 +77,8 @@ public class JsonReport implements BatchComponent {
     Writer output = null;
     try {
       output = new BufferedWriter(new FileWriter(exportFile));
-      createJson().writeJSONString(output);
+      writeJson(output);
+
     } catch (IOException e) {
       throw new SonarException("Unable to write report results in file " + exportFile.getAbsolutePath(), e);
     } finally {
@@ -89,85 +87,84 @@ public class JsonReport implements BatchComponent {
   }
 
   @VisibleForTesting
-  JSONObject createJson(){
-    Set<RuleKey> ruleKeyList = newHashSet();
-    Set<String> componentKeyList = newHashSet();
+  void writeJson(Writer writer) {
+    JsonWriter json = null;
+    try {
+      json = new JsonWriter(writer);
+      json.setSerializeNulls(false);
+      json.beginObject();
+      json.name("version").value(server.getVersion());
 
-    JSONObject json = new JSONObject();
-    put(json, "version", server.getVersion());
+      Set<RuleKey> ruleKeys = newHashSet();
+      Set<String> componentKeys = newHashSet();
+      writeJsonIssues(json, ruleKeys, componentKeys);
+      writeJsonComponents(json, componentKeys);
+      writeJsonRules(json, ruleKeys);
+      json.endObject().flush();
 
-    addIssues(json, ruleKeyList, componentKeyList);
-    addComponents(json, componentKeyList);
-    addRules(json, ruleKeyList);
-    return json;
+    } catch (IOException e) {
+      throw new SonarException("Unable to write JSON report", e);
+    } finally {
+      Closeables.closeQuietly(json);
+    }
   }
 
-  private void addIssues(JSONObject root, Collection<RuleKey> ruleKeyList, Collection<String> componentKeyList) {
-    JSONArray json = new JSONArray();
+  private void writeJsonIssues(JsonWriter json, Set<RuleKey> ruleKeys, Set<String> componentKeys) throws IOException {
+    json.name("issues").beginArray();
     for (DefaultIssue issue : getIssues()) {
-      JSONObject jsonIssue = new JSONObject();
-      put(jsonIssue, "key", issue.key());
-      put(jsonIssue, "component", issue.componentKey());
-      put(jsonIssue, "line", issue.line());
-      put(jsonIssue, "message", issue.message());
-      put(jsonIssue, "severity", issue.severity());
-      put(jsonIssue, "rule", issue.ruleKey());
-      put(jsonIssue, "status", issue.status());
-      put(jsonIssue, "resolution", issue.resolution());
-      put(jsonIssue, "isNew", issue.isNew());
-      put(jsonIssue, "reporter", issue.reporter());
-      put(jsonIssue, "assignee", issue.assignee());
-      put(jsonIssue, "effortToFix", issue.effortToFix());
-      put(jsonIssue, "creationDate", issue.creationDate());
-      put(jsonIssue, "updateDate", issue.updateDate());
-      put(jsonIssue, "closeDate", issue.closeDate());
-      json.add(jsonIssue);
-
-      componentKeyList.add(issue.componentKey());
-      ruleKeyList.add(issue.ruleKey());
+      json
+        .beginObject()
+        .name("key").value(issue.key())
+        .name("component").value(issue.componentKey())
+        .name("line").value(issue.line())
+        .name("message").value(issue.message())
+        .name("severity").value(issue.severity())
+        .name("rule").value(issue.ruleKey().toString())
+        .name("status").value(issue.status())
+        .name("resolution").value(issue.resolution())
+        .name("isNew").value(issue.isNew())
+        .name("reporter").value(issue.reporter())
+        .name("assignee").value(issue.assignee())
+        .name("effortToFix").value(issue.effortToFix());
+      if (issue.creationDate() != null) {
+        json.name("creationDate").value(DateUtils.formatDateTime(issue.creationDate()));
+      }
+      if (issue.updateDate() != null) {
+        json.name("updateDate").value(DateUtils.formatDateTime(issue.updateDate()));
+      }
+      if (issue.closeDate() != null) {
+        json.name("closeDate").value(DateUtils.formatDateTime(issue.closeDate()));
+      }
+      json.endObject();
+      componentKeys.add(issue.componentKey());
+      ruleKeys.add(issue.ruleKey());
     }
-    root.put("issues", json);
+    json.endArray();
   }
 
-  private void addComponents(JSONObject root, Collection<String> componentKeyList) {
-    JSONArray json = new JSONArray();
-    for (String componentKey : componentKeyList) {
-      JSONObject jsonComponent = new JSONObject();
-      put(jsonComponent, "key", componentKey);
-      json.add(jsonComponent);
+  private void writeJsonComponents(JsonWriter json, Set<String> componentKeys) throws IOException {
+    json.name("components").beginArray();
+    for (String componentKey : componentKeys) {
+      json
+        .beginObject()
+        .name("key").value(componentKey)
+        .endObject();
     }
-    root.put("components", json);
+    json.endArray();
   }
 
-  private void addRules(JSONObject root, Collection<RuleKey> ruleKeyList) {
-    JSONArray json = new JSONArray();
-    for (RuleKey ruleKey : ruleKeyList) {
-      JSONObject jsonRuleKey = new JSONObject();
-      put(jsonRuleKey, "key", ruleKey);
-      put(jsonRuleKey, "rule", ruleKey.rule());
-      put(jsonRuleKey, "repository", ruleKey.repository());
-      put(jsonRuleKey, "name", getRuleName(ruleKey));
-      json.add(jsonRuleKey);
+  private void writeJsonRules(JsonWriter json, Set<RuleKey> ruleKeys) throws IOException {
+    json.name("rules").beginArray();
+    for (RuleKey ruleKey : ruleKeys) {
+      json
+        .beginObject()
+        .name("key").value(ruleKey.toString())
+        .name("rule").value(ruleKey.rule())
+        .name("repository").value(ruleKey.repository())
+        .name("name").value(getRuleName(ruleKey))
+        .endObject();
     }
-    root.put("rules", json);
-  }
-
-  private void put(JSONObject json, String key, Object value) {
-    if (value != null) {
-      json.put(key, value);
-    }
-  }
-
-  private void put(JSONObject json, String key, RuleKey ruleKey) {
-    if (ruleKey != null) {
-      json.put(key, ruleKey.toString());
-    }
-  }
-
-  private void put(JSONObject json, String key, Date date) {
-    if (date != null) {
-      json.put(key, DateUtils.formatDateTime(date));
-    }
+    json.endArray();
   }
 
   private String getRuleName(RuleKey ruleKey) {
