@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * @since 3.6
  */
-class IssueParser {
+class IssueJsonParser {
 
   Issues parseIssues(String json) {
     Issues result = new Issues();
@@ -43,39 +43,54 @@ class IssueParser {
         result.add(new Issue(jsonIssue));
       }
     }
+    parseRules(result, jsonRoot);
+    parseUsers(result, jsonRoot);
+    parseComponents(result, jsonRoot);
+    parseProjects(result, jsonRoot);
+    parsePaging(result, jsonRoot);
+    return result;
+  }
 
-    List<Map> jsonRules = (List) jsonRoot.get("rules");
-    if (jsonRules != null) {
-      for (Map jsonRule : jsonRules) {
-        result.add(new Rule(jsonRule));
-      }
-    }
+  private void parsePaging(Issues result, Map jsonRoot) {
+    Map paging = (Map) jsonRoot.get("paging");
+    result.setPaging(new Paging(paging));
+    result.setMaxResultsReached(JsonUtils.getBoolean(jsonRoot, "maxResultsReached"));
+  }
 
-    List<Map> jsonUsers = (List) jsonRoot.get("users");
-    if (jsonUsers != null) {
-      for (Map jsonUser : jsonUsers) {
-        result.add(new User(jsonUser));
-      }
-    }
-
-    List<Map> jsonComponents = (List) jsonRoot.get("components");
-    if (jsonComponents != null) {
-      for (Map jsonComponent : jsonComponents) {
-        result.addComponent(new Component(jsonComponent));
-      }
-    }
-
+  private void parseProjects(Issues result, Map jsonRoot) {
     List<Map> jsonProjects = (List) jsonRoot.get("projects");
     if (jsonProjects != null) {
       for (Map jsonProject : jsonProjects) {
         result.addProject(new Component(jsonProject));
       }
     }
+  }
 
-    Map paging = (Map) jsonRoot.get("paging");
-    result.setPaging(new Paging(paging));
-    result.setMaxResultsReached(JsonUtils.getBoolean(jsonRoot, "maxResultsReached"));
-    return result;
+  private void parseComponents(Issues result, Map jsonRoot) {
+    List<Map> jsonComponents = (List) jsonRoot.get("components");
+    if (jsonComponents != null) {
+      for (Map jsonComponent : jsonComponents) {
+        result.addComponent(new Component(jsonComponent));
+      }
+    }
+  }
+
+  private void parseUsers(Issues result, Map jsonRoot) {
+    List<Map> jsonUsers = (List) jsonRoot.get("users");
+    if (jsonUsers != null) {
+      for (Map jsonUser : jsonUsers) {
+        result.add(new User(jsonUser));
+      }
+    }
+  }
+
+  private void parseRules(Issues result, Map jsonRoot) {
+    List<Map> jsonRules = (List) jsonRoot.get("rules");
+    if (jsonRules != null) {
+      for (Map jsonRule : jsonRules) {
+        result.add(new Rule(jsonRule));
+      }
+    }
   }
 
   List<String> parseTransitions(String json) {

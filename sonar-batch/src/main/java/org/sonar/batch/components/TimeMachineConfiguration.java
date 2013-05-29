@@ -31,7 +31,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.persistence.Query;
-
 import java.util.Date;
 import java.util.List;
 
@@ -48,16 +47,16 @@ public class TimeMachineConfiguration implements BatchExtension {
   private DatabaseSession session;
 
   public TimeMachineConfiguration(DatabaseSession session, Project project, Settings settings,
-      PastSnapshotFinder pastSnapshotFinder) {
+                                  PastSnapshotFinder pastSnapshotFinder) {
     this.session = session;
     this.project = project;
     this.settings = settings;
     initPastSnapshots(pastSnapshotFinder, getRootProject(project).getQualifier());
   }
 
-  private Project getRootProject(Project project){
+  private Project getRootProject(Project project) {
     if (!project.isRoot()) {
-     return getRootProject(project.getRoot());
+      return getRootProject(project.getRoot());
     }
     return project;
   }
@@ -79,7 +78,7 @@ public class TimeMachineConfiguration implements BatchExtension {
 
   private Snapshot buildProjectSnapshot() {
     Query query = session
-        .createNativeQuery("select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib and p.enabled=:enabled");
+      .createNativeQuery("select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib and p.enabled=:enabled");
     query.setParameter("resourceKey", project.getKey());
     query.setParameter("lib", Qualifiers.LIBRARY);
     query.setParameter("enabled", Boolean.TRUE);

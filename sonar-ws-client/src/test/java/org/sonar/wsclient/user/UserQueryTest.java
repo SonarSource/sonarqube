@@ -53,5 +53,8 @@ public class UserQueryTest {
   public void should_search_by_text() throws Exception {
     UserQuery query = UserQuery.create().searchText("sim");
     assertThat(query.urlParams().get("s")).isEqualTo("sim");
+
+    query = UserQuery.create().searchText("sim").searchText(null);
+    assertThat(query.urlParams().get("s")).isNull();
   }
 }

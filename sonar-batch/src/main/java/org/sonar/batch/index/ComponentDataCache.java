@@ -43,8 +43,8 @@ public class ComponentDataCache implements BatchComponent {
 
   public String getStringData(String componentKey, String dataType) {
     Data data = (Data) cache.get(componentKey, dataType);
-    return data==null ? null : ((StringData)data).data();
-    }
+    return data == null ? null : ((StringData) data).data();
+  }
 
   public <D extends Data> Iterable<Cache.Entry<D>> entries(String componentKey) {
     return cache.entries(componentKey);

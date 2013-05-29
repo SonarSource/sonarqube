@@ -56,7 +56,7 @@ public class ComponentDataPersisterTest extends AbstractDaoTestCase {
     data.setStringData("org/struts/Other.java", "SYMBOL", "unregistered component, should not be persisted");
 
     SnapshotDataDao dataDao = new SnapshotDataDao(getMyBatis());
-    ComponentDataPersister persister = new ComponentDataPersister(data, snapshots, dataDao);
+    ComponentDataPersister persister = new ComponentDataPersister(data, snapshots, dataDao, getMyBatis());
     persister.persist();
 
     checkTables("should_persist_component_data", new String[]{"id", "created_at", "updated_at"}, "snapshot_data");

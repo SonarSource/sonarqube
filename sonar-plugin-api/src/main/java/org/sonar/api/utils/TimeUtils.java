@@ -27,26 +27,33 @@ public final class TimeUtils {
   private TimeUtils() {
   }
 
+  /**
+   * Label for a duration, expressed in numbers of ms, seconds or minutes.
+   * <p/>
+   * Examples:
+   * <ul>
+   *   <li>10 -> "10ms"</li>
+   *   <li>100 -> "100ms"</li>
+   *   <li>10000 -> "10s"</li>
+   *   <li>100000 -> "1min 40s"</li>
+   * </ul>
+   */
   public static String formatDuration(long durationInMs) {
     if (durationInMs < 1000) {
       return String.format("%sms", durationInMs);
-    }
-    else {
+    } else {
       long sec = durationInMs / 1000;
       if (sec < 60) {
         return String.format("%ss", sec);
-      }
-      else {
+      } else {
         long min = sec / 60;
         long remainingSec = sec - (min * 60);
         if (remainingSec > 0) {
           return String.format("%smin %ss", min, remainingSec);
-        }
-        else {
+        } else {
           return String.format("%smin", min);
         }
       }
     }
   }
-
 }

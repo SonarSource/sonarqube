@@ -17,29 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.api.utils;
 
-package org.sonar.core.issue.db;
+import org.junit.Test;
 
-import org.apache.ibatis.annotations.Param;
+import static org.fest.assertions.Assertions.assertThat;
 
-import java.util.List;
-
-/**
- * @since 3.6
- */
-public interface ActionPlanMapper {
-
-  void insert(ActionPlanDto actionPlanDto);
-
-  void update(ActionPlanDto actionPlanDto);
-
-  void delete(@Param("key") String key);
-
-  List<ActionPlanDto> findByKeys(@Param("keys") List<List<String>> keys);
-
-  ActionPlanDto findByKey(@Param("key") String key);
-
-  List<ActionPlanDto> findOpenByProjectId(@Param("projectId") Long projectId);
-
-  List<ActionPlanDto> findByNameAndProjectId(@Param("name") String name, @Param("projectId") Long projectId);
+public class TimeUtilsTest {
+  @Test
+  public void formatDuration() throws Exception {
+    assertThat(TimeUtils.formatDuration(0)).isEqualTo("0ms");
+    assertThat(TimeUtils.formatDuration(100)).isEqualTo("100ms");
+    assertThat(TimeUtils.formatDuration(1000)).isEqualTo("1s");
+    assertThat(TimeUtils.formatDuration(10000)).isEqualTo("10s");
+    assertThat(TimeUtils.formatDuration(100000)).isEqualTo("1min 40s");
+    assertThat(TimeUtils.formatDuration(600000)).isEqualTo("10min");
+    assertThat(TimeUtils.formatDuration(1000000)).isEqualTo("16min 40s");
+    assertThat(TimeUtils.formatDuration(10000000)).isEqualTo("166min 40s");
+  }
 }

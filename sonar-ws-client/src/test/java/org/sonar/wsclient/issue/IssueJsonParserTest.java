@@ -28,11 +28,11 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class IssueParserTest {
+public class IssueJsonParserTest {
   @Test
   public void test_GET_search() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/search.json"));
-    Issues issues = new IssueParser().parseIssues(json);
+    Issues issues = new IssueJsonParser().parseIssues(json);
     assertThat(issues).isNotNull();
     List<Issue> list = issues.list();
     assertThat(list).hasSize(2);
@@ -84,7 +84,7 @@ public class IssueParserTest {
   @Test
   public void test_GET_empty_search() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/empty.json"));
-    Issues issues = new IssueParser().parseIssues(json);
+    Issues issues = new IssueJsonParser().parseIssues(json);
     assertThat(issues).isNotNull();
     assertThat(issues.list()).isEmpty();
     assertThat(issues.rules()).isEmpty();
@@ -94,7 +94,7 @@ public class IssueParserTest {
   @Test
   public void test_GET_transitions() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/getTransitions.json"));
-    List<String> transitions = new IssueParser().parseTransitions(json);
+    List<String> transitions = new IssueJsonParser().parseTransitions(json);
 
     assertThat(transitions).isNotNull();
     assertThat(transitions).hasSize(2);
@@ -104,7 +104,7 @@ public class IssueParserTest {
   @Test
   public void should_parse_comments() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-comments.json"));
-    Issues issues = new IssueParser().parseIssues(json);
+    Issues issues = new IssueJsonParser().parseIssues(json);
     assertThat(issues.size()).isEqualTo(1);
 
     Issue issue = issues.list().get(0);
@@ -126,7 +126,7 @@ public class IssueParserTest {
   @Test
   public void should_parse_users() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-users.json"));
-    Issues issues = new IssueParser().parseIssues(json);
+    Issues issues = new IssueJsonParser().parseIssues(json);
 
     assertThat(issues.users()).hasSize(2);
 
@@ -146,7 +146,7 @@ public class IssueParserTest {
   @Test
   public void should_parse_components() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-components.json"));
-    Issues issues = new IssueParser().parseIssues(json);
+    Issues issues = new IssueJsonParser().parseIssues(json);
 
     assertThat(issues.components()).hasSize(1);
 
@@ -160,7 +160,7 @@ public class IssueParserTest {
   @Test
   public void should_parse_projects() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-projects.json"));
-    Issues issues = new IssueParser().parseIssues(json);
+    Issues issues = new IssueJsonParser().parseIssues(json);
 
     assertThat(issues.projects()).hasSize(1);
 

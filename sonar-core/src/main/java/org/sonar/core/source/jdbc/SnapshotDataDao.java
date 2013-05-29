@@ -40,9 +40,7 @@ public class SnapshotDataDao implements BatchComponent, ServerComponent {
   }
 
   public Collection<SnapshotDataDto> selectSnapshotData(long snapshotId, List<String> dataTypes) {
-
     SqlSession session = mybatis.openSession();
-
     try {
       SnapshotDataMapper mapper = session.getMapper(SnapshotDataMapper.class);
       return mapper.selectSnapshotData(snapshotId, dataTypes);
@@ -52,16 +50,18 @@ public class SnapshotDataDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public void insert(SnapshotDataDto snapshotData) {
-
-    SqlSession session = mybatis.openBatchSession();
-
+  void insert(SnapshotDataDto snapshotData) {
+    SqlSession session = mybatis.openSession();
     try {
-      SnapshotDataMapper mapper = session.getMapper(SnapshotDataMapper.class);
-      mapper.insert(snapshotData);
+      insert(session, snapshotData);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public void insert(SqlSession session, SnapshotDataDto snapshotData) {
+    SnapshotDataMapper mapper = session.getMapper(SnapshotDataMapper.class);
+    mapper.insert(snapshotData);
   }
 }

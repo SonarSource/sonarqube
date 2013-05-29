@@ -20,6 +20,8 @@
 package org.sonar.batch.index;
 
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.core.persistence.BatchSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 
@@ -29,15 +31,19 @@ public class ComponentDataPersister implements ScanPersister {
   private final ComponentDataCache data;
   private final SnapshotCache snapshots;
   private final SnapshotDataDao dao;
+  private final MyBatis mybatis;
 
-  public ComponentDataPersister(ComponentDataCache data, SnapshotCache snapshots, SnapshotDataDao dao) {
+  public ComponentDataPersister(ComponentDataCache data, SnapshotCache snapshots,
+                                SnapshotDataDao dao, MyBatis mybatis) {
     this.data = data;
     this.snapshots = snapshots;
     this.dao = dao;
+    this.mybatis = mybatis;
   }
 
   @Override
   public void persist() {
+    BatchSession session = mybatis.openBatchSession();
     for (Map.Entry<String, Snapshot> componentEntry : snapshots.snapshots()) {
       String componentKey = componentEntry.getKey();
       Snapshot snapshot = componentEntry.getValue();
@@ -48,11 +54,10 @@ public class ComponentDataPersister implements ScanPersister {
           dto.setResourceId(snapshot.getResourceId());
           dto.setDataType(dataEntry.key());
           dto.setData(dataEntry.value().writeString());
-
-          // TODO bulk insert
-          dao.insert(dto);
+          dao.insert(session, dto);
         }
       }
     }
+    session.commit();
   }
 }

@@ -26,7 +26,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,13 +33,13 @@ import java.util.Map;
  * This class represents a notification that will be delivered to users. This is a general concept and it has no
  * knowledge of the possible ways to be delivered (see {@link NotificationChannel}) or of the users who should
  * receive it (see {@link NotificationDispatcher}).
- * </p> 
+ * </p>
  * <p>
- * When creating a new notification, it is strongly advised to give a default message that can be  used by channels 
- * that don't want to specifically format messages for different notification types. You can use 
+ * When creating a new notification, it is strongly advised to give a default message that can be  used by channels
+ * that don't want to specifically format messages for different notification types. You can use
  * {@link Notification#setDefaultMessage(String)} for that purpose.
  * </p>
- * 
+ *
  * @since 2.10
  */
 public class Notification implements Serializable {
@@ -55,7 +54,7 @@ public class Notification implements Serializable {
    * Create a new {@link Notification} of the given type.
    * </p>
    * Example: type = "new-violations"
-   * 
+   *
    * @param type the type of notification
    */
   public Notification(String type) {
@@ -64,7 +63,7 @@ public class Notification implements Serializable {
 
   /**
    * Returns the type of the notification
-   * 
+   *
    * @return the type
    */
   public String getType() {
@@ -73,14 +72,14 @@ public class Notification implements Serializable {
 
   /**
    * <p>
-   * When creating a new notification, it is strongly advised to give a default message that can be 
+   * When creating a new notification, it is strongly advised to give a default message that can be
    * used by channels that don't want to specifically format messages for different notification types.
    * </p>
    * <p>
-   * This method is equivalent to setting a value for the field {@link #DEFAULT_MESSAGE_KEY} with 
+   * This method is equivalent to setting a value for the field {@link #DEFAULT_MESSAGE_KEY} with
    * {@link #setFieldValue(String, String)}.
-   * </p> 
-   * 
+   * </p>
+   *
    * @since 3.5
    */
   public Notification setDefaultMessage(String value) {
@@ -101,7 +100,7 @@ public class Notification implements Serializable {
 
   /**
    * Adds a field (kind of property) to the notification
-   * 
+   *
    * @param field the name of the field (= the key)
    * @param value the value of the field
    * @return the notification itself
@@ -113,7 +112,7 @@ public class Notification implements Serializable {
 
   /**
    * Returns the value of a field.
-   * 
+   *
    * @param field the field
    * @return the value of the field
    */

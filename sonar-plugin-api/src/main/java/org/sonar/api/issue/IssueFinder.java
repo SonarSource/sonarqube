@@ -17,19 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.api.issue;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.utils.Paging;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Search for issues. This component can be used only by server-side extensions. Batch extensions should

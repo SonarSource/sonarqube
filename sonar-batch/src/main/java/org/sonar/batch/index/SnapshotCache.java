@@ -24,7 +24,6 @@ import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.model.Snapshot;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 

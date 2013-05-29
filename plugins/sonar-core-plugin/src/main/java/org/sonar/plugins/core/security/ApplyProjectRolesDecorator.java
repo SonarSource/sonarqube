@@ -34,8 +34,8 @@ import java.util.Set;
 @DryRunIncompatible
 public class ApplyProjectRolesDecorator implements Decorator {
 
+  private static final Set<String> QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   private final ResourcePermissions resourcePermissions;
-  private final Set<String> QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.SUBVIEW);
 
   public ApplyProjectRolesDecorator(ResourcePermissions resourcePermissions) {
     this.resourcePermissions = resourcePermissions;

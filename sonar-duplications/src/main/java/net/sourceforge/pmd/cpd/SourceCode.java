@@ -99,7 +99,7 @@ public class SourceCode {
   public static class StringCodeLoader extends CodeLoader {
     public static final String DEFAULT_NAME = "CODE_LOADED_FROM_STRING";
 
-    private String source_code;
+    private String sourceCode;
 
     private String name;
 
@@ -108,13 +108,13 @@ public class SourceCode {
     }
 
     public StringCodeLoader(String code, String name) {
-      this.source_code = code;
+      this.sourceCode = code;
       this.name = name;
     }
 
     @Override
     public Reader getReader() {
-      return new StringReader(source_code);
+      return new StringReader(sourceCode);
     }
 
     @Override

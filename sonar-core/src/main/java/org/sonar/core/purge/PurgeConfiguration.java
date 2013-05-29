@@ -27,8 +27,6 @@ import java.util.Date;
 
 public class PurgeConfiguration {
 
-  private static final int ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
-
   private final long rootProjectId;
   private final String[] scopesWithoutHistoricalData;
   private final int maxAgeInDaysOfClosedIssues;

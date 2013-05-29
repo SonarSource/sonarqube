@@ -28,11 +28,11 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueDto;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Set;
 
 class IssueTrackingResult {
-  private final HashSet<IssueDto> unmatched = Sets.newHashSet();
+  private final Set<IssueDto> unmatched = Sets.newHashSet();
   private final Multimap<RuleKey, IssueDto> unmatchedByRule = LinkedHashMultimap.create();
   private final IdentityHashMap<DefaultIssue, IssueDto> matched = Maps.newIdentityHashMap();
 

@@ -35,14 +35,14 @@ import java.util.Map;
 public class DefaultIssueClient implements IssueClient {
 
   private final HttpRequestFactory requestFactory;
-  private final IssueParser parser;
+  private final IssueJsonParser parser;
 
   /**
    * For internal use. Use {@link org.sonar.wsclient.SonarClient} to get an instance.
    */
   public DefaultIssueClient(HttpRequestFactory requestFactory) {
     this.requestFactory = requestFactory;
-    this.parser = new IssueParser();
+    this.parser = new IssueJsonParser();
   }
 
   public Issues find(IssueQuery query) {
