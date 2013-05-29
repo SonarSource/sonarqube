@@ -55,6 +55,7 @@ class CreateIssues < ActiveRecord::Migration
 
     add_index :issues,  :kee,                 :name => 'issues_kee',         :unique => true
     add_index :issues,  :component_id,        :name => 'issues_component_id'
+    add_index :issues,  :root_component_id,   :name => 'issues_root_component_id'
     add_index :issues,  :rule_id,             :name => 'issues_rule_id'
     add_index :issues,  :severity,            :name => 'issues_severity'
     add_index :issues,  :status,              :name => 'issues_status'
