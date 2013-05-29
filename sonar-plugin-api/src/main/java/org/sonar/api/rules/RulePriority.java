@@ -37,7 +37,9 @@ public enum RulePriority {
    *
    * @param level an old priority level : Error or Warning
    * @return the corresponding RulePriority
+   * @deprecated in 3.6
    */
+  @Deprecated
   public static RulePriority valueOfString(String level) {
     try {
       return RulePriority.valueOf(level.toUpperCase());
