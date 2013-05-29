@@ -73,7 +73,7 @@ public class JsonReport implements BatchComponent {
   private void exportResults() {
     File exportFile = new File(fileSystem.workingDir(), settings.getString("sonar.report.export.path"));
 
-    LOG.info("Exporting report results to " + exportFile.getAbsolutePath());
+    LOG.info("Export results to " + exportFile.getAbsolutePath());
     Writer output = null;
     try {
       output = new BufferedWriter(new FileWriter(exportFile));

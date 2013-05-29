@@ -78,7 +78,7 @@ public class DeprecatedJsonReport implements BatchComponent {
   private void exportResults(Collection<Resource> resources) {
     File exportFile = new File(fileSystem.workingDir(), settings.getString("sonar.dryRun.export.path"));
 
-    LOG.info("Exporting DryRun results to " + exportFile.getAbsolutePath());
+    LOG.info("Export (deprecated) dry run results to " + exportFile.getAbsolutePath());
     Writer output = null;
     try {
       output = new BufferedWriter(new FileWriter(exportFile));
