@@ -21,7 +21,6 @@ package org.sonar.batch.issue;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -30,11 +29,11 @@ import org.sonar.api.rules.Violation;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.issue.DefaultIssue;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
  * Bridge with violations, that have been deprecated in 3.6.
+ *
  * @since 3.6
  */
 public class DeprecatedViolations implements BatchComponent {
@@ -70,7 +69,7 @@ public class DeprecatedViolations implements BatchComponent {
     violation.setCreatedAt(issue.creationDate());
     violation.setManual(issue.reporter() != null);
     violation.setSeverity(RulePriority.valueOf(issue.severity()));
-    violation.setSwitchedOff(Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution()));
+    violation.setSwitchedOff(issue.resolution() != null);
     return violation;
   }
 }

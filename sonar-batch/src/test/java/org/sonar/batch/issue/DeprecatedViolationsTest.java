@@ -60,6 +60,7 @@ public class DeprecatedViolationsTest {
     assertThat(violation.getRule().getRepositoryKey()).isEqualTo("squid");
     assertThat(violation.getRule().getKey()).isEqualTo("AvoidCycles");
     assertThat(violation.getResource()).isNotNull();
+    assertThat(violation.isSwitchedOff()).isFalse();
   }
 
   private DefaultIssue newIssue(RuleKey ruleKey) {

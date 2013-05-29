@@ -129,7 +129,9 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    * @param violationQuery
    *          the request parameters specified as a {@link ViolationQuery}
    * @return the list of violations that match those parameters
+   * @deprecated in 3.6
    */
+  @Deprecated
   public abstract List<Violation> getViolations(ViolationQuery violationQuery);
 
   /**
@@ -139,16 +141,24 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    *
    * @since 2.7
    * @return the list of violations
+   * @deprecated in 3.6
    */
+  @Deprecated
   public final List<Violation> getViolations(Resource resource) {
     return getViolations(ViolationQuery.create().forResource(resource));
   }
 
   /**
    * @since 2.5
+   * @deprecated in 3.6
    */
+  @Deprecated
   public abstract void addViolation(Violation violation, boolean force);
 
+  /**
+   * @deprecated in 3.6
+   */
+  @Deprecated
   public final void addViolation(Violation violation) {
     addViolation(violation, false);
   }

@@ -311,6 +311,10 @@ public class DefaultIndex extends SonarIndex {
       throw new IllegalArgumentException("A resource must be set on the ViolationQuery in order to search for violations.");
     }
 
+    if (!Scopes.isHigherThanOrEquals(resource, Scopes.FILE)) {
+      return Collections.emptyList();
+    }
+
     Bucket bucket = buckets.get(resource);
     if (bucket == null) {
       return Collections.emptyList();
@@ -320,6 +324,7 @@ public class DefaultIndex extends SonarIndex {
     if (violationQuery.getSwitchMode() == ViolationQuery.SwitchMode.BOTH) {
       return violations;
     }
+
     List<Violation> filteredViolations = Lists.newArrayList();
     for (Violation violation : violations) {
       if (isFiltered(violation, violationQuery.getSwitchMode())) {
