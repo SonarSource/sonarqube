@@ -44,7 +44,7 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import java.util.Collection;
 
 @DependsUpon({DecoratorBarriers.END_OF_VIOLATIONS_GENERATION, DecoratorBarriers.START_VIOLATION_TRACKING})
-@DependedUpon({DecoratorBarriers.END_OF_VIOLATION_TRACKING, DecoratorBarriers.END_OF_ISSUES_UPDATES})
+@DependedUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class IssueTrackingDecorator implements Decorator {
 
   private final IssueCache issueCache;
@@ -85,7 +85,6 @@ public class IssueTrackingDecorator implements Decorator {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     if (issuable != null) {
       doDecorate(resource);
-
     }
   }
 

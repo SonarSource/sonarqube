@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * @since 3.6
  */
-@DependsUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
+@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class IssuesDensityDecorator implements Decorator {
 
   public boolean shouldExecuteOnProject(Project project) {

@@ -83,9 +83,4 @@ public interface DecoratorBarriers {
    * @since 2.5
    */
   String END_OF_TIME_MACHINE = "END_OF_TIME_MACHINE";
-
-  /**
-   * @since 3.6
-   */
-  String END_OF_ISSUES_UPDATES = "END_OF_ISSUES_UPDATES";
 }

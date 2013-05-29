@@ -48,7 +48,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @since 3.6
  */
-@DependsUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
+@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class CountOpenIssuesDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;

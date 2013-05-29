@@ -28,14 +28,13 @@ import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
 
 /**
  * Computes the number of false-positives
  *
  * @since 3.6
  */
-@DependsUpon(DecoratorBarriers.END_OF_ISSUES_UPDATES)
+@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
 public class CountFalsePositivesDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
