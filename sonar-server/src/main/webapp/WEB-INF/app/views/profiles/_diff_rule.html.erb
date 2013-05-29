@@ -1,3 +1,5 @@
 <%= image_tag "priority/#{arule.priority}.png" %>
 
-<span class="rulename"><a onclick="window.open(this.href,'rule','height=700,width=500,scrollbars=1,resizable=1');return false;" href="<%= url_for :controller => 'rules', :action => 'show', :id => arule.rule.key, :layout => 'false' -%>"><%= h(arule.rule.name) -%></a></span> <span class="note"><%= h(arule.rule.plugin_name) -%></span>
+<span class="rulename"><a onclick="window.open(this.href,'rule','height=700,width=500,scrollbars=1,resizable=1');return false;"
+                          href="<%= url_for :controller => 'rules', :action => 'show', :id => arule.rule.key, :layout => 'false' -%>"><%= h(arule.rule.name) -%></a>
+</span> <span class="note"><%= h(arule.rule.plugin_name) -%></span>

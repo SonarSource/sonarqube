@@ -6,7 +6,7 @@
       <h3><%= h issue_results.component(issue).name -%></h3>
     </div>
 
-    <div class="marginbottom10">
+    <div class="marginbottom10 issue-content">
       <%= render :partial => 'issue/issue', :locals => {:issue => issue_results.issues.get(0)} -%>
     </div>
 
@@ -17,3 +17,8 @@
     <% end %>
   </div>
 </div>
+
+<script>
+  // Apply modal function on the rule link
+  $j('.issue-content .open-modal').modal();
+</script>

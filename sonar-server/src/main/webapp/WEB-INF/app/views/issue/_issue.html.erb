@@ -4,7 +4,8 @@
     &nbsp;
       <span class="rulename">
         <% rule_name = Internal.rules.ruleL10nName(@issue_results.rule(issue)) %>
-        <a class="open-modal" modal-width="800" href="<%= url_for :controller => 'rules', :action => 'show', :id => issue.rule_key.to_s, :modal => 'true', :layout => 'false' -%>"><%= h rule_name -%></a>
+        <a class="open-modal" modal-width="800" href="<%= url_for :controller => 'rules', :action => 'show', :id => issue.rule_key.to_s, :modal => 'true', :layout => 'false' -%>">
+          <%= h rule_name -%></a>
       </span>
     &nbsp;
     <% if issue.resolution %>
