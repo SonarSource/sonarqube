@@ -30,18 +30,18 @@ public interface IssueClient {
 
   Issues find(IssueQuery query);
 
-  void assign(String issueKey, @Nullable String assignee);
+  Issue assign(String issueKey, @Nullable String assignee);
 
-  void setSeverity(String issueKey, String severity);
+  Issue setSeverity(String issueKey, String severity);
 
-  void plan(String issueKey, @Nullable String actionPlan);
+  Issue plan(String issueKey, @Nullable String actionPlan);
 
   IssueComment addComment(String issueKey, String markdownText);
 
-  void create(NewIssue issue);
+  Issue create(NewIssue issue);
 
   List<String> transitions(String issueKey);
 
-  void doTransition(String issueKey, String transition);
+  Issue doTransition(String issueKey, String transition);
 
 }

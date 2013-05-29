@@ -65,61 +65,73 @@ public class DefaultIssueClientTest {
   @Test
   public void should_set_severity() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.setSeverity("ABCDE", "BLOCKER");
+    Issue result = client.setSeverity("ABCDE", "BLOCKER");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/set_severity?issue=ABCDE&severity=BLOCKER");
+    assertThat(result).isNotNull();
   }
 
   @Test
   public void should_assign() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.assign("ABCDE", "emmerik");
+    Issue result = client.assign("ABCDE", "emmerik");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign?issue=ABCDE&assignee=emmerik");
+    assertThat(result).isNotNull();
   }
 
   @Test
   public void should_unassign() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.assign("ABCDE", null);
+    Issue result = client.assign("ABCDE", null);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign?issue=ABCDE");
+    assertThat(result).isNotNull();
   }
 
   @Test
   public void should_plan() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.plan("ABCDE", "DEFGH");
+    Issue result = client.plan("ABCDE", "DEFGH");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/plan?issue=ABCDE&plan=DEFGH");
+    assertThat(result).isNotNull();
   }
 
   @Test
   public void should_unplan() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.plan("ABCDE", null);
+    Issue result = client.plan("ABCDE", null);
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/plan?issue=ABCDE");
+    assertThat(result).isNotNull();
   }
 
   @Test
   public void should_create_issue() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.create(NewIssue.create().component("Action.java").rule("squid:AvoidCycle"));
+    Issue result = client.create(NewIssue.create().component("Action.java").rule("squid:AvoidCycle"));
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/create?component=Action.java&rule=squid:AvoidCycle");
+    assertThat(result).isNotNull();
   }
 
   @Test
@@ -143,11 +155,13 @@ public class DefaultIssueClientTest {
   @Test
   public void should_apply_transition() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
-    client.doTransition("ABCDE", "resolve");
+    Issue result = client.doTransition("ABCDE", "resolve");
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_transition?issue=ABCDE&transition=resolve");
+    assertThat(result).isNotNull();
   }
 
   @Test

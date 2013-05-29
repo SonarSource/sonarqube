@@ -25,6 +25,7 @@ import org.sonar.wsclient.internal.EncodingUtils;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -54,38 +55,42 @@ public class DefaultIssueClient implements IssueClient {
   }
 
   @Override
-  public void create(NewIssue newIssue) {
+  public Issue create(NewIssue newIssue) {
     HttpRequest request = requestFactory.post(NewIssue.BASE_URL, newIssue.urlParams());
     if (!request.ok()) {
       throw new IllegalStateException("Fail to create issue. Bad HTTP response status: " + request.code());
     }
+    return createIssueResult(request);
   }
 
   @Override
-  public void setSeverity(String issueKey, String severity) {
+  public Issue setSeverity(String issueKey, String severity) {
     Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "severity", severity);
     HttpRequest request = requestFactory.post("/api/issues/set_severity", params);
     if (!request.ok()) {
       throw new IllegalStateException("Fail to set severity. Bad HTTP response status: " + request.code());
     }
+    return createIssueResult(request);
   }
 
   @Override
-  public void assign(String issueKey, @Nullable String assignee) {
+  public Issue assign(String issueKey, @Nullable String assignee) {
     Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "assignee", assignee);
     HttpRequest request = requestFactory.post("/api/issues/assign", params);
     if (!request.ok()) {
       throw new IllegalStateException("Fail to assign issue to user. Bad HTTP response status: " + request.code());
     }
+    return createIssueResult(request);
   }
 
   @Override
-  public void plan(String issueKey, @Nullable String actionPlanKey) {
+  public Issue plan(String issueKey, @Nullable String actionPlanKey) {
     Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "plan", actionPlanKey);
     HttpRequest request = requestFactory.post("/api/issues/plan", params);
     if (!request.ok()) {
       throw new IllegalStateException("Fail to link action plan. Bad HTTP response status: " + request.code());
     }
+    return createIssueResult(request);
   }
 
   @Override
@@ -111,13 +116,19 @@ public class DefaultIssueClient implements IssueClient {
   }
 
   @Override
-  public void doTransition(String issueKey, String transition) {
+  public Issue doTransition(String issueKey, String transition) {
     Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "transition", transition);
     HttpRequest request = requestFactory.post("/api/issues/do_transition", params);
     if (!request.ok()) {
       throw new IllegalStateException("Fail to execute transition on issue " + issueKey + ".Bad HTTP response status: " + request.code());
     }
+    return createIssueResult(request);
   }
 
+  private Issue createIssueResult(HttpRequest request){
+    String json = request.body("UTF-8");
+    Map jsonRoot = (Map) JSONValue.parse(json);
+    return new Issue((Map) jsonRoot.get("issue"));
+  }
 
 }
