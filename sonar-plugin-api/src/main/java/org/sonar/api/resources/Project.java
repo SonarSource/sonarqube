@@ -216,7 +216,10 @@ public class Project extends Resource implements Component {
    */
   @Deprecated
   public Project setLatestAnalysis(boolean b) {
-    throw new UnsupportedOperationException("The analysis is always the latest one. Past analysis must be done in a chronological order.");
+    if (b == false) {
+      throw new UnsupportedOperationException("The analysis is always the latest one. Past analysis must be done in a chronological order.");
+    }
+    return this;
   }
 
   /**
