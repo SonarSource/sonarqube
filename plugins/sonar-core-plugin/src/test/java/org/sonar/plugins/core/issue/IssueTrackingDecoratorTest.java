@@ -79,15 +79,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void should_execute_on_project() {
     Project project = mock(Project.class);
-    when(project.isLatestAnalysis()).thenReturn(true);
     assertThat(decorator.shouldExecuteOnProject(project)).isTrue();
-  }
-
-  @Test
-  public void should_not_execute_on_project_if_past_scan() {
-    Project project = mock(Project.class);
-    when(project.isLatestAnalysis()).thenReturn(false);
-    assertThat(decorator.shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test

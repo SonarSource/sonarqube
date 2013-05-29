@@ -28,43 +28,41 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
 
   @Test
-  public void analysisIsTodayByDefault() {
+  public void analysis_is_today_by_default() {
     Project project = new Project("key");
     new ProjectConfigurator(getSession(), new Settings()).configure(project);
     Date today = new Date();
-    assertTrue(today.getTime() - project.getAnalysisDate().getTime() < 1000);
+    assertThat(today.getTime() - project.getAnalysisDate().getTime()).isLessThan(1000);
   }
 
   @Test
-  public void analysisDateCouldBeExplicitlySet() {
+  public void analysis_date_could_be_explicitly_set() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005-01-30");
     Project project = new Project("key");
     new ProjectConfigurator(getSession(), settings).configure(project);
 
-    assertEquals("30012005", new SimpleDateFormat("ddMMyyyy").format(project.getAnalysisDate()));
+    assertThat(new SimpleDateFormat("ddMMyyyy").format(project.getAnalysisDate())).isEqualTo("30012005");
   }
 
   @Test
-  public void analysisTimestampCouldBeExplicitlySet() {
+  public void analysis_timestamp_could_be_explicitly_set() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005-01-30T08:45:10+0000");
     Project project = new Project("key");
     new ProjectConfigurator(getSession(), settings).configure(project);
 
-    assertEquals("30012005-4510", new SimpleDateFormat("ddMMyyyy-mmss").format(project.getAnalysisDate()));
+    assertThat(new SimpleDateFormat("ddMMyyyy-mmss").format(project.getAnalysisDate())).isEqualTo("30012005-4510");
   }
 
   @Test(expected = RuntimeException.class)
-  public void failIfAnalyisDateIsNotValid() {
+  public void fail_if_analyis_date_is_not_valid() {
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005/30/01");
     Project project = new Project("key");
@@ -72,54 +70,54 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void defaultAnalysisTypeIsDynamic() {
+  public void default_analysis_type_is_dynamic() {
     Project project = new Project("key");
     new ProjectConfigurator(getSession(), new Settings()).configure(project);
-    assertThat(project.getAnalysisType(), is(Project.AnalysisType.DYNAMIC));
+    assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.DYNAMIC);
   }
 
   @Test
-  public void explicitDynamicAnalysis() {
+  public void explicit_dynamic_analysis() {
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "true");
     Project project = new Project("key");
     new ProjectConfigurator(getSession(), configuration).configure(project);
-    assertThat(project.getAnalysisType(), is(Project.AnalysisType.DYNAMIC));
+    assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.DYNAMIC);
   }
 
   @Test
-  public void explicitStaticAnalysis() {
+  public void explicit_static_analysis() {
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "false");
     Project project = new Project("key");
     new ProjectConfigurator(getSession(), configuration).configure(project);
-    assertThat(project.getAnalysisType(), is(Project.AnalysisType.STATIC));
+    assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.STATIC);
   }
 
   @Test
-  public void explicitDynamicAnalysisReusingReports() {
+  public void explicit_dynamic_analysis_reusing_reports() {
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "reuseReports");
     Project project = new Project("key");
     new ProjectConfigurator(getSession(), configuration).configure(project);
-    assertThat(project.getAnalysisType(), is(Project.AnalysisType.REUSE_REPORTS));
+    assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.REUSE_REPORTS);
   }
 
   @Test
-  public void isDynamicAnalysis() {
-    assertThat(Project.AnalysisType.DYNAMIC.isDynamic(false), is(true));
-    assertThat(Project.AnalysisType.DYNAMIC.isDynamic(true), is(true));
+  public void is_dynamic_analysis() {
+    assertThat(Project.AnalysisType.DYNAMIC.isDynamic(false)).isTrue();
+    assertThat(Project.AnalysisType.DYNAMIC.isDynamic(true)).isTrue();
 
-    assertThat(Project.AnalysisType.STATIC.isDynamic(false), is(false));
-    assertThat(Project.AnalysisType.STATIC.isDynamic(true), is(false));
+    assertThat(Project.AnalysisType.STATIC.isDynamic(false)).isFalse();
+    assertThat(Project.AnalysisType.STATIC.isDynamic(true)).isFalse();
 
-    assertThat(Project.AnalysisType.REUSE_REPORTS.isDynamic(false), is(false));
-    assertThat(Project.AnalysisType.REUSE_REPORTS.isDynamic(true), is(true));
+    assertThat(Project.AnalysisType.REUSE_REPORTS.isDynamic(false)).isFalse();
+    assertThat(Project.AnalysisType.REUSE_REPORTS.isDynamic(true)).isTrue();
   }
 
   @Test
-  public void isLatestAnalysis() {
-    setupData("isLatestAnalysis");
+  public void set_analysis_date_on_latest_analysis() {
+    setupData("set_analysis_date_on_latest_analysis");
 
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2010-12-25");
@@ -127,12 +125,12 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     Project project = new Project("my:key");
     new ProjectConfigurator(getSession(), configuration).configure(project);
 
-    assertThat(project.isLatestAnalysis(), is(true));
+    assertThat(new SimpleDateFormat("ddMMyyyy").format(project.getAnalysisDate())).isEqualTo("25122010");
   }
 
   @Test
-  public void isLatestAnalysisIfNeverAnalysed() {
-    setupData("isLatestAnalysisIfNeverAnalysed");
+  public void set_analysis_date_on_latest_analysis_if_never_analysed() {
+    setupData("set_analysis_date_on_latest_analysis_if_never_analysed");
 
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2010-12-25");
@@ -140,19 +138,25 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     Project project = new Project("my:key");
     new ProjectConfigurator(getSession(), configuration).configure(project);
 
-    assertThat(project.isLatestAnalysis(), is(true));
+    assertThat(new SimpleDateFormat("ddMMyyyy").format(project.getAnalysisDate())).isEqualTo("25122010");
   }
 
   @Test
-  public void isNotLatestAnalysis() {
-    setupData("isNotLatestAnalysis");
+  public void fail_if_not_latest_analysis() {
+    setupData("fail_if_not_latest_analysis");
 
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005-12-25");
 
     Project project = new Project("my:key");
-    new ProjectConfigurator(getSession(), configuration).configure(project);
 
-    assertThat(project.isLatestAnalysis(), is(false));
+    try {
+      new ProjectConfigurator(getSession(), configuration).configure(project);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The value '2005-12-25' of the sonar.projectDate property can't be older than the date " +
+        "of last known quality snapshot on this project. This property must be used to replay the past in a chronological order.");
+    }
   }
+
 }

@@ -54,7 +54,7 @@ public class VariationDecorator implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return project.isLatestAnalysis();
+    return true;
   }
 
   @DependsUpon

@@ -278,7 +278,7 @@ public class CountOpenIssuesDecorator implements Decorator {
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {
-    return context.getProject().isLatestAnalysis() && context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
+    return context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
   }
 
   private Collection<Issue> getOpenIssues(Collection<Issue> issues) {

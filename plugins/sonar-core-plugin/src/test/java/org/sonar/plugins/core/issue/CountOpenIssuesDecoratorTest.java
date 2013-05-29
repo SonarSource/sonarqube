@@ -95,8 +95,6 @@ public class CountOpenIssuesDecoratorTest {
     when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Arrays.asList(pastSnapshot, pastSnapshot2));
 
     project = mock(Project.class);
-    when(project.isLatestAnalysis()).thenReturn(true);
-
     resource = mock(Resource.class);
     context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(resource);
@@ -269,8 +267,8 @@ public class CountOpenIssuesDecoratorTest {
   }
 
   @Test
-  public void should_not_save_new_issues_if_not_last_analysis() {
-    when(project.isLatestAnalysis()).thenReturn(false);
+  public void should_not_save_new_issues_if_measure_already_computed() {
+    when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(new Measure());
     when(issuable.issues()).thenReturn(createIssuesForNewMetrics());
 
     decorator.decorate(resource, context);

@@ -53,19 +53,7 @@ public class SendIssueNotificationsPostJobTest {
   SensorContext sensorContext;
 
   @Test
-  public void should_not_send_notif_if_past_scan() throws Exception {
-    when(project.isLatestAnalysis()).thenReturn(false);
-    when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
-
-    SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
-    job.executeOn(project, sensorContext);
-
-    verifyZeroInteractions(notifications, issueCache, ruleFinder, sensorContext);
-  }
-
-  @Test
   public void should_send_notif_if_new_issues() throws Exception {
-    when(project.isLatestAnalysis()).thenReturn(true);
     when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
     when(issueCache.all()).thenReturn(Arrays.asList(
       new DefaultIssue().setNew(true),
@@ -80,7 +68,6 @@ public class SendIssueNotificationsPostJobTest {
 
   @Test
   public void should_not_send_notif_if_no_new_issues() throws Exception {
-    when(project.isLatestAnalysis()).thenReturn(true);
     when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
     when(issueCache.all()).thenReturn(Arrays.asList(
       new DefaultIssue().setNew(false)

@@ -33,9 +33,7 @@ import java.util.Locale;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ProjectLinksSensorTest {
 
@@ -47,9 +45,7 @@ public class ProjectLinksSensorTest {
   @Test
   public void shouldExecuteOnlyForLatestAnalysis() {
     Project project = mock(Project.class);
-    when(project.isLatestAnalysis()).thenReturn(true).thenReturn(false);
     assertThat(new ProjectLinksSensor(null, null).shouldExecuteOnProject(project)).isTrue();
-    assertThat(new ProjectLinksSensor(null, null).shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test

@@ -202,17 +202,21 @@ public class Project extends Resource implements Component {
    * whether it's the latest analysis done on this project (displayed in sonar dashboard) or an analysis on a past revision.
    * 
    * @since 2.0
+   * @deprecated in 3.6. The analysis is now always the latest one (past analysis must be done in a chronological order). See http://jira.codehaus.org/browse/SONAR-4334
    */
+  @Deprecated
   public boolean isLatestAnalysis() {
-    return latestAnalysis;
+    return true;
   }
 
   /**
    * For internal use only.
+   *
+   * @deprecated in 3.6. It's not possible to do an analyse before the latest known quality snapshot. See http://jira.codehaus.org/browse/SONAR-4334
    */
+  @Deprecated
   public Project setLatestAnalysis(boolean b) {
-    this.latestAnalysis = b;
-    return this;
+    throw new UnsupportedOperationException("The analysis is always the latest one. Past analysis must be done in a chronological order.");
   }
 
   /**

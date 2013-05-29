@@ -46,9 +46,7 @@ public class SendIssueNotificationsPostJob implements PostJob {
 
   @Override
   public void executeOn(Project project, SensorContext context) {
-    if (project.isLatestAnalysis()) {
-      sendNotifications(project);
-    }
+    sendNotifications(project);
   }
 
   private void sendNotifications(Project project) {

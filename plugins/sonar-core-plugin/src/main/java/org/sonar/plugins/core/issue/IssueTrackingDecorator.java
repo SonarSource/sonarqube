@@ -78,7 +78,7 @@ public class IssueTrackingDecorator implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return project.isLatestAnalysis();
+    return true;
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
