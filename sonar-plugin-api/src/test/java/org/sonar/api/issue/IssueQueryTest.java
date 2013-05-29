@@ -49,7 +49,7 @@ public class IssueQueryTest {
       .assigned(true)
       .createdAfter(new Date())
       .createdBefore(new Date())
-      .sort(IssueQuery.Sort.ASSIGNEE)
+      .sort(IssueQuery.SORT_BY_ASSIGNEE)
       .pageSize(10)
       .pageIndex(2)
       .requiredRole(UserRole.CODEVIEWER)
@@ -67,7 +67,7 @@ public class IssueQueryTest {
     assertThat(query.actionPlans()).containsOnly("AP1", "AP2");
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();
-    assertThat(query.sort()).isEqualTo(IssueQuery.Sort.ASSIGNEE);
+    assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_ASSIGNEE);
     assertThat(query.pageSize()).isEqualTo(10);
     assertThat(query.pageIndex()).isEqualTo(2);
     assertThat(query.requiredRole()).isEqualTo(UserRole.CODEVIEWER);

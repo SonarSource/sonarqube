@@ -85,7 +85,7 @@ public class PublicRubyIssueService implements RubyIssueService {
     builder.pageIndex(RubyUtils.toInteger(props.get("pageIndex")));
     String sort = (String) props.get("sort");
     if (sort != null) {
-      builder.sort(IssueQuery.Sort.valueOf(sort.toUpperCase()));
+      builder.sort(sort);
       builder.asc(RubyUtils.toBoolean(props.get("asc")));
     }
     return builder.build();

@@ -251,27 +251,27 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_issues_with_sort_column() {
     setupData("shared", "should_select_issues_with_sort_column");
 
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.ASSIGNEE).requiredRole("user").build();
+    IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).requiredRole("user").build();
     List<IssueDto> results = dao.selectIssues(query);
     assertThat(results.get(0).getAssignee()).isNotNull();
 
-    query = IssueQuery.builder().sort(IssueQuery.Sort.SEVERITY).requiredRole("user").build();
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).requiredRole("user").build();
     results = dao.selectIssues(query);
     assertThat(results.get(0).getSeverity()).isNotNull();
 
-    query = IssueQuery.builder().sort(IssueQuery.Sort.STATUS).requiredRole("user").build();
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).requiredRole("user").build();
     results = dao.selectIssues(query);
     assertThat(results.get(0).getStatus()).isNotNull();
 
-    query = IssueQuery.builder().sort(IssueQuery.Sort.CREATION_DATE).requiredRole("user").build();
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).requiredRole("user").build();
     results = dao.selectIssues(query);
     assertThat(results.get(0).getIssueCreationDate()).isNotNull();
 
-    query = IssueQuery.builder().sort(IssueQuery.Sort.UPDATE_DATE).requiredRole("user").build();
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).requiredRole("user").build();
     results = dao.selectIssues(query);
     assertThat(results.get(0).getIssueUpdateDate()).isNotNull();
 
-    query = IssueQuery.builder().sort(IssueQuery.Sort.CLOSE_DATE).requiredRole("user").build();
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).requiredRole("user").build();
     results = dao.selectIssues(query);
     assertThat(results.get(0).getIssueCloseDate()).isNotNull();
   }

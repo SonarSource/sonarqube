@@ -20,15 +20,16 @@
 package org.sonar.api.issue;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.web.UserRole;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @since 3.6
@@ -41,9 +42,13 @@ public class IssueQuery {
   public static final int MAX_PAGE_SIZE = 500;
   public static final int MAX_ISSUE_KEYS = 500;
 
-  public static enum Sort {
-    CREATION_DATE, UPDATE_DATE, CLOSE_DATE, ASSIGNEE, SEVERITY, STATUS
-  }
+  public static final String SORT_BY_CREATION_DATE = "CREATION_DATE";
+  public static final String SORT_BY_UPDATE_DATE = "UPDATE_DATE";
+  public static final String SORT_BY_CLOSE_DATE = "CLOSE_DATE";
+  public static final String SORT_BY_ASSIGNEE = "ASSIGNEE";
+  public static final String SORT_BY_SEVERITY = "SEVERITY";
+  public static final String SORT_BY_STATUS = "STATUS";
+  public static final Set<String> SORTS = ImmutableSet.of(SORT_BY_CREATION_DATE, SORT_BY_UPDATE_DATE, SORT_BY_CLOSE_DATE, SORT_BY_ASSIGNEE, SORT_BY_SEVERITY, SORT_BY_STATUS);
 
   private final Collection<String> issueKeys;
   private final Collection<String> severities;
@@ -60,7 +65,7 @@ public class IssueQuery {
   private final Boolean resolved;
   private final Date createdAfter;
   private final Date createdBefore;
-  private final Sort sort;
+  private final String sort;
   private final Boolean asc;
   private final String requiredRole;
 
@@ -159,7 +164,7 @@ public class IssueQuery {
   }
 
   @CheckForNull
-  public Sort sort() {
+  public String sort() {
     return sort;
   }
 
@@ -209,7 +214,7 @@ public class IssueQuery {
     private Boolean resolved = null;
     private Date createdAfter;
     private Date createdBefore;
-    private Sort sort;
+    private String sort;
     private Boolean asc = false;
     private Integer pageSize;
     private Integer pageIndex;
@@ -305,8 +310,11 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder sort(@Nullable Sort sort) {
-      this.sort = sort;
+    public Builder sort(@Nullable String s) {
+      if (s != null && !SORTS.contains(s)) {
+        throw new IllegalArgumentException("Bad sort field: " + s);
+      }
+      this.sort = s;
       return this;
     }
 
@@ -345,7 +353,7 @@ public class IssueQuery {
       } else {
         if (pageSize == null) {
           pageSize = DEFAULT_PAGE_SIZE;
-        } else if (pageSize<=0 || pageSize > MAX_PAGE_SIZE) {
+        } else if (pageSize <= 0 || pageSize > MAX_PAGE_SIZE) {
           pageSize = MAX_PAGE_SIZE;
         }
       }

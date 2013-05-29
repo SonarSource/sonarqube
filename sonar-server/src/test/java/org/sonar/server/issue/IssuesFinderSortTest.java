@@ -42,7 +42,7 @@ public class IssuesFinderSortTest {
     IssueDto issue4 = new IssueDto().setId(4L).setAssignee(null);
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3, issue4);
 
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.ASSIGNEE).asc(true).build();
+    IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true).build();
     IssuesFinderSort issuesFinderSort = new IssuesFinderSort(dtoList, query);
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
@@ -61,7 +61,7 @@ public class IssuesFinderSortTest {
     IssueDto issue3 = new IssueDto().setId(3L).setStatus("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.STATUS).asc(false).build();
+    IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(false).build();
     IssuesFinderSort issuesFinderSort = new IssuesFinderSort(dtoList, query);
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
@@ -79,7 +79,7 @@ public class IssuesFinderSortTest {
     IssueDto issue3 = new IssueDto().setId(3L).setSeverity("MAJOR");
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.SEVERITY).asc(true).build();
+    IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(true).build();
     IssuesFinderSort issuesFinderSort = new IssuesFinderSort(dtoList, query);
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
@@ -101,7 +101,7 @@ public class IssuesFinderSortTest {
     IssueDto issue3 = new IssueDto().setId(3L).setIssueCreationDate(date2);
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.CREATION_DATE).asc(false).build();
+    IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(false).build();
     IssuesFinderSort issuesFinderSort = new IssuesFinderSort(dtoList, query);
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
@@ -123,7 +123,7 @@ public class IssuesFinderSortTest {
     IssueDto issue3 = new IssueDto().setId(3L).setIssueUpdateDate(date2);
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.UPDATE_DATE).asc(false).build();
+    IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(false).build();
     IssuesFinderSort issuesFinderSort = new IssuesFinderSort(dtoList, query);
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());
@@ -145,7 +145,7 @@ public class IssuesFinderSortTest {
     IssueDto issue3 = new IssueDto().setId(3L).setIssueCloseDate(date2);
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
-    IssueQuery query = IssueQuery.builder().sort(IssueQuery.Sort.CLOSE_DATE).asc(false).build();
+    IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(false).build();
     IssuesFinderSort issuesFinderSort = new IssuesFinderSort(dtoList, query);
 
     List<IssueDto> result = newArrayList(issuesFinderSort.sort());

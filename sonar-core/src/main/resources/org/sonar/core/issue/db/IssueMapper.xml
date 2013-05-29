@@ -37,22 +37,22 @@
   <sql id="sortColumn">
     <if test="query.sort() != null">,
       <choose>
-        <when test="'SEVERITY'.equals(query.sort().name())">
+        <when test="'SEVERITY'.equals(query.sort())">
           i.severity as severity
         </when>
-        <when test="'STATUS'.equals(query.sort().name())">
+        <when test="'STATUS'.equals(query.sort())">
           i.status as status
         </when>
-        <when test="'ASSIGNEE'.equals(query.sort().name())">
+        <when test="'ASSIGNEE'.equals(query.sort())">
           i.assignee as assignee
         </when>
-        <when test="'CREATION_DATE'.equals(query.sort().name())">
+        <when test="'CREATION_DATE'.equals(query.sort())">
           i.issue_creation_date as issueCreationDate
         </when>
-        <when test="'UPDATE_DATE'.equals(query.sort().name())">
+        <when test="'UPDATE_DATE'.equals(query.sort())">
           i.issue_update_date as issueUpdateDate
         </when>
-        <when test="'CLOSE_DATE'.equals(query.sort().name())">
+        <when test="'CLOSE_DATE'.equals(query.sort())">
           i.issue_close_date as issueCloseDate
         </when>
       </choose>

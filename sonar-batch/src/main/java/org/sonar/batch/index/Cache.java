@@ -27,7 +27,6 @@ import com.persistit.exception.PersistitException;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.annotation.CheckForNull;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
@@ -35,7 +34,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- *
  * <p>
  * This cache is not thread-safe, due to direct usage of {@link com.persistit.Exchange}
  * </p>
@@ -192,7 +190,7 @@ public class Cache<K, V extends Serializable> {
   // TODO implement a lazy-loading equivalent with Iterator/Iterable
   public Collection<V> values(String group) {
     try {
-      List<V> values = Lists.newLinkedList();
+      List<V> values = Lists.newArrayList();
       exchange.clear();
       Exchange iteratorExchange = new Exchange(exchange);
       iteratorExchange.append(group).append(Key.BEFORE);
@@ -213,7 +211,7 @@ public class Cache<K, V extends Serializable> {
 
   public Collection<V> allValues() {
     try {
-      List<V> values = Lists.newLinkedList();
+      List<V> values = Lists.newArrayList();
       exchange.clear();
       Exchange iteratorExchange = new Exchange(exchange);
       iteratorExchange.append(Key.BEFORE);

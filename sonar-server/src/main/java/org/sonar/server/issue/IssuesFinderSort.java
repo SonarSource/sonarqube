@@ -40,30 +40,33 @@ class IssuesFinderSort {
   }
 
   public List<IssueDto> sort() {
-    IssueQuery.Sort sort = query.sort();
+    String sort = query.sort();
     if (sort != null) {
       return getIssueProcessor(sort).sort(issues, query.asc());
     }
     return issues;
   }
 
-  private IssueProcessor getIssueProcessor(IssueQuery.Sort sort){
-    switch (sort) {
-      case ASSIGNEE:
-        return new AssigneeSortIssueProcessor();
-      case SEVERITY:
-        return new SeveritySortIssueProcessor();
-      case STATUS:
-        return new StatusSortIssueProcessor();
-      case CREATION_DATE:
-        return new CreationDateSortIssueProcessor();
-      case UPDATE_DATE:
-        return new UpdateDateSortIssueProcessor();
-      case CLOSE_DATE:
-        return new CloseDateSortIssueProcessor();
-      default:
-        throw new IllegalArgumentException("Cannot sort issues on field : " + sort.name());
+  private IssueProcessor getIssueProcessor(String sort) {
+    if (IssueQuery.SORT_BY_ASSIGNEE.equals(sort)) {
+      return new AssigneeSortIssueProcessor();
     }
+    if (IssueQuery.SORT_BY_SEVERITY.equals(sort)) {
+      return new SeveritySortIssueProcessor();
+    }
+    if (IssueQuery.SORT_BY_STATUS.equals(sort)) {
+      return new StatusSortIssueProcessor();
+    }
+    if (IssueQuery.SORT_BY_CREATION_DATE.equals(sort)) {
+      return new CreationDateSortIssueProcessor();
+    }
+    if (IssueQuery.SORT_BY_UPDATE_DATE.equals(sort)) {
+      return new UpdateDateSortIssueProcessor();
+    }
+    if (IssueQuery.SORT_BY_CLOSE_DATE.equals(sort)) {
+      return new CloseDateSortIssueProcessor();
+    }
+    throw new IllegalArgumentException("Cannot sort issues on field : " + sort);
   }
 
   abstract static class IssueProcessor {
