@@ -30,7 +30,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -111,7 +110,7 @@ public class IssueTrackingDecorator implements Decorator {
 
     if (ResourceUtils.isProject(resource)) {
       // issues that relate to deleted components
-      addDead(issues);
+      addIssuesOnDeletedComponents(issues);
     }
 
     for (DefaultIssue issue : issues) {
@@ -165,33 +164,33 @@ public class IssueTrackingDecorator implements Decorator {
   private void addUnmatched(Collection<IssueDto> unmatchedIssues, Collection<DefaultIssue> issues) {
     for (IssueDto unmatchedDto : unmatchedIssues) {
       DefaultIssue unmatched = unmatchedDto.toDefaultIssue();
-      unmatched.setNew(false);
-
-      boolean manualIssue = !Strings.isNullOrEmpty(unmatched.reporter());
-      Rule rule = ruleFinder.findByKey(unmatched.ruleKey());
-      if (manualIssue) {
-        // Manual rules are not declared in Quality profiles, so no need to check ActiveRule
-        boolean onDisabledRule = (rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus()));
-        unmatched.setEndOfLife(onDisabledRule);
-        unmatched.setOnDisabledRule(onDisabledRule);
-      } else {
-        ActiveRule activeRule = rulesProfile.getActiveRule(unmatched.ruleKey().repository(), unmatched.ruleKey().rule());
-        unmatched.setEndOfLife(true);
-        unmatched.setOnDisabledRule(activeRule == null || rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus()));
-      }
-
+      updateUnmatchedIssue(unmatched, false /* manual issues can be kept open */);
       issues.add(unmatched);
     }
   }
 
-  private void addDead(Collection<DefaultIssue> issues) {
+  private void addIssuesOnDeletedComponents(Collection<DefaultIssue> issues) {
     for (IssueDto deadDto : initialOpenIssues.getAllIssues()) {
       DefaultIssue dead = deadDto.toDefaultIssue();
-      ActiveRule activeRule = rulesProfile.getActiveRule(deadDto.getRuleRepo(), deadDto.getRule());
-      dead.setNew(false);
-      dead.setEndOfLife(true);
-      dead.setOnDisabledRule(activeRule == null);
+      updateUnmatchedIssue(dead, true);
       issues.add(dead);
+    }
+  }
+
+  private void updateUnmatchedIssue(DefaultIssue issue, boolean forceEndOfLife) {
+    issue.setNew(false);
+
+    boolean manualIssue = !Strings.isNullOrEmpty(issue.reporter());
+    Rule rule = ruleFinder.findByKey(issue.ruleKey());
+    if (manualIssue) {
+      // Manual rules are not declared in Quality profiles, so no need to check ActiveRule
+      boolean isRemovedRule = (rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus()));
+      issue.setEndOfLife(forceEndOfLife || isRemovedRule);
+      issue.setOnDisabledRule(isRemovedRule);
+    } else {
+      ActiveRule activeRule = rulesProfile.getActiveRule(issue.ruleKey().repository(), issue.ruleKey().rule());
+      issue.setEndOfLife(true);
+      issue.setOnDisabledRule(activeRule == null || rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus()));
     }
   }
 }

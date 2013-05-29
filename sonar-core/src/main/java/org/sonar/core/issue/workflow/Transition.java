@@ -77,6 +77,43 @@ public class Transition {
     return true;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Transition that = (Transition) o;
+    if (!from.equals(that.from)) {
+      return false;
+    }
+    if (!key.equals(that.key)) {
+      return false;
+    }
+    if (!to.equals(that.to)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = key.hashCode();
+    result = 31 * result + from.hashCode();
+    result = 31 * result + to.hashCode();
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s->%s->%s", from, key, to);
+  }
+
+  public static Transition create(String key, String from, String to) {
+    return builder(key).from(from).to(to).build();
+  }
 
   public static TransitionBuilder builder(String key) {
     return new TransitionBuilder(key);

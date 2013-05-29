@@ -100,7 +100,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
 
         // automatic transitions
 
-        // Close the issues that do not exist anymore. Note that isEndOfLife() is false on manual issues
+        // Close the "end of life" issues (disabled/deleted rule, deleted component)
       .transition(Transition.builder("automaticclose")
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_CLOSED)
         .conditions(new IsEndOfLife(true))
@@ -119,20 +119,28 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .functions(new SetEndOfLifeResolution(), new SetCloseDate(true))
         .automatic()
         .build())
-        // Close the issues marked as resolved and that do not exist anymore.
-        // Note that false-positives are kept resolved and are not closed.
       .transition(Transition.builder("automaticclose")
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_CLOSED)
         .conditions(new IsEndOfLife(true))
         .functions(new SetEndOfLifeResolution(), new SetCloseDate(true))
         .automatic()
         .build())
-      .transition(Transition.builder("automaticreopen")
-        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
-        .conditions(new IsEndOfLife(false), new HasResolution(Issue.RESOLUTION_FIXED))
-        .functions(new SetResolution(null), new SetCloseDate(false))
+      .transition(Transition.builder("automaticclosemanual")
+        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_CLOSED)
+        .conditions(new IsEndOfLife(false), new HasResolution(Issue.RESOLUTION_FIXED), new IsManual(true))
+        .functions(new SetCloseDate(true))
         .automatic()
         .build())
+
+      // Reopen issues that are marked as resolved but that are still alive.
+      // Manual issues are kept resolved.
+      .transition(Transition.builder("automaticreopen")
+        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
+        .conditions(new IsEndOfLife(false), new HasResolution(Issue.RESOLUTION_FIXED), new IsManual(false))
+        .functions(new SetResolution(null), new SetCloseDate(false))
+        .automatic()
+        .build()
+      )
       .build();
   }
 

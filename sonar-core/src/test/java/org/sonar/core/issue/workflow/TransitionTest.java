@@ -46,6 +46,7 @@ public class TransitionTest {
     assertThat(transition.to()).isEqualTo("CLOSED");
     assertThat(transition.conditions()).containsOnly(condition1, condition2);
     assertThat(transition.functions()).containsOnly(function1, function2);
+    assertThat(transition.automatic()).isFalse();
   }
 
   @Test
@@ -115,5 +116,33 @@ public class TransitionTest {
     when(condition1.matches(issue)).thenReturn(true);
     when(condition2.matches(issue)).thenReturn(true);
     assertThat(transition.supports(issue)).isTrue();
+  }
+
+  @Test
+  public void test_equals_and_hashCode() throws Exception {
+    Transition t1 = Transition.create("resolve", "OPEN", "RESOLVED");
+    Transition t2 = Transition.create("resolve", "REOPENED", "RESOLVED");
+    Transition t3 = Transition.create("confirm", "OPEN", "CONFIRMED");
+
+    assertThat(t1).isNotEqualTo(t2);
+    assertThat(t1).isNotEqualTo(t3);
+    assertThat(t1).isEqualTo(t1);
+
+    assertThat(t1.hashCode()).isEqualTo(t1.hashCode());
+  }
+
+  @Test
+  public void test_toString() throws Exception {
+    Transition t1 = Transition.create("resolve", "OPEN", "RESOLVED");
+    assertThat(t1.toString()).isEqualTo("OPEN->resolve->RESOLVED");
+  }
+
+  @Test
+  public void test_automatic_transition() throws Exception {
+    Transition transition = Transition.builder("close")
+      .from("OPEN").to("CLOSED")
+      .automatic()
+      .build();
+    assertThat(transition.automatic()).isTrue();
   }
 }
