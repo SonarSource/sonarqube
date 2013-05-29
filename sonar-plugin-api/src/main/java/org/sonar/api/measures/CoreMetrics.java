@@ -44,7 +44,6 @@ public final class CoreMetrics {
   public static String DOMAIN_OVERALL_TESTS = "Tests (Overall)";
   public static String DOMAIN_COMPLEXITY = "Complexity";
   public static String DOMAIN_DOCUMENTATION = "Documentation";
-  public static String DOMAIN_RULES = "Rules";
   public static String DOMAIN_SCM = "SCM";
 
   /**
@@ -1405,7 +1404,7 @@ public final class CoreMetrics {
     .setDescription("Weighted Issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1415,7 +1414,7 @@ public final class CoreMetrics {
     .setDescription("Rules compliance")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .create();
 
   public static final String VIOLATIONS_KEY = "violations";
@@ -1423,7 +1422,7 @@ public final class CoreMetrics {
     .setDescription("Issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1433,7 +1432,7 @@ public final class CoreMetrics {
     .setDescription("Blocker issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1443,7 +1442,7 @@ public final class CoreMetrics {
     .setDescription("Critical issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1453,7 +1452,7 @@ public final class CoreMetrics {
     .setDescription("Major issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1463,7 +1462,7 @@ public final class CoreMetrics {
     .setDescription("Minor issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1473,7 +1472,7 @@ public final class CoreMetrics {
     .setDescription("Info issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1483,7 +1482,7 @@ public final class CoreMetrics {
     .setDescription("New Issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .setDeleteHistoricalData(true)
@@ -1494,7 +1493,7 @@ public final class CoreMetrics {
     .setDescription("New Blocker issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .setDeleteHistoricalData(true)
@@ -1505,7 +1504,7 @@ public final class CoreMetrics {
     .setDescription("New Critical issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .setDeleteHistoricalData(true)
@@ -1516,7 +1515,7 @@ public final class CoreMetrics {
     .setDescription("New Major issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .setDeleteHistoricalData(true)
@@ -1527,7 +1526,7 @@ public final class CoreMetrics {
     .setDescription("New Minor issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .setDeleteHistoricalData(true)
@@ -1538,7 +1537,7 @@ public final class CoreMetrics {
     .setDescription("New Info issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_RULES)
+    .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .setDeleteHistoricalData(true)
