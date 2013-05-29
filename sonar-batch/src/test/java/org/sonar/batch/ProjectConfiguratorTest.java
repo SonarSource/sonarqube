@@ -155,7 +155,7 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The value '2005-12-25' of the sonar.projectDate property can't be older than the date " +
-        "of last known quality snapshot on this project. This property must be used to replay the past in a chronological order.");
+        "of last known quality snapshot on this project. This property must only be used to rebuild the past in a chronological order.");
     }
   }
 

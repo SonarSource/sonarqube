@@ -70,18 +70,19 @@ public class ProjectConfigurator implements BatchComponent {
     checkCurrentAnalyisIsTheLatestOne(project, analysisDate);
 
     project
-        .setConfiguration(new PropertiesConfiguration()) // will be populated by ProjectSettings
-        .setAnalysisDate(analysisDate)
-        .setAnalysisVersion(loadAnalysisVersion())
-        .setAnalysisType(loadAnalysisType());
+      .setConfiguration(new PropertiesConfiguration()) // will be populated by ProjectSettings
+      .setAnalysisDate(analysisDate)
+      .setAnalysisVersion(loadAnalysisVersion())
+      .setAnalysisType(loadAnalysisType());
     return this;
   }
 
-  private void checkCurrentAnalyisIsTheLatestOne(Project project, Date analysisDate){
+  private void checkCurrentAnalyisIsTheLatestOne(Project project, Date analysisDate) {
     if (!isLatestAnalysis(project.getKey(), analysisDate)) {
       throw new IllegalArgumentException(
-        "The value '"+ settings.getString(CoreProperties.PROJECT_DATE_PROPERTY) +"' of the sonar.projectDate property can't be older than the date of last known quality snapshot " +
-          "on this project. This property must be used to replay the past in a chronological order.");
+        "The value '" + settings.getString(CoreProperties.PROJECT_DATE_PROPERTY) + "' of the sonar.projectDate property " +
+          "can't be older than the date of last known quality snapshot " +
+          "on this project. This property must only be used to rebuild the past in a chronological order.");
     }
   }
 

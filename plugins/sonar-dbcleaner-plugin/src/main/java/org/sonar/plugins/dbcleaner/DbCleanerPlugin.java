@@ -33,21 +33,21 @@ import java.util.List;
   @Property(key = DbCleanerConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY, defaultValue = "24",
     name = "Number of hours before starting to keep only one snapshot per day",
     description = "After this number of hours, if there are several snapshots during the same day, "
-      + "the DbCleaner keeps the most recent one and fully delete the other ones.",
+      + "the DbCleaner keeps the most recent one and fully deletes the other ones.",
     global = true,
     project = true,
     type = PropertyType.INTEGER),
   @Property(key = DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK, defaultValue = "4",
     name = "Number of weeks before starting to keep only one snapshot per week",
     description = "After this number of weeks, if there are several snapshots during the same week, "
-      + "the DbCleaner keeps the most recent one and fully delete the other ones.",
+      + "the DbCleaner keeps the most recent one and fully deletes the other ones.",
     global = true,
     project = true,
     type = PropertyType.INTEGER),
   @Property(key = DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH, defaultValue = "52",
     name = "Number of weeks before starting to keep only one snapshot per month",
     description = "After this number of weeks, if there are several snapshots during the same month, "
-      + "the DbCleaner keeps the most recent one and fully delete the other ones.",
+      + "the DbCleaner keeps the most recent one and fully deletes the other ones.",
     global = true,
     project = true,
     type = PropertyType.INTEGER),
@@ -61,6 +61,7 @@ import java.util.List;
     key = DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY,
     defaultValue = "true",
     name = "Clean history data of directories/packages",
+    description = "If set to true, no history is kept at directory/package level. Setting this to false can cause database bloat.",
     global = true,
     project = true,
     module = false,
@@ -68,8 +69,8 @@ import java.util.List;
   @Property(
     key = DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES,
     defaultValue = "30",
-    name = "Number of days before deleting closed Issues",
-    description = "Issues are deleted after this number of days in the status CLOSED.",
+    name = "Number of days before deleting closed issues",
+    description = "Issues that have been closed for more than this number of days will be deleted.",
     global = true,
     project = true,
     type = PropertyType.INTEGER)
