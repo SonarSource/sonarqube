@@ -144,6 +144,7 @@
       and p.id=i.component_id
       and i.root_component_id=root.id
     </where>
+    order by i.id desc
   </select>
 
   <select id="selectIssues" parameterType="map" resultType="Issue" fetchSize="100000">
@@ -254,6 +255,7 @@
         and i.issue_creation_date &lt; #{query.createdBefore}
       </if>
     </where>
+    order by i.id desc
   </sql>
 
 </mapper>
