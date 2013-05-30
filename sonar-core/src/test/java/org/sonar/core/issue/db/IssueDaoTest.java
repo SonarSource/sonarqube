@@ -20,6 +20,8 @@
 
 package org.sonar.core.issue.db;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
@@ -142,14 +144,12 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     IssueQuery query = IssueQuery.builder().componentRoots(newArrayList("struts")).requiredRole("user").build();
     List<IssueDto> issues = newArrayList(dao.selectIssues(query));
     assertThat(issues).hasSize(2);
-    assertThat(issues.get(0).getId()).isEqualTo(100);
-    assertThat(issues.get(1).getId()).isEqualTo(101);
+    assertThat(getIssueIds(issues)).containsOnly(100l, 101l);
 
     query = IssueQuery.builder().componentRoots(newArrayList("struts-core")).requiredRole("user").build();
     issues = newArrayList(dao.selectIssues(query));
     assertThat(issues).hasSize(2);
-    assertThat(issues.get(0).getId()).isEqualTo(100);
-    assertThat(issues.get(1).getId()).isEqualTo(101);
+    assertThat(getIssueIds(issues)).containsOnly(100l, 101l);
 
     query = IssueQuery.builder().componentRoots(newArrayList("Filter.java")).requiredRole("user").build();
     issues = newArrayList(dao.selectIssues(query));
@@ -295,5 +295,15 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     List<IssueDto> results = newArrayList(dao.selectByIds(newArrayList(100l, 101l, 102l)));
     assertThat(results).hasSize(3);
+  }
+
+
+  private List<Long> getIssueIds(List<IssueDto> issues){
+    return newArrayList(Iterables.transform(issues, new Function<IssueDto, Long>() {
+      @Override
+      public Long apply(IssueDto input) {
+        return input.getId();
+      }
+    }));
   }
 }
