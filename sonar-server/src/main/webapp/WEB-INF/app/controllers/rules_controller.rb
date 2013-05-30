@@ -20,8 +20,18 @@
 class RulesController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
-  
+
+  # GET /rules/show/<key>
+  # This URL is used by the Eclipse plugin
+  #
+  # ==== Optional parameters
+  # 'layout' is false to remove sidebar and headers
+  #
+  # Example: GET /rules/show/squid:AvoidCycles
+  #
   def show
+    require_parameters :id
+
     @key=params[:id]
     if @key.to_i==0
       parts=@key.split(':')
@@ -32,8 +42,7 @@ class RulesController < ApplicationController
     @page_title=@rule.name if @rule
 
     if params[:modal] == 'true'
-      render :partial => 'show'
+      render :partial => 'show_modal'
     end
   end
-
 end

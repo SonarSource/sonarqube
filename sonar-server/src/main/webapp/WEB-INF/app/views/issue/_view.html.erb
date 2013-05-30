@@ -10,7 +10,7 @@
       <%= render :partial => 'issue/issue', :locals => {:issue => issue_results.issues.get(0)} -%>
     </div>
 
-    <% if snapshot && issue.line%>
+    <% if snapshot && issue.line && show_source %>
     <div>
       <%= snapshot_html_source(snapshot, {:line_range => (issue.line-5)..(issue.line+5), :highlighted_lines => [issue.line]}) -%>
     </div>

@@ -27,18 +27,25 @@ class IssueController < ApplicationController
     init_issue
 
     if request.xhr?
-      render :partial => 'issue/view', :locals => {:issue => @issue, :issue_results => @issue_results, :snapshot =>  @snapshot}
+      render :partial => 'issue/view', :locals => {:issue => @issue, :issue_results => @issue_results, :snapshot =>  @snapshot, :show_source => true}
     else
       render :action => 'view'
     end
   end
 
-  # Used in Eclipse Plugin
+  # GET /issue/show/<key>
+  # This URL is used by the Eclipse Plugin
+  #
+  # ==== Optional parameters
+  # 'layout' is false to remove sidebar and headers. Default value is true.
+  # 'source' is false to hide source code. Default value is true.
+  #
+  # ==== Example
+  # GET /issue/show/151f6853-58a1-4950-95e3-9866f8be3e35?layout=false&source=false
+  #
   def show
     require_parameters :id
     init_issue
-
-    params[:layout] = 'false'
     render :action => 'view'
   end
 
