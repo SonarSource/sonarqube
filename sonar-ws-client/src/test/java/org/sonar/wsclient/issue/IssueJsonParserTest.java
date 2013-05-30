@@ -49,6 +49,7 @@ public class IssueJsonParserTest {
     assertThat(first.message()).isEqualTo("the message");
     assertThat(first.effortToFix()).isEqualTo(4.2);
     assertThat(first.reporter()).isEqualTo("perceval");
+    assertThat(first.actionPlan()).isEqualTo("9450b10c-e725-48b8-bf01-acdec751c491");
     assertThat(first.creationDate()).isNotNull();
     assertThat(first.updateDate()).isNotNull();
     assertThat(first.closeDate()).isNotNull();
@@ -169,5 +170,22 @@ public class IssueJsonParserTest {
     assertThat(component.qualifier()).isEqualTo("TRK");
     assertThat(component.name()).isEqualTo("Struts");
     assertThat(component.longName()).isEqualTo("org.struts");
+  }
+
+  @Test
+  public void should_parse_action_plans() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-action-plans.json"));
+    Issues issues = new IssueJsonParser().parseIssues(json);
+
+    assertThat(issues.actionPlans()).hasSize(1);
+
+    ActionPlan actionPlan = issues.actionPlans(issues.list().get(0));
+    assertThat(actionPlan.key()).isEqualTo("9450b10c-e725-48b8-bf01-acdec751c491");
+    assertThat(actionPlan.name()).isEqualTo("3.6");
+    assertThat(actionPlan.status()).isEqualTo("OPEN");
+    assertThat(actionPlan.project()).isEqualTo("struts");
+    assertThat(actionPlan.deadLine().getTime()).isEqualTo(1369951200000l);
+    assertThat(actionPlan.createdAt().getTime()).isEqualTo(1369828520000l);
+    assertThat(actionPlan.updatedAt().getTime()).isEqualTo(1369828520000l);
   }
 }

@@ -99,6 +99,11 @@ public class Issue {
     return JsonUtils.getString(json, "assignee");
   }
 
+  @CheckForNull
+  public String actionPlan() {
+    return JsonUtils.getString(json, "actionPlan");
+  }
+
   public Date creationDate() {
     return JsonUtils.getDateTime(json, "creationDate");
   }

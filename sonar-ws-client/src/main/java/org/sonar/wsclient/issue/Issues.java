@@ -37,6 +37,7 @@ public class Issues {
   private final Map<String, User> usersByKey = new HashMap<String, User>();
   private final Map<String, Component> componentsByKey = new HashMap<String, Component>();
   private final Map<String, Component> projectsByKey = new HashMap<String, Component>();
+  private final Map<String, ActionPlan> actionPlansByKey = new HashMap<String, ActionPlan>();
   private Paging paging;
   private Boolean maxResultsReached;
 
@@ -83,6 +84,15 @@ public class Issues {
     return projectsByKey.get(issue.projectKey());
   }
 
+  public Collection<ActionPlan> actionPlans() {
+    return actionPlansByKey.values();
+  }
+
+  @CheckForNull
+  public ActionPlan actionPlans(Issue issue) {
+    return actionPlansByKey.get(issue.actionPlan());
+  }
+
   public Paging paging() {
     return paging;
   }
@@ -103,6 +113,11 @@ public class Issues {
 
   Issues add(User user) {
     usersByKey.put(user.login(), user);
+    return this;
+  }
+
+  Issues add(ActionPlan actionPlan) {
+    actionPlansByKey.put(actionPlan.key(), actionPlan);
     return this;
   }
 

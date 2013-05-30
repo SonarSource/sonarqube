@@ -47,6 +47,7 @@ class IssueJsonParser {
     parseUsers(result, jsonRoot);
     parseComponents(result, jsonRoot);
     parseProjects(result, jsonRoot);
+    parseActionPlans(result, jsonRoot);
     parsePaging(result, jsonRoot);
     return result;
   }
@@ -89,6 +90,15 @@ class IssueJsonParser {
     if (jsonRules != null) {
       for (Map jsonRule : jsonRules) {
         result.add(new Rule(jsonRule));
+      }
+    }
+  }
+
+  private void parseActionPlans(Issues result, Map jsonRoot) {
+    List<Map> jsonRules = (List) jsonRoot.get("actionPlans");
+    if (jsonRules != null) {
+      for (Map jsonRule : jsonRules) {
+        result.add(new ActionPlan(jsonRule));
       }
     }
   }
