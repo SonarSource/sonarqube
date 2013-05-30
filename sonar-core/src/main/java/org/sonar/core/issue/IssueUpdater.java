@@ -46,6 +46,12 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
+  public boolean setPastSeverity(DefaultIssue issue, @Nullable String previousSeverity, IssueChangeContext context) {
+    String currentSeverity = issue.severity();
+    issue.setSeverity(previousSeverity);
+    return setSeverity(issue, currentSeverity, context);
+  }
+
   public boolean setManualSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (!issue.manualSeverity() || !Objects.equal(severity, issue.severity())) {
       issue.setFieldDiff(context, "severity", issue.severity(), severity);
@@ -79,6 +85,12 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
+  public boolean setPastLine(DefaultIssue issue, @Nullable Integer previousLine) {
+    Integer currentLine = issue.line();
+    issue.setLine(previousLine);
+    return setLine(issue, currentLine);
+  }
+
   public boolean setResolution(DefaultIssue issue, @Nullable String resolution, IssueChangeContext context) {
     if (!Objects.equal(resolution, issue.resolution())) {
       issue.setFieldDiff(context, "resolution", issue.resolution(), resolution);
@@ -101,22 +113,31 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
-  public void setAuthorLogin(DefaultIssue issue, @Nullable String authorLogin, IssueChangeContext context) {
+  public boolean setAuthorLogin(DefaultIssue issue, @Nullable String authorLogin, IssueChangeContext context) {
     if (!Objects.equal(authorLogin, issue.authorLogin())) {
       issue.setFieldDiff(context, "author", issue.authorLogin(), authorLogin);
       issue.setAuthorLogin(authorLogin);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
+      return true;
     }
+    return false;
   }
 
-  public void setMessage(DefaultIssue issue, @Nullable String s, IssueChangeContext context) {
+  public boolean setMessage(DefaultIssue issue, @Nullable String s, IssueChangeContext context) {
     if (!Objects.equal(s, issue.message())) {
-      issue.setFieldDiff(context, "message", issue.message(), s);
       issue.setMessage(s);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
+      return true;
     }
+    return false;
+  }
+
+  public boolean setPastMessage(DefaultIssue issue, @Nullable String previousMessage, IssueChangeContext context) {
+    String currentMessage = issue.message();
+    issue.setMessage(previousMessage);
+    return setMessage(issue, currentMessage, context);
   }
 
   public void addComment(DefaultIssue issue, String text, IssueChangeContext context) {
@@ -141,6 +162,12 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       return true;
     }
     return false;
+  }
+
+  public boolean setPastEffortToFix(DefaultIssue issue, @Nullable Double previousEffort, IssueChangeContext context) {
+    Double currentEffort = issue.effortToFix();
+    issue.setEffortToFix(previousEffort);
+    return setEffortToFix(issue, currentEffort, context);
   }
 
   public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {

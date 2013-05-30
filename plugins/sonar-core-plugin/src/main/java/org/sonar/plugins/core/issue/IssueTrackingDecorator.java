@@ -149,14 +149,11 @@ public class IssueTrackingDecorator implements Decorator {
         issue.setManualSeverity(true);
         issue.setSeverity(ref.getSeverity());
       } else {
-        // Emulate change of severity in the current scan.
-        String severity = issue.severity();
-        issue.setSeverity(ref.getSeverity());
-        updater.setSeverity(issue, severity, changeContext);
+        updater.setPastSeverity(issue, ref.getSeverity(), changeContext);
       }
-      Integer line = issue.line();
-      issue.setLine(ref.getLine());
-      updater.setLine(issue, line);
+      updater.setPastLine(issue, ref.getLine());
+      updater.setPastMessage(issue, ref.getMessage(), changeContext);
+      updater.setPastEffortToFix(issue, ref.getEffortToFix(), changeContext);
     }
   }
 

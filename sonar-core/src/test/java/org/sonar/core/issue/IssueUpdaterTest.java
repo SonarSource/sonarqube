@@ -85,6 +85,18 @@ public class IssueUpdaterTest {
   }
 
   @Test
+  public void should_set_past_severity() throws Exception {
+    issue.setSeverity("BLOCKER");
+    boolean updated = updater.setPastSeverity(issue, "INFO", context);
+    assertThat(updated).isTrue();
+    assertThat(issue.severity()).isEqualTo("BLOCKER");
+
+    FieldDiffs.Diff diff = issue.diffs().get("severity");
+    assertThat(diff.oldValue()).isEqualTo("INFO");
+    assertThat(diff.newValue()).isEqualTo("BLOCKER");
+  }
+
+  @Test
   public void should_update_severity() throws Exception {
     issue.setSeverity("BLOCKER");
     boolean updated = updater.setSeverity(issue, "MINOR", context);
@@ -140,6 +152,17 @@ public class IssueUpdaterTest {
     boolean updated = updater.setLine(issue, 123);
     assertThat(updated).isTrue();
     assertThat(issue.line()).isEqualTo(123);
+
+    // do not save change
+    assertThat(issue.diffs()).isNull();
+  }
+
+  @Test
+  public void should_set_past_line() throws Exception {
+    issue.setLine(42);
+    boolean updated = updater.setPastLine(issue, 123);
+    assertThat(updated).isTrue();
+    assertThat(issue.line()).isEqualTo(42);
 
     // do not save change
     assertThat(issue.diffs()).isNull();
@@ -248,5 +271,46 @@ public class IssueUpdaterTest {
     assertThat(updated).isFalse();
     assertThat(issue.isChanged()).isFalse();
     assertThat(issue.effortToFix()).isEqualTo(3.14);
+  }
+
+  @Test
+  public void should_set_past_effort() throws Exception {
+    issue.setEffortToFix(3.14);
+    boolean updated = updater.setPastEffortToFix(issue, 1.0, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.effortToFix()).isEqualTo(3.14);
+
+    // do not save change
+    assertThat(issue.diffs()).isNull();
+  }
+
+  @Test
+  public void should_set_message() throws Exception {
+    boolean updated = updater.setMessage(issue, "the message", context);
+    assertThat(updated).isTrue();
+    assertThat(issue.isChanged()).isTrue();
+    assertThat(issue.message()).isEqualTo("the message");
+  }
+
+  @Test
+  public void should_set_past_message() throws Exception {
+    issue.setMessage("new message");
+    boolean updated = updater.setPastMessage(issue, "past message", context);
+    assertThat(updated).isTrue();
+    assertThat(issue.message()).isEqualTo("new message");
+
+    // do not save change
+    assertThat(issue.diffs()).isNull();
+  }
+
+  @Test
+  public void should_set_author() throws Exception {
+    boolean updated = updater.setAuthorLogin(issue, "eric", context);
+    assertThat(updated).isTrue();
+    assertThat(issue.authorLogin()).isEqualTo("eric");
+
+    FieldDiffs.Diff diff = issue.diffs().get("author");
+    assertThat(diff.oldValue()).isNull();
+    assertThat(diff.newValue()).isEqualTo("eric");
   }
 }
