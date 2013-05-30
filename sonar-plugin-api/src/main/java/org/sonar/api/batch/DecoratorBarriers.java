@@ -68,12 +68,16 @@ public interface DecoratorBarriers {
 
   /**
    * @since 2.13
+   * @deprecated in 3.6. Issues are persisted at the end of analysis.
    */
+  @Deprecated
   String START_VIOLATION_PERSISTENCE = "START_VIOLATION_PERSISTENCE";
 
   /**
    * @since 2.13
+   * @deprecated in 3.6. Issues are persisted at the end of analysis
    */
+  @Deprecated
   String END_OF_VIOLATION_PERSISTENCE = "END_OF_VIOLATION_PERSISTENCE";
 
   /**
