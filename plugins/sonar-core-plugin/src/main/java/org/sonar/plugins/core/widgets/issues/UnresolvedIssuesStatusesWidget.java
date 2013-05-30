@@ -25,6 +25,6 @@ import org.sonar.plugins.core.widgets.CoreWidget;
 @WidgetCategory({"Issues"})
 public class UnresolvedIssuesStatusesWidget extends CoreWidget {
   public UnresolvedIssuesStatusesWidget() {
-    super("unresolved_issues_statuses", "Unresolved issue statuses", "/org/sonar/plugins/core/widgets/issues/unresolved_issues_statuses.html.erb");
+    super("unresolved_issues_statuses", "Unresolved issues by status", "/org/sonar/plugins/core/widgets/issues/unresolved_issues_statuses.html.erb");
   }
 }
