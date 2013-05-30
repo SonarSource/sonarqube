@@ -360,6 +360,11 @@ public class DefaultIndex extends SonarIndex {
       return;
     }
 
+    // keep a limitation (bug?) of deprecated violations api : severity is always
+    // set by sonar. The severity set by plugins is overridden.
+    // This is not the case with issue api.
+    violation.setSeverity(null);
+
     violation.setResource(bucket.getResource());
     scanIssues.initAndAddViolation(violation);
   }
