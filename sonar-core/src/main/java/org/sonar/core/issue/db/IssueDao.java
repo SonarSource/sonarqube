@@ -100,7 +100,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   private List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
     IssueMapper mapper = session.getMapper(IssueMapper.class);
-    return mapper.selectIssues(query, userId, query.requiredRole(), maxResults);
+    return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole(), maxResults);
   }
 
   @VisibleForTesting

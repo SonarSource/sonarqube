@@ -24,6 +24,7 @@ import org.sonar.api.issue.IssueQuery;
 
 import javax.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface IssueMapper {
@@ -32,8 +33,8 @@ public interface IssueMapper {
 
   List<IssueDto> selectNonClosedIssues(int rootComponentId);
 
-  List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Nullable @Param("userId") Integer userId, @Param("role") String role,
-                                          @Param("maxResults") Integer maxResult);
+  List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
+                              @Nullable @Param("userId") Integer userId, @Param("role") String role, @Param("maxResults") Integer maxResult);
 
   void insert(IssueDto issue);
 

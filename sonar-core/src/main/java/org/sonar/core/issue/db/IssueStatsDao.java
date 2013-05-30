@@ -44,7 +44,7 @@ public class IssueStatsDao implements ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       IssueStatsMapper mapper = session.getMapper(IssueStatsMapper.class);
-      return mapper.selectIssuesColumn(query, column, userId, query.requiredRole());
+      return mapper.selectIssuesColumn(query, column, query.componentRoots(), userId, query.requiredRole());
     } finally {
       MyBatis.closeQuietly(session);
     }

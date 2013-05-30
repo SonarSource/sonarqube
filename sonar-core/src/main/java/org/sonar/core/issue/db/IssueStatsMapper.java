@@ -25,11 +25,12 @@ import org.sonar.api.issue.IssueQuery;
 
 import javax.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface IssueStatsMapper {
 
-  List<Object> selectIssuesColumn(@Param("query") IssueQuery query, @Param("column") String column,
+  List<Object> selectIssuesColumn(@Param("query") IssueQuery query, @Param("column") String column, @Param("componentRootKeys") Collection<String> componentRootKeys,
                                   @Nullable @Param("userId") Integer userId, @Param("role") String role);
 
 }

@@ -171,26 +171,8 @@
   <sql id="selectQueryConditions">
     from issues i
     inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />) authorizedProjects on authorizedProjects.root_project_id=i.root_component_id
-    <if test="query.componentRoots() != null and query.componentRoots().size() > 0">
-      inner join projects rootprojects on rootprojects.enabled=${_true} and rootprojects.kee in
-      <foreach item="componentRoot" index="index" collection="query.componentRoots()" open="(" separator="," close=")">
-        #{componentRoot}
-      </foreach>
-      inner join snapshots rootsnapshots on rootsnapshots.project_id=rootprojects.id and rootsnapshots.islast=${_true}
-      inner join snapshots s on s.project_id=i.component_id and s.islast=${_true} and
-      (s.id=rootsnapshots.id or ((s.root_snapshot_id=rootsnapshots.id or s.root_snapshot_id=rootsnapshots.root_snapshot_id) and
-      <choose>
-        <when test="_databaseId == 'mssql'">
-          s.path LIKE rootsnapshots.path + CAST(rootsnapshots.id AS varchar(15)) + '.%'
-        </when>
-        <when test="_databaseId == 'mysql'">
-          s.path LIKE concat(rootsnapshots.path, rootsnapshots.id, '.%')
-        </when>
-        <otherwise>
-          s.path LIKE rootsnapshots.path || rootsnapshots.id || '.%'
-        </otherwise>
-      </choose>
-      ))
+    <if test="componentRootKeys != null and componentRootKeys.size() > 0">
+      inner join (<include refid="org.sonar.core.resource.ResourceMapper.selectChildrenComponentIdsQuery" />) components on components.project_id=i.component_id
     </if>
     <if test="query.components() != null and query.components().size() > 0">
       inner join projects project_component on project_component.id=i.component_id and project_component.enabled=${_true} and project_component.kee in

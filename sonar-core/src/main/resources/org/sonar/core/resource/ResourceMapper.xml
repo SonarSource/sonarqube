@@ -120,6 +120,35 @@
     </where>
   </select>
 
+  <select id="selectChildrenComponentIds" parameterType="map" resultType="int">
+    <include refid="selectChildrenComponentIdsQuery" />
+  </select>
+
+  <sql id="selectChildrenComponentIdsQuery">
+    select s.project_id
+    from snapshots s
+    inner join snapshots rootsnapshots on (rootsnapshots.id=s.id or ((rootsnapshots.id=s.root_snapshot_id or rootsnapshots.root_snapshot_id=s.root_snapshot_id) and
+      <choose>
+        <when test="_databaseId == 'mssql'">
+          s.path LIKE rootsnapshots.path + CAST(rootsnapshots.id AS varchar(15)) + '.%'
+        </when>
+        <when test="_databaseId == 'mysql'">
+          s.path LIKE concat(rootsnapshots.path, rootsnapshots.id, '.%')
+        </when>
+        <otherwise>
+          s.path LIKE rootsnapshots.path || rootsnapshots.id || '.%'
+        </otherwise>
+      </choose>))
+      and rootsnapshots.islast=${_true}
+    <where>
+      and s.islast=${_true}
+      and rootsnapshots.project_id in
+      (select p.id from projects p where p.enabled=${_true}
+        and p.kee in <foreach item="componentKey" index="index" collection="componentRootKeys" open="(" separator="," close=")">#{componentKey}</foreach>)
+    </where>
+  </sql>
+
+
   <insert id="insert" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
     insert into projects
     (name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, enabled, created_at)

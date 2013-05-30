@@ -28,6 +28,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -244,5 +245,18 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     session.rollback();
 
     assertEmptyTables("projects");
+  }
+
+  @Test
+  public void should_find_children_component_ids(){
+    setupData("fixture");
+
+    assertThat(dao.findChildrenComponentIds(newArrayList("org.struts:struts"))).hasSize(4);
+    assertThat(dao.findChildrenComponentIds(newArrayList("org.struts:struts-core"))).hasSize(3);
+    assertThat(dao.findChildrenComponentIds(newArrayList("org.struts:struts:org.struts"))).hasSize(2);
+    assertThat(dao.findChildrenComponentIds(newArrayList("org.struts:struts:org.struts.RequestContext"))).hasSize(1);
+
+    assertThat(dao.findChildrenComponentIds(newArrayList("unknown"))).isEmpty();
+    assertThat(dao.findChildrenComponentIds(Collections.<String>emptyList())).isEmpty();
   }
 }

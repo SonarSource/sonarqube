@@ -154,6 +154,18 @@ public class ResourceDao {
     }
   }
 
+  public List<Integer> findChildrenComponentIds(Collection<String> componentRootKeys){
+    if (componentRootKeys.isEmpty()) {
+      return Collections.emptyList();
+    }
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(ResourceMapper.class).selectChildrenComponentIds(componentRootKeys);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   @CheckForNull
   public ResourceDto getRootProjectByComponentKey(String componentKey) {
     SqlSession session = mybatis.openSession();

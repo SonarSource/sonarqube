@@ -22,6 +22,7 @@ package org.sonar.core.resource;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ResourceMapper {
@@ -64,6 +65,11 @@ public interface ResourceMapper {
    * @since 3.6
    */
   ResourceDto selectRootProjectByComponentId(@Param("componentId") Long componentId);
+
+  /**
+   * @since 3.6
+   */
+  List<Integer> selectChildrenComponentIds(@Param("componentRootKeys") Collection<String> componentRootKeys);
 
 
   void insert(ResourceDto resource);
