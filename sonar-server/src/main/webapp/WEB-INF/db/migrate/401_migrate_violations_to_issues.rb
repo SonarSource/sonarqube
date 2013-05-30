@@ -46,6 +46,8 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
 
     violation_ids = ActiveRecord::Base.connection.select_rows('select id from rule_failures')
 
+    one_year_ago = Time.now.years_ago(1)
+
     say_with_time "Converting #{violation_ids.size} violations to issues" do
       logins_by_id = User.all.inject({}) do |result, user|
         result[user.id]=user.login
@@ -63,14 +65,14 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
           violations.each do |violation|
             issue_key = new_key
             review_id = violation[0]
-            created_at = violation[7]
+            created_at = violation[7] || one_year_ago
             resource_id = violation[1]
             if resource_id.present?
               issue = Issue.new(
                 :kee => issue_key,
                 :component_id => violation[1],
                 :rule_id => violation[2],
-                :severity => PRIORITY_TO_SEVERITY[violation[3].to_i],
+                :severity => PRIORITY_TO_SEVERITY[violation[3].to_i] || 'MAJOR',
                 :message => violation[4],
                 :line => violation[5],
                 :effort_to_fix => violation[6],
@@ -83,13 +85,14 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
                 :created_at => created_at,
                 :root_component_id => violation[17]
               )
+
               if review_id.present?
                 # has review
                 status = violation[11]
                 issue.status=(status=='OPEN' ? 'CONFIRMED' : status)
-                issue.issue_update_date=violation[16]
-                issue.updated_at=violation[16]
-                issue.severity=violation[12]
+                issue.issue_update_date=violation[16] || one_year_ago
+                issue.updated_at=violation[16] || one_year_ago
+                issue.severity=violation[12] || 'MAJOR'
                 issue.manual_severity=violation[14]
                 issue.reporter=logins_by_id[violation[9].to_i] if violation[9].present?
                 issue.assignee=logins_by_id[violation[10].to_i] if violation[10].present?
@@ -117,8 +120,8 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
               else
                 # does not have review
                 issue.status='OPEN'
-                issue.issue_update_date=created_at
-                issue.updated_at=created_at
+                issue.issue_update_date=created_at || one_year_ago
+                issue.updated_at=created_at || one_year_ago
                 issue.manual_severity=false
               end
               issue.save
