@@ -49,10 +49,10 @@
           <th>
             <%= message('issue_filter.header.action_plan') -%>
           </th>
-          <th>
+          <th width="1%" nowrap>
             <%= column_html(@filter, message('issue_filter.header.creation_date'), message('issue_filter.header.creation_date'), 'CREATION_DATE') %>
           </th>
-          <th>
+          <th width="1%" nowrap>
             <%= column_html(@filter, message('issue_filter.header.update_date'), message('issue_filter.header.update_date'), 'UPDATE_DATE') %>
           </th>
         </tr>
@@ -87,10 +87,10 @@
           <td>
             <%= h @filter.issues_result.actionPlan(issue).name if issue.actionPlanKey() -%>
           </td>
-          <td>
+          <td width="1%" nowrap>
             <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%>
           </td>
-          <td>
+          <td width="1%" nowrap>
             <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.updateDate())) -%>
           </td>
         </tr>
