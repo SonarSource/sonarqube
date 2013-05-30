@@ -64,6 +64,7 @@ public class IssueChangesEmailTemplateTest {
       .setFieldValue("key", "ABCDE")
       .setFieldValue("ruleName", "Avoid Cycles")
       .setFieldValue("message", "Has 3 cycles")
+      .setFieldValue("comment", "How to fix it?")
       .setFieldValue("old.assignee", "simon")
       .setFieldValue("new.assignee", "louis")
       .setFieldValue("new.resolution", "FALSE-POSITIVE")
@@ -71,9 +72,10 @@ public class IssueChangesEmailTemplateTest {
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId()).isEqualTo("issue-changes/ABCDE");
-    assertThat(message.getSubject()).isEqualTo("Issue #ABCDE");
+    assertThat(message.getSubject()).isEqualTo("Project Struts, change on issue #ABCDE");
     assertThat(message.getMessage()).contains("Rule: Avoid Cycles");
     assertThat(message.getMessage()).contains("Message: Has 3 cycles");
+    assertThat(message.getMessage()).contains("Comment: How to fix it?");
     assertThat(message.getMessage()).contains("Assignee: louis (was simon)");
     assertThat(message.getMessage()).contains("Resolution: FALSE-POSITIVE");
     assertThat(message.getMessage()).contains("See it in SonarQube: http://nemo.sonarsource.org/issue/show/ABCDE");

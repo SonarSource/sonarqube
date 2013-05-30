@@ -89,4 +89,24 @@ public class IssueNotificationsTest {
     assertThat(notification.getFieldValue("new.status")).isEqualTo("RESOLVED");
     Mockito.verify(manager).scheduleForSending(notification);
   }
+
+  @Test
+  public void sendChangesWithComment() throws Exception {
+    IssueChangeContext context = IssueChangeContext.createScan(new Date());
+    DefaultIssue issue = new DefaultIssue()
+      .setMessage("the message")
+      .setKey("ABCDE")
+      .setAssignee("freddy")
+      .setComponentKey("struts:Action")
+      .setProjectKey("struts");
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
+    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
+
+    Notification notification = issueNotifications.sendChanges(issue, context, queryResult, "I don't know how to fix it?");
+
+    assertThat(notification.getFieldValue("message")).isEqualTo("the message");
+    assertThat(notification.getFieldValue("key")).isEqualTo("ABCDE");
+    assertThat(notification.getFieldValue("comment")).isEqualTo("I don't know how to fix it?");
+    Mockito.verify(manager).scheduleForSending(notification);
+  }
 }

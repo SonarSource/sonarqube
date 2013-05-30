@@ -23,16 +23,16 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueComment;
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.*;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.user.UserSession;
 
+import java.util.Arrays;
 import java.util.Date;
 
 public class IssueCommentService implements ServerComponent {
@@ -41,12 +41,14 @@ public class IssueCommentService implements ServerComponent {
   private final IssueChangeDao changeDao;
   private final IssueStorage storage;
   private final DefaultIssueFinder finder;
+  private final IssueNotifications issueNotifications;
 
-  public IssueCommentService(IssueUpdater updater, IssueChangeDao changeDao, IssueStorage storage, DefaultIssueFinder finder) {
+  public IssueCommentService(IssueUpdater updater, IssueChangeDao changeDao, IssueStorage storage, DefaultIssueFinder finder, IssueNotifications issueNotifications) {
     this.updater = updater;
     this.changeDao = changeDao;
     this.storage = storage;
     this.finder = finder;
+    this.issueNotifications = issueNotifications;
   }
 
   public IssueComment findComment(String commentKey) {
@@ -55,11 +57,14 @@ public class IssueCommentService implements ServerComponent {
 
   public IssueComment addComment(String issueKey, String text, UserSession userSession) {
     verifyLoggedIn(userSession);
-    DefaultIssue issue = finder.findByKey(issueKey, UserRole.USER);
+
+    IssueQueryResult queryResult = loadIssue(issueKey);
+    DefaultIssue issue = (DefaultIssue) queryResult.first();
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     updater.addComment(issue, text, context);
     storage.save(issue);
+    issueNotifications.sendChanges(issue, context, queryResult, text);
     return issue.comments().get(issue.comments().size() - 1);
   }
 
@@ -108,5 +113,10 @@ public class IssueCommentService implements ServerComponent {
       // must be logged
       throw new IllegalStateException("User is not logged in");
     }
+  }
+
+  public IssueQueryResult loadIssue(String issueKey) {
+    IssueQuery query = IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build();
+    return finder.find(query);
   }
 }

@@ -49,7 +49,7 @@ public class NewIssuesEmailTemplateTest {
 
   /**
    * <pre>
-   * Subject: New issues for project Foo
+   * Subject: Project Struts, new issues
    * From: Sonar
    *
    * Project: Foo
@@ -68,7 +68,7 @@ public class NewIssuesEmailTemplateTest {
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId()).isEqualTo("new-issues/org.apache:struts");
-    assertThat(message.getSubject()).isEqualTo("New issues for project Struts");
+    assertThat(message.getSubject()).isEqualTo("Project Struts, new issues");
     assertThat(message.getMessage()).isEqualTo("" +
       "Project: Struts\n" +
       "32 new issues\n" +

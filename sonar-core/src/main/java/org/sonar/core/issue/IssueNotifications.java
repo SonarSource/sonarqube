@@ -32,6 +32,7 @@ import org.sonar.core.i18n.RuleI18nManager;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Locale;
 import java.util.Map;
 
@@ -67,28 +68,46 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
   @CheckForNull
   public Notification sendChanges(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component) {
     if (issue.diffs() != null) {
-      Notification notification = newNotification(project, "issue-changes");
-      notification.setFieldValue("key", issue.key());
-      notification.setFieldValue("changeAuthor", context.login());
-      notification.setFieldValue("reporter", issue.reporter());
-      notification.setFieldValue("assignee", issue.assignee());
-      notification.setFieldValue("message", issue.message());
-      notification.setFieldValue("ruleName", ruleName(rule));
-      notification.setFieldValue("componentKey", issue.componentKey());
-      if (component != null) {
-        notification.setFieldValue("componentName", component.name());
-      }
+      Notification notification = createNotification(issue, context, rule, project, component, null);
+      notificationsManager.scheduleForSending(notification);
+      return notification;
+    }
+    return null;
+  }
 
-      for (Map.Entry<String, FieldDiffs.Diff> entry : issue.diffs().diffs().entrySet()) {
+  @CheckForNull
+  public Notification sendChanges(DefaultIssue issue, IssueChangeContext context, IssueQueryResult queryResult, @Nullable String comment) {
+    Notification notification = createNotification(issue, context, queryResult.rule(issue), queryResult.project(issue), queryResult.component(issue), comment);
+    notificationsManager.scheduleForSending(notification);
+    return notification;
+  }
+
+  private Notification createNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component, @Nullable String comment){
+    Notification notification = newNotification(project, "issue-changes");
+    notification.setFieldValue("key", issue.key());
+    notification.setFieldValue("changeAuthor", context.login());
+    notification.setFieldValue("reporter", issue.reporter());
+    notification.setFieldValue("assignee", issue.assignee());
+    notification.setFieldValue("message", issue.message());
+    notification.setFieldValue("ruleName", ruleName(rule));
+    notification.setFieldValue("componentKey", issue.componentKey());
+    if (component != null) {
+      notification.setFieldValue("componentName", component.name());
+    }
+    if (comment != null) {
+      notification.setFieldValue("comment", comment);
+    }
+
+    FieldDiffs diffs = issue.diffs();
+    if (diffs != null) {
+      for (Map.Entry<String, FieldDiffs.Diff> entry : diffs.diffs().entrySet()) {
         String type = entry.getKey();
         FieldDiffs.Diff diff = entry.getValue();
         notification.setFieldValue("old." + type, diff.oldValue() != null ? diff.oldValue().toString() : null);
         notification.setFieldValue("new." + type, diff.newValue() != null ? diff.newValue().toString() : null);
       }
-      notificationsManager.scheduleForSending(notification);
-      return notification;
     }
-    return null;
+    return notification;
   }
 
   private String ruleName(@Nullable Rule rule) {

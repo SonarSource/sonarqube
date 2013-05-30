@@ -56,7 +56,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
 
     EmailMessage message = new EmailMessage()
       .setMessageId("new-issues/" + notification.getFieldValue("projectKey"))
-      .setSubject("New issues for project " + projectName)
+      .setSubject("Project " + projectName + ", new issues")
       .setMessage(sb.toString());
 
     return message;

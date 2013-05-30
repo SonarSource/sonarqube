@@ -53,10 +53,12 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     String author = notif.getFieldValue("changeAuthor");
 
     StringBuilder sb = new StringBuilder();
-    appendField(sb, "Project", null, notif.getFieldValue("projectName"));
+    String projectName = notif.getFieldValue("projectName");
+    appendField(sb, "Project", null, projectName);
     appendField(sb, "Component", null, StringUtils.defaultString(notif.getFieldValue("componentName"), notif.getFieldValue("componentKey")));
     appendField(sb, "Rule", null, notif.getFieldValue("ruleName"));
     appendField(sb, "Message", null, notif.getFieldValue("message"));
+    appendField(sb, "Comment", null, notif.getFieldValue("comment"));
     sb.append('\n');
 
     appendField(sb, "Assignee", notif.getFieldValue("old.assignee"), notif.getFieldValue("new.assignee"));
@@ -69,7 +71,7 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
 
     EmailMessage message = new EmailMessage()
       .setMessageId("issue-changes/" + issueKey)
-      .setSubject("Issue #" + issueKey)
+      .setSubject("Project "+ projectName +", change on issue #" + issueKey)
       .setMessage(sb.toString());
     if (author != null) {
       message.setFrom(getUserFullName(author));
