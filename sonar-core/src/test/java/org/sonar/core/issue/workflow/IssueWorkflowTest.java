@@ -262,7 +262,7 @@ public class IssueWorkflowTest {
     assertThat(issue.status()).isEqualTo("CONFIRMED");
 
     assertThat(workflow.outTransitions(issue)).containsOnly(
-      Transition.create("unconfirm", "CONFIRMED", "OPEN"),
+      Transition.create("unconfirm", "CONFIRMED", "REOPENED"),
       Transition.create("resolve", "CONFIRMED", "RESOLVED")
     );
 
@@ -274,7 +274,7 @@ public class IssueWorkflowTest {
     // unconfirm
     workflow.doTransition(issue, "unconfirm", mock(IssueChangeContext.class));
     assertThat(issue.resolution()).isNull();
-    assertThat(issue.status()).isEqualTo("OPEN");
+    assertThat(issue.status()).isEqualTo("REOPENED");
   }
 
   @Test

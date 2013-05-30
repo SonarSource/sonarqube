@@ -57,7 +57,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .functions(new SetResolution(null))
         .build())
       .transition(Transition.builder(DefaultTransitions.UNCONFIRM)
-        .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_OPEN)
+        .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_REOPENED)
         .functions(new SetResolution(null))
         .build())
       .transition(Transition.builder(DefaultTransitions.RESOLVE)
