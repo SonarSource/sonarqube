@@ -62,13 +62,13 @@
          @filter.issues.each do |issue|
       %>
         <tr class="<%= cycle('even', 'odd') -%>">
-          <td>
+          <td width="1%" nowrap>
             <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= message(issue.severity.downcase).capitalize -%>"/>
           </td>
-          <td>
+          <td width="1%" nowrap>
             <%= message("issue.status.#{issue.status}") -%>
           </td>
-          <td>
+          <td width="1%" nowrap>
             <%= message("issue.resolution.#{issue.resolution}") if issue.resolution -%>
           </td>
           <td>
