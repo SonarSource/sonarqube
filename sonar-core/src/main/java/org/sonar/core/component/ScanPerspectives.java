@@ -28,7 +28,6 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.resources.Resource;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Map;
 
 public class ScanPerspectives implements ResourcePerspectives, BatchComponent {
@@ -55,7 +54,10 @@ public class ScanPerspectives implements ResourcePerspectives, BatchComponent {
 
   @CheckForNull
   public <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource) {
-    Resource indexedResource = resourceIndex.getResource(resource);
+    Resource indexedResource = resource;
+    if (resource.getEffectiveKey() == null) {
+      indexedResource = resourceIndex.getResource(resource);
+    }
     if (indexedResource != null) {
       return as(perspectiveClass, new ResourceComponent(indexedResource));
     }
