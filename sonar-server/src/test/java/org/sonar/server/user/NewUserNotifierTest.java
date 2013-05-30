@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.user;
 
 import org.junit.Test;
 import org.sonar.api.platform.NewUserHandler;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 
 public class NewUserNotifierTest {
 
-  private NewUserHandler.Context context = NewUserHandler.Context.builder().setLogin("marius").setName("Marius").build();
+  NewUserHandler.Context context = NewUserHandler.Context.builder().setLogin("marius").setName("Marius").build();
 
   @Test
   public void do_not_fail_if_no_handlers() {

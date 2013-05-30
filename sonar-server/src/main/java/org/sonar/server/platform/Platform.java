@@ -84,6 +84,7 @@ import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.*;
 import org.sonar.server.user.DefaultRubyUserService;
+import org.sonar.server.user.NewUserNotifier;
 
 import javax.servlet.ServletContext;
 

@@ -20,7 +20,6 @@
 package org.sonar.plugins.core.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.*;
@@ -38,10 +37,7 @@ import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
-
 import java.util.*;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Computes metrics related to number of issues.
@@ -105,13 +101,13 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
         rulesBag.add(rulefinder.findByKey(issue.ruleKey().repository(), issue.ruleKey().rule()));
         issuesPerSeverity.put(RulePriority.valueOf(issue.severity()), issue);
 
-        if (Issue.STATUS_OPEN.equals(issue.status())){
+        if (Issue.STATUS_OPEN.equals(issue.status())) {
           countOpen++;
         }
-        if (Issue.STATUS_REOPENED.equals(issue.status())){
+        if (Issue.STATUS_REOPENED.equals(issue.status())) {
           countReopened++;
         }
-        if (Issue.STATUS_CONFIRMED.equals(issue.status())){
+        if (Issue.STATUS_CONFIRMED.equals(issue.status())) {
           countConfirmed++;
         }
       }

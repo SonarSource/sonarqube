@@ -58,6 +58,7 @@ import org.sonar.server.platform.*;
 import org.sonar.server.plugins.*;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
+import org.sonar.server.user.NewUserNotifier;
 import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;

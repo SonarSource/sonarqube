@@ -36,8 +36,8 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -108,11 +108,13 @@ public class IssueService implements ServerComponent {
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
 
-    // TODO check that assignee exists
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
-    if (issueUpdater.assign(issue, assignee, context)) {
-      issueStorage.save(issue);
-      issueNotifications.sendChanges(issue, context, queryResult);
+    if (issue != null) {
+      // TODO check that assignee exists
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+      if (issueUpdater.assign(issue, assignee, context)) {
+        issueStorage.save(issue);
+        issueNotifications.sendChanges(issue, context, queryResult);
+      }
     }
     return issue;
   }

@@ -75,5 +75,4 @@ public class NewIssuesEmailTemplateTest {
       "\n" +
       "See it in SonarQube: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAfter=2010-05-18\n");
   }
-
 }

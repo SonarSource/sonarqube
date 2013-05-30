@@ -67,10 +67,10 @@ public class ActionPlanStats extends DefaultActionPlan {
   }
 
   public boolean isOpen(){
-    return ActionPlan.STATUS_OPEN.equals(super.status());
+    return ActionPlan.STATUS_OPEN.equals(status());
   }
 
   public boolean overDue(){
-    return super.status() == ActionPlan.STATUS_OPEN && super.deadLine() != null && new Date().after(super.deadLine());
+    return isOpen() && deadLine() != null && new Date().after(deadLine());
   }
 }
