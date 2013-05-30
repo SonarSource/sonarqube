@@ -32,6 +32,7 @@ import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
@@ -87,7 +88,7 @@ public class DefaultIssueFinderTest {
     verify(issueDao).selectIssues(eq(query), anyInt(), any(SqlSession.class));
 
     assertThat(results.issues()).hasSize(2);
-    Issue issue = results.issues().iterator().next();
+    DefaultIssue issue = (DefaultIssue) results.issues().iterator().next();
     assertThat(issue.componentKey()).isEqualTo("Action.java");
     assertThat(issue.projectKey()).isEqualTo("struts");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");

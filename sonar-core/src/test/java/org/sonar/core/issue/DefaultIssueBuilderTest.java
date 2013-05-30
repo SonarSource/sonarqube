@@ -33,7 +33,6 @@ public class DefaultIssueBuilderTest {
     String componentKey = "org.apache.struts:struts-core:Action.java";
     DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
       .componentKey(componentKey)
-      .projectKey("org.apache.struts:struts-parent")
       .message("the message")
       .line(123)
       .effortToFix(10000.0)
@@ -65,7 +64,6 @@ public class DefaultIssueBuilderTest {
   public void should_not_set_default_severity() {
     DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
       .componentKey("Action.java")
-      .projectKey("org.apache.struts:struts-parent")
       .ruleKey(RuleKey.of("squid", "NullDereference"))
       .build();
 

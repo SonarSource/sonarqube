@@ -128,7 +128,7 @@ public class DefaultIssueQueryResult implements IssueQueryResult {
 
   @Override
   public Component project(Issue issue) {
-    return projectsByKey.get(issue.projectKey());
+    return projectsByKey.get(((DefaultIssue) issue).projectKey());
   }
 
   @Override
