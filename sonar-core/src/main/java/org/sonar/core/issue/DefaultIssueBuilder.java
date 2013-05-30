@@ -27,6 +27,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.Nullable;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -104,8 +105,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   @Override
   public DefaultIssue build() {
     Preconditions.checkNotNull(componentKey, "Component key must be set");
-    // TODO
-    //Preconditions.checkNotNull(projectKey, "Project key must be set");
+    Preconditions.checkNotNull(projectKey, "Project key must be set");
     Preconditions.checkNotNull(ruleKey, "Rule key must be set");
 
     DefaultIssue issue = new DefaultIssue();

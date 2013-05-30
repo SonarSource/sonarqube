@@ -41,8 +41,9 @@ class IssuesFinderSort {
 
   public List<IssueDto> sort() {
     String sort = query.sort();
-    if (sort != null) {
-      return getIssueProcessor(sort).sort(issues, query.asc());
+    Boolean asc = query.asc();
+    if (sort != null && asc != null) {
+      return getIssueProcessor(sort).sort(issues, asc);
     }
     return issues;
   }

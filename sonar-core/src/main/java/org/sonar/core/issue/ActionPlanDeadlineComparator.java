@@ -21,6 +21,7 @@ package org.sonar.core.issue;
 
 import org.sonar.api.issue.ActionPlan;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
 
@@ -28,7 +29,7 @@ import java.util.Date;
  * Sort action plans by chronological deadlines. Plans without deadline are
  * located after plans with deadline.
  */
-public class ActionPlanDeadlineComparator implements Comparator<ActionPlan> {
+public class ActionPlanDeadlineComparator implements Comparator<ActionPlan>, Serializable {
 
   @Override
   public int compare(ActionPlan a1, ActionPlan a2) {
