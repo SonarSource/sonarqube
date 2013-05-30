@@ -89,7 +89,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
   public void decorate(Resource resource, DecoratorContext context) {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     if (issuable != null) {
-      Collection<Issue> issues = issuable.unresolvedIssues();
+      Collection<Issue> issues = issuable.issues();
       boolean shouldSaveNewMetrics = shouldSaveNewMetrics(context);
 
       Multiset<RulePriority> severityBag = HashMultiset.create();

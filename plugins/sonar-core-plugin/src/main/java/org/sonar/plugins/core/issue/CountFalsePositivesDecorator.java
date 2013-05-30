@@ -56,7 +56,7 @@ public class CountFalsePositivesDecorator implements Decorator {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     if (issuable != null) {
       int falsePositives = 0;
-      for (Issue issue : issuable.issues()) {
+      for (Issue issue : issuable.resolvedIssues()) {
         if (Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution())) {
           falsePositives++;
         }

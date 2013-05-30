@@ -116,7 +116,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_count_issues() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.unresolvedIssues()).thenReturn(createIssues());
+    when(issuable.issues()).thenReturn(createissues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
@@ -141,7 +141,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_not_count_issues_if_measure_already_exists() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.unresolvedIssues()).thenReturn(createIssues());
+    when(issuable.issues()).thenReturn(createissues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
     when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 3000.0));
     when(context.getMeasure(CoreMetrics.MAJOR_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.MAJOR_VIOLATIONS, 500.0));
@@ -156,7 +156,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_save_zero_on_projects() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.unresolvedIssues()).thenReturn(Lists.<Issue>newArrayList());
+    when(issuable.issues()).thenReturn(Lists.<Issue>newArrayList());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
@@ -167,7 +167,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_save_zero_on_directories() {
     when(resource.getScope()).thenReturn(Scopes.DIRECTORY);
-    when(issuable.unresolvedIssues()).thenReturn(Lists.<Issue>newArrayList());
+    when(issuable.issues()).thenReturn(Lists.<Issue>newArrayList());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
@@ -178,7 +178,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_count_issues_by_severity() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.unresolvedIssues()).thenReturn(createIssues());
+    when(issuable.issues()).thenReturn(createissues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
@@ -196,7 +196,7 @@ public class CountUnresolvedIssuesDecoratorTest {
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
     issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()));
-    when(issuable.unresolvedIssues()).thenReturn(issues);
+    when(issuable.issues()).thenReturn(issues);
 
     decorator.decorate(resource, context);
 
@@ -211,7 +211,7 @@ public class CountUnresolvedIssuesDecoratorTest {
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.MINOR.name()));
-    when(issuable.unresolvedIssues()).thenReturn(issues);
+    when(issuable.issues()).thenReturn(issues);
 
     decorator.decorate(resource, context);
 
@@ -232,7 +232,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   public void should_clear_cache_after_execution() {
     Issue issue1 = new DefaultIssue().setRuleKey(RuleKey.of(ruleA1.getRepositoryKey(), ruleA1.getKey())).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(rightNow);
     Issue issue2 = new DefaultIssue().setRuleKey(RuleKey.of(ruleA2.getRepositoryKey(), ruleA2.getKey())).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(rightNow);
-    when(issuable.unresolvedIssues()).thenReturn(newArrayList(issue1)).thenReturn(newArrayList(issue2));
+    when(issuable.issues()).thenReturn(newArrayList(issue1)).thenReturn(newArrayList(issue2));
 
     decorator.decorate(resource, context);
     decorator.decorate(resource, context);
@@ -243,7 +243,7 @@ public class CountUnresolvedIssuesDecoratorTest {
 
   @Test
   public void should_save_severity_new_issues() {
-    when(issuable.unresolvedIssues()).thenReturn(createIssuesForNewMetrics());
+    when(issuable.issues()).thenReturn(createIssuesForNewMetrics());
 
     decorator.decorate(resource, context);
 
@@ -257,7 +257,7 @@ public class CountUnresolvedIssuesDecoratorTest {
 
   @Test
   public void should_save_rule_new_issues() {
-    when(issuable.unresolvedIssues()).thenReturn(createIssuesForNewMetrics());
+    when(issuable.issues()).thenReturn(createIssuesForNewMetrics());
 
     decorator.decorate(resource, context);
 
@@ -270,7 +270,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   @Test
   public void should_not_save_new_issues_if_measure_already_computed() {
     when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(new Measure());
-    when(issuable.unresolvedIssues()).thenReturn(createIssuesForNewMetrics());
+    when(issuable.issues()).thenReturn(createIssuesForNewMetrics());
 
     decorator.decorate(resource, context);
 
@@ -282,7 +282,7 @@ public class CountUnresolvedIssuesDecoratorTest {
     verify(context, never()).saveMeasure(argThat(new IsMetricMeasure(CoreMetrics.NEW_CRITICAL_VIOLATIONS)));
   }
 
-  List<Issue> createIssues() {
+  List<Issue> createissues() {
     List<Issue> issues = newArrayList();
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(Severity.CRITICAL).setStatus(Issue.STATUS_OPEN));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(Severity.CRITICAL).setStatus(Issue.STATUS_REOPENED));

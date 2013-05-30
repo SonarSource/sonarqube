@@ -38,20 +38,7 @@ public class DefaultIssuableTest {
   Component component = mock(Component.class);
 
   @Test
-  public void test_unresolvedIssues() throws Exception {
-    when(component.key()).thenReturn("struts:org.apache.Action");
-    DefaultIssue resolved = new DefaultIssue().setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
-    DefaultIssue unresolved = new DefaultIssue();
-    when(cache.byComponent("struts:org.apache.Action")).thenReturn(Arrays.asList(resolved, unresolved));
-
-    DefaultIssuable perspective = new DefaultIssuable(component, scanIssues, cache);
-
-    List<Issue> issues = perspective.unresolvedIssues();
-    assertThat(issues).containsOnly(unresolved);
-  }
-
-  @Test
-  public void test_issues() throws Exception {
+  public void test_unresolved_issues() throws Exception {
     when(component.key()).thenReturn("struts:org.apache.Action");
     DefaultIssue resolved = new DefaultIssue().setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
     DefaultIssue unresolved = new DefaultIssue();
@@ -60,6 +47,19 @@ public class DefaultIssuableTest {
     DefaultIssuable perspective = new DefaultIssuable(component, scanIssues, cache);
 
     List<Issue> issues = perspective.issues();
-    assertThat(issues).containsOnly(unresolved, resolved);
+    assertThat(issues).containsOnly(unresolved);
+  }
+
+  @Test
+  public void test_resolved_issues() throws Exception {
+    when(component.key()).thenReturn("struts:org.apache.Action");
+    DefaultIssue resolved = new DefaultIssue().setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
+    DefaultIssue unresolved = new DefaultIssue();
+    when(cache.byComponent("struts:org.apache.Action")).thenReturn(Arrays.asList(resolved, unresolved));
+
+    DefaultIssuable perspective = new DefaultIssuable(component, scanIssues, cache);
+
+    List<Issue> issues = perspective.resolvedIssues();
+    assertThat(issues).containsOnly(resolved);
   }
 }

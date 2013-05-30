@@ -44,14 +44,14 @@ public class CountFalsePositivesDecoratorTest {
   @Test
   public void should_count_false_positives() {
     DefaultIssue falsePositive = new DefaultIssue().setRuleKey(RuleKey.parse("squid:AvoidCycles"))
-      .setResolution(Issue.RESOLUTION_FALSE_POSITIVE).setStatus(Issue.STATUS_OPEN);
-    DefaultIssue open = new DefaultIssue().setRuleKey(RuleKey.parse("squid:AvoidCycles"))
-      .setResolution(null).setStatus(Issue.STATUS_OPEN);
+      .setResolution(Issue.RESOLUTION_FALSE_POSITIVE).setStatus(Issue.STATUS_RESOLVED);
+    DefaultIssue fixed = new DefaultIssue().setRuleKey(RuleKey.parse("squid:AvoidCycles"))
+      .setResolution(Issue.RESOLUTION_FIXED).setStatus(Issue.STATUS_RESOLVED);
 
     File file = new File("foo.c");
     Issuable issuable = mock(Issuable.class);
     when(perspectives.as(Issuable.class, file)).thenReturn(issuable);
-    when(issuable.issues()).thenReturn(Arrays.<Issue>asList(falsePositive, open));
+    when(issuable.resolvedIssues()).thenReturn(Arrays.<Issue>asList(falsePositive, fixed));
 
     DecoratorContext context = mock(DecoratorContext.class);
     decorator.decorate(file, context);
