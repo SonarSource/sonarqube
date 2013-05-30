@@ -121,8 +121,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
-      // ResourceMapper has to be loaded before IssueMapper because this last one used it
-      ResourceMapper.class, IssueMapper.class, IssueStatsMapper.class, IssueChangeMapper.class,
+      IssueMapper.class, IssueStatsMapper.class, IssueChangeMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class, ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class,
       ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class,
       SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class, MeasureMapper.class, SnapshotDataMapper.class,
@@ -130,6 +129,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
     };
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
+    // ResourceMapper has to be loaded before IssueMapper because this last one used it
+    loadMapper(conf, ResourceMapper.class);
     loadMappers(conf, mappers);
     configureLogback(mappers);
 
