@@ -25,6 +25,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.utils.DateUtils;
 
+import javax.annotation.Nullable;
+import java.util.Calendar;
 import java.util.Date;
 
 public class PastSnapshot {
@@ -32,15 +34,17 @@ public class PastSnapshot {
   private int index;
   private String mode, modeParameter;
   private Snapshot projectSnapshot;
-  private Date targetDate;
+  private Date targetDate = null;
 
-  public PastSnapshot(String mode, Date targetDate, Snapshot projectSnapshot) {
+  public PastSnapshot(String mode, @Nullable Date targetDate, @Nullable Snapshot projectSnapshot) {
     this.mode = mode;
-    this.targetDate = targetDate;
+    if (targetDate != null) {
+      this.targetDate = org.apache.commons.lang.time.DateUtils.truncate(targetDate, Calendar.SECOND);
+    }
     this.projectSnapshot = projectSnapshot;
   }
 
-  public PastSnapshot(String mode, Date targetDate) {
+  public PastSnapshot(String mode, @Nullable Date targetDate) {
     this(mode, targetDate, null);
   }
 
