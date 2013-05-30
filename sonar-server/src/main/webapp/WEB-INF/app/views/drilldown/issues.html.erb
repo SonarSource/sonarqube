@@ -11,7 +11,7 @@
       <% if @snapshot.project_snapshot.periods? %>
         <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:period => nil} -%>" style="display: inline" class="spacer-left">
           <%= dropdown_tag "period", period_select_option_tags(@snapshot, 'small'), {
-              :width => '200px',
+              :width => '230px',
           }, {:id => 'select-comparison', :onchange => 'submit()'} -%>
         </form>
       <% end %>
