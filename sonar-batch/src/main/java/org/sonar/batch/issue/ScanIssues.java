@@ -59,7 +59,6 @@ public class ScanIssues implements BatchComponent {
   private DefaultIssue newIssue(Violation violation) {
     return (DefaultIssue) new DefaultIssueBuilder()
       .componentKey(violation.getResource().getEffectiveKey())
-//      .projectKey(violation.getResource().getEffectiveKey())
       .ruleKey(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
       .effortToFix(violation.getCost())
       .line(violation.getLineId())

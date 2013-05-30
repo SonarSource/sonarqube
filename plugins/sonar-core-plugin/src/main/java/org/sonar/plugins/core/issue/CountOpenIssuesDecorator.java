@@ -260,7 +260,7 @@ public class CountOpenIssuesDecorator implements Decorator {
   }
 
   @VisibleForTesting
-  int countIssuesAfterDate(Collection<Issue> issues, Date targetDate) {
+  int countIssuesAfterDate(Collection<Issue> issues, @Nullable Date targetDate) {
     if (issues == null) {
       return 0;
     }
