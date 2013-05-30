@@ -22,7 +22,7 @@ package org.sonar.server.rule;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.server.platform.UserSession;
+import org.sonar.server.user.UserSession;
 
 import java.util.Locale;
 

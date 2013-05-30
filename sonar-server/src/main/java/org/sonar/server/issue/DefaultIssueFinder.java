@@ -40,7 +40,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.AuthorizationDao;
-import org.sonar.server.platform.UserSession;
+import org.sonar.server.user.UserSession;
 
 import java.util.Collection;
 import java.util.List;

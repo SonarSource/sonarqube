@@ -58,7 +58,10 @@ public class SendIssueNotificationsPostJob implements PostJob {
       }
       if (issue.isChanged() && issue.diffs() != null) {
         Rule rule = ruleFinder.findByKey(issue.ruleKey());
-        notifications.sendChanges(issue, context, rule, project, null);
+        // TODO warning - rules with status REMOVED are currently ignored, but should not
+        if (rule != null) {
+          notifications.sendChanges(issue, context, rule, project, null);
+        }
       }
     }
     if (newIssues > 0) {

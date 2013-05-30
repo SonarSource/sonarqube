@@ -25,6 +25,8 @@ import org.sonar.plugins.core.issue.tracking.HashedSequenceComparator;
 import org.sonar.plugins.core.issue.tracking.StringText;
 import org.sonar.plugins.core.issue.tracking.StringTextComparator;
 
+import javax.annotation.Nullable;
+
 public class ViolationTrackingBlocksRecognizer {
 
   private final HashedSequence<StringText> a;
@@ -44,11 +46,11 @@ public class ViolationTrackingBlocksRecognizer {
     this.cmp = cmp;
   }
 
-  public boolean isValidLineInReference(Integer line) {
+  public boolean isValidLineInReference(@Nullable Integer line) {
     return (line != null) && (0 <= line - 1) && (line - 1 < a.length());
   }
 
-  public boolean isValidLineInSource(Integer line) {
+  public boolean isValidLineInSource(@Nullable Integer line) {
     return (line != null) && (0 <= line - 1) && (line - 1 < b.length());
   }
 

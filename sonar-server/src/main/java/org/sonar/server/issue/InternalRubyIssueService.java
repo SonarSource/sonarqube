@@ -38,7 +38,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
-import org.sonar.server.platform.UserSession;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;

@@ -31,7 +31,7 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueStorage;
-import org.sonar.server.platform.UserSession;
+import org.sonar.server.user.UserSession;
 
 import java.util.Date;
 

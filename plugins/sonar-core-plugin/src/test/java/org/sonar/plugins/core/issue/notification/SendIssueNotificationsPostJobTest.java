@@ -24,11 +24,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.component.Component;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueNotifications;
 
 import java.util.Arrays;
@@ -77,5 +82,43 @@ public class SendIssueNotificationsPostJobTest {
     job.executeOn(project, sensorContext);
 
     verifyZeroInteractions(notifications);
+  }
+
+  @Test
+  public void should_send_notif_if_issue_change() throws Exception {
+
+    when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
+    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
+    Rule rule = new Rule("squid", "AvoidCycles");
+    DefaultIssue issue = new DefaultIssue()
+      .setChanged(true)
+      .setFieldDiff(mock(IssueChangeContext.class), "severity", "MINOR", "BLOCKER")
+      .setRuleKey(ruleKey);
+    when(issueCache.all()).thenReturn(Arrays.asList(issue));
+    when(ruleFinder.findByKey(ruleKey)).thenReturn(rule);
+
+    SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
+    job.executeOn(project, sensorContext);
+
+    verify(notifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(rule), any(Component.class), (Component)isNull());
+  }
+
+  @Test
+  public void should_not_send_notif_if_issue_change_on_removed_rule() throws Exception {
+    IssueChangeContext changeContext = mock(IssueChangeContext.class);
+
+    when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
+    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
+    DefaultIssue issue = new DefaultIssue()
+      .setChanged(true)
+      .setFieldDiff(changeContext, "severity", "MINOR", "BLOCKER")
+      .setRuleKey(ruleKey);
+    when(issueCache.all()).thenReturn(Arrays.asList(issue));
+    when(ruleFinder.findByKey(ruleKey)).thenReturn(null);
+
+    SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
+    job.executeOn(project, sensorContext);
+
+    verify(notifications, never()).sendChanges(eq(issue), eq(changeContext), any(Rule.class), any(Component.class), any(Component.class));
   }
 }

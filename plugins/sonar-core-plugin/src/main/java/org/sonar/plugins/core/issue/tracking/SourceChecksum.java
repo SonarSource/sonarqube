@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public final class SourceChecksum {
@@ -37,7 +38,7 @@ public final class SourceChecksum {
    * @param line line number (first line has number 1)
    * @return checksum or null if checksum not exists for line
    */
-  public static String getChecksumForLine(List<String> checksums, Integer line) {
+  public static String getChecksumForLine(List<String> checksums, @Nullable Integer line) {
     if (line == null || line < 1 || line > checksums.size()) {
       return null;
     }

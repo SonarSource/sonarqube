@@ -34,7 +34,7 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.server.platform.UserSession;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 

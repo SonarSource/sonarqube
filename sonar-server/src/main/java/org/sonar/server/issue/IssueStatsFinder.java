@@ -29,7 +29,7 @@ import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.db.IssueStatsColumn;
 import org.sonar.core.issue.db.IssueStatsDao;
-import org.sonar.server.platform.UserSession;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 

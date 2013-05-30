@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.server.user;
 
 import javax.servlet.*;
 import java.io.IOException;
 
+/**
+ * @since 3.6
+ */
 public class UserSessionFilter implements Filter {
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {

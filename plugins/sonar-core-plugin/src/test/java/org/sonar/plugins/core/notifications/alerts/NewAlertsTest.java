@@ -21,42 +21,22 @@ package org.sonar.plugins.core.notifications.alerts;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.notifications.NotificationManager;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class NewAlertsTest {
 
-  @Mock
-  private NotificationManager notificationManager;
-
-  @Mock
-  private NotificationDispatcher.Context context;
-
-  @Mock
-  private NotificationChannel emailChannel;
-
-  @Mock
-  private NotificationChannel twitterChannel;
-
-  private NewAlerts dispatcher;
-
-  @Before
-  public void init() {
-    MockitoAnnotations.initMocks(this);
-    dispatcher = new NewAlerts(notificationManager);
-  }
+  NotificationManager notificationManager = mock(NotificationManager.class);
+  NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
+  NotificationChannel emailChannel = mock(NotificationChannel.class);
+  NotificationChannel twitterChannel = mock(NotificationChannel.class);
+  NewAlerts dispatcher = new NewAlerts(notificationManager);
 
   @Test
   public void should_not_dispatch_if_not_alerts_notification() throws Exception {
@@ -78,6 +58,19 @@ public class NewAlertsTest {
 
     verify(context).addUser("user1", emailChannel);
     verify(context).addUser("user2", twitterChannel);
+    verifyNoMoreInteractions(context);
+  }
+
+  @Test
+  public void should_not_dispatch_if_missing_project_id() {
+    Multimap<String, NotificationChannel> recipients = HashMultimap.create();
+    recipients.put("user1", emailChannel);
+    recipients.put("user2", twitterChannel);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, 34)).thenReturn(recipients);
+
+    Notification notification = new Notification("alerts");
+    dispatcher.performDispatch(notification, context);
+
     verifyNoMoreInteractions(context);
   }
 
