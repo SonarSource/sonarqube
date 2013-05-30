@@ -21,18 +21,20 @@ package org.sonar.api.checks;
 
 import org.junit.Test;
 import org.sonar.api.resources.JavaFile;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class NoSonarFilterTest {
+
+  NoSonarFilter filter = new NoSonarFilter();
+
   @Test
   public void ignoreLinesCommentedWithNoSonar() {
-    NoSonarFilter filter = new NoSonarFilter();
     JavaFile javaFile = new JavaFile("org.foo.Bar");
 
     Set<Integer> noSonarLines = new HashSet<Integer>();
@@ -41,19 +43,31 @@ public class NoSonarFilterTest {
     filter.addResource(javaFile, noSonarLines);
 
     // violation on class
-    assertThat(filter.isIgnored(new Violation(null, javaFile)), is(false));
+    assertThat(filter.isIgnored(new Violation(null, javaFile))).isFalse();
 
     // violation on lines
-    assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(30)), is(false));
-    assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(31)), is(true));
+    assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(30))).isFalse();
+    assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(31))).isTrue();
   }
 
 
   @Test
   public void doNotIgnoreWhenNotFoundInSquid() {
-    NoSonarFilter filter = new NoSonarFilter();
+    JavaFile javaFile = new JavaFile("org.foo.Bar");
+    assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(30))).isFalse();
+  }
+
+  @Test
+  public void should_accept_violations_from_no_sonar_rules() throws Exception {
+    // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
     JavaFile javaFile = new JavaFile("org.foo.Bar");
 
-    assertThat(filter.isIgnored(new Violation(null, javaFile).setLineId(30)), is(false));
+    Set<Integer> noSonarLines = new HashSet<Integer>();
+    noSonarLines.add(31);
+    filter.addResource(javaFile, noSonarLines);
+
+    Rule noSonarRule = new Rule("squid", "NoSonarCheck");
+    assertThat(filter.isIgnored(new Violation(noSonarRule, javaFile).setLineId(31))).isFalse();
+
   }
 }

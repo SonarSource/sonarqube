@@ -20,6 +20,7 @@
 package org.sonar.api.checks;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.rules.ViolationFilter;
@@ -29,7 +30,9 @@ import java.util.Set;
 
 /**
  * @since 2.1
+ * @deprecated in 3.6. Replaced by {@link org.sonar.api.issue.NoSonarFilter}
  */
+@Deprecated
 public class NoSonarFilter implements ViolationFilter {
 
   private final Map<Resource, Set<Integer>> noSonarLinesByResource = Maps.newHashMap();
@@ -41,10 +44,14 @@ public class NoSonarFilter implements ViolationFilter {
   }
 
   public boolean isIgnored(Violation violation) {
+    boolean ignored = false;
     if (violation.getResource() != null && violation.getLineId() != null) {
       Set<Integer> noSonarLines = noSonarLinesByResource.get(violation.getResource());
-      return (noSonarLines != null && noSonarLines.contains(violation.getLineId()));
+      ignored = noSonarLines != null && noSonarLines.contains(violation.getLineId());
+      if (ignored && violation.getRule() != null && StringUtils.containsIgnoreCase(violation.getRule().getKey(), "nosonar")) {
+        ignored = false;
+      }
     }
-    return false;
+    return ignored;
   }
 }
