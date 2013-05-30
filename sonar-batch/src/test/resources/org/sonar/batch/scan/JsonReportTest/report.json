@@ -3,18 +3,16 @@
     "key": "200",
     "component": "struts:org.apache.struts.Action",
     "line": 1,
-    "message": "SystemPrintln",
+    "message": "There are 2 cycles",
     "severity": "MINOR",
     "rule": "squid:AvoidCycles",
-    "status": "CLOSED",
-    "resolution": "FALSE-POSITIVE",
+    "status": "OPEN",
     "isNew": false,
     "reporter": "julien",
     "assignee": "simon",
     "effortToFix": 3.14,
     "creationDate": "2013-04-24T00:00:00+0200",
-    "updateDate": "2013-04-25T00:00:00+0200",
-    "closeDate": "2013-04-26T00:00:00+0200"
+    "updateDate": "2013-04-25T00:00:00+0200"
   }
 ], "components": [
   {

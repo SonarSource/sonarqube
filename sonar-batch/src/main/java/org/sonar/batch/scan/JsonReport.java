@@ -112,32 +112,34 @@ public class JsonReport implements BatchComponent {
   private void writeJsonIssues(JsonWriter json, Set<RuleKey> ruleKeys, Set<String> componentKeys) throws IOException {
     json.name("issues").beginArray();
     for (DefaultIssue issue : getIssues()) {
-      json
-        .beginObject()
-        .name("key").value(issue.key())
-        .name("component").value(issue.componentKey())
-        .name("line").value(issue.line())
-        .name("message").value(issue.message())
-        .name("severity").value(issue.severity())
-        .name("rule").value(issue.ruleKey().toString())
-        .name("status").value(issue.status())
-        .name("resolution").value(issue.resolution())
-        .name("isNew").value(issue.isNew())
-        .name("reporter").value(issue.reporter())
-        .name("assignee").value(issue.assignee())
-        .name("effortToFix").value(issue.effortToFix());
-      if (issue.creationDate() != null) {
-        json.name("creationDate").value(DateUtils.formatDateTime(issue.creationDate()));
+      if (issue.resolution() == null) {
+        json
+          .beginObject()
+          .name("key").value(issue.key())
+          .name("component").value(issue.componentKey())
+          .name("line").value(issue.line())
+          .name("message").value(issue.message())
+          .name("severity").value(issue.severity())
+          .name("rule").value(issue.ruleKey().toString())
+          .name("status").value(issue.status())
+          .name("resolution").value(issue.resolution())
+          .name("isNew").value(issue.isNew())
+          .name("reporter").value(issue.reporter())
+          .name("assignee").value(issue.assignee())
+          .name("effortToFix").value(issue.effortToFix());
+        if (issue.creationDate() != null) {
+          json.name("creationDate").value(DateUtils.formatDateTime(issue.creationDate()));
+        }
+        if (issue.updateDate() != null) {
+          json.name("updateDate").value(DateUtils.formatDateTime(issue.updateDate()));
+        }
+        if (issue.closeDate() != null) {
+          json.name("closeDate").value(DateUtils.formatDateTime(issue.closeDate()));
+        }
+        json.endObject();
+        componentKeys.add(issue.componentKey());
+        ruleKeys.add(issue.ruleKey());
       }
-      if (issue.updateDate() != null) {
-        json.name("updateDate").value(DateUtils.formatDateTime(issue.updateDate()));
-      }
-      if (issue.closeDate() != null) {
-        json.name("closeDate").value(DateUtils.formatDateTime(issue.closeDate()));
-      }
-      json.endObject();
-      componentKeys.add(issue.componentKey());
-      ruleKeys.add(issue.ruleKey());
     }
     json.endArray();
   }

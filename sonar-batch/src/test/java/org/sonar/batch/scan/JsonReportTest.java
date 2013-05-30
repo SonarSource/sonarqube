@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
@@ -79,15 +78,35 @@ public class JsonReportTest {
       .setKey("200")
       .setComponentKey("struts:org.apache.struts.Action")
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
-      .setMessage("SystemPrintln")
+      .setMessage("There are 2 cycles")
       .setSeverity("MINOR")
-      .setStatus(Issue.STATUS_CLOSED)
-      .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
+      .setStatus(Issue.STATUS_OPEN)
+      .setResolution(null)
       .setLine(1)
       .setEffortToFix(3.14)
       .setReporter("julien")
       .setAssignee("simon")
+      .setCreationDate(DateUtils.parseDate("2013-04-24"))
+      .setUpdateDate(DateUtils.parseDate("2013-04-25"))
+      .setNew(false);
+    when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
+    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+
+    StringWriter writer = new StringWriter();
+    jsonReport.writeJson(writer);
+
+    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/JsonReportTest/report.json"),
+      writer.toString(), false);
+  }
+
+  @Test
+  public void should_exclude_resolved_issues() throws JSONException {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("200")
+      .setComponentKey("struts:org.apache.struts.Action")
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+      .setStatus(Issue.STATUS_CLOSED)
+      .setResolution(Issue.RESOLUTION_FIXED)
       .setCreationDate(DateUtils.parseDate("2013-04-24"))
       .setUpdateDate(DateUtils.parseDate("2013-04-25"))
       .setCloseDate(DateUtils.parseDate("2013-04-26"))
@@ -98,7 +117,7 @@ public class JsonReportTest {
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/JsonReportTest/report.json"),
+    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/JsonReportTest/report-without-resolved-issues.json"),
       writer.toString(), false);
   }
 
