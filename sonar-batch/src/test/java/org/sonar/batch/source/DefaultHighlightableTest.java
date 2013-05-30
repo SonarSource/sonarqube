@@ -39,7 +39,7 @@ public class DefaultHighlightableTest {
     DefaultHighlightable highlightablePerspective = new DefaultHighlightable(null, null);
     highlightablePerspective.newHighlighting().highlight(0, 10, "k").highlight(20, 30, "cppd");
 
-    assertThat(highlightablePerspective.getHighlightingRules().getSyntaxHighlightingRuleSet()).hasSize(2);
+    assertThat(highlightablePerspective.getHighlightingRules().getSortedRules()).hasSize(2);
   }
 
   @Test

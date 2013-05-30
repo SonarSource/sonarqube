@@ -19,36 +19,28 @@
  */
 package org.sonar.batch.source;
 
-import java.io.Serializable;
+import com.google.common.collect.Lists;
+import org.junit.Test;
 
-/**
- * @since 3.6
- */
-public class SyntaxHighlightingRule implements Serializable {
+import java.util.List;
 
-  private final int startPosition;
-  private final int endPosition;
-  private final String textType;
+import static org.fest.assertions.Assertions.assertThat;
 
-  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
-    this.startPosition = startPosition;
-    this.endPosition = endPosition;
-    this.textType = textType;
-  }
+public class SyntaxHighlightingDataTest {
 
-  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
-    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
-  }
+  @Test
+  public void should_serialize_rules_to_string() throws Exception {
 
-  public int getStartPosition() {
-    return startPosition;
-  }
+    List<SyntaxHighlightingRule> orderedHighlightingRules = Lists.newArrayList(
+      SyntaxHighlightingRule.create(0, 10, "cd"),
+      SyntaxHighlightingRule.create(10, 12, "k"),
+      SyntaxHighlightingRule.create(12, 20, "cd"),
+      SyntaxHighlightingRule.create(24, 38, "k"),
+      SyntaxHighlightingRule.create(24, 65, "cppd"),
+      SyntaxHighlightingRule.create(42, 50, "k")
+    );
 
-  public int getEndPosition() {
-    return endPosition;
-  }
-
-  public String getTextType() {
-    return textType;
+    String serializedRules = new SyntaxHighlightingData(orderedHighlightingRules).writeString();
+    assertThat(serializedRules).isEqualTo("0,10,cd;10,12,k;12,20,cd;24,38,k;24,65,cppd;42,50,k;");
   }
 }

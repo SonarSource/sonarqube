@@ -29,9 +29,9 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class SyntaxHighlightingRuleSetTest {
+public class SyntaxHighlightingDataBuilderTest {
 
-  private SyntaxHighlightingRuleSet highlightingRules;
+  private List<SyntaxHighlightingRule> highlightingRules;
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
@@ -39,45 +39,34 @@ public class SyntaxHighlightingRuleSetTest {
   @Before
   public void setUpSampleRules() {
 
-    SyntaxHighlightingRuleSet.Builder highlightingRuleSet = SyntaxHighlightingRuleSet.builder();
-    highlightingRuleSet.registerHighlightingRule(0, 10, "cd");
-    highlightingRuleSet.registerHighlightingRule(10, 12, "k");
-    highlightingRuleSet.registerHighlightingRule(24, 38, "k");
-    highlightingRuleSet.registerHighlightingRule(42, 50, "k");
-    highlightingRuleSet.registerHighlightingRule(24, 65, "cppd");
-    highlightingRuleSet.registerHighlightingRule(12, 20, "cd");
+    SyntaxHighlightingDataBuilder highlightingDataBuilder = new SyntaxHighlightingDataBuilder();
+    highlightingDataBuilder.registerHighlightingRule(0, 10, "cd");
+    highlightingDataBuilder.registerHighlightingRule(10, 12, "k");
+    highlightingDataBuilder.registerHighlightingRule(24, 38, "k");
+    highlightingDataBuilder.registerHighlightingRule(42, 50, "k");
+    highlightingDataBuilder.registerHighlightingRule(24, 65, "cppd");
+    highlightingDataBuilder.registerHighlightingRule(12, 20, "cd");
 
-    highlightingRules = highlightingRuleSet.build();
+    highlightingRules = highlightingDataBuilder.getSortedRules();
   }
 
   @Test
   public void should_register_highlighting_rule() throws Exception {
-    assertThat(highlightingRules.getSyntaxHighlightingRuleSet()).hasSize(6);
+    assertThat(highlightingRules).hasSize(6);
   }
 
   @Test
   public void should_order_by_start_then_end_offset() throws Exception {
-
-    List<SyntaxHighlightingRule> orderedRules = highlightingRules.getOrderedHighlightingRules();
-
-    assertThat(orderedRules).onProperty("startPosition").containsExactly(0, 10, 12, 24, 24, 42);
-    assertThat(orderedRules).onProperty("endPosition").containsExactly(10, 12, 20, 38, 65, 50);
-    assertThat(orderedRules).onProperty("textType").containsExactly("cd", "k", "cd", "k", "cppd", "k");
-  }
-
-  @Test
-  public void should_serialize_rules_to_string() throws Exception {
-
-    String serializedRules = highlightingRules.writeString();
-    assertThat(serializedRules).isEqualTo("0,10,cd;10,12,k;12,20,cd;24,38,k;24,65,cppd;42,50,k;");
+    assertThat(highlightingRules).onProperty("startPosition").containsExactly(0, 10, 12, 24, 24, 42);
+    assertThat(highlightingRules).onProperty("endPosition").containsExactly(10, 12, 20, 38, 65, 50);
+    assertThat(highlightingRules).onProperty("textType").containsExactly("cd", "k", "cd", "k", "cppd", "k");
   }
 
   @Test
   public void should_prevent_rules_overlapping() throws Exception {
-
     throwable.expect(UnsupportedOperationException.class);
 
-    SyntaxHighlightingRuleSet.Builder builder = SyntaxHighlightingRuleSet.builder();
+    SyntaxHighlightingDataBuilder builder = new SyntaxHighlightingDataBuilder();
     builder.registerHighlightingRule(0, 10, "k");
     builder.registerHighlightingRule(8, 15, "k");
   }

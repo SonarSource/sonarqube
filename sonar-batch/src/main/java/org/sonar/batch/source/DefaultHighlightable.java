@@ -31,12 +31,12 @@ public class DefaultHighlightable implements Highlightable {
 
   private final Component component;
   private final ComponentDataCache cache;
-  private final SyntaxHighlightingRuleSet.Builder builder;
+  private final SyntaxHighlightingDataBuilder builder;
 
   public DefaultHighlightable(Component component, ComponentDataCache cache) {
     this.component = component;
     this.cache = cache;
-    this.builder = SyntaxHighlightingRuleSet.builder();
+    this.builder = new SyntaxHighlightingDataBuilder();
   }
 
   @Override
@@ -49,8 +49,8 @@ public class DefaultHighlightable implements Highlightable {
     return component;
   }
 
-  public SyntaxHighlightingRuleSet getHighlightingRules() {
-    return builder.build();
+  public SyntaxHighlightingDataBuilder getHighlightingRules() {
+    return builder;
   }
 
   private class DefaultHighlightingBuilder implements HighlightingBuilder {

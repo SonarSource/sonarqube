@@ -25,6 +25,7 @@ import com.google.common.collect.TreeMultimap;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -83,14 +84,14 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
       return new DefaultSymbolTable(referencesBySymbol);
     }
 
-    private static class SymbolComparator implements Comparator<Symbol> {
+    private static class SymbolComparator implements Comparator<Symbol>, Serializable {
       @Override
       public int compare(Symbol left, Symbol right) {
         return left.getDeclarationStartOffset() - right.getDeclarationStartOffset();
       }
     }
 
-    private static class ReferenceComparator implements Comparator<Integer> {
+    private static class ReferenceComparator implements Comparator<Integer>, Serializable {
       @Override
       public int compare(Integer left, Integer right) {
         int result;

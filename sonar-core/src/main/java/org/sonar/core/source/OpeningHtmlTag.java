@@ -45,14 +45,7 @@ class OpeningHtmlTag {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    OpeningHtmlTag openingHtmlTag = (OpeningHtmlTag) o;
-    if (startOffset != openingHtmlTag.startOffset) {
-      return false;
-    }
-    if (cssClass != null ? !cssClass.equals(openingHtmlTag.cssClass) : openingHtmlTag.cssClass != null) {
-      return false;
-    }
-    return true;
+    return compareTo((OpeningHtmlTag) o);
   }
 
   @Override
@@ -60,5 +53,15 @@ class OpeningHtmlTag {
     int result = startOffset;
     result = 31 * result + (cssClass != null ? cssClass.hashCode() : 0);
     return result;
+  }
+
+  private boolean compareTo(OpeningHtmlTag otherTag) {
+    if (startOffset != otherTag.startOffset) {
+      return false;
+    }
+    if (cssClass != null ? !cssClass.equals(otherTag.cssClass) : otherTag.cssClass != null) {
+      return false;
+    }
+    return true;
   }
 }
