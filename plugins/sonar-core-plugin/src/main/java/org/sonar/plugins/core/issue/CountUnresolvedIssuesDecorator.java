@@ -49,13 +49,13 @@ import static com.google.common.collect.Lists.newArrayList;
  * @since 3.6
  */
 @DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
-public class CountOpenIssuesDecorator implements Decorator {
+public class CountUnresolvedIssuesDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
   private final RuleFinder rulefinder;
   private final TimeMachineConfiguration timeMachineConfiguration;
 
-  public CountOpenIssuesDecorator(ResourcePerspectives perspectives, RuleFinder rulefinder, TimeMachineConfiguration timeMachineConfiguration) {
+  public CountUnresolvedIssuesDecorator(ResourcePerspectives perspectives, RuleFinder rulefinder, TimeMachineConfiguration timeMachineConfiguration) {
     this.perspectives = perspectives;
     this.rulefinder = rulefinder;
     this.timeMachineConfiguration = timeMachineConfiguration;
@@ -89,7 +89,7 @@ public class CountOpenIssuesDecorator implements Decorator {
   public void decorate(Resource resource, DecoratorContext context) {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     if (issuable != null) {
-      Collection<Issue> issues = getOpenIssues(issuable.issues());
+      Collection<Issue> issues = issuable.unresolvedIssues();
       boolean shouldSaveNewMetrics = shouldSaveNewMetrics(context);
 
       Multiset<RulePriority> severityBag = HashMultiset.create();
@@ -279,15 +279,6 @@ public class CountOpenIssuesDecorator implements Decorator {
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {
     return context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
-  }
-
-  private Collection<Issue> getOpenIssues(Collection<Issue> issues) {
-    return newArrayList(Iterables.filter(issues, new Predicate<Issue>() {
-      @Override
-      public boolean apply(final Issue issue) {
-        return issue.resolution()==null;
-      }
-    }));
   }
 
   @Override

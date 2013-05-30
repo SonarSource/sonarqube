@@ -60,6 +60,18 @@ public class DefaultIssuable implements Issuable {
     return Lists.<Issue>newArrayList(elements);
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<Issue> unresolvedIssues() {
+    List<Issue> result = Lists.newArrayList();
+    for (DefaultIssue issue : cache.byComponent(component.key())) {
+      if (issue.resolution()==null) {
+        result.add(issue);
+      }
+    }
+    return result;
+  }
+
   @Override
   public Component component() {
     return component;

@@ -35,6 +35,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
@@ -52,9 +53,9 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class CountOpenIssuesDecoratorTest {
+public class CountUnresolvedIssuesDecoratorTest {
 
-  CountOpenIssuesDecorator decorator;
+  CountUnresolvedIssuesDecorator decorator;
   TimeMachineConfiguration timeMachineConfiguration;
   RuleFinder ruleFinder;
   Issuable issuable;
@@ -104,7 +105,7 @@ public class CountOpenIssuesDecoratorTest {
     issuable = mock(Issuable.class);
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(issuable);
-    decorator = new CountOpenIssuesDecorator(perspectives, ruleFinder, timeMachineConfiguration);
+    decorator = new CountUnresolvedIssuesDecorator(perspectives, ruleFinder, timeMachineConfiguration);
   }
 
   @Test
@@ -115,7 +116,7 @@ public class CountOpenIssuesDecoratorTest {
   @Test
   public void should_count_issues() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.issues()).thenReturn(createIssues());
+    when(issuable.unresolvedIssues()).thenReturn(createIssues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
@@ -127,7 +128,7 @@ public class CountOpenIssuesDecoratorTest {
   public void should_do_nothing_when_issuable_is_null() {
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     when(perspectives.as(Issuable.class, resource)).thenReturn(null);
-    CountOpenIssuesDecorator decorator = new CountOpenIssuesDecorator(perspectives, ruleFinder, timeMachineConfiguration);
+    CountUnresolvedIssuesDecorator decorator = new CountUnresolvedIssuesDecorator(perspectives, ruleFinder, timeMachineConfiguration);
 
     decorator.decorate(resource, context);
 
@@ -140,7 +141,7 @@ public class CountOpenIssuesDecoratorTest {
   @Test
   public void should_not_count_issues_if_measure_already_exists() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.issues()).thenReturn(createIssues());
+    when(issuable.unresolvedIssues()).thenReturn(createIssues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
     when(context.getMeasure(CoreMetrics.VIOLATIONS)).thenReturn(new Measure(CoreMetrics.VIOLATIONS, 3000.0));
     when(context.getMeasure(CoreMetrics.MAJOR_VIOLATIONS)).thenReturn(new Measure(CoreMetrics.MAJOR_VIOLATIONS, 500.0));
@@ -155,7 +156,7 @@ public class CountOpenIssuesDecoratorTest {
   @Test
   public void should_save_zero_on_projects() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.issues()).thenReturn(Lists.<Issue>newArrayList());
+    when(issuable.unresolvedIssues()).thenReturn(Lists.<Issue>newArrayList());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
@@ -166,7 +167,7 @@ public class CountOpenIssuesDecoratorTest {
   @Test
   public void should_save_zero_on_directories() {
     when(resource.getScope()).thenReturn(Scopes.DIRECTORY);
-    when(issuable.issues()).thenReturn(Lists.<Issue>newArrayList());
+    when(issuable.unresolvedIssues()).thenReturn(Lists.<Issue>newArrayList());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
@@ -177,7 +178,7 @@ public class CountOpenIssuesDecoratorTest {
   @Test
   public void should_count_issues_by_severity() {
     when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    when(issuable.issues()).thenReturn(createIssues());
+    when(issuable.unresolvedIssues()).thenReturn(createIssues());
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.<Measure>emptyList());
 
     decorator.decorate(resource, context);
@@ -195,7 +196,7 @@ public class CountOpenIssuesDecoratorTest {
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
     issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()));
-    when(issuable.issues()).thenReturn(issues);
+    when(issuable.unresolvedIssues()).thenReturn(issues);
 
     decorator.decorate(resource, context);
 
@@ -210,7 +211,7 @@ public class CountOpenIssuesDecoratorTest {
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()));
     issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.MINOR.name()));
-    when(issuable.issues()).thenReturn(issues);
+    when(issuable.unresolvedIssues()).thenReturn(issues);
 
     decorator.decorate(resource, context);
 
@@ -231,7 +232,7 @@ public class CountOpenIssuesDecoratorTest {
   public void should_clear_cache_after_execution() {
     Issue issue1 = new DefaultIssue().setRuleKey(RuleKey.of(ruleA1.getRepositoryKey(), ruleA1.getKey())).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(rightNow);
     Issue issue2 = new DefaultIssue().setRuleKey(RuleKey.of(ruleA2.getRepositoryKey(), ruleA2.getKey())).setSeverity(RulePriority.CRITICAL.name()).setCreationDate(rightNow);
-    when(issuable.issues()).thenReturn(newArrayList(issue1)).thenReturn(newArrayList(issue2));
+    when(issuable.unresolvedIssues()).thenReturn(newArrayList(issue1)).thenReturn(newArrayList(issue2));
 
     decorator.decorate(resource, context);
     decorator.decorate(resource, context);
@@ -242,7 +243,7 @@ public class CountOpenIssuesDecoratorTest {
 
   @Test
   public void should_save_severity_new_issues() {
-    when(issuable.issues()).thenReturn(createIssuesForNewMetrics());
+    when(issuable.unresolvedIssues()).thenReturn(createIssuesForNewMetrics());
 
     decorator.decorate(resource, context);
 
@@ -256,7 +257,7 @@ public class CountOpenIssuesDecoratorTest {
 
   @Test
   public void should_save_rule_new_issues() {
-    when(issuable.issues()).thenReturn(createIssuesForNewMetrics());
+    when(issuable.unresolvedIssues()).thenReturn(createIssuesForNewMetrics());
 
     decorator.decorate(resource, context);
 
@@ -269,7 +270,7 @@ public class CountOpenIssuesDecoratorTest {
   @Test
   public void should_not_save_new_issues_if_measure_already_computed() {
     when(context.getMeasure(CoreMetrics.NEW_VIOLATIONS)).thenReturn(new Measure());
-    when(issuable.issues()).thenReturn(createIssuesForNewMetrics());
+    when(issuable.unresolvedIssues()).thenReturn(createIssuesForNewMetrics());
 
     decorator.decorate(resource, context);
 
@@ -283,13 +284,10 @@ public class CountOpenIssuesDecoratorTest {
 
   List<Issue> createIssues() {
     List<Issue> issues = newArrayList();
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setStatus(Issue.STATUS_OPEN));
-    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(RulePriority.CRITICAL.name()).setStatus(Issue.STATUS_REOPENED));
-    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(RulePriority.MAJOR.name()).setStatus(Issue.STATUS_REOPENED));
-    issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setSeverity(RulePriority.MINOR.name()).setStatus(Issue.STATUS_OPEN));
-
-    // resolved
-    issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setResolution(Issue.RESOLUTION_FIXED).setStatus(Issue.STATUS_RESOLVED));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(Severity.CRITICAL).setStatus(Issue.STATUS_OPEN));
+    issues.add(new DefaultIssue().setRuleKey(ruleA1.ruleKey()).setSeverity(Severity.CRITICAL).setStatus(Issue.STATUS_REOPENED));
+    issues.add(new DefaultIssue().setRuleKey(ruleA2.ruleKey()).setSeverity(Severity.MAJOR).setStatus(Issue.STATUS_REOPENED));
+    issues.add(new DefaultIssue().setRuleKey(ruleB1.ruleKey()).setSeverity(Severity.MINOR).setStatus(Issue.STATUS_OPEN));
     return issues;
   }
 

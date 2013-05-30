@@ -56,5 +56,13 @@ public interface Issuable extends Perspective {
    */
   boolean addIssue(Issue issue);
 
+  /**
+   * The issues that are not resolved (=open). They include the manual issues reported by end-users.
+   */
+  List<Issue> unresolvedIssues();
+
+  /**
+   * All issues, even the issues that are resolved or closed during this analysis.
+   */
   List<Issue> issues();
 }
