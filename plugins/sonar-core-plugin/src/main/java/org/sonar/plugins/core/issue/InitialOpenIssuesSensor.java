@@ -53,4 +53,8 @@ public class InitialOpenIssuesSensor implements Sensor {
     initialOpenIssuesStack.setIssues(dtos, loadingDate);
   }
 
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 }

@@ -27,6 +27,7 @@ import org.sonar.core.issue.db.IssueDto;
 
 import java.util.Date;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
@@ -48,5 +49,11 @@ public class InitialOpenIssuesSensorTest {
 
     verify(issueDao).selectNonClosedIssuesByModule(1);
     verify(stack).setIssues(anyListOf(IssueDto.class), any(Date.class));
+  }
+
+  @Test
+  public void test_toString() throws Exception {
+    assertThat(sensor.toString()).isEqualTo("InitialOpenIssuesSensor");
+
   }
 }
