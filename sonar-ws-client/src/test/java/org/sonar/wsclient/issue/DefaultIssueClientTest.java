@@ -36,7 +36,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_find_issues() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
@@ -50,7 +50,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_fail_to_find_issues() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnStatus(500);
 
     IssueClient client = new DefaultIssueClient(requestFactory);
@@ -64,7 +64,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_set_severity() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
@@ -76,7 +76,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_assign() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
@@ -88,7 +88,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_unassign() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
@@ -100,7 +100,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_plan() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
@@ -112,7 +112,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_unplan() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
@@ -124,7 +124,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_create_issue() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
@@ -136,7 +136,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_get_transitions() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\n" +
       "  \"transitions\": [\n" +
       "    \"resolve\",\n" +
@@ -154,7 +154,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_apply_transition() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
@@ -166,7 +166,7 @@ public class DefaultIssueClientTest {
 
   @Test
   public void should_add_comment() throws Exception {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody(IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/DefaultIssueClientTest/add_comment_result.json")));
 
     IssueClient client = new DefaultIssueClient(requestFactory);

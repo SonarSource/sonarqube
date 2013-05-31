@@ -30,7 +30,7 @@ import static org.fest.assertions.Fail.fail;
 public class SonarClientTest {
   @Test
   public void should_build_clients() {
-    SonarClient client = SonarClient.builder().url("http://localhost:9000").build();
+    SonarClient client = SonarClient.create("http://localhost:9000");
     assertThat(client.issueClient()).isNotNull().isInstanceOf(DefaultIssueClient.class);
     assertThat(client.actionPlanClient()).isNotNull().isInstanceOf(DefaultActionPlanClient.class);
     assertThat(client.userClient()).isNotNull().isInstanceOf(DefaultUserClient.class);
@@ -49,10 +49,47 @@ public class SonarClientTest {
   @Test
   public void url_should_not_be_empty() {
     try {
-      SonarClient.builder().url("").build();
+      SonarClient.create("");
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Server URL must be set");
     }
+  }
+
+  @Test
+  public void test_default_configuration() throws Exception {
+    SonarClient client = SonarClient.create("http://localhost:9000");
+    assertThat(client.requestFactory.getBaseUrl()).isEqualTo("http://localhost:9000");
+    assertThat(client.requestFactory.getLogin()).isNull();
+    assertThat(client.requestFactory.getPassword()).isNull();
+    assertThat(client.requestFactory.getConnectTimeoutInMilliseconds()).isEqualTo(SonarClient.DEFAULT_CONNECT_TIMEOUT_MILLISECONDS);
+    assertThat(client.requestFactory.getReadTimeoutInMilliseconds()).isEqualTo(SonarClient.DEFAULT_READ_TIMEOUT_MILLISECONDS);
+    assertThat(client.requestFactory.getProxyHost()).isNull();
+    assertThat(client.requestFactory.getProxyPort()).isEqualTo(0);
+    assertThat(client.requestFactory.getProxyLogin()).isNull();
+    assertThat(client.requestFactory.getProxyPassword()).isNull();
+
+  }
+
+  @Test
+  public void test_custom_configuration() throws Exception {
+    SonarClient client = SonarClient.builder().url("http://localhost:9000")
+      .login("eric")
+      .password("pass")
+      .connectTimeoutMilliseconds(12345)
+      .readTimeoutMilliseconds(6789)
+      .proxy("localhost", 2052)
+      .proxyLogin("proxyLogin")
+      .proxyPassword("proxyPass")
+      .build();
+    assertThat(client.requestFactory.getBaseUrl()).isEqualTo("http://localhost:9000");
+    assertThat(client.requestFactory.getLogin()).isEqualTo("eric");
+    assertThat(client.requestFactory.getPassword()).isEqualTo("pass");
+    assertThat(client.requestFactory.getConnectTimeoutInMilliseconds()).isEqualTo(12345);
+    assertThat(client.requestFactory.getReadTimeoutInMilliseconds()).isEqualTo(6789);
+    assertThat(client.requestFactory.getProxyHost()).isEqualTo("localhost");
+    assertThat(client.requestFactory.getProxyPort()).isEqualTo(2052);
+    assertThat(client.requestFactory.getProxyLogin()).isEqualTo("proxyLogin");
+    assertThat(client.requestFactory.getProxyPassword()).isEqualTo("proxyPass");
   }
 }

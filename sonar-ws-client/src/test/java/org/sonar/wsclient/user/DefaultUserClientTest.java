@@ -34,7 +34,7 @@ public class DefaultUserClientTest {
 
   @Test
   public void should_find_issues() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"users\": [{\"login\": \"simon\", \"name\": \"Simon\", \"active\": true}]}");
 
     UserClient client = new DefaultUserClient(requestFactory);

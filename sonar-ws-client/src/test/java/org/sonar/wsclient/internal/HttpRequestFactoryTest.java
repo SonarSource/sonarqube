@@ -36,7 +36,7 @@ public class HttpRequestFactoryTest {
   public void test_get() {
     httpServer.doReturnStatus(200).doReturnBody("list of issues");
 
-    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
     HttpRequest request = factory.get("/api/issues", Collections.<String, Object>emptyMap());
 
     assertThat(request.method()).isEqualTo("GET");
@@ -49,7 +49,7 @@ public class HttpRequestFactoryTest {
   public void test_post() {
     httpServer.doReturnStatus(200);
 
-    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url(), null, null);
+    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
     HttpRequest request = factory.post("/api/issues/change", Collections.<String, Object>emptyMap());
 
     assertThat(request.method()).isEqualTo("POST");
@@ -61,12 +61,28 @@ public class HttpRequestFactoryTest {
   public void test_authentication() {
     httpServer.doReturnStatus(200).doReturnBody("list of issues");
 
-    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url(), "karadoc", "legrascestlavie");
+    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url()).setLogin("karadoc").setPassword("legrascestlavie");
     HttpRequest request = factory.get("/api/issues", Collections.<String, Object>emptyMap());
 
     assertThat(request.body()).isEqualTo("list of issues");
     assertThat(request.code()).isEqualTo(200);
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues");
     assertThat(httpServer.requestHeaders().get("Authorization")).isEqualTo("Basic a2FyYWRvYzpsZWdyYXNjZXN0bGF2aWU=");
+  }
+
+  @Test
+  public void test_proxy() throws Exception {
+    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url()).setProxyHost("localhost").setProxyPort(5020);
+    HttpRequest request = factory.get("/api/issues", Collections.<String, Object>emptyMap());
+    // it's not possible to check that the proxy is correctly configured
+  }
+
+  @Test
+  public void test_proxy_credentials() throws Exception {
+    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url())
+      .setProxyHost("localhost").setProxyPort(5020)
+      .setProxyLogin("john").setProxyPassword("smith");
+    HttpRequest request = factory.get("/api/issues", Collections.<String, Object>emptyMap());
+    // it's not possible to check that the proxy is correctly configured
   }
 }

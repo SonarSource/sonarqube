@@ -21,6 +21,7 @@ package org.sonar.wsclient.internal;
 
 import com.github.kevinsawicki.http.HttpRequest;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
@@ -28,36 +29,116 @@ import java.util.Map;
  */
 public class HttpRequestFactory {
 
-  static final int CONNECT_TIMEOUT_MILLISECONDS = 30000;
-  static final int READ_TIMEOUT_MILLISECONDS = 60000;
+  private final String baseUrl;
+  private String login, password, proxyHost, proxyLogin, proxyPassword;
+  private int proxyPort;
+  private int connectTimeoutInMilliseconds;
+  private int readTimeoutInMilliseconds;
 
-  private final String baseURl;
-  private final String login, password;
+  public HttpRequestFactory(String baseUrl) {
+    this.baseUrl = baseUrl;
+  }
 
-  public HttpRequestFactory(String baseURl, String login, String password) {
-    this.baseURl = baseURl;
+  public HttpRequestFactory setLogin(@Nullable String login) {
     this.login = login;
+    return this;
+  }
+
+  public HttpRequestFactory setPassword(@Nullable String password) {
     this.password = password;
+    return this;
+  }
+
+  public HttpRequestFactory setProxyHost(@Nullable String proxyHost) {
+    this.proxyHost = proxyHost;
+    return this;
+  }
+
+  public HttpRequestFactory setProxyLogin(@Nullable String proxyLogin) {
+    this.proxyLogin = proxyLogin;
+    return this;
+  }
+
+  public HttpRequestFactory setProxyPassword(@Nullable String proxyPassword) {
+    this.proxyPassword = proxyPassword;
+    return this;
+  }
+
+  public HttpRequestFactory setProxyPort(int proxyPort) {
+    this.proxyPort = proxyPort;
+    return this;
+  }
+
+  public HttpRequestFactory setConnectTimeoutInMilliseconds(int connectTimeoutInMilliseconds) {
+    this.connectTimeoutInMilliseconds = connectTimeoutInMilliseconds;
+    return this;
+  }
+
+  public HttpRequestFactory setReadTimeoutInMilliseconds(int readTimeoutInMilliseconds) {
+    this.readTimeoutInMilliseconds = readTimeoutInMilliseconds;
+    return this;
+  }
+
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
+  public String getLogin() {
+    return login;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public String getProxyHost() {
+    return proxyHost;
+  }
+
+  public String getProxyLogin() {
+    return proxyLogin;
+  }
+
+  public String getProxyPassword() {
+    return proxyPassword;
+  }
+
+  public int getProxyPort() {
+    return proxyPort;
+  }
+
+  public int getConnectTimeoutInMilliseconds() {
+    return connectTimeoutInMilliseconds;
+  }
+
+  public int getReadTimeoutInMilliseconds() {
+    return readTimeoutInMilliseconds;
   }
 
   public HttpRequest get(String wsUrl, Map<String, Object> queryParams) {
-    HttpRequest request = HttpRequest.get(baseURl + wsUrl, queryParams, true);
+    HttpRequest request = HttpRequest.get(baseUrl + wsUrl, queryParams, true);
     return prepare(request);
   }
 
   public HttpRequest post(String wsUrl, Map<String, Object> queryParams) {
-    HttpRequest request = HttpRequest.post(baseURl + wsUrl, queryParams, true);
+    HttpRequest request = HttpRequest.post(baseUrl + wsUrl, queryParams, true);
     return prepare(request);
   }
 
   private HttpRequest prepare(HttpRequest request) {
+    if (proxyHost != null) {
+      request.useProxy(proxyHost, proxyPort);
+      if (proxyLogin != null) {
+        request.proxyBasic(proxyLogin, proxyPassword);
+      }
+    }
     request
       .acceptGzipEncoding()
       .uncompress(true)
       .acceptJson()
       .acceptCharset(HttpRequest.CHARSET_UTF8)
-      .connectTimeout(CONNECT_TIMEOUT_MILLISECONDS)
-      .readTimeout(READ_TIMEOUT_MILLISECONDS)
+      .connectTimeout(connectTimeoutInMilliseconds)
+      .readTimeout(readTimeoutInMilliseconds)
       .trustAllCerts()
       .trustAllCerts();
     if (login != null) {

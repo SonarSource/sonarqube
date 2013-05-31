@@ -27,15 +27,31 @@ import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.user.DefaultUserClient;
 import org.sonar.wsclient.user.UserClient;
 
+import javax.annotation.Nullable;
+
 /**
  * @since 3.6
  */
 public class SonarClient {
 
-  private final HttpRequestFactory requestFactory;
+  public static final int DEFAULT_CONNECT_TIMEOUT_MILLISECONDS = 30000;
+  public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60000;
+
+  /**
+   * Visibility relaxed for unit tests
+   */
+  final HttpRequestFactory requestFactory;
 
   private SonarClient(Builder builder) {
-    requestFactory = new HttpRequestFactory(builder.url, builder.login, builder.password);
+    requestFactory = new HttpRequestFactory(builder.url)
+      .setLogin(builder.login)
+      .setPassword(builder.password)
+      .setProxyHost(builder.proxyHost)
+      .setProxyPort(builder.proxyPort)
+      .setProxyLogin(builder.proxyLogin)
+      .setProxyPassword(builder.proxyPassword)
+      .setConnectTimeoutInMilliseconds(builder.connectTimeoutMs)
+      .setReadTimeoutInMilliseconds(builder.readTimeoutMs);
   }
 
   public IssueClient issueClient() {
@@ -54,24 +70,67 @@ public class SonarClient {
     return new Builder();
   }
 
+  /**
+   * Create a client with default configuration. Use {@link #builder()} to define a custom configuration.
+   */
+  public static SonarClient create(String serverUrl) {
+    return builder().url(serverUrl).build();
+  }
+
   public static class Builder {
-    private String login, password, url;
+    private String login, password, url, proxyHost, proxyLogin, proxyPassword;
+    private int proxyPort = 0;
+    private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLISECONDS, readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
 
     private Builder() {
     }
 
-    public Builder login(String login) {
+    public Builder url(String url) {
+      this.url = url;
+      return this;
+    }
+
+    public Builder login(@Nullable String login) {
       this.login = login;
       return this;
     }
 
-    public Builder password(String password) {
+    public Builder password(@Nullable String password) {
       this.password = password;
       return this;
     }
 
-    public Builder url(String url) {
-      this.url = url;
+    public Builder proxy(String proxyHost, int proxyPort) {
+      this.proxyHost = proxyHost;
+      this.proxyPort = proxyPort;
+      return this;
+    }
+
+    public Builder proxyLogin(@Nullable String proxyLogin) {
+      this.proxyLogin = proxyLogin;
+      return this;
+    }
+
+    public Builder proxyPassword(@Nullable String proxyPassword) {
+      this.proxyPassword = proxyPassword;
+      return this;
+    }
+
+    /**
+     * Sets a specified timeout value, in milliseconds, to be used when opening HTTP connection.
+     * A timeout of zero is interpreted as an infinite timeout. Default value is {@link SonarClient#DEFAULT_CONNECT_TIMEOUT_MILLISECONDS}
+     */
+    public Builder connectTimeoutMilliseconds(int i) {
+      this.connectTimeoutMs = i;
+      return this;
+    }
+
+    /**
+     * Sets the read timeout to a specified timeout, in milliseconds.
+     * A timeout of zero is interpreted as an infinite timeout. Default value is {@link SonarClient#DEFAULT_READ_TIMEOUT_MILLISECONDS}
+     */
+    public Builder readTimeoutMilliseconds(int i) {
+      this.readTimeoutMs = i;
       return this;
     }
 
