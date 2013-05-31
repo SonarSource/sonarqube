@@ -82,6 +82,8 @@ class IssueController < ApplicationController
       Internal.issues.setSeverity(issue_key, params[:severity])
     elsif action_type=='plan'
       Internal.issues.plan(issue_key, params[:plan])
+    elsif action_type=='unplan'
+      Internal.issues.plan(issue_key, nil)
     end
 
     @issue_results = Api.issues.find(issue_key)

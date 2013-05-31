@@ -9,7 +9,7 @@
 <div class="line-block">
   <% if has_role?(:admin, @project) %>
   <div style="float:right">
-    <a href="<%= url_for :controller => 'issues_action_plans', :action => 'index', :id => @project.id -%>">
+    <a href="<%= url_for :controller => 'action_plans', :action => 'index', :id => @project.id -%>">
       <%= message('widgets.more') -%>
     </a>
   </div>

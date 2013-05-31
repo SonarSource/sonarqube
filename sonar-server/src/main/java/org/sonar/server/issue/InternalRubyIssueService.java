@@ -23,13 +23,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.SonarException;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssue;
@@ -42,7 +43,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
-import java.text.SimpleDateFormat;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -268,13 +269,12 @@ public class InternalRubyIssueService implements ServerComponent {
 
     if (!Strings.isNullOrEmpty(deadLineParam)) {
       try {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        deadLine = dateFormat.parse(deadLineParam);
+        deadLine = DateUtils.parseDate(deadLineParam);
         Date today = new Date();
-        if (deadLine.before(today) && !DateUtils.isSameDay(deadLine, today)) {
+        if (deadLine.before(today) && !org.apache.commons.lang.time.DateUtils.isSameDay(deadLine, today)) {
           result.addError(Result.Message.ofL10n("action_plans.date_cant_be_in_past"));
         }
-      } catch (Exception e) {
+      } catch (SonarException e) {
         result.addError(Result.Message.ofL10n("errors.is_not_valid", "date"));
       }
     }

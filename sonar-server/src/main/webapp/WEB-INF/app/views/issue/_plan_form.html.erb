@@ -10,7 +10,7 @@
 <%
    else
      first_plan = plans[0]
-     plan_options = options_for_select([[message('issue.unplanned'), '']] + plans.map { |plan|
+     plan_options = options_for_select(plans.map { |plan|
        if plan.deadLine
          label = "#{h plan.name} (#{format_date(plan.deadLine)})"
        else
@@ -22,7 +22,7 @@
 %>
   <form method="POST">
     <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
-    <input type="hidden" name="id" value="plan"/>
+    <input type="hidden" id="action-<%= plans_select_box_id %>" name="id" value="plan"/>
 
     <%= dropdown_tag('plan', plan_options, {:show_search_box => false}, {:id => plans_select_box_id}) -%>
 
@@ -31,7 +31,8 @@
     <% if @issue.actionPlanKey %>
       <%= image_tag 'sep12.png' -%>
       &nbsp;
-      <input type="button" value="<%= message('issue.unplan.submit') -%>" onclick="$j('#<%= plans_select_box_id -%>').val('');$j('#<%= plans_select_box_id -%>').prop('disabled', false);submitIssueForm(this)">
+      <input type="button" value="<%= message('issue.unplan.submit') -%>"
+             onclick="$j('#action-<%= plans_select_box_id %>').val('unplan'); $j('#<%= plans_select_box_id -%>').prop('disabled', false); submitIssueForm(this)">
     <% end %>
     <%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
     <span class="loading hidden"></span>

@@ -27,7 +27,7 @@
             <td class="thin nowrap center">
               <img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message("action_plans.status.#{plan.status}") -%>"/></td>
             <td class="thin nowrap"><%= h(plan.name()) -%></td>
-            <td class="thin nowrap <%= 'over-due' if plan.overDue() -%>" align="right"><%= format_date(plan.deadLine(), :time_if_today => true) -%></td>
+            <td class="thin nowrap <%= 'over-due' if plan.overDue() -%>" align="right"><%= format_date(plan.deadLine()) -%></td>
             <% if plan.totalIssues()==0 %>
               <td class="noprogress thin nowrap">
                 <%= message('action_plans.no_issues_linked_to_action_plan') -%>

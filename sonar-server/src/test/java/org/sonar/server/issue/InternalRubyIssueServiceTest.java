@@ -58,7 +58,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
     parameters.put("project", "org.sonar.Sample");
-    parameters.put("deadLine", "13/05/2113");
+    parameters.put("deadLine", "2113-05-13");
 
     ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
     Result result = internalRubyIssueService.createActionPlan(parameters);
@@ -81,7 +81,7 @@ public class InternalRubyIssueServiceTest {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "New Long term");
     parameters.put("description", "New Long term issues");
-    parameters.put("deadLine", "13/05/2113");
+    parameters.put("deadLine", "2113-05-13");
 
     ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
     Result result = internalRubyIssueService.updateActionPlan("ABCD", parameters);
@@ -104,7 +104,7 @@ public class InternalRubyIssueServiceTest {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "New Long term");
     parameters.put("description", "New Long term issues");
-    parameters.put("deadLine", "13/05/2113");
+    parameters.put("deadLine", "2113-05-13");
     parameters.put("project", "org.sonar.MultiSample");
 
     ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
@@ -221,7 +221,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
     parameters.put("project", "org.sonar.Sample");
-    parameters.put("deadLine", "2013-05-18");
+    parameters.put("deadLine", "18/05/2013");
 
     Result result = internalRubyIssueService.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
@@ -234,7 +234,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
     parameters.put("project", "org.sonar.Sample");
-    parameters.put("deadLine", "01/01/2000");
+    parameters.put("deadLine", "2000-01-01");
 
     Result result = internalRubyIssueService.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
