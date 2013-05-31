@@ -5,7 +5,12 @@
 
    if plans.empty?
 %>
-  <span class="error"><%= message('issue.plan_must_be_created_first') -%></span>
+  <% if is_admin? %>
+    <span class="error"><%= message('issue.plan.error.plan_must_be_created_first_for_admin',
+                                    :params => ApplicationController.root_context + '/action_plans/index/' + @issue.projectKey()) -%></span>
+  <% else %>
+    <span class="error"><%= message('issue.plan.error.plan_must_be_created_first_for_other') -%></span>
+  <% end %>
   &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>
 <%
    else
