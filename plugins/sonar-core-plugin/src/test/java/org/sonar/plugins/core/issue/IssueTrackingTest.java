@@ -25,12 +25,12 @@ import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.scan.LastSnapshots;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueDto;
 
 import java.io.IOException;

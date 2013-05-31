@@ -24,12 +24,13 @@ import com.google.common.collect.Collections2;
 import org.junit.Test;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;

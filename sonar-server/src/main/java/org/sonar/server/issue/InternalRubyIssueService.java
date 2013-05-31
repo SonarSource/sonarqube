@@ -27,13 +27,14 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
+import org.sonar.api.issue.action.Action;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.resource.ResourceDao;
@@ -59,16 +60,18 @@ public class InternalRubyIssueService implements ServerComponent {
   private final ActionPlanService actionPlanService;
   private final IssueStatsFinder issueStatsFinder;
   private final ResourceDao resourceDao;
+  private final ActionService actionService;
 
   public InternalRubyIssueService(IssueService issueService,
                                   IssueCommentService commentService,
                                   ActionPlanService actionPlanService,
-                                  IssueStatsFinder issueStatsFinder, ResourceDao resourceDao) {
+                                  IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService) {
     this.issueService = issueService;
     this.commentService = commentService;
     this.actionPlanService = actionPlanService;
     this.issueStatsFinder = issueStatsFinder;
     this.resourceDao = resourceDao;
+    this.actionService = actionService;
   }
 
   public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params){
@@ -301,5 +304,13 @@ public class InternalRubyIssueService implements ServerComponent {
       result.addError(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", actionPlanKey));
     }
     return result;
+  }
+
+  public Issue executeAction(String issueKey, String actionKey, Map<String, String> parameters) {
+    return actionService.execute(issueKey, actionKey, UserSession.get(), parameters);
+  }
+
+  public List<Action> listActions(String issueKey){
+    return actionService.listAvailableActions(issueKey);
   }
 }

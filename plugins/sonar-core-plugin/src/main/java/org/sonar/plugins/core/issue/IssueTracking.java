@@ -28,16 +28,15 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.scan.LastSnapshots;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.plugins.core.issue.tracking.*;
-import org.sonar.plugins.core.issue.tracking.SourceChecksum;
-import org.sonar.plugins.core.issue.tracking.ViolationTrackingBlocksRecognizer;
 
 import javax.annotation.Nullable;
+
 import java.util.*;
 
 public class IssueTracking implements BatchExtension {

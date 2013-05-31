@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.condition.Condition;
 
 import java.util.Arrays;
 import java.util.List;

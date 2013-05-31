@@ -26,11 +26,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.Severity;
 import org.sonar.batch.index.Caches;
-import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 

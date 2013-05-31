@@ -22,8 +22,8 @@ package org.sonar.plugins.core.issue;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.issue.IssueHandler;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 
 import java.util.Date;

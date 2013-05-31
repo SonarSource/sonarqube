@@ -19,8 +19,8 @@
  */
 package org.sonar.batch.issue;
 
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.batch.index.ScanPersister;
-import org.sonar.core.issue.DefaultIssue;
 
 /**
  * Executed at the end of project scan, when all the modules are completed.

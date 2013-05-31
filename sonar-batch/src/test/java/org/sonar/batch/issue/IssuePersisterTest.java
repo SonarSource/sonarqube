@@ -20,7 +20,7 @@
 package org.sonar.batch.issue;
 
 import org.junit.Test;
-import org.sonar.core.issue.DefaultIssue;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Arrays;

@@ -17,38 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.workflow;
+package org.sonar.api.issue.action;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.workflow.condition.Condition;
-import org.sonar.api.workflow.function.Function;
-import org.sonar.api.workflow.screen.Screen;
 
-import java.util.List;
 import java.util.Set;
 
 /**
- * Experimental component to customize the actions that can be
- * executed on reviews.
- *
- * @since 3.1
+ * @since 3.6
  */
-@Beta
-public interface Workflow extends ServerComponent {
-  Workflow addCommand(String key);
+public interface Actions extends ServerComponent {
 
-  Set<String> getCommands();
+  Actions addAction(Action action);
 
-  List<Condition> getConditions(String commandKey);
+  Set<Action> getActions();
 
-  Workflow addCondition(String commandKey, Condition condition);
-
-  List<Function> getFunctions(String commandKey);
-
-  Workflow addFunction(String commandKey, Function function);
-
-  Screen getScreen(String commandKey);
-
-  Workflow setScreen(String commandKey, Screen screen);
 }

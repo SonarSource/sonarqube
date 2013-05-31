@@ -20,12 +20,12 @@
 package org.sonar.batch.issue;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
 import javax.annotation.Nullable;

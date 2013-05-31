@@ -23,8 +23,8 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueDto;
 
 import java.util.Collection;

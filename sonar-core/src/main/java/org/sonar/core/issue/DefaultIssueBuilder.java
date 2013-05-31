@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.Nullable;

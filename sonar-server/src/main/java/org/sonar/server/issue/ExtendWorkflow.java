@@ -17,20 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
 
+package org.sonar.server.issue;
+
+import org.sonar.api.ServerExtension;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.action.Action;
+import org.sonar.api.issue.action.Actions;
+import org.sonar.api.issue.condition.HasResolution;
+import org.sonar.api.workflow.function.CommentFunction;
 
-class NotCondition implements Condition {
-  private final Condition condition;
+public final class ExtendWorkflow implements ServerExtension {
 
-  NotCondition(Condition condition) {
-    this.condition = condition;
+  private final Actions actions;
+
+  public ExtendWorkflow(Actions actions) {
+    this.actions = actions;
   }
 
-  @Override
-  public boolean matches(Issue issue) {
-    return !condition.matches(issue);
+  public void start() {
+    actions.addAction(Action.builder("fake")
+      .conditions(new HasResolution(Issue.RESOLUTION_FIXED))
+      .functions(new CommentFunction())
+      .build()
+    );
   }
-
 }
+

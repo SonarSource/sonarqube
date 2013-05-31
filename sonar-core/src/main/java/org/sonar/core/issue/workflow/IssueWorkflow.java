@@ -24,8 +24,9 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.api.issue.condition.HasResolution;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 
 import java.util.List;

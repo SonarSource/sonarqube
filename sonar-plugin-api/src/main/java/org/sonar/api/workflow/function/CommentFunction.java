@@ -20,24 +20,16 @@
 package org.sonar.api.workflow.function;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.workflow.Comment;
-import org.sonar.api.workflow.MutableReview;
-import org.sonar.api.workflow.Review;
-import org.sonar.api.workflow.WorkflowContext;
-
-import java.util.Map;
+import org.sonar.api.issue.action.Function;
 
 /**
  * @since 3.1
  */
 @Beta
-public final class CommentFunction extends Function {
+public final class CommentFunction implements Function {
 
   @Override
-  public void doExecute(MutableReview review, Review initialReview, WorkflowContext context, Map<String, String> parameters) {
-    Comment comment = review.createComment();
-    comment.setMarkdownText(parameters.get("text"));
-    comment.setUserId(context.getUserId());
+  public void execute(Context context) {
+    context.addComment(context.parameters().get("text"));
   }
-
 }

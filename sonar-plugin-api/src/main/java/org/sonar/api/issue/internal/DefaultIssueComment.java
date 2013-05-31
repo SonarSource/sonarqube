@@ -17,16 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue;
+package org.sonar.api.issue.internal;
 
 import org.sonar.api.issue.IssueComment;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * @since 3.6
+ */
 public class DefaultIssueComment implements Serializable, IssueComment {
 
   private String issueKey;

@@ -20,14 +20,14 @@
 package org.sonar.core.issue.db;
 
 import org.junit.Test;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 

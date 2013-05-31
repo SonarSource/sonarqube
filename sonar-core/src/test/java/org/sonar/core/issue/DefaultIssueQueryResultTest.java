@@ -21,6 +21,7 @@ package org.sonar.core.issue;
 
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
 
 import java.util.Arrays;
 import java.util.Collections;

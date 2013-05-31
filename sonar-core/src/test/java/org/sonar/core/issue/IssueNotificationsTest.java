@@ -27,6 +27,8 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.Project;

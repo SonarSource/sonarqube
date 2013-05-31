@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
@@ -35,7 +36,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.issue.DefaultIssue;
 
 import java.io.*;
 import java.util.Locale;

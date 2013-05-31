@@ -20,7 +20,8 @@
 package org.sonar.core.issue.workflow;
 
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
+import org.sonar.api.issue.condition.Condition;
+import org.sonar.api.issue.internal.DefaultIssue;
 
 class IsEndOfLife implements Condition {
 

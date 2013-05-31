@@ -20,7 +20,7 @@
 package org.sonar.core.issue.workflow;
 
 import org.junit.Test;
-import org.sonar.core.issue.DefaultIssue;
+import org.sonar.api.issue.internal.DefaultIssue;
 
 import static org.fest.assertions.Assertions.assertThat;
 

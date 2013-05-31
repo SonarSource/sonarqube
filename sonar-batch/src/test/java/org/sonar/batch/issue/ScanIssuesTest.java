@@ -21,6 +21,7 @@ package org.sonar.batch.issue;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
@@ -31,7 +32,6 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
-import org.sonar.core.issue.DefaultIssue;
 
 import java.util.Date;
 

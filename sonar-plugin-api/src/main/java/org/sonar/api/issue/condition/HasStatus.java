@@ -17,12 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.api.issue.condition;
 
+import com.google.common.collect.ImmutableSet;
 import org.sonar.api.issue.Issue;
 
-interface Condition {
+import java.util.Set;
 
-  boolean matches(Issue issue);
+/**
+ * @since 3.6
+ */
+public class HasStatus implements Condition {
 
+  private final Set<String> status;
+
+  public HasStatus(String first, String... others) {
+    this.status = ImmutableSet.<String>builder().add(first).add(others).build();
+  }
+
+  @Override
+  public boolean matches(Issue issue) {
+    return issue.status() != null && status.contains(issue.status());
+  }
 }

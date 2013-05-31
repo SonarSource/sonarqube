@@ -21,11 +21,12 @@ package org.sonar.core.issue.db;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.FieldDiffs;
+import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.issue.internal.FieldDiffs;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**

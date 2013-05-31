@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue;
+package org.sonar.api.issue.internal;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -42,6 +42,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @since 3.6
+ */
 public class DefaultIssue implements Issue {
 
   private String key;

@@ -21,9 +21,9 @@ package org.sonar.batch.issue;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.index.SnapshotCache;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;

@@ -21,13 +21,13 @@ package org.sonar.batch.issue;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.core.issue.DefaultIssue;
 
 import java.util.List;
 

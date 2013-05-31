@@ -21,11 +21,11 @@
 package org.sonar.server.issue;
 
 import org.junit.Test;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.resource.ResourceDao;
 

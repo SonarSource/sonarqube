@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue;
+package org.sonar.api.issue.internal;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -25,10 +25,14 @@ import com.google.common.collect.Maps;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * @since 3.6
+ */
 public class FieldDiffs implements Serializable {
 
   public static final Splitter FIELDS_SPLITTER = Splitter.on(',').omitEmptyStrings();

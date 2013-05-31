@@ -226,6 +226,44 @@ class Api::IssuesController < Api::ApiController
     end
   end
 
+  #
+  # GET /api/issues/actions?issue=<key>
+  #
+  # -- Example
+  # curl -v -u admin:admin 'http://localhost:9000/api/issues/actions?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0'
+  #
+  def actions
+    require_parameters :issue
+    issue_key = params[:issue]
+    actions = Internal.issues.listActions(issue_key)
+    render :json => jsonp(
+        {
+            :actions => actions.map { |t| t.key() }
+        }
+    )
+  end
+
+
+  #
+  # POST /api/issues/do_action?issue=<key>&actionKey=<action key>
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/do_action?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0&actionKey=link-to-jira'
+  #
+  def do_action
+    verify_post_request
+    require_parameters :issue, :actionKey
+
+    issue = Internal.issues.executeAction(params[:issue], params[:actionKey], params)
+    if issue
+      render :json => jsonp({
+                                :issue => Issue.to_hash(issue)
+                            })
+    else
+      render :status => 400
+    end
+  end
+
   protected
 
   def component_to_hash(component)

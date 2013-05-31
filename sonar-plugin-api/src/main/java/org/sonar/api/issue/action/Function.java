@@ -17,43 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue;
+package org.sonar.api.issue.action;
+
+import org.sonar.api.issue.Issue;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.Date;
 
-public class IssueChangeContext implements Serializable {
+import java.util.Map;
 
-  private String login;
-  private Date date;
-  private boolean scan;
+/**
+ * @since 3.6
+ */
+public interface Function {
 
-  private IssueChangeContext(@Nullable String login, Date date, boolean scan) {
-    this.login = login;
-    this.date = date;
-    this.scan = scan;
+  void execute(Context context);
+
+  interface Context {
+    Issue issue();
+
+    @CheckForNull
+    Map<String, String> parameters();
+
+    Context setAttribute(String key, @Nullable String value);
+
+    Context addComment(@Nullable String text);
   }
 
-  @CheckForNull
-  public String login() {
-    return login;
-  }
-
-  public Date date() {
-    return date;
-  }
-
-  public boolean scan() {
-    return scan;
-  }
-
-  public static IssueChangeContext createScan(Date date) {
-    return new IssueChangeContext(null, date, true);
-  }
-
-  public static IssueChangeContext createUser(Date date, @Nullable String login) {
-    return new IssueChangeContext(login, date, false);
-  }
 }

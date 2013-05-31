@@ -17,29 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.api.issue.condition;
 
-import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+/**
+ * @since 3.6
+ */
+public class NotCondition implements Condition {
+  private final Condition condition;
 
-public class NotConditionTest {
-
-  Condition target = mock(Condition.class);
-
-  @Test
-  public void should_match_opposite() throws Exception {
-    NotCondition condition = new NotCondition(target);
-
-    when(target.matches(any(Issue.class))).thenReturn(true);
-    assertThat(condition.matches(new DefaultIssue())).isFalse();
-
-    when(target.matches(any(Issue.class))).thenReturn(false);
-    assertThat(condition.matches(new DefaultIssue())).isTrue();
+  public NotCondition(Condition condition) {
+    this.condition = condition;
   }
+
+  @Override
+  public boolean matches(Issue issue) {
+    return !condition.matches(issue);
+  }
+
 }

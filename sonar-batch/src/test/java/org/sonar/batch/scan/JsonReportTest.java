@@ -28,6 +28,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
@@ -36,7 +37,6 @@ import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.test.TestUtils;
 
 import java.io.File;

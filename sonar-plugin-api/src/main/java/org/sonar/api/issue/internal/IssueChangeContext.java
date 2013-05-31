@@ -17,23 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.api.issue.internal;
 
-import com.google.common.collect.ImmutableSet;
-import org.sonar.api.issue.Issue;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-import java.util.Set;
+import java.io.Serializable;
+import java.util.Date;
 
-public class HasResolution implements Condition {
+/**
+ * @since 3.6
+ */
+public class IssueChangeContext implements Serializable {
 
-  private final Set<String> resolutions;
+  private String login;
+  private Date date;
+  private boolean scan;
 
-  public HasResolution(String first, String... others) {
-    this.resolutions = ImmutableSet.<String>builder().add(first).add(others).build();
+  private IssueChangeContext(@Nullable String login, Date date, boolean scan) {
+    this.login = login;
+    this.date = date;
+    this.scan = scan;
   }
 
-  @Override
-  public boolean matches(Issue issue) {
-    return issue.resolution() != null && resolutions.contains(issue.resolution());
+  @CheckForNull
+  public String login() {
+    return login;
+  }
+
+  public Date date() {
+    return date;
+  }
+
+  public boolean scan() {
+    return scan;
+  }
+
+  public static IssueChangeContext createScan(Date date) {
+    return new IssueChangeContext(null, date, true);
+  }
+
+  public static IssueChangeContext createUser(Date date, @Nullable String login) {
+    return new IssueChangeContext(login, date, false);
   }
 }

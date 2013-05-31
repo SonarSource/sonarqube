@@ -25,10 +25,11 @@ import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 

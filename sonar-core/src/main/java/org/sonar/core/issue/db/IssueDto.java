@@ -23,9 +23,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

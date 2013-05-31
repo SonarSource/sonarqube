@@ -30,6 +30,7 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -42,7 +43,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.test.IsRuleMeasure;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.core.issue.DefaultIssue;
 
 import java.util.Arrays;
 import java.util.Collections;

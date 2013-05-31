@@ -22,8 +22,8 @@ package org.sonar.core.issue.db;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Arrays;

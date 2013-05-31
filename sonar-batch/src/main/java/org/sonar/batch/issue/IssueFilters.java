@@ -20,11 +20,10 @@
 package org.sonar.batch.issue;
 
 import org.sonar.api.BatchExtension;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFilter;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Violation;
 import org.sonar.batch.ViolationFilters;
-import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.Nullable;
 

@@ -24,11 +24,11 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.java.api.JavaClass;
 
 import java.util.Arrays;

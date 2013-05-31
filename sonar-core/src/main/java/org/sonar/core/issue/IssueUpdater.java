@@ -23,8 +23,12 @@ import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.issue.internal.IssueChangeContext;
 
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**

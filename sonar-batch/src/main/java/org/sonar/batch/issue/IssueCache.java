@@ -21,9 +21,9 @@ package org.sonar.batch.issue;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
-import org.sonar.core.issue.DefaultIssue;
 
 /**
  * Shared issues among all project modules

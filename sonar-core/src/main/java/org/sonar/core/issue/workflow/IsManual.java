@@ -20,6 +20,7 @@
 package org.sonar.core.issue.workflow;
 
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.condition.Condition;
 
 class IsManual implements Condition {
 

@@ -17,26 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.issue.DefaultIssue;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.issue.action.Action;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class HasResolutionTest {
+public class DefaultActionsTest {
 
-  DefaultIssue issue = new DefaultIssue();
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  private DefaultActions actions;
+
+  @Before
+  public void before(){
+    actions = new DefaultActions();
+  }
 
   @Test
-  public void should_match() throws Exception {
-    HasResolution condition = new HasResolution("OPEN", "FIXED", "FALSE-POSITIVE");
+  public void should_add_action() {
+    Action action = Action.builder("link-to-jira").build();
 
-    assertThat(condition.matches(issue.setResolution("OPEN"))).isTrue();
-    assertThat(condition.matches(issue.setResolution("FIXED"))).isTrue();
-    assertThat(condition.matches(issue.setResolution("FALSE-POSITIVE"))).isTrue();
+    actions.addAction(action);
 
-    assertThat(condition.matches(issue.setResolution("open"))).isFalse();
-    assertThat(condition.matches(issue.setResolution("Fixed"))).isFalse();
+    assertThat(actions.getActions()).hasSize(1);
   }
+
+  @Test
+  public void should_get_action() {
+    Action action = Action.builder("link-to-jira").build();
+
+    actions.addAction(action);
+
+    assertThat(actions.getAction("link-to-jira")).isEqualTo(action);
+    assertThat(actions.getAction("not-found")).isNull();
+  }
+
 }
