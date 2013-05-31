@@ -9,7 +9,7 @@
     </li>
     <li id="criteria-project" class="marginbottom5">
       <%= message 'issue_filter.criteria.project' -%>:
-      <% selected_componentRoot = Internal.component_api.findByKey(@filter.criteria('componentRoots')) %>
+      <% selected_componentRoot = Internal.component_api.findByKey(@filter.criteria('componentRoots')) if @filter.criteria('componentRoots') %>
       <%= component_select_tag 'componentRoots', :resource_type_property => 'supportsGlobalDashboards', :width => '100%',
                               :selected_resource => selected_componentRoot,
                               :display_key => true,
@@ -38,13 +38,13 @@
     </li>
     <li>
       <%= message 'issue_filter.criteria.assignee' -%>:
-      <% selected_assignee = Api.users.findByLogin(@filter.criteria('assignees')) %>
+      <% selected_assignee = Api.users.findByLogin(@filter.criteria('assignees')) if @filter.criteria('assignees') %>
       <%= user_select_tag('assignees', {:selected_user => selected_assignee, :width => '100%', :placeholder => message('issue_filter.criteria.assignee'),
                         :html_id => 'select-assignee', :open => false, :allow_clear => true}) -%>
     </li>
     <li>
       <%= message 'issue_filter.criteria.reporter' -%>:
-      <% selected_reporter = Api.users.findByLogin(@filter.criteria('reporters')) %>
+      <% selected_reporter = Api.users.findByLogin(@filter.criteria('reporters')) if @filter.criteria('reporters') %>
       <%= user_select_tag('reporters', {:selected_user => selected_reporter, :width => '100%', :placeholder => message('issue_filter.criteria.reporter'),
                                         :html_id => 'select-reporter', :open => false, :allow_clear => true}) -%>
     </li>
