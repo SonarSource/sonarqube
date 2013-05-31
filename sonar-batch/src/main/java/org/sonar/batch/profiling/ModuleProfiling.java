@@ -63,14 +63,14 @@ public class ModuleProfiling extends AbstractTimeProfiling {
       StringBuilder sb = new StringBuilder();
       sb.append(" * ").append(phaseProfiling.phase()).append(" execution time: ").append(phaseProfiling.totalTimeAsString())
           .append(" (").append((int) (phaseProfiling.totalTime() / percent)).append("%)");
-      System.out.println(sb.toString());
+      println(sb.toString());
     }
     for (Phase phase : Phases.Phase.values()) {
       if (profilingPerPhase.containsKey(phase)) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n * ").append(phase).append(" execution time breakdown: ")
             .append(TimeUtils.formatDuration(getProfilingPerPhase(phase).totalTime()));
-        System.out.println(sb.toString());
+        println(sb.toString());
         getProfilingPerPhase(phase).dump();
       }
     }

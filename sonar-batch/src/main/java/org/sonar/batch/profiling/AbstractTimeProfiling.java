@@ -91,4 +91,8 @@ public abstract class AbstractTimeProfiling {
     return result;
   }
 
+  protected void println(String msg) {
+    PhasesSumUpTimeProfiler.println(msg);
+  }
+
 }

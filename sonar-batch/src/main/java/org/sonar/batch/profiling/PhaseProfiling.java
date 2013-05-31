@@ -77,7 +77,7 @@ public class PhaseProfiling extends AbstractTimeProfiling {
       StringBuilder sb = new StringBuilder();
       sb.append("   o ").append(itemProfiling.itemName()).append(": ").append(itemProfiling.totalTimeAsString())
           .append(" (").append((int) (itemProfiling.totalTime() / percent)).append("%)");
-      System.out.println(sb.toString());
+      println(sb.toString());
     }
   }
 
