@@ -28,7 +28,6 @@ import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -77,12 +76,13 @@ public class DryRunDatabaseFactory implements ServerComponent {
       .copyTable(source, dest, "rules_parameters")
       .copyTable(source, dest, "rules_profiles");
     if (projectId != null) {
-      String projectsConditionForIssues = "SELECT id from projects where id=" + projectId + " or root_id=" + projectId;
       String snapshotCondition = "islast=" + database.getDialect().getTrueSqlValue() + " and (project_id=" + projectId + " or root_project_id=" + projectId + ")";
-      template
-        .copyTable(source, dest, "projects", "(id=" + projectId + " or root_id=" + projectId + ")")
-        .copyTable(source, dest, "issues", "component_id in (" + projectsConditionForIssues + ")", "status<>'" + Issue.STATUS_CLOSED + "'")
-        .copyTable(source, dest, "snapshots", snapshotCondition);
+      template.copyTable(source, dest, "projects", "(id=" + projectId + " or root_id=" + projectId + ")");
+      template.copyTable(source, dest, "snapshots", snapshotCondition);
+
+      String forRootModule = "(root_component_id in (select id from projects where id=" + projectId + " and qualifier='TRK'))";
+      String forSubModule = "(component_id in (select id from projects where id=" + projectId + " or root_id=" + projectId + "))";
+      template.copyTable(source, dest, "issues", "(" + forRootModule + ") or( " + forSubModule + ")", "status<>'" + Issue.STATUS_CLOSED + "'");
     }
   }
 

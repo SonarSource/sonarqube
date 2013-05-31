@@ -31,7 +31,7 @@ public interface IssueMapper {
 
   IssueDto selectByKey(String key);
 
-  List<IssueDto> selectNonClosedIssues(int rootComponentId);
+  List<IssueDto> selectNonClosedIssuesByModule(int rootComponentId);
 
   List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
                               @Nullable @Param("userId") Integer userId, @Param("role") String role, @Param("maxResults") Integer maxResult);

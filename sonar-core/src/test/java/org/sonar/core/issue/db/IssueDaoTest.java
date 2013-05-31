@@ -289,16 +289,21 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_open_issues() {
-    setupData("shared", "should_select_open_issues");
+  public void should_select_non_closed_issues_by_module() {
+    setupData("shared", "should_select_non_closed_issues_by_module");
 
-    List<IssueDto> dtos = dao.selectNonClosedIssuesByRootComponent(400);
+    // 400 is a non-root module
+    List<IssueDto> dtos = dao.selectNonClosedIssuesByModule(400);
     assertThat(dtos).hasSize(2);
 
     IssueDto issue = dtos.get(0);
     assertThat(issue.getRuleRepo()).isNotNull();
     assertThat(issue.getRule()).isNotNull();
     assertThat(issue.getComponentKey()).isNotNull();
+
+    // 399 is the root module. It does not have issues.
+    assertThat(dao.selectNonClosedIssuesByModule(399)).isEmpty();
+
   }
 
   @Test

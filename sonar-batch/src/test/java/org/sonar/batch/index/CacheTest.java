@@ -53,6 +53,17 @@ public class CacheTest {
   }
 
   @Test
+  public void test_key_being_prefix_of_another_key() throws Exception {
+    Cache<String, String> cache = caches.createCache("components");
+
+    cache.put("struts-el:org.apache.strutsel.taglib.html.ELButtonTag", "the Tag");
+    cache.put("struts-el:org.apache.strutsel.taglib.html.ELButtonTagBeanInfo", "the BeanInfo");
+
+    assertThat(cache.get("struts-el:org.apache.strutsel.taglib.html.ELButtonTag")).isEqualTo("the Tag");
+    assertThat(cache.get("struts-el:org.apache.strutsel.taglib.html.ELButtonTagBeanInfo")).isEqualTo("the BeanInfo");
+  }
+
+  @Test
   public void test_put_get_remove_on_groups() throws Exception {
     Cache<String, Float> cache = caches.createCache("measures");
     String group = "org/apache/struts/Action.java";

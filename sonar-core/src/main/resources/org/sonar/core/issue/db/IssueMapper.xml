@@ -118,14 +118,38 @@
     where i.kee=#{kee} and i.rule_id=r.id and p.id=i.component_id and i.root_component_id=root.id
   </select>
 
-  <select id="selectNonClosedIssues" parameterType="int" resultType="Issue">
-    select distinct
-    <include refid="issueColumns"/>
-    from issues i, rules r, projects p, projects root
+  <select id="selectNonClosedIssuesByModule" parameterType="int" resultType="Issue">
+    select
+      i.id,
+      i.kee as kee,
+      i.component_id as componentId,
+      i.root_component_id as rootComponentId,
+      i.rule_id as ruleId,
+      i.action_plan_key as actionPlanKey,
+      i.severity as severity,
+      i.manual_severity as manualSeverity,
+      i.message as message,
+      i.line as line,
+      i.effort_to_fix as effortToFix,
+      i.status as status,
+      i.resolution as resolution,
+      i.checksum as checksum,
+      i.reporter as reporter,
+      i.assignee as assignee,
+      i.author_login as authorLogin,
+      i.issue_attributes as issueAttributes,
+      i.issue_creation_date as issueCreationDate,
+      i.issue_update_date as issueUpdateDate,
+      i.issue_close_date as issueCloseDate,
+      i.created_at as createdAt,
+      i.updated_at as updatedAt,
+      r.plugin_rule_key as ruleKey,
+      r.plugin_name as ruleRepo,
+      p.kee as componentKey
+    from issues i, rules r, projects p
     where i.status &lt;&gt; 'CLOSED'
     and (p.root_id=#{id} or (p.root_id is null and p.id=#{id}))
     and i.component_id=p.id
-    and i.root_component_id=root.id
     and r.id=i.rule_id
   </select>
 

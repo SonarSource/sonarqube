@@ -61,11 +61,11 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<IssueDto> selectNonClosedIssuesByRootComponent(int componentId) {
+  public List<IssueDto> selectNonClosedIssuesByModule(int componentId) {
     SqlSession session = mybatis.openSession();
     try {
       IssueMapper mapper = session.getMapper(IssueMapper.class);
-      return mapper.selectNonClosedIssues(componentId);
+      return mapper.selectNonClosedIssuesByModule(componentId);
     } finally {
       MyBatis.closeQuietly(session);
     }

@@ -1,0 +1,95 @@
+<!--
+  ~ SonarQube, open source software quality management tool.
+  ~ Copyright (C) 2008-2013 SonarSource
+  ~ mailto:contact AT sonarsource DOT com
+  ~
+  ~ SonarQube is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU Lesser General Public
+  ~ License as published by the Free Software Foundation; either
+  ~ version 3 of the License, or (at your option) any later version.
+  ~
+  ~ SonarQube is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program; if not, write to the Free Software Foundation,
+  ~ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+<dataset>
+  <metrics id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+           enabled="[true]" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="[false]" delete_historical_data="[null]"/>
+  <metrics id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+           enabled="[true]" worst_value="0" optimized_best_value="[true]" best_value="100" direction="1" hidden="[false]" delete_historical_data="[null]"/>
+
+  <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_name="" version="1"
+                  used_profile="[false]"/>
+
+  <projects id="300" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" />
+  <projects id="301" kee="struts-core" root_id="300" qualifier="BRC" scope="PRJ" />
+  <projects id="302" kee="struts-el" root_id="300" qualifier="BRC" scope="PRJ" />
+  <projects id="303" kee="Action.java" root_id="301" qualifier="CLA" scope="FIL" />
+
+  <snapshots id="3000" project_id="300" root_snapshot_id="[null]" path="" islast="[true]"/>
+  <snapshots id="3001" project_id="301" root_snapshot_id="3000" path="3000." islast="[true]"/>
+  <snapshots id="3002" project_id="302" root_snapshot_id="3000" path="3000." islast="[true]"/>
+  <snapshots id="3003" project_id="303" root_snapshot_id="3000" path="3000.3001." islast="[true]"/>
+
+  <rules id="500" plugin_rule_key="AvoidCycle" plugin_name="squid"/>
+  <rules id="501" plugin_rule_key="NullRef" plugin_name="squid"/>
+
+  <!-- issues in module -->
+  <issues
+      id="100"
+      kee="ISSUE-100"
+      component_id="303"
+      root_component_id="300"
+
+      rule_id="500"
+      severity="BLOCKER"
+      manual_severity="[false]"
+      message="[null]"
+      line="200"
+      effort_to_fix="[null]"
+      status="OPEN"
+      resolution="[null]"
+      checksum="[null]"
+      reporter="user"
+      assignee="user"
+      author_login="[null]"
+      issue_attributes="[null]"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="[null]"
+      updated_at="[null]"
+      />
+
+  <issues
+      id="101"
+      kee="ISSUE-101"
+      component_id="303"
+      root_component_id="300"
+
+      rule_id="501"
+      severity="MAJOR"
+      manual_severity="[false]"
+      message="[null]"
+      line="120"
+      effort_to_fix="[null]"
+      status="CLOSED"
+      resolution="FIXED"
+      checksum="[null]"
+      reporter="[null]"
+      assignee="user"
+      author_login="[null]"
+      issue_attributes="[null]"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="[null]"
+      updated_at="[null]"
+      />
+
+</dataset>

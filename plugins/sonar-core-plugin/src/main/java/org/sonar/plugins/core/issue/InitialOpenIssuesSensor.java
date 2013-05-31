@@ -49,7 +49,7 @@ public class InitialOpenIssuesSensor implements Sensor {
   @Override
   public void analyse(Project project, SensorContext context) {
     Date loadingDate = new Date();
-    List<IssueDto> dtos = issueDao.selectNonClosedIssuesByRootComponent(project.getId());
+    List<IssueDto> dtos = issueDao.selectNonClosedIssuesByModule(project.getId());
     initialOpenIssuesStack.setIssues(dtos, loadingDate);
   }
 
