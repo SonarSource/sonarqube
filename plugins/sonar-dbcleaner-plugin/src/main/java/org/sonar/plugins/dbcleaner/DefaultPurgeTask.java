@@ -62,9 +62,9 @@ public class DefaultPurgeTask implements PurgeTask {
     doPurge(resourceId);
     if (settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
       long duration = System.currentTimeMillis() - start;
-      System.out.println("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
-      profiler.dump(duration);
-      System.out.println("\n -------- End of profiling for purge --------\n");
+      LOG.info("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
+      profiler.dump(duration, LOG);
+      LOG.info("\n -------- End of profiling for purge --------\n");
     }
     return this;
   }
@@ -88,9 +88,9 @@ public class DefaultPurgeTask implements PurgeTask {
   }
 
   private PurgeConfiguration newConf(long resourceId) {
-    String[] scopes = new String[]{Scopes.FILE};
+    String[] scopes = new String[] {Scopes.FILE};
     if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
-      scopes = new String[]{Scopes.DIRECTORY, Scopes.FILE};
+      scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};
     }
     return new PurgeConfiguration(resourceId, scopes, settings.getInt(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES));
   }

@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.dbcleaner;
 
+import ch.qos.logback.classic.Logger;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.CoreProperties;
@@ -33,7 +34,11 @@ import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultPurgeTaskTest {
   @Test
@@ -48,8 +53,8 @@ public class DefaultPurgeTaskTest {
     verify(purgeDao).purge(argThat(new ArgumentMatcher<PurgeConfiguration>() {
       @Override
       public boolean matches(Object o) {
-        PurgeConfiguration conf = (PurgeConfiguration)o;
-        return conf.rootProjectId()==1L && conf.scopesWithoutHistoricalData().length==1 && conf.scopesWithoutHistoricalData()[0].equals(Scopes.FILE);
+        PurgeConfiguration conf = (PurgeConfiguration) o;
+        return conf.rootProjectId() == 1L && conf.scopesWithoutHistoricalData().length == 1 && conf.scopesWithoutHistoricalData()[0].equals(Scopes.FILE);
       }
     }));
   }
@@ -65,9 +70,9 @@ public class DefaultPurgeTaskTest {
     verify(purgeDao).purge(argThat(new ArgumentMatcher<PurgeConfiguration>() {
       @Override
       public boolean matches(Object o) {
-        PurgeConfiguration conf = (PurgeConfiguration)o;
-        return conf.rootProjectId()==1L &&
-          conf.scopesWithoutHistoricalData().length==2 &&
+        PurgeConfiguration conf = (PurgeConfiguration) o;
+        return conf.rootProjectId() == 1L &&
+          conf.scopesWithoutHistoricalData().length == 2 &&
           conf.scopesWithoutHistoricalData()[0].equals(Scopes.DIRECTORY) &&
           conf.scopesWithoutHistoricalData()[1].equals(Scopes.FILE);
       }
@@ -97,6 +102,6 @@ public class DefaultPurgeTaskTest {
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), profiler);
     task.purge(1L);
 
-    verify(profiler).dump(anyLong());
+    verify(profiler).dump(anyLong(), any(Logger.class));
   }
 }

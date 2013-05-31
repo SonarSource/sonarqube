@@ -19,33 +19,25 @@
  */
 package org.sonar.core.purge;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
-import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class PurgeProfilerTest {
 
   private MockedClock clock;
   private PurgeProfiler profiler;
-  private ByteArrayOutputStream baos;
-  private PrintStream ps;
+  private Logger logger;
 
   @Before
   public void prepare() {
     clock = new MockedClock();
     profiler = new PurgeProfiler(clock);
-    baos = new ByteArrayOutputStream();
-    ps = new PrintStream(baos);
-  }
-
-  @After
-  public void cleanup() {
-    ps.close();
+    logger = mock(Logger.class);
   }
 
   @Test
@@ -62,10 +54,9 @@ public class PurgeProfilerTest {
     clock.sleep(8);
     profiler.stop();
 
-    profiler.dump(50, ps);
-    String content = baos.toString();
-    assertThat(content).contains("foo: 18ms");
-    assertThat(content).contains("bar: 5ms");
+    profiler.dump(50, logger);
+    verify(logger).info(contains("foo: 18ms"));
+    verify(logger).info(contains("bar: 5ms"));
   }
 
   @Test
@@ -84,10 +75,9 @@ public class PurgeProfilerTest {
     clock.sleep(8);
     profiler.stop();
 
-    profiler.dump(50, ps);
-    String content = baos.toString();
-    assertThat(content).contains("foo: 8ms");
-    assertThat(content).contains("bar: 5ms");
+    profiler.dump(50, logger);
+    verify(logger).info(contains("foo: 8ms"));
+    verify(logger).info(contains("bar: 5ms"));
   }
 
   private class MockedClock extends org.sonar.core.purge.PurgeProfiler.Clock {

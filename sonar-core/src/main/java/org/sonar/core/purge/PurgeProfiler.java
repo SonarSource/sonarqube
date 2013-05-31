@@ -20,9 +20,9 @@
 package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.slf4j.Logger;
 import org.sonar.api.utils.TimeUtils;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -66,12 +66,7 @@ public class PurgeProfiler {
     durations.put(currentTable, cumulatedDuration + (clock.now() - startTime));
   }
 
-  public void dump(long totalTime) {
-    dump(totalTime, System.out);
-  }
-
-  @VisibleForTesting
-  void dump(long totalTime, PrintStream stream) {
+  public void dump(long totalTime, Logger logger) {
     List<Entry<String, Long>> data = new ArrayList<Map.Entry<String, Long>>(durations.entrySet());
     Collections.sort(data, new Comparator<Entry<String, Long>>() {
       @Override
@@ -84,7 +79,7 @@ public class PurgeProfiler {
       StringBuilder sb = new StringBuilder();
       sb.append("   o ").append(entry.getKey()).append(": ").append(TimeUtils.formatDuration(entry.getValue()))
           .append(" (").append((int) (entry.getValue() / percent)).append("%)");
-      stream.println(sb.toString());
+      logger.info(sb.toString());
     }
   }
 
