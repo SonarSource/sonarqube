@@ -41,7 +41,10 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.java.api.JavaClass;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -56,13 +59,11 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   IssueWorkflow workflow = mock(IssueWorkflow.class);
   IssueUpdater updater = mock(IssueUpdater.class);
   ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
-  Date loadedDate = new Date();
   RulesProfile profile = mock(RulesProfile.class);
   RuleFinder ruleFinder = mock(RuleFinder.class);
 
   @Before
   public void init() {
-    when(initialOpenIssues.getLoadedDate()).thenReturn(loadedDate);
     decorator = new IssueTrackingDecorator(
       issueCache,
       initialOpenIssues,
@@ -97,7 +98,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     // INPUT : one issue, no open issues during previous scan, no filtering
     when(issueCache.byComponent("struts:Action.java")).thenReturn(Arrays.asList(issue));
     List<IssueDto> dbIssues = Collections.emptyList();
-    when(initialOpenIssues.selectAndRemove(123)).thenReturn(dbIssues);
+    when(initialOpenIssues.selectAndRemove("struts:Action.java")).thenReturn(dbIssues);
 
     decorator.doDecorate(file);
 
@@ -205,7 +206,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     DefaultIssue openIssue = new DefaultIssue();
     when(issueCache.byComponent("struts")).thenReturn(Arrays.asList(openIssue));
     IssueDto deadIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
-    when(initialOpenIssues.getAllIssues()).thenReturn(Arrays.asList(deadIssue));
+    when(initialOpenIssues.selectAll()).thenReturn(Arrays.asList(deadIssue));
 
     decorator.doDecorate(project);
 

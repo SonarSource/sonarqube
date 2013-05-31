@@ -30,12 +30,13 @@ import org.sonar.core.issue.DefaultIssue;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @since 3.6
  */
-public final class IssueDto {
+public final class IssueDto implements Serializable {
 
   private Long id;
   private String kee;
@@ -66,10 +67,10 @@ public final class IssueDto {
   private Date updatedAt;
 
   // joins
-  private transient String ruleKey;
-  private transient String ruleRepo;
-  private transient String componentKey;
-  private transient String rootComponentKey;
+  private String ruleKey;
+  private String ruleRepo;
+  private String componentKey;
+  private String rootComponentKey;
 
   public Long getId() {
     return id;

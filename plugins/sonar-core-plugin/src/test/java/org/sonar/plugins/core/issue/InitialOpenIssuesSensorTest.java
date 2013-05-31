@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.plugins.core.issue;
 
+import org.apache.ibatis.session.ResultHandler;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 
-import java.util.Date;
-
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-
 
 public class InitialOpenIssuesSensorTest {
 
@@ -40,15 +37,13 @@ public class InitialOpenIssuesSensorTest {
   IssueDao issueDao = mock(IssueDao.class);
   InitialOpenIssuesSensor sensor = new InitialOpenIssuesSensor(stack, issueDao);
 
-
   @Test
   public void should_select_module_open_issues() {
     Project project = new Project("key");
     project.setId(1);
     sensor.analyse(project, null);
 
-    verify(issueDao).selectNonClosedIssuesByModule(1);
-    verify(stack).setIssues(anyListOf(IssueDto.class), any(Date.class));
+    verify(issueDao).selectNonClosedIssuesByModule(eq(1), any(ResultHandler.class));
   }
 
   @Test

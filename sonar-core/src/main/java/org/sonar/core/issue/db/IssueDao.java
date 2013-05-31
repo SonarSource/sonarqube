@@ -22,6 +22,7 @@ package org.sonar.core.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -61,11 +62,11 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<IssueDto> selectNonClosedIssuesByModule(int componentId) {
+  public void selectNonClosedIssuesByModule(int componentId, ResultHandler handler) {
     SqlSession session = mybatis.openSession();
     try {
-      IssueMapper mapper = session.getMapper(IssueMapper.class);
-      return mapper.selectNonClosedIssuesByModule(componentId);
+      session.select("org.sonar.core.issue.db.IssueMapper.selectNonClosedIssuesByModule", componentId, handler);
+
     } finally {
       MyBatis.closeQuietly(session);
     }

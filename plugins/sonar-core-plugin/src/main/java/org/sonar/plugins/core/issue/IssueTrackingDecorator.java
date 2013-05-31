@@ -98,7 +98,7 @@ public class IssueTrackingDecorator implements Decorator {
     // issues = all the issues created by rule engines during this module scan and not excluded by filters
 
     // all the issues that are not closed in db before starting this module scan, including manual issues
-    Collection<IssueDto> dbOpenIssues = initialOpenIssues.selectAndRemove(resource.getId());
+    Collection<IssueDto> dbOpenIssues = initialOpenIssues.selectAndRemove(resource.getEffectiveKey());
 
     IssueTrackingResult trackingResult = tracking.track(resource, dbOpenIssues, issues);
 
@@ -166,11 +166,12 @@ public class IssueTrackingDecorator implements Decorator {
   }
 
   private void addIssuesOnDeletedComponents(Collection<DefaultIssue> issues) {
-    for (IssueDto deadDto : initialOpenIssues.getAllIssues()) {
+    for (IssueDto deadDto : initialOpenIssues.selectAll()) {
       DefaultIssue dead = deadDto.toDefaultIssue();
       updateUnmatchedIssue(dead, true);
       issues.add(dead);
     }
+    initialOpenIssues.clear();
   }
 
   private void updateUnmatchedIssue(DefaultIssue issue, boolean forceEndOfLife) {

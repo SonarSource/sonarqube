@@ -20,11 +20,12 @@
 
 package org.sonar.plugins.core.issue;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.batch.index.Caches;
 import org.sonar.core.issue.db.IssueDto;
 
-import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -32,48 +33,63 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class InitialOpenIssuesStackTest {
 
-  private InitialOpenIssuesStack initialOpenIssuesStack;
+  InitialOpenIssuesStack stack;
+  Caches caches = new Caches();
 
   @Before
-  public void before() {
-    initialOpenIssuesStack = new InitialOpenIssuesStack();
+  public void setUp() {
+    caches.start();
+    stack = new InitialOpenIssuesStack(caches);
+  }
+
+  @After
+  public void tearDown() {
+    caches.stop();
   }
 
   @Test
   public void should_get_and_remove() {
-    Date loadedDate = new Date();
-    IssueDto issueDto = new IssueDto().setComponentId(10).setId(1L);
-    initialOpenIssuesStack.setIssues(newArrayList(issueDto), loadedDate);
+    IssueDto issueDto = new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1");
+    stack.addIssue(issueDto);
 
-    List<IssueDto> issueDtos = initialOpenIssuesStack.selectAndRemove(10);
+    List<IssueDto> issueDtos = stack.selectAndRemove("org.struts.Action");
     assertThat(issueDtos).hasSize(1);
-    assertThat(issueDtos.get(0).getId()).isEqualTo(1L);
+    assertThat(issueDtos.get(0).getKee()).isEqualTo("ISSUE-1");
 
-    assertThat(initialOpenIssuesStack.getAllIssues()).isEmpty();
-    assertThat(initialOpenIssuesStack.getLoadedDate()).isEqualTo(loadedDate);
+    assertThat(stack.selectAll()).isEmpty();
   }
 
   @Test
   public void should_get_and_remove_with_many_issues_on_same_resource() {
-    initialOpenIssuesStack.setIssues(newArrayList(
-        new IssueDto().setComponentId(10).setId(1L),
-        new IssueDto().setComponentId(10).setId(2L)
-    ), new Date());
+    stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1"));
+    stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-2"));
 
-    List<IssueDto> issueDtos = initialOpenIssuesStack.selectAndRemove(10);
+    List<IssueDto> issueDtos = stack.selectAndRemove("org.struts.Action");
     assertThat(issueDtos).hasSize(2);
 
-    assertThat(initialOpenIssuesStack.getAllIssues()).isEmpty();
+    assertThat(stack.selectAll()).isEmpty();
   }
 
   @Test
   public void should_do_nothing_if_resource_not_found() {
-    IssueDto issueDto = new IssueDto().setComponentId(10).setId(1L);
-    initialOpenIssuesStack.setIssues(newArrayList(issueDto), new Date());
+    stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1"));
 
-    List<IssueDto> issueDtos = initialOpenIssuesStack.selectAndRemove(999);
+    List<IssueDto> issueDtos = stack.selectAndRemove("Other");
     assertThat(issueDtos).hasSize(0);
 
-    assertThat(initialOpenIssuesStack.getAllIssues()).hasSize(1);
+    assertThat(stack.selectAll()).hasSize(1);
+  }
+
+  @Test
+  public void should_clear() {
+    stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1"));
+
+    assertThat(stack.selectAll()).hasSize(1);
+
+    // issues are not removed
+    assertThat(stack.selectAll()).hasSize(1);
+
+    stack.clear();
+    assertThat(stack.selectAll()).hasSize(0);
   }
 }

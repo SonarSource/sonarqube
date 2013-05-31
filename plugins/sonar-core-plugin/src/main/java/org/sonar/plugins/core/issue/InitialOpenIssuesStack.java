@@ -20,50 +20,44 @@
 
 package org.sonar.plugins.core.issue;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.batch.index.Cache;
+import org.sonar.batch.index.Caches;
 import org.sonar.core.issue.db.IssueDto;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class InitialOpenIssuesStack implements BatchExtension {
 
-  private final ListMultimap<Integer, IssueDto> issuesByResourceId;
+  private final Cache<String, IssueDto> cache;
 
-  private Date loadedDate;
-
-  public InitialOpenIssuesStack() {
-    issuesByResourceId = ArrayListMultimap.create();
+  public InitialOpenIssuesStack(Caches caches) {
+    cache = caches.createCache("last-open-issues");
   }
 
-  public void setIssues(List<IssueDto> issues, Date loadedDate) {
-    this.loadedDate = loadedDate;
-    for (IssueDto issueDto : issues) {
-      issuesByResourceId.put(issueDto.getComponentId(), issueDto);
+  public InitialOpenIssuesStack addIssue(IssueDto issueDto) {
+    cache.put(issueDto.getComponentKey(), issueDto.getKee(), issueDto);
+    return this;
+  }
+
+  public List<IssueDto> selectAndRemove(String componentKey) {
+    Iterable<IssueDto> issues = cache.values(componentKey);
+    List<IssueDto> result = Lists.newArrayList();
+    for (IssueDto issue : issues) {
+      result.add(issue);
     }
+    cache.clear(componentKey);
+    return result;
   }
 
-  public List<IssueDto> selectAndRemove(final Integer resourceId) {
-    List<IssueDto> foundIssuesDto = issuesByResourceId.get(resourceId);
-    if (!foundIssuesDto.isEmpty()) {
-      List<IssueDto> issuesDto = ImmutableList.copyOf(foundIssuesDto);
-      issuesByResourceId.removeAll(resourceId);
-      return issuesDto;
-    } else {
-      return Collections.emptyList();
-    }
+  public Iterable<IssueDto> selectAll() {
+    return cache.allValues();
   }
 
-  public Collection<IssueDto> getAllIssues() {
-    return issuesByResourceId.values();
-  }
-
-  public Date getLoadedDate() {
-    return loadedDate;
+  public void clear() {
+    cache.clearAll();
   }
 }

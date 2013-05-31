@@ -22,6 +22,7 @@ package org.sonar.core.issue.db;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
@@ -293,16 +294,19 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "should_select_non_closed_issues_by_module");
 
     // 400 is a non-root module
-    List<IssueDto> dtos = dao.selectNonClosedIssuesByModule(400);
-    assertThat(dtos).hasSize(2);
+    DefaultResultHandler handler = new DefaultResultHandler();
+    dao.selectNonClosedIssuesByModule(400, handler);
+    assertThat(handler.getResultList()).hasSize(2);
 
-    IssueDto issue = dtos.get(0);
+    IssueDto issue = (IssueDto) handler.getResultList().get(0);
     assertThat(issue.getRuleRepo()).isNotNull();
     assertThat(issue.getRule()).isNotNull();
     assertThat(issue.getComponentKey()).isNotNull();
 
     // 399 is the root module. It does not have issues.
-    assertThat(dao.selectNonClosedIssuesByModule(399)).isEmpty();
+    handler = new DefaultResultHandler();
+    dao.selectNonClosedIssuesByModule(399, handler);
+    assertThat(handler.getResultList()).isEmpty();
 
   }
 
@@ -326,7 +330,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
 
-  private List<Long> getIssueIds(List<IssueDto> issues){
+  private List<Long> getIssueIds(List<IssueDto> issues) {
     return newArrayList(Iterables.transform(issues, new Function<IssueDto, Long>() {
       @Override
       public Long apply(IssueDto input) {

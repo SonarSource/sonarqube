@@ -19,14 +19,13 @@
  */
 package org.sonar.plugins.core.issue;
 
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Load all the issues referenced during the previous scan.
@@ -48,9 +47,13 @@ public class InitialOpenIssuesSensor implements Sensor {
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    Date loadingDate = new Date();
-    List<IssueDto> dtos = issueDao.selectNonClosedIssuesByModule(project.getId());
-    initialOpenIssuesStack.setIssues(dtos, loadingDate);
+    issueDao.selectNonClosedIssuesByModule(project.getId(), new ResultHandler() {
+      @Override
+      public void handleResult(ResultContext rc) {
+        IssueDto dto = (IssueDto) rc.getResultObject();
+        initialOpenIssuesStack.addIssue(dto);
+      }
+    });
   }
 
   @Override
