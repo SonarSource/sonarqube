@@ -154,6 +154,11 @@ public class ResourceDao {
     }
   }
 
+  public Component findByKey(String key) {
+    ResourceDto resourceDto = getResource(ResourceQuery.create().setKey(key));
+    return resourceDto != null ? toComponent(resourceDto) : null;
+  }
+
   public List<Integer> findChildrenComponentIds(Collection<String> componentRootKeys){
     if (componentRootKeys.isEmpty()) {
       return Collections.emptyList();

@@ -259,4 +259,13 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(dao.findChildrenComponentIds(newArrayList("unknown"))).isEmpty();
     assertThat(dao.findChildrenComponentIds(Collections.<String>emptyList())).isEmpty();
   }
+
+  @Test
+  public void should_find_component_by_key(){
+    setupData("fixture");
+
+    assertThat(dao.findByKey("org.struts:struts")).isNotNull();
+    assertThat(dao.findByKey("org.struts:struts:org.struts.RequestContext")).isNotNull();
+    assertThat(dao.findByKey("unknown")).isNull();
+  }
 }

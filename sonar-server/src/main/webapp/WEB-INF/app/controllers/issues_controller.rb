@@ -30,8 +30,6 @@ class IssuesController < ApplicationController
     @filter = IssueFilter.new
     @filter.criteria=criteria_params
     @filter.execute
-
-    @selected_project = @filter.issues_result.projects.first if @filter.issues && @filter.criteria('componentRoots')
   end
 
 

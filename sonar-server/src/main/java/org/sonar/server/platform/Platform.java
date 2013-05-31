@@ -68,6 +68,7 @@ import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.charts.ChartFactory;
+import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.database.EmbeddedDatabaseFactory;
@@ -253,6 +254,8 @@ public final class Platform {
     servicesContainer.addSingleton(DefaultUserFinder.class);
     servicesContainer.addSingleton(DefaultRubyUserService.class);
 
+    // components
+    servicesContainer.addSingleton(DefaultRubyComponentService.class);
 
     // issues
     servicesContainer.addSingleton(ServerIssueStorage.class);
