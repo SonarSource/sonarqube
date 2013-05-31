@@ -88,10 +88,7 @@
           %>
             <tr class="<%= clazz -%>">
               <td width="1%" nowrap>
-                <a id="<%= "rule#{rule_index}" -%>" title="<%= message('issues_drilldown.click_for_more_on_x', :params => [rule.plugin_name, rule.plugin_rule_key]) -%>"
-                   onclick="window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;"
-                   href="<%= url_for :controller => 'rules', :action => 'show', :id => rule.key, :layout => 'false' -%>">
-                  <img src="<%= ApplicationController.root_context -%>/images/priority/<%= rule_measure.rule_priority -%>.png"/></a>
+                <img src="<%= ApplicationController.root_context -%>/images/priority/<%= rule_measure.rule_priority -%>.png"/>
               </td>
               <td>
                 <%= link_to(rule.name, {:controller => :drilldown, :action => :issues, :id => @resource.id, :rule => (selected ? nil : rule.key),
