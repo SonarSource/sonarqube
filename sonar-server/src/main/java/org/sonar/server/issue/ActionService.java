@@ -37,9 +37,12 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -48,9 +51,10 @@ public class ActionService implements ServerComponent {
   private final DefaultIssueFinder finder;
   private final IssueStorage issueStorage;
   private final IssueUpdater updater;
-  private final DefaultActions actions;
+  private final List<Action> actions;
+//  private final DefaultActions actions;
 
-  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater, DefaultActions actions) {
+  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater, List<Action> actions) {
     this.finder = finder;
     this.issueStorage = issueStorage;
     this.updater = updater;
@@ -61,7 +65,7 @@ public class ActionService implements ServerComponent {
     IssueQueryResult queryResult = loadIssue(issueKey);
     final DefaultIssue issue = (DefaultIssue) queryResult.first();
 
-    return newArrayList(Iterables.filter(actions.getActions(), new Predicate<Action>() {
+    return newArrayList(Iterables.filter(actions, new Predicate<Action>() {
       @Override
       public boolean apply(Action action) {
         return action.supports(issue);
@@ -69,6 +73,17 @@ public class ActionService implements ServerComponent {
     }));
   }
 
+  @CheckForNull
+  public Action getAction(final String actionKey) {
+    return Iterables.find(actions, new Predicate<Action>() {
+      @Override
+      public boolean apply(Action action) {
+        return action.key().equals(actionKey);
+      }
+    }, null);
+  }
+
+  public Issue execute(String issueKey, String actionKey, UserSession userSession, Map<String, String> parameters) {
   public Issue execute(String issueKey, String actionKey, UserSession userSession) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(actionKey), "Missing action");
 
@@ -78,7 +93,7 @@ public class ActionService implements ServerComponent {
       throw new IllegalStateException("Issue is not found : " + issueKey);
     }
 
-    Action action = actions.getAction(actionKey);
+    Action action = getAction(actionKey);
     if (action == null) {
       throw new IllegalStateException("Action is not found : " + actionKey);
     }
@@ -115,6 +130,11 @@ public class ActionService implements ServerComponent {
     @Override
     public Issue issue() {
       return issue;
+    }
+
+    @Override
+    public Map<String, String> parameters() {
+      return parameters;
     }
 
     @Override

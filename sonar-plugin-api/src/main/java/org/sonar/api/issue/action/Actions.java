@@ -26,6 +26,7 @@ import java.util.Set;
 /**
  * @since 3.6
  */
+// TODO remove it
 public interface Actions extends ServerComponent {
 
   Actions addAction(Action action);
