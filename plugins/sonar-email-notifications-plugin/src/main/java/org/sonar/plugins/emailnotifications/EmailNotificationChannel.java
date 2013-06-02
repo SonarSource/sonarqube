@@ -80,7 +80,7 @@ public class EmailNotificationChannel extends NotificationChannel {
    */
   private static final String REFERENCES_HEADER = "References";
 
-  private static final String FROM_NAME_DEFAULT = "Sonar";
+  private static final String FROM_NAME_DEFAULT = "SonarQube";
   private static final String SUBJECT_DEFAULT = "Notification";
 
   private EmailSettings configuration;
@@ -159,12 +159,12 @@ public class EmailNotificationChannel extends NotificationChannel {
           email.addHeader(REFERENCES_HEADER, messageId);
         }
         // Set headers for proper filtering
-        email.addHeader(LIST_ID_HEADER, "Sonar <sonar." + host + ">");
+        email.addHeader(LIST_ID_HEADER, "SonarQube <sonar." + host + ">");
         email.addHeader(LIST_ARCHIVE_HEADER, configuration.getServerBaseURL());
       }
       // Set general information
       email.setCharset("UTF-8");
-      String from = StringUtils.isBlank(emailMessage.getFrom()) ? FROM_NAME_DEFAULT : emailMessage.getFrom() + " (Sonar)";
+      String from = StringUtils.isBlank(emailMessage.getFrom()) ? FROM_NAME_DEFAULT : emailMessage.getFrom() + " (SonarQube)";
       email.setFrom(configuration.getFrom(), from);
       email.addTo(emailMessage.getTo(), " ");
       String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")

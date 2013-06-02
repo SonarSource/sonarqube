@@ -29,16 +29,12 @@ import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
 import javax.mail.internet.MimeMessage;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -79,17 +75,17 @@ public class EmailNotificationChannelTest {
   @Test
   public void shouldSendTestEmail() throws Exception {
     configure();
-    channel.sendTestEmail("user@nowhere", "Test Message from Sonar", "This is a test message from Sonar.");
+    channel.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
 
     List<WiserMessage> messages = server.getMessages();
-    assertThat(messages.size(), is(1));
+    assertThat(messages).hasSize(1);
 
     MimeMessage email = messages.get(0).getMimeMessage();
-    assertThat(email.getHeader("Content-Type", null), is("text/plain; charset=UTF-8"));
-    assertThat(email.getHeader("From", ","), is("Sonar <server@nowhere>"));
-    assertThat(email.getHeader("To", null), is("<user@nowhere>"));
-    assertThat(email.getHeader("Subject", null), is("[SONAR] Test Message from Sonar"));
-    assertThat((String) email.getContent(), startsWith("This is a test message from Sonar."));
+    assertThat(email.getHeader("Content-Type", null)).isEqualTo("text/plain; charset=UTF-8");
+    assertThat(email.getHeader("From", ",")).isEqualTo("SonarQube <server@nowhere>");
+    assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
+    assertThat(email.getHeader("Subject", null)).isEqualTo("[SONARQUBE] Test Message from SonarQube");
+    assertThat((String) email.getContent()).startsWith("This is a test message from SonarQube.");
   }
 
   @Test
@@ -98,7 +94,7 @@ public class EmailNotificationChannelTest {
     server.stop();
 
     try {
-      channel.sendTestEmail("user@nowhere", "Test Message from Sonar", "This is a test message from Sonar.");
+      channel.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
       fail();
     } catch (EmailException e) {
       // expected
@@ -112,7 +108,7 @@ public class EmailNotificationChannelTest {
       .setSubject("Foo")
       .setMessage("Bar");
     channel.deliver(emailMessage);
-    assertThat(server.getMessages().size(), is(0));
+    assertThat(server.getMessages()).isEmpty();
   }
 
   @Test
@@ -127,22 +123,22 @@ public class EmailNotificationChannelTest {
     channel.deliver(emailMessage);
 
     List<WiserMessage> messages = server.getMessages();
-    assertThat(messages.size(), is(1));
+    assertThat(messages).hasSize(1);
 
     MimeMessage email = messages.get(0).getMimeMessage();
 
-    assertThat(email.getHeader("Content-Type", null), is("text/plain; charset=UTF-8"));
+    assertThat(email.getHeader("Content-Type", null)).isEqualTo("text/plain; charset=UTF-8");
 
-    assertThat(email.getHeader("In-Reply-To", null), is("<reviews/view/1@nemo.sonarsource.org>"));
-    assertThat(email.getHeader("References", null), is("<reviews/view/1@nemo.sonarsource.org>"));
+    assertThat(email.getHeader("In-Reply-To", null)).isEqualTo("<reviews/view/1@nemo.sonarsource.org>");
+    assertThat(email.getHeader("References", null)).isEqualTo("<reviews/view/1@nemo.sonarsource.org>");
 
-    assertThat(email.getHeader("List-ID", null), is("Sonar <sonar.nemo.sonarsource.org>"));
-    assertThat(email.getHeader("List-Archive", null), is("http://nemo.sonarsource.org"));
+    assertThat(email.getHeader("List-ID", null)).isEqualTo("SonarQube <sonar.nemo.sonarsource.org>");
+    assertThat(email.getHeader("List-Archive", null)).isEqualTo("http://nemo.sonarsource.org");
 
-    assertThat(email.getHeader("From", ","), is("\"Full Username (Sonar)\" <server@nowhere>"));
-    assertThat(email.getHeader("To", null), is("<user@nowhere>"));
-    assertThat(email.getHeader("Subject", null), is("[SONAR] Review #3"));
-    assertThat((String) email.getContent(), startsWith("I'll take care of this violation."));
+    assertThat(email.getHeader("From", ",")).isEqualTo("\"Full Username (SonarQube)\" <server@nowhere>");
+    assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
+    assertThat(email.getHeader("Subject", null)).isEqualTo("[SONARQUBE] Review #3");
+    assertThat((String) email.getContent()).startsWith("I'll take care of this violation.");
   }
 
   @Test
@@ -155,22 +151,22 @@ public class EmailNotificationChannelTest {
     channel.deliver(emailMessage);
 
     List<WiserMessage> messages = server.getMessages();
-    assertThat(messages.size(), is(1));
+    assertThat(messages).hasSize(1);
 
     MimeMessage email = messages.get(0).getMimeMessage();
 
-    assertThat(email.getHeader("Content-Type", null), is("text/plain; charset=UTF-8"));
+    assertThat(email.getHeader("Content-Type", null)).isEqualTo("text/plain; charset=UTF-8");
 
-    assertThat(email.getHeader("In-Reply-To", null), nullValue());
-    assertThat(email.getHeader("References", null), nullValue());
+    assertThat(email.getHeader("In-Reply-To", null)).isNull();
+    assertThat(email.getHeader("References", null)).isNull();
 
-    assertThat(email.getHeader("List-ID", null), is("Sonar <sonar.nemo.sonarsource.org>"));
-    assertThat(email.getHeader("List-Archive", null), is("http://nemo.sonarsource.org"));
+    assertThat(email.getHeader("List-ID", null)).isEqualTo("SonarQube <sonar.nemo.sonarsource.org>");
+    assertThat(email.getHeader("List-Archive", null)).isEqualTo("http://nemo.sonarsource.org");
 
-    assertThat(email.getHeader("From", null), is("Sonar <server@nowhere>"));
-    assertThat(email.getHeader("To", null), is("<user@nowhere>"));
-    assertThat(email.getHeader("Subject", null), is("[SONAR] Foo"));
-    assertThat((String) email.getContent(), startsWith("Bar"));
+    assertThat(email.getHeader("From", null)).isEqualTo("SonarQube <server@nowhere>");
+    assertThat(email.getHeader("To", null)).isEqualTo("<user@nowhere>");
+    assertThat(email.getHeader("Subject", null)).isEqualTo("[SONARQUBE] Foo");
+    assertThat((String) email.getContent()).startsWith("Bar");
   }
 
   @Test
@@ -189,7 +185,7 @@ public class EmailNotificationChannelTest {
     when(configuration.getSmtpHost()).thenReturn("localhost");
     when(configuration.getSmtpPort()).thenReturn(port);
     when(configuration.getFrom()).thenReturn("server@nowhere");
-    when(configuration.getPrefix()).thenReturn("[SONAR]");
+    when(configuration.getPrefix()).thenReturn("[SONARQUBE]");
     when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
   }
 

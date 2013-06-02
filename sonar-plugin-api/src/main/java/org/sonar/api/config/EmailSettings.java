@@ -44,7 +44,7 @@ public class EmailSettings implements BatchComponent, ServerComponent {
   public static final String FROM = "email.from";
   public static final String FROM_DEFAULT = "noreply@nowhere";
   public static final String PREFIX = "email.prefix";
-  public static final String PREFIX_DEFAULT = "[SONAR]";
+  public static final String PREFIX_DEFAULT = "[SONARQUBE]";
 
   private final Settings settings;
 

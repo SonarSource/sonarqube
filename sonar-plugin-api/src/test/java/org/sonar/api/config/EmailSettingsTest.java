@@ -43,7 +43,7 @@ public class EmailSettingsTest {
     assertThat(emailSettings.getSmtpPassword()).isEmpty();
     assertThat(emailSettings.getSecureConnection()).isEmpty();
     assertThat(emailSettings.getFrom()).isEqualTo("noreply@nowhere");
-    assertThat(emailSettings.getPrefix()).isEqualTo("[SONAR]");
+    assertThat(emailSettings.getPrefix()).isEqualTo("[SONARQUBE]");
     assertThat(emailSettings.getServerBaseURL()).isEqualTo(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
   }
 }

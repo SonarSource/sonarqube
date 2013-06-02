@@ -112,7 +112,7 @@
                 <% end %>
               </td>
               <td>
-                <%= filter.user ? h(filter.user.name) : '[Sonar]' -%>
+                <%= filter.user ? h(filter.user.name) : '[SonarQube]' -%>
               </td>
               <td class="thin nowrap right">
                 <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
