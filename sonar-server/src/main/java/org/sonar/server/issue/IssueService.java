@@ -171,7 +171,11 @@ public class IssueService implements ServerComponent {
 
   public IssueQueryResult loadIssue(String issueKey) {
     IssueQuery query = IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build();
-    return finder.find(query);
+    IssueQueryResult result = finder.find(query);
+    if (result.issues().size()!=1) {
+      throw new IllegalStateException("Issue not found: " + issueKey);
+    }
+    return result;
   }
 
   public List<String> listStatus() {
