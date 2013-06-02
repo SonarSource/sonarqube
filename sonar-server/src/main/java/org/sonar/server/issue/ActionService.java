@@ -38,10 +38,8 @@ import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -71,7 +69,7 @@ public class ActionService implements ServerComponent {
     }));
   }
 
-  public Issue execute(String issueKey, String actionKey, UserSession userSession, Map<String, String> parameters) {
+  public Issue execute(String issueKey, String actionKey, UserSession userSession) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(actionKey), "Missing action");
 
     IssueQueryResult queryResult = loadIssue(issueKey);
@@ -89,7 +87,7 @@ public class ActionService implements ServerComponent {
     }
 
     IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(), userSession.login());
-    FunctionContext functionContext = new FunctionContext(updater, issue, parameters, changeContext);
+    FunctionContext functionContext = new FunctionContext(updater, issue, changeContext);
     for (Function function : action.functions()) {
       function.execute(functionContext);
     }
@@ -105,25 +103,18 @@ public class ActionService implements ServerComponent {
   static class FunctionContext implements Function.Context {
 
     private final DefaultIssue issue;
-    private final Map<String, String> parameters;
     private final IssueUpdater updater;
     private final IssueChangeContext changeContext;
 
-    FunctionContext(IssueUpdater updater, DefaultIssue issue, Map<String, String> parameters, IssueChangeContext changeContext) {
+    FunctionContext(IssueUpdater updater, DefaultIssue issue, IssueChangeContext changeContext) {
       this.updater = updater;
       this.issue = issue;
-      this.parameters = parameters;
       this.changeContext = changeContext;
     }
 
     @Override
     public Issue issue() {
       return issue;
-    }
-
-    @Override
-    public Map<String, String> parameters() {
-      return parameters;
     }
 
     @Override

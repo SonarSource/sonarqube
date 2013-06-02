@@ -17,19 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.workflow.function;
 
-import com.google.common.annotations.Beta;
-import org.sonar.api.issue.action.Function;
+package org.sonar.server.issue;
 
-/**
- * @since 3.1
- */
-@Beta
-public final class CommentFunction implements Function {
+import org.junit.Before;
+import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.db.IssueStorage;
 
-  @Override
-  public void execute(Context context) {
-    context.addComment("New comment!");
+import static org.mockito.Mockito.mock;
+
+public class ActionServiceTest {
+
+  private ActionService actionService;
+
+  private DefaultIssueFinder finder = mock(DefaultIssueFinder.class);
+  private IssueStorage issueStorage = mock(IssueStorage.class);
+  private IssueUpdater updater = mock(IssueUpdater.class);
+  private DefaultActions actions = mock(DefaultActions.class);
+
+  @Before
+  public void before(){
+
   }
 }

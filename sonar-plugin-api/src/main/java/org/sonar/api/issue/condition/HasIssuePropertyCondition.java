@@ -17,19 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.workflow.function;
+package org.sonar.api.issue.condition;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.issue.action.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import org.sonar.api.issue.Issue;
 
 /**
  * @since 3.1
  */
 @Beta
-public final class CommentFunction implements Function {
+public final class HasIssuePropertyCondition implements Condition {
+
+  private final String propertyKey;
+
+  public HasIssuePropertyCondition(String propertyKey) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(propertyKey));
+    this.propertyKey = propertyKey;
+  }
+
+  public String getPropertyKey() {
+    return propertyKey;
+  }
 
   @Override
-  public void execute(Context context) {
-    context.addComment("New comment!");
+  public boolean matches(Issue issue) {
+    return !Strings.isNullOrEmpty(issue.attributes().get(propertyKey));
   }
 }

@@ -44,7 +44,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -306,8 +305,8 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
-  public Issue executeAction(String issueKey, String actionKey, Map<String, String> parameters) {
-    return actionService.execute(issueKey, actionKey, UserSession.get(), parameters);
+  public Issue executeAction(String issueKey, String actionKey) {
+    return actionService.execute(issueKey, actionKey, UserSession.get());
   }
 
   public List<Action> listActions(String issueKey){

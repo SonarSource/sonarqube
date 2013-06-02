@@ -254,7 +254,7 @@ class Api::IssuesController < Api::ApiController
     verify_post_request
     require_parameters :issue, :actionKey
 
-    issue = Internal.issues.executeAction(params[:issue], params[:actionKey], params)
+    issue = Internal.issues.executeAction(params[:issue], params[:actionKey])
     if issue
       render :json => jsonp({
                                 :issue => Issue.to_hash(issue)
