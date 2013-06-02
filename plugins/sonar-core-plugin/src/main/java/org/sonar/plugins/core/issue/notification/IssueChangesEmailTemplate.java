@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.issue.notification;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
@@ -36,6 +38,8 @@ import javax.annotation.Nullable;
  */
 public class IssueChangesEmailTemplate extends EmailTemplate {
 
+  private static final char NEW_LINE = '\n';
+
   private final EmailSettings settings;
   private final UserFinder userFinder;
 
@@ -49,34 +53,57 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     if (!"issue-changes".equals(notif.getType())) {
       return null;
     }
+
+    StringBuilder sb = new StringBuilder();
+    appendHeader(notif, sb);
+    sb.append(NEW_LINE);
+    appendChanges(notif, sb);
+    sb.append(NEW_LINE);
+    appendFooter(sb, notif);
+
+    String projectName = notif.getFieldValue("projectName");
     String issueKey = notif.getFieldValue("key");
     String author = notif.getFieldValue("changeAuthor");
 
-    StringBuilder sb = new StringBuilder();
-    String projectName = notif.getFieldValue("projectName");
-    appendField(sb, "Project", null, projectName);
-    appendField(sb, "Component", null, StringUtils.defaultString(notif.getFieldValue("componentName"), notif.getFieldValue("componentKey")));
-    appendField(sb, "Rule", null, notif.getFieldValue("ruleName"));
-    appendField(sb, "Message", null, notif.getFieldValue("message"));
-    appendField(sb, "Comment", null, notif.getFieldValue("comment"));
-    sb.append('\n');
-
-    appendField(sb, "Assignee", notif.getFieldValue("old.assignee"), notif.getFieldValue("new.assignee"));
-    appendField(sb, "Severity", notif.getFieldValue("old.severity"), notif.getFieldValue("new.severity"));
-    appendField(sb, "Resolution", notif.getFieldValue("old.resolution"), notif.getFieldValue("new.resolution"));
-    appendField(sb, "Status", notif.getFieldValue("old.status"), notif.getFieldValue("new.status"));
-    appendField(sb, "Message", notif.getFieldValue("old.message"), notif.getFieldValue("new.message"));
-
-    appendFooter(sb, notif);
-
     EmailMessage message = new EmailMessage()
       .setMessageId("issue-changes/" + issueKey)
-      .setSubject("Project "+ projectName +", change on issue #" + issueKey)
+      .setSubject(projectName + ", change on issue #" + issueKey)
       .setMessage(sb.toString());
     if (author != null) {
       message.setFrom(getUserFullName(author));
     }
     return message;
+  }
+
+  private void appendChanges(Notification notif, StringBuilder sb) {
+    appendField(sb, "Comment", null, notif.getFieldValue("comment"));
+    appendField(sb, "Assignee", notif.getFieldValue("old.assignee"), notif.getFieldValue("new.assignee"));
+    appendField(sb, "Severity", notif.getFieldValue("old.severity"), notif.getFieldValue("new.severity"));
+    appendField(sb, "Resolution", notif.getFieldValue("old.resolution"), notif.getFieldValue("new.resolution"));
+    appendField(sb, "Status", notif.getFieldValue("old.status"), notif.getFieldValue("new.status"));
+    appendField(sb, "Message", notif.getFieldValue("old.message"), notif.getFieldValue("new.message"));
+  }
+
+  private void appendHeader(Notification notif, StringBuilder sb) {
+    String ruleName = notif.getFieldValue("ruleName");
+    String issueMessage = notif.getFieldValue("message");
+
+    appendLine(sb, StringUtils.defaultString(notif.getFieldValue("componentName"), notif.getFieldValue("componentKey")));
+    appendLine(sb, ruleName);
+    if (!Objects.equal(ruleName, issueMessage)) {
+      appendLine(sb, issueMessage);
+    }
+  }
+
+  private void appendFooter(StringBuilder sb, Notification notification) {
+    String issueKey = notification.getFieldValue("key");
+    sb.append("See it in SonarQube: ").append(settings.getServerBaseURL()).append("/issue/show/").append(issueKey).append(NEW_LINE);
+  }
+
+  private void appendLine(StringBuilder sb, @Nullable String line) {
+    if (!Strings.isNullOrEmpty(line)) {
+      sb.append(line).append(NEW_LINE);
+    }
   }
 
   private void appendField(StringBuilder sb, String name, @Nullable String oldValue, @Nullable String newValue) {
@@ -88,14 +115,8 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
       if (oldValue != null) {
         sb.append(" (was ").append(oldValue).append(")");
       }
-      sb.append('\n');
+      sb.append(NEW_LINE);
     }
-  }
-
-  private void appendFooter(StringBuilder sb, Notification notification) {
-    String issueKey = notification.getFieldValue("key");
-    sb.append("\n")
-      .append("See it in SonarQube: ").append(settings.getServerBaseURL()).append("/issue/show/").append(issueKey).append('\n');
   }
 
   private String getUserFullName(@Nullable String login) {

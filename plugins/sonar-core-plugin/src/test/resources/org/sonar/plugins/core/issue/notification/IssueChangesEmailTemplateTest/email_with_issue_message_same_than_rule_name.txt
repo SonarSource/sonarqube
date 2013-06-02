@@ -1,0 +1,6 @@
+org.apache.struts.Action
+Avoid Cycles
+
+Assignee: louis
+
+See it in SonarQube: http://nemo.sonarsource.org/issue/show/ABCDE

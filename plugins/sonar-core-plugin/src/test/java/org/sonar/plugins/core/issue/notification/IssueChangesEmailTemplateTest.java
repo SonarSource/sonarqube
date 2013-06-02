@@ -29,6 +29,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
+import org.sonar.test.TestUtils;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,10 +58,11 @@ public class IssueChangesEmailTemplateTest {
   }
 
   @Test
-  public void should_format_change() {
+  public void test_email_with_changes() {
     Notification notification = new Notification("issue-changes")
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
+      .setFieldValue("componentName", "org.apache.struts.Action")
       .setFieldValue("key", "ABCDE")
       .setFieldValue("ruleName", "Avoid Cycles")
       .setFieldValue("message", "Has 3 cycles")
@@ -70,16 +72,33 @@ public class IssueChangesEmailTemplateTest {
       .setFieldValue("new.resolution", "FALSE-POSITIVE")
       .setFieldValue("new.status", "RESOLVED");
 
-    EmailMessage message = template.format(notification);
-    assertThat(message.getMessageId()).isEqualTo("issue-changes/ABCDE");
-    assertThat(message.getSubject()).isEqualTo("Project Struts, change on issue #ABCDE");
-    assertThat(message.getMessage()).contains("Rule: Avoid Cycles");
-    assertThat(message.getMessage()).contains("Message: Has 3 cycles");
-    assertThat(message.getMessage()).contains("Comment: How to fix it?");
-    assertThat(message.getMessage()).contains("Assignee: louis (was simon)");
-    assertThat(message.getMessage()).contains("Resolution: FALSE-POSITIVE");
-    assertThat(message.getMessage()).contains("See it in SonarQube: http://nemo.sonarsource.org/issue/show/ABCDE");
-    assertThat(message.getFrom()).isNull();
+    EmailMessage email = template.format(notification);
+    assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
+    assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
+
+    String message = email.getMessage();
+    String expectedMessage = TestUtils.getResourceContent("/org/sonar/plugins/core/issue/notification/IssueChangesEmailTemplateTest/email_with_changes.txt");
+    assertThat(message).isEqualTo(expectedMessage);
+    assertThat(email.getFrom()).isNull();
+  }
+
+  @Test
+  public void test_email_with_issue_message_same_than_rule_name() {
+    Notification notification = new Notification("issue-changes")
+      .setFieldValue("projectName", "Struts")
+      .setFieldValue("projectKey", "org.apache:struts")
+      .setFieldValue("componentName", "org.apache.struts.Action")
+      .setFieldValue("key", "ABCDE")
+      .setFieldValue("new.assignee", "louis")
+
+      // same rule name and issue msg -> display once
+      .setFieldValue("ruleName", "Avoid Cycles")
+      .setFieldValue("message", "Avoid Cycles");
+
+    EmailMessage email = template.format(notification);
+    String message = email.getMessage();
+    String expectedMessage = TestUtils.getResourceContent("/org/sonar/plugins/core/issue/notification/IssueChangesEmailTemplateTest/email_with_issue_message_same_than_rule_name.txt");
+    assertThat(message).isEqualTo(expectedMessage);
   }
 
   @Test

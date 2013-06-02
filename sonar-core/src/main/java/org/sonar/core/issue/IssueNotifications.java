@@ -95,7 +95,7 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
     notification.setFieldValue("ruleName", ruleName(rule));
     notification.setFieldValue("componentKey", issue.componentKey());
     if (component != null) {
-      notification.setFieldValue("componentName", component.name());
+      notification.setFieldValue("componentName", component.longName());
     }
     if (comment != null) {
       notification.setFieldValue("comment", comment);
