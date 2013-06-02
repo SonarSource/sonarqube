@@ -45,4 +45,6 @@ public interface IssueChangeMapper {
    */
   List<IssueChangeDto> selectByIssuesAndType(@Param("issueKeys") Collection<String> issueKeys,
                                              @Param("changeType") String changeType);
+
+  List<IssueChangeDto> selectByIssue(String issueKey);
 }

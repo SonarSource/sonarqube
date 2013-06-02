@@ -257,10 +257,6 @@ ul.sidebar select, ul.sidebar input {
   display: block;
 }
 
-.nolayout {
-  padding: 10px;
-}
-
 .page-split-left {
   min-width: 200px;
   max-width: 200px;

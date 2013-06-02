@@ -72,7 +72,7 @@
             <%= message("issue.resolution.#{issue.resolution}") if issue.resolution -%>
           </td>
           <td>
-            <a class='open-modal rule-modal' modal-width='800' href='<%= url_for :controller => 'issue', :action => 'view', :id => issue.key %>'>
+            <a class='open-modal rule-modal' modal-width='800' href='<%= url_for :controller => 'issue', :action => 'show', :id => issue.key, :modal => true -%>'>
               <%= h truncate(issue.message, :length => 100) -%></a>
           </td>
           <td>

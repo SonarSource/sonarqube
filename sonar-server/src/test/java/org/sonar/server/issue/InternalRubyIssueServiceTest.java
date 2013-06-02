@@ -40,7 +40,7 @@ public class InternalRubyIssueServiceTest {
 
   private InternalRubyIssueService internalRubyIssueService;
   private IssueService issueService = mock(IssueService.class);
-  private IssueCommentService commentService = mock(IssueCommentService.class);
+  private IssueChangeService commentService = mock(IssueChangeService.class);
   private ActionPlanService actionPlanService = mock(ActionPlanService.class);
   private ResourceDao resourceDao = mock(ResourceDao.class);
   private IssueStatsFinder issueStatsFinder = mock(IssueStatsFinder.class);

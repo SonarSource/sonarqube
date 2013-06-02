@@ -38,8 +38,9 @@ import org.sonar.server.user.UserSession;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
-public class IssueCommentService implements ServerComponent {
+public class IssueChangeService implements ServerComponent {
 
   private final IssueUpdater updater;
   private final IssueChangeDao changeDao;
@@ -47,12 +48,17 @@ public class IssueCommentService implements ServerComponent {
   private final DefaultIssueFinder finder;
   private final IssueNotifications issueNotifications;
 
-  public IssueCommentService(IssueUpdater updater, IssueChangeDao changeDao, IssueStorage storage, DefaultIssueFinder finder, IssueNotifications issueNotifications) {
+  public IssueChangeService(IssueUpdater updater, IssueChangeDao changeDao, IssueStorage storage, DefaultIssueFinder finder, IssueNotifications issueNotifications) {
     this.updater = updater;
     this.changeDao = changeDao;
     this.storage = storage;
     this.finder = finder;
     this.issueNotifications = issueNotifications;
+  }
+
+  public List<IssueChangeDto> changelog(String issueKey) {
+    // TODO verify security
+    return changeDao.selectIssueChangelog(issueKey);
   }
 
   public IssueComment findComment(String commentKey) {

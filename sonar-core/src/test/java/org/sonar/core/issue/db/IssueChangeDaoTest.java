@@ -63,6 +63,19 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void selectIssueChangelog() {
+    setupData("shared");
+
+    List<IssueChangeDto> changes = dao.selectIssueChangelog("1000");
+    assertThat(changes).hasSize(3);
+
+    // chronological order
+    assertThat(changes.get(0).getId()).isEqualTo(100);
+    assertThat(changes.get(1).getId()).isEqualTo(101);
+    assertThat(changes.get(2).getId()).isEqualTo(102);
+  }
+
+  @Test
   public void selectCommentsByIssues_empty_input() {
     // no need to connect to db
     SqlSession session = mock(SqlSession.class);

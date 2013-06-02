@@ -74,5 +74,13 @@
     from issue_changes c
     where c.change_type=#{changeType} and c.kee=#{key}
   </select>
+
+  <select id="selectByIssue" parameterType="string" resultType="IssueChange">
+    select
+    <include refid="issueChangeColumns"/>
+    from issue_changes c
+    where c.issue_key=#{id}
+    order by created_at asc
+  </select>
 </mapper>
 

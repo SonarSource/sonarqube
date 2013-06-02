@@ -661,7 +661,7 @@ ul.operations li img {
 /* SOURCE */
 .sources2 {
   width: 100%;
-  border-bottom: 1px solid #DDD;
+  border: 0;
   margin: 0;
   background-color: #FFF;
 }
@@ -737,12 +737,12 @@ ul.operations li img {
   font-size: 12px;
 }
 
-span.rulename, span.rulename a {
+.rulename, .rulename a {
   color: #444;
   font-weight: bold;
 }
 
-span.rulename a:hover {
+.rulename a:hover {
   text-decoration: underline;
 }
 
@@ -822,7 +822,7 @@ span.rulename a:hover {
 }
 
 .code-issue-create-form {
-  padding-bottom: 10px;
+  padding: 10px;
 }
 
 .code-global-issues {
@@ -831,14 +831,13 @@ span.rulename a:hover {
 
 .code-issues {
   background-color: #FFF;
-  padding-bottom: 10px;
+  padding: 10px;
 }
 
 .code-issue {
   background-color: #FFF;
   margin: 0;
   font-size: 12px;
-  padding: 10px 10px 0 10px;
 }
 
 .code-issue-name {
@@ -854,7 +853,7 @@ span.rulename a:hover {
   vertical-align: text-bottom;
 }
 
-.code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form {
+.code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form, .issue-more {
   background-color: #EFEFEF;
   border: 1px solid #DDD;
   border-top: none;
@@ -1079,10 +1078,13 @@ div.progress td.open {
 }
 
 div.progress div.note {
-  color: #777777;
+  color: #777;
   font-size: 93%;
   font-weight: normal;
   white-space: nowrap;
+}
+div.note a {
+  color: #777777;
 }
 
 /* SEARCH AUTOCOMPLETE FIELDS */

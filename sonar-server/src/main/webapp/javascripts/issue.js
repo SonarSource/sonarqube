@@ -201,3 +201,33 @@ function submitCreateIssueForm(elt) {
   return false;
 }
 
+function hideIssueMore(elt) {
+  var issueElt = $j(elt).closest('[data-issue-key]');
+  var moreElt = issueElt.find('.issue-more');
+  moreElt.slideUp('fast');
+  return false;
+}
+
+function showIssueRule(elt) {
+  var issueElt = $j(elt).closest('[data-issue-rule]');
+  var ruleKey = issueElt.attr('data-issue-rule');
+  var moreElt = issueElt.find('.issue-more');
+  moreElt.slideUp('fast');
+  $j.get(baseUrl + "/issue/rule/" + ruleKey, function (html) {
+    moreElt.html(html);
+    moreElt.slideDown('fast');
+  });
+  return false;
+}
+
+function showIssueChangelog(elt) {
+  var issueElt = $j(elt).closest('[data-issue-key]');
+  var issueKey = issueElt.attr('data-issue-key');
+  var moreElt = issueElt.find('.issue-more');
+  moreElt.slideUp('fast');
+  $j.get(baseUrl + "/issue/changelog/" + issueKey, function (html) {
+    moreElt.html(html);
+    moreElt.slideDown('fast');
+  });
+  return false;
+}

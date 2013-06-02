@@ -36,6 +36,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueBuilder;
+import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -55,18 +56,18 @@ import java.util.Map;
 public class InternalRubyIssueService implements ServerComponent {
 
   private final IssueService issueService;
-  private final IssueCommentService commentService;
+  private final IssueChangeService changeService;
   private final ActionPlanService actionPlanService;
   private final IssueStatsFinder issueStatsFinder;
   private final ResourceDao resourceDao;
   private final ActionService actionService;
 
   public InternalRubyIssueService(IssueService issueService,
-                                  IssueCommentService commentService,
+                                  IssueChangeService changeService,
                                   ActionPlanService actionPlanService,
                                   IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService) {
     this.issueService = issueService;
-    this.commentService = commentService;
+    this.changeService = changeService;
     this.actionPlanService = actionPlanService;
     this.issueStatsFinder = issueStatsFinder;
     this.resourceDao = resourceDao;
@@ -93,6 +94,11 @@ public class InternalRubyIssueService implements ServerComponent {
     return Issue.RESOLUTIONS;
   }
 
+  public List<IssueChangeDto> changelog(String issueKey) {
+    // TODO verify security
+    return changeService.changelog(issueKey);
+  }
+
   public Issue doTransition(String issueKey, String transitionKey) {
     return issueService.doTransition(issueKey, transitionKey, UserSession.get());
   }
@@ -110,19 +116,19 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public IssueComment addComment(String issueKey, String text) {
-    return commentService.addComment(issueKey, text, UserSession.get());
+    return changeService.addComment(issueKey, text, UserSession.get());
   }
 
   public IssueComment deleteComment(String commentKey) {
-    return commentService.deleteComment(commentKey, UserSession.get());
+    return changeService.deleteComment(commentKey, UserSession.get());
   }
 
   public IssueComment editComment(String commentKey, String newText) {
-    return commentService.editComment(commentKey, newText, UserSession.get());
+    return changeService.editComment(commentKey, newText, UserSession.get());
   }
 
   public IssueComment findComment(String commentKey) {
-    return commentService.findComment(commentKey);
+    return changeService.findComment(commentKey);
   }
 
   /**

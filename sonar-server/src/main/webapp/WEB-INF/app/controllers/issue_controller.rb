@@ -22,17 +22,6 @@ class IssueController < ApplicationController
 
   helper SourceHelper
 
-  def view
-    require_parameters :id
-    init_issue
-
-    if request.xhr?
-      render :partial => 'issue/view', :locals => {:issue => @issue, :issue_results => @issue_results, :snapshot =>  @snapshot, :show_source => true}
-    else
-      render :action => 'view'
-    end
-  end
-
   # GET /issue/show/<key>
   # This URL is used by the Eclipse Plugin
   #
@@ -46,7 +35,15 @@ class IssueController < ApplicationController
   def show
     require_parameters :id
     init_issue
-    render :action => 'view'
+
+    if params[:modal]
+      render :partial => 'issue/show_modal'
+    elsif request.xhr?
+      render :partial => 'issue/show'
+    else
+      render :action => 'show'
+    end
+
   end
 
   # Form used for: assign, comment, transition, change severity and plan
@@ -153,7 +150,7 @@ class IssueController < ApplicationController
     issue_result = Internal.issues.create(params.merge({:component => component_key}))
     if issue_result.ok
       @issue_results = Api.issues.find(issue_result.get.key)
-      render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
+      render :partial => 'issue/manual_issue_created', :locals => {:issue => @issue_results.first}
     else
       render :partial => 'shared/result_messages', :status => 500, :locals => {:result => issue_result}
     end
@@ -172,12 +169,31 @@ class IssueController < ApplicationController
     render :partial => 'project/widgets/issues/issues_list'
   end
 
+  # Display the rule description in the issue panel
+  def rule
+    verify_ajax_request
+    require_parameters :id
+    rule_key = params[:id].split(':')
+    @rule = Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', rule_key[0], rule_key[1]], :include => :rule_note)
+    render :partial => 'issue/rule'
+  end
+
+  # Display the changelog in the issue panel
+  def changelog
+    verify_ajax_request
+    require_parameters :id
+    @issue_results = Api.issues.find(params[:id])
+    @issue = @issue_results.first()
+    @changes = Internal.issues.changelog(params[:id])
+    render :partial => 'issue/changelog'
+  end
+
 
   private
 
   def init_issue
     @issue_results = Api.issues.find(params[:id])
-    @issue = @issue_results.issues.get(0)
+    @issue = @issue_results.first()
 
     resource = Project.by_key(@issue.componentKey())
     @snapshot = resource.last_snapshot if resource.last_snapshot

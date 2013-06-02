@@ -1,12 +1,15 @@
-<div class="code-issue" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>">
+<div class="code-issue" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>" data-issue-rule="<%= issue.ruleKey().toString() -%>">
   <div class="code-issue-name">
-    <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png">
+    <div style="float: right">
+      <a target="issue"
+         href="<%= url_for :controller => 'issue', :action => 'show', :id => issue.key -%>">
+        <img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif">
+      </a>
+    </div>
+
+    <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= h message("severity.#{issue.severity}") -%>">
     &nbsp;
-      <span class="rulename">
-        <% rule_name = Internal.rules.ruleL10nName(@issue_results.rule(issue)) %>
-        <a class="open-modal" modal-width="800" href="<%= url_for :controller => 'rules', :action => 'show', :id => issue.rule_key.to_s, :modal => 'true', :layout => 'false' -%>">
-          <%= h rule_name -%></a>
-      </span>
+    <a href="#" onclick="return showIssueRule(this)" class="rulename"><%= h Internal.rules.ruleL10nName(@issue_results.rule(issue)) -%></a>
     &nbsp;
     <% if issue.resolution %>
       <%= image_tag 'sep12.png' -%>
@@ -21,12 +24,7 @@
     <% end %>
     <%= image_tag 'sep12.png' -%>
     &nbsp;
-    <%
-       created_at = Api::Utils.java_to_ruby_datetime(issue.creationDate())
-       updated_at = Api::Utils.java_to_ruby_datetime(issue.updateDate())
-       dates_title = "Created at #{format_datetime(created_at)} and updated at #{format_datetime(updated_at)}"
-    %>
-    <span title="<%= h dates_title -%>"><%= distance_of_time_in_words_to_now(created_at) -%></span>
+    <a href="#" onclick="return showIssueChangelog(this)" class="gray"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
     &nbsp;
     <% if issue.reporter %>
       <%= image_tag 'sep12.png' -%>
@@ -35,6 +33,8 @@
       &nbsp;
     <% end %>
   </div>
+
+  <div class="issue-more" style="display: none"></div>
 
   <% unless issue.message.blank? %>
     <div class="code-issue-msg">
@@ -51,11 +51,11 @@
         <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= @issue_results.user(comment.userLogin()).name() -%></b>
         (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.createdAt)) -%>)
         <% if current_user && current_user.login==comment.userLogin %>
-            &nbsp;
-            <%= image_tag 'sep12.png' -%>
-            &nbsp;
-            <a class="link-action" href="#" onclick="return formEditIssueComment(this)"><%= message('edit') -%></a>
-            <a class="link-action spacer-right" href="#" onclick="return formDeleteIssueComment(this)"><%= message('delete') -%></a>
+          &nbsp;
+          <%= image_tag 'sep12.png' -%>
+          &nbsp;
+          <a class="link-action" href="#" onclick="return formEditIssueComment(this)"><%= message('edit') -%></a>
+          <a class="link-action spacer-right" href="#" onclick="return formDeleteIssueComment(this)"><%= message('delete') -%></a>
         <% end %>
       </h4>
       <%= Internal.text.markdownToHtml(comment.markdownText) -%>
@@ -63,21 +63,19 @@
   <% end %>
 
   <% if current_user %>
-    <% transitions = Internal.issues.listTransitions(issue) %>
-
     <div class="code-issue-actions">
       <a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right"><%= message('issue.comment.formlink') -%></a>
       <% unless issue.resolution %>
         <%= image_tag 'sep12.png' -%>
         &nbsp;
         <span class="spacer-right">
-        <% if !issue.assignee %>
-          <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a>
-          <% if issue.assignee!=current_user.login %>
-            [<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]
-          <% end %>
+        <% if issue.assignee %>
+          <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('assigned_to') -%></a> <%= h @issue_results.user(issue.assignee).name -%>
         <% else %>
-          <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('assigned_to') -%></a> <%= @issue_results.user(issue.assignee).name -%>
+          <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a>
+            <% if issue.assignee!=current_user.login %>
+            [<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]
+            <% end %>
         <% end %>
         </span>
       <% end %>
@@ -86,17 +84,18 @@
         <%= image_tag 'sep12.png' -%>
         &nbsp;
         <span class="spacer-right">
-          <% if !@issue_results.actionPlan(issue) %>
-            <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.do_plan') -%></a>
-          <% else %>
+          <% if issue.actionPlanKey %>
             <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.planned_for') -%></a> <%= h(@issue_results.actionPlan(issue).name()) -%>
+          <% else %>
+            <a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.do_plan') -%></a>
           <% end %>
         </span>
       <% end %>
 
       <%
+         transitions = Internal.issues.listTransitions(issue)
          if transitions.size > 0 && transitions.first
-         transition = transitions.first
+           transition = transitions.first
       %>
         <%= image_tag 'sep12.png' -%>
         &nbsp;
@@ -111,15 +110,29 @@
           <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
           <ul style="display: none" class="dropdown-menu">
             <% unless issue.resolution %>
-              <li><a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a></li>
+              <li>
+                <a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a>
+              </li>
             <% end %>
             <% transitions.each do |transition| %>
-              <li><a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a></li>
+              <li>
+                <a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a>
+              </li>
             <% end %>
           </ul>
         </div>
       <% end %>
     </div>
     <div class="code-issue-form hidden"></div>
+  <% elsif issue.assignee || issue.actionPlanKey %>
+    <div class="code-issue-actions">
+      <% if issue.assignee %>
+        <%= message('assigned_to') -%> <%= h @issue_results.user(issue.assignee).name -%>
+        &nbsp;
+      <% end %>
+      <% if issue.actionPlanKey %>
+        <%= message('issue.planned_for') -%> <%= h(@issue_results.actionPlan(issue).name()) -%>
+      <% end %>
+    </div>
   <% end %>
 </div>

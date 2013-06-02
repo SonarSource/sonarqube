@@ -1,0 +1,16 @@
+<div class="source_title">
+  <div class="subtitle">
+    <%= h @issue_results.project(@issue).name() -%>
+  </div>
+  <span class="h1"><%= h @issue_results.component(@issue).longName() -%></span>
+</div>
+
+<div class="marginbottom10">
+<%= render :partial => 'issue/issue', :locals => {:issue => @issue_results.first} -%>
+</div>
+
+<% if @snapshot && @issue.line && params[:source]!='false' %>
+  <div class="bordered">
+    <%= snapshot_html_source(@snapshot, {:line_range => (@issue.line-5)..(@issue.line+5), :highlighted_lines => [@issue.line]}) -%>
+  </div>
+<% end %>

@@ -1,0 +1,19 @@
+<ul>
+  <li>
+    <%= format_datetime(@issue.creationDate()) -%>
+    <% if @issue.reporter %>
+    - <%= message('issue.reported_by') -%> <%= @issue_results.user(@issue.reporter).name -%>
+    <% end %>
+    - <%= message('created') -%>
+  </li>
+
+  <% @changes.each do |change| %>
+  <li>
+    <%= format_datetime(change.createdAt()) -%> - <%= change.userLogin -%> - <%= change.changeData -%>
+  </li>
+  <% end %>
+</ul>
+
+<div class="note">
+  <a href="#" onclick="return hideIssueMore(this)">Hide</a><%= image_tag 'asc.png' -%>
+</div>
