@@ -71,6 +71,7 @@ public class ActionPlanStats extends DefaultActionPlan {
   }
 
   public boolean overDue(){
-    return isOpen() && deadLine() != null && new Date().after(deadLine());
+    Date deadline = deadLine();
+    return isOpen() && deadline != null && new Date().after(deadline);
   }
 }

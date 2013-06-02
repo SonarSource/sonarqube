@@ -125,8 +125,13 @@ public class IssueChangeService implements ServerComponent {
     }
   }
 
+  // TODO remove this duplication from IssueService
   public IssueQueryResult loadIssue(String issueKey) {
     IssueQuery query = IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build();
-    return finder.find(query);
+    IssueQueryResult result = finder.find(query);
+    if (result.issues().size()!=1) {
+      throw new IllegalStateException("Issue not found: " + issueKey);
+    }
+    return result;
   }
 }

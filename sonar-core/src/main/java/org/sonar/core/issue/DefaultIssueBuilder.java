@@ -71,7 +71,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issuable.IssueBuilder severity(String severity) {
+  public Issuable.IssueBuilder severity(@Nullable String severity) {
     this.severity = severity;
     return this;
   }
@@ -89,7 +89,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
-  public Issuable.IssueBuilder attribute(String key, String value) {
+  public Issuable.IssueBuilder attribute(String key, @Nullable String value) {
     if (attributes == null) {
       attributes = Maps.newLinkedHashMap();
     }

@@ -75,4 +75,14 @@ public class NewIssuesEmailTemplateTest {
       "\n" +
       "See it in SonarQube: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAfter=2010-05-18\n");
   }
+
+  @Test
+  public void shouldNotAddFooterIfMissingProperties() {
+    Notification notification = new Notification("new-issues")
+      .setFieldValue("count", "32")
+      .setFieldValue("projectName", "Struts");
+
+    EmailMessage message = template.format(notification);
+    assertThat(message.getMessage()).doesNotContain("See it");
+  }
 }
