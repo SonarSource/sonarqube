@@ -160,7 +160,11 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
   }
 
   public List<Transition> outTransitions(Issue issue) {
-    return machine.state(issue.status()).outManualTransitions(issue);
+    State state = machine.state(issue.status());
+    if (state == null) {
+      throw new IllegalArgumentException("Unknown status: " + issue.status());
+    }
+    return state.outManualTransitions(issue);
   }
 
   public void doAutomaticTransition(DefaultIssue issue, IssueChangeContext issueChangeContext) {

@@ -48,12 +48,13 @@ public class ComponentDataPersister implements ScanPersister {
       String componentKey = componentEntry.getKey();
       Snapshot snapshot = componentEntry.getValue();
       for (Cache.Entry<Data> dataEntry : data.entries(componentKey)) {
-        if (dataEntry.value() != null) {
+        Data value = dataEntry.value();
+        if (value != null) {
           SnapshotDataDto dto = new SnapshotDataDto();
           dto.setSnapshotId(snapshot.getId());
           dto.setResourceId(snapshot.getResourceId());
           dto.setDataType(dataEntry.key());
-          dto.setData(dataEntry.value().writeString());
+          dto.setData(value.writeString());
           dao.insert(session, dto);
         }
       }

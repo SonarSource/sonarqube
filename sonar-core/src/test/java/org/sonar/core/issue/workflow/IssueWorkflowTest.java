@@ -105,6 +105,20 @@ public class IssueWorkflowTest {
   }
 
   @Test
+  public void should_fail_if_unknown_status_when_listing_transitions() throws Exception {
+    workflow.start();
+
+    DefaultIssue issue = new DefaultIssue().setStatus("xxx");
+    try {
+      workflow.outTransitions(issue);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Unknown status: xxx");
+    }
+  }
+
+
+  @Test
   public void should_do_automatic_transition() throws Exception {
     workflow.start();
 
@@ -178,7 +192,7 @@ public class IssueWorkflowTest {
 
 
   @Test
-  public void should_fail_if_unknown_status() throws Exception {
+  public void should_fail_if_unknown_status_on_automatic_trans() throws Exception {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()

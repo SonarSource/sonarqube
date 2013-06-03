@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 import java.util.Set;
 
