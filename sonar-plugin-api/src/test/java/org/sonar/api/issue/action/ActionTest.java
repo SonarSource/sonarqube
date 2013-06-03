@@ -37,21 +37,20 @@ public class ActionTest {
   Function function2 = mock(Function.class);
 
   @Test
-  public void test_builder() throws Exception {
-    Action transition = Action.builder("link-to-jira")
-      .conditions(condition1, condition2)
-      .functions(function1, function2)
-      .build();
-    assertThat(transition.key()).isEqualTo("link-to-jira");
-    assertThat(transition.conditions()).containsOnly(condition1, condition2);
-    assertThat(transition.functions()).containsOnly(function1, function2);
-  }
+  public void test_action() throws Exception {
+    Action action = new Action("link-to-jira")
+      .setConditions(condition1, condition2)
+      .setFunctions(function1, function2);
 
+    assertThat(action.key()).isEqualTo("link-to-jira");
+    assertThat(action.conditions()).containsOnly(condition1, condition2);
+    assertThat(action.functions()).containsOnly(function1, function2);
+  }
 
   @Test
   public void key_should_be_set() throws Exception {
     try {
-      Action.builder("").build();
+      new Action("");
       fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Action key must be set");
@@ -61,24 +60,23 @@ public class ActionTest {
   @Test
   public void should_verify_conditions() throws Exception {
     DefaultIssue issue = new DefaultIssue();
-    Action transition = Action.builder("link-to-jira")
-      .conditions(condition1, condition2)
-      .build();
+    Action action = new Action("link-to-jira")
+      .setConditions(condition1, condition2);
 
     when(condition1.matches(issue)).thenReturn(true);
     when(condition2.matches(issue)).thenReturn(false);
-    assertThat(transition.supports(issue)).isFalse();
+    assertThat(action.supports(issue)).isFalse();
 
     when(condition1.matches(issue)).thenReturn(true);
     when(condition2.matches(issue)).thenReturn(true);
-    assertThat(transition.supports(issue)).isTrue();
+    assertThat(action.supports(issue)).isTrue();
   }
 
   @Test
   public void test_equals_and_hashCode() throws Exception {
-    Action t1 = Action.create("link-to-jira");
-    Action t2 = Action.create("link-to-jira");
-    Action t3 = Action.create("comment");
+    Action t1 = new Action("link-to-jira");
+    Action t2 = new Action("link-to-jira");
+    Action t3 = new Action("comment");
 
     assertThat(t1).isEqualTo(t1);
     assertThat(t1).isEqualTo(t2);
@@ -89,7 +87,7 @@ public class ActionTest {
 
   @Test
   public void test_toString() throws Exception {
-    Action t1 = Action.create("link-to-jira");
+    Action t1 = new Action("link-to-jira");
     assertThat(t1.toString()).isEqualTo("link-to-jira");
   }
 

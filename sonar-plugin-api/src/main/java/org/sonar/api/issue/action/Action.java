@@ -21,32 +21,44 @@ package org.sonar.api.issue.action;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import org.sonar.api.ServerExtension;
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class Action implements ServerExtension {
+import static com.google.common.collect.Lists.newArrayList;
+
+public class Action {
 
   private final String key;
   private final List<Condition> conditions;
   private final List<Function> functions;
 
-  private Action(ActionBuilder builder) {
-    key = builder.key;
-    conditions = builder.conditions;
-    functions = builder.functions;
+  public Action(String key) {
+    this.key = key;
+    this.conditions = newArrayList();
+    this.functions = newArrayList();
+
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Action key must be set");
   }
 
   public String key() {
     return key;
   }
 
+  public Action setConditions(Condition... conditions) {
+    this.conditions.addAll(ImmutableList.copyOf(conditions));
+    return this;
+  }
+
   public List<Condition> conditions() {
     return conditions;
+  }
+
+  public Action setFunctions(Function... functions) {
+    this.functions.addAll(ImmutableList.copyOf(functions));
+    return this;
   }
 
   public List<Function> functions() {
@@ -87,36 +99,4 @@ public class Action implements ServerExtension {
     return key;
   }
 
-  public static Action create(String key) {
-    return builder(key).build();
-  }
-
-  public static ActionBuilder builder(String key) {
-    return new ActionBuilder(key);
-  }
-
-  public static class ActionBuilder {
-    private final String key;
-    private List<Condition> conditions = Lists.newArrayList();
-    private List<Function> functions = Lists.newArrayList();
-
-    private ActionBuilder(String key) {
-      this.key = key;
-    }
-
-    public ActionBuilder conditions(Condition... c) {
-      this.conditions.addAll(Arrays.asList(c));
-      return this;
-    }
-
-    public ActionBuilder functions(Function... f) {
-      this.functions.addAll(Arrays.asList(f));
-      return this;
-    }
-
-    public Action build() {
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Action key must be set");
-      return new Action(this);
-    }
-  }
 }

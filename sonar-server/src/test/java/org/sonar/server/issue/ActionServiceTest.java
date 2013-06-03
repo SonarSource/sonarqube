@@ -27,7 +27,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
-import org.sonar.api.issue.action.Action;
+import org.sonar.api.issue.action.Actions;
 import org.sonar.api.issue.action.Function;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -39,7 +39,6 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -56,7 +55,7 @@ public class ActionServiceTest {
   private PropertiesDao propertiesDao;
   private Settings settings;
 
-  private List<Action> actions;
+  private Actions actions;
   private ActionService actionService;
 
   @Before
@@ -66,7 +65,7 @@ public class ActionServiceTest {
     updater = mock(IssueUpdater.class);
     propertiesDao = mock(PropertiesDao.class);
     settings = new Settings();
-    actions = newArrayList();
+    actions = new Actions();
     actionService = new ActionService(finder, issueStorage, updater, settings, propertiesDao, actions);
   }
 
@@ -83,7 +82,7 @@ public class ActionServiceTest {
     when(issueQueryResult.component(issue)).thenReturn(project);
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
-    actions.add(Action.builder("link-to-jira").conditions(new AlwaysMatch()).functions(function1, function2).build());
+    actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function1, function2);
 
     assertThat(actionService.execute("ABCD", "link-to-jira", mock(UserSession.class))).isNotNull();
 
@@ -107,7 +106,7 @@ public class ActionServiceTest {
 
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
-    actions.add(Action.builder("link-to-jira").conditions(new AlwaysMatch()).functions(function).build());
+    actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
     assertThat(actionService.execute("ABCD", "link-to-jira", userSession)).isNotNull();
 
     verify(updater).addComment(eq(issue), eq("New tweet on issue ABCD"), any(IssueChangeContext.class));
@@ -121,7 +120,7 @@ public class ActionServiceTest {
     IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(Collections.<Issue>emptyList());
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
-    actions.add(Action.builder("link-to-jira").conditions(new AlwaysMatch()).functions(function).build());
+    actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
     try {
     actionService.execute("ABCD", "link-to-jira", mock(UserSession.class));
     } catch (Exception e){
@@ -138,7 +137,7 @@ public class ActionServiceTest {
     IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(newArrayList(issue));
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
-    actions.add(Action.builder("link-to-jira").conditions(new AlwaysMatch()).functions(function).build());
+    actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
     try {
       actionService.execute("ABCD", "tweet", mock(UserSession.class));
     } catch (Exception e){
@@ -155,7 +154,7 @@ public class ActionServiceTest {
     IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(newArrayList(issue));
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
-    actions.add(Action.builder("link-to-jira").conditions(new NeverMatch()).functions(function).build());
+    actions.add("link-to-jira").setConditions(new NeverMatch()).setFunctions(function);
     try {
       actionService.execute("ABCD", "link-to-jira", mock(UserSession.class));
     } catch (Exception e){
@@ -170,11 +169,9 @@ public class ActionServiceTest {
     IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(newArrayList(issue));
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
-    Action action1 = Action.builder("link-to-jira").conditions(new AlwaysMatch()).build();
-    actions.add(action1);
-    Action action2 = Action.builder("tweet").conditions(new NeverMatch()).build();
-    actions.add(action2);
-    assertThat(actionService.listAvailableActions("ABCD")).containsOnly(action1);
+    actions.add("link-to-jira").setConditions(new AlwaysMatch());
+    actions.add("tweet").setConditions(new NeverMatch());
+    assertThat(actionService.listAvailableActions("ABCD")).hasSize(1);
   }
 
   @Test
@@ -182,8 +179,8 @@ public class ActionServiceTest {
     IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(Collections.<Issue>emptyList());
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
-    actions.add(Action.builder("link-to-jira").conditions(new AlwaysMatch()).build());
-    actions.add(Action.builder("tweet").conditions(new NeverMatch()).build());
+    actions.add("link-to-jira").setConditions(new AlwaysMatch());
+    actions.add("tweet").setConditions(new NeverMatch());
     try {
       actionService.listAvailableActions("ABCD");
       fail();
@@ -198,7 +195,6 @@ public class ActionServiceTest {
     IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(newArrayList(issue));
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
-    actionService = new ActionService(finder, issueStorage, updater, settings, propertiesDao);
     assertThat(actionService.listAvailableActions("ABCD")).isEmpty();
   }
 

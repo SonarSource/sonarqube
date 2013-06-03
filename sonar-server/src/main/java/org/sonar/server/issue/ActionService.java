@@ -31,6 +31,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.action.Action;
+import org.sonar.api.issue.action.Actions;
 import org.sonar.api.issue.action.Function;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
@@ -44,7 +45,6 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -57,9 +57,9 @@ public class ActionService implements ServerComponent {
   private final IssueUpdater updater;
   private final Settings settings;
   private final PropertiesDao propertiesDao;
-  private final List<Action> actions;
+  private final Actions actions;
 
-  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao, List<Action> actions) {
+  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao, Actions actions) {
     this.finder = finder;
     this.issueStorage = issueStorage;
     this.updater = updater;
@@ -68,12 +68,8 @@ public class ActionService implements ServerComponent {
     this.actions = actions;
   }
 
-  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao) {
-    this(finder, issueStorage, updater, settings, propertiesDao, Collections.<Action>emptyList());
-  }
-
   public List<Action> listAvailableActions(final Issue issue) {
-    return newArrayList(Iterables.filter(actions, new Predicate<Action>() {
+    return newArrayList(Iterables.filter(actions.list(), new Predicate<Action>() {
       @Override
       public boolean apply(Action action) {
         return action.supports(issue);
@@ -124,7 +120,7 @@ public class ActionService implements ServerComponent {
 
   @CheckForNull
   private Action getAction(final String actionKey) {
-    return Iterables.find(actions, new Predicate<Action>() {
+    return Iterables.find(actions.list(), new Predicate<Action>() {
       @Override
       public boolean apply(Action action) {
         return action.key().equals(actionKey);
