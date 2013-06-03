@@ -44,4 +44,8 @@ public interface IssueClient {
 
   Issue doTransition(String issueKey, String transition);
 
+  List<String> actions(String issueKey);
+
+  Issue doAction(String issueKey, String action);
+
 }

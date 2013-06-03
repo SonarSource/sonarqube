@@ -109,7 +109,7 @@ public class DefaultIssueClient implements IssueClient {
     Map<String, Object> queryParams = EncodingUtils.toMap("issue", issueKey);
     HttpRequest request = requestFactory.get("/api/issues/transitions", queryParams);
     if (!request.ok()) {
-      throw new IllegalStateException("Fail to return transition for issue. Bad HTTP response status: " + request.code());
+      throw new IllegalStateException("Fail to return transitions for issue. Bad HTTP response status: " + request.code());
     }
     String json = request.body("UTF-8");
     return parser.parseTransitions(json);
@@ -121,6 +121,27 @@ public class DefaultIssueClient implements IssueClient {
     HttpRequest request = requestFactory.post("/api/issues/do_transition", params);
     if (!request.ok()) {
       throw new IllegalStateException("Fail to execute transition on issue " + issueKey + ".Bad HTTP response status: " + request.code());
+    }
+    return createIssueResult(request);
+  }
+
+  @Override
+  public List<String> actions(String issueKey) {
+    Map<String, Object> queryParams = EncodingUtils.toMap("issue", issueKey);
+    HttpRequest request = requestFactory.get("/api/issues/actions", queryParams);
+    if (!request.ok()) {
+      throw new IllegalStateException("Fail to return actions for issue. Bad HTTP response status: " + request.code());
+    }
+    String json = request.body("UTF-8");
+    return parser.parseActions(json);
+  }
+
+  @Override
+  public Issue doAction(String issueKey, String action) {
+    Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "actionKey", action);
+    HttpRequest request = requestFactory.post("/api/issues/do_action", params);
+    if (!request.ok()) {
+      throw new IllegalStateException("Fail to execute action on issue " + issueKey + ".Bad HTTP response status: " + request.code());
     }
     return createIssueResult(request);
   }

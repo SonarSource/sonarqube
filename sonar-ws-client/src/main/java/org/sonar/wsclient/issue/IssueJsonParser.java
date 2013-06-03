@@ -112,4 +112,14 @@ class IssueJsonParser {
     }
     return transitions;
   }
+
+  List<String> parseActions(String json) {
+    List<String> actions = new ArrayList<String>();
+    Map jRoot = (Map) JSONValue.parse(json);
+    List<String> jActions = (List) jRoot.get("actions");
+    for (String jAction : jActions) {
+      actions.add(jAction);
+    }
+    return actions;
+  }
 }

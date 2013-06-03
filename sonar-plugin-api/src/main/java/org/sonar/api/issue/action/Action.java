@@ -22,14 +22,14 @@ package org.sonar.api.issue.action;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerExtension;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class Action implements ServerComponent {
+public class Action implements ServerExtension {
 
   private final String key;
   private final List<Condition> conditions;

@@ -179,4 +179,34 @@ public class DefaultIssueClientTest {
     assertThat(comment.login()).isEqualTo("admin");
     assertThat(comment.createdAt().getDate()).isEqualTo(18);
   }
+
+  @Test
+  public void should_get_actions() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+    httpServer.doReturnBody("{\n" +
+      "  \"actions\": [\n" +
+      "    \"link-to-jira\",\n" +
+      "    \"tweet\"\n" +
+      "  ]\n" +
+      "}");
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    List<String> actions = client.actions("ABCDE");
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/actions?issue=ABCDE");
+    assertThat(actions).hasSize(2);
+    assertThat(actions).containsOnly("link-to-jira", "tweet");
+  }
+
+  @Test
+  public void should_apply_action() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    Issue result = client.doAction("ABCDE", "tweet");
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_action?issue=ABCDE&actionKey=tweet");
+    assertThat(result).isNotNull();
+  }
 }

@@ -92,7 +92,9 @@
 
       <%
          transitions = Internal.issues.listTransitions(issue)
-         if transitions.size > 0 && transitions.first
+
+         # Display only the first transition
+         if !transitions.empty? && transitions.first
            transition = transitions.first
       %>
         <%= image_tag 'sep12.png' -%>
@@ -101,7 +103,10 @@
       <% end %>
 
       <%
-         if transitions.size > 1 || !issue.resolution
+         plugin_actions = Internal.issues.listActions(issue)
+         puts "### "
+         shouldDisplayDropDown = transitions.size > 1 || !issue.resolution || !plugin_actions.empty?
+         if shouldDisplayDropDown
            transitions.remove(0)
       %>
         <div class="dropdown">
@@ -112,9 +117,20 @@
                 <a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a>
               </li>
             <% end %>
-            <% transitions.each do |transition| %>
+
+            <%
+               # Display remaining transitions
+               transitions.each do |transition| %>
               <li>
                 <a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a>
+              </li>
+            <% end %>
+
+            <%
+               # Display actions defined by plugins
+               plugin_actions.each do |action| %>
+              <li>
+                <a href="#" onclick="return doPluginIssueAction(this, '<%= action.key -%>')" class="link-action spacer-right"><%= message("issue.action.#{action.key}.formlink") -%></a>
               </li>
             <% end %>
           </ul>

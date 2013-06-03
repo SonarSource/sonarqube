@@ -81,6 +81,9 @@ class IssueController < ApplicationController
       Internal.issues.plan(issue_key, params[:plan])
     elsif action_type=='unplan'
       Internal.issues.plan(issue_key, nil)
+    else
+      # Execute action defined by plugin
+      Internal.issues.executeAction(issue_key, action_type)
     end
 
     @issue_results = Api.issues.find(issue_key)

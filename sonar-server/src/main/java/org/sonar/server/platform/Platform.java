@@ -22,9 +22,6 @@ package org.sonar.server.platform;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.action.Action;
-import org.sonar.api.issue.condition.HasResolution;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.Server;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -37,7 +34,6 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.UriReader;
-import org.sonar.api.workflow.function.CommentFunction;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.GwtI18n;
@@ -211,7 +207,7 @@ public final class Platform {
    */
   private void startServiceComponents() {
     servicesContainer = coreContainer.createChild();
-    servicesContainer.addSingleton(DefaultActions.class);
+
     servicesContainer.addSingleton(HttpDownloader.class);
     servicesContainer.addSingleton(UriReader.class);
     servicesContainer.addSingleton(UpdateCenterClient.class);
@@ -274,13 +270,6 @@ public final class Platform {
     servicesContainer.addSingleton(ActionPlanService.class);
     servicesContainer.addSingleton(IssueNotifications.class);
     servicesContainer.addSingleton(ActionService.class);
-
-    // TODO only for test
-    servicesContainer.addSingleton(Action.builder("fake")
-      .conditions(new HasResolution(Issue.RESOLUTION_FIXED))
-      .functions(new CommentFunction())
-      .build()
-    );
 
     // rules
     servicesContainer.addSingleton(RubyRuleService.class);

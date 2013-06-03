@@ -40,9 +40,9 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -52,7 +52,6 @@ public class ActionService implements ServerComponent {
   private final IssueStorage issueStorage;
   private final IssueUpdater updater;
   private final List<Action> actions;
-//  private final DefaultActions actions;
 
   public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater, List<Action> actions) {
     this.finder = finder;
@@ -61,10 +60,11 @@ public class ActionService implements ServerComponent {
     this.actions = actions;
   }
 
-  public List<Action> listAvailableActions(String issueKey) {
-    IssueQueryResult queryResult = loadIssue(issueKey);
-    final DefaultIssue issue = (DefaultIssue) queryResult.first();
+  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater) {
+    this(finder, issueStorage, updater, Collections.<Action>emptyList());
+  }
 
+  public List<Action> listAvailableActions(final Issue issue) {
     return newArrayList(Iterables.filter(actions, new Predicate<Action>() {
       @Override
       public boolean apply(Action action) {
@@ -73,32 +73,31 @@ public class ActionService implements ServerComponent {
     }));
   }
 
-  @CheckForNull
-  public Action getAction(final String actionKey) {
-    return Iterables.find(actions, new Predicate<Action>() {
-      @Override
-      public boolean apply(Action action) {
-        return action.key().equals(actionKey);
-      }
-    }, null);
+  public List<Action> listAvailableActions(String issueKey) {
+    IssueQueryResult queryResult = loadIssue(issueKey);
+    final DefaultIssue issue = (DefaultIssue) queryResult.first();
+    if (issue == null) {
+      throw new IllegalArgumentException("Issue is not found : " + issueKey);
+    }
+
+    return listAvailableActions(issue);
   }
 
-  public Issue execute(String issueKey, String actionKey, UserSession userSession, Map<String, String> parameters) {
   public Issue execute(String issueKey, String actionKey, UserSession userSession) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(actionKey), "Missing action");
 
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
     if (issue == null) {
-      throw new IllegalStateException("Issue is not found : " + issueKey);
+      throw new IllegalArgumentException("Issue is not found : " + issueKey);
     }
 
     Action action = getAction(actionKey);
     if (action == null) {
-      throw new IllegalStateException("Action is not found : " + actionKey);
+      throw new IllegalArgumentException("Action is not found : " + actionKey);
     }
     if (!action.supports(issue)) {
-      throw new IllegalStateException("A condition is not respected.");
+      throw new IllegalStateException("A condition is not respected");
     }
 
     IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(), userSession.login());
@@ -113,6 +112,16 @@ public class ActionService implements ServerComponent {
   public IssueQueryResult loadIssue(String issueKey) {
     IssueQuery query = IssueQuery.builder().issueKeys(newArrayList(issueKey)).requiredRole(UserRole.USER).build();
     return finder.find(query);
+  }
+
+  @CheckForNull
+  private Action getAction(final String actionKey) {
+    return Iterables.find(actions, new Predicate<Action>() {
+      @Override
+      public boolean apply(Action action) {
+        return action.key().equals(actionKey);
+      }
+    }, null);
   }
 
   static class FunctionContext implements Function.Context {
@@ -130,11 +139,6 @@ public class ActionService implements ServerComponent {
     @Override
     public Issue issue() {
       return issue;
-    }
-
-    @Override
-    public Map<String, String> parameters() {
-      return parameters;
     }
 
     @Override

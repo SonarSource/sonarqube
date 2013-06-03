@@ -93,6 +93,12 @@ function doIssueAction(elt, action, parameters) {
   return false;
 }
 
+// Used for actions defined by plugins
+function doPluginIssueAction(elt, action) {
+  var parameters = {};
+  return doIssueAction(elt, action, parameters)
+}
+
 function assignIssueToMe(elt) {
   var parameters = {'me': true};
   return doIssueAction(elt, 'assign', parameters)
