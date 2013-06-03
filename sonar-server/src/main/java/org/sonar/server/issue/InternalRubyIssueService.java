@@ -75,7 +75,7 @@ public class InternalRubyIssueService implements ServerComponent {
     this.actionService = actionService;
   }
 
-  public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params){
+  public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params) {
     return issueStatsFinder.findIssueAssignees(PublicRubyIssueService.toQuery(params));
   }
 
@@ -100,24 +100,54 @@ public class InternalRubyIssueService implements ServerComponent {
     return changeService.changelog(issueKey);
   }
 
-  public Issue doTransition(String issueKey, String transitionKey) {
-    return issueService.doTransition(issueKey, transitionKey, UserSession.get());
+  public Result<Issue> doTransition(String issueKey, String transitionKey) {
+    Result<Issue> result = Result.of();
+    try {
+      result.set(issueService.doTransition(issueKey, transitionKey, UserSession.get()));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
   }
 
-  public Issue assign(String issueKey, @Nullable String assignee) {
-    return issueService.assign(issueKey, StringUtils.defaultIfBlank(assignee, null), UserSession.get());
+  public Result<Issue> assign(String issueKey, @Nullable String assignee) {
+    Result<Issue> result = Result.of();
+    try {
+      result.set(issueService.assign(issueKey, StringUtils.defaultIfBlank(assignee, null), UserSession.get()));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
   }
 
-  public Issue setSeverity(String issueKey, String severity) {
-    return issueService.setSeverity(issueKey, severity, UserSession.get());
+  public Result<Issue> setSeverity(String issueKey, String severity) {
+    Result<Issue> result = Result.of();
+    try {
+      result.set(issueService.setSeverity(issueKey, severity, UserSession.get()));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
   }
 
-  public Issue plan(String issueKey, @Nullable String actionPlanKey) {
-    return issueService.plan(issueKey, actionPlanKey, UserSession.get());
+  public Result<Issue> plan(String issueKey, @Nullable String actionPlanKey) {
+    Result<Issue> result = Result.of();
+    try {
+      result.set(issueService.plan(issueKey, actionPlanKey, UserSession.get()));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
   }
 
-  public IssueComment addComment(String issueKey, String text) {
-    return changeService.addComment(issueKey, text, UserSession.get());
+  public Result<IssueComment> addComment(String issueKey, String text) {
+    Result<IssueComment> result = Result.of();
+    try {
+      result.set(changeService.addComment(issueKey, text, UserSession.get()));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
   }
 
   public IssueComment deleteComment(String commentKey) {
@@ -312,15 +342,25 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
-  public Issue executeAction(String issueKey, String actionKey) {
-    return actionService.execute(issueKey, actionKey, UserSession.get());
+  public Result<Issue> executeAction(String issueKey, String actionKey) {
+    // TODO verify authorization
+
+    Result<Issue> result = Result.of();
+    try {
+      result.set(actionService.execute(issueKey, actionKey, UserSession.get()));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+      result.addError(e.getMessage());
+    }
+    return result;
   }
 
-  public List<Action> listActions(String issueKey){
+  public List<Action> listActions(String issueKey) {
     return actionService.listAvailableActions(issueKey);
   }
 
   public List<Action> listActions(Issue issue) {
     return actionService.listAvailableActions(issue);
   }
+
 }

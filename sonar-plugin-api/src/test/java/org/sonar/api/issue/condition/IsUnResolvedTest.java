@@ -17,41 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.workflow.condition;
 
-import org.junit.Rule;
+package org.sonar.api.issue.condition;
+
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.workflow.Review;
-import org.sonar.api.workflow.WorkflowContext;
-
-import javax.annotation.Nullable;
+import org.sonar.api.issue.internal.DefaultIssue;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ProjectPropertyConditionTest {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+public class IsUnResolvedTest {
+
+  DefaultIssue issue = new DefaultIssue();
 
   @Test
-  public void getPropertyKey() {
-    ProjectPropertyCondition condition = new ProjectPropertyCondition("foo") {
-      @Override
-      public boolean doVerify(Review review, WorkflowContext context) {
-        return false;
-      }
-    };
-    assertThat(condition.getPropertyKey()).isEqualTo("foo");
-  }
+  public void should_match() throws Exception {
+    IsUnResolved condition = new IsUnResolved();
 
-  @Test
-  public void keyIsMandatory() {
-    thrown.expect(IllegalArgumentException.class);
-    new ProjectPropertyCondition(""){
-      @Override
-      public boolean doVerify(@Nullable Review review, WorkflowContext context) {
-        return false;
-      }
-    };
+    assertThat(condition.matches(issue)).isTrue();
+    assertThat(condition.matches(issue.setResolution("FIXED"))).isFalse();
   }
 }

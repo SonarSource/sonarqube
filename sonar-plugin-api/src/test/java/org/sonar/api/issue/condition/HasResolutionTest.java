@@ -20,6 +20,7 @@
 package org.sonar.api.issue.condition;
 
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -30,13 +31,11 @@ public class HasResolutionTest {
 
   @Test
   public void should_match() throws Exception {
-    HasResolution condition = new HasResolution("OPEN", "FIXED", "FALSE-POSITIVE");
+    HasResolution condition = new HasResolution(Issue.RESOLUTION_FIXED, Issue.RESOLUTION_FALSE_POSITIVE);
 
-    assertThat(condition.matches(issue.setResolution("OPEN"))).isTrue();
     assertThat(condition.matches(issue.setResolution("FIXED"))).isTrue();
     assertThat(condition.matches(issue.setResolution("FALSE-POSITIVE"))).isTrue();
 
-    assertThat(condition.matches(issue.setResolution("open"))).isFalse();
     assertThat(condition.matches(issue.setResolution("Fixed"))).isFalse();
   }
 }

@@ -61,6 +61,7 @@
   <% end %>
 
   <% if current_user %>
+
     <div class="code-issue-actions">
       <a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right"><%= message('issue.comment.formlink') -%></a>
       <% unless issue.resolution %>
@@ -104,7 +105,6 @@
 
       <%
          plugin_actions = Internal.issues.listActions(issue)
-         puts "### "
          shouldDisplayDropDown = transitions.size > 1 || !issue.resolution || !plugin_actions.empty?
          if shouldDisplayDropDown
            transitions.remove(0)

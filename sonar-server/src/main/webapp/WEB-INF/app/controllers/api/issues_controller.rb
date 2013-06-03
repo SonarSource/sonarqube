@@ -73,14 +73,8 @@ class Api::IssuesController < Api::ApiController
     verify_post_request
     require_parameters :issue, :transition
 
-    issue = Internal.issues.doTransition(params[:issue], params[:transition])
-    if issue
-      render :json => jsonp({
-                              :issue => Issue.to_hash(issue)
-                            })
-    else
-      render :status => 400
-    end
+    result = Internal.issues.doTransition(params[:issue], params[:transition])
+    render_result_issue(result)
   end
 
   #
@@ -98,8 +92,17 @@ class Api::IssuesController < Api::ApiController
     require_parameters :issue, :text
 
     text = Api::Utils.read_post_request_param(params[:text])
-    comment = Internal.issues.addComment(params[:issue], text)
-    render :json => jsonp({:comment => Issue.comment_to_hash(comment)})
+    result = Internal.issues.addComment(params[:issue], text)
+
+    http_status = (result.ok ? 200 : 400)
+    hash = result_to_hash(result)
+    hash[:comment] = Issue.comment_to_hash(result.get) if result.get
+
+    respond_to do |format|
+      # if the request header "Accept" is "*/*", then the default format is the first one (json)
+      format.json { render :json => jsonp(hash), :status => result.httpStatus }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
+    end
   end
 
   #
@@ -151,8 +154,8 @@ class Api::IssuesController < Api::ApiController
     verify_post_request
     require_parameters :issue
 
-    issue = Internal.issues.assign(params[:issue], params[:assignee])
-    render :json => jsonp({:issue => Issue.to_hash(issue)})
+    result = Internal.issues.assign(params[:issue], params[:assignee])
+    render_result_issue(result)
   end
 
 
@@ -168,9 +171,8 @@ class Api::IssuesController < Api::ApiController
     verify_post_request
     require_parameters :issue, :severity
 
-    issue = Internal.issues.setSeverity(params[:issue], params[:severity])
-
-    render :json => jsonp({:issue => Issue.to_hash(issue)})
+    result = Internal.issues.setSeverity(params[:issue], params[:severity])
+    render_result_issue(result)
   end
 
   #
@@ -188,9 +190,8 @@ class Api::IssuesController < Api::ApiController
 
     plan = nil
     plan = params[:plan] if params[:plan] && !params[:plan].blank?
-    issue = Internal.issues.plan(params[:issue], plan)
-
-    render :json => jsonp({:issue => Issue.to_hash(issue)})
+    result = Internal.issues.plan(params[:issue], plan)
+    render_result_issue(result)
   end
 
   #
@@ -214,16 +215,7 @@ class Api::IssuesController < Api::ApiController
     verify_post_request
 
     issue_result = Internal.issues.create(params)
-
-    http_status = (issue_result.ok ? 200 : 400)
-    hash = result_to_hash(issue_result)
-    hash[:issue] = Issue.to_hash(issue_result.get) if issue_result.get
-
-    respond_to do |format|
-      # if the request header "Accept" is "*/*", then the default format is the first one (json)
-      format.json { render :json => jsonp(hash), :status => issue_result.httpStatus }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
-    end
+    render_result_issue(issue_result)
   end
 
   #
@@ -254,17 +246,24 @@ class Api::IssuesController < Api::ApiController
     verify_post_request
     require_parameters :issue, :actionKey
 
-    issue = Internal.issues.executeAction(params[:issue], params[:actionKey])
-    if issue
-      render :json => jsonp({
-                                :issue => Issue.to_hash(issue)
-                            })
-    else
-      render :status => 400
-    end
+    result = Internal.issues.executeAction(params[:issue], params[:actionKey])
+    render_result_issue(result)
   end
 
+
   protected
+
+  def render_result_issue(result)
+    http_status = (result.ok ? 200 : 400)
+    hash = result_to_hash(result)
+    hash[:issue] = Issue.to_hash(result.get) if result.get
+
+    respond_to do |format|
+      # if the request header "Accept" is "*/*", then the default format is the first one (json)
+      format.json { render :json => jsonp(hash), :status => result.httpStatus }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
+    end
+  end
 
   def component_to_hash(component)
     hash = {

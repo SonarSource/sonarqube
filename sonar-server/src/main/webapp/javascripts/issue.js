@@ -87,8 +87,7 @@ function doIssueAction(elt, action, parameters) {
       notifyIssueChange(issueKey);
     }
   ).fail(function (jqXHR, textStatus) {
-      closeIssueForm(elt);
-      alert(textStatus);
+      issueElt.find('.code-issue-actions').replaceWith(jqXHR.responseText);
     });
   return false;
 }

@@ -52,7 +52,7 @@ class IssueController < ApplicationController
     require_parameters :id, :issue
 
     @issue_result = Api.issues.find(params[:issue])
-    @issue = @issue_result.issues().get(0)
+    @issue = @issue_result.first
 
     bad_request('Unknown issue') unless @issue
 
@@ -69,25 +69,31 @@ class IssueController < ApplicationController
     issue_key = params[:issue]
 
     if action_type=='comment'
-      Internal.issues.addComment(issue_key, params[:text])
+      issue_result = Internal.issues.addComment(issue_key, params[:text])
     elsif action_type=='assign'
       assignee = (params[:me]=='true' ? current_user.login : params[:assignee])
-      Internal.issues.assign(issue_key, assignee)
+      issue_result = Internal.issues.assign(issue_key, assignee)
     elsif action_type=='transition'
-      Internal.issues.doTransition(issue_key, params[:transition])
+      issue_result = Internal.issues.doTransition(issue_key, params[:transition])
     elsif action_type=='severity'
-      Internal.issues.setSeverity(issue_key, params[:severity])
+      issue_result = Internal.issues.setSeverity(issue_key, params[:severity])
     elsif action_type=='plan'
-      Internal.issues.plan(issue_key, params[:plan])
+      issue_result = Internal.issues.plan(issue_key, params[:plan])
     elsif action_type=='unplan'
-      Internal.issues.plan(issue_key, nil)
+      issue_result = Internal.issues.plan(issue_key, nil)
     else
       # Execute action defined by plugin
-      Internal.issues.executeAction(issue_key, action_type)
+      issue_result = Internal.issues.executeAction(issue_key, action_type)
     end
 
-    @issue_results = Api.issues.find(issue_key)
-    render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
+    if issue_result.ok
+      @issue_results = Api.issues.find(issue_key)
+      render :partial => 'issue/issue', :locals => {:issue => @issue_results.first}
+    else
+      @errors = issue_result.errors
+      render :partial => 'issue/error', :status => issue_result.httpStatus
+    end
+
   end
 
   # Form used to edit comment

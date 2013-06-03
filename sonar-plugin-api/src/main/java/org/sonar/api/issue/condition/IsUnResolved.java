@@ -17,43 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.workflow.condition;
+package org.sonar.api.issue.condition;
 
-import com.google.common.annotations.Beta;
+import org.sonar.api.issue.Issue;
 
 /**
- * Static utility methods pertaining to {@link Condition} instances.
- *
- * @since 3.1
+ * @since 3.6
  */
-@Beta
-public final class Conditions {
+public class IsUnResolved implements Condition {
 
-  private Conditions() {
+  @Override
+  public boolean matches(Issue issue) {
+    return issue.resolution() == null;
   }
-
-  public static Condition not(Condition c) {
-    return new NotCondition(c);
-  }
-
-  public static Condition hasReviewProperty(String propertyKey) {
-    return new HasReviewPropertyCondition(propertyKey);
-  }
-
-  public static Condition hasProjectProperty(String propertyKey) {
-    return new HasProjectPropertyCondition(propertyKey);
-  }
-
-  public static Condition hasAdminRole() {
-    return new AdminRoleCondition();
-  }
-
-  public static Condition statuses(String... statuses) {
-    return new StatusCondition(statuses);
-  }
-
-  public static Condition resolutions(String... resolutions) {
-    return new ResolutionCondition(resolutions);
-  }
-
 }
