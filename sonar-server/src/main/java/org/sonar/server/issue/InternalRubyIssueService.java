@@ -350,7 +350,6 @@ public class InternalRubyIssueService implements ServerComponent {
       result.set(actionService.execute(issueKey, actionKey, UserSession.get()));
     } catch (Exception e) {
       result.addError(e.getMessage());
-      result.addError(e.getMessage());
     }
     return result;
   }
