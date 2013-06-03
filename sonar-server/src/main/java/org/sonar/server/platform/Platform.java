@@ -22,6 +22,7 @@ package org.sonar.server.platform;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.issue.action.Actions;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.Server;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -270,6 +271,7 @@ public final class Platform {
     servicesContainer.addSingleton(ActionPlanService.class);
     servicesContainer.addSingleton(IssueNotifications.class);
     servicesContainer.addSingleton(ActionService.class);
+    servicesContainer.addSingleton(Actions.class);
 
     // rules
     servicesContainer.addSingleton(RubyRuleService.class);
