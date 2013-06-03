@@ -240,7 +240,8 @@ public class IssueWorkflowTest {
 
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("confirm", "OPEN", "CONFIRMED"),
-      Transition.create("resolve", "OPEN", "RESOLVED")
+      Transition.create("resolve", "OPEN", "RESOLVED"),
+      Transition.create("falsepositive", "OPEN", "RESOLVED")
     );
 
     workflow.doTransition(issue, "resolve", mock(IssueChangeContext.class));
@@ -269,7 +270,8 @@ public class IssueWorkflowTest {
 
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("confirm", "OPEN", "CONFIRMED"),
-      Transition.create("resolve", "OPEN", "RESOLVED")
+      Transition.create("resolve", "OPEN", "RESOLVED"),
+      Transition.create("falsepositive", "OPEN", "RESOLVED")
     );
 
     workflow.doTransition(issue, "confirm", mock(IssueChangeContext.class));
@@ -278,7 +280,8 @@ public class IssueWorkflowTest {
 
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("unconfirm", "CONFIRMED", "REOPENED"),
-      Transition.create("resolve", "CONFIRMED", "RESOLVED")
+      Transition.create("resolve", "CONFIRMED", "RESOLVED"),
+      Transition.create("falsepositive", "CONFIRMED", "RESOLVED")
     );
 
     // keep confirmed and unresolved
