@@ -13,8 +13,6 @@
 <% end %>
 
 <div class="note">
-  <a href="#" onclick="return toggleIssueRule(this)"><%= message 'hide' -%></a><%= image_tag 'asc.png' -%>
-  &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
   <%= @rule.plugin_name -%>
   &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
   <a href="#" onclick="return openIssueRulePopup(this)"><%= @rule.plugin_rule_key -%></a>

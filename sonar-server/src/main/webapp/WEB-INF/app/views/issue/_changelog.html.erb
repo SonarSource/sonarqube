@@ -1,4 +1,4 @@
-<ul class="marginbottom10">
+<ul>
   <li>
     <%= format_datetime(@issue.creationDate()) -%>
     <% if @issue.reporter %>
@@ -13,7 +13,3 @@
   </li>
   <% end %>
 </ul>
-
-<div class="note">
-  <a href="#" onclick="return toggleIssueChangelog(this)"><%= message 'hide' -%></a><%= image_tag 'asc.png' -%>
-</div>
