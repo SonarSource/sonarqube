@@ -35,7 +35,6 @@ import org.sonar.core.i18n.RuleI18nManager;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Locale;
 import java.util.Map;
 
@@ -70,22 +69,27 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public Notification sendChanges(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component) {
-    if (issue.diffs() != null) {
-      Notification notification = createNotification(issue, context, rule, project, component, null);
+    Notification notification = createChangeNotification(issue, context, rule, project, component, null);
+    if (notification != null) {
       notificationsManager.scheduleForSending(notification);
-      return notification;
     }
-    return null;
+    return notification;
   }
 
   @CheckForNull
   public Notification sendChanges(DefaultIssue issue, IssueChangeContext context, IssueQueryResult queryResult, @Nullable String comment) {
-    Notification notification = createNotification(issue, context, queryResult.rule(issue), queryResult.project(issue), queryResult.component(issue), comment);
-    notificationsManager.scheduleForSending(notification);
+    Notification notification = createChangeNotification(issue, context, queryResult.rule(issue), queryResult.project(issue), queryResult.component(issue), comment);
+    if (notification != null) {
+      notificationsManager.scheduleForSending(notification);
+    }
     return notification;
   }
 
-  private Notification createNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component, @Nullable String comment){
+  @CheckForNull
+  private Notification createChangeNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component, @Nullable String comment) {
+    if (comment == null && (issue.diffs() == null || issue.diffs().diffs().isEmpty())) {
+      return null;
+    }
     Notification notification = newNotification(project, "issue-changes");
     notification.setFieldValue("key", issue.key());
     notification.setFieldValue("changeAuthor", context.login());

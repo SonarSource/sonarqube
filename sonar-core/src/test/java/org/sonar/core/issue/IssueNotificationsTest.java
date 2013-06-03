@@ -111,4 +111,21 @@ public class IssueNotificationsTest {
     assertThat(notification.getFieldValue("comment")).isEqualTo("I don't know how to fix it?");
     Mockito.verify(manager).scheduleForSending(notification);
   }
+
+  @Test
+  public void should_not_send_changes_if_no_diffs() throws Exception {
+    IssueChangeContext context = IssueChangeContext.createScan(new Date());
+    DefaultIssue issue = new DefaultIssue()
+      .setMessage("the message")
+      .setKey("ABCDE")
+      .setComponentKey("struts:Action")
+      .setProjectKey("struts");
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
+    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
+
+    Notification notification = issueNotifications.sendChanges(issue, context, queryResult, null);
+
+    assertThat(notification).isNull();
+    Mockito.verifyZeroInteractions(manager);
+  }
 }
