@@ -89,12 +89,13 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
               if review_id.present?
                 # has review
                 status = violation[11]
+                manual_violation = ActiveRecord::ConnectionAdapters::Column.value_to_boolean(violation[18])
                 issue.status=(status=='OPEN' ? 'CONFIRMED' : status)
                 issue.issue_update_date=violation[16] || one_year_ago
                 issue.updated_at=violation[16] || one_year_ago
                 issue.severity=violation[12] || 'MAJOR'
                 issue.manual_severity=violation[14]
-                issue.reporter=logins_by_id[violation[9].to_i] if violation[9].present?
+                issue.reporter=logins_by_id[violation[9].to_i] if (violation[9].present? && manual_violation)
                 issue.assignee=logins_by_id[violation[10].to_i] if violation[10].present?
 
                 plan_id = select_plan_id(review_id)
@@ -146,7 +147,7 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
     "select rev.id, s.project_id, rf.rule_id, rf.failure_level, rf.message, rf.line, rf.cost, rf.created_at,
            rf.checksum,
            rev.user_id, rev.assignee_id, rev.status, rev.severity, rev.resolution, rev.manual_severity, rev.data,
-           rev.updated_at, s.root_project_id
+           rev.updated_at, s.root_project_id, rev.manual_violation
     from rule_failures rf
     inner join snapshots s on s.id=rf.snapshot_id
     left join reviews rev on rev.rule_failure_permanent_id=rf.permanent_id
