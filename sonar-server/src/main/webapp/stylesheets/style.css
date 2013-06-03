@@ -853,7 +853,7 @@ ul.operations li img {
   vertical-align: text-bottom;
 }
 
-.code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form, .issue-more {
+.code-issue-comment, .code-issue-msg, .code-issue-actions, .code-issue-form, .issue-rule, .issue-changelog {
   background-color: #EFEFEF;
   border: 1px solid #DDD;
   border-top: none;

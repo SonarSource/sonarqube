@@ -289,3 +289,7 @@ ul.sidebar select, ul.sidebar input {
   border: 2px solid #4b9fd5;
   border-top: none;
 }
+
+.nolayout {
+  padding: 10px;
+}

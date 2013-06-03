@@ -467,3 +467,7 @@ function showDropdownMenuOnElement(elt) {
 
 //******************* HANDLING OF DROPDOWN MENUS [END] ******************* //
 
+function openPopup(url, popupId) {
+  window.open(url,popupId,'height=800,width=900,scrollbars=1,resizable=1');
+  return false;
+}

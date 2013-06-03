@@ -9,7 +9,7 @@
 
     <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= h message("severity.#{issue.severity}") -%>">
     &nbsp;
-    <a href="#" onclick="return showIssueRule(this)" class="rulename"><%= h Internal.rules.ruleL10nName(@issue_results.rule(issue)) -%></a>
+    <a href="#" onclick="return toggleIssueRule(this)" class="rulename"><%= h Internal.rules.ruleL10nName(@issue_results.rule(issue)) -%></a>
     &nbsp;
     <% if issue.resolution %>
       <%= image_tag 'sep12.png' -%>
@@ -24,7 +24,7 @@
     <% end %>
     <%= image_tag 'sep12.png' -%>
     &nbsp;
-    <a href="#" onclick="return showIssueChangelog(this)" class="gray"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
+    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
     &nbsp;
     <% if issue.reporter %>
       <%= image_tag 'sep12.png' -%>
@@ -34,7 +34,8 @@
     <% end %>
   </div>
 
-  <div class="issue-more" style="display: none"></div>
+  <div class="issue-rule" style="display: none"></div>
+  <div class="issue-changelog" style="display: none"></div>
 
   <% unless issue.message.blank? %>
     <div class="code-issue-msg">

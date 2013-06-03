@@ -195,39 +195,47 @@ function submitCreateIssueForm(elt) {
       errorsElt.html(jqXHR.responseText);
       errorsElt.removeClass('hidden');
     }
-  ).always(function() {
+  ).always(function () {
       loadingElt.addClass('hidden');
     });
   return false;
 }
 
-function hideIssueMore(elt) {
-  var issueElt = $j(elt).closest('[data-issue-key]');
-  var moreElt = issueElt.find('.issue-more');
-  moreElt.slideUp('fast');
+function toggleIssueRule(elt) {
+  var issueElt = $j(elt).closest('[data-issue-rule]');
+  var ruleElt = issueElt.find('.issue-rule');
+  if (ruleElt.is(':visible')) {
+    ruleElt.slideUp('fast');
+  } else {
+    issueElt.find('.issue-changelog').slideUp('fast');
+    var ruleKey = issueElt.attr('data-issue-rule');
+    $j.get(baseUrl + "/issue/rule/" + ruleKey, function (html) {
+      ruleElt.html(html);
+      ruleElt.slideDown('fast');
+    });
+  }
   return false;
 }
 
-function showIssueRule(elt) {
+function toggleIssueChangelog(elt) {
+  var issueElt = $j(elt).closest('[data-issue-key]');
+  var changelogElt = issueElt.find('.issue-changelog');
+  if (changelogElt.is(':visible')) {
+    changelogElt.slideUp('fast');
+  } else {
+    issueElt.find('.issue-rule').slideUp('fast');
+    var issueKey = issueElt.attr('data-issue-key');
+    $j.get(baseUrl + "/issue/changelog/" + issueKey, function (html) {
+      changelogElt.html(html);
+      changelogElt.slideDown('fast');
+    });
+  }
+  return false;
+}
+
+function openIssueRulePopup(elt) {
   var issueElt = $j(elt).closest('[data-issue-rule]');
   var ruleKey = issueElt.attr('data-issue-rule');
-  var moreElt = issueElt.find('.issue-more');
-  moreElt.slideUp('fast');
-  $j.get(baseUrl + "/issue/rule/" + ruleKey, function (html) {
-    moreElt.html(html);
-    moreElt.slideDown('fast');
-  });
-  return false;
-}
-
-function showIssueChangelog(elt) {
-  var issueElt = $j(elt).closest('[data-issue-key]');
-  var issueKey = issueElt.attr('data-issue-key');
-  var moreElt = issueElt.find('.issue-more');
-  moreElt.slideUp('fast');
-  $j.get(baseUrl + "/issue/changelog/" + issueKey, function (html) {
-    moreElt.html(html);
-    moreElt.slideDown('fast');
-  });
+  openPopup(baseUrl + "/rules/show/" + ruleKey + "?layout=false", 'rule');
   return false;
 }
