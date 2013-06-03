@@ -25,8 +25,8 @@ class MarkdownController < ApplicationController
   skip_before_filter :check_database_version, :check_authentication
   
   def help
-    verify_ajax_request
-    render :partial => 'markdown/help'
+    params[:layout] = 'false'
+    render :action => 'help'
   end
   
 end
