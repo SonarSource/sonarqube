@@ -99,6 +99,14 @@ public class Issue {
     return JsonUtils.getString(json, "assignee");
   }
 
+  /**
+   * SCM account
+   */
+  @CheckForNull
+  public String author() {
+    return JsonUtils.getString(json, "author");
+  }
+
   @CheckForNull
   public String actionPlan() {
     return JsonUtils.getString(json, "actionPlan");

@@ -49,6 +49,7 @@ public class IssueJsonParserTest {
     assertThat(first.message()).isEqualTo("the message");
     assertThat(first.effortToFix()).isEqualTo(4.2);
     assertThat(first.reporter()).isEqualTo("perceval");
+    assertThat(first.author()).isEqualTo("pirlouis");
     assertThat(first.actionPlan()).isEqualTo("9450b10c-e725-48b8-bf01-acdec751c491");
     assertThat(first.creationDate()).isNotNull();
     assertThat(first.updateDate()).isNotNull();
@@ -63,6 +64,7 @@ public class IssueJsonParserTest {
     assertThat(second.line()).isNull();
     assertThat(second.effortToFix()).isNull();
     assertThat(second.reporter()).isNull();
+    assertThat(second.author()).isNull();
     assertThat(second.attribute("JIRA")).isNull();
     assertThat(second.attributes()).isEmpty();
     assertThat(second.comments()).isEmpty();
