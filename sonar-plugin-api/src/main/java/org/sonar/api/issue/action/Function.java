@@ -19,6 +19,7 @@
  */
 package org.sonar.api.issue.action;
 
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 
 import javax.annotation.Nullable;
@@ -32,6 +33,8 @@ public interface Function {
 
   interface Context {
     Issue issue();
+
+    Settings projectSettings();
 
     Context setAttribute(String key, @Nullable String value);
 

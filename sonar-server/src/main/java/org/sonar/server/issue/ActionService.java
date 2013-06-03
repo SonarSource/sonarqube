@@ -25,6 +25,8 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.component.Component;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
@@ -35,6 +37,8 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -51,17 +55,21 @@ public class ActionService implements ServerComponent {
   private final DefaultIssueFinder finder;
   private final IssueStorage issueStorage;
   private final IssueUpdater updater;
+  private final Settings settings;
+  private final PropertiesDao propertiesDao;
   private final List<Action> actions;
 
-  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater, List<Action> actions) {
+  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao, List<Action> actions) {
     this.finder = finder;
     this.issueStorage = issueStorage;
     this.updater = updater;
+    this.settings = settings;
+    this.propertiesDao = propertiesDao;
     this.actions = actions;
   }
 
-  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater) {
-    this(finder, issueStorage, updater, Collections.<Action>emptyList());
+  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao) {
+    this(finder, issueStorage, updater, settings, propertiesDao, Collections.<Action>emptyList());
   }
 
   public List<Action> listAvailableActions(final Issue issue) {
@@ -101,7 +109,7 @@ public class ActionService implements ServerComponent {
     }
 
     IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(), userSession.login());
-    FunctionContext functionContext = new FunctionContext(updater, issue, changeContext);
+    FunctionContext functionContext = new FunctionContext(issue, updater, changeContext, getProjectSettings(queryResult.component(issue)));
     for (Function function : action.functions()) {
       function.execute(functionContext);
     }
@@ -124,21 +132,37 @@ public class ActionService implements ServerComponent {
     }, null);
   }
 
+  public Settings getProjectSettings(Component project) {
+    Settings projectSettings = new Settings(settings);
+    List<PropertyDto> properties = propertiesDao.selectProjectProperties(project.key());
+    for (PropertyDto dto : properties) {
+      projectSettings.setProperty(dto.getKey(), dto.getValue());
+    }
+    return projectSettings;
+  }
+
   static class FunctionContext implements Function.Context {
 
     private final DefaultIssue issue;
     private final IssueUpdater updater;
     private final IssueChangeContext changeContext;
+    private final Settings projectSettings;
 
-    FunctionContext(IssueUpdater updater, DefaultIssue issue, IssueChangeContext changeContext) {
+    FunctionContext(DefaultIssue issue, IssueUpdater updater, IssueChangeContext changeContext, Settings projectSettings) {
       this.updater = updater;
       this.issue = issue;
       this.changeContext = changeContext;
+      this.projectSettings = projectSettings;
     }
 
     @Override
     public Issue issue() {
       return issue;
+    }
+
+    @Override
+    public Settings projectSettings() {
+      return projectSettings;
     }
 
     @Override

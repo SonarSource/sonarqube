@@ -266,7 +266,6 @@
         <plugin>
           <groupId>org.codehaus.sonar</groupId>
           <artifactId>sonar-packaging-maven-plugin</artifactId>
-          <!-- TODO version has to be replaced by ${sonarJava.version} when update center release will be done -->
           <version>1.6</version>
         </plugin>
       </plugins>
