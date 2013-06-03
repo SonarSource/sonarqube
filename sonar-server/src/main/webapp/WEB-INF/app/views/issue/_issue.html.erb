@@ -1,10 +1,7 @@
 <div class="code-issue" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>" data-issue-rule="<%= issue.ruleKey().toString() -%>">
   <div class="code-issue-name">
     <div style="float: right">
-      <a target="issue"
-         href="<%= url_for :controller => 'issue', :action => 'show', :id => issue.key -%>">
-        <img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif">
-      </a>
+      <a href="#" onclick="return openIssuePopup(this)"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
     </div>
 
     <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= h message("severity.#{issue.severity}") -%>">

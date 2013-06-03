@@ -239,3 +239,10 @@ function openIssueRulePopup(elt) {
   openPopup(baseUrl + "/rules/show/" + ruleKey + "?layout=false", 'rule');
   return false;
 }
+
+function openIssuePopup(elt) {
+  var issueElt = $j(elt).closest('[data-issue-key]');
+  var issueKey = issueElt.attr('data-issue-key');
+  openPopup(baseUrl + "/issue/show/" + issueKey + "?layout=false", 'issue');
+  return false;
+}

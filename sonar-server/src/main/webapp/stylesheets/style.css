@@ -826,7 +826,7 @@ ul.operations li img {
 }
 
 .code-global-issues {
-  padding: 0 0 10px 0;
+  padding: 10px;
 }
 
 .code-issues {
@@ -881,16 +881,6 @@ ul.operations li img {
   color: #444;
   font-size: 12px;
 }
-
-
-
-
-
-
-
-
-
-
 
 .tab_header {
   border-bottom: 1px solid #DDD;
