@@ -54,7 +54,6 @@ class Api::ActionPlansController < Api::ApiController
   #
   def create
     verify_post_request
-    access_denied unless has_role?(:admin)
     require_parameters :project, :name
 
     result = Internal.issues.createActionPlan(params)
@@ -72,7 +71,6 @@ class Api::ActionPlansController < Api::ApiController
   #
   def delete
     verify_post_request
-    access_denied unless has_role?(:admin)
     require_parameters :key
 
     result = Internal.issues.deleteActionPlan(params[:key])
@@ -97,8 +95,7 @@ class Api::ActionPlansController < Api::ApiController
   #
   def update
     verify_post_request
-    access_denied unless has_role?(:admin)
-    require_parameters :key
+    require_parameters :key, :name
 
     result = Internal.issues.updateActionPlan(params[:key], params)
     render_result(result)
@@ -115,7 +112,6 @@ class Api::ActionPlansController < Api::ApiController
   #
   def close
     verify_post_request
-    access_denied unless has_role?(:admin)
     require_parameters :key
 
     result = Internal.issues.closeActionPlan(params[:key])
@@ -133,7 +129,6 @@ class Api::ActionPlansController < Api::ApiController
   #
   def open
     verify_post_request
-    access_denied unless has_role?(:admin)
     require_parameters :key
 
     result = Internal.issues.openActionPlan(params[:key])
