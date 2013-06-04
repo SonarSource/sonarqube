@@ -93,7 +93,6 @@ module ApplicationHelper
       end
   end
 
-  # TODO this method should be moved in resourceable.rb
   def qualifier_icon(object)
     qualifier=(object.respond_to?('qualifier') ? object.qualifier : object.to_s)
     if qualifier
