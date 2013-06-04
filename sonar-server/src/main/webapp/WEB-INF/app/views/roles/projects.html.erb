@@ -16,15 +16,15 @@
 <table class="data width100" id="default-project-roles">
   <thead>
   <tr>
-    <th>Role Membership For New <%= message("qualifiers.#{@qualifier}") -%></th>
-    <th width="35%">Users</th>
-    <th width="35%">Groups</th>
+    <th><%= message('projects_role.role') -%> <%= message("qualifiers.#{@qualifier}") -%></th>
+    <th width="35%"><%= message('global_role.users') -%></th>
+    <th width="35%"><%= message('global_role.groups') -%></th>
   </tr>
   </thead>
   <tbody>
 
   <tr class="even">
-    <td valign="top"><b>Role: Administrators</b><br/><span class="small gray">Ability to perform administration functions for a project by accessing its settings.</span>
+    <td valign="top"><b><%= message('projects_role.admin') -%></b><br/><span class="small gray"><%= message('projects_role.admin.desc') -%></span>
     </td>
     <td valign="top" style="word-break:break-all;width:35%;">
       <div style="vertical-align:top">
@@ -38,7 +38,7 @@
     </td>
   </tr>
   <tr class="odd">
-    <td valign="top"><b>Role: Users</b><br/><span class="small gray">Ability to navigate through every service of a project, except viewing source code and settings.</span>
+    <td valign="top"><b><%= message('projects_role.user') -%></b><br/><span class="small gray"><%= message('projects_role.user.desc') -%></span>
     </td>
     <td valign="top" style="word-break:break-all;width:35%;">
       <span id="u-user"><%= default_project_users('user', @qualifier).map{|u| h u.name}.join(', ') -%></span>
@@ -51,7 +51,7 @@
   </tr>
   <tr class="even">
     <td valign="top">
-      <b>Role: Code Viewers</b><br/><span class="small gray">Ability to view source code of a project.</span></td>
+      <b><%= message('projects_role.codeviewer') -%></b><br/><span class="small gray"><%= message('projects_role.user.desc') -%></span></td>
     <td valign="top" style="word-break:break-all;width:35%;">
       <span id="u-codeviewer"><%= default_project_users('codeviewer', @qualifier).map{|u| h u.name}.join(', ') -%></span>
       (<%= link_to "select", {:action => 'edit_default_project_users', :role => 'codeviewer', :redirect => 'projects', :qualifier => @qualifier}, :class => 'link-action', :id => 'selectu-codeviewer' -%>)
@@ -77,9 +77,9 @@
         <input type="submit" value="<%= message('search_verb') -%>" id="search_submit"/>
       </form>
     </th>
-    <th>Role: Administrators</th>
-    <th>Role: Users</th>
-    <th>Role: Code viewers</th>
+    <th><%= message('projects_role.admin') -%></th>
+    <th><%= message('projects_role.user') -%></th>
+    <th><%= message('projects_role.codeviewer') -%></th>
   </tr>
   </thead>
 
