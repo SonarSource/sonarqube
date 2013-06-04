@@ -36,7 +36,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueBuilder;
-import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -57,18 +56,20 @@ import java.util.Map;
 public class InternalRubyIssueService implements ServerComponent {
 
   private final IssueService issueService;
-  private final IssueChangeService changeService;
+  private final IssueCommentService commentService;
+  private final IssueChangelogService changelogService;
   private final ActionPlanService actionPlanService;
   private final IssueStatsFinder issueStatsFinder;
   private final ResourceDao resourceDao;
   private final ActionService actionService;
 
   public InternalRubyIssueService(IssueService issueService,
-                                  IssueChangeService changeService,
-                                  ActionPlanService actionPlanService,
+                                  IssueCommentService commentService,
+                                  IssueChangelogService changelogService, ActionPlanService actionPlanService,
                                   IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService) {
     this.issueService = issueService;
-    this.changeService = changeService;
+    this.commentService = commentService;
+    this.changelogService = changelogService;
     this.actionPlanService = actionPlanService;
     this.issueStatsFinder = issueStatsFinder;
     this.resourceDao = resourceDao;
@@ -95,9 +96,9 @@ public class InternalRubyIssueService implements ServerComponent {
     return Issue.RESOLUTIONS;
   }
 
-  public List<IssueChangeDto> changelog(String issueKey) {
+  public IssueChangelog changelog(String issueKey) {
     // TODO verify security
-    return changeService.changelog(issueKey);
+    return changelogService.changelog(issueKey, UserSession.get());
   }
 
   public Result<Issue> doTransition(String issueKey, String transitionKey) {
@@ -143,7 +144,7 @@ public class InternalRubyIssueService implements ServerComponent {
   public Result<IssueComment> addComment(String issueKey, String text) {
     Result<IssueComment> result = Result.of();
     try {
-      result.set(changeService.addComment(issueKey, text, UserSession.get()));
+      result.set(commentService.addComment(issueKey, text, UserSession.get()));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -151,15 +152,15 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public IssueComment deleteComment(String commentKey) {
-    return changeService.deleteComment(commentKey, UserSession.get());
+    return commentService.deleteComment(commentKey, UserSession.get());
   }
 
   public IssueComment editComment(String commentKey, String newText) {
-    return changeService.editComment(commentKey, newText, UserSession.get());
+    return commentService.editComment(commentKey, newText, UserSession.get());
   }
 
   public IssueComment findComment(String commentKey) {
-    return changeService.findComment(commentKey);
+    return commentService.findComment(commentKey);
   }
 
   /**

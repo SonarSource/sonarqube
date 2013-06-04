@@ -23,6 +23,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
@@ -63,16 +64,28 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void selectCommentByKey() {
+    setupData("shared");
+
+    DefaultIssueComment comment = dao.selectCommentByKey("FGHIJ");
+    assertThat(comment).isNotNull();
+    assertThat(comment.key()).isEqualTo("FGHIJ");
+    assertThat(comment.key()).isEqualTo("FGHIJ");
+    assertThat(comment.userLogin()).isEqualTo("arthur");
+
+    assertThat(dao.selectCommentByKey("UNKNOWN")).isNull();
+  }
+
+
+  @Test
   public void selectIssueChangelog() {
     setupData("shared");
 
-    List<IssueChangeDto> changes = dao.selectIssueChangelog("1000");
-    assertThat(changes).hasSize(3);
-
-    // chronological order
-    assertThat(changes.get(0).getId()).isEqualTo(100);
-    assertThat(changes.get(1).getId()).isEqualTo(101);
-    assertThat(changes.get(2).getId()).isEqualTo(102);
+    List<FieldDiffs> changelog = dao.selectChangelogByIssue("1000");
+    assertThat(changelog).hasSize(1);
+    assertThat(changelog.get(0).diffs()).hasSize(1);
+    assertThat(changelog.get(0).diffs().get("severity").newValue()).isEqualTo("BLOCKER");
+    assertThat(changelog.get(0).diffs().get("severity").oldValue()).isEqualTo("MAJOR");
   }
 
   @Test

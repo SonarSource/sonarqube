@@ -41,7 +41,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       throw new IllegalStateException("Severity can't be changed");
     }
     if (!Objects.equal(severity, issue.severity())) {
-      issue.setFieldDiff(context, "severity", issue.severity(), severity);
+      issue.setFieldChange(context, "severity", issue.severity(), severity);
       issue.setSeverity(severity);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -58,7 +58,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean setManualSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (!issue.manualSeverity() || !Objects.equal(severity, issue.severity())) {
-      issue.setFieldDiff(context, "severity", issue.severity(), severity);
+      issue.setFieldChange(context, "severity", issue.severity(), severity);
       issue.setSeverity(severity);
       issue.setManualSeverity(true);
       issue.setUpdateDate(context.date());
@@ -71,7 +71,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   public boolean assign(DefaultIssue issue, @Nullable String assignee, IssueChangeContext context) {
     String sanitizedAssignee = StringUtils.defaultIfBlank(assignee, null);
     if (!Objects.equal(sanitizedAssignee, issue.assignee())) {
-      issue.setFieldDiff(context, "assignee", issue.assignee(), sanitizedAssignee);
+      issue.setFieldChange(context, "assignee", issue.assignee(), sanitizedAssignee);
       issue.setAssignee(sanitizedAssignee);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -97,7 +97,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean setResolution(DefaultIssue issue, @Nullable String resolution, IssueChangeContext context) {
     if (!Objects.equal(resolution, issue.resolution())) {
-      issue.setFieldDiff(context, "resolution", issue.resolution(), resolution);
+      issue.setFieldChange(context, "resolution", issue.resolution(), resolution);
       issue.setResolution(resolution);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -108,7 +108,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean setStatus(DefaultIssue issue, String status, IssueChangeContext context) {
     if (!Objects.equal(status, issue.status())) {
-      issue.setFieldDiff(context, "status", issue.status(), status);
+      issue.setFieldChange(context, "status", issue.status(), status);
       issue.setStatus(status);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -119,7 +119,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean setAuthorLogin(DefaultIssue issue, @Nullable String authorLogin, IssueChangeContext context) {
     if (!Objects.equal(authorLogin, issue.authorLogin())) {
-      issue.setFieldDiff(context, "author", issue.authorLogin(), authorLogin);
+      issue.setFieldChange(context, "author", issue.authorLogin(), authorLogin);
       issue.setAuthorLogin(authorLogin);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -177,7 +177,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {
     String oldValue = issue.attribute(key);
     if (!Objects.equal(oldValue, value)) {
-      issue.setFieldDiff(context, key, oldValue, value);
+      issue.setFieldChange(context, key, oldValue, value);
       issue.setAttribute(key, value);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -189,7 +189,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   public boolean plan(DefaultIssue issue, @Nullable String actionPlanKey, IssueChangeContext context) {
     String sanitizedActionPlanKey = StringUtils.defaultIfBlank(actionPlanKey, null);
     if (!Objects.equal(sanitizedActionPlanKey, issue.actionPlanKey())) {
-      issue.setFieldDiff(context, "actionPlanKey", issue.actionPlanKey(), sanitizedActionPlanKey);
+      issue.setFieldChange(context, "actionPlanKey", issue.actionPlanKey(), sanitizedActionPlanKey);
       issue.setActionPlanKey(sanitizedActionPlanKey);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);

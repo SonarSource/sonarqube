@@ -26,11 +26,13 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
-
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,15 +47,21 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   public List<DefaultIssueComment> selectCommentsByIssues(SqlSession session, Collection<String> issueKeys) {
-    return selectByIssuesAndType(session, issueKeys, IssueChangeDto.TYPE_COMMENT);
+    List<DefaultIssueComment> comments = Lists.newArrayList();
+    for (IssueChangeDto dto : selectByIssuesAndType(session, issueKeys, IssueChangeDto.TYPE_COMMENT)) {
+      comments.add(dto.toComment());
+    }
+    return comments;
   }
 
-  public List<IssueChangeDto> selectIssueChangelog(String issueKey) {
+  public List<FieldDiffs> selectChangelogByIssue(String issueKey) {
     SqlSession session = mybatis.openSession();
     try {
-      IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-      return mapper.selectByIssue(issueKey);
-
+      List<FieldDiffs> result = Lists.newArrayList();
+      for (IssueChangeDto dto : selectByIssuesAndType(session, Arrays.asList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)) {
+        result.add(dto.toFieldDiffs());
+      }
+      return result;
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -72,17 +80,13 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     }
   }
 
-  List<DefaultIssueComment> selectByIssuesAndType(SqlSession session, Collection<String> issueKeys, String changeType) {
+  List<IssueChangeDto> selectByIssuesAndType(SqlSession session, Collection<String> issueKeys, String changeType) {
     Preconditions.checkArgument(issueKeys.size() < 1000, "Number of issue keys is greater than or equal 1000");
-    List<DefaultIssueComment> result = Lists.newArrayList();
-    if (!issueKeys.isEmpty()) {
-      IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-      List<IssueChangeDto> dtos = mapper.selectByIssuesAndType(issueKeys, changeType);
-      for (IssueChangeDto dto : dtos) {
-        result.add(dto.toComment());
-      }
+    if (issueKeys.isEmpty()) {
+      return Collections.emptyList();
     }
-    return result;
+    IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
+    return mapper.selectByIssuesAndType(issueKeys, changeType);
   }
 
   public boolean delete(String key) {

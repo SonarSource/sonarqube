@@ -1,15 +1,35 @@
-<ul>
-  <li>
-    <%= format_datetime(@issue.creationDate()) -%>
-    <% if @issue.reporter %>
-    - <%= message('issue.reported_by') -%> <%= @issue_results.user(@issue.reporter).name -%>
-    <% end %>
-    - <%= message('created') -%>
-  </li>
-
-  <% @changes.each do |change| %>
-  <li>
-    <%= format_datetime(change.createdAt()) -%> - <%= change.userLogin -%> - <%= change.changeData -%>
-  </li>
+<table class="spaced">
+  <tr>
+    <td class="thin left top" nowrap><%= format_datetime(@issue.creationDate()) -%></td>
+    <td class="thin left top"nowrap><%= @issue_results.user(@issue.reporter).name if @issue.reporter -%></td>
+    <td class="left top"><%= message('created') -%></td>
+  </tr>
+  <%
+     @changelog.changes.each do |change|
+       user = @changelog.user(change)
+  %>
+    <tr>
+      <td class="thin left top" nowrap><%= format_datetime(change.createdAt()) -%></td>
+      <td class="thin left top" nowrap><%= h(user.name()) if user -%></td>
+      <td class="left top">
+        <%
+           change.diffs.entrySet().each_with_index do |entry, index|
+             key = entry.getKey()
+             diff = entry.getValue()
+        %>
+          <% if index>0 %><br/><% end %>
+          <% if diff.newValue.present? %>
+            <%= message('issue.changelog.changed_to', :params => [message(key), diff.newValue()]) -%>
+          <% else %>
+            <%= message('issue.changelog.removed', :params => [message(key)]) -%>
+          <% end %>
+          <% if diff.oldValue.present? %>
+            (<%= message('issue.changelog.was', :params => [diff.oldValue]) -%>)
+          <% end %>
+        <% end %>
+      </td>
+    </tr>
   <% end %>
-</ul>
+</table>
+
+

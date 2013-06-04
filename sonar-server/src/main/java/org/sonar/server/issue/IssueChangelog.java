@@ -17,52 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
+package org.sonar.server.issue;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
-import org.sonar.api.user.UserQuery;
 
 import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 3.6
  */
-public class DefaultUserFinder implements UserFinder {
+public class IssueChangelog {
 
-  private final UserDao userDao;
+  private final List<FieldDiffs> changes;
+  private final Map<String, User> usersByLogin;
 
-  public DefaultUserFinder(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Override
-  @CheckForNull
-  public User findByLogin(String login) {
-    UserDto dto = userDao.selectUserByLogin(login);
-    return dto != null ? dto.toUser() : null;
-  }
-
-  @Override
-  public List<User> findByLogins(List<String> logins) {
-    List<UserDto> dtos = userDao.selectUsersByLogins(logins);
-    return toUsers(dtos);
-  }
-
-  @Override
-  public List<User> find(UserQuery query) {
-    List<UserDto> dtos = userDao.selectUsers(query);
-    return toUsers(dtos);
-  }
-
-  private List<User> toUsers(Collection<UserDto> dtos) {
-    List<User> users = Lists.newArrayList();
-    for (UserDto dto : dtos) {
-      users.add(dto.toUser());
+  public IssueChangelog(List<FieldDiffs> changes, Collection<User> users) {
+    this.changes = changes;
+    this.usersByLogin = Maps.newHashMap();
+    for (User user : users) {
+      usersByLogin.put(user.login(), user);
     }
-    return users;
+  }
+
+  public List<FieldDiffs> changes() {
+    return changes;
+  }
+
+  @CheckForNull
+  public User user(FieldDiffs change) {
+    if (change.userLogin() == null) {
+      return null;
+    }
+    return usersByLogin.get(change.userLogin());
   }
 }

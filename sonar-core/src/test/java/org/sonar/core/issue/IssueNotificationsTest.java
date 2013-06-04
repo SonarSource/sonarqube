@@ -74,8 +74,8 @@ public class IssueNotificationsTest {
       .setMessage("the message")
       .setKey("ABCDE")
       .setAssignee("freddy")
-      .setFieldDiff(context, "resolution", null, "FIXED")
-      .setFieldDiff(context, "status", "OPEN", "RESOLVED")
+      .setFieldChange(context, "resolution", null, "FIXED")
+      .setFieldChange(context, "status", "OPEN", "RESOLVED")
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
     DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));

@@ -25,7 +25,6 @@ import com.google.common.collect.Maps;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
@@ -79,7 +78,7 @@ public class FieldDiffs implements Serializable {
 
 
   @SuppressWarnings("unchecked")
-  public void setDiff(String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
+  public FieldDiffs setDiff(String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
     Diff diff = diffs.get(field);
     if (diff == null) {
       diff = new Diff(oldValue, newValue);
@@ -87,6 +86,7 @@ public class FieldDiffs implements Serializable {
     } else {
       diff.setNewValue(newValue);
     }
+    return this;
   }
 
   @Override

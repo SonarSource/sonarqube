@@ -91,7 +91,7 @@ public class SendIssueNotificationsPostJobTest {
     Rule rule = new Rule("squid", "AvoidCycles");
     DefaultIssue issue = new DefaultIssue()
       .setChanged(true)
-      .setFieldDiff(mock(IssueChangeContext.class), "severity", "MINOR", "BLOCKER")
+      .setFieldChange(mock(IssueChangeContext.class), "severity", "MINOR", "BLOCKER")
       .setRuleKey(ruleKey);
     when(issueCache.all()).thenReturn(Arrays.asList(issue));
     when(ruleFinder.findByKey(ruleKey)).thenReturn(rule);
@@ -110,7 +110,7 @@ public class SendIssueNotificationsPostJobTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
     DefaultIssue issue = new DefaultIssue()
       .setChanged(true)
-      .setFieldDiff(changeContext, "severity", "MINOR", "BLOCKER")
+      .setFieldChange(changeContext, "severity", "MINOR", "BLOCKER")
       .setRuleKey(ruleKey);
     when(issueCache.all()).thenReturn(Arrays.asList(issue));
     when(ruleFinder.findByKey(ruleKey)).thenReturn(null);

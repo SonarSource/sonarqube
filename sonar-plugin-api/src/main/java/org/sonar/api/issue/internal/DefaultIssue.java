@@ -63,16 +63,19 @@ public class DefaultIssue implements Issue {
   private String checksum;
   private Map<String, String> attributes = null;
   private String authorLogin = null;
-  private FieldDiffs diffs = null;
   private String actionPlanKey;
   private List<IssueComment> comments = null;
 
-  // functional dates
+  // FUNCTIONAL DATES
   private Date creationDate;
   private Date updateDate;
   private Date closeDate;
 
-  // The following states are used only during scan.
+
+  // FOLLOWING FIELDS ARE AVAILABLE ONLY DURING SCAN
+
+  // Current changes
+  private FieldDiffs currentChange = null;
 
   // true if the the issue did not exist in the previous scan.
   private boolean isNew = true;
@@ -348,20 +351,20 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
-  public DefaultIssue setFieldDiff(IssueChangeContext context, String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
+  public DefaultIssue setFieldChange(IssueChangeContext context, String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
     if (!Objects.equal(oldValue, newValue)) {
-      if (diffs == null) {
-        diffs = new FieldDiffs();
-        diffs.setUserLogin(context.login());
+      if (currentChange == null) {
+        currentChange = new FieldDiffs();
+        currentChange.setUserLogin(context.login());
       }
-      diffs.setDiff(field, oldValue, newValue);
+      currentChange.setDiff(field, oldValue, newValue);
     }
     return this;
   }
 
   @CheckForNull
-  public FieldDiffs diffs() {
-    return diffs;
+  public FieldDiffs currentChange() {
+    return currentChange;
   }
 
   public DefaultIssue addComment(DefaultIssueComment comment) {

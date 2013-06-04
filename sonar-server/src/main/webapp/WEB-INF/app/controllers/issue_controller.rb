@@ -193,7 +193,7 @@ class IssueController < ApplicationController
     require_parameters :id
     @issue_results = Api.issues.find(params[:id])
     @issue = @issue_results.first()
-    @changes = Internal.issues.changelog(params[:id])
+    @changelog = Internal.issues.changelog(params[:id])
     render :partial => 'issue/changelog'
   end
 

@@ -24,12 +24,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.user.User;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.user.UserSession;
 
+import java.util.Collections;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -39,19 +42,20 @@ import static org.mockito.Mockito.*;
 
 public class InternalRubyIssueServiceTest {
 
-  private InternalRubyIssueService internalRubyIssueService;
-  private IssueService issueService = mock(IssueService.class);
-  private IssueChangeService commentService = mock(IssueChangeService.class);
-  private ActionPlanService actionPlanService = mock(ActionPlanService.class);
-  private ResourceDao resourceDao = mock(ResourceDao.class);
-  private IssueStatsFinder issueStatsFinder = mock(IssueStatsFinder.class);
-  private ActionService actionService = mock(ActionService.class);
+  InternalRubyIssueService service;
+  IssueService issueService = mock(IssueService.class);
+  IssueCommentService commentService = mock(IssueCommentService.class);
+  IssueChangelogService changelogService = mock(IssueChangelogService.class);
+  ActionPlanService actionPlanService = mock(ActionPlanService.class);
+  ResourceDao resourceDao = mock(ResourceDao.class);
+  IssueStatsFinder issueStatsFinder = mock(IssueStatsFinder.class);
+  ActionService actionService = mock(ActionService.class);
 
   @Before
-  public void before() {
+  public void setUp() {
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
-    internalRubyIssueService = new InternalRubyIssueService(issueService, commentService, actionPlanService, issueStatsFinder, resourceDao, actionService);
+    service = new InternalRubyIssueService(issueService, commentService, changelogService, actionPlanService, issueStatsFinder, resourceDao, actionService);
   }
 
   @Test
@@ -63,7 +67,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("deadLine", "2113-05-13");
 
     ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
-    Result result = internalRubyIssueService.createActionPlan(parameters);
+    Result result = service.createActionPlan(parameters);
     assertThat(result.ok()).isTrue();
 
     verify(actionPlanService).create(actionPlanCaptor.capture(), any(UserSession.class));
@@ -87,7 +91,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("project", "org.sonar.MultiSample");
 
     ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
-    Result result = internalRubyIssueService.updateActionPlan("ABCD", parameters);
+    Result result = service.updateActionPlan("ABCD", parameters);
     assertThat(result.ok()).isTrue();
 
     verify(actionPlanService).update(actionPlanCaptor.capture(), any(UserSession.class));
@@ -110,7 +114,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("deadLine", "2113-05-13");
 
     ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
-    Result result = internalRubyIssueService.updateActionPlan("ABCD", parameters);
+    Result result = service.updateActionPlan("ABCD", parameters);
     assertThat(result.ok()).isTrue();
 
     verify(actionPlanService).update(actionPlanCaptor.capture(), any(UserSession.class));
@@ -128,7 +132,7 @@ public class InternalRubyIssueServiceTest {
   public void should_not_update_action_plan_when_action_plan_is_not_found() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(null);
 
-    Result result = internalRubyIssueService.updateActionPlan("ABCD", null);
+    Result result = service.updateActionPlan("ABCD", null);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", "ABCD"));
   }
@@ -137,7 +141,7 @@ public class InternalRubyIssueServiceTest {
   public void should_delete_action_plan() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
-    Result result = internalRubyIssueService.deleteActionPlan("ABCD");
+    Result result = service.deleteActionPlan("ABCD");
     verify(actionPlanService).delete(eq("ABCD"), any(UserSession.class));
     assertThat(result.ok()).isTrue();
   }
@@ -146,7 +150,7 @@ public class InternalRubyIssueServiceTest {
   public void should_not_delete_action_plan_if_action_plan_not_found() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(null);
 
-    Result result = internalRubyIssueService.deleteActionPlan("ABCD");
+    Result result = service.deleteActionPlan("ABCD");
     verify(actionPlanService, never()).delete(eq("ABCD"), any(UserSession.class));
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", "ABCD"));
@@ -156,7 +160,7 @@ public class InternalRubyIssueServiceTest {
   public void should_close_action_plan() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
-    Result result = internalRubyIssueService.closeActionPlan("ABCD");
+    Result result = service.closeActionPlan("ABCD");
     verify(actionPlanService).setStatus(eq("ABCD"), eq("CLOSED"), any(UserSession.class));
     assertThat(result.ok()).isTrue();
   }
@@ -165,7 +169,7 @@ public class InternalRubyIssueServiceTest {
   public void should_open_action_plan() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
-    Result result = internalRubyIssueService.openActionPlan("ABCD");
+    Result result = service.openActionPlan("ABCD");
     verify(actionPlanService).setStatus(eq("ABCD"), eq("OPEN"), any(UserSession.class));
     assertThat(result.ok()).isTrue();
   }
@@ -176,7 +180,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
 
-    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    Result result = service.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "project"));
   }
@@ -188,7 +192,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", "Long term issues");
     parameters.put("project", "org.sonar.Sample");
 
-    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    Result result = service.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "name"));
   }
@@ -200,7 +204,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", "Long term issues");
     parameters.put("project", "org.sonar.Sample");
 
-    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    Result result = service.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "name", 200));
   }
@@ -212,7 +216,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", createLongString(1001));
     parameters.put("project", "org.sonar.Sample");
 
-    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    Result result = service.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "description", 1000));
   }
@@ -225,7 +229,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("project", "org.sonar.Sample");
     parameters.put("deadLine", "18/05/2013");
 
-    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    Result result = service.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_not_valid", "date"));
   }
@@ -238,7 +242,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("project", "org.sonar.Sample");
     parameters.put("deadLine", "2000-01-01");
 
-    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    Result result = service.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.date_cant_be_in_past"));
   }
@@ -252,7 +256,7 @@ public class InternalRubyIssueServiceTest {
 
     when(actionPlanService.isNameAlreadyUsedForProject(anyString(), anyString())).thenReturn(true);
 
-    Result result = internalRubyIssueService.createActionPlanResult(parameters, DefaultActionPlan.create("Short term"));
+    Result result = service.createActionPlanResult(parameters, DefaultActionPlan.create("Short term"));
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.same_name_in_same_project"));
   }
@@ -266,15 +270,26 @@ public class InternalRubyIssueServiceTest {
 
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
 
-    Result result = internalRubyIssueService.createActionPlanResult(parameters);
+    Result result = service.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", "org.sonar.Sample"));
   }
+
   public String createLongString(int size) {
     String result = "";
     for (int i = 0; i < size; i++) {
       result += "c";
     }
     return result;
+  }
+
+  @Test
+  public void test_changelog() throws Exception {
+    IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs>emptyList(), Collections.<User>emptyList());
+    when(changelogService.changelog(eq("ABCDE"), any(UserSession.class))).thenReturn(changelog);
+
+    IssueChangelog result = service.changelog("ABCDE");
+
+    assertThat(result).isSameAs(changelog);
   }
 }

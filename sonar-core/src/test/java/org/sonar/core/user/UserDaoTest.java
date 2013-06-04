@@ -25,6 +25,7 @@ import org.sonar.api.user.UserQuery;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   public void selectUsersByLogins() throws Exception {
     setupData("selectUsersByLogins");
 
-    List<UserDto> users = dao.selectUsersByLogins(Arrays.asList("marius", "inactive_user", "other"));
+    Collection<UserDto> users = dao.selectUsersByLogins(Arrays.asList("marius", "inactive_user", "other"));
     assertThat(users).hasSize(2);
     assertThat(users).onProperty("login").containsOnly("marius", "inactive_user");
   }
@@ -68,7 +69,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   @Test
   public void selectUsersByLogins_empty_logins() throws Exception {
     // no need to access db
-    List<UserDto> users = dao.selectUsersByLogins(Collections.<String>emptyList());
+    Collection<UserDto> users = dao.selectUsersByLogins(Collections.<String>emptyList());
     assertThat(users).isEmpty();
   }
 

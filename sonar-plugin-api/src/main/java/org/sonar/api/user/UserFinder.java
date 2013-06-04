@@ -22,6 +22,7 @@ package org.sonar.api.user;
 import org.sonar.api.ServerComponent;
 
 import javax.annotation.CheckForNull;
+import java.util.Collection;
 import java.util.List;
 
 /**

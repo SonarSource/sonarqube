@@ -25,6 +25,7 @@ import org.sonar.api.user.UserQuery;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+import java.util.Collection;
 import java.util.List;
 
 /**

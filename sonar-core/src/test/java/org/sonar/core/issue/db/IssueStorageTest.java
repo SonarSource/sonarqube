@@ -89,7 +89,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssignee("loic")
-      .setFieldDiff(context, "severity", "INFO", "BLOCKER")
+      .setFieldChange(context, "severity", "INFO", "BLOCKER")
       .setReporter("emmerik")
       .setResolution("FIXED")
       .setStatus("RESOLVED")
