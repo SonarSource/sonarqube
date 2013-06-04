@@ -54,12 +54,11 @@ public class ActionServiceTest {
   private IssueUpdater updater;
   private PropertiesDao propertiesDao;
   private Settings settings;
-
   private Actions actions;
   private ActionService actionService;
 
   @Before
-  public void before(){
+  public void before() {
     finder = mock(DefaultIssueFinder.class);
     issueStorage = mock(IssueStorage.class);
     updater = mock(IssueUpdater.class);
@@ -122,9 +121,10 @@ public class ActionServiceTest {
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
     try {
-    actionService.execute("ABCD", "link-to-jira", mock(UserSession.class));
-    } catch (Exception e){
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issue is not found : ABCD");
+      actionService.execute("ABCD", "link-to-jira", mock(UserSession.class));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("No issue");
     }
     verifyZeroInteractions(function);
   }
@@ -140,7 +140,8 @@ public class ActionServiceTest {
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
     try {
       actionService.execute("ABCD", "tweet", mock(UserSession.class));
-    } catch (Exception e){
+      fail();
+    } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Action is not found : tweet");
     }
     verifyZeroInteractions(function);
@@ -157,7 +158,8 @@ public class ActionServiceTest {
     actions.add("link-to-jira").setConditions(new NeverMatch()).setFunctions(function);
     try {
       actionService.execute("ABCD", "link-to-jira", mock(UserSession.class));
-    } catch (Exception e){
+      fail();
+    } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("A condition is not respected");
     }
     verifyZeroInteractions(function);
@@ -184,8 +186,8 @@ public class ActionServiceTest {
     try {
       actionService.listAvailableActions("ABCD");
       fail();
-    } catch (Exception e){
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issue is not found : ABCD");
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("No issue");
     }
   }
 
@@ -215,7 +217,7 @@ public class ActionServiceTest {
   public class TweetFunction implements Function {
     @Override
     public void execute(Context context) {
-      context.addComment("New tweet on issue "+ context.issue().key());
+      context.addComment("New tweet on issue " + context.issue().key());
       context.setAttribute("tweet", "tweet sent");
     }
   }

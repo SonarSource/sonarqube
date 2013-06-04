@@ -80,10 +80,6 @@ public class ActionService implements ServerComponent {
   public List<Action> listAvailableActions(String issueKey) {
     IssueQueryResult queryResult = loadIssue(issueKey);
     final DefaultIssue issue = (DefaultIssue) queryResult.first();
-    if (issue == null) {
-      throw new IllegalArgumentException("Issue is not found : " + issueKey);
-    }
-
     return listAvailableActions(issue);
   }
 
