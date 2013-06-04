@@ -148,6 +148,7 @@ public class ActionPlanService implements ServerComponent {
   private ActionPlanDto findActionPlanDto(String actionPlanKey) {
     ActionPlanDto actionPlanDto = actionPlanDao.findByKey(actionPlanKey);
     if (actionPlanDto == null) {
+      // TODO throw 404
       throw new IllegalArgumentException("Action plan " + actionPlanKey + " has not been found.");
     }
     return actionPlanDto;
@@ -156,6 +157,7 @@ public class ActionPlanService implements ServerComponent {
   private ResourceDto findProject(String projectKey) {
     ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
     if (resourceDto == null) {
+      // TODO throw 404
       throw new IllegalArgumentException("Project " + projectKey + " does not exists.");
     }
     return resourceDto;
@@ -171,7 +173,8 @@ public class ActionPlanService implements ServerComponent {
       throw new IllegalStateException("User is not logged in");
     }
     if (!authorizationDao.isAuthorizedComponentId(project.getId(), userSession.userId(), requiredRole)) {
-      throw new IllegalStateException("User does not have the required role to access the project: " + project.getKey());
+      // TODO throw unauthorized
+      throw new IllegalStateException("User does not have the required role on the project: " + project.getKey());
     }
   }
 

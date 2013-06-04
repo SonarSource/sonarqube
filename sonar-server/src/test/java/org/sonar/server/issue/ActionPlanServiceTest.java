@@ -40,6 +40,7 @@ import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -50,7 +51,6 @@ public class ActionPlanServiceTest {
   private ResourceDao resourceDao = mock(ResourceDao.class);
   private AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   private UserSession userSession = mock(UserSession.class);
-
   private ActionPlanService actionPlanService;
 
   @Before
@@ -79,7 +79,8 @@ public class ActionPlanServiceTest {
 
     try {
       actionPlanService.create(actionPlan, userSession);
-    } catch (Exception e){
+      fail();
+    } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
     }
     verifyZeroInteractions(actionPlanDao);
@@ -92,9 +93,10 @@ public class ActionPlanServiceTest {
     when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(false);
 
     try {
-    actionPlanService.create(actionPlan, userSession);
-    } catch (Exception e){
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role to access the project: org.sonar.Sample");
+      actionPlanService.create(actionPlan, userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role on the project: org.sonar.Sample");
     }
     verify(authorizationDao).isAuthorizedComponentId(eq(1l), eq(10), eq(UserRole.ADMIN));
     verifyZeroInteractions(actionPlanDao);
@@ -170,8 +172,9 @@ public class ActionPlanServiceTest {
 
     try {
       actionPlanService.findOpenByProjectKey("org.sonar.Sample", userSession);
-    } catch (Exception e){
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role to access the project: org.sonar.Sample");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role on the project: org.sonar.Sample");
     }
     verify(authorizationDao).isAuthorizedComponentId(eq(1l), eq(10), eq(UserRole.USER));
     verifyZeroInteractions(actionPlanDao);
@@ -184,7 +187,7 @@ public class ActionPlanServiceTest {
   }
 
   @Test
-  public void should_find_action_plan_stats(){
+  public void should_find_action_plan_stats() {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L).setKey("org.sonar.Sample"));
     when(actionPlanStatsDao.findByProjectId(1L)).thenReturn(newArrayList(new ActionPlanStatsDto()));
 
@@ -193,7 +196,7 @@ public class ActionPlanServiceTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void should_throw_exception_if_project_not_found_when_find_open_action_plan_stats(){
+  public void should_throw_exception_if_project_not_found_when_find_open_action_plan_stats() {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
 
     actionPlanService.findActionPlanStats("org.sonar.Sample", userSession);

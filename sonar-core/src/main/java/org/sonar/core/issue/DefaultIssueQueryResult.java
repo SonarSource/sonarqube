@@ -104,7 +104,10 @@ public class DefaultIssueQueryResult implements IssueQueryResult {
 
   @Override
   public Issue first() {
-    return issues != null && !issues.isEmpty() ? issues.get(0) : null;
+    if (issues != null && !issues.isEmpty()) {
+      return issues.get(0);
+    }
+    throw new IllegalArgumentException("No issue");
   }
 
   @Override

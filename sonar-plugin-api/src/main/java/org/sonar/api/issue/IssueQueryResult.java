@@ -25,6 +25,7 @@ import org.sonar.api.user.User;
 import org.sonar.api.utils.Paging;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -34,7 +35,10 @@ import java.util.List;
 public interface IssueQueryResult {
   List<Issue> issues();
 
-  @CheckForNull
+  /**
+   * Return first issue in the list.
+   * It will throws IllegalArgumentException if no issue found.
+   */
   Issue first();
 
   Rule rule(Issue issue);

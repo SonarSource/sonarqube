@@ -19,8 +19,10 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
@@ -28,12 +30,16 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
@@ -52,17 +58,23 @@ public class IssueService implements ServerComponent {
   private final IssueWorkflow workflow;
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
+  private final IssueNotifications issueNotifications;
   private final ActionPlanService actionPlanService;
   private final RuleFinder ruleFinder;
-  private final IssueNotifications issueNotifications;
+  private final ResourceDao resourceDao;
+  private final AuthorizationDao authorizationDao;
+  private final UserFinder userFinder;
 
   public IssueService(DefaultIssueFinder finder,
                       IssueWorkflow workflow,
                       IssueStorage issueStorage,
                       IssueUpdater issueUpdater,
+                      IssueNotifications issueNotifications,
                       ActionPlanService actionPlanService,
                       RuleFinder ruleFinder,
-                      IssueNotifications issueNotifications) {
+                      ResourceDao resourceDao,
+                      AuthorizationDao authorizationDao,
+                      UserFinder userFinder) {
     this.finder = finder;
     this.workflow = workflow;
     this.issueStorage = issueStorage;
@@ -70,6 +82,9 @@ public class IssueService implements ServerComponent {
     this.actionPlanService = actionPlanService;
     this.ruleFinder = ruleFinder;
     this.issueNotifications = issueNotifications;
+    this.resourceDao = resourceDao;
+    this.authorizationDao = authorizationDao;
+    this.userFinder = userFinder;
   }
 
   /**
@@ -92,9 +107,9 @@ public class IssueService implements ServerComponent {
   }
 
   public Issue doTransition(String issueKey, String transition, UserSession userSession) {
-    verifyLoggedIn(userSession);
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
+    checkAuthorization(userSession, issue, UserRole.USER);
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (workflow.doTransition(issue, transition, context)) {
       issueStorage.save(issue);
@@ -104,29 +119,28 @@ public class IssueService implements ServerComponent {
   }
 
   public Issue assign(String issueKey, @Nullable String assignee, UserSession userSession) {
-    verifyLoggedIn(userSession);
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
-
-    if (issue != null) {
-      // TODO check that assignee exists
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
-      if (issueUpdater.assign(issue, assignee, context)) {
-        issueStorage.save(issue);
-        issueNotifications.sendChanges(issue, context, queryResult);
-      }
+    checkAuthorization(userSession, issue, UserRole.USER);
+    if (assignee != null && userFinder.findByLogin(assignee) == null) {
+      throw new IllegalArgumentException("Unknown user: " + assignee);
+    }
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+    if (issueUpdater.assign(issue, assignee, context)) {
+      issueStorage.save(issue);
+      issueNotifications.sendChanges(issue, context, queryResult);
     }
     return issue;
   }
 
   public Issue plan(String issueKey, @Nullable String actionPlanKey, UserSession userSession) {
     if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanService.findByKey(actionPlanKey, userSession) == null) {
-      throw new IllegalStateException("Unknown action plan: " + actionPlanKey);
+      throw new IllegalArgumentException("Unknown action plan: " + actionPlanKey);
     }
-
-    verifyLoggedIn(userSession);
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
+    checkAuthorization(userSession, issue, UserRole.USER);
+
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.plan(issue, actionPlanKey, context)) {
       issueStorage.save(issue);
@@ -136,9 +150,10 @@ public class IssueService implements ServerComponent {
   }
 
   public Issue setSeverity(String issueKey, String severity, UserSession userSession) {
-    verifyLoggedIn(userSession);
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
+    checkAuthorization(userSession, issue, UserRole.USER);
+
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.setManualSeverity(issue, severity, context)) {
       issueStorage.save(issue);
@@ -148,7 +163,7 @@ public class IssueService implements ServerComponent {
   }
 
   public DefaultIssue createManualIssue(DefaultIssue issue, UserSession userSession) {
-    verifyLoggedIn(userSession);
+    checkAuthorization(userSession, issue, UserRole.USER);
     if (!"manual".equals(issue.ruleKey().repository())) {
       throw new IllegalArgumentException("Issues can be created only on rules marked as 'manual': " + issue.ruleKey());
     }
@@ -156,24 +171,23 @@ public class IssueService implements ServerComponent {
     if (rule == null) {
       throw new IllegalArgumentException("Unknown rule: " + issue.ruleKey());
     }
+    Component component = resourceDao.findByKey(issue.componentKey());
+    if (component == null) {
+      throw new IllegalArgumentException("Unknown component: " + issue.componentKey());
+    }
 
     Date now = new Date();
     issue.setCreationDate(now);
     issue.setUpdateDate(now);
-
-    // TODO check existence of component
-    // TODO verify authorization
-
     issueStorage.save(issue);
     return issue;
   }
 
-
   public IssueQueryResult loadIssue(String issueKey) {
-    IssueQuery query = IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build();
-    IssueQueryResult result = finder.find(query);
-    if (result.issues().size()!=1) {
-      throw new IllegalStateException("Issue not found: " + issueKey);
+    IssueQueryResult result = finder.find(IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build());
+    if (result.issues().size() != 1) {
+      // TODO throw 404
+      throw new IllegalArgumentException("Issue not found: " + issueKey);
     }
     return result;
   }
@@ -182,10 +196,25 @@ public class IssueService implements ServerComponent {
     return workflow.statusKeys();
   }
 
-  private void verifyLoggedIn(UserSession userSession) {
+  @VisibleForTesting
+  void checkAuthorization(UserSession userSession, Issue issue, String requiredRole) {
     if (!userSession.isLoggedIn()) {
       // must be logged
       throw new IllegalStateException("User is not logged in");
     }
+    if (!authorizationDao.isAuthorizedComponentId(findProject(issue.componentKey()).getId(), userSession.userId(), requiredRole)) {
+      // TODO throw unauthorized
+      throw new IllegalStateException("User does not have the required role");
+    }
+  }
+
+  @VisibleForTesting
+  ResourceDto findProject(String componentKey) {
+    ResourceDto resourceDto = resourceDao.getRootProjectByComponentKey(componentKey);
+    if (resourceDto == null) {
+      // TODO throw 404
+      throw new IllegalArgumentException("Component '" + componentKey + "' does not exists.");
+    }
+    return resourceDto;
   }
 }

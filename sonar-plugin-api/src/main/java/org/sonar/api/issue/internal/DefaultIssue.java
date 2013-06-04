@@ -110,6 +110,10 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  /**
+   * The project key is not always populated, that's why it's not present is the Issue API
+   */
+  @CheckForNull
   public String projectKey() {
     return projectKey;
   }
