@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.issue.notification;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,6 +79,7 @@ public class IssueChangesEmailTemplateTest {
 
     String message = email.getMessage();
     String expectedMessage = TestUtils.getResourceContent("/org/sonar/plugins/core/issue/notification/IssueChangesEmailTemplateTest/email_with_changes.txt");
+    expectedMessage = StringUtils.remove(expectedMessage, '\r');
     assertThat(message).isEqualTo(expectedMessage);
     assertThat(email.getFrom()).isNull();
   }
@@ -98,6 +100,7 @@ public class IssueChangesEmailTemplateTest {
     EmailMessage email = template.format(notification);
     String message = email.getMessage();
     String expectedMessage = TestUtils.getResourceContent("/org/sonar/plugins/core/issue/notification/IssueChangesEmailTemplateTest/email_with_issue_message_same_than_rule_name.txt");
+    expectedMessage = StringUtils.remove(expectedMessage, '\r');
     assertThat(message).isEqualTo(expectedMessage);
   }
 
