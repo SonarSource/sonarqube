@@ -102,13 +102,12 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_update_action_plan_with_new_project() {
-    when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
+    when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term").setProjectKey("org.sonar.MultiSample"));
 
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "New Long term");
     parameters.put("description", "New Long term issues");
     parameters.put("deadLine", "2113-05-13");
-    parameters.put("project", "org.sonar.MultiSample");
 
     ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
     Result result = internalRubyIssueService.updateActionPlan("ABCD", parameters);
@@ -253,7 +252,7 @@ public class InternalRubyIssueServiceTest {
 
     when(actionPlanService.isNameAlreadyUsedForProject(anyString(), anyString())).thenReturn(true);
 
-    Result result = internalRubyIssueService.createActionPlanResult(parameters, "Short term");
+    Result result = internalRubyIssueService.createActionPlanResult(parameters, DefaultActionPlan.create("Short term"));
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.same_name_in_same_project"));
   }

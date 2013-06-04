@@ -228,7 +228,7 @@ public class InternalRubyIssueService implements ServerComponent {
       result.addError(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", key));
       return result;
     } else {
-      Result<ActionPlan> result = createActionPlanResult(parameters, existingActionPlan.name());
+      Result<ActionPlan> result = createActionPlanResult(parameters, existingActionPlan);
       if (result.ok()) {
         DefaultActionPlan actionPlan = (DefaultActionPlan) result.get();
         actionPlan.setKey(existingActionPlan.key());
@@ -269,7 +269,7 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   @VisibleForTesting
-  Result<ActionPlan> createActionPlanResult(Map<String, String> parameters, @Nullable String oldName) {
+  Result<ActionPlan> createActionPlanResult(Map<String, String> parameters, @Nullable DefaultActionPlan existingActionPlan) {
     Result<ActionPlan> result = Result.of();
 
     String name = parameters.get("name");
@@ -290,12 +290,15 @@ public class InternalRubyIssueService implements ServerComponent {
       result.addError(Result.Message.ofL10n("errors.is_too_long", "description", 1000));
     }
 
-    if (Strings.isNullOrEmpty(projectParam)) {
-      result.addError(Result.Message.ofL10n("errors.cant_be_empty", "project"));
-    } else {
-      ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
-      if (project == null) {
-        result.addError(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", projectParam));
+    // Can only set project on creation
+    if (existingActionPlan == null) {
+      if (Strings.isNullOrEmpty(projectParam)) {
+        result.addError(Result.Message.ofL10n("errors.cant_be_empty", "project"));
+      } else {
+        ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
+        if (project == null) {
+          result.addError(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", projectParam));
+        }
       }
     }
 
@@ -311,17 +314,24 @@ public class InternalRubyIssueService implements ServerComponent {
       }
     }
 
-    if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && !name.equals(oldName)
+    if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && (existingActionPlan == null || !name.equals(existingActionPlan.name()))
       && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
       result.addError(Result.Message.ofL10n("action_plans.same_name_in_same_project"));
     }
 
     if (result.ok()) {
       DefaultActionPlan actionPlan = DefaultActionPlan.create(name)
-        .setProjectKey(projectParam)
         .setDescription(description)
         .setUserLogin(UserSession.get().login())
         .setDeadLine(deadLine);
+
+      // Can only set project on creation
+      if (existingActionPlan == null) {
+        actionPlan.setProjectKey(projectParam);
+      } else {
+        actionPlan.setProjectKey(existingActionPlan.projectKey());
+      }
+
       result.set(actionPlan);
     }
     return result;

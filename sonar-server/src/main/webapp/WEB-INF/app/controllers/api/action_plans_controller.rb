@@ -30,7 +30,7 @@ class Api::ActionPlansController < Api::ApiController
     require_parameters :project
 
     action_plans = Internal.issues.findActionPlanStats(params[:project])
-    hash = {:actionPlans => action_plans.map { |plan| action_plan_to_hash(plan)}}
+    hash = {:actionPlans => action_plans.map { |plan| ActionPlan.to_hash(plan)}}
 
     respond_to do |format|
       format.json { render :json => jsonp(hash) }
@@ -47,7 +47,7 @@ class Api::ActionPlansController < Api::ApiController
   #
   # -- Optional parameters
   # 'description' is the plain-text description
-  # 'deadLine' is the due date of the action plan. Format is 'day/month/year', for instance, '31/12/2013'.
+  # 'deadLine' is the due date of the action plan. Format is 'year-month-day', for instance, '2013-12-31'.
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/action_plans/create?name=Current&project=org.sonar.Sample'
@@ -58,12 +58,7 @@ class Api::ActionPlansController < Api::ApiController
     require_parameters :project, :name
 
     result = Internal.issues.createActionPlan(params)
-    if result.ok()
-      action_plan = result.get()
-      render :json => jsonp({:actionPlan => action_plan_to_hash(action_plan)})
-    else
-      render_result_error(result)
-    end
+    render_result(result)
   end
 
   #
@@ -81,11 +76,7 @@ class Api::ActionPlansController < Api::ApiController
     require_parameters :key
 
     result = Internal.issues.deleteActionPlan(params[:key])
-    if result.ok()
-      render_success('Action plan deleted')
-    else
-      render_result_error(result)
-    end
+    render_result(result)
   end
 
   #
@@ -93,11 +84,13 @@ class Api::ActionPlansController < Api::ApiController
   #
   # -- Mandatory parameters
   # 'name' is the name of the action plan
-  # 'project' is the key of the project to link the action plan to
   #
   # -- Optional parameters
   # 'description' is the plain-text description
-  # 'deadLine' is the due date of the action plan. Format is 'day/month/year', for instance, '31/12/2013'.
+  # 'deadLine' is the due date of the action plan. Format is 'year-month-day', for instance, '2013-12-31'.
+  #
+  # -- Information
+  # 'project' cannot be update
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/action_plans/update?key=9b6f89c0-3347-46f6-a6d1-dd6c761240e0&name=Current'
@@ -108,12 +101,7 @@ class Api::ActionPlansController < Api::ApiController
     require_parameters :key
 
     result = Internal.issues.updateActionPlan(params[:key], params)
-    if result.ok()
-      action_plan = result.get()
-      render :json => jsonp({:actionPlan => action_plan_to_hash(action_plan)})
-    else
-      render_result_error(result)
-    end
+    render_result(result)
   end
 
   #
@@ -131,12 +119,7 @@ class Api::ActionPlansController < Api::ApiController
     require_parameters :key
 
     result = Internal.issues.closeActionPlan(params[:key])
-    if result.ok()
-      action_plan = result.get()
-      render :json => jsonp({:actionPlan => action_plan_to_hash(action_plan)})
-    else
-      render_result_error(result)
-    end
+    render_result(result)
   end
 
   #
@@ -154,31 +137,34 @@ class Api::ActionPlansController < Api::ApiController
     require_parameters :key
 
     result = Internal.issues.openActionPlan(params[:key])
-    if result.ok()
-      action_plan = result.get()
-      render :json => jsonp({:actionPlan => action_plan_to_hash(action_plan)})
-    else
-      render_result_error(result)
-    end
+    render_result(result)
   end
 
 
   private
 
-  def action_plan_to_hash(action_plan)
-    ActionPlan.to_hash(action_plan)
-  end
+  def render_result(result)
+    http_status = (result.ok ? 200 : 400)
+    hash = result_to_hash(result)
+    hash[:actionPlan] = ActionPlan.to_hash(result.get) if result.get
 
-  def error_to_hash(msg)
-    {:msg => message(msg.text(), {:params => msg.params()}).capitalize}
-  end
-
-  def render_result_error(result)
-    hash = {:errors => result.errors().map { |error| error_to_hash(error) }}
     respond_to do |format|
-      format.json { render :json => jsonp(hash), :status => 400}
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'errors', :status => 400)}
+      # if the request header "Accept" is "*/*", then the default format is the first one (json)
+      format.json { render :json => jsonp(hash), :status => result.httpStatus }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
     end
+  end
+
+  def result_to_hash(result)
+    hash = {}
+    if result.errors
+      hash[:errors] = result.errors().map do |error|
+        {
+            :msg => (error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams))
+        }
+      end
+    end
+    hash
   end
 
 end
