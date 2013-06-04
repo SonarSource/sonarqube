@@ -17,8 +17,7 @@
       <td class="left" valign="top">
         <%= message('action_plans.col.due_for') -%>:
         <br/>
-        <% deadline = Api::Utils.java_to_ruby_datetime(@action_plan.deadLine()) if @action_plan && @action_plan.deadLine() %>
-        <input type="text" name="deadline" id="deadline" value="<%= @action_plan && deadline ? deadline.strftime('%d/%m/%Y') : params[:deadline] -%>"/>
+        <input type="text" name="deadline" id="deadline" value="<%= @action_plan && @action_plan.deadLine() ? Api::Utils.format_date(@action_plan.deadLine()) : params[:deadline] -%>"/>
         <br/>
         <span class="note"><%= message('action_plans.date_format_help') -%></span>
       </td>

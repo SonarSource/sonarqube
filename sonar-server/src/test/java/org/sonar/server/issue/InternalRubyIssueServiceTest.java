@@ -84,6 +84,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("name", "New Long term");
     parameters.put("description", "New Long term issues");
     parameters.put("deadLine", "2113-05-13");
+    parameters.put("project", "org.sonar.MultiSample");
 
     ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
     Result result = internalRubyIssueService.updateActionPlan("ABCD", parameters);

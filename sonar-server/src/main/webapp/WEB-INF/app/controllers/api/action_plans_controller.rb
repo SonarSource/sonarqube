@@ -91,9 +91,11 @@ class Api::ActionPlansController < Api::ApiController
   #
   # POST /api/action_plans/update
   #
+  # -- Mandatory parameters
+  # 'name' is the name of the action plan
+  # 'project' is the key of the project to link the action plan to
+  #
   # -- Optional parameters
-  # 'name' is the action plan name
-  # 'project' is the project key to link the action plan to
   # 'description' is the plain-text description
   # 'deadLine' is the due date of the action plan. Format is 'day/month/year', for instance, '31/12/2013'.
   #

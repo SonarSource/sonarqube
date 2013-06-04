@@ -290,7 +290,7 @@ public class InternalRubyIssueService implements ServerComponent {
       result.addError(Result.Message.ofL10n("errors.is_too_long", "description", 1000));
     }
 
-    if (Strings.isNullOrEmpty(projectParam) && oldName == null) {
+    if (Strings.isNullOrEmpty(projectParam)) {
       result.addError(Result.Message.ofL10n("errors.cant_be_empty", "project"));
     } else {
       ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));

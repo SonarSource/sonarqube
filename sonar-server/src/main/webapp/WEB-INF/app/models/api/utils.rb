@@ -21,7 +21,7 @@ require 'time'
 
 class Api::Utils
 
-  # Format dateTime to ISO format
+  # Format dateTime to ISO format (yyyy-MM-dd'T'HH:mm:ssZ)
   #
   # -- Revisions
   # Added in 2.8
@@ -31,6 +31,17 @@ class Api::Utils
     return nil unless datetime
     dt = datetime.is_a?(Java::JavaUtil::Date) ? java_to_ruby_datetime(datetime) : datetime
     dt.strftime("%Y-%m-%dT%H:%M:%S%z")
+  end
+
+  # Format dateTime to ISO format (yyyy-MM-dd)
+  #
+  # Added in 3.6
+  # Support java.util.Date
+  #
+  def self.format_date(datetime)
+    return nil unless datetime
+    dt = datetime.is_a?(Java::JavaUtil::Date) ? java_to_ruby_datetime(datetime) : datetime
+    dt.strftime("%Y-%m-%d")
   end
 
   def self.parse_datetime(datetime_string, default_is_now=true)
