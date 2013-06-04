@@ -52,10 +52,6 @@ function submitIssueForm(elt) {
       var issueKey = issueElt.attr('data-issue-key');
       var replaced = $j(htmlResponse);
       issueElt.replaceWith(replaced);
-
-      // re-enable the links opening modal popups
-      replaced.find('.open-modal').modal();
-
       notifyIssueChange(issueKey)
     }
   ).fail(function (jqXHR, textStatus) {
@@ -80,10 +76,6 @@ function doIssueAction(elt, action, parameters) {
   ).success(function (htmlResponse) {
       var replaced = $j(htmlResponse);
       issueElt.replaceWith(replaced);
-
-      // re-enable the links opening modal popups
-      replaced.find('.open-modal').modal();
-
       notifyIssueChange(issueKey);
     }
   ).fail(function (jqXHR, textStatus) {
@@ -140,10 +132,6 @@ function doEditIssueComment(elt) {
     success: function (htmlResponse) {
       var replaced = $j(htmlResponse);
       issueElt.replaceWith(replaced);
-
-      // re-enable the links opening modal popups
-      replaced.find('.open-modal').modal();
-
       notifyIssueChange(issueKey);
     }
   });
@@ -153,12 +141,9 @@ function doEditIssueComment(elt) {
 function refreshIssue(elt) {
   var issueElt = $j(elt).closest('[data-issue-key]');
   var issueKey = issueElt.attr('data-issue-key');
-  $j.get(baseUrl + "/issue/show/" + issueKey, function (html) {
+  $j.get(baseUrl + "/issue/show/" + issueKey + "?only_detail=true", function (html) {
     var replaced = $j(html);
     issueElt.replaceWith(replaced);
-
-    // re-enable the links opening modal popups
-    replaced.find('.open-modal').modal();
   });
   return false;
 }
@@ -191,9 +176,6 @@ function submitCreateIssueForm(elt) {
   ).success(function (html) {
       var replaced = $j(html);
       formElt.replaceWith(replaced);
-
-      // enable the links opening modal popups
-      replaced.find('.open-modal').modal();
     }
   ).error(function (jqXHR, textStatus, errorThrown) {
       var errorsElt = formElt.find('.code-issue-errors');

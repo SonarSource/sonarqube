@@ -39,7 +39,12 @@ class IssueController < ApplicationController
     if params[:modal]
       render :partial => 'issue/show_modal'
     elsif request.xhr?
-      render :partial => 'issue/show'
+      if params[:only_detail]
+        # used when canceling edition of comment -> see issue.js#refreshIssue()
+        render :partial => 'issue/issue', :locals => {:issue => @issue_results.first}
+      else
+        render :partial => 'issue/show'
+      end
     else
       render :action => 'show'
     end
