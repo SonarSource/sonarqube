@@ -82,6 +82,8 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     appendField(sb, "Resolution", notif.getFieldValue("old.resolution"), notif.getFieldValue("new.resolution"));
     appendField(sb, "Status", notif.getFieldValue("old.status"), notif.getFieldValue("new.status"));
     appendField(sb, "Message", notif.getFieldValue("old.message"), notif.getFieldValue("new.message"));
+    appendField(sb, "Author", notif.getFieldValue("old.author"), notif.getFieldValue("new.author"));
+    appendField(sb, "Action Plan", notif.getFieldValue("old.actionPlanKey"), notif.getFieldValue("new.actionPlanKey"));
   }
 
   private void appendHeader(Notification notif, StringBuilder sb) {
