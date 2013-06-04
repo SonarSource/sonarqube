@@ -14,7 +14,7 @@
     <a href="<%= ApplicationController.root_context -%>/resource/index/<%= component.key() -%>?layout=false&tab=issues"
        onclick="window.open(this.href,'resource-<%= component.key().parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= h component.longName() -%></a>
     <% else %>
-      <%= h @issue.componentKey() + '['+ message('issue.component_deleted') + ']' -%>
+      <%= h @issue.componentKey() %> [<del><%= message('issue.component_deleted') %></del>]
     <% end %>
   </span>
 </div>

@@ -80,7 +80,11 @@
           </td>
           <td>
             <% component = @filter.issues_result.component(issue) %>
-            <%= h component.name if component -%>
+            <% if component %>
+              <%= h component.longName() -%>
+            <% else %>
+              <del><%= h  issue.componentKey() %></del>
+            <% end %>
           </td>
           <td>
             <%= h @filter.issues_result.user(issue.assignee).name if issue.assignee -%>
