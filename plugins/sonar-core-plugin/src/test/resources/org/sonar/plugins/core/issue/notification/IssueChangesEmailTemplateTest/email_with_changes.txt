@@ -1,6 +1,6 @@
 org.apache.struts.Action
-Avoid Cycles
-Has 3 cycles
+Rule: Avoid Cycles
+Message: Has 3 cycles
 
 Comment: How to fix it?
 Assignee: louis (was simon)

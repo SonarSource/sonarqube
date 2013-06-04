@@ -85,14 +85,9 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
   }
 
   private void appendHeader(Notification notif, StringBuilder sb) {
-    String ruleName = notif.getFieldValue("ruleName");
-    String issueMessage = notif.getFieldValue("message");
-
     appendLine(sb, StringUtils.defaultString(notif.getFieldValue("componentName"), notif.getFieldValue("componentKey")));
-    appendLine(sb, ruleName);
-    if (!Objects.equal(ruleName, issueMessage)) {
-      appendLine(sb, issueMessage);
-    }
+    appendField(sb, "Rule", null, notif.getFieldValue("ruleName"));
+    appendField(sb, "Message", null, notif.getFieldValue("message"));
   }
 
   private void appendFooter(StringBuilder sb, Notification notification) {

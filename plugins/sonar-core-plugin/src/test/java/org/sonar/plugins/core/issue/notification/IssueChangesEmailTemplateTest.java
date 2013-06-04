@@ -85,26 +85,6 @@ public class IssueChangesEmailTemplateTest {
   }
 
   @Test
-  public void test_email_with_issue_message_same_than_rule_name() {
-    Notification notification = new Notification("issue-changes")
-      .setFieldValue("projectName", "Struts")
-      .setFieldValue("projectKey", "org.apache:struts")
-      .setFieldValue("componentName", "org.apache.struts.Action")
-      .setFieldValue("key", "ABCDE")
-      .setFieldValue("new.assignee", "louis")
-
-      // same rule name and issue msg -> display once
-      .setFieldValue("ruleName", "Avoid Cycles")
-      .setFieldValue("message", "Avoid Cycles");
-
-    EmailMessage email = template.format(notification);
-    String message = email.getMessage();
-    String expectedMessage = TestUtils.getResourceContent("/org/sonar/plugins/core/issue/notification/IssueChangesEmailTemplateTest/email_with_issue_message_same_than_rule_name.txt");
-    expectedMessage = StringUtils.remove(expectedMessage, '\r');
-    assertThat(message).isEqualTo(expectedMessage);
-  }
-
-  @Test
   public void notification_sender_should_be_the_author_of_change() {
     User user = mock(User.class);
     when(user.name()).thenReturn("Simon");
