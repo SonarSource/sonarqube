@@ -1,4 +1,5 @@
 <dataset>
+  <!-- not updated -->
   <issues
       id="100"
       kee="ABCDE"
@@ -21,7 +22,7 @@
       issue_update_date="[null]"
       issue_close_date="[null]"
       created_at="[null]"
-      updated_at="2009-01-01"
+      updated_at="2013-06-01"
       action_plan_key="[null]"
       />
 </dataset>

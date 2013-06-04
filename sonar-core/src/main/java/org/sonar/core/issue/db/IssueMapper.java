@@ -40,4 +40,5 @@ public interface IssueMapper {
 
   int update(IssueDto issue);
 
+  int updateIfBeforeSelectedDate(IssueDto issue);
 }

@@ -25,6 +25,10 @@ import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
+import java.util.Date;
+
+import static org.fest.assertions.Assertions.assertThat;
+
 public class IssueMapperTest extends AbstractDaoTestCase {
 
   SqlSession session;
@@ -100,5 +104,79 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     session.commit();
 
     checkTables("testUpdate", new String[]{"id"}, "issues");
+  }
+
+  @Test
+  public void updateBeforeSelectedDate_without_conflict() throws Exception {
+    setupData("testUpdate");
+
+    IssueDto dto = new IssueDto();
+    dto.setComponentId(123l);
+    dto.setRootComponentId(100l);
+    dto.setRuleId(200);
+    dto.setKee("ABCDE");
+    dto.setLine(500);
+    dto.setEffortToFix(3.14);
+    dto.setResolution("FIXED");
+    dto.setStatus("RESOLVED");
+    dto.setSeverity("BLOCKER");
+    dto.setReporter("emmerik");
+    dto.setAuthorLogin("morgan");
+    dto.setAssignee("karadoc");
+    dto.setActionPlanKey("current_sprint");
+    dto.setIssueAttributes("JIRA=FOO-1234");
+    dto.setChecksum("123456789");
+    dto.setMessage("the message");
+    dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
+    dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
+    dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
+    dto.setCreatedAt(DateUtils.parseDate("2013-05-21"));
+    dto.setUpdatedAt(DateUtils.parseDate("2013-05-22"));
+
+    // selected after last update -> ok
+    dto.setSelectedAt(DateUtils.parseDate("2015-01-01"));
+
+    int count = mapper.updateIfBeforeSelectedDate(dto);
+    assertThat(count).isEqualTo(1);
+    session.commit();
+
+    checkTables("testUpdate", new String[]{"id"}, "issues");
+  }
+
+  @Test
+  public void updateBeforeSelectedDate_with_conflict() throws Exception {
+    setupData("updateBeforeSelectedDate_with_conflict");
+
+    IssueDto dto = new IssueDto();
+    dto.setComponentId(123l);
+    dto.setRootComponentId(100l);
+    dto.setRuleId(200);
+    dto.setKee("ABCDE");
+    dto.setLine(500);
+    dto.setEffortToFix(3.14);
+    dto.setResolution("FIXED");
+    dto.setStatus("RESOLVED");
+    dto.setSeverity("BLOCKER");
+    dto.setReporter("emmerik");
+    dto.setAuthorLogin("morgan");
+    dto.setAssignee("karadoc");
+    dto.setActionPlanKey("current_sprint");
+    dto.setIssueAttributes("JIRA=FOO-1234");
+    dto.setChecksum("123456789");
+    dto.setMessage("the message");
+    dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
+    dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
+    dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
+    dto.setCreatedAt(DateUtils.parseDate("2013-05-21"));
+    dto.setUpdatedAt(DateUtils.parseDate("2013-05-22"));
+
+    // selected before last update -> ko
+    dto.setSelectedAt(DateUtils.parseDate("2009-01-01"));
+
+    int count = mapper.updateIfBeforeSelectedDate(dto);
+    assertThat(count).isEqualTo(0);
+    session.commit();
+
+    checkTables("updateBeforeSelectedDate_with_conflict", new String[]{"id"}, "issues");
   }
 }

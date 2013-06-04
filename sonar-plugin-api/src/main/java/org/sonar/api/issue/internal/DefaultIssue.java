@@ -89,6 +89,9 @@ public class DefaultIssue implements Issue {
   // true if some fields have been changed since the previous scan
   private boolean isChanged = false;
 
+  // Date when issue was loaded from db (only when isNew=false)
+  private Date selectedAt;
+
   public String key() {
     return key;
   }
@@ -380,6 +383,15 @@ public class DefaultIssue implements Issue {
     return Objects.firstNonNull(comments, Collections.<IssueComment>emptyList());
   }
 
+  @CheckForNull
+  public Date selectedAt() {
+    return selectedAt;
+  }
+
+  public void setSelectedAt(@Nullable Date d) {
+    this.selectedAt = d;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -404,4 +416,6 @@ public class DefaultIssue implements Issue {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
+
+
 }

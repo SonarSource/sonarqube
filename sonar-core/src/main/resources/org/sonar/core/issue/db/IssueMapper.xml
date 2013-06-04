@@ -111,6 +111,31 @@
     where kee = #{kee}
   </update>
 
+  <!--
+   IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
+ -->
+  <update id="updateIfBeforeSelectedDate" parameterType="Issue">
+    update issues set
+    action_plan_key=#{actionPlanKey},
+    severity=#{severity},
+    manual_severity=#{manualSeverity},
+    message=#{message},
+    line=#{line},
+    effort_to_fix=#{effortToFix},
+    status=#{status},
+    resolution=#{resolution},
+    checksum=#{checksum},
+    reporter=#{reporter},
+    assignee=#{assignee},
+    author_login=#{authorLogin},
+    issue_attributes=#{issueAttributes},
+    issue_creation_date=#{issueCreationDate},
+    issue_update_date=#{issueUpdateDate},
+    issue_close_date=#{issueCloseDate},
+    updated_at=#{updatedAt}
+    where kee = #{kee} and updated_at &lt;= #{selectedAt}
+  </update>
+
   <select id="selectByKey" parameterType="String" resultType="Issue">
     select
     <include refid="issueColumns"/>

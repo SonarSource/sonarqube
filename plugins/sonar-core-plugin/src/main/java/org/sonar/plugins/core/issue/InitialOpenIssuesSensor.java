@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.issue;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.batch.Sensor;
@@ -26,6 +27,9 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
+
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Load all the issues referenced during the previous scan.
@@ -47,10 +51,15 @@ public class InitialOpenIssuesSensor implements Sensor {
 
   @Override
   public void analyse(Project project, SensorContext context) {
+    // Adding one second is a hack for resolving conflicts with concurrent user
+    // changes during issue persistence
+    final Date now = DateUtils.addSeconds(DateUtils.truncate(new Date(), Calendar.MILLISECOND), 1);
+
     issueDao.selectNonClosedIssuesByModule(project.getId(), new ResultHandler() {
       @Override
       public void handleResult(ResultContext rc) {
         IssueDto dto = (IssueDto) rc.getResultObject();
+        dto.setSelectedAt(now);
         initialOpenIssuesStack.addIssue(dto);
       }
     });

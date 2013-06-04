@@ -133,6 +133,7 @@ public class IssueTrackingDecorator implements Decorator {
       issue.setNew(false);
       issue.setEndOfLife(false);
       issue.setOnDisabledRule(false);
+      issue.setSelectedAt(ref.getSelectedAt());
 
       // fields to update with old values
       issue.setActionPlanKey(ref.getActionPlanKey());

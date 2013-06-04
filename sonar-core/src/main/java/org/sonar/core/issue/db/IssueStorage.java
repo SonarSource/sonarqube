@@ -19,7 +19,6 @@
  */
 package org.sonar.core.issue.db;
 
-import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
@@ -32,12 +31,12 @@ import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 public abstract class IssueStorage {
 
   private final MyBatis mybatis;
   private final RuleFinder ruleFinder;
+  private final UpdateConflictResolver conflictResolver = new UpdateConflictResolver();
 
   protected IssueStorage(MyBatis mybatis, RuleFinder ruleFinder) {
     this.mybatis = mybatis;
@@ -49,34 +48,47 @@ public abstract class IssueStorage {
   }
 
   public void save(Iterable<DefaultIssue> issues) {
-    SqlSession session = mybatis.openBatchSession();
+    SqlSession session = mybatis.openSession();
     IssueMapper issueMapper = session.getMapper(IssueMapper.class);
     IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
     Date now = new Date();
     try {
-      List<DefaultIssue> conflicts = Lists.newArrayList();
       for (DefaultIssue issue : issues) {
         if (issue.isNew()) {
-          long componentId = componentId(issue);
-          long projectId = projectId(issue);
-          int ruleId = ruleId(issue);
-          IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
-          issueMapper.insert(dto);
-
+          insert(issueMapper, now, issue);
         } else if (issue.isChanged()) {
-          IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
-          int count = issueMapper.update(dto);
-          if (count < 1) {
-            conflicts.add(issue);
-          }
+          update(issueMapper, now, issue);
         }
         insertChanges(issueChangeMapper, issue);
 
       }
       session.commit();
-      // TODO log and fix conflicts
     } finally {
       MyBatis.closeQuietly(session);
+    }
+  }
+
+  private void insert(IssueMapper issueMapper, Date now, DefaultIssue issue) {
+    long componentId = componentId(issue);
+    long projectId = projectId(issue);
+    int ruleId = ruleId(issue);
+    IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
+    issueMapper.insert(dto);
+  }
+
+  private void update(IssueMapper issueMapper, Date now, DefaultIssue issue) {
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
+    if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
+      // Issue is closed by scan or changed by end-user
+      issueMapper.update(dto);
+
+    } else {
+      int count = issueMapper.updateIfBeforeSelectedDate(dto);
+      if (count == 0) {
+        // End-user and scan changed the issue at the same time.
+        // See https://jira.codehaus.org/browse/SONAR-4309
+        conflictResolver.resolve(issue, issueMapper);
+      }
     }
   }
 

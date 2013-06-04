@@ -29,7 +29,6 @@ import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -65,6 +64,11 @@ public final class IssueDto implements Serializable {
   // technical dates
   private Date createdAt;
   private Date updatedAt;
+
+  /**
+   * Temporary date used only during scan
+   */
+  private Date selectedAt;
 
   // joins
   private String ruleKey;
@@ -305,6 +309,16 @@ public final class IssueDto implements Serializable {
     return rootComponentKey;
   }
 
+  @CheckForNull
+  public Date getSelectedAt() {
+    return selectedAt;
+  }
+
+  public IssueDto setSelectedAt(Date d) {
+    this.selectedAt = d;
+    return this;
+  }
+
   /**
    * Only for unit tests
    */
@@ -357,7 +371,7 @@ public final class IssueDto implements Serializable {
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
       .setIssueUpdateDate(issue.updateDate())
-
+      .setSelectedAt(issue.selectedAt())
       .setCreatedAt(now)
       .setUpdatedAt(now);
   }
@@ -382,6 +396,7 @@ public final class IssueDto implements Serializable {
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
       .setIssueUpdateDate(issue.updateDate())
+      .setSelectedAt(issue.selectedAt())
       .setUpdatedAt(now);
   }
 
@@ -407,6 +422,7 @@ public final class IssueDto implements Serializable {
     issue.setCreationDate(issueCreationDate);
     issue.setCloseDate(issueCloseDate);
     issue.setUpdateDate(issueUpdateDate);
+    issue.setSelectedAt(selectedAt);
     return issue;
   }
 }
