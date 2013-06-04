@@ -115,13 +115,13 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     }
 
     @Override
-    protected int componentId(DefaultIssue issue) {
-      return 100;
+    protected long componentId(DefaultIssue issue) {
+      return 100l;
     }
 
     @Override
-    protected int projectId(DefaultIssue issue) {
-      return 10;
+    protected long projectId(DefaultIssue issue) {
+      return 10l;
     }
   }
 

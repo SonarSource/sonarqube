@@ -120,7 +120,7 @@ public class IssueService implements ServerComponent {
   }
 
   public Issue plan(String issueKey, @Nullable String actionPlanKey, UserSession userSession) {
-    if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanService.findByKey(actionPlanKey) == null) {
+    if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanService.findByKey(actionPlanKey, userSession) == null) {
       throw new IllegalStateException("Unknown action plan: " + actionPlanKey);
     }
 

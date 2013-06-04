@@ -71,12 +71,12 @@ public class DefaultIssueFinderTest {
   public void should_find_issues() {
     IssueQuery query = IssueQuery.builder().build();
 
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100)
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
-    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123).setRootComponentId(100)
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
@@ -98,12 +98,12 @@ public class DefaultIssueFinderTest {
   public void should_find_paginate_result() {
     IssueQuery query = IssueQuery.builder().pageSize(1).pageIndex(1).build();
 
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100)
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
-    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(135).setRootComponentId(100)
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(135l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Phases.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
@@ -123,7 +123,7 @@ public class DefaultIssueFinderTest {
 
   @Test
   public void should_find_by_key() {
-    IssueDto issueDto = new IssueDto().setId(1L).setRuleId(1).setComponentId(1).setRootComponentId(100)
+    IssueDto issueDto = new IssueDto().setId(1L).setRuleId(1).setComponentId(1l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
@@ -143,12 +143,12 @@ public class DefaultIssueFinderTest {
 
     IssueQuery query = IssueQuery.builder().build();
 
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100)
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
-    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123).setRootComponentId(100)
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
@@ -171,12 +171,12 @@ public class DefaultIssueFinderTest {
 
     IssueQuery query = IssueQuery.builder().build();
 
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100)
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
-    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123).setRootComponentId(100)
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
@@ -198,12 +198,12 @@ public class DefaultIssueFinderTest {
 
     IssueQuery query = IssueQuery.builder().build();
 
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100)
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
-    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123).setRootComponentId(100)
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
@@ -225,12 +225,12 @@ public class DefaultIssueFinderTest {
 
     IssueQuery query = IssueQuery.builder().build();
 
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100).setKee("ABC").setActionPlanKey("A")
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l).setKee("ABC").setActionPlanKey("A")
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
-    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123).setRootComponentId(100).setKee("DEF").setActionPlanKey("B")
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l).setKee("DEF").setActionPlanKey("B")
       .setComponentKey_unit_test_only("Action.java")
       .setRootComponentKey_unit_test_only("struts")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
@@ -255,10 +255,10 @@ public class DefaultIssueFinderTest {
 
     IssueQuery query = IssueQuery.builder().build();
 
-    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123).setRootComponentId(100).setKee("ABC").setAssignee("perceval")
+    IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l).setKee("ABC").setAssignee("perceval")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
-    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123).setRootComponentId(100).setKee("DEF").setReporter("arthur")
+    IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l).setKee("DEF").setReporter("arthur")
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);

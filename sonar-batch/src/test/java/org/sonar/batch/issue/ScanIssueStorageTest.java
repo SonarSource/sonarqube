@@ -44,7 +44,7 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
     when(snapshotCache.get("struts:Action.java")).thenReturn(new Snapshot().setResourceId(123));
 
     ScanIssueStorage storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis()));
-    int componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
+    long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(componentId).isEqualTo(123);
   }
@@ -56,7 +56,7 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
     when(snapshotCache.get("struts:Action.java")).thenReturn(null);
 
     ScanIssueStorage storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis()));
-    int componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
+    long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(componentId).isEqualTo(123);
   }
@@ -82,7 +82,7 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
     when(snapshotCache.get("struts:Action.java")).thenReturn(new Snapshot().setResourceId(123).setRootProjectId(100));
 
     ScanIssueStorage storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis()));
-    int projectId = storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
+    long projectId = storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(projectId).isEqualTo(100);
   }

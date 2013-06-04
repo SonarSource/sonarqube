@@ -54,7 +54,7 @@ public interface ResourceMapper {
   /**
    * @since3.6
    */
-  List<ResourceDto> selectResourcesById(@Param("ids") List <List<Integer>> ids);
+  List<ResourceDto> selectResourcesById(@Param("ids") List <List<Long>> ids);
 
   /**
    * @since 3.6

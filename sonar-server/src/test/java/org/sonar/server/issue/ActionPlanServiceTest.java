@@ -23,6 +23,7 @@ package org.sonar.server.issue;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.ActionPlanDao;
@@ -32,6 +33,8 @@ import org.sonar.core.issue.db.ActionPlanStatsDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.core.user.AuthorizationDao;
+import org.sonar.server.user.UserSession;
 
 import java.util.Collection;
 
@@ -45,11 +48,18 @@ public class ActionPlanServiceTest {
   private ActionPlanDao actionPlanDao = mock(ActionPlanDao.class);
   private ActionPlanStatsDao actionPlanStatsDao = mock(ActionPlanStatsDao.class);
   private ResourceDao resourceDao = mock(ResourceDao.class);
+  private AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+  private UserSession userSession = mock(UserSession.class);
+
   private ActionPlanService actionPlanService;
 
   @Before
   public void before() {
-    actionPlanService = new ActionPlanService(actionPlanDao, actionPlanStatsDao, resourceDao);
+    when(userSession.isLoggedIn()).thenReturn(true);
+    when(userSession.userId()).thenReturn(10);
+    when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(true);
+
+    actionPlanService = new ActionPlanService(actionPlanDao, actionPlanStatsDao, resourceDao, authorizationDao);
   }
 
   @Test
@@ -57,15 +67,45 @@ public class ActionPlanServiceTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
     ActionPlan actionPlan = DefaultActionPlan.create("Long term");
 
-    actionPlanService.create(actionPlan);
+    actionPlanService.create(actionPlan, userSession);
     verify(actionPlanDao).save(any(ActionPlanDto.class));
+  }
+
+  @Test
+  public void should_create_required_logged_user() {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
+    ActionPlan actionPlan = DefaultActionPlan.create("Long term");
+    when(userSession.isLoggedIn()).thenReturn(false);
+
+    try {
+      actionPlanService.create(actionPlan, userSession);
+    } catch (Exception e){
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
+    }
+    verifyZeroInteractions(actionPlanDao);
+  }
+
+  @Test
+  public void should_create_required_admin_role() {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
+    ActionPlan actionPlan = DefaultActionPlan.create("Long term");
+    when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(false);
+
+    try {
+    actionPlanService.create(actionPlan, userSession);
+    } catch (Exception e){
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role to access the project: org.sonar.Sample");
+    }
+    verify(authorizationDao).isAuthorizedComponentId(eq(1l), eq(10), eq(UserRole.ADMIN));
+    verifyZeroInteractions(actionPlanDao);
   }
 
   @Test
   public void should_set_status() {
     when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD"));
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
 
-    ActionPlan result = actionPlanService.setStatus("ABCD", "CLOSED");
+    ActionPlan result = actionPlanService.setStatus("ABCD", "CLOSED", userSession);
     verify(actionPlanDao).update(any(ActionPlanDto.class));
 
     assertThat(result).isNotNull();
@@ -73,15 +113,28 @@ public class ActionPlanServiceTest {
   }
 
   @Test
+  public void should_update() {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
+    ActionPlan actionPlan = DefaultActionPlan.create("Long term");
+
+    actionPlanService.update(actionPlan, userSession);
+    verify(actionPlanDao).update(any(ActionPlanDto.class));
+  }
+
+  @Test
   public void should_delete() {
-    actionPlanService.delete("ABCD");
+    when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD"));
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
+    actionPlanService.delete("ABCD", userSession);
     verify(actionPlanDao).delete("ABCD");
   }
 
   @Test
   public void should_find_by_key() {
     when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD"));
-    ActionPlan result = actionPlanService.findByKey("ABCD");
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
+
+    ActionPlan result = actionPlanService.findByKey("ABCD", userSession);
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("ABCD");
   }
@@ -89,7 +142,7 @@ public class ActionPlanServiceTest {
   @Test
   public void should_return_null_if_no_action_plan_when_find_by_key() {
     when(actionPlanDao.findByKey("ABCD")).thenReturn(null);
-    assertThat(actionPlanService.findByKey("ABCD")).isNull();
+    assertThat(actionPlanService.findByKey("ABCD", userSession)).isNull();
   }
 
   @Test
@@ -102,17 +155,32 @@ public class ActionPlanServiceTest {
 
   @Test
   public void should_find_open_by_project_key() {
-    when(resourceDao.getRootProjectByComponentKey("org.sonar.Sample")).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
     when(actionPlanDao.findOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
-    Collection<ActionPlan> results = actionPlanService.findOpenByComponentKey("org.sonar.Sample");
+    Collection<ActionPlan> results = actionPlanService.findOpenByProjectKey("org.sonar.Sample", userSession);
     assertThat(results).hasSize(1);
     assertThat(results.iterator().next().key()).isEqualTo("ABCD");
   }
 
+  @Test
+  public void should_find_open_by_project_key_required_user_role() {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
+    when(actionPlanDao.findOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
+    when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(false);
+
+    try {
+      actionPlanService.findOpenByProjectKey("org.sonar.Sample", userSession);
+    } catch (Exception e){
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role to access the project: org.sonar.Sample");
+    }
+    verify(authorizationDao).isAuthorizedComponentId(eq(1l), eq(10), eq(UserRole.USER));
+    verifyZeroInteractions(actionPlanDao);
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void should_throw_exception_if_project_not_found_when_find_open_by_project_key() {
-    when(resourceDao.getRootProjectByComponentKey(anyString())).thenReturn(null);
-    actionPlanService.findOpenByComponentKey("<Unkown>");
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
+    actionPlanService.findOpenByProjectKey("<Unkown>", userSession);
   }
 
   @Test
@@ -120,7 +188,7 @@ public class ActionPlanServiceTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L).setKey("org.sonar.Sample"));
     when(actionPlanStatsDao.findByProjectId(1L)).thenReturn(newArrayList(new ActionPlanStatsDto()));
 
-    Collection<ActionPlanStats> results = actionPlanService.findActionPlanStats("org.sonar.Sample");
+    Collection<ActionPlanStats> results = actionPlanService.findActionPlanStats("org.sonar.Sample", userSession);
     assertThat(results).hasSize(1);
   }
 
@@ -128,7 +196,7 @@ public class ActionPlanServiceTest {
   public void should_throw_exception_if_project_not_found_when_find_open_action_plan_stats(){
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
 
-    actionPlanService.findActionPlanStats("org.sonar.Sample");
+    actionPlanService.findActionPlanStats("org.sonar.Sample", userSession);
   }
 
 }

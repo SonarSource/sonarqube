@@ -57,8 +57,8 @@ public abstract class IssueStorage {
       List<DefaultIssue> conflicts = Lists.newArrayList();
       for (DefaultIssue issue : issues) {
         if (issue.isNew()) {
-          int componentId = componentId(issue);
-          int projectId = projectId(issue);
+          long componentId = componentId(issue);
+          long projectId = projectId(issue);
           int ruleId = ruleId(issue);
           IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
           issueMapper.insert(dto);
@@ -95,9 +95,9 @@ public abstract class IssueStorage {
     }
   }
 
-  protected abstract int componentId(DefaultIssue issue);
+  protected abstract long componentId(DefaultIssue issue);
 
-  protected abstract int projectId(DefaultIssue issue);
+  protected abstract long projectId(DefaultIssue issue);
 
   private int ruleId(Issue issue) {
     Rule rule = ruleFinder.findByKey(issue.ruleKey());

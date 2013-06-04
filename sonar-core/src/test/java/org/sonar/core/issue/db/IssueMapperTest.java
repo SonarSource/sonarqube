@@ -39,8 +39,8 @@ public class IssueMapperTest extends AbstractDaoTestCase {
   @Test
   public void testInsert() throws Exception {
     IssueDto dto = new IssueDto();
-    dto.setComponentId(123);
-    dto.setRootComponentId(100);
+    dto.setComponentId(123l);
+    dto.setRootComponentId(100l);
     dto.setRuleId(200);
     dto.setKee("ABCDE");
     dto.setLine(500);
@@ -73,8 +73,8 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     setupData("testUpdate");
 
     IssueDto dto = new IssueDto();
-    dto.setComponentId(123);
-    dto.setRootComponentId(100);
+    dto.setComponentId(123l);
+    dto.setRootComponentId(100l);
     dto.setRuleId(200);
     dto.setKee("ABCDE");
     dto.setLine(500);

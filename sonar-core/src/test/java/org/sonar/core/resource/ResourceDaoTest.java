@@ -152,7 +152,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void should_find_components_by_resource_ids() {
     setupData("fixture");
 
-    Collection<Component> results = dao.findByIds(newArrayList(1));
+    Collection<Component> results = dao.findByIds(newArrayList(1l));
     assertThat(results).hasSize(1);
     Component component = results.iterator().next();
     assertThat(component.key()).isNotNull();

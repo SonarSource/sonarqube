@@ -136,13 +136,13 @@ public class ResourceDao {
     return this;
   }
 
-  public Collection<Component> findByIds(Collection<Integer> ids) {
+  public Collection<Component> findByIds(Collection<Long> ids) {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
     SqlSession session = mybatis.openSession();
     try {
-      List <List<Integer>> idsPartition = Lists.partition(newArrayList(ids), 1000);
+      List <List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
       Collection<ResourceDto> resources =  session.getMapper(ResourceMapper.class).selectResourcesById(idsPartition);
       Collection<Component> components = newArrayList();
       for (ResourceDto resourceDto : resources) {

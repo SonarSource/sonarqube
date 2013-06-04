@@ -201,32 +201,28 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
-  public Collection<ActionPlan> findOpenActionPlansForComponent(String componentKey) {
-    return actionPlanService.findOpenByComponentKey(componentKey);
+  public Collection<ActionPlan> findOpenActionPlans(String projectKey) {
+    return actionPlanService.findOpenByProjectKey(projectKey, UserSession.get());
   }
 
   public ActionPlan findActionPlan(String actionPlanKey) {
-    return actionPlanService.findByKey(actionPlanKey);
+    return actionPlanService.findByKey(actionPlanKey, UserSession.get());
   }
 
   public List<ActionPlanStats> findActionPlanStats(String projectKey) {
-    return actionPlanService.findActionPlanStats(projectKey);
+    return actionPlanService.findActionPlanStats(projectKey, UserSession.get());
   }
 
   public Result<ActionPlan> createActionPlan(Map<String, String> parameters) {
-    // TODO verify authorization
-
     Result<ActionPlan> result = createActionPlanResult(parameters);
     if (result.ok()) {
-      result.set(actionPlanService.create(result.get()));
+      result.set(actionPlanService.create(result.get(), UserSession.get()));
     }
     return result;
   }
 
   public Result<ActionPlan> updateActionPlan(String key, Map<String, String> parameters) {
-    // TODO verify authorization
-
-    DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key);
+    DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key, UserSession.get());
     if (existingActionPlan == null) {
       Result<ActionPlan> result = Result.of();
       result.addError(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", key));
@@ -237,35 +233,32 @@ public class InternalRubyIssueService implements ServerComponent {
         DefaultActionPlan actionPlan = (DefaultActionPlan) result.get();
         actionPlan.setKey(existingActionPlan.key());
         actionPlan.setUserLogin(existingActionPlan.userLogin());
-        result.set(actionPlanService.update(actionPlan));
+        result.set(actionPlanService.update(actionPlan, UserSession.get()));
       }
       return result;
     }
   }
 
   public Result<ActionPlan> closeActionPlan(String actionPlanKey) {
-    // TODO verify authorization
     Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
     if (result.ok()) {
-      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED));
+      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED, UserSession.get()));
     }
     return result;
   }
 
   public Result<ActionPlan> openActionPlan(String actionPlanKey) {
-    // TODO verify authorization
     Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
     if (result.ok()) {
-      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN));
+      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN, UserSession.get()));
     }
     return result;
   }
 
   public Result<ActionPlan> deleteActionPlan(String actionPlanKey) {
-    // TODO verify authorization
     Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
     if (result.ok()) {
-      actionPlanService.delete(actionPlanKey);
+      actionPlanService.delete(actionPlanKey, UserSession.get());
     }
     return result;
   }

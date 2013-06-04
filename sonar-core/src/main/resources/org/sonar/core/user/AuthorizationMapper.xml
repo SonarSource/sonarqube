@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.core.user.AuthorizationMapper">
 
-  <select id="keepAuthorizedComponentIdsForUser" parameterType="map" resultType="int">
+  <select id="keepAuthorizedComponentIdsForUser" parameterType="map" resultType="long">
     SELECT s.project_id
     FROM group_roles gr, snapshots s
     WHERE
@@ -31,7 +31,7 @@
       and s.islast = ${_true}
   </select>
 
-  <select id="keepAuthorizedComponentIdsForAnonymous" parameterType="map" resultType="int">
+  <select id="keepAuthorizedComponentIdsForAnonymous" parameterType="map" resultType="long">
       SELECT s.project_id
       FROM group_roles gr, snapshots s
       WHERE
@@ -45,7 +45,7 @@
         </foreach>
   </select>
 
-  <select id="selectAuthorizedRootProjectsIds" parameterType="map" resultType="int">
+  <select id="selectAuthorizedRootProjectsIds" parameterType="map" resultType="long">
     <include refid="selectAuthorizedRootProjectsIdsQuery" />
   </select>
 

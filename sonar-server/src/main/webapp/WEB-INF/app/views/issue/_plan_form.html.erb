@@ -1,13 +1,13 @@
 <%
    plans_select_box_id = "plans-#{params[:issue]}"
-   plans = Internal.issues.findOpenActionPlansForComponent(@issue.componentKey())
+   plans = Internal.issues.findOpenActionPlans(@issue.componentKey())
 
 
    if plans.empty?
 %>
   <% if is_admin? %>
     <span class="error"><%= message('issue.plan.error.plan_must_be_created_first_for_admin',
-                                    :params => ApplicationController.root_context + '/action_plans/index/' + @issue.projectKey()) -%></span>
+                                    :params => ApplicationController.root_context + '/action_plans/index/' + @issue_result.project(@issue).key()) -%></span>
   <% else %>
     <span class="error"><%= message('issue.plan.error.plan_must_be_created_first_for_other') -%></span>
   <% end %>

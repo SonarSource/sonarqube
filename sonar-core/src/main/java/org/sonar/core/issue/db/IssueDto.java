@@ -40,8 +40,8 @@ public final class IssueDto implements Serializable {
 
   private Long id;
   private String kee;
-  private Integer componentId;
-  private Integer rootComponentId;
+  private Long componentId;
+  private Long rootComponentId;
   private Integer ruleId;
   private String severity;
   private boolean manualSeverity;
@@ -90,20 +90,20 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public Integer getComponentId() {
+  public Long getComponentId() {
     return componentId;
   }
 
-  public IssueDto setComponentId(Integer componentId) {
+  public IssueDto setComponentId(Long componentId) {
     this.componentId = componentId;
     return this;
   }
 
-  public Integer getRootComponentId() {
+  public Long getRootComponentId() {
     return rootComponentId;
   }
 
-  public IssueDto setRootComponentId(Integer rootComponentId) {
+  public IssueDto setRootComponentId(Long rootComponentId) {
     this.rootComponentId = rootComponentId;
     return this;
   }
@@ -335,7 +335,7 @@ public final class IssueDto implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public static IssueDto toDtoForInsert(DefaultIssue issue, Integer componentId, Integer rootComponentId, Integer ruleId, Date now) {
+  public static IssueDto toDtoForInsert(DefaultIssue issue, Long componentId, Long rootComponentId, Integer ruleId, Date now) {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())

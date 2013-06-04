@@ -42,7 +42,7 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
   }
 
   @Override
-  protected int componentId(DefaultIssue issue) {
+  protected long componentId(DefaultIssue issue) {
     Snapshot snapshot = getSnapshot(issue);
     if (snapshot != null) {
       return snapshot.getResourceId();
@@ -53,11 +53,11 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     if (resourceDto == null) {
       throw new IllegalStateException("Unknown component: " + issue.componentKey());
     }
-    return resourceDto.getId().intValue();
+    return resourceDto.getId();
   }
 
   @Override
-  protected int projectId(DefaultIssue issue) {
+  protected long projectId(DefaultIssue issue) {
     Snapshot snapshot = getSnapshot(issue);
     if (snapshot != null) {
       return snapshot.getRootProjectId();

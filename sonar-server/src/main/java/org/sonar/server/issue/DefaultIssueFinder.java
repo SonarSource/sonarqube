@@ -88,7 +88,7 @@ public class DefaultIssueFinder implements IssueFinder {
       throw new IllegalStateException("Unknown issue: " + issueKey);
     }
     if (!authorizationDao.isAuthorizedComponentId(dto.getComponentId(), UserSession.get().userId(), requiredRole)) {
-      throw new IllegalStateException("User does not have the role " + requiredRole + " required to change the issue: " + issueKey);
+      throw new IllegalStateException("User does not have the required role required to change the issue: " + issueKey);
     }
     return dto.toDefaultIssue();
   }
@@ -115,8 +115,8 @@ public class DefaultIssueFinder implements IssueFinder {
       Map<String, DefaultIssue> issuesByKey = newHashMap();
       List<Issue> issues = newArrayList();
       Set<Integer> ruleIds = Sets.newHashSet();
-      Set<Integer> componentIds = Sets.newHashSet();
-      Set<Integer> projectIds = Sets.newHashSet();
+      Set<Long> componentIds = Sets.newHashSet();
+      Set<Long> projectIds = Sets.newHashSet();
       Set<String> actionPlanKeys = Sets.newHashSet();
       Set<String> users = Sets.newHashSet();
       for (IssueDto dto : pagedSortedIssues) {
@@ -185,11 +185,11 @@ public class DefaultIssueFinder implements IssueFinder {
     return userFinder.findByLogins(Lists.newArrayList(logins));
   }
 
-  private Collection<Component> findComponents(Set<Integer> componentIds) {
+  private Collection<Component> findComponents(Set<Long> componentIds) {
     return resourceDao.findByIds(componentIds);
   }
 
-  private Collection<Component> findProjects(Set<Integer> projectIds) {
+  private Collection<Component> findProjects(Set<Long> projectIds) {
     return resourceDao.findByIds(projectIds);
   }
 

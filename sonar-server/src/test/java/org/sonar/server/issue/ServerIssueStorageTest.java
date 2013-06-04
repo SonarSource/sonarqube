@@ -41,7 +41,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
     setupData("should_load_component_id_from_db");
 
     ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), new ResourceDao(getMyBatis()));
-    int componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
+    long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(componentId).isEqualTo(123);
   }
@@ -64,7 +64,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
     setupData("should_load_project_id_from_db");
 
     ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), new ResourceDao(getMyBatis()));
-    int projectId = storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
+    long projectId = storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(projectId).isEqualTo(1);
   }

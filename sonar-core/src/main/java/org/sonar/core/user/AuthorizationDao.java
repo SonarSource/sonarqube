@@ -41,7 +41,7 @@ public class AuthorizationDao implements ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public Set<Integer> keepAuthorizedComponentIds(Set<Integer> componentIds, @Nullable Integer userId, String role) {
+  public Set<Long> keepAuthorizedComponentIds(Set<Long> componentIds, @Nullable Integer userId, String role) {
     SqlSession session = mybatis.openSession();
     try {
       return keepAuthorizedComponentIds(componentIds, userId, role, session);
@@ -51,13 +51,13 @@ public class AuthorizationDao implements ServerComponent {
     }
   }
 
-  public Set<Integer> keepAuthorizedComponentIds(Set<Integer> componentIds, @Nullable Integer userId, String role, SqlSession session) {
+  public Set<Long> keepAuthorizedComponentIds(Set<Long> componentIds, @Nullable Integer userId, String role, SqlSession session) {
     if (componentIds.isEmpty()) {
       return Collections.emptySet();
     }
     String sql;
     Map<String, Object> params;
-    List<List<Integer>> componentIdsPartition = Lists.partition(newArrayList(componentIds), 1000);
+    List<List<Long>> componentIdsPartition = Lists.partition(newArrayList(componentIds), 1000);
     if (userId == null) {
       sql = "keepAuthorizedComponentIdsForAnonymous";
       params = ImmutableMap.of("role", role, "componentIds", componentIdsPartition);
@@ -66,14 +66,14 @@ public class AuthorizationDao implements ServerComponent {
       params = ImmutableMap.of("userId", userId, "role", role, "componentIds", componentIdsPartition);
     }
 
-    return Sets.newHashSet(session.<Integer>selectList(sql, params));
+    return Sets.newHashSet(session.<Long>selectList(sql, params));
   }
 
-  public boolean isAuthorizedComponentId(int componentId, @Nullable Integer userId, String role) {
+  public boolean isAuthorizedComponentId(long componentId, @Nullable Integer userId, String role) {
     return keepAuthorizedComponentIds(Sets.newHashSet(componentId), userId, role).size() == 1;
   }
 
-  public Collection<Integer> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role) {
+  public Collection<Long> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role) {
     SqlSession session = mybatis.openSession();
     try {
       return selectAuthorizedRootProjectsIds(userId, role, session);
@@ -83,7 +83,7 @@ public class AuthorizationDao implements ServerComponent {
     }
   }
 
-  public Collection<Integer> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role, SqlSession session) {
+  public Collection<Long> selectAuthorizedRootProjectsIds(@Nullable Integer userId, String role, SqlSession session) {
     String sql;
     Map<String, Object> params = newHashMap();
     sql = "selectAuthorizedRootProjectsIds";

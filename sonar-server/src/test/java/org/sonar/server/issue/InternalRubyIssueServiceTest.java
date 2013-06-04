@@ -28,6 +28,7 @@ import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.user.UserSession;
 
 import java.util.Map;
 
@@ -65,7 +66,7 @@ public class InternalRubyIssueServiceTest {
     Result result = internalRubyIssueService.createActionPlan(parameters);
     assertThat(result.ok()).isTrue();
 
-    verify(actionPlanService).create(actionPlanCaptor.capture());
+    verify(actionPlanService).create(actionPlanCaptor.capture(), any(UserSession.class));
     ActionPlan actionPlan = actionPlanCaptor.getValue();
 
     assertThat(actionPlan).isNotNull();
@@ -77,7 +78,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_update_action_plan() {
-    when(actionPlanService.findByKey("ABCD")).thenReturn(DefaultActionPlan.create("Long term"));
+    when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "New Long term");
@@ -88,7 +89,7 @@ public class InternalRubyIssueServiceTest {
     Result result = internalRubyIssueService.updateActionPlan("ABCD", parameters);
     assertThat(result.ok()).isTrue();
 
-    verify(actionPlanService).update(actionPlanCaptor.capture());
+    verify(actionPlanService).update(actionPlanCaptor.capture(), any(UserSession.class));
     ActionPlan actionPlan = actionPlanCaptor.getValue();
 
     assertThat(actionPlan).isNotNull();
@@ -100,7 +101,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_update_action_plan_with_new_project() {
-    when(actionPlanService.findByKey("ABCD")).thenReturn(DefaultActionPlan.create("Long term"));
+    when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "New Long term");
@@ -112,7 +113,7 @@ public class InternalRubyIssueServiceTest {
     Result result = internalRubyIssueService.updateActionPlan("ABCD", parameters);
     assertThat(result.ok()).isTrue();
 
-    verify(actionPlanService).update(actionPlanCaptor.capture());
+    verify(actionPlanService).update(actionPlanCaptor.capture(), any(UserSession.class));
     ActionPlan actionPlan = actionPlanCaptor.getValue();
 
     assertThat(actionPlan).isNotNull();
@@ -125,7 +126,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_not_update_action_plan_when_action_plan_is_not_found() {
-    when(actionPlanService.findByKey("ABCD")).thenReturn(null);
+    when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(null);
 
     Result result = internalRubyIssueService.updateActionPlan("ABCD", null);
     assertThat(result.ok()).isFalse();
@@ -134,38 +135,38 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_delete_action_plan() {
-    when(actionPlanService.findByKey("ABCD")).thenReturn(DefaultActionPlan.create("Long term"));
+    when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
     Result result = internalRubyIssueService.deleteActionPlan("ABCD");
-    verify(actionPlanService).delete("ABCD");
+    verify(actionPlanService).delete(eq("ABCD"), any(UserSession.class));
     assertThat(result.ok()).isTrue();
   }
 
   @Test
   public void should_not_delete_action_plan_if_action_plan_not_found() {
-    when(actionPlanService.findByKey("ABCD")).thenReturn(null);
+    when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(null);
 
     Result result = internalRubyIssueService.deleteActionPlan("ABCD");
-    verify(actionPlanService, never()).delete("ABCD");
+    verify(actionPlanService, never()).delete(eq("ABCD"), any(UserSession.class));
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", "ABCD"));
   }
 
   @Test
   public void should_close_action_plan() {
-    when(actionPlanService.findByKey("ABCD")).thenReturn(DefaultActionPlan.create("Long term"));
+    when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
     Result result = internalRubyIssueService.closeActionPlan("ABCD");
-    verify(actionPlanService).setStatus(eq("ABCD"), eq("CLOSED"));
+    verify(actionPlanService).setStatus(eq("ABCD"), eq("CLOSED"), any(UserSession.class));
     assertThat(result.ok()).isTrue();
   }
 
   @Test
   public void should_open_action_plan() {
-    when(actionPlanService.findByKey("ABCD")).thenReturn(DefaultActionPlan.create("Long term"));
+    when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
     Result result = internalRubyIssueService.openActionPlan("ABCD");
-    verify(actionPlanService).setStatus(eq("ABCD"), eq("OPEN"));
+    verify(actionPlanService).setStatus(eq("ABCD"), eq("OPEN"), any(UserSession.class));
     assertThat(result.ok()).isTrue();
   }
 
