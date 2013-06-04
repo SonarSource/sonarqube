@@ -181,7 +181,7 @@ class Rule < ActiveRecord::Base
     if Api::Utils.is_integer?(rule_id_or_name)
       rule = Rule.first(:conditions => {:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :id => rule_id_or_name.to_i})
     else
-      key = rule_id_or_name.strip.downcase.sub(/\s+/, '_')
+      key = rule_id_or_name.strip.downcase.gsub(/\s/, '_')
       rule = Rule.first(:conditions => {:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key})
       if rule==nil && create_if_not_found
         description = options[:description] || Api::Utils.message('manual_rules.should_provide_real_description')
