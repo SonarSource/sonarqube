@@ -1,16 +1,21 @@
 <div class="source_title">
   <%
     project = @issue_results.project(@issue)
-     component = @issue_results.component(@issue)
+    component = @issue_results.component(@issue)
   %>
 
-  <% if component.key() != project.key() %>
+  <% if @issue.componentKey() != project.key() %>
   <div class="subtitle">
     <%= h project.longName() -%>
   </div>
   <% end %>
   <span class="h1">
-    <a href="<%= ApplicationController.root_context -%>/resource/index/<%= component.key() -%>?layout=false&tab=issues" onclick="window.open(this.href,'resource-<%= component.key().parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= h component.longName() -%></a>
+    <% if component %>
+    <a href="<%= ApplicationController.root_context -%>/resource/index/<%= component.key() -%>?layout=false&tab=issues"
+       onclick="window.open(this.href,'resource-<%= component.key().parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= h component.longName() -%></a>
+    <% else %>
+      <%= h @issue.componentKey() + '['+ message('issue.component_deleted') + ']' -%>
+    <% end %>
   </span>
 </div>
 

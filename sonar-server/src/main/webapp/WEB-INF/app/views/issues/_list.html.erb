@@ -79,7 +79,8 @@
             <%= h (truncate(@filter.issues_result.project(issue).name, :length => 100)) -%>
           </td>
           <td>
-            <%= h @filter.issues_result.component(issue).name -%>
+            <% component = @filter.issues_result.component(issue) %>
+            <%= h component.name if component -%>
           </td>
           <td>
             <%= h @filter.issues_result.user(issue.assignee).name if issue.assignee -%>
