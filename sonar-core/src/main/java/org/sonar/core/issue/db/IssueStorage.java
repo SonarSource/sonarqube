@@ -27,11 +27,21 @@ import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
 import java.util.Date;
 
+/**
+ * Save issues into database. It is executed :
+ * <ul>
+ * <li>once at the end of scan, even on multi-module projects</li>
+ * <li>on each server-side action initiated by UI or web service</li>
+ * </ul>
+ *
+ * @since 3.6
+ */
 public abstract class IssueStorage {
 
   private final MyBatis mybatis;
@@ -48,7 +58,10 @@ public abstract class IssueStorage {
   }
 
   public void save(Iterable<DefaultIssue> issues) {
+    // Batch session can not be used. It does not return the number of updated rows,
+    // required for detecting conflicts.
     SqlSession session = mybatis.openSession();
+    int count = 0;
     IssueMapper issueMapper = session.getMapper(IssueMapper.class);
     IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
     Date now = new Date();
@@ -60,7 +73,9 @@ public abstract class IssueStorage {
           update(issueMapper, now, issue);
         }
         insertChanges(issueChangeMapper, issue);
-
+        if (count++> BatchSession.MAX_BATCH_SIZE) {
+          session.commit();
+        }
       }
       session.commit();
     } finally {

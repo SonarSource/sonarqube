@@ -109,6 +109,40 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at"}, "issues", "issue_changes");
   }
 
+  @Test
+  public void should_resolve_conflicts_on_updates() throws Exception {
+    setupData("should_resolve_conflicts_on_updates");
+
+    FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
+
+    Date date = DateUtils.parseDate("2013-05-18");
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(false)
+      .setChanged(true)
+      .setCreationDate(DateUtils.parseDate("2005-05-12"))
+      .setUpdateDate(date)
+      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+      .setComponentKey("struts:Action")
+
+        // issue in database has been updated in 2013, after the loading by scan
+      .setSelectedAt(DateUtils.parseDate("2005-01-01"))
+
+        // fields to be updated
+      .setLine(444)
+      .setSeverity("BLOCKER")
+      .setChecksum("FFFFF")
+
+        // fields overridden by end-user -> do not save
+      .setAssignee("looser")
+      .setResolution(null)
+      .setStatus("REOPEN");
+
+    saver.save(issue);
+
+    checkTables("should_resolve_conflicts_on_updates", new String[]{"id", "created_at", "updated_at"}, "issues");
+  }
+
   static class FakeSaver extends IssueStorage {
     protected FakeSaver(MyBatis mybatis, RuleFinder ruleFinder) {
       super(mybatis, ruleFinder);

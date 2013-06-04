@@ -392,8 +392,9 @@ public class DefaultIssue implements Issue {
     return selectedAt;
   }
 
-  public void setSelectedAt(@Nullable Date d) {
+  public DefaultIssue setSelectedAt(@Nullable Date d) {
     this.selectedAt = d;
+    return this;
   }
 
   @Override
