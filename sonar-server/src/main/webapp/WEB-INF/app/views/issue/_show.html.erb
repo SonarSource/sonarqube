@@ -1,8 +1,17 @@
 <div class="source_title">
+  <%
+    project = @issue_results.project(@issue)
+     component = @issue_results.component(@issue)
+  %>
+
+  <% if component.key() != project.key() %>
   <div class="subtitle">
-    <%= h @issue_results.project(@issue).name() -%>
+    <%= h project.longName() -%>
   </div>
-  <span class="h1"><%= h @issue_results.component(@issue).longName() -%></span>
+  <% end %>
+  <span class="h1">
+    <a href="<%= ApplicationController.root_context -%>/resource/index/<%= component.key() -%>?layout=false&tab=issues" onclick="window.open(this.href,'resource-<%= component.key().parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= h component.longName() -%></a>
+  </span>
 </div>
 
 <div class="marginbottom10">
