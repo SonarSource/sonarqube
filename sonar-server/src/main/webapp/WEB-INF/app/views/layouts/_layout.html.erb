@@ -192,14 +192,18 @@
       <% end %>
     <% end %>
     <div id="ftlinks">
-      <%= message('layout.powered_by') -%> <a href="http://www.sonarsource.com" target="SonarSource">SonarSource</a> - Open Source
-      <a href="http://www.sonarsource.org/documentation/license/" target="license">LGPL</a> - v.<%= sonar_version -%> -
-      <a href="http://sonar-plugins.codehaus.org" target="plugins"><%= message('layout.plugins') -%></a> -
-      <a href="http://sonar.codehaus.org/documentation" target="sonar_doc"><%= message('layout.documentation') -%></a> -
-      <a href="http://sonar.codehaus.org/support/" target="support"><%= message('layout.ask_a_questions') -%></a>
-      <% unless DatabaseVersion.production? %>
-        <br/><span class="yellowHighlight" id="evaluation_warning"><%= message('layout.evaluation') -%></span>
-      <% end %>
+      <div>
+        SonarQube&trade; technology <%= message('layout.powered_by') -%> <a href="http://www.sonarsource.com" target="SonarSource SA">SonarSource SA</a>
+      </div>
+      <div>
+        Version <%= sonar_version -%> -
+        <a href="http://sonar.codehaus.org/documentation" target="sonar_doc"><%= message('layout.documentation') -%></a> -
+        <a href="http://sonar.codehaus.org/support/" target="support"><%= message('layout.get_support') -%></a> -
+        <a href="http://sonar-plugins.codehaus.org" target="plugins"><%= message('layout.plugins') -%></a>
+        <% unless DatabaseVersion.production? %>
+          <br/><span class="yellowHighlight" id="evaluation_warning"><%= message('layout.evaluation') -%></span>
+        <% end %>
+      </div>
       <!--[if lte IE 6]><br/><span class="ie6-warn"><%= message('layout.ie6_warn') -%></span><![endif]-->
     </div>
   </div>
