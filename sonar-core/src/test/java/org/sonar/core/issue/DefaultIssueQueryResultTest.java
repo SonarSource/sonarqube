@@ -26,13 +26,21 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultIssueQueryResultTest {
+
+  @Test(expected = IllegalArgumentException.class)
+  public void should_first_throw_exception_if_no_issue() {
+    DefaultIssueQueryResult result = new DefaultIssueQueryResult(Collections.<Issue>emptyList());
+    result.first();
+  }
+
   @Test
   public void test_first_issue() {
-    DefaultIssueQueryResult result = new DefaultIssueQueryResult(Collections.<Issue>emptyList());
-    assertThat(result.first()).isNull();
+    DefaultIssueQueryResult result = new DefaultIssueQueryResult(newArrayList((Issue) new DefaultIssue()));
+    assertThat(result.first()).isNotNull();
 
     Issue first = new DefaultIssue();
     Issue second = new DefaultIssue();
