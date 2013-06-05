@@ -22,6 +22,7 @@ package org.sonar.api.utils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.task.TaskComponent;
 
+import javax.annotation.Nullable;
 import java.util.Date;
 
 /**
@@ -94,8 +95,8 @@ public interface Semaphores extends TaskComponent, ServerComponent {
       return lockedAt;
     }
 
-    public Semaphore setLockedAt(Date lockedAt) {
-      this.lockedAt = (Date) lockedAt.clone();
+    public Semaphore setLockedAt(@Nullable Date lockedAt) {
+      this.lockedAt = lockedAt;
       return this;
     }
 
@@ -103,8 +104,8 @@ public interface Semaphores extends TaskComponent, ServerComponent {
       return createdAt;
     }
 
-    public Semaphore setCreatedAt(Date createdAt) {
-      this.createdAt = (Date) createdAt.clone();
+    public Semaphore setCreatedAt(@Nullable Date createdAt) {
+      this.createdAt = createdAt;
       return this;
     }
 
@@ -112,8 +113,8 @@ public interface Semaphores extends TaskComponent, ServerComponent {
       return updatedAt;
     }
 
-    public Semaphore setUpdatedAt(Date updatedAt) {
-      this.updatedAt = (Date) updatedAt.clone();
+    public Semaphore setUpdatedAt(@Nullable Date updatedAt) {
+      this.updatedAt = updatedAt;
       return this;
     }
 
