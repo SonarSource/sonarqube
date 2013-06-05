@@ -22,7 +22,7 @@ package org.sonar.api.issue;
 import org.sonar.api.ServerComponent;
 
 /**
- * Search for issues. This component can be used only by server-side extensions. Batch extensions should
+ * Search for issues. This IoC component can be used only by server-side extensions. {@link org.sonar.api.BatchExtension}s should
  * use the perspective {@link Issuable}.
  *
  * @since 3.6

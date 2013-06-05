@@ -33,13 +33,22 @@ import java.util.Map;
  */
 public interface RubyIssueService extends ServerComponent {
 
+  /**
+   * Search for an issue by its key.
+   * <p/>
+   * Ruby example: {@code Api.issues.find('ABCDE-12345')}
+   */
   IssueQueryResult find(String issueKey);
 
   /**
    * Search for issues.
    * <p/>
-   * Ruby: <code>Api.issues.find(hash_of_parameters)</code>. <b></B>Keys of parameters must be Ruby strings but not symbols</b>.
+   * Ruby example: {@code Api.issues.find({'statuses' => ['OPEN', 'RESOLVED'], 'assignees' => 'john,carla')}.
    * <p/>
+   * <b>Keys of parameters must be Ruby strings but not symbols</b>. Multi-value parameters can be arrays ({@code ['OPEN', 'RESOLVED']}) or
+   * comma-separated list of strings ({@code 'OPEN,RESOLVED'}).
+   * <p/>
+   * Optional parameters are:
    * <ul>
    *   <li>'issues': list of issue keys</li>
    *   <li>'severities': list of severity to match. See constants in {@link org.sonar.api.rule.Severity}</li>
@@ -61,8 +70,8 @@ public interface RubyIssueService extends ServerComponent {
    *   <li>'pageSize': maximum number of results per page. Default is {@link org.sonar.api.issue.IssueQuery#DEFAULT_PAGE_SIZE},
    *   except when the parameter 'components' is set. In this case there's no limit by default (all results in the same page).</li>
    *   <li>'pageIndex': index of the selected page. Default is 1.</li>
-   *   <li>'sort': TODO</li>
-   *   <li>'asc': TODO </li>
+   *   <li>'sort': field to sort on. See supported values in {@link IssueQuery}</li>
+   *   <li>'asc': ascending or descending sort? Value can be a boolean or strings 'true'/'false'</li>
    * </ul>
    */
   IssueQueryResult find(Map<String, Object> parameters);

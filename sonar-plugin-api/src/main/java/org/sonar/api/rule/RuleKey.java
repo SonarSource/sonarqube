@@ -26,6 +26,7 @@ import java.io.Serializable;
 
 /**
  * Key of a rule. Unique among all the rule repositories.
+ *
  * @since 3.6
  */
 public class RuleKey implements Serializable {

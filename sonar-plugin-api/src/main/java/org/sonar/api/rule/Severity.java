@@ -23,6 +23,9 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
+/**
+ * @since 3.6
+ */
 public final class Severity {
 
   private Severity() {
@@ -36,7 +39,7 @@ public final class Severity {
   public static final String BLOCKER = "BLOCKER";
 
   /**
-   * All the supported severities, orderest from {@link #INFO} to {@link #BLOCKER}.
+   * All the supported severity values, ordered from {@link #INFO} to {@link #BLOCKER}.
    */
   public static final List<String> ALL = ImmutableList.of(INFO, MINOR, MAJOR, CRITICAL, BLOCKER);
 }
