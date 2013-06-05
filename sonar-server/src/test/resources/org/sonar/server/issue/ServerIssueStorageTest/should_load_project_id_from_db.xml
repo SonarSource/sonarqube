@@ -2,6 +2,6 @@
   <projects id="1" kee="struts" root_id="[null]"/>
   <projects id="2" kee="struts:Action.java" root_id="1"/>
 
-  <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]" />
-  <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1" />
+  <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]" islast="[true]" />
+  <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1" islast="[true]" />
 </dataset>
