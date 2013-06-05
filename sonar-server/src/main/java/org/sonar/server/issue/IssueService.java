@@ -92,17 +92,18 @@ public class IssueService implements ServerComponent {
    * <p/>
    * Never return null, but return an empty list if the issue does not exist.
    */
-  public List<Transition> listTransitions(String issueKey) {
-    return listTransitions(loadIssue(issueKey).first());
+  public List<Transition> listTransitions(String issueKey, UserSession userSession) {
+    return listTransitions(loadIssue(issueKey).first(), userSession);
   }
 
   /**
    * Never return null, but an empty list if the issue does not exist.
    */
-  public List<Transition> listTransitions(@Nullable Issue issue) {
+  public List<Transition> listTransitions(@Nullable Issue issue, UserSession userSession) {
     if (issue == null) {
       return Collections.emptyList();
     }
+    checkAuthorization(userSession, issue, UserRole.USER);
     return workflow.outTransitions(issue);
   }
 

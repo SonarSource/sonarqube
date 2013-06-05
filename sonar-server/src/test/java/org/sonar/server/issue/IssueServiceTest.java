@@ -118,20 +118,23 @@ public class IssueServiceTest {
 
   @Test
   public void should_list_transitions() {
+    grantAccess();
     List<Transition> transitions = newArrayList(transition);
     when(workflow.outTransitions(issue)).thenReturn(transitions);
 
-    List<Transition> result = issueService.listTransitions("ABCD");
+    List<Transition> result = issueService.listTransitions("ABCD", userSession);
     assertThat(result).hasSize(1);
     assertThat(result.get(0)).isEqualTo(transition);
+    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
   public void should_return_no_transition() {
+    grantAccess();
     when(issueQueryResult.first()).thenReturn(null);
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) new DefaultIssue()));
 
-    assertThat(issueService.listTransitions("ABCD")).isEmpty();
+    assertThat(issueService.listTransitions("ABCD", userSession)).isEmpty();
     verifyZeroInteractions(workflow);
   }
 

@@ -69,6 +69,7 @@ public class ActionPlanServiceTest {
 
     actionPlanService.create(actionPlan, userSession);
     verify(actionPlanDao).save(any(ActionPlanDto.class));
+    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
   }
 
   @Test
@@ -112,6 +113,7 @@ public class ActionPlanServiceTest {
 
     assertThat(result).isNotNull();
     assertThat(result.status()).isEqualTo("CLOSED");
+    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
   }
 
   @Test
@@ -121,6 +123,7 @@ public class ActionPlanServiceTest {
 
     actionPlanService.update(actionPlan, userSession);
     verify(actionPlanDao).update(any(ActionPlanDto.class));
+    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
   }
 
   @Test
@@ -129,6 +132,7 @@ public class ActionPlanServiceTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
     actionPlanService.delete("ABCD", userSession);
     verify(actionPlanDao).delete("ABCD");
+    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
   }
 
   @Test
@@ -139,6 +143,7 @@ public class ActionPlanServiceTest {
     ActionPlan result = actionPlanService.findByKey("ABCD", userSession);
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("ABCD");
+    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
@@ -162,6 +167,7 @@ public class ActionPlanServiceTest {
     Collection<ActionPlan> results = actionPlanService.findOpenByProjectKey("org.sonar.Sample", userSession);
     assertThat(results).hasSize(1);
     assertThat(results.iterator().next().key()).isEqualTo("ABCD");
+    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
@@ -193,6 +199,7 @@ public class ActionPlanServiceTest {
 
     Collection<ActionPlanStats> results = actionPlanService.findActionPlanStats("org.sonar.Sample", userSession);
     assertThat(results).hasSize(1);
+    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
   }
 
   @Test(expected = IllegalArgumentException.class)
