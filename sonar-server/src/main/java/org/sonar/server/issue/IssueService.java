@@ -203,14 +203,14 @@ public class IssueService implements ServerComponent {
       // must be logged
       throw new IllegalStateException("User is not logged in");
     }
-    if (!authorizationDao.isAuthorizedComponentId(findProject(issue.componentKey()).getId(), userSession.userId(), requiredRole)) {
+    if (!authorizationDao.isAuthorizedComponentId(findRootProject(issue.componentKey()).getId(), userSession.userId(), requiredRole)) {
       // TODO throw unauthorized
       throw new IllegalStateException("User does not have the required role");
     }
   }
 
   @VisibleForTesting
-  ResourceDto findProject(String componentKey) {
+  ResourceDto findRootProject(String componentKey) {
     ResourceDto resourceDto = resourceDao.getRootProjectByComponentKey(componentKey);
     if (resourceDto == null) {
       // TODO throw 404

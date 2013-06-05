@@ -13,6 +13,15 @@
                period5_mode="[null]" period5_param="[null]" period5_date="[null]"
                depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
                version="[null]" path=""/>
+  <snapshots id="10" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             status="P" islast="[false]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-01 13:58:00.00" build_date="2008-12-01 13:58:00.00"
+             version="[null]" path=""/>
 
   <!-- project -->
   <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
@@ -58,4 +67,6 @@
                period5_mode="[null]" period5_param="[null]" period5_date="[null]"
                depth="[null]" scope="FIL" qualifier="CLA" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
                version="[null]" path="1.2.3."/>
+
+
 </dataset>

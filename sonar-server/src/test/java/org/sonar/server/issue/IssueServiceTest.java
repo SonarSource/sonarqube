@@ -411,14 +411,14 @@ public class IssueServiceTest {
   public void should_find_project() {
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample").setId(1l);
     when(resourceDao.getRootProjectByComponentKey(anyString())).thenReturn(project);
-    assertThat(issueService.findProject("org.sonar.Sample")).isEqualTo(project);
+    assertThat(issueService.findRootProject("org.sonar.Sample")).isEqualTo(project);
   }
 
   @Test
   public void should_fail_to_find_project() {
     when(resourceDao.getRootProjectByComponentKey(anyString())).thenReturn(null);
     try {
-      issueService.findProject("org.sonar.Sample");
+      issueService.findRootProject("org.sonar.Sample");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Component 'org.sonar.Sample' does not exists.");

@@ -103,20 +103,21 @@
 
   <select id="selectRootProjectByComponentKey" parameterType="string" resultMap="resourceResultMap">
     select rootProject.*
-    from projects p, snapshots s, projects rootProject
+    from projects p
+    inner join snapshots s on s.project_id=p.id and s.islast=${_true}
+    inner join projects rootProject on rootProject.id=s.root_project_id
     <where>
       and p.kee=#{componentKey}
-      and s.project_id=p.id
-      and rootProject.id=s.root_project_id
     </where>
   </select>
 
   <select id="selectRootProjectByComponentId" parameterType="long" resultMap="resourceResultMap">
     select rootProject.*
-    from snapshots s, projects rootProject
+    from snapshots s
+    inner join projects rootProject on rootProject.id=s.root_project_id
     <where>
       and s.project_id=#{componentId}
-      and rootProject.id=s.root_project_id
+      and s.islast=${_true}
     </where>
   </select>
 
