@@ -67,10 +67,17 @@ public interface Issue extends Serializable {
    */
   String key();
 
+  /**
+   * Components are modules ("my_project"), directories ("my_project:my/dir") or files ("my_project:my/file.c").
+   * Keys of Java packages and classes are currently in a special format: "my_project:com.company" and "my_project:com.company.Foo".
+   */
   String componentKey();
 
   RuleKey ruleKey();
 
+  /**
+   * See constants in {@link org.sonar.api.rule.Severity}.
+   */
   String severity();
 
   @CheckForNull
