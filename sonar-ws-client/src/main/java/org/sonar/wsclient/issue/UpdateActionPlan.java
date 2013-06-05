@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.issue;
 
+import org.sonar.wsclient.internal.EncodingUtils;
+
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +31,6 @@ import java.util.Map;
 public class UpdateActionPlan {
 
   static final String BASE_URL = "/api/action_plans/update";
-
   private final Map<String, Object> params = new HashMap<String, Object>();
 
   private UpdateActionPlan() {
@@ -57,11 +59,8 @@ public class UpdateActionPlan {
     return this;
   }
 
-  /**
-   * Due date of the action plan. Format is 'day/month/year', for instance, '31/12/2013'.
-   */
-  public UpdateActionPlan deadLine(String s) {
-    params.put("deadLine", s);
+  public UpdateActionPlan deadLine(Date deadLine) {
+    params.put("deadLine", EncodingUtils.toQueryParam(deadLine, false));
     return this;
   }
 

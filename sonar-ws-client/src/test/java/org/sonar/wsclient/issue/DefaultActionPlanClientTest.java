@@ -25,6 +25,9 @@ import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -68,14 +71,15 @@ public class DefaultActionPlanClientTest {
   }
 
   @Test
-  public void should_create_action_plan() {
+  public void should_create_action_plan() throws Exception {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
 
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
-    ActionPlan result = client.create(NewActionPlan.create().name("Short term").project("org.sonar.Sample").description("Short term issues").deadLine("01/01/2014"));
+    ActionPlan result = client.create(
+      NewActionPlan.create().name("Short term").project("org.sonar.Sample").description("Short term issues").deadLine(stringToDate("2014-01-01")));
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/create?project=org.sonar.Sample&description=Short%20term%20issues&name=Short%20term&deadLine=01/01/2014");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/create?project=org.sonar.Sample&description=Short%20term%20issues&name=Short%20term&deadLine=2014-01-01");
     assertThat(result).isNotNull();
   }
 
@@ -85,9 +89,10 @@ public class DefaultActionPlanClientTest {
     httpServer.doReturnBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
 
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
-    ActionPlan result = client.update(UpdateActionPlan.create().key("382f6f2e-ad9d-424a-b973-9b065e04348a").name("Short term").description("Short term issues").deadLine("01/01/2014"));
+    ActionPlan result = client.update(
+      UpdateActionPlan.create().key("382f6f2e-ad9d-424a-b973-9b065e04348a").name("Short term").description("Short term issues").deadLine(stringToDate("2014-01-01")));
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/update?description=Short%20term%20issues&name=Short%20term&deadLine=01/01/2014&key=382f6f2e-ad9d-424a-b973-9b065e04348a");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/update?description=Short%20term%20issues&name=Short%20term&deadLine=2014-01-01&key=382f6f2e-ad9d-424a-b973-9b065e04348a");
     assertThat(result).isNotNull();
   }
 
@@ -137,6 +142,15 @@ public class DefaultActionPlanClientTest {
 
     assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/close?key=382f6f2e-ad9d-424a-b973-9b065e04348a");
     assertThat(result).isNotNull();
+  }
+
+  private static Date stringToDate(String sDate) {
+    try {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-dd-MM");
+      return sdf.parse(sDate);
+    } catch (ParseException e) {
+      throw new RuntimeException(e);
+    }
   }
 
 }
