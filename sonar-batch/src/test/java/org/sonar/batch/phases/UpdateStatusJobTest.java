@@ -28,6 +28,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.SnapshotCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.Query;
@@ -56,7 +58,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
 
     DatabaseSession session = getSession();
     UpdateStatusJob sensor = new UpdateStatusJob(new Settings().appendProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/"), mock(ServerClient.class), session,
-        new DefaultResourcePersister(session, mock(ResourcePermissions.class)),
+        new DefaultResourcePersister(session, mock(ResourcePermissions.class), mock(SnapshotCache.class), mock(ResourceCache.class)),
         mock(Project.class), loadSnapshot(snapshotId));
     sensor.execute();
 

@@ -62,7 +62,7 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     if (snapshot != null) {
       return snapshot.getRootProjectId();
     }
-    throw new IllegalStateException("Unknown component: " + issue.componentKey());
+    throw new IllegalStateException("Project id not found for: " + issue.componentKey());
   }
 
   private Snapshot getSnapshot(DefaultIssue issue) {

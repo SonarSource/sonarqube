@@ -44,14 +44,17 @@ import java.util.Map;
 
 public final class DefaultResourcePersister implements ResourcePersister {
 
-  private DatabaseSession session;
+  private final DatabaseSession session;
+  private final Map<Resource, Snapshot> snapshotsByResource = Maps.newHashMap();
+  private final ResourcePermissions permissions;
+  private final SnapshotCache snapshotCache;
+  private final ResourceCache resourceCache;
 
-  private Map<Resource, Snapshot> snapshotsByResource = Maps.newHashMap();
-  private ResourcePermissions permissions;
-
-  public DefaultResourcePersister(DatabaseSession session, ResourcePermissions permissions) {
+  public DefaultResourcePersister(DatabaseSession session, ResourcePermissions permissions, SnapshotCache snapshotCache, ResourceCache resourceCache) {
     this.session = session;
     this.permissions = permissions;
+    this.snapshotCache = snapshotCache;
+    this.resourceCache = resourceCache;
   }
 
   public Snapshot saveProject(Project project, Project parent) {
@@ -66,6 +69,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private void addToCache(Resource resource, Snapshot snapshot) {
     if (snapshot != null) {
       snapshotsByResource.put(resource, snapshot);
+      resourceCache.add(resource);
+      snapshotCache.put(resource.getEffectiveKey(), snapshot);
     }
   }
 

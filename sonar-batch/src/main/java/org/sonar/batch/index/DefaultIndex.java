@@ -54,8 +54,6 @@ public class DefaultIndex extends SonarIndex {
   private DefaultResourceCreationLock lock;
   private MetricFinder metricFinder;
   private final ScanGraph graph;
-  private final SnapshotCache snapshotCache;
-  private final ResourceCache resourceCache;
 
   // filters
   private ResourceFilters resourceFilters;
@@ -71,14 +69,12 @@ public class DefaultIndex extends SonarIndex {
   private ScanIssues scanIssues;
 
   public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder,
-                      ScanGraph graph, SnapshotCache snapshotCache, ResourceCache resourceCache, DeprecatedViolations deprecatedViolations) {
+                      ScanGraph graph, DeprecatedViolations deprecatedViolations) {
     this.persistence = persistence;
     this.lock = lock;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
     this.graph = graph;
-    this.snapshotCache = snapshotCache;
-    this.resourceCache = resourceCache;
     this.deprecatedViolations = deprecatedViolations;
   }
 
@@ -542,8 +538,6 @@ public class DefaultIndex extends SonarIndex {
       Snapshot snapshot = persistence.saveResource(currentProject, resource, (parentBucket != null ? parentBucket.getResource() : null));
       if (ResourceUtils.isPersistable(resource) && !Qualifiers.LIBRARY.equals(resource.getQualifier())) {
         graph.addComponent(resource, snapshot);
-        snapshotCache.put(resource.getEffectiveKey(), snapshot);
-        resourceCache.add(resource);
       }
     }
 

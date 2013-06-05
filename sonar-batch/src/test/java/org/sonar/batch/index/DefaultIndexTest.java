@@ -63,7 +63,7 @@ public class DefaultIndexTest {
     ruleFinder = mock(RuleFinder.class);
 
     index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, mock(ScanGraph.class),
-      mock(SnapshotCache.class), mock(ResourceCache.class), mock(DeprecatedViolations.class));
+      mock(DeprecatedViolations.class));
     Project project = new Project("project");
 
     ResourceFilter filter = new ResourceFilter() {

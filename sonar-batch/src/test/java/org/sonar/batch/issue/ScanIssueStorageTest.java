@@ -97,7 +97,7 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
       storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
       fail();
     } catch (Exception e) {
-      assertThat(e).hasMessage("Unknown component: struts:Action.java");
+      assertThat(e).hasMessage("Project id not found for: struts:Action.java");
     }
   }
 
