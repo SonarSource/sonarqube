@@ -95,7 +95,7 @@ public interface Semaphores extends TaskComponent, ServerComponent {
     }
 
     public Semaphore setLockedAt(Date lockedAt) {
-      this.lockedAt = lockedAt;
+      this.lockedAt = (Date) lockedAt.clone();
       return this;
     }
 
@@ -104,7 +104,7 @@ public interface Semaphores extends TaskComponent, ServerComponent {
     }
 
     public Semaphore setCreatedAt(Date createdAt) {
-      this.createdAt = createdAt;
+      this.createdAt = (Date) createdAt.clone();
       return this;
     }
 
@@ -113,7 +113,7 @@ public interface Semaphores extends TaskComponent, ServerComponent {
     }
 
     public Semaphore setUpdatedAt(Date updatedAt) {
-      this.updatedAt = updatedAt;
+      this.updatedAt = (Date) updatedAt.clone();
       return this;
     }
 
