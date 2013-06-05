@@ -168,10 +168,6 @@ public class ActionPlanService implements ServerComponent {
   }
 
   private void checkAuthorization(UserSession userSession, ResourceDto project, String requiredRole) {
-    if (!userSession.isLoggedIn()) {
-      // must be logged
-      throw new IllegalStateException("User is not logged in");
-    }
     if (!authorizationDao.isAuthorizedComponentId(project.getId(), userSession.userId(), requiredRole)) {
       // TODO throw unauthorized
       throw new IllegalStateException("User does not have the required role on the project: " + project.getKey());

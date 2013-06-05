@@ -73,21 +73,6 @@ public class ActionPlanServiceTest {
   }
 
   @Test
-  public void should_create_required_logged_user() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
-    ActionPlan actionPlan = DefaultActionPlan.create("Long term");
-    when(userSession.isLoggedIn()).thenReturn(false);
-
-    try {
-      actionPlanService.create(actionPlan, userSession);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
-    }
-    verifyZeroInteractions(actionPlanDao);
-  }
-
-  @Test
   public void should_create_required_admin_role() {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
     ActionPlan actionPlan = DefaultActionPlan.create("Long term");
