@@ -40,7 +40,7 @@
           root_component_id="10"
           rule_id="200"
           reporter="[null]"
-          issue_attributes=""
+          issue_attributes="JIRA=http://jira.com"
           action_plan_key="[null]"
           created_at="2005-05-12"
           updated_at="2013-05-18"

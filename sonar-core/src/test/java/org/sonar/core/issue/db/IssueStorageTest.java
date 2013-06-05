@@ -132,6 +132,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setLine(444)
       .setSeverity("BLOCKER")
       .setChecksum("FFFFF")
+      .setAttribute("JIRA", "http://jira.com")
 
         // fields overridden by end-user -> do not save
       .setAssignee("looser")
