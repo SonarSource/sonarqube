@@ -41,7 +41,6 @@ public class ResourceCache implements BatchComponent {
   public ResourceCache add(Resource resource) {
     String componentKey = resource.getEffectiveKey();
     Preconditions.checkState(!Strings.isNullOrEmpty(componentKey), "Missing resource effective key");
-    Preconditions.checkState(!resources.containsKey(componentKey), "Resource is already registered: " + componentKey);
     resources.put(componentKey, resource);
     return this;
   }

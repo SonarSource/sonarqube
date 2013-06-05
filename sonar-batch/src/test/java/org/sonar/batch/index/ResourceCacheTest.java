@@ -39,21 +39,6 @@ public class ResourceCacheTest {
   }
 
   @Test
-  public void should_fail_if_add_twice() throws Exception {
-    ResourceCache cache = new ResourceCache();
-    String componentKey = "struts:org.struts.Action";
-    Resource resource = new JavaFile("org.struts.Action").setEffectiveKey(componentKey);
-    cache.add(resource);
-    try {
-      cache.add(resource);
-      fail();
-    } catch (IllegalStateException e) {
-      // success
-      assertThat(e).hasMessage("Resource is already registered: struts:org.struts.Action");
-    }
-  }
-
-  @Test
   public void should_fail_if_missing_component_key() throws Exception {
     ResourceCache cache = new ResourceCache();
     Resource resource = new JavaFile("org.struts.Action").setEffectiveKey(null);
