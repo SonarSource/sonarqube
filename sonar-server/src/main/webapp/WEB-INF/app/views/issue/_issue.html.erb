@@ -6,7 +6,7 @@
 
     <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= h message("severity.#{issue.severity}") -%>">
     &nbsp;
-    <a href="#" onclick="return toggleIssueRule(this)" class="rulename"><%= h Internal.rules.ruleL10nName(@issue_results.rule(issue)) -%></a><%= image_tag 'bullet_arrow_down.gif' %>
+    <a href="#" onclick="return toggleIssueRule(this)" class="rulename"><%= h Internal.rules.ruleL10nName(@issue_results.rule(issue)) -%></a>
     &nbsp;
     <% if issue.resolution %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
@@ -21,7 +21,7 @@
     <% end %>
     <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
     &nbsp;
-    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a><%= image_tag 'bullet_arrow_down.gif' %>
+    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
     &nbsp;
     <% if issue.reporter %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
