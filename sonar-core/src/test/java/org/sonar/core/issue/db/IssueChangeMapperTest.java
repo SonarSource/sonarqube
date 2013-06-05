@@ -20,10 +20,12 @@
 package org.sonar.core.issue.db;
 
 import org.apache.ibatis.session.SqlSession;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.MyBatis;
 
 import java.util.Date;
 
@@ -35,6 +37,11 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
   public void setUp() {
     session = getMyBatis().openSession();
     mapper = session.getMapper(IssueChangeMapper.class);
+  }
+
+  @After
+  public void tearDown() {
+    MyBatis.closeQuietly(session);
   }
 
   @Test

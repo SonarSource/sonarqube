@@ -26,6 +26,7 @@ import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,7 +50,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, Arrays.asList("1000"));
-    session.close();
+    MyBatis.closeQuietly(session);
     assertThat(comments).hasSize(2);
 
     // chronological order

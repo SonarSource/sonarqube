@@ -30,7 +30,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class ActionPlanStatsDaoTest extends AbstractDaoTestCase {
 
-  private ActionPlanStatsDao dao;
+  ActionPlanStatsDao dao;
 
   @Before
   public void createDao() {
