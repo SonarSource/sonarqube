@@ -1551,8 +1551,8 @@ public final class CoreMetrics {
   /**
    * @since 3.6
    */
-  public static final Metric FALSE_POSITIVE_ISSUES = new Metric.Builder(FALSE_POSITIVE_ISSUES_KEY, "False-positive issues", Metric.ValueType.INT)
-    .setDescription("False-positive issues")
+  public static final Metric FALSE_POSITIVE_ISSUES = new Metric.Builder(FALSE_POSITIVE_ISSUES_KEY, "False positive issues", Metric.ValueType.INT)
+    .setDescription("False positive issues")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_ISSUES)
     .setBestValue(0.0)
