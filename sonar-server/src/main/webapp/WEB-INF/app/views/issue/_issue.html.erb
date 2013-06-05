@@ -6,25 +6,25 @@
 
     <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= h message("severity.#{issue.severity}") -%>">
     &nbsp;
-    <a href="#" onclick="return toggleIssueRule(this)" class="rulename"><%= h Internal.rules.ruleL10nName(@issue_results.rule(issue)) -%></a>
+    <a href="#" onclick="return toggleIssueRule(this)" class="rulename"><%= h Internal.rules.ruleL10nName(@issue_results.rule(issue)) -%></a><%= image_tag 'bullet_arrow_down.gif' %>
     &nbsp;
     <% if issue.resolution %>
-      <%= image_tag 'sep12.png' -%>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
       &nbsp;
       <span><%= message("issue.resolution.#{issue.resolution}") -%></span>
       &nbsp;
     <% else %>
-      <%= image_tag 'sep12.png' -%>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
       &nbsp;
       <span><%= message("issue.status.#{issue.status}") -%></span>
       &nbsp;
     <% end %>
-    <%= image_tag 'sep12.png' -%>
+    <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
     &nbsp;
-    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
+    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a><%= image_tag 'bullet_arrow_down.gif' %>
     &nbsp;
     <% if issue.reporter %>
-      <%= image_tag 'sep12.png' -%>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
       &nbsp;
       <span><%= message('issue.reported_by') -%> <%= @issue_results.user(issue.reporter).name -%></span>
       &nbsp;
@@ -65,7 +65,7 @@
     <div class="code-issue-actions">
       <a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right"><%= message('issue.comment.formlink') -%></a>
       <% unless issue.resolution %>
-        <%= image_tag 'sep12.png' -%>
+        <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
         &nbsp;
         <span class="spacer-right">
         <% if issue.assignee %>
@@ -80,7 +80,7 @@
       <% end %>
 
       <% unless issue.resolution %>
-        <%= image_tag 'sep12.png' -%>
+        <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
         &nbsp;
         <span class="spacer-right">
           <% if issue.actionPlanKey %>
@@ -98,7 +98,7 @@
          if !transitions.empty? && transitions.first
            transition = transitions.first
       %>
-        <%= image_tag 'sep12.png' -%>
+        <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
         &nbsp;
         <a href="#" onclick="return doIssueTransition(this, '<%= transition.key -%>')" class="link-action spacer-right"><%= message("issue.transition.#{transition.key}") -%></a>
       <% end %>
@@ -141,11 +141,12 @@
   <% elsif issue.assignee || issue.actionPlanKey %>
     <div class="code-issue-actions">
       <% if issue.assignee %>
-        <%= message('assigned_to') -%> <%= h @issue_results.user(issue.assignee).name -%>
+        <span class="gray"><%= message('assigned_to') -%> <%= h @issue_results.user(issue.assignee).name -%></span>
         &nbsp;
       <% end %>
       <% if issue.actionPlanKey %>
-        <%= message('issue.planned_for') -%> <%= h(@issue_results.actionPlan(issue).name()) -%>
+        <% if issue.assignee %><img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>&nbsp;<% end %>
+        <span class="gray"><%= message('issue.planned_for') -%> <%= h(@issue_results.actionPlan(issue).name()) -%></span>
       <% end %>
     </div>
   <% end %>

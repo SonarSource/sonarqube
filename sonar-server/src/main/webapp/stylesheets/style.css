@@ -2105,9 +2105,7 @@ table.nowrap td, td.nowrap, th.nowrap {
 .dropdown-menu {
   background-clip: padding-box;
   background-color: #FFFFFF;
-  border-color: #DDD;
-  border-style: solid;
-  border-width: 1px;
+  border: 1px solid #DDD;
   box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
   float: left;
   margin: 0;
@@ -2143,6 +2141,7 @@ table.nowrap td, td.nowrap, th.nowrap {
 
 .dropdown-menu a {
   text-decoration: none !important;
+  color: #333 !important;
 }
 
 .form-key-cell {
