@@ -152,7 +152,7 @@ class Api::ActionPlansController < Api::ApiController
 
   def result_to_hash(result)
     hash = {}
-    if result.errors
+    if result.errors and !result.errors.empty?
       hash[:errors] = result.errors().map do |error|
         {
             :msg => (error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams))
