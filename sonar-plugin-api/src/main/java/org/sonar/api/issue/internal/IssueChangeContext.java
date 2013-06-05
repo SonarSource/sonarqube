@@ -26,13 +26,15 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
+ * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
+ *
  * @since 3.6
  */
 public class IssueChangeContext implements Serializable {
 
-  private String login;
-  private Date date;
-  private boolean scan;
+  private final String login;
+  private final Date date;
+  private final boolean scan;
 
   private IssueChangeContext(@Nullable String login, Date date, boolean scan) {
     this.login = login;

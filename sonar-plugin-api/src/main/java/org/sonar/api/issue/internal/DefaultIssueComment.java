@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
+ * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
+ *
  * @since 3.6
  */
 public class DefaultIssueComment implements Serializable, IssueComment {

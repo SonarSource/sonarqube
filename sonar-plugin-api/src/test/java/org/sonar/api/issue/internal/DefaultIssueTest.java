@@ -22,6 +22,9 @@ package org.sonar.api.issue.internal;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.sonar.api.issue.IssueComment;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -111,5 +114,22 @@ public class DefaultIssueTest {
     assertThat(a1).isEqualTo(a2);
     assertThat(a1).isNotEqualTo(b);
     assertThat(a1.hashCode()).isEqualTo(a1.hashCode());
+  }
+
+  @Test
+  public void comments_should_not_be_modifiable() throws Exception {
+    DefaultIssue issue = new DefaultIssue().setKey("AAA");
+
+    List<IssueComment> comments = issue.comments();
+    assertThat(comments).isEmpty();
+
+    try {
+      comments.add(new DefaultIssueComment());
+      fail();
+    } catch (UnsupportedOperationException e) {
+      // ok
+    } catch (Exception e) {
+      fail("Unexpected exception: " + e);
+    }
   }
 }

@@ -31,8 +31,8 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultIssueQueryResultTest {
 
-  @Test(expected = IllegalArgumentException.class)
-  public void should_first_throw_exception_if_no_issue() {
+  @Test(expected = IllegalStateException.class)
+  public void first_should_throw_exception_if_no_issues() {
     DefaultIssueQueryResult result = new DefaultIssueQueryResult(Collections.<Issue>emptyList());
     result.first();
   }

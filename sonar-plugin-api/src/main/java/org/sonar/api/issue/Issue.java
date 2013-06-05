@@ -83,6 +83,9 @@ public interface Issue extends Serializable {
   @CheckForNull
   String message();
 
+  /**
+   * Optional line number. If set, then it's greater than or equal 1.
+   */
   @CheckForNull
   Integer line();
 
@@ -99,17 +102,26 @@ public interface Issue extends Serializable {
   @CheckForNull
   Double effortToFix();
 
+  /**
+   * See constant values in {@link Issue}.
+   */
   String status();
 
   /**
-   * The type of resolution, or null if the issue is not resolved.
+   * The type of resolution, or null if the issue is not resolved. See constant values in {@link Issue}.
    */
   @CheckForNull
   String resolution();
 
+  /**
+   * Login of the user who reported this issue. Null if the issue is reported by a rule engine.
+   */
   @CheckForNull
   String reporter();
 
+  /**
+   * Login of the user who is assigned to this issue. Null if the issue is not assigned.
+   */
   @CheckForNull
   String assignee();
 
@@ -117,6 +129,9 @@ public interface Issue extends Serializable {
 
   Date updateDate();
 
+  /**
+   * Date when status was set to {@link Issue#STATUS_CLOSED}, else null.
+   */
   @CheckForNull
   Date closeDate();
 
@@ -125,6 +140,10 @@ public interface Issue extends Serializable {
 
   Map<String, String> attributes();
 
+  /**
+   * Login of the SCM account that introduced this issue. Requires the
+   * <a href="http://www.sonarsource.com/products/plugins/developer-tools/developer-cockpit/">Developer Cockpit Plugin</a> to be installed.
+   */
   @CheckForNull
   String authorLogin();
 

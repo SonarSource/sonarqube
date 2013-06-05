@@ -29,18 +29,20 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * @since 3.6
+ */
 public class Action {
 
   private final String key;
   private final List<Condition> conditions;
   private final List<Function> functions;
 
-  public Action(String key) {
+  Action(String key) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Action key must be set");
     this.key = key;
     this.conditions = newArrayList();
     this.functions = newArrayList();
-
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Action key must be set");
   }
 
   public String key() {

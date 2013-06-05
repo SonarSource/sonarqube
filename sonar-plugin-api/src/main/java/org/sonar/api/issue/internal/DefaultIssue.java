@@ -22,6 +22,7 @@ package org.sonar.api.issue.internal;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,7 +36,6 @@ import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
+ *
  * @since 3.6
  */
 public class DefaultIssue implements Issue {
@@ -275,9 +277,9 @@ public class DefaultIssue implements Issue {
   /**
    * True when one of the following conditions is true :
    * <ul>
-   *   <li>the related component has been deleted or renamed</li>
-   *   <li>the rule has been deleted (eg. on plugin uninstall)</li>
-   *   <li>the rule has been disabled in the Quality profile</li>
+   * <li>the related component has been deleted or renamed</li>
+   * <li>the rule has been deleted (eg. on plugin uninstall)</li>
+   * <li>the rule has been disabled in the Quality profile</li>
    * </ul>
    */
   public boolean isEndOfLife() {
@@ -384,7 +386,10 @@ public class DefaultIssue implements Issue {
 
   @SuppressWarnings("unchcked")
   public List<IssueComment> comments() {
-    return Objects.firstNonNull(comments, Collections.<IssueComment>emptyList());
+    if (comments == null) {
+      return Collections.emptyList();
+    }
+    return ImmutableList.copyOf(comments);
   }
 
   @CheckForNull

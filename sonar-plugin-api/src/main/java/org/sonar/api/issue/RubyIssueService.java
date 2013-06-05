@@ -36,17 +36,17 @@ public interface RubyIssueService extends ServerComponent {
   /**
    * Search for an issue by its key.
    * <p/>
-   * Ruby example: {@code Api.issues.find('ABCDE-12345')}
+   * Ruby example: <code>result = Api.issues.find('ABCDE-12345')</code>
    */
   IssueQueryResult find(String issueKey);
 
   /**
    * Search for issues.
    * <p/>
-   * Ruby example: {@code Api.issues.find({'statuses' => ['OPEN', 'RESOLVED'], 'assignees' => 'john,carla')}.
+   * Ruby example: <code>Api.issues.find({'statuses' => ['OPEN', 'RESOLVED'], 'assignees' => 'john,carla')}</code>
    * <p/>
-   * <b>Keys of parameters must be Ruby strings but not symbols</b>. Multi-value parameters can be arrays ({@code ['OPEN', 'RESOLVED']}) or
-   * comma-separated list of strings ({@code 'OPEN,RESOLVED'}).
+   * <b>Keys of parameters must be Ruby strings but not symbols</b>. Multi-value parameters can be arrays (<code>['OPEN', 'RESOLVED']</code>) or
+   * comma-separated list of strings (<code>'OPEN,RESOLVED'</code>).
    * <p/>
    * Optional parameters are:
    * <ul>

@@ -19,15 +19,13 @@
  */
 package org.sonar.api.issue.condition;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.sonar.api.issue.Issue;
 
 /**
- * @since 3.1
+ * @since 3.6
  */
-@Beta
 public final class HasIssuePropertyCondition implements Condition {
 
   private final String propertyKey;

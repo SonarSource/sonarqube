@@ -107,7 +107,7 @@ public class DefaultIssueQueryResult implements IssueQueryResult {
     if (issues != null && !issues.isEmpty()) {
       return issues.get(0);
     }
-    throw new IllegalArgumentException("No issue");
+    throw new IllegalStateException("No issue");
   }
 
   @Override

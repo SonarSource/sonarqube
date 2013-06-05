@@ -49,13 +49,13 @@ import static org.mockito.Mockito.*;
 
 public class ActionServiceTest {
 
-  private DefaultIssueFinder finder;
-  private IssueStorage issueStorage;
-  private IssueUpdater updater;
-  private PropertiesDao propertiesDao;
-  private Settings settings;
-  private Actions actions;
-  private ActionService actionService;
+  DefaultIssueFinder finder;
+  IssueStorage issueStorage;
+  IssueUpdater updater;
+  PropertiesDao propertiesDao;
+  Settings settings;
+  Actions actions;
+  ActionService actionService;
 
   @Before
   public void before() {
@@ -124,7 +124,7 @@ public class ActionServiceTest {
       actionService.execute("ABCD", "link-to-jira", mock(UserSession.class));
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("No issue");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No issue");
     }
     verifyZeroInteractions(function);
   }
@@ -187,7 +187,7 @@ public class ActionServiceTest {
       actionService.listAvailableActions("ABCD");
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("No issue");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No issue");
     }
   }
 

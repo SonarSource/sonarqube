@@ -33,14 +33,20 @@ import java.util.List;
  * @since 3.6
  */
 public interface IssueQueryResult {
+  /**
+   * Non-null paginated list of issues.
+   */
   List<Issue> issues();
 
   /**
-   * Return first issue in the list.
-   * It will throws IllegalArgumentException if no issue found.
+   * Returns the first issue in the list.
+   * @throws IllegalStateException if the list is empty.
    */
   Issue first();
 
+  /**
+   * Returns the rule associated to the given issue.
+   */
   Rule rule(Issue issue);
 
   /**
@@ -62,22 +68,33 @@ public interface IssueQueryResult {
    */
   Collection<Component> projects();
 
-
   @CheckForNull
   ActionPlan actionPlan(Issue issue);
 
+  /**
+   * The action plans involved in the paginated {@link #issues()}.
+   */
   Collection<ActionPlan> actionPlans();
 
   /**
-   * The users involved in the paginated {@link #issues()}, for example people who added a comment, created an issue
+   * The users involved in the paginated {@link #issues()}, for example people who added a comment, reported an issue
    * or are assigned to issues.
    */
   Collection<User> users();
 
+  /**
+   * Returns the user with the given login. Users that are not returned by {@link #users()} are ignored.
+   */
   @CheckForNull
   User user(String login);
 
+  /**
+   * Non-null data about paging of issues
+   */
   Paging paging();
 
+  /**
+   * True if too many issues have been found. In this case results are truncated.
+   */
   boolean maxResultsReached();
 }
