@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.core.issue.notification;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.EmailSettings;
@@ -39,7 +38,6 @@ import javax.annotation.Nullable;
 public class IssueChangesEmailTemplate extends EmailTemplate {
 
   private static final char NEW_LINE = '\n';
-
   private final EmailSettings settings;
   private final UserFinder userFinder;
 

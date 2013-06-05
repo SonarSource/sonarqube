@@ -29,6 +29,7 @@ import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -366,7 +367,7 @@ public final class IssueDto implements Serializable {
       .setComponentId(componentId)
       .setRootComponentId(rootComponentId)
       .setActionPlanKey(issue.actionPlanKey())
-      .setIssueAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
+      .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
@@ -391,7 +392,7 @@ public final class IssueDto implements Serializable {
       .setReporter(issue.reporter())
       .setAssignee(issue.assignee())
       .setActionPlanKey(issue.actionPlanKey())
-      .setIssueAttributes(issue.attributes() != null ? KeyValueFormat.format(issue.attributes()) : "")
+      .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())

@@ -17,23 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.user;
+@ParametersAreNonnullByDefault
+package org.sonar.api.issue.internal;
 
-import org.sonar.api.ServerComponent;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
-
-/**
- * @since 3.6
- */
-public interface UserFinder extends ServerComponent {
-
-  @CheckForNull
-  User findByLogin(String login);
-
-  List<User> findByLogins(List<String> logins);
-
-  List<User> find(UserQuery query);
-}
+import javax.annotation.ParametersAreNonnullByDefault;
