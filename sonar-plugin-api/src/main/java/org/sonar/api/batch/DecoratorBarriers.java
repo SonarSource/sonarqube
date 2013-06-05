@@ -21,16 +21,37 @@ package org.sonar.api.batch;
 
 /**
  * Barriers are used to define the order of execution of Decorators. Decorators must be annotated with the following :
- *
+ * <p/>
  * <ul>
- *   <li>{@code @DependsUpon(BARRIER)} in order to be executed after BARRIER</li>
- *   <li>{@code @DependedUpon(BARRIER)} in order to be executed before BARRIER</li>
+ * <li>{@code @DependsUpon(BARRIER)} in order to be executed after BARRIER</li>
+ * <li>{@code @DependedUpon(BARRIER)} in order to be executed before BARRIER</li>
  * </ul>
  *
  * @since 2.3
  */
 public interface DecoratorBarriers {
 
+  /**
+   * This barrier is before {@link #ISSUES_TRACKED}. The decorators that register issues must be declared before this
+   * barrier : {@code @DependedUpon(value=DecoratorBarriers.ISSUES_ADDED)}
+   *
+   * @since 3.6
+   */
+  String ISSUES_ADDED = "END_OF_VIOLATIONS_GENERATION";
+
+  /**
+   * This barrier is after {@link #ISSUES_ADDED}. The decorators that need to list all issues must be declared
+   * after this barrier : {@code @DependsUpon(value=DecoratorBarriers.ISSUES_TRACKED)}
+   *
+   * @since 3.6
+   */
+  String ISSUES_TRACKED = "END_OF_VIOLATION_TRACKING";
+
+
+  /**
+   * @deprecated in 3.6. Not required anymore.
+   */
+  @Deprecated
   String START_VIOLATIONS_GENERATION = "START_VIOLATIONS_GENERATION";
 
   /**
@@ -40,17 +61,22 @@ public interface DecoratorBarriers {
    * {@code @DependsUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION}</li>
    * <li>declare that it generates violations : {@code @DependedUpon(value=DecoratorBarriers.END_OF_VIOLATIONS_GENERATION}</li>
    * </ul>
+   *
+   * @deprecated in 3.6. Replaced by {@link #ISSUES_ADDED}
    */
-  String END_OF_VIOLATIONS_GENERATION = "END_OF_VIOLATIONS_GENERATION";
+  @Deprecated
+  String END_OF_VIOLATIONS_GENERATION = ISSUES_ADDED;
 
   /**
    * Extensions which call the method {@code Violation#setSwitchedOff} must be executed before this barrier
    * ({@code @DependedUpon(value=DecoratorBarriers.VIOLATION_TRACKING})
-   *
+   * <p/>
    * This barrier is after {@code END_OF_VIOLATIONS_GENERATION}
    *
    * @since 2.8
+   * @deprecated in 3.6. Not required anymore.
    */
+  @Deprecated
   String START_VIOLATION_TRACKING = "START_VIOLATION_TRACKING";
 
   /**
@@ -58,13 +84,15 @@ public interface DecoratorBarriers {
    * Decorators executed after this barrier ({@code @DependsUpon(value=DecoratorBarriers.END_OF_VIOLATION_TRACKING})
    * can benefit from all the features of violation tracking :
    * <ul>
-   *   <li>{@code Violation#getCreatedAt()}</li>
-   *   <li>{@code Violation#isSwitchedOff()}, usually to know if a violation has been flagged as false-positives in UI</li>
+   * <li>{@code Violation#getCreatedAt()}</li>
+   * <li>{@code Violation#isSwitchedOff()}, usually to know if a violation has been flagged as false-positives in UI</li>
    * </ul>
    *
    * @since 2.8
+   * @deprecated in 3.6. Replaced by {@link #ISSUES_TRACKED}
    */
-  String END_OF_VIOLATION_TRACKING = "END_OF_VIOLATION_TRACKING";
+  @Deprecated
+  String END_OF_VIOLATION_TRACKING = ISSUES_TRACKED;
 
   /**
    * @since 2.13

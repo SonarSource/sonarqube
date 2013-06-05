@@ -27,19 +27,64 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
+ * This perspective allows to add and get issues related to the selected component. It can be used from
+ * {@link org.sonar.api.batch.Sensor}s and {@link org.sonar.api.batch.Decorator}s. Web extensions
+ * must use {@link RubyIssueService}.
+ * <p/>
+ * Example:
+ * <pre>
+ *   import org.sonar.api.component.ResourcePerspectives;
+ *   public class MySensor extends Sensor {
+ *     private final ResourcePerspectives perspectives;
+ *
+ *     public MySensor(ResourcePerspectives p) {
+ *       this.perspectives = p;
+ *     }
+ *
+ *     public void analyse(Project project, SensorContext context) {
+ *       Resource myResource; // to be set
+ *       Issuable issuable = perspectives.as(Issuable.class, myResource);
+ *       if (issuable != null) {
+ *         // can be used
+ *         Issue issue = issuable.newIssueBuilder()
+ *           .setRuleKey(RuleKey.of("pmd", "AvoidArrayLoops")
+ *           .setLine(10)
+ *           .build();
+ *         issuable.addIssue(issue);
+ *       }
+ *     }
+ *   }
+ * </pre>
  * @since 3.6
  */
 public interface Issuable extends Perspective {
 
   interface IssueBuilder {
+    /**
+     * The rule key is mandatory. Example: {@code RuleKey.of("pmd", "AvoidArrayLoops")}
+     */
     IssueBuilder ruleKey(RuleKey ruleKey);
 
+    /**
+     * Optional line index, starting from 1. It must not be zero or negative.
+     */
     IssueBuilder line(@Nullable Integer line);
 
+    /**
+     * Optional, but recommended, plain-text message.
+     * <p/>
+     * Formats like Markdown or HTML are not supported. Size must not be greater than {@link Issue#MESSAGE_MAX_SIZE} characters.
+     */
     IssueBuilder message(@Nullable String message);
 
+    /**
+     * Overrides the severity declared in Quality profile. Do not execute in standard use-cases.
+     */
     IssueBuilder severity(@Nullable String severity);
 
+    /**
+     * Login of the user who reported the issue. Optional.
+     */
     IssueBuilder reporter(@Nullable String reporter);
 
     IssueBuilder effortToFix(@Nullable Double d);
@@ -49,20 +94,32 @@ public interface Issuable extends Perspective {
     Issue build();
   }
 
+  /**
+   * Builder is used to create the issue to be passed to {@link #addIssue(Issue)}
+   */
   IssueBuilder newIssueBuilder();
 
   /**
-   * @return true if the new issue is registered, false if the related rule does not exist or is disabled in the Quality profile
+   * Register an issue created with {@link #newIssueBuilder()}.
+   * <p/>
+   * This method is usually called from {@link org.sonar.api.batch.Sensor}s. {@link org.sonar.api.batch.Decorator}s calling this
+   * method must be annotated with {@code @DependedUpon(DecoratorBarriers.ISSUES_ADDED)}.
+   *
+   * @return true if the new issue is registered, false if the related rule does not exist or is disabled in the Quality profile.
    */
   boolean addIssue(Issue issue);
 
   /**
-   * The issues that are not resolved (=open). They include the manual issues reported by end-users.
+   * Unresolved issues, including the issues reported by end-users.
+   * <p/>
+   * {@link org.sonar.api.batch.Decorator}s calling this method must be annotated with {@code @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)}.
    */
   List<Issue> issues();
 
   /**
-   * The issues marked as resolved during this scan.
+   * Issues marked as resolved during this scan.
+   * <p/>
+   * {@link org.sonar.api.batch.Decorator}s calling this method must be annotated with {@code @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)}.
    */
   List<Issue> resolvedIssues();
 }

@@ -34,8 +34,14 @@ import java.util.Map;
  */
 public interface Issue extends Serializable {
 
+  /**
+   * Maximum number of characters in the message.
+   */
   int MESSAGE_MAX_SIZE = 4000;
 
+  /**
+   * Default status when creating an issue.
+   */
   String STATUS_OPEN = "OPEN";
   String STATUS_CONFIRMED = "CONFIRMED";
   String STATUS_REOPENED = "REOPENED";
@@ -43,13 +49,21 @@ public interface Issue extends Serializable {
   String STATUS_CLOSED = "CLOSED";
 
   String RESOLUTION_FIXED = "FIXED";
+
+  /**
+   * Resolution when issue is flagged as false positive.
+   */
   String RESOLUTION_FALSE_POSITIVE = "FALSE-POSITIVE";
+
+  /**
+   * Resolution when rule has been uninstalled or disabled in the Quality profile.
+    */
   String RESOLUTION_REMOVED = "REMOVED";
 
   List<String> RESOLUTIONS = ImmutableList.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED, RESOLUTION_REMOVED);
 
   /**
-   * Unique generated key
+   * Unique generated key. It looks like "d2de809c-1512-4ae2-9f34-f5345c9f1a13".
    */
   String key();
 
@@ -111,7 +125,10 @@ public interface Issue extends Serializable {
   String actionPlanKey();
 
   /**
-   * Non-null list of comments, ordered by chronological order
+   * Non-null list of comments, ordered by chronological order.
+   * <p/>
+   * IMPORTANT: existing comments are not loaded when this method is called when analyzing project
+   * (from {@link org.sonar.api.BatchExtension}).
    */
   List<IssueComment> comments();
 }
