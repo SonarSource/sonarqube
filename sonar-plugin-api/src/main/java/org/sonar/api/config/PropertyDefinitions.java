@@ -56,6 +56,10 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     }
   }
 
+  public PropertyDefinitions(Collection<PropertyDefinition> components) {
+    addComponents(components);
+  }
+
   public PropertyDefinitions addComponents(Collection components) {
     return addComponents(components, "");
   }

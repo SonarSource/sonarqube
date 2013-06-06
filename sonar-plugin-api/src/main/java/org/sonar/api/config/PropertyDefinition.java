@@ -50,7 +50,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *     public List getExtensions() {
  *       return Arrays.asList(
  *         PropertyDefinition.builder("sonar.foo").name("Foo").build(),
- *         PropertyDefinition.builder("sonar.bar").name("Bar").type(PropertyType.INTEGER).build()
+ *         PropertyDefinition.builder("sonar.bar").name("Bar").defaultValue("123").type(PropertyType.INTEGER).build()
  *       );
  *     }
  *   }
@@ -67,7 +67,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   private List<String> options;
   private String description;
   /**
-   * @see PropertyDef.Builder#category(String)
+   * @see {@link org.sonar.api.config.PropertyDefinition.Builder#category(String)}
    */
   private String category;
   private List<String> qualifiers;
@@ -77,7 +77,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   private String deprecatedKey;
   private List<PropertyFieldDefinition> fields;
   /**
-   * @see PropertyDef.Builder#subCategory(String)
+   * @see {@link org.sonar.api.config.PropertyDefinition.Builder#subCategory(String)}
    */
   private String subCategory;
   private int index;
@@ -204,14 +204,14 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   }
 
   /**
-   * @see PropertyDef.Builder#category(String)
+   * @see {@link PropertyDefinition.Builder#category(String)}
    */
   public String category() {
     return category;
   }
 
   /**
-   * @see PropertyDef.Builder#subCategory(String)
+   * @see {@link PropertyDefinition.Builder#subCategory(String)}
    */
   public String subCategory() {
     return subCategory;
@@ -284,11 +284,11 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     private String description = "";
     private String defaultValue = "";
     /**
-     * @see PropertyDef.Builder#category(String)
+     * @see {@link PropertyDefinition.Builder#category(String)}
      */
     private String category = "";
     /**
-     * @see PropertyDef.Builder#subCategory(String)
+     * @see {@link PropertyDefinition.Builder#subCategory(String)}
      */
     private String subCategory = "";
     private List<String> onQualifiers = newArrayList();
@@ -341,24 +341,64 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
+    /**
+     * The property will be available in General Settings AND in the components
+     * with the given qualifiers.
+     * <p/>
+     * For example @{code onQualifiers(Qualifiers.PROJECT)} allows to configure the
+     * property in General Settings and in Project Settings.
+     * <p/>
+     * See supported constant values in {@link Qualifiers}. By default property is available
+     * only in General Settings.
+     */
     public Builder onQualifiers(String first, String... rest) {
       this.onQualifiers.addAll(Lists.asList(first, rest));
       this.global = true;
       return this;
     }
 
+    /**
+     * The property will be available in General Settings AND in the components
+     * with the given qualifiers.
+     * <p/>
+     * For example @{code onQualifiers(Arrays.asList(Qualifiers.PROJECT))} allows to configure the
+     * property in General Settings and in Project Settings.
+     * <p/>
+     * See supported constant values in {@link Qualifiers}. By default property is available
+     * only in General Settings.
+     */
     public Builder onQualifiers(List<String> qualifiers) {
       this.onQualifiers.addAll(ImmutableList.copyOf(qualifiers));
       this.global = true;
       return this;
     }
 
+    /**
+     * The property will be available in the components
+     * with the given qualifiers, but NOT in General Settings.
+     * <p/>
+     * For example @{code onlyOnQualifiers(Qualifiers.PROJECT)} allows to configure the
+     * property in Project Settings only.
+     * <p/>
+     * See supported constant values in {@link Qualifiers}. By default property is available
+     * only in General Settings.
+     */
     public Builder onlyOnQualifiers(String first, String... rest) {
       this.onlyOnQualifiers.addAll(Lists.asList(first, rest));
       this.global = false;
       return this;
     }
 
+    /**
+     * The property will be available in the components
+     * with the given qualifiers, but NOT in General Settings.
+     * <p/>
+     * For example @{code onlyOnQualifiers(Arrays.asList(Qualifiers.PROJECT))} allows to configure the
+     * property in Project Settings only.
+     * <p/>
+     * See supported constant values in {@link Qualifiers}. By default property is available
+     * only in General Settings.
+     */
     public Builder onlyOnQualifiers(List<String> qualifiers) {
       this.onlyOnQualifiers.addAll(ImmutableList.copyOf(qualifiers));
       this.global = false;
@@ -405,11 +445,19 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
+    /**
+     * Flag the property as hidden. Hidden properties are not displayed in Settings pages
+     * but allow plugins to benefit from type and default values when calling {@link Settings}.
+     */
     public Builder hidden() {
       this.hidden = true;
       return this;
     }
 
+    /**
+     * Set the order index in Settings pages. A property with a lower index is displayed
+     * before properties with higher index.
+     */
     public Builder index(int index) {
       this.index = index;
       return this;

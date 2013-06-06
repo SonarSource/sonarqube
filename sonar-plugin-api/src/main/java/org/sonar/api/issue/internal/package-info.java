@@ -17,6 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/**
+ * This package contains classes that MUST NOT be used by plugins,
+ * except for unit testing.
+ */
 @ParametersAreNonnullByDefault
 package org.sonar.api.issue.internal;
 

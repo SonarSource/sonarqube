@@ -24,9 +24,24 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.resources.Qualifiers;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class PropertyDefinitionsTest {
+
+  @Test
+  public void should_build_with_predefined_list_of_definitions() {
+    List<PropertyDefinition> list = Arrays.asList(
+      PropertyDefinition.builder("foo").name("Foo").build(),
+      PropertyDefinition.builder("one").name("One").build(),
+      PropertyDefinition.builder("two").name("Two").defaultValue("2").build()
+    );
+    PropertyDefinitions def = new PropertyDefinitions(list);
+
+    assertProperties(def);
+  }
 
   @Test
   public void should_inspect_plugin_objects() {
