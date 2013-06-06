@@ -315,7 +315,7 @@ public final class IssueDto implements Serializable {
     return selectedAt;
   }
 
-  public IssueDto setSelectedAt(Date d) {
+  public IssueDto setSelectedAt(@Nullable Date d) {
     this.selectedAt = d;
     return this;
   }
