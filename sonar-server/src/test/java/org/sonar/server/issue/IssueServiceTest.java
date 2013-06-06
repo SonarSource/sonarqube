@@ -118,29 +118,25 @@ public class IssueServiceTest {
 
   @Test
   public void should_list_transitions() {
-    grantAccess();
     List<Transition> transitions = newArrayList(transition);
     when(workflow.outTransitions(issue)).thenReturn(transitions);
 
-    List<Transition> result = issueService.listTransitions("ABCD", userSession);
+    List<Transition> result = issueService.listTransitions("ABCD");
     assertThat(result).hasSize(1);
     assertThat(result.get(0)).isEqualTo(transition);
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
   public void should_return_no_transition() {
-    grantAccess();
     when(issueQueryResult.first()).thenReturn(null);
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) new DefaultIssue()));
 
-    assertThat(issueService.listTransitions("ABCD", userSession)).isEmpty();
+    assertThat(issueService.listTransitions("ABCD")).isEmpty();
     verifyZeroInteractions(workflow);
   }
 
   @Test
   public void should_do_transition() {
-    grantAccess();
     when(workflow.doTransition(eq(issue), eq(transition.key()), any(IssueChangeContext.class))).thenReturn(true);
 
     Issue result = issueService.doTransition("ABCD", transition.key(), userSession);
@@ -155,7 +151,6 @@ public class IssueServiceTest {
     assertThat(issueChangeContext.date()).isNotNull();
 
     verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
@@ -172,7 +167,6 @@ public class IssueServiceTest {
 
   @Test
   public void should_assign() {
-    grantAccess();
     String assignee = "perceval";
 
     when(userFinder.findByLogin(assignee)).thenReturn(new DefaultUser());
@@ -190,12 +184,10 @@ public class IssueServiceTest {
     assertThat(issueChangeContext.date()).isNotNull();
 
     verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
   public void should_not_assign() {
-    grantAccess();
     String assignee = "perceval";
 
     when(userFinder.findByLogin(assignee)).thenReturn(new DefaultUser());
@@ -210,7 +202,6 @@ public class IssueServiceTest {
 
   @Test
   public void should_fail_assign_if_assignee_not_found() {
-    grantAccess();
     String assignee = "perceval";
 
     when(userFinder.findByLogin(assignee)).thenReturn(null);
@@ -229,7 +220,6 @@ public class IssueServiceTest {
 
   @Test
   public void should_plan() {
-    grantAccess();
     String actionPlanKey = "EFGH";
 
     when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(new DefaultActionPlan());
@@ -247,12 +237,10 @@ public class IssueServiceTest {
     assertThat(issueChangeContext.date()).isNotNull();
 
     verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
   public void should_not_plan() {
-    grantAccess();
     String actionPlanKey = "EFGH";
 
     when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(new DefaultActionPlan());
@@ -267,7 +255,6 @@ public class IssueServiceTest {
 
   @Test
   public void should_fail_plan_if_action_plan_not_found() {
-    grantAccess();
     String actionPlanKey = "EFGH";
 
     when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(null);
@@ -285,7 +272,6 @@ public class IssueServiceTest {
 
   @Test
   public void should_set_severity() {
-    grantAccess();
     String severity = "MINOR";
     when(issueUpdater.setManualSeverity(eq(issue), eq(severity), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -301,12 +287,10 @@ public class IssueServiceTest {
     assertThat(issueChangeContext.date()).isNotNull();
 
     verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
-    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.USER));
   }
 
   @Test
   public void should_not_set_severity() {
-    grantAccess();
     String severity = "MINOR";
     when(issueUpdater.setManualSeverity(eq(issue), eq(severity), any(IssueChangeContext.class))).thenReturn(false);
 

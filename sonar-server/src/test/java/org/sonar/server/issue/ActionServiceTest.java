@@ -124,7 +124,7 @@ public class ActionServiceTest {
       actionService.execute("ABCD", "link-to-jira", mock(UserSession.class));
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No issue");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No issue found");
     }
     verifyZeroInteractions(function);
   }
@@ -187,7 +187,7 @@ public class ActionServiceTest {
       actionService.listAvailableActions("ABCD");
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No issue");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No issue found");
     }
   }
 

@@ -92,25 +92,25 @@ public class IssueService implements ServerComponent {
    * <p/>
    * Never return null, but return an empty list if the issue does not exist.
    */
-  public List<Transition> listTransitions(String issueKey, UserSession userSession) {
-    return listTransitions(loadIssue(issueKey).first(), userSession);
+  public List<Transition> listTransitions(String issueKey) {
+    Issue issue = loadIssue(issueKey).first();
+    return listTransitions(issue);
   }
 
   /**
    * Never return null, but an empty list if the issue does not exist.
+   * No security check is done since it should already have been done to get the issue
    */
-  public List<Transition> listTransitions(@Nullable Issue issue, UserSession userSession) {
+  public List<Transition> listTransitions(@Nullable Issue issue) {
     if (issue == null) {
       return Collections.emptyList();
     }
-    checkAuthorization(userSession, issue, UserRole.USER);
     return workflow.outTransitions(issue);
   }
 
   public Issue doTransition(String issueKey, String transition, UserSession userSession) {
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
-    checkAuthorization(userSession, issue, UserRole.USER);
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (workflow.doTransition(issue, transition, context)) {
       issueStorage.save(issue);
@@ -122,7 +122,6 @@ public class IssueService implements ServerComponent {
   public Issue assign(String issueKey, @Nullable String assignee, UserSession userSession) {
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
-    checkAuthorization(userSession, issue, UserRole.USER);
     if (assignee != null && userFinder.findByLogin(assignee) == null) {
       throw new IllegalArgumentException("Unknown user: " + assignee);
     }
@@ -140,7 +139,6 @@ public class IssueService implements ServerComponent {
     }
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
-    checkAuthorization(userSession, issue, UserRole.USER);
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.plan(issue, actionPlanKey, context)) {
@@ -153,7 +151,6 @@ public class IssueService implements ServerComponent {
   public Issue setSeverity(String issueKey, String severity, UserSession userSession) {
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
-    checkAuthorization(userSession, issue, UserRole.USER);
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     if (issueUpdater.setManualSeverity(issue, severity, context)) {

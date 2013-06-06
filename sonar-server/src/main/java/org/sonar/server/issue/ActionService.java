@@ -68,6 +68,12 @@ public class ActionService implements ServerComponent {
     this.actions = actions;
   }
 
+  public List<Action> listAvailableActions(String issueKey) {
+    IssueQueryResult queryResult = loadIssue(issueKey);
+    final DefaultIssue issue = (DefaultIssue) queryResult.first();
+    return listAvailableActions(issue);
+  }
+
   public List<Action> listAvailableActions(final Issue issue) {
     return newArrayList(Iterables.filter(actions.list(), new Predicate<Action>() {
       @Override
@@ -77,21 +83,11 @@ public class ActionService implements ServerComponent {
     }));
   }
 
-  public List<Action> listAvailableActions(String issueKey) {
-    IssueQueryResult queryResult = loadIssue(issueKey);
-    final DefaultIssue issue = (DefaultIssue) queryResult.first();
-    return listAvailableActions(issue);
-  }
-
   public Issue execute(String issueKey, String actionKey, UserSession userSession) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(actionKey), "Missing action");
 
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
-    if (issue == null) {
-      throw new IllegalArgumentException("Issue is not found : " + issueKey);
-    }
-
     Action action = getAction(actionKey);
     if (action == null) {
       throw new IllegalArgumentException("Action is not found : " + actionKey);
