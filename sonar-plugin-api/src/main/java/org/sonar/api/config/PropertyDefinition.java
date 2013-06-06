@@ -164,6 +164,13 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   /**
    * Unique key within all plugins. It's recommended to prefix the key by 'sonar.' and the plugin name. Examples :
    * 'sonar.cobertura.reportPath' and 'sonar.cpd.minimumTokens'.
+   * <p/>
+   * Keys in l10n bundles:
+   * <ul>
+   *   <li>"property.<key>.name" is the label</li>
+   *   <li>"property.<key>.description" is the description</li>
+   *   <li></li>
+   * </ul>
    */
   public String key() {
     return key;
@@ -323,8 +330,14 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     }
 
     /**
-     * Category where properties will appear. By default equal to plugin name.
-     * @param category Name/key of the category. Could be internationalized.
+     * Category where the property appears in settings pages. By default equal to plugin name.
+     * <p/>
+     * Keys in l10n bundles are:
+     * <ul>
+     *   <li>"property.category.<category>" is the label to display</li>
+     *   <li>"property.category.<category>.description" is the description</li>
+     *
+     * </ul>
      */
     public Builder category(String category) {
       this.category = category;
@@ -332,9 +345,13 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     }
 
     /**
-     * Sub category where properties will appear. By default sub category will have
-     * same name as parent category.
-     * @param subCategory Name/key of the sub category. Could be internationalized.
+     * Sub-category where property will appear. By default sub category is the category.
+     * <p/>
+     * Keys in l10n bundles:
+     * <ul>
+     *   <li>"property.category.<category>.<subcategory>" is the sub-category label</li>
+     *   <li>"property.category.<category>.<subcategory>.description" is the description</li>
+     * </ul>
      */
     public Builder subCategory(String subCategory) {
       this.subCategory = subCategory;
