@@ -32,7 +32,6 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,6 +54,16 @@ import static com.google.common.collect.Lists.newArrayList;
  *     }
  *   }
  * </pre>
+ * <p/>
+ * Keys in localization bundles are:
+ * <ul>
+ * <li>{@code property.<key>.name} is the label of the property</li>
+ * <li>{@code property.<key>.description} is the optional description of the property</li>
+ * <li>{@code property.category.<category>} is the category label</li>
+ * <li>{@code property.category.<category>.description} is the category description</li>
+ * <li>{@code property.category.<category>.<subcategory>} is the sub-category label</li>
+ * <li>{@code property.category.<category>.<subcategory>.description} is the sub-category description</li>
+ * </ul>
  *
  * @since 3.6
  */
@@ -67,7 +76,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   private List<String> options;
   private String description;
   /**
-   * @see {@link org.sonar.api.config.PropertyDefinition.Builder#category(String)}
+   * @see org.sonar.api.config.PropertyDefinition.Builder#category(String)
    */
   private String category;
   private List<String> qualifiers;
@@ -77,7 +86,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   private String deprecatedKey;
   private List<PropertyFieldDefinition> fields;
   /**
-   * @see {@link org.sonar.api.config.PropertyDefinition.Builder#subCategory(String)}
+   * @see org.sonar.api.config.PropertyDefinition.Builder#subCategory(String)
    */
   private String subCategory;
   private int index;
@@ -107,16 +116,16 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
 
   static PropertyDefinition create(Property annotation) {
     Builder builder = PropertyDefinition.builder(annotation.key())
-        .name(annotation.name())
-        .defaultValue(annotation.defaultValue())
-        .description(annotation.description())
-        .category(annotation.category())
-        .type(annotation.type())
-        .options(Arrays.asList(annotation.options()))
-        .multiValues(annotation.multiValues())
-        .propertySetKey(annotation.propertySetKey())
-        .fields(PropertyFieldDefinition.create(annotation.fields()))
-        .deprecatedKey(annotation.deprecatedKey());
+      .name(annotation.name())
+      .defaultValue(annotation.defaultValue())
+      .description(annotation.description())
+      .category(annotation.category())
+      .type(annotation.type())
+      .options(Arrays.asList(annotation.options()))
+      .multiValues(annotation.multiValues())
+      .propertySetKey(annotation.propertySetKey())
+      .fields(PropertyFieldDefinition.create(annotation.fields()))
+      .deprecatedKey(annotation.deprecatedKey());
     List<String> qualifiers = newArrayList();
     if (annotation.project()) {
       qualifiers.add(Qualifiers.PROJECT);
@@ -164,13 +173,6 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   /**
    * Unique key within all plugins. It's recommended to prefix the key by 'sonar.' and the plugin name. Examples :
    * 'sonar.cobertura.reportPath' and 'sonar.cpd.minimumTokens'.
-   * <p/>
-   * Keys in l10n bundles:
-   * <ul>
-   *   <li>"property.<key>.name" is the label</li>
-   *   <li>"property.<key>.description" is the description</li>
-   *   <li></li>
-   * </ul>
    */
   public String key() {
     return key;
@@ -211,14 +213,14 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   }
 
   /**
-   * @see {@link PropertyDefinition.Builder#category(String)}
+   * Category where the property appears in settings pages. By default equal to plugin name.
    */
   public String category() {
     return category;
   }
 
   /**
-   * @see {@link PropertyDefinition.Builder#subCategory(String)}
+   * Sub-category where property appears in settings pages. By default sub-category is the category.
    */
   public String subCategory() {
     return subCategory;
@@ -291,11 +293,11 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     private String description = "";
     private String defaultValue = "";
     /**
-     * @see {@link PropertyDefinition.Builder#category(String)}
+     * @see PropertyDefinition.Builder#category(String)
      */
     private String category = "";
     /**
-     * @see {@link PropertyDefinition.Builder#subCategory(String)}
+     * @see PropertyDefinition.Builder#subCategory(String)
      */
     private String subCategory = "";
     private List<String> onQualifiers = newArrayList();
@@ -319,25 +321,25 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
+    /**
+     * @see PropertyDefinition#name()
+     */
     public Builder name(String name) {
       this.name = name;
       return this;
     }
 
+    /**
+     * @see PropertyDefinition#defaultValue()
+     */
     public Builder defaultValue(String defaultValue) {
       this.defaultValue = defaultValue;
       return this;
     }
 
+
     /**
-     * Category where the property appears in settings pages. By default equal to plugin name.
-     * <p/>
-     * Keys in l10n bundles are:
-     * <ul>
-     *   <li>"property.category.<category>" is the label to display</li>
-     *   <li>"property.category.<category>.description" is the description</li>
-     *
-     * </ul>
+     * @see PropertyDefinition#category()
      */
     public Builder category(String category) {
       this.category = category;
@@ -345,13 +347,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     }
 
     /**
-     * Sub-category where property will appear. By default sub category is the category.
-     * <p/>
-     * Keys in l10n bundles:
-     * <ul>
-     *   <li>"property.category.<category>.<subcategory>" is the sub-category label</li>
-     *   <li>"property.category.<category>.<subcategory>.description" is the description</li>
-     * </ul>
+     * @see PropertyDefinition#subCategory()
      */
     public Builder subCategory(String subCategory) {
       this.subCategory = subCategory;
@@ -422,6 +418,9 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       return this;
     }
 
+    /**
+     * @see org.sonar.api.config.PropertyDefinition#type()
+     */
     public Builder type(PropertyType type) {
       this.type = type;
       return this;

@@ -84,7 +84,7 @@ public class Command {
   }
 
   /**
-   * @see {@link org.sonar.api.utils.command.Command#getEnvironmentVariables()}
+   * @see org.sonar.api.utils.command.Command#getEnvironmentVariables()
    * @since 3.2
    */
   public Command setEnvironmentVariable(String name, String value) {
