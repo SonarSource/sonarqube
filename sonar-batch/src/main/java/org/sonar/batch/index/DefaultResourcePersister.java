@@ -67,7 +67,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   private void addToCache(Resource resource, Snapshot snapshot) {
-    if (snapshot != null && !ResourceUtils.isLibrary(resource)) {
+    if (snapshot != null) {
       snapshotsByResource.put(resource, snapshot);
       resourceCache.add(resource);
       snapshotCache.put(resource.getEffectiveKey(), snapshot);

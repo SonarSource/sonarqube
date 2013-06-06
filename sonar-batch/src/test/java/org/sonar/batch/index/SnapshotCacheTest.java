@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 
 public class SnapshotCacheTest {
@@ -37,19 +36,5 @@ public class SnapshotCacheTest {
     cache.put(componentKey, snapshot);
     assertThat(cache.get(componentKey)).isSameAs(snapshot);
     assertThat(cache.get("other")).isNull();
-  }
-
-  @Test
-  public void should_fail_if_put_twice() throws Exception {
-    SnapshotCache cache = new SnapshotCache();
-    String componentKey = "org.apache.struts:struts-core";
-    cache.put(componentKey, snapshot);
-    try {
-      cache.put(componentKey, mock(Snapshot.class));
-      fail();
-    } catch (IllegalStateException e) {
-      // success
-      assertThat(e).hasMessage("Component is already registered: org.apache.struts:struts-core");
-    }
   }
 }

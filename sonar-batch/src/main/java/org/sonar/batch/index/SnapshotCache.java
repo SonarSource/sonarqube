@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.model.Snapshot;
@@ -36,7 +35,6 @@ public class SnapshotCache implements BatchComponent {
   }
 
   public SnapshotCache put(String componentKey, Snapshot snapshot) {
-    Preconditions.checkState(!snapshots.containsKey(componentKey), "Component is already registered: " + componentKey);
     snapshots.put(componentKey, snapshot);
     return this;
   }
