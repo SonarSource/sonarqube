@@ -55,7 +55,7 @@ public class DefaultActionPlanClientTest {
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
     List<ActionPlan> actionPlans = client.find("com.sonarsource.it.samples:simple-sample");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/search?project=com.sonarsource.it.samples:simple-sample");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/search?project=com.sonarsource.it.samples%3Asimple-sample");
     assertThat(actionPlans).hasSize(1);
     ActionPlan actionPlan = actionPlans.get(0);
     assertThat(actionPlan.key()).isEqualTo("382f6f2e-ad9d-424a-b973-9b065e04348a");
@@ -79,7 +79,7 @@ public class DefaultActionPlanClientTest {
     ActionPlan result = client.create(
       NewActionPlan.create().name("Short term").project("org.sonar.Sample").description("Short term issues").deadLine(stringToDate("2014-01-01")));
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/create?project=org.sonar.Sample&description=Short%20term%20issues&name=Short%20term&deadLine=2014-01-01");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/create?project=org.sonar.Sample&description=Short+term+issues&name=Short+term&deadLine=2014-01-01");
     assertThat(result).isNotNull();
   }
 
@@ -92,7 +92,7 @@ public class DefaultActionPlanClientTest {
     ActionPlan result = client.update(
       UpdateActionPlan.create().key("382f6f2e-ad9d-424a-b973-9b065e04348a").name("Short term").description("Short term issues").deadLine(stringToDate("2014-01-01")));
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/update?description=Short%20term%20issues&name=Short%20term&deadLine=2014-01-01&key=382f6f2e-ad9d-424a-b973-9b065e04348a");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/update?description=Short+term+issues&name=Short+term&deadLine=2014-01-01&key=382f6f2e-ad9d-424a-b973-9b065e04348a");
     assertThat(result).isNotNull();
   }
 

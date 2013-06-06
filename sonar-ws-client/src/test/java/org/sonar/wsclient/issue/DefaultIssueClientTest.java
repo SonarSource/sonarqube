@@ -130,7 +130,7 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.create(NewIssue.create().component("Action.java").rule("squid:AvoidCycle"));
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/create?component=Action.java&rule=squid:AvoidCycle");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/create?component=Action.java&rule=squid%3AAvoidCycle");
     assertThat(result).isNotNull();
   }
 
@@ -172,7 +172,7 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     IssueComment comment = client.addComment("ISSUE-1", "this is my comment");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/add_comment?issue=ISSUE-1&text=this%20is%20my%20comment");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/add_comment?issue=ISSUE-1&text=this+is+my+comment");
     assertThat(comment).isNotNull();
     assertThat(comment.key()).isEqualTo("COMMENT-123");
     assertThat(comment.htmlText()).isEqualTo("this is my comment");

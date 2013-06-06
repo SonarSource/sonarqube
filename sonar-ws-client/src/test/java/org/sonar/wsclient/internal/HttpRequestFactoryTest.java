@@ -23,8 +23,14 @@ import com.github.kevinsawicki.http.HttpRequest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
+import org.sonar.wsclient.issue.DefaultIssueClient;
+import org.sonar.wsclient.issue.IssueClient;
+import org.sonar.wsclient.issue.IssueQuery;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -84,5 +90,30 @@ public class HttpRequestFactoryTest {
       .setProxyLogin("john").setProxyPassword("smith");
     HttpRequest request = factory.get("/api/issues", Collections.<String, Object>emptyMap());
     // it's not possible to check that the proxy is correctly configured
+  }
+
+  @Test
+  public void should_encore_characters() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+    httpServer.doReturnBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    client.find(IssueQuery.create().issues("ABC DE"));
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?issues=ABC+DE");
+
+    client.find(IssueQuery.create().issues("ABC+BDE"));
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?issues=ABC%2BBDE");
+
+    client.find(IssueQuery.create().createdAfter(toDate("2013-01-01")));
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?createdAfter=2013-01-01T00%3A00%3A00%2B0100");
+  }
+
+  protected static Date toDate(String sDate) {
+    try {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+      return sdf.parse(sDate);
+    } catch (ParseException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
