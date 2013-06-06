@@ -36,24 +36,24 @@
                        {:width => '100%', :placeholder => message('issue_filter.criteria.resolution')},
                        {:id => 'select-resolution', :multiple => true}-%>
     </li>
-    <li>
+    <li id="criteria-assignee" class="marginbottom5">
       <%= message 'issue_filter.criteria.assignee' -%>:
       <% selected_assignee = Api.users.findByLogin(@filter.criteria('assignees')) if @filter.criteria('assignees') %>
       <%= user_select_tag('assignees', {:selected_user => selected_assignee, :width => '100%', :placeholder => message('issue_filter.criteria.assignee'),
                         :html_id => 'select-assignee', :open => false, :allow_clear => true}) -%>
     </li>
-    <li>
+    <li id="criteria-reporter" class="marginbottom5">
       <%= message 'issue_filter.criteria.reporter' -%>:
       <% selected_reporter = Api.users.findByLogin(@filter.criteria('reporters')) if @filter.criteria('reporters') %>
       <%= user_select_tag('reporters', {:selected_user => selected_reporter, :width => '100%', :placeholder => message('issue_filter.criteria.reporter'),
                                         :html_id => 'select-reporter', :open => false, :allow_clear => true}) -%>
     </li>
-    <li class="marginbottom5">
+    <li id="criteria-created" class="marginbottom5">
       <%= message('issue_filter.criteria.created_after') -%>:<br>
-      <input type="text" name="createdAfter" value="<%= @filter.criteria['createdAfter'] -%>" size="10" maxlength="10" class="marginbottom5">
+      <input type="text" id="select-created-after" name="createdAfter" value="<%= @filter.criteria['createdAfter'] -%>" size="10" maxlength="10" class="marginbottom5">
       <br>
       <%= message 'issue_filter.criteria.created_before' -%>:<br>
-      <input type="text" name="createdBefore" value="<%= @filter.criteria['createdBefore'] -%>" size="10" maxlength="10"><br>
+      <input type="text" id="select-created-before" name="createdBefore" value="<%= @filter.criteria['createdBefore'] -%>" size="10" maxlength="10"><br>
       <span class="small gray"><%= message 'issue_filter.criteria.date_format' -%></span>
     </li>
     <li>
