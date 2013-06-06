@@ -23,7 +23,6 @@ package org.sonar.server.issue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
@@ -42,6 +41,7 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.user.UserSession;
@@ -155,7 +155,6 @@ public class IssueServiceTest {
 
   @Test
   public void should_not_do_transition() {
-    grantAccess();
     when(workflow.doTransition(eq(issue), eq(transition.key()), any(IssueChangeContext.class))).thenReturn(false);
 
     Issue result = issueService.doTransition("ABCD", transition.key(), userSession);
@@ -163,6 +162,19 @@ public class IssueServiceTest {
     verify(workflow).doTransition(eq(issue), eq(transition.key()), any(IssueChangeContext.class));
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
+  }
+
+
+  @Test
+  public void should_fail_do_transition_if_not_logged() {
+    when(userSession.isLoggedIn()).thenReturn(false);
+    try {
+      issueService.doTransition("ABCD", transition.key(), userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
+    }
+    verifyZeroInteractions(authorizationDao);
   }
 
   @Test
@@ -303,11 +315,10 @@ public class IssueServiceTest {
 
   @Test
   public void should_create_manual_issue() {
-    grantAccess();
     RuleKey ruleKey = RuleKey.of("manual", "manualRuleKey");
     DefaultIssue manualIssue = new DefaultIssue().setKey("GHIJ").setRuleKey(RuleKey.of("manual", "manualRuleKey")).setComponentKey("org.sonar.Sample");
     when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create("manual", "manualRuleKey"));
-    when(resourceDao.findByKey("org.sonar.Sample")).thenReturn(mock(Component.class));
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(mock(ResourceDto.class));
 
     Issue result = issueService.createManualIssue(manualIssue, userSession);
     assertThat(result).isNotNull();
@@ -319,8 +330,25 @@ public class IssueServiceTest {
   }
 
   @Test
+  public void should_fail_create_manual_issue_if_not_having_required_role() {
+    RuleKey ruleKey = RuleKey.of("manual", "manualRuleKey");
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(mock(ResourceDto.class));
+    when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create("manual", "manualRuleKey"));
+    when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(false);
+
+    DefaultIssue manualIssue = new DefaultIssue().setKey("GHIJ").setRuleKey(ruleKey).setComponentKey("org.sonar.Sample");
+    try {
+      issueService.createManualIssue(manualIssue, userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role");
+    }
+  }
+
+  @Test
   public void should_fail_create_manual_issue_if_not_manual_rule() {
-    grantAccess();
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(mock(ResourceDto.class));
+
     RuleKey ruleKey = RuleKey.of("squid", "s100");
     DefaultIssue manualIssue = new DefaultIssue().setKey("GHIJ").setRuleKey(ruleKey).setComponentKey("org.sonar.Sample");
     try {
@@ -329,13 +357,13 @@ public class IssueServiceTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues can be created only on rules marked as 'manual': squid:s100");
     }
-
     verifyZeroInteractions(issueStorage);
   }
 
   @Test
   public void should_fail_create_manual_issue_if_rule_not_found() {
-    grantAccess();
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(mock(ResourceDto.class));
+
     RuleKey ruleKey = RuleKey.of("manual", "manualRuleKey");
     DefaultIssue manualIssue = new DefaultIssue().setKey("GHIJ").setRuleKey(RuleKey.of("manual", "manualRuleKey")).setComponentKey("org.sonar.Sample");
     when(ruleFinder.findByKey(ruleKey)).thenReturn(null);
@@ -345,72 +373,23 @@ public class IssueServiceTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown rule: manual:manualRuleKey");
     }
-
     verifyZeroInteractions(issueStorage);
   }
 
   @Test
   public void should_fail_create_manual_issue_if_component_not_found() {
-    grantAccess();
     RuleKey ruleKey = RuleKey.of("manual", "manualRuleKey");
     DefaultIssue manualIssue = new DefaultIssue().setKey("GHIJ").setRuleKey(RuleKey.of("manual", "manualRuleKey")).setComponentKey("org.sonar.Sample");
     when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create("manual", "manualRuleKey"));
-    when(resourceDao.findByKey("org.sonar.Sample")).thenReturn(null);
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
     try {
       issueService.createManualIssue(manualIssue, userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown component: org.sonar.Sample");
     }
-
     verifyZeroInteractions(issueStorage);
   }
 
-  @Test
-  public void should_fail_if_not_logged() {
-    when(userSession.isLoggedIn()).thenReturn(false);
-    try {
-      issueService.checkAuthorization(userSession, issue, UserRole.USER);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
-    }
-    verifyZeroInteractions(authorizationDao);
-  }
-
-  @Test
-  public void should_fail_if_not_having_required_role() {
-    grantAccess();
-    when(userSession.isLoggedIn()).thenReturn(true);
-    when(authorizationDao.isAuthorizedComponentId(anyLong(), anyInt(), anyString())).thenReturn(false);
-    try {
-      issueService.checkAuthorization(userSession, issue, UserRole.USER);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role");
-    }
-  }
-
-  @Test
-  public void should_find_project() {
-    ResourceDto project = new ResourceDto().setKey("org.sonar.Sample").setId(1l);
-    when(resourceDao.getRootProjectByComponentKey(anyString())).thenReturn(project);
-    assertThat(issueService.findRootProject("org.sonar.Sample")).isEqualTo(project);
-  }
-
-  @Test
-  public void should_fail_to_find_project() {
-    when(resourceDao.getRootProjectByComponentKey(anyString())).thenReturn(null);
-    try {
-      issueService.findRootProject("org.sonar.Sample");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Component 'org.sonar.Sample' does not exists.");
-    }
-  }
-
-  private void grantAccess(){
-    when(resourceDao.getRootProjectByComponentKey(anyString())).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
-  }
 
 }

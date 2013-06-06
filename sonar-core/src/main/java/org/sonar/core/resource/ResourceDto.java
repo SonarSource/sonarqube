@@ -21,7 +21,7 @@ package org.sonar.core.resource;
 
 import java.util.Date;
 
-public final class ResourceDto {
+public class ResourceDto {
 
   private Long id;
   private String key;

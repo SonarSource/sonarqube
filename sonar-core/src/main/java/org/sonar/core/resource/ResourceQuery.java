@@ -22,7 +22,7 @@ package org.sonar.core.resource;
 /**
  * @since 3.0
  */
-public final class ResourceQuery {
+public class ResourceQuery {
   private String[] qualifiers = null;
   private String key = null;
   private boolean excludeDisabled = false;
