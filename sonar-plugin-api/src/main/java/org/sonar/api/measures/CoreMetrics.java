@@ -1302,7 +1302,7 @@ public final class CoreMetrics {
    * <p>
    * Here is the format (since Sonar 2.12):
    * <pre>
-   *   {@code<duplications>
+   *   <duplications>
    *     <!-- Multiple groups: -->
    *     <g>
    *       <!-- Multiple blocks: -->
@@ -1310,7 +1310,7 @@ public final class CoreMetrics {
    *       ...
    *     </g>
    *     ...
-   *   </duplications>}
+   *   </duplications>
    * </pre>
    * </p>
    */

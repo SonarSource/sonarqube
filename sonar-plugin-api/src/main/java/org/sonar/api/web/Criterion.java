@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import java.util.Set;
 
 /**
- * Definition of a criterion to be used to narrow down a {@see Filter}.
+ * Definition of a criterion to be used to narrow down a {@link Filter}.
  *
  * @since 3.1
  */
@@ -60,7 +60,7 @@ public final class Criterion {
   /**
    * Creates a new {@link Criterion} with a numerical value.
    *
-   * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
+   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}</p>
    *
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
@@ -71,7 +71,7 @@ public final class Criterion {
   /**
    * Creates a new {@link Criterion} with a text value.
    *
-   * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
+   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}</p>
    *
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
@@ -82,7 +82,7 @@ public final class Criterion {
   /**
    * Creates a new {@link Criterion} on a metric, with a numerical value.
    *
-   * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
+   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}</p>
    *
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
@@ -93,7 +93,7 @@ public final class Criterion {
   /**
    * Creates a new {@link Criterion} on a metric, with a text value.
    *
-   * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
+   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}</p>
    *
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
@@ -129,7 +129,7 @@ public final class Criterion {
   /**
    * Get the the criterion's operator.
    *
-   * <p>Valid values for the {@code operator} are {@value #EQ}, {@value #GT}, {@value #GTE}, {@value #LT} and {@value #LTE}</p>
+   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}</p>
    *
    * @return the operator
    */

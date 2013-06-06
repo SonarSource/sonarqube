@@ -66,8 +66,6 @@ public final class ViolationQuery {
 
   /**
    * Tells if the query should return only switched-off violations.
-   * 
-   * @return
    */
   public boolean isSwitchedOff() {
     return switchMode == SwitchMode.OFF;

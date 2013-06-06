@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @TODO Actually this class incorrectly named, because provides information not about project, but about Java project.
+ * TODO Actually this class incorrectly named, because provides information not about project, but about Java project.
  *       And seems that only core plugins use this class.
  * 
  * @since 1.10

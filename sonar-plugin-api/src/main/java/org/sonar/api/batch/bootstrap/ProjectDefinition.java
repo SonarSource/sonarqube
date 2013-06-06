@@ -304,7 +304,7 @@ public class ProjectDefinition {
   /**
    * @param path path to directory with compiled source. In case of Java this is directory with class files.
    *             It can be absolute or relative to project directory.
-   * @TODO currently Sonar supports only one such directory due to dependency on MavenProject
+   *             TODO currently Sonar supports only one such directory due to dependency on MavenProject
    */
   public ProjectDefinition addBinaryDir(String path) {
     appendProperty(BINARIES_PROPERTY, path);

@@ -64,7 +64,7 @@ public @interface Property {
 
   /**
    * @since 2.11
-   * @see org.sonar.api.config.PropertyDef.Builder#category(String)
+   * @see org.sonar.api.config.PropertyDefinition#category()
    */
   String category() default "";
 

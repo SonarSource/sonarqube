@@ -228,7 +228,6 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @return
    * @deprecated since 3.3. Always return true.
    */
   @Deprecated
@@ -237,7 +236,6 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @return
    * @deprecated since 3.3. Always return true.
    */
   @Deprecated
@@ -246,7 +244,6 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @return
    * @deprecated since 3.3.
    */
   @Deprecated

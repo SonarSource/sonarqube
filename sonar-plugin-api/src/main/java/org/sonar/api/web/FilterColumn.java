@@ -26,7 +26,7 @@ import java.util.Set;
 import com.google.common.base.Preconditions;
 
 /**
- * Definition of a {@see Filter} column.
+ * Definition of a {@link Filter} column.
  *
  * @since 3.1
  */
@@ -52,7 +52,7 @@ public final class FilterColumn {
   /**
    * Creates a new {@link FilterColumn}.
    *
-   * <p>Valid values for the {@code sortDirection} are {@value #ASC}, {@value #DESC}</p>
+   * <p>Valid values for the {@code sortDirection} are {@code #ASC}, {@code #DESC}</p>
    *
    * <p>When the @{see Filter} is persisted, a validation is made on the {@code family} and the {@code key}.
    * They should point to a valid column description.</p>

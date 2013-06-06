@@ -188,7 +188,6 @@ public interface SensorContext {
   /**
    * Save the source code of a file. The file must be have been indexed before.
    *
-   * @return false if the resource is excluded or not indexed
    * @throws org.sonar.api.resources.DuplicatedSourceException
    *          if the source has already been set on this resource
    * @since 1.10. Returns a boolean since 2.6.

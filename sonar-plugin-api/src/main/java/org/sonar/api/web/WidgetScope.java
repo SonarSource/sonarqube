@@ -25,7 +25,7 @@ import java.lang.annotation.*;
  * Depending on its scope, a widget can be available for project dashboards <code>(value = "PROJECT")</code>,
  * global dashboards <code>(value = "GLOBAL")</code> or both <code>(value = {"PROJECT", "GLOBAL"})</code>.
  * 
- * <p>Before version 3.1 all widget had a scope <code>"PROJECT"</code>. If a widget is not annotated with {@WidgetScope},
+ * <p>Before version 3.1 all widget had a scope <code>"PROJECT"</code>. If a widget is not annotated with @WidgetScope,
  * then is is assumed project scoped.</p>
  *
  * @since 3.1

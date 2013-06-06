@@ -704,8 +704,11 @@ public class Metric implements ServerExtension, BatchExtension {
      * When a formula is set, sensors/decorators just need to store measures at a specific level and let Sonar run the formula to store
      * measures on the remaining levels.
      *
-     * @see {@link SumChildDistributionFormula}, {@link SumChildValuesFormula}, {@link AverageComplexityFormula}, {@link MeanAggregationFormula},
-     * {@link WeightedMeanAggregationFormula}
+     * @see SumChildDistributionFormula
+     * @see SumChildValuesFormula
+     * @see MeanAggregationFormula
+     * @see WeightedMeanAggregationFormula
+     * @see AverageComplexityFormula
      *
      * @param f the formula
      * @return the builder

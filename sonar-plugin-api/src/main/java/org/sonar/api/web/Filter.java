@@ -113,7 +113,7 @@ public final class Filter {
   /**
    * Get the type of display used by this {@link Filter}.
    * 
-   * <p>Can be either {@value #LIST} or {@value #TREEMAP}</p>
+   * <p>Can be either {@code #LIST} or {@code #TREEMAP}</p>
    * 
    * @return the display type
    */
@@ -124,10 +124,10 @@ public final class Filter {
   /**
    * Set the type of display used by this {@link Filter}.
    * 
-   * <p>Can be either {@value #LIST} or {@value #TREEMAP}</p>
+   * <p>Can be either {@code #LIST} or {@code #TREEMAP}</p>
    * 
    * @return this filter
-   * @throws IllegalArgumentException if {@code displayAs) is not {@value #LIST} or {@value #TREEMAP}
+   * @throws IllegalArgumentException if {@code displayAs} is not {@code #LIST} or {@code #TREEMAP}
    */
   public Filter setDisplayAs(String displayAs) {
     Preconditions.checkArgument(LIST.equals(displayAs) || TREEMAP.equals(displayAs), "Default display should be either %s or %s, not %s", LIST, TREEMAP, displayAs);
@@ -152,7 +152,7 @@ public final class Filter {
    * <p>The page size should be between <code>20</code> and <code>200</code> (included)</p>
    * 
    * @return the display type
-   * @throws IllegalArgumentException if {@code pageSize) is not lower than {@code 20} or greater than {@code 200}
+   * @throws IllegalArgumentException if {@code pageSize} is not lower than {@code 20} or greater than {@code 200}
    */
   public Filter setPageSize(int pageSize) {
     Preconditions.checkArgument((pageSize >= 20) && (pageSize <= 200), "page size should be between 20 and 200");

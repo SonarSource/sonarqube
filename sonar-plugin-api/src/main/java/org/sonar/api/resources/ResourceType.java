@@ -49,7 +49,6 @@ import java.util.Map;
  * <li>"configurable" (since 3.6) : if true, the settings page can be displayed on the resource</li>
  * </ul>
  *
- * @see DefaultResourceTypes in Sonar Core Plugin to see the default resource types
  * @since 2.14
  */
 @Beta
