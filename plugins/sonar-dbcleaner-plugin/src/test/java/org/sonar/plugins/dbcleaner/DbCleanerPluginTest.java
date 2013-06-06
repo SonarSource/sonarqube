@@ -27,6 +27,6 @@ public class DbCleanerPluginTest {
 
   @Test
   public void shouldGetExtensions() {
-    assertThat(new DbCleanerPlugin().getExtensions()).hasSize(3);
+    assertThat(new DbCleanerPlugin().getExtensions()).hasSize(9);
   }
 }

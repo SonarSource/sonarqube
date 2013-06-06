@@ -44,7 +44,7 @@ public class DefaultPurgeTaskTest {
   @Test
   public void shouldNotDeleteHistoricalDataOfDirectories() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.class));
+    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.propertyDefinitions()));
     settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, "false");
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
@@ -62,7 +62,7 @@ public class DefaultPurgeTaskTest {
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesByDefault() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.class));
+    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.propertyDefinitions()));
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
     task.purge(1L);
@@ -95,7 +95,7 @@ public class DefaultPurgeTaskTest {
     PurgeConfiguration conf = new PurgeConfiguration(1L, new String[0], 30);
     PurgeDao purgeDao = mock(PurgeDao.class);
     when(purgeDao.purge(conf)).thenThrow(new RuntimeException());
-    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.class));
+    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.propertyDefinitions()));
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
     PurgeProfiler profiler = mock(PurgeProfiler.class);
 

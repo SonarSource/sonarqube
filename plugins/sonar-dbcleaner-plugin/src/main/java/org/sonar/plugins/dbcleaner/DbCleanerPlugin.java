@@ -20,67 +20,81 @@
 package org.sonar.plugins.dbcleaner;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
 import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 
+import java.util.Arrays;
 import java.util.List;
 
-@Properties({
-  @Property(key = DbCleanerConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY, defaultValue = "24",
-    name = "Number of hours before starting to keep only one snapshot per day",
-    description = "After this number of hours, if there are several snapshots during the same day, "
-      + "the DbCleaner keeps the most recent one and fully deletes the other ones.",
-    global = true,
-    project = true,
-    type = PropertyType.INTEGER),
-  @Property(key = DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK, defaultValue = "4",
-    name = "Number of weeks before starting to keep only one snapshot per week",
-    description = "After this number of weeks, if there are several snapshots during the same week, "
-      + "the DbCleaner keeps the most recent one and fully deletes the other ones.",
-    global = true,
-    project = true,
-    type = PropertyType.INTEGER),
-  @Property(key = DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH, defaultValue = "52",
-    name = "Number of weeks before starting to keep only one snapshot per month",
-    description = "After this number of weeks, if there are several snapshots during the same month, "
-      + "the DbCleaner keeps the most recent one and fully deletes the other ones.",
-    global = true,
-    project = true,
-    type = PropertyType.INTEGER),
-  @Property(key = DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS, defaultValue = "260",
-    name = "Number of weeks before starting to delete all remaining snapshots",
-    description = "After this number of weeks, all snapshots are fully deleted.",
-    global = true,
-    project = true,
-    type = PropertyType.INTEGER),
-  @Property(
-    key = DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY,
-    defaultValue = "true",
-    name = "Clean history data of directories/packages",
-    description = "If set to true, no history is kept at directory/package level. Setting this to false can cause database bloat.",
-    global = true,
-    project = true,
-    module = false,
-    type = PropertyType.BOOLEAN),
-  @Property(
-    key = DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES,
-    defaultValue = "30",
-    name = "Number of days before deleting closed issues",
-    description = "Issues that have been closed for more than this number of days will be deleted.",
-    global = true,
-    project = true,
-    type = PropertyType.INTEGER)
-})
 public final class DbCleanerPlugin extends SonarPlugin {
 
   public List getExtensions() {
-    return ImmutableList.of(
-      DefaultPeriodCleaner.class,
-      DefaultPurgeTask.class,
-      ProjectPurgePostJob.class);
+    return ImmutableList.builder().add(DefaultPeriodCleaner.class, DefaultPurgeTask.class, ProjectPurgePostJob.class)
+      .addAll(propertyDefinitions()).build();
+  }
+
+  static List<PropertyDefinition> propertyDefinitions() {
+    return Arrays.asList(
+      PropertyDefinition.builder(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)
+        .defaultValue("true")
+        .name("Clean history data of directories/packages")
+        .description("If set to true, no history is kept at directory/package level. Setting this to false can cause database bloat.")
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(1)
+        .build(),
+
+      PropertyDefinition.builder(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES)
+        .defaultValue("30")
+        .name("Number of days before deleting closed issues")
+        .description("Issues that have been closed for more than this number of days will be deleted.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(2)
+        .build(),
+
+      PropertyDefinition.builder(DbCleanerConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY)
+        .defaultValue("24")
+        .name("Number of hours before starting to keep only one snapshot per day")
+        .description("After this number of hours, if there are several snapshots during the same day, "
+          + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(3)
+        .build(),
+
+      PropertyDefinition.builder(DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK)
+        .defaultValue("4")
+        .name("Number of weeks before starting to keep only one snapshot per week")
+        .description("After this number of weeks, if there are several snapshots during the same week, "
+          + "the DbCleaner keeps the most recent one and fully deletes the other ones")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(4)
+        .build(),
+
+      PropertyDefinition.builder(DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH)
+        .defaultValue("52")
+        .name("Number of weeks before starting to keep only one snapshot per month")
+        .description("After this number of weeks, if there are several snapshots during the same month, "
+          + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(5)
+        .build(),
+
+      PropertyDefinition.builder(DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS)
+        .defaultValue("260")
+        .name("Number of weeks before starting to delete all remaining snapshots")
+        .description("After this number of weeks, all snapshots are fully deleted.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(6)
+        .build()
+    );
   }
 }
