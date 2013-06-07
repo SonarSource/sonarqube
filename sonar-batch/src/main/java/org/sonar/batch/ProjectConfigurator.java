@@ -68,7 +68,7 @@ public class ProjectConfigurator implements BatchComponent {
 
   public ProjectConfigurator configure(Project project) {
     Date analysisDate = loadAnalysisDate();
-    checkCurrentAnalyisIsTheLatestOne(project.getKey(), analysisDate);
+    checkCurrentAnalysisIsTheLatestOne(project.getKey(), analysisDate);
 
     project
       .setConfiguration(new PropertiesConfiguration()) // will be populated by ProjectSettings
@@ -78,7 +78,7 @@ public class ProjectConfigurator implements BatchComponent {
     return this;
   }
 
-  private void checkCurrentAnalyisIsTheLatestOne(String projectKey, Date analysisDate) {
+  private void checkCurrentAnalysisIsTheLatestOne(String projectKey, Date analysisDate) {
     ResourceModel persistedProject = databaseSession.getSingleResult(ResourceModel.class, "key", projectKey, "enabled", true);
     if (persistedProject != null) {
       Snapshot lastSnapshot = databaseSession.getSingleResult(Snapshot.class, "resourceId", persistedProject.getId(), "last", true);
