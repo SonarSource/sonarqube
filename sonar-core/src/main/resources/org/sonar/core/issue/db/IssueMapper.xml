@@ -139,8 +139,13 @@
   <select id="selectByKey" parameterType="String" resultType="Issue">
     select
     <include refid="issueColumns"/>
-    from issues i, rules r, projects p, projects root
-    where i.kee=#{kee} and i.rule_id=r.id and p.id=i.component_id and i.root_component_id=root.id
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join projects p on p.id=i.component_id
+    inner join projects root on root.id=i.root_component_id
+    <where>
+      and i.kee=#{kee}
+    </where>
   </select>
 
   <select id="selectNonClosedIssuesByModule" parameterType="int" resultType="Issue">
@@ -171,17 +176,21 @@
       r.plugin_rule_key as ruleKey,
       r.plugin_name as ruleRepo,
       p.kee as componentKey
-    from issues i, rules r, projects p
-    where i.status &lt;&gt; 'CLOSED'
-    and (p.root_id=#{id} or (p.root_id is null and p.id=#{id}))
-    and i.component_id=p.id
-    and r.id=i.rule_id
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join (select p.id,p.kee from projects p where (p.root_id=#{id} and p.qualifier &lt;&gt; 'BRC') or (p.id=#{id})) p on p.id=i.component_id
+    <where>
+      and i.status &lt;&gt; 'CLOSED'
+    </where>
   </select>
 
   <select id="selectByIds" parameterType="map" resultType="Issue">
     select
     <include refid="issueColumns"/>
-    from issues i, rules r, projects p, projects root
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join projects p on p.id=i.component_id
+    inner join projects root on root.id=i.root_component_id
     <where>
       and
       <foreach collection="ids" open="i.id in (" close=")" item="list" separator=") or i.id in (">
@@ -189,9 +198,6 @@
           #{element}
         </foreach>
       </foreach>
-      and i.rule_id=r.id
-      and p.id=i.component_id
-      and i.root_component_id=root.id
     </where>
     order by i.id desc
   </select>

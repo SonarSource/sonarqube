@@ -29,13 +29,11 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.db.IssueDto;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Date;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -43,8 +41,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class IssueTrackingTest {
-
-  private final Date analysisDate = DateUtils.parseDate("2013-04-11");
 
   IssueTracking tracking;
   Resource project;

@@ -1,5 +1,6 @@
 <dataset>
 
+  <!-- Open Issue on a file -->
   <issues
       id="100"
       kee="100"
@@ -25,6 +26,7 @@
       updated_at="[null]"
       />
 
+  <!-- Open Issue on a file -->
   <issues
       id="101"
       kee="101"
@@ -37,7 +39,7 @@
       line="120"
       effort_to_fix="[null]"
       status="OPEN"
-      resolution="FIXED"
+      resolution="[null]"
       checksum="[null]"
       reporter="[null]"
       assignee="user"
@@ -50,6 +52,7 @@
       updated_at="[null]"
       />
 
+  <!-- Closed Issue on a file -->
   <issues
       id="102"
       kee="102"
@@ -63,6 +66,58 @@
       effort_to_fix="[null]"
       status="CLOSED"
       resolution="FIXED"
+      checksum="[null]"
+      reporter="[null]"
+      assignee="user"
+      author_login="[null]"
+      issue_attributes="[null]"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="2013-04-10"
+      updated_at="[null]"
+      />
+
+  <!-- Open Issue on a sub module -->
+  <issues
+      id="103"
+      kee="103"
+      component_id="400"
+      root_component_id="399"
+      rule_id="501"
+      severity="MAJOR"
+      manual_severity="[false]"
+      message="[null]"
+      line="[null]"
+      effort_to_fix="[null]"
+      status="OPEN"
+      resolution="[null]"
+      checksum="[null]"
+      reporter="[null]"
+      assignee="user"
+      author_login="[null]"
+      issue_attributes="[null]"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="2013-04-10"
+      updated_at="[null]"
+      />
+
+  <!-- Open Issue on a root module -->
+  <issues
+      id="104"
+      kee="104"
+      component_id="399"
+      root_component_id="399"
+      rule_id="501"
+      severity="MAJOR"
+      manual_severity="[false]"
+      message="[null]"
+      line="[null]"
+      effort_to_fix="[null]"
+      status="OPEN"
+      resolution="[null]"
       checksum="[null]"
       reporter="[null]"
       assignee="user"

@@ -293,21 +293,20 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_non_closed_issues_by_module() {
     setupData("shared", "should_select_non_closed_issues_by_module");
 
-    // 400 is a non-root module
+    // 400 is a non-root module, we should find 2 issues from classes and one on itself
     DefaultResultHandler handler = new DefaultResultHandler();
     dao.selectNonClosedIssuesByModule(400, handler);
-    assertThat(handler.getResultList()).hasSize(2);
+    assertThat(handler.getResultList()).hasSize(3);
 
     IssueDto issue = (IssueDto) handler.getResultList().get(0);
     assertThat(issue.getRuleRepo()).isNotNull();
     assertThat(issue.getRule()).isNotNull();
     assertThat(issue.getComponentKey()).isNotNull();
 
-    // 399 is the root module. It does not have issues.
+    // 399 is the root module, we should only find 1 issue on itself
     handler = new DefaultResultHandler();
     dao.selectNonClosedIssuesByModule(399, handler);
-    assertThat(handler.getResultList()).isEmpty();
-
+    assertThat(handler.getResultList()).hasSize(1);
   }
 
   @Test
