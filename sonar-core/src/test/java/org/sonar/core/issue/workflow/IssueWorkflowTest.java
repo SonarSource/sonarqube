@@ -105,6 +105,31 @@ public class IssueWorkflowTest {
   }
 
   @Test
+  public void should_list_no_out_transition_from_status_closed() throws Exception {
+    workflow.start();
+
+    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CLOSED);
+    List<Transition> transitions = workflow.outTransitions(issue);
+    assertThat(transitions).isEmpty();
+  }
+
+  @Test
+  public void should_list_out_transitions_from_status_closed_on_manual_issue() throws Exception {
+    workflow.start();
+
+    // Manual issue because of reporter
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setStatus(Issue.STATUS_CLOSED)
+      .setRuleKey(RuleKey.of("manual", "Performance"))
+      .setReporter("simon");
+
+    List<Transition> transitions = workflow.outTransitions(issue);
+    assertThat(transitions).hasSize(1);
+    assertThat(keys(transitions)).containsOnly("reopen");
+  }
+
+  @Test
   public void should_fail_if_unknown_status_when_listing_transitions() throws Exception {
     workflow.start();
 

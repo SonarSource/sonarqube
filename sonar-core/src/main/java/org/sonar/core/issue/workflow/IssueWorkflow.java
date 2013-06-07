@@ -78,6 +78,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .functions(new SetResolution(null))
         .build())
       .transition(Transition.builder(DefaultTransitions.REOPEN)
+        .conditions(new IsManual(true))
         .from(Issue.STATUS_CLOSED).to(Issue.STATUS_REOPENED)
         .functions(new SetResolution(null), new SetCloseDate(false))
         .build())
