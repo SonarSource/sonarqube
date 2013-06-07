@@ -51,12 +51,20 @@ public class PublicRubyIssueService implements RubyIssueService {
     this.finder = f;
   }
 
+  /**
+   * Requires the role {@link org.sonar.api.web.UserRole#USER}
+   */
+  @Override
   public IssueQueryResult find(String issueKey) {
-    return finder.find(IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).build());
+    return finder.find(
+      IssueQuery.builder()
+        .issueKeys(Arrays.asList(issueKey))
+        .requiredRole(UserRole.USER)
+        .build());
   }
 
   /**
-   * Requires the role {@link org.sonar.api.web.UserRole#CODEVIEWER}
+   * Requires the role {@link org.sonar.api.web.UserRole#USER}
    */
   @Override
   public IssueQueryResult find(Map<String, Object> params) {
@@ -64,25 +72,25 @@ public class PublicRubyIssueService implements RubyIssueService {
   }
 
   static IssueQuery toQuery(Map<String, Object> props) {
-    IssueQuery.Builder builder = IssueQuery.builder();
-    builder.requiredRole(UserRole.CODEVIEWER);
-    builder.issueKeys(RubyUtils.toStrings(props.get("issues")));
-    builder.severities(RubyUtils.toStrings(props.get("severities")));
-    builder.statuses(RubyUtils.toStrings(props.get("statuses")));
-    builder.resolutions(RubyUtils.toStrings(props.get("resolutions")));
-    builder.resolved(RubyUtils.toBoolean(props.get("resolved")));
-    builder.components(RubyUtils.toStrings(props.get("components")));
-    builder.componentRoots(RubyUtils.toStrings(props.get("componentRoots")));
-    builder.rules(toRules(props.get("rules")));
-    builder.actionPlans(RubyUtils.toStrings(props.get("actionPlans")));
-    builder.reporters(RubyUtils.toStrings(props.get("reporters")));
-    builder.assignees(RubyUtils.toStrings(props.get("assignees")));
-    builder.assigned(RubyUtils.toBoolean(props.get("assigned")));
-    builder.planned(RubyUtils.toBoolean(props.get("planned")));
-    builder.createdAfter(RubyUtils.toDate(props.get("createdAfter")));
-    builder.createdBefore(RubyUtils.toDate(props.get("createdBefore")));
-    builder.pageSize(RubyUtils.toInteger(props.get("pageSize")));
-    builder.pageIndex(RubyUtils.toInteger(props.get("pageIndex")));
+    IssueQuery.Builder builder = IssueQuery.builder()
+      .requiredRole(UserRole.USER)
+      .issueKeys(RubyUtils.toStrings(props.get("issues")))
+      .severities(RubyUtils.toStrings(props.get("severities")))
+      .statuses(RubyUtils.toStrings(props.get("statuses")))
+      .resolutions(RubyUtils.toStrings(props.get("resolutions")))
+      .resolved(RubyUtils.toBoolean(props.get("resolved")))
+      .components(RubyUtils.toStrings(props.get("components")))
+      .componentRoots(RubyUtils.toStrings(props.get("componentRoots")))
+      .rules(toRules(props.get("rules")))
+      .actionPlans(RubyUtils.toStrings(props.get("actionPlans")))
+      .reporters(RubyUtils.toStrings(props.get("reporters")))
+      .assignees(RubyUtils.toStrings(props.get("assignees")))
+      .assigned(RubyUtils.toBoolean(props.get("assigned")))
+      .planned(RubyUtils.toBoolean(props.get("planned")))
+      .createdAfter(RubyUtils.toDate(props.get("createdAfter")))
+      .createdBefore(RubyUtils.toDate(props.get("createdBefore")))
+      .pageSize(RubyUtils.toInteger(props.get("pageSize")))
+      .pageIndex(RubyUtils.toInteger(props.get("pageIndex")));
     String sort = (String) props.get("sort");
     if (sort != null) {
       builder.sort(sort);

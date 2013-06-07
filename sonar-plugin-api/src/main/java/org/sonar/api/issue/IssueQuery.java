@@ -27,6 +27,7 @@ import org.sonar.api.web.UserRole;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -218,7 +219,7 @@ public class IssueQuery {
     private Boolean asc = false;
     private Integer pageSize;
     private Integer pageIndex;
-    private String requiredRole = UserRole.CODEVIEWER;
+    private String requiredRole = UserRole.USER;
 
     private Builder() {
     }

@@ -52,7 +52,7 @@ public class IssueQueryTest {
       .sort(IssueQuery.SORT_BY_ASSIGNEE)
       .pageSize(10)
       .pageIndex(2)
-      .requiredRole(UserRole.CODEVIEWER)
+      .requiredRole(UserRole.USER)
       .build();
     assertThat(query.issueKeys()).containsOnly("ABCDE");
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
@@ -70,7 +70,7 @@ public class IssueQueryTest {
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_ASSIGNEE);
     assertThat(query.pageSize()).isEqualTo(10);
     assertThat(query.pageIndex()).isEqualTo(2);
-    assertThat(query.requiredRole()).isEqualTo(UserRole.CODEVIEWER);
+    assertThat(query.requiredRole()).isEqualTo(UserRole.USER);
   }
 
   @Test

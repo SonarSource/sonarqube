@@ -44,13 +44,25 @@ public class PublicRubyIssueServiceTest {
   PublicRubyIssueService facade = new PublicRubyIssueService(finder);
 
   @Test
-  public void find() throws Exception {
+  public void find_by_issue_keys() throws Exception {
+    facade.find("ABCDE");
+    verify(finder).find(argThat(new ArgumentMatcher<IssueQuery>() {
+      @Override
+      public boolean matches(Object o) {
+        IssueQuery query = (IssueQuery) o;
+        return query.issueKeys().contains("ABCDE") && UserRole.USER.equals(query.requiredRole());
+      }
+    }));
+  }
+
+  @Test
+  public void find_by_params() throws Exception {
     facade.find(ImmutableMap.<String, Object>of("issues", Lists.newArrayList("ABCDE")));
     verify(finder).find(argThat(new ArgumentMatcher<IssueQuery>() {
       @Override
       public boolean matches(Object o) {
         IssueQuery query = (IssueQuery) o;
-        return query.issueKeys().contains("ABCDE") && UserRole.CODEVIEWER.equals(query.requiredRole());
+        return query.issueKeys().contains("ABCDE") && UserRole.USER.equals(query.requiredRole());
       }
     }));
   }
