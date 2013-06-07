@@ -25,7 +25,7 @@ import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 import org.sonar.plugins.core.widgets.CoreWidget;
 
-@WidgetCategory({"Action plans", "Issues"})
+@WidgetCategory({"Issues"})
 @WidgetProperties({
   @WidgetProperty(key = "showResolvedIssues", type = WidgetPropertyType.BOOLEAN, defaultValue = "true")
 })

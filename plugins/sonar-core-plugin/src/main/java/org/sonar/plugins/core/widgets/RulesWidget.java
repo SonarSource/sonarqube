@@ -21,7 +21,7 @@ package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.web.WidgetCategory;
 
-@WidgetCategory({"Rules"})
+@WidgetCategory({"Issues"})
 public class RulesWidget extends CoreWidget {
 
   public RulesWidget() {
