@@ -1,31 +1,33 @@
-<div class="source_title">
-  <%
-    project = @issue_results.project(@issue)
-    component = @issue_results.component(@issue)
-  %>
+<div class="issue-detail">
+  <div class="source_title">
+    <%
+      project = @issue_results.project(@issue)
+      component = @issue_results.component(@issue)
+    %>
 
-  <% if @issue.componentKey() != project.key() %>
-  <div class="subtitle">
-    <%= h project.longName() -%>
-  </div>
-  <% end %>
-  <span class="h1">
-    <% if component %>
-    <%= qualifier_icon(component) %>
-    <a href="<%= ApplicationController.root_context -%>/resource/index/<%= component.key() -%>?layout=false&tab=issues"
-       onclick="window.open(this.href,'resource-<%= component.key().parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= h component.longName() -%></a>
-    <% else %>
-      <%= h @issue.componentKey() %> [<del><%= message('issue.component_deleted') %></del>]
+    <% if @issue.componentKey() != project.key() %>
+    <div class="subtitle">
+      <%= h project.longName() -%>
+    </div>
     <% end %>
-  </span>
-</div>
-
-<div class="marginbottom10">
-<%= render :partial => 'issue/issue', :locals => {:issue => @issue_results.first} -%>
-</div>
-
-<% if @snapshot && @issue.line && params[:source]!='false' %>
-  <div class="bordered">
-    <%= snapshot_html_source(@snapshot, {:line_range => (@issue.line-5)..(@issue.line+5), :highlighted_lines => [@issue.line]}) -%>
+    <span class="h1">
+      <% if component %>
+      <%= qualifier_icon(component) %>
+      <a href="<%= ApplicationController.root_context -%>/resource/index/<%= component.key() -%>?layout=false&tab=issues" class="issue-component-link"
+         onclick="window.open(this.href,'resource-<%= component.key().parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= h component.longName() -%></a>
+      <% else %>
+        <%= h @issue.componentKey() %> [<del><%= message('issue.component_deleted') %></del>]
+      <% end %>
+    </span>
   </div>
-<% end %>
+
+  <div class="marginbottom10">
+  <%= render :partial => 'issue/issue', :locals => {:issue => @issue_results.first} -%>
+  </div>
+
+  <% if @snapshot && @issue.line && params[:source]!='false' %>
+    <div class="bordered">
+      <%= snapshot_html_source(@snapshot, {:line_range => (@issue.line-5)..(@issue.line+5), :highlighted_lines => [@issue.line]}) -%>
+    </div>
+  <% end %>
+</div>

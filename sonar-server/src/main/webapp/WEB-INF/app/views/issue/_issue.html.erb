@@ -1,12 +1,12 @@
 <div class="code-issue" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>" data-issue-rule="<%= issue.ruleKey().toString() -%>">
   <div class="code-issue-name">
     <div style="float: right">
-      <a href="#" onclick="return openIssuePopup(this)"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
+      <a href="#" onclick="return openIssuePopup(this)" class="issue-permalink"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
     </div>
 
     <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= h message("severity.#{issue.severity}") -%>">
     &nbsp;
-    <a href="#" onclick="return toggleIssueRule(this)" class="rulename"><%= h Internal.rules.ruleL10nName(@issue_results.rule(issue)) -%></a>
+    <a href="#" onclick="return toggleIssueRule(this)" class="rulename issue-rule-link"><%= h Internal.rules.ruleL10nName(@issue_results.rule(issue)) -%></a>
     &nbsp;
     <% if issue.resolution %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
@@ -21,7 +21,7 @@
     <% end %>
     <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
     &nbsp;
-    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
+    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
     &nbsp;
     <% if issue.reporter %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>

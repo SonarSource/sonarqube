@@ -25,10 +25,10 @@
     <table class="data width100">
       <thead>
         <tr>
-          <th width="1%" nowrap>
+          <th width="1%" nowrap class="column-severity">
             <%= column_html(@filter, message('severity_abbreviated'), message('severity'), 'SEVERITY') %>
           </th>
-          <th width="1%" nowrap>
+          <th width="1%" nowrap class="column-status">
             <%= column_html(@filter, message('status'), message('status'), 'STATUS') %>
           </th>
           <th width="1%" nowrap>
@@ -43,16 +43,16 @@
           <th nowrap>
             <%= message('component') -%>
           </th>
-          <th>
+          <th class="column-assignee">
             <%= column_html(@filter, message('issue_filter.header.assignee'), message('issue_filter.header.assignee'), 'ASSIGNEE') %>
           </th>
           <th width="1%" nowrap>
             <%= message('issue_filter.header.action_plan') -%>
           </th>
-          <th width="1%" nowrap>
+          <th width="1%" nowrap class="column-creation-date">
             <%= column_html(@filter, message('issue_filter.header.creation_date'), message('issue_filter.header.creation_date'), 'CREATION_DATE') %>
           </th>
-          <th width="1%" nowrap>
+          <th width="1%" nowrap class="column-update-date">
             <%= column_html(@filter, message('issue_filter.header.update_date'), message('issue_filter.header.update_date'), 'UPDATE_DATE') %>
           </th>
         </tr>
@@ -72,7 +72,7 @@
             <%= message("issue.resolution.#{issue.resolution}") if issue.resolution -%>
           </td>
           <td>
-            <a class='open-modal rule-modal' modal-width='900' href='<%= url_for :controller => 'issue', :action => 'show', :id => issue.key, :modal => true -%>'>
+            <a class='open-modal rule-modal issue-detail-link' modal-width='900' href='<%= url_for :controller => 'issue', :action => 'show', :id => issue.key, :modal => true -%>'>
               <%= h truncate(issue.message, :length => 100) -%></a>
           </td>
           <td>
