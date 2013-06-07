@@ -41,7 +41,7 @@ public class DefaultUserClientTest {
     UserQuery query = UserQuery.create().logins("simon", "loic");
     List<User> users = client.find(query);
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/users/search?logins=simon%2Cloic");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/users/search?logins=simon,loic");
     assertThat(users).hasSize(1);
     User simon = users.get(0);
     assertThat(simon.login()).isEqualTo("simon");

@@ -23,9 +23,6 @@ import com.github.kevinsawicki.http.HttpRequest;
 
 import javax.annotation.Nullable;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -120,34 +117,13 @@ public class HttpRequestFactory {
   }
 
   public HttpRequest get(String wsUrl, Map<String, Object> queryParams) {
-    HttpRequest request = HttpRequest.get(baseUrl + wsUrl, encode(queryParams), false);
+    HttpRequest request = HttpRequest.get(baseUrl + wsUrl, queryParams, true);
     return prepare(request);
   }
 
   public HttpRequest post(String wsUrl, Map<String, Object> queryParams) {
-    HttpRequest request = HttpRequest.post(baseUrl + wsUrl, encode(queryParams), false);
+    HttpRequest request = HttpRequest.post(baseUrl + wsUrl, queryParams, true);
     return prepare(request);
-  }
-
-  private static Map<String, Object> encode(Map<String, Object> queryParams){
-    Map<String, Object> newQueryParams = new LinkedHashMap<String, Object>();
-    for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
-      newQueryParams.put(entry.getKey(), encode(entry.getValue()));
-    }
-    return newQueryParams;
-  }
-
-  private static String encode(Object value){
-    try {
-      if (value != null) {
-        return URLEncoder.encode(value.toString(), "UTF-8");
-      }
-      else {
-        return "";
-      }
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException("Fail to encore parameter", e);
-    }
   }
 
   private HttpRequest prepare(HttpRequest request) {

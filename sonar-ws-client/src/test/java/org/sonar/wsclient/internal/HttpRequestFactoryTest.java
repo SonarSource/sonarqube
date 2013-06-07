@@ -99,13 +99,13 @@ public class HttpRequestFactoryTest {
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     client.find(IssueQuery.create().issues("ABC DE"));
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?issues=ABC+DE");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?issues=ABC%20DE");
 
     client.find(IssueQuery.create().issues("ABC+BDE"));
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?issues=ABC%2BBDE");
 
     client.find(IssueQuery.create().createdAfter(toDate("2013-01-01")));
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?createdAfter=2013-01-01T00%3A00%3A00%2B0100");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?createdAfter=2013-01-01T00:00:00%2B0100");
   }
 
   protected static Date toDate(String sDate) {
