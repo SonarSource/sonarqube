@@ -31,7 +31,6 @@ import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
@@ -305,7 +304,7 @@ public class InternalRubyIssueService implements ServerComponent {
 
     if (!Strings.isNullOrEmpty(deadLineParam)) {
       try {
-        deadLine = DateUtils.parseDate(deadLineParam);
+        deadLine = RubyUtils.toDate(deadLineParam);
         Date today = new Date();
         if (deadLine.before(today) && !org.apache.commons.lang.time.DateUtils.isSameDay(deadLine, today)) {
           result.addError(Result.Message.ofL10n("action_plans.date_cant_be_in_past"));
