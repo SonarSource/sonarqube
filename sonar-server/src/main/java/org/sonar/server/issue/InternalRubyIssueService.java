@@ -306,7 +306,7 @@ public class InternalRubyIssueService implements ServerComponent {
       try {
         deadLine = RubyUtils.toDate(deadLineParam);
         Date today = new Date();
-        if (deadLine.before(today) && !org.apache.commons.lang.time.DateUtils.isSameDay(deadLine, today)) {
+        if (deadLine != null && deadLine.before(today) && !org.apache.commons.lang.time.DateUtils.isSameDay(deadLine, today)) {
           result.addError(Result.Message.ofL10n("action_plans.date_cant_be_in_past"));
         }
       } catch (SonarException e) {

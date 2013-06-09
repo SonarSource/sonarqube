@@ -87,7 +87,8 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
 
   @CheckForNull
   private Notification createChangeNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component, @Nullable String comment) {
-    if (comment == null && (issue.currentChange() == null || issue.currentChange().diffs().isEmpty())) {
+    FieldDiffs currentChange = issue.currentChange();
+    if (comment == null && (currentChange == null || currentChange.diffs().isEmpty())) {
       return null;
     }
     Notification notification = newNotification(project, "issue-changes");
@@ -105,9 +106,8 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
       notification.setFieldValue("comment", comment);
     }
 
-    FieldDiffs diffs = issue.currentChange();
-    if (diffs != null) {
-      for (Map.Entry<String, FieldDiffs.Diff> entry : diffs.diffs().entrySet()) {
+    if (currentChange != null) {
+      for (Map.Entry<String, FieldDiffs.Diff> entry : currentChange.diffs().entrySet()) {
         String type = entry.getKey();
         FieldDiffs.Diff diff = entry.getValue();
         notification.setFieldValue("old." + type, diff.oldValue() != null ? diff.oldValue().toString() : null);
