@@ -20,6 +20,7 @@
 package org.sonar.batch.phases;
 
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
@@ -29,12 +30,14 @@ import org.sonar.api.security.ResourcePermissions;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.Query;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
 
@@ -57,10 +60,10 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     setupData("sharedFixture", fixture);
 
     DatabaseSession session = getSession();
-    UpdateStatusJob sensor = new UpdateStatusJob(new Settings().appendProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/"), mock(ServerClient.class), session,
-        new DefaultResourcePersister(session, mock(ResourcePermissions.class), mock(SnapshotCache.class), mock(ResourceCache.class)),
-        mock(Project.class), loadSnapshot(snapshotId));
-    sensor.execute();
+    UpdateStatusJob job = new UpdateStatusJob(new Settings().appendProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/"), mock(ServerClient.class), session,
+      new DefaultResourcePersister(session, mock(ResourcePermissions.class), mock(SnapshotCache.class), mock(ResourceCache.class)),
+      mock(Project.class), loadSnapshot(snapshotId));
+    job.execute();
 
     checkTables(fixture, "snapshots");
   }
@@ -69,5 +72,33 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     Query query = getSession().createQuery("SELECT s FROM Snapshot s WHERE s.id=:id");
     query.setParameter("id", id);
     return (Snapshot) query.getSingleResult();
+  }
+
+  @Test
+  public void should_log_successful_analysis() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
+    Project project = new Project("struts");
+    UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), mock(DatabaseSession.class),
+      mock(ResourcePersister.class), project, mock(Snapshot.class));
+
+    Logger logger = mock(Logger.class);
+    job.logSuccess(logger);
+
+    verify(logger).info("ANALYSIS SUCCESSFUL, you can browse {}", "http://myserver/dashboard/index/struts");
+  }
+
+  @Test
+  public void should_log_successful_dry_run_analysis() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.dryRun", true);
+    Project project = new Project("struts");
+    UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), mock(DatabaseSession.class),
+      mock(ResourcePersister.class), project, mock(Snapshot.class));
+
+    Logger logger = mock(Logger.class);
+    job.logSuccess(logger);
+
+    verify(logger).info("ANALYSIS SUCCESSFUL");
   }
 }

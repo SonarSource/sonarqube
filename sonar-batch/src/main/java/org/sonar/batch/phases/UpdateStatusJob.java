@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.phases;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
@@ -31,7 +33,6 @@ import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourcePersister;
 
 import javax.persistence.Query;
-
 import java.util.List;
 
 public class UpdateStatusJob implements BatchComponent {
@@ -75,7 +76,15 @@ public class UpdateStatusJob implements BatchComponent {
     Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, false);
     boolean isLast = (previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt()));
     setFlags(snapshot, isLast, Snapshot.STATUS_PROCESSED);
-    if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
+    logSuccess(LoggerFactory.getLogger(getClass()));
+  }
+
+  @VisibleForTesting
+  void logSuccess(Logger logger) {
+    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+      logger.info("ANALYSIS SUCCESSFUL");
+
+    } else {
       String baseUrl = settings.getString(CoreProperties.SERVER_BASE_URL);
       if (baseUrl.equals(settings.getDefaultValue(CoreProperties.SERVER_BASE_URL))) {
         // If server base URL was not configured in Sonar server then is is better to take URL configured on batch side
@@ -85,7 +94,7 @@ public class UpdateStatusJob implements BatchComponent {
         baseUrl += "/";
       }
       String url = baseUrl + "dashboard/index/" + project.getKey();
-      LoggerFactory.getLogger(getClass()).info("ANALYSIS SUCCESSFUL, you can browse {}", url);
+      logger.info("ANALYSIS SUCCESSFUL, you can browse {}", url);
     }
   }
 
