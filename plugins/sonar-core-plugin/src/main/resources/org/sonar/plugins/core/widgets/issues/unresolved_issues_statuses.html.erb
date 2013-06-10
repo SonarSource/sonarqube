@@ -12,7 +12,7 @@
   <tr>
     <td valign="top" width="25%">
       <div class="dashbox">
-        <h3><%= message('widget.unresolved_issues_statuses.unresolved_issues') -%></h3>
+        <h3><%= message('issues') -%></h3>
         <div class="marginbottom10">
           <span class="big">
             <%= format_measure(issues, :url => url_for({:controller => 'issues', :action => 'search' }.merge(issues_search_options))) -%>
