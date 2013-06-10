@@ -62,6 +62,12 @@ public final class Rule {
    */
   public static final String STATUS_REMOVED = "REMOVED";
 
+  /**
+   * List of available status
+   * @since 3.6
+   */
+  private static final Set<String> STATUS_LIST = ImmutableSet.of(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED);
+
 
   @Id
   @Column(name = "id")
@@ -82,7 +88,6 @@ public final class Rule {
   @Column(name = "plugin_config_key", updatable = true, nullable = true, length = 500)
   private String configKey;
 
-  // Godin: This field should be named priority, otherwise StandardRulesXmlParserTest fails
   @Column(name = "priority", updatable = true, nullable = true)
   @Enumerated(EnumType.ORDINAL)
   private RulePriority priority = DEFAULT_PRIORITY;
@@ -124,7 +129,7 @@ public final class Rule {
    */
   @Deprecated
   public Rule() {
-    // TODO reduce visibility to package
+    // TODO reduce visibility to packaete
   }
 
   /**
@@ -405,8 +410,8 @@ public final class Rule {
    * @since 3.6
    */
   public Rule setStatus(String status) {
-    if (!getStatusList().contains(status)) {
-      throw new SonarException("The status of a rule can only contain : " + Joiner.on(", ").join(getStatusList()));
+    if (!STATUS_LIST.contains(status)) {
+      throw new SonarException("The status of a rule can only contain : " + Joiner.on(", ").join(STATUS_LIST));
     }
     this.status = status;
     return this;
@@ -524,13 +529,6 @@ public final class Rule {
    */
   public static Rule create(String repositoryKey, String key) {
     return new Rule().setUniqueKey(repositoryKey, key);
-  }
-
-  /**
-   * @since 3.6
-   */
-  public static Set<String> getStatusList() {
-    return ImmutableSet.of(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED);
   }
 
   /**
