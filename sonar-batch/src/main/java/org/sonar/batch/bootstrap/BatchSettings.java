@@ -26,6 +26,7 @@ import org.json.simple.JSONValue;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 
@@ -54,13 +55,13 @@ public class BatchSettings extends Settings {
     init(null);
   }
 
-  public void init(@Nullable ProjectDefinition rootProject) {
+  public void init(@Nullable ProjectReactor reactor) {
     savedProperties = this.getProperties();
 
-    if (rootProject != null) {
+    if (reactor != null) {
       LoggerFactory.getLogger(BatchSettings.class).info("Load project settings");
       String branch = bootstrapSettings.property(CoreProperties.PROJECT_BRANCH_PROPERTY);
-      String projectKey = rootProject.getKey();
+      String projectKey = reactor.getRoot().getKey();
       if (StringUtils.isNotBlank(branch)) {
         projectKey = String.format("%s:%s", projectKey, branch);
       }
@@ -71,9 +72,8 @@ public class BatchSettings extends Settings {
     }
 
     addProperties(bootstrapSettings.properties());
-    // Reload reactor properties in case reactor has changed since bootstrap
-    if (rootProject != null) {
-      addProperties(rootProject.getProperties());
+    if (reactor != null) {
+      addProperties(reactor.getRoot().getProperties());
     }
     properties.putAll(System.getenv());
     addProperties(System.getProperties());

@@ -30,8 +30,25 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.*;
-import org.sonar.batch.index.*;
+import org.sonar.batch.bootstrap.BatchSettings;
+import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.ExtensionMatcher;
+import org.sonar.batch.bootstrap.ExtensionUtils;
+import org.sonar.batch.bootstrap.MetricProvider;
+import org.sonar.batch.index.Caches;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.index.ComponentDataPersister;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.DefaultPersistenceManager;
+import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.index.DependencyPersister;
+import org.sonar.batch.index.EventPersister;
+import org.sonar.batch.index.LinkPersister;
+import org.sonar.batch.index.MeasurePersister;
+import org.sonar.batch.index.MemoryOptimizer;
+import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.SnapshotCache;
+import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.IssuePersister;
@@ -71,49 +88,51 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addBatchComponents() {
     add(
-      DefaultResourceCreationLock.class,
-      DefaultPersistenceManager.class,
-      DependencyPersister.class,
-      EventPersister.class,
-      LinkPersister.class,
-      MeasurePersister.class,
-      MemoryOptimizer.class,
-      DefaultResourcePersister.class,
-      SourcePersister.class,
-      DefaultNotificationManager.class,
-      MetricProvider.class,
-      ProjectConfigurator.class,
-      DefaultIndex.class,
-      DefaultFileLinesContextFactory.class,
-      ProjectLock.class,
-      LastSnapshots.class,
-      Caches.class,
-      SnapshotCache.class,
-      ResourceCache.class,
-      ComponentDataCache.class,
-      ComponentDataPersister.class,
+        DefaultResourceCreationLock.class,
+        DefaultPersistenceManager.class,
+        DependencyPersister.class,
+        EventPersister.class,
+        LinkPersister.class,
+        MeasurePersister.class,
+        MemoryOptimizer.class,
+        DefaultResourcePersister.class,
+        SourcePersister.class,
+        DefaultNotificationManager.class,
+        MetricProvider.class,
+        ProjectConfigurator.class,
+        DefaultIndex.class,
+        DefaultFileLinesContextFactory.class,
+        ProjectLock.class,
+        LastSnapshots.class,
+        Caches.class,
+        SnapshotCache.class,
+        ResourceCache.class,
+        ComponentDataCache.class,
+        ComponentDataPersister.class,
 
-      // issues
-      IssueUpdater.class,
-      FunctionExecutor.class,
-      IssueWorkflow.class,
-      DeprecatedViolations.class,
-      IssueCache.class,
-      ScanIssueStorage.class,
-      IssuePersister.class,
-      IssueNotifications.class,
+        // issues
+        IssueUpdater.class,
+        FunctionExecutor.class,
+        IssueWorkflow.class,
+        DeprecatedViolations.class,
+        IssueCache.class,
+        ScanIssueStorage.class,
+        IssuePersister.class,
+        IssueNotifications.class,
 
-      // tests
-      TestPlanPerspectiveLoader.class,
-      TestablePerspectiveLoader.class,
-      TestPlanBuilder.class,
-      TestableBuilder.class,
-      ScanGraph.create(),
-      GraphPersister.class,
+        // tests
+        TestPlanPerspectiveLoader.class,
+        TestablePerspectiveLoader.class,
+        TestPlanBuilder.class,
+        TestableBuilder.class,
+        ScanGraph.create(),
+        GraphPersister.class,
 
-      // lang
-      HighlightableBuilder.class,
-      SymbolizableBuilder.class);
+        // lang
+        HighlightableBuilder.class,
+        SymbolizableBuilder.class,
+
+        ProjectSettingsReady.class);
   }
 
   private void fixMavenExecutor() {
@@ -129,8 +148,6 @@ public class ProjectScanContainer extends ComponentContainer {
   @Override
   protected void doAfterStart() {
     ProjectTree tree = getComponentByType(ProjectTree.class);
-    BatchSettings settings = getComponentByType(BatchSettings.class);
-    settings.init(tree.getProjectDefinition(tree.getRootProject()));
     scanRecursively(tree.getRootProject());
   }
 

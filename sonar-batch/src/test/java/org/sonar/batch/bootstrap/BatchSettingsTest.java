@@ -23,6 +23,7 @@ import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 
 import java.util.Collections;
@@ -64,7 +65,7 @@ public class BatchSettingsTest {
     project.setProperty("project.prop", "project");
 
     BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf);
-    batchSettings.init(project);
+    batchSettings.init(new ProjectReactor(project));
 
     assertThat(batchSettings.getString("project.prop")).isEqualTo("project");
   }
@@ -84,7 +85,7 @@ public class BatchSettingsTest {
     when(client.request("/batch_bootstrap/properties?project=struts")).thenReturn(REACTOR_JSON_RESPONSE);
 
     BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf);
-    batchSettings.init(project);
+    batchSettings.init(new ProjectReactor(project));
 
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
@@ -95,7 +96,7 @@ public class BatchSettingsTest {
     when(client.request("/batch_bootstrap/properties?project=struts")).thenReturn(REACTOR_JSON_RESPONSE);
 
     BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf);
-    batchSettings.init(project);
+    batchSettings.init(new ProjectReactor(project));
 
     Map<String, String> moduleSettings = batchSettings.getModuleProperties("struts-core");
 
@@ -120,7 +121,7 @@ public class BatchSettingsTest {
     when(client.request("/batch_bootstrap/properties?project=struts")).thenReturn(REACTOR_JSON_RESPONSE);
 
     BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf);
-    batchSettings.init(project);
+    batchSettings.init(new ProjectReactor(project));
 
     assertThat(deprecatedConf.getString("sonar.cpd.cross")).isEqualTo("true");
     assertThat(deprecatedConf.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
