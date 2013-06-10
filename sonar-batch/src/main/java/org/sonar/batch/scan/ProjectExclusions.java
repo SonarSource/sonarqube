@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.api.task.TaskComponent;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -30,6 +28,7 @@ import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
+import org.sonar.api.task.TaskComponent;
 
 import javax.annotation.Nullable;
 
@@ -46,14 +45,16 @@ public class ProjectExclusions implements TaskComponent {
   private ProjectReactor reactor;
 
   public ProjectExclusions(Settings settings, ProjectReactor reactor,
+      // exclusions are applied when settings are loaded from Sonar DB
+      ProjectSettingsReady settingsReady,
       // exclusions are applied when the project is completely defined by extensions
       @Nullable ProjectBuilder[] projectBuilders) {
     this.settings = settings;
     this.reactor = reactor;
   }
 
-  public ProjectExclusions(Settings settings, ProjectReactor reactor) {
-    this(settings, reactor, new ProjectBuilder[0]);
+  public ProjectExclusions(Settings settings, ProjectReactor reactor, ProjectSettingsReady settingsReady) {
+    this(settings, reactor, settingsReady, new ProjectBuilder[0]);
   }
 
   public void start() {

@@ -42,7 +42,7 @@ public class ScanTaskTest {
   public void should_enable_all_phases() {
     ScanTask task = new ScanTask(mock(TaskContainer.class));
     ComponentContainer projectScanContainer = new ComponentContainer();
-    projectScanContainer.add(mock(ProjectConfigurator.class), mock(ProjectReactor.class), mock(Settings.class));
+    projectScanContainer.add(mock(ProjectConfigurator.class), mock(ProjectReactor.class), mock(Settings.class), mock(ProjectSettingsReady.class));
     task.scan(projectScanContainer);
 
     Phases phases = projectScanContainer.getComponentByType(Phases.class);
