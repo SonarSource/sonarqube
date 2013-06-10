@@ -84,12 +84,12 @@ public class SendIssueNotificationsPostJobTest {
   }
 
   @Test
-  public void should_send_notif_if_issue_change() throws Exception {
-
+  public void should_send_notification_if_issue_change() throws Exception {
     when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
     Rule rule = new Rule("squid", "AvoidCycles");
     DefaultIssue issue = new DefaultIssue()
+      .setNew(false)
       .setChanged(true)
       .setFieldChange(mock(IssueChangeContext.class), "severity", "MINOR", "BLOCKER")
       .setRuleKey(ruleKey);
@@ -103,7 +103,7 @@ public class SendIssueNotificationsPostJobTest {
   }
 
   @Test
-  public void should_not_send_notif_if_issue_change_on_removed_rule() throws Exception {
+  public void should_not_send_notification_if_issue_change_on_removed_rule() throws Exception {
     IssueChangeContext changeContext = mock(IssueChangeContext.class);
 
     when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
