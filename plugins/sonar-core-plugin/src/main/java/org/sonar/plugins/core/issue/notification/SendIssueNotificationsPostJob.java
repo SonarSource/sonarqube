@@ -27,11 +27,13 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.core.DryRunIncompatible;
 import org.sonar.core.issue.IssueNotifications;
 
 /**
  * @since 3.6
  */
+@DryRunIncompatible
 public class SendIssueNotificationsPostJob implements PostJob {
 
   private final IssueCache issueCache;
