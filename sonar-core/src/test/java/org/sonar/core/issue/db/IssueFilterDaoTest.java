@@ -41,20 +41,20 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
   public void should_select_by_id() {
     setupData("shared");
 
-    IssueFilterDto filter = dao.selectById(1);
+    IssueFilterDto filter = dao.selectById(1L);
 
     assertThat(filter.getId()).isEqualTo(1L);
     assertThat(filter.getName()).isEqualTo("Sonar Issues");
     assertThat(filter.isShared()).isTrue();
 
-    assertThat(dao.selectById(123)).isNull();
+    assertThat(dao.selectById(123L)).isNull();
   }
 
   @Test
   public void should_select_by_user() {
     setupData("should_select_by_user");
 
-    List<IssueFilterDto> results = dao.selectByUser(2);
+    List<IssueFilterDto> results = dao.selectByUser("michael");
 
     assertThat(results).hasSize(2);
   }
@@ -65,7 +65,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
 
     IssueFilterDto filterDto = new IssueFilterDto();
     filterDto.setName("Sonar Open issues");
-    filterDto.setUserId(2L);
+    filterDto.setUser("michael");
     filterDto.setShared(true);
     filterDto.setDescription("All open issues on Sonar");
     filterDto.setData("statuses=OPEN|componentRoots=org.codehaus.sonar");
@@ -82,7 +82,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
     IssueFilterDto filterDto = new IssueFilterDto();
     filterDto.setId(2L);
     filterDto.setName("Closed issues");
-    filterDto.setUserId(3L);
+    filterDto.setUser("henry");
     filterDto.setShared(false);
     filterDto.setDescription("All closed issues");
     filterDto.setData("statuses=CLOSED");
@@ -96,7 +96,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
   public void should_delete() {
     setupData("shared");
 
-    dao.delete(1);
+    dao.delete(1l);
 
     checkTables("should_delete", new String[]{"created_at", "updated_at"}, "issue_filters");
   }

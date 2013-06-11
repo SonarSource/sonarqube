@@ -27,6 +27,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
+import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
@@ -363,6 +364,10 @@ public class InternalRubyIssueService implements ServerComponent {
 
   public List<Action> listActions(Issue issue) {
     return actionService.listAvailableActions(issue);
+  }
+
+  public IssueQuery toQuery(Map<String, Object> props) {
+    return PublicRubyIssueService.toQuery(props);
   }
 
 }

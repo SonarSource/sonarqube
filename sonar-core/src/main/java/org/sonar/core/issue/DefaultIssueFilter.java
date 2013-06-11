@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.db;
 
-import org.sonar.core.issue.DefaultIssueFilter;
+package org.sonar.core.issue;
 
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 
 import java.util.Date;
 
-/**
- * @since 3.6
- */
-public class IssueFilterDto {
+public class DefaultIssueFilter {
+
+  public static String SEPARATOR = "|";
+  public static String KEY_VALUE_SEPARATOR = "=";
+  public static String LIST_SEPARATOR = ",";
 
   private Long id;
   private String name;
@@ -39,99 +39,81 @@ public class IssueFilterDto {
   private Date createdAt;
   private Date updatedAt;
 
-  public Long getId() {
+  public DefaultIssueFilter() {
+
+  }
+
+  public Long id() {
     return id;
   }
 
-  public IssueFilterDto setId(Long id) {
+  public DefaultIssueFilter setId(Long id) {
     this.id = id;
     return this;
   }
 
-  public String getName() {
+  public String name() {
     return name;
   }
 
-  public IssueFilterDto setName(String name) {
+  public DefaultIssueFilter setName(String name) {
     this.name = name;
     return this;
   }
 
-  public String getUser() {
+  @CheckForNull
+  public String user() {
     return user;
   }
 
-  public IssueFilterDto setUser(@Nullable String user) {
+  public DefaultIssueFilter setUser(String user) {
     this.user = user;
     return this;
   }
 
-  public Boolean isShared() {
+  public Boolean shared() {
     return shared;
   }
 
-  public IssueFilterDto setShared(@Nullable Boolean shared) {
+  public DefaultIssueFilter setShared(Boolean shared) {
     this.shared = shared;
     return this;
   }
 
-  public String getDescription() {
+  public String description() {
     return description;
   }
 
-  public IssueFilterDto setDescription(@Nullable String description) {
+  public DefaultIssueFilter setDescription(String description) {
     this.description = description;
     return this;
   }
 
-  public String getData() {
+  public String data() {
     return data;
   }
 
-  public IssueFilterDto setData(String data) {
+  public DefaultIssueFilter setData(String data) {
     this.data = data;
     return this;
   }
 
-  public Date getCreatedAt() {
+  public Date createdAt() {
     return createdAt;
   }
 
-  public IssueFilterDto setCreatedAt(Date createdAt) {
+  public DefaultIssueFilter setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  public Date getUpdatedAt() {
+  public Date updatedAt() {
     return updatedAt;
   }
 
-  public IssueFilterDto setUpdatedAt(Date updatedAt) {
+  public DefaultIssueFilter setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
 
-  public DefaultIssueFilter toIssueFilter() {
-    return new DefaultIssueFilter()
-      .setId(id)
-      .setName(name)
-      .setUser(user)
-      .setDescription(description)
-      .setShared(shared)
-      .setData(data)
-      .setCreatedAt(createdAt)
-      .setUpdatedAt(updatedAt);
-  }
-
-  public static IssueFilterDto toIssueFilter(DefaultIssueFilter issueFilter) {
-    return new IssueFilterDto()
-      .setId(issueFilter.id())
-      .setName(issueFilter.name())
-      .setUser(issueFilter.user())
-      .setDescription(issueFilter.description())
-      .setShared(issueFilter.shared())
-      .setData(issueFilter.data())
-      .setCreatedAt(issueFilter.createdAt())
-      .setUpdatedAt(issueFilter.updatedAt());
-  }
 }

@@ -26,11 +26,11 @@ class CreateIssueFilterFavourites < ActiveRecord::Migration
 
   def self.up
     create_table 'issue_filter_favourites' do |t|
-      t.column 'user_id', :integer, :null => false
-      t.column 'issue_filter_id', :integer, :null => false
-      t.column 'created_at', :datetime
+      t.column 'user',            :string,    :null => false,   :limit => 40
+      t.column 'issue_filter_id', :integer,   :null => false
+      t.column 'created_at',      :datetime
     end
-    add_index 'issue_filter_favourites', 'user_id', :name => 'issue_filter_favs_userid'
+    add_index 'issue_filter_favourites', 'user', :name => 'issue_filter_favs_user'
   end
 
 end

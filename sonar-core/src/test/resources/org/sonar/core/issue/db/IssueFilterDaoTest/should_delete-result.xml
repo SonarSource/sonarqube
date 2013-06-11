@@ -3,7 +3,7 @@
   <issue_filters
       id="2"
       name="Open issues"
-      user_id="2"
+      user="michael"
       shared="[false]"
       description="All open issues"
       data="statuses=OPEN"

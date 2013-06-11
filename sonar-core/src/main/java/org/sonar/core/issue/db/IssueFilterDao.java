@@ -41,7 +41,7 @@ public class IssueFilterDao implements BatchComponent, ServerComponent {
   }
 
   @CheckForNull
-  public IssueFilterDto selectById(Integer id) {
+  public IssueFilterDto selectById(Long id) {
     SqlSession session = mybatis.openSession();
     try {
       session.getMapper(IssueFilterMapper.class);
@@ -51,11 +51,11 @@ public class IssueFilterDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<IssueFilterDto> selectByUser(Integer userId) {
+  public List<IssueFilterDto> selectByUser(String user) {
     SqlSession session = mybatis.openSession();
     try {
       session.getMapper(IssueFilterMapper.class);
-      return getMapper(session).selectByUser(userId);
+      return getMapper(session).selectByUser(user);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -81,7 +81,7 @@ public class IssueFilterDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public void delete(Integer id) {
+  public void delete(Long id) {
     SqlSession session = mybatis.openSession();
     try {
       getMapper(session).delete(id);

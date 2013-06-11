@@ -17,25 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.db;
 
-import javax.annotation.CheckForNull;
+package org.sonar.server.issue;
 
-import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.issue.IssueFinder;
+import org.sonar.core.issue.db.IssueFilterDao;
 
-/**
- * @since 3.6
- */
-public interface IssueFilterMapper {
+import static org.mockito.Mockito.mock;
 
-  @CheckForNull
-  IssueFilterDto selectById(Long id);
+public class IssueFilterServiceTest {
 
-  List<IssueFilterDto> selectByUser(String user);
+  IssueFilterService service;
 
-  void insert(IssueFilterDto filter);
+  IssueFilterDao issueFilterDao;
+  IssueFinder issueFinder;
 
-  void update(IssueFilterDto filter);
+  @Before
+  public void before() {
+    issueFinder = mock(IssueFinder.class);
+    issueFilterDao = mock(IssueFilterDao.class);
+    service = new IssueFilterService(issueFilterDao, issueFinder);
+  }
 
-  void delete(Long id);
+  @Test
+  public void should_convert_map_to_data() {
+
+  }
 }

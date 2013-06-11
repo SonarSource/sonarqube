@@ -3,7 +3,7 @@
   <issue_filters
       id="1"
       name="Sonar Issues"
-      user_id="1"
+      user="stephane"
       shared="[true]"
       description="All issues of Sonar"
       data="componentRoots=org.codehaus.sonar"
@@ -13,7 +13,7 @@
   <issue_filters
       id="2"
       name="Closed issues"
-      user_id="3"
+      user="henry"
       shared="[false]"
       description="All closed issues"
       data="statuses=CLOSED"
