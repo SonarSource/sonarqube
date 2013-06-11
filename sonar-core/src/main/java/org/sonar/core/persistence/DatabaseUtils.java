@@ -62,6 +62,8 @@ public final class DatabaseUtils {
     "group_roles",
     "issues",
     "issue_changes",
+    "issue_filters",
+    "issue_filter_favourites",
     "loaded_templates",
     "manual_measures",
     "measure_data",

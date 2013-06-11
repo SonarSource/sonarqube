@@ -115,22 +115,24 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "MeasureData", MeasureData.class);
     loadAlias(conf, "Issue", IssueDto.class);
     loadAlias(conf, "IssueChange", IssueChangeDto.class);
+    loadAlias(conf, "IssueFilter", IssueFilterDto.class);
     loadAlias(conf, "SnapshotData", SnapshotDataDto.class);
     loadAlias(conf, "ActionPlanIssue", ActionPlanDto.class);
     loadAlias(conf, "ActionPlanStats", ActionPlanStatsDto.class);
 
+    // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
+    loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
+    // ResourceMapper has to be loaded before IssueMapper because this last one used it
+    loadMapper(conf, ResourceMapper.class);
+
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
-      IssueMapper.class, IssueStatsMapper.class, IssueChangeMapper.class,
+      IssueMapper.class, IssueStatsMapper.class, IssueChangeMapper.class, IssueFilterMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class, ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class,
       ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class,
       SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class, MeasureMapper.class, SnapshotDataMapper.class,
       SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class
     };
-    // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
-    loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
-    // ResourceMapper has to be loaded before IssueMapper because this last one used it
-    loadMapper(conf, ResourceMapper.class);
     loadMappers(conf, mappers);
     configureLogback(mappers);
 

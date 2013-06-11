@@ -273,6 +273,7 @@ public final class Platform {
     servicesContainer.addSingleton(IssueNotifications.class);
     servicesContainer.addSingleton(ActionService.class);
     servicesContainer.addSingleton(Actions.class);
+    servicesContainer.addSingleton(IssueFilterService.class);
 
     // rules
     servicesContainer.addSingleton(RubyRuleService.class);

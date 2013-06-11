@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.issue.db.IssueFilterMapper">
+
+  <sql id="issueFilterColumns">
+    if.id,
+    if.name as name,
+    if.user_id as userId,
+    if.shared as shared,
+    if.description as description,
+    if.data as data,
+    if.created_at as createdAt,
+    if.updated_at as updatedAt
+  </sql>
+
+  <select id="selectById" parameterType="int" resultType="IssueFilter">
+    select <include refid="issueFilterColumns"/>
+    from issue_filters if WHERE id=#{id}
+  </select>
+
+  <select id="selectByUser" parameterType="int" resultType="IssueFilter">
+    select <include refid="issueFilterColumns"/>
+    from issue_filters if WHERE user_id=#{userId}
+  </select>
+
+  <insert id="insert" parameterType="IssueFilter" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO issue_filters (name, user_id, shared, description, data, created_at, updated_at)
+    VALUES (#{name}, #{userId}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <!-- Oracle -->
+  <insert id="insert" databaseId="oracle" parameterType="IssueFilter" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
+      select issue_filters_seq.NEXTVAL from DUAL
+    </selectKey>
+    INSERT INTO issue_filters (id, name, user_id, shared, description, data, created_at, updated_at)
+    VALUES (#{id}, #{name}, #{userId}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <update id="update" parameterType="IssueFilter">
+    update issue_filters set
+    name=#{name},
+    user_id=#{userId},
+    shared=#{shared},
+    description=#{description},
+    data=#{data},
+    updated_at=current_timestamp
+    where id=#{id}
+  </update>
+
+  <delete id="delete" parameterType="int">
+    delete from issue_filters where id=#{id}
+  </delete>
+
+</mapper>

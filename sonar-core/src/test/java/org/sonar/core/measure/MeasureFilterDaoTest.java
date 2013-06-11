@@ -43,7 +43,6 @@ public class MeasureFilterDaoTest extends AbstractDaoTestCase {
     assertThat(filter.getName()).isEqualTo("Projects");
   }
 
-
   @Test
   public void should_not_find_filter() {
     setupData("shared");

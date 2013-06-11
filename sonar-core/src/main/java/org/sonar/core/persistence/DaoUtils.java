@@ -59,6 +59,7 @@ public final class DaoUtils {
       IssueDao.class,
       IssueStatsDao.class,
       IssueChangeDao.class,
+      IssueFilterDao.class,
       LoadedTemplateDao.class,
       MeasureFilterDao.class,
       PropertiesDao.class,

@@ -1,0 +1,13 @@
+<dataset>
+
+  <issue_filters
+      id="2"
+      name="Open issues"
+      user_id="2"
+      shared="[false]"
+      description="All open issues"
+      data="statuses=OPEN"
+      created_at="2013-06-10"
+      updated_at="2013-06-10" />
+
+</dataset>
