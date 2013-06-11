@@ -39,4 +39,9 @@ public class ProjectSettingsReady {
   public void start() {
     settings.init(reactor);
   }
+
+  public void stop() {
+    // Remove project specific settings
+    settings.restore();
+  }
 }

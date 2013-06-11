@@ -19,9 +19,8 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 
 import java.io.File;
 
@@ -33,11 +32,11 @@ public class ProjectBuilderTest {
 
   @Test
   public void shouldChangeProject() {
-    // this reactor is created and injected by Sonar
+    // this reactor is created and provided by Sonar
     ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create());
 
-    ProjectBuilder builder = new ProjectBuilderSample(projectReactor, new PropertiesConfiguration());
-    builder.start();
+    ProjectBuilder builder = new ProjectBuilderSample(new Settings());
+    builder.doBuild(projectReactor);
 
     assertThat(projectReactor.getProjects().size(), is(2));
     ProjectDefinition root = projectReactor.getRoot();
@@ -47,12 +46,10 @@ public class ProjectBuilderTest {
   }
 
   final static class ProjectBuilderSample extends ProjectBuilder {
-    private Configuration conf;
+    private Settings conf;
 
-    public ProjectBuilderSample(ProjectReactor reactor, Configuration conf) {
-      super(reactor);
-
-      // A real implementation should for example use the configuration
+    public ProjectBuilderSample(Settings conf) {
+      // A real implementation should for example use the settings
       this.conf = conf;
     }
 

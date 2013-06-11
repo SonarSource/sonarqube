@@ -30,7 +30,6 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.BatchSettings;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -149,12 +148,6 @@ public class ProjectScanContainer extends ComponentContainer {
   protected void doAfterStart() {
     ProjectTree tree = getComponentByType(ProjectTree.class);
     scanRecursively(tree.getRootProject());
-  }
-
-  public void stop() {
-    // Remove project specific settings
-    BatchSettings settings = getComponentByType(BatchSettings.class);
-    settings.restore();
   }
 
   private void scanRecursively(Project module) {

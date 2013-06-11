@@ -40,17 +40,22 @@ public class ProjectReactorReady {
 
   private final ProjectReactor reactor;
   private final Settings settings;
+  private ProjectBuilder[] projectBuilders;
 
   public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, Settings settings, @Nullable ProjectBuilder[] projectBuilders) {
     this.reactor = reactor;
     this.settings = settings;
+    this.projectBuilders = projectBuilders;
   }
 
   public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, Settings settings) {
-    this(exclusions, reactor, settings, null);
+    this(exclusions, reactor, settings, new ProjectBuilder[0]);
   }
 
   public void start() {
+    for (ProjectBuilder projectBuilder : projectBuilders) {
+      projectBuilder.doBuild(reactor);
+    }
     ProjectReactorValidator validator = new ProjectReactorValidator(settings);
     validator.validate(reactor);
   }

@@ -37,15 +37,31 @@ import org.sonar.api.batch.InstantiationStrategy;
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public abstract class ProjectBuilder implements BatchExtension {
 
-  private ProjectReactor reactor;
-
+  /**
+   * Don't inject ProjectReactor as it may not be available
+   * @deprecated since 3.7 use {@link #ProjectBuilder()}
+   */
+  @Deprecated
   protected ProjectBuilder(final ProjectReactor reactor) {
-    this.reactor = reactor;
   }
 
-  public final void start() {
+  /**
+   * @since 3.7
+   */
+  protected ProjectBuilder() {
+  }
+
+  /**
+   * This method was introduced to relax visibility of {@link #build(ProjectReactor)}
+   * @since 3.7
+   */
+  public final void doBuild(ProjectReactor reactor) {
     build(reactor);
   }
 
+  /**
+   * This method will be called by Sonar core to let you a chance to change project reactor structure.
+   * @param reactor
+   */
   protected abstract void build(ProjectReactor reactor);
 }
