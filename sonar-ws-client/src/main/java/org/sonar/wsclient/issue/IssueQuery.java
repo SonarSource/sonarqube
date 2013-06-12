@@ -30,7 +30,6 @@ import java.util.Map;
  */
 public class IssueQuery {
 
-  static final String BASE_URL = "/api/issues/search";
   private final Map<String, Object> params = new HashMap<String, Object>();
 
   private IssueQuery() {
@@ -40,7 +39,10 @@ public class IssueQuery {
     return new IssueQuery();
   }
 
-  Map<String, Object> urlParams() {
+  /**
+   * URL query string, for internal use
+   */
+  public Map<String, Object> urlParams() {
     return params;
   }
 

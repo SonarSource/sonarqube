@@ -11,25 +11,11 @@
  * SonarQube is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
-
-import java.util.Date;
-
-/**
- * @since 3.6
- */
-public interface IssueComment {
-  String key();
-
-  String htmlText();
-
-  String login();
-
-  Date createdAt();
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.wsclient.issue.internal;

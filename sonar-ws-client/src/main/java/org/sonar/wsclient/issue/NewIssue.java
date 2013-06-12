@@ -27,7 +27,7 @@ import java.util.Map;
  * @since 3.6
  */
 public class NewIssue {
-  static final String BASE_URL = "/api/issues/create";
+
   private final Map<String, Object> params = new HashMap<String, Object>();
 
   private NewIssue() {
@@ -37,7 +37,7 @@ public class NewIssue {
     return new NewIssue();
   }
 
-  Map<String, Object> urlParams() {
+  public Map<String, Object> urlParams() {
     return params;
   }
 

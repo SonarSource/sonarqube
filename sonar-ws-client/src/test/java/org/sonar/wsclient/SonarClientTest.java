@@ -20,8 +20,8 @@
 package org.sonar.wsclient;
 
 import org.junit.Test;
-import org.sonar.wsclient.issue.DefaultActionPlanClient;
-import org.sonar.wsclient.issue.DefaultIssueClient;
+import org.sonar.wsclient.issue.internal.DefaultActionPlanClient;
+import org.sonar.wsclient.issue.internal.DefaultIssueClient;
 import org.sonar.wsclient.user.DefaultUserClient;
 
 import static org.fest.assertions.Assertions.assertThat;

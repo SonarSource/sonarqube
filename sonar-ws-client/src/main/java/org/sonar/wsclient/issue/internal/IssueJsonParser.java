@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
+package org.sonar.wsclient.issue.internal;
 
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.component.Component;
+import org.sonar.wsclient.issue.Issues;
+import org.sonar.wsclient.base.Paging;
 import org.sonar.wsclient.rule.Rule;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 import org.sonar.wsclient.user.User;
@@ -32,15 +34,15 @@ import java.util.Map;
 /**
  * @since 3.6
  */
-class IssueJsonParser {
+public class IssueJsonParser {
 
-  Issues parseIssues(String json) {
-    Issues result = new Issues();
+  public Issues parseIssues(String json) {
+    DefaultIssues result = new DefaultIssues();
     Map jsonRoot = (Map) JSONValue.parse(json);
-    List<Map> jsonIssues = (List) jsonRoot.get("issues");
+    List<Map> jsonIssues = (List<Map>) jsonRoot.get("issues");
     if (jsonIssues != null) {
       for (Map jsonIssue : jsonIssues) {
-        result.add(new Issue(jsonIssue));
+        result.add(new DefaultIssue(jsonIssue));
       }
     }
     parseRules(result, jsonRoot);
@@ -52,14 +54,14 @@ class IssueJsonParser {
     return result;
   }
 
-  private void parsePaging(Issues result, Map jsonRoot) {
+  private void parsePaging(DefaultIssues result, Map jsonRoot) {
     Map paging = (Map) jsonRoot.get("paging");
     result.setPaging(new Paging(paging));
     result.setMaxResultsReached(JsonUtils.getBoolean(jsonRoot, "maxResultsReached"));
   }
 
-  private void parseProjects(Issues result, Map jsonRoot) {
-    List<Map> jsonProjects = (List) jsonRoot.get("projects");
+  private void parseProjects(DefaultIssues result, Map jsonRoot) {
+    List<Map> jsonProjects = (List<Map>) jsonRoot.get("projects");
     if (jsonProjects != null) {
       for (Map jsonProject : jsonProjects) {
         result.addProject(new Component(jsonProject));
@@ -67,8 +69,8 @@ class IssueJsonParser {
     }
   }
 
-  private void parseComponents(Issues result, Map jsonRoot) {
-    List<Map> jsonComponents = (List) jsonRoot.get("components");
+  private void parseComponents(DefaultIssues result, Map jsonRoot) {
+    List<Map> jsonComponents = (List<Map>) jsonRoot.get("components");
     if (jsonComponents != null) {
       for (Map jsonComponent : jsonComponents) {
         result.addComponent(new Component(jsonComponent));
@@ -76,8 +78,8 @@ class IssueJsonParser {
     }
   }
 
-  private void parseUsers(Issues result, Map jsonRoot) {
-    List<Map> jsonUsers = (List) jsonRoot.get("users");
+  private void parseUsers(DefaultIssues result, Map jsonRoot) {
+    List<Map> jsonUsers = (List<Map>) jsonRoot.get("users");
     if (jsonUsers != null) {
       for (Map jsonUser : jsonUsers) {
         result.add(new User(jsonUser));
@@ -85,8 +87,8 @@ class IssueJsonParser {
     }
   }
 
-  private void parseRules(Issues result, Map jsonRoot) {
-    List<Map> jsonRules = (List) jsonRoot.get("rules");
+  private void parseRules(DefaultIssues result, Map jsonRoot) {
+    List<Map> jsonRules = (List<Map>) jsonRoot.get("rules");
     if (jsonRules != null) {
       for (Map jsonRule : jsonRules) {
         result.add(new Rule(jsonRule));
@@ -94,11 +96,11 @@ class IssueJsonParser {
     }
   }
 
-  private void parseActionPlans(Issues result, Map jsonRoot) {
+  private void parseActionPlans(DefaultIssues result, Map jsonRoot) {
     List<Map> jsonRules = (List) jsonRoot.get("actionPlans");
     if (jsonRules != null) {
       for (Map jsonRule : jsonRules) {
-        result.add(new ActionPlan(jsonRule));
+        result.add(new DefaultActionPlan(jsonRule));
       }
     }
   }
@@ -106,7 +108,7 @@ class IssueJsonParser {
   List<String> parseTransitions(String json) {
     List<String> transitions = new ArrayList<String>();
     Map jRoot = (Map) JSONValue.parse(json);
-    List<String> jTransitions = (List) jRoot.get("transitions");
+    List<String> jTransitions = (List<String>) jRoot.get("transitions");
     for (String jTransition : jTransitions) {
       transitions.add(jTransition);
     }
@@ -116,7 +118,7 @@ class IssueJsonParser {
   List<String> parseActions(String json) {
     List<String> actions = new ArrayList<String>();
     Map jRoot = (Map) JSONValue.parse(json);
-    List<String> jActions = (List) jRoot.get("actions");
+    List<String> jActions = (List<String>) jRoot.get("actions");
     for (String jAction : jActions) {
       actions.add(jAction);
     }

@@ -24,16 +24,35 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
+ * This client is a wrapper over the web services related to issues
+ *
  * @since 3.6
  */
 public interface IssueClient {
 
+  /**
+   * Wrap the web service /api/issues/search in order to search for issues.
+   */
   Issues find(IssueQuery query);
 
+  /**
+   * Assign an existing issue to a user. A null assignee removes the assignee.
+   *
+   * @return the updated issue
+   */
   Issue assign(String issueKey, @Nullable String assignee);
 
+  /**
+   * Change the severity of an existing issue. Supported values are "INFO", "MINOR",
+   * "MAJOR", "CRITICAL" and "BLOCKER".
+   *
+   * @return the updated issue
+   */
   Issue setSeverity(String issueKey, String severity);
 
+  /**
+   * Link an existing issue to an action plan. A null action plan unlinks the issue.
+   */
   Issue plan(String issueKey, @Nullable String actionPlan);
 
   IssueComment addComment(String issueKey, String markdownText);

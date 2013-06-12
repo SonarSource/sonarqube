@@ -17,39 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.wsclient.issue;
-
-import org.sonar.wsclient.unmarshallers.JsonUtils;
-
-import java.util.Map;
+package org.sonar.wsclient.base;
 
 /**
  * @since 3.6
- * TODO move outside this package
  */
-public class Paging {
+public class HttpException extends RuntimeException {
 
-  private final Map json;
+  private final String url;
+  private final int status;
 
-  Paging(Map json) {
-    this.json = json;
+  public HttpException(String url, int status) {
+    super(String.format("Error %d on %s", status, url));
+    this.url = url;
+    this.status = status;
   }
 
-  public Integer pageSize() {
-    return JsonUtils.getInteger(json, "pageSize");
+  public String url() {
+    return url;
   }
 
-  public Integer pageIndex() {
-    return JsonUtils.getInteger(json, "pageIndex");
+  public int status() {
+    return status;
   }
-
-  public Integer total() {
-    return JsonUtils.getInteger(json, "total");
-  }
-
-  public Integer pages() {
-    return JsonUtils.getInteger(json, "pages");
-  }
-
 }

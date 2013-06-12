@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
+package org.sonar.wsclient.issue.internal;
 
-import com.github.kevinsawicki.http.HttpRequest;
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.internal.EncodingUtils;
 import org.sonar.wsclient.internal.HttpRequestFactory;
+import org.sonar.wsclient.issue.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,17 +44,13 @@ public class DefaultActionPlanClient implements ActionPlanClient {
 
   @Override
   public List<ActionPlan> find(String projectKey) {
-    HttpRequest request = requestFactory.get(ActionPlanQuery.BASE_URL, EncodingUtils.toMap("project", projectKey));
-    if (!request.ok()) {
-      throw new IllegalStateException("Fail to search for action plans. Bad HTTP response status: " + request.code());
-    }
+    String json = requestFactory.get(ActionPlanQuery.BASE_URL, EncodingUtils.toMap("project", projectKey));
     List<ActionPlan> result = new ArrayList<ActionPlan>();
-    String json = request.body("UTF-8");
     Map jsonRoot = (Map) JSONValue.parse(json);
-    List<Map> jsonActionPlans = (List) jsonRoot.get("actionPlans");
+    List<Map> jsonActionPlans = (List<Map>) jsonRoot.get("actionPlans");
     if (jsonActionPlans != null) {
       for (Map jsonActionPlan : jsonActionPlans) {
-        result.add(new ActionPlan(jsonActionPlan));
+        result.add(new DefaultActionPlan(jsonActionPlan));
       }
     }
     return result;
@@ -62,20 +58,14 @@ public class DefaultActionPlanClient implements ActionPlanClient {
 
   @Override
   public ActionPlan create(NewActionPlan newActionPlan) {
-    HttpRequest request = requestFactory.post(NewActionPlan.BASE_URL, newActionPlan.urlParams());
-    if (!request.ok()) {
-      throw new IllegalStateException("Fail to create action plan. Bad HTTP response status: " + request.code());
-    }
-    return createActionPlanResult(request);
+    String json = requestFactory.post("/api/action_plans/create", newActionPlan.urlParams());
+    return createActionPlanResult(json);
   }
 
   @Override
   public ActionPlan update(UpdateActionPlan updateActionPlan) {
-    HttpRequest request = requestFactory.post(UpdateActionPlan.BASE_URL, updateActionPlan.urlParams());
-    if (!request.ok()) {
-      throw new IllegalStateException("Fail to update action plan. Bad HTTP response status: " + request.code());
-    }
-    return createActionPlanResult(request);
+    String json = requestFactory.post("/api/action_plans/update", updateActionPlan.urlParams());
+    return createActionPlanResult(json);
   }
 
   @Override
@@ -85,28 +75,23 @@ public class DefaultActionPlanClient implements ActionPlanClient {
 
   @Override
   public ActionPlan open(String actionPlanKey) {
-    HttpRequest request = executeSimpleAction(actionPlanKey, "open");
-    return createActionPlanResult(request);
+    String json = executeSimpleAction(actionPlanKey, "open");
+    return createActionPlanResult(json);
   }
 
   @Override
   public ActionPlan close(String actionPlanKey) {
-    HttpRequest request = executeSimpleAction(actionPlanKey, "close");
-    return createActionPlanResult(request);
+    String json = executeSimpleAction(actionPlanKey, "close");
+    return createActionPlanResult(json);
   }
 
-  private HttpRequest executeSimpleAction(String actionPlanKey, String action) {
-    HttpRequest request = requestFactory.post("/api/action_plans/" + action, EncodingUtils.toMap("key", actionPlanKey));
-    if (!request.ok()) {
-      throw new IllegalStateException("Fail to " + action + " action plan. Bad HTTP response status: " + request.code());
-    }
-    return request;
+  private String executeSimpleAction(String actionPlanKey, String action) {
+    return requestFactory.post("/api/action_plans/" + action, EncodingUtils.toMap("key", actionPlanKey));
   }
 
-  private ActionPlan createActionPlanResult(HttpRequest request){
-    String json = request.body("UTF-8");
+  private ActionPlan createActionPlanResult(String json) {
     Map jsonRoot = (Map) JSONValue.parse(json);
-    return new ActionPlan((Map) jsonRoot.get("actionPlan"));
+    return new DefaultActionPlan((Map) jsonRoot.get("actionPlan"));
   }
 
 }

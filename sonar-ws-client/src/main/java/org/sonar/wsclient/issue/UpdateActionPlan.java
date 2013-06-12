@@ -30,7 +30,6 @@ import java.util.Map;
  */
 public class UpdateActionPlan {
 
-  static final String BASE_URL = "/api/action_plans/update";
   private final Map<String, Object> params = new HashMap<String, Object>();
 
   private UpdateActionPlan() {
@@ -40,7 +39,7 @@ public class UpdateActionPlan {
     return new UpdateActionPlan();
   }
 
-  Map<String, Object> urlParams() {
+  public Map<String, Object> urlParams() {
     return params;
   }
 

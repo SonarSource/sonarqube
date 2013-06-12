@@ -25,7 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Not an API, please do not directly use this class.
+ * Not an API. Please do not use this class, except maybe for unit tests.
  */
 public class EncodingUtils {
 

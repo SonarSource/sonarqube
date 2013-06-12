@@ -17,11 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
+package org.sonar.wsclient.issue.internal;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.sonar.wsclient.base.Paging;
 import org.sonar.wsclient.component.Component;
+import org.sonar.wsclient.issue.ActionPlan;
+import org.sonar.wsclient.issue.Issue;
+import org.sonar.wsclient.issue.IssueComment;
+import org.sonar.wsclient.issue.Issues;
+import org.sonar.wsclient.issue.internal.IssueJsonParser;
 import org.sonar.wsclient.user.User;
 
 import java.util.List;
@@ -31,7 +37,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IssueJsonParserTest {
   @Test
   public void test_GET_search() throws Exception {
-    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/search.json"));
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/search.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
     assertThat(issues).isNotNull();
     List<Issue> list = issues.list();
@@ -86,7 +92,7 @@ public class IssueJsonParserTest {
 
   @Test
   public void test_GET_empty_search() throws Exception {
-    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/empty.json"));
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/empty.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
     assertThat(issues).isNotNull();
     assertThat(issues.list()).isEmpty();
@@ -96,7 +102,7 @@ public class IssueJsonParserTest {
 
   @Test
   public void test_GET_transitions() throws Exception {
-    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/getTransitions.json"));
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/getTransitions.json"));
     List<String> transitions = new IssueJsonParser().parseTransitions(json);
 
     assertThat(transitions).isNotNull();
@@ -106,7 +112,7 @@ public class IssueJsonParserTest {
 
   @Test
   public void should_parse_comments() throws Exception {
-    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-comments.json"));
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-comments.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
     assertThat(issues.size()).isEqualTo(1);
 
@@ -128,7 +134,7 @@ public class IssueJsonParserTest {
 
   @Test
   public void should_parse_users() throws Exception {
-    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-users.json"));
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-users.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
 
     assertThat(issues.users()).hasSize(2);
@@ -148,7 +154,7 @@ public class IssueJsonParserTest {
 
   @Test
   public void should_parse_components() throws Exception {
-    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-components.json"));
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-components.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
 
     assertThat(issues.components()).hasSize(1);
@@ -162,7 +168,7 @@ public class IssueJsonParserTest {
 
   @Test
   public void should_parse_projects() throws Exception {
-    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-projects.json"));
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-projects.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
 
     assertThat(issues.projects()).hasSize(1);
@@ -176,7 +182,7 @@ public class IssueJsonParserTest {
 
   @Test
   public void should_parse_action_plans() throws Exception {
-    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/IssueParserTest/issue-with-action-plans.json"));
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-action-plans.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
 
     assertThat(issues.actionPlans()).hasSize(1);

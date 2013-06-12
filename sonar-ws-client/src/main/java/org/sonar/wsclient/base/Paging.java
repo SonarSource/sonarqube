@@ -17,50 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
 
-import org.sonar.wsclient.internal.EncodingUtils;
+package org.sonar.wsclient.base;
 
-import java.util.Date;
-import java.util.HashMap;
+import org.sonar.wsclient.unmarshallers.JsonUtils;
+
 import java.util.Map;
 
 /**
  * @since 3.6
  */
-public class NewActionPlan {
+public class Paging {
 
-  private final Map<String, Object> params = new HashMap<String, Object>();
+  private final Map json;
 
-  private NewActionPlan() {
+  /**
+   * For internal use
+   */
+  public Paging(Map json) {
+    this.json = json;
   }
 
-  public static NewActionPlan create() {
-    return new NewActionPlan();
+  public Integer pageSize() {
+    return JsonUtils.getInteger(json, "pageSize");
   }
 
-  public Map<String, Object> urlParams() {
-    return params;
+  public Integer pageIndex() {
+    return JsonUtils.getInteger(json, "pageIndex");
   }
 
-  public NewActionPlan name(String s) {
-    params.put("name", s);
-    return this;
+  public Integer total() {
+    return JsonUtils.getInteger(json, "total");
   }
 
-  public NewActionPlan project(String s) {
-    params.put("project", s);
-    return this;
-  }
-
-  public NewActionPlan description(String s) {
-    params.put("description", s);
-    return this;
-  }
-
-  public NewActionPlan deadLine(Date deadLine) {
-    params.put("deadLine", EncodingUtils.toQueryParam(deadLine, false));
-    return this;
+  public Integer pages() {
+    return JsonUtils.getInteger(json, "pages");
   }
 
 }

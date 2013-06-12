@@ -11,84 +11,52 @@
  * SonarQube is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * Lesser General License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
+ * You should have received a copy of the GNU Lesser General License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.sonar.wsclient.issue;
 
-import org.sonar.wsclient.unmarshallers.JsonUtils;
-
 import javax.annotation.CheckForNull;
-
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @since 3.6
  */
-public class ActionPlan {
-
-  private final Map json;
-
-  ActionPlan(Map json) {
-    this.json = json;
-  }
+public interface ActionPlan {
 
   /**
    * Unique key
    */
-  public String key() {
-    return JsonUtils.getString(json, "key");
-  }
+  String key();
 
-  public String project() {
-    return JsonUtils.getString(json, "project");
-  }
+  String project();
 
-  public String name() {
-    return JsonUtils.getString(json, "name");
-  }
+  String name();
 
   @CheckForNull
-  public String description() {
-    return JsonUtils.getString(json, "desc");
-  }
+  String description();
 
-  public String status() {
-    return JsonUtils.getString(json, "status");
-  }
+  String status();
 
   /**
    * Login of the user who created the action plan.
    */
-  public String userLogin() {
-    return JsonUtils.getString(json, "userLogin");
-  }
+  String userLogin();
 
   @CheckForNull
-  public Date deadLine() {
-    return JsonUtils.getDateTime(json, "deadLine");
-  }
+  Date deadLine();
 
-  public Date createdAt() {
-    return JsonUtils.getDateTime(json, "createdAt");
-  }
+  Date createdAt();
 
-  public Date updatedAt() {
-    return JsonUtils.getDateTime(json, "updatedAt");
-  }
+  Date updatedAt();
 
   @CheckForNull
-  public Integer totalIssues() {
-    return JsonUtils.getInteger(json, "totalIssues");
-  }
+  Integer totalIssues();
 
   @CheckForNull
-  public Integer unresolvedIssues() {
-    return JsonUtils.getInteger(json, "unresolvedIssues");
-  }
+  Integer unresolvedIssues();
 
 }
