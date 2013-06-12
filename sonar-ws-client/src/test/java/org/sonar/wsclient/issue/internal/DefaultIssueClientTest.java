@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
+package org.sonar.wsclient.issue.internal;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
+import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.internal.HttpRequestFactory;
+import org.sonar.wsclient.issue.*;
+import org.sonar.wsclient.issue.internal.DefaultIssueClient;
 
 import java.util.List;
 
@@ -57,8 +60,10 @@ public class DefaultIssueClientTest {
     try {
       client.find(IssueQuery.create());
       fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Fail to search for issues. Bad HTTP response status: 500");
+    } catch (HttpException e) {
+      assertThat(e.status()).isEqualTo(500);
+      assertThat(e.url()).startsWith("http://localhost");
+      assertThat(e.url()).endsWith("/api/issues/search");
     }
   }
 
@@ -167,7 +172,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_add_comment() throws Exception {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody(IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/DefaultIssueClientTest/add_comment_result.json")));
+    httpServer.doReturnBody(IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/DefaultIssueClientTest/add_comment_result.json")));
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     IssueComment comment = client.addComment("ISSUE-1", "this is my comment");

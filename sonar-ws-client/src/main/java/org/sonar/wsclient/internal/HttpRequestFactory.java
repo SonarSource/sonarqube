@@ -20,13 +20,13 @@
 package org.sonar.wsclient.internal;
 
 import com.github.kevinsawicki.http.HttpRequest;
+import org.sonar.wsclient.base.HttpException;
 
 import javax.annotation.Nullable;
-
 import java.util.Map;
 
 /**
- * Not an API, please do not directly use this class.
+ * Not an API. Please do not use this class, except maybe for unit tests.
  */
 public class HttpRequestFactory {
 
@@ -116,17 +116,34 @@ public class HttpRequestFactory {
     return readTimeoutInMilliseconds;
   }
 
-  public HttpRequest get(String wsUrl, Map<String, Object> queryParams) {
+  public String get(String wsUrl, Map<String, Object> queryParams) {
     HttpRequest request = HttpRequest.get(baseUrl + wsUrl, queryParams, true);
-    return prepare(request);
+    return execute(request);
   }
 
-  public HttpRequest post(String wsUrl, Map<String, Object> queryParams) {
+  public String post(String wsUrl, Map<String, Object> queryParams) {
     HttpRequest request = HttpRequest.post(baseUrl + wsUrl, queryParams, true);
-    return prepare(request);
+    return execute(request);
   }
 
-  private HttpRequest prepare(HttpRequest request) {
+  private String execute(HttpRequest request) {
+    try {
+      prepare(request);
+      if (request.ok()) {
+        return request.body("UTF-8");
+      }
+      // TODO handle error messages
+      throw new HttpException(request.url().toString(), request.code());
+
+    } catch (HttpException e) {
+      throw e;
+
+    } catch (HttpRequest.HttpRequestException e) {
+      throw new IllegalStateException(e.getCause());
+    }
+  }
+
+  private void prepare(HttpRequest request) {
     if (proxyHost != null) {
       request.useProxy(proxyHost, proxyPort);
       if (proxyLogin != null) {
@@ -145,6 +162,5 @@ public class HttpRequestFactory {
     if (login != null) {
       request.basic(login, password);
     }
-    return request;
   }
 }

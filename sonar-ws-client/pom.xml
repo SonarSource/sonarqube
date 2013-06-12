@@ -10,7 +10,7 @@
   <artifactId>sonar-ws-client</artifactId>
   <packaging>jar</packaging>
   <name>Sonar :: Web Service Client</name>
-  <description>Java library to request Sonar web services</description>
+  <description>Java Client Library for Sonar Web Services</description>
 
   <properties>
     <httpclient4.version>4.2.2</httpclient4.version>
@@ -133,10 +133,12 @@
               org.apache.httpcomponents.httpcore;bundle-version="${httpclient4.version}";optional="true"
             </Require-Bundle>
             <Export-Package>!.,org.sonar.wsclient,
+              org.sonar.wsclient.component,
               org.sonar.wsclient.connectors,
               org.sonar.wsclient.services,
               org.sonar.wsclient.issue,
-              org.sonar.wsclient.rule
+              org.sonar.wsclient.rule,
+              org.sonar.wsclient.user
             </Export-Package>
             <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
           </instructions>

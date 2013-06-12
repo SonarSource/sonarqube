@@ -19,7 +19,6 @@
  */
 package org.sonar.wsclient.user;
 
-import com.github.kevinsawicki.http.HttpRequest;
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 
@@ -43,14 +42,10 @@ public class DefaultUserClient implements UserClient {
 
   @Override
   public List<User> find(UserQuery query) {
-    HttpRequest request = requestFactory.get(UserQuery.BASE_URL, query.urlParams());
-    if (!request.ok()) {
-      throw new IllegalStateException("Fail to search for users. Bad HTTP response status: " + request.code());
-    }
+    String json = requestFactory.get(UserQuery.BASE_URL, query.urlParams());
     List<User> result = new ArrayList<User>();
-    String json = request.body("UTF-8");
     Map jsonRoot = (Map) JSONValue.parse(json);
-    List<Map> jsonUsers = (List) jsonRoot.get("users");
+    List<Map> jsonUsers = (List<Map>) jsonRoot.get("users");
     if (jsonUsers != null) {
       for (Map jsonUser : jsonUsers) {
         result.add(new User(jsonUser));

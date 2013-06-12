@@ -21,8 +21,8 @@ package org.sonar.wsclient;
 
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.ActionPlanClient;
-import org.sonar.wsclient.issue.DefaultActionPlanClient;
-import org.sonar.wsclient.issue.DefaultIssueClient;
+import org.sonar.wsclient.issue.internal.DefaultActionPlanClient;
+import org.sonar.wsclient.issue.internal.DefaultIssueClient;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.user.DefaultUserClient;
 import org.sonar.wsclient.user.UserClient;
@@ -30,6 +30,14 @@ import org.sonar.wsclient.user.UserClient;
 import javax.annotation.Nullable;
 
 /**
+ * Entry point of the Java Client for Sonar Web Services. It does not support all web services yet.
+ * <p/>
+ * Example:
+ * <pre>
+ *   SonarClient client = SonarClient.create("http://localhost:9000");
+ *   IssueClient issueClient = client.issueClient();
+ * </pre>
+ *
  * @since 3.6
  */
 public class SonarClient {
@@ -54,24 +62,37 @@ public class SonarClient {
       .setReadTimeoutInMilliseconds(builder.readTimeoutMs);
   }
 
+  /**
+   * New client to interact with web services related to issues
+   */
   public IssueClient issueClient() {
     return new DefaultIssueClient(requestFactory);
   }
 
+  /**
+   * New client to interact with web services related to issue action plans
+   */
   public ActionPlanClient actionPlanClient() {
     return new DefaultActionPlanClient(requestFactory);
   }
 
+  /**
+   * New client to interact with web services related to users
+   */
   public UserClient userClient() {
     return new DefaultUserClient(requestFactory);
   }
 
+  /**
+   * Create a builder of {@link SonarClient}s.
+   */
   public static Builder builder() {
     return new Builder();
   }
 
   /**
-   * Create a client with default configuration. Use {@link #builder()} to define a custom configuration.
+   * Create a client with default configuration. Use {@link #builder()} to define
+   * a custom configuration (credentials, HTTP proxy, HTTP timeouts).
    */
   public static SonarClient create(String serverUrl) {
     return builder().url(serverUrl).build();
@@ -85,22 +106,34 @@ public class SonarClient {
     private Builder() {
     }
 
+    /**
+     * Mandatory HTTP server URL, eg "http://localhost:9000"
+     */
     public Builder url(String url) {
       this.url = url;
       return this;
     }
 
+    /**
+     * Optional login, for example "admin"
+     */
     public Builder login(@Nullable String login) {
       this.login = login;
       return this;
     }
 
+    /**
+     * Optional password related to {@link #login(String)}, for example "admin"
+     */
     public Builder password(@Nullable String password) {
       this.password = password;
       return this;
     }
 
-    public Builder proxy(String proxyHost, int proxyPort) {
+    /**
+     * Host and port of the optional HTTP proxy
+     */
+    public Builder proxy(@Nullable String proxyHost, int proxyPort) {
       this.proxyHost = proxyHost;
       this.proxyPort = proxyPort;
       return this;
@@ -134,6 +167,9 @@ public class SonarClient {
       return this;
     }
 
+    /**
+     * Build a new client
+     */
     public SonarClient build() {
       if (url == null || "".equals(url)) {
         throw new IllegalStateException("Server URL must be set");

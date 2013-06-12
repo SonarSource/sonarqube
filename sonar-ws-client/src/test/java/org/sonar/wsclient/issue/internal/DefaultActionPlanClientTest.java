@@ -18,12 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.wsclient.issue;
+package org.sonar.wsclient.issue.internal;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
+import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.internal.HttpRequestFactory;
+import org.sonar.wsclient.issue.ActionPlan;
+import org.sonar.wsclient.issue.ActionPlanClient;
+import org.sonar.wsclient.issue.NewActionPlan;
+import org.sonar.wsclient.issue.UpdateActionPlan;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -115,8 +120,10 @@ public class DefaultActionPlanClientTest {
     try {
       client.delete("382f6f2e-ad9d-424a-b973-9b065e04348a");
       fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Fail to delete action plan. Bad HTTP response status: 500");
+    } catch (HttpException e) {
+      assertThat(e.status()).isEqualTo(500);
+      assertThat(e.url()).startsWith("http://localhost");
+      assertThat(e.url()).endsWith("/api/action_plans/delete?key=382f6f2e-ad9d-424a-b973-9b065e04348a");
     }
   }
 

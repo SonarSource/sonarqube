@@ -17,50 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
+package org.sonar.wsclient.issue.internal;
 
-import org.sonar.wsclient.internal.EncodingUtils;
+import org.sonar.wsclient.issue.IssueComment;
+import org.sonar.wsclient.unmarshallers.JsonUtils;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @since 3.6
  */
-public class NewActionPlan {
+public class DefaultIssueComment implements IssueComment {
+  private final Map json;
 
-  private final Map<String, Object> params = new HashMap<String, Object>();
-
-  private NewActionPlan() {
+  DefaultIssueComment(Map json) {
+    this.json = json;
   }
 
-  public static NewActionPlan create() {
-    return new NewActionPlan();
+  public String key() {
+    return JsonUtils.getString(json, "key");
   }
 
-  public Map<String, Object> urlParams() {
-    return params;
+  public String htmlText() {
+    return JsonUtils.getString(json, "htmlText");
   }
 
-  public NewActionPlan name(String s) {
-    params.put("name", s);
-    return this;
+  public String login() {
+    return JsonUtils.getString(json, "login");
   }
 
-  public NewActionPlan project(String s) {
-    params.put("project", s);
-    return this;
+  public Date createdAt() {
+    return JsonUtils.getDateTime(json, "createdAt");
   }
-
-  public NewActionPlan description(String s) {
-    params.put("description", s);
-    return this;
-  }
-
-  public NewActionPlan deadLine(Date deadLine) {
-    params.put("deadLine", EncodingUtils.toQueryParam(deadLine, false));
-    return this;
-  }
-
 }

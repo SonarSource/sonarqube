@@ -17,50 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.issue;
+package org.sonar.wsclient.base;
 
-import org.sonar.wsclient.internal.EncodingUtils;
+import org.junit.Test;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * @since 3.6
- */
-public class NewActionPlan {
-
-  private final Map<String, Object> params = new HashMap<String, Object>();
-
-  private NewActionPlan() {
+public class HttpExceptionTest {
+  @Test
+  public void test_exception() throws Exception {
+    HttpException exception = new HttpException("http://localhost:9000/api/search", 500);
+    assertThat(exception.status()).isEqualTo(500);
+    assertThat(exception.url()).isEqualTo("http://localhost:9000/api/search");
+    assertThat(exception.getMessage()).isEqualTo("Error 500 on http://localhost:9000/api/search");
   }
-
-  public static NewActionPlan create() {
-    return new NewActionPlan();
-  }
-
-  public Map<String, Object> urlParams() {
-    return params;
-  }
-
-  public NewActionPlan name(String s) {
-    params.put("name", s);
-    return this;
-  }
-
-  public NewActionPlan project(String s) {
-    params.put("project", s);
-    return this;
-  }
-
-  public NewActionPlan description(String s) {
-    params.put("description", s);
-    return this;
-  }
-
-  public NewActionPlan deadLine(Date deadLine) {
-    params.put("deadLine", EncodingUtils.toQueryParam(deadLine, false));
-    return this;
-  }
-
 }

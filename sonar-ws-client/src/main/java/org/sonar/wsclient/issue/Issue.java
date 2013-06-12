@@ -11,144 +11,86 @@
  * SonarQube is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * Lesser General License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
+ * You should have received a copy of the GNU Lesser General License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.sonar.wsclient.issue;
 
-import org.sonar.wsclient.unmarshallers.JsonUtils;
-
 import javax.annotation.CheckForNull;
-
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @since 3.6
  */
-public class Issue {
-
-  private final Map json;
-
-  Issue(Map json) {
-    this.json = json;
-  }
+public interface Issue {
 
   /**
    * Unique key
    */
-  public String key() {
-    return JsonUtils.getString(json, "key");
-  }
+  String key();
 
-  public String componentKey() {
-    return JsonUtils.getString(json, "component");
-  }
+  String componentKey();
 
-  public String projectKey() {
-    return JsonUtils.getString(json, "project");
-  }
+  String projectKey();
 
-  public String ruleKey() {
-    return JsonUtils.getString(json, "rule");
-  }
+  String ruleKey();
 
-  public String severity() {
-    return JsonUtils.getString(json, "severity");
-  }
+  String severity();
 
   @CheckForNull
-  public String message() {
-    return JsonUtils.getString(json, "message");
-  }
+  String message();
 
   @CheckForNull
-  public Integer line() {
-    return JsonUtils.getInteger(json, "line");
-  }
+  Integer line();
 
   @CheckForNull
-  public Double effortToFix() {
-    return JsonUtils.getDouble(json, "effortToFix");
-  }
+  Double effortToFix();
 
-  public String status() {
-    return JsonUtils.getString(json, "status");
-  }
+  String status();
 
   /**
    * The resolution type. Null if the issue is not resolved.
    */
   @CheckForNull
-  public String resolution() {
-    return JsonUtils.getString(json, "resolution");
-  }
+  String resolution();
 
   @CheckForNull
-  public String reporter() {
-    return JsonUtils.getString(json, "reporter");
-  }
+  String reporter();
 
   /**
    * Login of assignee. Null if issue is not assigned.
    */
   @CheckForNull
-  public String assignee() {
-    return JsonUtils.getString(json, "assignee");
-  }
+  String assignee();
 
   /**
    * SCM account
    */
   @CheckForNull
-  public String author() {
-    return JsonUtils.getString(json, "author");
-  }
+  String author();
 
   @CheckForNull
-  public String actionPlan() {
-    return JsonUtils.getString(json, "actionPlan");
-  }
+  String actionPlan();
 
-  public Date creationDate() {
-    return JsonUtils.getDateTime(json, "creationDate");
-  }
+  Date creationDate();
 
-  public Date updateDate() {
-    return JsonUtils.getDateTime(json, "updateDate");
-  }
+  Date updateDate();
 
   @CheckForNull
-  public Date closeDate() {
-    return JsonUtils.getDateTime(json, "closeDate");
-  }
+  Date closeDate();
 
   @CheckForNull
-  public String attribute(String key) {
-    return attributes().get(key);
-  }
+  String attribute(String key);
 
-  public Map<String, String> attributes() {
-    Map<String, String> attr = (Map) json.get("attr");
-    if (attr == null) {
-      return Collections.emptyMap();
-    }
-    return attr;
-  }
+  Map<String, String> attributes();
 
   /**
    * Non-null list of comments
    */
-  public List<IssueComment> comments() {
-    List<IssueComment> comments = new ArrayList();
-    List<Map> jsonComments = (List<Map>) json.get("comments");
-    if (jsonComments != null) {
-      for (Map jsonComment : jsonComments) {
-        comments.add(new IssueComment(jsonComment));
-      }
-    }
-    return comments;
-  }
+  List<IssueComment> comments();
 }
