@@ -19,20 +19,22 @@
  */
 package org.sonar.batch.profiling;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.Phases.Phase;
 
 import javax.annotation.CheckForNull;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 public class ModuleProfiling extends AbstractTimeProfiling {
 
   private Map<Phases.Phase, PhaseProfiling> profilingPerPhase = new HashMap<Phases.Phase, PhaseProfiling>();
+  private Map<String, ItemProfiling> profilingPerBatchStep = new LinkedHashMap<String, ItemProfiling>();
   private Clock clock;
   private Project module;
 
@@ -53,24 +55,32 @@ public class ModuleProfiling extends AbstractTimeProfiling {
     return profilingPerPhase.get(phase);
   }
 
+  public ItemProfiling getProfilingPerBatchStep(String stepName) {
+    return profilingPerBatchStep.get(stepName);
+  }
+
   public void addPhaseProfiling(Phase phase) {
     profilingPerPhase.put(phase, PhaseProfiling.create(clock, phase));
   }
 
+  public void addBatchStepProfiling(String stepName) {
+    profilingPerBatchStep.put(stepName, new ItemProfiling(clock, stepName));
+  }
+
   public void dump() {
     double percent = this.totalTime() / 100.0;
-    for (PhaseProfiling phaseProfiling : sortByDescendingTotalTime(profilingPerPhase.values())) {
-      StringBuilder sb = new StringBuilder();
-      sb.append(" * ").append(phaseProfiling.phase()).append(" execution time: ").append(phaseProfiling.totalTimeAsString())
-          .append(" (").append((int) (phaseProfiling.totalTime() / percent)).append("%)");
-      println(sb.toString());
+    Map<Object, AbstractTimeProfiling> categories = Maps.newLinkedHashMap();
+    categories.putAll(profilingPerPhase);
+    categories.putAll(profilingPerBatchStep);
+
+    for (Map.Entry<Object, AbstractTimeProfiling> batchStep : sortByDescendingTotalTime(categories).entrySet()) {
+      println(" * " + batchStep.getKey() + " execution time: ", percent, batchStep.getValue());
     }
+    // Breakdown per phase
     for (Phase phase : Phases.Phase.values()) {
-      if (profilingPerPhase.containsKey(phase)) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n * ").append(phase).append(" execution time breakdown: ")
-            .append(TimeUtils.formatDuration(getProfilingPerPhase(phase).totalTime()));
-        println(sb.toString());
+      if (profilingPerPhase.containsKey(phase) && getProfilingPerPhase(phase).hasItems()) {
+        println("");
+        println(" * " + phase + " execution time breakdown: ", getProfilingPerPhase(phase));
         getProfilingPerPhase(phase).dump();
       }
     }
@@ -83,6 +93,12 @@ public class ModuleProfiling extends AbstractTimeProfiling {
         this.addPhaseProfiling(entry.getKey());
       }
       this.getProfilingPerPhase(entry.getKey()).merge(entry.getValue());
+    }
+    for (Map.Entry<String, ItemProfiling> entry : other.profilingPerBatchStep.entrySet()) {
+      if (!this.profilingPerBatchStep.containsKey(entry.getKey())) {
+        profilingPerBatchStep.put(entry.getKey(), new ItemProfiling(clock, entry.getKey()));
+      }
+      this.getProfilingPerBatchStep(entry.getKey()).add(entry.getValue());
     }
   }
 

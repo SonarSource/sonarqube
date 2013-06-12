@@ -47,6 +47,10 @@ public class PhaseProfiling extends AbstractTimeProfiling {
     return phase;
   }
 
+  public boolean hasItems() {
+    return !profilingPerItem.isEmpty();
+  }
+
   public ItemProfiling getProfilingPerItem(Object item) {
     String stringOrSimpleName = toStringOrSimpleName(item);
     return profilingPerItem.get(stringOrSimpleName);
@@ -73,11 +77,8 @@ public class PhaseProfiling extends AbstractTimeProfiling {
 
   public void dump() {
     double percent = this.totalTime() / 100.0;
-    for (ItemProfiling itemProfiling : truncate(sortByDescendingTotalTime(profilingPerItem.values()))) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("   o ").append(itemProfiling.itemName()).append(": ").append(itemProfiling.totalTimeAsString())
-          .append(" (").append((int) (itemProfiling.totalTime() / percent)).append("%)");
-      println(sb.toString());
+    for (ItemProfiling itemProfiling : truncate(sortByDescendingTotalTime(profilingPerItem).values())) {
+      println("   o " + itemProfiling.itemName() + ": ", percent, itemProfiling);
     }
   }
 

@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractTimeProfiling {
 
@@ -64,16 +66,20 @@ public abstract class AbstractTimeProfiling {
     this.setTotalTime(this.totalTime() + other.totalTime());
   }
 
-  static <G extends AbstractTimeProfiling> List<G> sortByDescendingTotalTime(Collection<G> unsorted) {
-    List<G> result = new ArrayList<G>(unsorted.size());
-    result.addAll(unsorted);
-    Collections.sort(result, new Comparator<G>() {
+  static <G extends AbstractTimeProfiling> Map<Object, G> sortByDescendingTotalTime(Map<?, G> unsorted) {
+    List<Map.Entry<?, G>> entries =
+        new ArrayList<Map.Entry<?, G>>(unsorted.entrySet());
+    Collections.sort(entries, new Comparator<Map.Entry<?, G>>() {
       @Override
-      public int compare(G o1, G o2) {
-        return Long.valueOf(o2.totalTime()).compareTo(o1.totalTime());
+      public int compare(Map.Entry<?, G> o1, Map.Entry<?, G> o2) {
+        return Long.valueOf(o2.getValue().totalTime()).compareTo(o1.getValue().totalTime());
       }
     });
-    return result;
+    Map<Object, G> sortedMap = new LinkedHashMap<Object, G>();
+    for (Map.Entry<?, G> entry : entries) {
+      sortedMap.put(entry.getKey(), entry.getValue());
+    }
+    return sortedMap;
   }
 
   static <G extends AbstractTimeProfiling> List<G> truncate(Collection<G> sortedList) {
@@ -93,6 +99,14 @@ public abstract class AbstractTimeProfiling {
 
   protected void println(String msg) {
     PhasesSumUpTimeProfiler.println(msg);
+  }
+
+  protected void println(String text, Double percent, AbstractTimeProfiling phaseProfiling) {
+    PhasesSumUpTimeProfiler.println(text, percent, phaseProfiling);
+  }
+
+  protected void println(String text, AbstractTimeProfiling phaseProfiling) {
+    println(text, null, phaseProfiling);
   }
 
 }

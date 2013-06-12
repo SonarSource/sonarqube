@@ -23,11 +23,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.events.DecoratorExecutionHandler;
 import org.sonar.api.batch.events.DecoratorsPhaseHandler;
+import org.sonar.api.batch.events.InitializerExecutionHandler;
+import org.sonar.api.batch.events.InitializersPhaseHandler;
+import org.sonar.api.batch.events.MavenPhaseHandler;
 import org.sonar.api.batch.events.PostJobExecutionHandler;
 import org.sonar.api.batch.events.PostJobsPhaseHandler;
 import org.sonar.api.batch.events.ProjectAnalysisHandler;
@@ -38,6 +42,7 @@ import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler.SensorsPhaseEvent;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.batch.events.BatchStepHandler;
 import org.sonar.batch.phases.Phases.Phase;
 
 import java.util.Arrays;
@@ -67,6 +72,8 @@ public class PhasesSumUpTimeProfilerTest {
 
     fakeAnalysis(profiler, project);
 
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.MAVEN).totalTime()).isEqualTo(4L);
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.INIT).getProfilingPerItem(new FakeInitializer()).totalTime()).isEqualTo(7L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(10L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(20L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isEqualTo(30L);
@@ -84,11 +91,15 @@ public class PhasesSumUpTimeProfilerTest {
     fakeAnalysis(profiler, moduleB);
     fakeAnalysis(profiler, project);
 
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.MAVEN).totalTime()).isEqualTo(4L);
+    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.INIT).getProfilingPerItem(new FakeInitializer()).totalTime()).isEqualTo(7L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(10L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(20L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator2()).totalTime()).isEqualTo(10L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isEqualTo(30L);
 
+    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.MAVEN).totalTime()).isEqualTo(12L);
+    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.INIT).getProfilingPerItem(new FakeInitializer()).totalTime()).isEqualTo(21L);
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(30L);
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(60L);
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator2()).totalTime()).isEqualTo(30L);
@@ -136,9 +147,12 @@ public class PhasesSumUpTimeProfilerTest {
   private void fakeAnalysis(PhasesSumUpTimeProfiler profiler, final Project module) throws InterruptedException {
     // Start of moduleA
     profiler.onProjectAnalysis(projectEvent(module, true));
+    mavenPhase(profiler);
+    initializerPhase(profiler);
     sensorPhase(profiler);
     decoratorPhase(profiler);
     postJobPhase(profiler);
+    batchStep(profiler);
     // End of moduleA
     profiler.onProjectAnalysis(projectEvent(module, false));
   }
@@ -170,6 +184,35 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onDecoratorExecution(decoratorEvent(decorator2, false));
     // End of decorator phase
     profiler.onDecoratorsPhase(decoratorsEvent(false));
+  }
+
+  private void batchStep(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
+    // Start of batch step
+    profiler.onBatchStep(batchStepEvent(true, "Free memory"));
+    clock.sleep(9);
+    // End of batch step
+    profiler.onBatchStep(batchStepEvent(false, "Free memory"));
+  }
+
+  private void mavenPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
+    // Start of maven phase
+    profiler.onMavenPhase(mavenEvent(true));
+    clock.sleep(4);
+    // End of maven phase
+    profiler.onMavenPhase(mavenEvent(false));
+  }
+
+  private void initializerPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
+    Initializer initializer = new FakeInitializer();
+    // Start of initializer phase
+    profiler.onInitializersPhase(initializersEvent(true));
+    // Start of an initializer
+    profiler.onInitializerExecution(initializerEvent(initializer, true));
+    clock.sleep(7);
+    // End of an initializer
+    profiler.onInitializerExecution(initializerEvent(initializer, false));
+    // End of initializer phase
+    profiler.onInitializersPhase(initializersEvent(false));
   }
 
   private void sensorPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
@@ -214,6 +257,26 @@ public class PhasesSumUpTimeProfilerTest {
       @Override
       public Sensor getSensor() {
         return sensor;
+      }
+    };
+  }
+
+  private InitializerExecutionHandler.InitializerExecutionEvent initializerEvent(final Initializer initializer, final boolean start) {
+    return new InitializerExecutionHandler.InitializerExecutionEvent() {
+
+      @Override
+      public boolean isStart() {
+        return start;
+      }
+
+      @Override
+      public boolean isEnd() {
+        return !start;
+      }
+
+      @Override
+      public Initializer getInitializer() {
+        return initializer;
       }
     };
   }
@@ -273,6 +336,61 @@ public class PhasesSumUpTimeProfilerTest {
 
       @Override
       public List<Sensor> getSensors() {
+        return null;
+      }
+    };
+  }
+
+  private BatchStepHandler.BatchStepEvent batchStepEvent(final boolean start, final String stepName) {
+    return new BatchStepHandler.BatchStepEvent() {
+
+      @Override
+      public boolean isStart() {
+        return start;
+      }
+
+      @Override
+      public boolean isEnd() {
+        return !start;
+      }
+
+      @Override
+      public String stepName() {
+        return stepName;
+      }
+    };
+  }
+
+  private MavenPhaseHandler.MavenPhaseEvent mavenEvent(final boolean start) {
+    return new MavenPhaseHandler.MavenPhaseEvent() {
+
+      @Override
+      public boolean isStart() {
+        return start;
+      }
+
+      @Override
+      public boolean isEnd() {
+        return !start;
+      }
+    };
+  }
+
+  private InitializersPhaseHandler.InitializersPhaseEvent initializersEvent(final boolean start) {
+    return new InitializersPhaseHandler.InitializersPhaseEvent() {
+
+      @Override
+      public boolean isStart() {
+        return start;
+      }
+
+      @Override
+      public boolean isEnd() {
+        return !start;
+      }
+
+      @Override
+      public List<Initializer> getInitializers() {
         return null;
       }
     };
@@ -342,24 +460,40 @@ public class PhasesSumUpTimeProfilerTest {
     public void analyse(Project project, SensorContext context) {
     }
 
+    @Override
+    public boolean shouldExecuteOnProject(Project project) {
+      return true;
+    }
+  }
+
+  public class FakeInitializer extends Initializer {
+    @Override
+    public void execute(Project project) {
+    }
+
+    @Override
     public boolean shouldExecuteOnProject(Project project) {
       return true;
     }
   }
 
   public class FakeDecorator1 implements Decorator {
+    @Override
     public void decorate(Resource resource, DecoratorContext context) {
     }
 
+    @Override
     public boolean shouldExecuteOnProject(Project project) {
       return true;
     }
   }
 
   public class FakeDecorator2 implements Decorator {
+    @Override
     public void decorate(Resource resource, DecoratorContext context) {
     }
 
+    @Override
     public boolean shouldExecuteOnProject(Project project) {
       return true;
     }

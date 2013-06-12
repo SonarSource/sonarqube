@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.PersistenceManager;
@@ -40,9 +41,9 @@ public final class PhaseExecutor {
   public static final Logger LOGGER = LoggerFactory.getLogger(PhaseExecutor.class);
 
   public static Collection<Class> getPhaseClasses() {
-    return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
-      PostJobsExecutor.class, SensorsExecutor.class,
-      InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
+    return Lists.<Class> newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
+        PostJobsExecutor.class, SensorsExecutor.class,
+        InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
   }
 
   private EventBus eventBus;
@@ -63,11 +64,11 @@ public final class PhaseExecutor {
   private final JsonReport jsonReport;
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
-                       MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
-                       PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-                       PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-                       EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
-                       ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport) {
+      MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
+      PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
+      PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
+      EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
+      ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPhaseExecutor = mavenPhaseExecutor;
@@ -87,12 +88,12 @@ public final class PhaseExecutor {
   }
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
-                       MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
-                       PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-                       PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-                       EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport) {
+      MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
+      PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
+      PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
+      EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport) {
     this(phases, decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport);
+        sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport);
   }
 
   /**
@@ -100,37 +101,33 @@ public final class PhaseExecutor {
    */
   public void execute(Project module) {
     pi.execute(module);
+
     eventBus.fireEvent(new ProjectAnalysisEvent(module, true));
-    if (phases.isEnabled(Phases.Phase.MAVEN)) {
-      mavenPluginsConfigurator.execute(module);
-      mavenPhaseExecutor.execute(module);
-    }
-    if (phases.isEnabled(Phases.Phase.INIT)) {
-      initializersExecutor.execute();
-      fsLogger.log();
-    }
+
+    executeMavenPhase(module);
+
+    executeInitializersPhase();
 
     persistenceManager.setDelayedMode(true);
+
     if (phases.isEnabled(Phases.Phase.SENSOR)) {
       sensorsExecutor.execute(sensorContext);
     }
+
     if (phases.isEnabled(Phases.Phase.DECORATOR)) {
       decoratorsExecutor.execute();
     }
+
+    eventBus.fireEvent(new BatchStepEvent("Save measures", true));
     persistenceManager.dump();
+    eventBus.fireEvent(new BatchStepEvent("Save measures", false));
     persistenceManager.setDelayedMode(false);
 
     if (module.isRoot()) {
       jsonReport.execute();
 
-      LOGGER.info("Store results in database");
-      for (ScanPersister persister : persisters) {
-        LOGGER.debug("Execute {}", persister.getClass().getName());
-        persister.persist();
-      }
-      if (updateStatusJob != null) {
-        updateStatusJob.execute();
-      }
+      executePersisters();
+      updateStatusJob();
       if (phases.isEnabled(Phases.Phase.POSTJOB)) {
         postJobsExecutor.execute(sensorContext);
       }
@@ -139,8 +136,44 @@ public final class PhaseExecutor {
     eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
   }
 
+  private void executePersisters() {
+    LOGGER.info("Store results in database");
+    eventBus.fireEvent(new BatchStepEvent("Persisters", true));
+    for (ScanPersister persister : persisters) {
+      LOGGER.debug("Execute {}", persister.getClass().getName());
+      persister.persist();
+    }
+    eventBus.fireEvent(new BatchStepEvent("Persisters", false));
+  }
+
+  private void updateStatusJob() {
+    if (updateStatusJob != null) {
+      eventBus.fireEvent(new BatchStepEvent("Update status job", true));
+      updateStatusJob.execute();
+      eventBus.fireEvent(new BatchStepEvent("Update status job", false));
+    }
+  }
+
+  private void executeInitializersPhase() {
+    if (phases.isEnabled(Phases.Phase.INIT)) {
+      initializersExecutor.execute();
+      fsLogger.log();
+    }
+  }
+
+  private void executeMavenPhase(Project module) {
+    if (phases.isEnabled(Phases.Phase.MAVEN)) {
+      eventBus.fireEvent(new MavenPhaseEvent(true));
+      mavenPluginsConfigurator.execute(module);
+      mavenPhaseExecutor.execute(module);
+      eventBus.fireEvent(new MavenPhaseEvent(false));
+    }
+  }
+
   private void cleanMemory() {
+    eventBus.fireEvent(new BatchStepEvent("Clean memory", true));
     persistenceManager.clear();
     index.clear();
+    eventBus.fireEvent(new BatchStepEvent("Clean memory", false));
   }
 }

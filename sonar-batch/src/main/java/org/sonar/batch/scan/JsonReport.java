@@ -34,10 +34,16 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.events.BatchStepEvent;
+import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Locale;
 import java.util.Set;
 
@@ -55,18 +61,22 @@ public class JsonReport implements BatchComponent {
   private final Server server;
   private final RuleI18nManager ruleI18nManager;
   private final IssueCache issueCache;
+  private EventBus eventBus;
 
-  public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache) {
+  public JsonReport(Settings settings, ModuleFileSystem fileSystem, Server server, RuleI18nManager ruleI18nManager, IssueCache issueCache, EventBus eventBus) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
     this.ruleI18nManager = ruleI18nManager;
     this.issueCache = issueCache;
+    this.eventBus = eventBus;
   }
 
   public void execute() {
     if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+      eventBus.fireEvent(new BatchStepEvent("JSON report", true));
       exportResults();
+      eventBus.fireEvent(new BatchStepEvent("JSON report", false));
     }
   }
 
@@ -114,19 +124,19 @@ public class JsonReport implements BatchComponent {
     for (DefaultIssue issue : getIssues()) {
       if (issue.resolution() == null) {
         json
-          .beginObject()
-          .name("key").value(issue.key())
-          .name("component").value(issue.componentKey())
-          .name("line").value(issue.line())
-          .name("message").value(issue.message())
-          .name("severity").value(issue.severity())
-          .name("rule").value(issue.ruleKey().toString())
-          .name("status").value(issue.status())
-          .name("resolution").value(issue.resolution())
-          .name("isNew").value(issue.isNew())
-          .name("reporter").value(issue.reporter())
-          .name("assignee").value(issue.assignee())
-          .name("effortToFix").value(issue.effortToFix());
+            .beginObject()
+            .name("key").value(issue.key())
+            .name("component").value(issue.componentKey())
+            .name("line").value(issue.line())
+            .name("message").value(issue.message())
+            .name("severity").value(issue.severity())
+            .name("rule").value(issue.ruleKey().toString())
+            .name("status").value(issue.status())
+            .name("resolution").value(issue.resolution())
+            .name("isNew").value(issue.isNew())
+            .name("reporter").value(issue.reporter())
+            .name("assignee").value(issue.assignee())
+            .name("effortToFix").value(issue.effortToFix());
         if (issue.creationDate() != null) {
           json.name("creationDate").value(DateUtils.formatDateTime(issue.creationDate()));
         }
@@ -148,9 +158,9 @@ public class JsonReport implements BatchComponent {
     json.name("components").beginArray();
     for (String componentKey : componentKeys) {
       json
-        .beginObject()
-        .name("key").value(componentKey)
-        .endObject();
+          .beginObject()
+          .name("key").value(componentKey)
+          .endObject();
     }
     json.endArray();
   }
@@ -159,12 +169,12 @@ public class JsonReport implements BatchComponent {
     json.name("rules").beginArray();
     for (RuleKey ruleKey : ruleKeys) {
       json
-        .beginObject()
-        .name("key").value(ruleKey.toString())
-        .name("rule").value(ruleKey.rule())
-        .name("repository").value(ruleKey.repository())
-        .name("name").value(getRuleName(ruleKey))
-        .endObject();
+          .beginObject()
+          .name("key").value(ruleKey.toString())
+          .name("rule").value(ruleKey.rule())
+          .name("repository").value(ruleKey.repository())
+          .name("name").value(getRuleName(ruleKey))
+          .endObject();
     }
     json.endArray();
   }

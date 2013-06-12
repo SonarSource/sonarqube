@@ -35,6 +35,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.test.TestUtils;
@@ -69,61 +70,61 @@ public class JsonReportTest {
 
     settings = new Settings();
     settings.setProperty(CoreProperties.DRY_RUN, true);
-    jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache);
+    jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache, mock(EventBus.class));
   }
 
   @Test
   public void should_write_json() throws JSONException {
     DefaultIssue issue = new DefaultIssue()
-      .setKey("200")
-      .setComponentKey("struts:org.apache.struts.Action")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
-      .setMessage("There are 2 cycles")
-      .setSeverity("MINOR")
-      .setStatus(Issue.STATUS_OPEN)
-      .setResolution(null)
-      .setLine(1)
-      .setEffortToFix(3.14)
-      .setReporter("julien")
-      .setAssignee("simon")
-      .setCreationDate(DateUtils.parseDate("2013-04-24"))
-      .setUpdateDate(DateUtils.parseDate("2013-04-25"))
-      .setNew(false);
+        .setKey("200")
+        .setComponentKey("struts:org.apache.struts.Action")
+        .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+        .setMessage("There are 2 cycles")
+        .setSeverity("MINOR")
+        .setStatus(Issue.STATUS_OPEN)
+        .setResolution(null)
+        .setLine(1)
+        .setEffortToFix(3.14)
+        .setReporter("julien")
+        .setAssignee("simon")
+        .setCreationDate(DateUtils.parseDate("2013-04-24"))
+        .setUpdateDate(DateUtils.parseDate("2013-04-25"))
+        .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue> newArrayList(issue));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
     JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/JsonReportTest/report.json"),
-      writer.toString(), false);
+        writer.toString(), false);
   }
 
   @Test
   public void should_exclude_resolved_issues() throws JSONException {
     DefaultIssue issue = new DefaultIssue()
-      .setKey("200")
-      .setComponentKey("struts:org.apache.struts.Action")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
-      .setStatus(Issue.STATUS_CLOSED)
-      .setResolution(Issue.RESOLUTION_FIXED)
-      .setCreationDate(DateUtils.parseDate("2013-04-24"))
-      .setUpdateDate(DateUtils.parseDate("2013-04-25"))
-      .setCloseDate(DateUtils.parseDate("2013-04-26"))
-      .setNew(false);
+        .setKey("200")
+        .setComponentKey("struts:org.apache.struts.Action")
+        .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+        .setStatus(Issue.STATUS_CLOSED)
+        .setResolution(Issue.RESOLUTION_FIXED)
+        .setCreationDate(DateUtils.parseDate("2013-04-24"))
+        .setUpdateDate(DateUtils.parseDate("2013-04-25"))
+        .setCloseDate(DateUtils.parseDate("2013-04-26"))
+        .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue> newArrayList(issue));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
     JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/JsonReportTest/report-without-resolved-issues.json"),
-      writer.toString(), false);
+        writer.toString(), false);
   }
 
   @Test
   public void should_ignore_components_without_issue() throws JSONException {
-    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
+    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue> emptyList());
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
@@ -137,7 +138,7 @@ public class JsonReportTest {
 
     Rule rule = Rule.create("squid", "AvoidCycles");
     when(ruleI18nManager.getName(rule, Locale.getDefault())).thenReturn("Avoid Cycles");
-    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
+    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue> emptyList());
 
     settings.setProperty("sonar.report.export.path", "output.json");
     when(fileSystem.workingDir()).thenReturn(sonarDirectory);

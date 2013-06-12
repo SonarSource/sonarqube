@@ -21,11 +21,15 @@ package org.sonar.batch.profiling;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.events.DecoratorExecutionHandler;
 import org.sonar.api.batch.events.DecoratorsPhaseHandler;
+import org.sonar.api.batch.events.InitializerExecutionHandler;
+import org.sonar.api.batch.events.InitializersPhaseHandler;
+import org.sonar.api.batch.events.MavenPhaseHandler;
 import org.sonar.api.batch.events.PostJobExecutionHandler;
 import org.sonar.api.batch.events.PostJobsPhaseHandler;
 import org.sonar.api.batch.events.ProjectAnalysisHandler;
@@ -33,9 +37,10 @@ import org.sonar.api.batch.events.SensorExecutionHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeUtils;
+import org.sonar.batch.events.BatchStepHandler;
 import org.sonar.batch.phases.Phases;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,15 +49,17 @@ import static org.sonar.batch.profiling.AbstractTimeProfiling.sortByDescendingTo
 import static org.sonar.batch.profiling.AbstractTimeProfiling.truncate;
 
 public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorExecutionHandler, DecoratorExecutionHandler, PostJobExecutionHandler, DecoratorsPhaseHandler,
-    SensorsPhaseHandler, PostJobsPhaseHandler {
+    SensorsPhaseHandler, PostJobsPhaseHandler, MavenPhaseHandler, InitializersPhaseHandler, InitializerExecutionHandler, BatchStepHandler {
 
   static Logger LOG = LoggerFactory.getLogger(PhasesSumUpTimeProfiler.class);
+  private static final int TEXT_RIGHT_PAD = 60;
+  private static final int TIME_LEFT_PAD = 10;
 
   @VisibleForTesting
   ModuleProfiling currentModuleProfiling;
   @VisibleForTesting
   ModuleProfiling totalProfiling;
-  private List<ModuleProfiling> modulesProfilings = new ArrayList<ModuleProfiling>();
+  private Map<Project, ModuleProfiling> modulesProfilings = new HashMap<Project, ModuleProfiling>();
   private DecoratorsProfiler decoratorsProfiler;
 
   private Clock clock;
@@ -63,6 +70,15 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
 
   static void println(String msg) {
     LOG.info(msg);
+  }
+
+  static void println(String text, Double percent, AbstractTimeProfiling phaseProfiling) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(StringUtils.rightPad(text, TEXT_RIGHT_PAD)).append(StringUtils.leftPad(phaseProfiling.totalTimeAsString(), TIME_LEFT_PAD));
+    if (percent != null) {
+      sb.append(" (").append((int) (phaseProfiling.totalTime() / percent)).append("%)");
+    }
+    println(sb.toString());
   }
 
   @VisibleForTesting
@@ -80,11 +96,15 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
     else {
       currentModuleProfiling.stop();
-      modulesProfilings.add(currentModuleProfiling);
+      modulesProfilings.put(module, currentModuleProfiling);
       long moduleTotalTime = currentModuleProfiling.totalTime();
-      println("\n -------- Profiling of module " + module.getName() + ": " + TimeUtils.formatDuration(moduleTotalTime) + " --------\n");
+      println("");
+      println(" -------- Profiling of module " + module.getName() + ": " + TimeUtils.formatDuration(moduleTotalTime) + " --------");
+      println("");
       currentModuleProfiling.dump();
-      println("\n -------- End of profiling of module " + module.getName() + " --------\n");
+      println("");
+      println(" -------- End of profiling of module " + module.getName() + " --------");
+      println("");
       totalProfiling.merge(currentModuleProfiling);
       if (module.isRoot() && !module.getModules().isEmpty()) {
         dumpTotalExecutionSummary();
@@ -95,18 +115,19 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   private void dumpTotalExecutionSummary() {
     totalProfiling.stop();
     long totalTime = totalProfiling.totalTime();
-    println("\n ======== Profiling of total execution: " + TimeUtils.formatDuration(totalTime) + " ========\n");
+    println("");
+    println(" ======== Profiling of total execution: " + TimeUtils.formatDuration(totalTime) + " ========");
+    println("");
     println(" * Module execution time breakdown: ");
     double percent = totalTime / 100.0;
-    for (ModuleProfiling modulesProfiling : truncate(sortByDescendingTotalTime(modulesProfilings))) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("   o ").append(modulesProfiling.moduleName()).append(" execution time: ").append(modulesProfiling.totalTimeAsString())
-          .append(" (").append((int) (modulesProfiling.totalTime() / percent)).append("%)");
-      println(sb.toString());
+    for (ModuleProfiling modulesProfiling : truncate(sortByDescendingTotalTime(modulesProfilings).values())) {
+      println("   o " + modulesProfiling.moduleName() + " execution time: ", percent, modulesProfiling);
     }
     println("");
     totalProfiling.dump();
-    println("\n ======== End of profiling of total execution ========\n");
+    println("");
+    println(" ======== End of profiling of total execution ========");
+    println("");
   }
 
   public void onSensorsPhase(SensorsPhaseEvent event) {
@@ -167,6 +188,46 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       profiling.newItemProfiling(event.getPostJob());
     } else {
       profiling.getProfilingPerItem(event.getPostJob()).stop();
+    }
+  }
+
+  @Override
+  public void onMavenPhase(MavenPhaseEvent event) {
+    if (event.isStart()) {
+      currentModuleProfiling.addPhaseProfiling(Phases.Phase.MAVEN);
+    }
+    else {
+      currentModuleProfiling.getProfilingPerPhase(Phases.Phase.MAVEN).stop();
+    }
+  }
+
+  @Override
+  public void onInitializersPhase(InitializersPhaseEvent event) {
+    if (event.isStart()) {
+      currentModuleProfiling.addPhaseProfiling(Phases.Phase.INIT);
+    }
+    else {
+      currentModuleProfiling.getProfilingPerPhase(Phases.Phase.INIT).stop();
+    }
+  }
+
+  @Override
+  public void onInitializerExecution(InitializerExecutionEvent event) {
+    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.INIT);
+    if (event.isStart()) {
+      profiling.newItemProfiling(event.getInitializer());
+    } else {
+      profiling.getProfilingPerItem(event.getInitializer()).stop();
+    }
+  }
+
+  @Override
+  public void onBatchStep(BatchStepEvent event) {
+    if (event.isStart()) {
+      currentModuleProfiling.addBatchStepProfiling(event.stepName());
+    }
+    else {
+      currentModuleProfiling.getProfilingPerBatchStep(event.stepName()).stop();
     }
   }
 
