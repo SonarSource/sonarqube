@@ -22,6 +22,7 @@ package org.sonar.core.purge;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -29,61 +30,65 @@ public interface PurgeMapper {
 
   List<Long> selectSnapshotIds(PurgeSnapshotQuery query);
 
+  List<Long> selectSnapshotIdsByResource(@Param("resourceIds") List<Long> resourceIds);
+
   List<Long> selectProjectIdsByRootId(long rootResourceId);
 
-  void deleteSnapshot(long snapshotId);
+  void deleteSnapshot(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotDependencies(long snapshotId);
+  void deleteSnapshotDependencies(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotDuplications(long snapshotId);
+  void deleteSnapshotDuplications(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotEvents(long snapshotId);
+  void deleteSnapshotEvents(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotMeasures(long snapshotId);
+  void deleteSnapshotMeasures(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotMeasureData(long snapshotId);
+  void deleteSnapshotMeasureData(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotSource(long snapshotId);
+  void deleteSnapshotSource(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotGraphs(long snapshotId);
+  void deleteSnapshotGraphs(@Param("snapshotIds") List<Long> snapshotIds);
+
+  void deleteSnapshotData(@Param("snapshotIds") List<Long> snapshotIds);
 
   List<Long> selectMetricIdsWithoutHistoricalData();
 
   List<Long> selectCharacteristicIdsToPurge();
 
-  void deleteSnapshotWastedMeasures(@Param("sid") long snapshotId, @Param("mids") List<Long> metricIds);
+  void deleteSnapshotWastedMeasures(@Param("snapshotIds") List<Long> snapshotIds, @Param("mids") List<Long> metricIds);
 
-  void deleteSnapshotMeasuresOnCharacteristics(@Param("sid") long snapshotId, @Param("cids") List<Long> characteristicIds);
+  void deleteSnapshotMeasuresOnCharacteristics(@Param("snapshotIds") List<Long> snapshotIds, @Param("cids") List<Long> characteristicIds);
 
   void updatePurgeStatusToOne(long snapshotId);
 
   void disableResource(long resourceId);
 
-  void deleteResourceIndex(long resourceId);
+  void deleteResourceIndex(@Param("resourceIds") List<Long> resourceIds);
 
   void deleteEvent(long eventId);
 
   void setSnapshotIsLastToFalse(long resourceId);
 
-  void deleteResourceLinks(long resourceId);
+  void deleteResourceLinks(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResourceProperties(long resourceId);
+  void deleteResourceProperties(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResource(long resourceId);
+  void deleteResource(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResourceGroupRoles(long resourceId);
+  void deleteResourceGroupRoles(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResourceUserRoles(long resourceId);
+  void deleteResourceUserRoles(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResourceManualMeasures(long resourceId);
+  void deleteResourceManualMeasures(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResourceEvents(long resourceId);
+  void deleteResourceEvents(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResourceActionPlans(long resourceId);
+  void deleteResourceActionPlans(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResourceGraphs(long resourceId);
+  void deleteResourceGraphs(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteAuthors(long developerId);
+  void deleteAuthors(@Param("resourceIds") List<Long> resourceIds);
 
   List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithEvents(long resourceId);
 
@@ -91,11 +96,9 @@ public interface PurgeMapper {
 
   List<Long> selectResourceIdsByRootId(long rootProjectId);
 
-  void deleteSnapshotData(long snapshotId);
+  void deleteResourceIssueChanges(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResourceIssueChanges(long resourceId);
-
-  void deleteResourceIssues(long resourceId);
+  void deleteResourceIssues(@Param("resourceIds") List<Long> resourceIds);
 
   void deleteOldClosedIssueChanges(@Param("rootProjectId") long rootProjectId, @Nullable @Param("toDate") Date toDate);
 

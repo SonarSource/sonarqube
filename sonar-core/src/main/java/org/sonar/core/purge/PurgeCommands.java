@@ -21,12 +21,15 @@ package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 
 import java.util.List;
 
 class PurgeCommands {
   private static final int MAX_CHARACTERISTICS_PER_QUERY = 1000;
+  private static final int MAX_SNAPSHOTS_PER_QUERY = 1000;
+  private static final int MAX_RESOURCES_PER_QUERY = 1000;
 
   private final SqlSession session;
   private final PurgeMapper purgeMapper;
@@ -48,103 +51,104 @@ class PurgeCommands {
   }
 
   void deleteResources(List<Long> resourceIds) {
+    List<List<Long>> resourceIdsPartition = Lists.partition(resourceIds, MAX_RESOURCES_PER_QUERY);
     // Note : do not merge the delete statements into a single loop of resource ids. It's
     // voluntarily grouped by tables in order to benefit from JDBC batch mode.
     // Batch requests can only relate to the same PreparedStatement.
 
-    for (Long resourceId : resourceIds) {
-      deleteSnapshots(PurgeSnapshotQuery.create().setResourceId(resourceId));
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      deleteSnapshots(purgeMapper.selectSnapshotIdsByResource(partResourceIds));
     }
 
     // possible missing optimization: filter requests according to resource scope
 
     profiler.start("deleteResourceLinks (project_links)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceLinks(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceLinks(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceProperties (properties)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceProperties(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceProperties(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceIndex (resource_index)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceIndex(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceIndex(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceGroupRoles (group_roles)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceGroupRoles(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceGroupRoles(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceUserRoles (user_roles)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceUserRoles(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceUserRoles(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceManualMeasures (manual_measures)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceManualMeasures(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceManualMeasures(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceIssueChanges (issue_changes)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceIssueChanges(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceIssueChanges(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceIssues (issues)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceIssues(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceIssues(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceActionPlans (action_plans)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceActionPlans(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceActionPlans(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceEvents (events)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceEvents(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceEvents(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResourceGraphs (graphs)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResourceGraphs(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResourceGraphs(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteResource (projects)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteResource(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteResource(partResourceIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteAuthors (authors)");
-    for (Long resourceId : resourceIds) {
-      purgeMapper.deleteAuthors(resourceId);
+    for (List<Long> partResourceIds : resourceIdsPartition) {
+      purgeMapper.deleteAuthors(partResourceIds);
     }
     session.commit();
     profiler.stop();
@@ -156,40 +160,42 @@ class PurgeCommands {
 
   private void deleteSnapshots(final List<Long> snapshotIds) {
 
-    deleteSnapshotDependencies(snapshotIds);
+    List<List<Long>> snapshotIdsPartition = Lists.partition(snapshotIds, MAX_SNAPSHOTS_PER_QUERY);
 
-    deleteSnapshotDuplications(snapshotIds);
+    deleteSnapshotDependencies(snapshotIdsPartition);
+
+    deleteSnapshotDuplications(snapshotIdsPartition);
 
     profiler.start("deleteSnapshotEvents (events)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotEvents(snapshotId);
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshotEvents(partSnapshotIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteSnapshotMeasureData (measure_data)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotMeasureData(snapshotId);
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshotMeasureData(partSnapshotIds);
     }
     session.commit();
     profiler.stop();
 
     profiler.start("deleteSnapshotMeasures (project_measures)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotMeasures(snapshotId);
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshotMeasures(partSnapshotIds);
     }
     session.commit();
     profiler.stop();
 
-    deleteSnapshotSources(snapshotIds);
+    deleteSnapshotSources(snapshotIdsPartition);
 
-    deleteSnapshotGraphs(snapshotIds);
+    deleteSnapshotGraphs(snapshotIdsPartition);
 
-    deleteSnapshotData(snapshotIds);
+    deleteSnapshotData(snapshotIdsPartition);
 
     profiler.start("deleteSnapshot (snapshots)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshot(snapshotId);
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshot(partSnapshotIds);
     }
     session.commit();
     profiler.stop();
@@ -201,22 +207,23 @@ class PurgeCommands {
 
   private void purgeSnapshots(final List<Long> snapshotIds) {
     // note that events are not deleted
+    List<List<Long>> snapshotIdsPartition = Lists.partition(snapshotIds, MAX_SNAPSHOTS_PER_QUERY);
 
-    deleteSnapshotDependencies(snapshotIds);
+    deleteSnapshotDependencies(snapshotIdsPartition);
 
-    deleteSnapshotDuplications(snapshotIds);
+    deleteSnapshotDuplications(snapshotIdsPartition);
 
-    deleteSnapshotSources(snapshotIds);
+    deleteSnapshotSources(snapshotIdsPartition);
 
-    deleteSnapshotGraphs(snapshotIds);
+    deleteSnapshotGraphs(snapshotIdsPartition);
 
-    deleteSnapshotData(snapshotIds);
+    deleteSnapshotData(snapshotIdsPartition);
 
     profiler.start("deleteSnapshotWastedMeasures (project_measures)");
     List<Long> metricIdsWithoutHistoricalData = purgeMapper.selectMetricIdsWithoutHistoricalData();
     if (!metricIdsWithoutHistoricalData.isEmpty()) {
-      for (Long snapshotId : snapshotIds) {
-        purgeMapper.deleteSnapshotWastedMeasures(snapshotId, metricIdsWithoutHistoricalData);
+      for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+        purgeMapper.deleteSnapshotWastedMeasures(partSnapshotIds, metricIdsWithoutHistoricalData);
       }
       session.commit();
     }
@@ -225,10 +232,10 @@ class PurgeCommands {
     profiler.start("deleteSnapshotMeasuresOnCharacteristics (project_measures)");
     List<Long> characteristicIds = purgeMapper.selectCharacteristicIdsToPurge();
     if (!characteristicIds.isEmpty()) {
-      for (Long snapshotId : snapshotIds) {
+      for (List<Long> partSnapshotIds : snapshotIdsPartition) {
         // SONAR-3641 We cannot process all characteristics at once
         for (List<Long> ids : Iterables.partition(characteristicIds, MAX_CHARACTERISTICS_PER_QUERY)) {
-          purgeMapper.deleteSnapshotMeasuresOnCharacteristics(snapshotId, ids);
+          purgeMapper.deleteSnapshotMeasuresOnCharacteristics(partSnapshotIds, ids);
         }
       }
       session.commit();
@@ -243,46 +250,46 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  private void deleteSnapshotData(final List<Long> snapshotIds) {
+  private void deleteSnapshotData(final List<List<Long>> snapshotIdsPartition) {
     profiler.start("deleteSnapshotData (snapshot_data)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotData(snapshotId);
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshotData(partSnapshotIds);
     }
     session.commit();
     profiler.stop();
   }
 
-  private void deleteSnapshotGraphs(final List<Long> snapshotIds) {
+  private void deleteSnapshotGraphs(final List<List<Long>> snapshotIdsPartition) {
     profiler.start("deleteSnapshotGraphs (graphs)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotGraphs(snapshotId);
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshotGraphs(partSnapshotIds);
     }
     session.commit();
     profiler.stop();
   }
 
-  private void deleteSnapshotSources(final List<Long> snapshotIds) {
+  private void deleteSnapshotSources(final List<List<Long>> snapshotIdsPartition) {
     profiler.start("deleteSnapshotSource (snapshot_sources)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotSource(snapshotId);
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshotSource(partSnapshotIds);
     }
     session.commit();
     profiler.stop();
   }
 
-  private void deleteSnapshotDuplications(final List<Long> snapshotIds) {
+  private void deleteSnapshotDuplications(final List<List<Long>> snapshotIdsPartition) {
     profiler.start("deleteSnapshotDuplications (duplications_index)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotDuplications(snapshotId);
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshotDuplications(partSnapshotIds);
     }
     session.commit();
     profiler.stop();
   }
 
-  private void deleteSnapshotDependencies(final List<Long> snapshotIds) {
+  private void deleteSnapshotDependencies(final List<List<Long>> snapshotIdsPartition) {
     profiler.start("deleteSnapshotDependencies (dependencies)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.deleteSnapshotDependencies(snapshotId);
+    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
+      purgeMapper.deleteSnapshotDependencies(partSnapshotIds);
     }
     session.commit();
     profiler.stop();

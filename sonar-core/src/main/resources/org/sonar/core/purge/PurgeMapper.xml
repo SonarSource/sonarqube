@@ -47,6 +47,16 @@
       </if>
     </where>
   </select>
+  
+  <select id="selectSnapshotIdsByResource" parameterType="map" resultType="long">
+    select s.id from snapshots s
+    <where>
+      s.project_id in
+      <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+        #{resourceId}
+      </foreach>
+    </where>
+  </select>
 
   <select id="selectPurgeableSnapshotsWithEvents" parameterType="long" resultType="PurgeableSnapshot">
     select s.id as "snapshotId", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast" from
@@ -84,47 +94,86 @@
     select id from projects where root_id=#{id} or id=#{id}
   </select>
 
-  <delete id="deleteSnapshotMeasures" parameterType="long">
-    delete from project_measures where snapshot_id=#{id}
+  <delete id="deleteSnapshotMeasures" parameterType="map">
+    delete from project_measures where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
   </delete>
 
-  <delete id="deleteSnapshotMeasureData" parameterType="long">
-    delete from measure_data where snapshot_id=#{id}
+  <delete id="deleteSnapshotMeasureData" parameterType="map">
+    delete from measure_data where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
   </delete>
 
-  <delete id="deleteSnapshotSource" parameterType="long">
-    delete from snapshot_sources where snapshot_id=#{id}
+  <delete id="deleteSnapshotSource" parameterType="map">
+    delete from snapshot_sources where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
   </delete>
 
-  <delete id="deleteSnapshotGraphs" parameterType="long">
-    delete from graphs where snapshot_id=#{id}
+  <delete id="deleteSnapshotGraphs" parameterType="map">
+    delete from graphs where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
   </delete>
 
-  <delete id="deleteSnapshotDependencies" parameterType="long">
-    delete from dependencies where from_snapshot_id=#{id} or to_snapshot_id=#{id} or project_snapshot_id=#{id}
+  <delete id="deleteSnapshotDependencies" parameterType="map">
+    delete from dependencies where from_snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
+    or to_snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
+    or project_snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
   </delete>
 
-  <delete id="deleteSnapshotDuplications" parameterType="long">
-    delete from duplications_index where snapshot_id=#{id}
+  <delete id="deleteSnapshotDuplications" parameterType="map">
+    delete from duplications_index where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
   </delete>
 
-  <delete id="deleteSnapshotEvents" parameterType="long">
-    delete from events where snapshot_id=#{id}
+  <delete id="deleteSnapshotEvents" parameterType="map">
+    delete from events where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
   </delete>
 
-  <delete id="deleteSnapshot" parameterType="long">
-    delete from snapshots where id=#{id}
+  <delete id="deleteSnapshot" parameterType="map">
+    delete from snapshots where id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
   </delete>
 
   <delete id="deleteSnapshotWastedMeasures" parameterType="map">
-    delete from project_measures where snapshot_id=#{sid} and
+    delete from project_measures where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
+    and
     (rule_id is not null or person_id is not null or metric_id in
     <foreach item="mid" index="index" collection="mids" open="(" separator="," close=")">#{mid}</foreach>
     )
   </delete>
 
   <delete id="deleteSnapshotMeasuresOnCharacteristics" parameterType="map">
-    delete from project_measures where snapshot_id=#{sid}
+    delete from project_measures where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
     and (
     <foreach item="cid" index="index" collection="cids" open="" separator=" OR " close="">characteristic_id=#{cid}</foreach>
     )
@@ -138,81 +187,133 @@
     update projects set enabled=${_false} where id=#{id}
   </update>
 
-  <delete id="deleteResourceIndex" parameterType="long">
-    delete from resource_index where resource_id=#{id}
+  <delete id="deleteResourceIndex" parameterType="map">
+    delete from resource_index where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteEvent" parameterType="long">
-    delete from events where id=#{id}
+  <delete id="deleteEvent" parameterType="map">
+    delete from events where id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResourceLinks" parameterType="long">
-    delete from project_links where project_id=#{id}
+  <delete id="deleteResourceLinks" parameterType="map">
+    delete from project_links where project_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResourceProperties" parameterType="long">
-    delete from properties where resource_id=#{id}
+  <delete id="deleteResourceProperties" parameterType="map">
+    delete from properties where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResource" parameterType="long">
-    delete from projects where id=#{id}
+  <delete id="deleteResource" parameterType="map">
+    delete from projects where id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResourceGroupRoles" parameterType="long">
-    delete from group_roles where resource_id=#{id}
+  <delete id="deleteResourceGroupRoles" parameterType="map">
+    delete from group_roles where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResourceUserRoles" parameterType="long">
-    delete from user_roles where resource_id=#{id}
+  <delete id="deleteResourceUserRoles" parameterType="map">
+    delete from user_roles where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResourceManualMeasures" parameterType="long">
-    delete from manual_measures where resource_id=#{id}
+  <delete id="deleteResourceManualMeasures" parameterType="map">
+    delete from manual_measures where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResourceEvents" parameterType="long">
-    delete from events where resource_id=#{id}
+  <delete id="deleteResourceEvents" parameterType="map">
+    delete from events where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResourceActionPlans" parameterType="long">
-    delete from action_plans where project_id=#{id}
+  <delete id="deleteResourceActionPlans" parameterType="map">
+    delete from action_plans where project_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResourceGraphs" parameterType="long">
-    delete from graphs where resource_id=#{id}
+  <delete id="deleteResourceGraphs" parameterType="map">
+    delete from graphs where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteAuthors" parameterType="long">
-    delete from authors where person_id=#{id}
+  <delete id="deleteAuthors" parameterType="map">
+    delete from authors where person_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
   <update id="setSnapshotIsLastToFalse" parameterType="long">
     update snapshots set islast=${_false} where project_id=#{id}
   </update>
 
-  <delete id="deleteSnapshotData" parameterType="long">
-    delete from snapshot_data where snapshot_id=#{id}
+  <delete id="deleteSnapshotData" parameterType="map">
+    delete from snapshot_data where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResourceIssueChanges" parameterType="long">
+  <delete id="deleteResourceIssueChanges" parameterType="map">
     delete from issue_changes ic
-    where exists (select * from issues i where i.kee=ic.issue_key and i.component_id=#{id})
+    where exists (select * from issues i where i.kee=ic.issue_key and i.component_id in
+      <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+        #{resourceId}
+      </foreach>
+    )
   </delete>
 
   <!-- Mssql -->
-  <delete id="deleteResourceIssueChanges" databaseId="mssql" parameterType="long">
+  <delete id="deleteResourceIssueChanges" databaseId="mssql" parameterType="map">
     delete issue_changes from issue_changes
     inner join issues on issue_changes.issue_key=issues.kee
-    where issues.component_id=#{id}
+    where issues.component_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
   <!-- Mysql -->
-  <delete id="deleteResourceIssueChanges" databaseId="mysql" parameterType="long">
-    delete ic from issue_changes as ic, issues as i where ic.issue_key=i.kee and i.component_id=#{id}
+  <delete id="deleteResourceIssueChanges" databaseId="mysql" parameterType="map">
+    delete ic from issue_changes as ic, issues as i where ic.issue_key=i.kee and i.component_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
-  <delete id="deleteResourceIssues" parameterType="long">
-    delete from issues where component_id=#{id}
+  <delete id="deleteResourceIssues" parameterType="map">
+    delete from issues where component_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
   </delete>
 
 
