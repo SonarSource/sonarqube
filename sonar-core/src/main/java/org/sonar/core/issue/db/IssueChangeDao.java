@@ -20,7 +20,6 @@
 
 package org.sonar.core.issue.db;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
@@ -30,10 +29,13 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 3.6
@@ -81,12 +83,13 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   List<IssueChangeDto> selectByIssuesAndType(SqlSession session, Collection<String> issueKeys, String changeType) {
-    Preconditions.checkArgument(issueKeys.size() < 1000, "Number of issue keys is greater than or equal 1000");
     if (issueKeys.isEmpty()) {
       return Collections.emptyList();
     }
     IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-    return mapper.selectByIssuesAndType(issueKeys, changeType);
+
+    List<List<String>> keysPartition = Lists.partition(newArrayList(issueKeys), 1000);
+    return mapper.selectByIssuesAndType(keysPartition, changeType);
   }
 
   public boolean delete(String key) {

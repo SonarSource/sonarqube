@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -65,6 +66,22 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void selectCommentsByIssuesOnHugeNumberOfIssues() {
+    setupData("shared");
+
+    SqlSession session = getMyBatis().openSession();
+    List<String> hugeNbOfIssues = newArrayList();
+    for (int i=0; i<1500; i++) {
+      hugeNbOfIssues.add("ABCD"+i);
+    }
+    List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, hugeNbOfIssues);
+    MyBatis.closeQuietly(session);
+
+    // The goal of this test is only to check that the query do no fail, not to check the number of results
+    assertThat(comments).isEmpty();
+  }
+
+  @Test
   public void selectCommentByKey() {
     setupData("shared");
 
@@ -76,7 +93,6 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
     assertThat(dao.selectCommentByKey("UNKNOWN")).isNull();
   }
-
 
   @Test
   public void selectIssueChangelog() {
