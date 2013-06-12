@@ -130,46 +130,50 @@
     select children.project_id
     from snapshots children
     inner join (
-      select rootSnapshot.id, rootSnapshot.root_snapshot_id, rootSnapshot.path from snapshots rootSnapshot
-      <where>
-        rootSnapshot.project_id in (
-        select p.id from projects p where p.enabled=${_true}
-        and p.kee in <foreach item="componentKey" index="index" collection="componentRootKeys" open="(" separator="," close=")">#{componentKey}</foreach>
-        )
-        and rootSnapshot.islast=${_true}
-        and rootSnapshot.root_snapshot_id is not null
-      </where>
-      ) rootSnapshot on children.root_snapshot_id = rootSnapshot.root_snapshot_id
-      and
-      <choose>
-        <when test="_databaseId == 'mssql'">
-          children.path LIKE rootSnapshot.path + CAST(rootSnapshot.id AS varchar(15)) + '.%'
-        </when>
-        <when test="_databaseId == 'mysql'">
-          children.path LIKE concat(rootSnapshot.path, rootSnapshot.id, '.%')
-        </when>
-        <otherwise>
-          children.path LIKE rootSnapshot.path || rootSnapshot.id || '.%'
-        </otherwise>
-      </choose>
+      select rootSnapshot.id, rootSnapshot.root_snapshot_id, rootSnapshot.path
+      from snapshots rootSnapshot
+      inner join (
+        <include refid="org.sonar.core.resource.ResourceMapper.selectProjectIdsFromComponentKeysQuery" />
+      ) rootProject on rootProject.id = rootSnapshot.project_id
+      and rootSnapshot.islast=${_true}
+      and rootSnapshot.root_snapshot_id is not null
+    ) rootSnapshot on children.root_snapshot_id = rootSnapshot.root_snapshot_id
+    and
+    <choose>
+      <when test="_databaseId == 'mssql'">
+        children.path LIKE rootSnapshot.path + CAST(rootSnapshot.id AS varchar(15)) + '.%'
+      </when>
+      <when test="_databaseId == 'mysql'">
+        children.path LIKE concat(rootSnapshot.path, rootSnapshot.id, '.%')
+      </when>
+      <otherwise>
+        children.path LIKE rootSnapshot.path || rootSnapshot.id || '.%'
+      </otherwise>
+    </choose>
     union
     -- project ids of the children of a PRJ/TRK component
-    select children.project_id from snapshots children
-    inner join  (
-      select rootSnapshot.id from snapshots rootSnapshot
-      <where>
-        rootSnapshot.project_id in (
-        select p.id from projects p where p.enabled=${_true}
-        and p.kee in <foreach item="componentKey" index="index" collection="componentRootKeys" open="(" separator="," close=")">#{componentKey}</foreach>
-        )
-        and rootSnapshot.islast=${_true}
-        and rootSnapshot.root_snapshot_id is null
-      </where>
-      ) rootSnapshot on children.root_snapshot_id = rootSnapshot.id
+    select children.project_id
+    from snapshots children
+    inner join (
+      select rootSnapshot.id
+      from snapshots rootSnapshot
+      inner join (
+        <include refid="org.sonar.core.resource.ResourceMapper.selectProjectIdsFromComponentKeysQuery" />
+      ) rootProject on rootProject.id = rootSnapshot.project_id
+      and rootSnapshot.islast=${_true}
+      and rootSnapshot.root_snapshot_id is null
+    ) rootSnapshot on children.root_snapshot_id = rootSnapshot.id
     union
     -- project id of the component itself
-    select p.id as project_id from projects p where p.enabled=true
+    <include refid="org.sonar.core.resource.ResourceMapper.selectProjectIdsFromComponentKeysQuery" />
+  </sql>
+
+  <sql id="selectProjectIdsFromComponentKeysQuery">
+    select p.id from projects p
+    <where>
+      p.enabled=${_true}
       and p.kee in <foreach item="componentKey" index="index" collection="componentRootKeys" open="(" separator="," close=")">#{componentKey}</foreach>
+    </where>
   </sql>
 
   <insert id="insert" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
