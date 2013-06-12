@@ -39,6 +39,7 @@ public class RubyUtils {
     // only static methods
   }
 
+  @CheckForNull
   public static List<String> toStrings(@Nullable Object o) {
     List<String> result = null;
     if (o != null) {
