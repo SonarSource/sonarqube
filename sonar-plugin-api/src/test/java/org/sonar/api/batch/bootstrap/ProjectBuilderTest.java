@@ -33,10 +33,16 @@ public class ProjectBuilderTest {
   @Test
   public void shouldChangeProject() {
     // this reactor is created and provided by Sonar
-    ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create());
+    final ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create());
 
     ProjectBuilder builder = new ProjectBuilderSample(new Settings());
-    builder.doBuild(projectReactor);
+    builder.build(new ProjectBuilderContext() {
+
+      @Override
+      public ProjectReactor getProjectReactor() {
+        return projectReactor;
+      }
+    });
 
     assertThat(projectReactor.getProjects().size(), is(2));
     ProjectDefinition root = projectReactor.getRoot();

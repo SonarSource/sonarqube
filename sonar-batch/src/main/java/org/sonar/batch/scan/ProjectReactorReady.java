@@ -20,6 +20,7 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
+import org.sonar.api.batch.bootstrap.ProjectBuilderContext;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 
@@ -53,8 +54,16 @@ public class ProjectReactorReady {
   }
 
   public void start() {
+    ProjectBuilderContext context = new ProjectBuilderContext() {
+
+      @Override
+      public ProjectReactor getProjectReactor() {
+        return reactor;
+      }
+    };
+
     for (ProjectBuilder projectBuilder : projectBuilders) {
-      projectBuilder.doBuild(reactor);
+      projectBuilder.build(context);
     }
     ProjectReactorValidator validator = new ProjectReactorValidator(settings);
     validator.validate(reactor);

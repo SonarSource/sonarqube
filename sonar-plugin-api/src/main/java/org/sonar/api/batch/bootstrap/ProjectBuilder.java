@@ -52,16 +52,18 @@ public abstract class ProjectBuilder implements BatchExtension {
   }
 
   /**
-   * This method was introduced to relax visibility of {@link #build(ProjectReactor)}
+   * Override this method to change project reactor structure.
    * @since 3.7
    */
-  public final void doBuild(ProjectReactor reactor) {
-    build(reactor);
+  public void build(ProjectBuilderContext context) {
+    // Call deprecated method for backward compatibility
+    build(context.getProjectReactor());
   }
 
   /**
-   * This method will be called by Sonar core to let you a chance to change project reactor structure.
-   * @param reactor
+   * @deprecated since 3.7 override {@link #build(ProjectBuilderContext)} instead
    */
-  protected abstract void build(ProjectReactor reactor);
+  @Deprecated
+  protected void build(ProjectReactor reactor) {
+  }
 }
