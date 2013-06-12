@@ -126,29 +126,51 @@
   </select>
 
   <sql id="selectChildrenComponentIdsQuery">
-    select s.project_id
-    from snapshots s
-    inner join snapshots rootsnapshots on (rootsnapshots.id=s.id or ((rootsnapshots.id=s.root_snapshot_id or rootsnapshots.root_snapshot_id=s.root_snapshot_id) and
+    -- project ids of the children of a component which is not PRJ/TRK
+    select children.project_id
+    from snapshots children
+    inner join (
+      select rootSnapshot.id, rootSnapshot.root_snapshot_id, rootSnapshot.path from snapshots rootSnapshot
+      <where>
+        rootSnapshot.project_id in (
+        select p.id from projects p where p.enabled=${_true}
+        and p.kee in <foreach item="componentKey" index="index" collection="componentRootKeys" open="(" separator="," close=")">#{componentKey}</foreach>
+        )
+        and rootSnapshot.islast=${_true}
+        and rootSnapshot.root_snapshot_id is not null
+      </where>
+      ) rootSnapshot on children.root_snapshot_id = rootSnapshot.root_snapshot_id
+      and
       <choose>
         <when test="_databaseId == 'mssql'">
-          s.path LIKE rootsnapshots.path + CAST(rootsnapshots.id AS varchar(15)) + '.%'
+          children.path LIKE rootSnapshot.path + CAST(rootSnapshot.id AS varchar(15)) + '.%'
         </when>
         <when test="_databaseId == 'mysql'">
-          s.path LIKE concat(rootsnapshots.path, rootsnapshots.id, '.%')
+          children.path LIKE concat(rootSnapshot.path, rootSnapshot.id, '.%')
         </when>
         <otherwise>
-          s.path LIKE rootsnapshots.path || rootsnapshots.id || '.%'
+          children.path LIKE rootSnapshot.path || rootSnapshot.id || '.%'
         </otherwise>
-      </choose>))
-      and rootsnapshots.islast=${_true}
-    <where>
-      and s.islast=${_true}
-      and rootsnapshots.project_id in
-      (select p.id from projects p where p.enabled=${_true}
-        and p.kee in <foreach item="componentKey" index="index" collection="componentRootKeys" open="(" separator="," close=")">#{componentKey}</foreach>)
-    </where>
+      </choose>
+    union
+    -- project ids of the children of a PRJ/TRK component
+    select children.project_id from snapshots children
+    inner join  (
+      select rootSnapshot.id from snapshots rootSnapshot
+      <where>
+        rootSnapshot.project_id in (
+        select p.id from projects p where p.enabled=${_true}
+        and p.kee in <foreach item="componentKey" index="index" collection="componentRootKeys" open="(" separator="," close=")">#{componentKey}</foreach>
+        )
+        and rootSnapshot.islast=${_true}
+        and rootSnapshot.root_snapshot_id is null
+      </where>
+      ) rootSnapshot on children.root_snapshot_id = rootSnapshot.id
+    union
+    -- project id of the component itself
+    select p.id as project_id from projects p where p.enabled=true
+      and p.kee in <foreach item="componentKey" index="index" collection="componentRootKeys" open="(" separator="," close=")">#{componentKey}</foreach>
   </sql>
-
 
   <insert id="insert" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
     insert into projects
