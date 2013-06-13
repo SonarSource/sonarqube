@@ -42,7 +42,7 @@ class DeleteUnvalidProjectSnapshots < ActiveRecord::Migration
 
   def self.delete_snapshots(snapshots)
    if snapshots.size>0
-     say_with_time "Deleting #{snapshots.size} orphan snapshots..." do
+     say_with_time "Delete #{snapshots.size} orphan snapshots..." do
        sids=snapshots.map{|s| s.id}
        page_size=100
        page_count=(sids.size/page_size)

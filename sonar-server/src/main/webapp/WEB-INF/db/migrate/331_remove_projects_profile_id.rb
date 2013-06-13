@@ -36,7 +36,7 @@ class RemoveProjectsProfileId < ActiveRecord::Migration
 
   def self.up
     projects=Project.find(:all, :conditions => ['profile_id is not null and copy_resource_id is null'])
-    say_with_time "Processing #{projects.size} projects..." do
+    say_with_time "Process #{projects.size} projects..." do
       projects.each do |project|
         profile = Profile.find(:first, :conditions => ['id=?', project.profile_id])
         if profile

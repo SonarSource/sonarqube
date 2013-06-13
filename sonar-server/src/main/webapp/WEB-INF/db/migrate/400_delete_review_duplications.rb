@@ -29,7 +29,7 @@ class DeleteReviewDuplications < ActiveRecord::Migration
 
   def self.up
     duplicated_ids = ActiveRecord::Base.connection.select_rows('select rule_failure_permanent_id from reviews group by rule_failure_permanent_id having count(*) > 1')
-    say_with_time "Removing #{duplicated_ids.size} duplicated reviews" do
+    say_with_time "Remove #{duplicated_ids.size} duplicated reviews" do
       duplicated_ids.each do |id|
         reviews = Review.find(:all, :conditions => {:rule_failure_permanent_id => id})
         # delete all reviews except the last one

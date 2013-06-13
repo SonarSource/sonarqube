@@ -43,7 +43,7 @@ class MoveExistingMeasureFilters < ActiveRecord::Migration
 
   def self.up
     old_filters = OldFilter.find(:all)
-    say_with_time "Moving #{old_filters.size} measure filters" do
+    say_with_time "Move #{old_filters.size} measure filters" do
       old_filters.each do |old_filter|
         move(old_filter)
       end
