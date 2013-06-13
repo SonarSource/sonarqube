@@ -37,14 +37,14 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class DefaultIssueFilter {
 
-  public static String SEPARATOR = "|";
-  public static String KEY_VALUE_SEPARATOR = "=";
-  public static String LIST_SEPARATOR = ",";
+  public final static String SEPARATOR = "|";
+  public final static String KEY_VALUE_SEPARATOR = "=";
+  public final static String LIST_SEPARATOR = ",";
 
   private Long id;
   private String name;
   private String user;
-  private Boolean shared;
+  private Boolean shared = false;
   private String description;
   private String data;
   private Date createdAt;
@@ -52,6 +52,18 @@ public class DefaultIssueFilter {
 
   public DefaultIssueFilter() {
 
+  }
+
+  public static DefaultIssueFilter create(String name) {
+    DefaultIssueFilter issueFilter = new DefaultIssueFilter();
+    Date now = new Date();
+    issueFilter.setName(name);
+    issueFilter.setCreatedAt(now).setUpdatedAt(now);
+    return issueFilter;
+  }
+
+  public DefaultIssueFilter(Map<String, Object> mapData) {
+    this.data = mapAsdata(mapData);
   }
 
   public Long id() {
@@ -127,6 +139,9 @@ public class DefaultIssueFilter {
     return this;
   }
 
+  /**
+   * Used by ui
+   */
   public Map<String, Object> dataAsMap(){
     return dataAsMap(data);
   }
@@ -138,16 +153,15 @@ public class DefaultIssueFilter {
     Iterable<String> keyValues = Splitter.on(DefaultIssueFilter.SEPARATOR).split(data);
     for (String keyValue : keyValues) {
       String[] keyValueSplit = StringUtils.split(keyValue, DefaultIssueFilter.KEY_VALUE_SEPARATOR);
-      if (keyValueSplit.length != 2) {
-        throw new IllegalArgumentException("Key value should be separate by a '"+ DefaultIssueFilter.KEY_VALUE_SEPARATOR + "'");
-      }
-      String key = keyValueSplit[0];
-      String value = keyValueSplit[1];
-      String[] listValues = StringUtils.split(value, DefaultIssueFilter.LIST_SEPARATOR);
-      if (listValues.length > 1) {
-        map.put(key, newArrayList(listValues));
-      } else {
-        map.put(key, value);
+      if (keyValueSplit.length == 2) {
+        String key = keyValueSplit[0];
+        String value = keyValueSplit[1];
+        String[] listValues = StringUtils.split(value, DefaultIssueFilter.LIST_SEPARATOR);
+        if (listValues.length > 1) {
+          map.put(key, newArrayList(listValues));
+        } else {
+          map.put(key, value);
+        }
       }
     }
     return map;
@@ -160,27 +174,32 @@ public class DefaultIssueFilter {
     for (Map.Entry<String, Object> entries : map.entrySet()){
       String key = entries.getKey();
       Object value = entries.getValue();
-
-      stringBuilder.append(key);
-      stringBuilder.append(DefaultIssueFilter.KEY_VALUE_SEPARATOR);
-
-      List valuesList = newArrayList();
-      if (value instanceof List) {
-        // assume that it contains only strings
-        valuesList = (List) value;
-      } else if (value instanceof CharSequence) {
-        valuesList = Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((CharSequence) value));
-      } else {
-        stringBuilder.append(value);
-      }
-      for (Iterator<Object> valueListIter = valuesList.iterator(); valueListIter.hasNext();) {
-        Object valueList = valueListIter.next();
-        stringBuilder.append(valueList);
-        if (valueListIter.hasNext()) {
-          stringBuilder.append(DefaultIssueFilter.LIST_SEPARATOR);
+      if (value != null) {
+        List valuesList = newArrayList();
+        if (value instanceof List) {
+          // assume that it contains only strings
+          valuesList = (List) value;
+        } else if (value instanceof CharSequence) {
+          valuesList = Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((CharSequence) value));
+        } else {
+          stringBuilder.append(key);
+          stringBuilder.append(DefaultIssueFilter.KEY_VALUE_SEPARATOR);
+          stringBuilder.append(value);
+          stringBuilder.append(DefaultIssueFilter.SEPARATOR);
+        }
+        if (!valuesList.isEmpty()) {
+          stringBuilder.append(key);
+          stringBuilder.append(DefaultIssueFilter.KEY_VALUE_SEPARATOR);
+          for (Iterator<Object> valueListIter = valuesList.iterator(); valueListIter.hasNext();) {
+            Object valueList = valueListIter.next();
+            stringBuilder.append(valueList);
+            if (valueListIter.hasNext()) {
+              stringBuilder.append(DefaultIssueFilter.LIST_SEPARATOR);
+            }
+          }
+          stringBuilder.append(DefaultIssueFilter.SEPARATOR);
         }
       }
-      stringBuilder.append(DefaultIssueFilter.SEPARATOR);
     }
 
     if (stringBuilder.length() > 0) {

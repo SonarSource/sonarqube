@@ -72,6 +72,8 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
 
     dao.insert(filterDto);
 
+    assertThat(filterDto.getId()).isNotNull();
+
     checkTables("should_insert", new String[]{"created_at", "updated_at"}, "issue_filters");
   }
 

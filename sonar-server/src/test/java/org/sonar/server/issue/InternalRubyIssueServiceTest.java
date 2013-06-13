@@ -293,4 +293,37 @@ public class InternalRubyIssueServiceTest {
 
     assertThat(result).isSameAs(changelog);
   }
+
+  @Test
+  public void should_get_error_on_issue_filter_result_when_no_name() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", null);
+    parameters.put("description", "Long term issues");
+
+    Result result = service.createIssueFilterResult(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "name"));
+  }
+
+  @Test
+  public void should_get_error_on_issue_filter_result_when_name_is_too_long() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", createLongString(101));
+    parameters.put("description", "Long term issues");
+
+    Result result = service.createIssueFilterResult(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "name", 100));
+  }
+
+  @Test
+  public void should_get_error_on_issue_filter_result_when_description_is_too_long() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", "Long term");
+    parameters.put("description", createLongString(4001));
+
+    Result result = service.createIssueFilterResult(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "description", 4000));
+  }
 }

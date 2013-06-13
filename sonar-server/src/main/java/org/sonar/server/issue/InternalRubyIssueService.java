@@ -280,41 +280,14 @@ public class InternalRubyIssueService implements ServerComponent {
     String projectParam = parameters.get("project");
     Date deadLine = null;
 
-    if (Strings.isNullOrEmpty(name)) {
-      result.addError(Result.Message.ofL10n("errors.cant_be_empty", "name"));
-    } else {
-      if (name.length() > 200) {
-        result.addError(Result.Message.ofL10n("errors.is_too_long", "name", 200));
-      }
-    }
-
-    if (!Strings.isNullOrEmpty(description) && description.length() > 1000) {
-      result.addError(Result.Message.ofL10n("errors.is_too_long", "description", 1000));
-    }
+    checkMandatorySizeParameter(name, "name", 200, result);
+    checkOptionnalSizeParameter(description, "description",  1000, result);
 
     // Can only set project on creation
     if (existingActionPlan == null) {
-      if (Strings.isNullOrEmpty(projectParam)) {
-        result.addError(Result.Message.ofL10n("errors.cant_be_empty", "project"));
-      } else {
-        ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
-        if (project == null) {
-          result.addError(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", projectParam));
-        }
-      }
+      checkProject(projectParam, result);
     }
-
-    if (!Strings.isNullOrEmpty(deadLineParam)) {
-      try {
-        deadLine = RubyUtils.toDate(deadLineParam);
-        Date today = new Date();
-        if (deadLine != null && deadLine.before(today) && !org.apache.commons.lang.time.DateUtils.isSameDay(deadLine, today)) {
-          result.addError(Result.Message.ofL10n("action_plans.date_cant_be_in_past"));
-        }
-      } catch (SonarException e) {
-        result.addError(Result.Message.ofL10n("errors.is_not_valid", "date"));
-      }
-    }
+    deadLine = checkAndReturnDeadline(deadLineParam, result);
 
     if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && (existingActionPlan == null || !name.equals(existingActionPlan.name()))
       && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
@@ -337,6 +310,33 @@ public class InternalRubyIssueService implements ServerComponent {
       result.set(actionPlan);
     }
     return result;
+  }
+
+  private void checkProject(String projectParam, Result<ActionPlan> result){
+    if (Strings.isNullOrEmpty(projectParam)) {
+      result.addError(Result.Message.ofL10n("errors.cant_be_empty", "project"));
+    } else {
+      ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
+      if (project == null) {
+        result.addError(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", projectParam));
+      }
+    }
+  }
+
+  private Date checkAndReturnDeadline(String deadLineParam, Result<ActionPlan> result){
+    Date deadLine = null;
+    if (!Strings.isNullOrEmpty(deadLineParam)) {
+      try {
+        deadLine = RubyUtils.toDate(deadLineParam);
+        Date today = new Date();
+        if (deadLine != null && deadLine.before(today) && !org.apache.commons.lang.time.DateUtils.isSameDay(deadLine, today)) {
+          result.addError(Result.Message.ofL10n("action_plans.date_cant_be_in_past"));
+        }
+      } catch (SonarException e) {
+        result.addError(Result.Message.ofL10n("errors.is_not_valid", "date"));
+      }
+    }
+    return deadLine;
   }
 
   private Result<ActionPlan> createResultForExistingActionPlan(String actionPlanKey) {
@@ -369,6 +369,14 @@ public class InternalRubyIssueService implements ServerComponent {
     return PublicRubyIssueService.toQuery(props);
   }
 
+  public DefaultIssueFilter findIssueFilter(Long id) {
+    return issueFilterService.findById(id, UserSession.get());
+  }
+
+  public DefaultIssueFilter createFilterFromMap(Map<String, Object> mapData) {
+    return issueFilterService.createEmptyFilter(mapData);
+  }
+
   /**
    * Execute issue filter
    */
@@ -379,29 +387,69 @@ public class InternalRubyIssueService implements ServerComponent {
   /**
    * Create issue filter
    */
-  public void createIssueFilter(Map<String, String> params) {
+  public Result<DefaultIssueFilter> createIssueFilter(Map<String, String> params) {
     Result<DefaultIssueFilter> result = Result.of();
     try {
       // mandatory parameters
       String name = params.get("name");
       String description = params.get("description");
       String data = params.get("data");
+      Boolean shared = RubyUtils.toBoolean(params.get("shared"));
 
       if (result.ok()) {
-        DefaultIssueFilter defaultIssueFilter = new DefaultIssueFilter()
-          .setName(name)
+        DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
           .setDescription(description)
-          .setData(data)
-        ;
-        defaultIssueFilter = issueFilterService.create(defaultIssueFilter, UserSession.get());
+          .setShared(shared)
+          .setData(data);
+        defaultIssueFilter = issueFilterService.save(defaultIssueFilter, UserSession.get());
         result.set(defaultIssueFilter);
       }
 
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
-
+    return result;
   }
 
+  @VisibleForTesting
+  Result<DefaultIssueFilter> createIssueFilterResult(Map<String, String> params) {
+    Result<DefaultIssueFilter> result = Result.of();
+
+    // mandatory parameters
+    String name = params.get("name");
+    String description = params.get("description");
+    String data = params.get("data");
+    Boolean shared = RubyUtils.toBoolean(params.get("shared"));
+
+    checkMandatorySizeParameter(name, "name",  100, result);
+    checkOptionnalSizeParameter(description, "description",  4000, result);
+
+     // TODO check name uniquness
+
+    if (result.ok()) {
+      DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
+        .setDescription(description)
+        .setShared(shared)
+        .setData(data);
+      result.set(defaultIssueFilter);
+    }
+    return result;
+  }
+
+  private void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result){
+    if (Strings.isNullOrEmpty(value)) {
+      result.addError(Result.Message.ofL10n("errors.cant_be_empty", paramName));
+    } else {
+      if (value.length() > size) {
+        result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
+      }
+    }
+  }
+
+  private void checkOptionnalSizeParameter(String value, String paramName, Integer size, Result result){
+    if (!Strings.isNullOrEmpty(value) && value.length() > size) {
+      result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
+    }
+  }
 
 }

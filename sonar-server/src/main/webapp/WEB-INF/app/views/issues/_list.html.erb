@@ -18,10 +18,10 @@
 <% end %>
 
 <%
-   if @issues && !@issues.empty?
+   if @issues_result.issues && !@issues_result.issues.empty?
     colspan = 9
 %>
-  <div>
+  <div id="issues-list">
     <table class="data width100">
       <thead>
         <tr>
@@ -59,7 +59,7 @@
       </thead>
       <tbody>
       <%
-         @issues.each do |issue|
+         @issues_result.issues.each do |issue|
       %>
         <tr class="<%= cycle('even', 'odd') -%>">
           <td width="1%" nowrap>
@@ -102,14 +102,14 @@
       <%
          end
       %>
-      <% if @issues.empty? %>
+      <% if @issues_result.issues.empty? %>
         <tr class="even">
           <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
         </tr>
       <% end %>
       </tbody>
 
-      <%= paginate_java(@paging, :colspan => colspan, :id => 'issue-filter-foot', :include_loading_icon => true) { |label, page_id|
+      <%= paginate_java(@issues_result.paging, :colspan => colspan, :id => 'issue-filter-foot', :include_loading_icon => true) { |label, page_id|
         link_to(label, params.merge({:pageIndex => page_id}))
       } -%>
 

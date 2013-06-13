@@ -1,6 +1,9 @@
 <ul class="sidebar gray-sidebar">
   <form method="GET" action="<%= ApplicationController.root_context -%>/issues/search" >
 
+    <% if @filter.id %>
+      <input type="hidden" name="id" value="<%= @filter.id.to_s -%>">
+    <% end %>
     <input type="hidden" name="sort" value="<%= @issue_query.sort -%>"/>
     <input type="hidden" name="asc" value="<%= @issue_query.asc -%>"/>
 
@@ -9,7 +12,7 @@
     </li>
     <li id="criteria-project" class="marginbottom5">
       <%= message 'issue_filter.criteria.project' -%>:
-      <% selected_componentRoot = Internal.component_api.findByKey(@issue_query.componentRoots.get(0)) if @issue_query.componentRoots and @issue_query.componentRoots.size == 1 %>
+      <% selected_componentRoot = Internal.component_api.findByKey(@issue_query.componentRoots.to_a.first) if @issue_query.componentRoots and @issue_query.componentRoots.size == 1 %>
       <%= component_select_tag 'componentRoots', :resource_type_property => 'supportsGlobalDashboards', :width => '100%',
                               :selected_resource => selected_componentRoot,
                               :display_key => true,
@@ -38,13 +41,13 @@
     </li>
     <li id="criteria-assignee" class="marginbottom5">
       <%= message 'issue_filter.criteria.assignee' -%>:
-      <% selected_assignee = Api.users.findByLogin(@issue_query.assignees.get(0)) if @issue_query.assignees && @issue_query.assignees.size == 1 %>
+      <% selected_assignee = Api.users.findByLogin(@issue_query.assignees.to_a.first) if @issue_query.assignees && @issue_query.assignees.size == 1 %>
       <%= user_select_tag('assignees', {:selected_user => selected_assignee, :width => '100%', :placeholder => message('issue_filter.criteria.assignee'),
                         :html_id => 'select-assignee', :open => false, :allow_clear => true}) -%>
     </li>
     <li id="criteria-reporter" class="marginbottom5">
       <%= message 'issue_filter.criteria.reporter' -%>:
-      <% selected_reporter = Api.users.findByLogin(@issue_query.reporters.get(0)) if @issue_query.reporters && @issue_query.reporters.size == 1 %>
+      <% selected_reporter = Api.users.findByLogin(@issue_query.reporters.to_a.first) if @issue_query.reporters && @issue_query.reporters.size == 1 %>
       <%= user_select_tag('reporters', {:selected_user => selected_reporter, :width => '100%', :placeholder => message('issue_filter.criteria.reporter'),
                                         :html_id => 'select-reporter', :open => false, :allow_clear => true}) -%>
     </li>

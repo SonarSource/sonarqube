@@ -1,0 +1,40 @@
+<form id="save-as-filter-form" method="post" action="<%= ApplicationController.root_context -%>/issues/save_as">
+  <input type="hidden" name="id" value="<%= @filter.id -%>">
+  <input type="hidden" name="data" value="<%= u(@filter.data) -%>">
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message('issue_filter.save_filter') -%></h2>
+    </div>
+
+    <div class="modal-body">
+      <%
+         if @errors
+         @errors.each do |msg| %>
+        <div class="error"><%= h (msg.text ? msg.text : Api::Utils.message(msg.l10nKey, :params => msg.l10nParams)) -%></div>
+      <% end
+        end
+      %>
+      <div class="modal-field">
+        <label for="name"><%= message('issue_filter.form.name') -%> <em class="mandatory">*</em></label>
+        <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h @filter.name -%>" autofocus="autofocus"/>
+      </div>
+      <div class="modal-field">
+        <label for="description"><%= message('issue_filter.form.description') -%></label>
+        <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @filter.description -%>"/>
+      </div>
+      <div class="modal-field">
+        <label for="shared"><%= message('issue_filter.form.share') -%></label>
+        <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @filter.shared -%>/>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <input type="submit" value="<%= h message('save') -%>" id="save-as-submit"/>
+      <a href="#" onclick="return closeModalWindow()" id="save-as-cancel"><%= h message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+<script>
+  $j("#save-as-filter-form").modalForm({success:function (data) {
+    window.location = baseUrl + '/issues/filter/' + data;
+  }});
+</script>

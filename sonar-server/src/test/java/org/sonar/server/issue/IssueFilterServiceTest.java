@@ -21,16 +21,9 @@
 package org.sonar.server.issue;
 
 import org.junit.Before;
-import org.junit.Test;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.core.issue.db.IssueFilterDao;
 
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newLinkedHashMap;
-import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class IssueFilterServiceTest {
@@ -47,32 +40,4 @@ public class IssueFilterServiceTest {
     service = new IssueFilterService(issueFilterDao, issueFinder);
   }
 
-  @Test
-  public void should_convert_data_to_map() {
-    String data = "issues=ABCDE1234|severities=MAJOR,MINOR|resolved=true|pageSize=10|pageIndex=50";
-
-    Map<String, Object> map = service.dataAsMap(data);
-
-    assertThat(map).hasSize(5);
-    assertThat(map.get("issues")).isEqualTo("ABCDE1234");
-    assertThat(map.get("severities")).isInstanceOf(List.class);
-    assertThat((List<String>) map.get("severities")).contains("MAJOR", "MINOR");
-    assertThat(map.get("resolved")).isEqualTo("true");
-    assertThat(map.get("pageSize")).isEqualTo("10");
-    assertThat(map.get("pageIndex")).isEqualTo("50");
-  }
-
-  @Test
-  public void should_convert_map_to_data() {
-    Map<String, Object> map = newLinkedHashMap();
-    map.put("issues", newArrayList("ABCDE1234"));
-    map.put("severities", newArrayList("MAJOR", "MINOR"));
-    map.put("resolved", true);
-    map.put("pageSize", 10l);
-    map.put("pageIndex", 50);
-
-    String result = service.mapAsdata(map);
-
-    assertThat(result).isEqualTo("issues=ABCDE1234|severities=MAJOR,MINOR|resolved=true|pageSize=10|pageIndex=50");
-  }
 }

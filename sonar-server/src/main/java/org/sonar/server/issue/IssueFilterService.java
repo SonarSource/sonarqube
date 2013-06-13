@@ -20,10 +20,6 @@
 
 package org.sonar.server.issue;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
@@ -33,12 +29,9 @@ import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.CheckForNull;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import java.util.Map;
 
 public class IssueFilterService implements ServerComponent {
 
@@ -50,11 +43,32 @@ public class IssueFilterService implements ServerComponent {
     this.issueFinder = issueFinder;
   }
 
-  public DefaultIssueFilter create(DefaultIssueFilter issueFilter, UserSession userSession) {
+  @CheckForNull
+  public DefaultIssueFilter createEmptyFilter(Map<String, Object> mapData) {
+    return new DefaultIssueFilter(mapData);
+  }
+
+  @CheckForNull
+  public DefaultIssueFilter findById(Long id, UserSession userSession) {
     // TODO
 //    checkAuthorization(userSession, project, UserRole.ADMIN);
-    issueFilterDao.insert(IssueFilterDto.toIssueFilter(issueFilter));
-    return issueFilter;
+    verifyLoggedIn(userSession);
+//    access_denied unless filter.shared || filter.owner?(current_user)
+
+    IssueFilterDto issueFilterDto = issueFilterDao.selectById(id);
+    if (issueFilterDto == null) {
+      return null;
+    }
+    return issueFilterDto.toIssueFilter();
+  }
+
+  public DefaultIssueFilter save(DefaultIssueFilter issueFilter, UserSession userSession) {
+    issueFilter.setUser(userSession.login());
+    // TODO
+//    checkAuthorization(userSession, project, UserRole.ADMIN);
+    IssueFilterDto issueFilterDto = IssueFilterDto.toIssueFilter(issueFilter);
+    issueFilterDao.insert(issueFilterDto);
+    return issueFilterDto.toIssueFilter();
   }
 
   public DefaultIssueFilter update(DefaultIssueFilter issueFilter, UserSession userSession) {
@@ -89,64 +103,11 @@ public class IssueFilterService implements ServerComponent {
     return null;
   }
 
-  @VisibleForTesting
-  Map<String, Object> dataAsMap(String data) {
-    Map<String, Object> map = newHashMap();
-
-    Iterable<String> keyValues = Splitter.on(DefaultIssueFilter.SEPARATOR).split(data);
-    for (String keyValue : keyValues) {
-      String[] keyValueSplit = StringUtils.split(keyValue, DefaultIssueFilter.KEY_VALUE_SEPARATOR);
-      if (keyValueSplit.length != 2) {
-        throw new IllegalArgumentException("Key value should be separate by a '"+ DefaultIssueFilter.KEY_VALUE_SEPARATOR + "'");
-      }
-      String key = keyValueSplit[0];
-      String value = keyValueSplit[1];
-      String[] listValues = StringUtils.split(value, DefaultIssueFilter.LIST_SEPARATOR);
-      if (listValues.length > 1) {
-        map.put(key, newArrayList(listValues));
-      } else {
-        map.put(key, value);
-      }
+  private void verifyLoggedIn(UserSession userSession) {
+    if (!userSession.isLoggedIn()) {
+      // must be logged
+      throw new IllegalStateException("User is not logged in");
     }
-    return map;
-  }
-
-  @VisibleForTesting
-  String mapAsdata(Map<String, Object> map) {
-    StringBuilder stringBuilder = new StringBuilder();
-
-    for (Map.Entry<String, Object> entries : map.entrySet()){
-      String key = entries.getKey();
-      Object value = entries.getValue();
-
-      stringBuilder.append(key);
-      stringBuilder.append(DefaultIssueFilter.KEY_VALUE_SEPARATOR);
-
-      List valuesList = newArrayList();
-      if (value instanceof List) {
-        // assume that it contains only strings
-        valuesList = (List) value;
-      } else if (value instanceof CharSequence) {
-        valuesList = Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((CharSequence) value));
-      } else {
-        stringBuilder.append(value);
-      }
-      for (Iterator<Object> valueListIter = valuesList.iterator(); valueListIter.hasNext();) {
-        Object valueList = valueListIter.next();
-        stringBuilder.append(valueList);
-        if (valueListIter.hasNext()) {
-          stringBuilder.append(DefaultIssueFilter.LIST_SEPARATOR);
-        }
-      }
-      stringBuilder.append(DefaultIssueFilter.SEPARATOR);
-    }
-
-    if (stringBuilder.length() > 0) {
-      // Delete useless last separator character
-      stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-    }
-
-    return stringBuilder.toString();
   }
 
 }
