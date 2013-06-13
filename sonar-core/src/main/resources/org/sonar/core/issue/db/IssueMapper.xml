@@ -230,32 +230,32 @@
     <if test="componentRootKeys != null and componentRootKeys.size() > 0">
       inner join (<include refid="org.sonar.core.resource.ResourceMapper.selectChildrenComponentIdsQuery" />) components on components.project_id=i.component_id
     </if>
-    <if test="query.components() != null and query.components().size() > 0">
+    <if test="query.components().size() > 0">
       inner join projects project_component on project_component.id=i.component_id and project_component.enabled=${_true} and project_component.kee in
       <foreach item="component" index="index" collection="query.components()" open="(" separator="," close=")">#{component}
       </foreach>
     </if>
-    <if test="query.rules() != null and query.rules().size() > 0">
+    <if test="query.rules().size()>0">
       inner join rules r on r.id=i.rule_id and (<foreach item="rule" index="index" collection="query.rules()" open="(" separator=" or " close=")">
       r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
     </if>
     <where>
-      <if test="query.issueKeys() != null">
+      <if test="query.issueKeys().size()>0">
         and i.kee in
         <foreach item="key" index="index" collection="query.issueKeys()" open="(" separator="," close=")">#{key}
         </foreach>
       </if>
-      <if test="query.severities() != null">
+      <if test="query.severities().size()>0">
         and i.severity in
         <foreach item="severity" index="index" collection="query.severities()" open="(" separator="," close=")">#{severity}
         </foreach>
       </if>
-      <if test="query.statuses() != null">
+      <if test="query.statuses().size()>0">
         and i.status in
         <foreach item="status" index="index" collection="query.statuses()" open="(" separator="," close=")">#{status}
         </foreach>
       </if>
-      <if test="query.resolutions() != null">
+      <if test="query.resolutions().size()>0">
         and i.resolution in
         <foreach item="resolution" index="index" collection="query.resolutions()" open="(" separator="," close=")">#{resolution}
         </foreach>
@@ -268,12 +268,12 @@
           and i.resolution is null
         </if>
       </if>
-      <if test="query.reporters() != null">
+      <if test="query.reporters().size()>0">
         and i.reporter in
         <foreach item="reporter" index="index" collection="query.reporters()" open="(" separator="," close=")">#{reporter}
         </foreach>
       </if>
-      <if test="query.assignees() != null">
+      <if test="query.assignees().size()>0">
         and i.assignee in
         <foreach item="assignee" index="index" collection="query.assignees()" open="(" separator="," close=")">#{assignee}
         </foreach>
@@ -294,7 +294,7 @@
           and i.action_plan_key is null
         </if>
       </if>
-      <if test="query.actionPlans() != null">
+      <if test="query.actionPlans().size()>0">
         and i.action_plan_key in
         <foreach item="action_plan" index="index" collection="query.actionPlans()" open="(" separator="," close=")">
           #{action_plan}
@@ -302,9 +302,6 @@
       </if>
       <if test="query.createdAfter() != null">
         and i.issue_creation_date &gt;= #{query.createdAfter}
-      </if>
-      <if test="query.createdBefore() != null">
-        and i.issue_creation_date &lt; #{query.createdBefore}
       </if>
       <if test="query.createdBefore() != null">
         and i.issue_creation_date &lt; #{query.createdBefore}
