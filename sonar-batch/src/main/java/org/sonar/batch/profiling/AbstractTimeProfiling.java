@@ -21,6 +21,8 @@ package org.sonar.batch.profiling;
 
 import org.sonar.api.utils.TimeUtils;
 
+import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,7 +103,7 @@ public abstract class AbstractTimeProfiling {
     PhasesSumUpTimeProfiler.println(msg);
   }
 
-  protected void println(String text, Double percent, AbstractTimeProfiling phaseProfiling) {
+  protected void println(String text, @Nullable Double percent, AbstractTimeProfiling phaseProfiling) {
     PhasesSumUpTimeProfiler.println(text, percent, phaseProfiling);
   }
 

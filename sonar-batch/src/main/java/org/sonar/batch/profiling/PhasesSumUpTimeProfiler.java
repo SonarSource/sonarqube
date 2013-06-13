@@ -40,6 +40,8 @@ import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.events.BatchStepHandler;
 import org.sonar.batch.phases.Phases;
 
+import javax.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -72,7 +74,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     LOG.info(msg);
   }
 
-  static void println(String text, Double percent, AbstractTimeProfiling phaseProfiling) {
+  static void println(String text, @Nullable Double percent, AbstractTimeProfiling phaseProfiling) {
     StringBuilder sb = new StringBuilder();
     sb.append(StringUtils.rightPad(text, TEXT_RIGHT_PAD)).append(StringUtils.leftPad(phaseProfiling.totalTimeAsString(), TIME_LEFT_PAD));
     if (percent != null) {
