@@ -5,24 +5,30 @@
 <mapper namespace="org.sonar.core.issue.db.IssueFilterMapper">
 
   <sql id="issueFilterColumns">
-    if.id,
-    if.name as name,
-    if.user_login as userLogin,
-    if.shared as shared,
-    if.description as description,
-    if.data as data,
-    if.created_at as createdAt,
-    if.updated_at as updatedAt
+    filters.id as id,
+    filters.name as name,
+    filters.user_login as userLogin,
+    filters.shared as shared,
+    filters.description as description,
+    filters.data as data,
+    filters.created_at as createdAt,
+    filters.updated_at as updatedAt
   </sql>
 
-  <select id="selectById" parameterType="int" resultType="IssueFilter">
+  <select id="selectById" parameterType="long" resultType="IssueFilter">
     select <include refid="issueFilterColumns"/>
-    from issue_filters if WHERE id=#{id}
+    from issue_filters filters
+    <where>
+      filters.id=#{id}
+    </where>
   </select>
 
   <select id="selectByUser" parameterType="String" resultType="IssueFilter">
     select <include refid="issueFilterColumns"/>
-    from issue_filters if WHERE user_login=#{user}
+    from issue_filters filters
+    <where>
+      filters.user_login=#{user}
+    </where>
   </select>
 
   <insert id="insert" parameterType="IssueFilter" useGeneratedKeys="true" keyProperty="id">
