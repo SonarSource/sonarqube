@@ -100,8 +100,10 @@ public class PurgeDao {
 
   private void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
     List<Long> projectSnapshotIds = purgeCommands.selectSnapshotIds(
-        PurgeSnapshotQuery.create().setResourceId(project.getId()).setIslast(false).setNotPurged(true)
-        );
+        PurgeSnapshotQuery.create()
+            .setResourceId(project.getId())
+            .setIslast(false)
+            .setNotPurged(true));
     for (final Long projectSnapshotId : projectSnapshotIds) {
       LOG.info("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
