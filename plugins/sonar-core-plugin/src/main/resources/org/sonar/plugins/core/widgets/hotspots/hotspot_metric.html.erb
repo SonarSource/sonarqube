@@ -11,8 +11,7 @@
      if metric.numeric? && !@snapshot.leaves_qualifiers.empty?
        snapshots_conditions=["snapshots.qualifier in (:qualifiers)", "snapshots.islast=:islast", "snapshots.status = 'P'"]
        snapshots_values={:qualifiers => @snapshot.leaves_qualifiers, :islast => true}
-       snapshots_conditions << '(snapshots.id=:sid OR (snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path))'
-       snapshots_values[:sid]=@snapshot.id
+       snapshots_conditions << '(snapshots.root_snapshot_id=:root_sid AND snapshots.path LIKE :path)'
        snapshots_values[:root_sid] = (@snapshot.root_snapshot_id || @snapshot.id)
        snapshots_values[:path]="#{@snapshot.path}#{@snapshot.id}.%"
 
