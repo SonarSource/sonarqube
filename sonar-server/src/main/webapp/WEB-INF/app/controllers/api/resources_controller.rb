@@ -397,7 +397,8 @@ class Api::ResourcesController < Api::ApiController
       'name' => resource.name,
       'scope' => resource.scope,
       'qualifier' => resource.qualifier,
-      'date' => Api::Utils.format_datetime(snapshot.created_at)}
+      'date' => Api::Utils.format_datetime(snapshot.created_at),
+      'creationDate' => Api::Utils.format_datetime(resource.created_at)}
     json['lname']=resource.long_name if resource.long_name
     json['lang']=resource.language if resource.language
     json['version']=snapshot.version if snapshot.version
@@ -488,6 +489,7 @@ class Api::ResourcesController < Api::ApiController
       xml.lang(resource.language) if resource.language
       xml.version(snapshot.version) if snapshot.version
       xml.date(Api::Utils.format_datetime(snapshot.created_at))
+      xml.creationDate(Api::Utils.format_datetime(resource.created_at))
       xml.description(resource.description) if include_descriptions && resource.description
       xml.copy(resource.copy_resource_id) if resource.copy_resource_id
 
