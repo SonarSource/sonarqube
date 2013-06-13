@@ -19,31 +19,21 @@
 #
 
 #
-# Sonar 2.3
+# Sonar 3.6
 #
-class DeleteCheckstyleTranslations < ActiveRecord::Migration
+class PurgeViolations < ActiveRecord::Migration
 
-  class Rule < ActiveRecord::Base
-  end
-
-  class ActiveRule < ActiveRecord::Base
+  class RuleFailure < ActiveRecord::Base
   end
 
   def self.up
-    Rule.reset_column_information
-    ActiveRule.reset_column_information
-    delete_rule('com.puppycrawl.tools.checkstyle.checks.TranslationCheck')
-  end
-
-  private
-  def self.delete_rule(rule_key)
-    rule=Rule.find(:first, :conditions => {:plugin_name => 'checkstyle', :plugin_rule_key => rule_key})
-    if rule
-      say_with_time "Delete Checkstyle rule #{rule_key}..." do
-        rule_id=rule.id
-        ActiveRule.destroy_all(["rule_id=?", rule_id])
-        rule.destroy
+    violation_ids = ActiveRecord::Base.connection.select_rows('select rf.id from rule_failures rf inner join snapshots s on rf.snapshot_id=s.id where s.islast=' + ActiveRecord::Base.connection.quoted_false)
+    say_with_time "Purge #{violation_ids.size} violations" do
+      violation_ids.each_slice(999) do |ids|
+        RuleFailure.delete(ids.flatten) if ids.size>0
       end
     end
   end
+
 end
+

@@ -35,7 +35,7 @@ class IndexProjects < ActiveRecord::Migration
 
     projects = Project.find(:all, :select => 'id', :conditions => {:enabled => true, :scope => 'PRJ'})
 
-    say_with_time "Indexing #{projects.size} projects" do
+    say_with_time "Index #{projects.size} projects" do
       projects.each do |project|
         Java::OrgSonarServerUi::JRubyFacade.getInstance().indexResource(project.id)
       end

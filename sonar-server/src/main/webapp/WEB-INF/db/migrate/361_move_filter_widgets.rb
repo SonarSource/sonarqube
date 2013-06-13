@@ -41,7 +41,7 @@ class MoveFilterWidgets < ActiveRecord::Migration
 
   def self.up
     widgets = Widget.find(:all, :conditions => ["widget_key='filter'"])
-    say_with_time "Updading #{widgets.size} widgets" do
+    say_with_time "Update #{widgets.size} widgets" do
       widgets.each do |widget|
         dashboard = Dashboard.find_by_id(widget.dashboard_id)
         widget_property = WidgetProperty.find(:first, :conditions => {:widget_id => widget.id, :kee => 'filter'})

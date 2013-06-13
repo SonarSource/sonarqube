@@ -35,7 +35,7 @@ class MoveAsyncMeasures < ActiveRecord::Migration
 
     deprecated_measures=ProjectMeasure.find_by_sql("select p1.* from project_measures p1 where p1.snapshot_id is null and p1.measure_date is not null and not exists(select id from project_measures p2 where p2.project_id=p1.project_id and p2.metric_id=p1.metric_id and p2.measure_date is not null and p2.measure_date>p1.measure_date)")
 
-    say_with_time "Moving #{deprecated_measures.size} measures" do
+    say_with_time "Move #{deprecated_measures.size} measures" do
       deprecated_measures.each do |dm|
         if dm.project_id
           ManualMeasure.create(

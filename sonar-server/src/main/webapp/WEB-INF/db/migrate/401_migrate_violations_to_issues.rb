@@ -48,7 +48,7 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
 
     one_year_ago = Time.now.years_ago(1)
 
-    say_with_time "Converting #{violation_ids.size} violations to issues" do
+    say_with_time "Convert #{violation_ids.size} violations to issues" do
       logins_by_id = User.all.inject({}) do |result, user|
         result[user.id]=user.login
         result
@@ -151,7 +151,7 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
     from rule_failures rf
     inner join snapshots s on s.id=rf.snapshot_id
     left join reviews rev on rev.rule_failure_permanent_id=rf.permanent_id
-    where rf.id in (#{ids.join(',')})"
+    where rf.id in (#{ids.flatten.join(',')})"
   end
 
   def self.new_key
