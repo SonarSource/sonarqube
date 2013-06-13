@@ -49,6 +49,8 @@ public class IssueQueryTest {
       .assigned(true)
       .createdAfter(new Date())
       .createdBefore(new Date())
+      .planned(true)
+      .resolved(true)
       .sort(IssueQuery.SORT_BY_ASSIGNEE)
       .pageSize(10)
       .pageIndex(2)
@@ -67,10 +69,64 @@ public class IssueQueryTest {
     assertThat(query.actionPlans()).containsOnly("AP1", "AP2");
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();
+    assertThat(query.planned()).isTrue();
+    assertThat(query.resolved()).isTrue();
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_ASSIGNEE);
     assertThat(query.pageSize()).isEqualTo(10);
     assertThat(query.pageIndex()).isEqualTo(2);
     assertThat(query.requiredRole()).isEqualTo(UserRole.USER);
+  }
+
+  @Test
+  public void collection_params_should_not_be_null_but_empty() throws Exception {
+    IssueQuery query = IssueQuery.builder()
+      .issueKeys(null)
+      .components(null)
+      .componentRoots(null)
+      .statuses(null)
+      .actionPlans(null)
+      .assignees(null)
+      .reporters(null)
+      .resolutions(null)
+      .rules(null)
+      .severities(null)
+      .build();
+    assertThat(query.issueKeys()).isEmpty();
+    assertThat(query.components()).isEmpty();
+    assertThat(query.componentRoots()).isEmpty();
+    assertThat(query.statuses()).isEmpty();
+    assertThat(query.actionPlans()).isEmpty();
+    assertThat(query.assignees()).isEmpty();
+    assertThat(query.reporters()).isEmpty();
+    assertThat(query.resolutions()).isEmpty();
+    assertThat(query.rules()).isEmpty();
+    assertThat(query.severities()).isEmpty();
+  }
+
+  @Test
+  public void test_default_query() throws Exception {
+    IssueQuery query = IssueQuery.builder().build();
+    assertThat(query.issueKeys()).isEmpty();
+    assertThat(query.components()).isEmpty();
+    assertThat(query.componentRoots()).isEmpty();
+    assertThat(query.statuses()).isEmpty();
+    assertThat(query.actionPlans()).isEmpty();
+    assertThat(query.assignees()).isEmpty();
+    assertThat(query.reporters()).isEmpty();
+    assertThat(query.resolutions()).isEmpty();
+    assertThat(query.rules()).isEmpty();
+    assertThat(query.severities()).isEmpty();
+    assertThat(query.assigned()).isNull();
+    assertThat(query.createdAfter()).isNull();
+    assertThat(query.createdBefore()).isNull();
+    assertThat(query.planned()).isNull();
+    assertThat(query.resolved()).isNull();
+    assertThat(query.sort()).isNull();
+    assertThat(query.pageSize()).isEqualTo(100);
+    assertThat(query.pageIndex()).isEqualTo(1);
+    assertThat(query.requiredRole()).isEqualTo(UserRole.USER);
+    assertThat(query.maxResults()).isEqualTo(IssueQuery.MAX_RESULTS);
+
   }
 
   @Test

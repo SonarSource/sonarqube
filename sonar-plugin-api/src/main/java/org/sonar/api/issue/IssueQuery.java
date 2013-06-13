@@ -27,10 +27,7 @@ import org.sonar.api.web.UserRole;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @since 3.6
@@ -77,16 +74,16 @@ public class IssueQuery {
   private final int pageIndex;
 
   private IssueQuery(Builder builder) {
-    this.issueKeys = builder.issueKeys;
-    this.severities = builder.severities;
-    this.statuses = builder.statuses;
-    this.resolutions = builder.resolutions;
-    this.components = builder.components;
-    this.componentRoots = builder.componentRoots;
-    this.rules = builder.rules;
-    this.actionPlans = builder.actionPlans;
-    this.reporters = builder.reporters;
-    this.assignees = builder.assignees;
+    this.issueKeys = defaultCollection(builder.issueKeys);
+    this.severities = defaultCollection(builder.severities);
+    this.statuses = defaultCollection(builder.statuses);
+    this.resolutions = defaultCollection(builder.resolutions);
+    this.components = defaultCollection(builder.components);
+    this.componentRoots = defaultCollection(builder.componentRoots);
+    this.rules = defaultCollection(builder.rules);
+    this.actionPlans = defaultCollection(builder.actionPlans);
+    this.reporters = defaultCollection(builder.reporters);
+    this.assignees = defaultCollection(builder.assignees);
     this.assigned = builder.assigned;
     this.planned = builder.planned;
     this.resolved = builder.resolved;
@@ -224,52 +221,52 @@ public class IssueQuery {
     private Builder() {
     }
 
-    public Builder issueKeys(Collection<String> l) {
+    public Builder issueKeys(@Nullable Collection<String> l) {
       this.issueKeys = l;
       return this;
     }
 
-    public Builder severities(Collection<String> l) {
+    public Builder severities(@Nullable Collection<String> l) {
       this.severities = l;
       return this;
     }
 
-    public Builder statuses(Collection<String> l) {
+    public Builder statuses(@Nullable Collection<String> l) {
       this.statuses = l;
       return this;
     }
 
-    public Builder resolutions(Collection<String> l) {
+    public Builder resolutions(@Nullable Collection<String> l) {
       this.resolutions = l;
       return this;
     }
 
-    public Builder components(Collection<String> l) {
+    public Builder components(@Nullable Collection<String> l) {
       this.components = l;
       return this;
     }
 
-    public Builder componentRoots(Collection<String> l) {
+    public Builder componentRoots(@Nullable Collection<String> l) {
       this.componentRoots = l;
       return this;
     }
 
-    public Builder rules(Collection<RuleKey> rules) {
+    public Builder rules(@Nullable Collection<RuleKey> rules) {
       this.rules = rules;
       return this;
     }
 
-    public Builder actionPlans(Collection<String> l) {
+    public Builder actionPlans(@Nullable Collection<String> l) {
       this.actionPlans = l;
       return this;
     }
 
-    public Builder reporters(Collection<String> l) {
+    public Builder reporters(@Nullable Collection<String> l) {
       this.reporters = l;
       return this;
     }
 
-    public Builder assignees(Collection<String> l) {
+    public Builder assignees(@Nullable Collection<String> l) {
       this.assignees = l;
       return this;
     }
@@ -302,12 +299,12 @@ public class IssueQuery {
     }
 
     public Builder createdAfter(@Nullable Date d) {
-      this.createdAfter = d;
+      this.createdAfter = (d == null ? null : new Date(d.getTime()));
       return this;
     }
 
     public Builder createdBefore(@Nullable Date d) {
-      this.createdBefore = d;
+      this.createdBefore = (d == null ? null : new Date(d.getTime()));
       return this;
     }
 
@@ -366,5 +363,9 @@ public class IssueQuery {
       }
       Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
     }
+  }
+
+  private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {
+    return c == null ? Collections.<T>emptyList() : Collections.unmodifiableCollection(c);
   }
 }
