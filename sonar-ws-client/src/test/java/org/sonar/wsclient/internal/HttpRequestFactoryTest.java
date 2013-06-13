@@ -59,7 +59,7 @@ public class HttpRequestFactoryTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
       assertThat(e).hasMessage("Fail to request http://localhost:1/api/issues");
-      assertThat(e.getCause()).hasMessage("Connection refused");
+      assertThat(e.getCause().getMessage()).contains("Connection refused");
 
     }
   }
