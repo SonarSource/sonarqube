@@ -58,7 +58,9 @@ public class HttpRequestFactoryTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e).hasMessage("java.net.ConnectException: Connection refused");
+      assertThat(e).hasMessage("Fail to request http://localhost:1/api/issues");
+      assertThat(e.getCause()).hasMessage("Connection refused");
+
     }
   }
 
@@ -100,7 +102,7 @@ public class HttpRequestFactoryTest {
   }
 
   @Test
-  public void should_encore_characters() {
+  public void should_encode_characters() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
 

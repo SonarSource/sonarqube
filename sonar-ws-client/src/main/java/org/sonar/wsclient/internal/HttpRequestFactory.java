@@ -135,11 +135,8 @@ public class HttpRequestFactory {
       // TODO handle error messages
       throw new HttpException(request.url().toString(), request.code());
 
-    } catch (HttpException e) {
-      throw e;
-
     } catch (HttpRequest.HttpRequestException e) {
-      throw new IllegalStateException(e.getCause());
+      throw new IllegalStateException("Fail to request " + request.url(), e.getCause());
     }
   }
 
