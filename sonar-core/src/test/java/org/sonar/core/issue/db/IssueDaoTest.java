@@ -91,18 +91,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_issues_sort_results_by_id_desc() {
-    setupData("shared", "should_select_all");
-
-    IssueQuery query = IssueQuery.builder().requiredRole("user").build();
-
-    List<IssueDto> results = dao.selectIssues(query);
-    assertThat(results.get(0).getId()).isEqualTo(102);
-    assertThat(results.get(1).getId()).isEqualTo(101);
-    assertThat(results.get(2).getId()).isEqualTo(100);
-  }
-
-  @Test
   public void should_select_by_rules() {
     setupData("shared", "should_select_by_rules");
 
@@ -316,18 +304,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     List<IssueDto> results = newArrayList(dao.selectByIds(newArrayList(100l, 101l, 102l)));
     assertThat(results).hasSize(3);
   }
-
-  @Test
-  public void should_select_by_ids_sort_results_by_id_desc() {
-    setupData("shared", "should_select_by_ids");
-
-    List<IssueDto> results = newArrayList(dao.selectByIds(newArrayList(100l, 101l, 102l)));
-
-    assertThat(results.get(0).getId()).isEqualTo(102);
-    assertThat(results.get(1).getId()).isEqualTo(101);
-    assertThat(results.get(2).getId()).isEqualTo(100);
-  }
-
 
   private List<Long> getIssueIds(List<IssueDto> issues) {
     return newArrayList(Iterables.transform(issues, new Function<IssueDto, Long>() {

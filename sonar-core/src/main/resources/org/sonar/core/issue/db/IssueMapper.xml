@@ -199,7 +199,6 @@
         </foreach>
       </foreach>
     </where>
-    order by i.id desc
   </select>
 
   <select id="selectIssues" parameterType="map" resultType="Issue" fetchSize="100000">
@@ -307,7 +306,6 @@
         and i.issue_creation_date &lt; #{query.createdBefore}
       </if>
     </where>
-    order by i.id desc
   </sql>
 
 </mapper>
