@@ -128,14 +128,14 @@ public final class ZipUtils {
   }
 
 
-  private static void _zip(String entryName, InputStream in, ZipOutputStream out) throws IOException {
+  private static void doZip(String entryName, InputStream in, ZipOutputStream out) throws IOException {
     ZipEntry zentry = new ZipEntry(entryName);
     out.putNextEntry(zentry);
     IOUtils.copy(in, out);
     out.closeEntry();
   }
 
-  private static void _zip(String entryName, File file, ZipOutputStream out) throws IOException {
+  private static void doZip(String entryName, File file, ZipOutputStream out) throws IOException {
     if (file.isDirectory()) {
       entryName += '/';
       ZipEntry zentry = new ZipEntry(entryName);
@@ -143,14 +143,14 @@ public final class ZipUtils {
       out.closeEntry();
       File[] files = file.listFiles();
       for (int i = 0, len = files.length; i < len; i++) {
-        _zip(entryName + files[i].getName(), files[i], out);
+        doZip(entryName + files[i].getName(), files[i], out);
       }
 
     } else {
       InputStream in = null;
       try {
         in = new BufferedInputStream(new FileInputStream(file));
-        _zip(entryName, in, out);
+        doZip(entryName, in, out);
       } finally {
         IOUtils.closeQuietly(in);
       }
@@ -160,7 +160,7 @@ public final class ZipUtils {
   private static void zip(File file, ZipOutputStream out) throws IOException {
     for (File child : file.listFiles()) {
       String name = child.getName();
-      _zip(name, child, out);
+      doZip(name, child, out);
     }
   }
 

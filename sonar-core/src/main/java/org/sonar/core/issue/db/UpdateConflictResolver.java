@@ -33,7 +33,7 @@ import java.util.Date;
  */
 class UpdateConflictResolver {
 
-  private final Logger LOG = LoggerFactory.getLogger(IssueStorage.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IssueStorage.class);
 
   public void resolve(DefaultIssue issue, IssueMapper mapper) {
     LOG.debug("Resolve conflict on issue " + issue.key());

@@ -31,7 +31,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +46,7 @@ public class BatchSettings extends Settings {
   private Map<String, String> savedProperties;
 
   public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
-      ServerClient client, Configuration deprecatedConfiguration) {
+                       ServerClient client, Configuration deprecatedConfiguration) {
     super(propertyDefinitions);
     this.bootstrapSettings = bootstrapSettings;
     this.client = client;
