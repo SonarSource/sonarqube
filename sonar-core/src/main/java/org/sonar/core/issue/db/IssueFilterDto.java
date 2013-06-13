@@ -32,7 +32,7 @@ public class IssueFilterDto {
 
   private Long id;
   private String name;
-  private String user;
+  private String userLogin;
   private Boolean shared;
   private String description;
   private String data;
@@ -57,12 +57,12 @@ public class IssueFilterDto {
     return this;
   }
 
-  public String getUser() {
-    return user;
+  public String getUserLogin() {
+    return userLogin;
   }
 
-  public IssueFilterDto setUser(@Nullable String user) {
-    this.user = user;
+  public IssueFilterDto setUserLogin(@Nullable String userLogin) {
+    this.userLogin = userLogin;
     return this;
   }
 
@@ -115,7 +115,7 @@ public class IssueFilterDto {
     return new DefaultIssueFilter()
       .setId(id)
       .setName(name)
-      .setUser(user)
+      .setUser(userLogin)
       .setDescription(description)
       .setShared(shared)
       .setData(data)
@@ -127,7 +127,7 @@ public class IssueFilterDto {
     return new IssueFilterDto()
       .setId(issueFilter.id())
       .setName(issueFilter.name())
-      .setUser(issueFilter.user())
+      .setUserLogin(issueFilter.user())
       .setDescription(issueFilter.description())
       .setShared(issueFilter.shared())
       .setData(issueFilter.data())

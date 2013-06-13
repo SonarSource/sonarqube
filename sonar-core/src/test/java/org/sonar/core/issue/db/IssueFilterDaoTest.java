@@ -65,7 +65,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
 
     IssueFilterDto filterDto = new IssueFilterDto();
     filterDto.setName("Sonar Open issues");
-    filterDto.setUser("michael");
+    filterDto.setUserLogin("michael");
     filterDto.setShared(true);
     filterDto.setDescription("All open issues on Sonar");
     filterDto.setData("statuses=OPEN|componentRoots=org.codehaus.sonar");
@@ -82,7 +82,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
     IssueFilterDto filterDto = new IssueFilterDto();
     filterDto.setId(2L);
     filterDto.setName("Closed issues");
-    filterDto.setUser("henry");
+    filterDto.setUserLogin("henry");
     filterDto.setShared(false);
     filterDto.setDescription("All closed issues");
     filterDto.setData("statuses=CLOSED");

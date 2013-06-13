@@ -7,7 +7,7 @@
   <sql id="issueFilterColumns">
     if.id,
     if.name as name,
-    if.user as user,
+    if.user_login as userLogin,
     if.shared as shared,
     if.description as description,
     if.data as data,
@@ -22,12 +22,12 @@
 
   <select id="selectByUser" parameterType="String" resultType="IssueFilter">
     select <include refid="issueFilterColumns"/>
-    from issue_filters if WHERE user=#{user}
+    from issue_filters if WHERE user_login=#{user}
   </select>
 
   <insert id="insert" parameterType="IssueFilter" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO issue_filters (name, user, shared, description, data, created_at, updated_at)
-    VALUES (#{name}, #{user}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
+    INSERT INTO issue_filters (name, user_login, shared, description, data, created_at, updated_at)
+    VALUES (#{name}, #{userLogin}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
   </insert>
 
   <!-- Oracle -->
@@ -35,14 +35,14 @@
     <selectKey order="BEFORE" resultType="Long" keyProperty="id">
       select issue_filters_seq.NEXTVAL from DUAL
     </selectKey>
-    INSERT INTO issue_filters (id, name, user, shared, description, data, created_at, updated_at)
-    VALUES (#{id}, #{name}, #{user}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
+    INSERT INTO issue_filters (id, name, user_login, shared, description, data, created_at, updated_at)
+    VALUES (#{id}, #{name}, #{userLogin}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
   </insert>
 
   <update id="update" parameterType="IssueFilter">
     update issue_filters set
     name=#{name},
-    user=#{user},
+    user_login=#{userLogin},
     shared=#{shared},
     description=#{description},
     data=#{data},

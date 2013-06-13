@@ -24,15 +24,16 @@
 class CreateIssueFilters < ActiveRecord::Migration
 
   def self.up
-    create_table 'issue_filters' do |t|
-      t.column 'name',        :string,  :null => false,   :limit => 100
-      t.column 'user',        :string,  :null => true,	  :limit => 40
-      t.column 'shared',      :boolean, :null => false,   :default => false
-      t.column 'description', :string,  :null => true,    :limit => 4000
-      t.column 'data',        :text,    :null => true
-      t.timestamps
+    create_table :issue_filters do |t|
+      t.column :name,        :string,  :null => false,   :limit => 100
+      t.column :user_login,  :string,  :null => true,	   :limit => 40
+      t.column :shared,      :boolean, :null => false,   :default => false
+      t.column :description, :string,  :null => true,    :limit => 4000
+      t.column :data,        :text,    :null => true
+      t.column :created_at,  :datetime,  :null => true
+      t.column :updated_at,  :datetime,  :null => true
     end
-    add_index 'issue_filters', 'name', :name => 'issue_filters_name'
+    add_index :issue_filters, :name, :name => 'issue_filters_name'
   end
 
 end
