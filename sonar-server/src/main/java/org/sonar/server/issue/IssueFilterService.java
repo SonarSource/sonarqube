@@ -33,6 +33,7 @@ import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +50,7 @@ public class IssueFilterService implements ServerComponent {
     this.issueFinder = issueFinder;
   }
 
-  public DefaultIssueFilter create(DefaultIssueFilter issueFilter, IssueQuery issueQuery, UserSession userSession) {
+  public DefaultIssueFilter create(DefaultIssueFilter issueFilter, UserSession userSession) {
     // TODO
 //    checkAuthorization(userSession, project, UserRole.ADMIN);
     issueFilterDao.insert(IssueFilterDto.toIssueFilter(issueFilter));
@@ -90,7 +91,7 @@ public class IssueFilterService implements ServerComponent {
 
   @VisibleForTesting
   Map<String, Object> dataAsMap(String data) {
-    Map<String, Object> props = newHashMap();
+    Map<String, Object> map = newHashMap();
 
     Iterable<String> keyValues = Splitter.on(DefaultIssueFilter.SEPARATOR).split(data);
     for (String keyValue : keyValues) {
@@ -102,19 +103,19 @@ public class IssueFilterService implements ServerComponent {
       String value = keyValueSplit[1];
       String[] listValues = StringUtils.split(value, DefaultIssueFilter.LIST_SEPARATOR);
       if (listValues.length > 1) {
-        props.put(key, newArrayList(listValues));
+        map.put(key, newArrayList(listValues));
       } else {
-        props.put(key, value);
+        map.put(key, value);
       }
     }
-    return props;
+    return map;
   }
 
   @VisibleForTesting
-  String mapAsdata(Map<String, Object> props) {
+  String mapAsdata(Map<String, Object> map) {
     StringBuilder stringBuilder = new StringBuilder();
 
-    for (Map.Entry<String, Object> entries : props.entrySet()){
+    for (Map.Entry<String, Object> entries : map.entrySet()){
       String key = entries.getKey();
       Object value = entries.getValue();
 
@@ -130,13 +131,21 @@ public class IssueFilterService implements ServerComponent {
       } else {
         stringBuilder.append(value);
       }
-      for (Object valueList : valuesList) {
+      for (Iterator<Object> valueListIter = valuesList.iterator(); valueListIter.hasNext();) {
+        Object valueList = valueListIter.next();
         stringBuilder.append(valueList);
-        stringBuilder.append(DefaultIssueFilter.LIST_SEPARATOR);
+        if (valueListIter.hasNext()) {
+          stringBuilder.append(DefaultIssueFilter.LIST_SEPARATOR);
+        }
       }
-
       stringBuilder.append(DefaultIssueFilter.SEPARATOR);
     }
+
+    if (stringBuilder.length() > 0) {
+      // Delete useless last separator character
+      stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+    }
+
     return stringBuilder.toString();
   }
 

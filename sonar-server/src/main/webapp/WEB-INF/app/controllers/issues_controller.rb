@@ -27,21 +27,29 @@ class IssuesController < ApplicationController
   end
 
   def search
-    @filter = IssueFilter.new
-    @filter.criteria=criteria_params
-    @filter.execute
+    init_results
+
+    @criteria_params = params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})
+    @criteria_params['pageSize'] = 100
+    @issue_query = Internal.issues.toQuery(@criteria_params)
+    @issues_result = Internal.issues.execute(@issue_query)
+    @paging = @issues_result.paging
+    @issues = @issues_result.issues
   end
 
-
   private
+
+  def init_results
+    @issues_result = nil
+    @paging = nil
+    @issues = nil
+    #criteria['pageSize'] = 100
+    self
+  end
 
   def init
     @options_for_statuses = Internal.issues.listStatus().map {|s| [message('issue.status.' + s), s]}
     @options_for_resolutions = Internal.issues.listResolutions().map {|s| [message('issue.resolution.' + s), s]}
-  end
-
-  def criteria_params
-    params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})
   end
 
 end

@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.sonar.api.issue.IssueFinder;
@@ -92,7 +93,7 @@ public class PublicRubyIssueService implements RubyIssueService {
       .pageSize(RubyUtils.toInteger(props.get("pageSize")))
       .pageIndex(RubyUtils.toInteger(props.get("pageIndex")));
     String sort = (String) props.get("sort");
-    if (sort != null) {
+    if (!Strings.isNullOrEmpty(sort)) {
       builder.sort(sort);
       builder.asc(RubyUtils.toBoolean(props.get("asc")));
     }

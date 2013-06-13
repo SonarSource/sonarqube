@@ -24,10 +24,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.ActionPlan;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.*;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
@@ -36,6 +33,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueBuilder;
+import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -62,11 +60,13 @@ public class InternalRubyIssueService implements ServerComponent {
   private final IssueStatsFinder issueStatsFinder;
   private final ResourceDao resourceDao;
   private final ActionService actionService;
+  private final IssueFilterService issueFilterService;
 
   public InternalRubyIssueService(IssueService issueService,
                                   IssueCommentService commentService,
                                   IssueChangelogService changelogService, ActionPlanService actionPlanService,
-                                  IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService) {
+                                  IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService,
+                                  IssueFilterService issueFilterService) {
     this.issueService = issueService;
     this.commentService = commentService;
     this.changelogService = changelogService;
@@ -74,6 +74,7 @@ public class InternalRubyIssueService implements ServerComponent {
     this.issueStatsFinder = issueStatsFinder;
     this.resourceDao = resourceDao;
     this.actionService = actionService;
+    this.issueFilterService = issueFilterService;
   }
 
   public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params) {
@@ -347,8 +348,6 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public Result<Issue> executeAction(String issueKey, String actionKey) {
-    // TODO verify authorization
-
     Result<Issue> result = Result.of();
     try {
       result.set(actionService.execute(issueKey, actionKey, UserSession.get()));
@@ -369,5 +368,40 @@ public class InternalRubyIssueService implements ServerComponent {
   public IssueQuery toQuery(Map<String, Object> props) {
     return PublicRubyIssueService.toQuery(props);
   }
+
+  /**
+   * Execute issue filter
+   */
+  public IssueQueryResult execute(IssueQuery issueQuery) {
+    return issueFilterService.execute(issueQuery);
+  }
+
+  /**
+   * Create issue filter
+   */
+  public void createIssueFilter(Map<String, String> params) {
+    Result<DefaultIssueFilter> result = Result.of();
+    try {
+      // mandatory parameters
+      String name = params.get("name");
+      String description = params.get("description");
+      String data = params.get("data");
+
+      if (result.ok()) {
+        DefaultIssueFilter defaultIssueFilter = new DefaultIssueFilter()
+          .setName(name)
+          .setDescription(description)
+          .setData(data)
+        ;
+        defaultIssueFilter = issueFilterService.create(defaultIssueFilter, UserSession.get());
+        result.set(defaultIssueFilter);
+      }
+
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+
+  }
+
 
 }

@@ -19,12 +19,12 @@
 #
 module IssuesHelper
 
-  def column_html(filter, column_label, column_tooltip, sort)
-    filter_sort = filter.criteria[:sort]
-    filter_asc = filter.criteria[:asc] == 'true' ? true : false
+  def column_html(issue_query, issues_result, column_label, column_tooltip, sort)
+    filter_sort = issue_query.sort
+    filter_asc = issue_query.asc
     html = h(column_label)
-    unless filter.issues_result.maxResultsReached()
-      html = link_to_function(h(column_label), "refreshList('#{escape_javascript sort}',#{!filter_asc}, #{filter.criteria[:page]||1})", :title => h(column_tooltip))
+    unless issues_result.maxResultsReached()
+      html = link_to_function(h(column_label), "refreshList('#{escape_javascript sort}',#{!filter_asc}, #{issue_query.pageIndex||1})", :title => h(column_tooltip))
       if sort == filter_sort
         html << (filter_asc ? image_tag("asc12.png") : image_tag("desc12.png"))
       end

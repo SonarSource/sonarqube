@@ -1,6 +1,6 @@
 <% content_for :script do %>
   <script>
-    var filterCriteria = <%= @filter.criteria.to_json -%>;
+    var filterCriteria = <%= @criteria_params.to_json -%>;
 
     function refreshList(sort, asc, page) {
       $j('#issue-filter-foot_pages').hide();
@@ -18,7 +18,7 @@
 <% end %>
 
 <%
-   if @filter.issues && !@filter.issues.empty?
+   if @issues && !@issues.empty?
     colspan = 9
 %>
   <div>
@@ -26,10 +26,10 @@
       <thead>
         <tr>
           <th width="1%" nowrap class="column-severity">
-            <%= column_html(@filter, message('severity_abbreviated'), message('severity'), 'SEVERITY') %>
+            <%= column_html(@issue_query, @issues_result, message('severity_abbreviated'), message('severity'), 'SEVERITY') %>
           </th>
           <th width="1%" nowrap class="column-status">
-            <%= column_html(@filter, message('status'), message('status'), 'STATUS') %>
+            <%= column_html(@issue_query, @issues_result, message('status'), message('status'), 'STATUS') %>
           </th>
           <th width="1%" nowrap>
             <%= message('issue_filter.header.resolution') -%>
@@ -44,22 +44,22 @@
             <%= message('component') -%>
           </th>
           <th class="column-assignee">
-            <%= column_html(@filter, message('issue_filter.header.assignee'), message('issue_filter.header.assignee'), 'ASSIGNEE') %>
+            <%= column_html(@issue_query, @issues_result, message('issue_filter.header.assignee'), message('issue_filter.header.assignee'), 'ASSIGNEE') %>
           </th>
           <th width="1%" nowrap>
             <%= message('issue_filter.header.action_plan') -%>
           </th>
           <th width="1%" nowrap class="column-creation-date">
-            <%= column_html(@filter, message('issue_filter.header.creation_date'), message('issue_filter.header.creation_date'), 'CREATION_DATE') %>
+            <%= column_html(@issue_query, @issues_result, message('issue_filter.header.creation_date'), message('issue_filter.header.creation_date'), 'CREATION_DATE') %>
           </th>
           <th width="1%" nowrap class="column-update-date">
-            <%= column_html(@filter, message('issue_filter.header.update_date'), message('issue_filter.header.update_date'), 'UPDATE_DATE') %>
+            <%= column_html(@issue_query, @issues_result, message('issue_filter.header.update_date'), message('issue_filter.header.update_date'), 'UPDATE_DATE') %>
           </th>
         </tr>
       </thead>
       <tbody>
       <%
-         @filter.issues.each do |issue|
+         @issues.each do |issue|
       %>
         <tr class="<%= cycle('even', 'odd') -%>">
           <td width="1%" nowrap>
@@ -76,10 +76,10 @@
               <%= h truncate(issue.message, :length => 100) -%></a>
           </td>
           <td>
-            <%= h (truncate(@filter.issues_result.project(issue).name, :length => 100)) -%>
+            <%= h (truncate(@issues_result.project(issue).name, :length => 100)) -%>
           </td>
           <td>
-            <% component = @filter.issues_result.component(issue) %>
+            <% component = @issues_result.component(issue) %>
             <% if component %>
               <%= h component.longName() -%>
             <% else %>
@@ -87,10 +87,10 @@
             <% end %>
           </td>
           <td>
-            <%= h @filter.issues_result.user(issue.assignee).name if issue.assignee -%>
+            <%= h @issues_result.user(issue.assignee).name if issue.assignee -%>
           </td>
           <td>
-            <%= h @filter.issues_result.actionPlan(issue).name if issue.actionPlanKey() -%>
+            <%= h @issues_result.actionPlan(issue).name if issue.actionPlanKey() -%>
           </td>
           <td width="1%" nowrap>
             <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%>
@@ -102,21 +102,21 @@
       <%
          end
       %>
-      <% if @filter.issues.empty? %>
+      <% if @issues.empty? %>
         <tr class="even">
           <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
         </tr>
       <% end %>
       </tbody>
 
-      <%= paginate_java(@filter.paging, :colspan => colspan, :id => 'issue-filter-foot', :include_loading_icon => true) { |label, page_id|
-        link_to(label, @filter.criteria.merge({:pageIndex => page_id}))
+      <%= paginate_java(@paging, :colspan => colspan, :id => 'issue-filter-foot', :include_loading_icon => true) { |label, page_id|
+        link_to(label, params.merge({:pageIndex => page_id}))
       } -%>
 
     </table>
   </div>
 <%
-   elsif @filter.issues
+   elsif @issues
 %>
   <p><%= message('issue_filter.no_result') -%></p>
 <%

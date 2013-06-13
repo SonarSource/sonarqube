@@ -240,22 +240,22 @@
       r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
     </if>
     <where>
-      <if test="query.issueKeys() != null">
+      <if test="query.issueKeys() != null and query.issueKeys().size() > 0">
         and i.kee in
         <foreach item="key" index="index" collection="query.issueKeys()" open="(" separator="," close=")">#{key}
         </foreach>
       </if>
-      <if test="query.severities() != null">
+      <if test="query.severities() != null and query.severities().size() > 0">
         and i.severity in
         <foreach item="severity" index="index" collection="query.severities()" open="(" separator="," close=")">#{severity}
         </foreach>
       </if>
-      <if test="query.statuses() != null">
+      <if test="query.statuses() != null and query.statuses().size() > 0">
         and i.status in
         <foreach item="status" index="index" collection="query.statuses()" open="(" separator="," close=")">#{status}
         </foreach>
       </if>
-      <if test="query.resolutions() != null">
+      <if test="query.resolutions() != null and query.resolutions().size() > 0">
         and i.resolution in
         <foreach item="resolution" index="index" collection="query.resolutions()" open="(" separator="," close=")">#{resolution}
         </foreach>
@@ -268,12 +268,12 @@
           and i.resolution is null
         </if>
       </if>
-      <if test="query.reporters() != null">
+      <if test="query.reporters() != null and query.reporters().size() > 0">
         and i.reporter in
         <foreach item="reporter" index="index" collection="query.reporters()" open="(" separator="," close=")">#{reporter}
         </foreach>
       </if>
-      <if test="query.assignees() != null">
+      <if test="query.assignees() != null and query.assignees().size() > 0">
         and i.assignee in
         <foreach item="assignee" index="index" collection="query.assignees()" open="(" separator="," close=")">#{assignee}
         </foreach>
@@ -294,7 +294,7 @@
           and i.action_plan_key is null
         </if>
       </if>
-      <if test="query.actionPlans() != null">
+      <if test="query.actionPlans() != null and query.actionPlans().size() > 0">
         and i.action_plan_key in
         <foreach item="action_plan" index="index" collection="query.actionPlans()" open="(" separator="," close=")">
           #{action_plan}

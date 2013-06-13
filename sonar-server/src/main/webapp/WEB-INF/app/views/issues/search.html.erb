@@ -6,8 +6,8 @@
   <div class="page-split-right">
     <div id="content">
       <div class="marginbottom10">
-        <% if @filter.issues_result && @filter.issues_result.maxResultsReached() %>
-          <p class="notes"><%= message('issue_filter.max_results_reached', :params => @filter.paging.total()) -%></p>
+        <% if @issues_result && @issues_result.maxResultsReached() %>
+          <p class="notes"><%= message('issue_filter.max_results_reached', :params => @paging.total()) -%></p>
         <% end %>
         <%= render :partial => 'list' -%>
       </div>

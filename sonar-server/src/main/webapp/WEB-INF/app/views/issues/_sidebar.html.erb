@@ -1,15 +1,15 @@
 <ul class="sidebar gray-sidebar">
   <form method="GET" action="<%= ApplicationController.root_context -%>/issues/search" >
 
-    <input type="hidden" name="sort" value="<%= @filter.criteria('sort')-%>"/>
-    <input type="hidden" name="asc" value="<%= @filter.criteria('asc') -%>"/>
+    <input type="hidden" name="sort" value="<%= @issue_query.sort -%>"/>
+    <input type="hidden" name="asc" value="<%= @issue_query.asc -%>"/>
 
     <li class="sidebar-title">
       <%= message('issue_filter.new_search') -%>
     </li>
     <li id="criteria-project" class="marginbottom5">
       <%= message 'issue_filter.criteria.project' -%>:
-      <% selected_componentRoot = Internal.component_api.findByKey(@filter.criteria('componentRoots')) if @filter.criteria('componentRoots') %>
+      <% selected_componentRoot = Internal.component_api.findByKey(@issue_query.componentRoots.get(0)) if @issue_query.componentRoots and @issue_query.componentRoots.size == 1 %>
       <%= component_select_tag 'componentRoots', :resource_type_property => 'supportsGlobalDashboards', :width => '100%',
                               :selected_resource => selected_componentRoot,
                               :display_key => true,
@@ -20,40 +20,40 @@
     </li>
     <li id="criteria-severity" class="marginbottom5">
       <%= message 'issue_filter.criteria.severity' -%>:
-      <%= dropdown_tag 'severities[]', options_for_select(RulesConfigurationController::RULE_PRIORITIES, @filter.criteria('severities')),
+      <%= dropdown_tag 'severities[]', options_for_select(RulesConfigurationController::RULE_PRIORITIES, @issue_query.severities),
                        {:width => '100%', :placeholder => message('issue_filter.criteria.severity')},
                        {:id => 'select-severities', :multiple => true}-%>
     </li>
     <li id="criteria-status" class="marginbottom5">
       <%= message 'issue_filter.criteria.status' -%>:
-      <%= dropdown_tag 'statuses[]', options_for_select(@options_for_statuses, @filter.criteria('statuses')),
+      <%= dropdown_tag 'statuses[]', options_for_select(@options_for_statuses, @issue_query.statuses),
                        {:width => '100%', :placeholder => message('issue_filter.criteria.status')},
                        {:id => 'select-status', :multiple => true}-%>
     </li>
     <li id="criteria-resolution" class="marginbottom5">
       <%= message 'issue_filter.criteria.resolution' -%>:
-      <%= dropdown_tag 'resolutions[]', options_for_select(@options_for_resolutions, @filter.criteria('resolutions')),
+      <%= dropdown_tag 'resolutions[]', options_for_select(@options_for_resolutions, @issue_query.resolutions),
                        {:width => '100%', :placeholder => message('issue_filter.criteria.resolution')},
                        {:id => 'select-resolution', :multiple => true}-%>
     </li>
     <li id="criteria-assignee" class="marginbottom5">
       <%= message 'issue_filter.criteria.assignee' -%>:
-      <% selected_assignee = Api.users.findByLogin(@filter.criteria('assignees')) if @filter.criteria('assignees') %>
+      <% selected_assignee = Api.users.findByLogin(@issue_query.assignees.get(0)) if @issue_query.assignees && @issue_query.assignees.size == 1 %>
       <%= user_select_tag('assignees', {:selected_user => selected_assignee, :width => '100%', :placeholder => message('issue_filter.criteria.assignee'),
                         :html_id => 'select-assignee', :open => false, :allow_clear => true}) -%>
     </li>
     <li id="criteria-reporter" class="marginbottom5">
       <%= message 'issue_filter.criteria.reporter' -%>:
-      <% selected_reporter = Api.users.findByLogin(@filter.criteria('reporters')) if @filter.criteria('reporters') %>
+      <% selected_reporter = Api.users.findByLogin(@issue_query.reporters.get(0)) if @issue_query.reporters && @issue_query.reporters.size == 1 %>
       <%= user_select_tag('reporters', {:selected_user => selected_reporter, :width => '100%', :placeholder => message('issue_filter.criteria.reporter'),
                                         :html_id => 'select-reporter', :open => false, :allow_clear => true}) -%>
     </li>
     <li id="criteria-created" class="marginbottom5">
       <%= message('issue_filter.criteria.created_after') -%>:<br>
-      <input type="text" id="select-created-after" name="createdAfter" value="<%= @filter.criteria['createdAfter'] -%>" size="10" maxlength="10" class="marginbottom5">
+      <input type="text" id="select-created-after" name="createdAfter" value="<%= @issue_query.createdAfter -%>" size="10" maxlength="10" class="marginbottom5">
       <br>
       <%= message 'issue_filter.criteria.created_before' -%>:<br>
-      <input type="text" id="select-created-before" name="createdBefore" value="<%= @filter.criteria['createdBefore'] -%>" size="10" maxlength="10"><br>
+      <input type="text" id="select-created-before" name="createdBefore" value="<%= @issue_query.createdBefore -%>" size="10" maxlength="10"><br>
       <span class="small gray"><%= message 'issue_filter.criteria.date_format' -%></span>
     </li>
     <li>
