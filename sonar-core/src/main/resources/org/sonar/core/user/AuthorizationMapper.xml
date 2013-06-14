@@ -10,12 +10,7 @@
       gr.role=#{role}
       and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
       and gr.resource_id = s.root_project_id and
-      <foreach collection="componentIds" open="project_id in (" close=")" item="list" separator=") or project_id in (" >
-        <foreach collection="list" item="element" separator=",">
-          #{element}
-        </foreach>
-      </foreach>
-
+      <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or " >project_id=#{element}</foreach>
       and s.islast = ${_true}
     UNION
     SELECT s.project_id
@@ -23,11 +18,7 @@
     WHERE
       ur.role=#{role}
       and ur.user_id=#{userId} and
-      <foreach collection="componentIds" open="s.project_id in (" close=")" item="list" separator=") or s.project_id in (" >
-        <foreach collection="list" item="element" separator=",">
-          #{element}
-        </foreach>
-      </foreach>
+      <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or " >project_id=#{element}</foreach>
       and s.islast = ${_true}
   </select>
 
@@ -38,11 +29,7 @@
         gr.role=#{role}
         and gr.group_id is null
         and gr.resource_id = s.root_project_id and
-        <foreach collection="componentIds" open="s.project_id in (" close=")" item="list" separator=") or s.project_id in (" >
-          <foreach collection="list" item="element" separator=",">
-            #{element}
-          </foreach>
-        </foreach>
+        <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or " >project_id=#{element}</foreach>
   </select>
 
   <select id="selectAuthorizedRootProjectsIds" parameterType="map" resultType="long">
@@ -55,24 +42,27 @@
         SELECT p.id as root_project_id
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
-        WHERE
-        gr.role=#{role}
-        and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+        <where>
+          and gr.role=#{role}
+          and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+        </where>
         UNION
         SELECT p.id as root_project_id
         FROM user_roles ur
         INNER JOIN projects p on p.id = ur.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
-        WHERE
-        ur.role=#{role}
-        and ur.user_id = #{userId}
+        <where>
+          and ur.role=#{role}
+          and ur.user_id = #{userId}
+        </where>
       </when>
       <otherwise>
         SELECT p.id as root_project_id
         FROM group_roles gr
         INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
-        WHERE
-        gr.role=#{role}
-        and gr.group_id is null
+        <where>
+          and gr.role=#{role}
+          and gr.group_id is null
+        </where>
       </otherwise>
     </choose>
   </sql>

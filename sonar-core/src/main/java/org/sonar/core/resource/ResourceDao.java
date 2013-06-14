@@ -26,6 +26,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -159,13 +160,13 @@ public class ResourceDao {
     return resourceDto != null ? toComponent(resourceDto) : null;
   }
 
-  public List<Integer> findChildrenComponentIds(Collection<String> componentRootKeys){
+  public List<Integer> findAuthorizedChildrenComponentIds(Collection<String> componentRootKeys, @Nullable Integer userId, String role){
     if (componentRootKeys.isEmpty()) {
       return Collections.emptyList();
     }
     SqlSession session = mybatis.openSession();
     try {
-      return session.getMapper(ResourceMapper.class).selectChildrenComponentIds(componentRootKeys);
+      return session.getMapper(ResourceMapper.class).selectAuthorizedChildrenComponentIds(componentRootKeys, userId, role);
     } finally {
       MyBatis.closeQuietly(session);
     }

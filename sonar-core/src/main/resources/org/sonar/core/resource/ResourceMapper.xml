@@ -121,51 +121,49 @@
     </where>
   </select>
 
-  <select id="selectChildrenComponentIds" parameterType="map" resultType="int">
-    <include refid="selectChildrenComponentIdsQuery" />
+  <select id="selectAuthorizedChildrenComponentIds" parameterType="map" resultType="int">
+    <include refid="selectAuthorizedChildrenComponentIdsQuery" />
   </select>
 
-  <sql id="selectChildrenComponentIdsQuery">
-    -- project ids of the children of a component which is not PRJ/TRK
-    select children.project_id
-    from snapshots children
+  <sql id="selectAuthorizedChildrenComponentIdsQuery">
+    select s.project_id from snapshots s, (
+    select project_components.id as id,
+      snapshot_components.id as sid,
+      root_snapshot_components.project_id as root_project_id,
+      root_snapshot_components.id as root_snapshot_id,
+      snapshot_components.path as path
+    from projects project_components
+    inner join snapshots snapshot_components on snapshot_components.project_id = project_components.id and snapshot_components.islast = ${_true}
+    inner join snapshots root_snapshot_components on root_snapshot_components.project_id = snapshot_components.root_project_id and root_snapshot_components.islast = ${_true}
     inner join (
-      select rootSnapshot.id, rootSnapshot.root_snapshot_id, rootSnapshot.path
-      from snapshots rootSnapshot
-      inner join (
-        <include refid="org.sonar.core.resource.ResourceMapper.selectProjectIdsFromComponentKeysQuery" />
-      ) rootProject on rootProject.id = rootSnapshot.project_id
-      and rootSnapshot.islast=${_true}
-      and rootSnapshot.root_snapshot_id is not null
-    ) rootSnapshot on children.root_snapshot_id = rootSnapshot.root_snapshot_id
-    and
-    <choose>
-      <when test="_databaseId == 'mssql'">
-        children.path LIKE rootSnapshot.path + CAST(rootSnapshot.id AS varchar(15)) + '.%'
-      </when>
-      <when test="_databaseId == 'mysql'">
-        children.path LIKE concat(rootSnapshot.path, rootSnapshot.id, '.%')
-      </when>
-      <otherwise>
-        children.path LIKE rootSnapshot.path || rootSnapshot.id || '.%'
-      </otherwise>
-    </choose>
-    union
-    -- project ids of the children of a PRJ/TRK component
-    select children.project_id
-    from snapshots children
-    inner join (
-      select rootSnapshot.id
-      from snapshots rootSnapshot
-      inner join (
-        <include refid="org.sonar.core.resource.ResourceMapper.selectProjectIdsFromComponentKeysQuery" />
-      ) rootProject on rootProject.id = rootSnapshot.project_id
-      and rootSnapshot.islast=${_true}
-      and rootSnapshot.root_snapshot_id is null
-    ) rootSnapshot on children.root_snapshot_id = rootSnapshot.id
-    union
-    -- project id of the component itself
-    <include refid="org.sonar.core.resource.ResourceMapper.selectProjectIdsFromComponentKeysQuery" />
+      <include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />
+    ) authorized_projects on authorized_projects.root_project_id = root_snapshot_components.project_id
+    <where>
+      and (<foreach item="componentRootKey" index="index" collection="componentRootKeys" open="(" separator=" or " close=")"> project_components.kee=#{componentRootKey}</foreach>)
+      and project_components.enabled = ${_true}
+    </where>
+    ) as authorized_input_components
+    <where>
+      and s.root_project_id = authorized_input_components.root_project_id
+      and s.islast = ${_true}
+      and (
+        (s.root_snapshot_id = authorized_input_components.root_snapshot_id
+          and
+          <choose>
+            <when test="_databaseId == 'mssql'">
+              s.path LIKE authorized_input_components.path + CAST(authorized_input_components.sid AS varchar(15)) + '.%'
+            </when>
+            <when test="_databaseId == 'mysql'">
+              s.path LIKE concat(authorized_input_components.path, authorized_input_components.sid, '.%')
+            </when>
+            <otherwise>
+              s.path LIKE authorized_input_components.path || authorized_input_components.sid || '.%'
+            </otherwise>
+          </choose>
+        )
+        or (s.id = authorized_input_components.sid)
+      )
+    </where>
   </sql>
 
   <sql id="selectProjectIdsFromComponentKeysQuery">
