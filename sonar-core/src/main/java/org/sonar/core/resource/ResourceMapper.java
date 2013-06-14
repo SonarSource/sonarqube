@@ -22,6 +22,8 @@ package org.sonar.core.resource;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -69,7 +71,8 @@ public interface ResourceMapper {
   /**
    * @since 3.6
    */
-  List<Integer> selectChildrenComponentIds(@Param("componentRootKeys") Collection<String> componentRootKeys);
+  List<Integer> selectAuthorizedChildrenComponentIds(@Param("componentRootKeys") Collection<String> componentRootKeys,
+                                                     @Param("userId") @Nullable Integer userId, @Param("role") String role);
 
 
   void insert(ResourceDto resource);

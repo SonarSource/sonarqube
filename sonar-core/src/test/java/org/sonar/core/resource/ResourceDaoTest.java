@@ -248,16 +248,42 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_children_component_ids(){
+  public void should_find_children_component_ids_for_unsecured_project(){
     setupData("fixture");
 
-    assertThat(dao.findChildrenComponentIds(newArrayList("org.struts:struts"))).hasSize(4);
-    assertThat(dao.findChildrenComponentIds(newArrayList("org.struts:struts-core"))).hasSize(3);
-    assertThat(dao.findChildrenComponentIds(newArrayList("org.struts:struts:org.struts"))).hasSize(2);
-    assertThat(dao.findChildrenComponentIds(newArrayList("org.struts:struts:org.struts.RequestContext"))).hasSize(1);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts"), null, "user")).hasSize(4);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core"), null, "user")).hasSize(3);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts"), null, "user")).hasSize(2);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts.RequestContext"), null, "user")).hasSize(1);
 
-    assertThat(dao.findChildrenComponentIds(newArrayList("unknown"))).isEmpty();
-    assertThat(dao.findChildrenComponentIds(Collections.<String>emptyList())).isEmpty();
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("unknown"), null, "user")).isEmpty();
+    assertThat(dao.findAuthorizedChildrenComponentIds(Collections.<String>emptyList(), null, "user")).isEmpty();
+  }
+
+  @Test
+  public void should_find_children_component_ids_for_secured_project_for_user(){
+    setupData("should_find_children_component_ids_for_secured_project_for_user");
+
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts"), 100, "user")).hasSize(4);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core"), 100, "user")).hasSize(3);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts"), 100, "user")).hasSize(2);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts.RequestContext"), 100, "user")).hasSize(1);
+
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("unknown"), 100, "user")).isEmpty();
+    assertThat(dao.findAuthorizedChildrenComponentIds(Collections.<String>emptyList(), 100, "user")).isEmpty();
+  }
+
+  @Test
+  public void should_find_children_component_ids_for_secured_project_for_group(){
+    setupData("should_find_children_component_ids_for_secured_project_for_group");
+
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts"), 100, "user")).hasSize(4);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core"), 100, "user")).hasSize(3);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts"), 100, "user")).hasSize(2);
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts.RequestContext"), 100, "user")).hasSize(1);
+
+    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("unknown"), 100, "user")).isEmpty();
+    assertThat(dao.findAuthorizedChildrenComponentIds(Collections.<String>emptyList(), 100, "user")).isEmpty();
   }
 
   @Test

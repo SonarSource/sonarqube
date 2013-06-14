@@ -20,7 +20,6 @@
 package org.sonar.core.user;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
@@ -28,9 +27,11 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class AuthorizationDao implements ServerComponent {
@@ -57,13 +58,12 @@ public class AuthorizationDao implements ServerComponent {
     }
     String sql;
     Map<String, Object> params;
-    List<List<Long>> componentIdsPartition = Lists.partition(newArrayList(componentIds), 1000);
     if (userId == null) {
       sql = "keepAuthorizedComponentIdsForAnonymous";
-      params = ImmutableMap.of("role", role, "componentIds", componentIdsPartition);
+      params = ImmutableMap.of("role", role, "componentIds", componentIds);
     } else {
       sql = "keepAuthorizedComponentIdsForUser";
-      params = ImmutableMap.of("userId", userId, "role", role, "componentIds", componentIdsPartition);
+      params = ImmutableMap.of("userId", userId, "role", role, "componentIds", componentIds);
     }
 
     return Sets.newHashSet(session.<Long>selectList(sql, params));

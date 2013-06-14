@@ -192,12 +192,7 @@
     inner join projects p on p.id=i.component_id
     inner join projects root on root.id=i.root_component_id
     <where>
-      and
-      <foreach collection="ids" open="i.id in (" close=")" item="list" separator=") or i.id in (">
-        <foreach collection="list" item="element" separator=",">
-          #{element}
-        </foreach>
-      </foreach>
+      and <foreach collection="ids" open="(" close=")" item="element" index="index" separator=" or ">i.id=#{element}</foreach>
     </where>
   </select>
 
@@ -225,13 +220,15 @@
 
   <sql id="selectQueryConditions">
     from issues i
-    inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />) authorizedProjects on authorizedProjects.root_project_id=i.root_component_id
-    <if test="componentRootKeys != null and componentRootKeys.size() > 0">
-      inner join (<include refid="org.sonar.core.resource.ResourceMapper.selectChildrenComponentIdsQuery" />) components on components.project_id=i.component_id
+    <if test="componentRootKeys.size() == 0">
+      inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />) authorizedProjects on authorizedProjects.root_project_id=i.root_component_id
+    </if>
+    <if test="componentRootKeys.size() > 0">
+      inner join (<include refid="org.sonar.core.resource.ResourceMapper.selectAuthorizedChildrenComponentIdsQuery" />) authorizedComponents on authorizedComponents.project_id=i.component_id
     </if>
     <if test="query.components().size() > 0">
-      inner join projects project_component on project_component.id=i.component_id and project_component.enabled=${_true} and project_component.kee in
-      <foreach item="component" index="index" collection="query.components()" open="(" separator="," close=")">#{component}
+      inner join projects project_component on project_component.id=i.component_id and project_component.enabled=${_true} and
+      <foreach item="component" index="index" collection="query.components()" open="(" separator=" or " close=")">project_component.kee=#{component}
       </foreach>
     </if>
     <if test="query.rules().size()>0">
@@ -240,23 +237,19 @@
     </if>
     <where>
       <if test="query.issueKeys().size()>0">
-        and i.kee in
-        <foreach item="key" index="index" collection="query.issueKeys()" open="(" separator="," close=")">#{key}
+        and <foreach item="key" index="index" collection="query.issueKeys()" open="(" separator=" or " close=")">i.kee=#{key}
         </foreach>
       </if>
       <if test="query.severities().size()>0">
-        and i.severity in
-        <foreach item="severity" index="index" collection="query.severities()" open="(" separator="," close=")">#{severity}
+        and <foreach item="severity" index="index" collection="query.severities()" open="(" separator=" or " close=")">i.severity=#{severity}
         </foreach>
       </if>
       <if test="query.statuses().size()>0">
-        and i.status in
-        <foreach item="status" index="index" collection="query.statuses()" open="(" separator="," close=")">#{status}
+        and <foreach item="status" index="index" collection="query.statuses()" open="(" separator=" or " close=")">i.status=#{status}
         </foreach>
       </if>
       <if test="query.resolutions().size()>0">
-        and i.resolution in
-        <foreach item="resolution" index="index" collection="query.resolutions()" open="(" separator="," close=")">#{resolution}
+        and <foreach item="resolution" index="index" collection="query.resolutions()" open="(" separator=" or " close=")">i.resolution=#{resolution}
         </foreach>
       </if>
       <if test="query.resolved() != null">
@@ -268,13 +261,11 @@
         </if>
       </if>
       <if test="query.reporters().size()>0">
-        and i.reporter in
-        <foreach item="reporter" index="index" collection="query.reporters()" open="(" separator="," close=")">#{reporter}
+        and <foreach item="reporter" index="index" collection="query.reporters()" open="(" separator=" or " close=")">i.reporter=#{reporter}
         </foreach>
       </if>
       <if test="query.assignees().size()>0">
-        and i.assignee in
-        <foreach item="assignee" index="index" collection="query.assignees()" open="(" separator="," close=")">#{assignee}
+        and <foreach item="assignee" index="index" collection="query.assignees()" open="(" separator=" or " close=")">i.assignee=#{assignee}
         </foreach>
       </if>
       <if test="query.assigned() != null">
@@ -294,9 +285,9 @@
         </if>
       </if>
       <if test="query.actionPlans().size()>0">
-        and i.action_plan_key in
-        <foreach item="action_plan" index="index" collection="query.actionPlans()" open="(" separator="," close=")">
-          #{action_plan}
+        and
+        <foreach item="action_plan" index="index" collection="query.actionPlans()" open="(" separator=" or " close=")">
+          i.action_plan_key=#{action_plan}
         </foreach>
       </if>
       <if test="query.createdAfter() != null">

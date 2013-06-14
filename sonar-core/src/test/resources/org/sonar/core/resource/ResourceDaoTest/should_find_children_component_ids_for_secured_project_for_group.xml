@@ -1,0 +1,78 @@
+<dataset>
+
+  <!-- user 100 has no direct grant access, but is in the group 200 that has the role "user"
+  on the project 1  -->
+  <user_roles id="1" user_id="100" resource_id="999" role="user"/>
+  <groups_users user_id="100" group_id="200"/>
+  <group_roles id="1" group_id="200" resource_id="1" role="user"/>
+
+
+  <!-- root project -->
+  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            description="the description" long_name="Apache Struts"
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+  <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             status="P" islast="[true]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             version="[null]" path=""/>
+  <snapshots id="10" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             status="P" islast="[false]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="2008-12-01 13:58:00.00" build_date="2008-12-01 13:58:00.00"
+             version="[null]" path=""/>
+
+  <!-- project -->
+  <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
+            scope="PRJ" qualifier="BRC" long_name="Struts Core"
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+  <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
+             status="P" islast="[true]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="BRC" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             version="[null]" path="1."/>
+
+  <!-- directory -->
+  <projects long_name="org.struts" id="3" scope="DIR" qualifier="PAC" kee="org.struts:struts:org.struts"
+            name="org.struts" root_id="1"
+            description="[null]"
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+  <snapshots id="3" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
+             status="P" islast="[true]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="DIR" qualifier="PAC" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             version="[null]" path="1.2."/>
+
+  <!-- file -->
+  <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="CLA" kee="org.struts:struts:org.struts.RequestContext"
+            name="RequestContext" root_id="1"
+            description="[null]"
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+
+  <snapshots id="4" project_id="4" parent_snapshot_id="3" root_project_id="1" root_snapshot_id="1"
+             status="P" islast="[true]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="FIL" qualifier="CLA" created_at="2008-12-02 13:58:00.00" build_date="2008-12-02 13:58:00.00"
+             version="[null]" path="1.2.3."/>
+
+</dataset>
