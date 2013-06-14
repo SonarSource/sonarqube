@@ -126,7 +126,8 @@
   </select>
 
   <sql id="selectAuthorizedChildrenComponentIdsQuery">
-    select s.project_id from snapshots s, (
+    select s.project_id
+    from snapshots s, (
     select project_components.id as id,
       snapshot_components.id as sid,
       root_snapshot_components.project_id as root_project_id,
@@ -139,10 +140,10 @@
       <include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />
     ) authorized_projects on authorized_projects.root_project_id = root_snapshot_components.project_id
     <where>
-      and (<foreach item="componentRootKey" index="index" collection="componentRootKeys" open="(" separator=" or " close=")"> project_components.kee=#{componentRootKey}</foreach>)
+      and <foreach item="componentRootKey" index="index" collection="componentRootKeys" open="(" separator=" or " close=")"> project_components.kee=#{componentRootKey}</foreach>
       and project_components.enabled = ${_true}
     </where>
-    ) as authorized_input_components
+    ) authorized_input_components
     <where>
       and s.root_project_id = authorized_input_components.root_project_id
       and s.islast = ${_true}
@@ -163,14 +164,6 @@
         )
         or (s.id = authorized_input_components.sid)
       )
-    </where>
-  </sql>
-
-  <sql id="selectProjectIdsFromComponentKeysQuery">
-    select p.id from projects p
-    <where>
-      p.enabled=${_true}
-      and p.kee in <foreach item="componentKey" index="index" collection="componentRootKeys" open="(" separator="," close=")">#{componentKey}</foreach>
     </where>
   </sql>
 
