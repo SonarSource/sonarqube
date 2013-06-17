@@ -1,0 +1,7 @@
+<div id="sidebar-favourites">
+<% if logged_in? %>
+  <li class="sidebar-title"><%= message('issue_filter.favourite_filters') -%></li>
+  <li><a href="<%= ApplicationController.root_context -%>/issues/manage" class="link-action"><%= message('manage') %></a></li>
+  <li class="spacer"></li>
+<% end %>
+</div>

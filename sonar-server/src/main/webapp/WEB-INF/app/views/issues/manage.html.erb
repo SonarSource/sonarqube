@@ -1,0 +1,53 @@
+<div>
+  <div class="page-split-left">
+    <%= render :partial => 'issues/sidebar' -%>
+  </div>
+  <div class="page-split-right">
+    <div id="content">
+      <h1><%= message 'issue_filter.manage.my_filters' -%></h1>
+      <table class="data marginbottom10" id="my-issue-filters">
+        <thead>
+        <tr>
+          <th><%= message('name') -%></th>
+          <th class="right"><%= message('operations') -%></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% if @my_filters.empty? %>
+          <tr class="even">
+            <td colspan="4"><%= message('issue_filter.no_filters') -%></td>
+          </tr>
+        <% else %>
+          <% @my_filters.each do |filter| %>
+            <tr id="my-issue-filter-<%= filter.name.parameterize -%>" class="<%= cycle('even', 'odd', :name => 'my-filters') -%>">
+              <td>
+                <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
+                <% if filter.description %>
+                  <div class="note"><%= h filter.description -%></div>
+                <% end %>
+              </td>
+              <td class="thin nowrap right">
+                <!--TODO copy-->
+                <a class="hidden" id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/issues/copy_form/<%= filter.id -%>"
+                   class="link-action open-modal"><%= message('copy') -%></a>
+                &nbsp;
+                <a id="edit_<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/issues/edit_form/<%= filter.id -%>"
+                   class="link-action open-modal"><%= message('edit') -%></a>
+                &nbsp;
+                <%= link_to_action message('delete'), "#{ApplicationController.root_context}/issues/delete/#{filter.id}",
+                                   :class => 'link-action link-red',
+                                   :id => "delete_#{filter.name.parameterize}",
+                                   :confirm_button => message('delete'),
+                                   :confirm_title => 'issue_filter.delete_confirm_title',
+                                   :confirm_msg => 'issue_filter.are_you_sure_want_delete_filter_x',
+                                   :confirm_msg_params => [filter.name] -%>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>

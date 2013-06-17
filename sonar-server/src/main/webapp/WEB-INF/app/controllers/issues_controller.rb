@@ -21,6 +21,7 @@
 class IssuesController < ApplicationController
 
   before_filter :init_options
+  before_filter :load_user_filters, :only => [:index, :search, :filter, :manage]
 
   # GET /issues/index
   def index
@@ -35,7 +36,7 @@ class IssuesController < ApplicationController
       @filter = Internal.issues.createFilterFromMap(criteria_params)
     end
 
-    @issue_query = Internal.issues.toQuery(@filter.dataAsMap)
+    @issue_query = Internal.issues.toQuery(criteria_params)
     @issues_result = Internal.issues.execute(@issue_query)
   end
 
@@ -44,16 +45,21 @@ class IssuesController < ApplicationController
   def filter
     require_parameters :id
 
-    @filter = find_filter(params[:id].to_i)
-    @issue_query = Internal.issues.toQuery(@filter.dataAsMap)
-
     # criteria can be overridden
     # TODO ?
     #@filter.override_criteria(criteria_params)
 
+    @filter = find_filter(params[:id].to_i)
+    @issue_query = Internal.issues.toQuery(@filter.dataAsMap)
     @issues_result = Internal.issues.execute(@issue_query)
     @unchanged = true
+
     render :action => 'search'
+  end
+
+  # GET /issues/manage
+  def manage
+    @issue_query = Internal.issues.toQuery({})
   end
 
   # GET /issues/save_as_form?[id=<id>][&criteria]
@@ -69,22 +75,15 @@ class IssuesController < ApplicationController
   # POST /issues/save_as?[id=<id>]&name=<name>[&parameters]
   def save_as
     verify_post_request
-    access_denied unless logged_in?
-
-    options = {'name' => params[:name], 'description' => params[:description], 'data' => URI.unescape(params[:data]), 'shared' => params[:shared]=='true' }
-    add_to_favourites=false
+    options = {'id' => params[:id], 'name' => params[:name], 'description' => params[:description], 'data' => URI.unescape(params[:data]), 'shared' => params[:shared]=='true' }
     if params[:id].present?
-      # TODO
-      #@filter = Internal.issues.updateIssueFilter(params[:id], options)
+      @filter = Internal.issues.updateIssueFilter(options)
     else
       filter_result = Internal.issues.createIssueFilter(options)
-      add_to_favourites=true
     end
 
     if filter_result.ok
       @filter = filter_result.get()
-      puts "#### "+ @filter.id.to_s
-      #current_user.favourited_measure_filters<<@filter if add_to_favourites
       render :text => @filter.id.to_s, :status => 200
     else
       @errors = filter_result.errors
@@ -93,23 +92,50 @@ class IssuesController < ApplicationController
   end
 
   # POST /issues/save?id=<id>&[criteria]
-  # TODO
   def save
     verify_post_request
     require_parameters :id
-    access_denied unless logged_in?
 
-    @filter = find_filter(params[:id])
+    filter_result = Internal.issues.updateIssueFilterData(params[:id].to_i, criteria_params)
+    if filter_result.ok
+      @filter = filter_result.get()
+      redirect_to :action => 'filter', :id => @filter.id.to_s
+    else
+      @errors = filter_result.errors
 
-    #@filter = Internal.issues.updateIssueFilter(params[:id], options)
+      @filter = find_filter(params[:id].to_i)
+      @issue_query = Internal.issues.toQuery(@filter.dataAsMap)
+      @issues_result = Internal.issues.execute(@issue_query)
+      @unchanged = true
 
-    #@filter.criteria=criteria_params_without_page_id
-    #@filter.convert_criteria_to_data
-    #unless @filter.save
-    #  flash[:error]='Error'
-    #end
-    redirect_to :action => 'filter', :id => @filter.id
+      render :action => 'search'
+    end
   end
+
+  # GET /issues/edit_form/<filter id>
+  def edit_form
+    require_parameters :id
+    @filter = find_filter(params[:id].to_i)
+    render :partial => 'issues/edit_form'
+  end
+
+  # POST /issues/edit/<filter id>?name=<name>&description=<description>&shared=<true|false>
+  def edit
+    verify_post_request
+
+    existing_filter = find_filter(params[:id].to_i)
+    options = {'id' => params[:id].to_s, 'name' => params[:name], 'description' => params[:description], 'data' => existing_filter.data, 'shared' => params[:shared]=='true' }
+    filter_result = Internal.issues.updateIssueFilter(options)
+    if filter_result.ok
+      @filter = filter_result.get()
+      render :text => @filter.id.to_s, :status => 200
+    else
+      @errors = filter_result.errors
+      @filter = find_filter(params[:id].to_i)
+      render :partial => 'issues/edit_form', :status => 400
+    end
+  end
+
 
   private
 
@@ -118,12 +144,12 @@ class IssuesController < ApplicationController
     @options_for_resolutions = Internal.issues.listResolutions().map {|s| [message('issue.resolution.' + s), s]}
   end
 
-  # TODO
+  def load_user_filters
+    @my_filters = Internal.issues.findIssueFiltersForUser()
+  end
+
   def find_filter(id)
-    filter = Internal.issues.findIssueFilter(id)
-    # TODO
-    #access_denied unless filter.shared || filter.owner?(current_user)
-    filter
+    Internal.issues.findIssueFilter(id)
   end
 
   def criteria_params

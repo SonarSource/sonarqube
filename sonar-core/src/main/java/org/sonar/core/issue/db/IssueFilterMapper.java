@@ -19,7 +19,10 @@
  */
 package org.sonar.core.issue.db;
 
+import org.apache.ibatis.annotations.Param;
+
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -30,6 +33,9 @@ public interface IssueFilterMapper {
 
   @CheckForNull
   IssueFilterDto selectById(Long id);
+
+  @CheckForNull
+  IssueFilterDto selectByNameAndUser(@Param("name") String name, @Param("userLogin") String userLogin, @Nullable @Param("existingId") Long existingId);
 
   List<IssueFilterDto> selectByUser(String user);
 

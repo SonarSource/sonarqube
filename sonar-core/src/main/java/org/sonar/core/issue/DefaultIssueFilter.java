@@ -25,8 +25,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.CheckForNull;
-
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -63,7 +61,7 @@ public class DefaultIssueFilter {
   }
 
   public DefaultIssueFilter(Map<String, Object> mapData) {
-    this.data = mapAsdata(mapData);
+    setData(mapData);
   }
 
   public Long id() {
@@ -84,7 +82,6 @@ public class DefaultIssueFilter {
     return this;
   }
 
-  @CheckForNull
   public String user() {
     return user;
   }
@@ -136,6 +133,11 @@ public class DefaultIssueFilter {
 
   public DefaultIssueFilter setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
+    return this;
+  }
+
+  public final DefaultIssueFilter setData(Map<String, Object> mapData) {
+    this.data = mapAsdata(mapData);
     return this;
   }
 

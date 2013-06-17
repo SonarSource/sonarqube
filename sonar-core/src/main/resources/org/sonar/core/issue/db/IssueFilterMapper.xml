@@ -23,6 +23,18 @@
     </where>
   </select>
 
+  <select id="selectByNameAndUser" parameterType="map" resultType="IssueFilter">
+    select <include refid="issueFilterColumns"/>
+    from issue_filters filters
+    <where>
+      and filters.name=#{name}
+      and filters.user_login=#{userLogin}
+      <if test="existingId != null">
+        and filters.id&lt;&gt;#{existingId}
+      </if>
+    </where>
+  </select>
+
   <select id="selectByUser" parameterType="String" resultType="IssueFilter">
     select <include refid="issueFilterColumns"/>
     from issue_filters filters
@@ -48,7 +60,6 @@
   <update id="update" parameterType="IssueFilter">
     update issue_filters set
     name=#{name},
-    user_login=#{userLogin},
     shared=#{shared},
     description=#{description},
     data=#{data},

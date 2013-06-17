@@ -20,6 +20,8 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
@@ -31,7 +33,11 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class IssueFilterService implements ServerComponent {
 
@@ -44,46 +50,60 @@ public class IssueFilterService implements ServerComponent {
   }
 
   @CheckForNull
-  public DefaultIssueFilter createEmptyFilter(Map<String, Object> mapData) {
-    return new DefaultIssueFilter(mapData);
-  }
-
-  @CheckForNull
   public DefaultIssueFilter findById(Long id, UserSession userSession) {
-    // TODO
-//    checkAuthorization(userSession, project, UserRole.ADMIN);
     verifyLoggedIn(userSession);
-//    access_denied unless filter.shared || filter.owner?(current_user)
-
-    IssueFilterDto issueFilterDto = issueFilterDao.selectById(id);
-    if (issueFilterDto == null) {
-      return null;
-    }
+    IssueFilterDto issueFilterDto = findIssueFilter(id);
+    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
     return issueFilterDto.toIssueFilter();
   }
 
+  public List<DefaultIssueFilter> findByUser(UserSession userSession) {
+    if (userSession.isLoggedIn()) {
+      List<IssueFilterDto> issueFilterDtoList = issueFilterDao.selectByUser(userSession.login());
+      return newArrayList(Iterables.transform(issueFilterDtoList, new Function<IssueFilterDto, DefaultIssueFilter>() {
+        @Override
+        public DefaultIssueFilter apply(IssueFilterDto issueFilterDto) {
+          return issueFilterDto.toIssueFilter();
+        }
+      }));
+    }
+    return Collections.emptyList();
+  }
+
   public DefaultIssueFilter save(DefaultIssueFilter issueFilter, UserSession userSession) {
-    // TODO
-//    checkAuthorization(userSession, project, UserRole.ADMIN);
     verifyLoggedIn(userSession);
     issueFilter.setUser(userSession.login());
+    VerifyNameIsNotAlreadyUsed(issueFilter, userSession);
+
     IssueFilterDto issueFilterDto = IssueFilterDto.toIssueFilter(issueFilter);
     issueFilterDao.insert(issueFilterDto);
     return issueFilterDto.toIssueFilter();
   }
 
   public DefaultIssueFilter update(DefaultIssueFilter issueFilter, UserSession userSession) {
-    // TODO
-//    checkAuthorization(userSession, project, UserRole.ADMIN);
     verifyLoggedIn(userSession);
+    IssueFilterDto issueFilterDto = findIssueFilter(issueFilter.id());
+    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
+    VerifyNameIsNotAlreadyUsed(issueFilter, userSession);
+
+    issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
+    return issueFilter;
+  }
+
+  public DefaultIssueFilter updateData(Long issueFilterId, Map<String, Object> mapData, UserSession userSession) {
+    verifyLoggedIn(userSession);
+    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId);
+    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
+    DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
+    issueFilter.setData(mapData);
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
     return issueFilter;
   }
 
   public void delete(Long issueFilterId, UserSession userSession) {
-    // TODO
-    //checkAuthorization(userSession, findActionPlanDto(actionPlanKey).getProjectKey(), UserRole.ADMIN);
     verifyLoggedIn(userSession);
+    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId);
+    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
     issueFilterDao.delete(issueFilterId);
   }
 
@@ -91,25 +111,40 @@ public class IssueFilterService implements ServerComponent {
     return issueFinder.find(issueQuery);
   }
 
-  public IssueQueryResult execute(Long issueFilterId) {
-    IssueFilterDto issueFilterDto = issueFilterDao.selectById(issueFilterId);
-    if (issueFilterDto == null) {
-      // TODO throw 404
-      throw new IllegalArgumentException("Issue filter " + issueFilterId + " has not been found.");
-    }
+  public IssueQueryResult execute(Long issueFilterId, UserSession userSession) {
+    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId);
+    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
 
     DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
-    // convert data to issue query
-    issueFilter.data();
+    IssueQuery issueQuery = PublicRubyIssueService.toQuery(issueFilter.dataAsMap());
+    return issueFinder.find(issueQuery);
+  }
 
-//    return issueFinder.find(issueQuery);
-    return null;
+  public IssueFilterDto findIssueFilter(Long id){
+    IssueFilterDto issueFilterDto = issueFilterDao.selectById(id);
+    if (issueFilterDto == null) {
+      // TODO throw 404
+      throw new IllegalArgumentException("Filter not found: " + id);
+    }
+    return issueFilterDto;
   }
 
   private void verifyLoggedIn(UserSession userSession) {
     if (!userSession.isLoggedIn()) {
-      // must be logged
       throw new IllegalStateException("User is not logged in");
+    }
+  }
+
+  private void verifyCurrentUserIsOwnerOfFilter(IssueFilterDto issueFilterDto, UserSession userSession){
+    if (!issueFilterDto.getUserLogin().equals(userSession.login())) {
+      // TODO throw unauthorized
+      throw new IllegalStateException("User is not authorized to get this filter");
+    }
+  }
+
+  private void VerifyNameIsNotAlreadyUsed(DefaultIssueFilter issueFilter, UserSession userSession){
+    if (issueFilterDao.selectByNameAndUser(issueFilter.name(), userSession.login(), issueFilter.id()) != null) {
+      throw new IllegalArgumentException("Name already exists");
     }
   }
 

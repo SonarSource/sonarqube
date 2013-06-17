@@ -26,6 +26,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -46,6 +47,17 @@ public class IssueFilterDao implements BatchComponent, ServerComponent {
     try {
       session.getMapper(IssueFilterMapper.class);
       return getMapper(session).selectById(id);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  public IssueFilterDto selectByNameAndUser(String name, String user, @Nullable Long existingId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      session.getMapper(IssueFilterMapper.class);
+      return getMapper(session).selectByNameAndUser(name, user, existingId);
     } finally {
       MyBatis.closeQuietly(session);
     }

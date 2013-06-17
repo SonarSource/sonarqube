@@ -278,7 +278,6 @@ public class InternalRubyIssueService implements ServerComponent {
     String description = parameters.get("description");
     String deadLineParam = parameters.get("deadLine");
     String projectParam = parameters.get("project");
-    Date deadLine = null;
 
     checkMandatorySizeParameter(name, "name", 200, result);
     checkOptionnalSizeParameter(description, "description",  1000, result);
@@ -287,7 +286,7 @@ public class InternalRubyIssueService implements ServerComponent {
     if (existingActionPlan == null) {
       checkProject(projectParam, result);
     }
-    deadLine = checkAndReturnDeadline(deadLineParam, result);
+    Date deadLine = checkAndReturnDeadline(deadLineParam, result);
 
     if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && (existingActionPlan == null || !name.equals(existingActionPlan.name()))
       && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
@@ -373,38 +372,72 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueFilterService.findById(id, UserSession.get());
   }
 
+  public List<DefaultIssueFilter> findUserIssueFilters() {
+    return issueFilterService.findByUser(UserSession.get());
+  }
+
   public DefaultIssueFilter createFilterFromMap(Map<String, Object> mapData) {
-    return issueFilterService.createEmptyFilter(mapData);
+    return new DefaultIssueFilter(mapData);
   }
 
   /**
-   * Execute issue filter
+   * Execute issue filter from issue query
    */
   public IssueQueryResult execute(IssueQuery issueQuery) {
     return issueFilterService.execute(issueQuery);
   }
 
   /**
+   * Execute issue filter from existing filter
+   */
+  public IssueQueryResult execute(Long issueFilterId) {
+    return issueFilterService.execute(issueFilterId, UserSession.get());
+  }
+
+  /**
+   * List user issue filter
+   */
+  public List<DefaultIssueFilter> findIssueFiltersForUser() {
+    return issueFilterService.findByUser(UserSession.get());
+  }
+
+  /**
    * Create issue filter
    */
   public Result<DefaultIssueFilter> createIssueFilter(Map<String, String> params) {
+    Result<DefaultIssueFilter> result = createIssueFilterResult(params, false);
+    if (result.ok()) {
+      try {
+        result.set(issueFilterService.save(result.get(), UserSession.get()));
+      } catch (Exception e) {
+        result.addError(e.getMessage());
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Update issue filter
+   */
+  public Result<DefaultIssueFilter> updateIssueFilter(Map<String, String> parameters) {
+    Result<DefaultIssueFilter> result = createIssueFilterResult(parameters, true);
+    if (result.ok()) {
+      try {
+        result.set(issueFilterService.update(result.get(), UserSession.get()));
+      } catch (Exception e) {
+        result.addError(e.getMessage());
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Update issue filter data
+   */
+  public Result<DefaultIssueFilter> updateIssueFilterData(Long issueFilterId, Map<String, Object> data) {
     Result<DefaultIssueFilter> result = Result.of();
     try {
-      // mandatory parameters
-      String name = params.get("name");
-      String description = params.get("description");
-      String data = params.get("data");
-      Boolean shared = RubyUtils.toBoolean(params.get("shared"));
-
-      if (result.ok()) {
-        DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
-          .setDescription(description)
-          .setShared(shared)
-          .setData(data);
-        defaultIssueFilter = issueFilterService.save(defaultIssueFilter, UserSession.get());
-        result.set(defaultIssueFilter);
-      }
-
+      result.set(issueFilterService.updateData(issueFilterId, data, UserSession.get()));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -412,37 +445,45 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   @VisibleForTesting
-  Result<DefaultIssueFilter> createIssueFilterResult(Map<String, String> params) {
+  Result<DefaultIssueFilter> createIssueFilterResult(Map<String, String> params, boolean isUpdate) {
     Result<DefaultIssueFilter> result = Result.of();
 
-    // mandatory parameters
+    String id = params.get("id");
     String name = params.get("name");
     String description = params.get("description");
     String data = params.get("data");
     Boolean shared = RubyUtils.toBoolean(params.get("shared"));
 
+    if (isUpdate) {
+      checkMandatoryParameter(id, "id", result);
+    }
     checkMandatorySizeParameter(name, "name",  100, result);
     checkOptionnalSizeParameter(description, "description",  4000, result);
-
-     // TODO check name uniquness
 
     if (result.ok()) {
       DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
         .setDescription(description)
         .setShared(shared)
         .setData(data);
+      if (isUpdate) {
+        defaultIssueFilter.setId(Long.valueOf(id));
+      }
+
       result.set(defaultIssueFilter);
     }
     return result;
   }
 
-  private void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result){
+  private void checkMandatoryParameter(String value, String paramName, Result result){
     if (Strings.isNullOrEmpty(value)) {
       result.addError(Result.Message.ofL10n("errors.cant_be_empty", paramName));
-    } else {
-      if (value.length() > size) {
+    }
+  }
+
+  private void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result){
+    checkMandatoryParameter(value, paramName, result);
+    if (!Strings.isNullOrEmpty(value) && value.length() > size) {
         result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
-      }
     }
   }
 

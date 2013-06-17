@@ -51,6 +51,17 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_select_by_name_and_user() {
+    setupData("shared");
+
+    IssueFilterDto filter = dao.selectByNameAndUser("Sonar Issues", "stephane", null);
+    assertThat(filter.getId()).isEqualTo(1L);
+
+    filter = dao.selectByNameAndUser("Sonar Issues", "stephane", 1L);
+    assertThat(filter).isNull();
+  }
+
+  @Test
   public void should_select_by_user() {
     setupData("should_select_by_user");
 
@@ -84,7 +95,6 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
     IssueFilterDto filterDto = new IssueFilterDto();
     filterDto.setId(2L);
     filterDto.setName("Closed issues");
-    filterDto.setUserLogin("henry");
     filterDto.setShared(false);
     filterDto.setDescription("All closed issues");
     filterDto.setData("statuses=CLOSED");

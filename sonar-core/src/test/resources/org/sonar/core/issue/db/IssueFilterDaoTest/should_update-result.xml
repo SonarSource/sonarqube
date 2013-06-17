@@ -13,7 +13,7 @@
   <issue_filters
       id="2"
       name="Closed issues"
-      user_login="henry"
+      user_login="michael"
       shared="[false]"
       description="All closed issues"
       data="statuses=CLOSED"

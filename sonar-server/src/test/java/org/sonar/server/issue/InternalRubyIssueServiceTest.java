@@ -24,9 +24,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -67,10 +69,10 @@ public class InternalRubyIssueServiceTest {
     parameters.put("project", "org.sonar.Sample");
     parameters.put("deadLine", "2113-05-13");
 
-    ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
     Result result = service.createActionPlan(parameters);
     assertThat(result.ok()).isTrue();
 
+    ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
     verify(actionPlanService).create(actionPlanCaptor.capture(), any(UserSession.class));
     ActionPlan actionPlan = actionPlanCaptor.getValue();
 
@@ -91,10 +93,10 @@ public class InternalRubyIssueServiceTest {
     parameters.put("deadLine", "2113-05-13");
     parameters.put("project", "org.sonar.MultiSample");
 
-    ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
     Result result = service.updateActionPlan("ABCD", parameters);
     assertThat(result.ok()).isTrue();
 
+    ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
     verify(actionPlanService).update(actionPlanCaptor.capture(), any(UserSession.class));
     ActionPlan actionPlan = actionPlanCaptor.getValue();
 
@@ -276,14 +278,6 @@ public class InternalRubyIssueServiceTest {
     assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", "org.sonar.Sample"));
   }
 
-  public String createLongString(int size) {
-    String result = "";
-    for (int i = 0; i < size; i++) {
-      result += "c";
-    }
-    return result;
-  }
-
   @Test
   public void test_changelog() throws Exception {
     IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs>emptyList(), Collections.<User>emptyList());
@@ -295,12 +289,46 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
+  public void should_create_issue_filter() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", "Long term");
+    parameters.put("description", "Long term issues");
+
+    Result<DefaultIssueFilter> result = service.createIssueFilter(parameters);
+    assertThat(result.ok()).isTrue();
+
+    ArgumentCaptor<DefaultIssueFilter> issueFilterCaptor = ArgumentCaptor.forClass(DefaultIssueFilter.class);
+    verify(issueFilterService).save(issueFilterCaptor.capture(), any(UserSession.class));
+    DefaultIssueFilter issueFilter =  issueFilterCaptor.getValue();
+    assertThat(issueFilter.name()).isEqualTo("Long term");
+    assertThat(issueFilter.description()).isEqualTo("Long term issues");
+  }
+
+  @Test
+  public void should_update_issue_filter() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("id", "10");
+    parameters.put("name", "Long term");
+    parameters.put("description", "Long term issues");
+
+    Result<DefaultIssueFilter> result = service.updateIssueFilter(parameters);
+    assertThat(result.ok()).isTrue();
+
+    ArgumentCaptor<DefaultIssueFilter> issueFilterCaptor = ArgumentCaptor.forClass(DefaultIssueFilter.class);
+    verify(issueFilterService).update(issueFilterCaptor.capture(), any(UserSession.class));
+    DefaultIssueFilter issueFilter =  issueFilterCaptor.getValue();
+    assertThat(issueFilter.id()).isEqualTo(10L);
+    assertThat(issueFilter.name()).isEqualTo("Long term");
+    assertThat(issueFilter.description()).isEqualTo("Long term issues");
+  }
+
+  @Test
   public void should_get_error_on_issue_filter_result_when_no_name() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", null);
     parameters.put("description", "Long term issues");
 
-    Result result = service.createIssueFilterResult(parameters);
+    Result result = service.createIssueFilterResult(parameters, false);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "name"));
   }
@@ -311,7 +339,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("name", createLongString(101));
     parameters.put("description", "Long term issues");
 
-    Result result = service.createIssueFilterResult(parameters);
+    Result result = service.createIssueFilterResult(parameters, false);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "name", 100));
   }
@@ -322,8 +350,54 @@ public class InternalRubyIssueServiceTest {
     parameters.put("name", "Long term");
     parameters.put("description", createLongString(4001));
 
-    Result result = service.createIssueFilterResult(parameters);
+    Result result = service.createIssueFilterResult(parameters, false);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "description", 4000));
   }
+
+  @Test
+  public void should_get_error_on_issue_filter_result_when_id_is_null_on_update() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("id", null);
+    parameters.put("name", "Long term");
+    parameters.put("description", "Long term issues");
+
+    Result result = service.createIssueFilterResult(parameters, true);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "id"));
+  }
+
+  @Test
+  public void should_execute_issue_filter_from_issue_query() {
+    service.execute(IssueQuery.builder().build());
+    verify(issueFilterService).execute(any(IssueQuery.class));
+  }
+
+  @Test
+  public void should_execute_issue_filter_from_existing_filter() {
+    service.execute(10L);
+    verify(issueFilterService).execute(eq(10L), any(UserSession.class));
+  }
+
+  @Test
+  public void should_find_user_issue_filters() {
+    service.findIssueFiltersForUser();
+    verify(issueFilterService).findByUser(any(UserSession.class));
+  }
+
+  @Test
+  public void should_update_data() {
+    Map<String, Object> data = newHashMap();
+    service.updateIssueFilterData(10L, data);
+    verify(issueFilterService).updateData(eq(10L), eq(data), any(UserSession.class));
+  }
+
+  private String createLongString(int size) {
+    String result = "";
+    for (int i = 0; i < size; i++) {
+      result += "c";
+    }
+    return result;
+  }
+
 }

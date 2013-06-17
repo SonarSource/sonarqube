@@ -1,7 +1,9 @@
 <ul class="sidebar gray-sidebar">
+  <%= render :partial => 'issues/favourites' -%>
+
   <form method="GET" action="<%= ApplicationController.root_context -%>/issues/search" >
 
-    <% if @filter.id %>
+    <% if @filter && @filter.id %>
       <input type="hidden" name="id" value="<%= @filter.id.to_s -%>">
     <% end %>
     <input type="hidden" name="sort" value="<%= @issue_query.sort -%>"/>
