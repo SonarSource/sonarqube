@@ -20,16 +20,6 @@
     VALUES (#{kee}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="IssueChange" keyColumn="id" useGeneratedKeys="false"
-          keyProperty="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select issue_changes_seq.NEXTVAL from DUAL
-    </selectKey>
-    INSERT INTO issue_changes (id, kee, issue_key, user_login, change_type, change_data, created_at, updated_at)
-    VALUES (#{id}, #{kee}, #{issueKey}, #{userLogin}, #{changeType}, #{changeData}, #{createdAt}, #{updatedAt})
-  </insert>
-
   <delete id="delete" parameterType="string">
     delete from issue_changes where kee=#{id}
   </delete>

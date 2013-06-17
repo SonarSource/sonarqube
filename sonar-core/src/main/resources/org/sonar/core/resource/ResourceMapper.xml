@@ -167,25 +167,11 @@
     </where>
   </sql>
 
-  <insert id="insert" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into projects
     (name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, enabled, created_at)
     values (
     #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
-    #{key}, #{language}, #{rootId}, #{copyResourceId},
-    #{personId}, #{enabled}, #{createdAt}
-    )
-  </insert>
-
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="Resource" useGeneratedKeys="true" keyProperty="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select projects_seq.NEXTVAL from DUAL
-    </selectKey>
-    insert into projects
-    (id, name, long_name, description, scope, qualifier, kee, language, root_id, copy_resource_id, person_id, enabled, created_at)
-    values (
-    #{id}, #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
     #{key}, #{language}, #{rootId}, #{copyResourceId},
     #{personId}, #{enabled}, #{createdAt}
     )

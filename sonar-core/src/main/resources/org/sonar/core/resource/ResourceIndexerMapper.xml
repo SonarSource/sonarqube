@@ -65,15 +65,5 @@
     #{resourceId}, #{rootProjectId}, #{qualifier})
   </insert>
 
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="ResourceIndex" useGeneratedKeys="false">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select resource_index_seq.NEXTVAL from DUAL
-    </selectKey>
-    insert into resource_index (id, kee, position, name_size, resource_id, root_project_id, qualifier)
-    values (#{id}, #{key}, #{position}, #{nameSize},
-    #{resourceId}, #{rootProjectId}, #{qualifier})
-  </insert>
-
 </mapper>
 

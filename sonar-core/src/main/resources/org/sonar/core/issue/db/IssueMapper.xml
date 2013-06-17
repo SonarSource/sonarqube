@@ -70,22 +70,6 @@
     #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="Issue" keyColumn="id" useGeneratedKeys="false"
-          keyProperty="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select issues_seq.NEXTVAL from DUAL
-    </selectKey>
-    INSERT INTO issues (id, kee, component_id, root_component_id, rule_id, action_plan_key, severity, manual_severity,
-    message, line, effort_to_fix, status,
-    resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
-    issue_close_date, created_at, updated_at)
-    VALUES (#{id}, #{kee}, #{componentId}, #{rootComponentId}, #{ruleId}, #{actionPlanKey}, #{severity}, #{manualSeverity},
-    #{message}, #{line}, #{effortToFix}, #{status},
-    #{resolution}, #{checksum}, #{reporter}, #{assignee}, #{authorLogin}, #{issueAttributes}, #{issueCreationDate},
-    #{issueUpdateDate}, #{issueCloseDate}, #{createdAt}, #{updatedAt})
-  </insert>
-
   <!--
     IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
   -->

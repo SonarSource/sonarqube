@@ -74,18 +74,9 @@
     </where>
   </select>
 
-  <insert id="insert" parameterType="IssueFilter" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="IssueFilter" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO issue_filters (name, user_login, shared, description, data, created_at, updated_at)
     VALUES (#{name}, #{userLogin}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
-  </insert>
-
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="IssueFilter" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select issue_filters_seq.NEXTVAL from DUAL
-    </selectKey>
-    INSERT INTO issue_filters (id, name, user_login, shared, description, data, created_at, updated_at)
-    VALUES (#{id}, #{name}, #{userLogin}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
   </insert>
 
   <update id="update" parameterType="IssueFilter">

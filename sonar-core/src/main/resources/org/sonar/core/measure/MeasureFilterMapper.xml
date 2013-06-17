@@ -8,18 +8,9 @@
     from measure_filters WHERE user_id is null and name=#{id}
   </select>
 
-  <insert id="insert" parameterType="MeasureFilter" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="MeasureFilter" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO measure_filters (name, user_id, shared, description, data, created_at, updated_at)
     VALUES (#{name}, #{userId}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
-  </insert>
-
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="MeasureFilter" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select measure_filters_seq.NEXTVAL from DUAL
-    </selectKey>
-    INSERT INTO measure_filters (id, name, user_id, shared, description, data, created_at, updated_at)
-    VALUES (#{id}, #{name}, #{userId}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
   </insert>
 
 </mapper>

@@ -13,19 +13,9 @@
     FROM authors WHERE person_id=#{id}
   </select>
 
-  <insert id="insert" parameterType="Author" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Author" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO authors (person_id, login, created_at, updated_at)
     VALUES (#{personId}, #{login},
-    #{createdAt}, #{updatedAt})
-  </insert>
-
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="Author" useGeneratedKeys="true" keyProperty="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select authors_seq.NEXTVAL from DUAL
-    </selectKey>
-    INSERT INTO authors (id, person_id, login, created_at, updated_at)
-    VALUES (#{id}, #{personId}, #{login},
     #{createdAt}, #{updatedAt})
   </insert>
 

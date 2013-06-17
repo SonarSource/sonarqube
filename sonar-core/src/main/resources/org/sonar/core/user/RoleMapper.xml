@@ -3,32 +3,14 @@
 
 <mapper namespace="org.sonar.core.user.RoleMapper">
 
-  <insert id="insertGroupRole" parameterType="GroupRole" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertGroupRole" parameterType="GroupRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO group_roles (group_id, resource_id, role)
     VALUES (#{groupId}, #{resourceId}, #{role})
   </insert>
 
-  <!-- Oracle -->
-  <insert id="insertGroupRole" databaseId="oracle" parameterType="GroupRole" useGeneratedKeys="true" keyProperty="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select group_roles_seq.NEXTVAL from DUAL
-    </selectKey>
-    INSERT INTO group_roles (id, group_id, resource_id, role)
-    VALUES (#{id}, #{groupId}, #{resourceId}, #{role})
-  </insert>
-
-  <insert id="insertUserRole" parameterType="UserRole" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertUserRole" parameterType="UserRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO user_roles (user_id, resource_id, role)
     VALUES (#{userId}, #{resourceId}, #{role})
-  </insert>
-
-  <!-- Oracle -->
-  <insert id="insertUserRole" databaseId="oracle" parameterType="UserRole" useGeneratedKeys="true" keyProperty="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select user_roles_seq.NEXTVAL from DUAL
-    </selectKey>
-    INSERT INTO user_roles (id, user_id, resource_id, role)
-    VALUES (#{id}, #{userId}, #{resourceId}, #{role})
   </insert>
 
   <delete id="deleteGroupRole" parameterType="map">

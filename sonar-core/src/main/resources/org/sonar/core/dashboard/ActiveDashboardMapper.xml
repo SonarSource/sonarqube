@@ -3,18 +3,9 @@
 
 <mapper namespace="org.sonar.core.dashboard.ActiveDashboardMapper">
 
-  <insert id="insert" parameterType="ActiveDashboard" useGeneratedKeys="true" keyProperty ="id">
+  <insert id="insert" parameterType="ActiveDashboard" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
     INSERT INTO active_dashboards (dashboard_id, user_id, order_index)
     VALUES (#{dashboardId}, #{userId}, #{orderIndex})
-  </insert>
-
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="ActiveDashboard" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id" >
-        select active_dashboards_seq.NEXTVAL from DUAL
-    </selectKey>
-    INSERT INTO active_dashboards (id, dashboard_id, user_id, order_index)
-    VALUES (#{id}, #{dashboardId}, #{userId}, #{orderIndex})
   </insert>
 
   <select id="selectMaxOrderIndexForNullUser" resultType="Integer">

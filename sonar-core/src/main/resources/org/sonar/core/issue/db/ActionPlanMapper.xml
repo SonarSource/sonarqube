@@ -18,18 +18,9 @@
     p.kee as projectKey
   </sql>
 
-  <insert id="insert" parameterType="ActionPlanIssue" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="ActionPlanIssue" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO action_plans (kee, name, description, user_login, project_id, status, deadline, created_at, updated_at)
     VALUES (#{kee}, #{name}, #{description}, #{userLogin}, #{projectId}, #{status}, #{deadLine}, #{createdAt}, #{updatedAt})
-  </insert>
-
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="ActionPlanIssue" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select issues_seq.NEXTVAL from DUAL
-    </selectKey>
-    INSERT INTO action_plans (id, kee, name, description, user_login, project_id, status, deadline, created_at, updated_at)
-    VALUES (#{id}, #{kee}, #{name}, #{description}, #{userLogin}, #{projectId}, #{status}, #{deadLine}, #{createdAt}, #{updatedAt})
   </insert>
 
   <update id="update" parameterType="ActionPlanIssue">

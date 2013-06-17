@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.api.database.model.MeasureMapper">
 
-  <insert id="insert" parameterType="MeasureModel" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="MeasureModel" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO project_measures (
       value, metric_id, snapshot_id, rule_id, text_value, tendency, measure_date,
       project_id, alert_status, alert_text, url, description, rule_priority, characteristic_id, variation_value_1,
@@ -16,7 +16,7 @@
     )
   </insert>
 
-  <insert id="insertData" parameterType="MeasureData" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertData" parameterType="MeasureData" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO measure_data (measure_id, snapshot_id, data)
     VALUES (#{measure.id}, #{measure.snapshotId}, #{data})
   </insert>
@@ -47,26 +47,5 @@
       person_id = #{personId}
     WHERE id = #{id}
   </update>
-
-  <!-- ORACLE -->
-  <insert id="insert" databaseId="oracle" parameterType="MeasureModel" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO project_measures (
-      id,
-      value, metric_id, snapshot_id, rule_id, text_value, tendency, measure_date,
-      project_id, alert_status, alert_text, url, description, rule_priority, characteristic_id, variation_value_1,
-      variation_value_2, variation_value_3, variation_value_4, variation_value_5, person_id)
-    VALUES (
-      project_measures_seq.NEXTVAL,
-      #{value}, #{metricId}, #{snapshotId}, #{ruleId}, #{textValue}, #{tendency},
-      #{measureDate}, #{projectId}, #{alertStatus}, #{alertText},
-      #{url}, #{description}, #{rulePriority.ordinal}, #{characteristic.id}, #{variationValue1},
-      #{variationValue2}, #{variationValue3}, #{variationValue4}, #{variationValue5}, #{personId}
-    )
-  </insert>
-
-  <insert id="insertData" databaseId="oracle" parameterType="MeasureData" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO measure_data (id, measure_id, snapshot_id, data)
-    VALUES (measure_data_seq.NEXTVAL, #{measure.id}, #{measure.snapshotId}, #{data})
-  </insert>
 
 </mapper>

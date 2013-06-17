@@ -19,16 +19,5 @@
     values (
     #{resourceId}, #{snapshotId}, #{data}, #{dataType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
   </insert>
-
-    <!-- Oracle -->
-    <insert id="insert" databaseId="oracle" parameterType="SnapshotData" useGeneratedKeys="false" keyProperty="id">
-        <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-            select snapshot_data_seq.NEXTVAL from DUAL
-        </selectKey>
-        insert into snapshot_data
-        (id, resource_id, snapshot_id, snapshot_data, data_type, created_at, updated_at)
-        values (
-        #{id}, #{resourceId}, #{snapshotId}, #{data}, #{dataType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-    </insert>
 </mapper>
 

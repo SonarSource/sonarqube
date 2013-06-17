@@ -25,16 +25,5 @@
     #{data}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
   </insert>
 
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="Graph" useGeneratedKeys="false" keyProperty="id">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select graphs_seq.NEXTVAL from DUAL
-    </selectKey>
-    insert into graphs
-    (id, resource_id, snapshot_id, format, version, perspective, root_vertex_id, data, created_at, updated_at)
-    values (
-    #{id}, #{resourceId}, #{snapshotId}, #{format}, #{version}, #{perspective}, #{rootVertexId},
-    #{data}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-  </insert>
 </mapper>
 

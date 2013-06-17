@@ -8,14 +8,6 @@
     VALUES (#{name}, #{checksum}, current_timestamp, current_timestamp, #{lockedAt})
   </insert>
 
-  <insert id="initialize" databaseId="oracle" parameterType="map" useGeneratedKeys="false">
-    <selectKey order="BEFORE" resultType="Long" keyProperty="id">
-      select semaphores_seq.NEXTVAL from DUAL
-    </selectKey>
-    INSERT INTO semaphores (id, name, checksum, created_at, updated_at, locked_at)
-    VALUES (#{id}, #{name}, #{checksum}, current_timestamp, current_timestamp, #{lockedAt})
-  </insert>
-
   <select id="now" resultType="Date">
     select current_timestamp
   </select>

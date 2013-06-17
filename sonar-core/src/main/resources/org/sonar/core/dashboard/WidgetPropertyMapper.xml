@@ -3,15 +3,9 @@
 
 <mapper namespace="org.sonar.core.dashboard.WidgetPropertyMapper">
 
-  <insert id="insert" parameterType="WidgetProperty" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="WidgetProperty" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO widget_properties (widget_id, kee, text_value)
     VALUES (#{widgetId}, #{key}, #{value})
-  </insert>
-
-  <!-- Oracle -->
-  <insert id="insert" databaseId="oracle" parameterType="WidgetProperty" keyColumn="id" useGeneratedKeys="false" keyProperty="id">
-    INSERT INTO widget_properties (id, widget_id, kee, text_value)
-    VALUES (widget_properties_seq.NEXTVAL, #{widgetId}, #{key}, #{value})
   </insert>
 
 </mapper>
