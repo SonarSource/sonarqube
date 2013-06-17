@@ -65,7 +65,7 @@ public interface DecoratorBarriers {
    * @deprecated in 3.6. Replaced by {@link #ISSUES_ADDED}
    */
   @Deprecated
-  String END_OF_VIOLATIONS_GENERATION = ISSUES_ADDED;
+  String END_OF_VIOLATIONS_GENERATION = "END_OF_VIOLATIONS_GENERATION";
 
   /**
    * Extensions which call the method {@code Violation#setSwitchedOff} must be executed before this barrier
@@ -92,7 +92,7 @@ public interface DecoratorBarriers {
    * @deprecated in 3.6. Replaced by {@link #ISSUES_TRACKED}
    */
   @Deprecated
-  String END_OF_VIOLATION_TRACKING = ISSUES_TRACKED;
+  String END_OF_VIOLATION_TRACKING = "END_OF_VIOLATION_TRACKING";
 
   /**
    * @since 2.13
