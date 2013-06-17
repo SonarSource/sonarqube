@@ -105,8 +105,7 @@ public class MavenProjectConverterTest {
     pom.setDescription("just test");
     pom.setFile(new File("/foo/pom.xml"));
     pom.getBuild().setDirectory("target");
-    ProjectDefinition project = ProjectDefinition.create();
-    MavenProjectConverter.merge(pom, project);
+    ProjectDefinition project = MavenProjectConverter.convert(pom);
 
     Properties properties = project.getProperties();
     assertThat(properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY), is("foo:bar"));

@@ -19,12 +19,9 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.config.Logback;
-
-import javax.annotation.Nullable;
 
 import java.io.File;
 import java.util.Map;
@@ -46,26 +43,19 @@ public final class LoggingConfiguration {
   public static final String LEVEL_SQL_RESULTS_VERBOSE = "DEBUG";
   public static final String LEVEL_SQL_RESULTS_DEFAULT = "WARN";
 
-  @VisibleForTesting
-  static final String FORMAT_DEFAULT = "%d{HH:mm:ss.SSS} %-5level - %msg%n";
-  @VisibleForTesting
-  static final String FORMAT_MAVEN = "[%level] [%d{HH:mm:ss.SSS}] %msg%n";
+  public static final String FORMAT_DEFAULT = "%d{HH:mm:ss.SSS} %-5level - %msg%n";
+  public static final String FORMAT_MAVEN = "[%level] [%d{HH:mm:ss.SSS}] %msg%n";
 
   private Map<String, String> substitutionVariables = Maps.newHashMap();
 
-  private LoggingConfiguration(@Nullable EnvironmentInformation environment) {
+  private LoggingConfiguration() {
     setVerbose(false);
     setShowSql(false);
-    if (environment != null && "maven".equalsIgnoreCase(environment.getKey())) {
-      setFormat(FORMAT_MAVEN);
-    }
-    else {
-      setFormat(FORMAT_DEFAULT);
-    }
+    setFormat(FORMAT_DEFAULT);
   }
 
-  static LoggingConfiguration create(@Nullable EnvironmentInformation environment) {
-    return new LoggingConfiguration(environment);
+  static LoggingConfiguration create() {
+    return new LoggingConfiguration();
   }
 
   public LoggingConfiguration setProperties(Map<String, String> properties) {
@@ -99,8 +89,7 @@ public final class LoggingConfiguration {
     return addSubstitutionVariable(PROPERTY_SQL_RESULTS_LOGGER_LEVEL, level);
   }
 
-  @VisibleForTesting
-  LoggingConfiguration setFormat(String format) {
+  public LoggingConfiguration setFormat(String format) {
     return addSubstitutionVariable(PROPERTY_FORMAT, StringUtils.defaultIfBlank(format, FORMAT_DEFAULT));
   }
 
