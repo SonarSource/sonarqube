@@ -36,9 +36,11 @@ import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -77,8 +79,7 @@ public class ActionServiceTest {
     IssueQueryResult issueQueryResult = mock(DefaultIssueQueryResult.class);
     when(issueQueryResult.first()).thenReturn(issue);
 
-    Component project = mock(Component.class);
-    when(issueQueryResult.component(issue)).thenReturn(project);
+    when(issueQueryResult.project(issue)).thenReturn(mock(Component.class));
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function1, function2);
@@ -100,8 +101,7 @@ public class ActionServiceTest {
     DefaultIssue issue = new DefaultIssue().setKey("ABCD");
     IssueQueryResult issueQueryResult = mock(DefaultIssueQueryResult.class);
     when(issueQueryResult.first()).thenReturn(issue);
-    Component project = mock(Component.class);
-    when(issueQueryResult.component(issue)).thenReturn(project);
+    when(issueQueryResult.project(issue)).thenReturn(mock(Component.class));
 
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
@@ -110,6 +110,28 @@ public class ActionServiceTest {
 
     verify(updater).addComment(eq(issue), eq("New tweet on issue ABCD"), any(IssueChangeContext.class));
     verify(updater).setAttribute(eq(issue), eq("tweet"), eq("tweet sent"), any(IssueChangeContext.class));
+  }
+
+  @Test
+  public void should_inject_project_settings_when_executing_a_function() {
+    Function function = new TweetFunction();
+
+    UserSession userSession = mock(UserSession.class);
+    when(userSession.login()).thenReturn("arthur");
+
+    DefaultIssue issue = new DefaultIssue().setKey("ABCD");
+    IssueQueryResult issueQueryResult = mock(DefaultIssueQueryResult.class);
+    when(issueQueryResult.first()).thenReturn(issue);
+    Component project = mock(Component.class);
+    when(project.key()).thenReturn("struts");
+    when(issueQueryResult.project(issue)).thenReturn(project);
+
+    when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
+
+    actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
+    assertThat(actionService.execute("ABCD", "link-to-jira", userSession)).isNotNull();
+
+    verify(propertiesDao).selectProjectProperties(eq("struts"));
   }
 
   @Test
@@ -198,6 +220,24 @@ public class ActionServiceTest {
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
     assertThat(actionService.listAvailableActions("ABCD")).isEmpty();
+  }
+
+  @Test
+  public void should_get_project_settings(){
+    Component project = mock(Component.class);
+    when(project.key()).thenReturn("struts");
+
+    // Global property
+    settings.appendProperty("sonar.core.version", "3.6");
+
+    // Project property
+    List<PropertyDto> projectProperties = newArrayList(new PropertyDto().setKey("sonar.jira.project.key").setValue("STRUTS"));
+    when(propertiesDao.selectProjectProperties("struts")).thenReturn(projectProperties);
+
+    Settings result = actionService.getProjectSettings(project);
+    assertThat(result).isNotNull();
+    assertThat(result.hasKey("sonar.core.version")).isTrue();
+    assertThat(result.hasKey("sonar.jira.project.key")).isTrue();
   }
 
   public class AlwaysMatch implements Condition {
