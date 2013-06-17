@@ -20,102 +20,107 @@
 package org.sonar.batch.bootstrapper;
 
 import com.google.common.collect.Maps;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class LoggingConfigurationTest {
 
   @Test
   public void testSqlLevel() {
-    assertThat(LoggingConfiguration.create().setShowSql(true)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_SQL_VERBOSE));
+    assertThat(LoggingConfiguration.create(null).setShowSql(true)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_VERBOSE);
 
-    assertThat(LoggingConfiguration.create().setShowSql(false)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_SQL_DEFAULT));
+    assertThat(LoggingConfiguration.create(null).setShowSql(false)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_DEFAULT);
 
-    assertThat(LoggingConfiguration.create().setSqlLevel("ERROR")
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL), Is.is("ERROR"));
+    assertThat(LoggingConfiguration.create(null).setSqlLevel("ERROR")
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo("ERROR");
   }
 
   @Test
   public void shouldNotShowSqlByDefault() {
-    assertThat(LoggingConfiguration.create()
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_SQL_DEFAULT));
+    assertThat(LoggingConfiguration.create(null)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_DEFAULT);
   }
 
   @Test
   public void testSetVerbose() {
-    assertThat(LoggingConfiguration.create().setVerbose(true)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_ROOT_VERBOSE));
+    assertThat(LoggingConfiguration.create(null).setVerbose(true)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_VERBOSE);
 
-    assertThat(LoggingConfiguration.create().setVerbose(false)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_ROOT_DEFAULT));
+    assertThat(LoggingConfiguration.create(null).setVerbose(false)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
 
-    assertThat(LoggingConfiguration.create().setRootLevel("ERROR")
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL), Is.is("ERROR"));
+    assertThat(LoggingConfiguration.create(null).setRootLevel("ERROR")
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo("ERROR");
   }
 
   @Test
   public void shouldNotBeVerboseByDefault() {
-    assertThat(LoggingConfiguration.create()
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_ROOT_DEFAULT));
+    assertThat(LoggingConfiguration.create(null)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
   }
 
   @Test
   public void testSetVerboseProperty() {
     Map<String, String> properties = Maps.newHashMap();
-    assertThat(LoggingConfiguration.create().setProperties(properties)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_ROOT_DEFAULT));
+    assertThat(LoggingConfiguration.create(null).setProperties(properties)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
 
     properties.put("sonar.verbose", "true");
-    assertThat(LoggingConfiguration.create().setProperties(properties)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_ROOT_VERBOSE));
+    assertThat(LoggingConfiguration.create(null).setProperties(properties)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_VERBOSE);
 
     properties.put("sonar.verbose", "false");
-    assertThat(LoggingConfiguration.create().setProperties(properties)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_ROOT_DEFAULT));
+    assertThat(LoggingConfiguration.create(null).setProperties(properties)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
   }
 
   @Test
   public void testSetShowSqlProperty() {
     Map<String, String> properties = Maps.newHashMap();
-    assertThat(LoggingConfiguration.create().setProperties(properties)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_SQL_DEFAULT));
+    assertThat(LoggingConfiguration.create(null).setProperties(properties)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_DEFAULT);
 
     properties.put("sonar.showSql", "true");
-    assertThat(LoggingConfiguration.create().setProperties(properties)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_SQL_VERBOSE));
+    assertThat(LoggingConfiguration.create(null).setProperties(properties)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_VERBOSE);
 
     properties.put("sonar.showSql", "false");
-    assertThat(LoggingConfiguration.create().setProperties(properties)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL), Is.is(LoggingConfiguration.LEVEL_SQL_DEFAULT));
+    assertThat(LoggingConfiguration.create(null).setProperties(properties)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_SQL_DEFAULT);
   }
 
   @Test
   public void testDefaultFormat() {
-    assertThat(LoggingConfiguration.create()
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT), Is.is(LoggingConfiguration.FORMAT_DEFAULT));
+    assertThat(LoggingConfiguration.create(null)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT)).isEqualTo(LoggingConfiguration.FORMAT_DEFAULT);
+  }
+
+  @Test
+  public void testMavenFormat() {
+    assertThat(LoggingConfiguration.create(new EnvironmentInformation("maven", "1.0"))
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT)).isEqualTo(LoggingConfiguration.FORMAT_MAVEN);
   }
 
   @Test
   public void testSetFormat() {
-    assertThat(LoggingConfiguration.create().setFormat("%d %level")
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT), Is.is("%d %level"));
+    assertThat(LoggingConfiguration.create(null).setFormat("%d %level")
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT)).isEqualTo("%d %level");
   }
 
   @Test
   public void shouldNotSetBlankFormat() {
-    assertThat(LoggingConfiguration.create().setFormat(null)
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT), Is.is(LoggingConfiguration.FORMAT_DEFAULT));
+    assertThat(LoggingConfiguration.create(null).setFormat(null)
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT)).isEqualTo(LoggingConfiguration.FORMAT_DEFAULT);
 
-    assertThat(LoggingConfiguration.create().setFormat("")
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT), Is.is(LoggingConfiguration.FORMAT_DEFAULT));
+    assertThat(LoggingConfiguration.create(null).setFormat("")
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT)).isEqualTo(LoggingConfiguration.FORMAT_DEFAULT);
 
-    assertThat(LoggingConfiguration.create().setFormat("   ")
-      .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT), Is.is(LoggingConfiguration.FORMAT_DEFAULT));
+    assertThat(LoggingConfiguration.create(null).setFormat("   ")
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_FORMAT)).isEqualTo(LoggingConfiguration.FORMAT_DEFAULT);
   }
 }

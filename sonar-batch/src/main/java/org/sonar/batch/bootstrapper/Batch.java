@@ -55,7 +55,7 @@ public final class Batch {
     }
     projectReactor = builder.projectReactor;
     if (builder.isEnableLoggingConfiguration()) {
-      logging = LoggingConfiguration.create().setProperties(bootstrapProperties);
+      logging = LoggingConfiguration.create(builder.environment).setProperties(bootstrapProperties);
     }
   }
 

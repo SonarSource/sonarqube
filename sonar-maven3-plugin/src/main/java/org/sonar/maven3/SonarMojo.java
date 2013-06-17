@@ -19,7 +19,8 @@
  */
 package org.sonar.maven3;
 
-import com.google.common.collect.Maps;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -33,12 +34,14 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.batch.scan.maven.MavenProjectConverter;
-import org.sonar.batch.bootstrapper.Batch;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.bootstrapper.LoggingConfiguration;
+import org.sonar.runner.api.EmbeddedRunner;
+import org.sonar.runner.api.RunnerProperties;
+import org.sonar.runner.api.ScanProperties;
+
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * @goal sonar
@@ -127,32 +130,40 @@ public final class SonarMojo extends AbstractMojo {
   private RuntimeInformation runtimeInformation;
 
   public void execute() throws MojoExecutionException, MojoFailureException {
-    ProjectDefinition def = MavenProjectConverter.convert(session.getProjects(), project);
-    ProjectReactor reactor = new ProjectReactor(def);
 
-    Batch batch = Batch.builder()
-      .setEnvironment(getEnvironmentInformation())
-      .setProjectReactor(reactor)
-      .addComponents(
-        session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
-        dependencyTreeBuilder, projectBuilder, Maven3PluginExecutor.class)
-      .build();
-
-    configureLogging(batch.getLoggingConfiguration());
-    batch.execute();
-  }
-
-  private void configureLogging(LoggingConfiguration logging) {
-    logging.setProperties(Maps.fromProperties(session.getSystemProperties()));
-    logging.setFormat(LoggingConfiguration.FORMAT_MAVEN);
-    if (getLog().isDebugEnabled()) {
-      logging.setVerbose(true);
+    EmbeddedRunner runner = EmbeddedRunner.create()
+        .setApp("Maven", getMavenVersion());
+    // Workaround for SONARPLUGINS-2947
+    // TODO remove when it will be fixed
+    runner.setProperty("sonarRunner.userAgent", "Maven");
+    runner.setProperty("sonarRunner.userAgentVersion", getMavenVersion());
+    Set<Entry<Object, Object>> properties = project.getModel().getProperties().entrySet();
+    for (Entry<Object, Object> entry : properties) {
+      runner.setProperty(ObjectUtils.toString(entry.getKey()), ObjectUtils.toString(entry.getValue()));
     }
+    String encoding = MavenUtils.getSourceEncoding(project);
+    if (encoding != null) {
+      runner.setProperty(ScanProperties.PROJECT_SOURCE_ENCODING, encoding);
+    }
+    runner.setProperty(ScanProperties.PROJECT_KEY, MavenProjectConverter.getSonarKey(project))
+        .setProperty(RunnerProperties.WORK_DIR, MavenProjectConverter.getSonarWorkDir(project).getAbsolutePath())
+        .setProperty(ScanProperties.PROJECT_BASEDIR, project.getBasedir().getAbsolutePath())
+        .setProperty(ScanProperties.PROJECT_VERSION, StringUtils.defaultString(project.getVersion()))
+        .setProperty(ScanProperties.PROJECT_NAME, StringUtils.defaultString(project.getName()))
+        .setProperty(ScanProperties.PROJECT_DESCRIPTION, StringUtils.defaultString(project.getDescription()))
+        .setProperty(ScanProperties.PROJECT_SOURCE_DIRS, ".")
+        // Required to share ProjectBuilder extension between SonarMavenProjectBuilder and Sonar classloader
+        .setUnmaskedPackages("org.sonar.api.batch.bootstrap")
+        .addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
+            dependencyTreeBuilder, projectBuilder, Maven3PluginExecutor.class, new SonarMaven3ProjectBuilder(session));
+    if (getLog().isDebugEnabled()) {
+      runner.setProperty("sonar.verbose", "true");
+    }
+    runner.execute();
   }
 
-  private EnvironmentInformation getEnvironmentInformation() {
-    String mavenVersion = runtimeInformation.getApplicationVersion().toString();
-    return new EnvironmentInformation("Maven", mavenVersion);
+  private String getMavenVersion() {
+    return runtimeInformation.getApplicationVersion().toString();
   }
 
 }
