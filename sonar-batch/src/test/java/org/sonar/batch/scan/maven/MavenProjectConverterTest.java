@@ -73,18 +73,26 @@ public class MavenProjectConverterTest {
   public void shouldConvertModules() throws IOException {
     File basedir = temp.newFolder();
 
-    MavenProject root = new MavenProject();
+    MavenProject root = newMavenProject("com.foo", "parent", "1.0-SNAPSHOT");
     root.setFile(new File(basedir, "pom.xml"));
     root.getBuild().setDirectory("target");
     root.getBuild().setOutputDirectory("target/classes");
     root.getModules().add("module/pom.xml");
-    MavenProject module = new MavenProject();
+    MavenProject module = newMavenProject("com.foo", "moduleA", "1.0-SNAPSHOT");
     module.setFile(new File(basedir, "module/pom.xml"));
     module.getBuild().setDirectory("target");
     module.getBuild().setOutputDirectory("target/classes");
     ProjectDefinition project = MavenProjectConverter.convert(Arrays.asList(root, module), root);
 
     assertThat(project.getSubProjects().size(), is(1));
+  }
+
+  private MavenProject newMavenProject(String groupId, String artifactId, String version) {
+    Model model = new Model();
+    model.setGroupId(groupId);
+    model.setArtifactId(artifactId);
+    model.setVersion(version);
+    return new MavenProject(model);
   }
 
   @Test
