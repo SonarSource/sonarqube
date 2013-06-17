@@ -147,6 +147,13 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>org.codehaus.sonar.plugins</groupId>
+      <artifactId>sonar-maven-batch-plugin</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    
+    <dependency>
       <groupId>org.sonatype.jsw-binaries</groupId>
       <artifactId>jsw-binaries</artifactId>
       <version>3.2.3.6</version>

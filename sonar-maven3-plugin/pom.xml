@@ -7,55 +7,13 @@
     <version>3.7-SNAPSHOT</version>
   </parent>
   <artifactId>sonar-maven3-plugin</artifactId>
-  <packaging>maven-plugin</packaging>
+  <packaging>pom</packaging>
   <name>Sonar :: Maven3 Plugin</name>
-
-  <properties>
-    <maven.version>3.0</maven.version>
-  </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.maven.shared</groupId>
-      <artifactId>maven-dependency-tree</artifactId>
-      <version>1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-batch</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-api</artifactId>
-      <version>${maven.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-core</artifactId>
-      <version>${maven.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-compat</artifactId>
-      <version>${maven.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-settings</artifactId>
-      <version>${maven.version}</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+  <!-- Since Sonar 3.7 there is no more difference between Maven 2 and Maven 3 so relocate to Maven 2 plugin to avoid duplication -->
+  <distributionManagement>
+    <relocation>
+      <artifactId>sonar-maven-plugin</artifactId>
+    </relocation>
+  </distributionManagement>
+  
 </project>

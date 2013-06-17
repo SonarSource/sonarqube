@@ -19,7 +19,6 @@
  */
 package org.sonar.maven;
 
-import com.google.common.collect.Maps;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -30,16 +29,17 @@ import org.apache.maven.lifecycle.LifecycleExecutor;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.PluginManager;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.scan.maven.MavenProjectConverter;
-import org.sonar.batch.bootstrapper.Batch;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.bootstrapper.LoggingConfiguration;
+import org.sonar.runner.api.EmbeddedRunner;
+import org.sonar.runner.api.RunnerProperties;
+import org.sonar.runner.api.ScanProperties;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * @goal sonar
@@ -67,12 +67,6 @@ public final class SonarMojo extends AbstractMojo {
    * @required
    */
   private LifecycleExecutor lifecycleExecutor;
-
-  /**
-   * @component
-   * @required
-   */
-  private PluginManager pluginManager;
 
   /**
    * The artifact factory to use.
@@ -134,32 +128,82 @@ public final class SonarMojo extends AbstractMojo {
   private RuntimeInformation runtimeInformation;
 
   public void execute() throws MojoExecutionException, MojoFailureException {
-    ProjectDefinition def = MavenProjectConverter.convert(session.getSortedProjects(), project);
-    ProjectReactor reactor = new ProjectReactor(def);
 
-    Batch batch = Batch.builder()
-      .setEnvironment(getEnvironmentInformation())
-      .setProjectReactor(reactor)
-      .addComponents(
-        session, getLog(), lifecycleExecutor, pluginManager, artifactFactory,
-        localRepository, artifactMetadataSource, artifactCollector, dependencyTreeBuilder,
-        projectBuilder, Maven2PluginExecutor.class)
-      .build();
-
-    configureLogging(batch.getLoggingConfiguration());
-    batch.execute();
-  }
-
-  private void configureLogging(LoggingConfiguration logging) {
-    logging.setProperties(Maps.fromProperties(session.getExecutionProperties()));
-    logging.setFormat(LoggingConfiguration.FORMAT_MAVEN);
-    if (getLog().isDebugEnabled()) {
-      logging.setVerbose(true);
+    EmbeddedRunner runner = EmbeddedRunner.create()
+        .setApp("Maven", getMavenVersion());
+    Set<Entry<Object, Object>> properties = project.getModel().getProperties().entrySet();
+    for (Entry<Object, Object> entry : properties) {
+      runner.setProperty(toString(entry.getKey()), toString(entry.getValue()));
     }
+    String encoding = getSourceEncoding(project);
+    if (encoding != null) {
+      runner.setProperty(ScanProperties.PROJECT_SOURCE_ENCODING, encoding);
+    }
+    runner
+        .setProperty(ScanProperties.PROJECT_KEY, getSonarKey(project))
+        .setProperty(RunnerProperties.WORK_DIR, getSonarWorkDir(project).getAbsolutePath())
+        .setProperty(ScanProperties.PROJECT_BASEDIR, project.getBasedir().getAbsolutePath())
+        .setProperty(ScanProperties.PROJECT_VERSION, toString(project.getVersion()))
+        .setProperty(ScanProperties.PROJECT_NAME, toString(project.getName()))
+        .setProperty(ScanProperties.PROJECT_DESCRIPTION, toString(project.getDescription()))
+        .setProperty(ScanProperties.PROJECT_SOURCE_DIRS, ".");
+    // Exclude log implementation to not conflict with Maven 3.1 logging impl
+    runner.mask("org.slf4j.LoggerFactory")
+        // Include slf4j Logger that is exposed by some Sonar components
+        .unmask("org.slf4j.Logger")
+        .unmask("org.slf4j.ILoggerFactory")
+        // Exclude other slf4j classes
+        // .unmask("org.slf4j.impl.")
+        .mask("org.slf4j.")
+        // Exclude logback
+        .mask("ch.qos.logback.");
+    runner.mask("org.sonar.");
+    // Include everything else
+    runner.unmask("")
+        .addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
+            dependencyTreeBuilder, projectBuilder);
+    if (getLog().isDebugEnabled()) {
+      runner.setProperty("sonar.verbose", "true");
+    }
+    runner.execute();
   }
 
-  private EnvironmentInformation getEnvironmentInformation() {
-    String mavenVersion = runtimeInformation.getApplicationVersion().toString();
-    return new EnvironmentInformation("Maven", mavenVersion);
+  private String getMavenVersion() {
+    return runtimeInformation.getApplicationVersion().toString();
+  }
+
+  public static String toString(Object obj) {
+    return obj == null ? "" : obj.toString();
+  }
+
+  public static String getSourceEncoding(MavenProject pom) {
+    return pom.getProperties().getProperty("project.build.sourceEncoding");
+  }
+
+  public static String getSonarKey(MavenProject pom) {
+    return new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
+  }
+
+  public static File getSonarWorkDir(MavenProject pom) {
+    return new File(getBuildDir(pom), "sonar");
+  }
+
+  private static File getBuildDir(MavenProject pom) {
+    return resolvePath(pom.getBuild().getDirectory(), pom.getBasedir());
+  }
+
+  static File resolvePath(String path, File basedir) {
+    if (path != null) {
+      File file = new File(path);
+      if (!file.isAbsolute()) {
+        try {
+          file = new File(basedir, path).getCanonicalFile();
+        } catch (IOException e) {
+          throw new RuntimeException("Unable to resolve path '" + path + "'", e);
+        }
+      }
+      return file;
+    }
+    return null;
   }
 }

@@ -20,6 +20,8 @@
 package org.sonar.batch.scan.maven;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
@@ -50,6 +52,12 @@ public class MavenProjectConverter {
   }
 
   public static ProjectDefinition convert(List<MavenProject> poms, MavenProject root) {
+    ProjectDefinition def = ProjectDefinition.create();
+    configure(def, poms, root);
+    return def;
+  }
+
+  public static void configure(ProjectDefinition rootProjectDefinition, List<MavenProject> poms, MavenProject root) {
     // projects by canonical path to pom.xml
     Map<String, MavenProject> paths = Maps.newHashMap();
     Map<MavenProject, ProjectDefinition> defs = Maps.newHashMap();
@@ -57,7 +65,9 @@ public class MavenProjectConverter {
     try {
       for (MavenProject pom : poms) {
         paths.put(pom.getFile().getCanonicalPath(), pom);
-        defs.put(pom, convert(pom));
+        ProjectDefinition def = pom == root ? rootProjectDefinition : ProjectDefinition.create();
+        merge(pom, def);
+        defs.put(pom, def);
       }
 
       for (Map.Entry<String, MavenProject> entry : paths.entrySet()) {
@@ -86,7 +96,6 @@ public class MavenProjectConverter {
     if (rootProject == null) {
       throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
     }
-    return rootProject;
   }
 
   private static MavenProject findMavenProject(final File modulePath, Map<String, MavenProject> paths) throws IOException {
@@ -104,27 +113,29 @@ public class MavenProjectConverter {
   }
 
   @VisibleForTesting
-  static ProjectDefinition convert(MavenProject pom) {
-    String key = new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
-    ProjectDefinition definition = ProjectDefinition.create();
+  static void merge(MavenProject pom, ProjectDefinition definition) {
+    String key = getSonarKey(pom);
     // IMPORTANT NOTE : reference on properties from POM model must not be saved,
     // instead they should be copied explicitly - see SONAR-2896
     definition
-      .setProperties(pom.getModel().getProperties())
-      .setKey(key)
-      .setVersion(pom.getVersion())
-      .setName(pom.getName())
-      .setDescription(pom.getDescription())
-      .addContainerExtension(pom);
+        .setProperties(pom.getModel().getProperties())
+        .setKey(key)
+        .setVersion(pom.getVersion())
+        .setName(pom.getName())
+        .setDescription(pom.getDescription())
+        .addContainerExtension(pom);
     guessJavaVersion(pom, definition);
     guessEncoding(pom, definition);
     convertMavenLinksToProperties(definition, pom);
     synchronizeFileSystem(pom, definition);
-    return definition;
+  }
+
+  public static String getSonarKey(MavenProject pom) {
+    return new StringBuilder().append(pom.getGroupId()).append(":").append(pom.getArtifactId()).toString();
   }
 
   private static void guessEncoding(MavenProject pom, ProjectDefinition definition) {
-    //See http://jira.codehaus.org/browse/SONAR-2151
+    // See http://jira.codehaus.org/browse/SONAR-2151
     String encoding = MavenUtils.getSourceEncoding(pom);
     if (encoding != null) {
       definition.setProperty(CoreProperties.ENCODING_PROPERTY, encoding);
@@ -178,27 +189,47 @@ public class MavenProjectConverter {
 
   public static void synchronizeFileSystem(MavenProject pom, ProjectDefinition into) {
     into.setBaseDir(pom.getBasedir());
-    File buildDir = resolvePath(pom.getBuild().getDirectory(), pom.getBasedir());
+    File buildDir = getBuildDir(pom);
     if (buildDir != null) {
       into.setBuildDir(buildDir);
-      into.setWorkDir(new File(buildDir, "sonar"));
+      into.setWorkDir(getSonarWorkDir(pom));
     }
-    into.setSourceDirs((String[]) pom.getCompileSourceRoots().toArray(new String[pom.getCompileSourceRoots().size()]));
-    into.setTestDirs((String[]) pom.getTestCompileSourceRoots().toArray(new String[pom.getTestCompileSourceRoots().size()]));
+    List<String> filteredCompileSourceRoots = filterExisting(pom.getCompileSourceRoots(), pom.getBasedir());
+    List<String> filteredTestCompileSourceRoots = filterExisting(pom.getTestCompileSourceRoots(), pom.getBasedir());
+    into.setSourceDirs((String[]) filteredCompileSourceRoots.toArray(new String[filteredCompileSourceRoots.size()]));
+    into.setTestDirs((String[]) filteredTestCompileSourceRoots.toArray(new String[filteredTestCompileSourceRoots.size()]));
     File binaryDir = resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir());
     if (binaryDir != null) {
       into.addBinaryDir(binaryDir);
     }
   }
 
+  public static File getSonarWorkDir(MavenProject pom) {
+    return new File(getBuildDir(pom), "sonar");
+  }
+
+  private static File getBuildDir(MavenProject pom) {
+    return resolvePath(pom.getBuild().getDirectory(), pom.getBasedir());
+  }
+
+  private static List<String> filterExisting(List<String> filePaths, final File baseDir) {
+    return Lists.newArrayList(Collections2.filter(filePaths, new Predicate<String>() {
+      @Override
+      public boolean apply(String filePath) {
+        File file = resolvePath(filePath, baseDir);
+        return file != null && file.exists();
+      }
+    }));
+  }
+
   public static void synchronizeFileSystem(MavenProject pom, DefaultModuleFileSystem into) {
     into.resetDirs(
-      pom.getBasedir(),
-      resolvePath(pom.getBuild().getDirectory(), pom.getBasedir()),
-      resolvePaths((List<String>) pom.getCompileSourceRoots(), pom.getBasedir()),
-      resolvePaths((List<String>) pom.getTestCompileSourceRoots(), pom.getBasedir()),
-      Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir()))
-    );
+        pom.getBasedir(),
+        getBuildDir(pom),
+        resolvePaths((List<String>) pom.getCompileSourceRoots(), pom.getBasedir()),
+        resolvePaths((List<String>) pom.getTestCompileSourceRoots(), pom.getBasedir()),
+        Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir()))
+        );
   }
 
   static File resolvePath(String path, File basedir) {
