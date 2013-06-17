@@ -63,9 +63,10 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public DefaultIssueFilter save(DefaultIssueFilter issueFilter, UserSession userSession) {
-    issueFilter.setUser(userSession.login());
     // TODO
 //    checkAuthorization(userSession, project, UserRole.ADMIN);
+    verifyLoggedIn(userSession);
+    issueFilter.setUser(userSession.login());
     IssueFilterDto issueFilterDto = IssueFilterDto.toIssueFilter(issueFilter);
     issueFilterDao.insert(issueFilterDto);
     return issueFilterDto.toIssueFilter();
@@ -74,6 +75,7 @@ public class IssueFilterService implements ServerComponent {
   public DefaultIssueFilter update(DefaultIssueFilter issueFilter, UserSession userSession) {
     // TODO
 //    checkAuthorization(userSession, project, UserRole.ADMIN);
+    verifyLoggedIn(userSession);
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
     return issueFilter;
   }
@@ -81,6 +83,7 @@ public class IssueFilterService implements ServerComponent {
   public void delete(Long issueFilterId, UserSession userSession) {
     // TODO
     //checkAuthorization(userSession, findActionPlanDto(actionPlanKey).getProjectKey(), UserRole.ADMIN);
+    verifyLoggedIn(userSession);
     issueFilterDao.delete(issueFilterId);
   }
 

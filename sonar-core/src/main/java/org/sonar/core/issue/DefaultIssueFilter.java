@@ -37,9 +37,9 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class DefaultIssueFilter {
 
-  public final static String SEPARATOR = "|";
-  public final static String KEY_VALUE_SEPARATOR = "=";
-  public final static String LIST_SEPARATOR = ",";
+  public static final String SEPARATOR = "|";
+  public static final String KEY_VALUE_SEPARATOR = "=";
+  public static final String LIST_SEPARATOR = ",";
 
   private Long id;
   private String name;
