@@ -44,7 +44,7 @@ public class HttpRequestFactoryTest {
     httpServer.doReturnStatus(200).doReturnBody("{'issues': []}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    String json = factory.get("/api/issues", Collections.<String, Object>emptyMap());
+    String json = factory.get("/api/issues", Collections.<String, Object> emptyMap());
 
     assertThat(json).isEqualTo("{'issues': []}");
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues");
@@ -54,13 +54,12 @@ public class HttpRequestFactoryTest {
   public void should_throw_illegal_state_exc_if_connect_exception() {
     HttpRequestFactory factory = new HttpRequestFactory("http://localhost:1");
     try {
-      factory.get("/api/issues", Collections.<String, Object>emptyMap());
+      factory.get("/api/issues", Collections.<String, Object> emptyMap());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
       assertThat(e).hasMessage("Fail to request http://localhost:1/api/issues");
-      assertThat(e.getCause().getMessage()).contains("Connection refused");
-
+      assertThat(e.getCause().getMessage()).matches(".*(Connection refused|Connexion refusée).*");
     }
   }
 
@@ -69,7 +68,7 @@ public class HttpRequestFactoryTest {
     httpServer.doReturnStatus(200).doReturnBody("{}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    String json = factory.post("/api/issues/change", Collections.<String, Object>emptyMap());
+    String json = factory.post("/api/issues/change", Collections.<String, Object> emptyMap());
 
     assertThat(json).isEqualTo("{}");
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change");
@@ -80,7 +79,7 @@ public class HttpRequestFactoryTest {
     httpServer.doReturnStatus(200).doReturnBody("{}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url()).setLogin("karadoc").setPassword("legrascestlavie");
-    String json = factory.get("/api/issues", Collections.<String, Object>emptyMap());
+    String json = factory.get("/api/issues", Collections.<String, Object> emptyMap());
 
     assertThat(json).isEqualTo("{}");
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues");
@@ -90,10 +89,10 @@ public class HttpRequestFactoryTest {
   @Test
   public void test_proxy() throws Exception {
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url())
-      .setProxyHost("localhost").setProxyPort(1)
-      .setProxyLogin("john").setProxyPassword("smith");
+        .setProxyHost("localhost").setProxyPort(1)
+        .setProxyLogin("john").setProxyPassword("smith");
     try {
-      factory.get("/api/issues", Collections.<String, Object>emptyMap());
+      factory.get("/api/issues", Collections.<String, Object> emptyMap());
       fail();
     } catch (IllegalStateException e) {
       // it's not possible to check that the proxy is correctly configured
