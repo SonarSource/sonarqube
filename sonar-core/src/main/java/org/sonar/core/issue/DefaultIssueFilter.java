@@ -147,7 +147,7 @@ public class DefaultIssueFilter {
   }
 
   @VisibleForTesting
-  Map<String, Object> dataAsMap(String data) {
+  final Map<String, Object> dataAsMap(String data) {
     Map<String, Object> map = newHashMap();
 
     Iterable<String> keyValues = Splitter.on(DefaultIssueFilter.SEPARATOR).split(data);
@@ -168,7 +168,7 @@ public class DefaultIssueFilter {
   }
 
   @VisibleForTesting
-  String mapAsdata(Map<String, Object> map) {
+  final String mapAsdata(Map<String, Object> map) {
     StringBuilder stringBuilder = new StringBuilder();
 
     for (Map.Entry<String, Object> entries : map.entrySet()){
