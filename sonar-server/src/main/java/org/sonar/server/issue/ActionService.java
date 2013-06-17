@@ -97,7 +97,8 @@ public class ActionService implements ServerComponent {
     }
 
     IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(), userSession.login());
-    FunctionContext functionContext = new FunctionContext(issue, updater, changeContext, getProjectSettings(queryResult.component(issue)));
+    Component project = queryResult.project(issue);
+    FunctionContext functionContext = new FunctionContext(issue, updater, changeContext, getProjectSettings(project));
     for (Function function : action.functions()) {
       function.execute(functionContext);
     }
