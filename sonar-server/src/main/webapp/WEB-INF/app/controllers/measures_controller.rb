@@ -135,10 +135,11 @@ class MeasuresController < ApplicationController
     require_parameters :id
 
     @filter = MeasureFilter.find(params[:id])
-    access_denied unless @filter.owner?(current_user)
+    access_denied unless has_role?(:admin)
     @filter.name=params[:name]
     @filter.description=params[:description]
     @filter.shared=(params[:shared]=='true')
+    @filter.user = User.find_by_login(params[:owner])
     if @filter.save
       render :text => @filter.id.to_s, :status => 200
     else
