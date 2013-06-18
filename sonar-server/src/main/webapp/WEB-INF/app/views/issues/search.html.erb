@@ -8,7 +8,43 @@
       <%= render :partial => 'display_errors' %>
 
       <div class="line-block marginbottom10">
-        <%= render :partial => 'action_links' -%>
+        <% if logged_in? && !@criteria_params.empty? %>
+          <ul class="operations">
+            <% if @filter.id %>
+              <li><a id="copy" href="<%= url_for :action => 'copy_form', :id => @filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a></li>
+            <% end %>
+            <% if !defined?(@unchanged) && @filter.id && @filter.user == current_user.login %>
+              <li>
+                <%= link_to message('save'), params.merge({:action => 'save', :id => @filter.id}), :class => 'link-action', :id => 'save', :method => :post -%>
+              </li>
+            <% end %>
+            <% unless @filter.id %>
+              <li>
+                <a id="save-as" href="<%= url_for params.merge({:action => 'save_as_form', :id => @filter.id}) -%>" class="link-action open-modal"><%= message('save_as') -%></a>
+              </li>
+            <% end %>
+          </ul>
+
+          <div class="page_title" id="filter-title">
+            <% if @filter.id && @filter.name.present? %>
+              <p>
+                <span class="h3"><%= h @filter.name -%></span>
+                <span class="note">
+                  <% if !@filter.shared %>
+                    [<%= message 'issue_filter.private' -%>]
+                  <% elsif @filter.user==current_user.login %>
+                    [<%= message 'issue_filter.shared_with_all_users' -%>]
+                  <% elsif @filter.user %>
+                    [<%= message 'shared_by' -%> <%= Api.users.findByLogin(@filter.user).name -%>]
+                  <% end %>
+                </span>
+                <% if @filter.user == current_user.login %>
+                  &nbsp;<a href="<%= url_for :action => 'edit_form', :id => @filter.id -%>" class="open-modal" id="edit-filter"><%= image_tag 'pencil-small.png', :alt => message('edit') -%></a>
+                <% end %>
+              </p>
+            <% end %>
+          </div>
+        <% end %>
       </div>
 
       <% if @issues_result && @issues_result.maxResultsReached() %>

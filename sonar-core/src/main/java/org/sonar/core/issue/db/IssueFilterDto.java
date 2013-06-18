@@ -33,7 +33,7 @@ public class IssueFilterDto {
   private Long id;
   private String name;
   private String userLogin;
-  private Boolean shared;
+  private boolean shared;
   private String description;
   private String data;
   private Date createdAt;

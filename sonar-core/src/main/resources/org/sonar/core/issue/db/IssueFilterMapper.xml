@@ -52,6 +52,15 @@
     </where>
   </select>
 
+  <select id="selectSharedForUser" parameterType="String" resultType="IssueFilter">
+    select <include refid="issueFilterColumns"/>
+    from issue_filters filters
+    <where>
+      filters.shared=${_true}
+      and filters.user_login&lt;&gt;#{user}
+    </where>
+  </select>
+
   <insert id="insert" parameterType="IssueFilter" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO issue_filters (name, user_login, shared, description, data, created_at, updated_at)
     VALUES (#{name}, #{userLogin}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})

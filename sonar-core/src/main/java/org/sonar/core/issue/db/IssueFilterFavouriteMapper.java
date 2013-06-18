@@ -36,5 +36,7 @@ public interface IssueFilterFavouriteMapper {
 
   void insert(IssueFilterFavouriteDto filterFavourite);
 
-  void delete(Long id);
+  void delete(Long issueFilterFavouriteId);
+
+  void deleteByIssueFilterId(Long issueFilterId);
 }

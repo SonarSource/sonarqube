@@ -46,4 +46,8 @@
     delete from issue_filter_favourites where id=#{id}
   </delete>
 
+  <delete id="deleteByIssueFilterId" parameterType="int">
+    delete from issue_filter_favourites where issue_filter_id=#{issueFilterId}
+  </delete>
+
 </mapper>

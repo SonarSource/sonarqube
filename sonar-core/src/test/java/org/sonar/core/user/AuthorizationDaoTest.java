@@ -150,4 +150,14 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     rootProjectIds = authorization.selectAuthorizedRootProjectsIds(null, "admin");
     assertThat(rootProjectIds).isEmpty();
   }
+
+  @Test
+  public void should_return_global_permissions() {
+    setupData("should_return_global_permissions");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    assertThat(authorization.selectGlobalPermissions("john")).containsOnly("user", "admin");
+    assertThat(authorization.selectGlobalPermissions("arthur")).containsOnly("user");
+    assertThat(authorization.selectGlobalPermissions("none")).isEmpty();
+  }
 }

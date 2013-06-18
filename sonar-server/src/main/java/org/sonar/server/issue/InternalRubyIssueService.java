@@ -502,6 +502,10 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
+  public List<DefaultIssueFilter> findSharedFiltersForCurrentUser() {
+    return issueFilterService.findSharedFilters(UserSession.get());
+  }
+
   public List<DefaultIssueFilter> findFavouriteIssueFiltersForCurrentUser() {
     return issueFilterService.findFavoriteFilters(UserSession.get());
   }

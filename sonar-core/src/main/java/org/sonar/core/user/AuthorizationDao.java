@@ -27,10 +27,7 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -91,5 +88,16 @@ public class AuthorizationDao implements ServerComponent {
     params.put("role", role);
 
     return session.selectList(sql, params);
+  }
+
+  public List<String> selectGlobalPermissions(String userLogin){
+    SqlSession session = mybatis.openSession();
+    try {
+      Map<String, Object> params = newHashMap();
+      params.put("userLogin", userLogin);
+      return session.selectList("selectGlobalPermissions", params);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 }

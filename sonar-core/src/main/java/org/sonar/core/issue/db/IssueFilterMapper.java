@@ -41,6 +41,8 @@ public interface IssueFilterMapper {
 
   List<IssueFilterDto> selectByUserWithOnlyFavoriteFilters(String user);
 
+  List<IssueFilterDto> selectSharedForUser(String user);
+
   void insert(IssueFilterDto filter);
 
   void update(IssueFilterDto filter);

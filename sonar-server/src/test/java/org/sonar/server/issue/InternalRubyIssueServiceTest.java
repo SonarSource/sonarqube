@@ -323,6 +323,13 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
+  public void should_update_data() {
+    Map<String, Object> data = newHashMap();
+    service.updateIssueFilterData(10L, data);
+    verify(issueFilterService).updateData(eq(10L), eq(data), any(UserSession.class));
+  }
+
+  @Test
   public void should_delete_issue_filter() {
     Result<DefaultIssueFilter> result = service.deleteIssueFilter(1L);
     assertThat(result.ok()).isTrue();
@@ -408,10 +415,9 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_update_data() {
-    Map<String, Object> data = newHashMap();
-    service.updateIssueFilterData(10L, data);
-    verify(issueFilterService).updateData(eq(10L), eq(data), any(UserSession.class));
+  public void should_find_shared_issue_filters() {
+    service.findSharedFiltersForCurrentUser();
+    verify(issueFilterService).findSharedFilters(any(UserSession.class));
   }
 
   @Test

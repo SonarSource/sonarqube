@@ -64,10 +64,20 @@ public class IssueFilterFavouriteDao implements BatchComponent, ServerComponent 
     }
   }
 
-  public void delete(Long id) {
+  public void delete(Long issueFilterFavouriteId) {
     SqlSession session = mybatis.openSession();
     try {
-      getMapper(session).delete(id);
+      getMapper(session).delete(issueFilterFavouriteId);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteByIssueFilterId(Long issueFilterId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      getMapper(session).deleteByIssueFilterId(issueFilterId);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

@@ -67,4 +67,15 @@
     </choose>
   </sql>
 
+  <select id="selectGlobalPermissions" parameterType="map" resultType="String">
+    SELECT gr.role
+    FROM group_roles gr
+    inner join groups_users gu on gu.group_id=gr.id
+    inner join users u on u.id=gu.user_id
+    <where>
+      u.login=#{userLogin}
+      and gr.resource_id  is null
+    </where>
+  </select>
+
 </mapper>

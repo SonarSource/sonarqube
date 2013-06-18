@@ -1,0 +1,13 @@
+<dataset>
+
+  <users id="1" login="john" />
+  <users id="2" login="arthur" />
+
+  <groups_users user_id="1" group_id="200"/>
+  <groups_users user_id="1" group_id="201"/>
+  <groups_users user_id="2" group_id="200"/>
+
+  <group_roles id="200" group_id="200" resource_id="[null]" role="user"/>
+  <group_roles id="201" group_id="200" resource_id="[null]" role="admin"/>
+
+</dataset>

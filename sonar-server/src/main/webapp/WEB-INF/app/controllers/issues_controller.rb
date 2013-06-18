@@ -57,6 +57,7 @@ class IssuesController < ApplicationController
   def manage
     @issue_query = Internal.issues.toQuery({})
     @filters = Internal.issues.findIssueFiltersForCurrentUser()
+    @shared_filters = Internal.issues.findSharedFiltersForCurrentUser()
     @favourite_filter_ids = @favourite_filters.map { |filter| filter.id }
   end
 

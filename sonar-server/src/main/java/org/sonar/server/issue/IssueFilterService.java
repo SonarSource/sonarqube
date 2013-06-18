@@ -26,11 +26,13 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
+import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -46,11 +48,13 @@ public class IssueFilterService implements ServerComponent {
   private final IssueFilterDao issueFilterDao;
   private final IssueFilterFavouriteDao issueFilterFavouriteDao;
   private final IssueFinder issueFinder;
+  private final AuthorizationDao authorizationDao;
 
-  public IssueFilterService(IssueFilterDao issueFilterDao, IssueFilterFavouriteDao issueFilterFavouriteDao, IssueFinder issueFinder) {
+  public IssueFilterService(IssueFilterDao issueFilterDao, IssueFilterFavouriteDao issueFilterFavouriteDao, IssueFinder issueFinder, AuthorizationDao authorizationDao) {
     this.issueFilterDao = issueFilterDao;
     this.issueFilterFavouriteDao = issueFilterFavouriteDao;
     this.issueFinder = issueFinder;
+    this.authorizationDao = authorizationDao;
   }
 
   public IssueQueryResult execute(IssueQuery issueQuery) {
@@ -73,13 +77,7 @@ public class IssueFilterService implements ServerComponent {
 
   public List<DefaultIssueFilter> findByUser(UserSession userSession) {
     if (userSession.isLoggedIn() && userSession.login() != null) {
-      List<IssueFilterDto> issueFilterDtoList = issueFilterDao.selectByUser(userSession.login());
-      return newArrayList(Iterables.transform(issueFilterDtoList, new Function<IssueFilterDto, DefaultIssueFilter>() {
-        @Override
-        public DefaultIssueFilter apply(IssueFilterDto issueFilterDto) {
-          return issueFilterDto.toIssueFilter();
-        }
-      }));
+      return toIssueFilters(issueFilterDao.selectByUser(userSession.login()));
     }
     return Collections.emptyList();
   }
@@ -88,15 +86,12 @@ public class IssueFilterService implements ServerComponent {
     verifyLoggedIn(userSession);
     issueFilter.setUser(userSession.login());
     verifyNameIsNotAlreadyUsed(issueFilter, userSession);
-
-    IssueFilterDto issueFilterDto = IssueFilterDto.toIssueFilter(issueFilter);
-    issueFilterDao.insert(issueFilterDto);
-    addFavouriteIssueFilter(issueFilterDto.getId(), userSession.login());
-    return issueFilterDto.toIssueFilter();
+    return insertIssueFilter(issueFilter, userSession.login());
   }
 
   public DefaultIssueFilter update(DefaultIssueFilter issueFilter, UserSession userSession) {
-    findIssueFilter(issueFilter.id(), userSession);
+    IssueFilterDto issueFilterDto = findIssueFilter(issueFilter.id(), userSession);
+    verifyCurrentUserCanModifyFilter(issueFilterDto, userSession);
     verifyNameIsNotAlreadyUsed(issueFilter, userSession);
 
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
@@ -105,6 +100,8 @@ public class IssueFilterService implements ServerComponent {
 
   public DefaultIssueFilter updateData(Long issueFilterId, Map<String, Object> mapData, UserSession userSession) {
     IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId, userSession);
+    verifyCurrentUserCanModifyFilter(issueFilterDto, userSession);
+
     DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
     issueFilter.setData(mapData);
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
@@ -112,11 +109,10 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public void delete(Long issueFilterId, UserSession userSession) {
-    findIssueFilter(issueFilterId, userSession);
-    IssueFilterFavouriteDto issueFilterFavouriteDto = findFavouriteIssueFilter(userSession.login(), issueFilterId);
-    if (issueFilterFavouriteDto != null) {
-      deleteFavouriteIssueFilter(issueFilterFavouriteDto.getId());
-    }
+    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId, userSession);
+    verifyCurrentUserCanModifyFilter(issueFilterDto, userSession);
+
+    deleteFavouriteIssueFilters(issueFilterDto);
     issueFilterDao.delete(issueFilterId);
   }
 
@@ -126,20 +122,19 @@ public class IssueFilterService implements ServerComponent {
     issueFilter.setData(issueFilterDtoToCopy.getData());
     verifyNameIsNotAlreadyUsed(issueFilter, userSession);
 
-    IssueFilterDto issueFilterDto = IssueFilterDto.toIssueFilter(issueFilter);
-    issueFilterDao.insert(issueFilterDto);
-    return issueFilterDto.toIssueFilter();
+    return insertIssueFilter(issueFilter, userSession.login());
+  }
+
+  public List<DefaultIssueFilter> findSharedFilters(UserSession userSession) {
+    if (userSession.isLoggedIn() && userSession.login() != null) {
+      return toIssueFilters(issueFilterDao.selectSharedForUser(userSession.login()));
+    }
+    return Collections.emptyList();
   }
 
   public List<DefaultIssueFilter> findFavoriteFilters(UserSession userSession) {
     if (userSession.isLoggedIn() && userSession.login() != null) {
-      List<IssueFilterDto> issueFilterDtoList = issueFilterDao.selectByUserWithOnlyFavoriteFilters(userSession.login());
-      return newArrayList(Iterables.transform(issueFilterDtoList, new Function<IssueFilterDto, DefaultIssueFilter>() {
-        @Override
-        public DefaultIssueFilter apply(IssueFilterDto issueFilterDto) {
-          return issueFilterDto.toIssueFilter();
-        }
-      }));
+      return toIssueFilters(issueFilterDao.selectByUserWithOnlyFavoriteFilters(userSession.login()));
     }
     return Collections.emptyList();
   }
@@ -150,18 +145,18 @@ public class IssueFilterService implements ServerComponent {
     if (issueFilterFavouriteDto == null) {
       addFavouriteIssueFilter(issueFilterId, userSession.login());
     } else {
-      deleteFavouriteIssueFilter(issueFilterFavouriteDto.getId());
+      deleteFavouriteIssueFilter(issueFilterFavouriteDto);
     }
   }
 
-  public IssueFilterDto findIssueFilter(Long id, UserSession userSession){
+  public IssueFilterDto findIssueFilter(Long id, UserSession userSession) {
     verifyLoggedIn(userSession);
     IssueFilterDto issueFilterDto = issueFilterDao.selectById(id);
     if (issueFilterDto == null) {
       // TODO throw 404
       throw new IllegalArgumentException("Filter not found: " + id);
     }
-    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
+    verifyCurrentUserCanReadFilter(issueFilterDto, userSession);
     return issueFilterDto;
   }
 
@@ -171,14 +166,21 @@ public class IssueFilterService implements ServerComponent {
     }
   }
 
-  private void verifyCurrentUserIsOwnerOfFilter(IssueFilterDto issueFilterDto, UserSession userSession){
-    if (!issueFilterDto.getUserLogin().equals(userSession.login())) {
+  private void verifyCurrentUserCanReadFilter(IssueFilterDto issueFilterDto, UserSession userSession) {
+    if (!issueFilterDto.getUserLogin().equals(userSession.login()) && !issueFilterDto.isShared()) {
       // TODO throw unauthorized
-      throw new IllegalStateException("User is not authorized to get this filter");
+      throw new IllegalStateException("User is not authorized to read this filter");
     }
   }
 
-  private void verifyNameIsNotAlreadyUsed(DefaultIssueFilter issueFilter, UserSession userSession){
+  private void verifyCurrentUserCanModifyFilter(IssueFilterDto issueFilterDto, UserSession userSession) {
+    if (!issueFilterDto.getUserLogin().equals(userSession.login()) && (!issueFilterDto.isShared() || !isAdmin(userSession.login()))) {
+      // TODO throw unauthorized
+      throw new IllegalStateException("User is not authorized to modify this filter");
+    }
+  }
+
+  private void verifyNameIsNotAlreadyUsed(DefaultIssueFilter issueFilter, UserSession userSession) {
     if (issueFilterDao.selectByNameAndUser(issueFilter.name(), userSession.login(), issueFilter.id()) != null) {
       throw new IllegalArgumentException("Name already exists");
     }
@@ -195,8 +197,32 @@ public class IssueFilterService implements ServerComponent {
     issueFilterFavouriteDao.insert(issueFilterFavouriteDto);
   }
 
-  private void deleteFavouriteIssueFilter(Long issueFilterFavoriteId) {
-    issueFilterFavouriteDao.delete(issueFilterFavoriteId);
+  private void deleteFavouriteIssueFilter(IssueFilterFavouriteDto issueFilterFavouriteDto) {
+    issueFilterFavouriteDao.delete(issueFilterFavouriteDto.getId());
+  }
+
+  private void deleteFavouriteIssueFilters(IssueFilterDto issueFilterDto) {
+    issueFilterFavouriteDao.deleteByIssueFilterId(issueFilterDto.getId());
+  }
+
+  private DefaultIssueFilter insertIssueFilter(DefaultIssueFilter issueFilter, String user) {
+    IssueFilterDto issueFilterDto = IssueFilterDto.toIssueFilter(issueFilter);
+    issueFilterDao.insert(issueFilterDto);
+    addFavouriteIssueFilter(issueFilterDto.getId(), user);
+    return issueFilterDto.toIssueFilter();
+  }
+
+  private List<DefaultIssueFilter> toIssueFilters(List<IssueFilterDto> issueFilterDtoList) {
+    return newArrayList(Iterables.transform(issueFilterDtoList, new Function<IssueFilterDto, DefaultIssueFilter>() {
+      @Override
+      public DefaultIssueFilter apply(IssueFilterDto issueFilterDto) {
+        return issueFilterDto.toIssueFilter();
+      }
+    }));
+  }
+
+  private boolean isAdmin(String user) {
+    return authorizationDao.selectGlobalPermissions(user).contains(UserRole.ADMIN);
   }
 
 }

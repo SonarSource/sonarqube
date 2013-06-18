@@ -25,11 +25,13 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
+import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -49,6 +51,7 @@ public class IssueFilterServiceTest {
   private IssueFilterDao issueFilterDao;
   private IssueFilterFavouriteDao issueFilterFavouriteDao;
   private IssueFinder issueFinder;
+  private AuthorizationDao authorizationDao;
 
   private UserSession userSession;
 
@@ -62,13 +65,24 @@ public class IssueFilterServiceTest {
     issueFilterDao = mock(IssueFilterDao.class);
     issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
     issueFinder = mock(IssueFinder.class);
+    authorizationDao = mock(AuthorizationDao.class);
 
-    service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder);
+    service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder, authorizationDao);
   }
 
   @Test
   public void should_find_by_id() {
     IssueFilterDto issueFilterDto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john");
+    when(issueFilterDao.selectById(1L)).thenReturn(issueFilterDto);
+
+    DefaultIssueFilter issueFilter = service.findById(1L, userSession);
+    assertThat(issueFilter).isNotNull();
+    assertThat(issueFilter.id()).isEqualTo(1L);
+  }
+
+  @Test
+  public void should_find_shared_filter_by_id() {
+    IssueFilterDto issueFilterDto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("arthur").setShared(true);
     when(issueFilterDao.selectById(1L)).thenReturn(issueFilterDto);
 
     DefaultIssueFilter issueFilter = service.findById(1L, userSession);
@@ -101,15 +115,15 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_not_find_if_user_is_not_the_owner_of_filter() {
-    IssueFilterDto issueFilterDto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("eric");
+  public void should_not_find_if_not_shared_and_user_is_not_the_owner_of_filter() {
+    IssueFilterDto issueFilterDto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("eric").setShared(false);
     when(issueFilterDao.selectById(1L)).thenReturn(issueFilterDto);
     try {
       // John is not authorized to see eric filters
       service.findById(1L, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to get this filter");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to read this filter");
     }
   }
 
@@ -185,6 +199,17 @@ public class IssueFilterServiceTest {
   }
 
   @Test
+  public void should_update_shared_filter_if_admin() {
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.ADMIN));
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("arthur").setShared(true));
+
+    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter"), userSession);
+    assertThat(result.name()).isEqualTo("My New Filter");
+
+    verify(issueFilterDao).update(any(IssueFilterDto.class));
+  }
+
+  @Test
   public void should_not_update_if_filter_not_found() {
     when(issueFilterDao.selectById(1L)).thenReturn(null);
 
@@ -193,6 +218,20 @@ public class IssueFilterServiceTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Filter not found: 1");
+    }
+    verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
+  }
+
+  @Test
+  public void should_not_update_if_shared_and_not_admin() {
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.USER));
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("arthur").setShared(true));
+
+    try {
+      service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter"), userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to modify this filter");
     }
     verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
   }
@@ -241,7 +280,7 @@ public class IssueFilterServiceTest {
     service.delete(1L, userSession);
 
     verify(issueFilterDao).delete(1L);
-    verify(issueFilterFavouriteDao).delete(10L);
+    verify(issueFilterFavouriteDao).deleteByIssueFilterId(1L);
   }
 
   @Test
@@ -258,6 +297,44 @@ public class IssueFilterServiceTest {
   }
 
   @Test
+  public void should_delete_shared_filter_if_user_is_admin() {
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.ADMIN));
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
+
+    service.delete(1L, userSession);
+
+    verify(issueFilterDao).delete(1L);
+  }
+
+  @Test
+  public void should_not_delete_not_shared_filter_if_user_is_admin() {
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.ADMIN));
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(false));
+
+    try {
+      service.delete(1L, userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to read this filter");
+    }
+    verify(issueFilterDao, never()).delete(anyLong());
+  }
+
+  @Test
+  public void should_not_delete_shared_filter_if_not_admin() {
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.USER));
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
+
+    try {
+      service.delete(1L, userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to modify this filter");
+    }
+    verify(issueFilterDao, never()).delete(anyLong());
+  }
+
+  @Test
   public void should_copy() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
     DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("Copy Of My Issue");
@@ -268,6 +345,28 @@ public class IssueFilterServiceTest {
     assertThat(result.data()).isEqualTo("componentRoots=struts");
 
     verify(issueFilterDao).insert(any(IssueFilterDto.class));
+  }
+
+  @Test
+  public void should_copy_shared_filter() {
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
+    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("Copy Of My Issue");
+
+    DefaultIssueFilter result = service.copy(1L, issueFilter, userSession);
+    assertThat(result.name()).isEqualTo("Copy Of My Issue");
+    assertThat(result.user()).isEqualTo("john");
+
+    verify(issueFilterDao).insert(any(IssueFilterDto.class));
+  }
+
+  @Test
+  public void should_add_favorite_on_copy() {
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
+    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("Copy Of My Issue");
+    service.copy(1L, issueFilter, userSession);
+
+    verify(issueFilterDao).insert(any(IssueFilterDto.class));
+    verify(issueFilterFavouriteDao).insert(any(IssueFilterFavouriteDto.class));
   }
 
   @Test
@@ -293,6 +392,14 @@ public class IssueFilterServiceTest {
   }
 
   @Test
+  public void should_find_shared_issue_filter() {
+    when(issueFilterDao.selectSharedForUser("john")).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john").setShared(true)));
+
+    List<DefaultIssueFilter> results = service.findSharedFilters(userSession);
+    assertThat(results).hasSize(1);
+  }
+
+  @Test
   public void should_find_favourite_issue_filter() {
     when(issueFilterDao.selectByUserWithOnlyFavoriteFilters("john")).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john")));
 
@@ -311,6 +418,21 @@ public class IssueFilterServiceTest {
   @Test
   public void should_add_favourite_issue_filter_id() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
+    // The filter is not in the favorite list --> add to favorite
+    when(issueFilterFavouriteDao.selectByUserAndIssueFilterId("john", 1L)).thenReturn(null);
+
+    ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
+    service.toggleFavouriteIssueFilter(1L, userSession);
+    verify(issueFilterFavouriteDao).insert(issueFilterFavouriteDtoCaptor.capture());
+
+    IssueFilterFavouriteDto issueFilterFavouriteDto = issueFilterFavouriteDtoCaptor.getValue();
+    assertThat(issueFilterFavouriteDto.getIssueFilterId()).isEqualTo(1L);
+    assertThat(issueFilterFavouriteDto.getUserLogin()).isEqualTo("john");
+  }
+
+  @Test
+  public void should_add_favourite_on_shared_filter() {
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
     // The filter is not in the favorite list --> add to favorite
     when(issueFilterFavouriteDao.selectByUserAndIssueFilterId("john", 1L)).thenReturn(null);
 

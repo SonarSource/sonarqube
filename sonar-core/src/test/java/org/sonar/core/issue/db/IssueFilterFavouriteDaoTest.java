@@ -83,4 +83,13 @@ public class IssueFilterFavouriteDaoTest extends AbstractDaoTestCase {
     checkTables("should_delete", new String[]{"created_at"}, "issue_filter_favourites");
   }
 
+  @Test
+  public void should_delete_by_issue_filter_id() {
+    setupData("shared");
+
+    dao.deleteByIssueFilterId(10l);
+
+    checkTables("should_delete_by_issue_filter_id", new String[]{"created_at"}, "issue_filter_favourites");
+  }
+
 }

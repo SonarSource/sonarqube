@@ -82,6 +82,14 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_select_shared() {
+    setupData("shared");
+
+    assertThat(dao.selectSharedForUser("michael")).hasSize(1);
+    assertThat(dao.selectSharedForUser("stephane")).isEmpty();
+  }
+
+  @Test
   public void should_insert() {
     setupData("shared");
 
