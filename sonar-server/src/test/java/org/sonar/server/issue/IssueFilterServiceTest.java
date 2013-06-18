@@ -234,6 +234,19 @@ public class IssueFilterServiceTest {
   }
 
   @Test
+  public void should_copy() {
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("perceval").setData("componentRoots=struts"));
+    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("Copy Of My Issue");
+
+    DefaultIssueFilter result = service.copy(1L, issueFilter, userSession);
+    assertThat(result.name()).isEqualTo("Copy Of My Issue");
+    assertThat(result.user()).isEqualTo("john");
+    assertThat(result.data()).isEqualTo("componentRoots=struts");
+
+    verify(issueFilterDao).insert(any(IssueFilterDto.class));
+  }
+
+  @Test
   public void should_execute_from_issue_query() {
     IssueQuery issueQuery = IssueQuery.builder().build();
 

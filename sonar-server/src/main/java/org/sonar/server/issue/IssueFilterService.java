@@ -73,7 +73,7 @@ public class IssueFilterService implements ServerComponent {
   public DefaultIssueFilter save(DefaultIssueFilter issueFilter, UserSession userSession) {
     verifyLoggedIn(userSession);
     issueFilter.setUser(userSession.login());
-    VerifyNameIsNotAlreadyUsed(issueFilter, userSession);
+    verifyNameIsNotAlreadyUsed(issueFilter, userSession);
 
     IssueFilterDto issueFilterDto = IssueFilterDto.toIssueFilter(issueFilter);
     issueFilterDao.insert(issueFilterDto);
@@ -84,7 +84,7 @@ public class IssueFilterService implements ServerComponent {
     verifyLoggedIn(userSession);
     IssueFilterDto issueFilterDto = findIssueFilter(issueFilter.id());
     verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
-    VerifyNameIsNotAlreadyUsed(issueFilter, userSession);
+    verifyNameIsNotAlreadyUsed(issueFilter, userSession);
 
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
     return issueFilter;
@@ -105,6 +105,18 @@ public class IssueFilterService implements ServerComponent {
     IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId);
     verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
     issueFilterDao.delete(issueFilterId);
+  }
+
+  public DefaultIssueFilter copy(Long issueFilterIdToCopy, DefaultIssueFilter issueFilter, UserSession userSession) {
+    verifyLoggedIn(userSession);
+    IssueFilterDto issueFilterDtoToCopy = findIssueFilter(issueFilterIdToCopy);
+    issueFilter.setUser(userSession.login());
+    issueFilter.setData(issueFilterDtoToCopy.getData());
+    verifyNameIsNotAlreadyUsed(issueFilter, userSession);
+
+    IssueFilterDto issueFilterDto = IssueFilterDto.toIssueFilter(issueFilter);
+    issueFilterDao.insert(issueFilterDto);
+    return issueFilterDto.toIssueFilter();
   }
 
   public IssueQueryResult execute(IssueQuery issueQuery) {
@@ -130,7 +142,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   private void verifyLoggedIn(UserSession userSession) {
-    if (!userSession.isLoggedIn()) {
+    if (!userSession.isLoggedIn() || userSession.login() == null) {
       throw new IllegalStateException("User is not logged in");
     }
   }
@@ -142,7 +154,7 @@ public class IssueFilterService implements ServerComponent {
     }
   }
 
-  private void VerifyNameIsNotAlreadyUsed(DefaultIssueFilter issueFilter, UserSession userSession){
+  private void verifyNameIsNotAlreadyUsed(DefaultIssueFilter issueFilter, UserSession userSession){
     if (issueFilterDao.selectByNameAndUser(issueFilter.name(), userSession.login(), issueFilter.id()) != null) {
       throw new IllegalArgumentException("Name already exists");
     }

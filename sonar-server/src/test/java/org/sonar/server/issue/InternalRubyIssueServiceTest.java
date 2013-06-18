@@ -323,6 +323,28 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
+  public void should_delete_issue_filter() {
+    Result<DefaultIssueFilter> result = service.deleteIssueFilter(1L);
+    assertThat(result.ok()).isTrue();
+  }
+
+  @Test
+  public void should_copy_issue_filter() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", "Copy of Long term");
+    parameters.put("description", "Copy of Long term issues");
+
+    Result<DefaultIssueFilter> result = service.copyIssueFilter(1L, parameters);
+    assertThat(result.ok()).isTrue();
+
+    ArgumentCaptor<DefaultIssueFilter> issueFilterCaptor = ArgumentCaptor.forClass(DefaultIssueFilter.class);
+    verify(issueFilterService).copy(eq(1L), issueFilterCaptor.capture(), any(UserSession.class));
+    DefaultIssueFilter issueFilter =  issueFilterCaptor.getValue();
+    assertThat(issueFilter.name()).isEqualTo("Copy of Long term");
+    assertThat(issueFilter.description()).isEqualTo("Copy of Long term issues");
+  }
+
+  @Test
   public void should_get_error_on_issue_filter_result_when_no_name() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", null);

@@ -62,25 +62,17 @@ class IssuesController < ApplicationController
     @issue_query = Internal.issues.toQuery({})
   end
 
-  # GET /issues/save_as_form?[id=<id>][&criteria]
+  # GET /issues/save_as_form?[&criteria]
   def save_as_form
-    if params[:id].present?
-      @filter = find_filter(params[:id])
-    else
-      @filter = Internal.issues.createFilterFromMap(criteria_params)
-    end
+    @filter = Internal.issues.createFilterFromMap(criteria_params)
     render :partial => 'issues/save_as_form'
   end
 
-  # POST /issues/save_as?[id=<id>]&name=<name>[&parameters]
+  # POST /issues/save_as?name=<name>[&parameters]
   def save_as
     verify_post_request
-    options = {'id' => params[:id], 'name' => params[:name], 'description' => params[:description], 'data' => URI.unescape(params[:data]), 'shared' => params[:shared]=='true' }
-    if params[:id].present?
-      @filter = Internal.issues.updateIssueFilter(options)
-    else
-      filter_result = Internal.issues.createIssueFilter(options)
-    end
+    options = {'name' => params[:name], 'description' => params[:description], 'data' => URI.unescape(params[:data]), 'shared' => params[:shared]=='true' }
+    filter_result = Internal.issues.createIssueFilter(options)
 
     if filter_result.ok
       @filter = filter_result.get()
@@ -131,9 +123,39 @@ class IssuesController < ApplicationController
       render :text => @filter.id.to_s, :status => 200
     else
       @errors = filter_result.errors
-      @filter = find_filter(params[:id].to_i)
       render :partial => 'issues/edit_form', :status => 400
     end
+  end
+
+  # GET /issues/copy_form/<filter id>
+  def copy_form
+    require_parameters :id
+    @filter = find_filter(params[:id].to_i)
+    render :partial => 'issues/copy_form'
+  end
+
+  # POST /issues/copy/<filter id>?name=<copy name>&description=<copy description>
+  def copy
+    verify_post_request
+
+    options = {'name' => params[:name], 'description' => params[:description], 'shared' => params[:shared]=='true' }
+    filter_result = Internal.issues.copyIssueFilter(params[:id].to_i, options)
+
+    if filter_result.ok
+      @filter = filter_result.get()
+      render :text => @filter.id.to_s, :status => 200
+    else
+      @errors = filter_result.errors
+      render :partial => 'issues/copy_form', :status => 400
+    end
+  end
+
+  # POST /issues/delete/<filter id>
+  def delete
+    verify_post_request
+    require_parameters :id
+    Internal.issues.deleteIssueFilter(params[:id].to_i)
+    redirect_to :action => 'manage'
   end
 
 

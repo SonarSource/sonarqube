@@ -280,7 +280,7 @@ public class InternalRubyIssueService implements ServerComponent {
     String projectParam = parameters.get("project");
 
     checkMandatorySizeParameter(name, "name", 200, result);
-    checkOptionnalSizeParameter(description, "description",  1000, result);
+    checkOptionnalSizeParameter(description, "description", 1000, result);
 
     // Can only set project on creation
     if (existingActionPlan == null) {
@@ -311,7 +311,7 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
-  private void checkProject(String projectParam, Result<ActionPlan> result){
+  private void checkProject(String projectParam, Result<ActionPlan> result) {
     if (Strings.isNullOrEmpty(projectParam)) {
       result.addError(Result.Message.ofL10n("errors.cant_be_empty", "project"));
     } else {
@@ -322,7 +322,7 @@ public class InternalRubyIssueService implements ServerComponent {
     }
   }
 
-  private Date checkAndReturnDeadline(String deadLineParam, Result<ActionPlan> result){
+  private Date checkAndReturnDeadline(String deadLineParam, Result<ActionPlan> result) {
     Date deadLine = null;
     if (!Strings.isNullOrEmpty(deadLineParam)) {
       try {
@@ -404,8 +404,8 @@ public class InternalRubyIssueService implements ServerComponent {
   /**
    * Create issue filter
    */
-  public Result<DefaultIssueFilter> createIssueFilter(Map<String, String> params) {
-    Result<DefaultIssueFilter> result = createIssueFilterResult(params, false);
+  public Result<DefaultIssueFilter> createIssueFilter(Map<String, String> parameters) {
+    Result<DefaultIssueFilter> result = createIssueFilterResult(parameters, false);
     if (result.ok()) {
       try {
         result.set(issueFilterService.save(result.get(), UserSession.get()));
@@ -444,6 +444,34 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
+  /**
+   * Delete issue filter
+   */
+  public Result<DefaultIssueFilter> deleteIssueFilter(Long issueFilterId) {
+    Result<DefaultIssueFilter> result = Result.of();
+    try {
+        issueFilterService.delete(issueFilterId, UserSession.get());
+      } catch (Exception e) {
+        result.addError(e.getMessage());
+      }
+    return result;
+  }
+
+  /**
+   * Copy issue filter
+   */
+  public Result<DefaultIssueFilter> copyIssueFilter(Long issueFilterIdToCopy, Map<String, String> parameters) {
+    Result<DefaultIssueFilter> result = createIssueFilterResult(parameters, false);
+    if (result.ok()) {
+      try {
+        result.set(issueFilterService.copy(issueFilterIdToCopy, result.get(), UserSession.get()));
+      } catch (Exception e) {
+        result.addError(e.getMessage());
+      }
+    }
+    return result;
+  }
+
   @VisibleForTesting
   Result<DefaultIssueFilter> createIssueFilterResult(Map<String, String> params, boolean isUpdate) {
     Result<DefaultIssueFilter> result = Result.of();
@@ -457,8 +485,8 @@ public class InternalRubyIssueService implements ServerComponent {
     if (isUpdate) {
       checkMandatoryParameter(id, "id", result);
     }
-    checkMandatorySizeParameter(name, "name",  100, result);
-    checkOptionnalSizeParameter(description, "description",  4000, result);
+    checkMandatorySizeParameter(name, "name", 100, result);
+    checkOptionnalSizeParameter(description, "description", 4000, result);
 
     if (result.ok()) {
       DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
@@ -474,20 +502,20 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
-  private void checkMandatoryParameter(String value, String paramName, Result result){
+  private void checkMandatoryParameter(String value, String paramName, Result result) {
     if (Strings.isNullOrEmpty(value)) {
       result.addError(Result.Message.ofL10n("errors.cant_be_empty", paramName));
     }
   }
 
-  private void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result){
+  private void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result) {
     checkMandatoryParameter(value, paramName, result);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-        result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
+      result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
     }
   }
 
-  private void checkOptionnalSizeParameter(String value, String paramName, Integer size, Result result){
+  private void checkOptionnalSizeParameter(String value, String paramName, Integer size, Result result) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
       result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
     }

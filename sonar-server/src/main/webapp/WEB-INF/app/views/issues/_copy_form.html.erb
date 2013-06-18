@@ -1,0 +1,18 @@
+<form id="copy-filter-form" method="post" action="<%= ApplicationController.root_context -%>/issues/copy">
+  <input type="hidden" name="id" value="<%= params[:id] || @filter.id -%>">
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message('issue_filter.copy_filter') -%></h2>
+    </div>
+    <%= render :partial => 'shared_form' %>
+    <div class="modal-foot">
+      <input type="submit" value="<%= message('copy') -%>" id="copy-submit"/>
+      <a href="#" onclick="return closeModalWindow()" id="copy-cancel"><%= h message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+<script>
+  $j("#copy-filter-form").modalForm({success: function (data) {
+    window.location = baseUrl + '/issues/filter/' + data;
+  }});
+</script>

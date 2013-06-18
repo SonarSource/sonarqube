@@ -1,30 +1,13 @@
 <form id="save-as-filter-form" method="post" action="<%= ApplicationController.root_context -%>/issues/save_as">
-  <input type="hidden" name="id" value="<%= @filter.id -%>">
-  <input type="hidden" name="data" value="<%= u(@filter.data) -%>">
+  <input type="hidden" name="data" value="<%= params[:data] || u(@filter.data) -%>">
   <fieldset>
     <div class="modal-head">
       <h2><%= message('issue_filter.save_filter') -%></h2>
     </div>
-
-    <div class="modal-body">
-      <%= render :partial => 'display_errors' %>
-      <div class="modal-field">
-        <label for="name"><%= message('issue_filter.form.name') -%> <em class="mandatory">*</em></label>
-        <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h @filter.name -%>" autofocus="autofocus"/>
-      </div>
-      <div class="modal-field">
-        <label for="description"><%= message('issue_filter.form.description') -%></label>
-        <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @filter.description -%>"/>
-      </div>
-      <!--TODO-->
-      <div class="modal-field hidden">
-        <label for="shared"><%= message('issue_filter.form.share') -%></label>
-        <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @filter.shared -%>/>
-      </div>
-    </div>
+    <%= render :partial => 'shared_form' %>
     <div class="modal-foot">
-      <input type="submit" value="<%= h message('save') -%>" id="save-as-submit"/>
-      <a href="#" onclick="return closeModalWindow()" id="save-as-cancel"><%= h message('cancel') -%></a>
+      <input type="submit" value="<%= message('save') -%>" id="save-as-submit"/>
+      <a href="#" onclick="return closeModalWindow()" id="save-as-cancel"><%= message('cancel') -%></a>
     </div>
   </fieldset>
 </form>
