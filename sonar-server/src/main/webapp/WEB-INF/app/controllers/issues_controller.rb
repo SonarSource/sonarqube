@@ -36,6 +36,7 @@ class IssuesController < ApplicationController
       @filter = Internal.issues.createFilterFromMap(criteria_params)
     end
 
+    @criteria_params = criteria_params
     @issue_query = Internal.issues.toQuery(criteria_params)
     @issues_result = Internal.issues.execute(@issue_query)
   end
