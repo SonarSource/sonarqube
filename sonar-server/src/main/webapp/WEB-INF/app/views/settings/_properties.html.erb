@@ -94,7 +94,7 @@
       return false;
     })
     .on('keypress', 'form', function (e) {
-      if (e.which == 13) {
+      if (e.which == 13 && e.target.nodeName != "TEXTAREA") {
         submit_settings.click();
         return false;
       }
