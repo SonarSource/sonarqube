@@ -17,11 +17,10 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-
 class IssuesController < ApplicationController
 
   before_filter :init_options
-  before_filter :load_user_filters, :only => [:index, :search, :filter, :manage]
+  before_filter :load_filters, :only => [:index, :search, :filter, :manage, :toggle_fav]
 
   # GET /issues/index
   def index
@@ -35,8 +34,7 @@ class IssuesController < ApplicationController
     else
       @filter = Internal.issues.createFilterFromMap(criteria_params)
     end
-
-    @criteria_params = criteria_params
+    @criteria_params = Hash[@filter.dataAsMap]
     @issue_query = Internal.issues.toQuery(criteria_params)
     @issues_result = Internal.issues.execute(@issue_query)
   end
@@ -46,11 +44,8 @@ class IssuesController < ApplicationController
   def filter
     require_parameters :id
 
-    # criteria can be overridden
-    # TODO ?
-    #@filter.override_criteria(criteria_params)
-
     @filter = find_filter(params[:id].to_i)
+    @criteria_params = Hash[@filter.dataAsMap]
     @issue_query = Internal.issues.toQuery(@filter.dataAsMap)
     @issues_result = Internal.issues.execute(@issue_query)
     @unchanged = true
@@ -61,6 +56,8 @@ class IssuesController < ApplicationController
   # GET /issues/manage
   def manage
     @issue_query = Internal.issues.toQuery({})
+    @filters = Internal.issues.findIssueFiltersForCurrentUser()
+    @favourite_filter_ids = @favourite_filters.map { |filter| filter.id }
   end
 
   # GET /issues/save_as_form?[&criteria]
@@ -159,6 +156,19 @@ class IssuesController < ApplicationController
     redirect_to :action => 'manage'
   end
 
+  # POST /issues/toggle_fav/<filter id>
+  def toggle_fav
+    verify_ajax_request
+    require_parameters :id
+    result = Internal.issues.toggleFavouriteIssueFilter(params[:id].to_i)
+    if result.ok
+      render :text => '', :status => 200
+    else
+      @errors = result.errors
+      render :action => 'manage'
+    end
+  end
+
 
   private
 
@@ -167,8 +177,8 @@ class IssuesController < ApplicationController
     @options_for_resolutions = Internal.issues.listResolutions().map {|s| [message('issue.resolution.' + s), s]}
   end
 
-  def load_user_filters
-    @my_filters = Internal.issues.findIssueFiltersForUser()
+  def load_filters
+    @favourite_filters = Internal.issues.findFavouriteIssueFiltersForCurrentUser()
   end
 
   def find_filter(id)

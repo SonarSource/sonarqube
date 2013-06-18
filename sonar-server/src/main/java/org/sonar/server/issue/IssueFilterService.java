@@ -29,6 +29,8 @@ import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
+import org.sonar.core.issue.db.IssueFilterFavouriteDao;
+import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -41,24 +43,36 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class IssueFilterService implements ServerComponent {
 
-  private IssueFilterDao issueFilterDao;
+  private final IssueFilterDao issueFilterDao;
+  private final IssueFilterFavouriteDao issueFilterFavouriteDao;
   private final IssueFinder issueFinder;
 
-  public IssueFilterService(IssueFilterDao issueFilterDao, IssueFinder issueFinder) {
+  public IssueFilterService(IssueFilterDao issueFilterDao, IssueFilterFavouriteDao issueFilterFavouriteDao, IssueFinder issueFinder) {
     this.issueFilterDao = issueFilterDao;
+    this.issueFilterFavouriteDao = issueFilterFavouriteDao;
     this.issueFinder = issueFinder;
+  }
+
+  public IssueQueryResult execute(IssueQuery issueQuery) {
+    return issueFinder.find(issueQuery);
+  }
+
+  public IssueQueryResult execute(Long issueFilterId, UserSession userSession) {
+    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId, userSession);
+
+    DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
+    IssueQuery issueQuery = PublicRubyIssueService.toQuery(issueFilter.dataAsMap());
+    return issueFinder.find(issueQuery);
   }
 
   @CheckForNull
   public DefaultIssueFilter findById(Long id, UserSession userSession) {
-    verifyLoggedIn(userSession);
-    IssueFilterDto issueFilterDto = findIssueFilter(id);
-    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
+    IssueFilterDto issueFilterDto = findIssueFilter(id, userSession);
     return issueFilterDto.toIssueFilter();
   }
 
   public List<DefaultIssueFilter> findByUser(UserSession userSession) {
-    if (userSession.isLoggedIn()) {
+    if (userSession.isLoggedIn() && userSession.login() != null) {
       List<IssueFilterDto> issueFilterDtoList = issueFilterDao.selectByUser(userSession.login());
       return newArrayList(Iterables.transform(issueFilterDtoList, new Function<IssueFilterDto, DefaultIssueFilter>() {
         @Override
@@ -77,13 +91,12 @@ public class IssueFilterService implements ServerComponent {
 
     IssueFilterDto issueFilterDto = IssueFilterDto.toIssueFilter(issueFilter);
     issueFilterDao.insert(issueFilterDto);
+    addFavouriteIssueFilter(issueFilterDto.getId(), userSession.login());
     return issueFilterDto.toIssueFilter();
   }
 
   public DefaultIssueFilter update(DefaultIssueFilter issueFilter, UserSession userSession) {
-    verifyLoggedIn(userSession);
-    IssueFilterDto issueFilterDto = findIssueFilter(issueFilter.id());
-    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
+    findIssueFilter(issueFilter.id(), userSession);
     verifyNameIsNotAlreadyUsed(issueFilter, userSession);
 
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
@@ -91,9 +104,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public DefaultIssueFilter updateData(Long issueFilterId, Map<String, Object> mapData, UserSession userSession) {
-    verifyLoggedIn(userSession);
-    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId);
-    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
+    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId, userSession);
     DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
     issueFilter.setData(mapData);
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
@@ -101,15 +112,16 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public void delete(Long issueFilterId, UserSession userSession) {
-    verifyLoggedIn(userSession);
-    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId);
-    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
+    findIssueFilter(issueFilterId, userSession);
+    IssueFilterFavouriteDto issueFilterFavouriteDto = findFavouriteIssueFilter(userSession.login(), issueFilterId);
+    if (issueFilterFavouriteDto != null) {
+      deleteFavouriteIssueFilter(issueFilterFavouriteDto.getId());
+    }
     issueFilterDao.delete(issueFilterId);
   }
 
   public DefaultIssueFilter copy(Long issueFilterIdToCopy, DefaultIssueFilter issueFilter, UserSession userSession) {
-    verifyLoggedIn(userSession);
-    IssueFilterDto issueFilterDtoToCopy = findIssueFilter(issueFilterIdToCopy);
+    IssueFilterDto issueFilterDtoToCopy = findIssueFilter(issueFilterIdToCopy, userSession);
     issueFilter.setUser(userSession.login());
     issueFilter.setData(issueFilterDtoToCopy.getData());
     verifyNameIsNotAlreadyUsed(issueFilter, userSession);
@@ -119,25 +131,37 @@ public class IssueFilterService implements ServerComponent {
     return issueFilterDto.toIssueFilter();
   }
 
-  public IssueQueryResult execute(IssueQuery issueQuery) {
-    return issueFinder.find(issueQuery);
+  public List<DefaultIssueFilter> findFavoriteFilters(UserSession userSession) {
+    if (userSession.isLoggedIn() && userSession.login() != null) {
+      List<IssueFilterDto> issueFilterDtoList = issueFilterDao.selectByUserWithOnlyFavoriteFilters(userSession.login());
+      return newArrayList(Iterables.transform(issueFilterDtoList, new Function<IssueFilterDto, DefaultIssueFilter>() {
+        @Override
+        public DefaultIssueFilter apply(IssueFilterDto issueFilterDto) {
+          return issueFilterDto.toIssueFilter();
+        }
+      }));
+    }
+    return Collections.emptyList();
   }
 
-  public IssueQueryResult execute(Long issueFilterId, UserSession userSession) {
-    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId);
-    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
-
-    DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
-    IssueQuery issueQuery = PublicRubyIssueService.toQuery(issueFilter.dataAsMap());
-    return issueFinder.find(issueQuery);
+  public void toggleFavouriteIssueFilter(Long issueFilterId, UserSession userSession) {
+    findIssueFilter(issueFilterId, userSession);
+    IssueFilterFavouriteDto issueFilterFavouriteDto = findFavouriteIssueFilter(userSession.login(), issueFilterId);
+    if (issueFilterFavouriteDto == null) {
+      addFavouriteIssueFilter(issueFilterId, userSession.login());
+    } else {
+      deleteFavouriteIssueFilter(issueFilterFavouriteDto.getId());
+    }
   }
 
-  public IssueFilterDto findIssueFilter(Long id){
+  public IssueFilterDto findIssueFilter(Long id, UserSession userSession){
+    verifyLoggedIn(userSession);
     IssueFilterDto issueFilterDto = issueFilterDao.selectById(id);
     if (issueFilterDto == null) {
       // TODO throw 404
       throw new IllegalArgumentException("Filter not found: " + id);
     }
+    verifyCurrentUserIsOwnerOfFilter(issueFilterDto, userSession);
     return issueFilterDto;
   }
 
@@ -158,6 +182,21 @@ public class IssueFilterService implements ServerComponent {
     if (issueFilterDao.selectByNameAndUser(issueFilter.name(), userSession.login(), issueFilter.id()) != null) {
       throw new IllegalArgumentException("Name already exists");
     }
+  }
+
+  private IssueFilterFavouriteDto findFavouriteIssueFilter(String user, Long issueFilterId) {
+    return issueFilterFavouriteDao.selectByUserAndIssueFilterId(user, issueFilterId);
+  }
+
+  private void addFavouriteIssueFilter(Long issueFilterId, String user) {
+    IssueFilterFavouriteDto issueFilterFavouriteDto = new IssueFilterFavouriteDto()
+      .setIssueFilterId(issueFilterId)
+      .setUserLogin(user);
+    issueFilterFavouriteDao.insert(issueFilterFavouriteDto);
+  }
+
+  private void deleteFavouriteIssueFilter(Long issueFilterFavoriteId) {
+    issueFilterFavouriteDao.delete(issueFilterFavoriteId);
   }
 
 }

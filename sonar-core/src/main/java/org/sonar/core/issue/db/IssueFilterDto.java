@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import java.util.Date;
 
 /**
- * @since 3.6
+ * @since 3.7
  */
 public class IssueFilterDto {
 
@@ -61,7 +61,7 @@ public class IssueFilterDto {
     return userLogin;
   }
 
-  public IssueFilterDto setUserLogin(@Nullable String userLogin) {
+  public IssueFilterDto setUserLogin(String userLogin) {
     this.userLogin = userLogin;
     return this;
   }

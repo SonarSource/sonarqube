@@ -1,25 +1,47 @@
+<% content_for :script do %>
+  <script>
+    $j(document).ready(function () {
+      $j(".issue-filter-star").click(function () {
+        var filterId = $j(this).attr('filter-id');
+        $j.ajax({
+          type: 'POST',
+          url: baseUrl + "/issues/toggle_fav",
+          data: {id: filterId},
+          success: function (data) {
+            window.location = baseUrl + '/issues/manage';
+          }
+        });
+      });
+    });
+  </script>
+<% end %>
 <div>
   <div class="page-split-left">
     <%= render :partial => 'issues/sidebar' -%>
   </div>
   <div class="page-split-right">
     <div id="content">
+      <%= render :partial => 'display_errors' %>
       <h1><%= message 'issue_filter.manage.my_filters' -%></h1>
       <table class="data marginbottom10" id="my-issue-filters">
         <thead>
         <tr>
+          <th class="thin"></th>
           <th><%= message('name') -%></th>
           <th class="right"><%= message('operations') -%></th>
         </tr>
         </thead>
         <tbody>
-        <% if @my_filters.empty? %>
+        <% if @filters.empty? %>
           <tr class="even">
             <td colspan="4"><%= message('issue_filter.no_filters') -%></td>
           </tr>
         <% else %>
-          <% @my_filters.each do |filter| %>
+          <% @filters.each do |filter| %>
             <tr id="my-issue-filter-<%= filter.name.parameterize -%>" class="<%= cycle('even', 'odd', :name => 'my-filters') -%>">
+              <td>
+                <%= issue_filter_star(filter, @favourite_filter_ids.include?(filter.id)) -%>
+              </td>
               <td>
                 <%= link_to h(filter.name), :action => 'filter', :id => filter.id -%>
                 <% if filter.description %>

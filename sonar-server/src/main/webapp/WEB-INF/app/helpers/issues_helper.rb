@@ -32,4 +32,16 @@ module IssuesHelper
     html
   end
 
+  def issue_filter_star(filter, is_favourite)
+    if is_favourite
+      style='fav'
+      title=message('click_to_remove_from_favourites')
+    else
+      style='notfav'
+      title=message('click_to_add_to_favourites')
+    end
+
+    "<a href='#' class='issue-filter-star #{style}' filter-id='#{filter.id.to_s}' title='#{title}'></a>"
+  end
+
 end

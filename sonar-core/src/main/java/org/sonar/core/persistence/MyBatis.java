@@ -116,6 +116,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Issue", IssueDto.class);
     loadAlias(conf, "IssueChange", IssueChangeDto.class);
     loadAlias(conf, "IssueFilter", IssueFilterDto.class);
+    loadAlias(conf, "IssueFilterFavourite", IssueFilterFavouriteDto.class);
     loadAlias(conf, "SnapshotData", SnapshotDataDto.class);
     loadAlias(conf, "ActionPlanIssue", ActionPlanDto.class);
     loadAlias(conf, "ActionPlanStats", ActionPlanStatsDto.class);
@@ -127,7 +128,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
-      IssueMapper.class, IssueStatsMapper.class, IssueChangeMapper.class, IssueFilterMapper.class,
+      IssueMapper.class, IssueStatsMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class, ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class,
       ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class, SchemaMigrationMapper.class,
       SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class, MeasureMapper.class, SnapshotDataMapper.class,

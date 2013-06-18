@@ -22,28 +22,19 @@ package org.sonar.core.issue.db;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 /**
  * @since 3.7
  */
-public interface IssueFilterMapper {
+public interface IssueFilterFavouriteMapper {
 
   @CheckForNull
-  IssueFilterDto selectById(Long id);
+  IssueFilterFavouriteDto selectById(Long id);
 
   @CheckForNull
-  IssueFilterDto selectByNameAndUser(@Param("name") String name, @Param("userLogin") String userLogin, @Nullable @Param("existingId") Long existingId);
+  IssueFilterFavouriteDto selectByIssueFilterId(@Param("userLogin") String userLogin, @Param("issueFilterId") Long issueFilterId);
 
-  List<IssueFilterDto> selectByUser(String user);
-
-  List<IssueFilterDto> selectByUserWithOnlyFavoriteFilters(String user);
-
-  void insert(IssueFilterDto filter);
-
-  void update(IssueFilterDto filter);
+  void insert(IssueFilterFavouriteDto filterFavourite);
 
   void delete(Long id);
 }

@@ -1,6 +1,12 @@
 <div id="sidebar-favourites">
 <% if logged_in? %>
   <li class="sidebar-title"><%= message('issue_filter.favourite_filters') -%></li>
+  <% @favourite_filters.each do |filter| %>
+    <li <%= "class='active'" if @filter && filter.id==@filter.id -%>>
+      <a href="<%= ApplicationController.root_context -%>/issues/filter/<%= filter.id -%>"><%= h filter.name -%></a>
+    </li>
+  <% end %>
+
   <li><a href="<%= ApplicationController.root_context -%>/issues/manage" class="link-action"><%= message('manage') %></a></li>
   <li class="spacer"></li>
 <% end %>

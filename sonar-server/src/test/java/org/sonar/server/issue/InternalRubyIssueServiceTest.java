@@ -403,7 +403,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_find_user_issue_filters() {
-    service.findIssueFiltersForUser();
+    service.findIssueFiltersForCurrentUser();
     verify(issueFilterService).findByUser(any(UserSession.class));
   }
 
@@ -412,6 +412,18 @@ public class InternalRubyIssueServiceTest {
     Map<String, Object> data = newHashMap();
     service.updateIssueFilterData(10L, data);
     verify(issueFilterService).updateData(eq(10L), eq(data), any(UserSession.class));
+  }
+
+  @Test
+  public void should_find_favourite_issue_filters() {
+    service.findFavouriteIssueFiltersForCurrentUser();
+    verify(issueFilterService).findFavoriteFilters(any(UserSession.class));
+  }
+
+  @Test
+  public void should_toggle_favourite_issue_filter() {
+    service.toggleFavouriteIssueFilter(10L);
+    verify(issueFilterService).toggleFavouriteIssueFilter(eq(10L), any(UserSession.class));
   }
 
   private String createLongString(int size) {

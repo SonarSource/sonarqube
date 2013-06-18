@@ -397,7 +397,7 @@ public class InternalRubyIssueService implements ServerComponent {
   /**
    * List user issue filter
    */
-  public List<DefaultIssueFilter> findIssueFiltersForUser() {
+  public List<DefaultIssueFilter> findIssueFiltersForCurrentUser() {
     return issueFilterService.findByUser(UserSession.get());
   }
 
@@ -450,10 +450,10 @@ public class InternalRubyIssueService implements ServerComponent {
   public Result<DefaultIssueFilter> deleteIssueFilter(Long issueFilterId) {
     Result<DefaultIssueFilter> result = Result.of();
     try {
-        issueFilterService.delete(issueFilterId, UserSession.get());
-      } catch (Exception e) {
-        result.addError(e.getMessage());
-      }
+      issueFilterService.delete(issueFilterId, UserSession.get());
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
     return result;
   }
 
@@ -498,6 +498,20 @@ public class InternalRubyIssueService implements ServerComponent {
       }
 
       result.set(defaultIssueFilter);
+    }
+    return result;
+  }
+
+  public List<DefaultIssueFilter> findFavouriteIssueFiltersForCurrentUser() {
+    return issueFilterService.findFavoriteFilters(UserSession.get());
+  }
+
+  public Result toggleFavouriteIssueFilter(Long issueFilterId) {
+    Result result = Result.of();
+    try {
+      issueFilterService.toggleFavouriteIssueFilter(issueFilterId, UserSession.get());
+    } catch (Exception e) {
+      result.addError(e.getMessage());
     }
     return result;
   }

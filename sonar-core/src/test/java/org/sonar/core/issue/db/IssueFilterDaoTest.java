@@ -71,6 +71,17 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_select_by_user_with_only_favorite_filters() {
+    setupData("should_select_by_user_with_only_favorite_filters");
+
+    List<IssueFilterDto> results = dao.selectByUserWithOnlyFavoriteFilters("michael");
+
+    assertThat(results).hasSize(1);
+    IssueFilterDto issueFilterDto = results.get(0);
+    assertThat(issueFilterDto.getId()).isEqualTo(2L);
+  }
+
+  @Test
   public void should_insert() {
     setupData("shared");
 
@@ -82,8 +93,6 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
     filterDto.setData("statuses=OPEN|componentRoots=org.codehaus.sonar");
 
     dao.insert(filterDto);
-
-    assertThat(filterDto.getId()).isNotNull();
 
     checkTables("should_insert", new String[]{"created_at", "updated_at"}, "issue_filters");
   }

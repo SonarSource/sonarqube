@@ -19,31 +19,52 @@
  */
 package org.sonar.core.issue.db;
 
-import org.apache.ibatis.annotations.Param;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.List;
+import java.util.Date;
 
 /**
  * @since 3.7
  */
-public interface IssueFilterMapper {
+public class IssueFilterFavouriteDto {
 
-  @CheckForNull
-  IssueFilterDto selectById(Long id);
+  private Long id;
+  private String userLogin;
+  private Long issueFilterId;
+  private Date createdAt;
 
-  @CheckForNull
-  IssueFilterDto selectByNameAndUser(@Param("name") String name, @Param("userLogin") String userLogin, @Nullable @Param("existingId") Long existingId);
+  public Long getId() {
+    return id;
+  }
 
-  List<IssueFilterDto> selectByUser(String user);
+  public IssueFilterFavouriteDto setId(Long id) {
+    this.id = id;
+    return this;
+  }
 
-  List<IssueFilterDto> selectByUserWithOnlyFavoriteFilters(String user);
+  public String getUserLogin() {
+    return userLogin;
+  }
 
-  void insert(IssueFilterDto filter);
+  public IssueFilterFavouriteDto setUserLogin(String userLogin) {
+    this.userLogin = userLogin;
+    return this;
+  }
 
-  void update(IssueFilterDto filter);
+  public Long getIssueFilterId() {
+    return issueFilterId;
+  }
 
-  void delete(Long id);
+  public IssueFilterFavouriteDto setIssueFilterId(Long issueFilterId) {
+    this.issueFilterId = issueFilterId;
+    return this;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public IssueFilterFavouriteDto setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
 }

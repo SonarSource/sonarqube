@@ -28,6 +28,8 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
+import org.sonar.core.issue.db.IssueFilterFavouriteDao;
+import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -45,6 +47,7 @@ public class IssueFilterServiceTest {
   private IssueFilterService service;
 
   private IssueFilterDao issueFilterDao;
+  private IssueFilterFavouriteDao issueFilterFavouriteDao;
   private IssueFinder issueFinder;
 
   private UserSession userSession;
@@ -57,9 +60,10 @@ public class IssueFilterServiceTest {
     when(userSession.login()).thenReturn("john");
 
     issueFilterDao = mock(IssueFilterDao.class);
+    issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
     issueFinder = mock(IssueFinder.class);
 
-    service = new IssueFilterService(issueFilterDao, issueFinder);
+    service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder);
   }
 
   @Test
@@ -133,6 +137,15 @@ public class IssueFilterServiceTest {
     assertThat(result.user()).isEqualTo("john");
 
     verify(issueFilterDao).insert(any(IssueFilterDto.class));
+  }
+
+  @Test
+  public void should_add_favorite_on_save() {
+    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue");
+    service.save(issueFilter, userSession);
+
+    verify(issueFilterDao).insert(any(IssueFilterDto.class));
+    verify(issueFilterFavouriteDao).insert(any(IssueFilterFavouriteDto.class));
   }
 
   @Test
@@ -221,6 +234,17 @@ public class IssueFilterServiceTest {
   }
 
   @Test
+  public void should_delete_favorite_filter_on_delete() {
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john"));
+    when(issueFilterFavouriteDao.selectByUserAndIssueFilterId("john", 1L)).thenReturn(new IssueFilterFavouriteDto().setId(10L).setUserLogin("john").setIssueFilterId(1L));
+
+    service.delete(1L, userSession);
+
+    verify(issueFilterDao).delete(1L);
+    verify(issueFilterFavouriteDao).delete(10L);
+  }
+
+  @Test
   public void should_not_delete_if_filter_not_found() {
     when(issueFilterDao.selectById(1L)).thenReturn(null);
 
@@ -235,7 +259,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_copy() {
-    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("perceval").setData("componentRoots=struts"));
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
     DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("Copy Of My Issue");
 
     DefaultIssueFilter result = service.copy(1L, issueFilter, userSession);
@@ -266,6 +290,59 @@ public class IssueFilterServiceTest {
 
     IssueQuery issueQuery = issueQueryCaptor.getValue();
     assertThat(issueQuery.componentRoots()).contains("struts");
+  }
+
+  @Test
+  public void should_find_favourite_issue_filter() {
+    when(issueFilterDao.selectByUserWithOnlyFavoriteFilters("john")).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john")));
+
+    List<DefaultIssueFilter> results = service.findFavoriteFilters(userSession);
+    assertThat(results).hasSize(1);
+  }
+
+  @Test
+  public void should_not_find_favourite_issue_filter_if_not_logged() {
+    when(userSession.isLoggedIn()).thenReturn(false);
+
+    List<DefaultIssueFilter> results = service.findFavoriteFilters(userSession);
+    assertThat(results).isEmpty();
+  }
+
+  @Test
+  public void should_add_favourite_issue_filter_id() {
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
+    // The filter is not in the favorite list --> add to favorite
+    when(issueFilterFavouriteDao.selectByUserAndIssueFilterId("john", 1L)).thenReturn(null);
+
+    ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
+    service.toggleFavouriteIssueFilter(1L, userSession);
+    verify(issueFilterFavouriteDao).insert(issueFilterFavouriteDtoCaptor.capture());
+
+    IssueFilterFavouriteDto issueFilterFavouriteDto = issueFilterFavouriteDtoCaptor.getValue();
+    assertThat(issueFilterFavouriteDto.getIssueFilterId()).isEqualTo(1L);
+    assertThat(issueFilterFavouriteDto.getUserLogin()).isEqualTo("john");
+  }
+
+  @Test
+  public void should_delete_favourite_issue_filter_id() {
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
+    // The filter is in the favorite list --> remove favorite
+    when(issueFilterFavouriteDao.selectByUserAndIssueFilterId("john", 1L)).thenReturn(new IssueFilterFavouriteDto().setId(10L).setUserLogin("john").setIssueFilterId(1L));
+
+    service.toggleFavouriteIssueFilter(1L, userSession);
+    verify(issueFilterFavouriteDao).delete(10L);
+  }
+
+  @Test
+  public void should_not_toggle_favourite_filter_if_filter_not_found() {
+    when(issueFilterDao.selectById(1L)).thenReturn(null);
+    try {
+      service.toggleFavouriteIssueFilter(1L, userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Filter not found: 1");
+    }
+    verify(issueFilterFavouriteDao, never()).delete(anyLong());
   }
 
 }
