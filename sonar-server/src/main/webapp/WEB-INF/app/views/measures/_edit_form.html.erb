@@ -16,10 +16,12 @@
         <label for="description"><%= h message('description') -%></label>
         <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @filter.description -%>"/>
       </div>
-      <div class="modal-field">
-        <label for="owner"><%= h message('owner') -%></label>
-        <%= user_select_tag('owner', :html_id => 'select-filter-owner', :selected_user => @filter.user) -%>
-      </div>
+      <% if is_admin? %>
+        <div class="modal-field">
+          <label for="owner"><%= h message('owner') -%></label>
+          <%= user_select_tag('owner', :html_id => 'select-filter-owner', :selected_user => @filter.user) -%>
+        </div>
+      <% end %>
       <div class="modal-field">
         <label for="shared"><%= h message('measure_filter.shared_with_all_users') -%></label>
         <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @filter.shared -%>/>
