@@ -63,7 +63,7 @@
   <% if current_user %>
 
     <div class="code-issue-actions">
-      <a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right"><%= message('issue.comment.formlink') -%></a>
+      <a href='#' onclick="return issueForm('comment', this)" class="link-action spacer-right" autofocus><%= message('issue.comment.formlink') -%></a>
       <% unless issue.resolution %>
         <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
         &nbsp;

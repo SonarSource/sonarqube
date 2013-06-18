@@ -2337,6 +2337,7 @@ ul.modal-head-metadata li {
   border-top: 1px solid #CCC;
   line-height: 30px;
   height: 30px;
+  background-color: #EFEFEF;
 }
 
 .modal-foot input {

@@ -253,12 +253,14 @@ function openModalWindow(url, options) {
     $dialog.html(html);
     $dialog
       .dialog({
+        dialogClass: "no-close",
         width: width,
         draggable: false,
         autoOpen: false,
         modal: true,
         minHeight: 50,
         resizable: false,
+        title: null,
         close: function () {
           $j('#modal').remove();
         }
@@ -269,8 +271,6 @@ function openModalWindow(url, options) {
     }).always(function () {
       $dialog.removeClass('ui-widget-overlay');
     });
-
-  $dialog.dialog('open');
   return false;
 }
 
