@@ -305,6 +305,20 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(results).hasSize(3);
   }
 
+  @Test
+  public void should_select_by_ids_with_huge_number_of_ids() {
+    setupData("shared");
+
+    List<Long> hugeNbOfIssues = newArrayList();
+    for (long i=0; i<1500; i++) {
+      hugeNbOfIssues.add(i);
+    }
+    List<IssueDto> results = dao.selectByIds(hugeNbOfIssues);
+
+    // The goal of this test is only to check that the query do no fail, not to check the number of results
+    assertThat(results).isEmpty();
+  }
+
   private List<Long> getIssueIds(List<IssueDto> issues) {
     return newArrayList(Iterables.transform(issues, new Function<IssueDto, Long>() {
       @Override
