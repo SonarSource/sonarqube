@@ -45,10 +45,16 @@ class DashboardsController < ApplicationController
     end
   end
 
+  def create_form
+    @global = !params[:resource]
+    @dashboard = Dashboard.new
+    render :partial => 'create_form', :resource => params[:resource]
+  end
+
   def create
     verify_post_request
-    @dashboard=Dashboard.new()
-    @dashboard.user_id=current_user.id
+    @dashboard = Dashboard.new()
+    @dashboard.user_id = current_user.id
     load_dashboard_from_params(@dashboard)
 
     active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==@dashboard.name }
@@ -69,10 +75,10 @@ class DashboardsController < ApplicationController
     end
   end
 
-  def edit
-    @dashboard=Dashboard.find(params[:id])
+  def edit_form
+    @dashboard = Dashboard.find(params[:id])
     if @dashboard.editable_by?(current_user)
-      render :partial => 'edit'
+      render :partial => 'edit_form', :resource => params[:resource]
     else
       redirect_to :action => 'index', :resource => params[:resource]
     end
@@ -90,6 +96,15 @@ class DashboardsController < ApplicationController
     end
 
     redirect_to :action => 'index', :resource => params[:resource]
+  end
+
+  def delete_form
+    @dashboard = Dashboard.find(params[:id])
+    if @dashboard.editable_by?(current_user)
+      render :partial => 'delete_form', :resource => params[:resource]
+    else
+      redirect_to :action => 'index', :resource => params[:resource]
+    end
   end
 
   def delete
@@ -174,6 +189,7 @@ class DashboardsController < ApplicationController
     dashboard.is_global=(params[:global].present?)
     dashboard.shared=(params[:shared].present? && is_admin?)
     dashboard.column_layout=Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout
+    dashboard.user = User.find_active_by_login(params[:owner]) unless params[:owner].nil?
   end
 
   def add_default_dashboards_if_first_user_dashboard(global)

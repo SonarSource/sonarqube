@@ -161,17 +161,6 @@
   font-weight: normal;
 }
 
-#my_dasboards {
-  margin-right: 280px;
-}
-
-#create_dashboard {
-  width: 235px;
-  position: absolute;
-  top: 0;
-  right: 28px;
-}
-
 /*OPERATIONS*/
 #dashboard #dashboard-operations {
   position: relative;

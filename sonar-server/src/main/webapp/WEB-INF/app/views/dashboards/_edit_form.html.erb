@@ -1,0 +1,40 @@
+<form id="edit-dashboard-form" method="post" action="<%= ApplicationController.root_context -%>/dashboards/update">
+  <input type="hidden" name="id" value="<%= @dashboard.id -%>">
+  <% if @dashboard.global %>
+    <input type="hidden" name="global" value="true" />
+  <% else %>
+    <input type="hidden" name="resource" value="<%= params[:resource] %>"/>
+  <% end %>
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message('dashboard.edit_dashboard') -%></h2>
+    </div>
+    <div class="modal-body">
+      <% @dashboard.errors.each do |attr, msg| %>
+        <p class="error"><%= h msg -%></p>
+      <% end %>
+      <div class="modal-field">
+        <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
+        <input id="name" name="name" type="text" size="50" maxlength="256" value="<%= h @dashboard.name -%>" autofocus="autofocus"/>
+      </div>
+      <div class="modal-field">
+        <label for="description"><%= h message('description') -%></label>
+        <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @dashboard.description -%>"/>
+      </div>
+      <% if is_admin? %>
+        <div class="modal-field">
+          <label for="owner"><%= h message('owner') -%></label>
+          <%= user_select_tag('owner', :html_id => 'select-dashboard-owner', :selected_user => @dashboard.user) -%>
+        </div>
+        <div class="modal-field">
+          <label for="shared"><%= h message('shared') -%></label>
+          <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @dashboard.shared -%>/>
+        </div>
+      <% end %>
+    </div>
+    <div class="modal-foot">
+      <input type="submit" value="<%= h message('save') -%>" id="save-submit"/>
+      <a href="#" onclick="return closeModalWindow()" id="save-cancel"><%= h message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>

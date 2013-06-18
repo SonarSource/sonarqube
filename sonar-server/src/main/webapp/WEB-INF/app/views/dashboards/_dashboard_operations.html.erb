@@ -1,0 +1,20 @@
+<td class="thin nowrap operations">
+  <% if dashboard.editable_by?(current_user) %>
+    <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => :configure, :did => dashboard.id, :id => (params[:resource] unless dashboard.global?)},
+                :id => "configure-#{u dashboard.name}", :class => 'link-action' %>
+    |
+    <%= link_to message('edit'), {:action => :edit_form, :id => dashboard.id, :resource => params[:resource]},
+                :id => "edit-#{u dashboard.name}", :class => 'open-modal link-action' %>
+
+    <% if can_be_disabled %>
+      |
+      <%= link_to message('delete'), {:action => :delete_form, :id => dashboard.id, :resource => params[:resource]},
+                  :id => "delete-#{u dashboard.name}", :class => 'open-modal link-action' %>
+      |
+    <% end %>
+  <% end %>
+  <% if can_be_disabled %>
+    <%= link_to message(subscription_action), {:action => subscription_action.to_sym, :id => dashboard.id, :resource => params[:resource]}, :method => :post,
+                :id => "#{subscription_action}-#{u dashboard.name}", :class => 'link-action' %>
+  <% end %>
+</td>

@@ -1,15 +1,15 @@
 <div class="admin_page">
-  <div id="my_dasboards">
-    <h1><%= message(@global ? 'dashboard.my_global_dashboards' : 'dashboard.my_project_dashboards') -%></h1>
-    <%= render_partial :partial => 'my_dashboards', :locals => { :is_admin => is_admin? } %>
+  <ul style="float: right" class="horizontal">
+    <li class="marginleft10 add">
+      <%= link_to message('create'), {:action => :create_form, :resource => params[:resource]}, :id => "create-link-dashboard", :class => 'open-modal link-action' %>
+    </li>
+  </ul>
 
-    <h1><%= message('dashboard.available_dashboards') -%></h1>
-    <%= render_partial :partial => 'available_dashboards', :locals => { :is_admin => is_admin? } %>
-  </div>
+  <h1><%= message(@global ? 'dashboard.my_global_dashboards' : 'dashboard.my_project_dashboards') -%></h1>
+  <%= render_partial :partial => 'my_dashboards', :locals => { :is_admin => is_admin? } %>
 
-  <div id="create_dashboard">
-    <%= render :partial => 'dashboards/create' %>
-  </div>
+  <h1><%= message('dashboard.available_dashboards') -%></h1>
+  <%= render_partial :partial => 'available_dashboards', :locals => { :is_admin => is_admin? } %>
 </div>
 
 <% if params[:highlight] %>

@@ -13,8 +13,7 @@
     <tr class="even">
       <td colspan="5" class="empty"><%= message('dashboard.no_dashboard') -%></td>
     </tr>
-  <%
-     else
+  <% else
        @shared_dashboards.each do |dashboard| %>
       <tr id="dashboard-<%= dashboard.id -%>" class="<%= cycle('even', 'odd', :name => 'shared') -%>">
         <td>
@@ -29,23 +28,10 @@
           <%= h(dashboard.user_name || message('dashboard.username.default')) -%>
         </td>
         <td class="order">&nbsp;</td>
-        <td class="thin nowrap operations">
-          <% if dashboard.editable_by?(current_user) %>
-            <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => :configure, :did => dashboard.id, :id => (params[:resource] unless dashboard.global?)},
-                        :id => "configure-#{u dashboard.name}", :class => 'link-action' %>
-            |
-            <%= link_to_remote message('edit'), {:update => "create_dashboard", :url => {:action => :edit, :id => dashboard.id, :resource => params[:resource]}},
-                               {:id => "edit-#{u dashboard.name}", :method => :get, :class => 'link-action'} %>
-            |
-            <%= link_to message('delete'), {:action => :delete, :id => dashboard.id, :resource => params[:resource]}, :method => :post,
-                        :confirm => message('dashboard.do_you_want_to_delete_dashboard'), :id => "delete-#{u dashboard.name}", :class => 'link-action' %>
-            |
-          <% end %>
-          <%= link_to message('follow'), {:action => :follow, :id => dashboard.id, :resource => params[:resource]}, :method => :post, :id => "follow-#{u dashboard.name}", :class => 'link-action' %>
-        </td>
+        <%= render :partial => 'dashboard_operations', :locals => {:dashboard => dashboard, :can_be_disabled => true, :subscription_action => 'follow'} %>
       </tr>
     <% end
-       end
+     end
     %>
   </tbody>
 </table>
