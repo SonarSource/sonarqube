@@ -42,12 +42,12 @@
     select
     <include refid="issueChangeColumns"/>
     from issue_changes c
-    where c.change_type=#{changeType} and
+    where c.change_type=#{changeType} and (
     <foreach collection="issueKeys" open="c.issue_key in (" close=")" item="list" separator=") or c.issue_key in (">
       <foreach collection="list" item="element" separator=",">
         #{element}
       </foreach>
-    </foreach>
+    </foreach>)
     order by c.created_at
   </select>
 
