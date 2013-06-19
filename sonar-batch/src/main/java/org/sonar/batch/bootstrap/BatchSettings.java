@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONValue;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -79,7 +78,7 @@ public class BatchSettings extends Settings {
   }
 
   /**
-   * Restore properties like they were before call of the {@link #init(ProjectDefinition)} method
+   * Restore properties like they were before call of the {@link #init(org.sonar.api.batch.bootstrap.ProjectReactor)} method
    */
   public void restore() {
     this.setProperties(savedProperties);
