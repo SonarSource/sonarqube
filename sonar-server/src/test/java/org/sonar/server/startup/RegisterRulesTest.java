@@ -22,12 +22,7 @@ package org.sonar.server.startup;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleParam;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.rules.*;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -38,21 +33,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RegisterRulesTest extends AbstractDbUnitTestCase {
 
@@ -84,6 +71,23 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void should_update_template_rule() {
+    setupData("should_update_template_rule_language");
+    task.start();
+
+    Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
+    assertThat(rule.getRepositoryKey(), is("fake"));
+    assertThat(rule.getLanguage(), is("java"));
+    assertThat(rule.getStatus(), is(Rule.STATUS_READY));
+
+    rule = getSession().getSingleResult(Rule.class, "id", 4);
+    assertThat(rule.getRepositoryKey(), is("fake"));
+    assertThat(rule.getLanguage(), is("java"));
+    // Status was READY in db, but parent status is now DEPRECATED
+    assertThat(rule.getStatus(), is(Rule.STATUS_DEPRECATED));
+  }
+
+  @Test
   public void should_disable_deprecated_repositories() {
     setupData("shared");
     task.start();
@@ -112,6 +116,16 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 1);
+    assertThat(rule.getStatus(), is(Rule.STATUS_READY));
+    assertThat(rule.getUpdatedAt(), notNullValue());
+  }
+
+  @Test
+  public void should_reactivate_disabled_template_rules() {
+    setupData("should_reactivate_disabled_template_rules");
+    task.start();
+
+    Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
     assertThat(rule.getStatus(), is(Rule.STATUS_READY));
     assertThat(rule.getUpdatedAt(), notNullValue());
   }
@@ -209,7 +223,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void should_not_disable_user_rules_if_parent_is_enabled() {
+  public void should_not_disable_template_rules_if_parent_is_enabled() {
     setupData("doNotDisableUserRulesIfParentIsEnabled");
     task.start();
 
@@ -218,13 +232,15 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void should_disable_user_rules_if_parent_is_disabled() {
+  public void should_disable_template_rules_if_parent_is_disabled() {
     setupData("disableUserRulesIfParentIsDisabled");
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
     assertThat(rule.isEnabled(), is(false));
     assertThat(rule.getUpdatedAt(), notNullValue());
+
+    assertThat(getSession().getSingleResult(Rule.class, "id", 4).isEnabled(), is(false));
   }
 
   @Test
