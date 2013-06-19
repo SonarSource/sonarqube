@@ -13,7 +13,7 @@
   <name>Sonar :: Maven Batch Plugin</name>
   
   <properties>
-    <maven.api.version>3.0</maven.api.version>
+    <maven.version>3.0</maven.version>
   </properties>
 
   <dependencies>
@@ -31,18 +31,15 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
+      <version>${maven.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
+      <version>${maven.version}</version>
       <scope>provided</scope>
     </dependency>
-    <!-- <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
-      <scope>provided</scope>
-    </dependency> -->
   </dependencies>
   
   <build>
