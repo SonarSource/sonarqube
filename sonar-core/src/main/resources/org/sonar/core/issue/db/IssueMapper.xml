@@ -217,7 +217,7 @@
 
   <!-- Oracle -->
   <select id="selectIssues" parameterType="map" resultType="Issue" fetchSize="100000" databaseId="oracle">
-    select id from (select i.id
+    select * from (select i.id
     <include refid="sortColumn"/>
     <include refid="selectQueryConditions"/>
     ) where rownum &lt;= #{maxResults}
