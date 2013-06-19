@@ -161,7 +161,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   private void verifyLoggedIn(UserSession userSession) {
-    if (!userSession.isLoggedIn() || userSession.login() == null) {
+    if (!userSession.isLoggedIn() && userSession.login() != null) {
       throw new IllegalStateException("User is not logged in");
     }
   }

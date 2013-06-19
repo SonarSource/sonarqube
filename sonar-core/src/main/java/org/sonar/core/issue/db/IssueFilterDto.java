@@ -66,11 +66,11 @@ public class IssueFilterDto {
     return this;
   }
 
-  public Boolean isShared() {
+  public boolean isShared() {
     return shared;
   }
 
-  public IssueFilterDto setShared(@Nullable Boolean shared) {
+  public IssueFilterDto setShared(boolean shared) {
     this.shared = shared;
     return this;
   }
