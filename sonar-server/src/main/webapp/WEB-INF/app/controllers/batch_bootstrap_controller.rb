@@ -34,23 +34,32 @@ class BatchBootstrapController < Api::ApiController
 
   # GET /batch_bootstrap/properties?[project=<key or id>]
   def properties
-    json_properties=Property.find(:all, :conditions => ['user_id is null and resource_id is null']).map { |property| to_json_property(property) }
-
+    keys=Set.new
+    properties=[]
+    
+    # project properties
     root_project = load_project()
     if root_project
-      properties = Property.find(:all, :conditions => ["user_id is null and resource_id in (select id from projects where enabled=? and (root_id=? or id=?))", true, root_project.id, root_project.id])
-      resource_ids = properties.map{|p| p.resource_id}.uniq.compact
-      unless resource_ids.empty?
-        resource_key_by_id = Project.find(:all, :select => 'id,kee', :conditions => {:id => resource_ids}).inject({}) {|hash, resource| hash[resource.id]=resource.key; hash}
-        properties.each do |property|
-          json_properties << to_json_property(property, resource_key_by_id[property.resource_id])
-        end
-      end
+	  # bottom-up projects
+	  projects=[root_project].concat(root_project.ancestor_projects)
+	  projects.each do |project|
+	    Property.find(:all, :conditions => ['resource_id=? and user_id is null', project.id]).each do |prop|
+	      properties<<prop if keys.add? prop.key
+	    end
+	  end
     end
 
+    # global properties
+    Property.find(:all, :conditions => 'resource_id is null and user_id is null').each do |prop|
+      properties<<prop if keys.add? prop.key
+    end
+
+    # apply security
     has_user_role=has_role?(:user, root_project)
     has_admin_role=has_role?(:admin, root_project)
-    json_properties=json_properties.select { |prop| allowed?(prop[:k], has_user_role, has_admin_role) }
+    properties = properties.select{|prop| allowed?(prop.key, has_user_role, has_admin_role)}
+    
+    json_properties=properties.map { |property| to_json_property(property) }
 
     render :json => JSON(json_properties)
   end
