@@ -55,10 +55,10 @@
     </li>
     <li id="criteria-created" class="marginbottom5">
       <%= message('issue_filter.criteria.created_after') -%>:<br>
-      <input type="text" id="select-created-after" name="createdAfter" value="<%= @issue_query.createdAfter -%>" size="10" maxlength="10" class="marginbottom5">
+      <input type="text" id="select-created-after" name="createdAfter" value="<%= Api::Utils.format_date(@issue_query.createdAfter) -%>" size="10" maxlength="10" class="marginbottom5">
       <br>
       <%= message 'issue_filter.criteria.created_before' -%>:<br>
-      <input type="text" id="select-created-before" name="createdBefore" value="<%= @issue_query.createdBefore -%>" size="10" maxlength="10"><br>
+      <input type="text" id="select-created-before" name="createdBefore" value="<%= Api::Utils.format_date(@issue_query.createdBefore) -%>" size="10" maxlength="10"><br>
       <span class="small gray"><%= message 'issue_filter.criteria.date_format' -%></span>
     </li>
     <li>
