@@ -25,6 +25,7 @@ import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.*;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -43,8 +44,16 @@ public class DefaultIssueClient implements IssueClient {
     this.parser = new IssueJsonParser();
   }
 
+  @Override
   public Issues find(IssueQuery query) {
     String json = requestFactory.get(SEARCH_URL, query.urlParams());
+    return parser.parseIssues(json);
+  }
+
+  @Override
+  public Issues filter(String filterId) {
+    Map<String, Object> queryParams = EncodingUtils.toMap("filter", filterId);
+    String json = requestFactory.get("/api/issues/filter", queryParams);
     return parser.parseIssues(json);
   }
 
