@@ -29,7 +29,7 @@ class UpdateRulesStatus < ActiveRecord::Migration
   def self.up
     Rule.reset_column_information
     Rule.update_all({:status => 'READY', :created_at => Time.now}, ['enabled=?', true])
-    Rule.update_all({:status => 'REMOVED', :updated_at => Time.now}, ['enabled=?', false])
+    Rule.update_all({:status => 'REMOVED', :created_at => Time.now, :updated_at => Time.now}, ['enabled=?', false])
   end
 
 end

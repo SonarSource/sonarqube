@@ -83,8 +83,8 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     rule = getSession().getSingleResult(Rule.class, "id", 4);
     assertThat(rule.getRepositoryKey(), is("fake"));
     assertThat(rule.getLanguage(), is("java"));
-    // Status was READY in db, but parent status is now DEPRECATED
-    assertThat(rule.getStatus(), is(Rule.STATUS_DEPRECATED));
+    // parent status is now DEPRECATED but template should not be changed
+    assertThat(rule.getStatus(), is(Rule.STATUS_READY));
   }
 
   @Test
@@ -121,12 +121,12 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void should_reactivate_disabled_template_rules() {
+  public void should_not_reactivate_disabled_template_rules() {
     setupData("should_reactivate_disabled_template_rules");
     task.start();
 
     Rule rule = getSession().getSingleResult(Rule.class, "id", 2);
-    assertThat(rule.getStatus(), is(Rule.STATUS_READY));
+    assertThat(rule.getStatus(), is(Rule.STATUS_REMOVED));
     assertThat(rule.getUpdatedAt(), notNullValue());
   }
 
