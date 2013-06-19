@@ -19,7 +19,7 @@
 #
 
 #
-# Sonar 3.6
+# Sonar 3.7
 # See SONAR-4383
 #
 class CreateIssueFilterFavourites < ActiveRecord::Migration

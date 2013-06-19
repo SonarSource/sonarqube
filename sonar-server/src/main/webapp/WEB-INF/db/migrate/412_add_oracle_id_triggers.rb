@@ -19,10 +19,9 @@
 #
 
 #
-# Sonar 3.6
-# SONAR-3340
+# Sonar 3.7
+# SONAR-4178
 class AddOracleIdTriggers < ActiveRecord::Migration
-
 
   def self.up
     case dialect()
