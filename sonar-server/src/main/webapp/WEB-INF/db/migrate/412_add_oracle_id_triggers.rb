@@ -53,7 +53,6 @@ class AddOracleIdTriggers < ActiveRecord::Migration
     create_id_trigger('graphs')
     create_id_trigger('group_roles')
     create_id_trigger('groups')
-    create_id_trigger('groups_users')
     create_id_trigger('issue_changes')
     create_id_trigger('issue_filter_favourites')
     create_id_trigger('issue_filters')
