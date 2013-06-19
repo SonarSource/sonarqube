@@ -495,6 +495,7 @@ public final class Rule {
       .append("cardinality", cardinality)
       .append("status", status)
       .append("language", language)
+      .append("parent", parent)
       .toString();
   }
 
