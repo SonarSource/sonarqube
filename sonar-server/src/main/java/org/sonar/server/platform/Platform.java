@@ -40,6 +40,7 @@ import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
@@ -273,6 +274,7 @@ public final class Platform {
     servicesContainer.addSingleton(IssueNotifications.class);
     servicesContainer.addSingleton(ActionService.class);
     servicesContainer.addSingleton(Actions.class);
+    servicesContainer.addSingleton(IssueFilterSerializer.class);
     servicesContainer.addSingleton(IssueFilterService.class);
 
     // rules

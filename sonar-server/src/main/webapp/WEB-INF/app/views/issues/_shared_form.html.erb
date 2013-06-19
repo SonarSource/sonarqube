@@ -2,11 +2,11 @@
   <%= render :partial => 'display_errors' %>
   <div class="modal-field">
     <label for="name"><%= message('issue_filter.form.name') -%> <em class="mandatory">*</em></label>
-    <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= params[:name] || h(@filter.name) -%>" autofocus="autofocus"/>
+    <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= params[:name] || (h(@filter.name) if @filter) -%>" autofocus="autofocus"/>
   </div>
   <div class="modal-field">
     <label for="description"><%= message('issue_filter.form.description') -%></label>
-    <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= params[:description] || h(@filter.description) -%>"/>
+    <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= params[:description] || (h(@filter.description) if @filter)  -%>"/>
   </div>
   <div class="modal-field">
     <label for="shared"><%= message('issue_filter.form.share') -%></label>

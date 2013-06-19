@@ -27,6 +27,7 @@ import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
@@ -52,6 +53,7 @@ public class IssueFilterServiceTest {
   private IssueFilterFavouriteDao issueFilterFavouriteDao;
   private IssueFinder issueFinder;
   private AuthorizationDao authorizationDao;
+  private IssueFilterSerializer issueFilterSerializer;
 
   private UserSession userSession;
 
@@ -66,8 +68,9 @@ public class IssueFilterServiceTest {
     issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
     issueFinder = mock(IssueFinder.class);
     authorizationDao = mock(AuthorizationDao.class);
+    issueFilterSerializer = mock(IssueFilterSerializer.class);
 
-    service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder, authorizationDao);
+    service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder, authorizationDao, issueFilterSerializer);
   }
 
   @Test
@@ -189,6 +192,20 @@ public class IssueFilterServiceTest {
   }
 
   @Test
+  public void should_not_save_shared_filter_if_name_already_used_by_shared_filter() {
+    when(issueFilterDao.selectByNameAndUser(eq("My Issue"), eq("john"), eq((Long) null))).thenReturn(null);
+    when(issueFilterDao.selectSharedWithoutUserFiltersByName(eq("My Issue"), eq("john"), eq((Long) null))).thenReturn(new IssueFilterDto());
+    try {
+      DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue").setShared(true);
+      service.save(issueFilter, userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Other users already share filters with the same name");
+    }
+    verify(issueFilterDao, never()).insert(any(IssueFilterDto.class));
+  }
+
+  @Test
   public void should_update() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("john"));
 
@@ -252,12 +269,13 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_update_data() {
+    when(issueFilterSerializer.serialize(anyMap())).thenReturn("componentRoots=struts");
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("john"));
 
     Map<String, Object> data = newHashMap();
     data.put("componentRoots", "struts");
 
-    DefaultIssueFilter result = service.updateData(1L, data, userSession);
+    DefaultIssueFilter result = service.updateFilterQuery(1L, data, userSession);
     assertThat(result.data()).isEqualTo("componentRoots=struts");
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
@@ -380,6 +398,9 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_execute_from_filter_id() {
+    Map<String, Object> map = newHashMap();
+    map.put("componentRoots", "struts");
+    when(issueFilterSerializer.deserialize(anyString())).thenReturn(map);
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("john").setData("componentRoots=struts"));
 
     ArgumentCaptor<IssueQuery> issueQueryCaptor = ArgumentCaptor.forClass(IssueQuery.class);
@@ -393,7 +414,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_find_shared_issue_filter() {
-    when(issueFilterDao.selectSharedForUser("john")).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john").setShared(true)));
+    when(issueFilterDao.selectSharedWithoutUserFilters("john")).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john").setShared(true)));
 
     List<DefaultIssueFilter> results = service.findSharedFilters(userSession);
     assertThat(results).hasSize(1);

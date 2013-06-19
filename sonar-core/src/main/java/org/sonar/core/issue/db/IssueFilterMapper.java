@@ -41,7 +41,10 @@ public interface IssueFilterMapper {
 
   List<IssueFilterDto> selectByUserWithOnlyFavoriteFilters(String user);
 
-  List<IssueFilterDto> selectSharedForUser(String user);
+  List<IssueFilterDto> selectSharedWithoutUserFilters(String user);
+
+  @CheckForNull
+  IssueFilterDto selectSharedWithoutUserFiltersByName(@Param("name") String name, @Param("userLogin") String userLogin, @Nullable @Param("existingId") Long existingId);
 
   void insert(IssueFilterDto filter);
 

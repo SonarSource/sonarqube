@@ -1,5 +1,5 @@
 <form id="save-as-filter-form" method="post" action="<%= ApplicationController.root_context -%>/issues/save_as">
-  <input type="hidden" name="data" value="<%= params[:data] || u(@filter.data) -%>">
+  <input type="hidden" name="data" value="<%= params[:data] || u(@filter_query_serialized) -%>">
   <fieldset>
     <div class="modal-head">
       <h2><%= message('issue_filter.save_filter') -%></h2>

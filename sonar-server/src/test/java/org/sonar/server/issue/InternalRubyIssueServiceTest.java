@@ -325,8 +325,8 @@ public class InternalRubyIssueServiceTest {
   @Test
   public void should_update_data() {
     Map<String, Object> data = newHashMap();
-    service.updateIssueFilterData(10L, data);
-    verify(issueFilterService).updateData(eq(10L), eq(data), any(UserSession.class));
+    service.updateIssueFilterQuery(10L, data);
+    verify(issueFilterService).updateFilterQuery(eq(10L), eq(data), any(UserSession.class));
   }
 
   @Test

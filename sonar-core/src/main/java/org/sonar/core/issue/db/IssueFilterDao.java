@@ -80,10 +80,19 @@ public class IssueFilterDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<IssueFilterDto> selectSharedForUser(String user) {
+  public List<IssueFilterDto> selectSharedWithoutUserFilters(String user) {
     SqlSession session = mybatis.openSession();
     try {
-      return getMapper(session).selectSharedForUser(user);
+      return getMapper(session).selectSharedWithoutUserFilters(user);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public IssueFilterDto selectSharedWithoutUserFiltersByName(String name, String user, @Nullable Long existingId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return getMapper(session).selectSharedWithoutUserFiltersByName(name, user, existingId);
     } finally {
       MyBatis.closeQuietly(session);
     }

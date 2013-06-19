@@ -20,24 +20,9 @@
 
 package org.sonar.core.issue;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
 public class DefaultIssueFilter {
-
-  public static final String SEPARATOR = "|";
-  public static final String KEY_VALUE_SEPARATOR = "=";
-  public static final String LIST_SEPARATOR = ",";
 
   private Long id;
   private String name;
@@ -58,10 +43,6 @@ public class DefaultIssueFilter {
     issueFilter.setName(name);
     issueFilter.setCreatedAt(now).setUpdatedAt(now);
     return issueFilter;
-  }
-
-  public DefaultIssueFilter(Map<String, Object> mapData) {
-    setData(mapData);
   }
 
   public Long id() {
@@ -134,82 +115,6 @@ public class DefaultIssueFilter {
   public DefaultIssueFilter setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
-  }
-
-  public final DefaultIssueFilter setData(Map<String, Object> mapData) {
-    this.data = mapAsdata(mapData);
-    return this;
-  }
-
-  /**
-   * Used by ui
-   */
-  public Map<String, Object> dataAsMap(){
-    return dataAsMap(data);
-  }
-
-  @VisibleForTesting
-  final Map<String, Object> dataAsMap(String data) {
-    Map<String, Object> map = newHashMap();
-
-    Iterable<String> keyValues = Splitter.on(DefaultIssueFilter.SEPARATOR).split(data);
-    for (String keyValue : keyValues) {
-      String[] keyValueSplit = StringUtils.split(keyValue, DefaultIssueFilter.KEY_VALUE_SEPARATOR);
-      if (keyValueSplit.length == 2) {
-        String key = keyValueSplit[0];
-        String value = keyValueSplit[1];
-        String[] listValues = StringUtils.split(value, DefaultIssueFilter.LIST_SEPARATOR);
-        if (listValues.length > 1) {
-          map.put(key, newArrayList(listValues));
-        } else {
-          map.put(key, value);
-        }
-      }
-    }
-    return map;
-  }
-
-  @VisibleForTesting
-  final String mapAsdata(Map<String, Object> map) {
-    StringBuilder stringBuilder = new StringBuilder();
-
-    for (Map.Entry<String, Object> entries : map.entrySet()){
-      String key = entries.getKey();
-      Object value = entries.getValue();
-      if (value != null) {
-        List valuesList = newArrayList();
-        if (value instanceof List) {
-          // assume that it contains only strings
-          valuesList = (List) value;
-        } else if (value instanceof CharSequence) {
-          valuesList = Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((CharSequence) value));
-        } else {
-          stringBuilder.append(key);
-          stringBuilder.append(DefaultIssueFilter.KEY_VALUE_SEPARATOR);
-          stringBuilder.append(value);
-          stringBuilder.append(DefaultIssueFilter.SEPARATOR);
-        }
-        if (!valuesList.isEmpty()) {
-          stringBuilder.append(key);
-          stringBuilder.append(DefaultIssueFilter.KEY_VALUE_SEPARATOR);
-          for (Iterator<Object> valueListIter = valuesList.iterator(); valueListIter.hasNext();) {
-            Object valueList = valueListIter.next();
-            stringBuilder.append(valueList);
-            if (valueListIter.hasNext()) {
-              stringBuilder.append(DefaultIssueFilter.LIST_SEPARATOR);
-            }
-          }
-          stringBuilder.append(DefaultIssueFilter.SEPARATOR);
-        }
-      }
-    }
-
-    if (stringBuilder.length() > 0) {
-      // Delete useless last separator character
-      stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-    }
-
-    return stringBuilder.toString();
   }
 
 }

@@ -29,15 +29,41 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DefaultIssueFilterTest {
+public class IssueFilterSerializerTest {
 
-  DefaultIssueFilter issueFilter = new DefaultIssueFilter();
+  IssueFilterSerializer issueFilterSerializer = new IssueFilterSerializer();
 
   @Test
-  public void should_convert_data_to_map() {
+  public void should_serialize() {
+    Map<String, Object> map = newLinkedHashMap();
+    map.put("issues", newArrayList("ABCDE1234"));
+    map.put("severities", newArrayList("MAJOR", "MINOR"));
+    map.put("resolved", true);
+    map.put("pageSize", 10l);
+    map.put("pageIndex", 50);
+
+    String result = issueFilterSerializer.serialize(map);
+
+    assertThat(result).isEqualTo("issues=ABCDE1234|severities=MAJOR,MINOR|resolved=true|pageSize=10|pageIndex=50");
+  }
+
+  @Test
+  public void should_remove_empty_value_when_serializing() {
+    Map<String, Object> map = newLinkedHashMap();
+    map.put("issues", newArrayList("ABCDE1234"));
+    map.put("resolved", null);
+    map.put("pageSize", "");
+
+    String result = issueFilterSerializer.serialize(map);
+
+    assertThat(result).isEqualTo("issues=ABCDE1234");
+  }
+
+  @Test
+  public void should_deserialize() {
     String data = "issues=ABCDE1234|severities=MAJOR,MINOR|resolved=true|pageSize=10|pageIndex=50";
 
-    Map<String, Object> map = issueFilter.dataAsMap(data);
+    Map<String, Object> map = issueFilterSerializer.deserialize(data);
 
     assertThat(map).hasSize(5);
     assertThat(map.get("issues")).isEqualTo("ABCDE1234");
@@ -49,39 +75,14 @@ public class DefaultIssueFilterTest {
   }
 
   @Test
-  public void should_remove_empty_value_when_converting_data_to_map() {
+  public void should_remove_empty_value_when_deserializing() {
     String data = "issues=ABCDE1234|severities=";
 
-    Map<String, Object> map = issueFilter.dataAsMap(data);
+    Map<String, Object> map = issueFilterSerializer.deserialize(data);
 
     assertThat(map).hasSize(1);
     assertThat(map.get("issues")).isEqualTo("ABCDE1234");
   }
 
-  @Test
-  public void should_convert_map_to_data() {
-    Map<String, Object> map = newLinkedHashMap();
-    map.put("issues", newArrayList("ABCDE1234"));
-    map.put("severities", newArrayList("MAJOR", "MINOR"));
-    map.put("resolved", true);
-    map.put("pageSize", 10l);
-    map.put("pageIndex", 50);
-
-    String result = issueFilter.mapAsdata(map);
-
-    assertThat(result).isEqualTo("issues=ABCDE1234|severities=MAJOR,MINOR|resolved=true|pageSize=10|pageIndex=50");
-  }
-
-  @Test
-  public void should_remove_empty_value_when_converting_convert_map_to_data() {
-    Map<String, Object> map = newLinkedHashMap();
-    map.put("issues", newArrayList("ABCDE1234"));
-    map.put("resolved", null);
-    map.put("pageSize", "");
-
-    String result = issueFilter.mapAsdata(map);
-
-    assertThat(result).isEqualTo("issues=ABCDE1234");
-  }
 
 }

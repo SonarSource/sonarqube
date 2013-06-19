@@ -85,8 +85,23 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
   public void should_select_shared() {
     setupData("shared");
 
-    assertThat(dao.selectSharedForUser("michael")).hasSize(1);
-    assertThat(dao.selectSharedForUser("stephane")).isEmpty();
+    assertThat(dao.selectSharedWithoutUserFilters("michael")).hasSize(1);
+    assertThat(dao.selectSharedWithoutUserFilters("stephane")).isEmpty();
+  }
+
+  @Test
+  public void should_select_shared_by_name() {
+    setupData("should_select_shared_by_name");
+
+    IssueFilterDto result = dao.selectSharedWithoutUserFiltersByName("Open issues", "stephane", null);
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(3L);
+    assertThat(result.getUserLogin()).isEqualTo("michael");
+    assertThat(result.isShared()).isTrue();
+    assertThat(dao.selectSharedWithoutUserFiltersByName("Open issues", "stephane", 3L)).isNull();
+
+    assertThat(dao.selectSharedWithoutUserFiltersByName("Open issues", "michael", null)).isNull();
+    assertThat(dao.selectSharedWithoutUserFiltersByName("Sonar issues", "stephane", null)).isNull();
   }
 
   @Test

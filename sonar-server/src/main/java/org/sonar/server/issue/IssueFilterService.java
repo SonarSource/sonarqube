@@ -28,6 +28,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueFilter;
+import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
@@ -49,12 +50,15 @@ public class IssueFilterService implements ServerComponent {
   private final IssueFilterFavouriteDao issueFilterFavouriteDao;
   private final IssueFinder issueFinder;
   private final AuthorizationDao authorizationDao;
+  private final IssueFilterSerializer issueFilterSerializer;
 
-  public IssueFilterService(IssueFilterDao issueFilterDao, IssueFilterFavouriteDao issueFilterFavouriteDao, IssueFinder issueFinder, AuthorizationDao authorizationDao) {
+  public IssueFilterService(IssueFilterDao issueFilterDao, IssueFilterFavouriteDao issueFilterFavouriteDao, IssueFinder issueFinder, AuthorizationDao authorizationDao,
+                            IssueFilterSerializer issueFilterSerializer) {
     this.issueFilterDao = issueFilterDao;
     this.issueFilterFavouriteDao = issueFilterFavouriteDao;
     this.issueFinder = issueFinder;
     this.authorizationDao = authorizationDao;
+    this.issueFilterSerializer = issueFilterSerializer;
   }
 
   public IssueQueryResult execute(IssueQuery issueQuery) {
@@ -65,7 +69,7 @@ public class IssueFilterService implements ServerComponent {
     IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId, userSession);
 
     DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
-    IssueQuery issueQuery = PublicRubyIssueService.toQuery(issueFilter.dataAsMap());
+    IssueQuery issueQuery = PublicRubyIssueService.toQuery(deserializeIssueFilterQuery(issueFilter));
     return issueFinder.find(issueQuery);
   }
 
@@ -85,25 +89,25 @@ public class IssueFilterService implements ServerComponent {
   public DefaultIssueFilter save(DefaultIssueFilter issueFilter, UserSession userSession) {
     verifyLoggedIn(userSession);
     issueFilter.setUser(userSession.login());
-    verifyNameIsNotAlreadyUsed(issueFilter, userSession);
+    validateFilter(issueFilter, userSession);
     return insertIssueFilter(issueFilter, userSession.login());
   }
 
   public DefaultIssueFilter update(DefaultIssueFilter issueFilter, UserSession userSession) {
     IssueFilterDto issueFilterDto = findIssueFilter(issueFilter.id(), userSession);
     verifyCurrentUserCanModifyFilter(issueFilterDto, userSession);
-    verifyNameIsNotAlreadyUsed(issueFilter, userSession);
+    validateFilter(issueFilter, userSession);
 
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
     return issueFilter;
   }
 
-  public DefaultIssueFilter updateData(Long issueFilterId, Map<String, Object> mapData, UserSession userSession) {
+  public DefaultIssueFilter updateFilterQuery(Long issueFilterId, Map<String, Object> filterQuery, UserSession userSession) {
     IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId, userSession);
     verifyCurrentUserCanModifyFilter(issueFilterDto, userSession);
 
     DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
-    issueFilter.setData(mapData);
+    issueFilter.setData(serializeFilterQuery(filterQuery));
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
     return issueFilter;
   }
@@ -120,14 +124,14 @@ public class IssueFilterService implements ServerComponent {
     IssueFilterDto issueFilterDtoToCopy = findIssueFilter(issueFilterIdToCopy, userSession);
     issueFilter.setUser(userSession.login());
     issueFilter.setData(issueFilterDtoToCopy.getData());
-    verifyNameIsNotAlreadyUsed(issueFilter, userSession);
+    validateFilter(issueFilter, userSession);
 
     return insertIssueFilter(issueFilter, userSession.login());
   }
 
   public List<DefaultIssueFilter> findSharedFilters(UserSession userSession) {
     if (userSession.isLoggedIn() && userSession.login() != null) {
-      return toIssueFilters(issueFilterDao.selectSharedForUser(userSession.login()));
+      return toIssueFilters(issueFilterDao.selectSharedWithoutUserFilters(userSession.login()));
     }
     return Collections.emptyList();
   }
@@ -160,6 +164,14 @@ public class IssueFilterService implements ServerComponent {
     return issueFilterDto;
   }
 
+  public String serializeFilterQuery(Map<String, Object> filterQuery){
+    return issueFilterSerializer.serialize(filterQuery);
+  }
+
+  public Map<String, Object> deserializeIssueFilterQuery(DefaultIssueFilter issueFilter){
+    return issueFilterSerializer.deserialize(issueFilter.data());
+  }
+
   private void verifyLoggedIn(UserSession userSession) {
     if (!userSession.isLoggedIn() && userSession.login() != null) {
       throw new IllegalStateException("User is not logged in");
@@ -180,9 +192,12 @@ public class IssueFilterService implements ServerComponent {
     }
   }
 
-  private void verifyNameIsNotAlreadyUsed(DefaultIssueFilter issueFilter, UserSession userSession) {
+  private void validateFilter(DefaultIssueFilter issueFilter, UserSession userSession) {
     if (issueFilterDao.selectByNameAndUser(issueFilter.name(), userSession.login(), issueFilter.id()) != null) {
       throw new IllegalArgumentException("Name already exists");
+    }
+    if (issueFilter.shared() && issueFilterDao.selectSharedWithoutUserFiltersByName(issueFilter.name(), userSession.login(), issueFilter.id()) != null) {
+      throw new IllegalArgumentException("Other users already share filters with the same name");
     }
   }
 

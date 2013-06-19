@@ -31,10 +31,9 @@ class IssuesController < ApplicationController
   def search
     if params[:id]
       @filter = find_filter(params[:id].to_i)
-    else
-      @filter = Internal.issues.createFilterFromMap(criteria_params)
     end
-    @criteria_params = Hash[@filter.dataAsMap]
+
+    @first_search = criteria_params.empty?
     @issue_query = Internal.issues.toQuery(criteria_params)
     @issues_result = Internal.issues.execute(@issue_query)
   end
@@ -45,8 +44,8 @@ class IssuesController < ApplicationController
     require_parameters :id
 
     @filter = find_filter(params[:id].to_i)
-    @criteria_params = Hash[@filter.dataAsMap]
-    @issue_query = Internal.issues.toQuery(@filter.dataAsMap)
+    @first_search = false
+    @issue_query = Internal.issues.toQuery(@filter)
     @issues_result = Internal.issues.execute(@issue_query)
     @unchanged = true
 
@@ -63,7 +62,7 @@ class IssuesController < ApplicationController
 
   # GET /issues/save_as_form?[&criteria]
   def save_as_form
-    @filter = Internal.issues.createFilterFromMap(criteria_params)
+    @filter_query_serialized = Internal.issues.serializeFilterQuery(criteria_params)
     render :partial => 'issues/save_as_form'
   end
 
@@ -87,7 +86,7 @@ class IssuesController < ApplicationController
     verify_post_request
     require_parameters :id
 
-    filter_result = Internal.issues.updateIssueFilterData(params[:id].to_i, criteria_params)
+    filter_result = Internal.issues.updateIssueFilterQuery(params[:id].to_i, criteria_params)
     if filter_result.ok
       @filter = filter_result.get()
       redirect_to :action => 'filter', :id => @filter.id.to_s
@@ -95,6 +94,7 @@ class IssuesController < ApplicationController
       @errors = filter_result.errors
 
       @filter = find_filter(params[:id].to_i)
+
       @issue_query = Internal.issues.toQuery(@filter.dataAsMap)
       @issues_result = Internal.issues.execute(@issue_query)
       @unchanged = true

@@ -368,6 +368,10 @@ public class InternalRubyIssueService implements ServerComponent {
     return PublicRubyIssueService.toQuery(props);
   }
 
+  public IssueQuery toQuery(DefaultIssueFilter issueFilter) {
+    return toQuery(issueFilterService.deserializeIssueFilterQuery(issueFilter));
+  }
+
   public DefaultIssueFilter findIssueFilter(Long id) {
     return issueFilterService.findById(id, UserSession.get());
   }
@@ -376,8 +380,8 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueFilterService.findByUser(UserSession.get());
   }
 
-  public DefaultIssueFilter createFilterFromMap(Map<String, Object> mapData) {
-    return new DefaultIssueFilter(mapData);
+  public String serializeFilterQuery(Map<String, Object> filterQuery){
+    return issueFilterService.serializeFilterQuery(filterQuery);
   }
 
   /**
@@ -434,10 +438,10 @@ public class InternalRubyIssueService implements ServerComponent {
   /**
    * Update issue filter data
    */
-  public Result<DefaultIssueFilter> updateIssueFilterData(Long issueFilterId, Map<String, Object> data) {
+  public Result<DefaultIssueFilter> updateIssueFilterQuery(Long issueFilterId, Map<String, Object> data) {
     Result<DefaultIssueFilter> result = Result.of();
     try {
-      result.set(issueFilterService.updateData(issueFilterId, data, UserSession.get()));
+      result.set(issueFilterService.updateFilterQuery(issueFilterId, data, UserSession.get()));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
