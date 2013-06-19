@@ -19,12 +19,12 @@
  */
 package org.sonar.batch.scan.maven;
 
-import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
+import org.sonar.api.task.TaskExtension;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
-public interface MavenPluginExecutor extends BatchComponent {
+public interface MavenPluginExecutor extends TaskExtension {
 
   void execute(Project project, DefaultModuleFileSystem def, String goal);
 

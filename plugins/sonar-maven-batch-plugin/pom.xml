@@ -40,6 +40,13 @@
       <version>${maven.version}</version>
       <scope>provided</scope>
     </dependency>
+    
+    <!-- unit tests -->
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-testing-harness</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   
   <build>

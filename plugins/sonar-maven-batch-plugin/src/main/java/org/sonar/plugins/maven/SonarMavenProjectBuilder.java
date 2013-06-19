@@ -24,7 +24,6 @@ import org.apache.maven.project.MavenProject;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectBuilderContext;
-import org.sonar.batch.scan.maven.MavenProjectConverter;
 
 import java.util.List;
 

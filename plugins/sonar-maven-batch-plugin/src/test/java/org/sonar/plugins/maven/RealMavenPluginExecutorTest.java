@@ -1,3 +1,5 @@
+package org.sonar.plugins.maven;
+
 /*
  * SonarQube, open source software quality management tool.
  * Copyright (C) 2008-2013 SonarSource
@@ -17,7 +19,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.maven;
 
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
@@ -36,16 +37,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class AbstractMavenPluginExecutorTest {
+public class RealMavenPluginExecutorTest {
 
   @Test
   public void plugin_version_should_be_optional() {
-    assertThat(AbstractMavenPluginExecutor.getGoal("group", "artifact", null, "goal"), is("group:artifact::goal"));
+    assertThat(RealMavenPluginExecutor.getGoal("group", "artifact", null, "goal"), is("group:artifact::goal"));
   }
 
   @Test
   public void test_plugin_version() {
-    assertThat(AbstractMavenPluginExecutor.getGoal("group", "artifact", "3.54", "goal"), is("group:artifact:3.54:goal"));
+    assertThat(RealMavenPluginExecutor.getGoal("group", "artifact", "3.54", "goal"), is("group:artifact:3.54:goal"));
   }
 
   /**
@@ -54,7 +55,7 @@ public class AbstractMavenPluginExecutorTest {
    */
   @Test
   public void should_reset_file_system_after_execution() {
-    AbstractMavenPluginExecutor executor = new AbstractMavenPluginExecutor() {
+    RealMavenPluginExecutor executor = new RealMavenPluginExecutor(null, null) {
       @Override
       public void concreteExecute(MavenProject pom, String goal) throws Exception {
         pom.addCompileSourceRoot("src/java");
@@ -73,7 +74,7 @@ public class AbstractMavenPluginExecutorTest {
 
   @Test
   public void should_ignore_non_maven_projects() {
-    AbstractMavenPluginExecutor executor = new AbstractMavenPluginExecutor() {
+    RealMavenPluginExecutor executor = new RealMavenPluginExecutor(null, null) {
       @Override
       public void concreteExecute(MavenProject pom, String goal) throws Exception {
         pom.addCompileSourceRoot("src/java");
@@ -104,7 +105,7 @@ public class AbstractMavenPluginExecutorTest {
     }
 
     public String[] getGoals() {
-      return new String[]{"fake"};
+      return new String[] {"fake"};
     }
 
     public void configure(Project project, MavenPlugin plugin) {

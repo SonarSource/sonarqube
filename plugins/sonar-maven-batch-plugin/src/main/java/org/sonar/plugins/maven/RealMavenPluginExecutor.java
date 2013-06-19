@@ -24,25 +24,69 @@ import org.apache.maven.execution.ReactorManager;
 import org.apache.maven.lifecycle.LifecycleExecutor;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.batch.SupportedEnvironment;
-import org.sonar.api.task.TaskExtension;
+import org.sonar.api.batch.maven.MavenPlugin;
+import org.sonar.api.batch.maven.MavenPluginHandler;
+import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.scan.maven.AbstractMavenPluginExecutor;
+import org.sonar.api.utils.TimeProfiler;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
 @SupportedEnvironment("maven")
-public class MavenPluginExecutor extends AbstractMavenPluginExecutor implements TaskExtension {
+public class RealMavenPluginExecutor implements MavenPluginExecutor {
 
   private LifecycleExecutor lifecycleExecutor;
   private MavenSession mavenSession;
 
-  public MavenPluginExecutor(LifecycleExecutor le, MavenSession mavenSession) {
+  public RealMavenPluginExecutor(LifecycleExecutor le, MavenSession mavenSession) {
     this.lifecycleExecutor = le;
     this.mavenSession = mavenSession;
   }
 
   @Override
+  public final MavenPluginHandler execute(Project project, DefaultModuleFileSystem fs, MavenPluginHandler handler) {
+    for (String goal : handler.getGoals()) {
+      MavenPlugin plugin = MavenPlugin.getPlugin(project.getPom(), handler.getGroupId(), handler.getArtifactId());
+      execute(project,
+          fs,
+          getGoal(handler.getGroupId(), handler.getArtifactId(), (plugin != null && plugin.getPlugin() != null ? plugin.getPlugin().getVersion() : null), goal));
+    }
+    return handler;
+  }
+
+  @Override
+  public final void execute(Project project, DefaultModuleFileSystem fs, String goal) {
+    if (project.getPom() != null) {
+      TimeProfiler profiler = new TimeProfiler().start("Execute " + goal);
+      ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+      try {
+        concreteExecute(project.getPom(), goal);
+      } catch (Exception e) {
+        throw new SonarException("Unable to execute maven plugin", e);
+      } finally {
+        // Reset original ClassLoader that may have been changed during Maven Execution (see SONAR-1800)
+        Thread.currentThread().setContextClassLoader(currentClassLoader);
+        profiler.stop();
+      }
+
+      MavenProjectConverter.synchronizeFileSystem(project.getPom(), fs);
+    }
+  }
+
+  static String getGoal(String groupId, String artifactId, String version, String goal) {
+    String defaultVersion = (version == null ? "" : version);
+    return new StringBuilder()
+        .append(groupId).append(":")
+        .append(artifactId).append(":")
+        .append(defaultVersion)
+        .append(":")
+        .append(goal)
+        .toString();
+  }
+
   public void concreteExecute(MavenProject pom, String goal) throws Exception {
     Method executeMethod = null;
     for (Method m : lifecycleExecutor.getClass().getMethods()) {

@@ -22,13 +22,15 @@ package org.sonar.batch.scan.maven;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
 public final class FakeMavenPluginExecutor implements MavenPluginExecutor {
+
+  @Override
   public void execute(Project project, DefaultModuleFileSystem fs, String goal) {
     // do nothing
   }
 
+  @Override
   public MavenPluginHandler execute(Project project, DefaultModuleFileSystem fs, MavenPluginHandler handler) {
     // do nothing
     return handler;
