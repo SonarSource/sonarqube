@@ -174,7 +174,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   private void verifyCurrentUserCanModifyFilter(IssueFilterDto issueFilterDto, UserSession userSession) {
-    if (!issueFilterDto.getUserLogin().equals(userSession.login()) && (!issueFilterDto.isShared() || !isAdmin(userSession.login()))) {
+    if (!issueFilterDto.getUserLogin().equals(userSession.login()) && !isAdmin(userSession.login())) {
       // TODO throw unauthorized
       throw new IllegalStateException("User is not authorized to modify this filter");
     }
