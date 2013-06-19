@@ -52,13 +52,6 @@ public final class CoreMetrics {
   @Deprecated
   public static String DOMAIN_REVIEWS = "Reviews";
   public static String DOMAIN_ISSUES = "Issues";
-
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final String DOMAIN_RULE_CATEGORIES = "Rule categories";
-
   public static String DOMAIN_GENERAL = "General";
   public static String DOMAIN_DUPLICATION = "Duplication";
   public static String DOMAIN_DESIGN = "Design";
@@ -1328,77 +1321,6 @@ public final class CoreMetrics {
   //
   // --------------------------------------------------------------------------------------------------------------------
 
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final String USABILITY_KEY = "usability";
-
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final Metric USABILITY = new Metric(USABILITY_KEY, "Usability", "Usability", Metric.ValueType.PERCENT,
-    Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
-
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final String RELIABILITY_KEY = "reliability";
-
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final Metric RELIABILITY = new Metric(RELIABILITY_KEY, "Reliability", "Reliability", Metric.ValueType.PERCENT,
-    Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
-
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final String EFFICIENCY_KEY = "efficiency";
-
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final Metric EFFICIENCY = new Metric(EFFICIENCY_KEY, "Efficiency", "Efficiency", Metric.ValueType.PERCENT,
-    Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
-
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final String PORTABILITY_KEY = "portability";
-
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final Metric PORTABILITY = new Metric(PORTABILITY_KEY, "Portability", "Portability", Metric.ValueType.PERCENT,
-    Metric.DIRECTION_BETTER, true, DOMAIN_RULE_CATEGORIES).setBestValue(100.0).setOptimizedBestValue(true);
-
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final String MAINTAINABILITY_KEY = "maintainability";
-
-  /**
-   * @deprecated since 2.5 See SONAR-2007
-   */
-  @Deprecated
-  public static final Metric MAINTAINABILITY = new Metric.Builder(MAINTAINABILITY_KEY, "Maintainability", Metric.ValueType.PERCENT)
-    .setDescription("Maintainability")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(true)
-    .setDomain(DOMAIN_RULE_CATEGORIES)
-    .setBestValue(100.0)
-    .setOptimizedBestValue(true)
-    .create();
-
   public static final String WEIGHTED_VIOLATIONS_KEY = "weighted_violations";
   public static final Metric WEIGHTED_VIOLATIONS = new Metric.Builder(WEIGHTED_VIOLATIONS_KEY, "Weighted issues", Metric.ValueType.INT)
     .setDescription("Weighted Issues")
@@ -2116,9 +2038,7 @@ public final class CoreMetrics {
       if (Metric.class.isAssignableFrom(field.getType())) {
         try {
           Metric metric = (Metric) field.get(null);
-          if (!StringUtils.equals(metric.getDomain(), DOMAIN_RULE_CATEGORIES)) {
-            METRICS.add(metric);
-          }
+          METRICS.add(metric);
         } catch (IllegalAccessException e) {
           throw new SonarException("can not introspect " + CoreMetrics.class + " to get metrics", e);
         }

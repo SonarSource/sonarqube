@@ -25,25 +25,13 @@ import org.sonar.api.measures.Metric;
 
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CoreMetricsTest {
   @Test
   public void shouldReadMetricsFromClassReflection() {
     List<Metric> metrics = CoreMetrics.getMetrics();
-    assertTrue(metrics.size() > 10);
-    assertTrue(metrics.contains(CoreMetrics.NCLOC));
-    assertTrue(metrics.contains(CoreMetrics.DIRECTORIES));
-  }
-
-  @Test
-  public void shouldExcludeDeprecatedIsoMetrics() {
-    List<Metric> metrics = CoreMetrics.getMetrics();
-    assertFalse(metrics.contains(CoreMetrics.USABILITY));
-    assertFalse(metrics.contains(CoreMetrics.EFFICIENCY));
-    assertFalse(metrics.contains(CoreMetrics.RELIABILITY));
-    assertFalse(metrics.contains(CoreMetrics.PORTABILITY));
-    assertFalse(metrics.contains(CoreMetrics.MAINTAINABILITY));
+    assertThat(metrics).hasSize(148);
+    assertThat(metrics).contains(CoreMetrics.NCLOC, CoreMetrics.DIRECTORIES);
   }
 }
