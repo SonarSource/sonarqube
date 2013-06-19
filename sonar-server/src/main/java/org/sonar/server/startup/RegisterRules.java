@@ -90,9 +90,10 @@ public final class RegisterRules {
     for (RuleRepository repository : repositories) {
       profiler.start("Register rules [" + repository.getKey() + "/" + StringUtils.defaultString(repository.getLanguage(), "-") + "]");
       registeredRules.addAll(registerRepositoryRules(repository, existingRules, session));
-      registeredRules.addAll(registerTemplateRules(repository, existingRules, registeredRules, session));
       profiler.stop();
     }
+    // Template rules have to be registered after all rules in order for their parent to be updated.
+    registeredRules.addAll(registerTemplateRules(registeredRules, existingRules, session));
     return registeredRules;
   }
 
@@ -120,11 +121,11 @@ public final class RegisterRules {
   }
 
   /**
-   * Template rules do not exists in the rule repository, only in database, but have to be updated.
+   * Template rules do not exists in the rule repository, only in database, but have to be updated from their parent rule.
    */
-  private List<Rule> registerTemplateRules(RuleRepository repository, RulesByRepository existingRules, List<Rule> registeredRules, DatabaseSession session) {
+  private List<Rule> registerTemplateRules(List<Rule> registeredRules, RulesByRepository existingRules, DatabaseSession session) {
     List<Rule> templateRules = newArrayList();
-    for (Rule persistedRule : existingRules.get(repository.getKey())) {
+    for (Rule persistedRule : existingRules.rules()) {
       Rule parent = persistedRule.getParent();
       if (parent != null && registeredRules.contains(parent)) {
         persistedRule.setRepositoryKey(parent.getRepositoryKey());
