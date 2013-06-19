@@ -26,6 +26,7 @@ import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.*;
+import org.sonar.wsclient.issue.internal.DefaultIssueClient;
 
 import java.util.List;
 
@@ -64,19 +65,6 @@ public class DefaultIssueClientTest {
       assertThat(e.url()).startsWith("http://localhost");
       assertThat(e.url()).endsWith("/api/issues/search");
     }
-  }
-
-  @Test
-  public void should_get_issue_filter() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
-
-    IssueClient client = new DefaultIssueClient(requestFactory);
-    Issues issues = client.filter("5");
-
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/filter?filter=5");
-    assertThat(issues.list()).hasSize(1);
-    assertThat(issues.list().get(0).key()).isEqualTo("ABCDE");
   }
 
   @Test

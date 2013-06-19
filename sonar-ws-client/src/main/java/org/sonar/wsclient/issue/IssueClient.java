@@ -36,13 +36,6 @@ public interface IssueClient {
   Issues find(IssueQuery query);
 
   /**
-   * Wrap the web service /api/issues/filter in order to execute issue filter.
-   *
-   * @since 3.7
-   */
-  Issues filter(String filterId);
-
-  /**
    * Assign an existing issue to a user. A null assignee removes the assignee.
    *
    * @return the updated issue

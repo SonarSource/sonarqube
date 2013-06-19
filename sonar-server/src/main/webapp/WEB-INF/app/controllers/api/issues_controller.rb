@@ -28,20 +28,22 @@ class Api::IssuesController < Api::ApiController
   # curl -v -u admin:admin 'http://localhost:9000/api/issues/search?statuses=OPEN,RESOLVED'
   #
   def search
-    render_result_issues(Api.issues.find(params))
-  end
+    results = Api.issues.find(params)
+    hash = {
+      :maxResultsReached => results.maxResultsReached,
+      :paging => paging_to_hash(results.paging),
+      :issues => results.issues.map { |issue| Issue.to_hash(issue) },
+      :components => results.components.map { |component| component_to_hash(component) },
+      :projects => results.projects.map { |project| component_to_hash(project) },
+      :rules => results.rules.map { |rule| Rule.to_hash(rule) },
+      :users => results.users.map { |user| User.to_hash(user) }
+    }
+    hash[:actionPlans] = results.actionPlans.map { |plan| ActionPlan.to_hash(plan) } if results.actionPlans.size>0
 
-  # Load existing filter
-  # GET /api/issues/filter?<filter id>
-  #
-  # -- Example
-  # curl -v -u admin:admin 'http://localhost:9000/api/issues/filter?filter=20'
-  #
-  # since 3.7
-  #
-  def filter
-    require_parameters :filter
-    render_result_issues(Internal.issues.execute(params[:filter].to_i))
+    respond_to do |format|
+      format.json { render :json => jsonp(hash) }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'issues') }
+    end
   end
 
   #
@@ -260,23 +262,6 @@ class Api::IssuesController < Api::ApiController
       # if the request header "Accept" is "*/*", then the default format is the first one (json)
       format.json { render :json => jsonp(hash), :status => result.httpStatus }
       format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
-    end
-  end
-
-  def render_result_issues(results)
-    hash = {
-        :maxResultsReached => results.maxResultsReached,
-        :paging => paging_to_hash(results.paging),
-        :issues => results.issues.map { |issue| Issue.to_hash(issue) },
-        :components => results.components.map { |component| component_to_hash(component) },
-        :projects => results.projects.map { |project| component_to_hash(project) },
-        :rules => results.rules.map { |rule| Rule.to_hash(rule) },
-        :users => results.users.map { |user| User.to_hash(user) }
-    }
-    hash[:actionPlans] = results.actionPlans.map { |plan| ActionPlan.to_hash(plan) } if results.actionPlans.size>0
-    respond_to do |format|
-      format.json { render :json => jsonp(hash) }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'issues') }
     end
   end
 
