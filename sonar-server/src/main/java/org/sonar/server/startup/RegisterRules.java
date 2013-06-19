@@ -121,7 +121,7 @@ public final class RegisterRules {
   }
 
   /**
-   * Template rules do not exists in the rule repository, only in database, but have to be updated from their parent rule.
+   * Template rules do not exists in rule repositories, only in database, they have to be updated from their parent.
    */
   private List<Rule> registerTemplateRules(List<Rule> registeredRules, RulesByRepository existingRules, DatabaseSession session) {
     List<Rule> templateRules = newArrayList();
@@ -130,7 +130,8 @@ public final class RegisterRules {
       if (parent != null && registeredRules.contains(parent)) {
         persistedRule.setRepositoryKey(parent.getRepositoryKey());
         persistedRule.setLanguage(parent.getLanguage());
-        persistedRule.setStatus(parent.getStatus());
+        persistedRule.setStatus(Objects.firstNonNull(persistedRule.getStatus(), Rule.STATUS_READY));
+        persistedRule.setCreatedAt(Objects.firstNonNull(persistedRule.getCreatedAt(), new Date()));
         persistedRule.setUpdatedAt(new Date());
 
         session.saveWithoutFlush(persistedRule);
