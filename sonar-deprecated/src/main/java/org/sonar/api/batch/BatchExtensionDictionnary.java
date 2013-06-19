@@ -32,6 +32,7 @@ import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -45,7 +46,7 @@ import java.util.List;
 @Deprecated
 public class BatchExtensionDictionnary {
 
-  private ComponentContainer componentContainer;
+  private final ComponentContainer componentContainer;
 
   public BatchExtensionDictionnary(ComponentContainer componentContainer) {
     this.componentContainer = componentContainer;
@@ -204,12 +205,16 @@ public class BatchExtensionDictionnary {
     try {
       Object result = method.invoke(extension);
       if (result != null) {
-        // TODO add arrays/collections of objects/classes
         if (result instanceof Class<?>) {
           results.addAll(componentContainer.getComponentsByType((Class<?>) result));
 
         } else if (result instanceof Collection<?>) {
           results.addAll((Collection<?>) result);
+
+        } else if (result.getClass().isArray()) {
+          for (int i = 0; i < Array.getLength(result); i++) {
+            results.add(Array.get(result, i));
+          }
 
         } else {
           results.add(result);
@@ -222,10 +227,10 @@ public class BatchExtensionDictionnary {
 
   private void checkAnnotatedMethod(Method method) {
     if (!Modifier.isPublic(method.getModifiers())) {
-      throw new IllegalStateException("Annotated method must be public :" + method);
+      throw new IllegalStateException("Annotated method must be public:" + method);
     }
     if (method.getParameterTypes().length > 0) {
-      throw new IllegalStateException("Annotated method must not have parameters :" + method);
+      throw new IllegalStateException("Annotated method must not have parameters:" + method);
     }
   }
 }
