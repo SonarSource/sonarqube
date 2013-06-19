@@ -1,4 +1,4 @@
-<h1 class="marginbottom10"><%= message 'administrators.page' -%></h1>
+<h1 class="marginbottom10"><%= message 'global_permissions.page' -%></h1>
 
 <table class="data width100" id="global-roles">
   <thead>
@@ -9,7 +9,7 @@
   </tr>
   </thead>
   <tbody>
-    <% ['admin', 'profileadmin'].each do |globalRole| %>
+    <% ['admin', 'profileadmin', 'sharedashboard'].each do |globalRole| %>
     <tr class="<%= cycle('even', 'odd', :name => 'globalRole') -%>" >
       <td valign="top">
         <b><%= message('global_role.' + globalRole) -%></b><br/>

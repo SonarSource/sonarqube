@@ -11,7 +11,7 @@
     <div class="modal-body">
       <% if @dashboard %>
         <% @dashboard.errors.each do |attr, msg| %>
-          <p class="error"><%= h msg -%></p>
+          <p class="error"><%= h "#{attr} #{msg}" -%></p>
         <% end %>
       <% end %>
       <div class="modal-field">
@@ -22,7 +22,7 @@
         <label for="description"><%= h message('description') -%></label>
         <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @dashboard.description -%>"/>
       </div>
-      <% if is_admin? %>
+      <% if has_role?(:sharedashboard) %>
         <div class="modal-field">
           <label for="shared"><%= h message('shared') -%></label>
           <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @dashboard.shared -%>/>

@@ -32,6 +32,8 @@ class Dashboard < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :user_id
   validates_inclusion_of :is_global, :in => [true, false]
 
+  validate :user_rights_consistency
+
   before_destroy :check_not_default_before_destroy
 
   def name(l10n=false)
@@ -40,6 +42,12 @@ class Dashboard < ActiveRecord::Base
       Api::Utils.message("dashboard.#{n}.name", :default => n)
     else
       n
+    end
+  end
+
+  def user_rights_consistency
+    if shared? && !user.has_role?(:sharedashboard)
+      errors.add(:user, "cannot own this dashboard because it has insufficient rights")
     end
   end
 
@@ -73,6 +81,14 @@ class Dashboard < ActiveRecord::Base
 
   def owner?(user)
     self.user_id==user.id
+  end
+
+  def can_be_shared_by(user)
+    owner?(user) && user.has_role?(:sharedashboard)
+  end
+
+  def can_be_reassigned_by(user)
+    shared? && user.has_role?(:admin)
   end
 
   def number_of_columns

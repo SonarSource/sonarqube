@@ -98,6 +98,10 @@ class MeasureFilter < ActiveRecord::Base
     criteria[:onFavourites]=='true'
   end
 
+  def can_be_reassigned_by(user)
+    user.has_role?(:admin) && shared
+  end
+
   def criteria(key=nil)
     @criteria ||= HashWithIndifferentAccess.new
     if key

@@ -6,7 +6,7 @@
     </div>
     <div class="modal-body">
       <% @filter.errors.each do |attr, msg| %>
-        <p class="error"><%= h msg -%></p>
+        <p class="error"><%= h "#{attr} #{msg}" -%></p>
       <% end %>
       <div class="modal-field">
         <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
@@ -16,7 +16,7 @@
         <label for="description"><%= h message('description') -%></label>
         <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @filter.description -%>"/>
       </div>
-      <% if is_admin? %>
+      <% if @filter.can_be_reassigned_by(current_user) %>
         <div class="modal-field">
           <label for="owner"><%= h message('owner') -%></label>
           <%= user_select_tag('owner', :html_id => 'select-filter-owner', :selected_user => @filter.user) -%>

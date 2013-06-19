@@ -130,7 +130,7 @@
             <li class="<%= 'active' if request.request_uri.include?('/groups') -%>">
               <a href="<%= ApplicationController.root_context -%>/groups/index"><%= message('user_groups.page') -%></a></li>
             <li class="<%= 'active' if request.request_uri.include?('/roles/global') -%>">
-              <a href="<%= ApplicationController.root_context -%>/roles/global"><%= message('administrators.page') -%></a></li>
+              <a href="<%= ApplicationController.root_context -%>/roles/global"><%= message('global_permissions.page') -%></a></li>
             <li class="<%= 'active' if request.request_uri.include?('/roles/projects') -%>">
               <a href="<%= ApplicationController.root_context -%>/roles/projects"><%= message('roles.page') -%></a></li>
 

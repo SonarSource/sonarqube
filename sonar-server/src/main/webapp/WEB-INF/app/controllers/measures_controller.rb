@@ -141,7 +141,7 @@ class MeasuresController < ApplicationController
     @filter.description=params[:description]
     @filter.shared=(params[:shared]=='true')
 
-    if has_role?(:admin)
+    if has_role?(:admin) && params[:owner]
       @filter.user = User.find_by_login(params[:owner])
     end
 

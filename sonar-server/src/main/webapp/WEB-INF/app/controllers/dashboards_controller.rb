@@ -59,19 +59,15 @@ class DashboardsController < ApplicationController
 
     active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==@dashboard.name }
     if active_dashboard
-      flash[:error]=Api::Utils.message('dashboard.error_create_existing_name')
-
-      redirect_to :action => 'index', :resource => params[:resource]
+      @dashboard.errors.add(Api::Utils.message('dashboard.error_create_existing_name'))
+      render :partial => 'dashboards/create_form', :status => 400, :resource => params[:resource]
     elsif @dashboard.save
       add_default_dashboards_if_first_user_dashboard(@dashboard.global?)
       last_index=current_user.active_dashboards.max_by(&:order_index).order_index
       current_user.active_dashboards.create(:dashboard => @dashboard, :user => current_user, :order_index => (last_index+1))
-
-      redirect_to :action => 'index', :resource => params[:resource], :highlight => @dashboard.id
+      render :text => @dashboard.id.to_s, :resource => params[:resource], :highlight => @dashboard.id, :status => 200
     else
-      flash[:error]=@dashboard.errors.full_messages.join('<br/>')
-
-      redirect_to :action => 'index', :resource => params[:resource]
+      render :partial => 'dashboards/create_form', :status => 400, :resource => params[:resource]
     end
   end
 
@@ -86,16 +82,18 @@ class DashboardsController < ApplicationController
 
   def update
     verify_post_request
-    dashboard=Dashboard.find(params[:id])
-    if dashboard.editable_by?(current_user)
-      load_dashboard_from_params(dashboard)
-
-      unless dashboard.save
-        flash[:error]=dashboard.errors.full_messages.join('<br/>')
+    @dashboard = Dashboard.find(params[:id])
+    if @dashboard.editable_by?(current_user)
+      load_dashboard_from_params(@dashboard)
+      if @dashboard.save
+        render :text => @dashboard.id.to_s, :resource => params[:resource], :status => 200
+      else
+        render :partial => 'dashboards/edit_form', :status => 400, :resource => params[:resource]
       end
+    else
+      # TODO - notify error ?
+      render :text => @dashboard.id.to_s, :resource => params[:resource], :status => 200
     end
-
-    redirect_to :action => 'index', :resource => params[:resource]
   end
 
   def delete_form
@@ -184,11 +182,11 @@ class DashboardsController < ApplicationController
   end
 
   def load_dashboard_from_params(dashboard)
-    dashboard.name=params[:name]
-    dashboard.description=params[:description]
-    dashboard.is_global=(params[:global].present?)
-    dashboard.shared=(params[:shared].present? && is_admin?)
-    dashboard.column_layout=Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout
+    dashboard.name = params[:name]
+    dashboard.description = params[:description]
+    dashboard.is_global = params[:global].present?
+    dashboard.shared = params[:shared].present? && has_role?(:sharedashboard)
+    dashboard.column_layout = Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout
     dashboard.user = User.find_active_by_login(params[:owner]) unless params[:owner].nil?
   end
 

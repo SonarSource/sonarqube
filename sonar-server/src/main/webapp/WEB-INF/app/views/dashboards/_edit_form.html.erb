@@ -11,7 +11,7 @@
     </div>
     <div class="modal-body">
       <% @dashboard.errors.each do |attr, msg| %>
-        <p class="error"><%= h msg -%></p>
+        <p class="error"><%= h "#{attr} #{msg}" -%></p>
       <% end %>
       <div class="modal-field">
         <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
@@ -21,15 +21,19 @@
         <label for="description"><%= h message('description') -%></label>
         <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @dashboard.description -%>"/>
       </div>
-      <% if is_admin? %>
+      <% if @dashboard.can_be_reassigned_by(current_user) %>
         <div class="modal-field">
           <label for="owner"><%= h message('owner') -%></label>
           <%= user_select_tag('owner', :html_id => 'select-dashboard-owner', :selected_user => @dashboard.user) -%>
         </div>
+      <% end %>
+      <% if @dashboard.can_be_shared_by(current_user) %>
         <div class="modal-field">
           <label for="shared"><%= h message('shared') -%></label>
           <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @dashboard.shared -%>/>
         </div>
+      <% else %>
+        <input id="shared" name="shared" type="hidden" value="<%= @dashboard.shared %>"/>
       <% end %>
     </div>
     <div class="modal-foot">
@@ -38,3 +42,9 @@
     </div>
   </fieldset>
 </form>
+
+<script>
+  $j("#edit-dashboard-form").modalForm({success: function (data) {
+    window.location = baseUrl + '/dashboards';
+  }});
+</script>
