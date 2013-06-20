@@ -40,11 +40,121 @@ class Api::UsersController < Api::ApiController
       hash = {:users => users.map { |user| User.to_hash(user) }}
     end
 
-
     respond_to do |format|
       format.json { render :json => jsonp(hash) }
       format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'users') }
     end
+  end
+
+  #
+  # POST /api/users/create
+  #
+  # -- Mandatory parameters
+  # 'login' is the user identifier
+  # 'password' is the user password
+  # 'password_confirmation' is the confirmed user password
+  #
+  # -- Optional parameters
+  # 'name' is the user display name
+  # 'email' is the user email
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/users/create?login=user&password=user_pw&password_confirmation=user_pw'
+  #
+  def create
+    verify_post_request
+    access_denied unless has_role?(:admin)
+    require_parameters :login, :password, :password_confirmation
+
+    user = User.find_by_login(params[:login])
+
+    if user && user.active
+      render_bad_request('An active user with this login already exists')
+    else
+      if user
+        user.update_attributes!(params)
+        user.notify_creation_handlers
+      else
+        user = prepare_user
+        user.save!
+        user.notify_creation_handlers
+      end
+      hash = user.to_hash
+      respond_to do |format|
+        format.json { render :json => jsonp(hash) }
+        format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'users') }
+      end
+    end
+  end
+
+  #
+  # POST /api/users/update
+  #
+  # -- Mandatory parameters
+  # 'login' is the user identifier
+  #
+  # -- Optional parameters
+  # 'name' is the user display name
+  # 'email' is the user email
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/users/update?login=user&email=new_email'
+  #
+  def update
+    verify_post_request
+    access_denied unless has_role?(:admin)
+    require_parameters :login
+
+    user = User.find_active_by_login(params[:login])
+
+    if user.nil?
+      render_bad_request("Could not find user with login #{params[:login]}")
+    elsif user.update_attributes!(params)
+      hash = user.to_hash
+      respond_to do |format|
+        format.json { render :json => jsonp(hash) }
+        format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'users') }
+      end
+    end
+  end
+
+
+  #
+  # POST /api/users/delete
+  #
+  # -- Mandatory parameters
+  # 'login' is the user identifier
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/users/delete?login=user'
+  #
+  def delete
+    verify_post_request
+    access_denied unless has_role?(:admin)
+    require_parameters :login
+
+    user = User.find_active_by_login(params[:login])
+
+    if user.nil?
+      render_bad_request "Could not find user with login #{params[:login]}"
+    else
+      if user.destroy
+        render_success "Successfully deleted user #{params[:login]}"
+      else
+        render_error("Could not delete user #{params[:login]}")
+      end
+    end
+  end
+
+
+  private
+
+  def prepare_user
+    user = User.new(params)
+    default_group_name=java_facade.getSettings().getString('sonar.defaultGroup')
+    default_group=Group.find_by_name(default_group_name)
+    user.groups<<default_group if default_group
+    user
   end
 
 end

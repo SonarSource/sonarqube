@@ -236,4 +236,23 @@ class User < ActiveRecord::Base
     hash[:email] = java_user.email if java_user.email
     hash
   end
+
+  def as_json(options={})
+    {
+      :login => login,
+      :name => name,
+      :email => email
+    }
+  end
+
+  def to_hash
+    hash = { :user => self }
+    if errors and !errors.empty?
+      hash[:errors] = errors.full_messages.map do |msg|
+        { :msg => msg }
+      end
+    end
+    hash
+  end
+
 end

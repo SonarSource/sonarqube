@@ -24,6 +24,12 @@
 
 class AddDashboardSharingPermission < ActiveRecord::Migration
 
+  class GroupRole < ActiveRecord::Base
+  end
+
+  class UserRole < ActiveRecord::Base
+  end
+
   def self.up
     group_roles=GroupRole.find(:all, :conditions => {:role => 'admin', :resource_id => nil})
     groups = group_roles.map { |ur| ur.group_id }
