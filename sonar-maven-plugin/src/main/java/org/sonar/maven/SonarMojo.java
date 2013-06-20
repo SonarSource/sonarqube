@@ -38,8 +38,6 @@ import org.sonar.runner.api.ScanProperties;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * @goal sonar
@@ -130,11 +128,11 @@ public final class SonarMojo extends AbstractMojo {
   public void execute() throws MojoExecutionException, MojoFailureException {
 
     EmbeddedRunner runner = EmbeddedRunner.create()
-        .setApp("Maven", getMavenVersion());
-    Set<Entry<Object, Object>> properties = project.getModel().getProperties().entrySet();
-    for (Entry<Object, Object> entry : properties) {
-      runner.setProperty(toString(entry.getKey()), toString(entry.getValue()));
-    }
+        .setApp("Maven", getMavenVersion())
+        .addProperties(session.getExecutionProperties())
+        .addProperties(project.getModel().getProperties())
+        // Add user properties (ie command line arguments -Dsonar.xxx=yyyy) in last position to override all other
+        .addProperties(session.getUserProperties());
     String encoding = getSourceEncoding(project);
     if (encoding != null) {
       runner.setProperty(ScanProperties.PROJECT_SOURCE_ENCODING, encoding);
