@@ -41,7 +41,7 @@ public class HttpRequestFactoryTest {
 
   @Test
   public void test_get() {
-    httpServer.doReturnStatus(200).doReturnBody("{'issues': []}");
+    httpServer.stubStatusCode(200).stubResponseBody("{'issues': []}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
     String json = factory.get("/api/issues", Collections.<String, Object> emptyMap());
@@ -65,7 +65,7 @@ public class HttpRequestFactoryTest {
 
   @Test
   public void test_post() {
-    httpServer.doReturnStatus(200).doReturnBody("{}");
+    httpServer.stubStatusCode(200).stubResponseBody("{}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
     String json = factory.post("/api/issues/change", Collections.<String, Object> emptyMap());
@@ -76,7 +76,7 @@ public class HttpRequestFactoryTest {
 
   @Test
   public void test_authentication() {
-    httpServer.doReturnStatus(200).doReturnBody("{}");
+    httpServer.stubStatusCode(200).stubResponseBody("{}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url()).setLogin("karadoc").setPassword("legrascestlavie");
     String json = factory.get("/api/issues", Collections.<String, Object> emptyMap());
@@ -103,7 +103,7 @@ public class HttpRequestFactoryTest {
   @Test
   public void should_encode_characters() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
+    httpServer.stubResponseBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     client.find(IssueQuery.create().issues("ABC DE"));

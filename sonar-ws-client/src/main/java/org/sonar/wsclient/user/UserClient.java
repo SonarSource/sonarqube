@@ -28,4 +28,9 @@ public interface UserClient {
 
   List<User> find(UserQuery query);
 
+  User create(UserParameters userParameters);
+
+  User update(UserParameters userParameters);
+
+  void delete(UserParameters userParameters);
 }

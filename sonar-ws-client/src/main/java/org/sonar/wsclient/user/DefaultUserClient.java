@@ -31,6 +31,12 @@ import java.util.Map;
  */
 public class DefaultUserClient implements UserClient {
 
+  private static final String BASE_URL = "/api/users/";
+  private static final String SEARCH_URL = BASE_URL + "search";
+  private static final String CREATE_URL = BASE_URL + "create";
+  private static final String UPDATE_URL = BASE_URL + "update";
+  private static final String DELETE_URL = BASE_URL + "delete";
+
   private final HttpRequestFactory requestFactory;
 
   /**
@@ -42,7 +48,7 @@ public class DefaultUserClient implements UserClient {
 
   @Override
   public List<User> find(UserQuery query) {
-    String json = requestFactory.get(UserQuery.BASE_URL, query.urlParams());
+    String json = requestFactory.get(SEARCH_URL, query.urlParams());
     List<User> result = new ArrayList<User>();
     Map jsonRoot = (Map) JSONValue.parse(json);
     List<Map> jsonUsers = (List<Map>) jsonRoot.get("users");
@@ -54,4 +60,24 @@ public class DefaultUserClient implements UserClient {
     return result;
   }
 
+  @Override
+  public User create(UserParameters userParameters) {
+    String json = requestFactory.post(CREATE_URL, userParameters.urlParams());
+    Map jsonRoot = (Map) JSONValue.parse(json);
+    Map jsonUser = (Map) jsonRoot.get("user");
+    return new User(jsonUser);
+  }
+
+  @Override
+  public User update(UserParameters userParameters) {
+    String json = requestFactory.post(UPDATE_URL, userParameters.urlParams());
+    Map jsonRoot = (Map) JSONValue.parse(json);
+    Map jsonUser = (Map) jsonRoot.get("user");
+    return new User(jsonUser);
+  }
+
+  @Override
+  public void delete(UserParameters userParameters) {
+    requestFactory.post(DELETE_URL, userParameters.urlParams());
+  }
 }

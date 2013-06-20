@@ -29,7 +29,6 @@ import java.util.Map;
  * @since 3.6
  */
 public class UserQuery {
-  static final String BASE_URL = "/api/users/search";
 
   private final Map<String, Object> params = new HashMap<String, Object>();
 

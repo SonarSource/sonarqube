@@ -46,7 +46,7 @@ public class DefaultActionPlanClientTest {
   @Test
   public void should_find_action_plans() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"actionPlans\": [{\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\",\n" +
+    httpServer.stubResponseBody("{\"actionPlans\": [{\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\",\n" +
       "\"name\": \"Long term\",\n" +
       "\"desc\": \"Long term acton plan\",\n" +
       "\"status\": \"CLOSED\",\n" +
@@ -80,7 +80,7 @@ public class DefaultActionPlanClientTest {
   @Test
   public void should_create_action_plan() throws Exception {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
+    httpServer.stubResponseBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
 
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
     ActionPlan result = client.create(
@@ -93,7 +93,7 @@ public class DefaultActionPlanClientTest {
   @Test
   public void should_update_action_plan() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
+    httpServer.stubResponseBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
 
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
     ActionPlan result = client.update(
@@ -116,7 +116,7 @@ public class DefaultActionPlanClientTest {
   @Test
   public void should_fail_to_delete_action_plan() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnStatus(500);
+    httpServer.stubStatusCode(500);
 
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
     try {
@@ -132,7 +132,7 @@ public class DefaultActionPlanClientTest {
   @Test
   public void should_open_action_plan() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
+    httpServer.stubResponseBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
 
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
     ActionPlan result = client.open("382f6f2e-ad9d-424a-b973-9b065e04348a");
@@ -144,7 +144,7 @@ public class DefaultActionPlanClientTest {
   @Test
   public void should_close_action_plan() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
+    httpServer.stubResponseBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
 
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
     ActionPlan result = client.close("382f6f2e-ad9d-424a-b973-9b065e04348a");

@@ -26,7 +26,6 @@ import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.*;
-import org.sonar.wsclient.issue.internal.DefaultIssueClient;
 
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_find_issues() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
+    httpServer.stubResponseBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     IssueQuery query = IssueQuery.create().issues("ABCDE");
@@ -54,7 +53,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_fail_to_find_issues() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnStatus(500);
+    httpServer.stubStatusCode(500);
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     try {
@@ -70,7 +69,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_set_severity() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
+    httpServer.stubResponseBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.setSeverity("ABCDE", "BLOCKER");
@@ -82,7 +81,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_assign() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
+    httpServer.stubResponseBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.assign("ABCDE", "emmerik");
@@ -94,7 +93,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_unassign() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
+    httpServer.stubResponseBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.assign("ABCDE", null);
@@ -106,7 +105,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_plan() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
+    httpServer.stubResponseBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.plan("ABCDE", "DEFGH");
@@ -118,7 +117,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_unplan() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
+    httpServer.stubResponseBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.plan("ABCDE", null);
@@ -130,7 +129,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_create_issue() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
+    httpServer.stubResponseBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.create(NewIssue.create().component("Action.java").rule("squid:AvoidCycle"));
@@ -142,7 +141,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_get_transitions() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\n" +
+    httpServer.stubResponseBody("{\n" +
       "  \"transitions\": [\n" +
       "    \"resolve\",\n" +
       "    \"falsepositive\"\n" +
@@ -160,7 +159,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_apply_transition() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
+    httpServer.stubResponseBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.doTransition("ABCDE", "resolve");
@@ -172,7 +171,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_add_comment() throws Exception {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody(IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/DefaultIssueClientTest/add_comment_result.json")));
+    httpServer.stubResponseBody(IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/DefaultIssueClientTest/add_comment_result.json")));
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     IssueComment comment = client.addComment("ISSUE-1", "this is my comment");
@@ -188,7 +187,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_get_actions() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\n" +
+    httpServer.stubResponseBody("{\n" +
       "  \"actions\": [\n" +
       "    \"link-to-jira\",\n" +
       "    \"tweet\"\n" +
@@ -206,7 +205,7 @@ public class DefaultIssueClientTest {
   @Test
   public void should_apply_action() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.doReturnBody("{\"issue\": {\"key\": \"ABCDE\"}}");
+    httpServer.stubResponseBody("{\"issue\": {\"key\": \"ABCDE\"}}");
 
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.doAction("ABCDE", "tweet");

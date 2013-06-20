@@ -39,12 +39,12 @@ public final class MockHttpServerInterceptor extends ExternalResource {
     server.stop();
   }
 
-  public MockHttpServerInterceptor doReturnBody(String body) {
+  public MockHttpServerInterceptor stubResponseBody(String body) {
     server.doReturnBody(body);
     return this;
   }
 
-  public MockHttpServerInterceptor doReturnStatus(int status) {
+  public MockHttpServerInterceptor stubStatusCode(int status) {
     server.doReturnStatus(status);
     return this;
   }

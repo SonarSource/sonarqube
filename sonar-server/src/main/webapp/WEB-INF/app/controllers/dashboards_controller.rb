@@ -76,7 +76,7 @@ class DashboardsController < ApplicationController
     if @dashboard.editable_by?(current_user)
       render :partial => 'edit_form', :resource => params[:resource]
     else
-      redirect_to :action => 'index', :resource => params[:resource], :status => 401
+      access_denied
     end
   end
 
@@ -91,7 +91,7 @@ class DashboardsController < ApplicationController
         render :partial => 'dashboards/edit_form', :status => 400, :resource => params[:resource]
       end
     else
-      render :text => @dashboard.id.to_s, :resource => params[:resource], :status => 401
+      access_denied
     end
   end
 
