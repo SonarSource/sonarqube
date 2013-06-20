@@ -67,7 +67,7 @@ class IssuesController < ApplicationController
 
   # GET /issues/save_as_form?[&criteria]
   def save_as_form
-    @filter_query_serialized = Internal.issues.serializeFilterQuery(criteria_params)
+    @filter_query_serialized = Internal.issues.serializeFilterQuery(criteria_params_to_save)
     render :partial => 'issues/save_as_form'
   end
 
@@ -91,7 +91,7 @@ class IssuesController < ApplicationController
     verify_post_request
     require_parameters :id
 
-    filter_result = Internal.issues.updateIssueFilterQuery(params[:id].to_i, criteria_params)
+    filter_result = Internal.issues.updateIssueFilterQuery(params[:id].to_i, criteria_params_to_save)
     if filter_result.ok
       @filter = filter_result.get()
       redirect_to :action => 'filter', :id => @filter.id.to_s
@@ -197,6 +197,13 @@ class IssuesController < ApplicationController
     criteria.delete('search')
     criteria.delete('edit')
     criteria.delete('pageSize')
+    criteria
+  end
+
+  def criteria_params_to_save
+    criteria = criteria_params
+    criteria.delete('id')
+    criteria.delete('pageIndex')
     criteria
   end
 
