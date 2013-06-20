@@ -31,13 +31,16 @@ import java.util.List;
 public class SonarMavenProjectBuilder extends ProjectBuilder {
 
   private MavenSession session;
+  private MavenProjectConverter mavenProjectConverter;
 
-  public SonarMavenProjectBuilder(MavenSession session) {
+  public SonarMavenProjectBuilder(MavenSession session, MavenProjectConverter mavenProjectConverter) {
     this.session = session;
+    this.mavenProjectConverter = mavenProjectConverter;
   }
 
   @Override
   public void build(ProjectBuilderContext context) {
+    // Don't use session.getTopLevelProject or session.getProjects to keep compatibility with Maven 2
     List<MavenProject> sortedProjects = session.getSortedProjects();
     MavenProject topLevelProject = null;
     for (MavenProject project : sortedProjects) {
@@ -46,7 +49,7 @@ public class SonarMavenProjectBuilder extends ProjectBuilder {
         break;
       }
     }
-    MavenProjectConverter.configure(context.getProjectReactor().getRoot(), sortedProjects, topLevelProject);
+    mavenProjectConverter.configure(context.getProjectReactor().getRoot(), sortedProjects, topLevelProject);
   }
 
 }

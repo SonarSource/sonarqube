@@ -19,14 +19,16 @@
  */
 package org.sonar.plugins.maven;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.api.SonarPlugin;
+import org.junit.Test;
 
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
 
-public final class MavenBatchPlugin extends SonarPlugin {
+public class MavenBatchPluginTest {
 
-  public List getExtensions() {
-    return ImmutableList.of(SonarMavenProjectBuilder.class, RealMavenPluginExecutor.class, MavenProjectConverter.class);
+  @Test
+  public void testGetExtensions() {
+    MavenBatchPlugin plugin = new MavenBatchPlugin();
+    assertThat(plugin.getExtensions()).hasSize(3);
   }
+
 }

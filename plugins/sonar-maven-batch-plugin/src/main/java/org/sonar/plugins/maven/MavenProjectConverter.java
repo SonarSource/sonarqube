@@ -29,7 +29,9 @@ import org.apache.maven.model.CiManagement;
 import org.apache.maven.model.IssueManagement;
 import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.utils.SonarException;
@@ -42,22 +44,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class MavenProjectConverter {
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+public class MavenProjectConverter implements BatchExtension {
 
   private static final String UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE = "Unable to determine structure of project." +
     " Probably you use Maven Advanced Reactor Options, which is not supported by Sonar and should not be used.";
 
-  private MavenProjectConverter() {
-    // only static methods
-  }
-
-  public static ProjectDefinition convert(List<MavenProject> poms, MavenProject root) {
+  public ProjectDefinition convert(List<MavenProject> poms, MavenProject root) {
     ProjectDefinition def = ProjectDefinition.create();
     configure(def, poms, root);
     return def;
   }
 
-  public static void configure(ProjectDefinition rootProjectDefinition, List<MavenProject> poms, MavenProject root) {
+  public void configure(ProjectDefinition rootProjectDefinition, List<MavenProject> poms, MavenProject root) {
     // projects by canonical path to pom.xml
     Map<String, MavenProject> paths = Maps.newHashMap();
     Map<MavenProject, ProjectDefinition> defs = Maps.newHashMap();
