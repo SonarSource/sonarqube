@@ -482,6 +482,13 @@
           <scope>provided</scope>
         </dependency>
         <dependency>
+          <groupId>org.codehaus.sonar.plugins</groupId>
+          <artifactId>sonar-maven-batch-plugin</artifactId>
+          <version>${project.version}</version>
+          <type>sonar-plugin</type>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
           <groupId>org.codehaus.sonar-plugins.java</groupId>
           <artifactId>sonar-jacoco-plugin</artifactId>
           <version>${sonarJava.version}</version>
