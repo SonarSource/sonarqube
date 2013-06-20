@@ -27,7 +27,7 @@ public class DefaultIssueFilter {
   private Long id;
   private String name;
   private String user;
-  private Boolean shared = false;
+  private boolean shared = false;
   private String description;
   private String data;
   private Date createdAt;
@@ -72,11 +72,11 @@ public class DefaultIssueFilter {
     return this;
   }
 
-  public Boolean shared() {
+  public boolean shared() {
     return shared;
   }
 
-  public DefaultIssueFilter setShared(Boolean shared) {
+  public DefaultIssueFilter setShared(boolean shared) {
     this.shared = shared;
     return this;
   }

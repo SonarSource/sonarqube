@@ -484,7 +484,8 @@ public class InternalRubyIssueService implements ServerComponent {
     String name = params.get("name");
     String description = params.get("description");
     String data = params.get("data");
-    Boolean shared = RubyUtils.toBoolean(params.get("shared"));
+    Boolean sharedParam = RubyUtils.toBoolean(params.get("shared"));
+    boolean shared = sharedParam != null ? sharedParam : false;
 
     if (isUpdate) {
       checkMandatoryParameter(id, "id", result);
