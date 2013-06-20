@@ -78,7 +78,17 @@ public class IssueFilterServiceTest {
     IssueFilterDto issueFilterDto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john");
     when(issueFilterDao.selectById(1L)).thenReturn(issueFilterDto);
 
-    DefaultIssueFilter issueFilter = service.findById(1L, userSession);
+    DefaultIssueFilter issueFilter = service.findById(1L);
+    assertThat(issueFilter).isNotNull();
+    assertThat(issueFilter.id()).isEqualTo(1L);
+  }
+
+  @Test
+  public void should_find_issue_filter() {
+    IssueFilterDto issueFilterDto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john");
+    when(issueFilterDao.selectById(1L)).thenReturn(issueFilterDto);
+
+    DefaultIssueFilter issueFilter = service.find(1L, userSession);
     assertThat(issueFilter).isNotNull();
     assertThat(issueFilter.id()).isEqualTo(1L);
   }
@@ -88,7 +98,7 @@ public class IssueFilterServiceTest {
     IssueFilterDto issueFilterDto = new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("arthur").setShared(true);
     when(issueFilterDao.selectById(1L)).thenReturn(issueFilterDto);
 
-    DefaultIssueFilter issueFilter = service.findById(1L, userSession);
+    DefaultIssueFilter issueFilter = service.find(1L, userSession);
     assertThat(issueFilter).isNotNull();
     assertThat(issueFilter.id()).isEqualTo(1L);
   }
@@ -97,7 +107,7 @@ public class IssueFilterServiceTest {
   public void should_not_find_by_id_on_not_existing_issue() {
     when(issueFilterDao.selectById(1L)).thenReturn(null);
     try {
-      service.findById(1L, userSession);
+      service.find(1L, userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Filter not found: 1");
@@ -108,12 +118,11 @@ public class IssueFilterServiceTest {
   public void should_not_find_by_id_if_not_logged() {
     when(userSession.isLoggedIn()).thenReturn(false);
     try {
-      service.findById(1L, userSession);
+      service.find(1L, userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
     }
-
     verifyZeroInteractions(issueFilterDao);
   }
 
@@ -123,7 +132,7 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectById(1L)).thenReturn(issueFilterDto);
     try {
       // John is not authorized to see eric filters
-      service.findById(1L, userSession);
+      service.find(1L, userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to read this filter");
@@ -394,22 +403,6 @@ public class IssueFilterServiceTest {
     service.execute(issueQuery);
 
     verify(issueFinder).find(issueQuery);
-  }
-
-  @Test
-  public void should_execute_from_filter_id() {
-    Map<String, Object> map = newHashMap();
-    map.put("componentRoots", "struts");
-    when(issueFilterSerializer.deserialize(anyString())).thenReturn(map);
-    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("john").setData("componentRoots=struts"));
-
-    ArgumentCaptor<IssueQuery> issueQueryCaptor = ArgumentCaptor.forClass(IssueQuery.class);
-
-    service.execute(1L, userSession);
-    verify(issueFinder).find(issueQueryCaptor.capture());
-
-    IssueQuery issueQuery = issueQueryCaptor.getValue();
-    assertThat(issueQuery.componentRoots()).contains("struts");
   }
 
   @Test

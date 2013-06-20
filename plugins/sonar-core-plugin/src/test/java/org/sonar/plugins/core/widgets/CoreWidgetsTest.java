@@ -22,6 +22,7 @@ package org.sonar.plugins.core.widgets;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.reflections.Reflections;
@@ -32,6 +33,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class CoreWidgetsTest {
@@ -96,7 +98,7 @@ public class CoreWidgetsTest {
   }
 
   private Collection<CoreWidget> widgets() {
-    return Collections2.transform(widgetClasses(), new Function<Class<? extends CoreWidget>, CoreWidget>() {
+    return newArrayList(Iterables.transform(widgetClasses(), new Function<Class<? extends CoreWidget>, CoreWidget>() {
       public CoreWidget apply(@Nullable Class<? extends CoreWidget> aClass) {
         try {
           return aClass.newInstance();
@@ -104,6 +106,6 @@ public class CoreWidgetsTest {
           throw Throwables.propagate(e);
         }
       }
-    });
+    }));
   }
 }

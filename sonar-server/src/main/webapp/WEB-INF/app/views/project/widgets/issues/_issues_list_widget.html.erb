@@ -1,8 +1,10 @@
 <%
-     table_limit = widget_properties["numberOfLines"]
+  table_limit = widget_properties["numberOfLines"]
 %>
 
-<h3><%= title -%></h3>
+<% if defined? title %>
+  <h3><%= title -%></h3>
+<% end %>
 
 <div id="issues-widget-<%= widget_id -%>">
   <%= render :partial => 'project/widgets/issues/issues_list',

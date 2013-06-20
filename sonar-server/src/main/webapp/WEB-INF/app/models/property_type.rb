@@ -30,6 +30,8 @@ class PropertyType
   TYPE_REGULAR_EXPRESSION = 'REGULAR_EXPRESSION'
 
   TYPE_FILTER = 'FILTER'
+  # Since 3.7
+  TYPE_ISSUE_FILTER = 'ISSUE_FILTER'
 
   def self.text_to_value(text, type)
     case type

@@ -17,75 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.web;
 
-public enum WidgetPropertyType {
-  /**
-   * Integer value, positive or negative
-   */
-  INTEGER,
+package org.sonar.server.issue;
 
-  /**
-   * True/False
-   */
-  BOOLEAN,
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.IssueQueryResult;
 
-  /**
-   * Floating point number
-   */
-  FLOAT,
+public class IssueFilterResult {
 
-  /**
-   * Basic single line input field
-   */
-  STRING,
+  private IssueQueryResult issueQueryResult;
+  private IssueQuery issueQuery;
 
-  /**
-   * Sonar Metric
-   *
-   * @since 2.10
-   */
-  METRIC,
+  public IssueFilterResult(IssueQueryResult issueQueryResult, IssueQuery issueQuery) {
+    this.issueQueryResult = issueQueryResult;
+    this.issueQuery = issueQuery;
+  }
 
-  /**
-   * Measure Filter id
-   *
-   * @since 3.1
-   */
-  FILTER,
+  public IssueQueryResult result() {
+    return issueQueryResult;
+  }
 
-  /**
-   * Issue Filter id
-   *
-   * @since 3.7
-   */
-  ISSUE_FILTER,
-
-  /**
-   * Multiple line text-area
-   *
-   * @since 3.2
-   */
-  TEXT,
-
-  /**
-   * Variation of {#STRING} with masked characters
-   *
-   * @since 3.2
-   */
-  PASSWORD,
-
-  /**
-   * Regular expression
-   *
-   * @since 3.2
-   */
-  REGULAR_EXPRESSION,
-
-  /**
-   * Single select list with a list of options
-   *
-   * @since 3.5
-   */
-  SINGLE_SELECT_LIST
+  public IssueQuery query() {
+    return issueQuery;
+  }
 }

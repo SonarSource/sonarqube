@@ -1,40 +1,28 @@
 <%
    table_limit = params[:table_limit] unless table_limit
    widget_id = params[:widget_id] unless widget_id
+
    search_options = params.clone unless search_options
+   search_options['pageIndex'] = params[:pageIndex] || 1
+   search_options['pageSize'] = table_limit.to_i
 
-   # Hack to delete params coming from pagination
-   search_options.delete(:controller)
-   search_options.delete(:action)
-   search_options.delete(:page_id)
-   search_options.delete(:table_limit)
-   search_options.delete(:widget_id)
-   search_options.delete(:period)
-
-   search_options['sort'] = 'UPDATE_DATE'
-   search_options['asc'] = 'FALSE'
-   if @dashboard_configuration && @dashboard_configuration.selected_period?
-     search_options['createdAfter'] = Api::Utils.format_datetime(@dashboard_configuration.from_datetime)
-     search_options['createdBefore'] = Api::Utils.format_datetime(DateTime.now)
+   if search_options['filter']
+     issue_filter_result = Internal.issues.execute(search_options['filter'].to_i, search_options)
+     results = issue_filter_result.result
+   else
+     search_options['sort'] = 'UPDATE_DATE'
+     search_options['asc'] = 'FALSE'
+     if @dashboard_configuration && @dashboard_configuration.selected_period?
+       search_options['createdAfter'] = Api::Utils.format_datetime(@dashboard_configuration.from_datetime)
+       search_options['createdBefore'] = Api::Utils.format_datetime(DateTime.now)
+     end
+     results = Api.issues.find(search_options)
    end
-   results = Api.issues.find(search_options)
    issues = results.issues
-
-   # table pagination
-   page_size = table_limit.to_i
-   total_number = issues.size
-   if issues.size > page_size
-     page_id = (params[:page_id] ? params[:page_id].to_i : 1)
-     page_count = issues.size / page_size
-     page_count += 1 if (issues.size % page_size > 0)
-     from = (page_id-1) * page_size
-     to = (page_id*page_size)-1
-     to = issues.size-1 if to >= issues.size
-     issues = issues[from..to]
-   end
+   paging = results.paging
 %>
 
-<% if issues.size ==0 %>
+<% if paging.total() == 0 %>
   <span class="empty_widget"><%= message('widget.my_reviews.no_issue') -%></span>
 
 <% else %>
@@ -45,42 +33,6 @@
       </th>
     </tr>
     </thead>
-    <tfoot>
-    <tr>
-      <td colspan="3">
-        <%= link_to(total_number, {:controller => 'issues', :action => 'search' }.merge(search_options)) -%> <%= message('results').downcase -%>
-        <%
-           if page_count
-             page_count = 20 if page_count>20
-             link_params = search_options.clone
-             link_params[:controller] = 'issue'
-             link_params[:action] = 'widget_issues_list'
-             link_params[:snapshot_id] = @snapshot.id if @snapshot
-             link_params[:table_limit] = table_limit
-             link_params[:widget_id] = widget_id
-             link_params[:period] = params[:period]
-        %>
-          |
-          <%= link_to_remote(message('paging_previous'),
-                             :update => "issues-widget-#{widget_id}",
-                             :url => {:params => link_params.merge({:page_id => page_id-1})}) if page_id>1 %>
-          <%= message('paging_previous') unless page_id>1 %>
-          <% for index in 1..page_count %>
-            <%= index.to_s if index==page_id %>
-            <%= link_to_remote(index.to_s,
-                               :update => "issues-widget-#{widget_id}",
-                               :url => {:params => link_params.merge({:page_id => index})}) unless index==page_id %>
-          <% end %>
-          <%= link_to_remote(message('paging_next'),
-                             :update => "issues-widget-#{widget_id}",
-                             :url => {:params => link_params.merge({:page_id => page_id+1})}) if page_id<page_count %>
-          <%= message('paging_next') unless page_id<page_count %>
-        <%
-           end
-        %>
-      </td>
-    </tr>
-    </tfoot>
     <tbody>
     <%
        issues.each do |issue|
@@ -107,5 +59,23 @@
        end
     %>
     </tbody>
+    <% if results.maxResultsReached() %>
+      <p class="notes"><%= message('issue_filter.widget.max_results_reached', :params => paging.total()) -%></p>
+    <% end %>
+    <%
+       link_params = search_options.clone
+       link_params[:controller] = 'issue'
+       link_params[:action] = 'widget_issues_list'
+       link_params[:snapshot_id] = @snapshot.id if @snapshot
+       link_params[:table_limit] = table_limit
+       link_params[:widget_id] = widget_id
+       link_params[:period] = params[:period]
+    %>
+    <%= paginate_java(paging, :colspan => 4, :id => "issue-filter-foot-#{widget_id}", :include_loading_icon => true) { |label, page_id|
+      link_to_remote(label,
+                     :update => "issues-widget-#{widget_id}",
+                     :url => link_params.merge({:pageIndex => page_id}))
+    } -%>
   </table>
+
 <% end %>

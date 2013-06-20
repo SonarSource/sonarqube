@@ -22,9 +22,13 @@ package org.sonar.server.issue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.*;
+import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
+import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
@@ -41,6 +45,7 @@ import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
@@ -364,20 +369,36 @@ public class InternalRubyIssueService implements ServerComponent {
     return actionService.listAvailableActions(issue);
   }
 
-  public IssueQuery toQuery(Map<String, Object> props) {
-    return PublicRubyIssueService.toQuery(props);
+  public IssueQuery emptyIssueQuery() {
+    return PublicRubyIssueService.toQuery(Maps.<String, Object>newHashMap());
   }
 
-  public IssueQuery toQuery(DefaultIssueFilter issueFilter) {
-    return toQuery(issueFilterService.deserializeIssueFilterQuery(issueFilter));
+  @CheckForNull
+  public DefaultIssueFilter findIssueFilterById(Long id) {
+    return issueFilterService.findById(id);
   }
 
+  /**
+   * Return the issue filter if the user has the right to see it
+   * Never return null
+   */
   public DefaultIssueFilter findIssueFilter(Long id) {
-    return issueFilterService.findById(id, UserSession.get());
+    return issueFilterService.find(id, UserSession.get());
   }
 
   public List<DefaultIssueFilter> findUserIssueFilters() {
     return issueFilterService.findByUser(UserSession.get());
+  }
+
+  public boolean isUserAuthorized(DefaultIssueFilter issueFilter) {
+    try {
+      UserSession userSession = UserSession.get();
+      issueFilterService.verifyLoggedIn(userSession);
+      issueFilterService.verifyCurrentUserCanReadFilter(issueFilter, userSession);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   public String serializeFilterQuery(Map<String, Object> filterQuery){
@@ -385,17 +406,33 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   /**
-   * Execute issue filter from issue query
+   * Execute issue filter from parameters
    */
-  public IssueQueryResult execute(IssueQuery issueQuery) {
+  public IssueFilterResult execute(Map<String, Object> props) {
+    IssueQuery issueQuery = PublicRubyIssueService.toQuery(props);
     return issueFilterService.execute(issueQuery);
   }
 
   /**
-   * Execute issue filter from existing filter
+   * Execute issue filter from existing filter with optional overridable parameters
    */
-  public IssueQueryResult execute(Long issueFilterId) {
-    return issueFilterService.execute(issueFilterId, UserSession.get());
+  public IssueFilterResult execute(Long issueFilterId, Map<String, Object> overrideProps) {
+    DefaultIssueFilter issueFilter = issueFilterService.find(issueFilterId, UserSession.get());
+    Map<String, Object> props = issueFilterService.deserializeIssueFilterQuery(issueFilter);
+    overrideProps(props, overrideProps);
+    IssueQuery issueQuery = PublicRubyIssueService.toQuery(props);
+    return issueFilterService.execute(issueQuery);
+  }
+
+  private void overrideProps(Map<String, Object> props, Map<String, Object> overrideProps){
+    overrideProp(props, overrideProps, "pageSize");
+    overrideProp(props, overrideProps, "pageIndex");
+  }
+
+  private void overrideProp(Map<String, Object> props, Map<String, Object> overrideProps, String key){
+    if (overrideProps.containsKey(key)) {
+      props.put(key, overrideProps.get(key));
+    }
   }
 
   /**

@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -398,14 +399,28 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_execute_issue_filter_from_issue_query() {
-    service.execute(IssueQuery.builder().build());
+    service.execute(Maps.<String, Object>newHashMap());
     verify(issueFilterService).execute(any(IssueQuery.class));
   }
 
   @Test
   public void should_execute_issue_filter_from_existing_filter() {
-    service.execute(10L);
-    verify(issueFilterService).execute(eq(10L), any(UserSession.class));
+    Map<String, Object> props = newHashMap();
+    props.put("componentRoots", "struts");
+    when(issueFilterService.deserializeIssueFilterQuery(any(DefaultIssueFilter.class))).thenReturn(props);
+
+    Map<String, Object> overrideProps = newHashMap();
+    overrideProps.put("pageSize", 20);
+    overrideProps.put("pageIndex", 2);
+    service.execute(10L, overrideProps);
+    ArgumentCaptor<IssueQuery> captor = ArgumentCaptor.forClass(IssueQuery.class);
+    verify(issueFilterService).execute(captor.capture());
+    verify(issueFilterService).find(eq(10L), any(UserSession.class));
+
+    IssueQuery issueQuery = captor.getValue();
+    assertThat(issueQuery.componentRoots()).contains("struts");
+    assertThat(issueQuery.pageSize()).isEqualTo(20);
+    assertThat(issueQuery.pageIndex()).isEqualTo(2);
   }
 
   @Test
@@ -430,6 +445,14 @@ public class InternalRubyIssueServiceTest {
   public void should_toggle_favourite_issue_filter() {
     service.toggleFavouriteIssueFilter(10L);
     verify(issueFilterService).toggleFavouriteIssueFilter(eq(10L), any(UserSession.class));
+  }
+
+  @Test
+  public void should_check_is_user_is_authorized_to_see_issue_filter() {
+    DefaultIssueFilter issueFilter = new DefaultIssueFilter();
+    service.isUserAuthorized(issueFilter);
+    verify(issueFilterService).verifyLoggedIn(any(UserSession.class));
+    verify(issueFilterService).verifyCurrentUserCanReadFilter(eq(issueFilter), any(UserSession.class));
   }
 
   private String createLongString(int size) {

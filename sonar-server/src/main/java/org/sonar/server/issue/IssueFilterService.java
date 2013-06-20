@@ -61,21 +61,17 @@ public class IssueFilterService implements ServerComponent {
     this.issueFilterSerializer = issueFilterSerializer;
   }
 
-  public IssueQueryResult execute(IssueQuery issueQuery) {
-    return issueFinder.find(issueQuery);
+  public IssueFilterResult execute(IssueQuery issueQuery) {
+    return createIssueFilterResult(issueFinder.find(issueQuery), issueQuery);
   }
 
-  public IssueQueryResult execute(Long issueFilterId, UserSession userSession) {
-    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId, userSession);
-
-    DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
-    IssueQuery issueQuery = PublicRubyIssueService.toQuery(deserializeIssueFilterQuery(issueFilter));
-    return issueFinder.find(issueQuery);
+  public DefaultIssueFilter find(Long id, UserSession userSession) {
+    return findIssueFilterDto(id, userSession).toIssueFilter();
   }
 
   @CheckForNull
-  public DefaultIssueFilter findById(Long id, UserSession userSession) {
-    IssueFilterDto issueFilterDto = findIssueFilter(id, userSession);
+  public DefaultIssueFilter findById(Long id) {
+    IssueFilterDto issueFilterDto = issueFilterDao.selectById(id);
     return issueFilterDto.toIssueFilter();
   }
 
@@ -94,8 +90,8 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public DefaultIssueFilter update(DefaultIssueFilter issueFilter, UserSession userSession) {
-    IssueFilterDto issueFilterDto = findIssueFilter(issueFilter.id(), userSession);
-    verifyCurrentUserCanModifyFilter(issueFilterDto, userSession);
+    IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilter.id(), userSession);
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), userSession);
     validateFilter(issueFilter, userSession);
 
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
@@ -103,8 +99,8 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public DefaultIssueFilter updateFilterQuery(Long issueFilterId, Map<String, Object> filterQuery, UserSession userSession) {
-    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId, userSession);
-    verifyCurrentUserCanModifyFilter(issueFilterDto, userSession);
+    IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilterId, userSession);
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), userSession);
 
     DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
     issueFilter.setData(serializeFilterQuery(filterQuery));
@@ -113,15 +109,15 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public void delete(Long issueFilterId, UserSession userSession) {
-    IssueFilterDto issueFilterDto = findIssueFilter(issueFilterId, userSession);
-    verifyCurrentUserCanModifyFilter(issueFilterDto, userSession);
+    IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilterId, userSession);
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), userSession);
 
     deleteFavouriteIssueFilters(issueFilterDto);
     issueFilterDao.delete(issueFilterId);
   }
 
   public DefaultIssueFilter copy(Long issueFilterIdToCopy, DefaultIssueFilter issueFilter, UserSession userSession) {
-    IssueFilterDto issueFilterDtoToCopy = findIssueFilter(issueFilterIdToCopy, userSession);
+    IssueFilterDto issueFilterDtoToCopy = findIssueFilterDto(issueFilterIdToCopy, userSession);
     issueFilter.setUser(userSession.login());
     issueFilter.setData(issueFilterDtoToCopy.getData());
     validateFilter(issueFilter, userSession);
@@ -144,7 +140,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public void toggleFavouriteIssueFilter(Long issueFilterId, UserSession userSession) {
-    findIssueFilter(issueFilterId, userSession);
+    findIssueFilterDto(issueFilterId, userSession);
     IssueFilterFavouriteDto issueFilterFavouriteDto = findFavouriteIssueFilter(userSession.login(), issueFilterId);
     if (issueFilterFavouriteDto == null) {
       addFavouriteIssueFilter(issueFilterId, userSession.login());
@@ -153,40 +149,40 @@ public class IssueFilterService implements ServerComponent {
     }
   }
 
-  public IssueFilterDto findIssueFilter(Long id, UserSession userSession) {
+  public String serializeFilterQuery(Map<String, Object> filterQuery) {
+    return issueFilterSerializer.serialize(filterQuery);
+  }
+
+  public Map<String, Object> deserializeIssueFilterQuery(DefaultIssueFilter issueFilter) {
+    return issueFilterSerializer.deserialize(issueFilter.data());
+  }
+
+  private IssueFilterDto findIssueFilterDto(Long id, UserSession userSession) {
     verifyLoggedIn(userSession);
     IssueFilterDto issueFilterDto = issueFilterDao.selectById(id);
     if (issueFilterDto == null) {
       // TODO throw 404
       throw new IllegalArgumentException("Filter not found: " + id);
     }
-    verifyCurrentUserCanReadFilter(issueFilterDto, userSession);
+    verifyCurrentUserCanReadFilter(issueFilterDto.toIssueFilter(), userSession);
     return issueFilterDto;
   }
 
-  public String serializeFilterQuery(Map<String, Object> filterQuery){
-    return issueFilterSerializer.serialize(filterQuery);
-  }
-
-  public Map<String, Object> deserializeIssueFilterQuery(DefaultIssueFilter issueFilter){
-    return issueFilterSerializer.deserialize(issueFilter.data());
-  }
-
-  private void verifyLoggedIn(UserSession userSession) {
+  void verifyLoggedIn(UserSession userSession) {
     if (!userSession.isLoggedIn() && userSession.login() != null) {
       throw new IllegalStateException("User is not logged in");
     }
   }
 
-  private void verifyCurrentUserCanReadFilter(IssueFilterDto issueFilterDto, UserSession userSession) {
-    if (!issueFilterDto.getUserLogin().equals(userSession.login()) && !issueFilterDto.isShared()) {
+  void verifyCurrentUserCanReadFilter(DefaultIssueFilter issueFilter, UserSession userSession) {
+    if (!issueFilter.user().equals(userSession.login()) && !issueFilter.shared()) {
       // TODO throw unauthorized
       throw new IllegalStateException("User is not authorized to read this filter");
     }
   }
 
-  private void verifyCurrentUserCanModifyFilter(IssueFilterDto issueFilterDto, UserSession userSession) {
-    if (!issueFilterDto.getUserLogin().equals(userSession.login()) && !isAdmin(userSession.login())) {
+  private void verifyCurrentUserCanModifyFilter(DefaultIssueFilter issueFilter, UserSession userSession) {
+    if (!issueFilter.user().equals(userSession.login()) && !isAdmin(userSession.login())) {
       // TODO throw unauthorized
       throw new IllegalStateException("User is not authorized to modify this filter");
     }
@@ -238,6 +234,10 @@ public class IssueFilterService implements ServerComponent {
 
   private boolean isAdmin(String user) {
     return authorizationDao.selectGlobalPermissions(user).contains(UserRole.ADMIN);
+  }
+
+  private IssueFilterResult createIssueFilterResult(IssueQueryResult issueQueryResult, IssueQuery issueQuery) {
+    return new IssueFilterResult(issueQueryResult, issueQuery);
   }
 
 }

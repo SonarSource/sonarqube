@@ -33,9 +33,11 @@ class IssuesController < ApplicationController
       @filter = find_filter(params[:id].to_i)
     end
 
-    @first_search = criteria_params.empty?
-    @issue_query = Internal.issues.toQuery(criteria_params)
-    @issues_result = Internal.issues.execute(@issue_query)
+    @criteria_params = criteria_params
+    @first_search = @criteria_params.empty?
+    issue_filter_result = Internal.issues.execute(@criteria_params)
+    @issue_query = issue_filter_result.query
+    @issues_result = issue_filter_result.result
   end
 
   # Load existing filter
@@ -43,18 +45,20 @@ class IssuesController < ApplicationController
   def filter
     require_parameters :id
 
-    @filter = find_filter(params[:id].to_i)
     @first_search = false
-    @issue_query = Internal.issues.toQuery(@filter)
-    @issues_result = Internal.issues.execute(@issue_query)
     @unchanged = true
+
+    @criteria_params = criteria_params
+    issue_filter_result = Internal.issues.execute(params[:id].to_i, @criteria_params)
+    @issue_query = issue_filter_result.query
+    @issues_result = issue_filter_result.result
 
     render :action => 'search'
   end
 
   # GET /issues/manage
   def manage
-    @issue_query = Internal.issues.toQuery({})
+    @issue_query = Internal.issues.emptyIssueQuery()
     @filters = Internal.issues.findIssueFiltersForCurrentUser()
     @shared_filters = Internal.issues.findSharedFiltersForCurrentUser()
     @favourite_filter_ids = @favourite_filters.map { |filter| filter.id }
@@ -91,13 +95,12 @@ class IssuesController < ApplicationController
       @filter = filter_result.get()
       redirect_to :action => 'filter', :id => @filter.id.to_s
     else
+      @unchanged = true
       @errors = filter_result.errors
 
-      @filter = find_filter(params[:id].to_i)
-
-      @issue_query = Internal.issues.toQuery(@filter.dataAsMap)
-      @issues_result = Internal.issues.execute(@issue_query)
-      @unchanged = true
+      issue_filter_result = Internal.issues.execute(@filter.id, criteria_params)
+      @issue_query = issue_filter_result.query
+      @issues_result = issue_filter_result.result
 
       render :action => 'search'
     end
