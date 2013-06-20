@@ -48,6 +48,7 @@ public class DefaultActionPlanClientTest {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.doReturnBody("{\"actionPlans\": [{\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\",\n" +
       "\"name\": \"Long term\",\n" +
+      "\"desc\": \"Long term acton plan\",\n" +
       "\"status\": \"CLOSED\",\n" +
       "\"project\": \"com.sonarsource.it.samples:simple-sample\",\n" +
       "\"userLogin\": \"admin\",\n" +
@@ -65,6 +66,7 @@ public class DefaultActionPlanClientTest {
     ActionPlan actionPlan = actionPlans.get(0);
     assertThat(actionPlan.key()).isEqualTo("382f6f2e-ad9d-424a-b973-9b065e04348a");
     assertThat(actionPlan.name()).isEqualTo("Long term");
+    assertThat(actionPlan.description()).isEqualTo("Long term acton plan");
     assertThat(actionPlan.project()).isEqualTo("com.sonarsource.it.samples:simple-sample");
     assertThat(actionPlan.status()).isEqualTo("CLOSED");
     assertThat(actionPlan.userLogin()).isEqualTo("admin");

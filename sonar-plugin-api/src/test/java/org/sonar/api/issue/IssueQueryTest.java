@@ -52,6 +52,7 @@ public class IssueQueryTest {
       .planned(true)
       .resolved(true)
       .sort(IssueQuery.SORT_BY_ASSIGNEE)
+      .asc(true)
       .pageSize(10)
       .pageIndex(2)
       .requiredRole(UserRole.USER)
@@ -72,9 +73,32 @@ public class IssueQueryTest {
     assertThat(query.planned()).isTrue();
     assertThat(query.resolved()).isTrue();
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_ASSIGNEE);
+    assertThat(query.asc()).isTrue();
     assertThat(query.pageSize()).isEqualTo(10);
     assertThat(query.pageIndex()).isEqualTo(2);
     assertThat(query.requiredRole()).isEqualTo(UserRole.USER);
+  }
+
+  @Test
+  public void should_build_query_without_dates() throws Exception {
+    IssueQuery query = IssueQuery.builder()
+      .issueKeys(Lists.newArrayList("ABCDE"))
+      .build();
+
+    assertThat(query.issueKeys()).containsOnly("ABCDE");
+    assertThat(query.createdAfter()).isNull();
+    assertThat(query.createdBefore()).isNull();
+  }
+
+  @Test
+  public void should_throw_exception_if_sort_is_not_valid() throws Exception {
+    try {
+      IssueQuery.builder()
+        .sort("UNKNOWN")
+        .build();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Bad sort field: UNKNOWN");
+    }
   }
 
   @Test
