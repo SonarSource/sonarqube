@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchSettings;
 
 import javax.annotation.Nullable;
@@ -39,9 +40,11 @@ import java.util.Map;
 public class ModuleSettings extends Settings {
 
   private final Configuration deprecatedCommonsConf;
+  private boolean dryRun;
 
   public ModuleSettings(BatchSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf) {
     super(batchSettings.getDefinitions());
+    this.dryRun = "true".equals(batchSettings.getString(CoreProperties.DRY_RUN));
 
     LoggerFactory.getLogger(ModuleSettings.class).info("Load module settings");
     this.deprecatedCommonsConf = deprecatedCommonsConf;
@@ -104,5 +107,13 @@ public class ModuleSettings extends Settings {
   @Override
   protected void doOnClearProperties() {
     deprecatedCommonsConf.clear();
+  }
+
+  @Override
+  protected void doOnGetProperties(String key) {
+    if (this.dryRun && key.endsWith(".secured") && !key.contains(".license")) {
+      throw new SonarException("Access to the secured property '" + key
+        + "' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin accessing to this property must be deactivated in dry run mode.");
+    }
   }
 }

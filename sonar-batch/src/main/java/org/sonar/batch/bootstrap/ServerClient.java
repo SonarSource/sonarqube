@@ -105,6 +105,10 @@ public class ServerClient implements BatchComponent {
     if (he.getResponseCode() == 401) {
       return new SonarException(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
     }
+    if (he.getResponseCode() == 403) {
+      // SONAR-4397 Details are in response content
+      return new SonarException(he.getResponseContent());
+    }
     return new SonarException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
   }
 

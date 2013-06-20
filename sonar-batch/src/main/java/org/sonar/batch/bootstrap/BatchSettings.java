@@ -28,13 +28,16 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
 public class BatchSettings extends Settings {
   private Configuration deprecatedConfiguration;
+  private boolean dryRun;
 
   // Keep module settings for initialization of ProjectSettings
   // module key -> <key,val>
@@ -45,7 +48,7 @@ public class BatchSettings extends Settings {
   private Map<String, String> savedProperties;
 
   public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
-                       ServerClient client, Configuration deprecatedConfiguration) {
+      ServerClient client, Configuration deprecatedConfiguration) {
     super(propertyDefinitions);
     this.bootstrapSettings = bootstrapSettings;
     this.client = client;
@@ -56,6 +59,8 @@ public class BatchSettings extends Settings {
   public void init(@Nullable ProjectReactor reactor) {
     savedProperties = this.getProperties();
 
+    // Do not use getBoolean to avoid recursion
+    this.dryRun = "true".equals(bootstrapSettings.property(CoreProperties.DRY_RUN));
     if (reactor != null) {
       LoggerFactory.getLogger(BatchSettings.class).info("Load project settings");
       String branch = bootstrapSettings.property(CoreProperties.PROJECT_BRANCH_PROPERTY);
@@ -87,9 +92,9 @@ public class BatchSettings extends Settings {
   private void downloadSettings(ServerClient client, @Nullable String projectKey) {
     String url;
     if (StringUtils.isNotBlank(projectKey)) {
-      url = "/batch_bootstrap/properties?project=" + projectKey;
+      url = "/batch_bootstrap/properties?project=" + projectKey + "&dryRun=" + dryRun;
     } else {
-      url = "/batch_bootstrap/properties";
+      url = "/batch_bootstrap/properties?dryRun=" + dryRun;
     }
     String jsonText = client.request(url);
     List<Map<String, String>> json = (List<Map<String, String>>) JSONValue.parse(jsonText);
@@ -128,5 +133,13 @@ public class BatchSettings extends Settings {
   @Override
   protected void doOnClearProperties() {
     deprecatedConfiguration.clear();
+  }
+
+  @Override
+  protected void doOnGetProperties(String key) {
+    if (dryRun && key.endsWith(".secured") && !key.contains(".license")) {
+      throw new SonarException("Access to the secured property '" + key
+        + "' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin accessing to this property must be deactivated in dry run mode.");
+    }
   }
 }

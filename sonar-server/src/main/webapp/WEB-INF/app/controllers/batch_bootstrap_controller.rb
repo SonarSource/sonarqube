@@ -26,19 +26,31 @@ class BatchBootstrapController < Api::ApiController
 
   # GET /batch_bootstrap/db?project=<key or id>
   def db
+    has_dryrun_role = has_role?(:dryrun)
+    return render_unauthorized("You're not authorized to execute a dry run analysis. Please contact your Sonar administrator.") if !has_dryrun_role
     project = load_project()
+    return render_unauthorized("You're not authorized to access to project '" + project.name + "', please contact your Sonar administrator") if project && !has_role?(:user, project)
     db_content = java_facade.createDatabaseForDryRun(project ? project.id : nil)
 
     send_data String.from_java_bytes(db_content)
   end
-
-  # GET /batch_bootstrap/properties?[project=<key or id>]
+  
+  # GET /batch_bootstrap/properties?[project=<key or id>][&dryRun=true|false]
   def properties
+    dryRun = params[:dryRun].present? && params[:dryRun] == "true"
+    has_dryrun_role = has_role?(:dryrun)
+    has_scan_role = has_role?(:scan)
+
+    return render_unauthorized("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.") if (!has_dryrun_role && !has_scan_role)
+    return render_unauthorized("You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. Please contact your SonarQube administrator.") if (!dryRun && !has_scan_role)
+    
     keys=Set.new
     properties=[]
     
     # project properties
     root_project = load_project()
+    return render_unauthorized("You're not authorized to access to project '" + root_project.name + "', please contact your Sonar administrator") if root_project && !has_role?(:scan) && !has_role?(:user, root_project)
+    
     if root_project
 	  # bottom-up projects
 	  projects=[root_project].concat(root_project.ancestor_projects)
@@ -57,7 +69,7 @@ class BatchBootstrapController < Api::ApiController
     # apply security
     has_user_role=has_role?(:user, root_project)
     has_admin_role=has_role?(:admin, root_project)
-    properties = properties.select{|prop| allowed?(prop.key, has_user_role, has_admin_role)}
+    properties = properties.select{|prop| allowed?(prop.key, dryRun, has_scan_role)}
     
     json_properties=properties.map { |property| to_json_property(property) }
 
@@ -70,12 +82,18 @@ class BatchBootstrapController < Api::ApiController
   end
 
   private
+  
+  def render_unauthorized(message, status=403)
+    respond_to do |format|
+      format.json { render :text => message, :status => status }
+      format.xml { render :text => message, :status => status }
+      format.text { render :text => message, :status => status }
+    end
+  end
 
   def load_project
     if params[:project].present?
-      project = Project.by_key(params[:project])
-      return access_denied if project && !has_role?(:user, project)
-      project
+      Project.by_key(params[:project])
     else
       nil
     end
@@ -87,9 +105,9 @@ class BatchBootstrapController < Api::ApiController
     hash
   end
 
-  def allowed?(property_key, has_user_role, has_admin_role)
+  def allowed?(property_key, dryRun, has_scan_role)
     if property_key.end_with?('.secured')
-      property_key.include?('.license') ? has_user_role : has_admin_role
+      property_key.include?('.license') ? true : (!dryRun && has_scan_role)
     else
       true
     end

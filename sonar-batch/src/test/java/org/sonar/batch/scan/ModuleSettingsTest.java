@@ -22,9 +22,13 @@ package org.sonar.batch.scan;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchSettings;
 
 import java.util.List;
@@ -34,6 +38,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ModuleSettingsTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testOrderedProjects() {
@@ -54,13 +61,13 @@ public class ModuleSettingsTest {
     BatchSettings batchSettings = mock(BatchSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
-      "overridding", "batch",
-      "on-batch", "true"
-    ));
+        "overridding", "batch",
+        "on-batch", "true"
+        ));
     when(batchSettings.getModuleProperties("struts-core")).thenReturn(ImmutableMap.of(
-      "on-module", "true",
-      "overridding", "module"
-    ));
+        "on-module", "true",
+        "overridding", "module"
+        ));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
     Configuration deprecatedConf = new PropertiesConfiguration();
@@ -74,5 +81,50 @@ public class ModuleSettingsTest {
     assertThat(deprecatedConf.getString("overridding")).isEqualTo("module");
     assertThat(deprecatedConf.getString("on-batch")).isEqualTo("true");
     assertThat(deprecatedConf.getString("on-module")).isEqualTo("true");
+  }
+
+  @Test
+  public void should_not_fail_when_accessing_secured_properties() {
+    BatchSettings batchSettings = mock(BatchSettings.class);
+    when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
+    when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
+        "sonar.foo.secured", "bar"
+        ));
+    when(batchSettings.getModuleProperties("struts-core")).thenReturn(ImmutableMap.of(
+        "sonar.foo.license.secured", "bar2"
+        ));
+
+    ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
+    Configuration deprecatedConf = new PropertiesConfiguration();
+
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf);
+
+    assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
+    assertThat(moduleSettings.getString("sonar.foo.secured")).isEqualTo("bar");
+  }
+
+  @Test
+  public void should_fail_when_accessing_secured_properties_in_dryrun() {
+    BatchSettings batchSettings = mock(BatchSettings.class);
+    when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
+    when(batchSettings.getString(CoreProperties.DRY_RUN)).thenReturn("true");
+    when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
+        "sonar.foo.secured", "bar"
+        ));
+    when(batchSettings.getModuleProperties("struts-core")).thenReturn(ImmutableMap.of(
+        "sonar.foo.license.secured", "bar2"
+        ));
+
+    ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
+    Configuration deprecatedConf = new PropertiesConfiguration();
+
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf);
+
+    assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
+
+    thrown.expect(SonarException.class);
+    thrown
+        .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin accessing to this property must be deactivated in dry run mode.");
+    moduleSettings.getString("sonar.foo.secured");
   }
 }

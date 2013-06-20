@@ -30,6 +30,7 @@ import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -74,7 +75,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
   @Override
   String[] getSupportedSchemes() {
-    return new String[]{"http", "https"};
+    return new String[] {"http", "https"};
   }
 
   @Override
@@ -130,8 +131,8 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
   public static class BaseHttpDownloader {
     private static final List<String> PROXY_SETTINGS = ImmutableList.of(
-      "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
-      "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
+        "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
+        "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
 
     private String userAgent;
 
@@ -175,8 +176,8 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
     private void registerProxyCredentials(Map<String, String> settings) {
       Authenticator.setDefault(new ProxyAuthenticator(
-        settings.get("http.proxyUser"),
-        settings.get("http.proxyPassword")));
+          settings.get("http.proxyUser"),
+          settings.get("http.proxyPassword")));
     }
 
     private boolean requiresProxyAuthentication(Map<String, String> settings) {
@@ -228,7 +229,19 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
         int responseCode = connection.getResponseCode();
         if (responseCode >= 400) {
-          throw new HttpException(uri, responseCode);
+          InputStream errorResponse = null;
+          try {
+            errorResponse = connection.getErrorStream();
+            if (errorResponse != null) {
+              String errorResponseContent = IOUtils.toString(errorResponse);
+              throw new HttpException(uri, responseCode, errorResponseContent);
+            }
+            else {
+              throw new HttpException(uri, responseCode);
+            }
+          } finally {
+            IOUtils.closeQuietly(errorResponse);
+          }
         }
 
         return connection.getInputStream();
@@ -252,11 +265,17 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
   public static class HttpException extends RuntimeException {
     private final URI uri;
     private final int responseCode;
+    private final String responseContent;
 
-    public HttpException(URI uri, int responseCode) {
+    public HttpException(URI uri, int responseContent) {
+      this(uri, responseContent, null);
+    }
+
+    public HttpException(URI uri, int responseCode, String responseContent) {
       super("Fail to download [" + uri + "]. Response code: " + responseCode);
       this.uri = uri;
       this.responseCode = responseCode;
+      this.responseContent = responseContent;
     }
 
     public int getResponseCode() {
@@ -265,6 +284,10 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
     public URI getUri() {
       return uri;
+    }
+
+    public String getResponseContent() {
+      return responseContent;
     }
   }
 }

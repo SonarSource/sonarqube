@@ -107,6 +107,7 @@ public class Settings implements BatchComponent, ServerComponent {
    * Does not decrypt value.
    */
   protected String getClearString(String key) {
+    doOnGetProperties(key);
     String validKey = definitions.validKey(key);
     String value = properties.get(validKey);
     if (value == null) {
@@ -383,5 +384,8 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   protected void doOnClearProperties() {
+  }
+
+  protected void doOnGetProperties(String key) {
   }
 }

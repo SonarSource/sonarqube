@@ -9,7 +9,7 @@
   </tr>
   </thead>
   <tbody>
-    <% ['admin', 'profileadmin', 'sharedashboard'].each do |globalRole| %>
+    <% ['admin', 'profileadmin', 'sharedashboard', 'scan', 'dryrun'].each do |globalRole| %>
     <tr class="<%= cycle('even', 'odd', :name => 'globalRole') -%>" >
       <td valign="top">
         <b><%= message('global_role.' + globalRole) -%></b><br/>
