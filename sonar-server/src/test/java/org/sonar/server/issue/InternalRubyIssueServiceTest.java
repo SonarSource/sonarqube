@@ -306,6 +306,25 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
+  public void should_not_create_issue_filter() {
+    Result result = service.createIssueFilter(Maps.<String, String>newHashMap());
+    assertThat(result.ok()).isFalse();
+    verify(issueFilterService, never()).save(any(DefaultIssueFilter.class), any(UserSession.class));
+  }
+
+  @Test
+  public void should_return_error_on_create_issue_filter() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", "Long term");
+    parameters.put("description", "Long term issues");
+
+    doThrow(new RuntimeException("Error")).when(issueFilterService).save(any(DefaultIssueFilter.class), any(UserSession.class));
+    Result result = service.createIssueFilter(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
+  }
+
+  @Test
   public void should_update_issue_filter() {
     Map<String, String> parameters = newHashMap();
     parameters.put("id", "10");
@@ -324,6 +343,26 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
+  public void should_not_update_issue_filter() {
+    Result result = service.updateIssueFilter(Maps.<String, String>newHashMap());
+    assertThat(result.ok()).isFalse();
+    verify(issueFilterService, never()).update(any(DefaultIssueFilter.class), any(UserSession.class));
+  }
+
+  @Test
+  public void should_return_error_on_update_issue_filter() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("id", "10");
+    parameters.put("name", "Long term");
+    parameters.put("description", "Long term issues");
+
+    doThrow(new RuntimeException("Error")).when(issueFilterService).update(any(DefaultIssueFilter.class), any(UserSession.class));
+    Result result = service.updateIssueFilter(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
+  }
+
+  @Test
   public void should_update_data() {
     Map<String, Object> data = newHashMap();
     service.updateIssueFilterQuery(10L, data);
@@ -334,6 +373,14 @@ public class InternalRubyIssueServiceTest {
   public void should_delete_issue_filter() {
     Result<DefaultIssueFilter> result = service.deleteIssueFilter(1L);
     assertThat(result.ok()).isTrue();
+  }
+
+  @Test
+  public void should_return_error_on_delete_issue_filter() {
+    doThrow(new RuntimeException("Error")).when(issueFilterService).delete(anyLong(), any(UserSession.class));
+    Result result = service.deleteIssueFilter(1L);
+    assertThat(result.ok()).isFalse();
+    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
   }
 
   @Test
@@ -350,6 +397,25 @@ public class InternalRubyIssueServiceTest {
     DefaultIssueFilter issueFilter =  issueFilterCaptor.getValue();
     assertThat(issueFilter.name()).isEqualTo("Copy of Long term");
     assertThat(issueFilter.description()).isEqualTo("Copy of Long term issues");
+  }
+
+  @Test
+  public void should_not_copy_issue_filter() {
+    Result result = service.copyIssueFilter(1L, Maps.<String, String>newHashMap());
+    assertThat(result.ok()).isFalse();
+    verify(issueFilterService, never()).copy(anyLong(), any(DefaultIssueFilter.class), any(UserSession.class));
+  }
+
+  @Test
+  public void should_return_error_on_copy_issue_filter() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("name", "Copy of Long term");
+    parameters.put("description", "Copy of Long term issues");
+
+    doThrow(new RuntimeException("Error")).when(issueFilterService).copy(anyLong(), any(DefaultIssueFilter.class), any(UserSession.class));
+    Result result = service.copyIssueFilter(1L, parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
   }
 
   @Test
@@ -443,8 +509,17 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_toggle_favourite_issue_filter() {
-    service.toggleFavouriteIssueFilter(10L);
+    Result result = service.toggleFavouriteIssueFilter(10L);
+    assertThat(result.ok()).isTrue();
     verify(issueFilterService).toggleFavouriteIssueFilter(eq(10L), any(UserSession.class));
+  }
+
+  @Test
+  public void should_return_error_on_toggle_favourite_issue_filter() {
+    doThrow(new RuntimeException("Error")).when(issueFilterService).toggleFavouriteIssueFilter(eq(10L), any(UserSession.class));
+    Result result = service.toggleFavouriteIssueFilter(10L);
+    assertThat(result.ok()).isFalse();
+    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
   }
 
   @Test
