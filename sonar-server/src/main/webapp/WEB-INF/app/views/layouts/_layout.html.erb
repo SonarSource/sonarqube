@@ -195,8 +195,9 @@
       <div><%= message('layout.sonarqube_powered_by') -%> <a href="http://www.sonarsource.com" target="SonarSource SA">SonarSource SA</a></div>
       <div>
         Version <%= sonar_version -%> -
-        <a href="http://sonar.codehaus.org/documentation" target="sonar_doc"><%= message('layout.documentation') -%></a> -
-        <a href="http://sonar.codehaus.org/support/" target="support"><%= message('layout.get_support') -%></a> -
+        <a href="http://www.sonarqube.org" target="sonar"><%= message('layout.community') -%></a> -
+        <a href="http://www.sonarqube.org/documentation" target="sonar_doc"><%= message('layout.documentation') -%></a> -
+        <a href="http://www.sonarqube.org/support" target="support"><%= message('layout.get_support') -%></a> -
         <a href="http://sonar-plugins.codehaus.org" target="plugins"><%= message('layout.plugins') -%></a>
         <% unless DatabaseVersion.production? %>
           <br/><span class="yellowHighlight" id="evaluation_warning"><%= message('layout.evaluation') -%></span>
