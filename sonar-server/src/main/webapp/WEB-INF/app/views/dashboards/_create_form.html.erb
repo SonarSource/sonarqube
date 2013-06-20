@@ -6,12 +6,12 @@
   <% end %>
   <fieldset>
     <div class="modal-head">
-      <h2><%= message('dashboard.create_dashboard') -%></h2>
+      <h2><%= message('dashboard.new_dashboard') -%></h2>
     </div>
     <div class="modal-body">
       <% if @dashboard %>
-        <% @dashboard.errors.each do |attr, msg| %>
-          <p class="error"><%= h "#{attr} #{msg}" -%></p>
+        <% @dashboard.errors.full_messages.each do |msg| %>
+          <p class="error"><%= h msg -%></p>
         <% end %>
       <% end %>
       <div class="modal-field">
@@ -30,7 +30,7 @@
       <% end %>
     </div>
     <div class="modal-foot">
-      <input type="submit" value="<%= h message('save') -%>" id="save-submit"/>
+      <input type="submit" value="<%= h message('dashboard.create_dashboard') -%>" id="save-submit"/>
       <a href="#" onclick="return closeModalWindow()" id="save-cancel"><%= h message('cancel') -%></a>
     </div>
   </fieldset>
