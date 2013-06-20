@@ -231,6 +231,7 @@ public class IssueFilterServiceTest {
 
     DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter"), userSession);
     assertThat(result.name()).isEqualTo("My New Filter");
+    assertThat(result.shared()).isFalse();
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
   }

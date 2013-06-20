@@ -49,6 +49,7 @@ class IssuesController < ApplicationController
     @unchanged = true
 
     @criteria_params = criteria_params
+    @filter = find_filter(params[:id].to_i)
     issue_filter_result = Internal.issues.execute(params[:id].to_i, @criteria_params)
     @issue_query = issue_filter_result.query
     @issues_result = issue_filter_result.result
