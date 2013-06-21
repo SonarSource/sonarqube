@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>3.6-RC4</version>
+    <version>3.6-SNAPSHOT</version>
     <relativePath>../..</relativePath>
   </parent>
   <groupId>org.codehaus.sonar.plugins</groupId>
