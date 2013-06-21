@@ -45,7 +45,7 @@ public class ProjectExclusionsTest {
     ProjectReactor reactor = newReactor("root", "sub1", "sub2");
 
     ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.start();
+    exclusions.apply();
 
     assertThat(reactor.getProject("root")).isNotNull();
     assertThat(reactor.getProject("sub1")).isNull();
@@ -57,7 +57,7 @@ public class ProjectExclusionsTest {
     Settings settings = new Settings();
     ProjectReactor reactor = newReactor("root", "sub1", "sub2");
     ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.start();
+    exclusions.apply();
 
     assertThat(reactor.getProject("root")).isNotNull();
     assertThat(reactor.getProject("sub1")).isNotNull();
@@ -70,7 +70,7 @@ public class ProjectExclusionsTest {
     settings.setProperty("sonar.includedModules", "sub1");
     ProjectReactor reactor = newReactor("root", "sub1", "sub2");
     ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.start();
+    exclusions.apply();
 
     assertThat(reactor.getProject("root")).isNotNull();
     assertThat(reactor.getProject("sub1")).isNotNull();
@@ -88,7 +88,7 @@ public class ProjectExclusionsTest {
 
     ProjectReactor reactor = new ProjectReactor(root);
     ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.start();
+    exclusions.apply();
 
     assertThat(reactor.getProject("root")).isNotNull();
     assertThat(reactor.getProject("sub1")).isNull();
@@ -102,7 +102,7 @@ public class ProjectExclusionsTest {
 
     ProjectReactor reactor = newReactor("root", "sub1", "sub2");
     ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.start();
+    exclusions.apply();
   }
 
   @Test
@@ -113,7 +113,7 @@ public class ProjectExclusionsTest {
     settings.setProperty("sonar.skippedModules", "struts-taglib");
 
     ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.start();
+    exclusions.apply();
 
     assertThat(reactor.getProject("org.apache.struts:struts")).isNotNull();
     assertThat(reactor.getProject("org.apache.struts:struts-core")).isNotNull();

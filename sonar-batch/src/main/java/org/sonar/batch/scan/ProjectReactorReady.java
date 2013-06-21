@@ -42,8 +42,10 @@ public class ProjectReactorReady {
   private final ProjectReactor reactor;
   private final Settings settings;
   private ProjectBuilder[] projectBuilders;
+  private ProjectExclusions exclusions;
 
   public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, Settings settings, @Nullable ProjectBuilder[] projectBuilders) {
+    this.exclusions = exclusions;
     this.reactor = reactor;
     this.settings = settings;
     this.projectBuilders = projectBuilders;
@@ -54,6 +56,7 @@ public class ProjectReactorReady {
   }
 
   public void start() {
+    // 1 Apply project builders
     ProjectBuilderContext context = new ProjectBuilderContext() {
 
       @Override
@@ -65,6 +68,11 @@ public class ProjectReactorReady {
     for (ProjectBuilder projectBuilder : projectBuilders) {
       projectBuilder.build(context);
     }
+
+    // 2 Apply project exclusions
+    exclusions.apply();
+
+    // 3 Validate final reactor
     ProjectReactorValidator validator = new ProjectReactorValidator(settings);
     validator.validate(reactor);
   }
