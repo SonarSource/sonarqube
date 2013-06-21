@@ -22,6 +22,8 @@ class IssuesController < ApplicationController
   before_filter :init_options
   before_filter :load_filters, :only => [:index, :search, :filter, :manage, :toggle_fav]
 
+  PAGE_SIZE = 100
+
   # GET /issues/index
   def index
     redirect_to :action => 'search'
@@ -34,6 +36,7 @@ class IssuesController < ApplicationController
     end
 
     @criteria_params = criteria_params
+    @criteria_params['pageSize'] = PAGE_SIZE
     @first_search = @criteria_params.empty?
     issue_filter_result = Internal.issues.execute(@criteria_params)
     @issue_query = issue_filter_result.query
@@ -49,6 +52,7 @@ class IssuesController < ApplicationController
     @unchanged = true
 
     @criteria_params = criteria_params
+    @criteria_params['pageSize'] = PAGE_SIZE
     @filter = find_filter(params[:id].to_i)
     issue_filter_result = Internal.issues.execute(params[:id].to_i, @criteria_params)
     @issue_query = issue_filter_result.query
