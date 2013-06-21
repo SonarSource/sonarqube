@@ -911,12 +911,14 @@ module ApplicationHelper
   # Options :
   # :id HTML id of the <tfoot> node
   # :colspan number of columns in the table
+  # :url_results url to display on the number of results
   # :include_loading_icon add a hidden loading icon, only if value is true and if the option :id is set as well. The HTML id of the generated icon
   #    is '<id>_loading'
   def paginate_java(pagination, options={}, &block)
     total = pagination.total.to_i
     page_index = pagination.pageIndex() ? pagination.pageIndex().to_i : 1
     pages = pagination.pages().to_i
+    results_html = options[:url_results] ? message('x_results', :params => "<a href='#{options[:url_results]}'>#{total}</a>") : message('x_results', :params => [total])
 
     html = '<tfoot'
     html += " id='#{options[:id]}'" if options[:id]
@@ -929,7 +931,7 @@ module ApplicationHelper
     html += '<div'
     html += " id='#{options[:id]}_pages'" if options[:id]
     html += '>'
-    html += message('x_results', :params => [total]) if total>0
+    html += results_html if total>0
 
     if pages > 1
       max_pages = pages
