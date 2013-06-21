@@ -29,7 +29,7 @@
   <table id="issues-widget-list-<%= widget_id -%>" class="data width100">
     <thead>
     <tr>
-      <th coslpan="4">
+      <th coslpan="3">
       </th>
     </tr>
     </thead>
@@ -71,7 +71,7 @@
        link_params[:widget_id] = widget_id
        link_params[:period] = params[:period]
     %>
-    <%= paginate_java(paging, :colspan => 4, :id => "issue-filter-foot-#{widget_id}", :include_loading_icon => true,
+    <%= paginate_java(paging, :colspan => 3, :id => "issue-filter-foot-#{widget_id}", :include_loading_icon => true,
                       :url_results => url_for({:controller => 'issues', :action => 'search' }.merge(search_options)) ) { |label, page_id|
       link_to_remote(label,
                      :update => "issues-widget-#{widget_id}",
