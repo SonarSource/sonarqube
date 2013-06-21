@@ -1,5 +1,10 @@
 <form id="delete-dashboard-form" method="post" action="<%= ApplicationController.root_context -%>/dashboards/delete">
-  <input type="hidden" name="id" value="<%= params[:id] -%>">
+  <input type="hidden" name="id" value="<%= @dashboard.id -%>">
+  <% if @dashboard.global %>
+    <input type="hidden" name="global" value="true" />
+  <% else %>
+    <input type="hidden" name="resource" value="<%= params[:resource] %>"/>
+  <% end %>
   <fieldset>
     <div class="modal-head">
       <h2><%= message 'dashboard.delete_confirm_title' -%></h2>
@@ -19,3 +24,10 @@
     </div>
   </fieldset>
 </form>
+
+<script>
+  $j("#delete-dashboard-form").modalForm({success: function (data) {
+    var contextParams = data.trim().length > 0 ? '?resource=' + data.trim() : '';
+    window.location = baseUrl + '/dashboards' + contextParams;
+  }});
+</script>

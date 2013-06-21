@@ -100,23 +100,23 @@ class DashboardsController < ApplicationController
     if @dashboard.editable_by?(current_user)
       render :partial => 'delete_form', :resource => params[:resource]
     else
-      redirect_to :action => 'index', :resource => params[:resource]
+      access_denied
     end
   end
 
   def delete
     verify_post_request
-    dashboard=Dashboard.find(params[:id])
+    @dashboard=Dashboard.find(params[:id])
 
-    access_denied unless dashboard.editable_by?(current_user)
+    access_denied unless @dashboard.editable_by?(current_user)
 
-    if dashboard.destroy
+    if @dashboard.destroy
       flash[:warning]=Api::Utils.message('dashboard.default_restored') if ActiveDashboard.count(:conditions => {:user_id => current_user.id})==0
+      render :text => params[:resource], :status => 200
     else
-      flash[:error]=Api::Utils.message('dashboard.error_delete_default')
+      @dashboard.errors.add(message('dashboard.error_delete_default'), ' ')
+      render :partial => 'dashboards/delete_form', :status => 400, :resource => params[:resource]
     end
-
-    redirect_to :action => 'index', :resource => params[:resource]
   end
 
   def down
