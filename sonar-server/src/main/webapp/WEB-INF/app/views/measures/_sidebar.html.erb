@@ -11,7 +11,6 @@
     function submitSearch() {
       // remove empty parameters from URL
       var form = $j("#search-form");
-      form.find(':input[value=""]').attr('disabled', 'disabled');
       return true;
     }
     function removeUrlAttr(url, attribute_key) {
@@ -33,28 +32,44 @@
       $j('#more-criteria')
         .select2({allowClear: true, width: '100%', placeholder: '<%= message 'measure_filter.more_criteria' -%>'})
         .on("change", function (e) {
-          $j("#criteria-" + e.val).insertBefore($j("#more-td")).show();
-          if (e.val == 'lang' || e.val == 'project') {
-            $j("#select-" + e.val).select2("enable");
-            $j("#select-" + e.val).select2("focus");
-          } else if (e.val=='fav') {
-            $j('#check-fav').attr('checked', 'checked');
-          }
+            $j("#criteria-" + e.val).insertBefore($j("#more-td")).show();
 
-          if (e.val == 'metric') {
-            if (hiddenConditionIndexes.length > 0) {
-              var index = hiddenConditionIndexes.pop();
-              $j("#criteria-metric-" + index).insertBefore($j("#more-td")).show();
-              $j("#c" + index + "_metric").select2("focus");
-              if (hiddenConditionIndexes.length == 0) {
-                $j("#more-criteria option[value='metric']").remove();
-              }
+            if (e.val == 'lang' || e.val == 'project') {
+              $j("#select-" + e.val).select2("enable");
+              $j("#select-" + e.val).select2("focus");
+            } else if (e.val == 'fav') {
+              $j('#check-fav').attr('checked', 'checked');
+            } else if (e.val == 'date') {
+              $j("#criteria-" + e.val + " input[name=fromDate]").focus();
+            } else if (e.val == 'age') {
+              $j("#criteria-" + e.val + " input[name=ageMinDays]").focus();
+            } else if (e.val == 'key') {
+              $j("#criteria-" + e.val + " input").focus();
+            } else if (e.val == 'name') {
+              $j("#criteria-" + e.val + " input").focus();
             }
-          } else {
-            $j("#more-criteria option[value='" + e.val + "']").remove();
-          }
-          $j("#more-criteria").select2("val", "");
-        });
+
+            if (e.val == 'metric') {
+              if (hiddenConditionIndexes.length > 0) {
+                var index = hiddenConditionIndexes.pop();
+                $j("#criteria-metric-" + index).insertBefore($j("#more-td")).show();
+                $j("#c" + index + "_metric").select2("enable");
+                $j("#c" + index + "_metric").select2("focus");
+                $j("#c" + index + "_metric").removeAttr("disabled");
+                $j("#c" + index + "_period").removeAttr('disabled');
+                $j("#c" + index + "_op").removeAttr('disabled');
+                $j("#c" + index + "_val").removeAttr('disabled');
+                if (hiddenConditionIndexes.length == 0) {
+                  $j("#more-criteria option[value='metric']").remove();
+                }
+              }
+            } else {
+              // applies to any criteria except metrics
+              $j("#criteria-" + e.val + " input").removeAttr('disabled');
+              $j("#more-criteria option[value='" + e.val + "']").remove();
+            }
+            $j("#more-criteria").select2("val", "");
+          });
     });
   </script>
 <% end %>
@@ -103,49 +118,75 @@
                               :allow_clear => true
       -%>
     </li>
+
     <li id="criteria-lang" <%= "style='display:none'" unless @filter.criteria('languages') -%> class="marginbottom5">
       <% languages = [['', '']].concat(Api::Utils.languages.map { |lang| [lang.name, lang.key] }) %>
       <%= select_tag 'languages[]', options_for_select(languages, @filter.criteria['languages']), :multiple => true, :id => 'select-lang' -%>
     </li>
+
     <li id="criteria-name" <%= "style='display:none'" unless @filter.criteria('nameSearch') -%> class="marginbottom5">
       <%= message('measure_filter.name_contains') -%>:<br>
-      <input type="text" name="nameSearch" value="<%= h @filter.criteria['nameSearch'] -%>">
+      <input type="text" name="nameSearch" value="<%= h @filter.criteria['nameSearch'] -%>" <%= 'disabled' if @filter.criteria['nameSearch'].blank? -%>>
     </li>
+
     <li id="criteria-key" <%= "style='display:none'" unless @filter.criteria('keyRegexp') -%> class="marginbottom5">
       <%= message('measure_filter.key_like') -%>:<br>
-      <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>"><br>
+      <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>" <%= 'disabled' if @filter.criteria['keyRegexp'].blank? -%>><br>
       <span class="note"><%= message 'measure.filter.criteria.key_note' -%></span>
     </li>
+
     <li id="criteria-fav" <%= "style='display:none'" unless @filter.criteria('onFavourites') -%> class="marginbottom5">
       <img src="<%= ApplicationController.root_context -%>/images/star.png"> <%= message 'measure_filter.criteria.only_favourites' %>:
       <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true', :id => 'check-fav' -%>
     </li>
 
-    <% condition_metrics = Metric.all.select { |m| m.numeric? && !m.hidden } %>
-    <% for i in 1..3 %>
+    <%
+       condition_metrics = Metric.all.select { |m| m.numeric? && !m.hidden }
+       for i in 1..3
+         disabled = @filter.criteria("c#{i}_metric").blank?
+    %>
       <li id="criteria-metric-<%= i -%>" style="<%= "display: none" if hidden_condition_indexes.include?(i) -%>" class="marginbottom5">
-        <%= metric_select_tag "c#{i}_metric", condition_metrics, :allow_empty => true, :selected_key => @filter.criteria("c#{i}_metric"), :width => '100%', :placeholder => message('measure_filter.criteria.metric') -%>
-        <%= select_tag "c#{i}_period", options_for_select([[message('value'), ''], [Api::Utils.period_label(1), '1'], [Api::Utils.period_label(2), '2'], [Api::Utils.period_label(3), '3']], @filter.criteria("c#{i}_period")) -%>
+        <%= metric_select_tag "c#{i}_metric", condition_metrics,
+                              :allow_empty => true,
+                              :selected_key => @filter.criteria("c#{i}_metric"),
+                              :width => '100%',
+                              :placeholder => message('measure_filter.criteria.metric'),
+                              :disabled => disabled
+        -%>
+        <%=
+            select_tag "c#{i}_period",
+                       options_for_select([[message('value'), ''], [Api::Utils.period_label(1), '1'], [Api::Utils.period_label(2), '2'], [Api::Utils.period_label(3), '3']], @filter.criteria("c#{i}_period")),
+                       :disabled => disabled
+        -%>
         <br>
-        <%= select_tag "c#{i}_op", options_for_select([['=', 'eq'], ['<', 'lt'], ['<=', 'lte'], ['>', 'gt'], ['>=', 'gte']], @filter.criteria("c#{i}_op")) -%>
-        <input type="text" size="5" name="c<%= i -%>_val" value="<%= h @filter.criteria("c#{i}_val") -%>">
+        <%= select_tag "c#{i}_op",
+                       options_for_select([['=', 'eq'], ['<', 'lt'], ['<=', 'lte'], ['>', 'gt'], ['>=', 'gte']], @filter.criteria("c#{i}_op")),
+                       :disabled => disabled
+        -%>
+        <input type="text" size="5" id="c<%= i -%>_val" name="c<%= i -%>_val" value="<%= h @filter.criteria("c#{i}_val") -%>" <%= 'disabled' if disabled -%>/>
       </li>
     <% end %>
+
     <li id="criteria-date" <%= "style='display:none'" unless @filter.criteria('fromDate') || @filter.criteria('toDate') -%> class="marginbottom5">
+      <% disabled = @filter.criteria['fromDate'].blank? && @filter.criteria['toDate'].blank? %>
       <%= message('measure_filter.criteria.from_date') -%>:<br>
-      <input type="text" name="fromDate" value="<%= @filter.criteria['fromDate'] -%>" size="10" maxlength="10" class="marginbottom5">
+      <input type="text" name="fromDate" value="<%= @filter.criteria['fromDate'] -%>" size="10" maxlength="10" class="marginbottom5" <%= 'disabled' if disabled -%>>
       <br>
       <%= message 'measure_filter.criteria.to_date' -%>:<br>
-      <input type="text" name="toDate" value="<%= @filter.criteria['toDate'] -%>" size="10" maxlength="10"><br>
+      <input type="text" name="toDate" value="<%= @filter.criteria['toDate'] -%>" size="10" maxlength="10" <%= 'disabled' if disabled -%>><br>
       <span class="small gray"><%= message 'measure_filter.criteria.date_format' -%></span>
     </li>
+
+
     <li id="criteria-age" <%= "style='display:none'" unless @filter.criteria('ageMinDays') || @filter.criteria('ageMaxDays') -%> class="marginbottom5">
+      <% disabled = @filter.criteria['ageMinDays'].blank? && @filter.criteria['ageMaxDays'].blank? %>
       <%= message 'measure_filter.criteria.age.more_than' -%>:<br>
-      <input type="text" name="ageMinDays" value="<%= @filter.criteria['ageMinDays'] -%>" size="3" class="marginbottom5"> <%= message 'measure_filter.criteria.age.days_ago' -%>
+      <input type="text" name="ageMinDays" value="<%= @filter.criteria['ageMinDays'] -%>" size="3" class="marginbottom5" <%= 'disabled' if disabled -%>> <%= message 'measure_filter.criteria.age.days_ago' -%>
       <br>
       <%= message 'measure_filter.criteria.age.within_last' -%>:<br>
-      <input type="text" name="ageMaxDays" value="<%= @filter.criteria['ageMaxDays'] -%>" size="3"> <%= message 'measure_filter.criteria.age.days' -%>
+      <input type="text" name="ageMaxDays" value="<%= @filter.criteria['ageMaxDays'] -%>" size="3" <%= 'disabled' if disabled -%>> <%= message 'measure_filter.criteria.age.days' -%>
     </li>
+
     <li id="more-td" class="marginbottom5">
       <select id="more-criteria">
         <option value=""></option>
