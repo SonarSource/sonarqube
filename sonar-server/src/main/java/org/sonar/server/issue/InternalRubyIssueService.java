@@ -588,7 +588,7 @@ public class InternalRubyIssueService implements ServerComponent {
   /**
    * Execute a bulk change
    */
-  public Result<List<Issue>> executebulkChange(Map<String, Object> props) {
+  public Result<List<Issue>> executeBulkChange(Map<String, Object> props) {
     Result<List<Issue>> result = Result.of();
     try {
       IssueBulkChangeQuery issueBulkChangeQuery = toIssueBulkChangeQuery(props);

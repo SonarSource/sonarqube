@@ -534,7 +534,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_execute_bulk_change() {
-    service.executebulkChange(Maps.<String, Object>newHashMap());
+    service.executeBulkChange(Maps.<String, Object>newHashMap());
     verify(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
   }
 
@@ -542,7 +542,7 @@ public class InternalRubyIssueServiceTest {
   public void should_no_execute_bulk_change_if_unexpected_error() {
     doThrow(new RuntimeException("Error")).when(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
 
-    Result result = service.executebulkChange(Maps.<String, Object>newHashMap());
+    Result result = service.executeBulkChange(Maps.<String, Object>newHashMap());
     assertThat(result.ok()).isFalse();
     assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
   }

@@ -178,6 +178,12 @@ class IssuesController < ApplicationController
     end
   end
 
+  # GET /issues/bulk_change_form?[&criteria]
+  def bulk_change_form
+
+    render :partial => 'issues/bulk_change_form'
+  end
+
 
   private
 

@@ -1,0 +1,17 @@
+<form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
+  <input type="hidden" name="data" value="<%= params[:data] || u(@filter_query_serialized) -%>">
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message('issue_filter.bulk_change') -%></h2>
+    </div>
+    <div class="modal-foot">
+      <input type="submit" value="<%= message('submit') -%>" id="bulk-change-submit"/>
+      <a href="#" onclick="return closeModalWindow()" id="bulk-change-cancel"><%= message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+<script>
+  $j("#bulk-change-form").modalForm({success:function (data) {
+    window.location = baseUrl + '/issues/filter/' + data;
+  }});
+</script>
