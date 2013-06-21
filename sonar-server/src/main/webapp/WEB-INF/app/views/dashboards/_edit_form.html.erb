@@ -45,6 +45,7 @@
 
 <script>
   $j("#edit-dashboard-form").modalForm({success: function (data) {
-    window.location = baseUrl + '/dashboards';
+    var contextParams = data.trim().length > 0 ? '?resource=' + data.trim() : '';
+    window.location = baseUrl + '/dashboards' + contextParams;
   }});
 </script>
