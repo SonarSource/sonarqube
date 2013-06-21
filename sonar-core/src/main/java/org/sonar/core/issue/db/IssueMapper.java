@@ -36,8 +36,6 @@ public interface IssueMapper {
   List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
                               @Nullable @Param("userId") Integer userId, @Param("role") String role, @Param("maxResults") Integer maxResult);
 
-  List<IssueDto> selectByIds(@Param("ids") Collection<Long> ids);
-
   void insert(IssueDto issue);
 
   int update(IssueDto issue);

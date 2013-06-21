@@ -618,7 +618,7 @@ module ApplicationHelper
       js += "$j('##{html_id}').select2('open');"
     end
 
-    "#{html}<script>#{js}</script>"
+    "#{html}<script>$j(document).ready(function(){#{js}});</script>"
   end
 
 
@@ -774,7 +774,7 @@ module ApplicationHelper
                       :disabled => options[:disabled],
                       :id => html_id)
     js = "$j('##{html_id}').select2({#{js_options.map { |k, v| "#{k}:#{v}" }.join(',')}});"
-    "#{html}<script>#{js}</script>"
+    "#{html}<script>$j(document).ready(function() {#{js}});</script>"
   end
 
   #
@@ -810,7 +810,7 @@ module ApplicationHelper
     if options[:open]
       js += "$j('##{html_id}').select2('open');"
     end
-    "#{html}<script>#{js}</script>"
+    "#{html}<script>$j(document).ready(function() {#{js}});</script>"
   end
 
   #

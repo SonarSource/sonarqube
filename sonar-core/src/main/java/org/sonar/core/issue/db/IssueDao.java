@@ -21,6 +21,7 @@
 package org.sonar.core.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
@@ -34,6 +35,10 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * @since 3.6
@@ -113,6 +118,9 @@ public class IssueDao implements BatchComponent, ServerComponent {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
-    return session.getMapper(IssueMapper.class).selectByIds(ids);
+    Object idsPartition = Lists.partition(newArrayList(ids), 1000);
+    Map<String, Object> params = newHashMap();
+    params.put("ids", idsPartition);
+    return session.selectList("org.sonar.core.issue.db.IssueMapper.selectByIds", params);
   }
 }

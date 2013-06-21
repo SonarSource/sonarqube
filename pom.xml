@@ -1054,6 +1054,12 @@
         <groupId>com.akiban</groupId>
         <artifactId>akiban-persistit</artifactId>
         <version>3.2.7</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.github.kevinsawicki</groupId>
