@@ -35,9 +35,9 @@ class IssuesController < ApplicationController
       @filter = find_filter(params[:id].to_i)
     end
 
+    @first_search = criteria_params.empty?
     @criteria_params = criteria_params
     @criteria_params['pageSize'] = PAGE_SIZE
-    @first_search = @criteria_params.empty?
     issue_filter_result = Internal.issues.execute(@criteria_params)
     @issue_query = issue_filter_result.query
     @issues_result = issue_filter_result.result
