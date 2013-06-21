@@ -23,6 +23,9 @@ package org.sonar.server.issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 
+/**
+ * @since 3.7
+ */
 public class IssueFilterResult {
 
   private IssueQueryResult issueQueryResult;

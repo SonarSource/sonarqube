@@ -28,6 +28,9 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 
+/**
+ * @since 3.6
+ */
 public class ServerIssueStorage extends IssueStorage implements ServerComponent {
 
   private final ResourceDao resourceDao;

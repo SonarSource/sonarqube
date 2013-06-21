@@ -50,6 +50,9 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * @since 3.6
+ */
 public class ActionService implements ServerComponent {
 
   private final DefaultIssueFinder finder;

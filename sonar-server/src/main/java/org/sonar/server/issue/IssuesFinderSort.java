@@ -29,6 +29,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @since 3.6
+ */
 class IssuesFinderSort {
 
   private List<IssueDto> issues;

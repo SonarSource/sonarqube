@@ -30,6 +30,9 @@ import org.sonar.server.user.UserSession;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * @since 3.6
+ */
 public class IssueChangelogService implements ServerComponent {
 
   private final IssueChangeDao changeDao;

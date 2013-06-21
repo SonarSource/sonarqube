@@ -44,6 +44,9 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * @since 3.7
+ */
 public class IssueFilterService implements ServerComponent {
 
   private final IssueFilterDao issueFilterDao;
@@ -72,7 +75,10 @@ public class IssueFilterService implements ServerComponent {
   @CheckForNull
   public DefaultIssueFilter findById(Long id) {
     IssueFilterDto issueFilterDto = issueFilterDao.selectById(id);
-    return issueFilterDto.toIssueFilter();
+    if (issueFilterDto != null) {
+      return issueFilterDto.toIssueFilter();
+    }
+    return null;
   }
 
   public List<DefaultIssueFilter> findByUser(UserSession userSession) {

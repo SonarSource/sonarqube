@@ -55,6 +55,8 @@ import java.util.Map;
 
 /**
  * All the issue features that are not published to public API.
+ *
+ * @since 3.6
  */
 public class InternalRubyIssueService implements ServerComponent {
 

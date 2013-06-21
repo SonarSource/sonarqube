@@ -39,6 +39,9 @@ import org.sonar.server.user.UserSession;
 import java.util.Arrays;
 import java.util.Date;
 
+/**
+ * @since 3.6
+ */
 public class IssueCommentService implements ServerComponent {
 
   private final IssueUpdater updater;

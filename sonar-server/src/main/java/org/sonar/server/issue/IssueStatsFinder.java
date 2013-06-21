@@ -38,6 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @since 3.6
+ */
 public class IssueStatsFinder implements ServerComponent {
 
   private final IssueStatsDao issuestatsDao;
