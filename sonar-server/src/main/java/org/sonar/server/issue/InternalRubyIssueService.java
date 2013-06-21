@@ -68,12 +68,13 @@ public class InternalRubyIssueService implements ServerComponent {
   private final ResourceDao resourceDao;
   private final ActionService actionService;
   private final IssueFilterService issueFilterService;
+  private final IssueBulkChangeService issueBulkChangeService;
 
   public InternalRubyIssueService(IssueService issueService,
                                   IssueCommentService commentService,
                                   IssueChangelogService changelogService, ActionPlanService actionPlanService,
                                   IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService,
-                                  IssueFilterService issueFilterService) {
+                                  IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService) {
     this.issueService = issueService;
     this.commentService = commentService;
     this.changelogService = changelogService;
@@ -82,6 +83,7 @@ public class InternalRubyIssueService implements ServerComponent {
     this.resourceDao = resourceDao;
     this.actionService = actionService;
     this.issueFilterService = issueFilterService;
+    this.issueBulkChangeService = issueBulkChangeService;
   }
 
   public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params) {
@@ -403,7 +405,7 @@ public class InternalRubyIssueService implements ServerComponent {
     }
   }
 
-  public String serializeFilterQuery(Map<String, Object> filterQuery){
+  public String serializeFilterQuery(Map<String, Object> filterQuery) {
     return issueFilterService.serializeFilterQuery(filterQuery);
   }
 
@@ -426,12 +428,12 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueFilterService.execute(issueQuery);
   }
 
-  private void overrideProps(Map<String, Object> props, Map<String, Object> overrideProps){
+  private void overrideProps(Map<String, Object> props, Map<String, Object> overrideProps) {
     overrideProp(props, overrideProps, "pageSize");
     overrideProp(props, overrideProps, "pageIndex");
   }
 
-  private void overrideProp(Map<String, Object> props, Map<String, Object> overrideProps, String key){
+  private void overrideProp(Map<String, Object> props, Map<String, Object> overrideProps, String key) {
     if (overrideProps.containsKey(key)) {
       props.put(key, overrideProps.get(key));
     }
@@ -581,6 +583,31 @@ public class InternalRubyIssueService implements ServerComponent {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
       result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
     }
+  }
+
+  /**
+   * Execute a bulk change
+   */
+  public Result<List<Issue>> executebulkChange(Map<String, Object> props) {
+    Result<List<Issue>> result = Result.of();
+    try {
+      IssueBulkChangeQuery issueBulkChangeQuery = toIssueBulkChangeQuery(props);
+      result.set(issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get()));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
+  }
+
+  private IssueBulkChangeQuery toIssueBulkChangeQuery(Map<String, Object> props) {
+    return IssueBulkChangeQuery.builder()
+      .issueKeys(RubyUtils.toStrings(props.get("issues")))
+      .assignee((String) props.get("assignee"))
+      .plan((String) props.get("plan"))
+      .severity((String) props.get("severity"))
+      .transition((String) props.get("transition"))
+      .comment((String) props.get("comment"))
+      .build();
   }
 
 }

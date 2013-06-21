@@ -60,8 +60,7 @@ public class IssueBulkChangeService {
     this.userFinder = userFinder;
   }
 
-  public Result<List<Issue>> execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
-    Result<List<Issue>> result = Result.of();
+  public List<Issue> execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
     List<Issue> issues = newArrayList();
     verifyLoggedIn(userSession);
 
@@ -103,11 +102,10 @@ public class IssueBulkChangeService {
         issueNotifications.sendChanges(defaultIssue, context, issueQueryResult);
         issues.add(defaultIssue);
       } catch (Exception e) {
-        result.addError(e.getMessage());
+        // Do nothing, just go to the next issue
       }
     }
-    result.set(issues);
-    return result;
+    return issues;
   }
 
   private void verifyLoggedIn(UserSession userSession) {

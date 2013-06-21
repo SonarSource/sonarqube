@@ -54,12 +54,14 @@ public class InternalRubyIssueServiceTest {
   IssueStatsFinder issueStatsFinder = mock(IssueStatsFinder.class);
   ActionService actionService = mock(ActionService.class);
   IssueFilterService issueFilterService = mock(IssueFilterService.class);
+  IssueBulkChangeService issueBulkChangeService = mock(IssueBulkChangeService.class);
 
   @Before
   public void setUp() {
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
-    service = new InternalRubyIssueService(issueService, commentService, changelogService, actionPlanService, issueStatsFinder, resourceDao, actionService, issueFilterService);
+    service = new InternalRubyIssueService(issueService, commentService, changelogService, actionPlanService, issueStatsFinder, resourceDao, actionService,
+      issueFilterService, issueBulkChangeService);
   }
 
   @Test
@@ -528,6 +530,21 @@ public class InternalRubyIssueServiceTest {
     service.isUserAuthorized(issueFilter);
     verify(issueFilterService).verifyLoggedIn(any(UserSession.class));
     verify(issueFilterService).verifyCurrentUserCanReadFilter(eq(issueFilter), any(UserSession.class));
+  }
+
+  @Test
+  public void should_execute_bulk_change() {
+    service.executebulkChange(Maps.<String, Object>newHashMap());
+    verify(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
+  }
+
+  @Test
+  public void should_no_execute_bulk_change_if_unexpected_error() {
+    doThrow(new RuntimeException("Error")).when(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
+
+    Result result = service.executebulkChange(Maps.<String, Object>newHashMap());
+    assertThat(result.ok()).isFalse();
+    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
   }
 
   private String createLongString(int size) {

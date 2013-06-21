@@ -78,9 +78,8 @@ public class IssueBulkChangeServiceTest {
     when(userFinder.findByLogin(assignee)).thenReturn(new DefaultUser());
 
     IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList(issue.key())).assignee(assignee).build();
-    Result result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result.ok()).isTrue();
-    assertThat((List)result.get()).hasSize(1);
+    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result).hasSize(1);
 
     verify(issueUpdater).assign(eq(issue), eq(assignee), any(IssueChangeContext.class));
     verifyNoMoreInteractions(issueUpdater);
@@ -96,9 +95,8 @@ public class IssueBulkChangeServiceTest {
     when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(new DefaultActionPlan());
 
     IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList(issue.key())).plan(actionPlanKey).build();
-    Result result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result.ok()).isTrue();
-    assertThat((List)result.get()).hasSize(1);
+    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result).hasSize(1);
 
     verify(issueUpdater).plan(eq(issue), eq(actionPlanKey), any(IssueChangeContext.class));
     verifyNoMoreInteractions(issueUpdater);
@@ -113,9 +111,8 @@ public class IssueBulkChangeServiceTest {
     String severity = "MINOR";
 
     IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList(issue.key())).severity(severity).build();
-    Result result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result.ok()).isTrue();
-    assertThat((List)result.get()).hasSize(1);
+    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result).hasSize(1);
 
     verify(issueUpdater).setManualSeverity(eq(issue), eq(severity), any(IssueChangeContext.class));
     verifyNoMoreInteractions(issueUpdater);
@@ -132,9 +129,8 @@ public class IssueBulkChangeServiceTest {
     when(workflow.doTransition(eq(issue), eq(transition), any(IssueChangeContext.class))).thenReturn(true);
 
     IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList(issue.key())).transition(transition).build();
-    Result result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result.ok()).isTrue();
-    assertThat((List)result.get()).hasSize(1);
+    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result).hasSize(1);
 
     verify(workflow).doTransition(eq(issue), eq(transition), any(IssueChangeContext.class));
     verifyNoMoreInteractions(issueUpdater);
@@ -149,9 +145,8 @@ public class IssueBulkChangeServiceTest {
     String comment = "Bulk change comment";
 
     IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList(issue.key())).comment(comment).build();
-    Result result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result.ok()).isTrue();
-    assertThat((List)result.get()).hasSize(1);
+    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result).hasSize(1);
 
     verify(issueUpdater).addComment(eq(issue), eq(comment), any(IssueChangeContext.class));
     verifyNoMoreInteractions(issueUpdater);
@@ -171,13 +166,9 @@ public class IssueBulkChangeServiceTest {
     // The first call the change severity is ok, the second will fail
     when(issueUpdater.setManualSeverity(any(DefaultIssue.class), eq("MAJOR"),any(IssueChangeContext.class))).thenReturn(true).thenThrow(new RuntimeException("Cant change severity"));
 
-    Result result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result.ok()).isFalse();
-    assertThat(((Result.Message) result.errors().get(0)).text()).isEqualTo("Cant change severity");
-
-    List<Issue> issues = (List) result.get();
-    assertThat(issues).hasSize(1);
-    assertThat(issues.get(0).key()).isEqualTo("ABCD");
+    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).key()).isEqualTo("ABCD");
 
     verify(issueStorage).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
