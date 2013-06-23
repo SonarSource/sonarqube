@@ -122,6 +122,22 @@ public class MeasureFilterExecutorTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_prevent_sql_injection_through_parameters() throws SQLException {
+    setupData("shared");
+    MeasureFilter filter = new MeasureFilter()
+      .setResourceQualifiers(Arrays.asList("'"))
+      .setResourceLanguages(Arrays.asList("'"))
+      .setBaseResourceKey("'")
+      .setResourceKeyRegexp("'")
+      .setResourceName("'")
+      .setResourceName("'")
+      .setResourceScopes(Arrays.asList("'"));
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+    // an exception would be thrown if SQL is not valid
+    assertThat(rows).isEmpty();
+  }
+
+  @Test
   public void test_default_sort() {
     setupData("shared");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA"));
