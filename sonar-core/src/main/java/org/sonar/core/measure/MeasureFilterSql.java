@@ -210,9 +210,16 @@ class MeasureFilterSql {
   }
 
   private static void appendInStatement(List<String> values, StringBuilder to) {
-    to.append(" ('");
-    to.append(StringUtils.join(values, "','"));
-    to.append("') ");
+    to.append(" (");
+    for (int i=0 ; i<values.size() ; i++) {
+      if (i>0) {
+        to.append(",");
+      }
+      to.append("'");
+      to.append(StringEscapeUtils.escapeSql(values.get(i)));
+      to.append("'");
+    }
+    to.append(") ");
   }
 
   abstract static class RowProcessor {
