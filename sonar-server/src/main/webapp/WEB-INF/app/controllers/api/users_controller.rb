@@ -61,6 +61,8 @@ class Api::UsersController < Api::ApiController
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/users/create?login=user&password=user_pw&password_confirmation=user_pw'
   #
+  # since 3.7
+  #
   def create
     verify_post_request
     access_denied unless has_role?(:admin)
@@ -100,6 +102,8 @@ class Api::UsersController < Api::ApiController
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/users/update?login=user&email=new_email'
   #
+  # since 3.7
+  #
   def update
     verify_post_request
     access_denied unless has_role?(:admin)
@@ -128,6 +132,8 @@ class Api::UsersController < Api::ApiController
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/users/delete?login=user'
   #
+  # since 3.7
+  #
   def delete
     verify_post_request
     access_denied unless has_role?(:admin)
@@ -137,6 +143,8 @@ class Api::UsersController < Api::ApiController
 
     if user.nil?
       render_bad_request "Could not find user with login #{params[:login]}"
+    elsif user == current_user || user.login == 'admin'
+      render_bad_request "Cannot delete user #{params[:login]}"
     else
       if user.destroy
         render_success "Successfully deleted user #{params[:login]}"
