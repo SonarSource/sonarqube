@@ -38,6 +38,7 @@ import org.sonar.server.user.UserSession;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -528,13 +529,16 @@ public class InternalRubyIssueServiceTest {
   public void should_check_is_user_is_authorized_to_see_issue_filter() {
     DefaultIssueFilter issueFilter = new DefaultIssueFilter();
     service.isUserAuthorized(issueFilter);
-    verify(issueFilterService).verifyLoggedIn(any(UserSession.class));
-    verify(issueFilterService).verifyCurrentUserCanReadFilter(eq(issueFilter), any(UserSession.class));
+    verify(issueFilterService).getNotNullLogin(any(UserSession.class));
+    verify(issueFilterService).verifyCurrentUserCanReadFilter(eq(issueFilter), anyString());
   }
 
   @Test
   public void should_execute_bulk_change() {
-    service.executeBulkChange(Maps.<String, Object>newHashMap());
+    Map<String, Object> params = newHashMap();
+    params.put("issues", newArrayList("ABCD", "EFGH"));
+    params.put("assignee", "arthur");
+    service.executeBulkChange(params);
     verify(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
   }
 
@@ -542,7 +546,10 @@ public class InternalRubyIssueServiceTest {
   public void should_no_execute_bulk_change_if_unexpected_error() {
     doThrow(new RuntimeException("Error")).when(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
 
-    Result result = service.executeBulkChange(Maps.<String, Object>newHashMap());
+    Map<String, Object> params = newHashMap();
+    params.put("issues", newArrayList("ABCD", "EFGH"));
+    params.put("assignee", "arthur");
+    Result result = service.executeBulkChange(params);
     assertThat(result.ok()).isFalse();
     assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
   }

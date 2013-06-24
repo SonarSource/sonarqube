@@ -149,10 +149,14 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_find_by_user_return_empty_result_for_not_logged_user() {
+  public void should_not_find_by_user_if_not_logged() {
     when(userSession.isLoggedIn()).thenReturn(false);
-
-    assertThat(service.findByUser(userSession)).isEmpty();
+    try {
+      service.findByUser(userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
+    }
   }
 
   @Test
@@ -426,8 +430,12 @@ public class IssueFilterServiceTest {
   public void should_not_find_favourite_issue_filter_if_not_logged() {
     when(userSession.isLoggedIn()).thenReturn(false);
 
-    List<DefaultIssueFilter> results = service.findFavoriteFilters(userSession);
-    assertThat(results).isEmpty();
+    try {
+      service.findFavoriteFilters(userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
+    }
   }
 
   @Test

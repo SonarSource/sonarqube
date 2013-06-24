@@ -38,7 +38,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +68,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public DefaultIssueFilter find(Long id, UserSession userSession) {
-    return findIssueFilterDto(id, userSession).toIssueFilter();
+    return findIssueFilterDto(id, getNotNullLogin(userSession)).toIssueFilter();
   }
 
   @CheckForNull
@@ -82,31 +81,30 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public List<DefaultIssueFilter> findByUser(UserSession userSession) {
-    if (userSession.isLoggedIn() && userSession.login() != null) {
-      return toIssueFilters(issueFilterDao.selectByUser(userSession.login()));
-    }
-    return Collections.emptyList();
+    return toIssueFilters(issueFilterDao.selectByUser(getNotNullLogin(userSession)));
   }
 
   public DefaultIssueFilter save(DefaultIssueFilter issueFilter, UserSession userSession) {
-    verifyLoggedIn(userSession);
-    issueFilter.setUser(userSession.login());
-    validateFilter(issueFilter, userSession);
-    return insertIssueFilter(issueFilter, userSession.login());
+    String user = getNotNullLogin(userSession);
+    issueFilter.setUser(user);
+    validateFilter(issueFilter, user);
+    return insertIssueFilter(issueFilter, user);
   }
 
   public DefaultIssueFilter update(DefaultIssueFilter issueFilter, UserSession userSession) {
-    IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilter.id(), userSession);
-    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), userSession);
-    validateFilter(issueFilter, userSession);
+    String user = getNotNullLogin(userSession);
+    IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilter.id(), user);
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user);
+    validateFilter(issueFilter, user);
 
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
     return issueFilter;
   }
 
   public DefaultIssueFilter updateFilterQuery(Long issueFilterId, Map<String, Object> filterQuery, UserSession userSession) {
-    IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilterId, userSession);
-    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), userSession);
+    String user = getNotNullLogin(userSession);
+    IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilterId, user);
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user);
 
     DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
     issueFilter.setData(serializeFilterQuery(filterQuery));
@@ -115,41 +113,38 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public void delete(Long issueFilterId, UserSession userSession) {
-    IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilterId, userSession);
-    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), userSession);
+    String user = getNotNullLogin(userSession);
+    IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilterId, user);
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user);
 
     deleteFavouriteIssueFilters(issueFilterDto);
     issueFilterDao.delete(issueFilterId);
   }
 
   public DefaultIssueFilter copy(Long issueFilterIdToCopy, DefaultIssueFilter issueFilter, UserSession userSession) {
-    IssueFilterDto issueFilterDtoToCopy = findIssueFilterDto(issueFilterIdToCopy, userSession);
-    issueFilter.setUser(userSession.login());
+    String user = getNotNullLogin(userSession);
+    IssueFilterDto issueFilterDtoToCopy = findIssueFilterDto(issueFilterIdToCopy, user);
+    issueFilter.setUser(user);
     issueFilter.setData(issueFilterDtoToCopy.getData());
-    validateFilter(issueFilter, userSession);
+    validateFilter(issueFilter, user);
 
-    return insertIssueFilter(issueFilter, userSession.login());
+    return insertIssueFilter(issueFilter, user);
   }
 
   public List<DefaultIssueFilter> findSharedFilters(UserSession userSession) {
-    if (userSession.isLoggedIn() && userSession.login() != null) {
-      return toIssueFilters(issueFilterDao.selectSharedWithoutUserFilters(userSession.login()));
-    }
-    return Collections.emptyList();
+    return toIssueFilters(issueFilterDao.selectSharedWithoutUserFilters(getNotNullLogin(userSession)));
   }
 
   public List<DefaultIssueFilter> findFavoriteFilters(UserSession userSession) {
-    if (userSession.isLoggedIn() && userSession.login() != null) {
-      return toIssueFilters(issueFilterDao.selectByUserWithOnlyFavoriteFilters(userSession.login()));
-    }
-    return Collections.emptyList();
+    return toIssueFilters(issueFilterDao.selectByUserWithOnlyFavoriteFilters(getNotNullLogin(userSession)));
   }
 
   public void toggleFavouriteIssueFilter(Long issueFilterId, UserSession userSession) {
-    findIssueFilterDto(issueFilterId, userSession);
-    IssueFilterFavouriteDto issueFilterFavouriteDto = findFavouriteIssueFilter(userSession.login(), issueFilterId);
+    String user = getNotNullLogin(userSession);
+    findIssueFilterDto(issueFilterId, user);
+    IssueFilterFavouriteDto issueFilterFavouriteDto = findFavouriteIssueFilter(user, issueFilterId);
     if (issueFilterFavouriteDto == null) {
-      addFavouriteIssueFilter(issueFilterId, userSession.login());
+      addFavouriteIssueFilter(issueFilterId, user);
     } else {
       deleteFavouriteIssueFilter(issueFilterFavouriteDto);
     }
@@ -163,42 +158,43 @@ public class IssueFilterService implements ServerComponent {
     return issueFilterSerializer.deserialize(issueFilter.data());
   }
 
-  private IssueFilterDto findIssueFilterDto(Long id, UserSession userSession) {
-    verifyLoggedIn(userSession);
+  private IssueFilterDto findIssueFilterDto(Long id, String user) {
     IssueFilterDto issueFilterDto = issueFilterDao.selectById(id);
     if (issueFilterDto == null) {
       // TODO throw 404
       throw new IllegalArgumentException("Filter not found: " + id);
     }
-    verifyCurrentUserCanReadFilter(issueFilterDto.toIssueFilter(), userSession);
+    verifyCurrentUserCanReadFilter(issueFilterDto.toIssueFilter(), user);
     return issueFilterDto;
   }
 
-  void verifyLoggedIn(UserSession userSession) {
-    if (!userSession.isLoggedIn() && userSession.login() != null) {
+  String getNotNullLogin(UserSession userSession) {
+    String user = userSession.login();
+    if (!userSession.isLoggedIn() && user != null) {
       throw new IllegalStateException("User is not logged in");
     }
+    return user;
   }
 
-  void verifyCurrentUserCanReadFilter(DefaultIssueFilter issueFilter, UserSession userSession) {
-    if (!issueFilter.user().equals(userSession.login()) && !issueFilter.shared()) {
+  void verifyCurrentUserCanReadFilter(DefaultIssueFilter issueFilter, String user) {
+    if (!issueFilter.user().equals(user) && !issueFilter.shared()) {
       // TODO throw unauthorized
       throw new IllegalStateException("User is not authorized to read this filter");
     }
   }
 
-  private void verifyCurrentUserCanModifyFilter(DefaultIssueFilter issueFilter, UserSession userSession) {
-    if (!issueFilter.user().equals(userSession.login()) && !isAdmin(userSession.login())) {
+  private void verifyCurrentUserCanModifyFilter(DefaultIssueFilter issueFilter, String user) {
+    if (!issueFilter.user().equals(user) && !isAdmin(user)) {
       // TODO throw unauthorized
       throw new IllegalStateException("User is not authorized to modify this filter");
     }
   }
 
-  private void validateFilter(DefaultIssueFilter issueFilter, UserSession userSession) {
-    if (issueFilterDao.selectByNameAndUser(issueFilter.name(), userSession.login(), issueFilter.id()) != null) {
+  private void validateFilter(DefaultIssueFilter issueFilter, String user) {
+    if (issueFilterDao.selectByNameAndUser(issueFilter.name(), user, issueFilter.id()) != null) {
       throw new IllegalArgumentException("Name already exists");
     }
-    if (issueFilter.shared() && issueFilterDao.selectSharedWithoutUserFiltersByName(issueFilter.name(), userSession.login(), issueFilter.id()) != null) {
+    if (issueFilter.shared() && issueFilterDao.selectSharedWithoutUserFiltersByName(issueFilter.name(), user, issueFilter.id()) != null) {
       throw new IllegalArgumentException("Other users already share filters with the same name");
     }
   }

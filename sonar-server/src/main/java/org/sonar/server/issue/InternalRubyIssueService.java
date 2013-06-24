@@ -397,8 +397,8 @@ public class InternalRubyIssueService implements ServerComponent {
   public boolean isUserAuthorized(DefaultIssueFilter issueFilter) {
     try {
       UserSession userSession = UserSession.get();
-      issueFilterService.verifyLoggedIn(userSession);
-      issueFilterService.verifyCurrentUserCanReadFilter(issueFilter, userSession);
+      String user = issueFilterService.getNotNullLogin(userSession);
+      issueFilterService.verifyCurrentUserCanReadFilter(issueFilter, user);
       return true;
     } catch (Exception e) {
       return false;

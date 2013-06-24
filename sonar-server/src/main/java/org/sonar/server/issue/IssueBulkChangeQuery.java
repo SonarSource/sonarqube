@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import javax.annotation.CheckForNull;
@@ -34,11 +35,11 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class IssueBulkChangeQuery {
 
-  private static final String ASSIGNEE = "ASSIGNEE";
-  private static final String PLAN = "PLAN";
-  private static final String SEVERITY = "SEVERITY";
-  private static final String TRANSITION = "TRANSITION";
-  private static final String COMMENT = "COMMENT";
+  private static final String ASSIGNEE = "assign";
+  private static final String PLAN = "plan";
+  private static final String SEVERITY = "set_severity";
+  private static final String TRANSITION = "do_transition";
+  private static final String COMMENT = "comment";
 
   private final Collection<String> actions;
   private final Collection<String> issueKeys;
@@ -165,6 +166,9 @@ public class IssueBulkChangeQuery {
     }
 
     public IssueBulkChangeQuery build() {
+      Preconditions.checkArgument(issueKeys != null && !issueKeys.isEmpty(), "Issues must not be empty");
+      Preconditions.checkArgument(!actions.isEmpty(), "At least one action must be provided");
+
       return new IssueBulkChangeQuery(this);
     }
   }
