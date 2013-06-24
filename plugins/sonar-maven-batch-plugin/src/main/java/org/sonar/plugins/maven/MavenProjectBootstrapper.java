@@ -22,24 +22,24 @@ package org.sonar.plugins.maven;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.batch.SupportedEnvironment;
-import org.sonar.api.batch.bootstrap.ProjectBuilder;
-import org.sonar.api.batch.bootstrap.ProjectBuilderContext;
+import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 
 import java.util.List;
 
 @SupportedEnvironment("maven")
-public class SonarMavenProjectBuilder extends ProjectBuilder {
+public class MavenProjectBootstrapper extends ProjectBootstrapper {
 
   private MavenSession session;
   private MavenProjectConverter mavenProjectConverter;
 
-  public SonarMavenProjectBuilder(MavenSession session, MavenProjectConverter mavenProjectConverter) {
+  public MavenProjectBootstrapper(MavenSession session, MavenProjectConverter mavenProjectConverter) {
     this.session = session;
     this.mavenProjectConverter = mavenProjectConverter;
   }
 
   @Override
-  public void build(ProjectBuilderContext context) {
+  public ProjectReactor bootstrap() {
     // Don't use session.getTopLevelProject or session.getProjects to keep compatibility with Maven 2
     List<MavenProject> sortedProjects = session.getSortedProjects();
     MavenProject topLevelProject = null;
@@ -49,7 +49,7 @@ public class SonarMavenProjectBuilder extends ProjectBuilder {
         break;
       }
     }
-    mavenProjectConverter.configure(context.getProjectReactor().getRoot(), sortedProjects, topLevelProject);
+    return new ProjectReactor(mavenProjectConverter.configure(sortedProjects, topLevelProject));
   }
 
 }

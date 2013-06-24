@@ -29,11 +29,10 @@ import org.apache.maven.model.CiManagement;
 import org.apache.maven.model.IssueManagement;
 import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenUtils;
+import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.java.api.JavaUtils;
@@ -44,19 +43,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class MavenProjectConverter implements BatchExtension {
+public class MavenProjectConverter implements TaskExtension {
 
   private static final String UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE = "Unable to determine structure of project." +
     " Probably you use Maven Advanced Reactor Options, which is not supported by Sonar and should not be used.";
 
-  public ProjectDefinition convert(List<MavenProject> poms, MavenProject root) {
-    ProjectDefinition def = ProjectDefinition.create();
-    configure(def, poms, root);
-    return def;
-  }
-
-  public void configure(ProjectDefinition rootProjectDefinition, List<MavenProject> poms, MavenProject root) {
+  public ProjectDefinition configure(List<MavenProject> poms, MavenProject root) {
     // projects by canonical path to pom.xml
     Map<String, MavenProject> paths = Maps.newHashMap();
     Map<MavenProject, ProjectDefinition> defs = Maps.newHashMap();
@@ -64,7 +56,7 @@ public class MavenProjectConverter implements BatchExtension {
     try {
       for (MavenProject pom : poms) {
         paths.put(pom.getFile().getCanonicalPath(), pom);
-        ProjectDefinition def = pom == root ? rootProjectDefinition : ProjectDefinition.create();
+        ProjectDefinition def = ProjectDefinition.create();
         merge(pom, def);
         defs.put(pom, def);
       }
@@ -95,6 +87,7 @@ public class MavenProjectConverter implements BatchExtension {
     if (rootProject == null) {
       throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
     }
+    return rootProject;
   }
 
   private static MavenProject findMavenProject(final File modulePath, Map<String, MavenProject> paths) throws IOException {

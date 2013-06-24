@@ -23,9 +23,12 @@ import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
@@ -76,12 +79,33 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doBeforeStart() {
+    projectBootstrap();
     addBatchComponents();
     fixMavenExecutor();
     addBatchExtensions();
     Settings settings = getComponentByType(Settings.class);
     if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
       add(PhasesSumUpTimeProfiler.class);
+    }
+  }
+
+  private void projectBootstrap() {
+    // Old versions of bootstrappers used to pass project reactor as an extension
+    // so check if it is already present in parent container
+    ProjectReactor reactor = getComponentByType(ProjectReactor.class);
+    if (reactor == null) {
+      // OK, not present, so look for a custom ProjectBootstrapper
+      ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
+      if (bootstrapper == null) {
+        // Use default SonarRunner project bootstrapper
+        Settings settings = getComponentByType(Settings.class);
+        bootstrapper = new DefaultProjectBootstrapper(settings);
+      }
+      reactor = bootstrapper.bootstrap();
+      if (reactor == null) {
+        throw new SonarException(bootstrapper + " has returned null as ProjectReactor");
+      }
+      add(reactor);
     }
   }
 

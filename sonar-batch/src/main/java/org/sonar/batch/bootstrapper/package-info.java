@@ -21,5 +21,8 @@
 /**
  * This package is a part of bootstrap process, so we should take care about backward compatibility.
  */
+@ParametersAreNonnullByDefault
 package org.sonar.batch.bootstrapper;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 

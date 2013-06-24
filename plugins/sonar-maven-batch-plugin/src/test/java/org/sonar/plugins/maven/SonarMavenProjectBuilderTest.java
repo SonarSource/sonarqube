@@ -23,14 +23,13 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.batch.bootstrap.ProjectBuilderContext;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -46,17 +45,14 @@ public class SonarMavenProjectBuilderTest {
     when(session.getSortedProjects()).thenReturn(Arrays.asList(rootProject));
 
     MavenProjectConverter mavenProjectConverter = mock(MavenProjectConverter.class);
-    SonarMavenProjectBuilder builder = new SonarMavenProjectBuilder(session, mavenProjectConverter);
+    ProjectDefinition projectDefinition = ProjectDefinition.create();
+    when(mavenProjectConverter.configure(any(List.class), any(MavenProject.class))).thenReturn(projectDefinition);
+    MavenProjectBootstrapper builder = new MavenProjectBootstrapper(session, mavenProjectConverter);
 
-    ProjectBuilderContext context = mock(ProjectBuilderContext.class);
-    ProjectDefinition root = ProjectDefinition.create();
-    ProjectReactor reactor = new ProjectReactor(root);
-    when(context.getProjectReactor()).thenReturn(reactor);
-
-    builder.build(context);
+    assertThat(builder.bootstrap().getRoot()).isEqualTo(projectDefinition);
 
     ArgumentCaptor<List> argument = ArgumentCaptor.forClass(List.class);
-    verify(mavenProjectConverter).configure(eq(root), argument.capture(), eq(rootProject));
+    verify(mavenProjectConverter).configure(argument.capture(), eq(rootProject));
     assertThat(argument.getValue()).contains(rootProject);
   }
 
@@ -72,17 +68,14 @@ public class SonarMavenProjectBuilderTest {
     when(session.getSortedProjects()).thenReturn(Arrays.asList(module1, module2, rootProject));
 
     MavenProjectConverter mavenProjectConverter = mock(MavenProjectConverter.class);
-    SonarMavenProjectBuilder builder = new SonarMavenProjectBuilder(session, mavenProjectConverter);
+    ProjectDefinition projectDefinition = ProjectDefinition.create();
+    when(mavenProjectConverter.configure(any(List.class), any(MavenProject.class))).thenReturn(projectDefinition);
+    MavenProjectBootstrapper builder = new MavenProjectBootstrapper(session, mavenProjectConverter);
 
-    ProjectBuilderContext context = mock(ProjectBuilderContext.class);
-    ProjectDefinition root = ProjectDefinition.create();
-    ProjectReactor reactor = new ProjectReactor(root);
-    when(context.getProjectReactor()).thenReturn(reactor);
-
-    builder.build(context);
+    assertThat(builder.bootstrap().getRoot()).isEqualTo(projectDefinition);
 
     ArgumentCaptor<List> argument = ArgumentCaptor.forClass(List.class);
-    verify(mavenProjectConverter).configure(eq(root), argument.capture(), eq(rootProject));
+    verify(mavenProjectConverter).configure(argument.capture(), eq(rootProject));
     assertThat(argument.getValue()).contains(module1, module2, rootProject);
   }
 

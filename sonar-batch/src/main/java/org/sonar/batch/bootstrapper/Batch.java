@@ -39,6 +39,10 @@ public final class Batch {
   private LoggingConfiguration logging;
   private List<Object> components;
   private Map<String, String> bootstrapProperties = Maps.newHashMap();
+  /**
+   * @deprecated since 3.7
+   */
+  @Deprecated
   private ProjectReactor projectReactor;
 
   private Batch(Builder builder) {
@@ -50,8 +54,10 @@ public final class Batch {
     if (builder.bootstrapProperties != null) {
       bootstrapProperties.putAll(builder.bootstrapProperties);
     } else {
-      // For backward compatibility, previously all properties were set in root project
-      bootstrapProperties.putAll(Maps.fromProperties(builder.projectReactor.getRoot().getProperties()));
+      if (builder.projectReactor != null) {
+        // For backward compatibility, previously all properties were set in root project
+        bootstrapProperties.putAll(Maps.fromProperties(builder.projectReactor.getRoot().getProperties()));
+      }
     }
     projectReactor = builder.projectReactor;
     if (builder.isEnableLoggingConfiguration()) {
@@ -92,6 +98,10 @@ public final class Batch {
 
   public static final class Builder {
     private Map<String, String> bootstrapProperties;
+    /**
+     * @deprecated since 3.7
+     */
+    @Deprecated
     private ProjectReactor projectReactor;
     private EnvironmentInformation environment;
     private List<Object> components = Lists.newArrayList();
@@ -100,6 +110,10 @@ public final class Batch {
     private Builder() {
     }
 
+    /**
+     * @deprecated since 3.7
+     */
+    @Deprecated
     public Builder setProjectReactor(ProjectReactor projectReactor) {
       this.projectReactor = projectReactor;
       return this;
@@ -115,8 +129,17 @@ public final class Batch {
       return this;
     }
 
+    /**
+     * @deprecated since 3.7 use {@link #setBootstrapProperties(Map)}
+     */
+    @Deprecated
     public Builder setGlobalProperties(Map<String, String> globalProperties) {
       this.bootstrapProperties = globalProperties;
+      return this;
+    }
+
+    public Builder setBootstrapProperties(Map<String, String> bootstrapProperties) {
+      this.bootstrapProperties = bootstrapProperties;
       return this;
     }
 
