@@ -19,6 +19,7 @@
  */
 package org.sonar.api.issue.action;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.ServerExtension;
 
 import java.util.List;
@@ -28,6 +29,7 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
+@Beta
 public class Actions implements ServerExtension {
 
   private final List<Action> actions;

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.issue.condition;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableSet;
 import org.sonar.api.issue.Issue;
 
@@ -27,6 +28,7 @@ import java.util.Set;
 /**
  * @since 3.6
  */
+@Beta
 public class HasResolution implements Condition {
 
   private final Set<String> resolutions;

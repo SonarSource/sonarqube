@@ -19,6 +19,7 @@
  */
 package org.sonar.api.issue.action;
 
+import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -32,6 +33,7 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
+@Beta
 public class Action {
 
   private final String key;

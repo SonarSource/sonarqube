@@ -19,6 +19,7 @@
  */
 package org.sonar.api.issue.action;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 
@@ -27,6 +28,7 @@ import javax.annotation.Nullable;
 /**
  * @since 3.6
  */
+@Beta
 public interface Function {
 
   void execute(Context context);
