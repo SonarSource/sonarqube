@@ -20,19 +20,22 @@
 
 package org.sonar.server.issue;
 
-import com.google.common.base.Strings;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
-import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.CheckForNull;
 
 import java.util.Date;
 import java.util.List;
@@ -41,77 +44,93 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class IssueBulkChangeService {
 
+  private static final Logger LOG = LoggerFactory.getLogger(IssueBulkChangeService.class);
+
   private final DefaultIssueFinder issueFinder;
-  private final IssueWorkflow workflow;
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
   private final IssueNotifications issueNotifications;
-  private final ActionPlanService actionPlanService;
-  private final UserFinder userFinder;
+  private final List<Action> actions;
 
-  public IssueBulkChangeService(DefaultIssueFinder issueFinder, IssueWorkflow workflow, ActionPlanService actionPlanService, UserFinder userFinder,
-                                IssueUpdater issueUpdater, IssueStorage issueStorage, IssueNotifications issueNotifications) {
+  public IssueBulkChangeService(DefaultIssueFinder issueFinder, IssueUpdater issueUpdater, IssueStorage issueStorage, IssueNotifications issueNotifications, List<Action> actions) {
     this.issueFinder = issueFinder;
-    this.workflow = workflow;
     this.issueUpdater = issueUpdater;
     this.issueStorage = issueStorage;
     this.issueNotifications = issueNotifications;
-    this.actionPlanService = actionPlanService;
-    this.userFinder = userFinder;
+    this.actions = actions;
   }
 
   public List<Issue> execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
     List<Issue> issues = newArrayList();
     verifyLoggedIn(userSession);
 
-    IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issueKeys()).requiredRole(UserRole.USER).build());
-
-    String assignee = issueBulkChangeQuery.assignee();
-    if (assignee != null && userFinder.findByLogin(assignee) == null) {
-      throw new IllegalArgumentException("Unknown user: " + assignee);
+    for (String actionName : issueBulkChangeQuery.actions()) {
+      Action action = getAction(actionName);
+      action.verify(issueBulkChangeQuery.properties(actionName), userSession);
     }
 
-    String actionPlanKey = issueBulkChangeQuery.plan();
-    if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanService.findByKey(actionPlanKey, userSession) == null) {
-      throw new IllegalArgumentException("Unknown action plan: " + actionPlanKey);
-    }
-    String severity = issueBulkChangeQuery.severity();
-    String transition = issueBulkChangeQuery.transition();
-    String comment = issueBulkChangeQuery.comment();
-
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+    IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issues()).requiredRole(UserRole.USER).build());
+    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
     for (Issue issue : issueQueryResult.issues()) {
-      DefaultIssue defaultIssue = (DefaultIssue) issue;
-      try {
-        if (issueBulkChangeQuery.isOnAssignee()) {
-          issueUpdater.assign(defaultIssue, assignee, context);
+      for (String actionName : issueBulkChangeQuery.actions()) {
+        try {
+          Action action = getAction(actionName);
+          ActionContext actionContext = new ActionContext(issue, issueUpdater, issueChangeContext);
+          if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(actionName), actionContext)) {
+            issueStorage.save((DefaultIssue) issue);
+            issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
+            issues.add(issue);
+          }
+        } catch (Exception e) {
+          // Do nothing, just go to the next issue
+          LOG.info("An error occur when trying to apply the action : "+ actionName + " on issue : "+ issue.key() + ". This issue has been ignored.", e);
         }
-        if (issueBulkChangeQuery.isOnActionPlan()) {
-          issueUpdater.plan(defaultIssue, actionPlanKey, context);
-        }
-        if (issueBulkChangeQuery.isOnSeverity()) {
-          issueUpdater.setManualSeverity(defaultIssue, severity, context);
-        }
-        if (issueBulkChangeQuery.isOnTransition()) {
-          workflow.doTransition(defaultIssue, transition, context);
-        }
-        if (issueBulkChangeQuery.isOnComment()) {
-          issueUpdater.addComment(defaultIssue, comment, context);
-        }
-        issueStorage.save(defaultIssue);
-        issueNotifications.sendChanges(defaultIssue, context, issueQueryResult);
-        issues.add(defaultIssue);
-      } catch (Exception e) {
-        // Do nothing, just go to the next issue
       }
     }
     return issues;
+  }
+
+  @CheckForNull
+  private Action getAction(final String actionKey) {
+    return Iterables.find(actions, new Predicate<Action>() {
+      @Override
+      public boolean apply(Action action) {
+        return action.key().equals(actionKey);
+      }
+    }, null);
   }
 
   private void verifyLoggedIn(UserSession userSession) {
     if (!userSession.isLoggedIn()) {
       // must be logged
       throw new IllegalStateException("User is not logged in");
+    }
+  }
+
+  static class ActionContext implements Action.Context {
+    private final Issue issue;
+    private final IssueUpdater updater;
+    private final IssueChangeContext changeContext;
+
+    ActionContext(Issue issue, IssueUpdater updater, IssueChangeContext changeContext) {
+      this.updater = updater;
+      this.issue = issue;
+      this.changeContext = changeContext;
+    }
+
+    @Override
+    public Issue issue() {
+      return issue;
+    }
+
+    @Override
+    public IssueUpdater issueUpdater() {
+      return updater;
+    }
+
+    @Override
+    public IssueChangeContext issueChangeContext() {
+      return changeContext;
     }
   }
 }

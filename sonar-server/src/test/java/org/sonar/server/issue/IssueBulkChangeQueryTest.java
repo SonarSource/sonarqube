@@ -23,32 +23,69 @@ package org.sonar.server.issue;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueBulkChangeQueryTest {
 
   @Test
-  public void test_build(){
-    IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList("ABCD", "EFGH")).assignee("perceval").build();
-    assertThat(issueBulkChangeQuery.issueKeys()).isNotNull();
-    assertThat(issueBulkChangeQuery.assignee()).isNotNull();
+  public void should_create_query(){
+    Map<String, Object> params = newHashMap();
+    params.put("issues", newArrayList("ABCD", "EFGH"));
+    params.put("actions", newArrayList("do_transition", "assign", "set_severity", "plan"));
+    params.put("do_transition.transition", "confirm");
+    params.put("assign.assignee", "arthur");
+    params.put("set_severity.severity", "MINOR");
+    params.put("plan.plan", "3.7");
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params);
+    assertThat(issueBulkChangeQuery.actions()).containsOnly("do_transition", "assign", "set_severity", "plan");
+    assertThat(issueBulkChangeQuery.issues()).containsOnly("ABCD", "EFGH");
+  }
+
+  @Test
+  public void should_get_properties_action(){
+    Map<String, Object> params = newHashMap();
+    params.put("issues", newArrayList("ABCD", "EFGH"));
+    params.put("actions", newArrayList("assign"));
+    params.put("assign.assignee", "arthur");
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params);
+    assertThat(issueBulkChangeQuery.properties("assign")).hasSize(1);
+    assertThat(issueBulkChangeQuery.properties("assign").get("assignee")).isEqualTo("arthur");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_to_build_if_no_issue(){
-    IssueBulkChangeQuery.builder().assignee("perceval").build();
+    Map<String, Object> params = newHashMap();
+    params.put("actions", newArrayList("do_transition", "assign", "set_severity", "plan"));
+    new IssueBulkChangeQuery(params);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_to_build_if_issues_are_empty(){
-    IssueBulkChangeQuery.builder().issueKeys(Collections.<String>emptyList()).assignee("perceval").build();
+    Map<String, Object> params = newHashMap();
+    params.put("issues", Collections.emptyList());
+    params.put("actions", newArrayList("do_transition", "assign", "set_severity", "plan"));
+    new IssueBulkChangeQuery(params);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_to_build_if_no_action(){
-    IssueBulkChangeQuery.builder().issueKeys(newArrayList("ABCD", "EFGH")).build();
+    Map<String, Object> params = newHashMap();
+    params.put("issues", Collections.emptyList());
+    new IssueBulkChangeQuery(params);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void fail_to_build_if_actions_are_empty(){
+    Map<String, Object> params = newHashMap();
+    params.put("issues", newArrayList("ABCD", "EFGH"));
+    params.put("actions", Collections.emptyList());
+    new IssueBulkChangeQuery(params);
   }
 
 }

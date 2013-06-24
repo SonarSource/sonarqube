@@ -277,6 +277,10 @@ public final class Platform {
     servicesContainer.addSingleton(IssueFilterSerializer.class);
     servicesContainer.addSingleton(IssueFilterService.class);
     servicesContainer.addSingleton(IssueBulkChangeService.class);
+    // issues actions
+    servicesContainer.addSingleton(AssignAction.class);
+    servicesContainer.addSingleton(PlanAction.class);
+    servicesContainer.addSingleton(SetSeverityAction.class);
 
     // rules
     servicesContainer.addSingleton(RubyRuleService.class);

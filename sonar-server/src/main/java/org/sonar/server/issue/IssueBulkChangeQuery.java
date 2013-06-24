@@ -17,164 +17,80 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue;
 
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.server.util.RubyUtils;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * @since 3.7
  */
 public class IssueBulkChangeQuery {
 
-  private static final String ASSIGNEE = "assign";
-  private static final String PLAN = "plan";
-  private static final String SEVERITY = "set_severity";
-  private static final String TRANSITION = "do_transition";
-  private static final String COMMENT = "comment";
+  private List<String> issues;
+  private List<String> actions;
+  private String comment;
 
-  private final Collection<String> actions;
-  private final Collection<String> issueKeys;
-  private final String assignee;
-  private final String plan;
-  private final String severity;
-  private final String transition;
-  private final String comment;
+  Map<String, Map<String, Object>> propertiesByActions = new HashMap<String, Map<String, Object>>();
 
-  private IssueBulkChangeQuery(Builder builder) {
-    this.actions = defaultCollection(builder.actions);
-    this.issueKeys = defaultCollection(builder.issueKeys);
-    this.assignee = builder.assignee;
-    this.plan = builder.plan;
-    this.severity = builder.severity;
-    this.transition = builder.transition;
-    this.comment = builder.comment;
+  public IssueBulkChangeQuery(Map<String, Object> props) {
+    parse(props, null);
   }
 
-  public Collection<String> issueKeys() {
-    return issueKeys;
+  public IssueBulkChangeQuery(Map<String, Object> props, String comment) {
+    parse(props, comment);
   }
 
-  @CheckForNull
-  public String assignee() {
-    return assignee;
+  private void parse(Map<String, Object> props, String comment) {
+    this.comment = comment;
+    this.issues = RubyUtils.toStrings(props.get("issues"));
+    if (issues == null || issues.isEmpty()) {
+      throw new IllegalArgumentException("Issues must not be empty");
+    }
+    actions = RubyUtils.toStrings(props.get("actions"));
+    if (actions == null || actions.isEmpty()) {
+      throw new IllegalArgumentException("At least one action must be provided");
+    }
+    for (String action : actions) {
+      propertiesByActions.put(action, getActionProps(action, props));
+    }
   }
 
-  @CheckForNull
-  public String plan() {
-    return plan;
+  public List<String> issues() {
+    return issues;
   }
 
-  @CheckForNull
-  public String severity() {
-    return severity;
+  public List<String> actions() {
+    return actions;
   }
 
-  @CheckForNull
-  public String transition() {
-    return transition;
+  public Map<String, Object> properties(String action) {
+    return propertiesByActions.get(action);
   }
 
-  @CheckForNull
-  public String comment() {
+  public String getComment() {
     return comment;
   }
 
-  public boolean isOnAssignee() {
-    return actions.contains(ASSIGNEE);
-  }
-
-  public boolean isOnActionPlan() {
-    return actions.contains(PLAN);
-  }
-
-  public boolean isOnSeverity() {
-    return actions.contains(SEVERITY);
-  }
-
-  public boolean isOnTransition() {
-    return actions.contains(TRANSITION);
-  }
-
-  public boolean isOnComment() {
-    return actions.contains(COMMENT);
-  }
-
-  @Override
-  public String toString() {
-    return ReflectionToStringBuilder.toString(this);
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static class Builder {
-
-    private Collection<String> actions = newArrayList();
-    private Collection<String> issueKeys;
-    private String assignee;
-    private String plan;
-    private String severity;
-    private String transition;
-    private String comment;
-
-    private Builder() {
+  private static Map<String, Object> getActionProps(String action, Map<String, Object> props) {
+    Map<String, Object> actionProps = newHashMap();
+    for (Map.Entry<String, Object> propsEntry : props.entrySet()) {
+      String key = propsEntry.getKey();
+      String actionPrefix = action + ".";
+      String property = StringUtils.substringAfter(key, actionPrefix);
+      if (!property.isEmpty()) {
+        actionProps.put(property, propsEntry.getValue());
+      }
     }
-
-    public Builder issueKeys(@Nullable Collection<String> l) {
-      this.issueKeys = l;
-      return this;
-    }
-
-    public Builder assignee(@Nullable String assignee) {
-      actions.add(IssueBulkChangeQuery.ASSIGNEE);
-      this.assignee = assignee;
-      return this;
-    }
-
-    public Builder plan(@Nullable String plan) {
-      actions.add(IssueBulkChangeQuery.PLAN);
-      this.plan = plan;
-      return this;
-    }
-
-    public Builder severity(@Nullable String severity) {
-      actions.add(IssueBulkChangeQuery.SEVERITY);
-      this.severity = severity;
-      return this;
-    }
-
-    public Builder transition(@Nullable String transition) {
-      actions.add(IssueBulkChangeQuery.TRANSITION);
-      this.transition = transition;
-      return this;
-    }
-
-    public Builder comment(@Nullable String comment) {
-      actions.add(IssueBulkChangeQuery.COMMENT);
-      this.comment = comment;
-      return this;
-    }
-
-    public IssueBulkChangeQuery build() {
-      Preconditions.checkArgument(issueKeys != null && !issueKeys.isEmpty(), "Issues must not be empty");
-      Preconditions.checkArgument(!actions.isEmpty(), "At least one action must be provided");
-
-      return new IssueBulkChangeQuery(this);
-    }
-  }
-
-  private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {
-    return c == null ? Collections.<T>emptyList() : Collections.unmodifiableCollection(c);
+    props.get(action);
+    return actionProps;
   }
 
 }

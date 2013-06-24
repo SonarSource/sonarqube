@@ -537,7 +537,11 @@ public class InternalRubyIssueServiceTest {
   public void should_execute_bulk_change() {
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
-    params.put("assignee", "arthur");
+    params.put("actions", newArrayList("do_transition", "assign", "set_severity", "plan"));
+    params.put("do_transition.transition", "confirm");
+    params.put("assign.assignee", "arthur");
+    params.put("set_severity.severity", "MINOR");
+    params.put("plan.plan", "3.7");
     service.executeBulkChange(params);
     verify(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
   }
@@ -548,7 +552,8 @@ public class InternalRubyIssueServiceTest {
 
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
-    params.put("assignee", "arthur");
+    params.put("actions", newArrayList("assign"));
+    params.put("assign.assignee", "arthur");
     Result result = service.executeBulkChange(params);
     assertThat(result.ok()).isFalse();
     assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");

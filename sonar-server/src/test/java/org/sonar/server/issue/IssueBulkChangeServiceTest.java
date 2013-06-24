@@ -27,19 +27,18 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.user.UserFinder;
-import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
-import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.core.user.DefaultUser;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -47,12 +46,9 @@ import static org.mockito.Mockito.*;
 public class IssueBulkChangeServiceTest {
 
   private DefaultIssueFinder finder = mock(DefaultIssueFinder.class);
-  private IssueWorkflow workflow = mock(IssueWorkflow.class);
   private IssueUpdater issueUpdater = mock(IssueUpdater.class);
   private IssueStorage issueStorage = mock(IssueStorage.class);
   private IssueNotifications issueNotifications = mock(IssueNotifications.class);
-  private ActionPlanService actionPlanService = mock(ActionPlanService.class);
-  private UserFinder userFinder = mock(UserFinder.class);
 
   private IssueQueryResult issueQueryResult = mock(IssueQueryResult.class);
   private UserSession userSession = mock(UserSession.class);
@@ -60,8 +56,11 @@ public class IssueBulkChangeServiceTest {
 
   private IssueBulkChangeService service;
 
+  private Action action = mock(Action.class);
+  private List<Action> actions;
+
   @Before
-  public void before(){
+  public void before() {
     when(userSession.isLoggedIn()).thenReturn(true);
     when(userSession.userId()).thenReturn(10);
     when(userSession.login()).thenReturn("fred");
@@ -69,19 +68,28 @@ public class IssueBulkChangeServiceTest {
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) issue));
 
-    service = new IssueBulkChangeService(finder, workflow, actionPlanService, userFinder, issueUpdater, issueStorage, issueNotifications);
+    when(action.key()).thenReturn("assign");
+
+    actions = newArrayList();
+    actions.add(action);
+
+    service = new IssueBulkChangeService(finder, issueUpdater, issueStorage, issueNotifications, actions);
   }
 
   @Test
-  public void should_do_bulk_assign(){
-    String assignee = "perceval";
-    when(userFinder.findByLogin(assignee)).thenReturn(new DefaultUser());
+  public void should_execute_bulk_change() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "assign");
 
-    IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList(issue.key())).assignee(assignee).build();
+    when(action.supports(any(Issue.class))).thenReturn(true);
+    when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+    when(action.execute(eq(properties), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
     assertThat(result).hasSize(1);
 
-    verify(issueUpdater).assign(eq(issue), eq(assignee), any(IssueChangeContext.class));
     verifyNoMoreInteractions(issueUpdater);
     verify(issueStorage).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
@@ -90,90 +98,76 @@ public class IssueBulkChangeServiceTest {
   }
 
   @Test
-  public void should_do_bulk_plan(){
-    String actionPlanKey = "EFGH";
-    when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(new DefaultActionPlan());
+  public void should_not_execute_bulk_if_issue_does_not_support_action() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "assign");
 
-    IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList(issue.key())).plan(actionPlanKey).build();
+    when(action.supports(any(Issue.class))).thenReturn(false);
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result).hasSize(1);
+    assertThat(result).isEmpty();
 
-    verify(issueUpdater).plan(eq(issue), eq(actionPlanKey), any(IssueChangeContext.class));
-    verifyNoMoreInteractions(issueUpdater);
-    verify(issueStorage).save(eq(issue));
-    verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
-    verifyNoMoreInteractions(issueNotifications);
+    verifyZeroInteractions(issueUpdater);
+    verifyZeroInteractions(issueStorage);
+    verifyZeroInteractions(issueNotifications);
   }
 
   @Test
-  public void should_do_bulk_change_severity(){
-    String severity = "MINOR";
+  public void should_not_execute_bulk_if_action_could_not_be_executed_on_issue() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "assign");
 
-    IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList(issue.key())).severity(severity).build();
+    when(action.supports(any(Issue.class))).thenReturn(true);
+    when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(false);
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result).hasSize(1);
+    assertThat(result).isEmpty();
 
-    verify(issueUpdater).setManualSeverity(eq(issue), eq(severity), any(IssueChangeContext.class));
-    verifyNoMoreInteractions(issueUpdater);
-    verify(issueStorage).save(eq(issue));
-    verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
-    verifyNoMoreInteractions(issueNotifications);
+    verifyZeroInteractions(issueUpdater);
+    verifyZeroInteractions(issueStorage);
+    verifyZeroInteractions(issueNotifications);
   }
 
   @Test
-  public void should_do_bulk_transition(){
-    String transition = "reopen";
+  public void should_not_execute_bulk_on_unexpected_error() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "assign");
 
-    when(workflow.doTransition(eq(issue), eq(transition), any(IssueChangeContext.class))).thenReturn(true);
+    when(action.supports(any(Issue.class))).thenReturn(true);
+    doThrow(new RuntimeException("Error")).when(action).execute(anyMap(), any(IssueBulkChangeService.ActionContext.class));
 
-    IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList(issue.key())).transition(transition).build();
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result).hasSize(1);
+    assertThat(result).isEmpty();
 
-    verify(workflow).doTransition(eq(issue), eq(transition), any(IssueChangeContext.class));
-    verifyNoMoreInteractions(issueUpdater);
-    verify(issueStorage).save(eq(issue));
-    verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
-    verifyNoMoreInteractions(issueNotifications);
+    verifyZeroInteractions(issueUpdater);
+    verifyZeroInteractions(issueStorage);
+    verifyZeroInteractions(issueNotifications);
   }
 
   @Test
-  public void should_do_bulk_comment(){
-    String comment = "Bulk change comment";
+  public void should_fail_if_user_not_loggued() {
+    when(userSession.isLoggedIn()).thenReturn(false);
 
-    IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList(issue.key())).comment(comment).build();
-    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result).hasSize(1);
-
-    verify(issueUpdater).addComment(eq(issue), eq(comment), any(IssueChangeContext.class));
-    verifyNoMoreInteractions(issueUpdater);
-    verify(issueStorage).save(eq(issue));
-    verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
-    verifyNoMoreInteractions(issueNotifications);
-  }
-
-  @Test
-  public void should_ignore_an_issue_if_an_action_fail(){
-    when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) issue, new DefaultIssue().setKey("EFGH")));
-
-    // Bulk change with 2 actions : severity and comment
-    IssueBulkChangeQuery issueBulkChangeQuery = IssueBulkChangeQuery.builder().issueKeys(newArrayList("ABCD", "EFGH")).severity("MAJOR").comment("Bulk change comment").build();
-
-    // The first call the change severity is ok, the second will fail
-    when(issueUpdater.setManualSeverity(any(DefaultIssue.class), eq("MAJOR"),any(IssueChangeContext.class))).thenReturn(true).thenThrow(new RuntimeException("Cant change severity"));
-
-    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).key()).isEqualTo("ABCD");
-
-    verify(issueStorage).save(eq(issue));
-    verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
-    verifyNoMoreInteractions(issueNotifications);
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "assign");
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    try {
+      service.execute(issueBulkChangeQuery, userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
+    }
+    verifyZeroInteractions(issueUpdater);
+    verifyZeroInteractions(issueUpdater);
+    verifyZeroInteractions(issueStorage);
+    verifyZeroInteractions(issueNotifications);
   }
 
 }

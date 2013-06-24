@@ -591,23 +591,12 @@ public class InternalRubyIssueService implements ServerComponent {
   public Result<List<Issue>> executeBulkChange(Map<String, Object> props) {
     Result<List<Issue>> result = Result.of();
     try {
-      IssueBulkChangeQuery issueBulkChangeQuery = toIssueBulkChangeQuery(props);
+      IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props);
       result.set(issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get()));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
     return result;
-  }
-
-  private IssueBulkChangeQuery toIssueBulkChangeQuery(Map<String, Object> props) {
-    return IssueBulkChangeQuery.builder()
-      .issueKeys(RubyUtils.toStrings(props.get("issues")))
-      .assignee((String) props.get("assignee"))
-      .plan((String) props.get("plan"))
-      .severity((String) props.get("severity"))
-      .transition((String) props.get("transition"))
-      .comment((String) props.get("comment"))
-      .build();
   }
 
 }
