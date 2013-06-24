@@ -3,7 +3,9 @@
 
 <div id="accordion-panel"/>
 
-<script type="text/javascript">
-  // Always display title in popup mode
-  openAccordionItem('<%= url_for(params.merge({:display_title => 'true', :popup => 'true'})) -%>', this);
+<script>
+  $j(document).ready(function() {
+    // Always display title in popup mode
+    openAccordionItem('<%= url_for(params.merge({:display_title => 'true', :popup => 'true'})) -%>', this);
+  });
 </script>
