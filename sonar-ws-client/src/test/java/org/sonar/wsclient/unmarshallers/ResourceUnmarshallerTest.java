@@ -99,5 +99,6 @@ public class ResourceUnmarshallerTest extends UnmarshallerTestCase {
     assertThat(resource.getLanguage(), is("java"));
     assertThat(resource.getDescription(), is("Embrace Quality"));
     assertThat(resource.getDate(), not(nullValue()));
+    assertThat(resource.getCreationDate(), not(nullValue()));
   }
 }

@@ -57,6 +57,7 @@ public class Resource extends Model {
   private String description;
   private Date date;
   private List<Measure> measures;
+  private Date creationDate;
 
   // periods used for variations and tracking of violations
   private String period1Mode, period2Mode, period3Mode, period4Mode, period5Mode;
@@ -166,6 +167,15 @@ public class Resource extends Model {
 
   public Resource setDate(Date d) {
     this.date = d;
+    return this;
+  }
+
+  public Date getCreationDate() {
+    return creationDate;
+  }
+
+  public Resource setCreationDate(Date d) {
+    this.creationDate = d;
     return this;
   }
 

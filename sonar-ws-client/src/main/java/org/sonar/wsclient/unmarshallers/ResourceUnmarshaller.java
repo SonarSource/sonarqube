@@ -48,6 +48,7 @@ public class ResourceUnmarshaller extends AbstractUnmarshaller<Resource> {
         .setLanguage(utils.getString(json, "lang"))
         .setDescription(utils.getString(json, "description"))
         .setDate(utils.getDateTime(json, "date"))
+        .setCreationDate(utils.getDateTime(json, "creationDate"))
         .setVersion(utils.getString(json, "version"))
         .setPeriod1Mode(utils.getString(json, "p1"))
         .setPeriod1Param(utils.getString(json, "p1p"))
