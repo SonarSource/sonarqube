@@ -183,22 +183,26 @@ class IssuesController < ApplicationController
   def bulk_change_form
 
     # Load maximum number of issues
-    @criteria_params = criteria_params
+    @criteria_params = criteria_params_to_save
     @criteria_params['pageSize'] = -1
     issue_filter_result = Internal.issues.execute(@criteria_params)
     @issue_query = issue_filter_result.query
     @issues_result = issue_filter_result.result
 
-    @issue_keys = @issues_result.issues.map {|issue| issue.key()}.join(',')  if !@issues_result.issues.empty?
-
+    @issue_keys = @issues_result.issues.map {|issue| issue.key()}.join(',') unless @issues_result.issues.empty?
     render :partial => 'issues/bulk_change_form'
   end
 
   # POST /issues/bulk_change
   def bulk_change
     verify_post_request
-
-    render :text => '', :status => 200
+    result = Internal.issues.bulkChange(params, "")
+    if result.ok
+      render :text => params[:criteria_params], :status => 200
+    else
+      @errors = result.errors
+      render :partial => 'issues/bulk_change_form', :status => 400
+    end
   end
 
 

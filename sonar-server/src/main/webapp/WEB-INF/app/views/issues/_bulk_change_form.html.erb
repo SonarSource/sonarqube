@@ -1,5 +1,6 @@
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
   <input type="hidden" name="issues" value="<%= @issue_keys -%>">
+  <input type="hidden" name="criteria_params" value="<%= @criteria_params.to_query -%>">
   <fieldset>
     <div class="modal-head">
       <h2><%= message('issue_filter.bulk_change.form.title', {:params => @issues_result.issues.size.to_s}) -%></h2>
@@ -58,6 +59,6 @@
 </form>
 <script>
   $j("#bulk-change-form").modalForm({success:function (data) {
-    window.location = baseUrl + '/issues/search/' + data;
+    window.location = baseUrl + '/issues/search?' + data;
   }});
 </script>
