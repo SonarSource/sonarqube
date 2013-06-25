@@ -22,7 +22,6 @@ package org.sonar.server.issue;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.server.user.UserSession;
 
@@ -36,7 +35,6 @@ public class CommentAction extends Action implements ServerComponent {
 
   public CommentAction() {
     super(COMMENT_ACTION_KEY);
-    super.setConditions(new IsUnResolved());
   }
 
   @Override

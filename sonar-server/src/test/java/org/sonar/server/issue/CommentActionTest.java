@@ -61,9 +61,9 @@ public class CommentActionTest {
   }
 
   @Test
-  public void should_support_only_unresolved_issues(){
-    assertThat(action.supports(new DefaultIssue().setStatus(Issue.STATUS_OPEN))).isTrue();
-    assertThat(action.supports(new DefaultIssue().setStatus(Issue.STATUS_CLOSED))).isTrue();
+  public void should_support_all_issues(){
+    assertThat(action.supports(new DefaultIssue().setResolution(null))).isTrue();
+    assertThat(action.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isTrue();
   }
 
 }

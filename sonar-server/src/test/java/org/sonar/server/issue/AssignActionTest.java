@@ -96,7 +96,7 @@ public class AssignActionTest {
 
   @Test
   public void should_support_only_unresolved_issues(){
-    assertThat(action.supports(new DefaultIssue().setStatus(Issue.STATUS_OPEN))).isTrue();
-    assertThat(action.supports(new DefaultIssue().setStatus(Issue.STATUS_CLOSED))).isTrue();
+    assertThat(action.supports(new DefaultIssue().setResolution(null))).isTrue();
+    assertThat(action.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isFalse();
   }
 }

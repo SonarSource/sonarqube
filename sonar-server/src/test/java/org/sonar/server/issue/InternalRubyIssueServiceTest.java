@@ -542,7 +542,9 @@ public class InternalRubyIssueServiceTest {
     params.put("assign.assignee", "arthur");
     params.put("set_severity.severity", "MINOR");
     params.put("plan.plan", "3.7");
-    service.executeBulkChange(params);
+    Result<IssueBulkChangeResult> result = service.bulkChange(params, "My comment");
+    assertThat(result.errors()).isEmpty();
+    assertThat(result.ok()).isTrue();
     verify(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
   }
 
@@ -554,7 +556,7 @@ public class InternalRubyIssueServiceTest {
     params.put("issues", newArrayList("ABCD", "EFGH"));
     params.put("actions", newArrayList("assign"));
     params.put("assign.assignee", "arthur");
-    Result result = service.executeBulkChange(params);
+    Result result = service.bulkChange(params, "A comment");
     assertThat(result.ok()).isFalse();
     assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
   }

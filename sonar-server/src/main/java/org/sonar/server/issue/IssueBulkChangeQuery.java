@@ -20,6 +20,8 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.server.util.RubyUtils;
 
@@ -40,12 +42,13 @@ public class IssueBulkChangeQuery {
 
   Map<String, Map<String, Object>> propertiesByActions = new HashMap<String, Map<String, Object>>();
 
-  public IssueBulkChangeQuery(Map<String, Object> props) {
-    parse(props, null);
-  }
-
   public IssueBulkChangeQuery(Map<String, Object> props, String comment) {
     parse(props, comment);
+  }
+
+  @VisibleForTesting
+  IssueBulkChangeQuery(Map<String, Object> props) {
+    parse(props, null);
   }
 
   private void parse(Map<String, Object> props, String comment) {
@@ -59,7 +62,17 @@ public class IssueBulkChangeQuery {
       throw new IllegalArgumentException("At least one action must be provided");
     }
     for (String action : actions) {
-      propertiesByActions.put(action, getActionProps(action, props));
+      Map<String, Object> actionProperties = getActionProps(action, props);
+      if (actionProperties.isEmpty()) {
+        throw new IllegalArgumentException("Missing properties for action: "+ action);
+      }
+      propertiesByActions.put(action, actionProperties);
+    }
+    if (!Strings.isNullOrEmpty(comment)) {
+      actions.add(CommentAction.COMMENT_ACTION_KEY);
+      Map<String, Object> commentMap = newHashMap();
+      commentMap.put(CommentAction.COMMENT_ACTION_KEY, comment);
+      propertiesByActions.put(CommentAction.COMMENT_ACTION_KEY, commentMap);
     }
   }
 
@@ -73,10 +86,6 @@ public class IssueBulkChangeQuery {
 
   public Map<String, Object> properties(String action) {
     return propertiesByActions.get(action);
-  }
-
-  public String getComment() {
-    return comment;
   }
 
   private static Map<String, Object> getActionProps(String action, Map<String, Object> props) {

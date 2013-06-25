@@ -47,6 +47,18 @@ public class IssueBulkChangeQueryTest {
   }
 
   @Test
+  public void should_create_query_with_comment(){
+    Map<String, Object> params = newHashMap();
+    params.put("issues", newArrayList("ABCD", "EFGH"));
+    params.put("actions", newArrayList("assign"));
+    params.put("assign.assignee", "arthur");
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params, "My comment for bulk change");
+    assertThat(issueBulkChangeQuery.actions()).containsOnly("assign", "comment");
+    assertThat(issueBulkChangeQuery.properties("comment").get("comment")).isEqualTo("My comment for bulk change");
+  }
+
+  @Test
   public void should_get_properties_action(){
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
@@ -61,7 +73,8 @@ public class IssueBulkChangeQueryTest {
   @Test(expected = IllegalArgumentException.class)
   public void fail_to_build_if_no_issue(){
     Map<String, Object> params = newHashMap();
-    params.put("actions", newArrayList("do_transition", "assign", "set_severity", "plan"));
+    params.put("actions", newArrayList("assign"));
+    params.put("assign.assignee", "arthur");
     new IssueBulkChangeQuery(params);
   }
 
@@ -69,7 +82,8 @@ public class IssueBulkChangeQueryTest {
   public void fail_to_build_if_issues_are_empty(){
     Map<String, Object> params = newHashMap();
     params.put("issues", Collections.emptyList());
-    params.put("actions", newArrayList("do_transition", "assign", "set_severity", "plan"));
+    params.put("actions", newArrayList("assign"));
+    params.put("assign.assignee", "arthur");
     new IssueBulkChangeQuery(params);
   }
 
@@ -85,6 +99,14 @@ public class IssueBulkChangeQueryTest {
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
     params.put("actions", Collections.emptyList());
+    new IssueBulkChangeQuery(params);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void fail_to_build_if_action_properties_are_empty(){
+    Map<String, Object> params = newHashMap();
+    params.put("issues", Collections.emptyList());
+    params.put("actions", newArrayList("assign"));
     new IssueBulkChangeQuery(params);
   }
 

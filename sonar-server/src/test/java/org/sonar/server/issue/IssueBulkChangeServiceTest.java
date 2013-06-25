@@ -81,6 +81,7 @@ public class IssueBulkChangeServiceTest {
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD");
     properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
 
     when(action.supports(any(Issue.class))).thenReturn(true);
     when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
@@ -103,6 +104,7 @@ public class IssueBulkChangeServiceTest {
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD");
     properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
 
     when(action.supports(any(Issue.class))).thenReturn(false);
 
@@ -121,6 +123,7 @@ public class IssueBulkChangeServiceTest {
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD");
     properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
 
     when(action.supports(any(Issue.class))).thenReturn(true);
     when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(false);
@@ -140,6 +143,7 @@ public class IssueBulkChangeServiceTest {
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD");
     properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
 
     when(action.supports(any(Issue.class))).thenReturn(true);
     doThrow(new RuntimeException("Error")).when(action).execute(anyMap(), any(IssueBulkChangeService.ActionContext.class));
@@ -161,6 +165,7 @@ public class IssueBulkChangeServiceTest {
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD");
     properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     try {
       service.execute(issueBulkChangeQuery, userSession);
@@ -178,6 +183,7 @@ public class IssueBulkChangeServiceTest {
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD");
     properties.put("actions", "unknown");
+    properties.put("unknown.unknown", "unknown");
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     try {
       service.execute(issueBulkChangeQuery, userSession);

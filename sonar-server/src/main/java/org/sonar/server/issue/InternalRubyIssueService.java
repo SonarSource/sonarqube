@@ -289,7 +289,7 @@ public class InternalRubyIssueService implements ServerComponent {
     String projectParam = parameters.get("project");
 
     checkMandatorySizeParameter(name, "name", 200, result);
-    checkOptionnalSizeParameter(description, "description", 1000, result);
+    checkOptionalSizeParameter(description, "description", 1000, result);
 
     // Can only set project on creation
     if (existingActionPlan == null) {
@@ -532,7 +532,7 @@ public class InternalRubyIssueService implements ServerComponent {
       checkMandatoryParameter(id, "id", result);
     }
     checkMandatorySizeParameter(name, "name", 100, result);
-    checkOptionnalSizeParameter(description, "description", 4000, result);
+    checkOptionalSizeParameter(description, "description", 4000, result);
 
     if (result.ok()) {
       DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
@@ -566,6 +566,20 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
+  /**
+   * Execute a bulk change
+   */
+  public Result<IssueBulkChangeResult> bulkChange(Map<String, Object> props, String comment) {
+    Result<IssueBulkChangeResult> result = Result.of();
+    try {
+      IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props, comment);
+      result.set(issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get()));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
+  }
+
   private void checkMandatoryParameter(String value, String paramName, Result result) {
     if (Strings.isNullOrEmpty(value)) {
       result.addError(Result.Message.ofL10n("errors.cant_be_empty", paramName));
@@ -579,24 +593,10 @@ public class InternalRubyIssueService implements ServerComponent {
     }
   }
 
-  private void checkOptionnalSizeParameter(String value, String paramName, Integer size, Result result) {
+  private void checkOptionalSizeParameter(String value, String paramName, Integer size, Result result) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
       result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
     }
-  }
-
-  /**
-   * Execute a bulk change
-   */
-  public Result<IssueBulkChangeResult> executeBulkChange(Map<String, Object> props) {
-    Result<IssueBulkChangeResult> result = Result.of();
-    try {
-      IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props);
-      result.set(issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get()));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
   }
 
 }
