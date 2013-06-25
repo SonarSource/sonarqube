@@ -44,10 +44,11 @@ public class PlanActionTest {
   private PlanAction action;
 
   private ActionPlanService actionPlanService = mock(ActionPlanService.class);
+  private IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
   @Before
   public void before(){
-    action = new PlanAction(actionPlanService);
+    action = new PlanAction(actionPlanService, issueUpdater);
   }
 
   @Test
@@ -56,10 +57,8 @@ public class PlanActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("plan", planKey);
     DefaultIssue issue = mock(DefaultIssue.class);
-    IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
     Action.Context context = mock(Action.Context.class);
-    when(context.issueUpdater()).thenReturn(issueUpdater);
     when(context.issue()).thenReturn(issue);
 
     action.execute(properties, context);
@@ -89,6 +88,21 @@ public class PlanActionTest {
       action.verify(properties, issues, mock(UserSession.class));
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown action plan: ABCD");
+    }
+  }
+
+  @Test
+  public void should_fail_if_action_plan_is_empty(){
+    String planKey = "";
+    Map<String, Object> properties = newHashMap();
+    properties.put("plan", planKey);
+
+    List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC").setProjectKey("struts"));
+    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(null);
+    try {
+      action.verify(properties, issues, mock(UserSession.class));
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown action plan: ");
     }
   }
 

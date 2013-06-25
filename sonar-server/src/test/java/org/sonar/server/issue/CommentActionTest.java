@@ -39,9 +39,11 @@ public class CommentActionTest {
 
   private CommentAction action;
 
+  private IssueUpdater issueUpdater = mock(IssueUpdater.class);
+
   @Before
   public void before(){
-    action = new CommentAction();
+    action = new CommentAction(issueUpdater);
   }
 
   @Test
@@ -50,10 +52,8 @@ public class CommentActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("comment", comment);
     DefaultIssue issue = mock(DefaultIssue.class);
-    IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
     Action.Context context = mock(Action.Context.class);
-    when(context.issueUpdater()).thenReturn(issueUpdater);
     when(context.issue()).thenReturn(issue);
 
     action.execute(properties, context);

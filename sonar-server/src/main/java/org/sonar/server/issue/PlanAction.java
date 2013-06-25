@@ -26,6 +26,7 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -37,10 +38,12 @@ public class PlanAction extends Action implements ServerComponent {
   public static final String PLAN_ACTION_KEY = "plan";
 
   private final ActionPlanService actionPlanService;
+  private final IssueUpdater issueUpdater;
 
-  public PlanAction(ActionPlanService actionPlanService) {
+  public PlanAction(ActionPlanService actionPlanService, IssueUpdater issueUpdater) {
     super(PLAN_ACTION_KEY);
     this.actionPlanService = actionPlanService;
+    this.issueUpdater = issueUpdater;
     super.setConditions(new IsUnResolved());
   }
 
@@ -61,7 +64,7 @@ public class PlanAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return context.issueUpdater().plan((DefaultIssue) context.issue(), planKey(properties), context.issueChangeContext());
+    return issueUpdater.plan((DefaultIssue) context.issue(), planKey(properties), context.issueChangeContext());
   }
 
   private String planKey(Map<String, Object> properties) {

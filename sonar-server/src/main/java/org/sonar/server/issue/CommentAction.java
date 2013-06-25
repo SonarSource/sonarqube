@@ -23,6 +23,7 @@ package org.sonar.server.issue;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -34,8 +35,11 @@ public class CommentAction extends Action implements ServerComponent {
   public static final String COMMENT_ACTION_KEY = "comment";
   public static final String COMMENT_PROPERTY = "comment";
 
-  public CommentAction() {
+  private final IssueUpdater issueUpdater;
+
+  public CommentAction(IssueUpdater issueUpdater) {
     super(COMMENT_ACTION_KEY);
+    this.issueUpdater = issueUpdater;
   }
 
   @Override
@@ -45,7 +49,7 @@ public class CommentAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    context.issueUpdater().addComment((DefaultIssue) context.issue(), comment(properties), context.issueChangeContext());
+    issueUpdater.addComment((DefaultIssue) context.issue(), comment(properties), context.issueChangeContext());
     return true;
   }
 

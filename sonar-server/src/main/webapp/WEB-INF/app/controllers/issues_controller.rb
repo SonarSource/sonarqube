@@ -186,10 +186,12 @@ class IssuesController < ApplicationController
     @criteria_params = criteria_params_to_save
     @criteria_params['pageSize'] = -1
     issue_filter_result = Internal.issues.execute(@criteria_params)
-    @issue_query = issue_filter_result.query
-    @issues_result = issue_filter_result.result
+    issue_query = issue_filter_result.query
+    issues_result = issue_filter_result.result
 
-    @issue_keys = @issues_result.issues.map {|issue| issue.key()}.join(',') unless @issues_result.issues.empty?
+    @issues = issues_result.issues.map {|issue| issue.key()}
+    @project = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1
+
     render :partial => 'issues/bulk_change_form'
   end
 

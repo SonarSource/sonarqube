@@ -24,6 +24,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -34,8 +35,11 @@ public class SetSeverityAction extends Action implements ServerComponent {
 
   public static final String SET_SEVERITY_ACTION_KEY = "set_severity";
 
-  public SetSeverityAction() {
+  private final IssueUpdater issueUpdater;
+
+  public SetSeverityAction(IssueUpdater issueUpdater) {
     super(SET_SEVERITY_ACTION_KEY);
+    this.issueUpdater = issueUpdater;
     super.setConditions(new IsUnResolved());
   }
 
@@ -46,7 +50,7 @@ public class SetSeverityAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return context.issueUpdater().setSeverity((DefaultIssue) context.issue(), severity(properties), context.issueChangeContext());
+    return issueUpdater.setSeverity((DefaultIssue) context.issue(), severity(properties), context.issueChangeContext());
   }
 
   private String severity(Map<String, Object> properties) {

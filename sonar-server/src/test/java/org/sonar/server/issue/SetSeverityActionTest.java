@@ -39,9 +39,11 @@ public class SetSeverityActionTest {
 
   private SetSeverityAction action;
 
+  private IssueUpdater issueUpdater = mock(IssueUpdater.class);
+
   @Before
   public void before(){
-    action = new SetSeverityAction();
+    action = new SetSeverityAction(issueUpdater);
   }
 
   @Test
@@ -50,10 +52,8 @@ public class SetSeverityActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("severity", severity);
     DefaultIssue issue = mock(DefaultIssue.class);
-    IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
     Action.Context context = mock(Action.Context.class);
-    when(context.issueUpdater()).thenReturn(issueUpdater);
     when(context.issue()).thenReturn(issue);
 
     action.execute(properties, context);

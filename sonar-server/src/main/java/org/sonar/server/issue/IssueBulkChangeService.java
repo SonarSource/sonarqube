@@ -36,7 +36,6 @@ import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Date;
 import java.util.List;
 
@@ -78,7 +77,7 @@ public class IssueBulkChangeService {
       for (String actionName : issueBulkChangeQuery.actions()) {
         try {
           Action action = getAction(actionName);
-          ActionContext actionContext = new ActionContext(issue, issueUpdater, issueChangeContext);
+          ActionContext actionContext = new ActionContext(issue, issueChangeContext);
           if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(actionName), actionContext)) {
             issueStorage.save((DefaultIssue) issue);
             issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
@@ -114,11 +113,9 @@ public class IssueBulkChangeService {
 
   static class ActionContext implements Action.Context {
     private final Issue issue;
-    private final IssueUpdater updater;
     private final IssueChangeContext changeContext;
 
-    ActionContext(Issue issue, IssueUpdater updater, IssueChangeContext changeContext) {
-      this.updater = updater;
+    ActionContext(Issue issue, IssueChangeContext changeContext) {
       this.issue = issue;
       this.changeContext = changeContext;
     }
@@ -126,11 +123,6 @@ public class IssueBulkChangeService {
     @Override
     public Issue issue() {
       return issue;
-    }
-
-    @Override
-    public IssueUpdater issueUpdater() {
-      return updater;
     }
 
     @Override

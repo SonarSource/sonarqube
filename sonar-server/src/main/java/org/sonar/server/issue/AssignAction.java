@@ -20,11 +20,13 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.user.UserFinder;
+import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -36,17 +38,19 @@ public class AssignAction extends Action implements ServerComponent {
   public static final String ASSIGN_ACTION_KEY = "assign";
 
   private final UserFinder userFinder;
+  private final IssueUpdater issueUpdater;
 
-  public AssignAction(UserFinder userFinder) {
+  public AssignAction(UserFinder userFinder, IssueUpdater issueUpdater) {
     super(ASSIGN_ACTION_KEY);
     this.userFinder = userFinder;
+    this.issueUpdater = issueUpdater;
     super.setConditions(new IsUnResolved());
   }
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession){
     String assignee = assignee(properties);
-    if (assignee != null && userFinder.findByLogin(assignee) == null) {
+    if (!Strings.isNullOrEmpty(assignee) && userFinder.findByLogin(assignee) == null) {
       throw new IllegalArgumentException("Unknown user: " + assignee);
     }
     return true;
@@ -54,7 +58,7 @@ public class AssignAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return context.issueUpdater().assign((DefaultIssue) context.issue(), assignee(properties), context.issueChangeContext());
+    return issueUpdater.assign((DefaultIssue) context.issue(), assignee(properties), context.issueChangeContext());
   }
 
   private String assignee(Map<String, Object> properties){

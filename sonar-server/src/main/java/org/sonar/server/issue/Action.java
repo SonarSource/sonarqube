@@ -27,7 +27,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -102,8 +101,6 @@ public abstract class Action implements ServerComponent {
 
   interface Context {
     Issue issue();
-
-    IssueUpdater issueUpdater();
 
     IssueChangeContext issueChangeContext();
   }

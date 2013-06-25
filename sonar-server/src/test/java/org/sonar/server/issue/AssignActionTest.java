@@ -45,10 +45,11 @@ public class AssignActionTest {
   private AssignAction action;
 
   private final UserFinder userFinder = mock(UserFinder.class);
+  private IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
   @Before
   public void before(){
-    action = new AssignAction(userFinder);
+    action = new AssignAction(userFinder, issueUpdater);
   }
 
   @Test
@@ -58,10 +59,8 @@ public class AssignActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("assignee", assignee);
     DefaultIssue issue = mock(DefaultIssue.class);
-    IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
     Action.Context context = mock(Action.Context.class);
-    when(context.issueUpdater()).thenReturn(issueUpdater);
     when(context.issue()).thenReturn(issue);
 
     action.execute(properties, context);
@@ -91,6 +90,21 @@ public class AssignActionTest {
       action.verify(properties, issues, mock(UserSession.class));
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown user: arthur");
+    }
+  }
+
+  @Test
+  public void should_fail_if_assignee_is_empty(){
+    String assignee = "";
+    Map<String, Object> properties = newHashMap();
+    properties.put("assignee", assignee);
+
+    List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC"));
+    when(userFinder.findByLogin(assignee)).thenReturn(null);
+    try {
+      action.verify(properties, issues, mock(UserSession.class));
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown user: ");
     }
   }
 
