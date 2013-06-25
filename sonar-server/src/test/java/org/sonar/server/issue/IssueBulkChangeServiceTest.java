@@ -89,8 +89,8 @@ public class IssueBulkChangeServiceTest {
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result.issuesChanged).hasSize(1);
-    assertThat(result.issuesNotChanged).isEmpty();
+    assertThat(result.issuesChanged()).hasSize(1);
+    assertThat(result.issuesNotChanged()).isEmpty();
 
     verifyNoMoreInteractions(issueUpdater);
     verify(issueStorage).save(eq(issue));
@@ -110,8 +110,8 @@ public class IssueBulkChangeServiceTest {
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result.issuesChanged).isEmpty();
-    assertThat(result.issuesNotChanged).hasSize(1);
+    assertThat(result.issuesChanged()).isEmpty();
+    assertThat(result.issuesNotChanged()).hasSize(1);
 
     verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
@@ -130,8 +130,8 @@ public class IssueBulkChangeServiceTest {
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result.issuesChanged).isEmpty();
-    assertThat(result.issuesNotChanged).hasSize(1);
+    assertThat(result.issuesChanged()).isEmpty();
+    assertThat(result.issuesNotChanged()).hasSize(1);
 
     verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
@@ -150,8 +150,8 @@ public class IssueBulkChangeServiceTest {
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result.issuesChanged).isEmpty();
-    assertThat(result.issuesNotChanged).hasSize(1);
+    assertThat(result.issuesChanged()).isEmpty();
+    assertThat(result.issuesNotChanged()).hasSize(1);
 
     verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);

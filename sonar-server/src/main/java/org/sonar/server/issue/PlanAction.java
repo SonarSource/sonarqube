@@ -61,8 +61,7 @@ public class PlanAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    context.issueUpdater().plan((DefaultIssue) context.issue(), planKey(properties), context.issueChangeContext());
-    return true;
+    return context.issueUpdater().plan((DefaultIssue) context.issue(), planKey(properties), context.issueChangeContext());
   }
 
   private String planKey(Map<String, Object> properties) {

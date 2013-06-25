@@ -213,4 +213,21 @@ public class DefaultIssueClientTest {
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_action?issue=ABCDE&actionKey=tweet");
     assertThat(result).isNotNull();
   }
+
+  @Test
+  public void should_do_bulk_change() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+    httpServer.stubResponseBody("{\"issuesChanged\": {\"total\": 2}, \"issuesNotChanged\": {\"total\": 1, \"issues\": [\"06ed4db6-fd96-450a-bcb0-e0184db50105\"]} }");
+
+    BulkChangeQuery query = BulkChangeQuery.create()
+      .issues("ABCD", "EFGH")
+      .actions("assign")
+      .actionParameter("assign", "assignee", "geoffrey");
+
+    IssueClient client = new DefaultIssueClient(requestFactory);
+    BulkChange result = client.bulkChange(query);
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/bulk_change?assign.assignee=geoffrey&issues=ABCD,EFGH&actions=assign");
+    assertThat(result).isNotNull();
+  }
 }

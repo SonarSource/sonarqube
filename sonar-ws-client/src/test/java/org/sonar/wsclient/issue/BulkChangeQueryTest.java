@@ -18,32 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.issue;
+package org.sonar.wsclient.issue;
 
-import org.sonar.api.issue.Issue;
+import org.junit.Test;
 
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.MapAssert.entry;
 
-import static com.google.common.collect.Lists.newArrayList;
+public class BulkChangeQueryTest {
 
-public class IssueBulkChangeResult {
-
-  private List<Issue> issuesChanged = newArrayList();
-  private List<Issue> issuesNotChanged = newArrayList();
-
-  public void addIssueChanged(Issue issue){
-    this.issuesChanged.add(issue);
+  @Test
+  public void get_all_issues() {
+    BulkChangeQuery query = BulkChangeQuery.create();
+    assertThat(query.urlParams()).isEmpty();
   }
 
-  public void addIssueNotChanged(Issue issue){
-    this.issuesNotChanged.add(issue);
+  @Test
+  public void test_create() {
+    BulkChangeQuery query = BulkChangeQuery.create()
+      .issues("ABCD", "EFGH")
+      .actions("assign")
+      .actionParameter("assign", "assignee", "geoffrey")
+    ;
+
+    assertThat(query.urlParams()).hasSize(3).includes(
+      entry("issues", "ABCD,EFGH"),
+      entry("actions", "assign"),
+      entry("assign.assignee", "geoffrey")
+    );
   }
 
-  public List<Issue> issuesChanged() {
-    return issuesChanged;
-  }
-
-  public List<Issue> issuesNotChanged() {
-    return issuesNotChanged;
-  }
 }

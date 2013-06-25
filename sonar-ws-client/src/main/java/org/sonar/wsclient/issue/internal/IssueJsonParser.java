@@ -20,9 +20,10 @@
 package org.sonar.wsclient.issue.internal;
 
 import org.json.simple.JSONValue;
-import org.sonar.wsclient.component.Component;
-import org.sonar.wsclient.issue.Issues;
 import org.sonar.wsclient.base.Paging;
+import org.sonar.wsclient.component.Component;
+import org.sonar.wsclient.issue.BulkChange;
+import org.sonar.wsclient.issue.Issues;
 import org.sonar.wsclient.rule.Rule;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 import org.sonar.wsclient.user.User;
@@ -123,5 +124,19 @@ public class IssueJsonParser {
       actions.add(jAction);
     }
     return actions;
+  }
+
+  BulkChange parseBulkChange(String json) {
+    DefaultBulkChange result = new DefaultBulkChange();
+
+    Map jsonRoot = (Map) JSONValue.parse(json);
+    Map issuesChanged = (Map) jsonRoot.get("issuesChanged");
+    result.setTotalIssuesChanged(JsonUtils.getInteger(issuesChanged, "total"));
+
+    Map issuesNotChanged = (Map) jsonRoot.get("issuesNotChanged");
+    result.setTotalIssuesNotChanged(JsonUtils.getInteger(issuesNotChanged, "total"));
+    result.setIssuesNotChanged(JsonUtils.getArray(issuesNotChanged, "issues"));
+
+    return  result;
   }
 }

@@ -25,6 +25,7 @@ import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.*;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -109,6 +110,12 @@ public class DefaultIssueClient implements IssueClient {
     Map<String, Object> params = EncodingUtils.toMap("issue", issueKey, "actionKey", action);
     String json = requestFactory.post("/api/issues/do_action", params);
     return jsonToIssue(json);
+  }
+
+  @Override
+  public BulkChange bulkChange(BulkChangeQuery query) {
+    String json = requestFactory.post("/api/issues/bulk_change", query.urlParams());
+    return parser.parseBulkChange(json);
   }
 
   private Issue jsonToIssue(String json) {

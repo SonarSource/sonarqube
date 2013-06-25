@@ -54,8 +54,7 @@ public class AssignAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    context.issueUpdater().assign((DefaultIssue) context.issue(), assignee(properties), context.issueChangeContext());
-    return true;
+    return context.issueUpdater().assign((DefaultIssue) context.issue(), assignee(properties), context.issueChangeContext());
   }
 
   private String assignee(Map<String, Object> properties){

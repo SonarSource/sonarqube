@@ -17,33 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.server.issue;
-
-import org.sonar.api.issue.Issue;
+package org.sonar.wsclient.issue;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
+/**
+ * @since 3.7
+ */
+public interface BulkChange {
 
-public class IssueBulkChangeResult {
+  List<String> issuesNotChangedKeys();
 
-  private List<Issue> issuesChanged = newArrayList();
-  private List<Issue> issuesNotChanged = newArrayList();
+  int totalIssuesChanged();
 
-  public void addIssueChanged(Issue issue){
-    this.issuesChanged.add(issue);
-  }
+  int totalIssuesNotChanged();
 
-  public void addIssueNotChanged(Issue issue){
-    this.issuesNotChanged.add(issue);
-  }
-
-  public List<Issue> issuesChanged() {
-    return issuesChanged;
-  }
-
-  public List<Issue> issuesNotChanged() {
-    return issuesNotChanged;
-  }
 }

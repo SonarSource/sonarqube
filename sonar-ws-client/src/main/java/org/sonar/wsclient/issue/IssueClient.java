@@ -67,4 +67,9 @@ public interface IssueClient {
 
   Issue doAction(String issueKey, String action);
 
+  /**
+   * Execute bulk change on a list of issues
+   */
+  BulkChange bulkChange(BulkChangeQuery query);
+
 }

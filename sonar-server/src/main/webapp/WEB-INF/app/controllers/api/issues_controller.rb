@@ -250,18 +250,58 @@ class Api::IssuesController < Api::ApiController
     render_result_issue(result)
   end
 
+  #
+  # Execute a bulk change on a list of issues
+  #
+  # POST /api/issues/bulk_change?issue=<key>&text=<text>
+  #
+  # -- Mandatory parameters
+  # 'issues' is the list of issue keys
+  #
+  # -- Optional parameters
+  # 'assignee' to assign all issues to a user or un-assign.
+  # 'severity' to change the severity of all issues.
+  # 'plan' to plan all issues to an action plan or unlink.
+  # 'transition' to execute a transition on all issues.
+  # 'comment' to add a comment on all issues.
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/bulk_change?issues=4a2881e7-825e-4140-a154-01f420c43d11,4a2881e7-825e-4140-a154-01f420c43d30&assignee=simon&plan=3.7'
+  #
+  def bulk_change
+    verify_post_request
+
+    comment = Api::Utils.read_post_request_param(params[:comment])
+    result = Internal.issues.bulkChange(params, comment)
+    hash = result_to_hash(result)
+    if result.get
+      hash[:issuesChanged] = {
+          :total => result.get.issuesChanged().size,
+      }
+      hash[:issuesNotChanged] = {
+          :total => result.get.issuesNotChanged().size,
+          :issues => result.get.issuesNotChanged().map { |issue| issue.key() }
+      }
+    end
+
+    respond_to do |format|
+      # if the request header "Accept" is "*/*", then the default format is the first one (json)
+      format.json { render :json => jsonp(hash), :status => result.httpStatus }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => (result.ok ? 200 : 400)) }
+    end
+  end
+
 
   protected
 
   def render_result_issue(result)
-    http_status = (result.ok ? 200 : 400)
     hash = result_to_hash(result)
     hash[:issue] = Issue.to_hash(result.get) if result.get
 
     respond_to do |format|
       # if the request header "Accept" is "*/*", then the default format is the first one (json)
       format.json { render :json => jsonp(hash), :status => result.httpStatus }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => (result.ok ? 200 : 400)) }
     end
   end
 

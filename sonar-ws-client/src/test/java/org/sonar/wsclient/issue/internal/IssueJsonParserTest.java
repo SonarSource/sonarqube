@@ -23,11 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.wsclient.base.Paging;
 import org.sonar.wsclient.component.Component;
-import org.sonar.wsclient.issue.ActionPlan;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueComment;
-import org.sonar.wsclient.issue.Issues;
-import org.sonar.wsclient.issue.internal.IssueJsonParser;
+import org.sonar.wsclient.issue.*;
 import org.sonar.wsclient.user.User;
 
 import java.util.List;
@@ -195,5 +191,15 @@ public class IssueJsonParserTest {
     assertThat(actionPlan.deadLine().getTime()).isEqualTo(1369951200000l);
     assertThat(actionPlan.createdAt().getTime()).isEqualTo(1369828520000l);
     assertThat(actionPlan.updatedAt().getTime()).isEqualTo(1369828520000l);
+  }
+
+  @Test
+  public void should_parse_bulk_change() throws Exception {
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/bulk-change.json"));
+    BulkChange bulkChange = new IssueJsonParser().parseBulkChange(json);
+
+    assertThat(bulkChange.totalIssuesChanged()).isEqualTo(3);
+    assertThat(bulkChange.totalIssuesNotChanged()).isEqualTo(2);
+    assertThat(bulkChange.issuesNotChangedKeys()).containsOnly("06ed4db6-fd96-450a-bcb0-e0184db50105", "06ed4db6-fd96-450a-bcb0-e0184db50654");
   }
 }
