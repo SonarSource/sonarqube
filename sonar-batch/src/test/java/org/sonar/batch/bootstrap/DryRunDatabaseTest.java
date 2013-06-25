@@ -26,8 +26,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.HttpDownloader;
@@ -43,10 +41,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class DryRunDatabaseTest {
-  Settings settings = new Settings();
+  Settings settings;
   ServerClient server = mock(ServerClient.class);
   TempDirectories tempDirectories = mock(TempDirectories.class);
-  ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create().setKey("group:project"));
   File databaseFile;
 
   @Rule
@@ -59,27 +56,37 @@ public class DryRunDatabaseTest {
   public void setUp() throws Exception {
     databaseFile = temp.newFile("dryrun.h2.db");
     when(tempDirectories.getFile("", "dryrun.h2.db")).thenReturn(databaseFile);
+    settings = new Settings();
     settings.setProperty(CoreProperties.DRY_RUN, true);
+    settings.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "group:project");
   }
 
   @Test
   public void should_be_disabled_if_not_dry_run() {
     settings.setProperty(CoreProperties.DRY_RUN, false);
-    new DryRunDatabase(settings, server, tempDirectories, projectReactor).start();
+    new DryRunDatabase(settings, server, tempDirectories).start();
 
     verifyZeroInteractions(tempDirectories, server);
   }
 
   @Test
   public void should_download_database() {
-    new DryRunDatabase(settings, server, tempDirectories, projectReactor).start();
+    new DryRunDatabase(settings, server, tempDirectories).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
   }
 
   @Test
+  public void should_download_database_on_branch() {
+    settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch");
+    new DryRunDatabase(settings, server, tempDirectories).start();
+
+    verify(server).download("/batch_bootstrap/db?project=group:project:mybranch", databaseFile);
+  }
+
+  @Test
   public void should_replace_database_settings() {
-    new DryRunDatabase(settings, server, tempDirectories, projectReactor).start();
+    new DryRunDatabase(settings, server, tempDirectories).start();
 
     assertThat(settings.getString(DatabaseProperties.PROP_DIALECT)).isEqualTo("h2");
     assertThat(settings.getString(DatabaseProperties.PROP_DRIVER)).isEqualTo("org.h2.Driver");
@@ -95,7 +102,7 @@ public class DryRunDatabaseTest {
     thrown.expect(SonarException.class);
     thrown.expectMessage("You don't have access rights to project [group:project]");
 
-    new DryRunDatabase(settings, server, tempDirectories, projectReactor).start();
+    new DryRunDatabase(settings, server, tempDirectories).start();
   }
 
   @Test
@@ -105,12 +112,13 @@ public class DryRunDatabaseTest {
     thrown.expect(SonarException.class);
     thrown.expectMessage("BUG");
 
-    new DryRunDatabase(settings, server, tempDirectories, projectReactor).start();
+    new DryRunDatabase(settings, server, tempDirectories).start();
   }
 
   @Test
   public void project_should_be_optional() {
     // on non-scan tasks
+    settings.removeProperty(CoreProperties.PROJECT_KEY_PROPERTY);
     new DryRunDatabase(settings, server, tempDirectories).start();
     verify(server).download("/batch_bootstrap/db", databaseFile);
   }

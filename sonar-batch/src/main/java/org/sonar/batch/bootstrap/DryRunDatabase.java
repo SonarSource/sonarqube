@@ -26,16 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.HttpDownloader.HttpException;
 import org.sonar.api.utils.SonarException;
 
-import javax.annotation.Nullable;
-
 import java.io.File;
-
-import static org.sonar.api.utils.HttpDownloader.HttpException;
 
 /**
  * @since 3.4
@@ -52,17 +48,11 @@ public class DryRunDatabase implements BatchComponent {
   private final Settings settings;
   private final ServerClient server;
   private final TempDirectories tempDirectories;
-  private ProjectReactor reactor;
 
-  public DryRunDatabase(Settings settings, ServerClient server, TempDirectories tempDirectories, @Nullable ProjectReactor reactor) {
+  public DryRunDatabase(Settings settings, ServerClient server, TempDirectories tempDirectories) {
     this.settings = settings;
     this.server = server;
     this.tempDirectories = tempDirectories;
-    this.reactor = reactor;
-  }
-
-  public DryRunDatabase(Settings settings, ServerClient server, TempDirectories tempDirectories) {
-    this(settings, server, tempDirectories, null);
   }
 
   public void start() {
@@ -79,10 +69,14 @@ public class DryRunDatabase implements BatchComponent {
   private void downloadDatabase(File toFile) {
     String projectKey = null;
     try {
-      if (reactor == null) {
+      projectKey = settings.getString(CoreProperties.PROJECT_KEY_PROPERTY);
+      String branch = settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
+      if (StringUtils.isNotBlank(branch)) {
+        projectKey = String.format("%s:%s", projectKey, branch);
+      }
+      if (StringUtils.isBlank(projectKey)) {
         server.download("/batch_bootstrap/db", toFile);
       } else {
-        projectKey = StringUtils.defaultString(reactor.getRoot().getKey());
         server.download("/batch_bootstrap/db?project=" + projectKey, toFile);
       }
       LOG.debug("Dry Run database size: {}", FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(toFile)));
@@ -97,11 +91,11 @@ public class DryRunDatabase implements BatchComponent {
 
   private void replaceSettings(String databasePath) {
     settings
-      .removeProperty("sonar.jdbc.schema")
-      .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
-      .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
-      .setProperty(DatabaseProperties.PROP_USER, USER)
-      .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
-      .setProperty(DatabaseProperties.PROP_URL, URL + databasePath);
+        .removeProperty("sonar.jdbc.schema")
+        .setProperty(DatabaseProperties.PROP_DIALECT, DIALECT)
+        .setProperty(DatabaseProperties.PROP_DRIVER, DRIVER)
+        .setProperty(DatabaseProperties.PROP_USER, USER)
+        .setProperty(DatabaseProperties.PROP_PASSWORD, PASSWORD)
+        .setProperty(DatabaseProperties.PROP_URL, URL + databasePath);
   }
 }
