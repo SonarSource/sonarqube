@@ -24,41 +24,33 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.user.UserFinder;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
 import java.util.Map;
 
 
-public class AssignAction extends Action implements ServerComponent {
+public class TransitionAction extends Action implements ServerComponent {
 
-  public static final String ASSIGN_ACTION_KEY = "assign";
+  public static final String TRANSITION_ACTION_KEY = "transition";
 
-  private final UserFinder userFinder;
-
-  public AssignAction(UserFinder userFinder) {
-    super(ASSIGN_ACTION_KEY);
-    this.userFinder = userFinder;
+  public TransitionAction() {
+    super(TRANSITION_ACTION_KEY);
     super.setConditions(new IsUnResolved());
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession){
-    String assignee = assignee(properties);
-    if (assignee != null && userFinder.findByLogin(assignee) == null) {
-      throw new IllegalArgumentException("Unknown user: " + assignee);
-    }
+  public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
     return true;
   }
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    context.issueUpdater().assign((DefaultIssue) context.issue(), assignee(properties), context.issueChangeContext());
+    context.issueUpdater().addComment((DefaultIssue) context.issue(), transition(properties), context.issueChangeContext());
     return true;
   }
 
-  private String assignee(Map<String, Object> properties){
-    return (String) properties.get("assignee");
+  private String transition(Map<String, Object> properties) {
+    return (String) properties.get("transition");
   }
 }

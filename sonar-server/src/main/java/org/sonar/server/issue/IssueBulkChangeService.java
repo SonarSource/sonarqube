@@ -40,8 +40,6 @@ import javax.annotation.CheckForNull;
 import java.util.Date;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 public class IssueBulkChangeService {
 
   private static final Logger LOG = LoggerFactory.getLogger(IssueBulkChangeService.class);
@@ -60,18 +58,22 @@ public class IssueBulkChangeService {
     this.actions = actions;
   }
 
-  public List<Issue> execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
-    List<Issue> issues = newArrayList();
+  public IssueBulkChangeResult execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
     verifyLoggedIn(userSession);
 
+    IssueBulkChangeResult result = new IssueBulkChangeResult();
+    IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issues()).requiredRole(UserRole.USER).build());
+    List<Issue> issues = issueQueryResult.issues();
     for (String actionName : issueBulkChangeQuery.actions()) {
       Action action = getAction(actionName);
-      action.verify(issueBulkChangeQuery.properties(actionName), userSession);
+      if (action == null) {
+        throw new IllegalArgumentException("The action : '"+ actionName + "' is unknown");
+      }
+      action.verify(issueBulkChangeQuery.properties(actionName), issues, userSession);
     }
 
-    IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issues()).requiredRole(UserRole.USER).build());
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
-    for (Issue issue : issueQueryResult.issues()) {
+    for (Issue issue : issues) {
       for (String actionName : issueBulkChangeQuery.actions()) {
         try {
           Action action = getAction(actionName);
@@ -79,15 +81,17 @@ public class IssueBulkChangeService {
           if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(actionName), actionContext)) {
             issueStorage.save((DefaultIssue) issue);
             issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
-            issues.add(issue);
+            result.addIssueChanged(issue);
+          } else {
+            result.addIssueNotChanged(issue);
           }
         } catch (Exception e) {
-          // Do nothing, just go to the next issue
+          result.addIssueNotChanged(issue);
           LOG.info("An error occur when trying to apply the action : "+ actionName + " on issue : "+ issue.key() + ". This issue has been ignored.", e);
         }
       }
     }
-    return issues;
+    return result;
   }
 
   @CheckForNull

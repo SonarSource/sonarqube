@@ -22,10 +22,13 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.server.user.UserSession;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -42,9 +45,15 @@ public class PlanAction extends Action implements ServerComponent {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, UserSession userSession){
+  public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
     String actionPlanKey = planKey(properties);
-    if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanService.findByKey(actionPlanKey, userSession) == null) {
+    if (!Strings.isNullOrEmpty(actionPlanKey)) {
+      ActionPlan actionPlan = actionPlanService.findByKey(actionPlanKey, userSession);
+      if (actionPlan == null) {
+        throw new IllegalArgumentException("Unknown action plan: " + actionPlanKey);
+      }
+      verifyIssuesAreAllRelatedOnActionPlanProject(issues, actionPlan);
+    } else {
       throw new IllegalArgumentException("Unknown action plan: " + actionPlanKey);
     }
     return true;
@@ -56,8 +65,18 @@ public class PlanAction extends Action implements ServerComponent {
     return true;
   }
 
-  private String planKey(Map<String, Object> properties){
+  private String planKey(Map<String, Object> properties) {
     return (String) properties.get("plan");
+  }
+
+  private void verifyIssuesAreAllRelatedOnActionPlanProject(List<Issue> issues, ActionPlan actionPlan) {
+    String projectKey = actionPlan.projectKey();
+    for (Issue issue : issues) {
+      DefaultIssue defaultIssue = (DefaultIssue) issue;
+      if (!defaultIssue.projectKey().equals(projectKey)) {
+        throw new IllegalArgumentException("Issues are not all related to the action plan project: " + projectKey);
+      }
+    }
   }
 
 }

@@ -155,6 +155,7 @@ public class ResourceDao {
     }
   }
 
+  @CheckForNull
   public Component findByKey(String key) {
     ResourceDto resourceDto = getResource(ResourceQuery.create().setKey(key));
     return resourceDto != null ? toComponent(resourceDto) : null;

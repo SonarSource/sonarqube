@@ -20,37 +20,30 @@
 
 package org.sonar.server.issue;
 
-import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.IsUnResolved;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.server.user.UserSession;
 
 import java.util.List;
-import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 
-public class SetSeverityAction extends Action implements ServerComponent {
+public class IssueBulkChangeResult {
 
-  public static final String SET_SEVERITY_ACTION_KEY = "set_severity";
+  List<Issue> issuesChanged = newArrayList();
+  List<Issue> issuesNotChanged = newArrayList();
 
-  public SetSeverityAction() {
-    super(SET_SEVERITY_ACTION_KEY);
-    super.setConditions(new IsUnResolved());
+  public void addIssueChanged(Issue issue){
+    this.issuesChanged.add(issue);
   }
 
-  @Override
-  public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
-    return true;
+  public void addIssueNotChanged(Issue issue){
+    this.issuesNotChanged.add(issue);
   }
 
-  @Override
-  public boolean execute(Map<String, Object> properties, Context context) {
-    context.issueUpdater().setSeverity((DefaultIssue) context.issue(), severity(properties), context.issueChangeContext());
-    return true;
+  public List<Issue> issuesChanged() {
+    return issuesChanged;
   }
 
-  private String severity(Map<String, Object> properties) {
-    return (String) properties.get("severity");
+  public List<Issue> issuesInError() {
+    return issuesNotChanged;
   }
 }

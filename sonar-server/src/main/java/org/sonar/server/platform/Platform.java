@@ -281,6 +281,7 @@ public final class Platform {
     servicesContainer.addSingleton(AssignAction.class);
     servicesContainer.addSingleton(PlanAction.class);
     servicesContainer.addSingleton(SetSeverityAction.class);
+    servicesContainer.addSingleton(CommentAction.class);
 
     // rules
     servicesContainer.addSingleton(RubyRuleService.class);

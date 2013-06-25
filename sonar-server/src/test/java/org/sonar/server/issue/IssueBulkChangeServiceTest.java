@@ -87,8 +87,9 @@ public class IssueBulkChangeServiceTest {
     when(action.execute(eq(properties), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
-    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result).hasSize(1);
+    IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result.issuesChanged).hasSize(1);
+    assertThat(result.issuesNotChanged).isEmpty();
 
     verifyNoMoreInteractions(issueUpdater);
     verify(issueStorage).save(eq(issue));
@@ -106,8 +107,9 @@ public class IssueBulkChangeServiceTest {
     when(action.supports(any(Issue.class))).thenReturn(false);
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
-    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result).isEmpty();
+    IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result.issuesChanged).isEmpty();
+    assertThat(result.issuesNotChanged).hasSize(1);
 
     verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
@@ -124,8 +126,9 @@ public class IssueBulkChangeServiceTest {
     when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(false);
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
-    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result).isEmpty();
+    IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result.issuesChanged).isEmpty();
+    assertThat(result.issuesNotChanged).hasSize(1);
 
     verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
@@ -142,8 +145,9 @@ public class IssueBulkChangeServiceTest {
     doThrow(new RuntimeException("Error")).when(action).execute(anyMap(), any(IssueBulkChangeService.ActionContext.class));
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
-    List<Issue> result = service.execute(issueBulkChangeQuery, userSession);
-    assertThat(result).isEmpty();
+    IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result.issuesChanged).isEmpty();
+    assertThat(result.issuesNotChanged).hasSize(1);
 
     verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
@@ -151,7 +155,7 @@ public class IssueBulkChangeServiceTest {
   }
 
   @Test
-  public void should_fail_if_user_not_loggued() {
+  public void should_fail_if_user_not_logged() {
     when(userSession.isLoggedIn()).thenReturn(false);
 
     Map<String, Object> properties = newHashMap();
@@ -165,6 +169,22 @@ public class IssueBulkChangeServiceTest {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
     }
     verifyZeroInteractions(issueUpdater);
+    verifyZeroInteractions(issueStorage);
+    verifyZeroInteractions(issueNotifications);
+  }
+
+  @Test
+  public void should_fail_if_action_not_found() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "unknown");
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    try {
+      service.execute(issueBulkChangeQuery, userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The action : 'unknown' is unknown");
+    }
     verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);

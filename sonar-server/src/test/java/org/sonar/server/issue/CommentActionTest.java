@@ -25,38 +25,30 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.user.DefaultUser;
-import org.sonar.server.user.UserSession;
 
-import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-public class AssignActionTest {
+public class CommentActionTest {
 
-  private AssignAction action;
-
-  private final UserFinder userFinder = mock(UserFinder.class);
+  private CommentAction action;
 
   @Before
   public void before(){
-    action = new AssignAction(userFinder);
+    action = new CommentAction();
   }
 
   @Test
   public void should_execute(){
-    String assignee = "arthur";
-
+    String comment = "My bulk change comment";
     Map<String, Object> properties = newHashMap();
-    properties.put("assignee", assignee);
+    properties.put("comment", comment);
     DefaultIssue issue = mock(DefaultIssue.class);
     IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
@@ -65,33 +57,7 @@ public class AssignActionTest {
     when(context.issue()).thenReturn(issue);
 
     action.execute(properties, context);
-    verify(issueUpdater).assign(eq(issue), eq(assignee), any(IssueChangeContext.class));
-  }
-
-  @Test
-  public void should_verify_assignee_exists(){
-    String assignee = "arthur";
-    Map<String, Object> properties = newHashMap();
-    properties.put("assignee", assignee);
-
-    List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC"));
-    when(userFinder.findByLogin(assignee)).thenReturn(new DefaultUser());
-    assertThat(action.verify(properties, issues, mock(UserSession.class))).isTrue();
-  }
-
-  @Test
-  public void should_fail_if_assignee_does_not_exists(){
-    String assignee = "arthur";
-    Map<String, Object> properties = newHashMap();
-    properties.put("assignee", assignee);
-
-    List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC"));
-    when(userFinder.findByLogin(assignee)).thenReturn(null);
-    try {
-      action.verify(properties, issues, mock(UserSession.class));
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown user: arthur");
-    }
+    verify(issueUpdater).addComment(eq(issue), eq(comment), any(IssueChangeContext.class));
   }
 
   @Test
@@ -99,4 +65,5 @@ public class AssignActionTest {
     assertThat(action.supports(new DefaultIssue().setStatus(Issue.STATUS_OPEN))).isTrue();
     assertThat(action.supports(new DefaultIssue().setStatus(Issue.STATUS_CLOSED))).isTrue();
   }
+
 }

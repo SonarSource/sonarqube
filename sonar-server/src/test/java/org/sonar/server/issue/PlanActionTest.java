@@ -29,8 +29,10 @@ import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
+import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -65,19 +67,43 @@ public class PlanActionTest {
   }
 
   @Test
-  public void should_verify_action_plan_exists(){
+  public void should_verify(){
     String planKey = "ABCD";
     Map<String, Object> properties = newHashMap();
     properties.put("plan", planKey);
 
-    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(new DefaultActionPlan());
-    assertThat(action.verify(properties, mock(UserSession.class))).isTrue();
+    List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC").setProjectKey("struts"));
+    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(new DefaultActionPlan().setProjectKey("struts"));
+    assertThat(action.verify(properties, issues, mock(UserSession.class))).isTrue();
+  }
 
+  @Test
+  public void should_fail_if_action_plan_does_not_exists(){
+    String planKey = "ABCD";
+    Map<String, Object> properties = newHashMap();
+    properties.put("plan", planKey);
+
+    List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC").setProjectKey("struts"));
     when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(null);
     try {
-      action.verify(properties, mock(UserSession.class));
+      action.verify(properties, issues, mock(UserSession.class));
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown action plan: ABCD");
+    }
+  }
+
+  @Test
+  public void should_verify_issues_are_on_the_same_project(){
+    String planKey = "ABCD";
+    Map<String, Object> properties = newHashMap();
+    properties.put("plan", planKey);
+
+    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(new DefaultActionPlan().setProjectKey("struts"));
+    List<Issue> issues = newArrayList(new DefaultIssue().setKey("ABC").setProjectKey("struts"), (Issue) new DefaultIssue().setKey("ABE").setProjectKey("mybatis"));
+    try {
+      action.verify(properties, issues, mock(UserSession.class));
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues are not all related to the action plan project: struts");
     }
   }
 

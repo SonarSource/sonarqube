@@ -588,8 +588,8 @@ public class InternalRubyIssueService implements ServerComponent {
   /**
    * Execute a bulk change
    */
-  public Result<List<Issue>> executeBulkChange(Map<String, Object> props) {
-    Result<List<Issue>> result = Result.of();
+  public Result<IssueBulkChangeResult> executeBulkChange(Map<String, Object> props) {
+    Result<IssueBulkChangeResult> result = Result.of();
     try {
       IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props);
       result.set(issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get()));

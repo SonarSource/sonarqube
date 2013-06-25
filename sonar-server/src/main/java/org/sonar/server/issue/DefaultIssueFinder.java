@@ -147,7 +147,7 @@ public class DefaultIssueFinder implements IssueFinder {
         .setMaxResultsReached(authorizedIssues.size() == query.maxResults())
         .addRules(findRules(ruleIds))
         .addComponents(findComponents(componentIds))
-        .addProjects(findProjects(projectIds))
+        .addProjects(findComponents(projectIds))
         .addActionPlans(findActionPlans(actionPlanKeys))
         .addUsers(findUsers(users))
         .setPaging(paging);
@@ -187,10 +187,6 @@ public class DefaultIssueFinder implements IssueFinder {
 
   private Collection<Component> findComponents(Set<Long> componentIds) {
     return resourceDao.findByIds(componentIds);
-  }
-
-  private Collection<Component> findProjects(Set<Long> projectIds) {
-    return resourceDao.findByIds(projectIds);
   }
 
   private Collection<ActionPlan> findActionPlans(Set<String> actionPlanKeys) {

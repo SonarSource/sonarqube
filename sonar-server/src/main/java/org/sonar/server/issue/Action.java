@@ -71,7 +71,7 @@ public abstract class Action implements ServerComponent {
     return true;
   }
 
-  abstract boolean verify(Map<String, Object> properties, UserSession userSession);
+  abstract boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession);
 
   abstract boolean execute(Map<String, Object> properties, Context context);
 
