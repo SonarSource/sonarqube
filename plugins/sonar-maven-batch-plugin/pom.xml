@@ -5,6 +5,7 @@
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
     <version>3.7-SNAPSHOT</version>
+    <relativePath>../..</relativePath>
   </parent>
   
   <groupId>org.codehaus.sonar.plugins</groupId>
