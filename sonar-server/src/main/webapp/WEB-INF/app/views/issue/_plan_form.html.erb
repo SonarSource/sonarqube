@@ -1,8 +1,6 @@
 <%
    plans_select_box_id = "plans-#{params[:issue]}"
    plans = Internal.issues.findOpenActionPlans(@issue_result.project(@issue).key())
-
-
    if plans.empty?
 %>
   <% if is_admin? %>

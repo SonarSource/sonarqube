@@ -4,9 +4,7 @@
     <div class="modal-head">
       <h2><%= message('issue_filter.edit_filter') -%></h2>
     </div>
-
-    <%= render :partial => 'shared_form', :locals => {:display_owner => true} %>
-
+    <%= render :partial => 'filter_shared_form', :locals => {:display_owner => true} %>
     <div class="modal-foot">
       <input type="submit" value="<%= message('save') -%>" id="save-submit"/>
       <a href="#" onclick="return closeModalWindow()" id="save-cancel"><%= message('cancel') -%></a>

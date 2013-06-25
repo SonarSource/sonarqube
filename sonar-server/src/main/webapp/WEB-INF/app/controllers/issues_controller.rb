@@ -72,7 +72,7 @@ class IssuesController < ApplicationController
   # GET /issues/save_as_form?[&criteria]
   def save_as_form
     @filter_query_serialized = Internal.issues.serializeFilterQuery(criteria_params_to_save)
-    render :partial => 'issues/save_as_form'
+    render :partial => 'issues/filter_save_as_form'
   end
 
   # POST /issues/save_as?name=<name>[&parameters]
@@ -86,7 +86,7 @@ class IssuesController < ApplicationController
       render :text => @filter.id.to_s, :status => 200
     else
       @errors = filter_result.errors
-      render :partial => 'issues/save_as_form', :status => 400
+      render :partial => 'issues/filter_save_as_form', :status => 400
     end
   end
 
@@ -115,7 +115,7 @@ class IssuesController < ApplicationController
   def edit_form
     require_parameters :id
     @filter = find_filter(params[:id].to_i)
-    render :partial => 'issues/edit_form'
+    render :partial => 'issues/filter_edit_form'
   end
 
   # POST /issues/edit/<filter id>?name=<name>&description=<description>&shared=<true|false>
@@ -131,7 +131,7 @@ class IssuesController < ApplicationController
       render :text => @filter.id.to_s, :status => 200
     else
       @errors = filter_result.errors
-      render :partial => 'issues/edit_form', :status => 400
+      render :partial => 'issues/filter_edit_form', :status => 400
     end
   end
 
@@ -139,7 +139,7 @@ class IssuesController < ApplicationController
   def copy_form
     require_parameters :id
     @filter = find_filter(params[:id].to_i)
-    render :partial => 'issues/copy_form'
+    render :partial => 'issues/filter_copy_form'
   end
 
   # POST /issues/copy/<filter id>?name=<copy name>&description=<copy description>
@@ -154,7 +154,7 @@ class IssuesController < ApplicationController
       render :text => @filter.id.to_s, :status => 200
     else
       @errors = filter_result.errors
-      render :partial => 'issues/copy_form', :status => 400
+      render :partial => 'issues/filter_copy_form', :status => 400
     end
   end
 
@@ -182,7 +182,23 @@ class IssuesController < ApplicationController
   # GET /issues/bulk_change_form?[&criteria]
   def bulk_change_form
 
+    # Load maximum number of issues
+    @criteria_params = criteria_params
+    @criteria_params['pageSize'] = -1
+    issue_filter_result = Internal.issues.execute(@criteria_params)
+    @issue_query = issue_filter_result.query
+    @issues_result = issue_filter_result.result
+
+    @issue_keys = @issues_result.issues.map {|issue| issue.key()}.join(',')  if !@issues_result.issues.empty?
+
     render :partial => 'issues/bulk_change_form'
+  end
+
+  # POST /issues/bulk_change
+  def bulk_change
+    verify_post_request
+
+    render :text => '', :status => 200
   end
 
 

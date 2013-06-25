@@ -23,6 +23,7 @@ package org.sonar.server.issue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.server.util.RubyUtils;
 
 import java.util.HashMap;
@@ -38,7 +39,6 @@ public class IssueBulkChangeQuery {
 
   private List<String> issues;
   private List<String> actions;
-  private String comment;
 
   Map<String, Map<String, Object>> propertiesByActions = new HashMap<String, Map<String, Object>>();
 
@@ -52,7 +52,6 @@ public class IssueBulkChangeQuery {
   }
 
   private void parse(Map<String, Object> props, String comment) {
-    this.comment = comment;
     this.issues = RubyUtils.toStrings(props.get("issues"));
     if (issues == null || issues.isEmpty()) {
       throw new IllegalArgumentException("Issues must not be empty");
@@ -63,15 +62,12 @@ public class IssueBulkChangeQuery {
     }
     for (String action : actions) {
       Map<String, Object> actionProperties = getActionProps(action, props);
-      if (actionProperties.isEmpty()) {
-        throw new IllegalArgumentException("Missing properties for action: "+ action);
-      }
       propertiesByActions.put(action, actionProperties);
     }
     if (!Strings.isNullOrEmpty(comment)) {
       actions.add(CommentAction.COMMENT_ACTION_KEY);
       Map<String, Object> commentMap = newHashMap();
-      commentMap.put(CommentAction.COMMENT_ACTION_KEY, comment);
+      commentMap.put(CommentAction.COMMENT_PROPERTY, comment);
       propertiesByActions.put(CommentAction.COMMENT_ACTION_KEY, commentMap);
     }
   }
@@ -100,6 +96,11 @@ public class IssueBulkChangeQuery {
     }
     props.get(action);
     return actionProps;
+  }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this);
   }
 
 }

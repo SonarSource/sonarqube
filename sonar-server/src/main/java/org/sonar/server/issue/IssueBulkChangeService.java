@@ -59,6 +59,7 @@ public class IssueBulkChangeService {
   }
 
   public IssueBulkChangeResult execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
+    LOG.debug("BulkChangeQuery : {}", issueBulkChangeQuery);
     verifyLoggedIn(userSession);
 
     IssueBulkChangeResult result = new IssueBulkChangeResult();

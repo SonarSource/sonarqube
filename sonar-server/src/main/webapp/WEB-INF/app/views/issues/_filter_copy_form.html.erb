@@ -4,7 +4,7 @@
     <div class="modal-head">
       <h2><%= message('issue_filter.copy_filter') -%></h2>
     </div>
-    <%= render :partial => 'shared_form' %>
+    <%= render :partial => 'filter_shared_form' %>
     <div class="modal-foot">
       <input type="submit" value="<%= message('copy') -%>" id="copy-submit"/>
       <a href="#" onclick="return closeModalWindow()" id="copy-cancel"><%= h message('cancel') -%></a>

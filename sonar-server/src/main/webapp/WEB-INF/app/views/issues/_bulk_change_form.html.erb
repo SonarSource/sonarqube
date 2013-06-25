@@ -1,8 +1,54 @@
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
-  <input type="hidden" name="data" value="<%= params[:data] || u(@filter_query_serialized) -%>">
+  <input type="hidden" name="issues" value="<%= @issue_keys -%>">
   <fieldset>
     <div class="modal-head">
-      <h2><%= message('issue_filter.bulk_change') -%></h2>
+      <h2><%= message('issue_filter.bulk_change.form.title', {:params => @issues_result.issues.size.to_s}) -%></h2>
+    </div>
+    <div class="modal-body">
+      <%= render :partial => 'display_errors' %>
+      <div class="modal-field">
+        <label for="assignee">
+          <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
+          <%= message('issue.assign.formlink') -%>
+        </label>
+        <%= user_select_tag('assign.assignee', :html_id => 'assignee', :open => false) -%>
+      </div>
+      <% if @issue_query.componentRoots and @issue_query.componentRoots.size == 1 %>
+        <%
+           componentRoot = @issue_query.componentRoots.to_a.first
+           plans = Internal.issues.findOpenActionPlans(componentRoot)
+           first_plan = plans[0]
+           plan_options = ""
+           unless plans.empty?
+             plan_options = options_for_select(plans.map { |plan|
+               if plan.deadLine
+                 label = "#{h plan.name} (#{format_date(plan.deadLine)})"
+               else
+                 label = h plan.name
+               end
+               [label, plan.key]
+             }, first_plan.key)
+           end
+        %>
+        <div class="modal-field">
+          <label for="plan">
+            <input id="plan-action" name="actions[]" type="checkbox" value="plan"/>
+            <%= message('issue.do_plan') -%>
+          </label>
+          <%= dropdown_tag('plan.plan', plan_options, {:show_search_box => false}, {:id => 'plan'}) -%>
+        </div>
+      <% end %>
+      <div class="modal-field">
+        <label for="severity">
+          <input id="set-severity-action" name="actions[]" type="checkbox" value="set_severity"/>
+          <%= message('issue.set_severity') -%>
+        </label>
+        <select name="set_severity.severity" class="withIcons" id="severity">
+          <% Severity::KEYS.each do |severity| %>
+            <option class="sev_<%= severity -%>" value="<%= severity -%>" <%= 'selected' if severity==Severity::MAJOR -%>><%= message("severity.#{severity}") -%></option>
+          <% end %>
+        </select>
+      </div>
     </div>
     <div class="modal-foot">
       <input type="submit" value="<%= message('submit') -%>" id="bulk-change-submit"/>
@@ -12,6 +58,6 @@
 </form>
 <script>
   $j("#bulk-change-form").modalForm({success:function (data) {
-    window.location = baseUrl + '/issues/filter/' + data;
+    window.location = baseUrl + '/issues/search/' + data;
   }});
 </script>

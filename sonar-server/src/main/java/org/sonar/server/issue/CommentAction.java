@@ -32,6 +32,7 @@ import java.util.Map;
 public class CommentAction extends Action implements ServerComponent {
 
   public static final String COMMENT_ACTION_KEY = "comment";
+  public static final String COMMENT_PROPERTY = "comment";
 
   public CommentAction() {
     super(COMMENT_ACTION_KEY);
@@ -49,6 +50,6 @@ public class CommentAction extends Action implements ServerComponent {
   }
 
   private String comment(Map<String, Object> properties) {
-    return (String) properties.get("comment");
+    return (String) properties.get(COMMENT_PROPERTY);
   }
 }

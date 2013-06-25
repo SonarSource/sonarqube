@@ -28,11 +28,12 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class IssueBulkChangeQueryTest {
 
   @Test
-  public void should_create_query(){
+  public void should_create_query() {
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
     params.put("actions", newArrayList("do_transition", "assign", "set_severity", "plan"));
@@ -47,7 +48,7 @@ public class IssueBulkChangeQueryTest {
   }
 
   @Test
-  public void should_create_query_with_comment(){
+  public void should_create_query_with_comment() {
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
     params.put("actions", newArrayList("assign"));
@@ -59,7 +60,7 @@ public class IssueBulkChangeQueryTest {
   }
 
   @Test
-  public void should_get_properties_action(){
+  public void should_get_properties_action() {
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
     params.put("actions", newArrayList("assign"));
@@ -70,44 +71,56 @@ public class IssueBulkChangeQueryTest {
     assertThat(issueBulkChangeQuery.properties("assign").get("assignee")).isEqualTo("arthur");
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_to_build_if_no_issue(){
+  @Test
+  public void fail_to_build_if_no_issue() {
     Map<String, Object> params = newHashMap();
     params.put("actions", newArrayList("assign"));
     params.put("assign.assignee", "arthur");
-    new IssueBulkChangeQuery(params);
+    try {
+      new IssueBulkChangeQuery(params);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues must not be empty");
+    }
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_to_build_if_issues_are_empty(){
+  @Test
+  public void fail_to_build_if_issues_are_empty() {
     Map<String, Object> params = newHashMap();
     params.put("issues", Collections.emptyList());
     params.put("actions", newArrayList("assign"));
     params.put("assign.assignee", "arthur");
-    new IssueBulkChangeQuery(params);
+    try {
+      new IssueBulkChangeQuery(params);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues must not be empty");
+    }
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_to_build_if_no_action(){
+  @Test
+  public void fail_to_build_if_no_action() {
     Map<String, Object> params = newHashMap();
-    params.put("issues", Collections.emptyList());
-    new IssueBulkChangeQuery(params);
+    params.put("issues", newArrayList("ABCD", "EFGH"));
+    try {
+      new IssueBulkChangeQuery(params);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("At least one action must be provided");
+    }
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_to_build_if_actions_are_empty(){
+  @Test
+  public void fail_to_build_if_actions_are_empty() {
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
     params.put("actions", Collections.emptyList());
-    new IssueBulkChangeQuery(params);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_to_build_if_action_properties_are_empty(){
-    Map<String, Object> params = newHashMap();
-    params.put("issues", Collections.emptyList());
-    params.put("actions", newArrayList("assign"));
-    new IssueBulkChangeQuery(params);
+    try {
+      new IssueBulkChangeQuery(params);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("At least one action must be provided");
+    }
   }
 
 }
