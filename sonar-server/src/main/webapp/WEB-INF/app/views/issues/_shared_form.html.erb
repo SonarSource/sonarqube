@@ -1,3 +1,6 @@
+<% if !local_assigns.has_key? :display_owner
+     display_owner = false
+   end %>
 <div class="modal-body">
   <%= render :partial => 'display_errors' %>
   <div class="modal-field">
@@ -8,6 +11,13 @@
     <label for="description"><%= message('issue_filter.form.description') -%></label>
     <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= params[:description] || (h(@filter.description) if @filter)  -%>"/>
   </div>
+  <% if display_owner && can_be_reassigned_by(current_user, @filter) %>
+    <% filter_owner = Api.users.findByLogin(@filter.user) %>
+    <div class="modal-field">
+      <label for="user"><%= h message('issue_filter.form.owner') -%></label>
+      <%= user_select_tag('user', :html_id => 'select-filter-owner', :selected_user => filter_owner) -%>
+    </div>
+  <% end %>
   <div class="modal-field">
     <label for="shared"><%= message('issue_filter.form.share') -%></label>
     <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if (params[:shared] || (@filter && @filter.shared)) -%>/>

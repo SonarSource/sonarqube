@@ -130,6 +130,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
     filterDto.setShared(false);
     filterDto.setDescription("All closed issues");
     filterDto.setData("statuses=CLOSED");
+    filterDto.setUserLogin("bernard");
 
     dao.update(filterDto);
 

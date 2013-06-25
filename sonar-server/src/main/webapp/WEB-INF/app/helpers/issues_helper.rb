@@ -44,4 +44,8 @@ module IssuesHelper
     "<a href='#' class='issue-filter-star #{style}' filter-id='#{filter.id.to_s}' title='#{title}'></a>"
   end
 
+  def can_be_reassigned_by(user, filter)
+    user.has_role?(:admin) && filter.shared
+  end
+
 end

@@ -85,6 +85,7 @@
     shared=#{shared},
     description=#{description},
     data=#{data},
+    user_login=#{userLogin},
     updated_at=current_timestamp
     where id=#{id}
   </update>

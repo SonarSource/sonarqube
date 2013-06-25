@@ -4,29 +4,9 @@
     <div class="modal-head">
       <h2>Edit Filter</h2>
     </div>
-    <div class="modal-body">
-      <% @filter.errors.each do |attr, msg| %>
-        <p class="error"><%= h "#{attr} #{msg}" -%></p>
-      <% end %>
-      <div class="modal-field">
-        <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
-        <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h @filter.name -%>" autofocus="autofocus"/>
-      </div>
-      <div class="modal-field">
-        <label for="description"><%= h message('description') -%></label>
-        <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @filter.description -%>"/>
-      </div>
-      <% if @filter.can_be_reassigned_by(current_user) %>
-        <div class="modal-field">
-          <label for="owner"><%= h message('owner') -%></label>
-          <%= user_select_tag('owner', :html_id => 'select-filter-owner', :selected_user => @filter.user) -%>
-        </div>
-      <% end %>
-      <div class="modal-field">
-        <label for="shared"><%= h message('measure_filter.shared_with_all_users') -%></label>
-        <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @filter.shared -%>/>
-      </div>
-    </div>
+
+    <%= render :partial => 'shared_form', :locals => {:display_owner => true} %>
+
     <div class="modal-foot">
       <input type="submit" value="<%= h message('save') -%>" id="save-submit"/>
       <a href="#" onclick="return closeModalWindow()" id="save-cancel"><%= h message('cancel') -%></a>

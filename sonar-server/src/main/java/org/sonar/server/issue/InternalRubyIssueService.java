@@ -525,6 +525,7 @@ public class InternalRubyIssueService implements ServerComponent {
     String name = params.get("name");
     String description = params.get("description");
     String data = params.get("data");
+    String user = params.get("user");
     Boolean sharedParam = RubyUtils.toBoolean(params.get("shared"));
     boolean shared = sharedParam != null ? sharedParam : false;
 
@@ -538,6 +539,7 @@ public class InternalRubyIssueService implements ServerComponent {
       DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
         .setDescription(description)
         .setShared(shared)
+        .setUser(user)
         .setData(data);
       if (isUpdate) {
         defaultIssueFilter.setId(Long.valueOf(id));

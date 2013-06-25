@@ -123,7 +123,8 @@ class IssuesController < ApplicationController
     verify_post_request
 
     existing_filter = find_filter(params[:id].to_i)
-    options = {'id' => params[:id].to_s, 'name' => params[:name], 'description' => params[:description], 'data' => existing_filter.data, 'shared' => params[:shared]=='true' }
+    options = {'id' => params[:id].to_s, 'name' => params[:name], 'description' => params[:description],
+               'data' => existing_filter.data, 'shared' => params[:shared]=='true', 'user' => params[:user]}
     filter_result = Internal.issues.updateIssueFilter(options)
     if filter_result.ok
       @filter = filter_result.get()

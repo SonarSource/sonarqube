@@ -1,0 +1,26 @@
+<% if !local_assigns.has_key? :display_owner
+  display_owner = false
+   end %>
+<div class="modal-body">
+  <% @filter.errors.full_messages.each do |msg| %>
+    <p class="error"><%= h msg -%></p>
+  <% end %>
+  <div class="modal-field">
+    <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
+    <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h @filter.name -%>" autofocus="autofocus"/>
+  </div>
+  <div class="modal-field">
+    <label for="description"><%= h message('description') -%></label>
+    <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h @filter.description -%>"/>
+  </div>
+  <% if display_owner && @filter.can_be_reassigned_by(current_user) %>
+    <div class="modal-field">
+      <label for="owner"><%= h message('owner') -%></label>
+      <%= user_select_tag('owner', :html_id => 'select-filter-owner', :selected_user => @filter.user) -%>
+    </div>
+  <% end %>
+  <div class="modal-field">
+    <label for="shared"><%= h message('measure_filter.shared_with_all_users') -%></label>
+    <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @filter.shared -%>/>
+  </div>
+</div>

@@ -20,6 +20,8 @@
 
 package org.sonar.server.issue;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -222,7 +224,7 @@ public class IssueFilterServiceTest {
   public void should_update() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("john"));
 
-    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter"), userSession);
+    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setUser("john"), userSession);
     assertThat(result.name()).isEqualTo("My New Filter");
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
@@ -270,10 +272,10 @@ public class IssueFilterServiceTest {
   @Test
   public void should_not_update_if_name_already_used() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("john"));
-    when(issueFilterDao.selectByNameAndUser(eq("My Issue"), eq("john"), eq(1L))).thenReturn(new IssueFilterDto());
+    when(issueFilterDao.selectByNameAndUser("My Issue", "john", 1L)).thenReturn(new IssueFilterDto());
 
     try {
-      service.update(new DefaultIssueFilter().setId(1L).setName("My Issue"), userSession);
+      service.update(new DefaultIssueFilter().setId(1L).setUser("john").setName("My Issue"), userSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Name already exists");
@@ -293,6 +295,40 @@ public class IssueFilterServiceTest {
     assertThat(result.data()).isEqualTo("componentRoots=struts");
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
+  }
+  
+  @Test
+  public void should_change_shared_filter_ownership_when_admin() throws Exception {
+    String currentUser = "dave.loper";
+    IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin("former.owner").setShared(true);
+    IssueFilterDto expectedDto = new IssueFilterDto().setName("My filter").setUserLogin("new.owner").setShared(true);
+
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(UserRole.ADMIN));
+    when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
+
+    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setId(1L).setName("My filter").setShared(true).setUser("new.owner");
+    service.update(issueFilter, new UserSession(1, currentUser, null));
+
+    verify(issueFilterDao).update(argThat(Matches.filter(expectedDto)));
+  }
+
+  @Test
+  public void should_not_change_own_filter_ownership() throws Exception {
+    String currentUser = "dave.loper";
+    IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin(currentUser).setShared(true);
+
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(UserRole.USER));
+    when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
+
+    try {
+      DefaultIssueFilter issueFilter = new DefaultIssueFilter().setId(1L).setName("My filter").setShared(true).setUser("new.owner");
+      service.update(issueFilter, new UserSession(1, currentUser, null));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to change the owner of this filter");
+    }
+
+    verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
   }
 
   @Test
@@ -488,6 +524,36 @@ public class IssueFilterServiceTest {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Filter not found: 1");
     }
     verify(issueFilterFavouriteDao, never()).delete(anyLong());
+  }
+
+  private static class Matches extends BaseMatcher<IssueFilterDto> {
+
+    private final IssueFilterDto referenceFilter;
+
+    private Matches(IssueFilterDto reference) {
+      referenceFilter = reference;
+    }
+
+    static Matches filter(IssueFilterDto filterDto) {
+      return new Matches(filterDto);
+    }
+
+    @Override
+    public boolean matches(Object o) {
+      if(o != null && o instanceof IssueFilterDto) {
+        IssueFilterDto otherFilter = (IssueFilterDto) o;
+        return referenceFilter.isShared() == otherFilter.isShared()
+          && referenceFilter.getUserLogin() == otherFilter.getUserLogin()
+          && referenceFilter.getDescription() == otherFilter.getDescription()
+          && referenceFilter.getName() == otherFilter.getName()
+          && referenceFilter.getData() == otherFilter.getData();
+      }
+      return false;
+    }
+
+    @Override
+    public void describeTo(Description description) {
+    }
   }
 
 }

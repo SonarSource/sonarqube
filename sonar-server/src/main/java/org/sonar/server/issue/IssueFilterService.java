@@ -95,6 +95,9 @@ public class IssueFilterService implements ServerComponent {
     String user = getNotNullLogin(userSession);
     IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilter.id(), user);
     verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user);
+    if(issueFilterDto.getUserLogin() != issueFilter.user()) {
+      verifyCurrentUserCanChangeFilterOwnership(user);
+    }
     validateFilter(issueFilter, user);
 
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
@@ -187,6 +190,13 @@ public class IssueFilterService implements ServerComponent {
     if (!issueFilter.user().equals(user) && !isAdmin(user)) {
       // TODO throw unauthorized
       throw new IllegalStateException("User is not authorized to modify this filter");
+    }
+  }
+
+  private void verifyCurrentUserCanChangeFilterOwnership(String user) {
+    if(!isAdmin(user)) {
+      // TODO throw unauthorized
+      throw new IllegalStateException("User is not authorized to change the owner of this filter");
     }
   }
 
