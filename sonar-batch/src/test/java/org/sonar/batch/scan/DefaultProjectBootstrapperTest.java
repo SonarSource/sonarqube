@@ -76,6 +76,19 @@ public class DefaultProjectBootstrapperTest {
   }
 
   @Test
+  public void shouldFailIfMissingSourceDirectory() throws IOException {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("You must define the following mandatory properties for 'com.foo.project': sonar.sources");
+
+    loadProjectDefinition("simple-project-with-missing-source-dir");
+  }
+
+  @Test
+  public void shouldNotFailIfBlankSourceDirectory() throws IOException {
+    loadProjectDefinition("simple-project-with-blank-source-dir");
+  }
+
+  @Test
   public void shouldDefineMultiModuleProjectWithDefinitionsAllInRootProject() throws IOException {
     ProjectDefinition rootProject = loadProjectDefinition("multi-module-definitions-all-in-root");
 

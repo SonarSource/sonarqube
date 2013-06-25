@@ -29,6 +29,7 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -54,10 +55,6 @@ class DefaultProjectBootstrapper extends ProjectBootstrapper {
 
   private static final String PROPERTY_PROJECT_BASEDIR = "sonar.projectBaseDir";
   private static final String PROPERTY_PROJECT_CONFIG_FILE = "sonar.projectConfigFile";
-  private static final String PROPERTY_PROJECT_KEY = "sonar.projectKey";
-  private static final String PROPERTY_PROJECT_NAME = "sonar.projectName";
-  private static final String PROPERTY_PROJECT_DESCRIPTION = "sonar.projectDescription";
-  private static final String PROPERTY_PROJECT_VERSION = "sonar.projectVersion";
   private static final String PROPERTY_MODULES = "sonar.modules";
 
   /**
@@ -96,23 +93,24 @@ class DefaultProjectBootstrapper extends ProjectBootstrapper {
    * Array of all mandatory properties required for a project without child.
    */
   private static final String[] MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT = {
-    PROPERTY_PROJECT_BASEDIR, PROPERTY_PROJECT_KEY, PROPERTY_PROJECT_NAME, PROPERTY_PROJECT_VERSION
+    PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY, CoreProperties.PROJECT_VERSION_PROPERTY, PROPERTY_SOURCES
   };
 
   /**
    * Array of all mandatory properties required for a project with children.
    */
-  private static final String[] MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT = {PROPERTY_PROJECT_BASEDIR, PROPERTY_PROJECT_KEY, PROPERTY_PROJECT_NAME, PROPERTY_PROJECT_VERSION};
+  private static final String[] MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT = {PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY,
+    CoreProperties.PROJECT_NAME_PROPERTY, CoreProperties.PROJECT_VERSION_PROPERTY};
 
   /**
    * Array of all mandatory properties required for a child project before its properties get merged with its parent ones.
    */
-  private static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {PROPERTY_PROJECT_KEY, PROPERTY_PROJECT_NAME};
+  private static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {CoreProperties.PROJECT_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY};
 
   /**
    * Properties that must not be passed from the parent project to its children.
    */
-  private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, PROPERTY_MODULES, PROPERTY_PROJECT_DESCRIPTION);
+  private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, PROPERTY_MODULES, CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
 
   private Settings settings;
   private File rootProjectWorkDir;
@@ -141,7 +139,7 @@ class DefaultProjectBootstrapper extends ProjectBootstrapper {
     }
     File workDir;
     if (parent == null) {
-      validateDirectories(properties, baseDir, properties.getProperty(PROPERTY_PROJECT_KEY));
+      validateDirectories(properties, baseDir, properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY));
       workDir = initRootProjectWorkDir(baseDir);
     } else {
       workDir = initModuleWorkDir(properties);
@@ -169,7 +167,7 @@ class DefaultProjectBootstrapper extends ProjectBootstrapper {
 
   @VisibleForTesting
   protected File initModuleWorkDir(Properties properties) {
-    String cleanKey = StringUtils.deleteWhitespace(properties.getProperty(PROPERTY_PROJECT_KEY));
+    String cleanKey = StringUtils.deleteWhitespace(properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY));
     cleanKey = StringUtils.replace(cleanKey, ":", "_");
     return new File(rootProjectWorkDir, cleanKey);
   }
@@ -277,11 +275,11 @@ class DefaultProjectBootstrapper extends ProjectBootstrapper {
 
   @VisibleForTesting
   protected static void setProjectKeyAndNameIfNotDefined(Properties childProps, String moduleId) {
-    if (!childProps.containsKey(PROPERTY_PROJECT_KEY)) {
-      childProps.put(PROPERTY_PROJECT_KEY, moduleId);
+    if (!childProps.containsKey(CoreProperties.PROJECT_KEY_PROPERTY)) {
+      childProps.put(CoreProperties.PROJECT_KEY_PROPERTY, moduleId);
     }
-    if (!childProps.containsKey(PROPERTY_PROJECT_NAME)) {
-      childProps.put(PROPERTY_PROJECT_NAME, moduleId);
+    if (!childProps.containsKey(CoreProperties.PROJECT_NAME_PROPERTY)) {
+      childProps.put(CoreProperties.PROJECT_NAME_PROPERTY, moduleId);
     }
   }
 
@@ -296,8 +294,8 @@ class DefaultProjectBootstrapper extends ProjectBootstrapper {
 
   @VisibleForTesting
   protected static void prefixProjectKeyWithParentKey(Properties childProps, String parentKey) {
-    String childKey = childProps.getProperty(PROPERTY_PROJECT_KEY);
-    childProps.put(PROPERTY_PROJECT_KEY, parentKey + ":" + childKey);
+    String childKey = childProps.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
+    childProps.put(CoreProperties.PROJECT_KEY_PROPERTY, parentKey + ":" + childKey);
   }
 
   private static void setProjectBaseDir(File baseDir, Properties childProps, String moduleId) {
@@ -319,7 +317,7 @@ class DefaultProjectBootstrapper extends ProjectBootstrapper {
         missing.append(mandatoryProperty);
       }
     }
-    String projectKey = props.getProperty(PROPERTY_PROJECT_KEY);
+    String projectKey = props.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
     if (missing.length() != 0) {
       throw new IllegalStateException("You must define the following mandatory properties for '" + (projectKey == null ? "Unknown" : projectKey) + "': " + missing);
     }
