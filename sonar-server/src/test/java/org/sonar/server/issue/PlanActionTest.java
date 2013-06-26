@@ -66,6 +66,31 @@ public class PlanActionTest {
   }
 
   @Test
+  public void should_execute_on_null_action_plan(){
+    Map<String, Object> properties = newHashMap();
+    DefaultIssue issue = mock(DefaultIssue.class);
+
+    Action.Context context = mock(Action.Context.class);
+    when(context.issue()).thenReturn(issue);
+
+    action.execute(properties, context);
+    verify(issueUpdater).plan(eq(issue), eq((String) null), any(IssueChangeContext.class));
+  }
+
+  @Test
+  public void should_execute_on_empty_action_plan(){
+    Map<String, Object> properties = newHashMap();
+    properties.put("plan", "");
+    DefaultIssue issue = mock(DefaultIssue.class);
+
+    Action.Context context = mock(Action.Context.class);
+    when(context.issue()).thenReturn(issue);
+
+    action.execute(properties, context);
+    verify(issueUpdater).plan(eq(issue), eq(""), any(IssueChangeContext.class));
+  }
+
+  @Test
   public void should_verify(){
     String planKey = "ABCD";
     Map<String, Object> properties = newHashMap();

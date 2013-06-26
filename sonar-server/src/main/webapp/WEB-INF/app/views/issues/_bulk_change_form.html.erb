@@ -24,17 +24,19 @@
       <%
          if project && !project.blank?
            plans = Internal.issues.findOpenActionPlans(project)
-           first_plan = plans[0]
            plan_options = ""
            unless plans.empty?
-             plan_options = options_for_select(plans.map { |plan|
+             first_plan = plans[0]
+             options = plans.map { |plan|
                if plan.deadLine
                  label = "#{h plan.name} (#{format_date(plan.deadLine)})"
                else
                  label = h plan.name
                end
                [label, plan.key]
-             }, first_plan.key)
+             }
+             options.unshift([escape_javascript(message('issue.unplan.submit')), ''])
+             plan_options = options_for_select(options, first_plan.key)
            end
       %>
         <div class="modal-field">

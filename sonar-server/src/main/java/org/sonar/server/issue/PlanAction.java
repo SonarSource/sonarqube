@@ -56,8 +56,6 @@ public class PlanAction extends Action implements ServerComponent {
         throw new IllegalArgumentException("Unknown action plan: " + actionPlanKey);
       }
       verifyIssuesAreAllRelatedOnActionPlanProject(issues, actionPlan);
-    } else {
-      throw new IllegalArgumentException("Unknown action plan: " + actionPlanKey);
     }
     return true;
   }
