@@ -57,7 +57,7 @@ public class RealMavenPluginExecutorTest {
   public void should_reset_file_system_after_execution() {
     RealMavenPluginExecutor executor = new RealMavenPluginExecutor(null, null) {
       @Override
-      public void concreteExecute(MavenProject pom, String goal) throws Exception {
+      public void concreteExecute(MavenProject pom, String goal) {
         pom.addCompileSourceRoot("src/java");
       }
     };
@@ -76,7 +76,7 @@ public class RealMavenPluginExecutorTest {
   public void should_ignore_non_maven_projects() {
     RealMavenPluginExecutor executor = new RealMavenPluginExecutor(null, null) {
       @Override
-      public void concreteExecute(MavenProject pom, String goal) throws Exception {
+      public void concreteExecute(MavenProject pom, String goal) {
         pom.addCompileSourceRoot("src/java");
       }
     };
