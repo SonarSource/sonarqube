@@ -74,7 +74,7 @@ class Api::UsersController < Api::ApiController
       render_bad_request('An active user with this login already exists')
     else
       if user
-        user.update_attributes!(params)
+        user.reactivate!(java_facade.getSettings().getString('sonar.defaultGroup'))
         user.notify_creation_handlers
       else
         user = prepare_user
@@ -139,14 +139,14 @@ class Api::UsersController < Api::ApiController
     access_denied unless has_role?(:admin)
     require_parameters :login
 
-    user = User.find_active_by_login(params[:login])
+    @user = User.find_active_by_login(params[:login])
 
-    if user.nil?
+    if @user.nil?
       render_bad_request "Could not find user with login #{params[:login]}"
-    elsif user == current_user || user.login == 'admin'
+    elsif @user == current_user || @user.login == 'admin'
       render_bad_request "Cannot delete user #{params[:login]}"
     else
-      if user.destroy
+      if @user.deactivate
         render_success "Successfully deleted user #{params[:login]}"
       else
         render_error("Could not delete user #{params[:login]}")
