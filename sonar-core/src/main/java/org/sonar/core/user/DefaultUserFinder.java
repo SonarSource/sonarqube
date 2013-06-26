@@ -42,7 +42,7 @@ public class DefaultUserFinder implements UserFinder {
   @Override
   @CheckForNull
   public User findByLogin(String login) {
-    UserDto dto = userDao.selectUserByLogin(login);
+    UserDto dto = userDao.selectActiveUserByLogin(login);
     return dto != null ? dto.toUser() : null;
   }
 

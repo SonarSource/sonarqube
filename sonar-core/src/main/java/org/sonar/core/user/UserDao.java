@@ -44,7 +44,7 @@ public class UserDao {
    * @return the user, null if user not found
    */
   @CheckForNull
-  public UserDto selectUserByLogin(String login) {
+  public UserDto selectActiveUserByLogin(String login) {
     SqlSession session = mybatis.openSession();
     try {
       UserMapper mapper = session.getMapper(UserMapper.class);
@@ -76,6 +76,37 @@ public class UserDao {
     try {
       UserMapper mapper = session.getMapper(UserMapper.class);
       return mapper.selectUsers(query);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  /**
+   * Deactivate a user and drops all his preferences.
+   * @return false if the user does not exist, true if the existing user has been deactivated
+   */
+  public boolean deactivateUserByLogin(String login) {
+    SqlSession session = mybatis.openSession();
+    try {
+      UserMapper mapper = session.getMapper(UserMapper.class);
+      UserDto dto = mapper.selectUserByLogin(login);
+      if (dto == null) {
+        return false;
+      }
+
+      mapper.removeUserFromGroups(dto.getId());
+      mapper.deleteUserActiveDashboards(dto.getId());
+      mapper.deleteUserDashboards(dto.getId());
+      mapper.deleteUserIssueFilters(dto.getLogin());
+      mapper.deleteUserIssueFilterFavourites(dto.getLogin());
+      mapper.deleteUserMeasureFilters(dto.getId());
+      mapper.deleteUserMeasureFilterFavourites(dto.getId());
+      mapper.deleteUserProperties(dto.getId());
+      mapper.deleteUserRoles(dto.getId());
+      mapper.deactivateUser(dto.getId());
+      session.commit();
+      return true;
+
     } finally {
       MyBatis.closeQuietly(session);
     }

@@ -25,9 +25,6 @@ import org.sonar.api.user.UserQuery;
 import javax.annotation.CheckForNull;
 import java.util.List;
 
-/**
- * @since 3.2
- */
 public interface UserMapper {
 
   /**
@@ -36,17 +33,21 @@ public interface UserMapper {
   @CheckForNull
   UserDto selectUserByLogin(String login);
 
-  /**
-   * @since 3.6
-   */
   List<UserDto> selectUsersByLogins(@Param("logins") List<String> logins);
 
-  /**
-   * @since 3.6
-   */
   List<UserDto> selectUsers(UserQuery query);
 
   @CheckForNull
   GroupDto selectGroupByName(String name);
 
+  void removeUserFromGroups(long userId);
+  void deleteUserActiveDashboards(long userId);
+  void deleteUserDashboards(long userId);
+  void deleteUserIssueFilters(String login);
+  void deleteUserIssueFilterFavourites(String login);
+  void deleteUserMeasureFilters(long userId);
+  void deleteUserMeasureFilterFavourites(long userId);
+  void deleteUserProperties(long userId);
+  void deleteUserRoles(long userId);
+  void deactivateUser(long userId);
 }

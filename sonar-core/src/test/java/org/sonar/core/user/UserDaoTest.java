@@ -43,17 +43,17 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectUserByLogin_ignore_inactive() {
-    setupData("selectUserByLogin");
+    setupData("selectActiveUserByLogin");
 
-    UserDto user = dao.selectUserByLogin("inactive_user");
+    UserDto user = dao.selectActiveUserByLogin("inactive_user");
     assertThat(user).isNull();
   }
 
   @Test
   public void selectUserByLogin_not_found() {
-    setupData("selectUserByLogin");
+    setupData("selectActiveUserByLogin");
 
-    UserDto user = dao.selectUserByLogin("not_found");
+    UserDto user = dao.selectActiveUserByLogin("not_found");
     assertThat(user).isNull();
   }
 
@@ -152,5 +152,29 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
     GroupDto group = dao.selectGroupByName("not-found");
     assertThat(group).isNull();
+  }
+
+  @Test
+  public void deactivate_user() {
+    setupData("deactivate_user");
+
+    String login = "marius";
+    boolean deactivated = dao.deactivateUserByLogin(login);
+    assertThat(deactivated).isTrue();
+    assertThat(dao.selectActiveUserByLogin(login)).isNull();
+    checkTables("deactivate_user",
+      "dashboards", "active_dashboards", "groups_users", "issue_filters",
+      "issue_filter_favourites", "measure_filters", "measure_filter_favourites",
+      "properties", "user_roles");
+  }
+
+  @Test
+  public void deactivate_missing_user() {
+    setupData("deactivate_user");
+
+    String login = "does_not_exist";
+    boolean deactivated = dao.deactivateUserByLogin(login);
+    assertThat(deactivated).isFalse();
+    assertThat(dao.selectActiveUserByLogin(login)).isNull();
   }
 }

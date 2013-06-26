@@ -55,5 +55,48 @@
     from groups where name=#{id}
   </select>
 
+  <delete id="removeUserFromGroups" parameterType="long">
+    delete from groups_users where user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserRoles" parameterType="long">
+    delete from user_roles where user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserProperties" parameterType="long">
+    delete from properties where user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserDashboards" parameterType="long">
+    delete from dashboards where user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserActiveDashboards" parameterType="long">
+    delete from active_dashboards where user_id=#{id}
+  </delete>
+
+  <delete id="" parameterType="long">
+    delete from user_roles where user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserMeasureFilters" parameterType="long">
+    delete from measure_filters where user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserMeasureFilterFavourites" parameterType="long">
+    delete from measure_filter_favourites where user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserIssueFilters" parameterType="String">
+    delete from issue_filters where user_login=#{id}
+  </delete>
+
+  <delete id="deleteUserIssueFilterFavourites" parameterType="String">
+    delete from issue_filter_favourites where user_login=#{id}
+  </delete>
+
+  <update id="deactivateUser" parameterType="long">
+    update users set active=${_false} where id=#{id}
+  </update>
 
 </mapper>

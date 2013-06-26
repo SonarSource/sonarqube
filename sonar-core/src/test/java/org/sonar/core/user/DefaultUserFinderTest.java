@@ -36,7 +36,7 @@ public class DefaultUserFinderTest {
   @Test
   public void findByLogin() throws Exception {
     UserDto dto = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com");
-    when(dao.selectUserByLogin("david")).thenReturn(dto);
+    when(dao.selectActiveUserByLogin("david")).thenReturn(dto);
 
     assertThat(finder.findByLogin("david").name()).isEqualTo("David");
   }
