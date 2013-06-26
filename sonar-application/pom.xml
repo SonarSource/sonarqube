@@ -74,82 +74,97 @@
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-core-plugin</artifactId>
       <version>${project.version}</version>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-design-plugin</artifactId>
       <version>${project.version}</version>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-findbugs-plugin</artifactId>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-checkstyle-plugin</artifactId>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-dbcleaner-plugin</artifactId>
       <version>${project.version}</version>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-pmd-plugin</artifactId>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-squid-java-plugin</artifactId>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-cobertura-plugin</artifactId>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-surefire-plugin</artifactId>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-cpd-plugin</artifactId>
       <version>${project.version}</version>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-l10n-en-plugin</artifactId>
       <version>${project.version}</version>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-email-notifications-plugin</artifactId>
       <version>${project.version}</version>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-jacoco-plugin</artifactId>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-maven-batch-plugin</artifactId>
       <version>${project.version}</version>
+      <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
     
