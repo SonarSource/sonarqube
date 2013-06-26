@@ -36,6 +36,7 @@ import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorDao;
 import org.sonar.core.user.AuthorizationDao;
+import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
 
 import java.util.List;
@@ -68,6 +69,7 @@ public final class DaoUtils {
       ResourceIndexerDao.class,
       ResourceDao.class,
       ResourceKeyUpdaterDao.class,
+      RoleDao.class,
       RuleDao.class,
       SemaphoreDao.class,
       SnapshotDataDao.class,
