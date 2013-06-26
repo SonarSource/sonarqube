@@ -29,14 +29,14 @@ public class PropertyCreateQueryTest extends QueryTestCase {
   @Test
   public void create() {
     PropertyCreateQuery query = new PropertyCreateQuery("foo", "bar");
-    assertThat(query.getUrl(), is("/api/properties/foo?value=bar&"));
+    assertThat(query.getUrl(), is("/api/properties?id=foo&value=bar&"));
     assertThat(query.getModelClass().getName(), is(Property.class.getName()));
   }
 
   @Test
   public void createForResource() {
     PropertyCreateQuery query = new PropertyCreateQuery("foo", "bar", "my:resource");
-    assertThat(query.getUrl(), is("/api/properties/foo?value=bar&resource=my%3Aresource&"));
+    assertThat(query.getUrl(), is("/api/properties?id=foo&value=bar&resource=my%3Aresource&"));
     assertThat(query.getModelClass().getName(), is(Property.class.getName()));
   }
 }

@@ -78,8 +78,7 @@ public class PropertyCreateQuery extends CreateQuery<Property> {
   public String getUrl() {
     StringBuilder url = new StringBuilder();
     url.append(PropertyQuery.BASE_URL);
-    url.append("/").append(encode(key));
-    url.append('?');
+    url.append("?id=").append(encode(key)).append("&");
     appendUrlParameter(url, "value", value);
     appendUrlParameter(url, "resource", resourceKeyOrId);
     return url.toString();

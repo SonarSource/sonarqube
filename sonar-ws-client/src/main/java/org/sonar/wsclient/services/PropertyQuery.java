@@ -46,10 +46,10 @@ public class PropertyQuery extends Query<Property> {
   @Override
   public String getUrl() {
     StringBuilder url = new StringBuilder(BASE_URL);
-    if (key != null) {
-      url.append("/").append(encode(key));
-    }
     url.append('?');
+    if (key != null) {
+      url.append("id=").append(encode(key)).append("&");
+    }
     appendUrlParameter(url, "resource", resourceKeyOrId);
     return url.toString();
   }

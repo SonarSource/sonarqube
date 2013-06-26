@@ -82,12 +82,12 @@ class Api::PropertiesController < Api::ApiController
     end
   end
 
-  # curl -u admin:admin -v -X PUT http://localhost:9000/api/properties/foo?value=bar[&resource=<resource>]
+  # curl -u admin:admin -v -X POST http://localhost:9000/api/properties/foo?value=bar[&resource=<resource>]
   def create
     update
   end
 
-  # curl -u admin:admin -v -X POST http://localhost:9000/api/properties/foo?value=bar[&resource=<resource>]
+  # curl -u admin:admin -v -X PUT http://localhost:9000/api/properties/foo?value=bar[&resource=<resource>]
   def update
     key = params[:id]
     bad_request('missing key') unless key.present?
