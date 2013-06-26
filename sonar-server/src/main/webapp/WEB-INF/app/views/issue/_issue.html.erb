@@ -72,14 +72,11 @@
           <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('assigned_to') -%></a> <%= h @issue_results.user(issue.assignee).name -%>
         <% else %>
           <a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('issue.assign.formlink') -%></a>
-            <% if issue.assignee!=current_user.login %>
+            <% if issue.assignee != current_user.login %>
             [<a href="#" onclick="return assignIssueToMe(this)" class="link-action"><%= message('issue.assign.to_me') -%></a>]
             <% end %>
         <% end %>
         </span>
-      <% end %>
-
-      <% unless issue.resolution %>
         <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
         &nbsp;
         <span class="spacer-right">
