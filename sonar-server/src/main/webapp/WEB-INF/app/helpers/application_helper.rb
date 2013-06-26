@@ -586,14 +586,6 @@ module ApplicationHelper
     html_class=options[:html_class]||''
     min_length=options[:min_length]
 
-    ajax_options={
-      'quietMillis' => 300,
-      'url' => "'#{ws_url}'",
-      'data' => 'function (term, page) {return {s:term, p:page}}',
-      'results' => 'function (data, page) {return {more: data.more, results: data.results}}'
-    }
-    ajax_options.merge!(options[:select2_ajax_options]) if options[:select2_ajax_options]
-
     js_options={
       'minimumInputLength' => min_length,
       'allowClear' => options[:allow_clear]||false,
@@ -603,7 +595,34 @@ module ApplicationHelper
     }
     js_options['placeholder']= "'#{options[:placeholder]}'" if options.has_key?(:placeholder)
     js_options['width']= "'#{width}'" if width
-    js_options['ajax']='{' + ajax_options.map { |k, v| "#{k}:#{v}" }.join(',') + '}'
+
+    choices = options[:include_choices]
+    if choices && !choices.empty?
+      js_options['minimumInputLength']=0
+      js_options['query']="
+        function(query) {
+          if (query.term.length == 0) {
+            query.callback({results: [{#{ choices.map { |id, text| "id:'#{id}',text:'#{text}'" }.join('}, {')}}]});
+          } else if (query.term.length >= #{min_length}) {
+            $j.ajax('#{ws_url}', {
+                data: {s: query.term},
+                dataType: 'jsonp'
+              }).done(function(data) {
+                query.callback(data);
+            });
+          }
+      }"
+    else
+      ajax_options={
+          'quietMillis' => 300,
+          'url' => "'#{ws_url}'",
+          'data' => 'function (term, page) {return {s:term, p:page}}',
+          'results' => 'function (data, page) {return {more: data.more, results: data.results}}'
+      }
+      ajax_options.merge!(options[:select2_ajax_options]) if options[:select2_ajax_options]
+      js_options['ajax']='{' + ajax_options.map { |k, v| "#{k}:#{v}" }.join(',') + '}'
+    end
+
     js_options.merge!(options[:select2_options]) if options[:select2_options]
 
     html = "<input type='hidden' id='#{html_id}' class='#{html_class}' name='#{name}'/>"
@@ -702,6 +721,7 @@ module ApplicationHelper
   # * <tt>:selected_user</tt> - the user that is selected by default.
   # * <tt>:placeholder</tt> - the label to display when nothing is selected
   # * <tt>:open</tt> - true if the select-box must be open. Default is false.
+  # * <tt>:include_choices</tt> - choices that will be display when selecting the box
   # * <tt>:select2_options</tt> - hash of select2 options
   #
   def user_select_tag(name, options={})

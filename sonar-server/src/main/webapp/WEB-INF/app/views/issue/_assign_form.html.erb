@@ -5,15 +5,16 @@
   <table class="width100">
     <tr>
       <td style="vertical-align:top">
-        <%= user_select_tag('assignee', :html_id => user_select_box_id, :open => true) -%>
+        <%
+           choices = {}
+           choices[current_user.login] = escape_javascript(message('assign_to_me')) if !@issue.assignee || @issue.assignee != current_user.login
+           choices[''] = escape_javascript(message('unassign')) if @issue.assignee
+        %>
+        <%=
+            user_select_tag('assignee', :html_id => user_select_box_id, :open => true, :include_choices => choices)
+        -%>
         <input type="button" value="<%= message('issue.assign.submit') -%>" onclick="submitIssueForm(this)">
         &nbsp;
-        <% if @issue.assignee %>
-          <%= image_tag 'sep12.png' -%>
-          &nbsp;
-          <input type="button" value="<%= message('issue.unassign.submit') -%>" onclick="$j('#<%= user_select_box_id -%>').val('');submitIssueForm(this)">
-          &nbsp;
-        <% end %>
         <%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
         <span class="loading hidden"></span>
       </td>
