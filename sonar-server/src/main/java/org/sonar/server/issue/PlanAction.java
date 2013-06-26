@@ -75,7 +75,8 @@ public class PlanAction extends Action implements ServerComponent {
     String projectKey = actionPlan.projectKey();
     for (Issue issue : issues) {
       DefaultIssue defaultIssue = (DefaultIssue) issue;
-      if (!defaultIssue.projectKey().equals(projectKey)) {
+      String issueProjectKey = defaultIssue.projectKey();
+      if (issueProjectKey == null || !issueProjectKey.equals(projectKey)) {
         throw new IllegalArgumentException("Issues are not all related to the action plan project: " + projectKey);
       }
     }

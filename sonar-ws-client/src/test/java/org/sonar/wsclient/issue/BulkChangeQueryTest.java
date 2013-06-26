@@ -39,12 +39,14 @@ public class BulkChangeQueryTest {
       .issues("ABCD", "EFGH")
       .actions("assign")
       .actionParameter("assign", "assignee", "geoffrey")
+      .comment("My bulk comment")
     ;
 
-    assertThat(query.urlParams()).hasSize(3).includes(
+    assertThat(query.urlParams()).hasSize(4).includes(
       entry("issues", "ABCD,EFGH"),
       entry("actions", "assign"),
-      entry("assign.assignee", "geoffrey")
+      entry("assign.assignee", "geoffrey"),
+      entry("comment", "My bulk comment")
     );
   }
 

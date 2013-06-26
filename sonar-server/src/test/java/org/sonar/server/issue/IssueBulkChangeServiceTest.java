@@ -57,7 +57,6 @@ public class IssueBulkChangeServiceTest {
   private IssueBulkChangeService service;
 
   private Action action = mock(Action.class);
-  private List<Action> actions;
 
   @Before
   public void before() {
@@ -70,10 +69,10 @@ public class IssueBulkChangeServiceTest {
 
     when(action.key()).thenReturn("assign");
 
-    actions = newArrayList();
+    List<Action> actions = newArrayList();
     actions.add(action);
 
-    service = new IssueBulkChangeService(finder, issueUpdater, issueStorage, issueNotifications, actions);
+    service = new IssueBulkChangeService(finder, issueStorage, issueNotifications, actions);
   }
 
   @Test

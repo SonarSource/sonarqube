@@ -31,27 +31,27 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueNotifications;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class IssueBulkChangeService {
 
   private static final Logger LOG = LoggerFactory.getLogger(IssueBulkChangeService.class);
 
   private final DefaultIssueFinder issueFinder;
-  private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
   private final IssueNotifications issueNotifications;
   private final List<Action> actions;
 
-  public IssueBulkChangeService(DefaultIssueFinder issueFinder, IssueUpdater issueUpdater, IssueStorage issueStorage, IssueNotifications issueNotifications, List<Action> actions) {
+  public IssueBulkChangeService(DefaultIssueFinder issueFinder, IssueStorage issueStorage, IssueNotifications issueNotifications, List<Action> actions) {
     this.issueFinder = issueFinder;
-    this.issueUpdater = issueUpdater;
     this.issueStorage = issueStorage;
     this.issueNotifications = issueNotifications;
     this.actions = actions;
@@ -64,21 +64,22 @@ public class IssueBulkChangeService {
     IssueBulkChangeResult result = new IssueBulkChangeResult();
     IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issues()).requiredRole(UserRole.USER).build());
     List<Issue> issues = issueQueryResult.issues();
+    List<Action> actions = newArrayList();
     for (String actionName : issueBulkChangeQuery.actions()) {
       Action action = getAction(actionName);
       if (action == null) {
         throw new IllegalArgumentException("The action : '"+ actionName + "' is unknown");
       }
       action.verify(issueBulkChangeQuery.properties(actionName), issues, userSession);
+      actions.add(action);
     }
 
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
     for (Issue issue : issues) {
-      for (String actionName : issueBulkChangeQuery.actions()) {
+      for (Action action : actions) {
         try {
-          Action action = getAction(actionName);
           ActionContext actionContext = new ActionContext(issue, issueChangeContext);
-          if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(actionName), actionContext)) {
+          if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(action.key()), actionContext)) {
             issueStorage.save((DefaultIssue) issue);
             issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
             result.addIssueChanged(issue);
@@ -87,7 +88,7 @@ public class IssueBulkChangeService {
           }
         } catch (Exception e) {
           result.addIssueNotChanged(issue);
-          LOG.info("An error occur when trying to apply the action : "+ actionName + " on issue : "+ issue.key() + ". This issue has been ignored.", e);
+          LOG.info("An error occur when trying to apply the action : "+ action.key() + " on issue : "+ issue.key() + ". This issue has been ignored.", e);
         }
       }
     }

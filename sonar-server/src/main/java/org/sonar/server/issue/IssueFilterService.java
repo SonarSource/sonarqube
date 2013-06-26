@@ -95,7 +95,7 @@ public class IssueFilterService implements ServerComponent {
     String user = getNotNullLogin(userSession);
     IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilter.id(), user);
     verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user);
-    if(issueFilterDto.getUserLogin() != issueFilter.user()) {
+    if(!issueFilterDto.getUserLogin().equals(issueFilter.user())) {
       verifyCurrentUserCanChangeFilterOwnership(user);
     }
     validateFilter(issueFilter, user);
