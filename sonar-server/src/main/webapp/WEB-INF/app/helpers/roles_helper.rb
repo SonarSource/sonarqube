@@ -79,7 +79,7 @@ module RolesHelper
   end
 
   def global_role_name(role)
-    message("global_role.#{role}", :default => role)
+    message("global_permissions.#{role}", :default => role)
   end
 
 end

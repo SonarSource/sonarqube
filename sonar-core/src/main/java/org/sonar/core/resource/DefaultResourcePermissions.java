@@ -28,12 +28,7 @@ import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.GroupRoleDto;
-import org.sonar.core.user.RoleMapper;
-import org.sonar.core.user.UserDto;
-import org.sonar.core.user.UserMapper;
-import org.sonar.core.user.UserRoleDto;
+import org.sonar.core.user.*;
 
 /**
  * @since 3.2
@@ -42,23 +37,20 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
 
   private final Settings settings;
   private final MyBatis myBatis;
+  private final RoleDao roleDao;
+  private final UserDao userDao;
 
-  public DefaultResourcePermissions(Settings settings, MyBatis myBatis) {
+  public DefaultResourcePermissions(Settings settings, MyBatis myBatis, RoleDao roleDao, UserDao userDao) {
     this.settings = settings;
     this.myBatis = myBatis;
+    this.roleDao = roleDao;
+    this.userDao = userDao;
   }
 
   public boolean hasRoles(Resource resource) {
     if (resource.getId() != null) {
-      SqlSession session = myBatis.openSession();
-      try {
-        RoleMapper roleMapper = session.getMapper(RoleMapper.class);
-        Long resourceId = Long.valueOf(resource.getId());
-        return roleMapper.countGroupRoles(resourceId) + roleMapper.countUserRoles(resourceId) > 0;
-
-      } finally {
-        MyBatis.closeQuietly(session);
-      }
+      Long resourceId = Long.valueOf(resource.getId());
+      return roleDao.countGroupRoles(resourceId) + roleDao.countUserRoles(resourceId) > 0;
     }
     return false;
   }
@@ -73,9 +65,8 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
               .setRole(role)
               .setUserId(user.getId())
               .setResourceId(Long.valueOf(resource.getId()));
-          RoleMapper roleMapper = session.getMapper(RoleMapper.class);
-          roleMapper.deleteUserRole(userRole);
-          roleMapper.insertUserRole(userRole);
+          roleDao.deleteUserRole(userRole, session);
+          roleDao.insertUserRole(userRole, session);
           session.commit();
         }
       } finally {
@@ -91,17 +82,16 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
         GroupRoleDto groupRole = new GroupRoleDto()
             .setRole(role)
             .setResourceId(Long.valueOf(resource.getId()));
-        RoleMapper roleMapper = session.getMapper(RoleMapper.class);
         if (DefaultGroups.isAnyone(groupName)) {
-          roleMapper.deleteGroupRole(groupRole);
-          roleMapper.insertGroupRole(groupRole);
+          roleDao.deleteGroupRole(groupRole, session);
+          roleDao.insertGroupRole(groupRole, session);
           session.commit();
         } else {
-          GroupDto group = session.getMapper(UserMapper.class).selectGroupByName(groupName);
+          GroupDto group = userDao.selectGroupByName(groupName, session);
           if (group != null) {
             groupRole.setGroupId(group.getId());
-            roleMapper.deleteGroupRole(groupRole);
-            roleMapper.insertGroupRole(groupRole);
+            roleDao.deleteGroupRole(groupRole, session);
+            roleDao.insertGroupRole(groupRole, session);
             session.commit();
           }
         }
@@ -128,33 +118,30 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
 
   private void removeRoles(Resource resource, SqlSession session) {
     Long resourceId = Long.valueOf(resource.getId());
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
-    mapper.deleteGroupRolesByResourceId(resourceId);
-    mapper.deleteUserRolesByResourceId(resourceId);
+    roleDao.deleteGroupRolesByResourceId(resourceId, session);
+    roleDao.deleteUserRolesByResourceId(resourceId, session);
   }
 
   private void grantDefaultRoles(Resource resource, String role, SqlSession session) {
-    UserMapper userMapper = session.getMapper(UserMapper.class);
-    RoleMapper roleMapper = session.getMapper(RoleMapper.class);
-
     String[] groupNames = settings.getStringArrayBySeparator("sonar.role." + role + "." + resource.getQualifier() + ".defaultGroups", ",");
     for (String groupName : groupNames) {
       GroupRoleDto groupRole = new GroupRoleDto().setRole(role).setResourceId(Long.valueOf(resource.getId()));
       if (DefaultGroups.isAnyone(groupName)) {
-        roleMapper.insertGroupRole(groupRole);
+        roleDao.insertGroupRole(groupRole, session);
       } else {
-        GroupDto group = userMapper.selectGroupByName(groupName);
+        GroupDto group = userDao.selectGroupByName(groupName, session);
         if (group != null) {
-          roleMapper.insertGroupRole(groupRole.setGroupId(group.getId()));
+          roleDao.insertGroupRole(groupRole.setGroupId(group.getId()), session);
         }
       }
     }
 
     String[] logins = settings.getStringArrayBySeparator("sonar.role." + role + "." + resource.getQualifier() + ".defaultUsers", ",");
     for (String login : logins) {
-      UserDto user = userMapper.selectUserByLogin(login);
+      UserDto user = userDao.selectActiveUserByLogin(login, session);
       if (user != null) {
-        roleMapper.insertUserRole(new UserRoleDto().setRole(role).setUserId(user.getId()).setResourceId(Long.valueOf(resource.getId())));
+        UserRoleDto userRoleDto = new UserRoleDto().setRole(role).setUserId(user.getId()).setResourceId(Long.valueOf(resource.getId()));
+        roleDao.insertUserRole(userRoleDto, session);
       }
     }
   }

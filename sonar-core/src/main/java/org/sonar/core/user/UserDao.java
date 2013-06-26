@@ -47,11 +47,15 @@ public class UserDao {
   public UserDto selectActiveUserByLogin(String login) {
     SqlSession session = mybatis.openSession();
     try {
-      UserMapper mapper = session.getMapper(UserMapper.class);
-      return mapper.selectUserByLogin(login);
+      return selectActiveUserByLogin(login, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public UserDto selectActiveUserByLogin(String login, SqlSession session) {
+    UserMapper mapper = session.getMapper(UserMapper.class);
+    return mapper.selectUserByLogin(login);
   }
 
   public List<UserDto> selectUsersByLogins(List<String> logins) {
@@ -118,11 +122,16 @@ public class UserDao {
    * @return the group, null if group not found
    */
 
+  public GroupDto selectGroupByName(String name, SqlSession session) {
+    UserMapper mapper = session.getMapper(UserMapper.class);
+    return mapper.selectGroupByName(name);
+  }
+
+
   public GroupDto selectGroupByName(String name) {
     SqlSession session = mybatis.openSession();
     try {
-      UserMapper mapper = session.getMapper(UserMapper.class);
-      return mapper.selectGroupByName(name);
+      return selectGroupByName(name, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
