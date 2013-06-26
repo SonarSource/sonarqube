@@ -21,7 +21,9 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Maps;
 import org.codehaus.plexus.util.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Encryption;
 
 import javax.annotation.Nullable;
 
@@ -33,6 +35,7 @@ import java.util.Properties;
  */
 public class BootstrapSettings {
   private Map<String, String> properties;
+  private final Encryption encryption;
 
   public BootstrapSettings(BootstrapProperties bootstrapProperties) {
     this(bootstrapProperties, null);
@@ -40,7 +43,6 @@ public class BootstrapSettings {
 
   public BootstrapSettings(BootstrapProperties bootstrapProperties, @Nullable ProjectReactor projectReactor) {
     properties = Maps.newHashMap();
-
     // order is important -> bottom-up. The last one overrides all the others.
     properties.putAll(bootstrapProperties.properties());
     if (projectReactor != null) {
@@ -48,6 +50,7 @@ public class BootstrapSettings {
     }
     properties.putAll(System.getenv());
     addProperties(System.getProperties());
+    encryption = new Encryption(properties.get(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
   }
 
   private void addProperties(Properties p) {
@@ -63,10 +66,18 @@ public class BootstrapSettings {
   }
 
   public String property(String key) {
-    return properties.get(key);
+    String value = properties.get(key);
+    if (value != null && encryption.isEncrypted(value)) {
+      try {
+        value = encryption.decrypt(value);
+      } catch (Exception e) {
+        throw new IllegalStateException("Fail to decrypt the property " + key + ". Please check your secret key.", e);
+      }
+    }
+    return value;
   }
 
   public String property(String key, String defaultValue) {
-    return StringUtils.defaultString(properties.get(key), defaultValue);
+    return StringUtils.defaultString(property(key), defaultValue);
   }
 }

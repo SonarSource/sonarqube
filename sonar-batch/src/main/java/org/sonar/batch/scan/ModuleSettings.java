@@ -44,6 +44,7 @@ public class ModuleSettings extends Settings {
 
   public ModuleSettings(BatchSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf) {
     super(batchSettings.getDefinitions());
+    getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     this.dryRun = "true".equals(batchSettings.getString(CoreProperties.DRY_RUN));
 
     LoggerFactory.getLogger(ModuleSettings.class).info("Load module settings");

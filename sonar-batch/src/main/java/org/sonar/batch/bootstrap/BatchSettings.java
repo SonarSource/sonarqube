@@ -50,6 +50,7 @@ public class BatchSettings extends Settings {
   public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
       ServerClient client, Configuration deprecatedConfiguration) {
     super(propertyDefinitions);
+    getEncryption().setPathToSecretKey(bootstrapSettings.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     this.bootstrapSettings = bootstrapSettings;
     this.client = client;
     this.deprecatedConfiguration = deprecatedConfiguration;

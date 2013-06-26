@@ -63,7 +63,9 @@ public class ServerSettings extends Settings {
     this.deprecatedConfiguration = deprecatedConfiguration;
     this.deployDir = deployDir;
     this.sonarHome = sonarHome;
-    load(Collections.<String, String>emptyMap());
+    load(Collections.<String, String> emptyMap());
+    // Secret key is loaded from conf/sonar.properties
+    getEncryption().setPathToSecretKey(getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
   }
 
   public ServerSettings activateDatabaseSettings(Map<String, String> databaseProperties) {

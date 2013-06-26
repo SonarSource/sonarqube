@@ -45,10 +45,10 @@ final class AesCipher extends Cipher {
 
   private static final String CRYPTO_KEY = "AES";
 
-  private final Settings settings;
+  private String pathToSecretKey;
 
-  AesCipher(Settings settings) {
-    this.settings = settings;
+  AesCipher(@Nullable String pathToSecretKey) {
+    this.pathToSecretKey = pathToSecretKey;
   }
 
   @Override
@@ -121,10 +121,13 @@ final class AesCipher extends Cipher {
 
   @VisibleForTesting
   String getPathToSecretKey() {
-    String path = settings.getClearString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH);
-    if (StringUtils.isBlank(path)) {
-      path = new File(FileUtils.getUserDirectoryPath(), ".sonar/sonar-secret.txt").getPath();
+    if (StringUtils.isBlank(pathToSecretKey)) {
+      pathToSecretKey = new File(FileUtils.getUserDirectoryPath(), ".sonar/sonar-secret.txt").getPath();
     }
-    return path;
+    return pathToSecretKey;
+  }
+
+  public void setPathToSecretKey(String pathToSecretKey) {
+    this.pathToSecretKey = pathToSecretKey;
   }
 }

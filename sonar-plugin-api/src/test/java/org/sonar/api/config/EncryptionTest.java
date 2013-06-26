@@ -28,7 +28,7 @@ public class EncryptionTest {
 
   @Test
   public void isEncrypted() {
-    Encryption encryption = new Encryption(new Settings());
+    Encryption encryption = new Encryption(null);
     assertThat(encryption.isEncrypted("{aes}ADASDASAD"), is(true));
     assertThat(encryption.isEncrypted("{b64}ADASDASAD"), is(true));
     assertThat(encryption.isEncrypted("{abc}ADASDASAD"), is(true));
@@ -40,25 +40,25 @@ public class EncryptionTest {
 
   @Test
   public void scramble() {
-    Encryption encryption = new Encryption(new Settings());
+    Encryption encryption = new Encryption(null);
     assertThat(encryption.scramble("foo"), is("{b64}Zm9v"));
   }
 
   @Test
   public void decrypt() {
-    Encryption encryption = new Encryption(new Settings());
+    Encryption encryption = new Encryption(null);
     assertThat(encryption.decrypt("{b64}Zm9v"), is("foo"));
   }
 
   @Test
   public void decrypt_unknown_algorithm() {
-    Encryption encryption = new Encryption(new Settings());
+    Encryption encryption = new Encryption(null);
     assertThat(encryption.decrypt("{xxx}Zm9v"), is("{xxx}Zm9v"));
   }
 
   @Test
   public void decrypt_uncrypted_text() {
-    Encryption encryption = new Encryption(new Settings());
+    Encryption encryption = new Encryption(null);
     assertThat(encryption.decrypt("foo"), is("foo"));
   }
 }

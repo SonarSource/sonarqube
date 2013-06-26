@@ -61,7 +61,7 @@ public class Settings implements BatchComponent, ServerComponent {
   public Settings(PropertyDefinitions definitions) {
     this.properties = Maps.newHashMap();
     this.definitions = definitions;
-    this.encryption = new Encryption(this);
+    this.encryption = new Encryption(null);
   }
 
   /**

@@ -21,6 +21,8 @@ package org.sonar.api.config;
 
 import com.google.common.collect.ImmutableMap;
 
+import javax.annotation.Nullable;
+
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -39,12 +41,16 @@ public final class Encryption {
   private final Map<String, Cipher> ciphers;
   private static final Pattern ENCRYPTED_PATTERN = Pattern.compile("\\{(.*?)\\}(.*)");
 
-  Encryption(Settings settings) {
-    aesCipher = new AesCipher(settings);
+  public Encryption(@Nullable String pathToSecretKey) {
+    aesCipher = new AesCipher(pathToSecretKey);
     ciphers = ImmutableMap.of(
         BASE64_ALGORITHM, new Base64Cipher(),
         AES_ALGORITHM, aesCipher
-    );
+        );
+  }
+
+  public void setPathToSecretKey(@Nullable String pathToSecretKey) {
+    aesCipher.setPathToSecretKey(pathToSecretKey);
   }
 
   /**
@@ -55,7 +61,7 @@ public final class Encryption {
   }
 
   public boolean isEncrypted(String value) {
-    return value.indexOf('{')==0 && value.indexOf('}') > 1;
+    return value.indexOf('{') == 0 && value.indexOf('}') > 1;
   }
 
   public String encrypt(String clearText) {
