@@ -32,6 +32,8 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
+import javax.annotation.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -49,6 +51,9 @@ public class RealMavenPluginExecutor implements MavenPluginExecutor {
   @Override
   public final MavenPluginHandler execute(Project project, DefaultModuleFileSystem fs, MavenPluginHandler handler) {
     for (String goal : handler.getGoals()) {
+      if (goal == null) {
+        throw new IllegalStateException("Maven goal can't be null");
+      }
       MavenPlugin plugin = MavenPlugin.getPlugin(project.getPom(), handler.getGroupId(), handler.getArtifactId());
       execute(project,
           fs,
@@ -76,7 +81,7 @@ public class RealMavenPluginExecutor implements MavenPluginExecutor {
     }
   }
 
-  static String getGoal(String groupId, String artifactId, String version, String goal) {
+  static String getGoal(String groupId, String artifactId, @Nullable String version, String goal) {
     String defaultVersion = (version == null ? "" : version);
     return new StringBuilder()
         .append(groupId).append(":")
@@ -87,10 +92,10 @@ public class RealMavenPluginExecutor implements MavenPluginExecutor {
         .toString();
   }
 
-  public void concreteExecute(MavenProject pom, String goal) throws Exception {
+  public void concreteExecute(MavenProject pom, String goal) throws SecurityException {
     Method executeMethod = null;
     for (Method m : lifecycleExecutor.getClass().getMethods()) {
-      if (m.getName().equals("execute")) {
+      if ("execute".equals(m.getName())) {
         executeMethod = m;
         break;
       }
@@ -123,18 +128,22 @@ public class RealMavenPluginExecutor implements MavenPluginExecutor {
     }
   }
 
-  public void concreteExecuteMaven2(Method executeMethod, MavenProject pom, String goal) throws Exception {
-    ReactorManager reactor = new ReactorManager(Arrays.asList(pom));
-    MavenSession clonedSession = new MavenSession(mavenSession.getContainer(),
-        mavenSession.getSettings(),
-        mavenSession.getLocalRepository(),
-        mavenSession.getEventDispatcher(),
-        reactor,
-        Arrays.asList(goal),
-        mavenSession.getExecutionRootDirectory(),
-        mavenSession.getExecutionProperties(),
-        mavenSession.getStartTime());
-    executeMethod.invoke(lifecycleExecutor, clonedSession, reactor, clonedSession.getEventDispatcher());
+  public void concreteExecuteMaven2(Method executeMethod, MavenProject pom, String goal) {
+    try {
+      ReactorManager reactor = new ReactorManager(Arrays.asList(pom));
+      MavenSession clonedSession = new MavenSession(mavenSession.getContainer(),
+          mavenSession.getSettings(),
+          mavenSession.getLocalRepository(),
+          mavenSession.getEventDispatcher(),
+          reactor,
+          Arrays.asList(goal),
+          mavenSession.getExecutionRootDirectory(),
+          mavenSession.getExecutionProperties(),
+          mavenSession.getStartTime());
+      executeMethod.invoke(lifecycleExecutor, clonedSession, reactor, clonedSession.getEventDispatcher());
+    } catch (Exception e) {
+      throw new SonarException("Unable to execute Maven 2 plugin", e);
+    }
   }
 
 }

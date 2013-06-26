@@ -42,7 +42,7 @@ import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler.SensorsPhaseEvent;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.batch.events.BatchStepHandler;
+import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.phases.Phases.Phase;
 
 import java.util.Arrays;
@@ -188,10 +188,10 @@ public class PhasesSumUpTimeProfilerTest {
 
   private void batchStep(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
     // Start of batch step
-    profiler.onBatchStep(batchStepEvent(true, "Free memory"));
+    profiler.onBatchStep(new BatchStepEvent("Free memory", true));
     clock.sleep(9);
     // End of batch step
-    profiler.onBatchStep(batchStepEvent(false, "Free memory"));
+    profiler.onBatchStep(new BatchStepEvent("Free memory", false));
   }
 
   private void mavenPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
@@ -337,26 +337,6 @@ public class PhasesSumUpTimeProfilerTest {
       @Override
       public List<Sensor> getSensors() {
         return null;
-      }
-    };
-  }
-
-  private BatchStepHandler.BatchStepEvent batchStepEvent(final boolean start, final String stepName) {
-    return new BatchStepHandler.BatchStepEvent() {
-
-      @Override
-      public boolean isStart() {
-        return start;
-      }
-
-      @Override
-      public boolean isEnd() {
-        return !start;
-      }
-
-      @Override
-      public String stepName() {
-        return stepName;
       }
     };
   }

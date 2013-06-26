@@ -197,7 +197,7 @@ public final class SonarMojo extends AbstractMojo {
         try {
           file = new File(basedir, path).getCanonicalFile();
         } catch (IOException e) {
-          throw new RuntimeException("Unable to resolve path '" + path + "'", e);
+          throw new IllegalStateException("Unable to resolve path '" + path + "'", e);
         }
       }
       return file;

@@ -22,6 +22,9 @@ package org.sonar.api.batch.maven;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Project;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * @since 1.10
  */
@@ -32,6 +35,7 @@ public interface MavenPluginHandler extends BatchExtension {
    *
    * @return the group id
    */
+  @Nonnull
   String getGroupId();
 
   /**
@@ -39,6 +43,7 @@ public interface MavenPluginHandler extends BatchExtension {
    *
    * @return artifact id
    */
+  @Nonnull
   String getArtifactId();
 
   /**
@@ -46,6 +51,7 @@ public interface MavenPluginHandler extends BatchExtension {
    *
    * @return the plugin version
    */
+  @Nullable
   String getVersion();
 
   /**
@@ -61,6 +67,7 @@ public interface MavenPluginHandler extends BatchExtension {
    *
    * @return an array of goals
    */
+  @Nonnull
   String[] getGoals();
 
   /**

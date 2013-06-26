@@ -37,6 +37,8 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.java.api.JavaUtils;
 
+import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -54,31 +56,9 @@ public class MavenProjectConverter implements TaskExtension {
     Map<MavenProject, ProjectDefinition> defs = Maps.newHashMap();
 
     try {
-      for (MavenProject pom : poms) {
-        paths.put(pom.getFile().getCanonicalPath(), pom);
-        ProjectDefinition def = ProjectDefinition.create();
-        merge(pom, def);
-        defs.put(pom, def);
-      }
+      configureModules(poms, paths, defs);
 
-      for (Map.Entry<String, MavenProject> entry : paths.entrySet()) {
-        MavenProject pom = entry.getValue();
-        for (Object m : pom.getModules()) {
-          String moduleId = (String) m;
-          File modulePath = new File(pom.getBasedir(), moduleId);
-          MavenProject module = findMavenProject(modulePath, paths);
-
-          ProjectDefinition parentProject = defs.get(pom);
-          if (parentProject == null) {
-            throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
-          }
-          ProjectDefinition subProject = defs.get(module);
-          if (subProject == null) {
-            throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
-          }
-          parentProject.addSubProject(subProject);
-        }
-      }
+      rebuildModuleHierarchy(paths, defs);
     } catch (IOException e) {
       throw new SonarException(e);
     }
@@ -88,6 +68,36 @@ public class MavenProjectConverter implements TaskExtension {
       throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
     }
     return rootProject;
+  }
+
+  private void rebuildModuleHierarchy(Map<String, MavenProject> paths, Map<MavenProject, ProjectDefinition> defs) throws IOException {
+    for (Map.Entry<String, MavenProject> entry : paths.entrySet()) {
+      MavenProject pom = entry.getValue();
+      for (Object m : pom.getModules()) {
+        String moduleId = (String) m;
+        File modulePath = new File(pom.getBasedir(), moduleId);
+        MavenProject module = findMavenProject(modulePath, paths);
+
+        ProjectDefinition parentProject = defs.get(pom);
+        if (parentProject == null) {
+          throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
+        }
+        ProjectDefinition subProject = defs.get(module);
+        if (subProject == null) {
+          throw new IllegalStateException(UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE);
+        }
+        parentProject.addSubProject(subProject);
+      }
+    }
+  }
+
+  private void configureModules(List<MavenProject> poms, Map<String, MavenProject> paths, Map<MavenProject, ProjectDefinition> defs) throws IOException {
+    for (MavenProject pom : poms) {
+      paths.put(pom.getFile().getCanonicalPath(), pom);
+      ProjectDefinition def = ProjectDefinition.create();
+      merge(pom, def);
+      defs.put(pom, def);
+    }
   }
 
   private static MavenProject findMavenProject(final File modulePath, Map<String, MavenProject> paths) throws IOException {
@@ -220,11 +230,10 @@ public class MavenProjectConverter implements TaskExtension {
         getBuildDir(pom),
         resolvePaths((List<String>) pom.getCompileSourceRoots(), pom.getBasedir()),
         resolvePaths((List<String>) pom.getTestCompileSourceRoots(), pom.getBasedir()),
-        Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir()))
-        );
+        Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir())));
   }
 
-  static File resolvePath(String path, File basedir) {
+  static File resolvePath(@Nullable String path, File basedir) {
     if (path != null) {
       File file = new File(path);
       if (!file.isAbsolute()) {

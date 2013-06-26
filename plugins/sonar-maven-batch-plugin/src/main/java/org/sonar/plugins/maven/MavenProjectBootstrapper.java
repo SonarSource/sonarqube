@@ -49,7 +49,12 @@ public class MavenProjectBootstrapper extends ProjectBootstrapper {
         break;
       }
     }
-    return new ProjectReactor(mavenProjectConverter.configure(sortedProjects, topLevelProject));
+    if (topLevelProject != null && sortedProjects != null) {
+      return new ProjectReactor(mavenProjectConverter.configure(sortedProjects, topLevelProject));
+    }
+    else {
+      throw new IllegalStateException("Maven session is not in a good state. No top level project or empty reactor.");
+    }
   }
 
 }

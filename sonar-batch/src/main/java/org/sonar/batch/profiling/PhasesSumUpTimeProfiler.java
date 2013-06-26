@@ -53,7 +53,7 @@ import static org.sonar.batch.profiling.AbstractTimeProfiling.truncate;
 public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorExecutionHandler, DecoratorExecutionHandler, PostJobExecutionHandler, DecoratorsPhaseHandler,
     SensorsPhaseHandler, PostJobsPhaseHandler, MavenPhaseHandler, InitializersPhaseHandler, InitializerExecutionHandler, BatchStepHandler {
 
-  static Logger LOG = LoggerFactory.getLogger(PhasesSumUpTimeProfiler.class);
+  final static Logger LOG = LoggerFactory.getLogger(PhasesSumUpTimeProfiler.class);
   private static final int TEXT_RIGHT_PAD = 60;
   private static final int TIME_LEFT_PAD = 10;
 
