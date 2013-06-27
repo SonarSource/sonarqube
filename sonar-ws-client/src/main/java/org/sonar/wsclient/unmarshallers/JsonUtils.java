@@ -69,6 +69,9 @@ public final class JsonUtils {
   public static Double getDouble(Map obj, String field) {
     Object value = obj.get(field);
     if (value != null) {
+      if (value instanceof Long) {
+        return ((Long) value).doubleValue();
+      }
       return (Double) value;
     }
     return null;
