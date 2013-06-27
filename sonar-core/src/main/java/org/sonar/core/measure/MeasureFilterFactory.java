@@ -19,9 +19,13 @@
  */
 package org.sonar.core.measure;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.DateUtils;
@@ -51,6 +55,10 @@ public class MeasureFilterFactory implements ServerComponent {
     filter.setResourceScopes(toList(properties.get("scopes")));
     filter.setResourceQualifiers(toList(properties.get("qualifiers")));
     filter.setResourceLanguages(toList(properties.get("languages")));
+    MeasureFilterCondition condition = alertToCondition((toList(properties.get("alertLevels"))));
+    if (condition != null) {
+      filter.addCondition(condition);
+    }
     if (properties.containsKey("onBaseComponents")) {
       filter.setOnBaseResourceChildren(Boolean.valueOf((String) properties.get("onBaseComponents")));
     }
@@ -122,6 +130,28 @@ public class MeasureFilterFactory implements ServerComponent {
       if (period != null) {
         condition.setPeriod(Integer.parseInt(period));
       }
+    }
+    return condition;
+  }
+
+  private MeasureFilterCondition alertToCondition(List<String> alertLevels) {
+    if (alertLevels == null || alertLevels.isEmpty()) {
+      return null;
+    }
+    MeasureFilterCondition condition = null;
+    String metricKey = CoreMetrics.ALERT_STATUS_KEY;
+    String op = "in";
+    List<String> alertLevelsUppercase = Lists.transform(alertLevels, new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+        return input != null ? input.toUpperCase() : "";
+      }
+    });
+    String val = "(\"" + Joiner.on("\", \"").join(alertLevelsUppercase) + "\")";
+    if (!Strings.isNullOrEmpty(metricKey) && !Strings.isNullOrEmpty(op) && !Strings.isNullOrEmpty(val)) {
+      Metric metric = metricFinder.findByKey(metricKey);
+      MeasureFilterCondition.Operator operator = MeasureFilterCondition.Operator.fromCode(op);
+      condition = new MeasureFilterCondition(metric, operator, val);
     }
     return condition;
   }

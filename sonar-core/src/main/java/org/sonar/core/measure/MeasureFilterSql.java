@@ -211,8 +211,8 @@ class MeasureFilterSql {
 
   private static void appendInStatement(List<String> values, StringBuilder to) {
     to.append(" (");
-    for (int i=0 ; i<values.size() ; i++) {
-      if (i>0) {
+    for (int i = 0; i < values.size(); i++) {
+      if (i > 0) {
         to.append(",");
       }
       to.append("'");

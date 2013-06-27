@@ -28,13 +28,14 @@
     var hiddenConditionIndexes = [<%= hidden_condition_indexes.join(',') -%>];
     $j(document).ready(function () {
       $j('#select-lang').select2({allowClear: true, width: '100%', placeholder: '<%= escape_javascript message 'measure_filter.languages' -%>'});
+      $j('#select-alert').select2({allowClear: true, width: '100%', placeholder: '<%= escape_javascript message 'measure_filter.alert_levels' -%>'});
       $j('#select-qualifiers').select2({allowClear: true, width: '100%', placeholder: '<%= escape_javascript message('measure_filter.criteria.what') -%>'});
       $j('#more-criteria')
         .select2({allowClear: true, width: '100%', placeholder: '<%= message 'measure_filter.more_criteria' -%>'})
         .on("change", function (e) {
             $j("#criteria-" + e.val).insertBefore($j("#more-td")).show();
 
-            if (e.val == 'lang' || e.val == 'project') {
+            if (e.val == 'lang' || e.val == 'project' || e.val == 'alert') {
               $j("#select-" + e.val).select2("enable");
               $j("#select-" + e.val).select2("focus");
             } else if (e.val == 'fav') {
@@ -140,6 +141,11 @@
       <%= check_box_tag 'onFavourites', 'true', @filter.criteria['onFavourites']=='true', :id => 'check-fav' -%>
     </li>
 
+    <li id="criteria-alert" <%= "style='display:none'" unless @filter.criteria('alertLevels') -%> class="marginbottom5">
+      <% alertLevels = [['', '']].concat(['error', 'warn', 'ok'].map { |level| [message('measure_filter.criteria.alert.' + level), level] }) %>
+      <%= select_tag 'alertLevels[]', options_for_select(alertLevels, @filter.criteria['alertLevels']), :multiple => true, :id => 'select-alert' -%>
+    </li>
+
     <%
        condition_metrics = Metric.all.select { |m| m.numeric? && !m.hidden }
        for i in 1..3
@@ -211,6 +217,9 @@
         <% end %>
         <% unless @filter.base_resource %>
           <option value="project"><%= message 'measure_filter.criteria.components_of_project' -%></option>
+        <% end %>
+        <% unless @filter.criteria('alertLevels') %>
+          <option value="alert"><%= message 'measure_filter.criteria.alert' -%></option>
         <% end %>
       </select>
     </li>

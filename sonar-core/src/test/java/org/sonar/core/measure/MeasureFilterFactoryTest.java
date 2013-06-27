@@ -28,6 +28,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.DateUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -171,6 +172,23 @@ public class MeasureFilterFactoryTest {
     assertThat(conditions.get(0).operator()).isEqualTo(MeasureFilterCondition.Operator.GREATER_OR_EQUALS);
     assertThat(conditions.get(0).value()).isEqualTo(3.14);
     assertThat(conditions.get(0).period()).isEqualTo(3);
+  }
+
+  @Test
+  public void alert_level_condition() {
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
+    Map<String, Object> props = ImmutableMap.<String, Object>of(
+      "alertLevels", Arrays.asList("error", "warn")
+    );
+    MeasureFilter filter = factory.create(props);
+
+    List<MeasureFilterCondition> conditions = filter.getMeasureConditions();
+    assertThat(conditions).hasSize(1);
+    assertThat(conditions.get(0).metric().getKey()).isEqualTo("alert_status");
+    assertThat(conditions.get(0).operator()).isEqualTo(MeasureFilterCondition.Operator.IN);
+    assertThat(conditions.get(0).value()).isEqualTo(0);
+    assertThat(conditions.get(0).textValue()).isEqualTo("(\"ERROR\", \"WARN\")");
+    assertThat(conditions.get(0).period()).isNull();
   }
 
   @Test

@@ -196,12 +196,12 @@ public class MeasureFilter {
   }
 
   public boolean isEmpty() {
-    return resourceQualifiers.isEmpty() && resourceScopes.isEmpty() && StringUtils.isEmpty(baseResourceKey) && baseResourceId==null && !userFavourites;
+    return resourceQualifiers.isEmpty() && resourceScopes.isEmpty() && StringUtils.isEmpty(baseResourceKey) && baseResourceId == null && !userFavourites;
   }
 
   @VisibleForTesting
   static List<String> sanitize(@Nullable List<String> list) {
-    return isEmptyList(list) ? Collections.<String>emptyList() : Lists.newArrayList(list);
+    return isEmptyList(list) ? Collections.<String> emptyList() : Lists.newArrayList(list);
   }
 
   private static boolean isEmptyList(@Nullable List<String> list) {

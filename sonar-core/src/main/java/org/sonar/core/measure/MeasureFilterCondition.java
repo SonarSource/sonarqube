@@ -25,7 +25,7 @@ import org.sonar.api.measures.Metric;
 
 public class MeasureFilterCondition {
   public enum Operator {
-    EQUALS("eq", "="), GREATER("gt", ">"), GREATER_OR_EQUALS("gte", ">="), LESS("lt", "<"), LESS_OR_EQUALS("lte", "<=");
+    EQUALS("eq", "="), GREATER("gt", ">"), GREATER_OR_EQUALS("gte", ">="), LESS("lt", "<"), LESS_OR_EQUALS("lte", "<="), IN("in", "IN");
 
     private String code;
     private String sql;
@@ -52,12 +52,21 @@ public class MeasureFilterCondition {
   private final Metric metric;
   private final Operator operator;
   private final double value;
+  private final String textValue;
   private Integer period = null;
 
   public MeasureFilterCondition(Metric metric, Operator operator, double value) {
     this.metric = metric;
     this.operator = operator;
     this.value = value;
+    this.textValue = null;
+  }
+
+  public MeasureFilterCondition(Metric metric, Operator operator, String textValue) {
+    this.metric = metric;
+    this.operator = operator;
+    this.value = 0;
+    this.textValue = textValue;
   }
 
   public MeasureFilterCondition setPeriod(Integer period) {
@@ -77,6 +86,10 @@ public class MeasureFilterCondition {
     return value;
   }
 
+  public String textValue() {
+    return textValue;
+  }
+
   public Integer period() {
     return period;
   }
@@ -85,8 +98,10 @@ public class MeasureFilterCondition {
     sb.append("pmcond").append(conditionIndex);
     if (period != null) {
       sb.append(".variation_value_").append(period).toString();
-    } else {
+    } else if (textValue == null) {
       sb.append(".value");
+    } else {
+      sb.append(".text_value");
     }
     return sb;
   }
@@ -97,7 +112,13 @@ public class MeasureFilterCondition {
     sql.append(metric.getId());
     sql.append(" AND ");
     appendSqlColumn(sql, conditionIndex);
-    sql.append(operator.getSql()).append(value);
+    sql.append(" ").append(operator.getSql()).append(" ");
+    if (textValue == null) {
+      sql.append(value);
+    }
+    else {
+      sql.append(textValue);
+    }
     sql.append(" AND ");
     sql.append(table).append(".rule_id IS NULL AND ");
     sql.append(table).append(".rule_priority IS NULL AND ");
