@@ -7,8 +7,8 @@
       <td style="vertical-align:top">
         <%
            choices = {}
-           choices[current_user.login] = escape_javascript(message('assign_to_me')) if !@issue.assignee || @issue.assignee != current_user.login
-           choices[''] = escape_javascript(message('unassign')) if @issue.assignee
+           choices[current_user.login] = escape_javascript(message('assigned_to_me')) if !@issue.assignee || @issue.assignee != current_user.login
+           choices[''] = escape_javascript(message('unassigned')) if @issue.assignee
         %>
         <%=
             user_select_tag('assignee', :html_id => user_select_box_id, :open => true, :include_choices => choices)

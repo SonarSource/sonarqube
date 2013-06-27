@@ -14,7 +14,7 @@
         </label>
         <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
         <%= user_select_tag('assign.assignee', :html_id => 'assignee', :open => false,
-                            :include_choices => {'' => escape_javascript(message('unassign')), current_user.login => escape_javascript(message('assign_to_me'))}) -%>
+                            :include_choices => {'' => escape_javascript(message('unassigned')), current_user.login => escape_javascript(message('assigned_to_me'))}) -%>
       </div>
       <%
          if @project && !@project.blank?
@@ -51,6 +51,9 @@
                          {:id => 'severity'}) -%>
       </div>
       <div class="modal-field">
+        <label>
+          <%= message('issue.transition') -%>
+        </label>
         <% @transitions_by_issues.keys.each do |transition| %>
           <input type="radio" name="transition.transition" value="<%= transition -%>" onClick="addTransitionAction();">&nbsp;<%= message("issue.transition.#{transition}") -%>
           (<%= @transitions_by_issues[transition].to_s %>) <br>
