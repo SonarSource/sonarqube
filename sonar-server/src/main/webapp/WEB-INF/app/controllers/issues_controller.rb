@@ -36,7 +36,7 @@ class IssuesController < ApplicationController
     if params[:id]
       @filter = find_filter(params[:id].to_i)
     end
-    @first_search = Internal.issues.sanitizeFilterQuery(params).to_hash.empty?
+    @first_search = criteria_params_sanitized.empty?
     @criteria_params = criteria_params
     issue_filter_result = Internal.issues.execute(@criteria_params)
     @issue_query = issue_filter_result.query
@@ -53,7 +53,7 @@ class IssuesController < ApplicationController
 
     issue_filter_result = Internal.issues.execute(params[:id].to_i, params)
     @filter = find_filter(params[:id].to_i)
-    @criteria_params = Internal.issues.deserializeFilterQuery(@filter).to_hash
+    @criteria_params = criteria_params_from_filter(@filter)
     @criteria_params[:id] = @filter.id
     @issue_query = issue_filter_result.query
     @issues_result = issue_filter_result.result
@@ -78,7 +78,7 @@ class IssuesController < ApplicationController
   # POST /issues/save_as?name=<name>[&parameters]
   def save_as
     verify_post_request
-    options = {'name' => params[:name], 'description' => params[:description], 'data' => URI.unescape(params[:data]), 'shared' => params[:shared]=='true' }
+    options = {'name' => params[:name], 'description' => params[:description], 'data' => URI.unescape(params[:data]), 'shared' => params[:shared]=='true'}
     filter_result = Internal.issues.createIssueFilter(options)
 
     if filter_result.ok
@@ -146,7 +146,7 @@ class IssuesController < ApplicationController
   def copy
     verify_post_request
 
-    options = {'name' => params[:name], 'description' => params[:description], 'shared' => params[:shared]=='true' }
+    options = {'name' => params[:name], 'description' => params[:description], 'shared' => params[:shared]=='true'}
     filter_result = Internal.issues.copyIssueFilter(params[:id].to_i, options)
 
     if filter_result.ok
@@ -181,9 +181,13 @@ class IssuesController < ApplicationController
 
   # GET /issues/bulk_change_form?[&criteria]
   def bulk_change_form
+    @criteria_params = params
+    if params[:id]
+      filter = find_filter(params[:id].to_i)
+      @criteria_params = criteria_params_from_filter(filter)
+    end
 
     # Load maximum number of issues
-    @criteria_params = params
     @criteria_params['pageSize'] = -1
     issue_filter_result = Internal.issues.execute(@criteria_params)
     issue_query = issue_filter_result.query
@@ -198,7 +202,7 @@ class IssuesController < ApplicationController
         @transitions_by_issues[transition.key] = issues_for_transition
       end
     end
-    @issues = issues_result.issues.map {|issue| issue.key()}
+    @issues = issues_result.issues.map { |issue| issue.key() }
     @project = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1
 
     render :partial => 'issues/bulk_change_form'
@@ -220,8 +224,8 @@ class IssuesController < ApplicationController
   private
 
   def init_options
-    @options_for_statuses = Internal.issues.listStatus().map {|s| [message('issue.status.' + s), s]}
-    @options_for_resolutions = Internal.issues.listResolutions().map {|s| [message('issue.resolution.' + s), s]}
+    @options_for_statuses = Internal.issues.listStatus().map { |s| [message('issue.status.' + s), s] }
+    @options_for_resolutions = Internal.issues.listResolutions().map { |s| [message('issue.resolution.' + s), s] }
   end
 
   def load_filters
@@ -235,6 +239,14 @@ class IssuesController < ApplicationController
   def criteria_params
     params['pageSize'] = PAGE_SIZE
     params
+  end
+
+  def criteria_params_sanitized
+    Internal.issues.sanitizeFilterQuery(params).to_hash
+  end
+
+  def criteria_params_from_filter(filter)
+    Internal.issues.deserializeFilterQuery(filter).to_hash
   end
 
 end

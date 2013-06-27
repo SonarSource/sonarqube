@@ -18,7 +18,7 @@
     },
     error: function (xhr, textStatus, errorThrown) {
       var htmlClass = 'issue-filter';
-      $j('.' + htmlClass + ' input[type=submit]').removeAttr('disabled');
+      $j('input[type=submit].' + htmlClass).removeAttr('disabled');
       $j('.' + htmlClass + '.errors').show();
       $j('.' + htmlClass + '.errors').html(xhr.responseText);
     }
