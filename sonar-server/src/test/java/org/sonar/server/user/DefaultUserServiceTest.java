@@ -21,18 +21,30 @@ package org.sonar.server.user;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.user.UserDao;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
-public class DefaultRubyUserServiceTest {
+public class DefaultUserServiceTest {
 
   UserFinder finder = mock(UserFinder.class);
-  DefaultRubyUserService service = new DefaultRubyUserService(finder);
+  UserDao dao = mock(UserDao.class);
+  DefaultUserService service = new DefaultUserService(finder, dao);
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void parse_query() throws Exception {
@@ -64,5 +76,47 @@ public class DefaultRubyUserServiceTest {
         return !query.includeDeactivated() && query.logins() == null && query.searchText()==null;
       }
     }));
+  }
+
+  @Test
+  public void self_deactivation_is_not_possible() throws Exception {
+    try {
+      MockUserSession.set().setLogin("simon").setPermissions(UserRole.ADMIN);
+      service.deactivate("simon");
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e).hasMessage("Self-deactivation is not possible");
+      verify(dao, never()).deactivateUserByLogin("simon");
+    }
+  }
+
+  @Test
+  public void user_deactivation_requires_admin_permission() throws Exception {
+    try {
+      MockUserSession.set().setLogin("simon").setPermissions(UserRole.USER);
+      service.deactivate("julien");
+      fail();
+    } catch (ForbiddenException e) {
+      verify(dao, never()).deactivateUserByLogin("simon");
+    }
+  }
+
+  @Test
+  public void deactivate_user() throws Exception {
+    MockUserSession.set().setLogin("simon").setPermissions(UserRole.ADMIN);
+    service.deactivate("julien");
+    verify(dao).deactivateUserByLogin("julien");
+  }
+
+  @Test
+  public void fail_to_deactivate_when_blank_login() throws Exception {
+    MockUserSession.set().setLogin("simon").setPermissions(UserRole.ADMIN);
+    try {
+      service.deactivate("");
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e).hasMessage("Login is missing");
+      verifyZeroInteractions(dao);
+    }
   }
 }

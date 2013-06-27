@@ -46,7 +46,7 @@ public class UserSessionFilterTest {
     ServletResponse httpResponse = mock(ServletResponse.class);
     FilterChain chain = mock(FilterChain.class);
 
-    UserSession.set(new UserSession(123, "karadoc", Locale.CANADA_FRENCH));
+    MockUserSession.set().setUserId(123).setLogin("karadoc");
     assertThat(UserSession.hasSession()).isTrue();
     UserSessionFilter filter = new UserSessionFilter();
     filter.doFilter(httpRequest, httpResponse, chain);

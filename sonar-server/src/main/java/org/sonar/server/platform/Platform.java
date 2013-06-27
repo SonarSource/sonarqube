@@ -85,7 +85,7 @@ import org.sonar.server.startup.*;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.*;
-import org.sonar.server.user.DefaultRubyUserService;
+import org.sonar.server.user.DefaultUserService;
 import org.sonar.server.user.NewUserNotifier;
 
 import javax.servlet.ServletContext;
@@ -253,7 +253,7 @@ public final class Platform {
     servicesContainer.addSingleton(HibernateUserFinder.class);
     servicesContainer.addSingleton(NewUserNotifier.class);
     servicesContainer.addSingleton(DefaultUserFinder.class);
-    servicesContainer.addSingleton(DefaultRubyUserService.class);
+    servicesContainer.addSingleton(DefaultUserService.class);
 
     // components
     servicesContainer.addSingleton(DefaultRubyComponentService.class);

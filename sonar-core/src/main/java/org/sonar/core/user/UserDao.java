@@ -121,13 +121,13 @@ public class UserDao {
    *
    * @return the group, null if group not found
    */
-
+  @CheckForNull
   public GroupDto selectGroupByName(String name, SqlSession session) {
     UserMapper mapper = session.getMapper(UserMapper.class);
     return mapper.selectGroupByName(name);
   }
 
-
+  @CheckForNull
   public GroupDto selectGroupByName(String name) {
     SqlSession session = mybatis.openSession();
     try {

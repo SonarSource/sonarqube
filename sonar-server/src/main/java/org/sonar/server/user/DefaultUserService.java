@@ -19,23 +19,32 @@
  */
 package org.sonar.server.user;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import org.sonar.api.user.RubyUserService;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.user.UserDao;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.util.RubyUtils;
 
+import javax.annotation.CheckForNull;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultRubyUserService implements RubyUserService {
+public class DefaultUserService implements RubyUserService {
   private final UserFinder finder;
+  private final UserDao dao;
 
-  public DefaultRubyUserService(UserFinder finder) {
+  public DefaultUserService(UserFinder finder, UserDao dao) {
     this.finder = finder;
+    this.dao = dao;
   }
 
   @Override
+  @CheckForNull
   public User findByLogin(String login) {
     return finder.findByLogin(login);
   }
@@ -54,5 +63,17 @@ public class DefaultRubyUserService implements RubyUserService {
     builder.logins(RubyUtils.toStrings(params.get("logins")));
     builder.searchText((String)params.get("s"));
     return builder.build();
+  }
+
+  public void deactivate(String login) {
+    if (Strings.isNullOrEmpty(login)) {
+      throw new BadRequestException("Login is missing");
+    }
+    UserSession userSession = UserSession.get();
+    userSession.checkPermission(/* TODO replaced with permission constant */UserRole.ADMIN);
+    if (Objects.equal(userSession.login(), login)) {
+      throw new BadRequestException("Self-deactivation is not possible");
+    }
+    dao.deactivateUserByLogin(login);
   }
 }

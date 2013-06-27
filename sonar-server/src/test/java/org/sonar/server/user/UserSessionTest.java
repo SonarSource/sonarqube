@@ -20,15 +20,19 @@
 package org.sonar.server.user;
 
 import org.junit.Test;
-import org.sonar.server.user.UserSession;
+import org.sonar.core.user.AuthorizationDao;
+import org.sonar.server.exceptions.ForbiddenException;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UserSessionTest {
   @Test
-  public void should_get_anonymous_session_by_default() throws Exception {
+  public void getSession_get_anonymous_by_default() throws Exception {
     UserSession.remove();
 
     UserSession session = UserSession.get();
@@ -42,40 +46,67 @@ public class UserSessionTest {
   }
 
   @Test
-  public void should_set_session_from_jror() throws Exception {
-    UserSession.setSession(123, "karadoc", "fr");
+  public void getSession() throws Exception {
+    UserSession.set(new UserSession().setUserId(123).setLogin("karadoc").setLocale(Locale.FRENCH));
 
     UserSession session = UserSession.get();
-
     assertThat(session).isNotNull();
-    assertThat(session.login()).isEqualTo("karadoc");
     assertThat(session.userId()).isEqualTo(123);
+    assertThat(session.login()).isEqualTo("karadoc");
     assertThat(session.isLoggedIn()).isTrue();
     assertThat(session.locale()).isEqualTo(Locale.FRENCH);
   }
 
   @Test
-  public void should_set_anonymous_session_from_jror() throws Exception {
-    UserSession.setSession(null, null, "fr");
+  public void hasPermission() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao);
 
-    UserSession session = UserSession.get();
+    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("shareIssueFilter", "admin"));
 
-    assertThat(session).isNotNull();
+    assertThat(session.hasPermission("shareIssueFilter")).isTrue();
+    assertThat(session.hasPermission("admin")).isTrue();
+    assertThat(session.hasPermission("shareDashboard")).isFalse();
+  }
+
+  @Test
+  public void login_should_not_be_empty() throws Exception {
+    UserSession session = new UserSession().setLogin("");
     assertThat(session.login()).isNull();
-    assertThat(session.userId()).isNull();
     assertThat(session.isLoggedIn()).isFalse();
-    assertThat(session.locale()).isEqualTo(Locale.FRENCH);
   }
 
   @Test
-  public void should_get_session() throws Exception {
-    UserSession.set(new UserSession(123, "karadoc", Locale.FRENCH));
+  public void checkPermission_ok() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao);
 
-    UserSession session = UserSession.get();
-    assertThat(session).isNotNull();
-    assertThat(session.userId()).isEqualTo(123);
-    assertThat(session.login()).isEqualTo("karadoc");
-    assertThat(session.isLoggedIn()).isTrue();
-    assertThat(session.locale()).isEqualTo(Locale.FRENCH);
+    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("shareIssueFilter", "admin"));
+
+    session.checkPermission("shareIssueFilter");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void checkPermission_ko() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao);
+
+    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("shareIssueFilter", "admin"));
+
+    session.checkPermission("shareDashboard");
+  }
+
+  static class SpyUserSession extends UserSession {
+    private AuthorizationDao authorizationDao;
+
+    SpyUserSession(String login, AuthorizationDao authorizationDao) {
+      this.authorizationDao = authorizationDao;
+      setLogin(login);
+    }
+
+    @Override
+    AuthorizationDao authorizationDao() {
+      return authorizationDao;
+    }
   }
 }

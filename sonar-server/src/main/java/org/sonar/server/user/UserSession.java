@@ -20,30 +20,32 @@
 package org.sonar.server.user;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import org.sonar.core.user.AuthorizationDao;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.ui.JRubyI18n;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Locale;
 
 /**
  * Part of the current HTTP session
- *
- * @since 3.6
  */
 public class UserSession {
 
   private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<UserSession>();
-  private static final UserSession DEFAULT_ANONYMOUS = new UserSession(null, null, Locale.ENGLISH);
+  public static final UserSession ANONYMOUS = new UserSession();
 
-  private final Integer userId;
-  private final String login;
-  private final Locale locale;
+  private Integer userId;
+  private String login;
+  private Locale locale = Locale.ENGLISH;
+  List<String> permissions = null;
 
-  public UserSession(@Nullable Integer userId, @Nullable String login, @Nullable Locale locale) {
-    this.userId = userId;
-    this.login = login;
-    this.locale = Objects.firstNonNull(locale, Locale.ENGLISH);
+  UserSession() {
   }
 
   @CheckForNull
@@ -51,35 +53,77 @@ public class UserSession {
     return login;
   }
 
+  UserSession setLogin(@Nullable String s) {
+    this.login = Strings.emptyToNull(s);
+    return this;
+  }
+
   @CheckForNull
   public Integer userId() {
     return userId;
   }
 
+  UserSession setUserId(@Nullable Integer userId) {
+    this.userId = userId;
+    return this;
+  }
+
   public boolean isLoggedIn() {
-    return userId != null;
+    return login != null;
   }
 
   public Locale locale() {
     return locale;
   }
 
-  /**
-   * @return never null
-   */
-  public static UserSession get() {
-    return Objects.firstNonNull(THREAD_LOCAL.get(), DEFAULT_ANONYMOUS);
+  UserSession setLocale(@Nullable Locale l) {
+    this.locale = Objects.firstNonNull(l, Locale.ENGLISH);
+    return this;
   }
 
-  public static void set(@Nullable UserSession session) {
+  public UserSession checkLoggedIn() {
+    if (login==null) {
+      throw new UnauthorizedException();
+    }
+    return this;
+  }
+  /**
+   * Ensures that user implies the specified permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
+   */
+  public UserSession checkPermission(String permission) {
+    if (!hasPermission(permission)) {
+      throw new ForbiddenException();
+    }
+    return this;
+  }
+
+  /**
+   * Does the user have the given permission ?
+   */
+  public boolean hasPermission(String permission) {
+    return permissions().contains(permission);
+  }
+
+  List<String> permissions() {
+    if (permissions == null) {
+      permissions = authorizationDao().selectGlobalPermissions(login);
+    }
+    return permissions;
+  }
+
+  AuthorizationDao authorizationDao() {
+    return Platform.component(AuthorizationDao.class);
+  }
+
+  public static UserSession get() {
+    return Objects.firstNonNull(THREAD_LOCAL.get(), ANONYMOUS);
+  }
+
+  static void set(UserSession session) {
     THREAD_LOCAL.set(session);
   }
 
-  public static void setSession(@Nullable Integer userId, @Nullable String login, @Nullable String localeRubyKey) {
-    set(new UserSession(userId, login, JRubyI18n.toLocale(localeRubyKey)));
-  }
-
-  public static void remove() {
+  static void remove() {
     THREAD_LOCAL.remove();
   }
 

@@ -93,9 +93,9 @@ class ApplicationController < ActionController::Base
     end
 
     if current_user && current_user.id
-      Java::OrgSonarServerUser::UserSession.setSession(current_user.id.to_i, current_user.login, I18n.locale.to_s)
+      Java::OrgSonarServerUser::RubyUserSession.setSession(current_user.id.to_i, current_user.login, I18n.locale.to_s)
     else
-      Java::OrgSonarServerUser::UserSession.setSession(nil, nil, I18n.locale.to_s)
+      Java::OrgSonarServerUser::RubyUserSession.setSession(nil, nil, I18n.locale.to_s)
     end
   end
 

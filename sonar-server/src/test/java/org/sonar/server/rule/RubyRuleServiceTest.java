@@ -22,6 +22,7 @@ package org.sonar.server.rule;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.util.Locale;
@@ -37,7 +38,7 @@ public class RubyRuleServiceTest {
 
   @Test
   public void should_get_localized_rule_name() {
-    UserSession.set(new UserSession(123, "emmerik", Locale.FRENCH));
+    MockUserSession.set().setLocale(Locale.FRENCH);
     when(i18n.getName("squid", "AvoidCycle", Locale.FRENCH)).thenReturn("Eviter les cycles");
 
     String name = facade.ruleL10nName(new Rule("squid", "AvoidCycle"));
@@ -46,7 +47,7 @@ public class RubyRuleServiceTest {
 
   @Test
   public void should_get_raw_name_if_no_l10n_name() throws Exception {
-    UserSession.set(new UserSession(123, "emmerik", Locale.FRENCH));
+    MockUserSession.set().setLocale(Locale.FRENCH);
     when(i18n.getName("squid", "AvoidCycle", Locale.FRENCH)).thenReturn(null);
 
     Rule rule = new Rule("squid", "AvoidCycle");
@@ -57,7 +58,7 @@ public class RubyRuleServiceTest {
 
   @Test
   public void should_get_localized_rule_description() {
-    UserSession.set(new UserSession(123, "emmerik", Locale.FRENCH));
+    MockUserSession.set().setLocale(Locale.FRENCH);
     when(i18n.getDescription("squid", "AvoidCycle", Locale.FRENCH)).thenReturn("Les cycles sont le mal");
 
     String desc = facade.ruleL10nDescription(new Rule("squid", "AvoidCycle"));
@@ -66,7 +67,7 @@ public class RubyRuleServiceTest {
 
   @Test
   public void should_get_raw_description_if_no_l10n_description() throws Exception {
-    UserSession.set(new UserSession(123, "emmerik", Locale.FRENCH));
+    MockUserSession.set().setLocale(Locale.FRENCH);
     when(i18n.getDescription("squid", "AvoidCycle", Locale.FRENCH)).thenReturn(null);
 
     Rule rule = new Rule("squid", "AvoidCycle");
