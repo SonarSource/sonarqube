@@ -88,22 +88,6 @@ class User < ActiveRecord::Base
     name.downcase<=>other.name.downcase
   end
 
-  # SONAR-3258 : we do not delete users anymore. Users are just deactivated.
-  # However, all related data is removed from the DB.
-  def deactivate
-    self.active = false
-    self.groups.clear
-
-    # do not validate user, for example when user created via SSO has no password
-    self.save(false)
-    self.user_roles.clear
-    self.properties.clear
-    self.dashboards.clear
-    self.active_dashboards.clear
-    self.measure_filter_favourites.clear
-    self.measure_filters.clear
-  end
-
   # SONAR-3258
   def reactivate!(default_group_name)
     if default_group_name

@@ -123,6 +123,11 @@ class Api::UsersController < Api::ApiController
   end
 
 
+  def delete
+    # TODO : DROP
+    deactivate
+  end
+
   #
   # POST /api/users/delete
   #
@@ -130,27 +135,20 @@ class Api::UsersController < Api::ApiController
   # 'login' is the user identifier
   #
   # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/users/delete?login=user'
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/users/deactivate?login=<the user to deactivate>'
   #
   # since 3.7
   #
-  def delete
+  def deactivate
     verify_post_request
-    access_denied unless has_role?(:admin)
     require_parameters :login
 
-    @user = User.find_active_by_login(params[:login])
+    Api.users.deactivate(params[:login])
 
-    if @user.nil?
-      render_bad_request "Could not find user with login #{params[:login]}"
-    elsif @user == current_user || @user.login == 'admin'
-      render_bad_request "Cannot delete user #{params[:login]}"
-    else
-      if @user.deactivate
-        render_success "Successfully deleted user #{params[:login]}"
-      else
-        render_error("Could not delete user #{params[:login]}")
-      end
+    hash={}
+    respond_to do |format|
+      format.json { render :json => jsonp(hash) }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'users') }
     end
   end
 

@@ -136,7 +136,7 @@ class UsersController < ApplicationController
       flash[:error] = 'Please log in with another user in order to delete yourself.'
 
     else
-      @user.deactivate
+      Api.users.deactivate(@user.login)
       flash[:notice] = 'User is deleted.'
     end
 
