@@ -90,7 +90,7 @@ public class AuthorizationDao implements ServerComponent {
     return session.selectList(sql, params);
   }
 
-  public List<String> selectGlobalPermissions(String userLogin){
+  public List<String> selectGlobalPermissions(@Nullable String userLogin){
     SqlSession session = mybatis.openSession();
     try {
       Map<String, Object> params = newHashMap();

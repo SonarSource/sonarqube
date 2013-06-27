@@ -68,14 +68,34 @@
   </sql>
 
   <select id="selectGlobalPermissions" parameterType="map" resultType="String">
-    SELECT gr.role
-    FROM group_roles gr
-    inner join groups_users gu on gu.group_id=gr.id
-    inner join users u on u.id=gu.user_id
-    <where>
-      u.login=#{userLogin}
-      and gr.resource_id  is null
-    </where>
+    <choose>
+      <when test="userLogin != null">
+        SELECT gr.role
+        FROM group_roles gr
+        INNER JOIN groups_users gu on gu.group_id=gr.id
+        INNER JOIN users u on u.id=gu.user_id
+        <where>
+          and u.login=#{userLogin}
+          and gr.resource_id is null
+        </where>
+        UNION
+        SELECT ur.role
+        FROM user_roles ur
+        INNER JOIN users u on u.id=ur.user_id
+        <where>
+          and u.login=#{userLogin}
+          and ur.resource_id is null
+        </where>
+      </when>
+      <otherwise>
+        SELECT gr.role
+        FROM group_roles gr
+        <where>
+          and gr.resource_id is null
+          and gr.group_id is null
+        </where>
+      </otherwise>
+    </choose>
   </select>
 
 </mapper>

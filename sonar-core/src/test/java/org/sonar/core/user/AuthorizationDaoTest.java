@@ -152,12 +152,30 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_return_global_permissions() {
-    setupData("should_return_global_permissions");
+  public void should_return_user_global_permissions() {
+    setupData("should_return_user_global_permissions");
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     assertThat(authorization.selectGlobalPermissions("john")).containsOnly("user", "admin");
     assertThat(authorization.selectGlobalPermissions("arthur")).containsOnly("user");
     assertThat(authorization.selectGlobalPermissions("none")).isEmpty();
+  }
+
+  @Test
+  public void should_return_group_global_permissions() {
+    setupData("should_return_group_global_permissions");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    assertThat(authorization.selectGlobalPermissions("john")).containsOnly("user", "admin");
+    assertThat(authorization.selectGlobalPermissions("arthur")).containsOnly("user");
+    assertThat(authorization.selectGlobalPermissions("none")).isEmpty();
+  }
+
+  @Test
+  public void should_return_global_permissions_for_anonymous() {
+    setupData("should_return_global_permissions_for_anonymous");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    assertThat(authorization.selectGlobalPermissions(null)).containsOnly("user", "admin");
   }
 }
