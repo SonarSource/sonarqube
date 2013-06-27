@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
@@ -34,7 +35,6 @@ import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
-import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.MockUserSession;
@@ -573,11 +573,11 @@ public class IssueFilterServiceTest {
     public boolean matches(Object o) {
       if(o != null && o instanceof IssueFilterDto) {
         IssueFilterDto otherFilter = (IssueFilterDto) o;
-        return referenceFilter.isShared() == otherFilter.isShared()
-          && referenceFilter.getUserLogin() == otherFilter.getUserLogin()
-          && referenceFilter.getDescription() == otherFilter.getDescription()
-          && referenceFilter.getName() == otherFilter.getName()
-          && referenceFilter.getData() == otherFilter.getData();
+        return ObjectUtils.equals(referenceFilter.isShared(), otherFilter.isShared())
+          && ObjectUtils.equals(referenceFilter.getUserLogin(), otherFilter.getUserLogin())
+          && ObjectUtils.equals(referenceFilter.getDescription(), otherFilter.getDescription())
+          && ObjectUtils.equals(referenceFilter.getName(), otherFilter.getName())
+          && ObjectUtils.equals(referenceFilter.getData(), otherFilter.getData());
       }
       return false;
     }

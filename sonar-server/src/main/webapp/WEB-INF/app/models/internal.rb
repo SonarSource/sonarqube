@@ -46,6 +46,10 @@ class Internal
     component(Java::OrgSonarApiComponent::RubyComponentService.java_class)
   end
 
+  def self.permissions
+    component(Java::OrgSonarServerPermission::InternalPermissionService.java_class)
+  end
+
   private
   def self.component(component_java_class)
     Java::OrgSonarServerPlatform::Platform.component(component_java_class)

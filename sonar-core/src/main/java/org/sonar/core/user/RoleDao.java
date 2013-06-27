@@ -25,6 +25,8 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.core.persistence.MyBatis;
 
+import java.util.List;
+
 public class RoleDao implements TaskExtension, ServerExtension {
 
   private final MyBatis mybatis;
@@ -33,9 +35,49 @@ public class RoleDao implements TaskExtension, ServerExtension {
     this.mybatis = mybatis;
   }
 
+  public List<String> selectUserPermissions(String userLogin) {
+    SqlSession session = mybatis.openSession();
+    RoleMapper mapper = session.getMapper(RoleMapper.class);
+    try {
+      return mapper.selectUserPermissions(userLogin);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<String> selectGroupPermissions(String groupName) {
+    SqlSession session = mybatis.openSession();
+    RoleMapper mapper = session.getMapper(RoleMapper.class);
+    try {
+      return mapper.selectGroupPermissions(groupName);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void insertGroupRole(GroupRoleDto groupRole) {
+    SqlSession session = mybatis.openSession();
+    try {
+      insertGroupRole(groupRole, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public void insertGroupRole(GroupRoleDto groupRole, SqlSession session) {
     RoleMapper mapper = session.getMapper(RoleMapper.class);
     mapper.insertGroupRole(groupRole);
+  }
+
+  public void insertUserRole(UserRoleDto userRole) {
+    SqlSession session = mybatis.openSession();
+    try {
+      insertUserRole(userRole, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public void insertUserRole(UserRoleDto userRole, SqlSession session) {
@@ -43,9 +85,29 @@ public class RoleDao implements TaskExtension, ServerExtension {
     mapper.insertUserRole(userRole);
   }
 
+  public void deleteUserRole(UserRoleDto userRole) {
+    SqlSession session = mybatis.openSession();
+    try {
+      deleteUserRole(userRole, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public void deleteUserRole(UserRoleDto userRole, SqlSession session) {
     RoleMapper mapper = session.getMapper(RoleMapper.class);
     mapper.deleteUserRole(userRole);
+  }
+
+  public void deleteGroupRole(GroupRoleDto groupRole) {
+    SqlSession session = mybatis.openSession();
+    try {
+      deleteGroupRole(groupRole, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public void deleteGroupRole(GroupRoleDto groupRole, SqlSession session) {

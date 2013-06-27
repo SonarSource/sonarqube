@@ -1,0 +1,10 @@
+<dataset>
+
+  <groups id="100" name="sonar-administrators"/>
+  <groups id="101" name="sonar-users"/>
+
+  <group_roles id="1" group_id="100" role="admin"/>
+  <group_roles id="3" group_id="100" role="sharedashboard"/>
+  <group_roles id="4" group_id="101" role="sharedashboard"/>
+
+</dataset>

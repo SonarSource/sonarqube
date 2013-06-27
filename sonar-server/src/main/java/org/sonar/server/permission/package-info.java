@@ -17,32 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
 
-import java.util.List;
+@ParametersAreNonnullByDefault
+package org.sonar.server.permission;
 
-/**
- * @since 3.2
- */
-public interface RoleMapper {
-
-  List<String> selectUserPermissions(String userLogin);
-
-  List<String> selectGroupPermissions(String groupName);
-
-  void insertGroupRole(GroupRoleDto groupRole);
-
-  void insertUserRole(UserRoleDto userRole);
-
-  void deleteUserRole(UserRoleDto userRole);
-
-  void deleteGroupRole(GroupRoleDto groupRole);
-
-  void deleteGroupRolesByResourceId(Long resourceId);
-
-  void deleteUserRolesByResourceId(Long resourceId);
-
-  int countGroupRoles(Long resourceId);
-
-  int countUserRoles(Long resourceId);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

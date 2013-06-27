@@ -76,6 +76,7 @@ import org.sonar.server.database.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.*;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
+import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rule.RubyRuleService;
@@ -254,6 +255,7 @@ public final class Platform {
     servicesContainer.addSingleton(NewUserNotifier.class);
     servicesContainer.addSingleton(DefaultUserFinder.class);
     servicesContainer.addSingleton(DefaultUserService.class);
+    servicesContainer.addSingleton(InternalPermissionService.class);
 
     // components
     servicesContainer.addSingleton(DefaultRubyComponentService.class);

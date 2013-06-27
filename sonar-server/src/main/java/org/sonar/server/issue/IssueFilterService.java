@@ -28,13 +28,13 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
+import org.sonar.core.user.Permissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
@@ -95,7 +95,7 @@ public class IssueFilterService implements ServerComponent {
     IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilter.id(), user);
     verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user, userSession);
 
-    if (!issueFilterDto.getUserLogin().equals(issueFilter.user()) && !userSession.hasPermission(UserRole.ADMIN)) {
+    if (!issueFilterDto.getUserLogin().equals(issueFilter.user()) && !userSession.hasPermission(Permissions.SYSTEM_ADMIN)) {
       throw new ForbiddenException("User is not authorized to change the owner of this filter");
     }
 
@@ -190,7 +190,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   private void verifyCurrentUserCanModifyFilter(DefaultIssueFilter issueFilter, String user, UserSession userSession) {
-    if (!issueFilter.user().equals(user) && !userSession.hasPermission(UserRole.ADMIN)) {
+    if (!issueFilter.user().equals(user) && !userSession.hasPermission(Permissions.SYSTEM_ADMIN)) {
       throw new ForbiddenException("User is not authorized to modify this filter");
     }
   }

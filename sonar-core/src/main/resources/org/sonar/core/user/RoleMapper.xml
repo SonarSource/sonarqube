@@ -3,6 +3,22 @@
 
 <mapper namespace="org.sonar.core.user.RoleMapper">
 
+  <select id="selectUserPermissions" parameterType="String" resultType="String">
+    SELECT ur.role
+    FROM user_roles ur
+    INNER JOIN users u ON u.id = ur.user_id
+    WHERE u.login = #{userLogin}
+      AND ur.resource_id IS NULL
+  </select>
+
+  <select id="selectGroupPermissions" parameterType="String" resultType="String">
+    SELECT gr.role
+    FROM group_roles gr
+    INNER JOIN groups g ON g.id = gr.group_id
+    WHERE g.name = #{groupName}
+      AND gr.resource_id IS NULL
+  </select>
+
   <insert id="insertGroupRole" parameterType="GroupRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO group_roles (group_id, resource_id, role)
     VALUES (#{groupId}, #{resourceId}, #{role})
@@ -14,19 +30,41 @@
   </insert>
 
   <delete id="deleteGroupRole" parameterType="map">
-    delete from group_roles where resource_id=#{resourceId} and role=#{role}
+    DELETE FROM group_roles
+    WHERE role=#{role}
+    AND
     <choose>
-      <when test="groupId != null">
-        and group_id=#{groupId}
+      <when test="resourceId != null">
+        resource_id=#{resourceId}
       </when>
       <otherwise>
-        and group_id is null
+        resource_id IS NULL
+      </otherwise>
+    </choose>
+    AND
+    <choose>
+      <when test="groupId != null">
+        group_id=#{groupId}
+      </when>
+      <otherwise>
+        group_id IS NULL
       </otherwise>
     </choose>
   </delete>
 
   <delete id="deleteUserRole" parameterType="map">
-    delete from user_roles where resource_id=#{resourceId} and user_id=#{userId} and role=#{role}
+    DELETE FROM user_roles
+    WHERE user_id=#{userId}
+    AND role=#{role}
+    AND
+    <choose>
+      <when test="resourceId != null">
+        resource_id=#{resourceId}
+      </when>
+      <otherwise>
+        resource_id IS NULL
+      </otherwise>
+    </choose>
   </delete>
 
   <delete id="deleteGroupRolesByResourceId" parameterType="long">

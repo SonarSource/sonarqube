@@ -17,32 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.user;
 
-import java.util.List;
-
 /**
- * @since 3.2
+ *
+ * Holds the constants representing the various permissions that can be assigned to users & groups
+ *
+ * Since 3.7
  */
-public interface RoleMapper {
+public interface Permissions {
 
-  List<String> selectUserPermissions(String userLogin);
-
-  List<String> selectGroupPermissions(String groupName);
-
-  void insertGroupRole(GroupRoleDto groupRole);
-
-  void insertUserRole(UserRoleDto userRole);
-
-  void deleteUserRole(UserRoleDto userRole);
-
-  void deleteGroupRole(GroupRoleDto groupRole);
-
-  void deleteGroupRolesByResourceId(Long resourceId);
-
-  void deleteUserRolesByResourceId(Long resourceId);
-
-  int countGroupRoles(Long resourceId);
-
-  int countUserRoles(Long resourceId);
+  public static final String SYSTEM_ADMIN = "admin";
+  public static final String QUALITY_PROFILE_ADMIN = "profileadmin";
+  public static final String DASHBOARD_SHARING = "sharedashboard";
+  public static final String SCAN_EXECUTION = "scan";
+  public static final String DRY_RUN_EXECUTION = "dryrun";
 }
