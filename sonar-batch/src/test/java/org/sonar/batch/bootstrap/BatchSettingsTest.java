@@ -146,7 +146,7 @@ public class BatchSettingsTest {
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     thrown.expect(SonarException.class);
     thrown
-        .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin accessing to this property must be deactivated in dry run mode.");
+        .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin which requires this property must be deactivated in dry run mode.");
     batchSettings.getString("sonar.foo.secured");
   }
 
