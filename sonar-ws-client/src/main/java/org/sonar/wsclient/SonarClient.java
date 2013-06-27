@@ -21,9 +21,11 @@ package org.sonar.wsclient;
 
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.ActionPlanClient;
+import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.internal.DefaultActionPlanClient;
 import org.sonar.wsclient.issue.internal.DefaultIssueClient;
-import org.sonar.wsclient.issue.IssueClient;
+import org.sonar.wsclient.permissions.DefaultPermissionClient;
+import org.sonar.wsclient.permissions.PermissionClient;
 import org.sonar.wsclient.user.DefaultUserClient;
 import org.sonar.wsclient.user.UserClient;
 
@@ -81,6 +83,13 @@ public class SonarClient {
    */
   public UserClient userClient() {
     return new DefaultUserClient(requestFactory);
+  }
+
+  /**
+   * New client to interact with web services related to users and groups permissions
+   */
+  public PermissionClient permissionClient() {
+    return new DefaultPermissionClient(requestFactory);
   }
 
   /**
