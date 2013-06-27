@@ -28,9 +28,24 @@ public interface UserClient {
 
   List<User> find(UserQuery query);
 
+  /**
+   * @since 3.7
+   */
   User create(UserParameters userParameters);
 
+  /**
+   * @since 3.7
+   */
   User update(UserParameters userParameters);
 
+  /**
+   * TODO to remove
+   */
+  @Deprecated
   void delete(UserParameters userParameters);
+
+  /**
+   * @since 3.7
+   */
+  void deactivate(String login);
 }

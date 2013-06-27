@@ -23,6 +23,7 @@ import org.json.simple.JSONValue;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class DefaultUserClient implements UserClient {
   private static final String SEARCH_URL = BASE_URL + "search";
   private static final String CREATE_URL = BASE_URL + "create";
   private static final String UPDATE_URL = BASE_URL + "update";
-  private static final String DELETE_URL = BASE_URL + "delete";
+  private static final String DEACTIVATE_URL = BASE_URL + "deactivate";
 
   private final HttpRequestFactory requestFactory;
 
@@ -76,8 +77,18 @@ public class DefaultUserClient implements UserClient {
     return new User(jsonUser);
   }
 
+  /**
+   * TODO to be removed
+   */
   @Override
   public void delete(UserParameters userParameters) {
-    requestFactory.post(DELETE_URL, userParameters.urlParams());
+    requestFactory.post(DEACTIVATE_URL, userParameters.urlParams());
+  }
+
+  @Override
+  public void deactivate(String login) {
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("login", login);
+    requestFactory.post(DEACTIVATE_URL, params);
   }
 }

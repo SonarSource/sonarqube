@@ -89,13 +89,12 @@ public class DefaultUserClientTest {
   }
   
   @Test
-  public void should_delete_user() throws Exception {
+  public void should_deactivate_user() throws Exception {
     httpServer.stubStatusCode(200);
 
-    UserParameters params = UserParameters.create().login("daveloper");
-    client.delete(params);
+    client.deactivate("daveloper");
 
-    assertThatRequestUrlContains("/api/users/delete?", "login=daveloper");
+    assertThatRequestUrlContains("/api/users/deactivate?", "login=daveloper");
   }
 
   private void assertThatRequestUrlContains(String baseUrl, String... parameters) {
