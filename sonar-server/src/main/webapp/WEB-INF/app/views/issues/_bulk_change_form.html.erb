@@ -1,19 +1,20 @@
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
   <input type="hidden" name="issues" value="<%= @issues.join(',') -%>">
   <input type="hidden" name="criteria_params" value="<%= @criteria_params.to_query -%>">
+  <input type="hidden" name="actions[]" id="bulk-change-transition-action" value="">
   <fieldset>
     <div class="modal-head">
       <h2><%= message('issue_filter.bulk_change.form.title', {:params => @issues.size.to_s}) -%></h2>
     </div>
     <div class="modal-body">
-      <div class="bulk-change errors" style="display:none;" />
+      <div class="bulk-change errors" style="display:none;"/>
       <div class="modal-field">
         <label for="assignee">
           <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
           <%= message('issue.assign.formlink') -%>
         </label>
         <%= user_select_tag('assign.assignee', :html_id => 'assignee', :open => false,
-          :include_choices => {'' => escape_javascript(message('unassign')), current_user.login => escape_javascript(message('assign_to_me'))}) -%>
+                            :include_choices => {'' => escape_javascript(message('unassign')), current_user.login => escape_javascript(message('assign_to_me'))}) -%>
       </div>
       <%
          if @project && !@project.blank?
@@ -56,7 +57,8 @@
         <%
            @transitions_by_issues.keys.each do |transition|
         %>
-          <input type="radio" name="transition" value="<%= transition -%>"><%= message("issue.transition.#{transition}") -%> (<%= @transitions_by_issues[transition].to_s %>) <br>
+          <input type="radio" name="transition.transition" value="<%= transition -%>" onClick="addTransitionAction();"><%= message("issue.transition.#{transition}") -%>
+          (<%= @transitions_by_issues[transition].to_s %>) <br>
         <% end %>
       </div>
     </div>
@@ -78,4 +80,8 @@
       $j('.' + htmlClass + '.errors').html(xhr.responseText);
     }
   });
+
+  function addTransitionAction() {
+    $j('#bulk-change-transition-action').val("transition");
+  }
 </script>
