@@ -1,19 +1,12 @@
-<%
-   project = params[:project] || @project
-   issues = params[:issues].split(',') if params[:issues]
-   issues = @issues unless issues
-%>
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
-  <input type="hidden" name="issues" value="<%= params[:issues] || @issues.join(',') -%>">
-  <input type="hidden" name="criteria_params" value="<%= params[:criteria_params] || @criteria_params.to_query -%>">
-  <input type="hidden" name="issues_by_transitions" value="<%= @transitions_by_issues.to_query -%>">
-  <input type="hidden" name="project" value="<%= project -%>">
+  <input type="hidden" name="issues" value="<%= @issues.join(',') -%>">
+  <input type="hidden" name="criteria_params" value="<%= @criteria_params.to_query -%>">
   <fieldset>
     <div class="modal-head">
-      <h2><%= message('issue_filter.bulk_change.form.title', {:params => issues.size.to_s}) -%></h2>
+      <h2><%= message('issue_filter.bulk_change.form.title', {:params => @issues.size.to_s}) -%></h2>
     </div>
     <div class="modal-body">
-      <%= render :partial => 'display_errors' %>
+      <div class="bulk-change errors" style="display:none;" />
       <div class="modal-field">
         <label for="assignee">
           <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
@@ -23,8 +16,8 @@
           :include_choices => {'' => escape_javascript(message('unassign')), current_user.login => escape_javascript(message('assign_to_me'))}) -%>
       </div>
       <%
-         if project && !project.blank?
-           plans = Internal.issues.findOpenActionPlans(project)
+         if @project && !@project.blank?
+           plans = Internal.issues.findOpenActionPlans(@project)
            plan_options = ""
            unless plans.empty?
              first_plan = plans[0]
@@ -68,13 +61,21 @@
       </div>
     </div>
     <div class="modal-foot">
-      <input type="submit" value="<%= message('submit') -%>" id="bulk-change-submit"/>
+      <input type="submit" value="<%= message('submit') -%>" id="bulk-change-submit" class="bulk-change"/>
       <a href="#" onclick="return closeModalWindow()" id="bulk-change-cancel"><%= message('cancel') -%></a>
     </div>
   </fieldset>
 </form>
 <script>
-  $j("#bulk-change-form").modalForm({success: function (data) {
-    window.location = baseUrl + '/issues/search?' + data;
-  }});
+  $j("#bulk-change-form").modalForm({
+    success: function (data) {
+      window.location = baseUrl + '/issues/search?' + data;
+    },
+    error: function (xhr, textStatus, errorThrown) {
+      var htmlClass = 'bulk-change';
+      $j('.' + htmlClass + ' input[type=submit]').removeAttr('disabled');
+      $j('.' + htmlClass + '.errors').show();
+      $j('.' + htmlClass + '.errors').html(xhr.responseText);
+    }
+  });
 </script>

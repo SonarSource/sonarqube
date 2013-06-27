@@ -2,14 +2,14 @@
      display_owner = false
    end %>
 <div class="modal-body">
-  <%= render :partial => 'display_errors' %>
+  <div class="issue-filter errors" style="display:none;" />
   <div class="modal-field">
     <label for="name"><%= message('issue_filter.form.name') -%> <em class="mandatory">*</em></label>
-    <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= params[:name] || (h(@filter.name) if @filter) -%>" autofocus="autofocus"/>
+    <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h(@filter.name) if @filter -%>" autofocus="autofocus"/>
   </div>
   <div class="modal-field">
     <label for="description"><%= message('issue_filter.form.description') -%></label>
-    <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= params[:description] || (h(@filter.description) if @filter)  -%>"/>
+    <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h(@filter.description) if @filter  -%>"/>
   </div>
   <% if display_owner && can_be_reassigned_by(current_user, @filter) %>
     <% filter_owner = Api.users.findByLogin(@filter.user) %>
@@ -17,9 +17,11 @@
       <label for="user"><%= h message('issue_filter.form.owner') -%></label>
       <%= user_select_tag('user', :html_id => 'select-filter-owner', :selected_user => filter_owner) -%>
     </div>
+  <% else %>
+    <input id="user" name="user" type="hidden" value="<%= h(@filter.user) if @filter -%>"/>
   <% end %>
   <div class="modal-field">
     <label for="shared"><%= message('issue_filter.form.share') -%></label>
-    <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if (params[:shared] || (@filter && @filter.shared)) -%>/>
+    <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if (@filter && @filter.shared) -%>/>
   </div>
 </div>

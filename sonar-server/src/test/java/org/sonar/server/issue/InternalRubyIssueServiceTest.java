@@ -320,6 +320,7 @@ public class InternalRubyIssueServiceTest {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
+    parameters.put("user", "John");
 
     doThrow(new RuntimeException("Error")).when(issueFilterService).save(any(DefaultIssueFilter.class), any(UserSession.class));
     Result result = service.createIssueFilter(parameters);
@@ -333,6 +334,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("id", "10");
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
+    parameters.put("user", "John");
 
     Result<DefaultIssueFilter> result = service.updateIssueFilter(parameters);
     assertThat(result.ok()).isTrue();
@@ -358,6 +360,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("id", "10");
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
+    parameters.put("user", "John");
 
     doThrow(new RuntimeException("Error")).when(issueFilterService).update(any(DefaultIssueFilter.class), any(UserSession.class));
     Result result = service.updateIssueFilter(parameters);
@@ -414,6 +417,7 @@ public class InternalRubyIssueServiceTest {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Copy of Long term");
     parameters.put("description", "Copy of Long term issues");
+    parameters.put("user", "John");
 
     doThrow(new RuntimeException("Error")).when(issueFilterService).copy(anyLong(), any(DefaultIssueFilter.class), any(UserSession.class));
     Result result = service.copyIssueFilter(1L, parameters);
@@ -422,48 +426,77 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_issue_filter_result_when_no_name() {
+  public void should_get_error_on_create_issue_filter_result_when_no_name() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", null);
     parameters.put("description", "Long term issues");
+    parameters.put("user", "John");
 
-    Result result = service.createIssueFilterResult(parameters, false);
+    Result result = service.createIssueFilterResultForNew(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "name"));
   }
 
   @Test
-  public void should_get_error_on_issue_filter_result_when_name_is_too_long() {
+  public void should_get_error_on_create_issue_filter_result_when_name_is_too_long() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", createLongString(101));
     parameters.put("description", "Long term issues");
+    parameters.put("user", "John");
 
-    Result result = service.createIssueFilterResult(parameters, false);
+    Result result = service.createIssueFilterResultForNew(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "name", 100));
   }
 
   @Test
-  public void should_get_error_on_issue_filter_result_when_description_is_too_long() {
+  public void should_get_error_on_create_issue_filter_result_when_description_is_too_long() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", createLongString(4001));
+    parameters.put("user", "John");
 
-    Result result = service.createIssueFilterResult(parameters, false);
+    Result result = service.createIssueFilterResultForNew(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "description", 4000));
   }
 
   @Test
-  public void should_get_error_on_issue_filter_result_when_id_is_null_on_update() {
+  public void should_get_error_on_create_issue_filter_result_when_id_is_null_on_update() {
     Map<String, String> parameters = newHashMap();
     parameters.put("id", null);
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
+    parameters.put("user", "John");
 
-    Result result = service.createIssueFilterResult(parameters, true);
+    Result result = service.createIssueFilterResultForUpdate(parameters);
     assertThat(result.ok()).isFalse();
     assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "id"));
+  }
+
+  @Test
+  public void should_get_error_on_create_issue_filter_result_when_user_is_null_on_update() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("id", "10");
+    parameters.put("name", "All Open Issues");
+    parameters.put("description", "Long term issues");
+    parameters.put("user", null);
+
+    Result result = service.createIssueFilterResultForUpdate(parameters);
+    assertThat(result.ok()).isFalse();
+    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "user"));
+  }
+
+  @Test
+  public void should_get_no_error_on_issue_filter_result_when_id_and_user_are_null_on_copy() {
+    Map<String, String> parameters = newHashMap();
+    parameters.put("id", null);
+    parameters.put("name", "Long term");
+    parameters.put("description", "Long term issues");
+    parameters.put("user", null);
+
+    Result result = service.createIssueFilterResultForCopy(parameters);
+    assertThat(result.ok()).isTrue();
   }
 
   @Test

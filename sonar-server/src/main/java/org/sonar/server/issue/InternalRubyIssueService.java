@@ -459,7 +459,7 @@ public class InternalRubyIssueService implements ServerComponent {
    * Create issue filter
    */
   public Result<DefaultIssueFilter> createIssueFilter(Map<String, String> parameters) {
-    Result<DefaultIssueFilter> result = createIssueFilterResult(parameters, false);
+    Result<DefaultIssueFilter> result = createIssueFilterResultForNew(parameters);
     if (result.ok()) {
       try {
         result.set(issueFilterService.save(result.get(), UserSession.get()));
@@ -474,7 +474,7 @@ public class InternalRubyIssueService implements ServerComponent {
    * Update issue filter
    */
   public Result<DefaultIssueFilter> updateIssueFilter(Map<String, String> parameters) {
-    Result<DefaultIssueFilter> result = createIssueFilterResult(parameters, true);
+    Result<DefaultIssueFilter> result = createIssueFilterResultForUpdate(parameters);
     if (result.ok()) {
       try {
         result.set(issueFilterService.update(result.get(), UserSession.get()));
@@ -515,7 +515,7 @@ public class InternalRubyIssueService implements ServerComponent {
    * Copy issue filter
    */
   public Result<DefaultIssueFilter> copyIssueFilter(Long issueFilterIdToCopy, Map<String, String> parameters) {
-    Result<DefaultIssueFilter> result = createIssueFilterResult(parameters, false);
+    Result<DefaultIssueFilter> result = createIssueFilterResultForCopy(parameters);
     if (result.ok()) {
       try {
         result.set(issueFilterService.copy(issueFilterIdToCopy, result.get(), UserSession.get()));
@@ -527,7 +527,22 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   @VisibleForTesting
-  Result<DefaultIssueFilter> createIssueFilterResult(Map<String, String> params, boolean isUpdate) {
+  Result<DefaultIssueFilter> createIssueFilterResultForNew(Map<String, String> params) {
+    return createIssueFilterResult(params, false, false);
+  }
+
+  @VisibleForTesting
+  Result<DefaultIssueFilter> createIssueFilterResultForUpdate(Map<String, String> params) {
+    return createIssueFilterResult(params, true, true);
+  }
+
+  @VisibleForTesting
+  Result<DefaultIssueFilter> createIssueFilterResultForCopy(Map<String, String> params) {
+    return createIssueFilterResult(params, false, false);
+  }
+
+  @VisibleForTesting
+  Result<DefaultIssueFilter> createIssueFilterResult(Map<String, String> params, boolean showCheckId, boolean showCheckUser) {
     Result<DefaultIssueFilter> result = Result.of();
 
     String id = params.get("id");
@@ -538,8 +553,11 @@ public class InternalRubyIssueService implements ServerComponent {
     Boolean sharedParam = RubyUtils.toBoolean(params.get("shared"));
     boolean shared = sharedParam != null ? sharedParam : false;
 
-    if (isUpdate) {
+    if (showCheckId) {
       checkMandatoryParameter(id, "id", result);
+    }
+    if (showCheckUser) {
+      checkMandatoryParameter(user, "user", result);
     }
     checkMandatorySizeParameter(name, "name", 100, result);
     checkOptionalSizeParameter(description, "description", 4000, result);
@@ -550,7 +568,7 @@ public class InternalRubyIssueService implements ServerComponent {
         .setShared(shared)
         .setUser(user)
         .setData(data);
-      if (isUpdate) {
+      if (!Strings.isNullOrEmpty(id)) {
         defaultIssueFilter.setId(Long.valueOf(id));
       }
 

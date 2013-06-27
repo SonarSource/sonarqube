@@ -86,7 +86,7 @@ class IssuesController < ApplicationController
       render :text => @filter.id.to_s, :status => 200
     else
       @errors = filter_result.errors
-      render :partial => 'issues/filter_save_as_form', :status => 400
+      render :partial => 'issues/display_errors', :status => 400
     end
   end
 
@@ -131,7 +131,7 @@ class IssuesController < ApplicationController
       render :text => @filter.id.to_s, :status => 200
     else
       @errors = filter_result.errors
-      render :partial => 'issues/filter_edit_form', :status => 400
+      render :partial => 'issues/display_errors', :status => 400
     end
   end
 
@@ -154,7 +154,7 @@ class IssuesController < ApplicationController
       render :text => @filter.id.to_s, :status => 200
     else
       @errors = filter_result.errors
-      render :partial => 'issues/filter_copy_form', :status => 400
+      render :partial => 'issues/display_errors', :status => 400
     end
   end
 
@@ -212,7 +212,7 @@ class IssuesController < ApplicationController
       render :text => params[:criteria_params], :status => 200
     else
       @errors = result.errors
-      render :partial => 'issues/bulk_change_form', :status => 400
+      render :partial => 'issues/display_errors', :status => 400
     end
   end
 
