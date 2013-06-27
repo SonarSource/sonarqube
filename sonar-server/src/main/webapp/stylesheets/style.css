@@ -1427,7 +1427,7 @@ ul.headerLine select, ul.headerLine input, ul.headerLine button, ul.headerLine t
   vertical-align: middle;
 }
 
-select.withIcons option {
+select.withIcons option, span.withIcons {
   background-repeat: no-repeat;
   background-position: 2px 0;
   padding: 0 2px 0 22px;
@@ -1450,23 +1450,23 @@ option.status_closed {
   background-image: url('../images/status/CLOSED.png');
 }
 
-option.sev_INFO {
+option.sev_INFO, span.sev_INFO {
   background-image: url('../images/priority/INFO.png');
 }
 
-option.sev_MINOR {
+option.sev_MINOR, span.sev_MINOR {
   background-image: url('../images/priority/MINOR.png');
 }
 
-option.sev_MAJOR {
+option.sev_MAJOR, span.sev_MAJOR {
   background-image: url('../images/priority/MAJOR.png');
 }
 
-option.sev_CRITICAL {
+option.sev_CRITICAL, span.sev_CRITICAL {
   background-image: url('../images/priority/CRITICAL.png');
 }
 
-option.sev_BLOCKER {
+option.sev_BLOCKER, span.sev_BLOCKER {
   background-image: url('../images/priority/BLOCKER.png');
 }
 
@@ -2329,6 +2329,10 @@ ul.modal-head-metadata li {
   word-wrap: break-word;
   position: relative;
   padding-top: 5px;
+}
+
+.modal-field input {
+  position: relative;
 }
 
 .modal-foot {

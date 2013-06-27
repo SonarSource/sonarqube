@@ -48,4 +48,13 @@ module IssuesHelper
     user.has_role?(:admin) && filter.shared
   end
 
+  def severitiy_select_option_tags
+    options = ''
+    Severity::KEYS.each do |severity|
+      selected = (severity == Severity::MAJOR ? 'selected' : '')
+      options += "<option #{selected} value='#{ severity }' class='sev_#{ severity } '>#{ message('severity.'+ severity) }</option>"
+    end
+    options
+  end
+
 end

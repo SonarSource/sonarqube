@@ -10,9 +10,9 @@
       <div class="bulk-change errors" style="display:none;"/>
       <div class="modal-field">
         <label for="assignee">
-          <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
           <%= message('issue.assign.formlink') -%>
         </label>
+        <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
         <%= user_select_tag('assign.assignee', :html_id => 'assignee', :open => false,
                             :include_choices => {'' => escape_javascript(message('unassign')), current_user.login => escape_javascript(message('assign_to_me'))}) -%>
       </div>
@@ -36,28 +36,23 @@
       %>
         <div class="modal-field">
           <label for="plan">
-            <input id="plan-action" name="actions[]" type="checkbox" value="plan"/>
             <%= message('issue.do_plan') -%>
           </label>
+          <input id="plan-action" name="actions[]" type="checkbox" value="plan"/>
           <%= dropdown_tag('plan.plan', plan_options, {:show_search_box => false}, {:id => 'plan'}) -%>
         </div>
       <% end %>
       <div class="modal-field">
         <label for="severity">
-          <input id="set-severity-action" name="actions[]" type="checkbox" value="set_severity"/>
           <%= message('issue.set_severity') -%>
         </label>
-        <select name="set_severity.severity" class="withIcons" id="severity">
-          <% Severity::KEYS.each do |severity| %>
-            <option class="sev_<%= severity -%>" value="<%= severity -%>" <%= 'selected' if severity==Severity::MAJOR -%>><%= message("severity.#{severity}") -%></option>
-          <% end %>
-        </select>
+        <input id="set-severity-action" name="actions[]" type="checkbox" value="set_severity"/>
+        <%= severity_dropdown_tag('set_severity.severity', severitiy_select_option_tags, {:show_search_box => false},
+                         {:id => 'severity'}) -%>
       </div>
       <div class="modal-field">
-        <%
-           @transitions_by_issues.keys.each do |transition|
-        %>
-          <input type="radio" name="transition.transition" value="<%= transition -%>" onClick="addTransitionAction();"><%= message("issue.transition.#{transition}") -%>
+        <% @transitions_by_issues.keys.each do |transition| %>
+          <input type="radio" name="transition.transition" value="<%= transition -%>" onClick="addTransitionAction();">&nbsp;<%= message("issue.transition.#{transition}") -%>
           (<%= @transitions_by_issues[transition].to_s %>) <br>
         <% end %>
       </div>

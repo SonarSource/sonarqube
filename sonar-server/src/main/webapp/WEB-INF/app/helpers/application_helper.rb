@@ -833,6 +833,14 @@ module ApplicationHelper
     "#{html}<script>$j(document).ready(function() {#{js}});</script>"
   end
 
+  # Creates an enhanced dropdown selection box of severities.
+  # Options are the same as dropdown_tag()
+  def severity_dropdown_tag(name, option_tags, options={}, html_options={})
+    format_function = "function (state) {return \"<span class='sev_\" + state.id + \" withIcons'>\" + state.text + \"</span>\"}"
+    options[:select2_options] = {:formatResult => format_function, :formatSelection => format_function}
+    dropdown_tag(name, option_tags, options, html_options)
+  end
+
   #
   # Creates a link linked to a POST action. A confirmation popup is opened when user clicks on the button.
   # ==== Options
