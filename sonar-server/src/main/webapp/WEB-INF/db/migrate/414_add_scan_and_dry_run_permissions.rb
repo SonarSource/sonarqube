@@ -25,6 +25,12 @@
 
 class AddScanAndDryRunPermissions < ActiveRecord::Migration
 
+  class GroupRole < ActiveRecord::Base
+  end
+
+  class UserRole < ActiveRecord::Base
+  end
+    
   def self.up
     # -- Role scan --
     group_roles=GroupRole.find(:all, :conditions => {:role => 'admin', :resource_id => nil})
