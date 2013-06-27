@@ -114,7 +114,7 @@ public class ModuleSettings extends Settings {
   protected void doOnGetProperties(String key) {
     if (this.dryRun && key.endsWith(".secured") && !key.contains(".license")) {
       throw new SonarException("Access to the secured property '" + key
-        + "' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin accessing to this property must be deactivated in dry run mode.");
+        + "' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin which requires this property must be deactivated in dry run mode.");
     }
   }
 }
