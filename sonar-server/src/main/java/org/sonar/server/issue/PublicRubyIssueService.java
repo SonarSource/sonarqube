@@ -75,27 +75,27 @@ public class PublicRubyIssueService implements RubyIssueService {
   static IssueQuery toQuery(Map<String, Object> props) {
     IssueQuery.Builder builder = IssueQuery.builder()
       .requiredRole(UserRole.USER)
-      .issueKeys(RubyUtils.toStrings(props.get("issues")))
-      .severities(RubyUtils.toStrings(props.get("severities")))
-      .statuses(RubyUtils.toStrings(props.get("statuses")))
-      .resolutions(RubyUtils.toStrings(props.get("resolutions")))
-      .resolved(RubyUtils.toBoolean(props.get("resolved")))
-      .components(RubyUtils.toStrings(props.get("components")))
-      .componentRoots(RubyUtils.toStrings(props.get("componentRoots")))
-      .rules(toRules(props.get("rules")))
-      .actionPlans(RubyUtils.toStrings(props.get("actionPlans")))
-      .reporters(RubyUtils.toStrings(props.get("reporters")))
-      .assignees(RubyUtils.toStrings(props.get("assignees")))
-      .assigned(RubyUtils.toBoolean(props.get("assigned")))
-      .planned(RubyUtils.toBoolean(props.get("planned")))
-      .createdAfter(RubyUtils.toDate(props.get("createdAfter")))
-      .createdBefore(RubyUtils.toDate(props.get("createdBefore")))
-      .pageSize(RubyUtils.toInteger(props.get("pageSize")))
-      .pageIndex(RubyUtils.toInteger(props.get("pageIndex")));
-    String sort = (String) props.get("sort");
+      .issueKeys(RubyUtils.toStrings(props.get(IssueFilterParameters.ISSUES)))
+      .severities(RubyUtils.toStrings(props.get(IssueFilterParameters.SEVERITIES)))
+      .statuses(RubyUtils.toStrings(props.get(IssueFilterParameters.STATUSES)))
+      .resolutions(RubyUtils.toStrings(props.get(IssueFilterParameters.RESOLUTIONS)))
+      .resolved(RubyUtils.toBoolean(props.get(IssueFilterParameters.RESOLVED)))
+      .components(RubyUtils.toStrings(props.get(IssueFilterParameters.COMPONENTS)))
+      .componentRoots(RubyUtils.toStrings(props.get(IssueFilterParameters.COMPONENT_ROOTS)))
+      .rules(toRules(props.get(IssueFilterParameters.RULES)))
+      .actionPlans(RubyUtils.toStrings(props.get(IssueFilterParameters.ACTION_PLANS)))
+      .reporters(RubyUtils.toStrings(props.get(IssueFilterParameters.REPORTERS)))
+      .assignees(RubyUtils.toStrings(props.get(IssueFilterParameters.ASSIGNEES)))
+      .assigned(RubyUtils.toBoolean(props.get(IssueFilterParameters.ASSIGNED)))
+      .planned(RubyUtils.toBoolean(props.get(IssueFilterParameters.PLANNED)))
+      .createdAfter(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_AFTER)))
+      .createdBefore(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_BEFORE)))
+      .pageSize(RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_SIZE)))
+      .pageIndex(RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_INDEX)));
+    String sort = (String) props.get(IssueFilterParameters.SORT);
     if (!Strings.isNullOrEmpty(sort)) {
       builder.sort(sort);
-      builder.asc(RubyUtils.toBoolean(props.get("asc")));
+      builder.asc(RubyUtils.toBoolean(props.get(IssueFilterParameters.ASC)));
     }
     return builder.build();
   }

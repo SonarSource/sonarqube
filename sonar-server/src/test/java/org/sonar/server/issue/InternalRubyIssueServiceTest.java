@@ -476,9 +476,12 @@ public class InternalRubyIssueServiceTest {
   public void should_execute_issue_filter_from_existing_filter() {
     Map<String, Object> props = newHashMap();
     props.put("componentRoots", "struts");
+    props.put("statuses", "OPEN");
     when(issueFilterService.deserializeIssueFilterQuery(any(DefaultIssueFilter.class))).thenReturn(props);
 
     Map<String, Object> overrideProps = newHashMap();
+    overrideProps.put("statuses", "CLOSED");
+    overrideProps.put("resolved", true);
     overrideProps.put("pageSize", 20);
     overrideProps.put("pageIndex", 2);
     service.execute(10L, overrideProps);
@@ -488,8 +491,35 @@ public class InternalRubyIssueServiceTest {
 
     IssueQuery issueQuery = captor.getValue();
     assertThat(issueQuery.componentRoots()).contains("struts");
+    assertThat(issueQuery.statuses()).contains("CLOSED");
+    assertThat(issueQuery.resolved()).isTrue();
     assertThat(issueQuery.pageSize()).isEqualTo(20);
     assertThat(issueQuery.pageIndex()).isEqualTo(2);
+  }
+
+  @Test
+  public void should_serialize_filter_query() {
+    Map<String, Object> props = newHashMap();
+    props.put("componentRoots", "struts");
+    service.serializeFilterQuery(props);
+    verify(issueFilterService).serializeFilterQuery(props);
+  }
+
+  @Test
+  public void should_deserialize_filter_query() {
+    DefaultIssueFilter issueFilter = new DefaultIssueFilter();
+    service.deserializeFilterQuery(issueFilter);
+    verify(issueFilterService).deserializeIssueFilterQuery(issueFilter);
+  }
+
+  @Test
+  public void should_sanitize_filter_query(){
+    Map<String, Object> query = newHashMap();
+    query.put("statuses", "CLOSED");
+    query.put("resolved", true);
+    query.put("unknown", "john");
+    Map<String, Object> result = service.sanitizeFilterQuery(query);
+    assertThat(result.keySet()).containsOnly("statuses", "resolved");
   }
 
   @Test
@@ -560,6 +590,7 @@ public class InternalRubyIssueServiceTest {
     assertThat(result.ok()).isFalse();
     assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
   }
+
 
   private String createLongString(int size) {
     String result = "";

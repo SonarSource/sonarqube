@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+require 'set'
+
 class IssuesController < ApplicationController
 
   before_filter :init_options
@@ -34,10 +36,8 @@ class IssuesController < ApplicationController
     if params[:id]
       @filter = find_filter(params[:id].to_i)
     end
-
-    @first_search = criteria_params.empty?
+    @first_search = Internal.issues.sanitizeFilterQuery(params).to_hash.empty?
     @criteria_params = criteria_params
-    @criteria_params['pageSize'] = PAGE_SIZE
     issue_filter_result = Internal.issues.execute(@criteria_params)
     @issue_query = issue_filter_result.query
     @issues_result = issue_filter_result.result
@@ -51,10 +51,10 @@ class IssuesController < ApplicationController
     @first_search = false
     @unchanged = true
 
-    @criteria_params = criteria_params
-    @criteria_params['pageSize'] = PAGE_SIZE
+    issue_filter_result = Internal.issues.execute(params[:id].to_i, params)
     @filter = find_filter(params[:id].to_i)
-    issue_filter_result = Internal.issues.execute(params[:id].to_i, @criteria_params)
+    @criteria_params = Internal.issues.deserializeFilterQuery(@filter).to_hash
+    @criteria_params[:id] = @filter.id
     @issue_query = issue_filter_result.query
     @issues_result = issue_filter_result.result
 
@@ -71,7 +71,7 @@ class IssuesController < ApplicationController
 
   # GET /issues/save_as_form?[&criteria]
   def save_as_form
-    @filter_query_serialized = Internal.issues.serializeFilterQuery(criteria_params_to_save)
+    @filter_query_serialized = Internal.issues.serializeFilterQuery(params)
     render :partial => 'issues/filter_save_as_form'
   end
 
@@ -95,7 +95,7 @@ class IssuesController < ApplicationController
     verify_post_request
     require_parameters :id
 
-    filter_result = Internal.issues.updateIssueFilterQuery(params[:id].to_i, criteria_params_to_save)
+    filter_result = Internal.issues.updateIssueFilterQuery(params[:id].to_i, params)
     if filter_result.ok
       @filter = filter_result.get()
       redirect_to :action => 'filter', :id => @filter.id.to_s
@@ -103,7 +103,7 @@ class IssuesController < ApplicationController
       @unchanged = true
       @errors = filter_result.errors
 
-      issue_filter_result = Internal.issues.execute(@filter.id, criteria_params)
+      issue_filter_result = Internal.issues.execute(@filter.id, params)
       @issue_query = issue_filter_result.query
       @issues_result = issue_filter_result.result
 
@@ -183,12 +183,21 @@ class IssuesController < ApplicationController
   def bulk_change_form
 
     # Load maximum number of issues
-    @criteria_params = criteria_params_to_save
+    @criteria_params = params
     @criteria_params['pageSize'] = -1
     issue_filter_result = Internal.issues.execute(@criteria_params)
     issue_query = issue_filter_result.query
     issues_result = issue_filter_result.result
 
+    @transitions_by_issues = {}
+    issues_result.issues.each do |issue|
+      transitions = Internal.issues.listTransitions(issue)
+      transitions.each do |transition|
+        issues_for_transition = @transitions_by_issues[transition.key] || 0
+        issues_for_transition += 1
+        @transitions_by_issues[transition.key] = issues_for_transition
+      end
+    end
     @issues = issues_result.issues.map {|issue| issue.key()}
     @project = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1
 
@@ -224,20 +233,8 @@ class IssuesController < ApplicationController
   end
 
   def criteria_params
-    criteria = params
-    criteria.delete('controller')
-    criteria.delete('action')
-    criteria.delete('search')
-    criteria.delete('edit')
-    criteria.delete('pageSize')
-    criteria
-  end
-
-  def criteria_params_to_save
-    criteria = criteria_params
-    criteria.delete('id')
-    criteria.delete('pageIndex')
-    criteria
+    params['pageSize'] = PAGE_SIZE
+    params
   end
 
 end

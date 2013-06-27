@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
@@ -409,6 +410,19 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueFilterService.serializeFilterQuery(filterQuery);
   }
 
+  public Map<String, Object> deserializeFilterQuery(DefaultIssueFilter issueFilter) {
+    return issueFilterService.deserializeIssueFilterQuery(issueFilter);
+  }
+
+  public Map<String, Object> sanitizeFilterQuery(Map<String, Object> filterQuery) {
+    return Maps.filterEntries(filterQuery, new Predicate<Map.Entry<String, Object>>() {
+      @Override
+      public boolean apply(Map.Entry<String, Object> input) {
+        return IssueFilterParameters.ALL.contains(input.getKey());
+      }
+    });
+  }
+
   /**
    * Execute issue filter from parameters
    */
@@ -429,13 +443,8 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   private void overrideProps(Map<String, Object> props, Map<String, Object> overrideProps) {
-    overrideProp(props, overrideProps, "pageSize");
-    overrideProp(props, overrideProps, "pageIndex");
-  }
-
-  private void overrideProp(Map<String, Object> props, Map<String, Object> overrideProps, String key) {
-    if (overrideProps.containsKey(key)) {
-      props.put(key, overrideProps.get(key));
+    for (Map.Entry<String, Object> entry : overrideProps.entrySet()) {
+      props.put(entry.getKey(), entry.getValue());
     }
   }
 

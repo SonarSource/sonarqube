@@ -6,6 +6,7 @@
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
   <input type="hidden" name="issues" value="<%= params[:issues] || @issues.join(',') -%>">
   <input type="hidden" name="criteria_params" value="<%= params[:criteria_params] || @criteria_params.to_query -%>">
+  <input type="hidden" name="issues_by_transitions" value="<%= @transitions_by_issues.to_query -%>">
   <input type="hidden" name="project" value="<%= project -%>">
   <fieldset>
     <div class="modal-head">
@@ -57,6 +58,13 @@
             <option class="sev_<%= severity -%>" value="<%= severity -%>" <%= 'selected' if severity==Severity::MAJOR -%>><%= message("severity.#{severity}") -%></option>
           <% end %>
         </select>
+      </div>
+      <div class="modal-field">
+        <%
+           @transitions_by_issues.keys.each do |transition|
+        %>
+          <input type="radio" name="transition" value="<%= transition -%>"><%= message("issue.transition.#{transition}") -%> (<%= @transitions_by_issues[transition].to_s %>) <br>
+        <% end %>
       </div>
     </div>
     <div class="modal-foot">

@@ -64,19 +64,19 @@ public class IssueBulkChangeService {
     IssueBulkChangeResult result = new IssueBulkChangeResult();
     IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issues()).requiredRole(UserRole.USER).build());
     List<Issue> issues = issueQueryResult.issues();
-    List<Action> actions = newArrayList();
+    List<Action> bulkActions = newArrayList();
     for (String actionName : issueBulkChangeQuery.actions()) {
       Action action = getAction(actionName);
       if (action == null) {
         throw new IllegalArgumentException("The action : '"+ actionName + "' is unknown");
       }
       action.verify(issueBulkChangeQuery.properties(actionName), issues, userSession);
-      actions.add(action);
+      bulkActions.add(action);
     }
 
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
     for (Issue issue : issues) {
-      for (Action action : actions) {
+      for (Action action : bulkActions) {
         try {
           ActionContext actionContext = new ActionContext(issue, issueChangeContext);
           if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(action.key()), actionContext)) {

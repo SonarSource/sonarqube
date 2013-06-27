@@ -526,6 +526,27 @@ public class IssueFilterServiceTest {
     verify(issueFilterFavouriteDao, never()).delete(anyLong());
   }
 
+  @Test
+  public void should_serialize_filter_query_ignore_unknown_parameter() {
+    Map<String, Object> props = newHashMap();
+    props.put("componentRoots", "struts");
+    props.put("statuses", "OPEN");
+    props.put("unkwown", "JOHN");
+    service.serializeFilterQuery(props);
+
+    Map<String, Object> expected = newHashMap();
+    expected.put("componentRoots", "struts");
+    expected.put("statuses", "OPEN");
+    verify(issueFilterSerializer).serialize(expected);
+  }
+
+  @Test
+  public void should_deserialize_filter_query() {
+    DefaultIssueFilter issueFilter = new DefaultIssueFilter().setData("componentRoots=struts");
+    service.deserializeIssueFilterQuery(issueFilter);
+    verify(issueFilterSerializer).deserialize("componentRoots=struts");
+  }
+
   private static class Matches extends BaseMatcher<IssueFilterDto> {
 
     private final IssueFilterDto referenceFilter;

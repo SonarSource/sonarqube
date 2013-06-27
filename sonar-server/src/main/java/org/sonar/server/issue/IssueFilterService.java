@@ -21,7 +21,9 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
@@ -154,7 +156,13 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public String serializeFilterQuery(Map<String, Object> filterQuery) {
-    return issueFilterSerializer.serialize(filterQuery);
+    Map<String, Object> filterQueryFiltered = Maps.filterEntries(filterQuery, new Predicate<Map.Entry<String, Object>>() {
+      @Override
+      public boolean apply(Map.Entry<String, Object> input) {
+        return IssueFilterParameters.ALL_WITHOUT_PAGINATION.contains(input.getKey());
+      }
+    });
+    return issueFilterSerializer.serialize(filterQueryFiltered);
   }
 
   public Map<String, Object> deserializeIssueFilterQuery(DefaultIssueFilter issueFilter) {
