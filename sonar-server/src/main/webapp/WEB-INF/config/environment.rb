@@ -138,8 +138,6 @@ class ActiveRecord::Migration
     end
   end
   
-  private
-  
   def self.create_id_trigger(table)
       execute_ddl("create trigger for table #{table}", 
       
@@ -152,7 +150,9 @@ class ActiveRecord::Migration
            END IF;
         END;})
   end
-  
+
+  private
+
   def self.execute_ddl(message, ddl)
     begin
       say_with_time(message) do

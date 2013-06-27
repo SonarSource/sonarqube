@@ -54,8 +54,6 @@ class AddOracleIdTriggers < ActiveRecord::Migration
     create_id_trigger('group_roles')
     create_id_trigger('groups')
     create_id_trigger('issue_changes')
-    create_id_trigger('issue_filter_favourites')
-    create_id_trigger('issue_filters')
     create_id_trigger('issues')
     create_id_trigger('loaded_templates')
     create_id_trigger('manual_measures')
@@ -82,29 +80,6 @@ class AddOracleIdTriggers < ActiveRecord::Migration
     create_id_trigger('users')
     create_id_trigger('widget_properties')
     create_id_trigger('widgets')
-  end
-  
-  def self.create_id_trigger(table)
-      execute_ddl('create trigger for table ' + table, 
-      
-      %{CREATE OR REPLACE TRIGGER #{table}_id_trg
-          BEFORE INSERT ON #{table} 
-          FOR EACH ROW
-        BEGIN
-           IF :new.id IS null THEN
-             SELECT #{table}_seq.nextval INTO :new.id FROM dual;
-           END IF;
-        END;})
-  end
-
-  def self.execute_ddl(message, ddl)
-    begin
-      say_with_time(message) do
-        ActiveRecord::Base.connection.execute(ddl)
-      end
-    rescue
-      # already executed
-    end
   end
 
 end

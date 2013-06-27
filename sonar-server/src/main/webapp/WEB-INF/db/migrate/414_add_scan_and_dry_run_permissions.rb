@@ -23,7 +23,7 @@
 # SONAR-4397
 #
 
-class AddScanAndDryrunPermissions < ActiveRecord::Migration
+class AddScanAndDryRunPermissions < ActiveRecord::Migration
 
   def self.up
     # -- Role scan --
