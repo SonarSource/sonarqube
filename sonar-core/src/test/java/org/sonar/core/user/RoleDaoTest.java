@@ -71,4 +71,18 @@ public class RoleDaoTest extends AbstractDaoTestCase {
 
     checkTable("groupPermissions", "group_roles", "group_id", "role");
   }
+
+  @Test
+  public void should_retrieve_system_admins_count() throws Exception {
+    setupData("systemAdminsCount");
+
+    RoleDao dao = new RoleDao(getMyBatis());
+    int overallAdminsCount = dao.countSystemAdministrators(null);
+    int adminsCountAfterWholeGroupRemoval = dao.countSystemAdministrators("sonar-administrators");
+    int adminsCountAfterNonAdminGroupRemoval = dao.countSystemAdministrators("sonar-users");
+
+    assertThat(overallAdminsCount).isEqualTo(3);
+    assertThat(adminsCountAfterWholeGroupRemoval).isEqualTo(1);
+    assertThat(adminsCountAfterNonAdminGroupRemoval).isEqualTo(3);
+  }
 }

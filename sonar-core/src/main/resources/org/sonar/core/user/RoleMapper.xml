@@ -84,4 +84,18 @@
     SELECT count(id)
     FROM group_roles WHERE resource_id=#{id}
   </select>
+
+  <select id="countSystemAdministrators" parameterType="String" resultType="int">
+    SELECT COUNT(DISTINCT u.id)
+    FROM users AS u
+    LEFT JOIN user_roles AS ur ON ur.user_id = u.id
+    INNER JOIN groups_users AS gu ON gu.user_id = u.id
+    INNER JOIN group_roles AS gr ON gr.group_id = gu.group_id
+    INNER JOIN groups AS g ON g.id = gu.group_id
+    WHERE (ur.role = 'admin' AND ur.resource_id IS NULL) OR (gr.role = 'admin' AND gr.resource_id IS NULL)
+    AND u.active = TRUE
+    <if test="groupName != null">
+      AND g.name != #{groupName}
+    </if>
+  </select>
 </mapper>

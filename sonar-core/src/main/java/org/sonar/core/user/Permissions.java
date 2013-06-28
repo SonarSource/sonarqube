@@ -28,9 +28,9 @@ package org.sonar.core.user;
  */
 public interface Permissions {
 
-  public static final String SYSTEM_ADMIN = "admin";
-  public static final String QUALITY_PROFILE_ADMIN = "profileadmin";
-  public static final String DASHBOARD_SHARING = "sharedashboard";
-  public static final String SCAN_EXECUTION = "scan";
-  public static final String DRY_RUN_EXECUTION = "dryrun";
+  String SYSTEM_ADMIN = "admin";
+  String QUALITY_PROFILE_ADMIN = "profileadmin";
+  String DASHBOARD_SHARING = "sharedashboard";
+  String SCAN_EXECUTION = "scan";
+  String DRY_RUN_EXECUTION = "dryrun";
 }

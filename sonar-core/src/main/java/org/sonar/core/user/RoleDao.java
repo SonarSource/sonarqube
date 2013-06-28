@@ -25,6 +25,7 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class RoleDao implements TaskExtension, ServerExtension {
@@ -140,6 +141,16 @@ public class RoleDao implements TaskExtension, ServerExtension {
     try {
       RoleMapper mapper = session.getMapper(RoleMapper.class);
       return mapper.countUserRoles(resourceId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public int countSystemAdministrators(@Nullable String groupName) {
+    SqlSession session = mybatis.openSession();
+    try {
+      RoleMapper mapper = session.getMapper(RoleMapper.class);
+      return mapper.countSystemAdministrators(groupName);
     } finally {
       MyBatis.closeQuietly(session);
     }
