@@ -9,6 +9,7 @@
     <if test="'ASSIGNEE'.equals(column)">
       i.assignee
     </if>
+    from issues i
     <include refid="org.sonar.core.issue.db.IssueMapper.selectQueryConditions"/>
   </select>
 

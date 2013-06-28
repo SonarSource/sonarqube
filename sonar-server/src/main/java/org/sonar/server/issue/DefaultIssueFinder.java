@@ -99,7 +99,7 @@ public class DefaultIssueFinder implements IssueFinder {
     SqlSession sqlSession = myBatis.openSession();
     try {
       // 1. Select the authorized ids of all the issues that match the query
-      List<IssueDto> authorizedIssues = issueDao.selectIssues(query, UserSession.get().userId(), sqlSession);
+      List<IssueDto> authorizedIssues = issueDao.selectIssueIds(query, UserSession.get().userId(), sqlSession);
 
       // 2. Sort all authorized issues
       List<IssueDto> authorizedSortedIssues = sort(authorizedIssues, query, authorizedIssues.size());

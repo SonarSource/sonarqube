@@ -85,7 +85,7 @@ public class DefaultIssueFinderTest {
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueQueryResult results = finder.find(query);
-    verify(issueDao).selectIssues(eq(query), anyInt(), any(SqlSession.class));
+    verify(issueDao).selectIssueIds(eq(query), anyInt(), any(SqlSession.class));
 
     assertThat(results.issues()).hasSize(2);
     DefaultIssue issue = (DefaultIssue) results.issues().iterator().next();
@@ -109,7 +109,7 @@ public class DefaultIssueFinderTest {
       .setRuleKey_unit_test_only("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
-    when(issueDao.selectIssues(eq(query), anyInt(), any(SqlSession.class))).thenReturn(dtoList);
+    when(issueDao.selectIssueIds(eq(query), anyInt(), any(SqlSession.class))).thenReturn(dtoList);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
 
     IssueQueryResult results = finder.find(query);
@@ -275,7 +275,7 @@ public class DefaultIssueFinderTest {
   @Test
   public void should_get_empty_result_when_no_issue() {
     IssueQuery query = IssueQuery.builder().build();
-    when(issueDao.selectIssues(eq(query), anyInt(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
+    when(issueDao.selectIssueIds(eq(query), anyInt(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(Collections.<IssueDto>emptyList());
 
     IssueQueryResult results = finder.find(query);

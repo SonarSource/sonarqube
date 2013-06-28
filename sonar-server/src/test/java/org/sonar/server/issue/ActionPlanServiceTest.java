@@ -22,14 +22,17 @@ package org.sonar.server.issue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
-import org.sonar.core.issue.db.ActionPlanDao;
-import org.sonar.core.issue.db.ActionPlanDto;
-import org.sonar.core.issue.db.ActionPlanStatsDao;
-import org.sonar.core.issue.db.ActionPlanStatsDto;
+import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -51,6 +54,10 @@ public class ActionPlanServiceTest {
   private ResourceDao resourceDao = mock(ResourceDao.class);
   private AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   private UserSession userSession = mock(UserSession.class);
+  private IssueDao issueDao = mock(IssueDao.class);
+  private IssueUpdater issueUpdater = mock(IssueUpdater.class);
+  private IssueStorage issueStorage = mock(IssueStorage.class);
+
   private ActionPlanService actionPlanService;
 
   @Before
@@ -59,7 +66,7 @@ public class ActionPlanServiceTest {
     when(userSession.userId()).thenReturn(10);
     when(authorizationDao.isAuthorizedComponentId(anyLong(), eq(10), anyString())).thenReturn(true);
 
-    actionPlanService = new ActionPlanService(actionPlanDao, actionPlanStatsDao, resourceDao, authorizationDao);
+    actionPlanService = new ActionPlanService(actionPlanDao, actionPlanStatsDao, resourceDao, authorizationDao, issueDao, issueUpdater, issueStorage);
   }
 
   @Test
@@ -118,6 +125,23 @@ public class ActionPlanServiceTest {
     actionPlanService.delete("ABCD", userSession);
     verify(actionPlanDao).delete("ABCD");
     verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
+  }
+
+  @Test
+  public void should_unplan_all_linked_issues_when_deleting_an_action_plan() {
+    when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD"));
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey("org.sonar.Sample").setId(1l));
+
+    IssueDto issueDto = new IssueDto().setId(100L).setStatus(Issue.STATUS_OPEN).setRuleKey_unit_test_only("squid", "s100");
+    when(issueDao.selectIssues(any(IssueQuery.class))).thenReturn(newArrayList(issueDto));
+    when(issueUpdater.plan(any(DefaultIssue.class), eq((String) null), any(IssueChangeContext.class))).thenReturn(true);
+
+    ArgumentCaptor<DefaultIssue> captor = ArgumentCaptor.forClass(DefaultIssue.class);
+    actionPlanService.delete("ABCD", userSession);
+    verify(actionPlanDao).delete("ABCD");
+    verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
+    verify(issueUpdater).plan(captor.capture(), eq((String) null), any(IssueChangeContext.class));
+    verify(issueStorage).save(newArrayList(captor.getAllValues()));
   }
 
   @Test
