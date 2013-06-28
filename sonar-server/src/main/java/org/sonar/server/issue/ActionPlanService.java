@@ -24,13 +24,15 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanDeadlineComparator;
 import org.sonar.core.issue.ActionPlanStats;
-import org.sonar.core.issue.db.ActionPlanDao;
-import org.sonar.core.issue.db.ActionPlanDto;
-import org.sonar.core.issue.db.ActionPlanStatsDao;
-import org.sonar.core.issue.db.ActionPlanStatsDto;
+import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -39,10 +41,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -55,12 +54,20 @@ public class ActionPlanService implements ServerComponent {
   private final ActionPlanStatsDao actionPlanStatsDao;
   private final ResourceDao resourceDao;
   private final AuthorizationDao authorizationDao;
+  private final IssueDao issueDao;
+  private final IssueUpdater issueUpdater;
+  private final IssueStorage issueStorage;
 
-  public ActionPlanService(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao, AuthorizationDao authorizationDao) {
+
+  public ActionPlanService(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao, AuthorizationDao authorizationDao,
+                           IssueDao issueDao, IssueUpdater issueUpdater, IssueStorage issueStorage) {
     this.actionPlanDao = actionPlanDao;
     this.actionPlanStatsDao = actionPlanStatsDao;
     this.resourceDao = resourceDao;
     this.authorizationDao = authorizationDao;
+    this.issueDao = issueDao;
+    this.issueUpdater = issueUpdater;
+    this.issueStorage = issueStorage;
   }
 
   public ActionPlan create(ActionPlan actionPlan, UserSession userSession) {
@@ -78,8 +85,30 @@ public class ActionPlanService implements ServerComponent {
   }
 
   public void delete(String actionPlanKey, UserSession userSession) {
-    checkAuthorization(userSession, findActionPlanDto(actionPlanKey).getProjectKey(), UserRole.ADMIN);
+    ActionPlanDto dto = findActionPlanDto(actionPlanKey);
+    checkAuthorization(userSession, dto.getProjectKey(), UserRole.ADMIN);
+    unplanIssues(dto.toActionPlan(), userSession);
     actionPlanDao.delete(actionPlanKey);
+  }
+
+  /**
+   * Unplan all issues linked to an action plan
+   */
+  private void unplanIssues(DefaultActionPlan actionPlan, UserSession userSession) {
+    // Get all issues linked to this plan (need to disable pagination and authorization check)
+    IssueQuery query = IssueQuery.builder().actionPlans(Arrays.asList(actionPlan.key())).requiredRole(null).build();
+    List<IssueDto> dtos = issueDao.selectIssues(query);
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+    List<DefaultIssue> issues = newArrayList();
+    for (IssueDto issueDto : dtos) {
+      DefaultIssue issue = issueDto.toDefaultIssue();
+      // Unplan issue
+      if (issueUpdater.plan(issue, null, context)) {
+        issues.add(issue);
+      }
+    }
+    // Save all issues
+    issueStorage.save(issues);
   }
 
   public ActionPlan setStatus(String actionPlanKey, String status, UserSession userSession) {

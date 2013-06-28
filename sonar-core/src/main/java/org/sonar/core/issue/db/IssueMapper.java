@@ -33,8 +33,13 @@ public interface IssueMapper {
 
   List<IssueDto> selectNonClosedIssuesByModule(int rootComponentId);
 
+  /**
+   * Return a paginated list of authorized issue ids for a user.
+   * If the role is null, then the authorisation check is disabled.
+   */
   List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
-                              @Nullable @Param("userId") Integer userId, @Param("role") String role, @Param("maxResults") Integer maxResult);
+                              @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role,
+                              @Param("maxResults") Integer maxResult, @Param("returnOnlyIdAndSortColumns") boolean returnOnlyIdAndSortColumns);
 
   void insert(IssueDto issue);
 

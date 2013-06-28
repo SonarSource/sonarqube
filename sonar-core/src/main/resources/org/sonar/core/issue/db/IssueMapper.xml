@@ -186,30 +186,75 @@
   </select>
 
   <select id="selectIssues" parameterType="map" resultType="Issue" fetchSize="100000">
-    select i.id
-    <include refid="sortColumn"/>
+    select
+    <choose>
+      <when test="returnOnlyIdAndSortColumns == true">
+        i.id
+        <include refid="sortColumn"/>
+        from issues i
+      </when>
+      <otherwise>
+        <include refid="issueColumns"/>
+        from issues i
+        inner join rules r on r.id=i.rule_id
+        inner join projects p on p.id=i.component_id
+        inner join projects root on root.id=i.root_component_id
+      </otherwise>
+    </choose>
     <include refid="selectQueryConditions"/>
-    limit #{maxResults}
+    <if test="maxResults != null">
+      limit #{maxResults}
+    </if>
   </select>
 
   <!-- SQL Server -->
   <select id="selectIssues" parameterType="map" resultType="Issue" fetchSize="100000" databaseId="mssql">
-    select top (#{maxResults}) i.id
-    <include refid="sortColumn"/>
+    select
+    <if test="maxResults != null">
+      top (#{maxResults})
+    </if>
+    <choose>
+      <when test="returnOnlyIdAndSortColumns == true">
+        i.id
+        <include refid="sortColumn"/>
+        from issues i
+      </when>
+      <otherwise>
+        <include refid="issueColumns"/>
+        from issues i
+        inner join rules r on r.id=i.rule_id
+        inner join projects p on p.id=i.component_id
+        inner join projects root on root.id=i.root_component_id
+      </otherwise>
+    </choose>
     <include refid="selectQueryConditions"/>
   </select>
 
   <!-- Oracle -->
   <select id="selectIssues" parameterType="map" resultType="Issue" fetchSize="100000" databaseId="oracle">
-    select * from (select i.id
-    <include refid="sortColumn"/>
+    select * from (select
+    <choose>
+      <when test="returnOnlyIdAndSortColumns == true">
+        i.id
+        <include refid="sortColumn"/>
+      </when>
+      <otherwise>
+        <include refid="issueColumns"/>
+        from issues i
+        inner join rules r on r.id=i.rule_id
+        inner join projects p on p.id=i.component_id
+        inner join projects root on root.id=i.root_component_id
+      </otherwise>
+    </choose>
     <include refid="selectQueryConditions"/>
-    ) where rownum &lt;= #{maxResults}
+    )
+    <if test="maxResults != null">
+      where rownum &lt;= #{maxResults}
+    </if>
   </select>
 
   <sql id="selectQueryConditions">
-    from issues i
-    <if test="componentRootKeys.size() == 0">
+    <if test="componentRootKeys.size() == 0 and role != null">
       inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />) authorizedProjects on authorizedProjects.root_project_id=i.root_component_id
     </if>
     <if test="componentRootKeys.size() > 0">

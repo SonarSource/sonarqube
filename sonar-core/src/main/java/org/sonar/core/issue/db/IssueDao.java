@@ -73,20 +73,20 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   @VisibleForTesting
-  List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, Integer maxResult) {
+  List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, Integer maxResult) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectIssues(query, userId, maxResult, session);
+      return selectIssueIds(query, userId, maxResult, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @VisibleForTesting
-  List<IssueDto> selectIssues(IssueQuery query) {
+  List<IssueDto> selectIssueIds(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectIssues(query, null, Integer.MAX_VALUE, session);
+      return selectIssueIds(query, null, Integer.MAX_VALUE, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -95,13 +95,31 @@ public class IssueDao implements BatchComponent, ServerComponent {
   /**
    * The returned IssueDto list contains only the issue id and the sort column
    */
+  public List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, SqlSession session){
+    return selectIssueIds(query, userId, query.maxResults(), session);
+  }
+
+  private List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
+    IssueMapper mapper = session.getMapper(IssueMapper.class);
+    return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole(), maxResults, true);
+  }
+
+  public List<IssueDto> selectIssues(IssueQuery query) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectIssues(query, null, Integer.MAX_VALUE, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, SqlSession session){
     return selectIssues(query, userId, query.maxResults(), session);
   }
 
-  private List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
+  public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
     IssueMapper mapper = session.getMapper(IssueMapper.class);
-    return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole(), maxResults);
+    return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole(), maxResults, false);
   }
 
   @VisibleForTesting
