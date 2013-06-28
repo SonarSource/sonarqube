@@ -21,15 +21,20 @@
 package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.server.util.RubyUtils;
 
+import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 /**
@@ -52,11 +57,11 @@ public class IssueBulkChangeQuery {
   }
 
   private void parse(Map<String, Object> props, String comment) {
-    this.issues = RubyUtils.toStrings(props.get("issues"));
+    this.issues = sanitizeList(RubyUtils.toStrings(props.get("issues")));
     if (issues == null || issues.isEmpty()) {
       throw new IllegalArgumentException("Issues must not be empty");
     }
-    actions = RubyUtils.toStrings(props.get("actions"));
+    actions = sanitizeList(RubyUtils.toStrings(props.get("actions")));
     if (actions == null || actions.isEmpty()) {
       throw new IllegalArgumentException("At least one action must be provided");
     }
@@ -70,6 +75,18 @@ public class IssueBulkChangeQuery {
       commentMap.put(CommentAction.COMMENT_PROPERTY, comment);
       propertiesByActions.put(CommentAction.COMMENT_ACTION_KEY, commentMap);
     }
+  }
+
+  private List<String> sanitizeList(List<String> list){
+    if (list == null || list.isEmpty()){
+      return Collections.emptyList();
+    }
+    return newArrayList(Iterables.filter(list, new Predicate<String>() {
+      @Override
+      public boolean apply(@Nullable String input) {
+        return !Strings.isNullOrEmpty(input);
+      }
+    }));
   }
 
   public List<String> issues() {

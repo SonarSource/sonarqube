@@ -19,7 +19,6 @@
  */
 package org.sonar.api.issue;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -27,7 +26,9 @@ import org.sonar.api.web.UserRole;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -36,16 +37,16 @@ public class IssueQueryTest {
   @Test
   public void should_build_query() throws Exception {
     IssueQuery query = IssueQuery.builder()
-      .issueKeys(Lists.newArrayList("ABCDE"))
-      .severities(Lists.newArrayList(Severity.BLOCKER))
-      .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
-      .resolutions(Lists.newArrayList(Issue.RESOLUTION_FALSE_POSITIVE))
-      .components(Lists.newArrayList("org/struts/Action.java"))
-      .componentRoots(Lists.newArrayList("org.struts:core"))
-      .rules(Lists.newArrayList(RuleKey.of("squid", "AvoidCycle")))
-      .actionPlans(Lists.newArrayList("AP1", "AP2"))
-      .reporters(Lists.newArrayList("crunky"))
-      .assignees(Lists.newArrayList("gargantua"))
+      .issueKeys(newArrayList("ABCDE"))
+      .severities(newArrayList(Severity.BLOCKER))
+      .statuses(newArrayList(Issue.STATUS_RESOLVED))
+      .resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE))
+      .components(newArrayList("org/struts/Action.java"))
+      .componentRoots(newArrayList("org.struts:core"))
+      .rules(newArrayList(RuleKey.of("squid", "AvoidCycle")))
+      .actionPlans(newArrayList("AP1", "AP2"))
+      .reporters(newArrayList("crunky"))
+      .assignees(newArrayList("gargantua"))
       .assigned(true)
       .createdAfter(new Date())
       .createdBefore(new Date())
@@ -82,7 +83,7 @@ public class IssueQueryTest {
   @Test
   public void should_build_query_without_dates() throws Exception {
     IssueQuery query = IssueQuery.builder()
-      .issueKeys(Lists.newArrayList("ABCDE"))
+      .issueKeys(newArrayList("ABCDE"))
       .build();
 
     assertThat(query.issueKeys()).containsOnly("ABCDE");
@@ -192,6 +193,22 @@ public class IssueQueryTest {
       fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Page index must be greater than 0 (got 0)").isInstanceOf(IllegalArgumentException.class);
+    }
+  }
+
+  @Test
+  public void number_of_issue_keys_should_be_limited() throws Exception {
+    List<String> issueKeys = newArrayList();
+    for (int i=0; i<IssueQuery.MAX_ISSUE_KEYS; i++) {
+      issueKeys.add("issue-key-"+ i);
+    }
+    try {
+      IssueQuery.builder()
+          .issueKeys(issueKeys)
+          .build();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Number of issue keys must be less than 500 (got 500)").isInstanceOf(IllegalArgumentException.class);
     }
   }
 

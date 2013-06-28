@@ -48,6 +48,30 @@ public class IssueBulkChangeQueryTest {
   }
 
   @Test
+  public void should_remove_empty_actions() {
+    Map<String, Object> params = newHashMap();
+    params.put("issues", newArrayList("ABCD", "EFGH"));
+    params.put("actions", newArrayList("do_transition", "", null));
+    params.put("do_transition.transition", "confirm");
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params);
+    assertThat(issueBulkChangeQuery.actions()).containsOnly("do_transition");
+    assertThat(issueBulkChangeQuery.issues()).containsOnly("ABCD", "EFGH");
+  }
+
+  @Test
+  public void should_remove_empty_issues() {
+    Map<String, Object> params = newHashMap();
+    params.put("issues", newArrayList("ABCD", "EFGH", "", null));
+    params.put("actions", newArrayList("do_transition"));
+    params.put("do_transition.transition", "confirm");
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params);
+    assertThat(issueBulkChangeQuery.actions()).containsOnly("do_transition");
+    assertThat(issueBulkChangeQuery.issues()).containsOnly("ABCD", "EFGH");
+  }
+
+  @Test
   public void should_create_query_with_comment() {
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
