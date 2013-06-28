@@ -59,9 +59,16 @@
           (<%= @transitions_by_issues[transition].to_s %>) <br>
         <% end %>
       </div>
-    </div>
-    <div class="modal-field">
-      <textarea rows="4" name="comment" style="width: 80%" autofocus="autofocus"></textarea>
+      <div style="padding: 0 10px 10px 0;">
+        <div class="width100" >
+          <div>
+            <textarea rows="4" name="comment" style="width: 100%" autofocus="autofocus"></textarea>
+          </div>
+          <div style="float:right">
+            <%= render :partial => 'markdown/tips' -%>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="modal-foot">
       <input type="submit" value="<%= message('apply') -%>" id="bulk-change-submit" class="bulk-change"/>
