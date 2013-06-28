@@ -21,6 +21,7 @@
 package org.sonar.core.user;
 
 import org.junit.Test;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -44,8 +45,10 @@ public class RoleDaoTest extends AbstractDaoTestCase {
     RoleDao dao = new RoleDao(getMyBatis());
 
     assertThat(dao.selectGroupPermissions("sonar-administrators")).containsOnly(Permissions.SYSTEM_ADMIN, Permissions.QUALITY_PROFILE_ADMIN,
-      Permissions.DASHBOARD_SHARING);
-    assertThat(dao.selectGroupPermissions("sonar-users")).containsOnly(Permissions.DASHBOARD_SHARING);
+      Permissions.DASHBOARD_SHARING, Permissions.DRY_RUN_EXECUTION, Permissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions("sonar-users")).containsOnly(Permissions.DASHBOARD_SHARING, Permissions.DRY_RUN_EXECUTION,
+      Permissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions(DefaultGroups.ANYONE)).containsOnly(Permissions.DRY_RUN_EXECUTION, Permissions.SCAN_EXECUTION);
   }
 
   @Test

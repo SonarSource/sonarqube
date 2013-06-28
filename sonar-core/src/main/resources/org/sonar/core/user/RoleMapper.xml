@@ -17,6 +17,10 @@
     INNER JOIN groups g ON g.id = gr.group_id
     WHERE g.name = #{groupName}
       AND gr.resource_id IS NULL
+    UNION
+    SELECT gr.role
+    FROM group_roles gr
+    WHERE gr.group_id IS NULL
   </select>
 
   <insert id="insertGroupRole" parameterType="GroupRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

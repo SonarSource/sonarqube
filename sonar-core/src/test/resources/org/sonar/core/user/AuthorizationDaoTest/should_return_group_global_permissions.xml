@@ -12,7 +12,7 @@
   <groups_users user_id="10" group_id="201"/>
   <groups_users user_id="11" group_id="200"/>
 
-  <group_roles id="200" group_id="200" resource_id="[null]" role="user"/>
-  <group_roles id="201" group_id="200" resource_id="[null]" role="admin"/>
+  <group_roles id="1" group_id="200" resource_id="[null]" role="user"/>
+  <group_roles id="2" group_id="201" resource_id="[null]" role="admin"/>
 
 </dataset>

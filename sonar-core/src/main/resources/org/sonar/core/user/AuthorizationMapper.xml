@@ -72,12 +72,16 @@
       <when test="userLogin != null">
         SELECT gr.role
         FROM group_roles gr
-        INNER JOIN groups_users gu on gu.group_id=gr.id
+        INNER JOIN groups_users gu on gu.group_id=gr.group_id
         INNER JOIN users u on u.id=gu.user_id
         <where>
           and u.login=#{userLogin}
           and gr.resource_id is null
         </where>
+        UNION
+        SELECT gr.role
+        FROM group_roles gr
+        WHERE gr.group_id IS NULL AND gr.resource_id IS NULL
         UNION
         SELECT ur.role
         FROM user_roles ur

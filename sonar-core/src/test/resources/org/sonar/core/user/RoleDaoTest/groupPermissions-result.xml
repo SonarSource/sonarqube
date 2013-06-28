@@ -6,5 +6,8 @@
   <group_roles id="1" group_id="100" role="admin"/>
   <group_roles id="3" group_id="100" role="sharedashboard"/>
   <group_roles id="4" group_id="101" role="sharedashboard"/>
+  <!-- Group 'anyone' has a NULL group_id -->
+  <group_roles id="5" group_id="[null]" role="scan"/>
+  <group_roles id="6" group_id="[null]" role="dryrun"/>
 
 </dataset>

@@ -174,13 +174,23 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_support_special_anyone_group() throws Exception {
+  public void should_add_permission_to_anyone_group() throws Exception {
     params = buildParams(null, DefaultGroups.ANYONE, Permissions.QUALITY_PROFILE_ADMIN);
     GroupRoleDto roleToInsert = new GroupRoleDto().setRole(Permissions.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
 
     verify(roleDao).insertGroupRole(argThat(matchesRole(roleToInsert)));
+  }
+
+  @Test
+  public void should_remove_permission_from_anyone_group() throws Exception {
+    params = buildParams(null, DefaultGroups.ANYONE, Permissions.QUALITY_PROFILE_ADMIN);
+    GroupRoleDto roleToInsert = new GroupRoleDto().setRole(Permissions.QUALITY_PROFILE_ADMIN);
+
+    service.removePermission(params);
+
+    verify(roleDao).deleteGroupRole(argThat(matchesRole(roleToInsert)));
   }
 
   protected static class MatchesUserRole extends BaseMatcher<UserRoleDto> {
