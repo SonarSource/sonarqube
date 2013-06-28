@@ -25,10 +25,10 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.ui.JRubyI18n;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -82,11 +82,12 @@ public class UserSession {
   }
 
   public UserSession checkLoggedIn() {
-    if (login==null) {
+    if (login == null) {
       throw new UnauthorizedException();
     }
     return this;
   }
+
   /**
    * Ensures that user implies the specified permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
    */

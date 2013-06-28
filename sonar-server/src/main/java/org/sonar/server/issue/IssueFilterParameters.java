@@ -63,4 +63,7 @@ public class IssueFilterParameters {
     }
   }));
 
+  private IssueFilterParameters() {
+    // Utility class
+  }
 }

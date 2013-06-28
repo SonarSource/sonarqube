@@ -32,4 +32,8 @@ public class RubyUserSession {
     UserSession.set(session);
   }
 
+  private RubyUserSession() {
+    // Utility class
+  }
+
 }
