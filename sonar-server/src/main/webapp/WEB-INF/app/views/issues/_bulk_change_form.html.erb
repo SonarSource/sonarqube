@@ -58,8 +58,11 @@
           (<%= @transitions_by_issues[transition].to_s %>) <br>
         <% end %>
       </div>
-      <div style="padding: 0 10px 10px 0;">
-        <div class="width100" >
+      <div class="modal-field">
+        <label>
+          <%= message('issue.comment.formlink') -%>
+        </label>
+        <div style="padding: 0 10px 10px 0;">
           <div>
             <textarea rows="4" name="comment" style="width: 100%" autofocus="autofocus"></textarea>
           </div>
