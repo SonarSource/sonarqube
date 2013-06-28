@@ -27,7 +27,10 @@ import org.sonar.api.web.UserRole;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Set;
 
 /**
  * @since 3.6
@@ -340,7 +343,7 @@ public class IssueQuery {
       initPageIndex();
       initPageSize();
       if (issueKeys != null) {
-        Preconditions.checkArgument(issueKeys.size() < MAX_ISSUE_KEYS, "Number of issue keys must be less than " + MAX_ISSUE_KEYS + " (got " + issueKeys.size() + ")");
+        Preconditions.checkArgument(issueKeys.size() <= MAX_ISSUE_KEYS, "Number of issue keys must be less than " + MAX_ISSUE_KEYS + " (got " + issueKeys.size() + ")");
       }
       return new IssueQuery(this);
     }

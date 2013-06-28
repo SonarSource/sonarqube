@@ -35,7 +35,6 @@ import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Date;
 import java.util.List;
 
@@ -62,7 +61,7 @@ public class IssueBulkChangeService {
     verifyLoggedIn(userSession);
 
     IssueBulkChangeResult result = new IssueBulkChangeResult();
-    IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issues()).requiredRole(UserRole.USER).build());
+    IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issues()).pageSize(-1).requiredRole(UserRole.USER).build());
     List<Issue> issues = issueQueryResult.issues();
     List<Action> bulkActions = newArrayList();
     for (String actionName : issueBulkChangeQuery.actions()) {

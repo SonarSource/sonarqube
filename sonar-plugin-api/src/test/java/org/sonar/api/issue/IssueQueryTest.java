@@ -199,7 +199,7 @@ public class IssueQueryTest {
   @Test
   public void number_of_issue_keys_should_be_limited() throws Exception {
     List<String> issueKeys = newArrayList();
-    for (int i=0; i<IssueQuery.MAX_ISSUE_KEYS; i++) {
+    for (int i=0; i<IssueQuery.MAX_ISSUE_KEYS+1; i++) {
       issueKeys.add("issue-key-"+ i);
     }
     try {
@@ -208,7 +208,7 @@ public class IssueQueryTest {
           .build();
       fail();
     } catch (Exception e) {
-      assertThat(e).hasMessage("Number of issue keys must be less than 500 (got 500)").isInstanceOf(IllegalArgumentException.class);
+      assertThat(e).hasMessage("Number of issue keys must be less than 500 (got 501)").isInstanceOf(IllegalArgumentException.class);
     }
   }
 

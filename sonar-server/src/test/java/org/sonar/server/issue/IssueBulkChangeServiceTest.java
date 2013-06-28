@@ -22,13 +22,14 @@ package org.sonar.server.issue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueNotifications;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.user.UserSession;
 
@@ -46,7 +47,6 @@ import static org.mockito.Mockito.*;
 public class IssueBulkChangeServiceTest {
 
   private DefaultIssueFinder finder = mock(DefaultIssueFinder.class);
-  private IssueUpdater issueUpdater = mock(IssueUpdater.class);
   private IssueStorage issueStorage = mock(IssueStorage.class);
   private IssueNotifications issueNotifications = mock(IssueNotifications.class);
 
@@ -91,11 +91,32 @@ public class IssueBulkChangeServiceTest {
     assertThat(result.issuesChanged()).hasSize(1);
     assertThat(result.issuesNotChanged()).isEmpty();
 
-    verifyNoMoreInteractions(issueUpdater);
     verify(issueStorage).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
     verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
     verifyNoMoreInteractions(issueNotifications);
+  }
+
+  @Test
+  public void should_load_issues_from_issue_keys_with_maximum_page_size() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD,DEFG");
+    properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
+
+    when(action.supports(any(Issue.class))).thenReturn(true);
+    when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+    when(action.execute(eq(properties), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    service.execute(issueBulkChangeQuery, userSession);
+
+    ArgumentCaptor<IssueQuery> captor = ArgumentCaptor.forClass(IssueQuery.class);
+    verify(finder).find(captor.capture());
+    IssueQuery query = captor.getValue();
+    assertThat(query.issueKeys()).containsOnly("ABCD", "DEFG");
+    assertThat(query.pageSize()).isEqualTo(IssueQuery.MAX_PAGE_SIZE);
+    assertThat(query.requiredRole()).isEqualTo(UserRole.USER);
   }
 
   @Test
@@ -112,7 +133,6 @@ public class IssueBulkChangeServiceTest {
     assertThat(result.issuesChanged()).isEmpty();
     assertThat(result.issuesNotChanged()).hasSize(1);
 
-    verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
   }
@@ -132,7 +152,6 @@ public class IssueBulkChangeServiceTest {
     assertThat(result.issuesChanged()).isEmpty();
     assertThat(result.issuesNotChanged()).hasSize(1);
 
-    verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
   }
@@ -152,7 +171,6 @@ public class IssueBulkChangeServiceTest {
     assertThat(result.issuesChanged()).isEmpty();
     assertThat(result.issuesNotChanged()).hasSize(1);
 
-    verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
   }
@@ -172,7 +190,6 @@ public class IssueBulkChangeServiceTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
     }
-    verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
   }
@@ -190,7 +207,6 @@ public class IssueBulkChangeServiceTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The action : 'unknown' is unknown");
     }
-    verifyZeroInteractions(issueUpdater);
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
   }
