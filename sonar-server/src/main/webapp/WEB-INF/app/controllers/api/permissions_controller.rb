@@ -30,7 +30,7 @@ class Api::PermissionsController < Api::ApiController
   # 'permission' is the key of the permission to add
   # 'user' is the user identifier (login)
   # OR
-  # 'group' is the group identifier (name)
+  # 'group' is the group identifier (group name or 'anyone')
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/permissions/add?permission=dashboard_sharing&user=new_user'
@@ -59,7 +59,7 @@ class Api::PermissionsController < Api::ApiController
   # 'permission' is the key of the permission to add
   # 'user' is the user identifier (login)
   # OR
-  # 'group' is the group identifier (name)
+  # 'group' is the group identifier (group name or 'anyone')
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/permissions/remove?permission=dashboard_sharing&user=new_user'
