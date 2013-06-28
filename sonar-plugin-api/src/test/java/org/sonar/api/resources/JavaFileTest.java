@@ -206,6 +206,16 @@ public class JavaFileTest {
     assertTrue(clazz.matchFilePattern("**/*"));
   }
 
+  // SONAR-4397
+  @Test
+  public void shouldMatchFilePatternsWhenNoPackage() {
+    JavaFile clazz = new JavaFile("[default].Foo.java");
+    assertTrue(clazz.matchFilePattern("**/*Foo"));
+    assertTrue(clazz.matchFilePattern("**/*Foo.*"));
+    assertTrue(clazz.matchFilePattern("**/*"));
+    assertTrue(clazz.matchFilePattern("Foo*.*"));
+  }
+
   /**
    * See http://jira.codehaus.org/browse/SONAR-1449
    */

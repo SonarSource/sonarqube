@@ -179,8 +179,13 @@ public class JavaFile extends Resource<JavaPackage> {
     if (!fileKey.endsWith(".java")) {
       fileKey += ".java";
     }
-    if (StringUtils.substringAfterLast(antPattern, "/").indexOf(".") < 0) {
+    // Add wildcard extension if not provided
+    if ((antPattern.contains("/") && StringUtils.substringAfterLast(antPattern, "/").indexOf(".") < 0) || antPattern.indexOf(".") < 0) {
       antPattern += ".*";
+    }
+    String noPackagePrefix = JavaPackage.DEFAULT_PACKAGE_NAME + ".";
+    if (fileKey.startsWith(noPackagePrefix)) {
+      fileKey = fileKey.substring(noPackagePrefix.length());
     }
     WildcardPattern matcher = WildcardPattern.create(antPattern, ".");
     return matcher.match(fileKey);
