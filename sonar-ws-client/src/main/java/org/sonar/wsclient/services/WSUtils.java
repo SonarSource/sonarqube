@@ -19,6 +19,8 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.Set;
 
@@ -47,6 +49,7 @@ public abstract class WSUtils {
    * @return value of specified field from specified JSON object,
    *         or <code>null</code> if field does not exist
    */
+  @CheckForNull
   public abstract Object getField(Object json, String field);
 
   /**
@@ -54,36 +57,42 @@ public abstract class WSUtils {
    *         or string representation of a numeric field,
    *         or <code>null</code> if field does not exist
    */
+  @CheckForNull
   public abstract String getString(Object json, String field);
 
   /**
    * @return Boolean value of specified field from specified JSON object,
    *         or <code>null</code> if field does not exist
    */
+  @CheckForNull
   public abstract Boolean getBoolean(Object json, String field);
 
   /**
    * @return Integer value of specified field from specified JSON object,
    *         or <code>null</code> if field does not exist
    */
+  @CheckForNull
   public abstract Integer getInteger(Object json, String field);
 
   /**
    * @return Double value of specified field from specified JSON object,
    *         or <code>null</code> if field does not exist
    */
+  @CheckForNull
   public abstract Double getDouble(Object json, String field);
 
   /**
    * @return Long value of specified field from specified JSON object,
    *         or <code>null</code> if field does not exist
    */
+  @CheckForNull
   public abstract Long getLong(Object json, String field);
 
   /**
    * @return Date value of specified field from specified JSON object,
    *         or <code>null</code> if field does not exist
    */
+  @CheckForNull
   public abstract Date getDateTime(Object json, String field);
 
   /**

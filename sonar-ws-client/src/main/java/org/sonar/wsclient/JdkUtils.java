@@ -24,6 +24,8 @@ import org.json.simple.JSONValue;
 import org.sonar.wsclient.services.WSUtils;
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 
+import javax.annotation.CheckForNull;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -55,31 +57,37 @@ public final class JdkUtils extends WSUtils {
   }
 
   @Override
+  @CheckForNull
   public String getString(Object json, String field) {
     return JsonUtils.getString((JSONObject) json, field);
   }
 
   @Override
+  @CheckForNull
   public Boolean getBoolean(Object json, String field) {
     return JsonUtils.getBoolean((JSONObject) json, field);
   }
 
   @Override
+  @CheckForNull
   public Integer getInteger(Object json, String field) {
     return JsonUtils.getInteger((JSONObject) json, field);
   }
 
   @Override
+  @CheckForNull
   public Double getDouble(Object json, String field) {
     return JsonUtils.getDouble((JSONObject) json, field);
   }
 
   @Override
+  @CheckForNull
   public Long getLong(Object json, String field) {
     return JsonUtils.getLong((JSONObject) json, field);
   }
 
   @Override
+  @CheckForNull
   public Date getDateTime(Object json, String field) {
     return JsonUtils.getDateTime((JSONObject) json, field);
   }

@@ -21,6 +21,8 @@ package org.sonar.wsclient.unmarshallers;
 
 import org.json.simple.JSONArray;
 
+import javax.annotation.CheckForNull;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,6 +36,7 @@ public final class JsonUtils {
     // only static methods
   }
 
+  @CheckForNull
   public static String getString(Map obj, String field) {
     Object value = obj.get(field);
     if (value instanceof String || value instanceof Number) {
@@ -42,6 +45,7 @@ public final class JsonUtils {
     return null;
   }
 
+  @CheckForNull
   public static Integer getInteger(Map obj, String field) {
     Object value = obj.get(field);
     if (value != null) {
@@ -50,6 +54,7 @@ public final class JsonUtils {
     return null;
   }
 
+  @CheckForNull
   public static Boolean getBoolean(Map obj, String field) {
     Object value = obj.get(field);
     if (value != null) {
@@ -58,6 +63,7 @@ public final class JsonUtils {
     return null;
   }
 
+  @CheckForNull
   public static Long getLong(Map obj, String field) {
     Object value = obj.get(field);
     if (value != null) {
@@ -66,6 +72,7 @@ public final class JsonUtils {
     return null;
   }
 
+  @CheckForNull
   public static Double getDouble(Map obj, String field) {
     Object value = obj.get(field);
     if (value != null) {
@@ -80,18 +87,22 @@ public final class JsonUtils {
   /**
    * @since 2.5
    */
+  @CheckForNull
   public static JSONArray getArray(Map obj, String field) {
     return (JSONArray) obj.get(field);
   }
 
+  @CheckForNull
   public static Date getDateTime(Map obj, String field) {
     return parseDate(obj, field, "yyyy-MM-dd'T'HH:mm:ssZ");
   }
 
+  @CheckForNull
   public static Date getDate(Map obj, String field) {
     return parseDate(obj, field, "yyyy-MM-dd");
   }
 
+  @CheckForNull
   private static Date parseDate(Map obj, String field, String format) {
     String value = getString(obj, field);
     if (value != null) {

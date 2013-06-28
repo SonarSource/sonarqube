@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 /**
  * @since 2.5
  */
@@ -29,21 +32,24 @@ public class TimeMachineColumn {
   private String modelName;
   private String characteristicKey;
 
-  public TimeMachineColumn(int index, String metricKey, String modelName, String characteristicKey) {
+  public TimeMachineColumn(int index, @Nullable String metricKey, @Nullable String modelName, @Nullable String characteristicKey) {
     this.index = index;
     this.metricKey = metricKey;
     this.modelName = modelName;
     this.characteristicKey = characteristicKey;
   }
 
+  @CheckForNull
   public String getMetricKey() {
     return metricKey;
   }
 
+  @CheckForNull
   public String getModelName() {
     return modelName;
   }
 
+  @CheckForNull
   public String getCharacteristicKey() {
     return characteristicKey;
   }
