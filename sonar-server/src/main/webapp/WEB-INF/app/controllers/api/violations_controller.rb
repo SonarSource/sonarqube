@@ -24,11 +24,11 @@ class Api::ViolationsController < Api::ApiController
     conditions={}
 
     if params['scopes']
-      rest_error('The parameter "scopes" is not supported since version 3.6.')
+      return render_error("The parameter 'scopes' is not supported since version 3.6.", 400)
     end
 
     if params['qualifiers']
-      rest_error('The parameter "qualifiers" is not supported since version 3.6.')
+      return render_error("The parameter 'qualifiers' is not supported since version 3.6.", 400)
     end
 
     resource = params[:resource]
@@ -37,7 +37,7 @@ class Api::ViolationsController < Api::ApiController
       if depth==0
         conditions['components'] = resource
       elsif depth>0
-        rest_error('The parameter "depth" is not supported since version 3.6.')
+        return render_error("The parameter 'depth' is not supported since version 3.6.", 400)
       else
         # negative : all the resource tree
         conditions['componentRoots'] = resource
