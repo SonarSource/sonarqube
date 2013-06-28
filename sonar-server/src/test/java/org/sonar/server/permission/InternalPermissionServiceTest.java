@@ -26,6 +26,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -184,6 +185,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
+  @Ignore
   public void should_remove_permission_from_anyone_group() throws Exception {
     params = buildParams(null, DefaultGroups.ANYONE, Permissions.QUALITY_PROFILE_ADMIN);
     GroupRoleDto roleToInsert = new GroupRoleDto().setRole(Permissions.QUALITY_PROFILE_ADMIN);
