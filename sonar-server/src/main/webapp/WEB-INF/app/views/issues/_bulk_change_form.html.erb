@@ -19,7 +19,6 @@
       <%
          if @project && !@project.blank?
            plans = Internal.issues.findOpenActionPlans(@project)
-           plan_options = ""
            unless plans.empty?
              first_plan = plans[0]
              options = plans.map { |plan|
@@ -32,7 +31,6 @@
              }
              options.unshift([escape_javascript(message('issue.unplan.submit')), ''])
              plan_options = options_for_select(options, first_plan.key)
-           end
       %>
         <div class="modal-field">
           <label for="plan">
@@ -41,6 +39,7 @@
           <input id="plan-action" name="actions[]" type="checkbox" value="plan"/>
           <%= dropdown_tag('plan.plan', plan_options, {:show_search_box => false}, {:id => 'plan'}) -%>
         </div>
+        <% end %>
       <% end %>
       <div class="modal-field">
         <label for="severity">
