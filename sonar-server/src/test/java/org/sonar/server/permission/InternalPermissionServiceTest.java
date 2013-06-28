@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.user.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -170,6 +171,16 @@ public class InternalPermissionServiceTest {
     MockUserSession.set();
 
     service.addPermission(params);
+  }
+
+  @Test
+  public void should_support_special_anyone_group() throws Exception {
+    params = buildParams(null, DefaultGroups.ANYONE, Permissions.QUALITY_PROFILE_ADMIN);
+    GroupRoleDto roleToInsert = new GroupRoleDto().setRole(Permissions.QUALITY_PROFILE_ADMIN);
+
+    service.addPermission(params);
+
+    verify(roleDao).insertGroupRole(argThat(matchesRole(roleToInsert)));
   }
 
   protected static class MatchesUserRole extends BaseMatcher<UserRoleDto> {

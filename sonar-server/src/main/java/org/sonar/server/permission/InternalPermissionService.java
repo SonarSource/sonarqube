@@ -23,6 +23,7 @@ package org.sonar.server.permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.user.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
@@ -85,7 +86,7 @@ public class InternalPermissionService implements ServerComponent {
       LOG.info("Skipping permission change '{} {}' for group {} as it matches the current permission scheme",
         new String[]{operation, permissionChangeQuery.getRole(), permissionChangeQuery.getGroup()});
     } else {
-      Long targetedGroup = getTargetedGroup(permissionChangeQuery.getGroup()).getId();
+      Long targetedGroup = getTargetedGroup(permissionChangeQuery.getGroup());
       GroupRoleDto groupRole = new GroupRoleDto().setRole(permissionChangeQuery.getRole()).setGroupId(targetedGroup);
       if(ADD.equals(operation)) {
         roleDao.insertGroupRole(groupRole);
@@ -101,7 +102,7 @@ public class InternalPermissionService implements ServerComponent {
       LOG.info("Skipping permission change '{} {}' for user {} as it matches the current permission scheme",
         new String[]{operation, permissionChangeQuery.getRole(), permissionChangeQuery.getUser()});
     } else {
-      Long targetedUser = getTargetedUser(permissionChangeQuery.getUser()).getId();
+      Long targetedUser = getTargetedUser(permissionChangeQuery.getUser());
       UserRoleDto userRole = new UserRoleDto().setRole(permissionChangeQuery.getRole()).setUserId(targetedUser);
       if(ADD.equals(operation)) {
         roleDao.insertUserRole(userRole);
@@ -111,12 +112,15 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  private UserDto getTargetedUser(String userLogin) {
-    return userDao.selectActiveUserByLogin(userLogin);
+  private Long getTargetedUser(String userLogin) {
+    return userDao.selectActiveUserByLogin(userLogin).getId();
   }
 
-  private GroupDto getTargetedGroup(String group) {
-    return userDao.selectGroupByName(group);
+  private Long getTargetedGroup(String group) {
+    if(DefaultGroups.isAnyone(group)) {
+      return null;
+    }
+    return userDao.selectGroupByName(group).getId();
   }
 
   private boolean shouldSkipPermissionChange(String operation, List<String> existingPermissions, String role) {
