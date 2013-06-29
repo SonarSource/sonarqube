@@ -145,14 +145,4 @@ public class RoleDao implements TaskExtension, ServerExtension {
       MyBatis.closeQuietly(session);
     }
   }
-
-  public int countSystemAdministrators(@Nullable String groupName) {
-    SqlSession session = mybatis.openSession();
-    try {
-      RoleMapper mapper = session.getMapper(RoleMapper.class);
-      return mapper.countSystemAdministrators(groupName);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
 }

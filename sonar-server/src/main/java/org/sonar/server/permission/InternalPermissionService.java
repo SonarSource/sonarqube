@@ -61,9 +61,6 @@ public class InternalPermissionService implements ServerComponent {
     UserSession.get().checkPermission(Permissions.SYSTEM_ADMIN);
     PermissionChangeQuery permissionChangeQuery = PermissionChangeQuery.buildFromParams(params);
     if(permissionChangeQuery.isValid()) {
-      if(Permissions.SYSTEM_ADMIN.equals(permissionChangeQuery.getRole()) && REMOVE.equals(permissionChange)) {
-        checkThatAtLeastOneAdminRemains(permissionChangeQuery);
-      }
       applyPermissionChange(permissionChange, permissionChangeQuery);
     } else {
       String errorMsg = String.format("Request '%s permission %s' is invalid", permissionChange, permissionChangeQuery.getRole());
@@ -126,15 +123,5 @@ public class InternalPermissionService implements ServerComponent {
   private boolean shouldSkipPermissionChange(String operation, List<String> existingPermissions, String role) {
     return (ADD.equals(operation) && existingPermissions.contains(role)) ||
       (REMOVE.equals(operation) && !existingPermissions.contains(role));
-  }
-
-  private void checkThatAtLeastOneAdminRemains(PermissionChangeQuery permissionChangeQuery) {
-    int remainingSystemAdmins = roleDao.countSystemAdministrators(permissionChangeQuery.getGroup());
-    if(remainingSystemAdmins == 0) {
-      String errorMsg = String.format("Cannot remove permission %s to %s - At least one system administrator should remain active",
-        permissionChangeQuery.getRole(), permissionChangeQuery.getUser() == null ? permissionChangeQuery.getGroup() : permissionChangeQuery.getUser());
-      LOG.error(errorMsg);
-      throw new BadRequestException(errorMsg);
-    }
   }
 }

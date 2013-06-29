@@ -49,5 +49,5 @@ public interface RoleMapper {
 
   int countUserRoles(Long resourceId);
 
-  int countSystemAdministrators(@Nullable @Param("groupName") String groupName);
+  List<Long> countSystemAdministrators(@Nullable @Param("groupName") String groupName);
 }

@@ -139,32 +139,6 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_prevent_last_admin_removal() throws Exception {
-    throwable.expect(BadRequestException.class);
-    params = buildParams("admin", null, Permissions.SYSTEM_ADMIN);
-    when(roleDao.countSystemAdministrators(null)).thenReturn(0);
-
-    service.removePermission(params);
-  }
-
-  @Test
-  public void should_prevent_last_admin_group_removal() throws Exception {
-    throwable.expect(BadRequestException.class);
-    params = buildParams(null, "sonar-administrators", Permissions.SYSTEM_ADMIN);
-    GroupDto adminGroups = new GroupDto().setId(2L).setName("sonar-administrators");
-
-    roleDao = mock(RoleDao.class);
-    when(roleDao.selectGroupPermissions("sonar-administrators")).thenReturn(Lists.newArrayList(Permissions.SYSTEM_ADMIN));
-    when(roleDao.countSystemAdministrators("sonar-administrators")).thenReturn(0);
-
-    userDao = mock(UserDao.class);
-    when(userDao.selectGroupByName("sonar-administrators")).thenReturn(adminGroups);
-
-    service = new InternalPermissionService(roleDao, userDao);
-    service.removePermission(params);
-  }
-
-  @Test
   public void should_fail_on_anonymous_access() throws Exception {
     throwable.expect(ForbiddenException.class);
     params = buildParams("user", null, Permissions.QUALITY_PROFILE_ADMIN);
