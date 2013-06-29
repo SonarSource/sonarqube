@@ -97,7 +97,7 @@
     INNER JOIN group_roles AS gr ON gr.group_id = gu.group_id
     INNER JOIN groups AS g ON g.id = gu.group_id
     WHERE (ur.role = 'admin' AND ur.resource_id IS NULL) OR (gr.role = 'admin' AND gr.resource_id IS NULL)
-    AND u.active = TRUE
+    AND u.active = ${_true}
     <if test="groupName != null">
       AND g.name != #{groupName}
     </if>

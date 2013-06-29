@@ -237,6 +237,7 @@
       <when test="returnOnlyIdAndSortColumns == true">
         i.id
         <include refid="sortColumn"/>
+        from issues i
       </when>
       <otherwise>
         <include refid="issueColumns"/>
