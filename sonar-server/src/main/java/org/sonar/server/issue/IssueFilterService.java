@@ -34,11 +34,12 @@ import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
+import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.Permissions;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -52,13 +53,15 @@ public class IssueFilterService implements ServerComponent {
   private final IssueFilterDao issueFilterDao;
   private final IssueFilterFavouriteDao issueFilterFavouriteDao;
   private final IssueFinder issueFinder;
+  private final AuthorizationDao authorizationDao;
   private final IssueFilterSerializer issueFilterSerializer;
 
-  public IssueFilterService(IssueFilterDao issueFilterDao, IssueFilterFavouriteDao issueFilterFavouriteDao, IssueFinder issueFinder,
+  public IssueFilterService(IssueFilterDao issueFilterDao, IssueFilterFavouriteDao issueFilterFavouriteDao, IssueFinder issueFinder, AuthorizationDao authorizationDao,
                             IssueFilterSerializer issueFilterSerializer) {
     this.issueFilterDao = issueFilterDao;
     this.issueFilterFavouriteDao = issueFilterFavouriteDao;
     this.issueFinder = issueFinder;
+    this.authorizationDao = authorizationDao;
     this.issueFilterSerializer = issueFilterSerializer;
   }
 
@@ -93,12 +96,10 @@ public class IssueFilterService implements ServerComponent {
   public DefaultIssueFilter update(DefaultIssueFilter issueFilter, UserSession userSession) {
     String user = getNotNullLogin(userSession);
     IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilter.id(), user);
-    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user, userSession);
-
-    if (!issueFilterDto.getUserLogin().equals(issueFilter.user()) && !userSession.hasPermission(Permissions.SYSTEM_ADMIN)) {
-      throw new ForbiddenException("User is not authorized to change the owner of this filter");
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user);
+    if(!issueFilterDto.getUserLogin().equals(issueFilter.user())) {
+      verifyCurrentUserCanChangeFilterOwnership(user);
     }
-
     validateFilter(issueFilter, user);
 
     issueFilterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
@@ -108,7 +109,7 @@ public class IssueFilterService implements ServerComponent {
   public DefaultIssueFilter updateFilterQuery(Long issueFilterId, Map<String, Object> filterQuery, UserSession userSession) {
     String user = getNotNullLogin(userSession);
     IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilterId, user);
-    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user, userSession);
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user);
 
     DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
     issueFilter.setData(serializeFilterQuery(filterQuery));
@@ -119,7 +120,7 @@ public class IssueFilterService implements ServerComponent {
   public void delete(Long issueFilterId, UserSession userSession) {
     String user = getNotNullLogin(userSession);
     IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilterId, user);
-    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user, userSession);
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), user);
 
     deleteFavouriteIssueFilters(issueFilterDto);
     issueFilterDao.delete(issueFilterId);
@@ -179,19 +180,31 @@ public class IssueFilterService implements ServerComponent {
   }
 
   String getNotNullLogin(UserSession userSession) {
-    userSession.checkLoggedIn();
-    return userSession.login();
+    String user = userSession.login();
+    if (!userSession.isLoggedIn() && user != null) {
+      throw new IllegalStateException("User is not logged in");
+    }
+    return user;
   }
 
   void verifyCurrentUserCanReadFilter(DefaultIssueFilter issueFilter, String user) {
     if (!issueFilter.user().equals(user) && !issueFilter.shared()) {
-      throw new ForbiddenException("User is not authorized to read this filter");
+      // TODO throw unauthorized
+      throw new IllegalStateException("User is not authorized to read this filter");
     }
   }
 
-  private void verifyCurrentUserCanModifyFilter(DefaultIssueFilter issueFilter, String user, UserSession userSession) {
-    if (!issueFilter.user().equals(user) && !userSession.hasPermission(Permissions.SYSTEM_ADMIN)) {
-      throw new ForbiddenException("User is not authorized to modify this filter");
+  private void verifyCurrentUserCanModifyFilter(DefaultIssueFilter issueFilter, String user) {
+    if (!issueFilter.user().equals(user) && !isAdmin(user)) {
+      // TODO throw unauthorized
+      throw new IllegalStateException("User is not authorized to modify this filter");
+    }
+  }
+
+  private void verifyCurrentUserCanChangeFilterOwnership(String user) {
+    if(!isAdmin(user)) {
+      // TODO throw unauthorized
+      throw new IllegalStateException("User is not authorized to change the owner of this filter");
     }
   }
 
@@ -237,6 +250,10 @@ public class IssueFilterService implements ServerComponent {
         return issueFilterDto.toIssueFilter();
       }
     }));
+  }
+
+  private boolean isAdmin(String user) {
+    return authorizationDao.selectGlobalPermissions(user).contains(Permissions.SYSTEM_ADMIN);
   }
 
   private IssueFilterResult createIssueFilterResult(IssueQueryResult issueQueryResult, IssueQuery issueQuery) {
