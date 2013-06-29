@@ -190,7 +190,7 @@ public class Metric implements ServerExtension, BatchExtension {
    * @deprecated since 2.7 use the {@link Builder} factory.
    */
   @Deprecated
-  private Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, String domain) {
+  public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, String domain) {
     this(key, name, description, type, direction, qualitative, domain, false);
   }
 
@@ -211,7 +211,7 @@ public class Metric implements ServerExtension, BatchExtension {
    * @deprecated since 2.7 use the {@link Builder} factory.
    */
   @Deprecated
-  private Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, String domain,
+  public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, String domain,
       boolean userManaged) {
     this.key = key;
     this.description = description;
@@ -246,7 +246,7 @@ public class Metric implements ServerExtension, BatchExtension {
    * @deprecated since 2.7 use the {@link Builder} factory.
    */
   @Deprecated
-  private Metric(String key, String name, ValueType type, Integer direction, Boolean qualitative, String domain, Formula formula) {
+  public Metric(String key, String name, ValueType type, Integer direction, Boolean qualitative, String domain, Formula formula) {
     this.key = key;
     this.name = name;
     this.type = type;
