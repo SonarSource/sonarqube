@@ -122,9 +122,9 @@ module ApplicationHelper
 
   def boolean_icon(boolean_value, options={})
     if boolean_value
-      image_tag('tick.png')
+      image_tag('tick.png', options)
     elsif options[:display_false]
-      image_tag('cross.png')
+      image_tag('cross.png', options)
     else
       nil
     end

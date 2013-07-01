@@ -22,7 +22,7 @@
           <div class="description"><%= h dashboard.description -%></div>
         </td>
         <td class="shared">
-          <%= boolean_icon(dashboard.shared) -%>
+          <%= boolean_icon(dashboard.shared, {:id => "dashboard-#{index}-shared"}) -%>
         </td>
         <td class="owner">
           <%= h(dashboard.user_name || message('dashboard.username.default')) -%>

@@ -9,18 +9,18 @@
   </tr>
   </thead>
   <tbody>
-    <% ['admin', 'profileadmin', 'shareDashboard', 'scan', 'dryrun'].each do |global_permissions| %>
+    <% ['admin', 'profileadmin', 'shareDashboard', 'scan', 'dryrun'].each do |global_permission| %>
     <tr class="<%= cycle('even', 'odd', :name => 'global_permission') -%>" >
       <td valign="top">
-        <b><%= message('global_permissions.' + global_permissions) -%></b><br/>
-        <span class="small gray"><%= message('global_permissions.' + global_permissions + '.desc') -%></span></td>
+        <b><%= message('global_permissions.' + global_permission) -%></b><br/>
+        <span class="small gray"><%= message('global_permissions.' + global_permission + '.desc') -%></span></td>
       <td valign="top" style="word-break:break-all;width:30%;">
-        <span><%= users(global_permissions).map(&:name).join(', ') -%></span>
-        (<%= link_to "select", {:action => 'edit_users', :role => global_permissions, :redirect => 'global'}, :class => 'link-action' -%>)
+        <span><%= users(global_permission).map(&:name).join(', ') -%></span>
+        (<%= link_to "select", {:action => 'edit_users', :role => global_permission, :redirect => 'global'}, :class => 'link-action', :id => "select-users-#{global_permission}" -%>)
       </td>
       <td valign="top" style="word-break:break-all;width:30%;">
-        <span><%= groups(global_permissions).map{|g| group_name(g)}.join(', ') %></span>
-        (<%= link_to "select", {:action => 'edit_groups', :role => global_permissions, :redirect => 'global'}, :class => 'link-action' -%>)
+        <span><%= groups(global_permission).map{|g| group_name(g)}.join(', ') %></span>
+        (<%= link_to "select", {:action => 'edit_groups', :role => global_permission, :redirect => 'global'}, :class => 'link-action', :id => "select-groups-#{global_permission}" -%>)
       </td>
     </tr>
     <% end %>
