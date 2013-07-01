@@ -23,6 +23,8 @@ import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.CheckForNull;
 
+import java.util.List;
+
 /**
  * @since 3.7
  */
@@ -31,12 +33,11 @@ public interface IssueFilterFavouriteMapper {
   @CheckForNull
   IssueFilterFavouriteDto selectById(Long id);
 
-  @CheckForNull
-  IssueFilterFavouriteDto selectByIssueFilterId(@Param("userLogin") String userLogin, @Param("issueFilterId") Long issueFilterId);
+  List<IssueFilterFavouriteDto> selectByFilterId(@Param("filterId") Long filterId);
 
   void insert(IssueFilterFavouriteDto filterFavourite);
 
-  void delete(Long issueFilterFavouriteId);
+  void delete(Long id);
 
-  void deleteByIssueFilterId(Long issueFilterId);
+  void deleteByFilterId(Long filterId);
 }

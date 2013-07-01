@@ -26,7 +26,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -52,16 +51,6 @@ public class IssueFilterDao implements BatchComponent, ServerComponent {
     }
   }
 
-  @CheckForNull
-  public IssueFilterDto selectByNameAndUser(String name, String user, @Nullable Long existingId) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return getMapper(session).selectByNameAndUser(name, user, existingId);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public List<IssueFilterDto> selectByUser(String user) {
     SqlSession session = mybatis.openSession();
     try {
@@ -71,28 +60,19 @@ public class IssueFilterDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<IssueFilterDto> selectByUserWithOnlyFavoriteFilters(String user) {
+  public List<IssueFilterDto> selectFavoriteFiltersByUser(String user) {
     SqlSession session = mybatis.openSession();
     try {
-      return getMapper(session).selectByUserWithOnlyFavoriteFilters(user);
+      return getMapper(session).selectFavoriteFiltersByUser(user);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<IssueFilterDto> selectSharedWithoutUserFilters(String user) {
+  public List<IssueFilterDto> selectSharedFilters() {
     SqlSession session = mybatis.openSession();
     try {
-      return getMapper(session).selectSharedWithoutUserFilters(user);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public IssueFilterDto selectSharedWithoutUserFiltersByName(String name, String user, @Nullable Long existingId) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return getMapper(session).selectSharedWithoutUserFiltersByName(name, user, existingId);
+      return getMapper(session).selectSharedFilters();
     } finally {
       MyBatis.closeQuietly(session);
     }

@@ -564,7 +564,7 @@ public class InternalRubyIssueServiceTest {
   @Test
   public void should_find_shared_issue_filters() {
     service.findSharedFiltersForCurrentUser();
-    verify(issueFilterService).findSharedFilters(any(UserSession.class));
+    verify(issueFilterService).findSharedFiltersWithoutUserFilters(any(UserSession.class));
   }
 
   @Test
@@ -592,7 +592,7 @@ public class InternalRubyIssueServiceTest {
   public void should_check_is_user_is_authorized_to_see_issue_filter() {
     DefaultIssueFilter issueFilter = new DefaultIssueFilter();
     service.isUserAuthorized(issueFilter);
-    verify(issueFilterService).getNotNullLogin(any(UserSession.class));
+    verify(issueFilterService).getLoggedLogin(any(UserSession.class));
     verify(issueFilterService).verifyCurrentUserCanReadFilter(eq(issueFilter), anyString());
   }
 

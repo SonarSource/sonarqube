@@ -19,12 +19,11 @@
     </where>
   </select>
 
-  <select id="selectByIssueFilterId" parameterType="long" resultType="issueFilterFavourite">
+  <select id="selectByFilterId" parameterType="long" resultType="issueFilterFavourite">
     select <include refid="issueFilterFavouriteColumns"/>
     from issue_filter_favourites filter_favourites
     <where>
-      filter_favourites.issue_filter_id=#{issueFilterId}
-      and filter_favourites.user_login=#{userLogin}
+      filter_favourites.issue_filter_id=#{filterId}
     </where>
   </select>
 
@@ -37,7 +36,7 @@
     delete from issue_filter_favourites where id=#{id}
   </delete>
 
-  <delete id="deleteByIssueFilterId" parameterType="int">
+  <delete id="deleteByFilterId" parameterType="int">
     delete from issue_filter_favourites where issue_filter_id=#{issueFilterId}
   </delete>
 

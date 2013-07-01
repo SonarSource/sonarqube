@@ -51,17 +51,6 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_by_name_and_user() {
-    setupData("shared");
-
-    IssueFilterDto filter = dao.selectByNameAndUser("Sonar Issues", "stephane", null);
-    assertThat(filter.getId()).isEqualTo(1L);
-
-    filter = dao.selectByNameAndUser("Sonar Issues", "stephane", 1L);
-    assertThat(filter).isNull();
-  }
-
-  @Test
   public void should_select_by_user() {
     setupData("should_select_by_user");
 
@@ -74,7 +63,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
   public void should_select_by_user_with_only_favorite_filters() {
     setupData("should_select_by_user_with_only_favorite_filters");
 
-    List<IssueFilterDto> results = dao.selectByUserWithOnlyFavoriteFilters("michael");
+    List<IssueFilterDto> results = dao.selectFavoriteFiltersByUser("michael");
 
     assertThat(results).hasSize(1);
     IssueFilterDto issueFilterDto = results.get(0);
@@ -85,23 +74,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
   public void should_select_shared() {
     setupData("shared");
 
-    assertThat(dao.selectSharedWithoutUserFilters("michael")).hasSize(1);
-    assertThat(dao.selectSharedWithoutUserFilters("stephane")).isEmpty();
-  }
-
-  @Test
-  public void should_select_shared_by_name() {
-    setupData("should_select_shared_by_name");
-
-    IssueFilterDto result = dao.selectSharedWithoutUserFiltersByName("Open issues", "stephane", null);
-    assertThat(result).isNotNull();
-    assertThat(result.getId()).isEqualTo(3L);
-    assertThat(result.getUserLogin()).isEqualTo("michael");
-    assertThat(result.isShared()).isTrue();
-    assertThat(dao.selectSharedWithoutUserFiltersByName("Open issues", "stephane", 3L)).isNull();
-
-    assertThat(dao.selectSharedWithoutUserFiltersByName("Open issues", "michael", null)).isNull();
-    assertThat(dao.selectSharedWithoutUserFiltersByName("Sonar issues", "stephane", null)).isNull();
+    assertThat(dao.selectSharedFilters()).hasSize(1);
   }
 
   @Test

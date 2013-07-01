@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
+import java.util.List;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueFilterFavouriteDaoTest extends AbstractDaoTestCase {
@@ -39,37 +41,40 @@ public class IssueFilterFavouriteDaoTest extends AbstractDaoTestCase {
   public void should_select_by_id() {
     setupData("shared");
 
-    IssueFilterFavouriteDto issueFilterFavouriteDto = dao.selectById(1L);
-    assertThat(issueFilterFavouriteDto.getId()).isEqualTo(1L);
-    assertThat(issueFilterFavouriteDto.getUserLogin()).isEqualTo("stephane");
-    assertThat(issueFilterFavouriteDto.getIssueFilterId()).isEqualTo(10L);
-    assertThat(issueFilterFavouriteDto.getCreatedAt()).isNotNull();
+    IssueFilterFavouriteDto dto = dao.selectById(1L);
+    assertThat(dto.getId()).isEqualTo(1L);
+    assertThat(dto.getUserLogin()).isEqualTo("stephane");
+    assertThat(dto.getIssueFilterId()).isEqualTo(10L);
+    assertThat(dto.getCreatedAt()).isNotNull();
 
     assertThat(dao.selectById(999L)).isNull();
   }
 
   @Test
-  public void should_select_by_issue_filter_id() {
+  public void should_select_by_filter_id() {
     setupData("shared");
 
-    IssueFilterFavouriteDto issueFilterFavouriteDto = dao.selectByUserAndIssueFilterId("stephane", 10L);
-    assertThat(issueFilterFavouriteDto.getId()).isEqualTo(1L);
-    assertThat(issueFilterFavouriteDto.getUserLogin()).isEqualTo("stephane");
-    assertThat(issueFilterFavouriteDto.getIssueFilterId()).isEqualTo(10L);
-    assertThat(issueFilterFavouriteDto.getCreatedAt()).isNotNull();
+    List<IssueFilterFavouriteDto> dtos = dao.selectByFilterId(11L);
+    assertThat(dtos).hasSize(1);
+    IssueFilterFavouriteDto dto = dtos.get(0);
+    assertThat(dto.getId()).isEqualTo(2L);
+    assertThat(dto.getUserLogin()).isEqualTo("stephane");
+    assertThat(dto.getIssueFilterId()).isEqualTo(11L);
+    assertThat(dto.getCreatedAt()).isNotNull();
 
-    assertThat(dao.selectByUserAndIssueFilterId("stephane", 999L)).isNull();
+    assertThat(dao.selectByFilterId(10L)).hasSize(2);
+    assertThat(dao.selectByFilterId(999L)).isEmpty();
   }
 
   @Test
   public void should_insert() {
     setupData("shared");
 
-    IssueFilterFavouriteDto issueFilterFavouriteDto = new IssueFilterFavouriteDto();
-    issueFilterFavouriteDto.setUserLogin("arthur");
-    issueFilterFavouriteDto.setIssueFilterId(11L);
+    IssueFilterFavouriteDto dto = new IssueFilterFavouriteDto();
+    dto.setUserLogin("arthur");
+    dto.setIssueFilterId(11L);
 
-    dao.insert(issueFilterFavouriteDto);
+    dao.insert(dto);
 
     checkTables("should_insert", new String[]{"created_at"}, "issue_filter_favourites");
   }
@@ -87,7 +92,7 @@ public class IssueFilterFavouriteDaoTest extends AbstractDaoTestCase {
   public void should_delete_by_issue_filter_id() {
     setupData("shared");
 
-    dao.deleteByIssueFilterId(10l);
+    dao.deleteByFilterId(10l);
 
     checkTables("should_delete_by_issue_filter_id", new String[]{"created_at"}, "issue_filter_favourites");
   }

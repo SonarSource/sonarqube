@@ -25,6 +25,8 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
+import java.util.List;
+
 /**
  * @since 3.7
  */
@@ -45,10 +47,10 @@ public class IssueFilterFavouriteDao implements BatchComponent, ServerComponent 
     }
   }
 
-  public IssueFilterFavouriteDto selectByUserAndIssueFilterId(String user, Long issueFilterId) {
+  public List<IssueFilterFavouriteDto> selectByFilterId(Long filterId) {
     SqlSession session = mybatis.openSession();
     try {
-      return getMapper(session).selectByIssueFilterId(user, issueFilterId);
+      return getMapper(session).selectByFilterId(filterId);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -64,20 +66,20 @@ public class IssueFilterFavouriteDao implements BatchComponent, ServerComponent 
     }
   }
 
-  public void delete(Long issueFilterFavouriteId) {
+  public void delete(Long id) {
     SqlSession session = mybatis.openSession();
     try {
-      getMapper(session).delete(issueFilterFavouriteId);
+      getMapper(session).delete(id);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void deleteByIssueFilterId(Long issueFilterId) {
+  public void deleteByFilterId(Long filterId) {
     SqlSession session = mybatis.openSession();
     try {
-      getMapper(session).deleteByIssueFilterId(issueFilterId);
+      getMapper(session).deleteByFilterId(filterId);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

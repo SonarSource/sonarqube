@@ -398,7 +398,7 @@ public class InternalRubyIssueService implements ServerComponent {
   public boolean isUserAuthorized(DefaultIssueFilter issueFilter) {
     try {
       UserSession userSession = UserSession.get();
-      String user = issueFilterService.getNotNullLogin(userSession);
+      String user = issueFilterService.getLoggedLogin(userSession);
       issueFilterService.verifyCurrentUserCanReadFilter(issueFilter, user);
       return true;
     } catch (Exception e) {
@@ -542,7 +542,7 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   @VisibleForTesting
-  Result<DefaultIssueFilter> createIssueFilterResult(Map<String, String> params, boolean showCheckId, boolean showCheckUser) {
+  Result<DefaultIssueFilter> createIssueFilterResult(Map<String, String> params, boolean checkId, boolean checkUser) {
     Result<DefaultIssueFilter> result = Result.of();
 
     String id = params.get("id");
@@ -553,10 +553,10 @@ public class InternalRubyIssueService implements ServerComponent {
     Boolean sharedParam = RubyUtils.toBoolean(params.get("shared"));
     boolean shared = sharedParam != null ? sharedParam : false;
 
-    if (showCheckId) {
+    if (checkId) {
       checkMandatoryParameter(id, "id", result);
     }
-    if (showCheckUser) {
+    if (checkUser) {
       checkMandatoryParameter(user, "user", result);
     }
     checkMandatorySizeParameter(name, "name", 100, result);
@@ -578,7 +578,7 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public List<DefaultIssueFilter> findSharedFiltersForCurrentUser() {
-    return issueFilterService.findSharedFilters(UserSession.get());
+    return issueFilterService.findSharedFiltersWithoutUserFilters(UserSession.get());
   }
 
   public List<DefaultIssueFilter> findFavouriteIssueFiltersForCurrentUser() {
