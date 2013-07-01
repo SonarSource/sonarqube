@@ -24,7 +24,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
@@ -333,7 +332,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  @Ignore
   public void should_select_issues_all_columns() {
     setupData("shared", "should_return_all_columns");
 
