@@ -37,9 +37,17 @@ public interface IssueMapper {
    * Return a paginated list of authorized issue ids for a user.
    * If the role is null, then the authorisation check is disabled.
    */
+  List<IssueDto> selectIssueIds(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
+                                @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role,
+                                @Param("maxResults") Integer maxResult);
+
+  /**
+   * Return a none paginated list of authorized issues for a user.
+   * If the role is null, then the authorisation check is disabled.
+   */
   List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
-                              @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role,
-                              @Param("maxResults") Integer maxResult, @Param("returnOnlyIdAndSortColumns") boolean returnOnlyIdAndSortColumns);
+                                @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role);
+
 
   void insert(IssueDto issue);
 
