@@ -22,14 +22,15 @@ package org.sonar.server.issue;
 
 import org.sonar.api.issue.Issue;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Set;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 
 public class IssueBulkChangeResult {
 
-  private List<Issue> issuesChanged = newArrayList();
-  private List<Issue> issuesNotChanged = newArrayList();
+  private Set<Issue> issuesChanged = newHashSet();
+  private Set<Issue> issuesNotChanged = newHashSet();
 
   public void addIssueChanged(Issue issue){
     this.issuesChanged.add(issue);
@@ -39,11 +40,11 @@ public class IssueBulkChangeResult {
     this.issuesNotChanged.add(issue);
   }
 
-  public List<Issue> issuesChanged() {
+  public Collection<Issue> issuesChanged() {
     return issuesChanged;
   }
 
-  public List<Issue> issuesNotChanged() {
+  public Collection<Issue> issuesNotChanged() {
     return issuesNotChanged;
   }
 }

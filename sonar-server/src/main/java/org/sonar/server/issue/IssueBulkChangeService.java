@@ -35,6 +35,7 @@ import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.List;
 
@@ -75,12 +76,10 @@ public class IssueBulkChangeService {
 
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
     for (Issue issue : issues) {
+      ActionContext actionContext = new ActionContext(issue, issueChangeContext);
       for (Action action : bulkActions) {
         try {
-          ActionContext actionContext = new ActionContext(issue, issueChangeContext);
           if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(action.key()), actionContext)) {
-            issueStorage.save((DefaultIssue) issue);
-            issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
             result.addIssueChanged(issue);
           } else {
             result.addIssueNotChanged(issue);
@@ -89,6 +88,10 @@ public class IssueBulkChangeService {
           result.addIssueNotChanged(issue);
           LOG.info("An error occur when trying to apply the action : "+ action.key() + " on issue : "+ issue.key() + ". This issue has been ignored.", e);
         }
+      }
+      if (result.issuesChanged().contains(issue)) {
+        issueStorage.save((DefaultIssue) issue);
+        issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
       }
     }
     return result;

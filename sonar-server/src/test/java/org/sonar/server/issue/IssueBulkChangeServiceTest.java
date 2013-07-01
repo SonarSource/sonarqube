@@ -57,6 +57,7 @@ public class IssueBulkChangeServiceTest {
   private IssueBulkChangeService service;
 
   private Action action = mock(Action.class);
+  private List<Action> actions;
 
   @Before
   public void before() {
@@ -67,9 +68,8 @@ public class IssueBulkChangeServiceTest {
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) issue));
 
+    actions = newArrayList();
     when(action.key()).thenReturn("assign");
-
-    List<Action> actions = newArrayList();
     actions.add(action);
 
     service = new IssueBulkChangeService(finder, issueStorage, issueNotifications, actions);
@@ -94,6 +94,37 @@ public class IssueBulkChangeServiceTest {
     verify(issueStorage).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
     verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
+    verifyNoMoreInteractions(issueNotifications);
+  }
+
+  @Test
+  public void should_do_sve_once_per_issue() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "assign,set_severity");
+    properties.put("assign.assignee", "fred");
+    properties.put("set_severity.severity", "MINOR");
+
+    Action setSeverityAction = mock(Action.class);
+    when(setSeverityAction.key()).thenReturn("set_severity");
+    actions.add(setSeverityAction);
+
+    when(action.supports(any(Issue.class))).thenReturn(true);
+    when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+    when(action.execute(eq(properties), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+
+    when(setSeverityAction.supports(any(Issue.class))).thenReturn(true);
+    when(setSeverityAction.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+    when(setSeverityAction.execute(eq(properties), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result.issuesChanged()).hasSize(1);
+    assertThat(result.issuesNotChanged()).isEmpty();
+
+    verify(issueStorage, times(1)).save(eq(issue));
+    verifyNoMoreInteractions(issueStorage);
+    verify(issueNotifications, times(1)).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
     verifyNoMoreInteractions(issueNotifications);
   }
 
