@@ -26,7 +26,7 @@ class BatchBootstrapController < Api::ApiController
 
   # GET /batch_bootstrap/db?project=<key or id>
   def db
-    has_dryrun_role = has_role?(:dryrun)
+    has_dryrun_role = has_role?(:dryRunScan)
     return render_unauthorized("You're not authorized to execute a dry run analysis. Please contact your SonarQube administrator.") if !has_dryrun_role
     project = load_project()
     return render_unauthorized("You're not authorized to access to project '" + project.name + "', please contact your SonarQube administrator") if project && !has_role?(:user, project)
@@ -38,7 +38,7 @@ class BatchBootstrapController < Api::ApiController
   # GET /batch_bootstrap/properties?[project=<key or id>][&dryRun=true|false]
   def properties
     dryRun = params[:dryRun].present? && params[:dryRun] == "true"
-    has_dryrun_role = has_role?(:dryrun)
+    has_dryrun_role = has_role?(:dryRunScan)
     has_scan_role = has_role?(:scan)
 
     return render_unauthorized("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.") if (!has_dryrun_role && !has_scan_role)

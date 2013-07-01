@@ -30,50 +30,15 @@ class AddScanAndDryRunPermissions < ActiveRecord::Migration
 
   class UserRole < ActiveRecord::Base
   end
-    
+
   def self.up
     # -- Role scan --
-    group_roles=GroupRole.find(:all, :conditions => {:role => 'admin', :resource_id => nil})
-    groups = group_roles.map { |ur| ur.group_id }
     # Anyone
-    unless groups.include?(nil)
-      groups << nil
-    end
-    groups.each do |group_id|
-      GroupRole.create(:group_id => group_id, :role => 'scan', :resource_id => nil)
-    end
+    GroupRole.create(:group_id => nil, :role => 'scan', :resource_id => nil)
 
-    user_roles=UserRole.find(:all, :conditions => {:role => 'admin', :resource_id => nil})
-    users = user_roles.map { |ur| ur.user_id }
-    users.each do |user_id|
-      UserRole.create(:user_id => user_id, :role=> 'scan', :resource_id => nil)
-    end
-    
-    # -- Role dryrun --
-    group_roles=GroupRole.find(:all, :conditions => {:role => 'admin', :resource_id => nil})
-    groups = group_roles.map { |ur| ur.group_id }
+    # -- Role dryRunScan --
     # Anyone
-    unless groups.include?(nil)
-      groups << nil
-    end
-    # sonar-users
-    userGroupName = Property.by_key('sonar.defaultGroup')
-    userGroupName = 'sonar-users' if userGroupName.nil?
-    userGroup = Group.find(:all, :conditions => {:name => userGroupName}).first
-    unless userGroup.nil? || groups.include?(userGroup.id)
-      groups << userGroup.id
-    end
-    
-    groups.each do |group_id|
-      GroupRole.create(:group_id => group_id, :role => 'dryrun', :resource_id => nil)
-    end
-
-    user_roles=UserRole.find(:all, :conditions => {:role => 'admin', :resource_id => nil})
-    users = user_roles.map { |ur| ur.user_id }
-    users.each do |user_id|
-      UserRole.create(:user_id => user_id, :role=> 'dryrun', :resource_id => nil)
-    end
-    
+    GroupRole.create(:group_id => nil, :role => 'dryRunScan', :resource_id => nil)
   end
 
 end
