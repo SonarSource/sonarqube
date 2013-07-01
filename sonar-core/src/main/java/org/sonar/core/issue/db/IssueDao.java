@@ -35,10 +35,8 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * @since 3.6
@@ -132,9 +130,12 @@ public class IssueDao implements BatchComponent, ServerComponent {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
-    Object idsPartition = Lists.partition(newArrayList(ids), 1000);
-    Map<String, Object> params = newHashMap();
-    params.put("ids", idsPartition);
-    return session.selectList("org.sonar.core.issue.db.IssueMapper.selectByIds", params);
+    List<IssueDto> dtosList = newArrayList();
+    List<List<Long>> idsPartitionList = Lists.partition(newArrayList(ids), 1000);
+    for (List<Long> idsPartition : idsPartitionList) {
+      List<IssueDto> dtos = session.selectList("org.sonar.core.issue.db.IssueMapper.selectByIds", newArrayList(idsPartition));
+      dtosList.addAll(dtos);
+    }
+    return dtosList;
   }
 }

@@ -71,7 +71,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     List<String> hugeNbOfIssues = newArrayList();
-    for (int i=0; i<1500; i++) {
+    for (int i=0; i<4500; i++) {
       hugeNbOfIssues.add("ABCD"+i);
     }
     List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, hugeNbOfIssues);

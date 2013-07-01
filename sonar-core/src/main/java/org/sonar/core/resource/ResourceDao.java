@@ -143,8 +143,14 @@ public class ResourceDao {
     }
     SqlSession session = mybatis.openSession();
     try {
+
+      List<ResourceDto> resources = newArrayList();
       List <List<Long>> idsPartition = Lists.partition(newArrayList(ids), 1000);
-      Collection<ResourceDto> resources =  session.getMapper(ResourceMapper.class).selectResourcesById(idsPartition);
+      for (List<Long> partition : idsPartition) {
+        List<ResourceDto> dtos = session.getMapper(ResourceMapper.class).selectResourcesById(partition);
+        resources.addAll(dtos);
+      }
+
       Collection<Component> components = newArrayList();
       for (ResourceDto resourceDto : resources) {
         components.add(toComponent(resourceDto));

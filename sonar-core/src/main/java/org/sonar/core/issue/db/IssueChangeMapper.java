@@ -43,7 +43,7 @@ public interface IssueChangeMapper {
   /**
    * Issue changes by chronological date of creation
    */
-  List<IssueChangeDto> selectByIssuesAndType(@Param("issueKeys") List<List<String>> issueKeys,
+  List<IssueChangeDto> selectByIssuesAndType(@Param("issueKeys") List<String> issueKeys,
                                              @Param("changeType") String changeType);
 
   List<IssueChangeDto> selectByIssue(String issueKey);

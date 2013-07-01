@@ -52,10 +52,9 @@
     select <include refid="actionPlanColumns"/>
     from action_plans ap, projects p
     <where>
-      <foreach collection="keys" open="ap.kee in (" close=")" item="list" separator=") or ap.kee in (" >
-        <foreach collection="list" item="element" separator=",">
-          #{element}
-        </foreach>
+      and ap.kee in
+      <foreach collection="keys" open="(" close=")" item="key" separator=",">
+        #{key}
       </foreach>
       and ap.project_id=p.id
     </where>

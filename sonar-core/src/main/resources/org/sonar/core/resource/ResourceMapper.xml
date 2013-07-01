@@ -76,11 +76,10 @@
   </select>
 
   <select id="selectResourcesById" parameterType="map" resultMap="resourceResultMap">
-    select * from projects p where p.enabled=${_true} and
-    <foreach collection="ids" open="p.id in (" close=")" item="list" separator=") or p.id in (" >
-      <foreach collection="list" item="element" separator=",">
-        #{element}
-      </foreach>
+    select * from projects p where p.enabled=${_true}
+    and p.id in
+    <foreach collection="ids" open="(" close=")" item="key" separator=",">
+      #{key}
     </foreach>
 
   </select>

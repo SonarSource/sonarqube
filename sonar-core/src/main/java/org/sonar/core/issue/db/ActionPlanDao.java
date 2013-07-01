@@ -88,8 +88,13 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
     }
     SqlSession session = mybatis.openSession();
     try {
+      List<ActionPlanDto> dtosList = newArrayList();
       List<List<String>> keysPartition = Lists.partition(newArrayList(keys), 1000);
-      return session.getMapper(ActionPlanMapper.class).findByKeys(keysPartition);
+      for (List<String> partition : keysPartition) {
+        List<ActionPlanDto> dtos = session.getMapper(ActionPlanMapper.class).findByKeys(partition);
+        dtosList.addAll(dtos);
+      }
+      return dtosList;      
     } finally {
       MyBatis.closeQuietly(session);
     }

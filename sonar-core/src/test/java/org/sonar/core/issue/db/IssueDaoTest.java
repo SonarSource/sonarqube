@@ -322,7 +322,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     List<Long> hugeNbOfIssues = newArrayList();
-    for (long i=0; i<1500; i++) {
+    for (long i=0; i<4500; i++) {
       hugeNbOfIssues.add(i);
     }
     List<IssueDto> results = dao.selectByIds(hugeNbOfIssues);

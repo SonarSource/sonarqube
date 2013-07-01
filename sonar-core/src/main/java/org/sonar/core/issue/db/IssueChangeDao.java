@@ -87,9 +87,13 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
       return Collections.emptyList();
     }
     IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-
+    List<IssueChangeDto> dtosList = newArrayList();
     List<List<String>> keysPartition = Lists.partition(newArrayList(issueKeys), 1000);
-    return mapper.selectByIssuesAndType(keysPartition, changeType);
+    for (List<String> partition : keysPartition) {
+      List<IssueChangeDto> dtos = mapper.selectByIssuesAndType(partition, changeType);
+      dtosList.addAll(dtos);
+    }
+    return dtosList;
   }
 
   public boolean delete(String key) {
