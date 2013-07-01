@@ -83,11 +83,13 @@ class DashboardsController < ApplicationController
   def update
     verify_post_request
     @dashboard = Dashboard.find(params[:id])
+    dashboard_owner = @dashboard.user
     if @dashboard.editable_by?(current_user)
       load_dashboard_from_params(@dashboard)
       if @dashboard.save
         render :text => params[:resource], :status => 200
       else
+        @dashboard.user = dashboard_owner
         render :partial => 'dashboards/edit_form', :status => 400, :resource => params[:resource]
       end
     else
