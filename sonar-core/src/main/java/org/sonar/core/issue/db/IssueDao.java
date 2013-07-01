@@ -101,25 +101,21 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   private List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
     IssueMapper mapper = session.getMapper(IssueMapper.class);
-    return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole(), maxResults, true);
+    return mapper.selectIssueIds(query, query.componentRoots(), userId, query.requiredRole(), maxResults);
   }
 
   public List<IssueDto> selectIssues(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectIssues(query, null, Integer.MAX_VALUE, session);
+      return selectIssues(query, null, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, SqlSession session){
-    return selectIssues(query, userId, query.maxResults(), session);
-  }
-
-  public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
     IssueMapper mapper = session.getMapper(IssueMapper.class);
-    return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole(), maxResults, false);
+    return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole());
   }
 
   @VisibleForTesting
