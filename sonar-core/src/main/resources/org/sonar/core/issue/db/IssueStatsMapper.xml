@@ -4,7 +4,7 @@
 
 <mapper namespace="org.sonar.core.issue.db.IssueStatsMapper">
 
-  <select id="selectIssuesColumn" parameterType="map" resultType="Object" fetchSize="100000">
+  <select id="selectIssuesColumn" parameterType="map" resultType="Object">
     select
     <if test="'ASSIGNEE'.equals(column)">
       i.assignee
