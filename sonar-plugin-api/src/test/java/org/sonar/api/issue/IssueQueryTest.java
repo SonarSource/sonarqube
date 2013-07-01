@@ -199,7 +199,7 @@ public class IssueQueryTest {
   @Test
   public void number_of_issue_keys_should_be_limited() throws Exception {
     List<String> issueKeys = newArrayList();
-    for (int i=0; i<IssueQuery.MAX_ISSUE_KEYS+1; i++) {
+    for (int i=0; i<IssueQuery.MAX_PAGE_SIZE+1; i++) {
       issueKeys.add("issue-key-"+ i);
     }
     try {

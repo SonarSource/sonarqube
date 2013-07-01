@@ -27,6 +27,7 @@ import org.sonar.api.web.UserRole;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -41,7 +42,12 @@ public class IssueQuery {
   public static final int DEFAULT_PAGE_SIZE = 100;
   public static final int MAX_RESULTS = 10000;
   public static final int MAX_PAGE_SIZE = 500;
-  public static final int MAX_ISSUE_KEYS = 500;
+
+  /**
+   * @deprecated since 3.7. It's replaced by IssueQuery#MAX_PAGE_SIZE.
+   */
+  @Deprecated
+  public static final int MAX_ISSUE_KEYS = MAX_PAGE_SIZE;
 
   public static final String SORT_BY_CREATION_DATE = "CREATION_DATE";
   public static final String SORT_BY_UPDATE_DATE = "UPDATE_DATE";
@@ -343,7 +349,7 @@ public class IssueQuery {
       initPageIndex();
       initPageSize();
       if (issueKeys != null) {
-        Preconditions.checkArgument(issueKeys.size() <= MAX_ISSUE_KEYS, "Number of issue keys must be less than " + MAX_ISSUE_KEYS + " (got " + issueKeys.size() + ")");
+        Preconditions.checkArgument(issueKeys.size() <= MAX_PAGE_SIZE, "Number of issue keys must be less than " + MAX_PAGE_SIZE + " (got " + issueKeys.size() + ")");
       }
       return new IssueQuery(this);
     }
