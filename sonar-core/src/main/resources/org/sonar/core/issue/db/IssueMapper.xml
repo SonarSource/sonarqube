@@ -192,11 +192,9 @@
     inner join projects p on p.id=i.component_id
     inner join projects root on root.id=i.root_component_id
     <where>
-      and
-      <foreach collection="ids" open="i.id in (" close=")" item="list" separator=") or i.id in (">
-        <foreach collection="list" item="element" separator=",">
-          #{element}
-        </foreach>
+      and i.id in
+      <foreach collection="list" open="(" close=")" item="id" separator=",">
+        #{id}
       </foreach>
     </where>
   </select>

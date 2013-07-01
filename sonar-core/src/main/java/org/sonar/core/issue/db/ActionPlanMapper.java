@@ -35,7 +35,7 @@ public interface ActionPlanMapper {
 
   void delete(@Param("key") String key);
 
-  List<ActionPlanDto> findByKeys(@Param("keys") List<List<String>> keys);
+  List<ActionPlanDto> findByKeys(@Param("keys") List<String> keys);
 
   ActionPlanDto findByKey(@Param("key") String key);
 

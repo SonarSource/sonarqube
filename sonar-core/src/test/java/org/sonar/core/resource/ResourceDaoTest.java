@@ -162,6 +162,20 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_find_components_by_resource_ids_on_huge_number_of_ids() {
+    setupData("fixture");
+
+    List<Long> hugeNbOfIds = newArrayList();
+    for (long i=0; i<4500; i++) {
+      hugeNbOfIds.add(i);
+    }
+    Collection<Component> results = dao.findByIds(hugeNbOfIds);
+
+    // The goal of this test is only to check that the query do no fail, not to check the number of results
+    assertThat(results).isNotNull();
+  }
+
+  @Test
   public void should_find_root_project_by_component_key() {
     setupData("fixture");
 

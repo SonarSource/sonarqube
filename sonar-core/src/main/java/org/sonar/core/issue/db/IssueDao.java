@@ -35,10 +35,8 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * @since 3.6
@@ -101,25 +99,21 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   private List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
     IssueMapper mapper = session.getMapper(IssueMapper.class);
-    return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole(), maxResults, true);
+    return mapper.selectIssueIds(query, query.componentRoots(), userId, query.requiredRole(), maxResults);
   }
 
   public List<IssueDto> selectIssues(IssueQuery query) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectIssues(query, null, Integer.MAX_VALUE, session);
+      return selectIssues(query, null, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, SqlSession session){
-    return selectIssues(query, userId, query.maxResults(), session);
-  }
-
-  public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
     IssueMapper mapper = session.getMapper(IssueMapper.class);
-    return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole(), maxResults, false);
+    return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole());
   }
 
   @VisibleForTesting
@@ -136,9 +130,12 @@ public class IssueDao implements BatchComponent, ServerComponent {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
-    Object idsPartition = Lists.partition(newArrayList(ids), 1000);
-    Map<String, Object> params = newHashMap();
-    params.put("ids", idsPartition);
-    return session.selectList("org.sonar.core.issue.db.IssueMapper.selectByIds", params);
+    List<IssueDto> dtosList = newArrayList();
+    List<List<Long>> idsPartitionList = Lists.partition(newArrayList(ids), 1000);
+    for (List<Long> idsPartition : idsPartitionList) {
+      List<IssueDto> dtos = session.selectList("org.sonar.core.issue.db.IssueMapper.selectByIds", newArrayList(idsPartition));
+      dtosList.addAll(dtos);
+    }
+    return dtosList;
   }
 }
