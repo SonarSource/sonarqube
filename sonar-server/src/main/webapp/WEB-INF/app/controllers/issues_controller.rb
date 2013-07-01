@@ -181,15 +181,14 @@ class IssuesController < ApplicationController
 
   # GET /issues/bulk_change_form?[&criteria]
   def bulk_change_form
-    @criteria_params = params
+    params_to_execute = criteria_params.clone
+    params_to_execute['pageSize'] = -1
     if params[:id]
-      filter = find_filter(params[:id].to_i)
-      @criteria_params = criteria_params_from_filter(filter)
+      issue_filter_result = Internal.issues.execute(params[:id].to_i, params_to_execute)
+    else
+      issue_filter_result = Internal.issues.execute(params_to_execute)
     end
 
-    # Load maximum number of issues
-    @criteria_params['pageSize'] = -1
-    issue_filter_result = Internal.issues.execute(@criteria_params)
     issue_query = issue_filter_result.query
     issues_result = issue_filter_result.result
 
@@ -204,6 +203,7 @@ class IssuesController < ApplicationController
     end
     @issues = issues_result.issues.map { |issue| issue.key() }
     @project = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1
+    @criteria_params = criteria_params
 
     render :partial => 'issues/bulk_change_form'
   end
@@ -238,6 +238,8 @@ class IssuesController < ApplicationController
 
   def criteria_params
     params['pageSize'] = PAGE_SIZE
+    params.delete('controller')
+    params.delete('action')
     params
   end
 

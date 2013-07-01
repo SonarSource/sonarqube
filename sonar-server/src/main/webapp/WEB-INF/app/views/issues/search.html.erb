@@ -8,7 +8,7 @@
       <%= render :partial => 'display_errors' %>
 
       <div class="line-block marginbottom10">
-        <% if logged_in? && !@first_search %>
+        <% if logged_in? && !@first_search && @issues_result && !@issues_result.issues.empty? %>
           <ul class="operations">
             <% if @filter && @filter.id %>
               <li><a id="copy" href="<%= url_for :action => 'copy_form', :id => @filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a></li>
@@ -24,7 +24,9 @@
               </li>
             <% end %>
             <li>
-              <a id="bulk-change" href="<%= url_for params.merge({:action => 'bulk_change_form'}) -%>" class="link-action open-modal"><%= message('bulk_change') -%></a>
+              <a id="bulk-change" href="<%= url_for params.merge({:action => 'bulk_change_form',
+                                                                  :max_page_size_reached => @issues_result.issues.size >= @issues_result.paging.pageSize()}) -%>"
+                 class="link-action open-modal"><%= message('bulk_change') -%></a>
             </li>
           </ul>
 

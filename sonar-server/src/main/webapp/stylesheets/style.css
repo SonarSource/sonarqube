@@ -2312,6 +2312,10 @@ ul.modal-head-metadata li {
   padding: 10px;
 }
 
+.modal-body .notes {
+  height: auto;
+}
+
 .modal-field {
   clear: both;
   display: block;

@@ -7,6 +7,11 @@
       <h2><%= message('issue_filter.bulk_change.form.title', {:params => @issues.size.to_s}) -%></h2>
     </div>
     <div class="modal-body">
+      <div>
+      <% if params[:max_page_size_reached] %>
+        <p class="notes"><%= message('issue_filter.bulk_change.max_issues_reached', :params => @issues.size) -%></p>
+      <% end %>
+      </div>
       <div class="bulk-change errors" style="display:none;"/>
       <div class="modal-field">
         <label for="assignee">
