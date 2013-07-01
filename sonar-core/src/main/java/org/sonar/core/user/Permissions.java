@@ -30,7 +30,7 @@ public interface Permissions {
 
   String SYSTEM_ADMIN = "admin";
   String QUALITY_PROFILE_ADMIN = "profileadmin";
-  String DASHBOARD_SHARING = "sharedashboard";
+  String DASHBOARD_SHARING = "shareDashboard";
   String SCAN_EXECUTION = "scan";
   String DRY_RUN_EXECUTION = "dryrun";
 }

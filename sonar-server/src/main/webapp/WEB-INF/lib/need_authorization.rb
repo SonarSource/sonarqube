@@ -59,7 +59,7 @@ module NeedAuthorization
     def has_role?(role, objects=nil)
       if objects.nil?
         role_symbol=role.to_sym
-        if role_symbol==:admin || role_symbol==:profileadmin || role_symbol==:sharedashboard || role_symbol==:scan || role_symbol==:dryrun
+        if role_symbol==:admin || role_symbol==:profileadmin || role_symbol==:shareDashboard || role_symbol==:scan || role_symbol==:dryrun
           AuthorizerFactory.authorizer.has_role?(self, role_symbol)
         else
           # There's no concept of global users or global codeviewers.

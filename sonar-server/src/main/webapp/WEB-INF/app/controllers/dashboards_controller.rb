@@ -186,7 +186,7 @@ class DashboardsController < ApplicationController
     dashboard.name = params[:name]
     dashboard.description = params[:description]
     dashboard.is_global = params[:global].present?
-    dashboard.shared = params[:shared].present? && has_role?(:sharedashboard)
+    dashboard.shared = params[:shared].present? && has_role?(:shareDashboard)
     dashboard.column_layout = Dashboard::DEFAULT_LAYOUT if !dashboard.column_layout
     dashboard.user = User.find_active_by_login(params[:owner]) unless params[:owner].nil?
   end

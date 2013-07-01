@@ -9,7 +9,7 @@
   </tr>
   </thead>
   <tbody>
-    <% ['admin', 'profileadmin', 'sharedashboard', 'scan', 'dryrun'].each do |global_permissions| %>
+    <% ['admin', 'profileadmin', 'shareDashboard', 'scan', 'dryrun'].each do |global_permissions| %>
     <tr class="<%= cycle('even', 'odd', :name => 'global_permission') -%>" >
       <td valign="top">
         <b><%= message('global_permissions.' + global_permissions) -%></b><br/>

@@ -34,13 +34,13 @@ class AddDashboardSharingPermission < ActiveRecord::Migration
     group_roles=GroupRole.find(:all, :conditions => {:role => 'admin', :resource_id => nil})
     groups = group_roles.map { |ur| ur.group_id }
     groups.each do |group_id|
-      GroupRole.create(:group_id => group_id, :role => 'sharedashboard', :resource_id => nil)
+      GroupRole.create(:group_id => group_id, :role => 'shareDashboard', :resource_id => nil)
     end
 
     user_roles=UserRole.find(:all, :conditions => {:role => 'admin', :resource_id => nil})
     users = user_roles.map { |ur| ur.user_id }
     users.each do |user_id|
-      UserRole.create(:user_id => user_id, :role=> 'sharedashboard', :resource_id => nil)
+      UserRole.create(:user_id => user_id, :role=> 'shareDashboard', :resource_id => nil)
     end
   end
 
