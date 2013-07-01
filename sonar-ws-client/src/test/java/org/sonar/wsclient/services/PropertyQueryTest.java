@@ -43,14 +43,14 @@ public class PropertyQueryTest extends QueryTestCase {
   @Test
   public void test_global_property() {
     PropertyQuery query = PropertyQuery.createForKey("myprop");
-    assertThat(query.getUrl(), is("/api/properties?id=myprop&"));
+    assertThat(query.getUrl(), is("/api/properties/myprop?"));
     assertThat(query.getModelClass().getName(), is(Property.class.getName()));
   }
 
   @Test
   public void test_project_property() {
     PropertyQuery query = PropertyQuery.createForResource("myprop", "my:resource");
-    assertThat(query.getUrl(), is("/api/properties?id=myprop&resource=my%3Aresource&"));
+    assertThat(query.getUrl(), is("/api/properties/myprop?resource=my%3Aresource&"));
     assertThat(query.getModelClass().getName(), is(Property.class.getName()));
   }
 }
