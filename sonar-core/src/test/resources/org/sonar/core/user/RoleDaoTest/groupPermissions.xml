@@ -9,6 +9,6 @@
   <group_roles id="4" group_id="101" role="shareDashboard"/>
   <!-- Group 'anyone' has a NULL group_id -->
   <group_roles id="5" group_id="[null]" role="scan"/>
-  <group_roles id="6" group_id="[null]" role="dryrun"/>
+  <group_roles id="6" group_id="[null]" role="dryRunScan"/>
 
 </dataset>
