@@ -24,7 +24,7 @@
 class CreatePermissionTemplatesUsers < ActiveRecord::Migration
 
   def self.up
-    create_table :permission_templates_users do |t|
+    create_table :perm_templates_users do |t|
       t.column :user_login,       :string,  :null => false,   :limit => 40
       t.column :template_name,    :string,  :null => false,   :limit => 100
       t.column :created_at,       :datetime,  :null => true
