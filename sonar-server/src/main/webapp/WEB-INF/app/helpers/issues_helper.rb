@@ -41,7 +41,7 @@ module IssuesHelper
       title=message('click_to_add_to_favourites')
     end
 
-    "<a href='#' class='issue-filter-star #{style}' filter-id='#{filter.id.to_s}' title='#{title}'></a>"
+    "<a href='#' id='star-#{filter.name.parameterize}' class='issue-filter-star #{style}' filter-id='#{filter.id.to_s}' title='#{title}'></a>"
   end
 
   def can_be_reassigned_by(user, filter)
