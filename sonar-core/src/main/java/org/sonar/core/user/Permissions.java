@@ -24,7 +24,7 @@ package org.sonar.core.user;
  *
  * Holds the constants representing the various permissions that can be assigned to users & groups
  *
- * Since 3.7
+ * @since 3.7
  */
 public interface Permissions {
 
@@ -32,5 +32,5 @@ public interface Permissions {
   String QUALITY_PROFILE_ADMIN = "profileadmin";
   String DASHBOARD_SHARING = "shareDashboard";
   String SCAN_EXECUTION = "scan";
-  String DRY_RUN_EXECUTION = "dryrun";
+  String DRY_RUN_EXECUTION = "dryRunScan";
 }
