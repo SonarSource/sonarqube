@@ -19,8 +19,12 @@
       <%= user_select_tag('owner', :html_id => 'select-filter-owner', :selected_user => @filter.user) -%>
     </div>
   <% end %>
-  <div class="modal-field">
-    <label for="shared"><%= h message('measure_filter.shared_with_all_users') -%></label>
-    <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @filter.shared -%>/>
-  </div>
+  <% if @filter.user_id.nil? || @filter.user_id == current_user.id %>
+    <div class="modal-field">
+      <label for="shared"><%= h message('measure_filter.shared_with_all_users') -%></label>
+      <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if @filter.shared -%>/>
+    </div>
+  <% else %>
+    <input id="shared" name="shared" type="hidden" value="<%= @filter.shared -%>"/>
+  <% end %>
 </div>
