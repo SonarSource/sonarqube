@@ -113,7 +113,7 @@
                 <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/issues/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
                 <% if has_role?(:admin) %>
                   &nbsp;
-                  <a id="edit_system_<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/issues/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
+                  <a id="edit_shared_<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/issues/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
                   &nbsp;
                   <%= link_to_action message('delete'), "#{ApplicationController.root_context}/issues/delete/#{filter.id}",
                                      :class => 'link-action link-red',
