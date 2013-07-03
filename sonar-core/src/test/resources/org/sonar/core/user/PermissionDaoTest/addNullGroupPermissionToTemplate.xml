@@ -1,0 +1,5 @@
+<dataset>
+  <permission_templates id="1" name="my template" description="my description"/>
+  <perm_templates_users/>
+  <perm_templates_groups/>
+</dataset>

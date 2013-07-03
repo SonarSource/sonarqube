@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.user.PermissionTemplateMapper">
+
+  <insert id="insert" parameterType="PermissionTemplate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO permission_templates (name, description, created_at, updated_at)
+    VALUES (#{name}, #{description}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <insert id="insertUserPermission" parameterType="PermissionTemplateUser">
+    INSERT INTO perm_templates_users (template_id, user_id, created_at, updated_at)
+    VALUES (#{templateId}, #{userId}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <delete id="deleteUserPermission" parameterType="PermissionTemplateUser">
+    DELETE FROM perm_templates_users
+    WHERE template_id = #{templateId}
+    AND user_id = #{userId}
+  </delete>
+
+  <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup">
+    INSERT INTO perm_templates_groups (template_id, group_id, created_at, updated_at)
+    VALUES (#{templateId}, #{groupId}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <delete id="deleteGroupPermission" parameterType="PermissionTemplateGroup">
+    DELETE FROM perm_templates_groups
+    WHERE template_id = #{templateId}
+    AND
+    <choose>
+      <when test="groupId != null">
+        group_id = #{groupId}
+      </when>
+      <otherwise>
+        group_id IS NULL
+      </otherwise>
+    </choose>
+  </delete>
+
+  <select id="selectByName" parameterType="string" resultType="PermissionTemplate">
+    SELECT id, name, description, created_at AS createdAt, updated_at AS updatedAt
+    FROM permission_templates WHERE name=#{name}
+  </select>
+
+</mapper>
