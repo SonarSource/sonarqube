@@ -236,6 +236,18 @@ public class IssueFilterServiceTest {
   }
 
   @Test
+  public void should_update_own_user_filter_without_changing_anything() {
+    IssueFilterDto dto = new IssueFilterDto().setId(1L).setName("My Filter").setUserLogin("john");
+    when(issueFilterDao.selectById(1L)).thenReturn(dto);
+    when(issueFilterDao.selectByUser("john")).thenReturn(newArrayList(dto));
+
+    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setUser("john"), userSession);
+    assertThat(result.name()).isEqualTo("My Filter");
+
+    verify(issueFilterDao).update(any(IssueFilterDto.class));
+  }
+
+  @Test
   public void should_remove_other_favorite_filters_if_filter_become_unshared() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("john").setShared(true));
     IssueFilterFavouriteDto userFavouriteDto = new IssueFilterFavouriteDto().setId(10L).setUserLogin("john").setIssueFilterId(1L);

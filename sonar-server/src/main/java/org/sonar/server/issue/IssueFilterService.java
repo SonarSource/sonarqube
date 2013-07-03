@@ -226,7 +226,7 @@ public class IssueFilterService implements ServerComponent {
   private void validateFilter(final DefaultIssueFilter issueFilter) {
     List<IssueFilterDto> userFilters = selectUserIssueFilters(issueFilter.user());
     IssueFilterDto userFilterSameName = findFilterWithSameName(userFilters, issueFilter.name());
-    if (userFilterSameName != null && userFilterSameName.getId() != issueFilter.id()) {
+    if (userFilterSameName != null && !userFilterSameName.getId().equals(issueFilter.id())) {
       throw new IllegalArgumentException("Name already exists");
     }
     if (issueFilter.shared()) {
