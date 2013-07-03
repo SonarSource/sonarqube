@@ -81,11 +81,7 @@ class Api::ApiController < ApplicationController
   def render_error(exception, status=500)
     message = exception.respond_to?('message') ? Api::Utils.exception_message(exception, :backtrace => true) : exception.to_s
     java_facade.logError("Fail to render: #{request.url}\n#{message}") if status==500
-    respond_to do |format|
-      format.json { render :json => error_to_json(status, message), :status => status }
-      format.xml { render :xml => error_to_xml(status, message), :status => status }
-      format.text { render :text => message, :status => status }
-    end
+    render_response(status, message)
   end
 
   def render_not_found(exception)
@@ -104,6 +100,18 @@ class Api::ApiController < ApplicationController
 
   def render_success(message=nil)
     render_error(message, 200)
+  end
+
+  def render_server_exception(exception)
+    render_response(exception.httpCode, exception.getMessage)
+  end
+
+  def render_response(status, message)
+    respond_to do |format|
+      format.json { render :json => error_to_json(status, message), :status => status }
+      format.xml { render :xml => error_to_xml(status, message), :status => status }
+      format.text { render :text => message, :status => status }
+    end
   end
 
   def error_to_json(status, message=nil)

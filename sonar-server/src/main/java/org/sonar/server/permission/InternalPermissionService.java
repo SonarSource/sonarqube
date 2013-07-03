@@ -24,11 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.core.user.GroupRoleDto;
-import org.sonar.core.user.Permission;
-import org.sonar.core.user.RoleDao;
-import org.sonar.core.user.UserDao;
-import org.sonar.core.user.UserRoleDto;
+import org.sonar.core.user.*;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -52,7 +49,7 @@ public class InternalPermissionService implements ServerComponent {
     this.userDao = userDao;
   }
 
-  public void addPermission(Map<String, Object> params) {
+  public void addPermission(final Map<String, Object> params) {
     changePermission(ADD, params);
   }
 
@@ -61,6 +58,7 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private void changePermission(String permissionChange, Map<String, Object> params) {
+    UserSession.get().checkLoggedIn();
     UserSession.get().checkGlobalPermission(Permission.SYSTEM_ADMIN);
     PermissionChangeQuery permissionChangeQuery = PermissionChangeQuery.buildFromParams(params);
     permissionChangeQuery.validate();
@@ -108,14 +106,23 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private Long getTargetedUser(String userLogin) {
-    return userDao.selectActiveUserByLogin(userLogin).getId();
+    UserDto user = userDao.selectActiveUserByLogin(userLogin);
+    if(user == null) {
+      throw new BadRequestException("User " + userLogin + " does not exist");
+    }
+    return user.getId();
   }
 
   private Long getTargetedGroup(String group) {
     if (DefaultGroups.isAnyone(group)) {
       return null;
+    } else {
+      GroupDto groupDto = userDao.selectGroupByName(group);
+      if(groupDto == null) {
+        throw new BadRequestException("Group " + group + " does not exist");
+      }
+      return groupDto.getId();
     }
-    return userDao.selectGroupByName(group).getId();
   }
 
   private boolean shouldSkipPermissionChange(String operation, List<String> existingPermissions, String role) {

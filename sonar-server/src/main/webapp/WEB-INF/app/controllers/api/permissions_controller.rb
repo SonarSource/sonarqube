@@ -43,7 +43,8 @@ class Api::PermissionsController < Api::ApiController
   #
   def add
     verify_post_request
-    require_parameters :permission, (params[:user].nil? ? :group : :user)
+    require_parameters :permission
+    require_one_of :group, :user
     Internal.permissions.addPermission(params)
     hash = {:user => params[:user], :group => params[:group], :permission => params[:permission]}
     respond_to do |format|

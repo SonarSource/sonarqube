@@ -88,7 +88,7 @@ public class UserSession {
 
   public UserSession checkLoggedIn() {
     if (login == null) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Authentication is required");
     }
     return this;
   }
@@ -98,7 +98,7 @@ public class UserSession {
    */
   public UserSession checkGlobalPermission(Permission permission) {
     if (!hasGlobalPermission(permission)) {
-      throw new ForbiddenException();
+      throw new ForbiddenException("Insufficient privileges");
     }
     return this;
   }
@@ -117,7 +117,7 @@ public class UserSession {
       for (String permissionKey : permissionKeys) {
         Permission perm = Permission.allGlobal().get(permissionKey);
         if (perm == null) {
-          LOG.warn("Ignoring unknow permission {} for user {}", permissionKey, login);
+          LOG.warn("Ignoring unknown permission {} for user {}", permissionKey, login);
         }
         else {
           permissions.add(perm);

@@ -22,6 +22,7 @@ package org.sonar.server.permission;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.user.Permission;
+import org.sonar.server.exceptions.BadRequestException;
 
 import java.util.Map;
 
@@ -47,16 +48,16 @@ public class PermissionChangeQuery {
 
   public void validate() {
     if (StringUtils.isBlank(role)) {
-      throw new IllegalArgumentException("Missing role parameter");
+      throw new BadRequestException("Missing role parameter");
     }
     if (StringUtils.isBlank(user) && StringUtils.isBlank(group)) {
-      throw new IllegalArgumentException("Missing user or group parameter");
+      throw new BadRequestException("Missing user or group parameter");
     }
     if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(group)) {
-      throw new IllegalArgumentException("Only one of user or group parameter should be provided");
+      throw new BadRequestException("Only one of user or group parameter should be provided");
     }
     if (!Permission.allGlobal().keySet().contains(role)) {
-      throw new IllegalArgumentException("Invalid role key " + role);
+      throw new BadRequestException("Invalid role key " + role);
     }
   }
 

@@ -143,6 +143,13 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # since 3.7
+  def require_one_of(*keys)
+    if keys.count {|key| !params[key].blank?} == 0
+      bad_request("One of the following parameters should be provided: #{keys.join(',')}")
+    end
+  end
+
   # since 3.3
   def verify_post_request
     bad_request('Not a POST request') unless request.post?
@@ -162,9 +169,15 @@ class ApplicationController < ActionController::Base
     render :text => message, :status => 400
   end
 
+  def render_server_exception(exception)
+    render :text => exception.getMessage, :status => exception.httpCode
+  end
+
   def render_native_exception(error)
     if error.cause.java_kind_of? Java::JavaLang::IllegalArgumentException
       render_bad_request(error.cause.getMessage)
+    elsif error.cause.java_kind_of? Java::OrgSonarServerExceptions::HttpException
+      render_server_exception(error.cause)
     else
       render_error(error)
     end
