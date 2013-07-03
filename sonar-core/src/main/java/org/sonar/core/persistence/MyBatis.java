@@ -120,7 +120,6 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "SnapshotData", SnapshotDataDto.class);
     loadAlias(conf, "ActionPlanIssue", ActionPlanDto.class);
     loadAlias(conf, "ActionPlanStats", ActionPlanStatsDto.class);
-    loadAlias(conf, "PermissionTemplate", PermissionTemplateDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
@@ -130,7 +129,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
       IssueMapper.class, IssueStatsMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
-      LoadedTemplateMapper.class, MeasureFilterMapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
+      LoadedTemplateMapper.class, MeasureFilterMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class
