@@ -81,7 +81,7 @@ module MeasuresHelper
       title=message('click_to_add_to_favourites')
     end
 
-    "<a href='#' class='measure-filter-star #{style}' filter-id='#{filter.id}' title='#{title}'></a>"
+    "<a href='#' id='star-#{filter.name.parameterize}' class='measure-filter-star #{style}' filter-id='#{filter.id}' title='#{title}'></a>"
   end
 
   CLOUD_MIN_SIZE_PERCENT=60.0

@@ -114,8 +114,7 @@ class MeasuresController < ApplicationController
   def manage
     access_denied unless logged_in?
     @filter = MeasureFilter.new
-    @shared_filters = MeasureFilter.find(:all,
-                                         :include => :user,
+    @shared_filters = MeasureFilter.all(:include => :user,
                                          :conditions => ['shared=? and (user_id is null or user_id<>?)', true, current_user.id])
     Api::Utils.insensitive_sort!(@shared_filters) { |elt| elt.name }
     @fav_filter_ids = current_user.measure_filter_favourites.map { |fav| fav.measure_filter_id }
@@ -140,11 +139,13 @@ class MeasuresController < ApplicationController
     @filter.name=params[:name]
     @filter.description=params[:description]
     @filter.shared=(params[:shared]=='true')
-
     if has_role?(:admin) && params[:owner]
       @filter.user = User.find_by_login(params[:owner])
     end
 
+    # SONAR-4469
+    # If filter become unshared then remove all favorite filters linked to it, expect favorite of filter's owner
+    MeasureFilterFavourite.delete_all(['user_id<>? and measure_filter_id=?', @filter.user.id, params[:id]]) if params[:shared]!='true'
     if @filter.save
       render :text => @filter.id.to_s, :status => 200
     else
@@ -205,8 +206,7 @@ class MeasuresController < ApplicationController
     verify_ajax_request
     require_parameters :id
 
-    favourites = MeasureFilterFavourite.find(:all,
-                                             :conditions => ['user_id=? and measure_filter_id=?', current_user.id, params[:id]])
+    favourites = MeasureFilterFavourite.all(:conditions => ['user_id=? and measure_filter_id=?', current_user.id, params[:id]])
     if favourites.empty?
       filter = find_filter(params[:id])
       current_user.favourited_measure_filters<<filter if filter.shared || filter.owner?(current_user)
@@ -219,7 +219,9 @@ class MeasuresController < ApplicationController
     render :text => is_favourite.to_s, :status => 200
   end
 
+
   private
+
   def find_filter(id)
     filter = MeasureFilter.find(id)
     access_denied unless filter.shared || filter.owner?(current_user)
