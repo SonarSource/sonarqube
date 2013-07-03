@@ -193,6 +193,7 @@ class IssuesController < ApplicationController
     issues_result = issue_filter_result.result
 
     @transitions_by_issues = {}
+    @unresolved_issues = 0
     issues_result.issues.each do |issue|
       transitions = Internal.issues.listTransitions(issue)
       transitions.each do |transition|
@@ -200,6 +201,7 @@ class IssuesController < ApplicationController
         issues_for_transition += 1
         @transitions_by_issues[transition.key] = issues_for_transition
       end
+      @unresolved_issues += 1 unless issue.resolution()
     end
     @issues = issues_result.issues.map { |issue| issue.key() }
     @project = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1

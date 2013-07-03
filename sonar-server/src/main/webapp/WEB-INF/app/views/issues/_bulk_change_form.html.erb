@@ -13,13 +13,16 @@
       <% end %>
       </div>
       <div class="bulk-change errors" style="display:none;"/>
+
+      <% if @unresolved_issues > 0 %>
       <div class="modal-field">
         <label for="assignee">
           <%= message('issue.assign.formlink') -%>
         </label>
         <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
-        <%= user_select_tag('assign.assignee', :html_id => 'assignee', :open => false,
-                            :include_choices => {'0' => escape_javascript(message('unassigned')), current_user.login => escape_javascript(message('assigned_to_me'))}) -%>
+        <%= user_select_tag('assign.assignee', :html_id => 'assignee', :open => false, :selected_user => current_user,
+                            :include_choices => {'' => escape_javascript(message('unassigned')), current_user.login => escape_javascript(message('assigned_to_me'))}) -%>
+        <span style="float:right;">(<%= message('issue_filter.bulk_change.x_issues', :params => @unresolved_issues.to_s) -%>)</span>
       </div>
       <%
          if @project && !@project.blank?
@@ -43,6 +46,7 @@
           </label>
           <input id="plan-action" name="actions[]" type="checkbox" value="plan"/>
           <%= dropdown_tag('plan.plan', plan_options, {:show_search_box => false}, {:id => 'plan'}) -%>
+          <span style="float:right;">(<%= message('issue_filter.bulk_change.x_issues', :params => @unresolved_issues.to_s) -%>)</span>
         </div>
         <% end %>
       <% end %>
@@ -53,16 +57,23 @@
         <input id="set-severity-action" name="actions[]" type="checkbox" value="set_severity"/>
         <%= severity_dropdown_tag('set_severity.severity', severitiy_select_option_tags, {:show_search_box => false},
                          {:id => 'severity'}) -%>
+        <span style="float:right;">(<%= message('issue_filter.bulk_change.x_issues', :params => @unresolved_issues.to_s) -%>)</span>
       </div>
+      <% end %>
+
+      <% if @transitions_by_issues.size > 0 %>
       <div class="modal-field">
         <label>
           <%= message('issue.transition') -%>
         </label>
         <% @transitions_by_issues.keys.each do |transition| %>
           <input type="radio" name="transition.transition" value="<%= transition -%>"
-                 onClick="addTransitionAction();">&nbsp;<%= message("issue.transition.#{transition}") -%>&nbsp;(<%= @transitions_by_issues[transition].to_s %>) <br>
-        <% end %>
+                 onClick="addTransitionAction();">&nbsp;<%= message("issue.transition.#{transition}") -%>
+          <span style="float:right;">(<%= message('issue_filter.bulk_change.x_issues', :params => @transitions_by_issues[transition].to_s) %>)</span><br/>
+      <% end %>
       </div>
+      <% end %>
+
       <div class="modal-field">
         <label>
           <%= message('issue.comment.formlink') -%>
