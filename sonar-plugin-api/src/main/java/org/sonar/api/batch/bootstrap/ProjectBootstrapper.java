@@ -22,24 +22,22 @@ package org.sonar.api.batch.bootstrap;
 import org.sonar.api.task.TaskExtension;
 
 /**
- * This extension point allows to define project structure at runtime. It is executed once during task startup.
+ * This extension point initializes the project structure. It is extended by batch bootstrappers
+ * like sonar-runner or Maven plugin. It is not supposed to be used by standard plugins (.NET, ...).
  * Some use-cases :
  * <ul>
- *   <li>Maven bootstraper create project structure from pom.xml</li>
- *   <li>Sonar Runner bootstraper create project structure from sonar-runner.properties</li>
+ *   <li>Maven Plugins defines project structure from pom.xml</li>
+ *   <li>Sonar Runner defines project from sonar-runner.properties</li>
  * </ul>
- * Only one ProjectBootstrapper is allowed per environement.
+ * Only one instance is allowed per environment.
  *
  * @since 3.7
  */
-public abstract class ProjectBootstrapper implements TaskExtension {
-
-  protected ProjectBootstrapper() {
-  }
+public interface ProjectBootstrapper extends TaskExtension {
 
   /**
    * Implement this method to create project reactor
    */
-  public abstract ProjectReactor bootstrap();
+  ProjectReactor bootstrap();
 
 }

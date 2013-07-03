@@ -37,16 +37,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class RealMavenPluginExecutorTest {
+public class DefaultMavenPluginExecutorTest {
 
   @Test
   public void plugin_version_should_be_optional() {
-    assertThat(RealMavenPluginExecutor.getGoal("group", "artifact", null, "goal"), is("group:artifact::goal"));
+    assertThat(DefaultMavenPluginExecutor.getGoal("group", "artifact", null, "goal"), is("group:artifact::goal"));
   }
 
   @Test
   public void test_plugin_version() {
-    assertThat(RealMavenPluginExecutor.getGoal("group", "artifact", "3.54", "goal"), is("group:artifact:3.54:goal"));
+    assertThat(DefaultMavenPluginExecutor.getGoal("group", "artifact", "3.54", "goal"), is("group:artifact:3.54:goal"));
   }
 
   /**
@@ -55,7 +55,7 @@ public class RealMavenPluginExecutorTest {
    */
   @Test
   public void should_reset_file_system_after_execution() {
-    RealMavenPluginExecutor executor = new RealMavenPluginExecutor(null, null) {
+    DefaultMavenPluginExecutor executor = new DefaultMavenPluginExecutor(null, null) {
       @Override
       public void concreteExecute(MavenProject pom, String goal) {
         pom.addCompileSourceRoot("src/java");
@@ -74,7 +74,7 @@ public class RealMavenPluginExecutorTest {
 
   @Test
   public void should_ignore_non_maven_projects() {
-    RealMavenPluginExecutor executor = new RealMavenPluginExecutor(null, null) {
+    DefaultMavenPluginExecutor executor = new DefaultMavenPluginExecutor(null, null) {
       @Override
       public void concreteExecute(MavenProject pom, String goal) {
         pom.addCompileSourceRoot("src/java");

@@ -26,7 +26,7 @@ import org.sonar.api.batch.InstantiationStrategy;
  * This extension point allows to change project structure at runtime. It is executed once during task startup.
  * Some use-cases :
  * <ul>
- *   <li>Add sub-projects which are not defined in batch bootstrapper. For example the C# plugin gets the hierarchy
+ *   <li>Add sub-projects. For example the C# plugin gets the hierarchy
  *   of sub-projects from the Visual Studio metadata file. The single root pom.xml does not contain any declarations of
  *   modules</li>
  *   <li>Change project metadata like description or source directories.</li>
@@ -37,6 +37,13 @@ import org.sonar.api.batch.InstantiationStrategy;
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public abstract class ProjectBuilder implements BatchExtension {
 
+  /**
+   * Plugins can use the implementation {@link org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext}
+   * for their unit tests.
+   */
+  public static interface Context {
+    ProjectReactor projectReactor();
+  }
   /**
    * Don't inject ProjectReactor as it may not be available
    * @deprecated since 3.7 use {@link #ProjectBuilder()}
@@ -55,13 +62,13 @@ public abstract class ProjectBuilder implements BatchExtension {
    * Override this method to change project reactor structure.
    * @since 3.7
    */
-  public void build(ProjectBuilderContext context) {
+  public void build(Context context) {
     // Call deprecated method for backward compatibility
-    build(context.getProjectReactor());
+    build(context.projectReactor());
   }
 
   /**
-   * @deprecated since 3.7 override {@link #build(ProjectBuilderContext)} instead
+   * @deprecated since 3.7 override {@link #build(Context)} instead
    */
   @Deprecated
   protected void build(ProjectReactor reactor) {

@@ -642,16 +642,6 @@ public class DefaultProjectBootstrapperTest {
     assertThat(DefaultProjectBootstrapper.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
   }
 
-  //
-  // @Test
-  // public void test_props() {
-  // Properties p1 = new Properties();
-  // p1.setProperty("foo", "bar");
-  // Properties p2 = new Properties();
-  // p2.putAll(p1);
-  // assertThat(p2.getProperty("foo")).isEqualTo("bar");
-  // }
-
   @Test
   public void shouldGetListFromFile() throws IOException {
     String filePath = "shouldGetList/foo.properties";

@@ -154,11 +154,11 @@ public final class SonarMojo extends AbstractMojo {
         // .unmask("org.slf4j.impl.")
         .mask("org.slf4j.")
         // Exclude logback
-        .mask("ch.qos.logback.");
-    runner.mask("org.sonar.");
-    // Include everything else
-    runner.unmask("")
-        .addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
+        .mask("ch.qos.logback.")
+        .mask("org.sonar.")
+        // Include everything else
+        .unmask("");
+    runner.addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
             dependencyTreeBuilder, projectBuilder);
     if (getLog().isDebugEnabled()) {
       runner.setProperty("sonar.verbose", "true");

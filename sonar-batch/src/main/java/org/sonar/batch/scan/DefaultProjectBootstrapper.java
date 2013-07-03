@@ -49,7 +49,7 @@ import java.util.Properties;
 /**
  * Class that creates a Sonar project definition based on a set of properties.
  */
-class DefaultProjectBootstrapper extends ProjectBootstrapper {
+class DefaultProjectBootstrapper implements ProjectBootstrapper {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectBootstrapper.class);
 

@@ -20,7 +20,7 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
-import org.sonar.api.batch.bootstrap.ProjectBuilderContext;
+import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 
@@ -57,13 +57,7 @@ public class ProjectReactorReady {
 
   public void start() {
     // 1 Apply project builders
-    ProjectBuilderContext context = new ProjectBuilderContext() {
-
-      @Override
-      public ProjectReactor getProjectReactor() {
-        return reactor;
-      }
-    };
+    ProjectBuilderContext context = new ProjectBuilderContext(reactor);
 
     for (ProjectBuilder projectBuilder : projectBuilders) {
       projectBuilder.build(context);

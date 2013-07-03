@@ -17,16 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.maven;
+@ParametersAreNonnullByDefault
+package org.sonar.api.batch.bootstrap.internal;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.api.SonarPlugin;
-
-import java.util.List;
-
-public final class MavenBatchPlugin extends SonarPlugin {
-
-  public List getExtensions() {
-    return ImmutableList.of(MavenProjectBootstrapper.class, DefaultMavenPluginExecutor.class, MavenProjectConverter.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

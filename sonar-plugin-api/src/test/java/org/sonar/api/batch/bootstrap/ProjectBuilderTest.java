@@ -20,6 +20,7 @@
 package org.sonar.api.batch.bootstrap;
 
 import org.junit.Test;
+import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
 import org.sonar.api.config.Settings;
 
 import java.io.File;
@@ -36,13 +37,7 @@ public class ProjectBuilderTest {
     final ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create());
 
     ProjectBuilder builder = new ProjectBuilderSample(new Settings());
-    builder.build(new ProjectBuilderContext() {
-
-      @Override
-      public ProjectReactor getProjectReactor() {
-        return projectReactor;
-      }
-    });
+    builder.build(new ProjectBuilderContext(projectReactor));
 
     assertThat(projectReactor.getProjects().size(), is(2));
     ProjectDefinition root = projectReactor.getRoot();

@@ -228,8 +228,8 @@ public class MavenProjectConverter implements TaskExtension {
     into.resetDirs(
         pom.getBasedir(),
         getBuildDir(pom),
-        resolvePaths((List<String>) pom.getCompileSourceRoots(), pom.getBasedir()),
-        resolvePaths((List<String>) pom.getTestCompileSourceRoots(), pom.getBasedir()),
+        resolvePaths(pom.getCompileSourceRoots(), pom.getBasedir()),
+        resolvePaths(pom.getTestCompileSourceRoots(), pom.getBasedir()),
         Arrays.asList(resolvePath(pom.getBuild().getOutputDirectory(), pom.getBasedir())));
   }
 

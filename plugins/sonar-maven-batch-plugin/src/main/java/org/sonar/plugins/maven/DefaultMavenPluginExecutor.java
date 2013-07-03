@@ -38,12 +38,12 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 @SupportedEnvironment("maven")
-public class RealMavenPluginExecutor implements MavenPluginExecutor {
+public class DefaultMavenPluginExecutor implements MavenPluginExecutor {
 
   private LifecycleExecutor lifecycleExecutor;
   private MavenSession mavenSession;
 
-  public RealMavenPluginExecutor(LifecycleExecutor le, MavenSession mavenSession) {
+  public DefaultMavenPluginExecutor(LifecycleExecutor le, MavenSession mavenSession) {
     this.lifecycleExecutor = le;
     this.mavenSession = mavenSession;
   }

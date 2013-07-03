@@ -28,7 +28,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import java.util.List;
 
 @SupportedEnvironment("maven")
-public class MavenProjectBootstrapper extends ProjectBootstrapper {
+public class MavenProjectBootstrapper implements ProjectBootstrapper {
 
   private MavenSession session;
   private MavenProjectConverter mavenProjectConverter;
@@ -49,12 +49,10 @@ public class MavenProjectBootstrapper extends ProjectBootstrapper {
         break;
       }
     }
-    if (topLevelProject != null && sortedProjects != null) {
-      return new ProjectReactor(mavenProjectConverter.configure(sortedProjects, topLevelProject));
+    if (topLevelProject == null) {
+      throw new IllegalStateException("Maven session does not declare a top level project");
     }
-    else {
-      throw new IllegalStateException("Maven session is not in a good state. No top level project or empty reactor.");
-    }
+    return new ProjectReactor(mavenProjectConverter.configure(sortedProjects, topLevelProject));
   }
 
 }
