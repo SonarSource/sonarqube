@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.user.Permission;
+import org.sonar.server.exceptions.BadRequestException;
 
 import java.util.Map;
 
@@ -82,7 +83,7 @@ public class PermissionChangeQueryTest {
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
 
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(BadRequestException.class);
     thrown.expectMessage("Only one of user or group parameter should be provided");
     query.validate();
   }
@@ -94,7 +95,7 @@ public class PermissionChangeQueryTest {
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
 
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(BadRequestException.class);
     thrown.expectMessage("Missing user or group parameter");
     query.validate();
   }
@@ -106,7 +107,7 @@ public class PermissionChangeQueryTest {
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
 
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(BadRequestException.class);
     thrown.expectMessage("Missing role parameter");
     query.validate();
   }
@@ -119,7 +120,7 @@ public class PermissionChangeQueryTest {
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
 
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(BadRequestException.class);
     thrown.expectMessage("Invalid role key invalid_role");
     query.validate();
   }

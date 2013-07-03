@@ -37,7 +37,9 @@ import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.core.user.UserRoleDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Map;
@@ -133,7 +135,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void should_fail_on_invalid_request() throws Exception {
-    throwable.expect(IllegalArgumentException.class);
+    throwable.expect(BadRequestException.class);
     params = buildParams("user", "group", Permission.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
@@ -151,7 +153,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void should_fail_on_anonymous_access() throws Exception {
-    throwable.expect(ForbiddenException.class);
+    throwable.expect(UnauthorizedException.class);
     params = buildParams("user", null, Permission.QUALITY_PROFILE_ADMIN);
 
     MockUserSession.set();
