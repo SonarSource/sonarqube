@@ -21,7 +21,10 @@ package org.sonar.server.user;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.user.AuthorizationDao;
+import org.sonar.core.user.Permission;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.platform.Platform;
@@ -29,6 +32,7 @@ import org.sonar.server.platform.Platform;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,11 +43,12 @@ public class UserSession {
 
   private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<UserSession>();
   public static final UserSession ANONYMOUS = new UserSession();
+  private static final Logger LOG = LoggerFactory.getLogger(UserSession.class);
 
   private Integer userId;
   private String login;
   private Locale locale = Locale.ENGLISH;
-  List<String> permissions = null;
+  List<Permission> permissions = null;
 
   UserSession() {
   }
@@ -91,8 +96,8 @@ public class UserSession {
   /**
    * Ensures that user implies the specified permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
    */
-  public UserSession checkPermission(String permission) {
-    if (!hasPermission(permission)) {
+  public UserSession checkGlobalPermission(Permission permission) {
+    if (!hasGlobalPermission(permission)) {
       throw new ForbiddenException();
     }
     return this;
@@ -101,13 +106,23 @@ public class UserSession {
   /**
    * Does the user have the given permission ?
    */
-  public boolean hasPermission(String permission) {
-    return permissions().contains(permission);
+  public boolean hasGlobalPermission(Permission permission) {
+    return globalPermissions().contains(permission);
   }
 
-  List<String> permissions() {
+  List<Permission> globalPermissions() {
     if (permissions == null) {
-      permissions = authorizationDao().selectGlobalPermissions(login);
+      List<String> permissionKeys = authorizationDao().selectGlobalPermissions(login);
+      permissions = new ArrayList<Permission>();
+      for (String permissionKey : permissionKeys) {
+        Permission perm = Permission.allGlobal().get(permissionKey);
+        if (perm == null) {
+          LOG.warn("Ignoring unknow permission {} for user {}", permissionKey, login);
+        }
+        else {
+          permissions.add(perm);
+        }
+      }
     }
     return permissions;
   }
@@ -132,4 +147,3 @@ public class UserSession {
     return THREAD_LOCAL.get() != null;
   }
 }
-

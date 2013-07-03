@@ -21,6 +21,7 @@ package org.sonar.server.user;
 
 import org.junit.Test;
 import org.sonar.core.user.AuthorizationDao;
+import org.sonar.core.user.Permission;
 import org.sonar.server.exceptions.ForbiddenException;
 
 import java.util.Arrays;
@@ -62,11 +63,11 @@ public class UserSessionTest {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao);
 
-    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("shareIssueFilter", "admin"));
+    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("profileadmin", "admin"));
 
-    assertThat(session.hasPermission("shareIssueFilter")).isTrue();
-    assertThat(session.hasPermission("admin")).isTrue();
-    assertThat(session.hasPermission("shareDashboard")).isFalse();
+    assertThat(session.hasGlobalPermission(Permission.QUALITY_PROFILE_ADMIN)).isTrue();
+    assertThat(session.hasGlobalPermission(Permission.SYSTEM_ADMIN)).isTrue();
+    assertThat(session.hasGlobalPermission(Permission.DASHBOARD_SHARING)).isFalse();
   }
 
   @Test
@@ -81,9 +82,9 @@ public class UserSessionTest {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao);
 
-    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("shareIssueFilter", "admin"));
+    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("profileadmin", "admin"));
 
-    session.checkPermission("shareIssueFilter");
+    session.checkGlobalPermission(Permission.QUALITY_PROFILE_ADMIN);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -91,9 +92,9 @@ public class UserSessionTest {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao);
 
-    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("shareIssueFilter", "admin"));
+    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("profileadmin", "admin"));
 
-    session.checkPermission("shareDashboard");
+    session.checkGlobalPermission(Permission.DASHBOARD_SHARING);
   }
 
   static class SpyUserSession extends UserSession {

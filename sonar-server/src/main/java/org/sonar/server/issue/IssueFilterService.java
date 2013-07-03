@@ -35,7 +35,7 @@ import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.core.user.AuthorizationDao;
-import org.sonar.core.user.Permissions;
+import org.sonar.core.user.Permission;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -57,7 +57,7 @@ public class IssueFilterService implements ServerComponent {
   private final IssueFilterSerializer serializer;
 
   public IssueFilterService(IssueFilterDao filterDao, IssueFilterFavouriteDao favouriteDao, IssueFinder finder, AuthorizationDao authorizationDao,
-                            IssueFilterSerializer serializer) {
+      IssueFilterSerializer serializer) {
     this.filterDao = filterDao;
     this.favouriteDao = favouriteDao;
     this.finder = finder;
@@ -97,7 +97,7 @@ public class IssueFilterService implements ServerComponent {
     String login = getLoggedLogin(userSession);
     IssueFilterDto existingFilterDto = findIssueFilterDto(issueFilter.id(), login);
     verifyCurrentUserCanModifyFilter(existingFilterDto.toIssueFilter(), login);
-    if(!existingFilterDto.getUserLogin().equals(issueFilter.user())) {
+    if (!existingFilterDto.getUserLogin().equals(issueFilter.user())) {
       verifyCurrentUserCanChangeFilterOwnership(login);
     }
     validateFilter(issueFilter);
@@ -106,7 +106,7 @@ public class IssueFilterService implements ServerComponent {
     return issueFilter;
   }
 
-  private void deleteOtherFavoriteFiltersIfFilterBecomeUnshared(IssueFilterDto existingFilterDto, DefaultIssueFilter issueFilter){
+  private void deleteOtherFavoriteFiltersIfFilterBecomeUnshared(IssueFilterDto existingFilterDto, DefaultIssueFilter issueFilter) {
     if (existingFilterDto.isShared() && !issueFilter.shared()) {
       for (IssueFilterFavouriteDto favouriteDto : selectFavouriteFilters(existingFilterDto.getId())) {
         if (!favouriteDto.getUserLogin().equals(issueFilter.user())) {
@@ -217,7 +217,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   private void verifyCurrentUserCanChangeFilterOwnership(String user) {
-    if(!isAdmin(user)) {
+    if (!isAdmin(user)) {
       // TODO throw unauthorized
       throw new IllegalStateException("User is not authorized to change the owner of this filter");
     }
@@ -252,16 +252,16 @@ public class IssueFilterService implements ServerComponent {
     return favouriteDao.selectByFilterId(filterId);
   }
 
-  private List<IssueFilterDto> selectUserIssueFilters(String user){
+  private List<IssueFilterDto> selectUserIssueFilters(String user) {
     return filterDao.selectByUser(user);
   }
 
-  private List<IssueFilterDto> selectSharedFilters(){
+  private List<IssueFilterDto> selectSharedFilters() {
     return filterDao.selectSharedFilters();
   }
 
   @CheckForNull
-  private IssueFilterDto findFilterWithSameName(List<IssueFilterDto> dtos, final String name){
+  private IssueFilterDto findFilterWithSameName(List<IssueFilterDto> dtos, final String name) {
     return Iterables.find(dtos, new Predicate<IssueFilterDto>() {
       @Override
       public boolean apply(IssueFilterDto input) {
@@ -272,8 +272,8 @@ public class IssueFilterService implements ServerComponent {
 
   private void addFavouriteIssueFilter(Long issueFilterId, String user) {
     IssueFilterFavouriteDto issueFilterFavouriteDto = new IssueFilterFavouriteDto()
-      .setIssueFilterId(issueFilterId)
-      .setUserLogin(user);
+        .setIssueFilterId(issueFilterId)
+        .setUserLogin(user);
     favouriteDao.insert(issueFilterFavouriteDto);
   }
 
@@ -302,7 +302,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   private boolean isAdmin(String user) {
-    return authorizationDao.selectGlobalPermissions(user).contains(Permissions.SYSTEM_ADMIN);
+    return authorizationDao.selectGlobalPermissions(user).contains(Permission.SYSTEM_ADMIN.key());
   }
 
   private IssueFilterResult createIssueFilterResult(IssueQueryResult issueQueryResult, IssueQuery issueQuery) {

@@ -27,7 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
-import org.sonar.api.web.UserRole;
+import org.sonar.core.user.Permission;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -35,7 +35,11 @@ import org.sonar.server.exceptions.ForbiddenException;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class DefaultUserServiceTest {
 
@@ -48,11 +52,11 @@ public class DefaultUserServiceTest {
 
   @Test
   public void parse_query() throws Exception {
-    service.find(ImmutableMap.<String, Object>of(
-      "logins", "simon,loic",
-      "includeDeactivated", "true",
-      "s", "sim"
-    ));
+    service.find(ImmutableMap.<String, Object> of(
+        "logins", "simon,loic",
+        "includeDeactivated", "true",
+        "s", "sim"
+        ));
 
     verify(finder, times(1)).find(argThat(new ArgumentMatcher<UserQuery>() {
       @Override
@@ -67,13 +71,13 @@ public class DefaultUserServiceTest {
 
   @Test
   public void test_empty_query() throws Exception {
-    service.find(Maps.<String, Object>newHashMap());
+    service.find(Maps.<String, Object> newHashMap());
 
     verify(finder, times(1)).find(argThat(new ArgumentMatcher<UserQuery>() {
       @Override
       public boolean matches(Object o) {
         UserQuery query = (UserQuery) o;
-        return !query.includeDeactivated() && query.logins() == null && query.searchText()==null;
+        return !query.includeDeactivated() && query.logins() == null && query.searchText() == null;
       }
     }));
   }
@@ -81,7 +85,7 @@ public class DefaultUserServiceTest {
   @Test
   public void self_deactivation_is_not_possible() throws Exception {
     try {
-      MockUserSession.set().setLogin("simon").setPermissions(UserRole.ADMIN);
+      MockUserSession.set().setLogin("simon").setPermissions(Permission.SYSTEM_ADMIN);
       service.deactivate("simon");
       fail();
     } catch (BadRequestException e) {
@@ -93,7 +97,7 @@ public class DefaultUserServiceTest {
   @Test
   public void user_deactivation_requires_admin_permission() throws Exception {
     try {
-      MockUserSession.set().setLogin("simon").setPermissions(UserRole.USER);
+      MockUserSession.set().setLogin("simon").setPermissions(Permission.QUALITY_PROFILE_ADMIN);
       service.deactivate("julien");
       fail();
     } catch (ForbiddenException e) {
@@ -103,14 +107,14 @@ public class DefaultUserServiceTest {
 
   @Test
   public void deactivate_user() throws Exception {
-    MockUserSession.set().setLogin("simon").setPermissions(UserRole.ADMIN);
+    MockUserSession.set().setLogin("simon").setPermissions(Permission.SYSTEM_ADMIN);
     service.deactivate("julien");
     verify(dao).deactivateUserByLogin("julien");
   }
 
   @Test
   public void fail_to_deactivate_when_blank_login() throws Exception {
-    MockUserSession.set().setLogin("simon").setPermissions(UserRole.ADMIN);
+    MockUserSession.set().setLogin("simon").setPermissions(Permission.SYSTEM_ADMIN);
     try {
       service.deactivate("");
       fail();

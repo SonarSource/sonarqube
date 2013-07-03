@@ -24,8 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.core.user.*;
-import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.core.user.GroupRoleDto;
+import org.sonar.core.user.Permission;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserRoleDto;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -58,19 +61,14 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private void changePermission(String permissionChange, Map<String, Object> params) {
-    UserSession.get().checkPermission(Permissions.SYSTEM_ADMIN);
+    UserSession.get().checkGlobalPermission(Permission.SYSTEM_ADMIN);
     PermissionChangeQuery permissionChangeQuery = PermissionChangeQuery.buildFromParams(params);
-    if(permissionChangeQuery.isValid()) {
-      applyPermissionChange(permissionChange, permissionChangeQuery);
-    } else {
-      String errorMsg = String.format("Request '%s permission %s' is invalid", permissionChange, permissionChangeQuery.getRole());
-      LOG.error(errorMsg);
-      throw new IllegalArgumentException(errorMsg);
-    }
+    permissionChangeQuery.validate();
+    applyPermissionChange(permissionChange, permissionChangeQuery);
   }
 
   private void applyPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
-    if(permissionChangeQuery.targetsUser()) {
+    if (permissionChangeQuery.targetsUser()) {
       applyUserPermissionChange(operation, permissionChangeQuery);
     } else {
       applyGroupPermissionChange(operation, permissionChangeQuery);
@@ -79,13 +77,13 @@ public class InternalPermissionService implements ServerComponent {
 
   private void applyGroupPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
     List<String> existingPermissions = roleDao.selectGroupPermissions(permissionChangeQuery.getGroup());
-    if(shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery.getRole())) {
+    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery.getRole())) {
       LOG.info("Skipping permission change '{} {}' for group {} as it matches the current permission scheme",
-        new String[]{operation, permissionChangeQuery.getRole(), permissionChangeQuery.getGroup()});
+          new String[] {operation, permissionChangeQuery.getRole(), permissionChangeQuery.getGroup()});
     } else {
       Long targetedGroup = getTargetedGroup(permissionChangeQuery.getGroup());
       GroupRoleDto groupRole = new GroupRoleDto().setRole(permissionChangeQuery.getRole()).setGroupId(targetedGroup);
-      if(ADD.equals(operation)) {
+      if (ADD.equals(operation)) {
         roleDao.insertGroupRole(groupRole);
       } else {
         roleDao.deleteGroupRole(groupRole);
@@ -95,13 +93,13 @@ public class InternalPermissionService implements ServerComponent {
 
   private void applyUserPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
     List<String> existingPermissions = roleDao.selectUserPermissions(permissionChangeQuery.getUser());
-    if(shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery.getRole())) {
+    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery.getRole())) {
       LOG.info("Skipping permission change '{} {}' for user {} as it matches the current permission scheme",
-        new String[]{operation, permissionChangeQuery.getRole(), permissionChangeQuery.getUser()});
+          new String[] {operation, permissionChangeQuery.getRole(), permissionChangeQuery.getUser()});
     } else {
       Long targetedUser = getTargetedUser(permissionChangeQuery.getUser());
       UserRoleDto userRole = new UserRoleDto().setRole(permissionChangeQuery.getRole()).setUserId(targetedUser);
-      if(ADD.equals(operation)) {
+      if (ADD.equals(operation)) {
         roleDao.insertUserRole(userRole);
       } else {
         roleDao.deleteUserRole(userRole);
@@ -114,7 +112,7 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private Long getTargetedGroup(String group) {
-    if(DefaultGroups.isAnyone(group)) {
+    if (DefaultGroups.isAnyone(group)) {
       return null;
     }
     return userDao.selectGroupByName(group).getId();

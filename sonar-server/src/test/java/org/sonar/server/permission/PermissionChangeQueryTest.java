@@ -21,16 +21,19 @@
 package org.sonar.server.permission;
 
 import com.google.common.collect.Maps;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.user.Permissions;
+import org.junit.rules.ExpectedException;
+import org.sonar.core.user.Permission;
 
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class PermissionChangeQueryTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void should_populate_from_params() throws Exception {
@@ -38,13 +41,13 @@ public class PermissionChangeQueryTest {
     Map<String, Object> params = Maps.newHashMap();
     params.put("user", "my_login");
     params.put("group", "my_group");
-    params.put("permission", Permissions.SYSTEM_ADMIN);
+    params.put("permission", Permission.SYSTEM_ADMIN.key());
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(params);
 
     assertThat(query.getUser()).isEqualTo("my_login");
     assertThat(query.getGroup()).isEqualTo("my_group");
-    assertThat(query.getRole()).isEqualTo(Permissions.SYSTEM_ADMIN);
+    assertThat(query.getRole()).isEqualTo(Permission.SYSTEM_ADMIN.key());
   }
 
   @Test
@@ -52,10 +55,10 @@ public class PermissionChangeQueryTest {
 
     Map<String, Object> validUserParams = Maps.newHashMap();
     validUserParams.put("user", "my_login");
-    validUserParams.put("permission", Permissions.SYSTEM_ADMIN);
+    validUserParams.put("permission", Permission.SYSTEM_ADMIN.key());
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(validUserParams);
-    assertTrue(query.isValid());
+    query.validate();
   }
 
   @Test
@@ -63,10 +66,10 @@ public class PermissionChangeQueryTest {
 
     Map<String, Object> validGroupParams = Maps.newHashMap();
     validGroupParams.put("group", "my_group");
-    validGroupParams.put("permission", Permissions.SYSTEM_ADMIN);
+    validGroupParams.put("permission", Permission.SYSTEM_ADMIN.key());
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(validGroupParams);
-    assertTrue(query.isValid());
+    query.validate();
   }
 
   @Test
@@ -75,19 +78,37 @@ public class PermissionChangeQueryTest {
     Map<String, Object> inconsistentParams = Maps.newHashMap();
     inconsistentParams.put("user", "my_login");
     inconsistentParams.put("group", "my_group");
-    inconsistentParams.put("permission", Permissions.SYSTEM_ADMIN);
+    inconsistentParams.put("permission", Permission.SYSTEM_ADMIN.key());
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
-    assertFalse(query.isValid());
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Only one of user or group parameter should be provided");
+    query.validate();
   }
 
   @Test
-  public void should_detect_missing_parameters() throws Exception {
-    Map<String, Object> validGroupParams = Maps.newHashMap();
-    validGroupParams.put("permission", "admin");
+  public void should_detect_missing_user_or_group() throws Exception {
+    Map<String, Object> inconsistentParams = Maps.newHashMap();
+    inconsistentParams.put("permission", "admin");
 
-    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(validGroupParams);
-    assertFalse(query.isValid());
+    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Missing user or group parameter");
+    query.validate();
+  }
+
+  @Test
+  public void should_detect_missing_permission() throws Exception {
+    Map<String, Object> inconsistentParams = Maps.newHashMap();
+    inconsistentParams.put("user", "my_login");
+
+    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Missing role parameter");
+    query.validate();
   }
 
   @Test
@@ -97,6 +118,9 @@ public class PermissionChangeQueryTest {
     inconsistentParams.put("permission", "invalid_role");
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
-    assertFalse(query.isValid());
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Invalid role key invalid_role");
+    query.validate();
   }
 }

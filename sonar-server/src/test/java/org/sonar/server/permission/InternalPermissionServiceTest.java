@@ -30,14 +30,24 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.core.user.*;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.GroupRoleDto;
+import org.sonar.core.user.Permission;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserDto;
+import org.sonar.core.user.UserRoleDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Map;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.server.permission.InternalPermissionServiceTest.MatchesGroupRole.matchesRole;
 import static org.sonar.server.permission.InternalPermissionServiceTest.MatchesUserRole.matchesRole;
 
@@ -53,7 +63,7 @@ public class InternalPermissionServiceTest {
 
   @Before
   public void setUpCommonStubbing() {
-    MockUserSession.set().setLogin("admin").setPermissions(Permissions.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("admin").setPermissions(Permission.SYSTEM_ADMIN);
 
     UserDto targetedUser = new UserDto().setId(2L).setLogin("user").setActive(true);
     GroupDto targetedGroup = new GroupDto().setId(2L).setName("group");
@@ -69,9 +79,9 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void should_add_user_permission() throws Exception {
-    params = buildParams("user", null, Permissions.DASHBOARD_SHARING);
-    setUpUserPermissions("user", Permissions.QUALITY_PROFILE_ADMIN);
-    UserRoleDto roleToInsert = new UserRoleDto().setUserId(2L).setRole(Permissions.DASHBOARD_SHARING);
+    params = buildParams("user", null, Permission.DASHBOARD_SHARING);
+    setUpUserPermissions("user", Permission.QUALITY_PROFILE_ADMIN.key());
+    UserRoleDto roleToInsert = new UserRoleDto().setUserId(2L).setRole(Permission.DASHBOARD_SHARING.key());
 
     service.addPermission(params);
 
@@ -80,9 +90,9 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void should_remove_user_permission() throws Exception {
-    params = buildParams("user", null, Permissions.QUALITY_PROFILE_ADMIN);
-    setUpUserPermissions("user", Permissions.QUALITY_PROFILE_ADMIN);
-    UserRoleDto roleToRemove = new UserRoleDto().setUserId(2L).setRole(Permissions.QUALITY_PROFILE_ADMIN);
+    params = buildParams("user", null, Permission.QUALITY_PROFILE_ADMIN);
+    setUpUserPermissions("user", Permission.QUALITY_PROFILE_ADMIN.key());
+    UserRoleDto roleToRemove = new UserRoleDto().setUserId(2L).setRole(Permission.QUALITY_PROFILE_ADMIN.key());
 
     service.removePermission(params);
 
@@ -91,9 +101,9 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void should_add_group_permission() throws Exception {
-    params = buildParams(null, "group", Permissions.DASHBOARD_SHARING);
-    setUpGroupPermissions("group", Permissions.QUALITY_PROFILE_ADMIN);
-    GroupRoleDto roleToInsert = new GroupRoleDto().setGroupId(2L).setRole(Permissions.DASHBOARD_SHARING);
+    params = buildParams(null, "group", Permission.DASHBOARD_SHARING);
+    setUpGroupPermissions("group", Permission.QUALITY_PROFILE_ADMIN.key());
+    GroupRoleDto roleToInsert = new GroupRoleDto().setGroupId(2L).setRole(Permission.DASHBOARD_SHARING.key());
 
     service.addPermission(params);
 
@@ -102,9 +112,9 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void should_remove_group_permission() throws Exception {
-    params = buildParams(null, "group", Permissions.QUALITY_PROFILE_ADMIN);
-    setUpGroupPermissions("group", Permissions.QUALITY_PROFILE_ADMIN);
-    GroupRoleDto roleToRemove = new GroupRoleDto().setGroupId(2L).setRole(Permissions.QUALITY_PROFILE_ADMIN);
+    params = buildParams(null, "group", Permission.QUALITY_PROFILE_ADMIN);
+    setUpGroupPermissions("group", Permission.QUALITY_PROFILE_ADMIN.key());
+    GroupRoleDto roleToRemove = new GroupRoleDto().setGroupId(2L).setRole(Permission.QUALITY_PROFILE_ADMIN.key());
 
     service.removePermission(params);
 
@@ -113,8 +123,8 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void should_skip_redundant_permission_change() throws Exception {
-    params = buildParams("user", null, Permissions.QUALITY_PROFILE_ADMIN);
-    setUpUserPermissions("user", Permissions.QUALITY_PROFILE_ADMIN);
+    params = buildParams("user", null, Permission.QUALITY_PROFILE_ADMIN);
+    setUpUserPermissions("user", Permission.QUALITY_PROFILE_ADMIN.key());
 
     service.addPermission(params);
 
@@ -124,7 +134,7 @@ public class InternalPermissionServiceTest {
   @Test
   public void should_fail_on_invalid_request() throws Exception {
     throwable.expect(IllegalArgumentException.class);
-    params = buildParams("user", "group", Permissions.QUALITY_PROFILE_ADMIN);
+    params = buildParams("user", "group", Permission.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
   }
@@ -132,9 +142,9 @@ public class InternalPermissionServiceTest {
   @Test
   public void should_fail_on_insufficient_rights() throws Exception {
     throwable.expect(ForbiddenException.class);
-    params = buildParams("user", null, Permissions.QUALITY_PROFILE_ADMIN);
+    params = buildParams("user", null, Permission.QUALITY_PROFILE_ADMIN);
 
-    MockUserSession.set().setLogin("unauthorized").setPermissions(Permissions.QUALITY_PROFILE_ADMIN);
+    MockUserSession.set().setLogin("unauthorized").setPermissions(Permission.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
   }
@@ -142,7 +152,7 @@ public class InternalPermissionServiceTest {
   @Test
   public void should_fail_on_anonymous_access() throws Exception {
     throwable.expect(ForbiddenException.class);
-    params = buildParams("user", null, Permissions.QUALITY_PROFILE_ADMIN);
+    params = buildParams("user", null, Permission.QUALITY_PROFILE_ADMIN);
 
     MockUserSession.set();
 
@@ -151,8 +161,8 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void should_add_permission_to_anyone_group() throws Exception {
-    params = buildParams(null, DefaultGroups.ANYONE, Permissions.QUALITY_PROFILE_ADMIN);
-    GroupRoleDto roleToInsert = new GroupRoleDto().setRole(Permissions.QUALITY_PROFILE_ADMIN);
+    params = buildParams(null, DefaultGroups.ANYONE, Permission.QUALITY_PROFILE_ADMIN);
+    GroupRoleDto roleToInsert = new GroupRoleDto().setRole(Permission.QUALITY_PROFILE_ADMIN.key());
 
     service.addPermission(params);
 
@@ -161,9 +171,9 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void should_remove_permission_from_anyone_group() throws Exception {
-    params = buildParams(null, DefaultGroups.ANYONE, Permissions.QUALITY_PROFILE_ADMIN);
-    setUpGroupPermissions(DefaultGroups.ANYONE, Permissions.QUALITY_PROFILE_ADMIN);
-    GroupRoleDto roleToDelete = new GroupRoleDto().setRole(Permissions.QUALITY_PROFILE_ADMIN);
+    params = buildParams(null, DefaultGroups.ANYONE, Permission.QUALITY_PROFILE_ADMIN);
+    setUpGroupPermissions(DefaultGroups.ANYONE, Permission.QUALITY_PROFILE_ADMIN.key());
+    GroupRoleDto roleToDelete = new GroupRoleDto().setRole(Permission.QUALITY_PROFILE_ADMIN.key());
 
     service.removePermission(params);
 
@@ -184,7 +194,7 @@ public class InternalPermissionServiceTest {
 
     @Override
     public boolean matches(Object o) {
-      if(o != null && o instanceof UserRoleDto) {
+      if (o != null && o instanceof UserRoleDto) {
         UserRoleDto otherDto = (UserRoleDto) o;
         return ObjectUtils.equals(referenceDto.getResourceId(), otherDto.getResourceId()) &&
           ObjectUtils.equals(referenceDto.getRole(), otherDto.getRole()) &&
@@ -212,7 +222,7 @@ public class InternalPermissionServiceTest {
 
     @Override
     public boolean matches(Object o) {
-      if(o != null && o instanceof GroupRoleDto) {
+      if (o != null && o instanceof GroupRoleDto) {
         GroupRoleDto otherDto = (GroupRoleDto) o;
         return ObjectUtils.equals(referenceDto.getResourceId(), otherDto.getResourceId()) &&
           ObjectUtils.equals(referenceDto.getRole(), otherDto.getRole()) &&
@@ -226,11 +236,11 @@ public class InternalPermissionServiceTest {
     }
   }
 
-  private Map<String, Object> buildParams(String login, String group, String role) {
+  private Map<String, Object> buildParams(String login, String group, Permission perm) {
     Map<String, Object> params = Maps.newHashMap();
     params.put("user", login);
     params.put("group", group);
-    params.put("permission", role);
+    params.put("permission", perm.key());
     return params;
   }
 

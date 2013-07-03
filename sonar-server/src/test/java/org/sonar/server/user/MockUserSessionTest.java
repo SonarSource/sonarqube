@@ -30,7 +30,7 @@ public class MockUserSessionTest {
 
     UserSession mock = UserSession.get();
     assertThat(mock.login()).isEqualTo("simon");
-    assertThat(mock.permissions()).isEmpty();
+    assertThat(mock.globalPermissions()).isEmpty();
     assertThat(mock.isLoggedIn()).isTrue();
   }
 }

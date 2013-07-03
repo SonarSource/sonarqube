@@ -21,7 +21,7 @@
 package org.sonar.server.permission;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.user.Permissions;
+import org.sonar.core.user.Permission;
 
 import java.util.Map;
 
@@ -42,11 +42,22 @@ public class PermissionChangeQuery {
   }
 
   public static PermissionChangeQuery buildFromParams(Map<String, Object> params) {
-    return new PermissionChangeQuery((String)params.get(USER_KEY), (String)params.get(GROUP_KEY), (String)params.get(ROLE_KEY));
+    return new PermissionChangeQuery((String) params.get(USER_KEY), (String) params.get(GROUP_KEY), (String) params.get(ROLE_KEY));
   }
 
-  public boolean isValid() {
-    return StringUtils.isNotBlank(role) && isValidPermissionReference(role) && (StringUtils.isNotBlank(user) ^ StringUtils.isNotBlank(group));
+  public void validate() {
+    if (StringUtils.isBlank(role)) {
+      throw new IllegalArgumentException("Missing role parameter");
+    }
+    if (StringUtils.isBlank(user) && StringUtils.isBlank(group)) {
+      throw new IllegalArgumentException("Missing user or group parameter");
+    }
+    if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(group)) {
+      throw new IllegalArgumentException("Only one of user or group parameter should be provided");
+    }
+    if (!Permission.allGlobal().keySet().contains(role)) {
+      throw new IllegalArgumentException("Invalid role key " + role);
+    }
   }
 
   public boolean targetsUser() {
@@ -63,13 +74,5 @@ public class PermissionChangeQuery {
 
   public String getRole() {
     return role;
-  }
-
-  private boolean isValidPermissionReference(String role) {
-    return Permissions.SYSTEM_ADMIN.equals(role)
-      || Permissions.QUALITY_PROFILE_ADMIN.equals(role)
-      || Permissions.DASHBOARD_SHARING.equals(role)
-      || Permissions.SCAN_EXECUTION.equals(role)
-      || Permissions.DRY_RUN_EXECUTION.equals(role);
   }
 }

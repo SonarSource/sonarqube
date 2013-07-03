@@ -37,7 +37,7 @@ import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.core.user.AuthorizationDao;
-import org.sonar.core.user.Permissions;
+import org.sonar.core.user.Permission;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -50,7 +50,15 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class IssueFilterServiceTest {
 
@@ -213,7 +221,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_save_shared_filter_if_name_already_used_by_shared_filter() {
-    when(issueFilterDao.selectByUser(eq("john"))).thenReturn(Collections.<IssueFilterDto>emptyList());
+    when(issueFilterDao.selectByUser(eq("john"))).thenReturn(Collections.<IssueFilterDto> emptyList());
     when(issueFilterDao.selectSharedFilters()).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("henry").setShared(true)));
     DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue").setShared(true);
     try {
@@ -264,7 +272,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_update_other_shared_filter_if_admin() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.ADMIN));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("arthur").setShared(true));
 
     DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter"), userSession);
@@ -335,7 +343,7 @@ public class IssueFilterServiceTest {
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin("former.owner").setShared(true);
     IssueFilterDto expectedDto = new IssueFilterDto().setName("My filter").setUserLogin("new.owner").setShared(true);
 
-    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(Permissions.SYSTEM_ADMIN));
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
     when(issueFilterDao.selectSharedFilters()).thenReturn(Lists.newArrayList(sharedFilter));
 
@@ -350,7 +358,7 @@ public class IssueFilterServiceTest {
     String currentUser = "dave.loper";
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin(currentUser).setShared(true);
 
-    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(Permissions.DRY_RUN_EXECUTION));
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(Permission.DRY_RUN_EXECUTION.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
 
     try {
@@ -399,7 +407,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_delete_shared_filter_if_user_is_admin() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.ADMIN));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
 
     service.delete(1L, userSession);
@@ -409,7 +417,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_delete_not_shared_filter_if_user_is_admin() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.ADMIN));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(false));
 
     try {
@@ -482,9 +490,9 @@ public class IssueFilterServiceTest {
   @Test
   public void should_find_shared_issue_filter() {
     when(issueFilterDao.selectSharedFilters()).thenReturn(newArrayList(
-      new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john").setShared(true),
-      new IssueFilterDto().setId(2L).setName("Project Issues").setUserLogin("arthur").setShared(true)
-    ));
+        new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john").setShared(true),
+        new IssueFilterDto().setId(2L).setName("Project Issues").setUserLogin("arthur").setShared(true)
+        ));
 
     List<DefaultIssueFilter> results = service.findSharedFiltersWithoutUserFilters(userSession);
     assertThat(results).hasSize(1);
@@ -516,7 +524,7 @@ public class IssueFilterServiceTest {
   public void should_add_favourite_issue_filter_id() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
     // The filter is not in the favorite list --> add to favorite
-    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto>emptyList());
+    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto> emptyList());
 
     ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
     service.toggleFavouriteIssueFilter(1L, userSession);
@@ -531,7 +539,7 @@ public class IssueFilterServiceTest {
   public void should_add_favourite_on_shared_filter() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
     // The filter is not in the favorite list --> add to favorite
-    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto>emptyList());
+    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto> emptyList());
 
     ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
     service.toggleFavouriteIssueFilter(1L, userSession);
@@ -599,7 +607,7 @@ public class IssueFilterServiceTest {
 
     @Override
     public boolean matches(Object o) {
-      if(o != null && o instanceof IssueFilterDto) {
+      if (o != null && o instanceof IssueFilterDto) {
         IssueFilterDto otherFilter = (IssueFilterDto) o;
         return ObjectUtils.equals(referenceFilter.isShared(), otherFilter.isShared())
           && ObjectUtils.equals(referenceFilter.getUserLogin(), otherFilter.getUserLogin())
