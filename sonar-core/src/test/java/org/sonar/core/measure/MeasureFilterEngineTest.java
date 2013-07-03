@@ -29,11 +29,7 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.refEq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MeasureFilterEngineTest {
 
@@ -75,7 +71,6 @@ public class MeasureFilterEngineTest {
 
     assertThat(result.isSuccess()).isFalse();
     assertThat(result.getError()).isEqualTo(MeasureFilterResult.Error.UNKNOWN);
-    assertThat(result.getDurationInMs()).isGreaterThan(0L);
     assertThat(result.getRows()).isNull();
   }
 }
