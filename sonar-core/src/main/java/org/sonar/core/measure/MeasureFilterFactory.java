@@ -147,7 +147,7 @@ public class MeasureFilterFactory implements ServerComponent {
         return input != null ? input.toUpperCase() : "";
       }
     });
-    String val = "(\"" + Joiner.on("\", \"").join(alertLevelsUppercase) + "\")";
+    String val = "('" + Joiner.on("', '").join(alertLevelsUppercase) + "')";
     if (!Strings.isNullOrEmpty(metricKey) && !Strings.isNullOrEmpty(op) && !Strings.isNullOrEmpty(val)) {
       Metric metric = metricFinder.findByKey(metricKey);
       MeasureFilterCondition.Operator operator = MeasureFilterCondition.Operator.fromCode(op);
