@@ -204,6 +204,7 @@ class IssuesController < ApplicationController
     @issues = issues_result.issues.map { |issue| issue.key() }
     @project = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1
     @criteria_params = criteria_params
+    @max_page_size_reached = issues_result.issues.size >= issues_result.paging.pageSize()
 
     render :partial => 'issues/bulk_change_form'
   end

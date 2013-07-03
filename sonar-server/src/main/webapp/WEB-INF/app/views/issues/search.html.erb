@@ -24,8 +24,7 @@
               </li>
             <% end %>
             <li>
-              <a id="bulk-change" href="<%= url_for params.merge({:action => 'bulk_change_form',
-                                                                  :max_page_size_reached => @issues_result.issues.size >= @issues_result.paging.pageSize()}) -%>"
+              <a id="bulk-change" href="<%= url_for params.merge({:action => 'bulk_change_form'}) -%>"
                  class="link-action open-modal"><%= message('bulk_change') -%></a>
             </li>
           </ul>

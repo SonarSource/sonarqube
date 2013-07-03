@@ -8,7 +8,7 @@
     </div>
     <div class="modal-body">
       <div>
-      <% if params[:max_page_size_reached] %>
+      <% if @max_page_size_reached %>
         <p class="notes"><%= message('issue_filter.bulk_change.max_issues_reached', :params => @issues.size) -%></p>
       <% end %>
       </div>
@@ -19,7 +19,7 @@
         </label>
         <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
         <%= user_select_tag('assign.assignee', :html_id => 'assignee', :open => false,
-                            :include_choices => {'' => escape_javascript(message('unassigned')), current_user.login => escape_javascript(message('assigned_to_me'))}) -%>
+                            :include_choices => {'0' => escape_javascript(message('unassigned')), current_user.login => escape_javascript(message('assigned_to_me'))}) -%>
       </div>
       <%
          if @project && !@project.blank?
@@ -59,8 +59,8 @@
           <%= message('issue.transition') -%>
         </label>
         <% @transitions_by_issues.keys.each do |transition| %>
-          <input type="radio" name="transition.transition" value="<%= transition -%>" onClick="addTransitionAction();">&nbsp;<%= message("issue.transition.#{transition}") -%>
-          (<%= @transitions_by_issues[transition].to_s %>) <br>
+          <input type="radio" name="transition.transition" value="<%= transition -%>"
+                 onClick="addTransitionAction();">&nbsp;<%= message("issue.transition.#{transition}") -%>&nbsp;(<%= @transitions_by_issues[transition].to_s %>) <br>
         <% end %>
       </div>
       <div class="modal-field">
@@ -78,7 +78,8 @@
       </div>
     </div>
     <div class="modal-foot">
-      <input type="submit" value="<%= message('apply') -%>" id="bulk-change-submit" class="bulk-change"/>
+      <span id="bulk-change-loading-image" class="hidden"><%= image_tag 'loading.gif' %></span>
+      <input type="submit" value="<%= message('apply') -%>" id="bulk-change-submit" class="bulk-change" onclick="return displayLoadingImage()" />
       <a href="#" onclick="return closeModalWindow()" id="bulk-change-cancel"><%= message('cancel') -%></a>
     </div>
   </fieldset>
@@ -89,6 +90,7 @@
       window.location = baseUrl + '/issues/search?' + data;
     },
     error: function (xhr, textStatus, errorThrown) {
+      $j('#bulk-change-loading-image').addClass("hidden");
       var htmlClass = 'bulk-change';
       $j('input[type=submit].' + htmlClass).removeAttr('disabled');
       $j('.' + htmlClass + '.errors').show();
@@ -99,4 +101,19 @@
   function addTransitionAction() {
     $j('#bulk-change-transition-action').val("transition");
   }
+
+  function displayLoadingImage() {
+    $j('#bulk-change-loading-image').removeClass("hidden");
+  }
+
+  function check(id){
+    $j('#'+ id).prop('checked', true);
+  }
+
+  /**
+   * Attach some events on select boxes to automatically select associate check box when selecting an option
+   */
+  $j('#assignee').click(function() { check('assign-action'); });
+  $j('#plan').click(function() { check('plan-action'); });
+  $j('#severity').click(function() { check('set-severity-action'); });
 </script>
