@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -36,6 +37,7 @@ import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.core.user.AuthorizationDao;
+import org.sonar.core.user.Permissions;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -321,8 +323,9 @@ public class IssueFilterServiceTest {
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin("former.owner").setShared(true);
     IssueFilterDto expectedDto = new IssueFilterDto().setName("My filter").setUserLogin("new.owner").setShared(true);
 
-    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(UserRole.ADMIN));
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(Permissions.SYSTEM_ADMIN));
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
+    when(issueFilterDao.selectSharedFilters()).thenReturn(Lists.newArrayList(sharedFilter));
 
     DefaultIssueFilter issueFilter = new DefaultIssueFilter().setId(1L).setName("My filter").setShared(true).setUser("new.owner");
     service.update(issueFilter, MockUserSession.create().setUserId(1).setLogin(currentUser));
@@ -331,11 +334,11 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_not_change_own_filter_ownership() throws Exception {
+  public void should_deny_filter_ownership_change_when_not_admin() throws Exception {
     String currentUser = "dave.loper";
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin(currentUser).setShared(true);
 
-    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(UserRole.USER));
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(Permissions.DRY_RUN_EXECUTION));
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
 
     try {

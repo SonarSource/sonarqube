@@ -232,7 +232,7 @@ public class IssueFilterService implements ServerComponent {
     if (issueFilter.shared()) {
       List<IssueFilterDto> sharedFilters = selectSharedFilters();
       IssueFilterDto sharedFilterWithSameName = findFilterWithSameName(sharedFilters, issueFilter.name());
-      if (sharedFilterWithSameName != null && !sharedFilterWithSameName.getUserLogin().equals(issueFilter.user())) {
+      if (sharedFilterWithSameName != null && !sharedFilterWithSameName.getId().equals(issueFilter.id())) {
         throw new IllegalArgumentException("Other users already share filters with the same name");
       }
     }
