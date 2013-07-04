@@ -11,7 +11,7 @@
 
 <% if @uninstalls.size > 0 %>
 <form action="<%= ApplicationController.root_context -%>/updatecenter/cancel_uninstalls" method="post" class="warning">
-<p>Sonar needs to be restarted in order to uninstall the following plugins: <ul>
+<p>SonarQube needs to be restarted in order to uninstall the following plugins: <ul>
   <% @uninstalls.each do |uninstall| %>
     <li><%= uninstall -%></li>
   <% end %>
@@ -23,7 +23,7 @@
 
 <% if @downloads.size > 0 %>
 <form action="<%= ApplicationController.root_context -%>/updatecenter/cancel_downloads" method="post" class="warning">
-<p>Sonar needs to be restarted in order to install the following plugins: <ul>
+<p>SonarQube needs to be restarted in order to install the following plugins: <ul>
   <% @downloads.each do |download| %>
     <li><%= download -%></li>
   <% end %>

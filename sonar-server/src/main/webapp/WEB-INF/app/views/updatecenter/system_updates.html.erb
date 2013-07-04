@@ -40,7 +40,7 @@
         <table class="data width100" id="sonar-<%= release.getVersion() -%>">
           <thead>
           <tr>
-            <th><h2>Sonar  <%= release.getVersion() -%></h2></th>
+            <th><h2>SonarQube  <%= release.getVersion() -%></h2></th>
           </tr>
           </thead>
           <tbody>
@@ -64,7 +64,7 @@
                   <td class="sep"></td>
                   <td>
                     <% if update.hasWarnings() %>
-                      Follow those steps to upgrade Sonar from version <%= sonar_version -%> to
+                      Follow those steps to upgrade SonarQube from version <%= sonar_version -%> to
                       version <%= release.getVersion() -%> :
                       <ol class="bulletpoints">
                         <% update.getIncompatiblePlugins().each do |incompatible_plugin| %>
@@ -73,7 +73,7 @@
                               <%= image_tag 'warning.png' -%>
                               <input type="submit" value="Uninstall" class="red-button" onClick="return submitForm(this);"/>
                               the plugin <%= incompatible_plugin.getName() -%> which is not compatible with
-                              Sonar <%= release.getVersion() -%>.
+                              SonarQube <%= release.getVersion() -%>.
                             </form>
                           </li>
                         <% end %>
@@ -88,14 +88,14 @@
                         <% end %>
                         <li>Stop Sonar</li>
                         <li><%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install
-                          Sonar <%= release.getVersion() -%> after having carefully read the upgrade guide.
+                          SonarQube <%= release.getVersion() -%> after having carefully read the upgrade guide.
                         </li>
                         <li>Start Sonar</li>
                       </ol>
 
                     <% else %>
                       <%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install
-                      Sonar <%= release.getVersion() -%> after having carefully read the upgrade guide.
+                      SonarQube <%= release.getVersion() -%> after having carefully read the upgrade guide.
                     <% end %>
                   </td>
                 </tr>

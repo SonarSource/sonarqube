@@ -43,7 +43,7 @@ function upgradePlugin(key) {
             <% elsif update.requiresSonarUpgrade %>
               <%= image_tag 'warning.png' -%> Incompatible, requires to upgrade system
             <% elsif update.requiresSonarUpgradeForDependencies %>
-              <%= image_tag 'warning.png' -%> Incompatible, some dependencies requires Sonar upgrade
+              <%= image_tag 'warning.png' -%> Incompatible, some dependencies requires SonarQube upgrade
             <% end %>
           </td>
          </tr>

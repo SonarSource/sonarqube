@@ -4,7 +4,7 @@
 <div class="box">
     <p>This will backup configuration in a portable XML format. Click on "backup" to download this file.</p>
 
-    <p>You can use this backup to duplicate configuration to another Sonar instance. This backup includes global settings,
+    <p>You can use this backup to duplicate configuration to another SonarQube instance. This backup includes global settings,
     custom metrics and quality profiles (coding rules, alerts).
     </p>
     <br/>
@@ -19,6 +19,6 @@
 
     <% form_tag({:action => 'import'}, {:multipart => true}) do -%>
         <%= file_field_tag 'file' %>
-        <%= submit_tag 'Restore' %> 
+        <%= submit_tag 'Restore' %>
     <% end %>
 </div>

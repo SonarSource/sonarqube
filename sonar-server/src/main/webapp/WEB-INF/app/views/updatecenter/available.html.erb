@@ -7,7 +7,7 @@ function installPlugin(key) {
     return false;
   }
   $('install-form-' + key).submit();
-  
+
   var button=$('submit-' + key);
   button.disable();
   button.writeAttribute('value', 'Installing');
@@ -111,13 +111,13 @@ function installPlugin(key) {
             %>
               <tr>
                 <td class="thin nowrap"><b>Last version:</b> </td>
-                <td><%= update.getRelease().getVersion() -%> (<%= image_tag 'warning.png' -%> Not compatible, requires Sonar upgrade)</td>
+                <td><%= update.getRelease().getVersion() -%> (<%= image_tag 'warning.png' -%> Not compatible, requires SonarQube upgrade)</td>
               </tr>
             <% elsif update.requiresSonarUpgradeForDependencies
             %>
             <tr>
               <td class="thin nowrap"><b>Last version:</b> </td>
-              <td><%= update.getRelease().getVersion() -%> (<%= image_tag 'warning.png' -%> Not compatible, some dependencies requires Sonar upgrade)</td>
+              <td><%= update.getRelease().getVersion() -%> (<%= image_tag 'warning.png' -%> Not compatible, some dependencies requires SonarQube upgrade)</td>
             </tr>
       <%
          end

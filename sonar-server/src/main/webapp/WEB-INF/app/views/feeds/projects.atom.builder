@@ -1,5 +1,5 @@
 atom_feed do |feed|
-  feed.title("Sonar #{@category ? @category : 'all events'}")
+  feed.title("SonarQube #{@category ? @category : 'all events'}")
   feed.updated(@date)
 
   for event in @events
