@@ -27,6 +27,8 @@ public class PermissionTemplateUserDto {
   private Long id;
   private Long templateId;
   private Long userId;
+  private String permission;
+  private String userName;
   private Date createdAt;
   private Date updatedAt;
 
@@ -54,6 +56,25 @@ public class PermissionTemplateUserDto {
 
   public PermissionTemplateUserDto setUserId(Long userId) {
     this.userId = userId;
+    return this;
+  }
+
+  public String getUserName() {
+    return userName;
+  }
+
+  public PermissionTemplateUserDto setUserName(String userName) {
+    this.userName = userName;
+    return this;
+  }
+
+  public String getPermission() {
+    return permission;
+  }
+
+
+  public PermissionTemplateUserDto setPermission(String permission) {
+    this.permission = permission;
     return this;
   }
 

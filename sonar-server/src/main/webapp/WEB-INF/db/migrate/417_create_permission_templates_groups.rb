@@ -27,6 +27,7 @@ class CreatePermissionTemplatesGroups < ActiveRecord::Migration
     create_table :perm_templates_groups do |t|
       t.column :group_id,         :integer,   :null => true
       t.column :template_id,      :integer,   :null => false
+      t.column :permission,       :string,    :null => false,   :limit => 64
       t.column :created_at,       :datetime,  :null => true
       t.column :updated_at,       :datetime,  :null => true
     end

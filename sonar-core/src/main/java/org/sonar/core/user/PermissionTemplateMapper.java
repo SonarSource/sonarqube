@@ -27,7 +27,9 @@ public interface PermissionTemplateMapper {
 
   void insert(PermissionTemplateDto permissionTemplate);
 
-  PermissionTemplateDto selectByName(String name);
+  PermissionTemplateDto selectTemplateUsersPermissions(String templateName);
+
+  PermissionTemplateDto selectTemplateGroupsPermissions(String templateName);
 
   void insertUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 

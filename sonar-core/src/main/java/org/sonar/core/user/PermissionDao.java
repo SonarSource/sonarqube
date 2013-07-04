@@ -27,6 +27,7 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
 import java.util.Date;
+import java.util.List;
 
 public class PermissionDao implements TaskExtension, ServerExtension {
 
@@ -41,12 +42,23 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     SqlSession session = myBatis.openSession();
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      permissionTemplate = mapper.selectByName(templateName);
+      permissionTemplate = mapper.selectTemplateUsersPermissions(templateName);
+      PermissionTemplateDto templateWithGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateName);
+      permissionTemplate.setGroupsByPermission(templateWithGroupsPermissions.getGroupsPermissions());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
     return permissionTemplate;
+  }
+
+  public List<PermissionTemplateDto> selectAllPermissionTemplates() {
+    SqlSession session = myBatis.openSession();
+    try {
+      return session.selectList("selectAllPermissionTemplates");
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public PermissionTemplateDto createPermissionTemplate(String templateName, @Nullable String description) {
@@ -66,10 +78,11 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     return permissionTemplate;
   }
 
-  public void addUserPermission(Long templateId, Long userId) {
+  public void addUserPermission(Long templateId, Long userId, String permission) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
       .setTemplateId(templateId)
       .setUserId(userId)
+      .setPermission(permission)
       .setCreatedAt(now())
       .setUpdatedAt(now());
     SqlSession session = myBatis.openSession();
@@ -82,9 +95,10 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     }
   }
 
-  public void removeUserPermission(Long templateId, Long userId) {
+  public void removeUserPermission(Long templateId, Long userId, String permission) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
       .setTemplateId(templateId)
+      .setPermission(permission)
       .setUserId(userId);
     SqlSession session = myBatis.openSession();
     try {
@@ -96,9 +110,10 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     }
   }
 
-  public void addGroupPermission(Long templateId, @Nullable Long groupId) {
+  public void addGroupPermission(Long templateId, @Nullable Long groupId, String permission) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setTemplateId(templateId)
+      .setPermission(permission)
       .setGroupId(groupId)
       .setCreatedAt(now())
       .setUpdatedAt(now());
@@ -112,9 +127,10 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     }
   }
 
-  public void removeGroupPermission(Long templateId, @Nullable Long groupId) {
+  public void removeGroupPermission(Long templateId, @Nullable Long groupId, String permission) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setTemplateId(templateId)
+      .setPermission(permission)
       .setGroupId(groupId);
     SqlSession session = myBatis.openSession();
     try {

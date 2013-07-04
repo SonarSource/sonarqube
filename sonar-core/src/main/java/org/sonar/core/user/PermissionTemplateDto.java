@@ -22,12 +22,15 @@ package org.sonar.core.user;
 
 import javax.annotation.Nullable;
 import java.util.Date;
+import java.util.List;
 
 public class PermissionTemplateDto {
 
   private Long id;
   private String name;
   private String description;
+  private List<PermissionTemplateUserDto> usersPermissions;
+  private List<PermissionTemplateGroupDto> groupsPermissions;
   private Date createdAt;
   private Date updatedAt;
 
@@ -55,6 +58,24 @@ public class PermissionTemplateDto {
 
   public PermissionTemplateDto setDescription(@Nullable String description) {
     this.description = description;
+    return this;
+  }
+
+  public List<PermissionTemplateUserDto> getUsersPermissions() {
+    return usersPermissions;
+  }
+
+  public PermissionTemplateDto setUsersPermissions(List<PermissionTemplateUserDto> usersPermissions) {
+    this.usersPermissions = usersPermissions;
+    return this;
+  }
+
+  public List<PermissionTemplateGroupDto> getGroupsPermissions() {
+    return groupsPermissions;
+  }
+
+  public PermissionTemplateDto setGroupsByPermission(List<PermissionTemplateGroupDto> groupsPermissions) {
+    this.groupsPermissions = groupsPermissions;
     return this;
   }
 

@@ -9,8 +9,8 @@
   </insert>
 
   <insert id="insertUserPermission" parameterType="PermissionTemplateUser">
-    INSERT INTO perm_templates_users (template_id, user_id, created_at, updated_at)
-    VALUES (#{templateId}, #{userId}, #{createdAt}, #{updatedAt})
+    INSERT INTO perm_templates_users (template_id, user_id, permission, created_at, updated_at)
+    VALUES (#{templateId}, #{userId}, #{permission}, #{createdAt}, #{updatedAt})
   </insert>
 
   <delete id="deleteUserPermission" parameterType="PermissionTemplateUser">
@@ -20,8 +20,8 @@
   </delete>
 
   <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup">
-    INSERT INTO perm_templates_groups (template_id, group_id, created_at, updated_at)
-    VALUES (#{templateId}, #{groupId}, #{createdAt}, #{updatedAt})
+    INSERT INTO perm_templates_groups (template_id, group_id, permission, created_at, updated_at)
+    VALUES (#{templateId}, #{groupId}, #{permission}, #{createdAt}, #{updatedAt})
   </insert>
 
   <delete id="deleteGroupPermission" parameterType="PermissionTemplateGroup">
@@ -38,9 +38,57 @@
     </choose>
   </delete>
 
-  <select id="selectByName" parameterType="string" resultType="PermissionTemplate">
+  <select id="selectAllPermissionTemplates" resultType="PermissionTemplate">
     SELECT id, name, description, created_at AS createdAt, updated_at AS updatedAt
-    FROM permission_templates WHERE name=#{name}
+    FROM permission_templates
   </select>
+
+  <select id="selectTemplateUsersPermissions" parameterType="String" resultMap="fullPermissionsTemplateResult">
+    SELECT  pt.id AS template_id,
+            pt.name AS template_name,
+            pt.description AS template_description,
+            pt.created_at AS template_created_at,
+            pt.updated_at AS template_updated_at,
+            ptu.id AS permission_template_user_id,
+            ptu.permission AS user_permission,
+            u.name AS user_name
+    FROM permission_templates AS pt
+    INNER JOIN perm_templates_users AS ptu ON ptu.template_id = pt.id
+    INNER JOIN users AS u ON u.id = ptu.user_id
+    WHERE pt.name = #{templateName}
+  </select>
+
+  <select id="selectTemplateGroupsPermissions" parameterType="String" resultMap="fullPermissionsTemplateResult">
+    SELECT  pt.id AS template_id,
+            pt.name AS template_name,
+            pt.description AS template_description,
+            pt.created_at AS template_created_at,
+            pt.updated_at AS template_updated_at,
+            ptg.id AS permission_template_group_id,
+            ptg.permission AS group_permission,
+            g.name AS group_name
+    FROM permission_templates AS pt
+    INNER JOIN perm_templates_groups AS ptg ON ptg.template_id = pt.id
+    LEFT OUTER JOIN groups AS g ON g.id = ptg.group_id
+    WHERE pt.name = #{templateName}
+  </select>
+
+  <resultMap id="fullPermissionsTemplateResult" type="PermissionTemplate">
+    <id property="id" column="template_id" />
+    <result property="name" column="template_name"/>
+    <result property="description" column="template_description"/>
+    <result property="createdAt" column="template_created_at"/>
+    <result property="updatedAt" column="template_updated_at"/>
+    <collection property="usersPermissions" ofType="PermissionTemplateUser">
+      <id property="id" column="permission_template_user_id"/>
+      <result property="permission" column="user_permission"/>
+      <result property="userName" column="user_name"/>
+    </collection>
+    <collection property="groupsPermissions" ofType="PermissionTemplateGroup">
+      <id property="id" column="permission_template_group_id"/>
+      <result property="permission" column="group_permission"/>
+      <result property="groupName" column="group_name"/>
+    </collection>
+  </resultMap>
 
 </mapper>

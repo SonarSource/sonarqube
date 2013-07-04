@@ -28,6 +28,8 @@ public class PermissionTemplateGroupDto {
   private Long id;
   private Long templateId;
   private Long groupId;
+  private String permission;
+  private String groupName;
   private Date createdAt;
   private Date updatedAt;
 
@@ -55,6 +57,24 @@ public class PermissionTemplateGroupDto {
 
   public PermissionTemplateGroupDto setGroupId(@Nullable Long groupId) {
     this.groupId = groupId;
+    return this;
+  }
+
+  public String getPermission() {
+    return permission;
+  }
+
+  public PermissionTemplateGroupDto setPermission(String permission) {
+    this.permission = permission;
+    return this;
+  }
+
+  public String getGroupName() {
+    return groupName;
+  }
+
+  public PermissionTemplateGroupDto setGroupName(String groupName) {
+    this.groupName = groupName;
     return this;
   }
 

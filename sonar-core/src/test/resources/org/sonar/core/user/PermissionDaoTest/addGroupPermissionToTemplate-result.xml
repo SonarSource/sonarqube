@@ -1,5 +1,5 @@
 <dataset>
   <permission_templates id="1" name="my template" description="my description"/>
   <perm_templates_users/>
-  <perm_templates_groups id="1" template_id="1" group_id="1"/>
+  <perm_templates_groups id="1" template_id="1" group_id="1" permission="new_permission"/>
 </dataset>
