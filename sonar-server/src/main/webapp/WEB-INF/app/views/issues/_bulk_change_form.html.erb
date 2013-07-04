@@ -1,20 +1,40 @@
+<%
+   issue_query = @issue_filter_result.query
+   issues_result = @issue_filter_result.result
+
+   issues = issues_result.issues
+   max_page_size_reached = issues_result.issues.size >= issues_result.paging.pageSize()
+   project_key = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1
+
+   transitions_by_issues = {}
+   unresolved_issues = 0
+   issues.each do |issue|
+     transitions = Internal.issues.listTransitions(issue)
+     transitions.each do |transition|
+       issues_for_transition = transitions_by_issues[transition.key] || 0
+       issues_for_transition += 1
+       transitions_by_issues[transition.key] = issues_for_transition
+     end
+     unresolved_issues += 1 unless issue.resolution()
+   end
+%>
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
-  <input type="hidden" name="issues" value="<%= @issues.join(',') -%>">
-  <input type="hidden" name="criteria_params" value="<%= @criteria_params.to_query -%>">
+  <input type="hidden" name="issues" value="<%= issues.map { |issue| issue.key() }.join(',') -%>">
+  <input type="hidden" name="criteria_params" value="<%= params.to_query -%>">
   <input type="hidden" name="actions[]" id="bulk-change-transition-action">
   <fieldset>
     <div class="modal-head">
-      <h2><%= message('issue_filter.bulk_change.form.title', {:params => @issues.size.to_s}) -%></h2>
+      <h2><%= message('issue_bulk_change.form.title', {:params => issues.size.to_s}) -%></h2>
     </div>
     <div class="modal-body">
       <div>
-      <% if @max_page_size_reached %>
-        <p class="notes"><%= message('issue_filter.bulk_change.max_issues_reached', :params => @issues.size) -%></p>
+      <% if max_page_size_reached %>
+        <p class="notes"><%= message('issue_bulk_change.max_issues_reached', :params => issues.size) -%></p>
       <% end %>
       </div>
-      <div class="bulk-change errors" style="display:none;"/>
+      <div class="bulk-change errors error" style="display:none;"/>
 
-      <% if @unresolved_issues > 0 %>
+      <% if unresolved_issues > 0 %>
       <div class="modal-field">
         <label for="assignee">
           <%= message('issue.assign.formlink') -%>
@@ -22,11 +42,11 @@
         <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
         <%= user_select_tag('assign.assignee', :html_id => 'assignee', :open => false, :selected_user => current_user,
                             :include_choices => {'' => escape_javascript(message('unassigned')), current_user.login => escape_javascript(message('assigned_to_me'))}) -%>
-        <span style="float:right;">(<%= message('issue_filter.bulk_change.x_issues', :params => @unresolved_issues.to_s) -%>)</span>
+        <span style="float:right;">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
       </div>
       <%
-         if @project && !@project.blank?
-           plans = Internal.issues.findOpenActionPlans(@project)
+         if project_key && !project_key.blank?
+           plans = Internal.issues.findOpenActionPlans(project_key)
            unless plans.empty?
              first_plan = plans[0]
              options = plans.map { |plan|
@@ -46,7 +66,7 @@
           </label>
           <input id="plan-action" name="actions[]" type="checkbox" value="plan"/>
           <%= dropdown_tag('plan.plan', plan_options, {:show_search_box => false}, {:id => 'plan'}) -%>
-          <span style="float:right;">(<%= message('issue_filter.bulk_change.x_issues', :params => @unresolved_issues.to_s) -%>)</span>
+          <span style="float:right;">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
         </div>
         <% end %>
       <% end %>
@@ -57,19 +77,19 @@
         <input id="set-severity-action" name="actions[]" type="checkbox" value="set_severity"/>
         <%= severity_dropdown_tag('set_severity.severity', severitiy_select_option_tags, {:show_search_box => false},
                          {:id => 'severity'}) -%>
-        <span style="float:right;">(<%= message('issue_filter.bulk_change.x_issues', :params => @unresolved_issues.to_s) -%>)</span>
+        <span style="float:right;">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
       </div>
       <% end %>
 
-      <% if @transitions_by_issues.size > 0 %>
+      <% if transitions_by_issues.size > 0 %>
       <div class="modal-field">
         <label>
           <%= message('issue.transition') -%>
         </label>
-        <% @transitions_by_issues.keys.each do |transition| %>
+        <% transitions_by_issues.keys.each do |transition| %>
           <input type="radio" name="transition.transition" value="<%= transition -%>"
                  onClick="addTransitionAction();">&nbsp;<%= message("issue.transition.#{transition}") -%>
-          <span style="float:right;">(<%= message('issue_filter.bulk_change.x_issues', :params => @transitions_by_issues[transition].to_s) %>)</span><br/>
+          <span style="float:right;">(<%= message('issue_bulk_change.x_issues', :params => transitions_by_issues[transition].to_s) %>)</span><br/>
       <% end %>
       </div>
       <% end %>
@@ -98,7 +118,16 @@
 <script>
   $j("#bulk-change-form").modalForm({
     success: function (data) {
-      window.location = baseUrl + '/issues/search?' + data;
+      <% if params[:from] == 'issue_filters' %>
+        window.location = baseUrl + '/issues/search?' + data;
+      <% elsif params[:from] == 'drilldown' %>
+        <% component = issue_query.components.to_a.first if issue_query.components and issue_query.components.size == 1
+        component_id = Project.by_key(component).id %>
+        d('<%= component_id %>');
+        closeModalWindow();
+      <% else %>
+        alert('Unknown origin : <%= params[:from] %>');
+      <% end %>
     },
     error: function (xhr, textStatus, errorThrown) {
       $j('#bulk-change-loading-image').addClass("hidden");

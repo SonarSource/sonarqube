@@ -556,11 +556,9 @@ public class InternalRubyIssueService implements ServerComponent {
   /**
    * Execute a bulk change
    */
-  public Result<IssueBulkChangeResult> bulkChange(Map<String, Object> props, String comment) {
-    Result<IssueBulkChangeResult> result = Result.of();
+  public IssueBulkChangeResult bulkChange(Map<String, Object> props, String comment) {
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props, comment);
-    result.set(issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get()));
-    return result;
+    return issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get());
   }
 
   private void checkMandatoryParameter(String value, String paramName, Result result) {

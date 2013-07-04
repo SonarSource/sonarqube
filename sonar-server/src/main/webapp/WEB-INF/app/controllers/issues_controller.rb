@@ -144,33 +144,13 @@ class IssuesController < ApplicationController
 
   # GET /issues/bulk_change_form?[&criteria]
   def bulk_change_form
-    params_to_execute = criteria_params.clone
-    params_to_execute['pageSize'] = -1
+    params[:from] ||= 'issue_filters'
+    params_for_query = params.clone.merge({'pageSize' => -1})
     if params[:id]
-      issue_filter_result = Internal.issues.execute(params[:id].to_i, params_to_execute)
+      @issue_filter_result = Internal.issues.execute(params[:id].to_i, params_for_query)
     else
-      issue_filter_result = Internal.issues.execute(params_to_execute)
+      @issue_filter_result = Internal.issues.execute(params_for_query)
     end
-
-    issue_query = issue_filter_result.query
-    issues_result = issue_filter_result.result
-
-    @transitions_by_issues = {}
-    @unresolved_issues = 0
-    issues_result.issues.each do |issue|
-      transitions = Internal.issues.listTransitions(issue)
-      transitions.each do |transition|
-        issues_for_transition = @transitions_by_issues[transition.key] || 0
-        issues_for_transition += 1
-        @transitions_by_issues[transition.key] = issues_for_transition
-      end
-      @unresolved_issues += 1 unless issue.resolution()
-    end
-    @issues = issues_result.issues.map { |issue| issue.key() }
-    @project = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1
-    @criteria_params = criteria_params
-    @max_page_size_reached = issues_result.issues.size >= issues_result.paging.pageSize()
-
     render :partial => 'issues/bulk_change_form'
   end
 

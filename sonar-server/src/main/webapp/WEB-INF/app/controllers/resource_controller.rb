@@ -25,7 +25,7 @@ class ResourceController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
   helper :dashboard
-  helper SourceHelper, UsersHelper
+  helper SourceHelper, UsersHelper, IssuesHelper
 
   def index
     if request.xhr?
@@ -336,6 +336,7 @@ class ResourceController < ApplicationController
         @global_issues<<issue
       end
     end
+    @issues_params = options
 
     if !@expanded && @lines
       filter_lines { |line| line.issues? }

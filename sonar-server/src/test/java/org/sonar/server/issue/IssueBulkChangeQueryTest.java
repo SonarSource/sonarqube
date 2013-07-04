@@ -21,6 +21,7 @@
 package org.sonar.server.issue;
 
 import org.junit.Test;
+import org.sonar.server.exceptions.BadRequestException;
 
 import java.util.Collections;
 import java.util.Map;
@@ -104,7 +105,8 @@ public class IssueBulkChangeQueryTest {
       new IssueBulkChangeQuery(params);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues must not be empty");
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      checkBadRequestException(e, "issue_bulk_change.error.empty_issues");
     }
   }
 
@@ -118,7 +120,8 @@ public class IssueBulkChangeQueryTest {
       new IssueBulkChangeQuery(params);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues must not be empty");
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      checkBadRequestException(e, "issue_bulk_change.error.empty_issues");
     }
   }
 
@@ -130,7 +133,8 @@ public class IssueBulkChangeQueryTest {
       new IssueBulkChangeQuery(params);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("At least one action must be provided");
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      checkBadRequestException(e, "issue_bulk_change.error.need_one_action");
     }
   }
 
@@ -143,8 +147,15 @@ public class IssueBulkChangeQueryTest {
       new IssueBulkChangeQuery(params);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("At least one action must be provided");
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      checkBadRequestException(e, "issue_bulk_change.error.need_one_action");
     }
+  }
+
+  private void checkBadRequestException(Exception e, String key, Object... params) {
+    BadRequestException exception = (BadRequestException) e;
+    assertThat(exception.l10nKey()).isEqualTo(key);
+    assertThat(exception.l10nParams()).containsOnly(params);
   }
 
 }

@@ -26,9 +26,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,11 +61,11 @@ public class IssueBulkChangeQuery {
   private void parse(Map<String, Object> props, String comment) {
     this.issues = sanitizeList(RubyUtils.toStrings(props.get("issues")));
     if (issues == null || issues.isEmpty()) {
-      throw new IllegalArgumentException("Issues must not be empty");
+      throw BadRequestException.ofL10n("issue_bulk_change.error.empty_issues");
     }
     actions = sanitizeList(RubyUtils.toStrings(props.get("actions")));
     if (actions == null || actions.isEmpty()) {
-      throw new IllegalArgumentException("At least one action must be provided");
+      throw BadRequestException.ofL10n("issue_bulk_change.error.need_one_action");
     }
     for (String action : actions) {
       Map<String, Object> actionProperties = getActionProps(action, props);

@@ -547,9 +547,7 @@ public class InternalRubyIssueServiceTest {
     params.put("assign.assignee", "arthur");
     params.put("set_severity.severity", "MINOR");
     params.put("plan.plan", "3.7");
-    Result<IssueBulkChangeResult> result = service.bulkChange(params, "My comment");
-    assertThat(result.errors()).isEmpty();
-    assertThat(result.ok()).isTrue();
+    service.bulkChange(params, "My comment");
     verify(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
   }
 
