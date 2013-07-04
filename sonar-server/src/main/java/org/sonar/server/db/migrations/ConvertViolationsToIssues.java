@@ -67,8 +67,9 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
   }
 
   private void truncateIssueTables(Connection writeConnection) throws SQLException {
-    runner.update(writeConnection, "TRUNCATE TABLE ISSUES");
-    runner.update(writeConnection, "TRUNCATE TABLE ISSUE_CHANGES");
+    // lower-case table names for SQLServer....
+    runner.update(writeConnection, "TRUNCATE TABLE issues");
+    runner.update(writeConnection, "TRUNCATE TABLE issue_changes");
     writeConnection.commit();
   }
 
