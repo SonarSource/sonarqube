@@ -32,6 +32,7 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -59,7 +60,7 @@ public class IssueBulkChangeService {
 
   public IssueBulkChangeResult execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
     LOG.debug("BulkChangeQuery : {}", issueBulkChangeQuery);
-    verifyLoggedIn(userSession);
+    userSession.checkLoggedIn();
 
     IssueBulkChangeResult result = new IssueBulkChangeResult();
     IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issues()).pageSize(-1).requiredRole(UserRole.USER).build());
@@ -68,7 +69,7 @@ public class IssueBulkChangeService {
     for (String actionName : issueBulkChangeQuery.actions()) {
       Action action = getAction(actionName);
       if (action == null) {
-        throw new IllegalArgumentException("The action : '"+ actionName + "' is unknown");
+        throw new BadRequestException("The action : '"+ actionName + "' is unknown");
       }
       action.verify(issueBulkChangeQuery.properties(actionName), issues, userSession);
       bulkActions.add(action);
@@ -105,13 +106,6 @@ public class IssueBulkChangeService {
         return action.key().equals(actionKey);
       }
     }, null);
-  }
-
-  private void verifyLoggedIn(UserSession userSession) {
-    if (!userSession.isLoggedIn()) {
-      // must be logged
-      throw new IllegalStateException("User is not logged in");
-    }
   }
 
   static class ActionContext implements Action.Context {

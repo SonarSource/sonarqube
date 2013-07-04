@@ -31,6 +31,9 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -51,7 +54,7 @@ public class IssueBulkChangeServiceTest {
   private IssueNotifications issueNotifications = mock(IssueNotifications.class);
 
   private IssueQueryResult issueQueryResult = mock(IssueQueryResult.class);
-  private UserSession userSession = mock(UserSession.class);
+  private UserSession userSession = MockUserSession.create().setLogin("john").setUserId(10);
   private DefaultIssue issue = new DefaultIssue().setKey("ABCD");
 
   private IssueBulkChangeService service;
@@ -61,10 +64,6 @@ public class IssueBulkChangeServiceTest {
 
   @Before
   public void before() {
-    when(userSession.isLoggedIn()).thenReturn(true);
-    when(userSession.userId()).thenReturn(10);
-    when(userSession.login()).thenReturn("fred");
-
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) issue));
 
@@ -208,7 +207,7 @@ public class IssueBulkChangeServiceTest {
 
   @Test
   public void should_fail_if_user_not_logged() {
-    when(userSession.isLoggedIn()).thenReturn(false);
+    userSession = MockUserSession.create().setLogin(null);
 
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD");
@@ -219,7 +218,7 @@ public class IssueBulkChangeServiceTest {
       service.execute(issueBulkChangeQuery, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
+      assertThat(e).isInstanceOf(UnauthorizedException.class);
     }
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
@@ -236,7 +235,7 @@ public class IssueBulkChangeServiceTest {
       service.execute(issueBulkChangeQuery, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The action : 'unknown' is unknown");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The action : 'unknown' is unknown");
     }
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
