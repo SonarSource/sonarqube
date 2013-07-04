@@ -584,20 +584,20 @@ public class InternalRubyIssueService implements ServerComponent {
 
   private void checkMandatoryParameter(String value, String paramName) {
     if (Strings.isNullOrEmpty(value)) {
-      throw new BadRequestException("errors.cant_be_empty", paramName);
+      throw BadRequestException.ofL10n("errors.cant_be_empty", paramName);
     }
   }
 
   private void checkMandatorySizeParameter(String value, String paramName, Integer size) {
     checkMandatoryParameter(value, paramName);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw new BadRequestException("errors.is_too_long", paramName, size);
+      throw BadRequestException.ofL10n("errors.is_too_long", paramName, size);
     }
   }
 
   private void checkOptionalSizeParameter(String value, String paramName, Integer size) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw new BadRequestException("errors.is_too_long", paramName, size);
+      throw BadRequestException.ofL10n("errors.is_too_long", paramName, size);
     }
   }
 

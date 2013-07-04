@@ -20,6 +20,7 @@
 package org.sonar.server.exceptions;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class HttpException extends RuntimeException {
   private final int httpCode;
@@ -36,7 +37,8 @@ public class HttpException extends RuntimeException {
     this.httpCode = httpCode;
   }
 
-  public HttpException(int httpCode, String l10nKey, Object... l10nParams) {
+  public HttpException(int httpCode, @Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams) {
+    super(message);
     this.httpCode = httpCode;
     this.l10nKey = l10nKey;
     this.l10nParams = l10nParams;

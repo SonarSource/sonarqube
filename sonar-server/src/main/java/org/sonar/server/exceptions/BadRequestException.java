@@ -19,6 +19,8 @@
  */
 package org.sonar.server.exceptions;
 
+import javax.annotation.Nullable;
+
 /**
  * Request is not valid and can not be processed.
  */
@@ -30,8 +32,16 @@ public class BadRequestException extends HttpException {
     super(BAD_REQUEST, message);
   }
 
-  public BadRequestException(String l10nKey, Object... l10nParams) {
-    super(BAD_REQUEST, l10nKey, l10nParams);
+  public BadRequestException(@Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams) {
+    super(BAD_REQUEST, message, l10nKey, l10nParams);
+  }
+
+  public static BadRequestException of(String message) {
+    return new BadRequestException(message);
+  }
+
+  public static BadRequestException ofL10n(String l10nKey, Object... l10nParams) {
+    return new BadRequestException(null, l10nKey, l10nParams);
   }
 
 }
