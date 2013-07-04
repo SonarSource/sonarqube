@@ -31,12 +31,12 @@ import java.util.Map;
 
 public class TransitionAction extends Action implements ServerComponent {
 
-  public static final String PLAN_ACTION_KEY = "transition";
+  public static final String KEY = "do_transition";
 
   private final IssueWorkflow workflow;
 
   public TransitionAction(IssueWorkflow workflow) {
-    super(PLAN_ACTION_KEY);
+    super(KEY);
     this.workflow = workflow;
   }
 

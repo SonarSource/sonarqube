@@ -72,10 +72,10 @@ public class IssueBulkChangeQuery {
       propertiesByActions.put(action, actionProperties);
     }
     if (!Strings.isNullOrEmpty(comment)) {
-      actions.add(CommentAction.COMMENT_ACTION_KEY);
+      actions.add(CommentAction.KEY);
       Map<String, Object> commentMap = newHashMap();
       commentMap.put(CommentAction.COMMENT_PROPERTY, comment);
-      propertiesByActions.put(CommentAction.COMMENT_ACTION_KEY, commentMap);
+      propertiesByActions.put(CommentAction.KEY, commentMap);
     }
   }
 

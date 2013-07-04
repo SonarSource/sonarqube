@@ -263,7 +263,7 @@ class Api::IssuesController < Api::ApiController
   # 'assign.assignee' to assign all issues to a user or un-assign.
   # 'set_severity.severity' to change the severity of all issues.
   # 'plan.plan' to plan all issues to an action plan or unlink.
-  # 'transition.transition' to execute a transition on all issues.
+  # 'do_transition.transition' to execute a transition on all issues.
   # 'comment' to add a comment on all issues.
   #
   # -- Example
@@ -274,21 +274,19 @@ class Api::IssuesController < Api::ApiController
 
     comment = Api::Utils.read_post_request_param(params[:comment])
     result = Internal.issues.bulkChange(params, comment)
-    hash = result_to_hash(result)
-    if result.get
-      hash[:issuesChanged] = {
-          :total => result.get.issuesChanged().size,
-      }
-      hash[:issuesNotChanged] = {
-          :total => result.get.issuesNotChanged().size,
-          :issues => result.get.issuesNotChanged().map { |issue| issue.key() }
-      }
-    end
+    hash = {}
+    hash[:issuesChanged] = {
+        :total => result.issuesChanged().size,
+    }
+    hash[:issuesNotChanged] = {
+        :total => result.issuesNotChanged().size,
+        :issues => result.issuesNotChanged().map { |issue| issue.key() }
+    }
 
     respond_to do |format|
       # if the request header "Accept" is "*/*", then the default format is the first one (json)
-      format.json { render :json => jsonp(hash), :status => result.httpStatus }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => (result.ok ? 200 : 400)) }
+      format.json { render :json => jsonp(hash), :status => 200 }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => 200) }
     end
   end
 

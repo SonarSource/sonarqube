@@ -35,13 +35,13 @@ import java.util.Map;
 
 public class PlanAction extends Action implements ServerComponent {
 
-  public static final String PLAN_ACTION_KEY = "plan";
+  public static final String KEY = "plan";
 
   private final ActionPlanService actionPlanService;
   private final IssueUpdater issueUpdater;
 
   public PlanAction(ActionPlanService actionPlanService, IssueUpdater issueUpdater) {
-    super(PLAN_ACTION_KEY);
+    super(KEY);
     this.actionPlanService = actionPlanService;
     this.issueUpdater = issueUpdater;
     super.setConditions(new IsUnResolved());

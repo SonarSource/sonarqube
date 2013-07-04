@@ -35,13 +35,13 @@ import java.util.Map;
 
 public class AssignAction extends Action implements ServerComponent {
 
-  public static final String ASSIGN_ACTION_KEY = "assign";
+  public static final String KEY = "assign";
 
   private final UserFinder userFinder;
   private final IssueUpdater issueUpdater;
 
   public AssignAction(UserFinder userFinder, IssueUpdater issueUpdater) {
-    super(ASSIGN_ACTION_KEY);
+    super(KEY);
     this.userFinder = userFinder;
     this.issueUpdater = issueUpdater;
     super.setConditions(new IsUnResolved());

@@ -33,12 +33,12 @@ import java.util.Map;
 
 public class SetSeverityAction extends Action implements ServerComponent {
 
-  public static final String SET_SEVERITY_ACTION_KEY = "set_severity";
+  public static final String KEY = "set_severity";
 
   private final IssueUpdater issueUpdater;
 
   public SetSeverityAction(IssueUpdater issueUpdater) {
-    super(SET_SEVERITY_ACTION_KEY);
+    super(KEY);
     this.issueUpdater = issueUpdater;
     super.setConditions(new IsUnResolved());
   }

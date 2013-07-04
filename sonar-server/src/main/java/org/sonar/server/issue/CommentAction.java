@@ -32,13 +32,13 @@ import java.util.Map;
 
 public class CommentAction extends Action implements ServerComponent {
 
-  public static final String COMMENT_ACTION_KEY = "comment";
+  public static final String KEY = "comment";
   public static final String COMMENT_PROPERTY = "comment";
 
   private final IssueUpdater issueUpdater;
 
   public CommentAction(IssueUpdater issueUpdater) {
-    super(COMMENT_ACTION_KEY);
+    super(KEY);
     this.issueUpdater = issueUpdater;
   }
 
