@@ -284,11 +284,11 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
     private static String SQL = "select rev.id as reviewId, s.project_id as projectId, rf.rule_id as ruleId, rf.failure_level as failureLevel, rf.message as message, rf.line as line, " +
       "  rf.cost as cost, rf.created_at as createdAt, rf.checksum as checksum, rev.user_id as reviewReporterId, rev.assignee_id as reviewAssigneeId, rev.status as reviewStatus, " +
       "  rev.severity as reviewSeverity, rev.resolution as reviewResolution, rev.manual_severity as reviewManualSeverity, rev.data as reviewData, rev.updated_at as reviewUpdatedAt, " +
-      "  s.root_project_id as rootProjectId, rev.manual_violation as reviewManualViolation, plan.action_plan_id as planId " +
+      "  s.root_project_id as rootProjectId, rev.manual_violation as reviewManualViolation, planreviews.action_plan_id as planId " +
       " from rule_failures rf " +
       " inner join snapshots s on s.id=rf.snapshot_id " +
       " left join reviews rev on rev.rule_failure_permanent_id=rf.permanent_id " +
-      " left join action_plans_reviews plan on plan.review_id=rev.id " +
+      " left join action_plans_reviews planreviews on planreviews.review_id=rev.id " +
       " where ";
 
     static {
