@@ -38,6 +38,10 @@ import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.Permission;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -54,11 +58,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class IssueFilterServiceTest {
 
@@ -125,7 +125,7 @@ public class IssueFilterServiceTest {
       service.find(1L, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Filter not found: 1");
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Filter not found: 1");
     }
   }
 
@@ -136,7 +136,7 @@ public class IssueFilterServiceTest {
       service.find(1L, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
+      assertThat(e).isInstanceOf(UnauthorizedException.class).hasMessage("User is not logged in");
     }
     verifyZeroInteractions(issueFilterDao);
   }
@@ -150,7 +150,7 @@ public class IssueFilterServiceTest {
       service.find(1L, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to read this filter");
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to read this filter");
     }
   }
 
@@ -170,7 +170,7 @@ public class IssueFilterServiceTest {
       service.findByUser(userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
+      assertThat(e).isInstanceOf(UnauthorizedException.class).hasMessage("User is not logged in");
     }
   }
 
@@ -201,7 +201,7 @@ public class IssueFilterServiceTest {
       service.save(issueFilter, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
+      assertThat(e).isInstanceOf(UnauthorizedException.class).hasMessage("User is not logged in");
     }
     verify(issueFilterDao, never()).insert(any(IssueFilterDto.class));
   }
@@ -214,7 +214,7 @@ public class IssueFilterServiceTest {
       service.save(issueFilter, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Name already exists");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Name already exists");
     }
     verify(issueFilterDao, never()).insert(any(IssueFilterDto.class));
   }
@@ -228,7 +228,7 @@ public class IssueFilterServiceTest {
       service.save(issueFilter, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Other users already share filters with the same name");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Other users already share filters with the same name");
     }
     verify(issueFilterDao, never()).insert(any(IssueFilterDto.class));
   }
@@ -290,7 +290,7 @@ public class IssueFilterServiceTest {
       service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter"), userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Filter not found: 1");
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Filter not found: 1");
     }
     verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
   }
@@ -304,7 +304,7 @@ public class IssueFilterServiceTest {
       service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter"), userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to modify this filter");
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to modify this filter");
     }
     verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
   }
@@ -318,7 +318,7 @@ public class IssueFilterServiceTest {
       service.update(new DefaultIssueFilter().setId(1L).setUser("john").setName("My Issue"), userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Name already exists");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Name already exists");
     }
     verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
   }
@@ -366,7 +366,7 @@ public class IssueFilterServiceTest {
       service.update(issueFilter, MockUserSession.create().setUserId(1).setLogin(currentUser));
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to change the owner of this filter");
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to change the owner of this filter");
     }
 
     verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
@@ -400,7 +400,7 @@ public class IssueFilterServiceTest {
       service.delete(1L, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Filter not found: 1");
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Filter not found: 1");
     }
     verify(issueFilterDao, never()).delete(anyLong());
   }
@@ -424,7 +424,7 @@ public class IssueFilterServiceTest {
       service.delete(1L, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to read this filter");
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to read this filter");
     }
     verify(issueFilterDao, never()).delete(anyLong());
   }
@@ -438,7 +438,7 @@ public class IssueFilterServiceTest {
       service.delete(1L, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not authorized to modify this filter");
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to modify this filter");
     }
     verify(issueFilterDao, never()).delete(anyLong());
   }
@@ -516,7 +516,7 @@ public class IssueFilterServiceTest {
       service.findFavoriteFilters(userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
+      assertThat(e).isInstanceOf(UnauthorizedException.class).hasMessage("User is not logged in");
     }
   }
 
@@ -567,7 +567,7 @@ public class IssueFilterServiceTest {
       service.toggleFavouriteIssueFilter(1L, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Filter not found: 1");
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Filter not found: 1");
     }
     verify(issueFilterFavouriteDao, never()).delete(anyLong());
   }

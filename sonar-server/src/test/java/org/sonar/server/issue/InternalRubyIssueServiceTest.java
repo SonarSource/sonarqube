@@ -33,6 +33,7 @@ import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
@@ -41,6 +42,7 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -298,34 +300,13 @@ public class InternalRubyIssueServiceTest {
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
 
-    Result<DefaultIssueFilter> result = service.createIssueFilter(parameters);
-    assertThat(result.ok()).isTrue();
+    service.createIssueFilter(parameters);
 
     ArgumentCaptor<DefaultIssueFilter> issueFilterCaptor = ArgumentCaptor.forClass(DefaultIssueFilter.class);
     verify(issueFilterService).save(issueFilterCaptor.capture(), any(UserSession.class));
-    DefaultIssueFilter issueFilter =  issueFilterCaptor.getValue();
+    DefaultIssueFilter issueFilter = issueFilterCaptor.getValue();
     assertThat(issueFilter.name()).isEqualTo("Long term");
     assertThat(issueFilter.description()).isEqualTo("Long term issues");
-  }
-
-  @Test
-  public void should_not_create_issue_filter() {
-    Result result = service.createIssueFilter(Maps.<String, String>newHashMap());
-    assertThat(result.ok()).isFalse();
-    verify(issueFilterService, never()).save(any(DefaultIssueFilter.class), any(UserSession.class));
-  }
-
-  @Test
-  public void should_return_error_on_create_issue_filter() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-    parameters.put("user", "John");
-
-    doThrow(new RuntimeException("Error")).when(issueFilterService).save(any(DefaultIssueFilter.class), any(UserSession.class));
-    Result result = service.createIssueFilter(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
   }
 
   @Test
@@ -336,36 +317,14 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", "Long term issues");
     parameters.put("user", "John");
 
-    Result<DefaultIssueFilter> result = service.updateIssueFilter(parameters);
-    assertThat(result.ok()).isTrue();
+    service.updateIssueFilter(parameters);
 
     ArgumentCaptor<DefaultIssueFilter> issueFilterCaptor = ArgumentCaptor.forClass(DefaultIssueFilter.class);
     verify(issueFilterService).update(issueFilterCaptor.capture(), any(UserSession.class));
-    DefaultIssueFilter issueFilter =  issueFilterCaptor.getValue();
+    DefaultIssueFilter issueFilter = issueFilterCaptor.getValue();
     assertThat(issueFilter.id()).isEqualTo(10L);
     assertThat(issueFilter.name()).isEqualTo("Long term");
     assertThat(issueFilter.description()).isEqualTo("Long term issues");
-  }
-
-  @Test
-  public void should_not_update_issue_filter() {
-    Result result = service.updateIssueFilter(Maps.<String, String>newHashMap());
-    assertThat(result.ok()).isFalse();
-    verify(issueFilterService, never()).update(any(DefaultIssueFilter.class), any(UserSession.class));
-  }
-
-  @Test
-  public void should_return_error_on_update_issue_filter() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("id", "10");
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-    parameters.put("user", "John");
-
-    doThrow(new RuntimeException("Error")).when(issueFilterService).update(any(DefaultIssueFilter.class), any(UserSession.class));
-    Result result = service.updateIssueFilter(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
   }
 
   @Test
@@ -377,16 +336,8 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_delete_issue_filter() {
-    Result<DefaultIssueFilter> result = service.deleteIssueFilter(1L);
-    assertThat(result.ok()).isTrue();
-  }
-
-  @Test
-  public void should_return_error_on_delete_issue_filter() {
-    doThrow(new RuntimeException("Error")).when(issueFilterService).delete(anyLong(), any(UserSession.class));
-    Result result = service.deleteIssueFilter(1L);
-    assertThat(result.ok()).isFalse();
-    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
+    service.deleteIssueFilter(1L);
+    verify(issueFilterService).delete(eq(1L), any(UserSession.class));
   }
 
   @Test
@@ -395,46 +346,29 @@ public class InternalRubyIssueServiceTest {
     parameters.put("name", "Copy of Long term");
     parameters.put("description", "Copy of Long term issues");
 
-    Result<DefaultIssueFilter> result = service.copyIssueFilter(1L, parameters);
-    assertThat(result.ok()).isTrue();
+    service.copyIssueFilter(1L, parameters);
 
     ArgumentCaptor<DefaultIssueFilter> issueFilterCaptor = ArgumentCaptor.forClass(DefaultIssueFilter.class);
     verify(issueFilterService).copy(eq(1L), issueFilterCaptor.capture(), any(UserSession.class));
-    DefaultIssueFilter issueFilter =  issueFilterCaptor.getValue();
+    DefaultIssueFilter issueFilter = issueFilterCaptor.getValue();
     assertThat(issueFilter.name()).isEqualTo("Copy of Long term");
     assertThat(issueFilter.description()).isEqualTo("Copy of Long term issues");
   }
 
   @Test
-  public void should_not_copy_issue_filter() {
-    Result result = service.copyIssueFilter(1L, Maps.<String, String>newHashMap());
-    assertThat(result.ok()).isFalse();
-    verify(issueFilterService, never()).copy(anyLong(), any(DefaultIssueFilter.class), any(UserSession.class));
-  }
-
-  @Test
-  public void should_return_error_on_copy_issue_filter() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Copy of Long term");
-    parameters.put("description", "Copy of Long term issues");
-    parameters.put("user", "John");
-
-    doThrow(new RuntimeException("Error")).when(issueFilterService).copy(anyLong(), any(DefaultIssueFilter.class), any(UserSession.class));
-    Result result = service.copyIssueFilter(1L, parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
-  }
-
-  @Test
   public void should_get_error_on_create_issue_filter_result_when_no_name() {
     Map<String, String> parameters = newHashMap();
-    parameters.put("name", null);
+    parameters.put("name", "");
     parameters.put("description", "Long term issues");
     parameters.put("user", "John");
 
-    Result result = service.createIssueFilterResultForNew(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "name"));
+    try {
+      service.createIssueFilterResultForNew(parameters);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      checkBadRequestException(e, "errors.cant_be_empty", "name");
+    }
   }
 
   @Test
@@ -444,9 +378,13 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", "Long term issues");
     parameters.put("user", "John");
 
-    Result result = service.createIssueFilterResultForNew(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "name", 100));
+    try {
+      service.createIssueFilterResultForNew(parameters);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      checkBadRequestException(e, "errors.is_too_long", "name", 100);
+    }
   }
 
   @Test
@@ -456,9 +394,13 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", createLongString(4001));
     parameters.put("user", "John");
 
-    Result result = service.createIssueFilterResultForNew(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "description", 4000));
+    try {
+      service.createIssueFilterResultForNew(parameters);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      checkBadRequestException(e, "errors.is_too_long", "description", 4000);
+    }
   }
 
   @Test
@@ -469,9 +411,13 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", "Long term issues");
     parameters.put("user", "John");
 
-    Result result = service.createIssueFilterResultForUpdate(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "id"));
+    try {
+      service.createIssueFilterResultForUpdate(parameters);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      checkBadRequestException(e, "errors.cant_be_empty", "id");
+    }
   }
 
   @Test
@@ -482,9 +428,13 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", "Long term issues");
     parameters.put("user", null);
 
-    Result result = service.createIssueFilterResultForUpdate(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "user"));
+    try {
+      service.createIssueFilterResultForUpdate(parameters);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      checkBadRequestException(e, "errors.cant_be_empty", "user");
+    }
   }
 
   @Test
@@ -495,8 +445,8 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", "Long term issues");
     parameters.put("user", null);
 
-    Result result = service.createIssueFilterResultForCopy(parameters);
-    assertThat(result.ok()).isTrue();
+    DefaultIssueFilter result = service.createIssueFilterResultForCopy(parameters);
+    assertThat(result).isNotNull();
   }
 
   @Test
@@ -546,7 +496,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_sanitize_filter_query(){
+  public void should_sanitize_filter_query() {
     Map<String, Object> query = newHashMap();
     query.put("statuses", "CLOSED");
     query.put("resolved", true);
@@ -581,14 +531,6 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_return_error_on_toggle_favourite_issue_filter() {
-    doThrow(new RuntimeException("Error")).when(issueFilterService).toggleFavouriteIssueFilter(eq(10L), any(UserSession.class));
-    Result result = service.toggleFavouriteIssueFilter(10L);
-    assertThat(result.ok()).isFalse();
-    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
-  }
-
-  @Test
   public void should_check_is_user_is_authorized_to_see_issue_filter() {
     DefaultIssueFilter issueFilter = new DefaultIssueFilter();
     service.isUserAuthorized(issueFilter);
@@ -611,19 +553,11 @@ public class InternalRubyIssueServiceTest {
     verify(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
   }
 
-  @Test
-  public void should_no_execute_bulk_change_if_unexpected_error() {
-    doThrow(new RuntimeException("Error")).when(issueBulkChangeService).execute(any(IssueBulkChangeQuery.class), any(UserSession.class));
-
-    Map<String, Object> params = newHashMap();
-    params.put("issues", newArrayList("ABCD", "EFGH"));
-    params.put("actions", newArrayList("assign"));
-    params.put("assign.assignee", "arthur");
-    Result result = service.bulkChange(params, "A comment");
-    assertThat(result.ok()).isFalse();
-    assertThat(((Result.Message) result.errors().get(0)).text()).contains("Error");
+  private void checkBadRequestException(Exception e, String key, Object... params) {
+    BadRequestException exception = (BadRequestException) e;
+    assertThat(exception.l10nKey()).isEqualTo(key);
+    assertThat(exception.l10nParams()).containsOnly(params);
   }
-
 
   private String createLongString(int size) {
     String result = "";

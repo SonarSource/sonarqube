@@ -2,7 +2,7 @@
      display_owner = false
    end %>
 <div class="modal-body">
-  <div class="issue-filter errors" style="display:none;" />
+  <div id="issue-filter-error" class="issue-filter errors error" style="display:none;" />
   <div class="modal-field">
     <label for="name"><%= message('issue_filter.form.name') -%> <em class="mandatory">*</em></label>
     <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h(@filter.name) if @filter -%>" autofocus="autofocus"/>

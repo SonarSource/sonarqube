@@ -19,8 +19,13 @@
  */
 package org.sonar.server.exceptions;
 
+import javax.annotation.CheckForNull;
+
 public class HttpException extends RuntimeException {
   private final int httpCode;
+
+  private String l10nKey;
+  private Object[] l10nParams;
 
   public HttpException(int httpCode) {
     this.httpCode = httpCode;
@@ -31,7 +36,23 @@ public class HttpException extends RuntimeException {
     this.httpCode = httpCode;
   }
 
+  public HttpException(int httpCode, String l10nKey, Object... l10nParams) {
+    this.httpCode = httpCode;
+    this.l10nKey = l10nKey;
+    this.l10nParams = l10nParams;
+  }
+
   public int httpCode() {
     return httpCode;
+  }
+
+  @CheckForNull
+  public String l10nKey() {
+    return l10nKey;
+  }
+
+  @CheckForNull
+  public Object[] l10nParams() {
+    return l10nParams;
   }
 }

@@ -79,15 +79,8 @@ class IssuesController < ApplicationController
   def save_as
     verify_post_request
     options = {'name' => params[:name], 'description' => params[:description], 'data' => URI.unescape(params[:data]), 'shared' => params[:shared]=='true'}
-    filter_result = Internal.issues.createIssueFilter(options)
-
-    if filter_result.ok
-      @filter = filter_result.get()
-      render :text => @filter.id.to_s, :status => 200
-    else
-      @errors = filter_result.errors
-      render :partial => 'issues/display_errors', :status => 400
-    end
+    @filter = Internal.issues.createIssueFilter(options)
+    render :text => @filter.id.to_s, :status => 200
   end
 
   # POST /issues/save?id=<id>&[criteria]
@@ -95,20 +88,8 @@ class IssuesController < ApplicationController
     verify_post_request
     require_parameters :id
 
-    filter_result = Internal.issues.updateIssueFilterQuery(params[:id].to_i, params)
-    if filter_result.ok
-      @filter = filter_result.get()
-      redirect_to :action => 'filter', :id => @filter.id.to_s
-    else
-      @unchanged = true
-      @errors = filter_result.errors
-
-      issue_filter_result = Internal.issues.execute(@filter.id, params)
-      @issue_query = issue_filter_result.query
-      @issues_result = issue_filter_result.result
-
-      render :action => 'search'
-    end
+    @filter = Internal.issues.updateIssueFilterQuery(params[:id].to_i, params)
+    redirect_to :action => 'filter', :id => @filter.id.to_s
   end
 
   # GET /issues/edit_form/<filter id>
@@ -125,14 +106,8 @@ class IssuesController < ApplicationController
     existing_filter = find_filter(params[:id].to_i)
     options = {'id' => params[:id].to_s, 'name' => params[:name], 'description' => params[:description],
                'data' => existing_filter.data, 'shared' => params[:shared]=='true', 'user' => params[:user]}
-    filter_result = Internal.issues.updateIssueFilter(options)
-    if filter_result.ok
-      @filter = filter_result.get()
-      render :text => @filter.id.to_s, :status => 200
-    else
-      @errors = filter_result.errors
-      render :partial => 'issues/display_errors', :status => 400
-    end
+    @filter = Internal.issues.updateIssueFilter(options)
+    render :text => @filter.id.to_s, :status => 200
   end
 
   # GET /issues/copy_form/<filter id>
@@ -147,15 +122,8 @@ class IssuesController < ApplicationController
     verify_post_request
 
     options = {'name' => params[:name], 'description' => params[:description], 'shared' => params[:shared]=='true'}
-    filter_result = Internal.issues.copyIssueFilter(params[:id].to_i, options)
-
-    if filter_result.ok
-      @filter = filter_result.get()
-      render :text => @filter.id.to_s, :status => 200
-    else
-      @errors = filter_result.errors
-      render :partial => 'issues/display_errors', :status => 400
-    end
+    @filter = Internal.issues.copyIssueFilter(params[:id].to_i, options)
+    render :text => @filter.id.to_s, :status => 200
   end
 
   # POST /issues/delete/<filter id>
@@ -170,13 +138,8 @@ class IssuesController < ApplicationController
   def toggle_fav
     verify_ajax_request
     require_parameters :id
-    result = Internal.issues.toggleFavouriteIssueFilter(params[:id].to_i)
-    if result.ok
-      render :text => '', :status => 200
-    else
-      @errors = result.errors
-      render :action => 'manage'
-    end
+    Internal.issues.toggleFavouriteIssueFilter(params[:id].to_i)
+    render :text => '', :status => 200
   end
 
   # GET /issues/bulk_change_form?[&criteria]
@@ -214,13 +177,8 @@ class IssuesController < ApplicationController
   # POST /issues/bulk_change
   def bulk_change
     verify_post_request
-    result = Internal.issues.bulkChange(params, params[:comment])
-    if result.ok
-      render :text => params[:criteria_params], :status => 200
-    else
-      @errors = result.errors
-      render :partial => 'issues/display_errors', :status => 400
-    end
+    Internal.issues.bulkChange(params, params[:comment])
+    render :text => params[:criteria_params], :status => 200
   end
 
 

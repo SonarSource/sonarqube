@@ -29,4 +29,9 @@ public class BadRequestException extends HttpException {
   public BadRequestException(String message) {
     super(BAD_REQUEST, message);
   }
+
+  public BadRequestException(String l10nKey, Object... l10nParams) {
+    super(BAD_REQUEST, l10nKey, l10nParams);
+  }
+
 }

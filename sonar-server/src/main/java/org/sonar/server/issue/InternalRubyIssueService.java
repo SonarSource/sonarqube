@@ -43,6 +43,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
@@ -458,93 +459,58 @@ public class InternalRubyIssueService implements ServerComponent {
   /**
    * Create issue filter
    */
-  public Result<DefaultIssueFilter> createIssueFilter(Map<String, String> parameters) {
-    Result<DefaultIssueFilter> result = createIssueFilterResultForNew(parameters);
-    if (result.ok()) {
-      try {
-        result.set(issueFilterService.save(result.get(), UserSession.get()));
-      } catch (Exception e) {
-        result.addError(e.getMessage());
-      }
-    }
-    return result;
+  public DefaultIssueFilter createIssueFilter(Map<String, String> parameters) {
+    DefaultIssueFilter result = createIssueFilterResultForNew(parameters);
+    return issueFilterService.save(result, UserSession.get());
   }
 
   /**
    * Update issue filter
    */
-  public Result<DefaultIssueFilter> updateIssueFilter(Map<String, String> parameters) {
-    Result<DefaultIssueFilter> result = createIssueFilterResultForUpdate(parameters);
-    if (result.ok()) {
-      try {
-        result.set(issueFilterService.update(result.get(), UserSession.get()));
-      } catch (Exception e) {
-        result.addError(e.getMessage());
-      }
-    }
-    return result;
+  public DefaultIssueFilter updateIssueFilter(Map<String, String> parameters) {
+    DefaultIssueFilter result = createIssueFilterResultForUpdate(parameters);
+    return issueFilterService.update(result, UserSession.get());
   }
 
   /**
    * Update issue filter data
    */
-  public Result<DefaultIssueFilter> updateIssueFilterQuery(Long issueFilterId, Map<String, Object> data) {
-    Result<DefaultIssueFilter> result = Result.of();
-    try {
-      result.set(issueFilterService.updateFilterQuery(issueFilterId, data, UserSession.get()));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
+  public DefaultIssueFilter updateIssueFilterQuery(Long issueFilterId, Map<String, Object> data) {
+    return issueFilterService.updateFilterQuery(issueFilterId, data, UserSession.get());
   }
 
   /**
    * Delete issue filter
    */
-  public Result<DefaultIssueFilter> deleteIssueFilter(Long issueFilterId) {
-    Result<DefaultIssueFilter> result = Result.of();
-    try {
-      issueFilterService.delete(issueFilterId, UserSession.get());
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
+  public void deleteIssueFilter(Long issueFilterId) {
+    issueFilterService.delete(issueFilterId, UserSession.get());
   }
 
   /**
    * Copy issue filter
    */
-  public Result<DefaultIssueFilter> copyIssueFilter(Long issueFilterIdToCopy, Map<String, String> parameters) {
-    Result<DefaultIssueFilter> result = createIssueFilterResultForCopy(parameters);
-    if (result.ok()) {
-      try {
-        result.set(issueFilterService.copy(issueFilterIdToCopy, result.get(), UserSession.get()));
-      } catch (Exception e) {
-        result.addError(e.getMessage());
-      }
-    }
-    return result;
+  public DefaultIssueFilter copyIssueFilter(Long issueFilterIdToCopy, Map<String, String> parameters) {
+    DefaultIssueFilter result = createIssueFilterResultForCopy(parameters);
+    return issueFilterService.copy(issueFilterIdToCopy, result, UserSession.get());
   }
 
   @VisibleForTesting
-  Result<DefaultIssueFilter> createIssueFilterResultForNew(Map<String, String> params) {
+  DefaultIssueFilter createIssueFilterResultForNew(Map<String, String> params) {
     return createIssueFilterResult(params, false, false);
   }
 
   @VisibleForTesting
-  Result<DefaultIssueFilter> createIssueFilterResultForUpdate(Map<String, String> params) {
+  DefaultIssueFilter createIssueFilterResultForUpdate(Map<String, String> params) {
     return createIssueFilterResult(params, true, true);
   }
 
   @VisibleForTesting
-  Result<DefaultIssueFilter> createIssueFilterResultForCopy(Map<String, String> params) {
+  DefaultIssueFilter createIssueFilterResultForCopy(Map<String, String> params) {
     return createIssueFilterResult(params, false, false);
   }
 
   @VisibleForTesting
-  Result<DefaultIssueFilter> createIssueFilterResult(Map<String, String> params, boolean checkId, boolean checkUser) {
-    Result<DefaultIssueFilter> result = Result.of();
-
+  DefaultIssueFilter createIssueFilterResult(Map<String, String> params, boolean checkId, boolean checkUser) {
     String id = params.get("id");
     String name = params.get("name");
     String description = params.get("description");
@@ -554,27 +520,23 @@ public class InternalRubyIssueService implements ServerComponent {
     boolean shared = sharedParam != null ? sharedParam : false;
 
     if (checkId) {
-      checkMandatoryParameter(id, "id", result);
+      checkMandatoryParameter(id, "id");
     }
     if (checkUser) {
-      checkMandatoryParameter(user, "user", result);
+      checkMandatoryParameter(user, "user");
     }
-    checkMandatorySizeParameter(name, "name", 100, result);
-    checkOptionalSizeParameter(description, "description", 4000, result);
+    checkMandatorySizeParameter(name, "name", 100);
+    checkOptionalSizeParameter(description, "description", 4000);
 
-    if (result.ok()) {
-      DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
-        .setDescription(description)
-        .setShared(shared)
-        .setUser(user)
-        .setData(data);
-      if (!Strings.isNullOrEmpty(id)) {
-        defaultIssueFilter.setId(Long.valueOf(id));
-      }
-
-      result.set(defaultIssueFilter);
+    DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
+      .setDescription(description)
+      .setShared(shared)
+      .setUser(user)
+      .setData(data);
+    if (!Strings.isNullOrEmpty(id)) {
+      defaultIssueFilter.setId(Long.valueOf(id));
     }
-    return result;
+    return defaultIssueFilter;
   }
 
   public List<DefaultIssueFilter> findSharedFiltersForCurrentUser() {
@@ -587,11 +549,7 @@ public class InternalRubyIssueService implements ServerComponent {
 
   public Result toggleFavouriteIssueFilter(Long issueFilterId) {
     Result result = Result.of();
-    try {
-      issueFilterService.toggleFavouriteIssueFilter(issueFilterId, UserSession.get());
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
+    issueFilterService.toggleFavouriteIssueFilter(issueFilterId, UserSession.get());
     return result;
   }
 
@@ -600,12 +558,8 @@ public class InternalRubyIssueService implements ServerComponent {
    */
   public Result<IssueBulkChangeResult> bulkChange(Map<String, Object> props, String comment) {
     Result<IssueBulkChangeResult> result = Result.of();
-    try {
-      IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props, comment);
-      result.set(issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get()));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props, comment);
+    result.set(issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get()));
     return result;
   }
 
@@ -625,6 +579,25 @@ public class InternalRubyIssueService implements ServerComponent {
   private void checkOptionalSizeParameter(String value, String paramName, Integer size, Result result) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
       result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
+    }
+  }
+
+  private void checkMandatoryParameter(String value, String paramName) {
+    if (Strings.isNullOrEmpty(value)) {
+      throw new BadRequestException("errors.cant_be_empty", paramName);
+    }
+  }
+
+  private void checkMandatorySizeParameter(String value, String paramName, Integer size) {
+    checkMandatoryParameter(value, paramName);
+    if (!Strings.isNullOrEmpty(value) && value.length() > size) {
+      throw new BadRequestException("errors.is_too_long", paramName, size);
+    }
+  }
+
+  private void checkOptionalSizeParameter(String value, String paramName, Integer size) {
+    if (!Strings.isNullOrEmpty(value) && value.length() > size) {
+      throw new BadRequestException("errors.is_too_long", paramName, size);
     }
   }
 

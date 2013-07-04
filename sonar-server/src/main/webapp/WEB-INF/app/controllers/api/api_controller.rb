@@ -78,7 +78,12 @@ class Api::ApiController < ApplicationController
   #
   #
 
+  def render_native_access_denied
+    render_access_denied
+  end
+
   def render_error(exception, status=500)
+    # TODO manage exception with l10n parameters
     message = exception.respond_to?('message') ? Api::Utils.exception_message(exception, :backtrace => true) : exception.to_s
     java_facade.logError("Fail to render: #{request.url}\n#{message}") if status==500
     render_response(status, message)

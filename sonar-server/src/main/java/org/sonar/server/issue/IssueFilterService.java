@@ -36,6 +36,10 @@ import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.Permission;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -187,8 +191,7 @@ public class IssueFilterService implements ServerComponent {
   private IssueFilterDto findIssueFilterDto(Long id, String login) {
     IssueFilterDto issueFilterDto = filterDao.selectById(id);
     if (issueFilterDto == null) {
-      // TODO throw 404
-      throw new IllegalArgumentException("Filter not found: " + id);
+      throw new NotFoundException("Filter not found: " + id);
     }
     verifyCurrentUserCanReadFilter(issueFilterDto.toIssueFilter(), login);
     return issueFilterDto;
@@ -197,29 +200,26 @@ public class IssueFilterService implements ServerComponent {
   String getLoggedLogin(UserSession userSession) {
     String user = userSession.login();
     if (!userSession.isLoggedIn() && user != null) {
-      throw new IllegalStateException("User is not logged in");
+      throw new UnauthorizedException("User is not logged in");
     }
     return user;
   }
 
   void verifyCurrentUserCanReadFilter(DefaultIssueFilter issueFilter, String login) {
     if (!issueFilter.user().equals(login) && !issueFilter.shared()) {
-      // TODO throw unauthorized
-      throw new IllegalStateException("User is not authorized to read this filter");
+      throw new ForbiddenException("User is not authorized to read this filter");
     }
   }
 
   private void verifyCurrentUserCanModifyFilter(DefaultIssueFilter issueFilter, String user) {
     if (!issueFilter.user().equals(user) && !isAdmin(user)) {
-      // TODO throw unauthorized
-      throw new IllegalStateException("User is not authorized to modify this filter");
+      throw new ForbiddenException("User is not authorized to modify this filter");
     }
   }
 
   private void verifyCurrentUserCanChangeFilterOwnership(String user) {
     if (!isAdmin(user)) {
-      // TODO throw unauthorized
-      throw new IllegalStateException("User is not authorized to change the owner of this filter");
+      throw new ForbiddenException("User is not authorized to change the owner of this filter");
     }
   }
 
@@ -227,13 +227,13 @@ public class IssueFilterService implements ServerComponent {
     List<IssueFilterDto> userFilters = selectUserIssueFilters(issueFilter.user());
     IssueFilterDto userFilterSameName = findFilterWithSameName(userFilters, issueFilter.name());
     if (userFilterSameName != null && !userFilterSameName.getId().equals(issueFilter.id())) {
-      throw new IllegalArgumentException("Name already exists");
+      throw new BadRequestException("Name already exists");
     }
     if (issueFilter.shared()) {
       List<IssueFilterDto> sharedFilters = selectSharedFilters();
       IssueFilterDto sharedFilterWithSameName = findFilterWithSameName(sharedFilters, issueFilter.name());
       if (sharedFilterWithSameName != null && !sharedFilterWithSameName.getId().equals(issueFilter.id())) {
-        throw new IllegalArgumentException("Other users already share filters with the same name");
+        throw new BadRequestException("Other users already share filters with the same name");
       }
     }
   }
