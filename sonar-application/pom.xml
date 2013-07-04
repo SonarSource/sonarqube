@@ -117,12 +117,6 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
-      <artifactId>sonar-cobertura-plugin</artifactId>
-      <type>sonar-plugin</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-surefire-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>runtime</scope>
@@ -167,7 +161,7 @@
       <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.sonatype.jsw-binaries</groupId>
       <artifactId>jsw-binaries</artifactId>

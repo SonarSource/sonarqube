@@ -448,13 +448,6 @@
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar-plugins.java</groupId>
-          <artifactId>sonar-cobertura-plugin</artifactId>
-          <version>${sonarJava.version}</version>
-          <type>sonar-plugin</type>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.codehaus.sonar-plugins.java</groupId>
           <artifactId>sonar-surefire-plugin</artifactId>
           <version>${sonarJava.version}</version>
           <type>sonar-plugin</type>
