@@ -1,6 +1,6 @@
 <dataset>
   <permission_templates id="1" name="my template" description="my description"/>
   <perm_templates_users/>
-  <perm_templates_groups id="1" template_id="1" group_id="1" permission="remaining_permission"/>
-  <perm_templates_groups id="2" template_id="1" group_id="[null]" permission="existing_permission"/>
+  <perm_templates_groups id="1" template_id="1" group_id="1" permission_reference="remaining_permission"/>
+  <perm_templates_groups id="2" template_id="1" group_id="[null]" permission_reference="existing_permission"/>
 </dataset>

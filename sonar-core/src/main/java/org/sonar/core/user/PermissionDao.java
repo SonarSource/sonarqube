@@ -37,6 +37,16 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     this.myBatis = myBatis;
   }
 
+  public PermissionTemplateDto selectTemplateByName(String templateName) {
+    SqlSession session = myBatis.openSession();
+    try {
+      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
+      return mapper.selectByName(templateName);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public PermissionTemplateDto selectPermissionTemplate(String templateName) {
     PermissionTemplateDto permissionTemplate = null;
     SqlSession session = myBatis.openSession();
@@ -76,6 +86,19 @@ public class PermissionDao implements TaskExtension, ServerExtension {
       MyBatis.closeQuietly(session);
     }
     return permissionTemplate;
+  }
+
+  public void deletePermissionTemplate(Long templateId) {
+    SqlSession session = myBatis.openSession();
+    try {
+      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
+      mapper.deleteUsersPermissions(templateId);
+      mapper.deleteGroupsPermissions(templateId);
+      mapper.delete(templateId);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public void addUserPermission(Long templateId, Long userId, String permission) {

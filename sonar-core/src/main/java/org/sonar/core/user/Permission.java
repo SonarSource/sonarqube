@@ -61,4 +61,7 @@ public class Permission {
     return allGlobal;
   }
 
+  public static boolean isValid(String permission) {
+    return allGlobal.containsKey(permission);
+  }
 }

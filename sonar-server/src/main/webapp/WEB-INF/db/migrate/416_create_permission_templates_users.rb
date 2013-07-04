@@ -27,7 +27,7 @@ class CreatePermissionTemplatesUsers < ActiveRecord::Migration
     create_table :perm_templates_users do |t|
       t.column :user_id,       :integer,  :null => false
       t.column :template_id,   :integer,  :null => false
-      t.column :permission,    :string,   :null => false,   :limit => 64
+      t.column :permission_reference,    :string,   :null => false,   :limit => 64
       t.column :created_at,    :datetime,  :null => true
       t.column :updated_at,    :datetime,  :null => true
     end

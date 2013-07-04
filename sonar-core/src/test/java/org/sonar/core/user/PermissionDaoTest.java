@@ -63,6 +63,18 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_permission_template_by_name() throws Exception {
+    setupData("selectPermissionTemplate");
+
+    PermissionTemplateDto permissionTemplate = permissionDao.selectTemplateByName("my template");
+
+    assertThat(permissionTemplate).isNotNull();
+    assertThat(permissionTemplate.getId()).isEqualTo(1L);
+    assertThat(permissionTemplate.getName()).isEqualTo("my template");
+    assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
+  }
+
+  @Test
   public void should_select_all_permission_templates() throws Exception {
     setupData("selectAllPermissionTemplates");
 
@@ -72,6 +84,17 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     assertThat(permissionTemplates).onProperty("id").containsOnly(1L, 2L, 3L);
     assertThat(permissionTemplates).onProperty("name").containsOnly("template1", "template2", "template3");
     assertThat(permissionTemplates).onProperty("description").containsOnly("description1", "description2", "description3");
+  }
+
+  @Test
+  public void should_delete_permission_template() throws Exception {
+    setupData("deletePermissionTemplate");
+
+    permissionDao.deletePermissionTemplate(1L);
+
+    checkTable("deletePermissionTemplate", "permission_templates", "id", "name", "description");
+    checkTable("deletePermissionTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission");
+    checkTable("deletePermissionTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission");
   }
 
   @Test
