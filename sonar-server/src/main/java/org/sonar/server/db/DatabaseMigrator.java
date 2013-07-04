@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.persistence;
+package org.sonar.server.db;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.DdlUtils;
+import org.sonar.core.persistence.MyBatis;
 
 import java.sql.Connection;
 
@@ -33,8 +37,8 @@ import java.sql.Connection;
  */
 public class DatabaseMigrator implements ServerComponent {
 
-  private MyBatis myBatis;
-  private Database database;
+  private final MyBatis myBatis;
+  private final Database database;
 
   public DatabaseMigrator(MyBatis myBatis, Database database) {
     this.myBatis = myBatis;
@@ -56,13 +60,25 @@ public class DatabaseMigrator implements ServerComponent {
       session = myBatis.openSession();
       connection = session.getConnection();
       DdlUtils.createSchema(connection, database.getDialect().getId());
+      return true;
     } finally {
       MyBatis.closeQuietly(session);
 
       // The connection is probably already closed by session.close()
       // but it's not documented in mybatis javadoc.
-      DatabaseUtils.closeQuietly(connection);
+      DbUtils.closeQuietly(connection);
     }
-    return true;
+  }
+
+  public void executeMigration(String className) {
+    try {
+      Class<DatabaseMigration> migrationClass = (Class<DatabaseMigration>)Class.forName(className);
+      DatabaseMigration migration = migrationClass.newInstance();
+      migration.execute(database);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new IllegalStateException("Fail to execute database migration: " + className, e);
+    }
   }
 }

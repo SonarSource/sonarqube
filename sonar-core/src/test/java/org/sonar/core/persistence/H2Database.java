@@ -20,6 +20,7 @@
 package org.sonar.core.persistence;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.hibernate.cfg.Environment;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.H2;
@@ -38,18 +39,22 @@ import java.util.Properties;
  */
 public class H2Database implements Database {
   private final String name;
+  private final boolean createSchema;
   private BasicDataSource datasource;
 
   /**
    * IMPORTANT: change DB name in order to not conflict with {@link DefaultDatabaseTest}
    */
-  public H2Database(String name) {
+  public H2Database(String name, boolean createSchema) {
     this.name = name;
+    this.createSchema = createSchema;
   }
 
   public H2Database start() {
     startDatabase();
-    createSchema();
+    if (createSchema) {
+      createSchema();
+    }
     return this;
   }
 
@@ -70,10 +75,24 @@ public class H2Database implements Database {
     try {
       connection = datasource.getConnection();
       DdlUtils.createSchema(connection, "h2");
+
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to create schema", e);
     } finally {
-      DatabaseUtils.closeQuietly(connection);
+      DbUtils.closeQuietly(connection);
+    }
+  }
+
+  public void executeScript(String classloaderPath) {
+    Connection connection = null;
+    try {
+      connection = datasource.getConnection();
+      DdlUtils.executeScript(connection, classloaderPath);
+
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to execute script: " + classloaderPath, e);
+    } finally {
+      DbUtils.closeQuietly(connection);
     }
   }
 

@@ -48,7 +48,7 @@ public final class DdlUtils {
     executeScript(connection, "org/sonar/core/persistence/rows-" + dialect + ".sql");
   }
 
-  private static void executeScript(Connection connection, String path) {
+  public static void executeScript(Connection connection, String path) {
     ScriptRunner scriptRunner = newScriptRunner(connection);
     try {
       scriptRunner.runScript(Resources.getResourceAsReader(path));

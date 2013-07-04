@@ -22,10 +22,10 @@ package org.sonar.core.measure;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.DatabaseUtils;
 import org.sonar.core.resource.SnapshotDto;
 
 import javax.annotation.Nullable;
@@ -67,8 +67,8 @@ class MeasureFilterSql {
       return process(rs);
 
     } finally {
-      DatabaseUtils.closeQuietly(rs);
-      DatabaseUtils.closeQuietly(statement);
+      DbUtils.closeQuietly(rs);
+      DbUtils.closeQuietly(statement);
     }
   }
 

@@ -41,7 +41,7 @@ public class MyBatisTest {
 
   @BeforeClass
   public static void start() {
-    database = new H2Database("sonar2");
+    database = new H2Database("sonar2", true);
     database.start();
   }
 

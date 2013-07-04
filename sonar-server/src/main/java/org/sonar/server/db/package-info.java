@@ -17,37 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.persistence;
 
-import org.junit.After;
+@ParametersAreNonnullByDefault
+package org.sonar.server.db;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class H2DatabaseTest {
-  H2Database db = new H2Database("sonar2", true);
-
-  @Before
-  public void startDb() {
-    db.start();
-  }
-
-  @After
-  public void stopDb() {
-    db.stop();
-  }
-
-  @Test
-  public void shouldExecuteDdlAtStartup() throws SQLException {
-    Connection connection = db.getDataSource().getConnection();
-    int tableCount = DdlUtilsTest.countTables(connection);
-    connection.close();
-
-    assertThat(tableCount).isGreaterThan(30);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

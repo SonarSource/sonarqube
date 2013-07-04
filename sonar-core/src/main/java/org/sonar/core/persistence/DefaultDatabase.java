@@ -22,6 +22,7 @@ package org.sonar.core.persistence;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
@@ -141,7 +142,7 @@ public class DefaultDatabase implements Database {
     } catch (Exception e) {
       LOG.error("Can not connect to database. Please check connectivity and settings (see the properties prefixed by 'sonar.jdbc.').", e);
     } finally {
-      DatabaseUtils.closeQuietly(connection);
+      DbUtils.closeQuietly(connection);
     }
   }
 

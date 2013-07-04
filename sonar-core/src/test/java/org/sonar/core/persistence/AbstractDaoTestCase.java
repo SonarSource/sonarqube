@@ -60,7 +60,7 @@ import java.util.Properties;
 import static org.junit.Assert.fail;
 
 public abstract class AbstractDaoTestCase {
-  private static Logger LOG = LoggerFactory.getLogger(AbstractDaoTestCase.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractDaoTestCase.class);
   private static Database database;
   private static DatabaseCommands databaseCommands;
   private static IDatabaseTester databaseTester;
@@ -80,7 +80,7 @@ public abstract class AbstractDaoTestCase {
       if (hasDialect) {
         database = new DefaultDatabase(settings);
       } else {
-        database = new H2Database("h2Tests");
+        database = new H2Database("h2Tests", true);
       }
       database.start();
       LOG.info("Test Database: " + database);

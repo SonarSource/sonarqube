@@ -20,10 +20,10 @@
 package org.sonar.core.measure;
 
 import com.google.common.base.Strings;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.DatabaseUtils;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 
@@ -67,7 +67,7 @@ public class MeasureFilterExecutor implements ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
       // connection is supposed to be closed by the session
-      DatabaseUtils.closeQuietly(connection);
+      DbUtils.closeQuietly(connection);
     }
 
     return rows;

@@ -119,9 +119,14 @@ public abstract class DatabaseCommands {
     connection.setAutoCommit(false);
 
     Statement statement = connection.createStatement();
-    for (String table : DatabaseUtils.TABLE_NAMES) {
-      statement.executeUpdate("TRUNCATE TABLE " + table);
-      connection.commit();
+    for (String table : DatabaseVersion.TABLES) {
+      try {
+        statement.executeUpdate("TRUNCATE TABLE " + table);
+        connection.commit();
+      } catch (Exception e) {
+        // ignore
+        connection.rollback();
+      }
     }
 
     statement.close();
@@ -133,7 +138,7 @@ public abstract class DatabaseCommands {
     connection.setAutoCommit(false);
 
     Statement statement = connection.createStatement();
-    for (String table : DatabaseUtils.TABLE_NAMES) {
+    for (String table : DatabaseVersion.TABLES) {
       try {
         ResultSet result = statement.executeQuery("SELECT CASE WHEN MAX(ID) IS NULL THEN 1 ELSE MAX(ID)+1 END FROM " + table);
         result.next();

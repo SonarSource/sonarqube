@@ -17,37 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.persistence;
+package org.sonar.server.db.migrations;
 
-import org.junit.After;
-
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.core.persistence.TestDatabase;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+public class ConvertViolationsToIssuesTest {
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class H2DatabaseTest {
-  H2Database db = new H2Database("sonar2", true);
-
-  @Before
-  public void startDb() {
-    db.start();
-  }
-
-  @After
-  public void stopDb() {
-    db.stop();
-  }
+  @Rule
+  public TestDatabase db = new TestDatabase().schema(getClass(), "schema.sql");
 
   @Test
-  public void shouldExecuteDdlAtStartup() throws SQLException {
-    Connection connection = db.getDataSource().getConnection();
-    int tableCount = DdlUtilsTest.countTables(connection);
-    connection.close();
+  public void convert_violations() throws Exception {
+    db.prepareDbUnit(getClass(), "convert_violations.xml");
 
-    assertThat(tableCount).isGreaterThan(30);
+    new ConvertViolationsToIssues().execute(db.database());
+
+    db.assertDbUnit(getClass(), "convert_violations_result.xml", "issues", "issue_changes");
   }
 }

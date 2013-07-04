@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,12 +90,12 @@ public class DbTemplate implements ServerComponent {
       LOG.error("Fail to copy table " + table, e);
       throw new IllegalStateException("Fail to copy table " + table, e);
     } finally {
-      DatabaseUtils.closeQuietly(destStatement);
-      DatabaseUtils.closeQuietly(destResultSet);
-      DatabaseUtils.closeQuietly(destConnection);
-      DatabaseUtils.closeQuietly(sourceResultSet);
-      DatabaseUtils.closeQuietly(sourceStatement);
-      DatabaseUtils.closeQuietly(sourceConnection);
+      DbUtils.closeQuietly(destStatement);
+      DbUtils.closeQuietly(destResultSet);
+      DbUtils.closeQuietly(destConnection);
+      DbUtils.closeQuietly(sourceResultSet);
+      DbUtils.closeQuietly(sourceStatement);
+      DbUtils.closeQuietly(sourceConnection);
     }
 
     return this;
@@ -158,9 +159,9 @@ public class DbTemplate implements ServerComponent {
       LOG.error("Fail to get row count for table " + table, e);
       throw new SonarException("Fail to get row count for table " + table, e);
     } finally {
-      DatabaseUtils.closeQuietly(resultSet);
-      DatabaseUtils.closeQuietly(statement);
-      DatabaseUtils.closeQuietly(connection);
+      DbUtils.closeQuietly(resultSet);
+      DbUtils.closeQuietly(statement);
+      DbUtils.closeQuietly(connection);
     }
   }
 
@@ -175,8 +176,8 @@ public class DbTemplate implements ServerComponent {
       LOG.error("Fail to truncate table " + table, e);
       throw new SonarException("Fail to truncate table " + table, e);
     } finally {
-      DatabaseUtils.closeQuietly(statement);
-      DatabaseUtils.closeQuietly(connection);
+      DbUtils.closeQuietly(statement);
+      DbUtils.closeQuietly(connection);
     }
 
     return this;
@@ -200,7 +201,7 @@ public class DbTemplate implements ServerComponent {
       LOG.error("Fail to createSchema local database schema", e);
       throw new SonarException("Fail to createSchema local database schema", e);
     } finally {
-      DatabaseUtils.closeQuietly(connection);
+      DbUtils.closeQuietly(connection);
     }
 
     return this;

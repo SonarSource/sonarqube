@@ -85,7 +85,7 @@ class DatabaseVersion
   end
 
   def self.try_restore_structure_dump()
-    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().createDatabase()
+    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().createDatabase()
   end
 
   def self.execute_sql_requests(requests)

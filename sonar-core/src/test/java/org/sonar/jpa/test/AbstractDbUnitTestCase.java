@@ -63,7 +63,7 @@ public abstract class AbstractDbUnitTestCase {
   @Before
   public void startDatabase() throws SQLException {
     if (database == null) {
-      database = new H2Database("sonarHibernate");
+      database = new H2Database("sonarHibernate", true);
       database.start();
 
       databaseCommands = DatabaseCommands.forDialect(database.getDialect());

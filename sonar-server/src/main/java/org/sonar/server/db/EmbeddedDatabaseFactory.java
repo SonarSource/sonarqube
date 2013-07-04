@@ -17,37 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.persistence;
+package org.sonar.server.db;
 
-import org.junit.After;
+import org.sonar.api.config.Settings;
+import org.sonar.api.database.DatabaseProperties;
+import org.sonar.core.persistence.dialect.H2;
 
-import org.junit.Before;
-import org.junit.Test;
+public class EmbeddedDatabaseFactory {
+  private final Settings settings;
+  private final H2 dialect;
+  private EmbeddedDatabase embeddedDatabase;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class H2DatabaseTest {
-  H2Database db = new H2Database("sonar2", true);
-
-  @Before
-  public void startDb() {
-    db.start();
+  public EmbeddedDatabaseFactory(Settings settings) {
+    this.settings = settings;
+    dialect = new H2();
   }
 
-  @After
-  public void stopDb() {
-    db.stop();
+  public void start() {
+    if (embeddedDatabase == null) {
+      String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
+      if (dialect.matchesJdbcURL(jdbcUrl)) {
+        embeddedDatabase = new EmbeddedDatabase(settings);
+        embeddedDatabase.start();
+      }
+    }
   }
 
-  @Test
-  public void shouldExecuteDdlAtStartup() throws SQLException {
-    Connection connection = db.getDataSource().getConnection();
-    int tableCount = DdlUtilsTest.countTables(connection);
-    connection.close();
-
-    assertThat(tableCount).isGreaterThan(30);
+  public void stop() {
+    if (embeddedDatabase != null) {
+      embeddedDatabase.stop();
+    }
   }
 }

@@ -17,35 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.database;
+package org.sonar.server.db;
 
-import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseProperties;
-import org.sonar.core.persistence.dialect.H2;
+import org.sonar.core.persistence.Database;
 
-public class EmbeddedDatabaseFactory {
-  private final Settings settings;
-  private final H2 dialect;
-  private EmbeddedDatabase embeddedDatabase;
+/**
+ * Java alternative of ActiveRecord::Migration.
+ * @since 3.7
+ */
+public interface DatabaseMigration {
 
-  public EmbeddedDatabaseFactory(Settings settings) {
-    this.settings = settings;
-    dialect = new H2();
-  }
+  void execute(Database db);
 
-  public void start() {
-    if (embeddedDatabase == null) {
-      String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
-      if (dialect.matchesJdbcURL(jdbcUrl)) {
-        embeddedDatabase = new EmbeddedDatabase(settings);
-        embeddedDatabase.start();
-      }
-    }
-  }
-
-  public void stop() {
-    if (embeddedDatabase != null) {
-      embeddedDatabase.stop();
-    }
-  }
 }
