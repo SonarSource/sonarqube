@@ -50,7 +50,7 @@ public class SetSeverityAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return issueUpdater.setSeverity((DefaultIssue) context.issue(), severity(properties), context.issueChangeContext());
+    return issueUpdater.setManualSeverity((DefaultIssue) context.issue(), severity(properties), context.issueChangeContext());
   }
 
   private String severity(Map<String, Object> properties) {

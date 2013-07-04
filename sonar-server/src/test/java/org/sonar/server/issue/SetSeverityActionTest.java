@@ -57,7 +57,7 @@ public class SetSeverityActionTest {
     when(context.issue()).thenReturn(issue);
 
     action.execute(properties, context);
-    verify(issueUpdater).setSeverity(eq(issue), eq(severity), any(IssueChangeContext.class));
+    verify(issueUpdater).setManualSeverity(eq(issue), eq(severity), any(IssueChangeContext.class));
   }
 
   @Test

@@ -323,7 +323,7 @@ class ResourceController < ApplicationController
     if @period && @period != 0
       date = @snapshot.period_datetime(@period)
       if date
-        options['createdAfter'] = date
+        options['createdAfter'] = Api::Utils.format_datetime(date)
       end
     end
 
