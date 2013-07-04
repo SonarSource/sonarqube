@@ -73,9 +73,9 @@
             ptu.id AS permission_template_user_id,
             ptu.permission_reference AS user_permission,
             u.name AS user_name
-    FROM permission_templates AS pt
-    INNER JOIN perm_templates_users AS ptu ON ptu.template_id = pt.id
-    INNER JOIN users AS u ON u.id = ptu.user_id
+    FROM permission_templates pt
+    INNER JOIN perm_templates_users ptu ON ptu.template_id = pt.id
+    INNER JOIN users u ON u.id = ptu.user_id
     WHERE pt.name = #{templateName}
   </select>
 
@@ -88,9 +88,9 @@
             ptg.id AS permission_template_group_id,
             ptg.permission_reference AS group_permission,
             g.name AS group_name
-    FROM permission_templates AS pt
-    INNER JOIN perm_templates_groups AS ptg ON ptg.template_id = pt.id
-    LEFT OUTER JOIN groups AS g ON g.id = ptg.group_id
+    FROM permission_templates pt
+    INNER JOIN perm_templates_groups ptg ON ptg.template_id = pt.id
+    LEFT OUTER JOIN groups g ON g.id = ptg.group_id
     WHERE pt.name = #{templateName}
   </select>
 
