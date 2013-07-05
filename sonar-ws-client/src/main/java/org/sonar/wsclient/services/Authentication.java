@@ -23,7 +23,7 @@ public class Authentication extends Model {
 
   private boolean valid;
 
-   public boolean isValid() {
+  public boolean isValid() {
     return valid;
   }
 
