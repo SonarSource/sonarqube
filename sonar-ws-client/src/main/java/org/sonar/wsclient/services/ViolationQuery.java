@@ -133,6 +133,9 @@ public class ViolationQuery extends Query<Violation> {
   }
 
   public static ViolationQuery createForResource(Resource resource) {
+    if (resource.getId() == null) {
+      throw new IllegalArgumentException("id must be set");
+    }
     return new ViolationQuery(resource.getId().toString());
   }
 

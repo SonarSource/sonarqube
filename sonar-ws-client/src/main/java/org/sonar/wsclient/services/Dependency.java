@@ -25,10 +25,10 @@ import javax.annotation.Nullable;
 public class Dependency extends Model {
 
   private String id;
-  private long fromId;
-  private long toId;
+  private Long fromId;
+  private Long toId;
   private String usage;
-  private int weight;
+  private Integer weight;
   private String fromKey;
   private String fromName;
   private String fromQualifier;
@@ -50,7 +50,7 @@ public class Dependency extends Model {
     return fromId;
   }
 
-  public Dependency setFromId(@Nullable long fromId) {
+  public Dependency setFromId(@Nullable Long fromId) {
     this.fromId = fromId;
     return this;
   }
@@ -59,7 +59,7 @@ public class Dependency extends Model {
     return toId;
   }
 
-  public Dependency setToId(@Nullable long toId) {
+  public Dependency setToId(@Nullable Long toId) {
     this.toId = toId;
     return this;
   }

@@ -43,6 +43,7 @@ public class Event extends Model {
     this.id = id;
     return this;
   }
+
   @CheckForNull
   public String getName() {
     return name;
@@ -52,6 +53,7 @@ public class Event extends Model {
     this.name = name;
     return this;
   }
+
   @CheckForNull
   public String getCategory() {
     return category;
@@ -61,6 +63,7 @@ public class Event extends Model {
     this.category = category;
     return this;
   }
+
   @CheckForNull
   public String getDescription() {
     return description;
@@ -70,6 +73,7 @@ public class Event extends Model {
     this.description = description;
     return this;
   }
+
   @CheckForNull
   public Date getDate() {
     return date;
@@ -79,6 +83,7 @@ public class Event extends Model {
     this.date = date;
     return this;
   }
+
   @CheckForNull
   public String getResourceKey() {
     return resourceKey;
@@ -88,6 +93,7 @@ public class Event extends Model {
     this.resourceKey = resourceKey;
     return this;
   }
+
   @CheckForNull
   public String getData() {
     return data;

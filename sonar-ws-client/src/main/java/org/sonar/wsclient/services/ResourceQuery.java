@@ -302,6 +302,9 @@ public class ResourceQuery extends Query<Resource> {
   }
 
   public static ResourceQuery createForResource(Resource resource, String... metricKeys) {
+    if (resource.getId() == null) {
+      throw new IllegalArgumentException("id must be set");
+    }
     return new ResourceQuery(resource.getId().toString())
         .setMetrics(metricKeys);
   }

@@ -19,6 +19,8 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -110,7 +112,7 @@ public abstract class AbstractQuery<M extends Model> {
       .append("&");
   }
 
-  protected static void appendUrlParameter(StringBuilder url, String paramKey, Object paramValue) {
+  protected static void appendUrlParameter(StringBuilder url, String paramKey, @Nullable Object paramValue) {
     if (paramValue != null) {
       url.append(paramKey)
         .append('=')
@@ -119,7 +121,7 @@ public abstract class AbstractQuery<M extends Model> {
     }
   }
 
-  protected static void appendUrlParameter(StringBuilder url, String paramKey, Object[] paramValues) {
+  protected static void appendUrlParameter(StringBuilder url, String paramKey, @Nullable Object[] paramValues) {
     if (paramValues != null) {
       url.append(paramKey).append('=');
       for (int index = 0; index < paramValues.length; index++) {
@@ -134,7 +136,7 @@ public abstract class AbstractQuery<M extends Model> {
     }
   }
 
-  protected static void appendUrlParameter(StringBuilder url, String paramKey, Date paramValue, boolean includeTime) {
+  protected static void appendUrlParameter(StringBuilder url, String paramKey, @Nullable Date paramValue, boolean includeTime) {
     if (paramValue != null) {
       String format = (includeTime ? "yyyy-MM-dd'T'HH:mm:ssZ" : "yyyy-MM-dd");
       url.append(paramKey)

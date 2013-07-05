@@ -24,19 +24,23 @@ import org.sonar.wsclient.services.TimeMachineCell;
 import org.sonar.wsclient.services.TimeMachineColumn;
 import org.sonar.wsclient.services.WSUtils;
 
-import javax.annotation.Nullable;
-
 public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
 
   @Override
   protected TimeMachine parse(Object json) {
     WSUtils utils = WSUtils.getINSTANCE();
     Object cols = utils.getField(json, "cols");
+    if (cols == null) {
+      throw new IllegalArgumentException("cols must be set");
+    }
     Object cells = utils.getField(json, "cells");
+    if (cells == null) {
+      throw new IllegalArgumentException("cells must be set");
+    }
     return new TimeMachine(toColumns(cols), toCells(cells));
   }
 
-  private TimeMachineColumn[] toColumns(@Nullable Object cols) {
+  private TimeMachineColumn[] toColumns(Object cols) {
     WSUtils utils = WSUtils.getINSTANCE();
     int size = utils.getArraySize(cols);
     TimeMachineColumn[] result = new TimeMachineColumn[size];
@@ -47,7 +51,7 @@ public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
     return result;
   }
 
-  private TimeMachineCell[] toCells(@Nullable Object cells) {
+  private TimeMachineCell[] toCells(Object cells) {
     WSUtils utils = WSUtils.getINSTANCE();
     int size = utils.getArraySize(cells);
     TimeMachineCell[] result = new TimeMachineCell[size];
