@@ -126,7 +126,7 @@ class ActiveRecord::Migration
         change_column(tablename, columnname, :big_integer, :null => true)
     end
   end
-  
+
   # SONAR-4178
   def self.create_table(table_name, options = {})
     super(table_name, options)
@@ -137,17 +137,42 @@ class ActiveRecord::Migration
         # Do nothing
     end
   end
-  
+
+  def drop_table(table_name, options = {})
+    super(table_name, options)
+    case dialect()
+      when "oracle"
+        drop_id_trigger(table_name)
+      else
+        # Do nothing
+    end
+  end
+
   def self.create_id_trigger(table)
-      execute_ddl("create trigger for table #{table}", 
-      
+      execute_ddl("create trigger for table #{table}",
+
       %{CREATE OR REPLACE TRIGGER #{table}_id_trg
-          BEFORE INSERT ON #{table} 
+          BEFORE INSERT ON #{table}
           FOR EACH ROW
         BEGIN
            IF :new.id IS null THEN
              SELECT #{table}_seq.nextval INTO :new.id FROM dual;
            END IF;
+        END;})
+  end
+
+
+  def self.drop_id_trigger(table)
+      execute_ddl("drop trigger for table #{table}",
+
+      %{DECLARE
+          e EXCEPTION;
+          PRAGMA EXCEPTION_INIT(e,-4080);
+        BEGIN
+           EXECUTE IMMEDIATE 'DROP TRIGGER #{table}_id_trg';
+        EXCEPTION
+          WHEN e THEN
+            NULL;
         END;})
   end
 
