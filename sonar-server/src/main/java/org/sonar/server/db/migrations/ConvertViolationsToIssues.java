@@ -285,7 +285,7 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
 
 
   private static class ViolationHandler extends AbstractListHandler<Map<String, Object>> {
-    private static final String SQL;
+    static final String SQL;
     static {
       StringBuilder sb = new StringBuilder("select rev.id as reviewId, s.project_id as projectId, rf.rule_id as ruleId, " +
         "  rf.failure_level as failureLevel, rf.message as message, rf.line as line, " +
