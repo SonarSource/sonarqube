@@ -25,7 +25,6 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.core.persistence.MyBatis;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class RoleDao implements TaskExtension, ServerExtension {

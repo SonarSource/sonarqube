@@ -46,7 +46,7 @@ import java.util.*;
  */
 public class ConvertViolationsToIssues implements DatabaseMigration {
 
-  private static int GROUP_SIZE = 500;
+  private static final int GROUP_SIZE = 500;
   private QueryRunner runner = new QueryRunner();
 
   @Override
@@ -258,7 +258,10 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
         }
       }
       if (!allParams.isEmpty()) {
-        runner.batch(writeConnection, "INSERT INTO issue_changes(kee, issue_key, user_login, change_type, change_data, created_at, updated_at) VALUES (?, ?, ?, 'comment', ?, ?, ?)", allParams.toArray(new Object[allParams.size()][]));
+        runner.batch(writeConnection,
+          "INSERT INTO issue_changes(kee, issue_key, user_login, change_type, change_data, created_at, updated_at) VALUES (?, ?, ?, 'comment', ?, ?, ?)",
+          allParams.toArray(new Object[allParams.size()][])
+        );
         writeConnection.commit();
       }
     }
@@ -282,26 +285,27 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
 
 
   private static class ViolationHandler extends AbstractListHandler<Map<String, Object>> {
-    private static String SQL = "select rev.id as reviewId, s.project_id as projectId, rf.rule_id as ruleId, rf.failure_level as failureLevel, rf.message as message, rf.line as line, " +
-      "  rf.cost as cost, rf.created_at as createdAt, rf.checksum as checksum, rev.user_id as reviewReporterId, rev.assignee_id as reviewAssigneeId, rev.status as reviewStatus, " +
-      "  rev.severity as reviewSeverity, rev.resolution as reviewResolution, rev.manual_severity as reviewManualSeverity, rev.data as reviewData, rev.updated_at as reviewUpdatedAt, " +
-      "  s.root_project_id as rootProjectId, rev.manual_violation as reviewManualViolation, planreviews.action_plan_id as planId " +
-      " from rule_failures rf " +
-      " inner join snapshots s on s.id=rf.snapshot_id " +
-      " left join reviews rev on rev.rule_failure_permanent_id=rf.permanent_id " +
-      " left join action_plans_reviews planreviews on planreviews.review_id=rev.id " +
-      " where ";
-
+    private static final String SQL;
     static {
+      StringBuilder sb = new StringBuilder("select rev.id as reviewId, s.project_id as projectId, rf.rule_id as ruleId, rf.failure_level as failureLevel, rf.message as message, rf.line as line, " +
+        "  rf.cost as cost, rf.created_at as createdAt, rf.checksum as checksum, rev.user_id as reviewReporterId, rev.assignee_id as reviewAssigneeId, rev.status as reviewStatus, " +
+        "  rev.severity as reviewSeverity, rev.resolution as reviewResolution, rev.manual_severity as reviewManualSeverity, rev.data as reviewData, rev.updated_at as reviewUpdatedAt, " +
+        "  s.root_project_id as rootProjectId, rev.manual_violation as reviewManualViolation, planreviews.action_plan_id as planId " +
+        " from rule_failures rf " +
+        " inner join snapshots s on s.id=rf.snapshot_id " +
+        " left join reviews rev on rev.rule_failure_permanent_id=rf.permanent_id " +
+        " left join action_plans_reviews planreviews on planreviews.review_id=rev.id " +
+        " where ");
       for (int i = 0; i < GROUP_SIZE; i++) {
         if (i > 0) {
-          SQL += " or ";
+          sb.append(" or ");
         }
-        SQL += "rf.id=?";
+        sb.append("rf.id=?");
       }
+      SQL = sb.toString();
     }
 
-    private static Map<Integer, String> SEVERITIES = ImmutableMap.of(1, Severity.INFO, 2, Severity.MINOR, 3, Severity.MAJOR, 4, Severity.CRITICAL, 5, Severity.BLOCKER);
+    private static final Map<Integer, String> SEVERITIES = ImmutableMap.of(1, Severity.INFO, 2, Severity.MINOR, 3, Severity.MAJOR, 4, Severity.CRITICAL, 5, Severity.BLOCKER);
 
     @Override
     protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {
@@ -331,7 +335,7 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
   }
 
   private static class ReviewCommentsHandler extends AbstractListHandler<Map<String, Object>> {
-    static String SQL = "select created_at as createdAt, updated_at as updatedAt, user_id as userId, review_text as reviewText from review_comments where review_id=";
+    static final String SQL = "select created_at as createdAt, updated_at as updatedAt, user_id as userId, review_text as reviewText from review_comments where review_id=";
 
     @Override
     protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {

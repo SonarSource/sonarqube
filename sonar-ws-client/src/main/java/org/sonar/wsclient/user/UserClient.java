@@ -39,12 +39,6 @@ public interface UserClient {
   User update(UserParameters userParameters);
 
   /**
-   * TODO to remove
-   */
-  @Deprecated
-  void delete(UserParameters userParameters);
-
-  /**
    * @since 3.7
    */
   void deactivate(String login);

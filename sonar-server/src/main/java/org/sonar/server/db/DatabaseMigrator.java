@@ -77,7 +77,8 @@ public class DatabaseMigrator implements ServerComponent {
       migration.execute(database);
 
     } catch (Exception e) {
-      e.printStackTrace();
+      // duplication between log and exception because webapp does not correctly log initial stacktrace
+      LoggerFactory.getLogger(getClass()).error("Fail to execute database migration: " + className, e);
       throw new IllegalStateException("Fail to execute database migration: " + className, e);
     }
   }

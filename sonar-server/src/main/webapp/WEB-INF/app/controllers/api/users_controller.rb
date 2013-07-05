@@ -123,13 +123,8 @@ class Api::UsersController < Api::ApiController
   end
 
 
-  def delete
-    # TODO : DROP
-    deactivate
-  end
-
   #
-  # POST /api/users/delete
+  # POST /api/users/deactivate
   #
   # -- Mandatory parameters
   # 'login' is the user identifier
