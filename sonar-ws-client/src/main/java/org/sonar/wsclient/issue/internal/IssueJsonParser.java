@@ -138,7 +138,7 @@ public class IssueJsonParser {
     result.setTotalIssuesNotChanged(JsonUtils.getInteger(issuesNotChanged, "total"));
     JSONArray issuesJson = JsonUtils.getArray(issuesNotChanged, "issues");
     if (issuesJson != null) {
-      result.setIssuesNotChanged(JsonUtils.getArray(issuesNotChanged, "issues"));
+      result.setIssuesNotChanged(issuesJson);
     }
 
     return  result;
