@@ -30,18 +30,12 @@ import org.sonar.core.resource.SnapshotDto;
 
 import javax.annotation.Nullable;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.Comparator;
 import java.util.List;
 
 class MeasureFilterSql {
 
-  private static final int FETCH_SIZE = 1000;
   private final Database database;
   private final MeasureFilter filter;
   private final MeasureFilterContext context;
@@ -57,7 +51,6 @@ class MeasureFilterSql {
 
   List<MeasureFilterRow> execute(Connection connection) throws SQLException {
     PreparedStatement statement = connection.prepareStatement(sql);
-    statement.setFetchSize(FETCH_SIZE);
     ResultSet rs = null;
     try {
       for (int index = 0; index < dateParameters.size(); index++) {
