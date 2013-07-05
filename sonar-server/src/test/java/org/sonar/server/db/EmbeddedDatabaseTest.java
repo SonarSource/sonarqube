@@ -32,7 +32,7 @@ import java.sql.DriverManager;
 import static junit.framework.Assert.fail;
 
 public class EmbeddedDatabaseTest {
-  @Test(timeout = 5000)
+  @Test(timeout = 10000)
   public void should_start_and_stop() throws IOException {
     int port = freeServerPort();
 
@@ -50,7 +50,7 @@ public class EmbeddedDatabaseTest {
     database.stop();
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 10000)
   public void should_support_memory_database() throws IOException {
     int port = freeServerPort();
 

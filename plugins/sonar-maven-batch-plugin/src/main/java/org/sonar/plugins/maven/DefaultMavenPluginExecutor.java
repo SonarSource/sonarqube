@@ -92,7 +92,7 @@ public class DefaultMavenPluginExecutor implements MavenPluginExecutor {
         .toString();
   }
 
-  public void concreteExecute(MavenProject pom, String goal) throws SecurityException {
+  public void concreteExecute(MavenProject pom, String goal) {
     Method executeMethod = null;
     for (Method m : lifecycleExecutor.getClass().getMethods()) {
       if ("execute".equals(m.getName())) {
