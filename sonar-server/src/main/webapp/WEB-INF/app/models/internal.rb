@@ -51,7 +51,7 @@ class Internal
   end
 
   def self.permission_templates
-    component(Java::OrgSonarServierPermission::InternalPermissionTemplateService.java_class)
+    component(Java::OrgSonarServerPermission::InternalPermissionTemplateService.java_class)
   end
 
   private

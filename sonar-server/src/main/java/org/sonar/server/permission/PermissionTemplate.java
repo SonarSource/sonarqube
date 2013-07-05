@@ -27,6 +27,7 @@ import org.sonar.core.user.PermissionTemplateDto;
 import org.sonar.core.user.PermissionTemplateGroupDto;
 import org.sonar.core.user.PermissionTemplateUserDto;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class PermissionTemplate {
@@ -45,7 +46,10 @@ public class PermissionTemplate {
     groupsByPermission = HashMultimap.create();
   }
 
-  public static PermissionTemplate create(PermissionTemplateDto permissionTemplateDto) {
+  public static PermissionTemplate create(@Nullable PermissionTemplateDto permissionTemplateDto) {
+    if(permissionTemplateDto == null) {
+      return null;
+    }
     PermissionTemplate permissionTemplate =
       new PermissionTemplate(permissionTemplateDto.getId(), permissionTemplateDto.getName(), permissionTemplateDto.getDescription());
     if(permissionTemplateDto.getUsersPermissions() != null) {

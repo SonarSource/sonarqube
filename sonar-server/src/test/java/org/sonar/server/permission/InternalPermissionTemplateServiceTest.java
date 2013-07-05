@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.user.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.MockUserSession;
@@ -38,7 +39,7 @@ public class InternalPermissionTemplateServiceTest {
 
   private static final String DEFAULT_NAME = "my template";
   private static final String DEFAULT_DESC = "my description";
-  private static final String DEFAULT_PERMISSION = Permission.DRY_RUN_EXECUTION.key();
+  private static final String DEFAULT_PERMISSION = UserRole.USER;
   private static final PermissionTemplateDto DEFAULT_TEMPLATE =
     new PermissionTemplateDto().setId(1L).setName(DEFAULT_NAME).setDescription(DEFAULT_DESC);
 

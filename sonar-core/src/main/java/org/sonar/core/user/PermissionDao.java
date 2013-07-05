@@ -55,10 +55,15 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     SqlSession session = myBatis.openSession();
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      permissionTemplate = mapper.selectTemplateUsersPermissions(templateName);
-      PermissionTemplateDto templateWithGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateName);
-      permissionTemplate.setGroupsByPermission(templateWithGroupsPermissions.getGroupsPermissions());
-      session.commit();
+      permissionTemplate = mapper.selectByName(templateName);
+      PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateName);
+      if(templateUsersPermissions != null) {
+        permissionTemplate.setUsersPermissions(templateUsersPermissions.getUsersPermissions());
+      }
+      PermissionTemplateDto templateGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateName);
+      if(templateGroupsPermissions != null) {
+        permissionTemplate.setGroupsByPermission(templateGroupsPermissions.getGroupsPermissions());
+      }
     } finally {
       MyBatis.closeQuietly(session);
     }

@@ -34,10 +34,7 @@ import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.user.AuthorDao;
-import org.sonar.core.user.AuthorizationDao;
-import org.sonar.core.user.RoleDao;
-import org.sonar.core.user.UserDao;
+import org.sonar.core.user.*;
 
 import java.util.List;
 
@@ -64,6 +61,7 @@ public final class DaoUtils {
       IssueFilterFavouriteDao.class,
       LoadedTemplateDao.class,
       MeasureFilterDao.class,
+      PermissionDao.class,
       PropertiesDao.class,
       PurgeDao.class,
       ResourceIndexerDao.class,

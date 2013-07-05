@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.user.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -57,15 +58,15 @@ public class PermissionTemplateUpdaterTest {
     when(permissionDao.selectTemplateByName("my template")).thenReturn(new PermissionTemplateDto().setId(1L));
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my template", Permission.SCAN_EXECUTION.key(), "user", permissionDao, userDao) {
+      new PermissionTemplateUpdater("my template", UserRole.USER, "user", permissionDao, userDao) {
       @Override
       void doExecute(Long templateId, String permission) {
-        permissionDao.addUserPermission(1L, 1L, Permission.SCAN_EXECUTION.key());
+        permissionDao.addUserPermission(1L, 1L, UserRole.USER);
       }
     };
     updater.executeUpdate();
 
-    verify(permissionDao, times(1)).addUserPermission(1L, 1L, Permission.SCAN_EXECUTION.key());
+    verify(permissionDao, times(1)).addUserPermission(1L, 1L, UserRole.USER);
   }
 
   @Test
@@ -77,7 +78,7 @@ public class PermissionTemplateUpdaterTest {
     when(permissionDao.selectTemplateByName("my template")).thenReturn(null);
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my template", Permission.SCAN_EXECUTION.key(), "user", permissionDao, userDao) {
+      new PermissionTemplateUpdater("my template", UserRole.USER, "user", permissionDao, userDao) {
         @Override
         void doExecute(Long templateId, String permission) {
         }

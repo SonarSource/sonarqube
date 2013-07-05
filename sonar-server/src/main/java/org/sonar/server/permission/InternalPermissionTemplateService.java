@@ -135,11 +135,13 @@ public class InternalPermissionTemplateService implements ServerComponent {
 
   private void checkThatTemplateNameIsUnique(String name) {
     List<PermissionTemplateDto> existingTemplates = permissionDao.selectAllPermissionTemplates();
-    for (PermissionTemplateDto existingTemplate : existingTemplates) {
-      if(existingTemplate.getName().equals(name)) {
-        String errorMsg = "A template with that name already exists";
-        LOG.error(errorMsg);
-        throw new BadRequestException(errorMsg);
+    if(existingTemplates != null) {
+      for (PermissionTemplateDto existingTemplate : existingTemplates) {
+        if(existingTemplate.getName().equals(name)) {
+          String errorMsg = "A template with that name already exists";
+          LOG.error(errorMsg);
+          throw new BadRequestException(errorMsg);
+        }
       }
     }
   }

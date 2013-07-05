@@ -20,9 +20,13 @@
 
 package org.sonar.server.permission;
 
+import com.google.common.collect.Lists;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.user.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
+
+import java.util.List;
 
 abstract class PermissionTemplateUpdater {
 
@@ -72,7 +76,8 @@ abstract class PermissionTemplateUpdater {
   }
 
   private void validatePermission(String permission) {
-    if(!Permission.isValid(permission)) {
+    List<String> supportedPermissions = Lists.newArrayList(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.USER);
+    if(permission == null || !supportedPermissions.contains(permission)) {
       throw new BadRequestException("Invalid permission: " + permission);
     }
   }

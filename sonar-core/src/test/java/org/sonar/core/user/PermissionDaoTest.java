@@ -63,6 +63,18 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_select_empty_permission_template() throws Exception {
+    setupData("selectEmptyPermissionTemplate");
+    PermissionTemplateDto permissionTemplate = permissionDao.selectPermissionTemplate("my template");
+
+    assertThat(permissionTemplate).isNotNull();
+    assertThat(permissionTemplate.getName()).isEqualTo("my template");
+    assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
+    assertThat(permissionTemplate.getUsersPermissions()).isNull();
+    assertThat(permissionTemplate.getGroupsPermissions()).isNull();
+  }
+
+  @Test
   public void should_permission_template_by_name() throws Exception {
     setupData("selectPermissionTemplate");
 
