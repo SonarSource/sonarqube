@@ -1,0 +1,9 @@
+<dataset>
+  <permission_templates id="1" name="my template" description="my description" created_at="[null]" updated_at="[null]"/>
+
+  <users id="1" login="user1" name="user1" />
+  <users id="2" login="user2" name="user2" />
+
+  <groups id="1" name="group1"/>
+  <groups id="2" name="group2"/>
+</dataset>
