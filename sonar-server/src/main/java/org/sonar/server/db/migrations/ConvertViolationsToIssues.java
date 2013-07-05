@@ -287,9 +287,12 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
   private static class ViolationHandler extends AbstractListHandler<Map<String, Object>> {
     private static final String SQL;
     static {
-      StringBuilder sb = new StringBuilder("select rev.id as reviewId, s.project_id as projectId, rf.rule_id as ruleId, rf.failure_level as failureLevel, rf.message as message, rf.line as line, " +
-        "  rf.cost as cost, rf.created_at as createdAt, rf.checksum as checksum, rev.user_id as reviewReporterId, rev.assignee_id as reviewAssigneeId, rev.status as reviewStatus, " +
-        "  rev.severity as reviewSeverity, rev.resolution as reviewResolution, rev.manual_severity as reviewManualSeverity, rev.data as reviewData, rev.updated_at as reviewUpdatedAt, " +
+      StringBuilder sb = new StringBuilder("select rev.id as reviewId, s.project_id as projectId, rf.rule_id as ruleId, " +
+        "  rf.failure_level as failureLevel, rf.message as message, rf.line as line, " +
+        "  rf.cost as cost, rf.created_at as createdAt, rf.checksum as checksum, rev.user_id as reviewReporterId, " +
+        "  rev.assignee_id as reviewAssigneeId, rev.status as reviewStatus, " +
+        "  rev.severity as reviewSeverity, rev.resolution as reviewResolution, rev.manual_severity as reviewManualSeverity, " +
+        "  rev.data as reviewData, rev.updated_at as reviewUpdatedAt, " +
         "  s.root_project_id as rootProjectId, rev.manual_violation as reviewManualViolation, planreviews.action_plan_id as planId " +
         " from rule_failures rf " +
         " inner join snapshots s on s.id=rf.snapshot_id " +
