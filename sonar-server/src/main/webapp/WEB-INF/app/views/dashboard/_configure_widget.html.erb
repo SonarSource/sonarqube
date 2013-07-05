@@ -22,13 +22,6 @@
 
 <%= render :partial => 'widget_title', :locals => {:widget => widget} -%>
 <div id="widget_<%= widget.id -%>" class="configure_widget <%= h widget.java_definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
-  <!--[if lte IE 6]>
-  <style type="text/css">
-    #dashboard .block .content .transparent {
-      display: none;
-    }
-  </style>
-  <![endif]-->
   <div class="transparent"></div>
   <% if !widget_body %>
     <div class="block">
