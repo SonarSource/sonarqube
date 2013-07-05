@@ -170,7 +170,7 @@ class ApplicationController < ActionController::Base
   end
 
   def render_server_exception(exception)
-    message = (exception.getMessage ? exception.getMessage : Api::Utils.message(exception.l10nKey, :params => exception.l10nParams))
+    message = (exception.getMessage ? exception.getMessage : Api::Utils.message(exception.l10nKey, :params => exception.l10nParams.to_a))
     render :text => message, :status => exception.httpCode
   end
 
