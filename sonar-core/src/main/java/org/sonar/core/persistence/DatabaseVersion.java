@@ -20,7 +20,6 @@
 package org.sonar.core.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -33,70 +32,11 @@ import java.util.List;
  */
 public class DatabaseVersion implements BatchComponent, ServerComponent {
 
-  public static final int LAST_VERSION = 417;
+  public static final int LAST_VERSION = 406;
 
   public static enum Status {
     UP_TO_DATE, REQUIRES_UPGRADE, REQUIRES_DOWNGRADE, FRESH_INSTALL
   }
-
-  /**
-   * List of all the tables.
-   * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
-   * for all the supported databases, particularly due to Oracle results.
-   */
-  public static final List<String> TABLES = ImmutableList.of(
-    "action_plans",
-    "active_dashboards",
-    "active_rules",
-    "active_rule_changes",
-    "active_rule_parameters",
-    "active_rule_param_changes",
-    "alerts",
-    "authors",
-    "characteristics",
-    "characteristic_edges",
-    "characteristic_properties",
-    "dashboards",
-    "dependencies",
-    "duplications_index",
-    "events",
-    "graphs",
-    "groups",
-    "groups_users",
-    "group_roles",
-    "issues",
-    "issue_changes",
-    "issue_filters",
-    "issue_filter_favourites",
-    "loaded_templates",
-    "manual_measures",
-    "measure_data",
-    "measure_filters",
-    "measure_filter_favourites",
-    "metrics",
-    "notifications",
-    "permission_templates",
-    "perm_templates_users",
-    "perm_templates_groups",
-    "projects",
-    "project_links",
-    "project_measures",
-    "properties",
-    "quality_models",
-    "resource_index",
-    "rules",
-    "rules_parameters",
-    "rules_profiles",
-    "semaphores",
-    "schema_migrations",
-    "snapshots",
-    "snapshot_sources",
-    "snapshot_data",
-    "users",
-    "user_roles",
-    "widgets",
-    "widget_properties"
-  );
 
   private MyBatis mybatis;
 
