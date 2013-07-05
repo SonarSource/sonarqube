@@ -12,6 +12,11 @@
     anchor = stripped_url[1];
   }
 
+  // refresh page after issues bulk change
+  function onBulkIssues(issues_query_params, component_key){
+    window.location.reload();
+  }
+
   openAccordionItem('<%= url_for(params.merge({:controller => 'resource', :action => :index, :id => @file.id, :display_title => 'false', :popup => 'false'})) -%>', this, false)
       .done(function () {
         if (anchor != null) {

@@ -144,12 +144,11 @@ class IssuesController < ApplicationController
 
   # GET /issues/bulk_change_form?[&criteria]
   def bulk_change_form
-    params[:from] ||= 'issue_filters'
-    params_for_query = params.clone.merge({'pageSize' => -1})
+    issues_query_params = params.clone.merge({'pageSize' => -1})
     if params[:id]
-      @issue_filter_result = Internal.issues.execute(params[:id].to_i, params_for_query)
+      @issue_filter_result = Internal.issues.execute(params[:id].to_i, issues_query_params)
     else
-      @issue_filter_result = Internal.issues.execute(params_for_query)
+      @issue_filter_result = Internal.issues.execute(issues_query_params)
     end
     render :partial => 'issues/bulk_change_form'
   end
@@ -158,7 +157,7 @@ class IssuesController < ApplicationController
   def bulk_change
     verify_post_request
     Internal.issues.bulkChange(params, params[:comment])
-    render :text => params[:criteria_params], :status => 200
+    render :text => params[:issues_query_params], :status => 200
   end
 
 

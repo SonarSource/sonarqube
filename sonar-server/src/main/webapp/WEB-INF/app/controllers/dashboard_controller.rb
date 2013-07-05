@@ -148,9 +148,9 @@ class DashboardController < ApplicationController
 
     if logged_in?
       if params[:did]
-        @dashboard=Dashboard.find(:first, :conditions => ['id=? AND user_id=?', params[:did].to_i, current_user.id])
+        @dashboard=Dashboard.first(:conditions => ['id=? AND user_id=?', params[:did].to_i, current_user.id])
       elsif params[:name]
-        @dashboard=Dashboard.find(:first, :conditions => ['name=? AND user_id=?', params[:name], current_user.id])
+        @dashboard=Dashboard.first(:conditions => ['name=? AND user_id=?', params[:name], current_user.id])
       elsif params[:id]
         active=ActiveDashboard.user_dashboards(current_user, false).first
       else
@@ -161,9 +161,9 @@ class DashboardController < ApplicationController
     unless active or @dashboard
       # anonymous or not found in user dashboards
       if params[:did]
-        @dashboard=Dashboard.find(:first, :conditions => ['id=? AND shared=?', params[:did].to_i, true])
+        @dashboard=Dashboard.first(:conditions => ['id=? AND shared=?', params[:did].to_i, true])
       elsif params[:name]
-        @dashboard=Dashboard.find(:first, :conditions => ['name=? AND shared=?', params[:name], true])
+        @dashboard=Dashboard.first(:conditions => ['name=? AND shared=?', params[:name], true])
       elsif params[:id]
         active=ActiveDashboard.user_dashboards(nil, false).first
       else

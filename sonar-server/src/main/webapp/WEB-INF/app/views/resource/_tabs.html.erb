@@ -24,7 +24,7 @@
       <% first=true %>
       <% if logged_in? && @display_issues %>
         <li class="<%= 'first' if first -%>">
-          <a href="<%= url_for @issues_params.merge({:controller => 'issues', :action => 'bulk_change_form', :from => 'drilldown'}) -%>"
+          <a href="<%= url_for @issues_params.merge({:controller => 'issues', :action => 'bulk_change_form'}) -%>"
              class="bulk-change-link open-modal"><%= message('bulk_change') -%></a>
         </li>
       <% first=false
@@ -56,6 +56,5 @@
       </li>
     </ul>
   </div>
-
 
 <%  end %>

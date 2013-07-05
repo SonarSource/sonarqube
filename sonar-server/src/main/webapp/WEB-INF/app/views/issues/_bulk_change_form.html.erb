@@ -24,7 +24,7 @@
 %>
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
   <input type="hidden" name="issues" value="<%= issues.map { |issue| issue.key() }.join(',') -%>">
-  <input type="hidden" name="criteria_params" value="<%= params.to_query -%>">
+  <input type="hidden" name="issues_query_params" value="<%= params.to_query -%>">
   <input type="hidden" name="actions[]" id="bulk-change-transition-action">
   <fieldset>
     <div class="modal-head">
@@ -54,11 +54,7 @@
            unless plans.empty?
              first_plan = plans[0]
              options = plans.map { |plan|
-               if plan.deadLine
-                 label = "#{h plan.name} (#{format_date(plan.deadLine)})"
-               else
-                 label = h plan.name
-               end
+               label = plan.deadLine ? "#{h plan.name} (#{format_date(plan.deadLine)})" : h(plan.name)
                [label, plan.key]
              }
              options.unshift([escape_javascript(message('issue.unplan.submit')), ''])
@@ -122,14 +118,7 @@
 <script>
   $j("#bulk-change-form").modalForm({
     success: function (data) {
-      <% if params[:from] == 'issue_filters' %>
-        window.location = baseUrl + '/issues/search?' + data;
-      <% elsif params[:from] == 'drilldown' %>
-        d('<%= component_key %>');
-        closeModalWindow();
-      <% else %>
-        alert('Unknown origin : <%= params[:from] %>');
-      <% end %>
+      onBulkIssues(data, '<%= component_key %>');
     },
     error: function (xhr, textStatus, errorThrown) {
       $j('#bulk-change-loading-image').addClass("hidden");
