@@ -133,6 +133,22 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
+  public void should_retrieve_all_permission_templates() throws Exception {
+    PermissionTemplateDto template1 =
+      new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
+    PermissionTemplateDto template2 =
+      new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
+    when(permissionDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+
+    List<PermissionTemplate> templates = permissionTemplateService.selectAllPermissionTemplates();
+
+    assertThat(templates).hasSize(2);
+    assertThat(templates).onProperty("id").containsOnly(1L, 2L);
+    assertThat(templates).onProperty("name").containsOnly("template1", "template2");
+    assertThat(templates).onProperty("description").containsOnly("template1", "template2");
+  }
+
+  @Test
   public void should_add_user_permission() throws Exception {
     UserDto userDto = new UserDto().setId(1L).setLogin("user").setName("user");
     when(userDao.selectActiveUserByLogin("user")).thenReturn(userDto);

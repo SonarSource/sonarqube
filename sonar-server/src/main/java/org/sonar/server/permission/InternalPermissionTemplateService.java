@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -45,22 +46,34 @@ public class InternalPermissionTemplateService implements ServerComponent {
     this.userDao = userDao;
   }
 
-  public PermissionTemplate createPermissionTemplate(String name, String description) {
-    PermissionTemplateUpdater.checkUserCredentials();
-    PermissionTemplateDto permissionTemplateDto = permissionDao.createPermissionTemplate(name, description);
-    checkThatTemplateNameIsUnique(name);
-    if(permissionTemplateDto == null) {
-      String errorMsg = "Template creation failed";
-      LOG.error(errorMsg);
-      throw new ServerErrorException(errorMsg);
-    }
-    return PermissionTemplate.create(permissionTemplateDto);
-  }
-
   @CheckForNull
   public PermissionTemplate selectPermissionTemplate(String templateName) {
     PermissionTemplateUpdater.checkUserCredentials();
     PermissionTemplateDto permissionTemplateDto = permissionDao.selectPermissionTemplate(templateName);
+    return PermissionTemplate.create(permissionTemplateDto);
+  }
+
+  public List<PermissionTemplate> selectAllPermissionTemplates() {
+    PermissionTemplateUpdater.checkUserCredentials();
+    List<PermissionTemplate> permissionTemplates = Lists.newArrayList();
+    List<PermissionTemplateDto> permissionTemplateDtos = permissionDao.selectAllPermissionTemplates();
+    if(permissionTemplateDtos != null) {
+      for (PermissionTemplateDto permissionTemplateDto : permissionTemplateDtos) {
+        permissionTemplates.add(PermissionTemplate.create(permissionTemplateDto));
+      }
+    }
+    return permissionTemplates;
+  }
+
+  public PermissionTemplate createPermissionTemplate(String name, String description) {
+    PermissionTemplateUpdater.checkUserCredentials();
+    checkThatTemplateNameIsUnique(name);
+    PermissionTemplateDto permissionTemplateDto = permissionDao.createPermissionTemplate(name, description);
+    if(permissionTemplateDto.getId() == null) {
+      String errorMsg = "Template creation failed";
+      LOG.error(errorMsg);
+      throw new ServerErrorException(errorMsg);
+    }
     return PermissionTemplate.create(permissionTemplateDto);
   }
 

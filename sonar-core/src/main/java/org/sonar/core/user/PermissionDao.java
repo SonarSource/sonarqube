@@ -65,6 +65,7 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     return permissionTemplate;
   }
 
+  @CheckForNull
   public List<PermissionTemplateDto> selectAllPermissionTemplates() {
     SqlSession session = myBatis.openSession();
     try {
