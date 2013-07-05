@@ -77,14 +77,6 @@ public class DefaultUserClient implements UserClient {
     return new User(jsonUser);
   }
 
-  /**
-   * TODO to be removed
-   */
-  @Override
-  public void delete(UserParameters userParameters) {
-    requestFactory.post(DEACTIVATE_URL, userParameters.urlParams());
-  }
-
   @Override
   public void deactivate(String login) {
     Map<String, Object> params = new HashMap<String, Object>();

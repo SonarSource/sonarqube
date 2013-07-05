@@ -84,7 +84,7 @@ public class ServerIdGenerator {
   String toId(String organisation, InetAddress address) {
     String id = new StringBuilder().append(organisation).append("-").append(address.getHostAddress()).toString();
     try {
-      return VERSION + DigestUtils.shaHex(id.getBytes("UTF-8")).substring(0, CHECKSUM_SIZE);
+      return VERSION + DigestUtils.sha1Hex(id.getBytes("UTF-8")).substring(0, CHECKSUM_SIZE);
 
     } catch (UnsupportedEncodingException e) {
       throw new IllegalArgumentException("Organisation is not UTF-8 encoded: " + organisation, e);

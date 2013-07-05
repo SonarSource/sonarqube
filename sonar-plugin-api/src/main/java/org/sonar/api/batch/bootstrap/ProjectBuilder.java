@@ -41,7 +41,7 @@ public abstract class ProjectBuilder implements BatchExtension {
    * Plugins can use the implementation {@link org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext}
    * for their unit tests.
    */
-  public static interface Context {
+  public interface Context {
     ProjectReactor projectReactor();
   }
   /**

@@ -180,7 +180,7 @@ public class JavaFile extends Resource<JavaPackage> {
       fileKey += ".java";
     }
     // Add wildcard extension if not provided
-    if ((antPattern.contains("/") && StringUtils.substringAfterLast(antPattern, "/").indexOf(".") < 0) || antPattern.indexOf(".") < 0) {
+    if ((antPattern.contains("/") && StringUtils.substringAfterLast(antPattern, "/").indexOf('.') < 0) || antPattern.indexOf('.') < 0) {
       antPattern += ".*";
     }
     String noPackagePrefix = JavaPackage.DEFAULT_PACKAGE_NAME + ".";
