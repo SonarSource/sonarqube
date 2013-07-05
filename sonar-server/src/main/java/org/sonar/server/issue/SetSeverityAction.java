@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
@@ -45,7 +46,7 @@ public class SetSeverityAction extends Action implements ServerComponent {
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
-    return true;
+    return severity(properties) != null;
   }
 
   @Override
@@ -54,6 +55,10 @@ public class SetSeverityAction extends Action implements ServerComponent {
   }
 
   private String severity(Map<String, Object> properties) {
-    return (String) properties.get("severity");
+    String param = (String) properties.get("severity");
+    if (Strings.isNullOrEmpty(param)) {
+      throw new IllegalArgumentException("Missing parameter : 'severity'");
+    }
+    return param;
   }
 }

@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -42,7 +43,7 @@ public class TransitionAction extends Action implements ServerComponent {
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
-    return true;
+    return transition(properties) != null;
   }
 
   @Override
@@ -51,7 +52,11 @@ public class TransitionAction extends Action implements ServerComponent {
   }
 
   private String transition(Map<String, Object> properties) {
-    return (String) properties.get("transition");
+    String param = (String) properties.get("transition");
+    if (Strings.isNullOrEmpty(param)) {
+      throw new IllegalArgumentException("Missing parameter : 'transition'");
+    }
+    return param;
   }
 
 }

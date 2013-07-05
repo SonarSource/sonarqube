@@ -20,17 +20,20 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.user.MockUserSession;
 
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -58,6 +61,19 @@ public class CommentActionTest {
 
     action.execute(properties, context);
     verify(issueUpdater).addComment(eq(issue), eq(comment), any(IssueChangeContext.class));
+  }
+
+  @Test
+  public void should_verify_fail_if_parameter_not_found() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("unknwown", "unknown value");
+    try {
+      action.verify(properties, Lists.<Issue>newArrayList(), MockUserSession.create());
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter : 'comment'");
+    }
+    verifyZeroInteractions(issueUpdater);
   }
 
   @Test

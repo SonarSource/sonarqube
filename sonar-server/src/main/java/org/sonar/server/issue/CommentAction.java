@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -44,7 +45,7 @@ public class CommentAction extends Action implements ServerComponent {
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
-    return true;
+    return comment(properties) != null;
   }
 
   @Override
@@ -54,6 +55,10 @@ public class CommentAction extends Action implements ServerComponent {
   }
 
   private String comment(Map<String, Object> properties) {
-    return (String) properties.get(COMMENT_PROPERTY);
+    String param = (String) properties.get(COMMENT_PROPERTY);
+    if (Strings.isNullOrEmpty(param)) {
+      throw new IllegalArgumentException("Missing parameter : '"+ COMMENT_PROPERTY +"'");
+    }
+    return param;
   }
 }
