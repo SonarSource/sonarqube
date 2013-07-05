@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -47,28 +50,32 @@ public class Measure extends Model {
 
   private Double variation1, variation2, variation3, variation4, variation5;
 
+  @CheckForNull
   public String getMetricKey() {
     return metricKey;
   }
 
-  public Measure setMetricKey(String metricKey) {
+  public Measure setMetricKey(@Nullable String metricKey) {
     this.metricKey = metricKey;
     return this;
   }
 
+  @CheckForNull
   public String getMetricName() {
     return metricName;
   }
 
-  public Measure setMetricName(String metricName) {
+  public Measure setMetricName(@Nullable String metricName) {
     this.metricName = metricName;
     return this;
   }
 
+  @CheckForNull
   public Double getValue() {
     return value;
   }
 
+  @CheckForNull
   public Integer getIntValue() {
     if (value == null) {
       return null;
@@ -76,35 +83,40 @@ public class Measure extends Model {
     return value.intValue();
   }
 
-  public Measure setValue(Double value) {
+  public Measure setValue(@Nullable Double value) {
     this.value = value;
     return this;
   }
 
+  @CheckForNull
   public String getFormattedValue() {
     return formattedValue;
   }
 
-  public String getFormattedValue(String defaultValue) {
+  @CheckForNull
+  public String getFormattedValue(@Nullable String defaultValue) {
     if (formattedValue == null) {
       return defaultValue;
     }
     return formattedValue;
   }
 
-  public Measure setFormattedValue(String formattedValue) {
+  public Measure setFormattedValue(@Nullable String formattedValue) {
     this.formattedValue = formattedValue;
     return this;
   }
 
+  @CheckForNull
   public String getData() {
     return data;
   }
 
+  @CheckForNull
   public Map<String, String> getDataAsMap() {
     return getDataAsMap(",");
   }
 
+  @CheckForNull
   public Map<String, String> getDataAsMap(String separator) {
     if (data == null) {
       return null;
@@ -118,43 +130,47 @@ public class Measure extends Model {
     return map;
   }
 
-  public Measure setData(String data) {
+  public Measure setData(@Nullable String data) {
     this.data = data;
     return this;
   }
 
+  @CheckForNull
   public Integer getTrend() {
     return trend;
   }
 
-  public Measure setTrend(Integer trend) {
+  public Measure setTrend(@Nullable Integer trend) {
     this.trend = trend;
     return this;
   }
 
+  @CheckForNull
   public Integer getVar() {
     return var;
   }
 
-  public Measure setVar(Integer var) {
+  public Measure setVar(@Nullable Integer var) {
     this.var = var;
     return this;
   }
 
+  @CheckForNull
   public String getRuleKey() {
     return ruleKey;
   }
 
-  public Measure setRuleKey(String ruleKey) {
+  public Measure setRuleKey(@Nullable String ruleKey) {
     this.ruleKey = ruleKey;
     return this;
   }
 
+  @CheckForNull
   public String getRuleName() {
     return ruleName;
   }
 
-  public Measure setRuleName(String ruleName) {
+  public Measure setRuleName(@Nullable String ruleName) {
     this.ruleName = ruleName;
     return this;
   }
@@ -163,6 +179,7 @@ public class Measure extends Model {
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
   @Deprecated
+  @CheckForNull
   public String getRuleCategory() {
     return ruleCategory;
   }
@@ -171,7 +188,7 @@ public class Measure extends Model {
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
   @Deprecated
-  public Measure setRuleCategory(String ruleCategory) {
+  public Measure setRuleCategory(@Nullable String ruleCategory) {
     this.ruleCategory = ruleCategory;
     return this;
   }
@@ -179,7 +196,7 @@ public class Measure extends Model {
   /**
    * @since 2.5
    */
-  public Measure setRuleSeverity(String ruleSeverity) {
+  public Measure setRuleSeverity(@Nullable String ruleSeverity) {
     this.ruleSeverity = ruleSeverity;
     return this;
   }
@@ -187,6 +204,7 @@ public class Measure extends Model {
   /**
    * @since 2.5
    */
+  @CheckForNull
   public String getRuleSeverity() {
     return ruleSeverity;
   }
@@ -195,6 +213,7 @@ public class Measure extends Model {
    * @deprecated since 2.5 use {@link #getRuleSeverity()} instead. See http://jira.codehaus.org/browse/SONAR-1829
    */
   @Deprecated
+  @CheckForNull
   public String getRulePriority() {
     return ruleSeverity;
   }
@@ -203,25 +222,27 @@ public class Measure extends Model {
    * @deprecated since 2.5 use {@link #setRuleSeverity(String)} instead. See http://jira.codehaus.org/browse/SONAR-1829
    */
   @Deprecated
-  public Measure setRulePriority(String rulePriority) {
+  public Measure setRulePriority(@Nullable String rulePriority) {
     this.ruleSeverity = rulePriority;
     return this;
   }
 
+  @CheckForNull
   public String getCharacteristicKey() {
     return characteristicKey;
   }
 
+  @CheckForNull
   public String getCharacteristicName() {
     return characteristicName;
   }
 
-  public Measure setCharacteristicKey(String s) {
+  public Measure setCharacteristicKey(@Nullable String s) {
     this.characteristicKey = s;
     return this;
   }
 
-  public Measure setCharacteristicName(String s) {
+  public Measure setCharacteristicName(@Nullable String s) {
     this.characteristicName = s;
     return this;
   }
@@ -230,6 +251,7 @@ public class Measure extends Model {
    * Variation value on period 1. The value is loaded if ResourceQuery#setIncludeTrends() is set to true.
    * @since 2.5
    */
+  @CheckForNull
   public Double getVariation1() {
     return variation1;
   }
@@ -237,7 +259,7 @@ public class Measure extends Model {
   /**
    * @since 2.5
    */
-  public Measure setVariation1(Double variation1) {
+  public Measure setVariation1(@Nullable Double variation1) {
     this.variation1 = variation1;
     return this;
   }
@@ -246,6 +268,7 @@ public class Measure extends Model {
    * Variation value on period 2. The value is loaded if ResourceQuery#setIncludeTrends() is set to true.
    * @since 2.5
    */
+  @CheckForNull
   public Double getVariation2() {
     return variation2;
   }
@@ -253,7 +276,7 @@ public class Measure extends Model {
   /**
    * @since 2.5
    */
-  public Measure setVariation2(Double variation2) {
+  public Measure setVariation2(@Nullable Double variation2) {
     this.variation2 = variation2;
     return this;
   }
@@ -262,6 +285,7 @@ public class Measure extends Model {
    * Variation value on period 3. The value is loaded if ResourceQuery#setIncludeTrends() is set to true.
    * @since 2.5
    */
+  @CheckForNull
   public Double getVariation3() {
     return variation3;
   }
@@ -269,7 +293,7 @@ public class Measure extends Model {
   /**
    * @since 2.5
    */
-  public Measure setVariation3(Double variation3) {
+  public Measure setVariation3(@Nullable Double variation3) {
     this.variation3 = variation3;
     return this;
   }
@@ -278,6 +302,7 @@ public class Measure extends Model {
    * Variation value on period 4. The value is loaded if ResourceQuery#setIncludeTrends() is set to true.
    * @since 2.5
    */
+  @CheckForNull
   public Double getVariation4() {
     return variation4;
   }
@@ -285,7 +310,7 @@ public class Measure extends Model {
   /**
    * @since 2.5
    */
-  public Measure setVariation4(Double variation4) {
+  public Measure setVariation4(@Nullable Double variation4) {
     this.variation4 = variation4;
     return this;
   }
@@ -294,6 +319,7 @@ public class Measure extends Model {
    * Variation value on period 5. The value is loaded if ResourceQuery#setIncludeTrends() is set to true.
    * @since 2.5
    */
+  @CheckForNull
   public Double getVariation5() {
     return variation5;
   }
@@ -301,7 +327,7 @@ public class Measure extends Model {
   /**
    * @since 2.5
    */
-  public Measure setVariation5(Double variation5) {
+  public Measure setVariation5(@Nullable Double variation5) {
     this.variation5 = variation5;
     return this;
   }

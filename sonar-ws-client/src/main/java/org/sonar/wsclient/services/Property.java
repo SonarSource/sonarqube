@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class Property extends Model {
 
   private String key;
@@ -32,20 +35,22 @@ public class Property extends Model {
   public Property() {
   }
 
+  @CheckForNull
   public String getKey() {
     return key;
   }
 
-  public Property setKey(String key) {
+  public Property setKey(@Nullable String key) {
     this.key = key;
     return this;
   }
 
+  @CheckForNull
   public String getValue() {
     return value;
   }
 
-  public Property setValue(String value) {
+  public Property setValue(@Nullable String value) {
     this.value = value;
     return this;
   }
@@ -53,11 +58,11 @@ public class Property extends Model {
   @Override
   public String toString() {
     return new StringBuilder()
-        .append('[')
-        .append(key)
-        .append(':')
-        .append(value)
-        .append(']')
-        .toString();
+      .append('[')
+      .append(key)
+      .append(':')
+      .append(value)
+      .append(']')
+      .toString();
   }
 }

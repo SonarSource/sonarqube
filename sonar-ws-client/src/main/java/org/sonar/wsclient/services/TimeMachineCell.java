@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -29,11 +32,12 @@ public class TimeMachineCell {
   private Date date;
   public Object[] values;
 
-  public TimeMachineCell(Date date, Object[] values) {
+  public TimeMachineCell(@Nullable Date date, Object[] values) {
     this.date = date;
     this.values = values;
   }
 
+  @CheckForNull
   public Date getDate() {
     return date;
   }

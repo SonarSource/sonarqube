@@ -20,6 +20,9 @@
 
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.*;
 
 /**
@@ -33,20 +36,22 @@ public class Profile extends Model {
   private String parentName;
   private List<Rule> rules = new ArrayList<Rule>();
 
+  @CheckForNull
   public String getLanguage() {
     return language;
   }
 
-  public Profile setLanguage(String s) {
+  public Profile setLanguage(@Nullable String s) {
     this.language = s;
     return this;
   }
 
+  @CheckForNull
   public String getName() {
     return name;
   }
 
-  public Profile setName(String name) {
+  public Profile setName(@Nullable String name) {
     this.name = name;
     return this;
   }
@@ -55,7 +60,7 @@ public class Profile extends Model {
     return defaultProfile;
   }
 
-  public Profile setDefaultProfile(boolean b) {
+  public Profile setDefaultProfile(@Nullable boolean b) {
     this.defaultProfile = b;
     return this;
   }
@@ -64,7 +69,8 @@ public class Profile extends Model {
     return parentName;
   }
 
-  public Profile setParentName(String s) {
+  @CheckForNull
+  public Profile setParentName(@Nullable String s) {
     this.parentName = s;
     return this;
   }
@@ -94,38 +100,42 @@ public class Profile extends Model {
     private String inheritance;
     private Map<String,String> parameters;
 
+    @CheckForNull
     public String getKey() {
       return key;
     }
 
-    public Rule setKey(String key) {
+    public Rule setKey(@Nullable String key) {
       this.key = key;
       return this;
     }
 
+    @CheckForNull
     public String getRepository() {
       return repository;
     }
 
-    public Rule setRepository(String repository) {
+    public Rule setRepository(@Nullable String repository) {
       this.repository = repository;
       return this;
     }
 
+    @CheckForNull
     public String getSeverity() {
       return severity;
     }
 
-    public Rule setSeverity(String severity) {
+    public Rule setSeverity(@Nullable String severity) {
       this.severity = severity;
       return this;
     }
 
+    @CheckForNull
     public String getInheritance() {
       return inheritance;
     }
 
-    public Rule setInheritance(String inheritance) {
+    public Rule setInheritance(@Nullable String inheritance) {
       this.inheritance = inheritance;
       return this;
     }
@@ -141,7 +151,7 @@ public class Profile extends Model {
       return getParameters().get(key);
     }
 
-    public Rule addParameter(String key, String value) {
+    public Rule addParameter(@Nullable String key, @Nullable String value) {
       if (parameters==null) {
         parameters = new HashMap<String,String>();
       }

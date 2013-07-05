@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -35,6 +38,7 @@ public class Source extends Model {
     return lines;
   }
 
+  @CheckForNull
   public String getLine(int index) {
     return lines.get(index);
   }
@@ -43,7 +47,7 @@ public class Source extends Model {
     return lines.size();
   }
 
-  public Source addLine(int index, String line) {
+  public Source addLine(int index, @Nullable String line) {
     lines.put(index, line);
     return this;
   }

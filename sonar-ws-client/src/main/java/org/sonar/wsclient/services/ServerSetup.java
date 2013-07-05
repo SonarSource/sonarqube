@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 /**
  * @since 2.9
  */
@@ -26,20 +29,22 @@ public class ServerSetup extends Model {
   private String status;
   private String message;
 
+  @CheckForNull
   public String getStatus() {
     return status;
   }
 
-  public ServerSetup setStatus(String status) {
+  public ServerSetup setStatus(@Nullable String status) {
     this.status = status;
     return this;
   }
 
+  @CheckForNull
   public String getMessage() {
     return message;
   }
 
-  public ServerSetup setMessage(String message) {
+  public ServerSetup setMessage(@Nullable String message) {
     this.message = message;
     return this;
   }

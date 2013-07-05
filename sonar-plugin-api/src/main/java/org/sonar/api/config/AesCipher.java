@@ -127,7 +127,7 @@ final class AesCipher extends Cipher {
     return pathToSecretKey;
   }
 
-  public void setPathToSecretKey(String pathToSecretKey) {
+  public void setPathToSecretKey(@Nullable String pathToSecretKey) {
     this.pathToSecretKey = pathToSecretKey;
   }
 }

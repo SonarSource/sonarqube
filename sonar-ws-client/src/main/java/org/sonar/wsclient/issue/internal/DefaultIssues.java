@@ -19,15 +19,17 @@
  */
 package org.sonar.wsclient.issue.internal;
 
+import org.sonar.wsclient.base.Paging;
 import org.sonar.wsclient.component.Component;
 import org.sonar.wsclient.issue.ActionPlan;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.Issues;
-import org.sonar.wsclient.base.Paging;
 import org.sonar.wsclient.rule.Rule;
 import org.sonar.wsclient.user.User;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.*;
 
 /**
@@ -100,6 +102,7 @@ public class DefaultIssues implements Issues {
     return paging;
   }
 
+  @Nullable
   public Boolean maxResultsReached() {
     return maxResultsReached;
   }
@@ -139,7 +142,7 @@ public class DefaultIssues implements Issues {
     return this;
   }
 
-  DefaultIssues setMaxResultsReached(Boolean maxResultsReached) {
+  DefaultIssues setMaxResultsReached(@Nullable Boolean maxResultsReached) {
     this.maxResultsReached = maxResultsReached;
     return this;
   }

@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -39,83 +42,84 @@ public class ManualMeasure extends Model {
   public ManualMeasure() {
   }
 
+  @CheckForNull
   public long getId() {
     return id;
   }
 
-  public ManualMeasure setId(long id) {
+  public ManualMeasure setId(@Nullable long id) {
     this.id = id;
     return this;
   }
-
+  @CheckForNull
   public String getMetricKey() {
     return metricKey;
   }
 
-  public ManualMeasure setMetricKey(String metricKey) {
+  public ManualMeasure setMetricKey(@Nullable String metricKey) {
     this.metricKey = metricKey;
     return this;
   }
-
+  @CheckForNull
   public Double getValue() {
     return value;
   }
 
-  public ManualMeasure setValue(Double value) {
+  public ManualMeasure setValue(@Nullable Double value) {
     this.value = value;
     return this;
   }
-
+  @CheckForNull
   public String getTextValue() {
     return textValue;
   }
 
-  public ManualMeasure setTextValue(String textValue) {
+  public ManualMeasure setTextValue(@Nullable String textValue) {
     this.textValue = textValue;
     return this;
   }
-
+  @CheckForNull
   public Date getCreatedAt() {
     return createdAt;
   }
 
-  public ManualMeasure setCreatedAt(Date createdAt) {
+  public ManualMeasure setCreatedAt(@Nullable Date createdAt) {
     this.createdAt = createdAt;
     return this;
   }
-
+  @CheckForNull
   public Date getUpdatedAt() {
     return updatedAt;
   }
 
-  public ManualMeasure setUpdatedAt(Date updatedAt) {
+  public ManualMeasure setUpdatedAt(@Nullable Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
-
+  @CheckForNull
   public String getUserLogin() {
     return userLogin;
   }
 
-  public ManualMeasure setUserLogin(String userLogin) {
+  public ManualMeasure setUserLogin(@Nullable String userLogin) {
     this.userLogin = userLogin;
     return this;
   }
-
+  @CheckForNull
   public String getUsername() {
     return username;
   }
 
-  public ManualMeasure setUsername(String username) {
+  public ManualMeasure setUsername(@Nullable String username) {
     this.username = username;
     return this;
   }
-
+  @CheckForNull
   public String getResourceKey() {
     return resourceKey;
   }
 
-  public ManualMeasure setResourceKey(String resourceKey) {
+  public ManualMeasure setResourceKey(@Nullable String resourceKey) {
     this.resourceKey = resourceKey;
     return this;
   }

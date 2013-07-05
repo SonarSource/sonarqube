@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 /**
  * @author Evgeny Mandrikov
  */
@@ -40,28 +43,32 @@ public class Server extends Model {
   private Status status;
   private String statusMessage;
 
+  @CheckForNull
   public String getVersion() {
     return version;
   }
 
+  @CheckForNull
   public String getId() {
     return id;
   }
 
-  public Server setVersion(String s) {
+  public Server setVersion(@Nullable String s) {
     this.version = s;
     return this;
   }
 
-  public Server setId(String id) {
+  public Server setId(@Nullable String id) {
     this.id = id;
     return this;
   }
 
+  @CheckForNull
   public Status getStatus() {
     return status;
   }
 
+  @CheckForNull
   public String getStatusMessage() {
     return statusMessage;
   }
@@ -71,7 +78,7 @@ public class Server extends Model {
     return this;
   }
 
-  public Server setStatusMessage(String statusMessage) {
+  public Server setStatusMessage(@Nullable String statusMessage) {
     this.statusMessage = statusMessage;
     return this;
   }

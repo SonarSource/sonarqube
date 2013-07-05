@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 public class Event extends Model {
@@ -31,65 +34,66 @@ public class Event extends Model {
   private Date date;
   private String data;
 
+  @CheckForNull
   public String getId() {
     return id;
   }
 
-  public Event setId(String id) {
+  public Event setId(@Nullable String id) {
     this.id = id;
     return this;
   }
-
+  @CheckForNull
   public String getName() {
     return name;
   }
 
-  public Event setName(String name) {
+  public Event setName(@Nullable String name) {
     this.name = name;
     return this;
   }
-
+  @CheckForNull
   public String getCategory() {
     return category;
   }
 
-  public Event setCategory(String category) {
+  public Event setCategory(@Nullable String category) {
     this.category = category;
     return this;
   }
-
+  @CheckForNull
   public String getDescription() {
     return description;
   }
 
-  public Event setDescription(String description) {
+  public Event setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
-
+  @CheckForNull
   public Date getDate() {
     return date;
   }
 
-  public Event setDate(Date date) {
+  public Event setDate(@Nullable Date date) {
     this.date = date;
     return this;
   }
-
+  @CheckForNull
   public String getResourceKey() {
     return resourceKey;
   }
 
-  public Event setResourceKey(String resourceKey) {
+  public Event setResourceKey(@Nullable String resourceKey) {
     this.resourceKey = resourceKey;
     return this;
   }
-
+  @CheckForNull
   public String getData() {
     return data;
   }
 
-  public Event setData(String data) {
+  public Event setData(@Nullable String data) {
     this.data = data;
     return this;
   }

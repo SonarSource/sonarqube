@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -36,74 +39,75 @@ public class DependencyTree extends Model {
   private int weight;
   private List<DependencyTree> to;
 
+  @CheckForNull
   public String getDepId() {
     return depId;
   }
 
-  public DependencyTree setDepId(String depId) {
+  public DependencyTree setDepId(@Nullable String depId) {
     this.depId = depId;
     return this;
   }
-
+  @CheckForNull
   public String getResourceId() {
     return resourceId;
   }
 
-  public DependencyTree setResourceId(String resourceId) {
+  public DependencyTree setResourceId(@Nullable String resourceId) {
     this.resourceId = resourceId;
     return this;
   }
-
+  @CheckForNull
   public String getResourceKey() {
     return resourceKey;
   }
 
-  public DependencyTree setResourceKey(String resourceKey) {
+  public DependencyTree setResourceKey(@Nullable String resourceKey) {
     this.resourceKey = resourceKey;
     return this;
   }
-
+  @CheckForNull
   public String getResourceName() {
     return resourceName;
   }
 
-  public DependencyTree setResourceName(String resourceName) {
+  public DependencyTree setResourceName(@Nullable String resourceName) {
     this.resourceName = resourceName;
     return this;
   }
-
+  @CheckForNull
   public String getUsage() {
     return usage;
   }
 
-  public DependencyTree setUsage(String usage) {
+  public DependencyTree setUsage(@Nullable String usage) {
     this.usage = usage;
     return this;
   }
-
+  @CheckForNull
   public String getResourceScope() {
     return resourceScope;
   }
 
-  public DependencyTree setResourceScope(String resourceScope) {
+  public DependencyTree setResourceScope(@Nullable String resourceScope) {
     this.resourceScope = resourceScope;
     return this;
   }
-
+  @CheckForNull
   public String getResourceQualifier() {
     return resourceQualifier;
   }
 
-  public DependencyTree setResourceQualifier(String resourceQualifier) {
+  public DependencyTree setResourceQualifier(@Nullable String resourceQualifier) {
     this.resourceQualifier = resourceQualifier;
     return this;
   }
-
+  @CheckForNull
   public String getResourceVersion() {
     return resourceVersion;
   }
 
-  public DependencyTree setResourceVersion(String resourceVersion) {
+  public DependencyTree setResourceVersion(@Nullable String resourceVersion) {
     this.resourceVersion = resourceVersion;
     return this;
   }
@@ -112,7 +116,7 @@ public class DependencyTree extends Model {
     return weight;
   }
 
-  public DependencyTree setWeight(int weight) {
+  public DependencyTree setWeight(@Nullable int weight) {
     this.weight = weight;
     return this;
   }

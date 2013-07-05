@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 /**
  * @since 2.5
  */
@@ -30,29 +33,32 @@ public class RuleParam {
 
   private String value;
 
+  @CheckForNull
   public String getName() {
     return name;
   }
 
-  public RuleParam setName(String name) {
+  public RuleParam setName(@Nullable String name) {
     this.name = name;
     return this;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
 
-  public RuleParam setDescription(String description) {
+  public RuleParam setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
 
+  @CheckForNull
   public String getValue() {
     return value;
   }
 
-  public RuleParam setValue(String value) {
+  public RuleParam setValue(@Nullable String value) {
     this.value = value;
     return this;
   }

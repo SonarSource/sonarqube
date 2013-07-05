@@ -31,6 +31,7 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueJsonParserTest {
+
   @Test
   public void test_GET_search() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/search.json"));

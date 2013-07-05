@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class Dependency extends Model {
 
   private String id;
@@ -33,6 +36,7 @@ public class Dependency extends Model {
   private String toName;
   private String toQualifier;
 
+  @CheckForNull
   public String getId() {
     return id;
   }
@@ -46,7 +50,7 @@ public class Dependency extends Model {
     return fromId;
   }
 
-  public Dependency setFromId(long fromId) {
+  public Dependency setFromId(@Nullable long fromId) {
     this.fromId = fromId;
     return this;
   }
@@ -55,79 +59,87 @@ public class Dependency extends Model {
     return toId;
   }
 
-  public Dependency setToId(long toId) {
+  public Dependency setToId(@Nullable long toId) {
     this.toId = toId;
     return this;
   }
 
+  @CheckForNull
   public String getFromKey() {
     return fromKey;
   }
 
-  public Dependency setFromKey(String fromKey) {
+  public Dependency setFromKey(@Nullable String fromKey) {
     this.fromKey = fromKey;
     return this;
   }
 
+  @CheckForNull
   public String getToKey() {
     return toKey;
   }
 
-  public Dependency setToKey(String toKey) {
+  public Dependency setToKey(@Nullable String toKey) {
     this.toKey = toKey;
     return this;
   }
 
+  @CheckForNull
   public String getUsage() {
     return usage;
   }
 
-  public Dependency setUsage(String usage) {
+  public Dependency setUsage(@Nullable String usage) {
     this.usage = usage;
     return this;
   }
 
+  @CheckForNull
   public Integer getWeight() {
     return weight;
   }
 
-  public Dependency setWeight(Integer weight) {
+  public Dependency setWeight(@Nullable Integer weight) {
     this.weight = weight;
     return this;
   }
 
+  @CheckForNull
   public String getFromName() {
     return fromName;
   }
 
-  public Dependency setFromName(String fromName) {
+  public Dependency setFromName(@Nullable String fromName) {
     this.fromName = fromName;
     return this;
   }
 
+  @CheckForNull
   public String getFromQualifier() {
     return fromQualifier;
   }
 
-  public Dependency setFromQualifier(String fromQualifier) {
+  public Dependency setFromQualifier(@Nullable String fromQualifier) {
     this.fromQualifier = fromQualifier;
     return this;
   }
 
+  @CheckForNull
   public String getToName() {
     return toName;
   }
 
-  public Dependency setToName(String toName) {
+  public Dependency setToName(@Nullable String toName) {
     this.toName = toName;
     return this;
   }
 
+  @CheckForNull
   public String getToQualifier() {
     return toQualifier;
   }
 
-  public Dependency setToQualifier(String toQualifier) {
+  public Dependency setToQualifier(@Nullable String toQualifier) {
     this.toQualifier = toQualifier;
     return this;
   }
@@ -153,9 +165,9 @@ public class Dependency extends Model {
   @Override
   public String toString() {
     return new StringBuilder()
-        .append(fromKey)
-        .append(" -> ")
-        .append(toKey)
-        .toString();
+      .append(fromKey)
+      .append(" -> ")
+      .append(toKey)
+      .toString();
   }
 }

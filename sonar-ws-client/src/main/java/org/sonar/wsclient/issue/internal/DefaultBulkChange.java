@@ -21,6 +21,8 @@ package org.sonar.wsclient.issue.internal;
 
 import org.sonar.wsclient.issue.BulkChange;
 
+import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,12 +47,12 @@ public class DefaultBulkChange implements BulkChange {
     return totalIssuesNotChanged;
   }
 
-  DefaultBulkChange setTotalIssuesChanged(int totalIssuesChanged) {
+  DefaultBulkChange setTotalIssuesChanged(@Nullable int totalIssuesChanged) {
     this.totalIssuesChanged = totalIssuesChanged;
     return this;
   }
 
-  DefaultBulkChange setTotalIssuesNotChanged(int totalIssuesNotChanged) {
+  DefaultBulkChange setTotalIssuesNotChanged(@Nullable int totalIssuesNotChanged) {
     this.totalIssuesNotChanged = totalIssuesNotChanged;
     return this;
   }

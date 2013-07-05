@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class Metric extends Model {
 
   private String key;
@@ -30,74 +33,82 @@ public class Metric extends Model {
   private Boolean userManaged;
   private Boolean hidden;
 
+  @CheckForNull
   public String getKey() {
     return key;
   }
 
-  public Metric setKey(String key) {
+  public Metric setKey(@Nullable String key) {
     this.key = key;
     return this;
   }
 
+  @CheckForNull
   public String getName() {
     return name;
   }
 
-  public Metric setName(String name) {
+  public Metric setName(@Nullable String name) {
     this.name = name;
     return this;
   }
 
+  @CheckForNull
   public int getDirection() {
     return direction;
   }
 
-  public Metric setDirection(int direction) {
+  public Metric setDirection(@Nullable int direction) {
     this.direction = direction;
     return this;
   }
 
+  @CheckForNull
   public String getDomain() {
     return domain;
   }
 
-  public Metric setDomain(String domain) {
+  public Metric setDomain(@Nullable String domain) {
     this.domain = domain;
     return this;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
 
-  public Metric setDescription(String description) {
+  public Metric setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
 
+  @CheckForNull
   public String getType() {
     return type;
   }
 
-  public Metric setType(String type) {
+  public Metric setType(@Nullable String type) {
     this.type = type;
     return this;
   }
 
+  @CheckForNull
   public Boolean getHidden() {
     return hidden;
   }
 
-  public Metric setHidden(Boolean hidden) {
+  public Metric setHidden(@Nullable Boolean hidden) {
     this.hidden = hidden;
     return this;
   }
 
+  @CheckForNull
   public Boolean getUserManaged() {
     return userManaged;
   }
 
-  public Metric setUserManaged(Boolean userManaged) {
+  public Metric setUserManaged(@Nullable Boolean userManaged) {
     this.userManaged = userManaged;
     return this;
   }
@@ -105,10 +116,10 @@ public class Metric extends Model {
   @Override
   public String toString() {
     return new StringBuilder()
-        .append(name)
-        .append("(")
-        .append(key)
-        .append(")")
-        .toString();
+      .append(name)
+      .append("(")
+      .append(key)
+      .append(")")
+      .toString();
   }
 }

@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class Favourite extends Model {
 
   private Integer id;
@@ -28,56 +31,63 @@ public class Favourite extends Model {
   private String qualifier;
   private String language;
 
+  @CheckForNull
   public Integer getId() {
     return id;
   }
 
-  public Favourite setId(Integer id) {
+  public Favourite setId(@Nullable Integer id) {
     this.id = id;
     return this;
   }
 
+  @CheckForNull
   public String getKey() {
     return key;
   }
 
-  public Favourite setKey(String key) {
+  public Favourite setKey(@Nullable String key) {
     this.key = key;
     return this;
   }
 
+  @CheckForNull
   public String getName() {
     return name;
   }
 
-  public Favourite setName(String name) {
+
+  public Favourite setName(@Nullable String name) {
     this.name = name;
     return this;
   }
 
+  @CheckForNull
   public String getScope() {
     return scope;
   }
 
-  public Favourite setScope(String scope) {
+  public Favourite setScope(@Nullable String scope) {
     this.scope = scope;
     return this;
   }
 
+  @CheckForNull
   public String getQualifier() {
     return qualifier;
   }
 
-  public Favourite setQualifier(String qualifier) {
+  public Favourite setQualifier(@Nullable String qualifier) {
     this.qualifier = qualifier;
     return this;
   }
 
+  @CheckForNull
   public String getLanguage() {
     return language;
   }
 
-  public Favourite setLanguage(String language) {
+  public Favourite setLanguage(@Nullable String language) {
     this.language = language;
     return this;
   }

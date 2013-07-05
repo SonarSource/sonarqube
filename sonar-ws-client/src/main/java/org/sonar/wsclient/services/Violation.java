@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -38,17 +41,19 @@ public class Violation extends Model {
   private Date createdAt = null;
   private boolean switchedOff;
 
+  @CheckForNull
   public String getMessage() {
     return message;
   }
 
-  public void setMessage(String message) {
+  public void setMessage(@Nullable String message) {
     this.message = message;
   }
 
   /**
    * @since 2.5
    */
+  @CheckForNull
   public String getSeverity() {
     return severity;
   }
@@ -56,7 +61,7 @@ public class Violation extends Model {
   /**
    * @since 2.5
    */
-  public void setSeverity(String severity) {
+  public void setSeverity(@Nullable String severity) {
     this.severity = severity;
   }
 
@@ -80,11 +85,12 @@ public class Violation extends Model {
    * @return line number (numeration starts from 1), or <code>null</code> if violation doesn't belong to concrete line
    * @see #hasLine()
    */
+  @CheckForNull
   public Integer getLine() {
     return line;
   }
 
-  public void setLine(Integer line) {
+  public void setLine(@Nullable Integer line) {
     if (line != null && line < 1) {
       /*
        * This shouldn't happen, however line would be normalized to null if web service returns incorrect value (less than 1) in compliance
@@ -104,46 +110,51 @@ public class Violation extends Model {
     return line != null;
   }
 
+  @Nullable
   public String getResourceKey() {
     return resourceKey;
   }
 
-  public void setResourceKey(String resourceKey) {
+  public void setResourceKey(@Nullable String resourceKey) {
     this.resourceKey = resourceKey;
   }
 
+  @CheckForNull
   public String getRuleKey() {
     return ruleKey;
   }
 
-  public Violation setRuleKey(String s) {
+  public Violation setRuleKey(@Nullable String s) {
     this.ruleKey = s;
     return this;
   }
 
+  @CheckForNull
   public String getRuleName() {
     return ruleName;
   }
 
-  public Violation setRuleName(String ruleName) {
+  public Violation setRuleName(@Nullable String ruleName) {
     this.ruleName = ruleName;
     return this;
   }
 
+  @CheckForNull
   public String getResourceName() {
     return resourceName;
   }
 
-  public Violation setResourceName(String resourceName) {
+  public Violation setResourceName(@Nullable String resourceName) {
     this.resourceName = resourceName;
     return this;
   }
 
+  @CheckForNull
   public String getResourceQualifier() {
     return resourceQualifier;
   }
 
-  public Violation setResourceQualifier(String resourceQualifier) {
+  public Violation setResourceQualifier(@Nullable String resourceQualifier) {
     this.resourceQualifier = resourceQualifier;
     return this;
   }
@@ -151,6 +162,7 @@ public class Violation extends Model {
   /**
    * @since 2.5
    */
+  @CheckForNull
   public Date getCreatedAt() {
     return createdAt;
   }
@@ -158,7 +170,7 @@ public class Violation extends Model {
   /**
    * @since 2.5
    */
-  public Violation setCreatedAt(Date createdAt) {
+  public Violation setCreatedAt(@Nullable Date createdAt) {
     this.createdAt = createdAt;
     return this;
   }
@@ -173,7 +185,7 @@ public class Violation extends Model {
   /**
    * @since 2.8
    */
-  public Violation setSwitchedOff(Boolean b) {
+  public Violation setSwitchedOff(@Nullable Boolean b) {
     this.switchedOff = (b != null && b);
     return this;
   }
@@ -181,6 +193,7 @@ public class Violation extends Model {
   /**
    * @since 2.8
    */
+  @Nullable
   public boolean isSwitchedOff() {
     return switchedOff;
   }

@@ -31,7 +31,6 @@ import java.util.List;
  */
 public class ResourceSearchUnmarshaller extends AbstractUnmarshaller<ResourceSearchResult> {
 
-
   @Override
   protected ResourceSearchResult parse(Object json) {
     WSUtils utils = WSUtils.getINSTANCE();

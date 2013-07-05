@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class ResourceSearchResult extends Model {
@@ -26,27 +29,30 @@ public class ResourceSearchResult extends Model {
   public static class Resource {
     private String key, name, qualifier;
 
+    @CheckForNull
     public String key() {
       return key;
     }
 
+    @CheckForNull
     public String name() {
       return name;
     }
 
+    @CheckForNull
     public String qualifier() {
       return qualifier;
     }
 
-    public void setKey(String key) {
+    public void setKey(@Nullable String key) {
       this.key = key;
     }
 
-    public void setName(String s) {
+    public void setName(@Nullable String s) {
       this.name = s;
     }
 
-    public void setQualifier(String qualifier) {
+    public void setQualifier(@Nullable String qualifier) {
       this.qualifier = qualifier;
     }
   }
@@ -67,11 +73,11 @@ public class ResourceSearchResult extends Model {
     return resources;
   }
 
-  public void setPage(int page) {
+  public void setPage(@Nullable int page) {
     this.page = page;
   }
 
-  public void setTotal(int total) {
+  public void setTotal(@Nullable int total) {
     this.total = total;
   }
 
@@ -79,7 +85,7 @@ public class ResourceSearchResult extends Model {
     return pageSize;
   }
 
-  public void setPageSize(int pageSize) {
+  public void setPageSize(@Nullable int pageSize) {
     this.pageSize = pageSize;
   }
 

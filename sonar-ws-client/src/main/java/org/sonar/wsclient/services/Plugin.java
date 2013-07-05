@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 /**
  * @since 2.4
  */
@@ -28,29 +31,32 @@ public class Plugin extends Model {
   private String name;
   private String version;
 
+  @CheckForNull
   public String getKey() {
     return key;
   }
 
-  public Plugin setKey(String key) {
+  public Plugin setKey(@Nullable String key) {
     this.key = key;
     return this;
   }
 
+  @CheckForNull
   public String getName() {
     return name;
   }
 
-  public Plugin setName(String name) {
+  public Plugin setName(@Nullable String name) {
     this.name = name;
     return this;
   }
 
+  @CheckForNull
   public String getVersion() {
     return version;
   }
 
-  public Plugin setVersion(String version) {
+  public Plugin setVersion(@Nullable String version) {
     this.version = version;
     return this;
   }

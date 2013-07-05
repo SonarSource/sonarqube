@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -64,37 +67,42 @@ public class Resource extends Model {
   private String period1Param, period2Param, period3Param, period4Param, period5Param;
   private Date period1Date, period2Date, period3Date, period4Date, period5Date;
 
+  @CheckForNull
   public Integer getId() {
     return id;
   }
 
-  public Resource setId(Integer id) {
+  public Resource setId(@Nullable Integer id) {
     this.id = id;
     return this;
   }
 
+  @CheckForNull
   public String getKey() {
     return key;
   }
 
-  public Resource setKey(String key) {
+  public Resource setKey(@Nullable String key) {
     this.key = key;
     return this;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
 
-  public Resource setDescription(String description) {
+  public Resource setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
 
+  @CheckForNull
   public String getName() {
     return name;
   }
 
+  @CheckForNull
   public String getName(boolean longFormatIfDefined) {
     if (longFormatIfDefined && longName != null && !"".equals(longName)) {
       return longName;
@@ -102,79 +110,87 @@ public class Resource extends Model {
     return name;
   }
 
+  @CheckForNull
   public String getLongName() {
     return longName;
   }
 
-  public Resource setLongName(String longName) {
+  public Resource setLongName(@Nullable String longName) {
     this.longName = longName;
     return this;
   }
 
-  public Resource setName(String s) {
+  public Resource setName(@Nullable String s) {
     this.name = s;
     return this;
   }
 
+  @CheckForNull
   public String getScope() {
     return scope;
   }
 
-  public Resource setScope(String scope) {
+  public Resource setScope(@Nullable String scope) {
     this.scope = scope;
     return this;
   }
 
+  @CheckForNull
   public String getQualifier() {
     return qualifier;
   }
 
-  public Resource setQualifier(String qualifier) {
+  public Resource setQualifier(@Nullable String qualifier) {
     this.qualifier = qualifier;
     return this;
   }
 
+  @CheckForNull
   public String getLanguage() {
     return language;
   }
 
-  public Resource setLanguage(String language) {
+  public Resource setLanguage(@Nullable String language) {
     this.language = language;
     return this;
   }
 
+  @CheckForNull
   public String getVersion() {
     return version;
   }
 
-  public Resource setVersion(String version) {
+  public Resource setVersion(@Nullable String version) {
     this.version = version;
     return this;
   }
 
+  @CheckForNull
   public Integer getCopy() {
     return copy;
   }
 
-  public Resource setCopy(Integer copy) {
+  public Resource setCopy(@Nullable Integer copy) {
     this.copy = copy;
     return this;
   }
 
+  @CheckForNull
   public Date getDate() {
     return date;
   }
 
-  public Resource setDate(Date d) {
+  public Resource setDate(@Nullable Date d) {
     this.date = d;
     return this;
   }
 
+  @CheckForNull
   public Date getCreationDate() {
     return creationDate;
   }
 
-  public Resource setCreationDate(Date d) {
+  public Resource setCreationDate(@Nullable Date d) {
     this.creationDate = d;
     return this;
   }
@@ -226,6 +242,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public String getPeriod1Mode() {
     return period1Mode;
   }
@@ -233,7 +250,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod1Mode(String period1Mode) {
+  public Resource setPeriod1Mode(@Nullable String period1Mode) {
     this.period1Mode = period1Mode;
     return this;
   }
@@ -241,6 +258,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public String getPeriod2Mode() {
     return period2Mode;
   }
@@ -248,7 +266,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod2Mode(String period2Mode) {
+  public Resource setPeriod2Mode(@Nullable String period2Mode) {
     this.period2Mode = period2Mode;
     return this;
   }
@@ -256,6 +274,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public String getPeriod3Mode() {
     return period3Mode;
   }
@@ -263,7 +282,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod3Mode(String period3Mode) {
+  public Resource setPeriod3Mode(@Nullable String period3Mode) {
     this.period3Mode = period3Mode;
     return this;
   }
@@ -271,6 +290,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public String getPeriod4Mode() {
     return period4Mode;
   }
@@ -278,7 +298,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod4Mode(String period4Mode) {
+  public Resource setPeriod4Mode(@Nullable String period4Mode) {
     this.period4Mode = period4Mode;
     return this;
   }
@@ -286,6 +306,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public String getPeriod5Mode() {
     return period5Mode;
   }
@@ -293,7 +314,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod5Mode(String period5Mode) {
+  public Resource setPeriod5Mode(@Nullable String period5Mode) {
     this.period5Mode = period5Mode;
     return this;
   }
@@ -301,6 +322,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public String getPeriod1Param() {
     return period1Param;
   }
@@ -308,7 +330,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod1Param(String period1Param) {
+  public Resource setPeriod1Param(@Nullable String period1Param) {
     this.period1Param = period1Param;
     return this;
   }
@@ -316,6 +338,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public String getPeriod2Param() {
     return period2Param;
   }
@@ -323,7 +346,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod2Param(String period2Param) {
+  public Resource setPeriod2Param(@Nullable String period2Param) {
     this.period2Param = period2Param;
     return this;
   }
@@ -331,6 +354,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public String getPeriod3Param() {
     return period3Param;
   }
@@ -338,7 +362,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod3Param(String period3Param) {
+  public Resource setPeriod3Param(@Nullable String period3Param) {
     this.period3Param = period3Param;
     return this;
   }
@@ -346,6 +370,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public String getPeriod4Param() {
     return period4Param;
   }
@@ -353,7 +378,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod4Param(String period4Param) {
+  public Resource setPeriod4Param(@Nullable String period4Param) {
     this.period4Param = period4Param;
     return this;
   }
@@ -361,6 +386,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public String getPeriod5Param() {
     return period5Param;
   }
@@ -368,7 +394,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod5Param(String period5Param) {
+  public Resource setPeriod5Param(@Nullable String period5Param) {
     this.period5Param = period5Param;
     return this;
   }
@@ -376,6 +402,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public Date getPeriod1Date() {
     return period1Date;
   }
@@ -383,7 +410,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod1Date(Date period1Date) {
+  public Resource setPeriod1Date(@Nullable Date period1Date) {
     this.period1Date = period1Date;
     return this;
   }
@@ -391,6 +418,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public Date getPeriod2Date() {
     return period2Date;
   }
@@ -398,7 +426,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod2Date(Date period2Date) {
+  public Resource setPeriod2Date(@Nullable Date period2Date) {
     this.period2Date = period2Date;
     return this;
   }
@@ -406,6 +434,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public Date getPeriod3Date() {
     return period3Date;
   }
@@ -413,7 +442,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod3Date(Date period3Date) {
+  public Resource setPeriod3Date(@Nullable Date period3Date) {
     this.period3Date = period3Date;
     return this;
   }
@@ -421,6 +450,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public Date getPeriod4Date() {
     return period4Date;
   }
@@ -428,7 +458,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod4Date(Date period4Date) {
+  public Resource setPeriod4Date(@Nullable Date period4Date) {
     this.period4Date = period4Date;
     return this;
   }
@@ -436,6 +466,7 @@ public class Resource extends Model {
   /**
    * @since 2.5 only on projects, else null
    */
+  @CheckForNull
   public Date getPeriod5Date() {
     return period5Date;
   }
@@ -443,7 +474,7 @@ public class Resource extends Model {
   /**
    * @since 2.5
    */
-  public Resource setPeriod5Date(Date period5Date) {
+  public Resource setPeriod5Date(@Nullable Date period5Date) {
     this.period5Date = period5Date;
     return this;
   }

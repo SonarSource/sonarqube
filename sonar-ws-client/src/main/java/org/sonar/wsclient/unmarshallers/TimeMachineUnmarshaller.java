@@ -24,6 +24,8 @@ import org.sonar.wsclient.services.TimeMachineCell;
 import org.sonar.wsclient.services.TimeMachineColumn;
 import org.sonar.wsclient.services.WSUtils;
 
+import javax.annotation.Nullable;
+
 public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
 
   @Override
@@ -34,7 +36,7 @@ public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
     return new TimeMachine(toColumns(cols), toCells(cells));
   }
 
-  private TimeMachineColumn[] toColumns(Object cols) {
+  private TimeMachineColumn[] toColumns(@Nullable Object cols) {
     WSUtils utils = WSUtils.getINSTANCE();
     int size = utils.getArraySize(cols);
     TimeMachineColumn[] result = new TimeMachineColumn[size];
@@ -45,7 +47,7 @@ public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
     return result;
   }
 
-  private TimeMachineCell[] toCells(Object cells) {
+  private TimeMachineCell[] toCells(@Nullable Object cells) {
     WSUtils utils = WSUtils.getINSTANCE();
     int size = utils.getArraySize(cells);
     TimeMachineCell[] result = new TimeMachineCell[size];

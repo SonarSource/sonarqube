@@ -94,7 +94,7 @@ public final class JdkUtils extends WSUtils {
 
   @Override
   public int getArraySize(Object array) {
-    return ((ArrayList) array).size();
+    return array == null ? 0 : ((ArrayList) array).size();
   }
 
   @Override

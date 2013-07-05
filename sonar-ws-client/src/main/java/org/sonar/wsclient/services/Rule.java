@@ -19,6 +19,9 @@
  */
 package org.sonar.wsclient.services;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -35,20 +38,22 @@ public class Rule extends Model {
   private List<RuleParam> params;
   private boolean active;
 
+  @CheckForNull
   public String getTitle() {
     return title;
   }
 
-  public Rule setTitle(String title) {
+  public Rule setTitle(@Nullable String title) {
     this.title = title;
     return this;
   }
 
+  @CheckForNull
   public String getKey() {
     return key;
   }
 
-  public Rule setKey(String key) {
+  public Rule setKey(@Nullable String key) {
     this.key = key;
     return this;
   }
@@ -56,6 +61,7 @@ public class Rule extends Model {
   /**
    * @since 2.7
    */
+  @CheckForNull
   public String getConfigKey() {
     return configKey;
   }
@@ -64,34 +70,37 @@ public class Rule extends Model {
    * @since 2.7
    */
 
-  public Rule setConfigKey(String s) {
+  public Rule setConfigKey(@Nullable String s) {
     this.configKey = s;
     return this;
   }
 
+  @CheckForNull
   public String getRepository() {
     return repository;
   }
 
-  public Rule setRepository(String s) {
+  public Rule setRepository(@Nullable String s) {
     this.repository = s;
     return this;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
 
-  public Rule setDescription(String description) {
+  public Rule setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
 
+  @CheckForNull
   public String getSeverity() {
     return severity;
   }
 
-  public Rule setSeverity(String severity) {
+  public Rule setSeverity(@Nullable String severity) {
     this.severity = severity;
     return this;
   }

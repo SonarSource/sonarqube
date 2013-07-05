@@ -19,6 +19,7 @@
  */
 package org.sonar.wsclient.issue.internal;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.base.Paging;
 import org.sonar.wsclient.component.Component;
@@ -135,7 +136,10 @@ public class IssueJsonParser {
 
     Map issuesNotChanged = (Map) jsonRoot.get("issuesNotChanged");
     result.setTotalIssuesNotChanged(JsonUtils.getInteger(issuesNotChanged, "total"));
-    result.setIssuesNotChanged(JsonUtils.getArray(issuesNotChanged, "issues"));
+    JSONArray issuesJson = JsonUtils.getArray(issuesNotChanged, "issues");
+    if (issuesJson != null) {
+      result.setIssuesNotChanged(JsonUtils.getArray(issuesNotChanged, "issues"));
+    }
 
     return  result;
   }
