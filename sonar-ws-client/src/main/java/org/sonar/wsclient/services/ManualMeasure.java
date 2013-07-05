@@ -29,7 +29,7 @@ import java.util.Date;
  */
 public class ManualMeasure extends Model {
 
-  private long id;
+  private Long id;
   private String metricKey;
   private String resourceKey;
   private Double value;
@@ -43,14 +43,15 @@ public class ManualMeasure extends Model {
   }
 
   @CheckForNull
-  public long getId() {
+  public Long getId() {
     return id;
   }
 
-  public ManualMeasure setId(@Nullable long id) {
+  public ManualMeasure setId(@Nullable Long id) {
     this.id = id;
     return this;
   }
+
   @CheckForNull
   public String getMetricKey() {
     return metricKey;
@@ -60,6 +61,7 @@ public class ManualMeasure extends Model {
     this.metricKey = metricKey;
     return this;
   }
+
   @CheckForNull
   public Double getValue() {
     return value;
@@ -69,6 +71,7 @@ public class ManualMeasure extends Model {
     this.value = value;
     return this;
   }
+
   @CheckForNull
   public String getTextValue() {
     return textValue;
@@ -78,6 +81,7 @@ public class ManualMeasure extends Model {
     this.textValue = textValue;
     return this;
   }
+
   @CheckForNull
   public Date getCreatedAt() {
     return createdAt;
@@ -87,6 +91,7 @@ public class ManualMeasure extends Model {
     this.createdAt = createdAt;
     return this;
   }
+
   @CheckForNull
   public Date getUpdatedAt() {
     return updatedAt;
@@ -96,6 +101,7 @@ public class ManualMeasure extends Model {
     this.updatedAt = updatedAt;
     return this;
   }
+
   @CheckForNull
   public String getUserLogin() {
     return userLogin;
@@ -105,6 +111,7 @@ public class ManualMeasure extends Model {
     this.userLogin = userLogin;
     return this;
   }
+
   @CheckForNull
   public String getUsername() {
     return username;
@@ -114,6 +121,7 @@ public class ManualMeasure extends Model {
     this.username = username;
     return this;
   }
+
   @CheckForNull
   public String getResourceKey() {
     return resourceKey;
@@ -127,11 +135,11 @@ public class ManualMeasure extends Model {
   @Override
   public String toString() {
     return new StringBuilder().append("Measure{")
-        .append("id='").append(id).append('\'')
-        .append("resourceKey='").append(resourceKey).append('\'')
-        .append("metricKey='").append(metricKey).append('\'')
-        .append(", value=").append(value)
-        .append(", textValue='").append(textValue).append('\'')
-        .append('}').toString();
+      .append("id='").append(id).append('\'')
+      .append("resourceKey='").append(resourceKey).append('\'')
+      .append("metricKey='").append(metricKey).append('\'')
+      .append(", value=").append(value)
+      .append(", textValue='").append(textValue).append('\'')
+      .append('}').toString();
   }
 }

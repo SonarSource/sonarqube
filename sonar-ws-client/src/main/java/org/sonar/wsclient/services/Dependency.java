@@ -41,12 +41,13 @@ public class Dependency extends Model {
     return id;
   }
 
-  public Dependency setId(String id) {
+  public Dependency setId(@Nullable String id) {
     this.id = id;
     return this;
   }
 
-  public long getFromId() {
+  @CheckForNull
+  public Long getFromId() {
     return fromId;
   }
 
@@ -55,7 +56,8 @@ public class Dependency extends Model {
     return this;
   }
 
-  public long getToId() {
+  @CheckForNull
+  public Long getToId() {
     return toId;
   }
 

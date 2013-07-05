@@ -96,10 +96,11 @@ public class TimeMachineQuery extends Query<TimeMachine> {
   }
 
   public static TimeMachineQuery createForMetrics(Resource resource, String... metricKeys) {
-    if (resource.getId() == null) {
+    Integer id = resource.getId();
+    if (id == null) {
       throw new IllegalArgumentException("id must be set");
     }
-    return new TimeMachineQuery(resource.getId().toString()).setMetrics(metricKeys);
+    return new TimeMachineQuery(id.toString()).setMetrics(metricKeys);
   }
 
 }

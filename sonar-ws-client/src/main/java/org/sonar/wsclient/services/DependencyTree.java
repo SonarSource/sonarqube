@@ -36,7 +36,7 @@ public class DependencyTree extends Model {
   private String resourceScope;
   private String resourceQualifier;
   private String resourceVersion;
-  private int weight;
+  private Integer weight;
   private List<DependencyTree> to;
 
   @CheckForNull
@@ -112,11 +112,12 @@ public class DependencyTree extends Model {
     return this;
   }
 
-  public int getWeight() {
+  @CheckForNull
+  public Integer getWeight() {
     return weight;
   }
 
-  public DependencyTree setWeight(@Nullable int weight) {
+  public DependencyTree setWeight(@Nullable Integer weight) {
     this.weight = weight;
     return this;
   }

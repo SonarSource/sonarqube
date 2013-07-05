@@ -39,7 +39,6 @@ public class ManualMeasureUnmarshaller extends AbstractUnmarshaller<ManualMeasur
         .setUserLogin(utils.getString(json, "login"))
         .setUsername(utils.getString(json, "username"))
         .setValue(utils.getDouble(json, "val"))
-        .setTextValue(utils.getString(json, "text"))
-        ;
+        .setTextValue(utils.getString(json, "text"));
   }
 }

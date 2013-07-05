@@ -58,13 +58,14 @@ public class TimeMachineUnmarshaller extends AbstractUnmarshaller<TimeMachine> {
     for (int i = 0; i < size; i++) {
       Object cellJson = utils.getArrayElement(cells, i);
       Object valuesJson = utils.getField(cellJson, "v");
-
-      Object[] resultValues = new Object[utils.getArraySize(valuesJson)];
-      for (int indexValue = 0; indexValue < utils.getArraySize(valuesJson); indexValue++) {
-        Object value = utils.getArrayElement(valuesJson, indexValue);
-        resultValues[indexValue] = value;
+      if (valuesJson != null) {
+        Object[] resultValues = new Object[utils.getArraySize(valuesJson)];
+        for (int indexValue = 0; indexValue < utils.getArraySize(valuesJson); indexValue++) {
+          Object value = utils.getArrayElement(valuesJson, indexValue);
+          resultValues[indexValue] = value;
+        }
+        result[i] = new TimeMachineCell(utils.getDateTime(cellJson, "d"), resultValues);
       }
-      result[i] = new TimeMachineCell(utils.getDateTime(cellJson, "d"), resultValues);
     }
     return result;
   }

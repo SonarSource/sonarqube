@@ -26,7 +26,7 @@ public class Metric extends Model {
 
   private String key;
   private String name;
-  private int direction;
+  private Integer direction;
   private String domain;
   private String description;
   private String type;
@@ -54,11 +54,11 @@ public class Metric extends Model {
   }
 
   @CheckForNull
-  public int getDirection() {
+  public Integer getDirection() {
     return direction;
   }
 
-  public Metric setDirection(@Nullable int direction) {
+  public Metric setDirection(@Nullable Integer direction) {
     this.direction = direction;
     return this;
   }
