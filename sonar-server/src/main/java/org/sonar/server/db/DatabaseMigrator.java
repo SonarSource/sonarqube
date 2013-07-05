@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.persistence;
+package org.sonar.server.db;
 
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.DatabaseUtils;
+import org.sonar.core.persistence.DdlUtils;
+import org.sonar.core.persistence.MyBatis;
 
 import java.sql.Connection;
 
@@ -64,5 +68,17 @@ public class DatabaseMigrator implements ServerComponent {
       DatabaseUtils.closeQuietly(connection);
     }
     return true;
+  }
+
+  public void executeMigration(String className) {
+    try {
+      Class<DatabaseMigration> migrationClass = (Class<DatabaseMigration>)Class.forName(className);
+      DatabaseMigration migration = migrationClass.newInstance();
+      migration.execute(database);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new IllegalStateException("Fail to execute database migration: " + className, e);
+    }
   }
 }

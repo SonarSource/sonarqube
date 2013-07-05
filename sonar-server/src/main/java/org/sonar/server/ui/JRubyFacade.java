@@ -46,7 +46,7 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterResult;
 import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.DatabaseMigrator;
+import org.sonar.server.db.DatabaseMigrator;
 import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
@@ -237,8 +237,8 @@ public final class JRubyFacade {
     return get(Database.class);
   }
 
-  public boolean createDatabase() {
-    return get(DatabaseMigrator.class).createDatabase();
+  public DatabaseMigrator databaseMigrator() {
+    return get(DatabaseMigrator.class);
   }
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
