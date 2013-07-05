@@ -4,7 +4,11 @@
 
    issues = issues_result.issues
    max_page_size_reached = issues_result.issues.size >= issues_result.paging.pageSize()
+   component_key = issue_query.components.to_a.first if issue_query.components and issue_query.components.size == 1
    project_key = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1
+   if params[:from] == 'drilldown' && !project_key
+     project_key = Project.by_key(component_key).root_project.kee
+   end
 
    transitions_by_issues = {}
    unresolved_issues = 0
@@ -121,9 +125,7 @@
       <% if params[:from] == 'issue_filters' %>
         window.location = baseUrl + '/issues/search?' + data;
       <% elsif params[:from] == 'drilldown' %>
-        <% component = issue_query.components.to_a.first if issue_query.components and issue_query.components.size == 1
-        component_id = Project.by_key(component).id %>
-        d('<%= component_id %>');
+        d('<%= component_key %>');
         closeModalWindow();
       <% else %>
         alert('Unknown origin : <%= params[:from] %>');
