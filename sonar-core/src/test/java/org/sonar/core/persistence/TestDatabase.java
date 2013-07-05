@@ -66,10 +66,10 @@ public class TestDatabase extends ExternalResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(TestDatabase.class);
 
-  private Database db;
-  private DatabaseCommands commands;
-  private IDatabaseTester tester;
-  private MyBatis myBatis;
+  private static Database db;
+  private static DatabaseCommands commands;
+  private static IDatabaseTester tester;
+  private static MyBatis myBatis;
   private String schemaPath = null;
 
 
@@ -109,17 +109,6 @@ public class TestDatabase extends ExternalResource {
       myBatis.start();
     }
     commands.truncateDatabase(db.getDataSource());
-  }
-
-
-  @Override
-  protected void after() {
-    if (db != null) {
-      db.stop();
-      db = null;
-      commands = null;
-      myBatis = null;
-    }
   }
 
   public Database database() {
