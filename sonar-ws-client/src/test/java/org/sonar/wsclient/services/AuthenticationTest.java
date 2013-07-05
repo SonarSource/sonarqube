@@ -24,6 +24,7 @@ import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class AuthenticationTest {
+
   @Test
   public void should_set_valid_state() {
     assertThat(new Authentication().isValid()).isFalse();

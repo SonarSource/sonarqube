@@ -28,10 +28,11 @@ public class ProfileUnmarshaller extends AbstractUnmarshaller<Profile> {
   protected Profile parse(Object json) {
     WSUtils utils = WSUtils.getINSTANCE();
     Profile profile = new Profile();
+    Boolean defaultProfile = utils.getBoolean(json, "default");
     profile
         .setLanguage(utils.getString(json, "language"))
         .setName(utils.getString(json, "name"))
-        .setDefaultProfile(utils.getBoolean(json, "default"))
+        .setDefaultProfile(defaultProfile != null ? defaultProfile : false)
         .setParentName(utils.getString(json, "parent"));
 
     parseRules(utils, profile, json);

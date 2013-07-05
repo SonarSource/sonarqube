@@ -60,7 +60,7 @@ public class Profile extends Model {
     return defaultProfile;
   }
 
-  public Profile setDefaultProfile(@Nullable boolean b) {
+  public Profile setDefaultProfile(boolean b) {
     this.defaultProfile = b;
     return this;
   }

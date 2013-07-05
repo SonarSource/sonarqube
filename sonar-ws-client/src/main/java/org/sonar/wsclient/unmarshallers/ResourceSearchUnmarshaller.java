@@ -19,6 +19,7 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.sonar.wsclient.services.ResourceSearchResult;
 import org.sonar.wsclient.services.WSUtils;
@@ -40,12 +41,15 @@ public class ResourceSearchUnmarshaller extends AbstractUnmarshaller<ResourceSea
     result.setTotal(utils.getInteger(json, "total"));
 
     List<ResourceSearchResult.Resource> resources = new ArrayList<ResourceSearchResult.Resource>();
-    for (Object jsonResource : JsonUtils.getArray((JSONObject) json, "data")) {
-      ResourceSearchResult.Resource resource = new ResourceSearchResult.Resource();
-      resource.setKey(JsonUtils.getString((JSONObject) jsonResource, "key"));
-      resource.setName(JsonUtils.getString((JSONObject) jsonResource, "nm"));
-      resource.setQualifier(JsonUtils.getString((JSONObject) jsonResource, "q"));
-      resources.add(resource);
+    JSONArray dataJson = JsonUtils.getArray((JSONObject) json, "data");
+    if (dataJson != null) {
+      for (Object jsonResource : dataJson) {
+        ResourceSearchResult.Resource resource = new ResourceSearchResult.Resource();
+        resource.setKey(JsonUtils.getString((JSONObject) jsonResource, "key"));
+        resource.setName(JsonUtils.getString((JSONObject) jsonResource, "nm"));
+        resource.setQualifier(JsonUtils.getString((JSONObject) jsonResource, "q"));
+        resources.add(resource);
+      }
     }
     result.setResources(resources);
     return result;

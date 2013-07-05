@@ -58,14 +58,16 @@ public class ResourceSearchResult extends Model {
   }
 
 
-  private int page, pageSize, total;
+  private Integer page, pageSize, total;
   private List<ResourceSearchResult.Resource> resources;
 
-  public int getPage() {
+  @CheckForNull
+  public Integer getPage() {
     return page;
   }
 
-  public int getTotal() {
+  @CheckForNull
+  public Integer getTotal() {
     return total;
   }
 
@@ -73,19 +75,20 @@ public class ResourceSearchResult extends Model {
     return resources;
   }
 
-  public void setPage(@Nullable int page) {
+  public void setPage(@Nullable Integer page) {
     this.page = page;
   }
 
-  public void setTotal(@Nullable int total) {
+  public void setTotal(@Nullable Integer total) {
     this.total = total;
   }
 
-  public int getPageSize() {
+  @CheckForNull
+  public Integer getPageSize() {
     return pageSize;
   }
 
-  public void setPageSize(@Nullable int pageSize) {
+  public void setPageSize(@Nullable Integer pageSize) {
     this.pageSize = pageSize;
   }
 

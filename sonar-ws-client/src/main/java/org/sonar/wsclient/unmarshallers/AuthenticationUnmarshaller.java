@@ -25,12 +25,13 @@ import org.sonar.wsclient.services.WSUtils;
 import java.util.List;
 
 public class AuthenticationUnmarshaller implements Unmarshaller<Authentication> {
+
   public Authentication toModel(String json) {
     WSUtils utils = WSUtils.getINSTANCE();
     Object map = utils.parse(json);
 
-    return new Authentication()
-        .setValid(utils.getBoolean(map, "valid"));
+    Boolean validJson = utils.getBoolean(map, "valid");
+    return new Authentication().setValid(validJson != null ? validJson : false);
   }
 
   public List<Authentication> toModels(String json) {

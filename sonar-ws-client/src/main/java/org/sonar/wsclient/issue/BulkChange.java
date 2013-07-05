@@ -28,8 +28,8 @@ public interface BulkChange {
 
   List<String> issuesNotChangedKeys();
 
-  int totalIssuesChanged();
+  Integer totalIssuesChanged();
 
-  int totalIssuesNotChanged();
+  Integer totalIssuesNotChanged();
 
 }

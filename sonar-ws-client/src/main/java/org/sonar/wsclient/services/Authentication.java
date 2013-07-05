@@ -19,16 +19,15 @@
  */
 package org.sonar.wsclient.services;
 
-import javax.annotation.Nullable;
-
 public class Authentication extends Model {
+
   private boolean valid;
 
-  public boolean isValid() {
+   public boolean isValid() {
     return valid;
   }
 
-  public Authentication setValid(@Nullable boolean valid) {
+  public Authentication setValid(boolean valid) {
     this.valid = valid;
     return this;
   }
