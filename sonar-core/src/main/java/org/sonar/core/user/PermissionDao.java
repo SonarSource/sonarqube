@@ -25,6 +25,7 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.core.persistence.MyBatis;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +38,7 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     this.myBatis = myBatis;
   }
 
+  @CheckForNull
   public PermissionTemplateDto selectTemplateByName(String templateName) {
     SqlSession session = myBatis.openSession();
     try {
@@ -47,6 +49,7 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     }
   }
 
+  @CheckForNull
   public PermissionTemplateDto selectPermissionTemplate(String templateName) {
     PermissionTemplateDto permissionTemplate = null;
     SqlSession session = myBatis.openSession();
