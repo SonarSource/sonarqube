@@ -2,7 +2,7 @@
   var filterCriteria<%= widget_id -%> = <%= filter.criteria.to_json -%>;
 </script>
 <%
-   treemap_id = (defined? widget) ? widget.id : 1
+   treemap_id = (defined? widget_id) ? widget_id : 1
    unless edit_mode
 %>
   <table class="spaced">
