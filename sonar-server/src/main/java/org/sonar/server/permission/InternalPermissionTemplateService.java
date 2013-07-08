@@ -144,7 +144,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
     List<PermissionTemplateDto> existingTemplates = permissionDao.selectAllPermissionTemplates();
     if(existingTemplates != null) {
       for (PermissionTemplateDto existingTemplate : existingTemplates) {
-        if((templateId == null || templateId != existingTemplate.getId()) && (existingTemplate.getName().equals(templateName))) {
+        if((templateId == null ||  !existingTemplate.getId().equals(templateId)) && (existingTemplate.getName().equals(templateName))) {
           String errorMsg = "A template with that name already exists";
           LOG.error(errorMsg);
           throw new BadRequestException(errorMsg);
