@@ -108,7 +108,7 @@ public class PermissionChangeQueryTest {
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
-    thrown.expectMessage("Missing role parameter");
+    thrown.expectMessage("Missing permission parameter");
     query.validate();
   }
 
@@ -121,7 +121,7 @@ public class PermissionChangeQueryTest {
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
-    thrown.expectMessage("Invalid role key invalid_role");
+    thrown.expectMessage("Invalid permission key invalid_role");
     query.validate();
   }
 }

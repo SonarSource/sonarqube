@@ -19,36 +19,27 @@
  */
 package org.sonar.batch.events;
 
-import org.sonar.batch.phases.AbstractPhaseEvent;
+import org.junit.Test;
 
-/**
- * Generic event for some steps of project scan.
- * @since 3.7
- *
- */
-public class BatchStepEvent extends AbstractPhaseEvent<BatchStepHandler>
-    implements BatchStepHandler.BatchStepEvent {
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-  private String stepName;
+public class BatchStepEventTest {
 
-  public BatchStepEvent(String stepName, boolean start) {
-    super(start);
-    this.stepName = stepName;
+  private BatchStepEvent batchStepEvent = new BatchStepEvent("foo", true);
+
+  @Test
+  public void testGetType() {
+    assertThat(batchStepEvent.getType()).isEqualTo(BatchStepHandler.class);
   }
 
-  @Override
-  public String stepName() {
-    return stepName;
-  }
+  @Test
+  public void testDispatch() {
+    BatchStepHandler handler = mock(BatchStepHandler.class);
+    batchStepEvent.dispatch(handler);
 
-  @Override
-  protected void dispatch(BatchStepHandler handler) {
-    handler.onBatchStep(this);
-  }
-
-  @Override
-  protected Class getType() {
-    return BatchStepHandler.class;
+    verify(handler).onBatchStep(batchStepEvent);
   }
 
 }

@@ -77,6 +77,7 @@ public class PhasesSumUpTimeProfilerTest {
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(10L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(20L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isEqualTo(30L);
+    assertThat(profiler.currentModuleProfiling.getProfilingPerBatchStep("Free memory").totalTime()).isEqualTo(9L);
 
   }
 

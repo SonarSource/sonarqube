@@ -22,11 +22,11 @@ package org.sonar.batch.phases;
 import org.sonar.api.batch.events.EventHandler;
 import org.sonar.batch.events.BatchEvent;
 
-abstract class AbstractPhaseEvent<H extends EventHandler> extends BatchEvent<H> {
+public abstract class AbstractPhaseEvent<H extends EventHandler> extends BatchEvent<H> {
 
   private final boolean start;
 
-  AbstractPhaseEvent(boolean start) {
+  public AbstractPhaseEvent(boolean start) {
     this.start = start;
   }
 

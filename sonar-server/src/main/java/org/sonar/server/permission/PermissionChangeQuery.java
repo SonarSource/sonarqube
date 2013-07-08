@@ -47,17 +47,25 @@ public class PermissionChangeQuery {
   }
 
   public void validate() {
-    if (StringUtils.isBlank(role)) {
-      throw new BadRequestException("Missing role parameter");
-    }
+    validatePermission();
+    validateUserGroup();
+  }
+
+  private void validateUserGroup() {
     if (StringUtils.isBlank(user) && StringUtils.isBlank(group)) {
       throw new BadRequestException("Missing user or group parameter");
     }
     if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(group)) {
       throw new BadRequestException("Only one of user or group parameter should be provided");
     }
+  }
+
+  private void validatePermission() {
+    if (StringUtils.isBlank(role)) {
+      throw new BadRequestException("Missing permission parameter");
+    }
     if (!Permission.allGlobal().keySet().contains(role)) {
-      throw new BadRequestException("Invalid role key " + role);
+      throw new BadRequestException("Invalid permission key " + role);
     }
   }
 
