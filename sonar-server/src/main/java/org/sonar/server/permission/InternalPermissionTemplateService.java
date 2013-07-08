@@ -24,11 +24,14 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.user.*;
+import org.sonar.core.user.PermissionDao;
+import org.sonar.core.user.PermissionTemplateDto;
+import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerErrorException;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -65,9 +68,9 @@ public class InternalPermissionTemplateService implements ServerComponent {
     return permissionTemplates;
   }
 
-  public PermissionTemplate createPermissionTemplate(String name, String description) {
+  public PermissionTemplate createPermissionTemplate(String name, @Nullable String description) {
     PermissionTemplateUpdater.checkUserCredentials();
-    checkThatTemplateNameIsUnique(name);
+    validateTemplateName(null, name);
     PermissionTemplateDto permissionTemplateDto = permissionDao.createPermissionTemplate(name, description);
     if(permissionTemplateDto.getId() == null) {
       String errorMsg = "Template creation failed";
@@ -77,16 +80,15 @@ public class InternalPermissionTemplateService implements ServerComponent {
     return PermissionTemplate.create(permissionTemplateDto);
   }
 
-  public void deletePermissionTemplate(String templateName) {
+  public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription) {
     PermissionTemplateUpdater.checkUserCredentials();
-    PermissionTemplateDto permissionTemplateDto = permissionDao.selectTemplateByName(templateName);
-    if(permissionTemplateDto == null) {
-      String errorMsg = "Unknown template:" + templateName;
-      LOG.error(errorMsg);
-      throw new BadRequestException(errorMsg);
-    } else {
-      permissionDao.deletePermissionTemplate(permissionTemplateDto.getId());
-    }
+    validateTemplateName(templateId, newName);
+    permissionDao.updatePermissionTemplate(templateId, newName, newDescription);
+  }
+
+  public void deletePermissionTemplate(Long templateId) {
+    PermissionTemplateUpdater.checkUserCredentials();
+    permissionDao.deletePermissionTemplate(templateId);
   }
 
   public void addUserPermission(String templateName, String permission, final String userLogin) {
@@ -133,11 +135,16 @@ public class InternalPermissionTemplateService implements ServerComponent {
     updater.executeUpdate();
   }
 
-  private void checkThatTemplateNameIsUnique(String name) {
+  private void validateTemplateName(Long templateId, String templateName) {
+    if(templateName == null) {
+      String errorMsg = "The name field is mandatory";
+      LOG.error(errorMsg);
+      throw new BadRequestException(errorMsg);
+    }
     List<PermissionTemplateDto> existingTemplates = permissionDao.selectAllPermissionTemplates();
     if(existingTemplates != null) {
       for (PermissionTemplateDto existingTemplate : existingTemplates) {
-        if(existingTemplate.getName().equals(name)) {
+        if((templateId == null || templateId != existingTemplate.getId()) && (existingTemplate.getName().equals(templateName))) {
           String errorMsg = "A template with that name already exists";
           LOG.error(errorMsg);
           throw new BadRequestException(errorMsg);

@@ -27,6 +27,8 @@ public interface PermissionTemplateMapper {
 
   void insert(PermissionTemplateDto permissionTemplate);
 
+  void update(PermissionTemplateDto permissionTemplate);
+
   void delete(Long templateId);
 
   void deleteUsersPermissions(Long templateId);

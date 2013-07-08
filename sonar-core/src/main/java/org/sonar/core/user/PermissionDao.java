@@ -110,6 +110,22 @@ public class PermissionDao implements TaskExtension, ServerExtension {
     }
   }
 
+  public void updatePermissionTemplate(Long templateId, String templateName, @Nullable String description) {
+    PermissionTemplateDto permissionTemplate = new PermissionTemplateDto()
+      .setId(templateId)
+      .setName(templateName)
+      .setDescription(description)
+      .setUpdatedAt(now());
+    SqlSession session = myBatis.openSession();
+    try {
+      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
+      mapper.update(permissionTemplate);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public void addUserPermission(Long templateId, Long userId, String permission) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
       .setTemplateId(templateId)

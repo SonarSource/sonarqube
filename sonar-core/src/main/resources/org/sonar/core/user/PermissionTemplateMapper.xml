@@ -8,6 +8,12 @@
     VALUES (#{name}, #{description}, #{createdAt}, #{updatedAt})
   </insert>
 
+  <update id="update" parameterType="PermissionTemplate">
+    UPDATE permission_templates
+    SET name = #{name}, description = #{description}, updated_at = #{updatedAt}
+    WHERE id = #{id}
+  </update>
+
   <delete id="delete" parameterType="Long">
     DELETE FROM permission_templates
     WHERE id = #{templateId}

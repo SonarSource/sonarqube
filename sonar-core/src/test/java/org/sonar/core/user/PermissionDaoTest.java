@@ -75,7 +75,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_permission_template_by_name() throws Exception {
+  public void should_select_permission_template_by_name() throws Exception {
     setupData("selectPermissionTemplate");
 
     PermissionTemplateDto permissionTemplate = permissionDao.selectTemplateByName("my template");
@@ -96,6 +96,15 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     assertThat(permissionTemplates).onProperty("id").containsOnly(1L, 2L, 3L);
     assertThat(permissionTemplates).onProperty("name").containsOnly("template1", "template2", "template3");
     assertThat(permissionTemplates).onProperty("description").containsOnly("description1", "description2", "description3");
+  }
+
+  @Test
+  public void should_update_permission_template() throws Exception {
+    setupData("updatePermissionTemplate");
+
+    permissionDao.updatePermissionTemplate(1L, "new_name", "new_description");
+
+    checkTable("updatePermissionTemplate", "permission_templates", "id", "name", "description");
   }
 
   @Test

@@ -83,19 +83,9 @@ public class InternalPermissionTemplateServiceTest {
   public void should_delete_permission_template() throws Exception {
     when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
 
-    permissionTemplateService.deletePermissionTemplate(DEFAULT_NAME);
+    permissionTemplateService.deletePermissionTemplate(1L);
 
     verify(permissionDao, times(1)).deletePermissionTemplate(1L);
-  }
-
-  @Test
-  public void should_validate_template_name_on_deletion() throws Exception {
-    expected.expect(BadRequestException.class);
-    expected.expectMessage("Unknown template:");
-
-    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(null);
-
-    permissionTemplateService.deletePermissionTemplate(DEFAULT_NAME);
   }
 
   @Test
@@ -147,6 +137,41 @@ public class InternalPermissionTemplateServiceTest {
     assertThat(templates).onProperty("id").containsOnly(1L, 2L);
     assertThat(templates).onProperty("name").containsOnly("template1", "template2");
     assertThat(templates).onProperty("description").containsOnly("template1", "template2");
+  }
+
+  @Test
+  public void should_update_permission_template() throws Exception {
+
+    permissionTemplateService.updatePermissionTemplate(1L, "new_name", "new_description");
+
+    verify(permissionDao).updatePermissionTemplate(1L, "new_name", "new_description");
+  }
+
+  @Test
+  public void should_validate_template_name_on_update_if_applicable() throws Exception {
+    expected.expect(BadRequestException.class);
+    expected.expectMessage("A template with that name already exists");
+
+    PermissionTemplateDto template1 =
+      new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
+    PermissionTemplateDto template2 =
+      new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
+    when(permissionDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+
+    permissionTemplateService.updatePermissionTemplate(1L, "template2", "template1");
+  }
+
+  @Test
+  public void should_skip_name_validation_where_not_applicable() throws Exception {
+    PermissionTemplateDto template1 =
+      new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
+    PermissionTemplateDto template2 =
+      new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
+    when(permissionDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+
+    permissionTemplateService.updatePermissionTemplate(1L, "template1", "new_description");
+
+    verify(permissionDao).updatePermissionTemplate(1L, "template1", "new_description");
   }
 
   @Test
