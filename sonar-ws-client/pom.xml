@@ -10,7 +10,7 @@
   <artifactId>sonar-ws-client</artifactId>
   <packaging>jar</packaging>
   <name>SonarQube :: Web Service Client</name>
-  <description>Java Client Library for Sonar Web Services</description>
+  <description>Java Client Library for SonarQube Web Services</description>
 
   <properties>
     <httpclient4.version>4.2.2</httpclient4.version>

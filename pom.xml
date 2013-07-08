@@ -1080,7 +1080,7 @@
 
   <mailingLists>
     <mailingList>
-      <name>Sonar users mailing list</name>
+      <name>SonarQube users mailing list</name>
       <subscribe>http://xircles.codehaus.org/projects/sonar/lists</subscribe>
       <unsubscribe>http://xircles.codehaus.org/projects/sonar/lists</unsubscribe>
       <post>user@sonar.codehaus.org</post>

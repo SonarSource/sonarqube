@@ -53,7 +53,7 @@ public class EmbeddedDatabase {
       return new File(sonarHome, "data");
     }
 
-    throw new IllegalStateException("Sonar home directory does not exist");
+    throw new IllegalStateException("SonarQube home directory does not exist");
   }
 
   public void start() {
