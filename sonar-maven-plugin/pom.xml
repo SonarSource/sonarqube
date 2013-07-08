@@ -8,7 +8,7 @@
   </parent>
   <artifactId>sonar-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <name>Sonar :: Maven2 Plugin</name>
+  <name>SonarQube :: Maven2 Plugin</name>
 
   <dependencies>
     <dependency>

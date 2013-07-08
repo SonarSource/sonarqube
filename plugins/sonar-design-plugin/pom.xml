@@ -10,7 +10,7 @@
   <groupId>org.codehaus.sonar.plugins</groupId>
   <artifactId>sonar-design-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <name>Sonar :: Plugins :: Design</name>
+  <name>SonarQube :: Plugins :: Design</name>
 
   <dependencies>
     <dependency>

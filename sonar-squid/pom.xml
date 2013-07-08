@@ -10,7 +10,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar-squid</artifactId>
   <packaging>jar</packaging>
-  <name>Sonar :: Squid</name>
+  <name>SonarQube :: Squid</name>
 
   <dependencies>
     <dependency>

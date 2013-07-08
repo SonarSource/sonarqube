@@ -66,10 +66,10 @@ public final class ServerImpl extends Server {
       implementationBuild = read(buildProperties).getProperty("Implementation-Build");
 
       if (StringUtils.isBlank(version)) {
-        throw new IllegalStateException("Unknown Sonar version");
+        throw new IllegalStateException("Unknown SonarQube version");
       }
 
-      LOG.info("Sonar {}", Joiner.on(" / ").skipNulls().join("Server", version, implementationBuild));
+      LOG.info("SonarQube {}", Joiner.on(" / ").skipNulls().join("Server", version, implementationBuild));
 
     } catch (IOException e) {
       throw new IllegalStateException("Can not load metadata", e);

@@ -8,7 +8,7 @@
     <relativePath>..</relativePath>
   </parent>
   <artifactId>sonar-check-api</artifactId>
-  <name>Sonar :: Check API</name>
+  <name>SonarQube :: Check API</name>
   <description>Check API</description>
 
   <dependencies>

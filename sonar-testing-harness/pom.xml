@@ -8,7 +8,7 @@
   </parent>
   <artifactId>sonar-testing-harness</artifactId>
   <packaging>jar</packaging>
-  <name>Sonar :: Testing Harness</name>
+  <name>SonarQube :: Testing Harness</name>
 
   <dependencies>
     <dependency>
@@ -30,7 +30,7 @@
     <dependency>
       <groupId>xmlunit</groupId>
       <artifactId>xmlunit</artifactId>
-    </dependency>   
+    </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>

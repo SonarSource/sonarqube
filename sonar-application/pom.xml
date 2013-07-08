@@ -11,7 +11,7 @@
   <artifactId>sonar-application</artifactId>
   <packaging>jar</packaging>
 
-  <name>Sonar :: Application</name>
+  <name>SonarQube :: Application</name>
   <description>Package the standalone distribution</description>
 
   <dependencies>

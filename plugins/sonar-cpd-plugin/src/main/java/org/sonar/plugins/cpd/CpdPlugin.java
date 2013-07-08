@@ -38,7 +38,7 @@ public final class CpdPlugin extends SonarPlugin {
       PropertyDefinition.builder(CoreProperties.CPD_CROSS_RPOJECT)
         .defaultValue(CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE + "")
         .name("Cross project duplication detection")
-        .description("SonarQube supports the detection of cross project duplications. Activating this property will slightly increase each Sonar analysis time.")
+        .description("SonarQube supports the detection of cross project duplications. Activating this property will slightly increase each SonarQube analysis time.")
         .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
         .category(CoreProperties.CATEGORY_DUPLICATIONS)
         .type(PropertyType.BOOLEAN)

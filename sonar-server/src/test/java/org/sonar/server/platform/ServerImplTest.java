@@ -69,7 +69,7 @@ public class ServerImplTest {
   @Test
   public void testFileWithNoVersion() {
     exception.expect(IllegalStateException.class);
-    exception.expectMessage("Unknown Sonar version");
+    exception.expectMessage("Unknown SonarQube version");
 
     ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/pom-without-version.properties");
     server.start();
@@ -78,7 +78,7 @@ public class ServerImplTest {
   @Test
   public void testFileWithEmptyVersionParameter() {
     exception.expect(IllegalStateException.class);
-    exception.expectMessage("Unknown Sonar version");
+    exception.expectMessage("Unknown SonarQube version");
 
     ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties");
     server.start();
@@ -87,7 +87,7 @@ public class ServerImplTest {
   @Test
   public void shouldFailIfFileNotFound() {
     exception.expect(IllegalStateException.class);
-    exception.expectMessage("Unknown Sonar version");
+    exception.expectMessage("Unknown SonarQube version");
 
     ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/unknown-file.properties");
     server.start();

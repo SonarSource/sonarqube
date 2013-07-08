@@ -36,7 +36,7 @@ import java.util.Properties;
  *   <li>environment variable SONAR_HOME</li>
  *   <li>property SONAR_HOME in the file WEB-INF/classes/sonar-war.properties</li>
  * </ol>
- * 
+ *
  * @since 2.12
  */
 final class SonarHome {
@@ -68,7 +68,7 @@ final class SonarHome {
     }
 
     if (StringUtils.isBlank(value)) {
-      throw new IllegalStateException("Sonar value is not defined. " +
+      throw new IllegalStateException("SonarQube value is not defined. " +
           "Please set the environment variable/system property " + PROPERTY + " or edit the file WEB-INF/classes/sonar-war.properties");
     }
 

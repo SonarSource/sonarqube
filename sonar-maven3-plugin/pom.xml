@@ -8,12 +8,12 @@
   </parent>
   <artifactId>sonar-maven3-plugin</artifactId>
   <packaging>pom</packaging>
-  <name>Sonar :: Maven3 Plugin</name>
+  <name>SonarQube :: Maven3 Plugin</name>
   <!-- Since Sonar 3.7 there is no more difference between Maven 2 and Maven 3 so relocate to Maven 2 plugin to avoid duplication -->
   <distributionManagement>
     <relocation>
       <artifactId>sonar-maven-plugin</artifactId>
     </relocation>
   </distributionManagement>
-  
+
 </project>

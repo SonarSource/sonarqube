@@ -9,7 +9,7 @@
   </parent>
   <groupId>org.codehaus.sonar.plugins</groupId>
   <artifactId>sonar-cpd-plugin</artifactId>
-  <name>Sonar :: Plugins :: CPD</name>
+  <name>SonarQube :: Plugins :: CPD</name>
   <packaging>sonar-plugin</packaging>
   <description>Find duplicated source code within project.</description>
 

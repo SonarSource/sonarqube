@@ -10,7 +10,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar-graph</artifactId>
   <packaging>jar</packaging>
-  <name>Sonar :: Graph</name>
+  <name>SonarQube :: Graph</name>
 
   <dependencies>
     <dependency>

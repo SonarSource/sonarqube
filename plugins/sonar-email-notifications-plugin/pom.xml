@@ -13,7 +13,7 @@
   <artifactId>sonar-email-notifications-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
 
-  <name>Sonar :: Plugins :: Email Notifications</name>
+  <name>SonarQube :: Plugins :: Email Notifications</name>
   <description>Email Notifications</description>
 
   <dependencies>

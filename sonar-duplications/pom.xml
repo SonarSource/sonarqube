@@ -9,7 +9,7 @@
 
   <artifactId>sonar-duplications</artifactId>
 
-  <name>Sonar :: Duplications</name>
+  <name>SonarQube :: Duplications</name>
   <description>Detect duplicated code</description>
 
   <properties>

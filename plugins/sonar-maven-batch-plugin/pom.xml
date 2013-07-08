@@ -7,12 +7,12 @@
     <version>3.7-SNAPSHOT</version>
     <relativePath>../..</relativePath>
   </parent>
-  
+
   <groupId>org.codehaus.sonar.plugins</groupId>
   <artifactId>sonar-maven-batch-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <name>Sonar :: Maven Batch Plugin</name>
-  
+  <name>SonarQube :: Maven Batch Plugin</name>
+
   <properties>
     <maven.version>3.0</maven.version>
   </properties>
@@ -41,7 +41,7 @@
       <version>${maven.version}</version>
       <scope>provided</scope>
     </dependency>
-    
+
     <!-- unit tests -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -49,7 +49,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
+
   <build>
     <plugins>
 

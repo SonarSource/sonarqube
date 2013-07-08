@@ -8,7 +8,7 @@
   </parent>
   <artifactId>sonar-server</artifactId>
   <packaging>war</packaging>
-  <name>Sonar :: Server</name>
+  <name>SonarQube :: Server</name>
 
   <dependencies>
     <dependency>

@@ -7,7 +7,7 @@
     <version>3.7-SNAPSHOT</version>
   </parent>
   <artifactId>sonar-deprecated</artifactId>
-  <name>Sonar :: Deprecated</name>
+  <name>SonarQube :: Deprecated</name>
 
   <dependencies>
     <dependency>

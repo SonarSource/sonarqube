@@ -11,7 +11,7 @@
 
   <artifactId>sonar-channel</artifactId>
 
-  <name>Sonar :: Channel</name>
+  <name>SonarQube :: Channel</name>
   <description>Code Channel</description>
 
   <dependencies>

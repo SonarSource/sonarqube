@@ -109,7 +109,7 @@ public class PluginDeployerTest {
     when(server.getVersion()).thenReturn("2.0");
 
     exception.expect(IllegalStateException.class);
-    exception.expectMessage("Plugin switchoffviolations needs a more recent version of Sonar than 2.0. At least 2.5 is expected");
+    exception.expectMessage("Plugin switchoffviolations needs a more recent version of SonarQube than 2.0. At least 2.5 is expected");
 
     deployer.start();
   }

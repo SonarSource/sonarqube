@@ -69,9 +69,9 @@ public class DefaultServerFileSystem implements ServerFileSystem {
   }
 
   public void start() {
-    LOGGER.info("Sonar home: " + homeDir.getAbsolutePath());
+    LOGGER.info("SonarQube home: " + homeDir.getAbsolutePath());
     if (!homeDir.isDirectory() || !homeDir.exists()) {
-      throw new IllegalStateException("Sonar home directory does not exist");
+      throw new IllegalStateException("SonarQube home directory does not exist");
     }
 
     if (deployDir == null) {

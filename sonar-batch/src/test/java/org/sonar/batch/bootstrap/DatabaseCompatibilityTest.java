@@ -61,7 +61,7 @@ public class DatabaseCompatibilityTest {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_DOWNGRADE);
 
     thrown.expect(BadDatabaseVersion.class);
-    thrown.expectMessage("Database relates to a more recent version of Sonar. Please check your settings (JDBC settings, version of Maven plugin)");
+    thrown.expectMessage("Database relates to a more recent version of SonarQube. Please check your settings (JDBC settings, version of Maven plugin)");
 
     new DatabaseCompatibility(databaseVersion, server, settings).start();
   }

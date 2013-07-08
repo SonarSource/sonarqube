@@ -9,7 +9,7 @@
 
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar-batch</artifactId>
-  <name>Sonar :: Batch</name>
+  <name>SonarQube :: Batch</name>
 
   <dependencies>
     <dependency>

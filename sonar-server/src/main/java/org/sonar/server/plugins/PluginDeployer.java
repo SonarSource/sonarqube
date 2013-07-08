@@ -200,7 +200,7 @@ public class PluginDeployer implements ServerComponent {
     LOG.info("Deploy plugin {}", Joiner.on(" / ").skipNulls().join(plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
 
     Preconditions.checkState(plugin.isCompatibleWith(server.getVersion()),
-        "Plugin %s needs a more recent version of Sonar than %s. At least %s is expected",
+        "Plugin %s needs a more recent version of SonarQube than %s. At least %s is expected",
         plugin.getKey(), server.getVersion(), plugin.getSonarVersion());
 
     try {

@@ -11,7 +11,7 @@
   <artifactId>sonar-plugin-api</artifactId>
   <packaging>jar</packaging>
 
-  <name>Sonar :: Plugin API</name>
+  <name>SonarQube :: Plugin API</name>
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

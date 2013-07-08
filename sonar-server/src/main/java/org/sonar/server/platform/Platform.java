@@ -352,7 +352,7 @@ public final class Platform {
         started = false;
         profiler.stop();
       } catch (Exception e) {
-        LoggerFactory.getLogger(getClass()).debug("Fail to stop Sonar - ignored", e);
+        LoggerFactory.getLogger(getClass()).debug("Fail to stop SonarQube - ignored", e);
       }
     }
   }

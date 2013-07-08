@@ -10,7 +10,7 @@
 
   <artifactId>sonar-core</artifactId>
 
-  <name>Sonar :: Core</name>
+  <name>SonarQube :: Core</name>
   <description>Core components shared to batch and server</description>
 
   <dependencies>
@@ -147,7 +147,7 @@
 
     <!--
          JDBC drivers for MyBatis integration tests.
-         They can't be moved to the profile run-mybatis-its because 
+         They can't be moved to the profile run-mybatis-its because
     -->
     <dependency>
       <groupId>mysql</groupId>

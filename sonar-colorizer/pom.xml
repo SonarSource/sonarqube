@@ -11,7 +11,7 @@
 
   <artifactId>sonar-colorizer</artifactId>
 
-  <name>Sonar :: Code Colorizer</name>
+  <name>SonarQube :: Code Colorizer</name>
   <description>Code syntax highlighter</description>
 
   <dependencies>

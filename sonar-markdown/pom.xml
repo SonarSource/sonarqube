@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>sonar-markdown</artifactId>
-  <name>Sonar :: Markdown</name>
+  <name>SonarQube :: Markdown</name>
 
   <dependencies>
     <dependency>

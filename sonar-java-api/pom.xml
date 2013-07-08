@@ -7,7 +7,7 @@
     <version>3.7-SNAPSHOT</version>
   </parent>
   <artifactId>sonar-java-api</artifactId>
-  <name>Sonar :: Java API</name>
+  <name>SonarQube :: Java API</name>
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

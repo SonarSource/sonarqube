@@ -12,7 +12,7 @@
   <groupId>org.codehaus.sonar.plugins</groupId>
   <artifactId>sonar-l10n-en-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <name>Sonar :: Plugins :: English Pack</name>
+  <name>SonarQube :: Plugins :: English Pack</name>
 
   <dependencies>
     <dependency>

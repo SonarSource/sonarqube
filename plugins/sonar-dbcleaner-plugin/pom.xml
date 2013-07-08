@@ -11,7 +11,7 @@
   <artifactId>sonar-dbcleaner-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
 
-  <name>Sonar :: Plugins :: Database Cleaner</name>
+  <name>SonarQube :: Plugins :: Database Cleaner</name>
   <description>Optimizes database performances by removing old and useless data.</description>
 
   <dependencies>

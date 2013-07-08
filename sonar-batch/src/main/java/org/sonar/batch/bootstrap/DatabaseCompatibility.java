@@ -66,7 +66,7 @@ public class DatabaseCompatibility implements BatchComponent {
   private void checkDatabaseStatus() {
     DatabaseVersion.Status status = version.getStatus();
     if (status == DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
-      throw new BadDatabaseVersion("Database relates to a more recent version of Sonar. Please check your settings (JDBC settings, version of Maven plugin)");
+      throw new BadDatabaseVersion("Database relates to a more recent version of SonarQube. Please check your settings (JDBC settings, version of Maven plugin)");
     }
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
       throw new BadDatabaseVersion("Database must be upgraded. Please browse " + server.getURL() + "/setup");

@@ -557,12 +557,12 @@ public class DefaultIndex extends SonarIndex {
         if (lock.isFailWhenLocked()) {
           throw new ResourceNotIndexedException(resource);
         }
-        LOG.warn("Resource will be ignored in next Sonar versions, index is locked: " + resource);
+        LOG.warn("Resource will be ignored in next SonarQube versions, index is locked: " + resource);
       }
       if (Scopes.isDirectory(resource) || Scopes.isFile(resource)) {
         bucket = doIndex(resource);
       } else if (!lock.isLocked()) {
-        LOG.warn("Resource will be ignored in next Sonar versions, it must be indexed before adding data: " + resource);
+        LOG.warn("Resource will be ignored in next SonarQube versions, it must be indexed before adding data: " + resource);
       }
     }
     return bucket;

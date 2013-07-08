@@ -95,7 +95,7 @@ public class HtmlDecorator extends Tokenizer {
       return new String(ByteStreams.toByteArray(input));
 
     } catch (IOException e) {
-      throw new SynhtaxHighlightingException("Sonar Colorizer CSS file not found: " + CSS_PATH, e);
+      throw new SynhtaxHighlightingException("SonarQube Colorizer CSS file not found: " + CSS_PATH, e);
 
     } finally {
       Closeables.closeQuietly(input);

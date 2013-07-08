@@ -48,7 +48,7 @@ import java.util.Map;
 public class MavenProjectConverter implements TaskExtension {
 
   private static final String UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE = "Unable to determine structure of project." +
-    " Probably you use Maven Advanced Reactor Options, which is not supported by Sonar and should not be used.";
+    " Probably you use Maven Advanced Reactor Options, which is not supported by SonarQube and should not be used.";
 
   public ProjectDefinition configure(List<MavenProject> poms, MavenProject root) {
     // projects by canonical path to pom.xml

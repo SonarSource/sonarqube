@@ -10,7 +10,7 @@
 
   <artifactId>sonar-home</artifactId>
 
-  <name>Sonar :: Home</name>
+  <name>SonarQube :: Home</name>
   <description>Access the user home directory that contains cache of files</description>
 
   <dependencies>
