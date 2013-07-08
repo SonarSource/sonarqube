@@ -297,26 +297,26 @@ class ProjectController < ApplicationController
   end
 
   def delete_version
-    snapshot=Snapshot.find(params[:sid])
-    not_found("Snapshot not found") unless snapshot
-    access_denied unless is_admin?(snapshot)
+    parent_snapshot=Snapshot.find(params[:sid])
+    not_found("Snapshot not found") unless parent_snapshot
+    access_denied unless is_admin?(parent_snapshot)
 
     # We update all the related snapshots to have the same version as the next snapshot
-    next_snapshot = Snapshot.find(:first, :conditions => ['created_at>? and project_id=?', snapshot.created_at, snapshot.project_id], :order => 'created_at asc')
-    snapshots = find_project_snapshots(snapshot.id)
+    next_snapshot = Snapshot.find(:first, :conditions => ['created_at>? and project_id=?', parent_snapshot.created_at, parent_snapshot.project_id], :order => 'created_at asc')
+    snapshots = find_project_snapshots(parent_snapshot.id)
     snapshots.each do |snapshot|
       snapshot.version = next_snapshot.version
       snapshot.save!
     end
 
     # and we delete the events
-    event = snapshot.event(EventCategory::KEY_VERSION)
+    event = parent_snapshot.event(EventCategory::KEY_VERSION)
     old_version_name = event.name
     events = find_events(event)
     Event.delete(events.map { |e| e.id })
 
     flash[:notice] = message('project_history.version_removed', :params => old_version_name)
-    redirect_to :action => 'history', :id => snapshot.root_project_id
+    redirect_to :action => 'history', :id => parent_snapshot.root_project_id
   end
 
   def create_event
