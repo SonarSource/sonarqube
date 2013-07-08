@@ -36,11 +36,16 @@ class IssuesController < ApplicationController
     if params[:id]
       @filter = find_filter(params[:id].to_i)
     end
-    @first_search = criteria_params_sanitized.empty?
-    @criteria_params = criteria_params
-    issue_filter_result = Internal.issues.execute(@criteria_params)
-    @issue_query = issue_filter_result.query
+    @first_search = issues_query_params_sanitized.empty?
+    @issues_query_params = criteria_params
+    issue_filter_result = Internal.issues.execute(@issues_query_params)
+    @issues_query = issue_filter_result.query
     @issues_result = issue_filter_result.result
+
+    if request.xhr?
+      @ajax_mode = true
+      render :partial => 'search_ajax'
+    end
   end
 
   # Load existing filter
@@ -53,9 +58,9 @@ class IssuesController < ApplicationController
 
     issue_filter_result = Internal.issues.execute(params[:id].to_i, params)
     @filter = find_filter(params[:id].to_i)
-    @criteria_params = criteria_params_from_filter(@filter)
-    @criteria_params[:id] = @filter.id
-    @issue_query = issue_filter_result.query
+    @issues_query_params = issues_query_params_from_filter(@filter)
+    @issues_query_params[:id] = @filter.id
+    @issues_query = issue_filter_result.query
     @issues_result = issue_filter_result.result
 
     render :action => 'search'
@@ -63,7 +68,7 @@ class IssuesController < ApplicationController
 
   # GET /issues/manage
   def manage
-    @issue_query = Internal.issues.emptyIssueQuery()
+    @issues_query = Internal.issues.emptyIssueQuery()
     @filters = Internal.issues.findIssueFiltersForCurrentUser()
     @shared_filters = Internal.issues.findSharedFiltersForCurrentUser()
     @favourite_filter_ids = @favourite_filters.map { |filter| filter.id }
@@ -177,17 +182,17 @@ class IssuesController < ApplicationController
   end
 
   def criteria_params
-    params['pageSize'] = PAGE_SIZE
+    params['pageSize'] = PAGE_SIZE unless request.xhr?
     params.delete('controller')
     params.delete('action')
     params
   end
 
-  def criteria_params_sanitized
+  def issues_query_params_sanitized
     Internal.issues.sanitizeFilterQuery(params).to_hash
   end
 
-  def criteria_params_from_filter(filter)
+  def issues_query_params_from_filter(filter)
     Internal.issues.deserializeFilterQuery(filter).to_hash
   end
 

@@ -96,6 +96,7 @@ public class DefaultIssueFinder implements IssueFinder {
   @Override
   public IssueQueryResult find(IssueQuery query) {
     LOG.debug("IssueQuery : {}", query);
+    long start = System.currentTimeMillis();
     SqlSession sqlSession = myBatis.openSession();
     try {
       // 1. Select the authorized ids of all the issues that match the query
@@ -153,6 +154,7 @@ public class DefaultIssueFinder implements IssueFinder {
         .setPaging(paging);
     } finally {
       MyBatis.closeQuietly(sqlSession);
+      LOG.debug("IssueQuery execution time : {} ms", System.currentTimeMillis() - start);
     }
   }
 

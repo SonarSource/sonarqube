@@ -20,7 +20,7 @@
 class DrilldownController < ApplicationController
   before_filter :init_resource_for_user_role
 
-  helper ProjectHelper, DashboardHelper
+  helper ProjectHelper, DashboardHelper, IssuesHelper
 
   SECTION=Navigation::SECTION_RESOURCE
 
@@ -134,8 +134,6 @@ class DrilldownController < ApplicationController
       ]
       @rule_measures = @snapshot.rule_measures(metrics)
     end
-
-    @display_viewers=display_issue_viewers?(@drilldown.highlighted_snapshot || @snapshot)
   end
 
   # Deprecated in 3.6. Kept for backward-compatibility, for example with SQALE (http://jira.sonarsource.com/browse/SQALE-185)
@@ -188,12 +186,6 @@ class DrilldownController < ApplicationController
   def display_violation_viewers?(snapshot)
     return true if snapshot.file?
     snapshot.violations.size>0
-  end
-
-  def display_issue_viewers?(snapshot)
-    return true if snapshot.file?
-    issues = Api.issues.find({'components' => snapshot.project.key}).issues
-    issues.size>0
   end
 
   def guess_rule_severity(snapshot, rule, metric_prefix)

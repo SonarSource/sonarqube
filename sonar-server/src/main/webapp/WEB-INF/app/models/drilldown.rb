@@ -130,17 +130,17 @@ class DrilldownColumn
       conditions += ' AND project_measures.person_id IS NULL'
     end
 
-    @measures=ProjectMeasure.find(:all,
-                                  :select => "project_measures.id,project_measures.metric_id,project_measures.#{value_column},project_measures.text_value,project_measures.alert_status,project_measures.alert_text,project_measures.snapshot_id",
-                                  :joins => :snapshot,
-                                  :conditions => [conditions, condition_values],
-                                  :order => order,
-                                  :limit => 200)
+    @measures=ProjectMeasure.all(
+        :select => "project_measures.id,project_measures.metric_id,project_measures.#{value_column},project_measures.text_value,project_measures.alert_status,project_measures.alert_text,project_measures.snapshot_id",
+        :joins => :snapshot,
+        :conditions => [conditions, condition_values],
+        :order => order,
+        :limit => 200)
 
     @resource_per_sid={}
     sids=@measures.map { |m| m.snapshot_id }.compact.uniq
     unless sids.empty?
-      Snapshot.find(:all, :include => :project, :conditions => {'snapshots.id' => sids}).each do |snapshot|
+      Snapshot.all(:include => :project, :conditions => {'snapshots.id' => sids}).each do |snapshot|
         @resource_per_sid[snapshot.id]=snapshot.project
         if @drilldown.selected_resource_ids.include?(snapshot.project_id)
           @selected_snapshot=snapshot

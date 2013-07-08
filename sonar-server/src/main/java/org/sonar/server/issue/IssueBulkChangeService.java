@@ -60,6 +60,7 @@ public class IssueBulkChangeService {
 
   public IssueBulkChangeResult execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
     LOG.debug("BulkChangeQuery : {}", issueBulkChangeQuery);
+    long start = System.currentTimeMillis();
     userSession.checkLoggedIn();
 
     IssueBulkChangeResult result = new IssueBulkChangeResult();
@@ -95,6 +96,7 @@ public class IssueBulkChangeService {
         issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
       }
     }
+    LOG.debug("BulkChange execution time : {} ms", System.currentTimeMillis() - start);
     return result;
   }
 

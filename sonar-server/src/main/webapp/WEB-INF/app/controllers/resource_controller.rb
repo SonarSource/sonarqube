@@ -294,7 +294,7 @@ class ResourceController < ApplicationController
     @expandable = (@lines != nil)
     @filtered = !@expanded
     rule_param = params[:rule]
-    options = {'components' => @resource.key, 'resolved' => 'false'}
+    @issues_query_params = {'components' => @resource.key, 'resolved' => 'false'}
 
     if rule_param.blank? && params[:metric]
       metric = Metric.by_id(params[:metric])
@@ -308,26 +308,26 @@ class ResourceController < ApplicationController
 
     if !rule_param.blank? && rule_param != 'all'
       if rule_param=='false_positive_issues'
-        options['resolutions'] = 'FALSE-POSITIVE'
-        options['resolved'] = 'true'
+        @issues_query_params['resolutions'] = 'FALSE-POSITIVE'
+        @issues_query_params['resolved'] = 'true'
 
       elsif Sonar::RulePriority.id(rule_param)
-        options['severities'] = rule_param
+        @issues_query_params['severities'] = rule_param
 
       else
         rule = Rule.by_key_or_id(rule_param)
-        options['rules'] = rule.key
+        @issues_query_params['rules'] = rule.key
       end
     end
 
     if @period && @period != 0
       date = @snapshot.period_datetime(@period)
       if date
-        options['createdAfter'] = Api::Utils.format_datetime(date)
+        @issues_query_params['createdAfter'] = Api::Utils.format_datetime(date)
       end
     end
 
-    @issue_results = Api.issues.find(options)
+    @issue_results = Api.issues.find(@issues_query_params)
     @issue_results.issues.each do |issue|
       # sorted by severity => from blocker to info
       if @lines && issue.line && issue.line>0 && issue.line<=@lines.size
@@ -336,7 +336,6 @@ class ResourceController < ApplicationController
         @global_issues<<issue
       end
     end
-    @issues_params = options
 
     if !@expanded && @lines
       filter_lines { |line| line.issues? }

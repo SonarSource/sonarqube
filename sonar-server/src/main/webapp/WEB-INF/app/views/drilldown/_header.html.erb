@@ -7,14 +7,19 @@
     if (display_title == undefined) {
       display_title = true;
     }
-    var url = '<%= ApplicationController.root_context -%>/resource/index/' + resourceId + '?metric=<%= @metric.id if @metric -%>&rule=<%= @rule ? @rule.id : @severity -%>&period=<%= @period -%>&project=<%= @resource.id -%>&display_title=' + display_title;
+    var url = '<%= ApplicationController.root_context -%>/resource/index/' + resourceId + '?metric=<%= @metric.id if @metric -%>' +
+        '&rule=<%= @rule ? @rule.id : @severity -%>&period=<%= @period -%>&project=<%= @resource.id -%>&display_title=' + display_title;
     openAccordionItem(url, this);
     return false;
   }
 
   // refresh page after issues bulk change
   function onBulkIssues(issues_query_params){
-    d(issues_query_params['components']);
-    closeModalWindow();
+    if (issues_query_params['components'] != null) {
+      d(issues_query_params['components']);
+      closeModalWindow();
+    } else {
+      window.location.reload();
+    }
   }
 </script>

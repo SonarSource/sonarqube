@@ -1,35 +1,19 @@
-<% content_for :script do %>
-  <script>
-    var filterCriteria = <%= @criteria_params.to_json -%>;
-
-    function refreshList(sort, asc, page) {
-      $j('#issue-filter-foot_pages').hide();
-      $j('#issue-filter-foot_loading').show();
-
-      filterCriteria['sort']=sort;
-      filterCriteria['asc']=asc;
-      filterCriteria['pageIndex']=page;
-      var url=baseUrl + '/issues/search?' + $j.param(filterCriteria);
-
-      window.location = url;
-      return false;
-    }
-  </script>
-<% end %>
-
 <%
    if @issues_result.issues && !@issues_result.issues.empty?
     colspan = 9
 %>
+  <% if @issues_result && @issues_result.maxResultsReached() %>
+    <p class="notes"><%= message('issue_filter.max_results_reached', :params => @issues_result.paging.total()) -%></p>
+  <% end %>
   <div id="issues-list">
     <table class="data width100">
       <thead>
         <tr>
           <th width="1%" nowrap class="column-severity">
-            <%= column_html(@issue_query, @issues_result, message('severity_abbreviated'), message('severity'), 'SEVERITY') %>
+            <%= column_html(@issues_query, @issues_result, message('severity_abbreviated'), message('severity'), 'SEVERITY') %>
           </th>
           <th width="1%" nowrap class="column-status">
-            <%= column_html(@issue_query, @issues_result, message('status'), message('status'), 'STATUS') %>
+            <%= column_html(@issues_query, @issues_result, message('status'), message('status'), 'STATUS') %>
           </th>
           <th width="1%" nowrap>
             <%= message('issue_filter.header.resolution') -%>
@@ -44,16 +28,16 @@
             <%= message('component') -%>
           </th>
           <th class="column-assignee">
-            <%= column_html(@issue_query, @issues_result, message('issue_filter.header.assignee'), message('issue_filter.header.assignee'), 'ASSIGNEE') %>
+            <%= column_html(@issues_query, @issues_result, message('issue_filter.header.assignee'), message('issue_filter.header.assignee'), 'ASSIGNEE') %>
           </th>
           <th width="1%" nowrap>
             <%= message('issue_filter.header.action_plan') -%>
           </th>
           <th width="1%" nowrap class="column-creation-date">
-            <%= column_html(@issue_query, @issues_result, message('issue_filter.header.creation_date'), message('issue_filter.header.creation_date'), 'CREATION_DATE') %>
+            <%= column_html(@issues_query, @issues_result, message('issue_filter.header.creation_date'), message('issue_filter.header.creation_date'), 'CREATION_DATE') %>
           </th>
           <th width="1%" nowrap class="column-update-date">
-            <%= column_html(@issue_query, @issues_result, message('issue_filter.header.update_date'), message('issue_filter.header.update_date'), 'UPDATE_DATE') %>
+            <%= column_html(@issues_query, @issues_result, message('issue_filter.header.update_date'), message('issue_filter.header.update_date'), 'UPDATE_DATE') %>
           </th>
         </tr>
       </thead>
@@ -102,23 +86,54 @@
       <%
          end
       %>
-      <% if @issues_result.issues.empty? %>
-        <tr class="even">
-          <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
-        </tr>
-      <% end %>
       </tbody>
-
       <%= paginate_java(@issues_result.paging, :colspan => colspan, :id => 'issue-filter-foot', :include_loading_icon => true) { |label, page_id|
-        link_to(label, params.merge({:pageIndex => page_id}))
+        if @ajax_mode
+          link_to_function label, "refreshList('#{@issues_query.sort}', #{@issues_query.asc}, #{page_id})"
+        else
+          link_to(label, params.merge({:pageIndex => page_id}))
+        end
       } -%>
-
     </table>
   </div>
 <%
    else
 %>
-  <p><%= message('issue_filter.no_result') -%></p>
+  <p style="padding: 5px;"><%= message('issue_filter.no_result') -%></p>
 <%
    end
 %>
+
+<script type="text/javascript">
+  var filterCriteria = <%= @issues_query_params.to_json -%>;
+
+  function refreshList(sort, asc, page) {
+    $j('#issue-filter-foot_pages').hide();
+    $j('#issue-filter-foot_loading').show();
+
+    filterCriteria['sort']=sort;
+    filterCriteria['asc']=asc;
+    filterCriteria['pageIndex']=page;
+    var url = baseUrl + '/issues/search?' + $j.param(filterCriteria);
+
+    <% if @ajax_mode %>
+      $j('.issues-content').load(url, function () {
+        // As issues will be loaded after open-modal has been processed by jQuery, we have to process manually modal classes
+        processModal();
+      });
+    <% else %>
+      window.location = url;
+    <% end %>
+    return false;
+  }
+
+  function processModal(){
+    $j('.issues-content .open-modal').modal();
+  }
+
+  <% if @ajax_mode %>
+    $j(document).ready(function() {
+      processModal();
+    });
+  <% end %>
+</script>

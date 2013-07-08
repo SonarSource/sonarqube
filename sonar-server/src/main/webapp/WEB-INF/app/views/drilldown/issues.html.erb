@@ -91,9 +91,12 @@
                 <img src="<%= ApplicationController.root_context -%>/images/priority/<%= rule_measure.rule_priority -%>.png"/>
               </td>
               <td>
-                <%= link_to(h(rule.name), {:controller => :drilldown, :action => :issues, :id => @resource.id, :rule => (selected ? nil : rule.key),
+                <%= link_to(h(rule.name),
+                            {:controller => :drilldown, :action => :issues, :id => @resource.id, :rule => (selected ? nil : rule.key),
                                         :rule_sev => (selected ? nil : rule_measure.severity), :sid => nil, :severity => @severity, :period => @period,
-                                        :rids => (selected ? nil : @selected_rids)}, :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}") -%>
+                                        :rids => (selected ? nil : @selected_rids)},
+                            :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}"
+                    ) -%>
               </td>
               <td class="right" nowrap="nowrap">
                 <span><%= @period ? format_variation(rule_measure, :period => @period, :style => 'light') : rule_measure.formatted_value -%></span>
@@ -182,6 +185,34 @@
     item.scrollIntoView(true);
   });
   <% end %>
+
+  function displayIssues(){
+    var params = {
+      pageSize: '10',
+      <% if rids.empty? %>
+        componentRoots: '<%= @snapshot.project.key %>',
+      <% else %>
+        componentRoots: '<%= Project.by_key(rids.last).key %>',
+      <% end %>
+      <% if @rule %>
+        rules: '<%= @rule.plugin_name + ':' + @rule.plugin_rule_key %>',
+      <% end %>
+      <% if @rule_severity %>
+        severities: '<%= @rule_severity %>',
+      <% end %>
+      <% if @period && @period != 0 %>
+        createdAfter: '<%= Api::Utils.format_datetime(@snapshot.period_datetime(@period)) %>'
+      <% end %>
+    };
+
+    var url = '<%= ApplicationController.root_context -%>/issues/search?' + jQuery.param(params);
+    openAccordionItem(url, this, false);
+    return false;
+  }
+
+  $j(document).ready(function() {
+    displayIssues();
+  });
 </script>
 
 <div id="accordion-panel"/>
