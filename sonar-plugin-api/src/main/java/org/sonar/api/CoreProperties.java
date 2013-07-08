@@ -204,7 +204,7 @@ public interface CoreProperties {
    * @since 3.4
    */
   String DRY_RUN_EXCLUDE_PLUGINS = "sonar.dryRun.excludePlugins";
-  String DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE = "devcockpit,pdfreport,report,scmactivity,views";
+  String DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE = "devcockpit,pdfreport,report,scmactivity,views,jira";
 
   /**
    * @since 2.10
