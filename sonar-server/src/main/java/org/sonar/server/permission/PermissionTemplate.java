@@ -35,8 +35,8 @@ public class PermissionTemplate {
   private final Long id;
   private final String name;
   private final String description;
-  private Multimap<String, String> usersByPermission;
-  private Multimap<String, String> groupsByPermission;
+  private Multimap<String, PermissionTemplateUser> usersByPermission;
+  private Multimap<String, PermissionTemplateGroup> groupsByPermission;
 
   private PermissionTemplate(Long id, String name, String description) {
     this.id = id;
@@ -54,12 +54,14 @@ public class PermissionTemplate {
       new PermissionTemplate(permissionTemplateDto.getId(), permissionTemplateDto.getName(), permissionTemplateDto.getDescription());
     if(permissionTemplateDto.getUsersPermissions() != null) {
       for (PermissionTemplateUserDto userPermission : permissionTemplateDto.getUsersPermissions()) {
-        permissionTemplate.registerUserPermission(userPermission.getPermission(), userPermission.getUserName());
+        permissionTemplate.registerUserPermission(permissionTemplateDto.getId(), userPermission.getUserId(),
+          userPermission.getUserName(), userPermission.getUserLogin(), userPermission.getPermission());
       }
     }
     if(permissionTemplateDto.getGroupsPermissions() != null) {
       for (PermissionTemplateGroupDto groupPermission : permissionTemplateDto.getGroupsPermissions()) {
-        permissionTemplate.registerGroupPermission(groupPermission.getPermission(), groupPermission.getGroupName());
+        permissionTemplate.registerGroupPermission(groupPermission.getPermission(), permissionTemplateDto.getId(),
+          groupPermission.getGroupId(), groupPermission.getGroupName());
       }
     }
     return permissionTemplate;
@@ -77,19 +79,19 @@ public class PermissionTemplate {
     return description;
   }
 
-  public List<String> getUsersForPermission(String permission) {
+  public List<PermissionTemplateUser> getUsersForPermission(String permission) {
     return ImmutableList.copyOf(usersByPermission.get(permission));
   }
 
-  public List<String> getGroupsForPermission(String permission) {
+  public List<PermissionTemplateGroup> getGroupsForPermission(String permission) {
     return ImmutableList.copyOf(groupsByPermission.get(permission));
   }
 
-  private void registerUserPermission(String permission, String userName) {
-    usersByPermission.put(permission, userName);
+  private void registerUserPermission(Long templateId, Long userId, String userName, String userLogin, String permission) {
+    usersByPermission.put(permission, new PermissionTemplateUser(templateId, userId, userName, userLogin, permission));
   }
 
-  private void registerGroupPermission(String permission, String groupName) {
-    groupsByPermission.put(permission, groupName);
+  private void registerGroupPermission(String permission, Long templateId, Long groupId, String groupName) {
+    groupsByPermission.put(permission, new PermissionTemplateGroup(templateId, groupId, groupName, permission));
   }
 }

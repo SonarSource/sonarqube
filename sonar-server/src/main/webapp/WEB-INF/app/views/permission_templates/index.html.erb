@@ -11,7 +11,9 @@
   <thead>
   <tr>
     <th class="left" width="20%"><%= message('name') -%></th>
-    <th class="left" colspan="3"></th>
+    <th class="left">Administrators</th>
+    <th class="left">Users</th>
+    <th class="left">Code viewers</th>
     <th class="right" width="5%" colspan="2"><%= message('operations') -%></th>
   </tr>
   </thead>
@@ -29,33 +31,39 @@
       </td>
       <td valign="top">
         <%
-           users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('admin'))
-           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('admin'))
+           users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('admin').collect {|u| u.userName})
+           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('admin').collect {|g| g.groupName})
         %>
         <span id="u-admin-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/permission_templates/edit_users?redirect=projects&role=admin&resource=<%= permission_template.id -%>" class="link-action" id="selectu-admin-<%= u permission_template.name -%>">select users</a>)<br/>
+        (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => 'admin'},
+                    :id => "selectu-admin-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
         <span id="g-admin-<%= u permission_template.name -%>"><%= groups.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/permission_templates/edit_groups?redirect=projects&role=admin&resource=<%= permission_template.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-admin-<%= u permission_template.name -%>">select groups</a>)
+        (<%= link_to message('select groups'), {:action => :edit_groups, :name => permission_template.name, :permission => 'admin'},
+                     :id => "selectg-admin-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)
       </td>
       <td valign="top">
         <%
-           users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('user'))
-           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('groups'))
+           users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('user').collect {|u| u.userName})
+           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('user').collect {|g| g.groupName})
         %>
         <span id="u-user-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=user&resource=<%= permission_template.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-user-<%= u permission_template.name -%>">select users</a>)<br/>
+        (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => 'user'},
+                     :id => "selectu-user-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
         <span id="g-user-<%= u permission_template.name -%>"><%= groups.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=user&resource=<%= permission_template.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-user-<%= u permission_template.name -%>">select groups</a>)
+        (<%= link_to message('select groups'), {:action => :edit_groups, :name => permission_template.name, :permission => 'user'},
+                     :id => "selectg-user-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)
       </td>
       <td valign="top">
         <%
-           users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('codeviewer'))
-           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('codeviewer'))
+           users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('codeviewer').collect {|u| u.userName})
+           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('codeviewer').collect {|g| g.groupName})
         %>
         <span id="u-codeviewer-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=codeviewer&resource=<%= permission_template.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-codeviewer-<%= u permission_template.name -%>">select users</a>)<br/>
+        (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => 'codeviewer'},
+                     :id => "selectu-codeviewer-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
         <span id="g-codeviewer-<%= u permission_template.name -%>"><%= groups.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=codeviewer&resource=<%= permission_template.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-codeviewer-<%= u permission_template.name -%>">select groups</a>)
+        (<%= link_to message('select groups'), {:action => :edit_groups, :name => permission_template.name, :permission => 'codeviewer'},
+                     :id => "selectg-codeviewer-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)
       </td>
       <td align="right">
         <%= link_to message('edit'), {:action => :edit_form, :name => permission_template.name},

@@ -1,0 +1,60 @@
+<form id="permission-template-form" method="post" action="<%= ApplicationController.root_context -%>/permission_templates/update_users_permissions">
+  <input type="hidden" name="id" value="<%= @permission_template.id -%>">
+  <input type="hidden" name="name" value="<%= @permission_template.name -%>">
+  <input type="hidden" name="permission" value="<%= @permission -%>"/>
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message('permission_template.edit_permissions') -%></h2>
+    </div>
+    <div class="modal-body">
+      <table>
+        <tbody>
+        <tr>
+          <td style="padding: 5px 0;" valign="top">
+            <h2>Add Users</h2>
+
+            <select name="from" id="from" size="30" style="margin: 5px 0; width: 300px;" multiple="multiple">
+              <% @users_without_permission.sort.each do |user| %>
+                <option value="<%= user[1] -%>"><%= h user[0] -%></option>
+              <% end %>
+            </select>
+          </td>
+          <td style="padding: 0 10px;" align="center">
+            <button id="select_right" onclick="SelectBox.move('from', 'to');SelectBox.sort('to');SelectBox.redisplay('to');return false;">select >></button><br>
+            <button id="select_right_all" onclick="SelectBox.move_all('from', 'to');return false;">select all >></button><br><br>
+            <button id="select_left" onclick="SelectBox.move('to', 'from');return false;"><< unselect</button><br>
+            <button id="select_left_all" onclick="SelectBox.move_all('to', 'from');return false;"><< unselect all</button>
+          </td>
+          <td class="box" style="padding: 5px 10px;" valign="top">
+            <h2>Permission: <%= role_name(@permission) -%></h2>
+
+            <select name="users[]" id="to" size="30" multiple="multiple" style="margin: 5px 0pt; width: 300px;">
+              <%= options_for_select(@users_with_permission) %>
+            </select><br>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <input type="submit" onclick="SelectBox.select_all('to');" value="<%= h message('permission_template.update_permissions') -%>" id="submit-permission-template-update"/>
+      <a href="#" onclick="return closeModalWindow()" id="cancel-update-template"><%= h message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+
+<script>
+  SelectBox.init('from');
+  SelectBox.init('to');
+  $j("#permission-template-form").modalForm({
+    success: function (data) {
+      window.location.reload();
+    },
+    error: function (xhr, textStatus, errorThrown) {
+      var htmlClass = 'permission-template';
+      $j('input[id^="submit-permission-template"]').removeAttr('disabled');
+      $j('.' + htmlClass + '.errors').show();
+      $j('.' + htmlClass + '.errors').html(xhr.responseText);
+    }
+  });
+</script>

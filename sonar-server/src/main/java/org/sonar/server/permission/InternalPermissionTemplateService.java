@@ -91,7 +91,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
     permissionDao.deletePermissionTemplate(templateId);
   }
 
-  public void addUserPermission(String templateName, String permission, final String userLogin) {
+  public void addUserPermission(String templateName, String permission, String userLogin) {
     PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, userLogin, permissionDao, userDao) {
       @Override
       protected void doExecute(Long templateId, String permission) {

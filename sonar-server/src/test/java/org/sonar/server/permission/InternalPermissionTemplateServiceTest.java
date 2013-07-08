@@ -116,11 +116,11 @@ public class InternalPermissionTemplateServiceTest {
     PermissionTemplate permissionTemplate = permissionTemplateService.selectPermissionTemplate("my template");
 
     assertThat(permissionTemplate.getUsersForPermission(Permission.DASHBOARD_SHARING.key())).isEmpty();
-    assertThat(permissionTemplate.getUsersForPermission(Permission.SCAN_EXECUTION.key())).containsOnly("user_scan", "user_scan_and_dry_run");
-    assertThat(permissionTemplate.getUsersForPermission(Permission.DRY_RUN_EXECUTION.key())).containsOnly("user_dry_run", "user_scan_and_dry_run");
+    assertThat(permissionTemplate.getUsersForPermission(Permission.SCAN_EXECUTION.key())).onProperty("userName").containsOnly("user_scan", "user_scan_and_dry_run");
+    assertThat(permissionTemplate.getUsersForPermission(Permission.DRY_RUN_EXECUTION.key())).onProperty("userName").containsOnly("user_dry_run", "user_scan_and_dry_run");
     assertThat(permissionTemplate.getGroupsForPermission(Permission.DASHBOARD_SHARING.key())).isEmpty();
-    assertThat(permissionTemplate.getGroupsForPermission(Permission.SCAN_EXECUTION.key())).containsOnly("scan_group");
-    assertThat(permissionTemplate.getGroupsForPermission(Permission.SYSTEM_ADMIN.key())).containsOnly("admin_group");
+    assertThat(permissionTemplate.getGroupsForPermission(Permission.SCAN_EXECUTION.key())).onProperty("groupName").containsOnly("scan_group");
+    assertThat(permissionTemplate.getGroupsForPermission(Permission.SYSTEM_ADMIN.key())).onProperty("groupName").containsOnly("admin_group");
   }
 
   @Test

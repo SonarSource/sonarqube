@@ -55,9 +55,12 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
     assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
     assertThat(permissionTemplate.getUsersPermissions()).hasSize(3);
+    assertThat(permissionTemplate.getUsersPermissions()).onProperty("userId").containsOnly(1L, 2L, 1L);
+    assertThat(permissionTemplate.getUsersPermissions()).onProperty("userLogin").containsOnly("login1", "login2", "login2");
     assertThat(permissionTemplate.getUsersPermissions()).onProperty("userName").containsOnly("user1", "user2", "user2");
     assertThat(permissionTemplate.getUsersPermissions()).onProperty("permission").containsOnly("user_permission1", "user_permission1", "user_permission2");
     assertThat(permissionTemplate.getGroupsPermissions()).hasSize(3);
+    assertThat(permissionTemplate.getGroupsPermissions()).onProperty("groupId").containsOnly(1L, 2L, null);
     assertThat(permissionTemplate.getGroupsPermissions()).onProperty("groupName").containsOnly("group1", "group2", null);
     assertThat(permissionTemplate.getGroupsPermissions()).onProperty("permission").containsOnly("group_permission1", "group_permission1", "group_permission2");
   }

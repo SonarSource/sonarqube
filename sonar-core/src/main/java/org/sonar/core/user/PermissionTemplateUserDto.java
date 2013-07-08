@@ -29,6 +29,7 @@ public class PermissionTemplateUserDto {
   private Long userId;
   private String permission;
   private String userName;
+  private String userLogin;
   private Date createdAt;
   private Date updatedAt;
 
@@ -68,10 +69,18 @@ public class PermissionTemplateUserDto {
     return this;
   }
 
+  public String getUserLogin() {
+    return userLogin;
+  }
+
+  public PermissionTemplateUserDto setUserLogin(String userLogin) {
+    this.userLogin = userLogin;
+    return this;
+  }
+
   public String getPermission() {
     return permission;
   }
-
 
   public PermissionTemplateUserDto setPermission(String permission) {
     this.permission = permission;

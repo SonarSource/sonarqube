@@ -33,7 +33,7 @@ class Api::PermissionsController < Api::ApiController
   # 'group' is the group identifier (group name or 'anyone')
   #
   # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/permissions/add?permission=dashboard_sharing&user=new_user'
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/permissions/add?permission=shareDashboard&user=new_user'
   #
   # -- Notes
   # An exception will be raised if both a user and a group are provided
@@ -63,7 +63,7 @@ class Api::PermissionsController < Api::ApiController
   # 'group' is the group identifier (group name or 'anyone')
   #
   # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/permissions/remove?permission=dashboard_sharing&user=new_user'
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/permissions/remove?permission=shareDashboard&user=new_user'
   #
   # -- Notes
   # An exception will be raised if both a user and a group are provided
