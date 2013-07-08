@@ -106,7 +106,6 @@
 
             <% if is_admin? %>
 
-            <li class="spacer"></li>
             <li class="sidebar-title"><%= message('sidebar.project_settings') -%></li>
             <li class="<%= 'active' if request.request_uri.include?('/settings') -%>">
               <a href="<%= ApplicationController.root_context -%>/settings/index"><%= message('settings.page') -%></a></li>
