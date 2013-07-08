@@ -257,7 +257,7 @@ class Api::IssuesController < Api::ApiController
   #
   # -- Mandatory parameters
   # 'issues' is the list of issue keys
-  # 'actions' the list of action to execute (expected at least one). Available actions are : assign,set_severity,plan,transition
+  # 'actions' the list of action to execute (expected at least one). Available actions are : assign,set_severity,plan,do_transition
   #
   # -- Optional parameters
   # 'assign.assignee' to assign all issues to a user or un-assign.
