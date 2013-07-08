@@ -104,9 +104,6 @@
 
           <% elsif selected_section==Navigation::SECTION_CONFIGURATION %>
 
-            <li class="<%= 'active' if request.request_uri.include?('/profiles') || request.request_uri.include?('/alerts') || request.request_uri.include?('/rules_configuration') -%>">
-              <a href="<%= ApplicationController.root_context -%>/profiles"><%= message('quality_profiles.page') -%></a></li>
-
             <% if is_admin? %>
 
             <li class="spacer"></li>

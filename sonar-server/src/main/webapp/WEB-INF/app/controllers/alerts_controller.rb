@@ -19,7 +19,7 @@
 #
 class AlertsController < ApplicationController
 
-  SECTION=Navigation::SECTION_CONFIGURATION
+  before_filter :hide_sidebar
 
   #
   #

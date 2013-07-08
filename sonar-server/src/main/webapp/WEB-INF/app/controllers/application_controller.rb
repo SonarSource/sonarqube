@@ -235,6 +235,10 @@ class ApplicationController < ActionController::Base
     @breadcrumbs.concat(breadcrumbs)
   end
 
+  def hide_sidebar
+    @hide_sidebar = true
+  end
+
   #
   # SETTINGS
   #
@@ -260,4 +264,5 @@ class ApplicationController < ActionController::Base
   def subcategory_name(category, subcategory)
     message("property.category.#{category}.#{subcategory}", :default => subcategory)
   end
+
 end
