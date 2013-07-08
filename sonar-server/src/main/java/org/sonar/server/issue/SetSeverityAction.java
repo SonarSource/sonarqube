@@ -46,7 +46,8 @@ public class SetSeverityAction extends Action implements ServerComponent {
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
-    return severity(properties) != null;
+    severity(properties);
+    return true;
   }
 
   @Override

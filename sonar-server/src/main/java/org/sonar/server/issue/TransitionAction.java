@@ -43,7 +43,8 @@ public class TransitionAction extends Action implements ServerComponent {
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
-    return transition(properties) != null;
+    transition(properties);
+    return true;
   }
 
   @Override

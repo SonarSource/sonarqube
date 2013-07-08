@@ -45,7 +45,8 @@ public class CommentAction extends Action implements ServerComponent {
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
-    return comment(properties) != null;
+    comment(properties);
+    return true;
   }
 
   @Override
