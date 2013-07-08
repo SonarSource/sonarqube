@@ -74,7 +74,8 @@ public class DryRunDatabaseFactory implements ServerComponent {
       .copyTable(source, dest, "quality_models")
       .copyTable(source, dest, "rules")
       .copyTable(source, dest, "rules_parameters")
-      .copyTable(source, dest, "rules_profiles");
+      .copyTable(source, dest, "rules_profiles")
+      .copyTable(source, dest, "alerts");
     if (projectId != null) {
       String snapshotCondition = "islast=" + database.getDialect().getTrueSqlValue() + " and (project_id=" + projectId + " or root_project_id=" + projectId + ")";
       template.copyTable(source, dest, "projects", "id in (select project_id from snapshots where " + snapshotCondition + ") or (id=" + projectId + " or root_id=" + projectId + ")");

@@ -69,6 +69,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
 
     assertThat(rowCount("metrics")).isEqualTo(2);
     assertThat(rowCount("projects")).isZero();
+    assertThat(rowCount("alerts")).isEqualTo(1);
   }
 
   @Test
