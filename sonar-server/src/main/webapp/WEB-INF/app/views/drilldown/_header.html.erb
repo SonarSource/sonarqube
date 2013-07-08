@@ -13,8 +13,8 @@
   }
 
   // refresh page after issues bulk change
-  function onBulkIssues(issues_query_params, component_key){
-    d(component_key);
+  function onBulkIssues(issues_query_params){
+    d(issues_query_params['components']);
     closeModalWindow();
   }
 </script>

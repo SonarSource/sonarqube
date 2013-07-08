@@ -4,11 +4,7 @@
 
    issues = issues_result.issues
    max_page_size_reached = issues_result.issues.size >= issues_result.paging.pageSize()
-   component_key = issue_query.components.to_a.first if issue_query.components and issue_query.components.size == 1
    project_key = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1
-   if params[:from] == 'drilldown' && !project_key
-     project_key = Project.by_key(component_key).root_project.kee
-   end
 
    transitions_by_issues = {}
    unresolved_issues = 0
@@ -24,7 +20,6 @@
 %>
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
   <input type="hidden" name="issues" value="<%= issues.map { |issue| issue.key() }.join(',') -%>">
-  <input type="hidden" name="issues_query_params" value="<%= params.to_query -%>">
   <input type="hidden" name="actions[]" id="bulk-change-transition-action">
   <fieldset>
     <div class="modal-head">
@@ -117,8 +112,8 @@
 </form>
 <script>
   $j("#bulk-change-form").modalForm({
-    success: function (data) {
-      onBulkIssues(data, '<%= component_key %>');
+    success: function () {
+      onBulkIssues(<%= params.to_json -%>);
     },
     error: function (xhr, textStatus, errorThrown) {
       $j('#bulk-change-loading-image').addClass("hidden");

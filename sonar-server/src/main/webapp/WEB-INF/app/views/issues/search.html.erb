@@ -59,6 +59,6 @@
 
 <script type="text/javascript">
   function onBulkIssues(issues_query_params, component_key){
-    window.location = baseUrl + '/issues/search?' + issues_query_params;
+    window.location = baseUrl + '/issues/search?' + jQuery.param(issues_query_params);
   }
 </script>
