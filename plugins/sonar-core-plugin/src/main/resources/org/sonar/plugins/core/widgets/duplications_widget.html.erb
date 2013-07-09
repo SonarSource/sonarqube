@@ -1,0 +1,55 @@
+<%
+  duplications=measure('duplicated_lines_density')
+  if duplications
+%>
+<table width="100%">
+  <tbody>
+    <tr>
+      <td valign="top" width="50%">
+        <div class="dashbox">
+          <p class="title"><%= message('widget.duplications.duplications') -%></p>
+          <p>
+            <span class="big">
+              <%= format_measure('duplicated_lines_density',:url => url_for_drilldown('duplicated_lines_density'))%></span>
+              <%= dashboard_configuration.selected_period? ? format_variation('duplicated_lines_density') : trend_icon('duplicated_lines_density') -%>
+            </span>
+          </p>
+          <p>
+            <%= format_measure(measure('duplicated_lines'),:url => url_for_drilldown('duplicated_lines'), :suffix =>  ' ' + message('widget.duplications.lines.suffix'))%>
+              <%= dashboard_configuration.selected_period? ? format_variation('duplicated_lines') : trend_icon('duplicated_lines') -%>
+          </p>
+          <p>
+            <%= format_measure(measure('duplicated_blocks'),:url => url_for_drilldown('duplicated_blocks'), :suffix =>  ' ' + message('widget.duplications.blocks.suffix'))%>
+              <%= dashboard_configuration.selected_period? ? format_variation('duplicated_blocks') : trend_icon('duplicated_blocks') -%>
+          </p>
+          <p>
+            <%= format_measure(measure('duplicated_files'),:url => url_for_drilldown('duplicated_files'), :suffix =>  ' ' + message('widget.duplications.files.suffix'))%>
+              <%= dashboard_configuration.selected_period? ? format_variation('duplicated_files') : trend_icon('duplicated_files') -%>
+          </p>
+       </div>
+      </td>
+<%
+  useless_code=measure('total-useless-lines')
+  if useless_code
+%>
+
+      <td valign="top" width="50%">
+        <div class="dashbox">
+          <p class="title"><%= message('widget.duplications.useless-duplications-title') -%></p>
+          <p>
+            <span class="big">
+              <%= format_measure(measure('useless-duplicated-lines'),:url => url_for_drilldown('useless-duplicated-lines'), :suffix =>  ' ' + message('widget.duplications.lines.suffix'))%>
+            </span>
+            <%= dashboard_configuration.selected_period? ? format_variation('useless-duplicated-lines') : trend_icon('useless-duplicated-lines') -%>
+          </p>
+        </div>
+      </td>
+<%
+  end
+%>
+    </tr>
+  </tbody>
+</table>
+<%
+  end
+%>
