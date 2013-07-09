@@ -1,0 +1,47 @@
+<%
+  comments=measure('comment_lines_density')
+  if comments
+%>
+<table width="100%">
+  <tbody>
+    <tr>
+      <td valign="top" width="50%">
+        <div class="dashbox">
+          <p class="title"><%= message('widget.documentation_comments.documentation') -%></p>
+          <p>
+            <span class="big">
+              <%= format_measure(measure('public_documented_api_density'),:url => url_for_drilldown('public_documented_api_density'), :suffix =>  ' ' + message('widget.documentation_comments.docu_api.suffix'))%>
+            </span>
+            <%= dashboard_configuration.selected_period? ? format_variation('public_documented_api_density') : trend_icon('public_documented_api_density') -%>
+          </p>
+          <p>
+            <%= format_measure(measure('public_api'),:url => url_for_drilldown('public_api'), :suffix =>  ' ' + message('widget.documentation_comments.public_api.suffix'))%>
+            <%= dashboard_configuration.selected_period? ? format_variation('public_api') : trend_icon('public_api') -%>
+          </p>
+          <p>
+            <%= format_measure(measure('public_undocumented_api'),:url => url_for_drilldown('public_undocumented_api'), :suffix => ' ' + message('widget.documentation_comments.undocu_api.suffix'))%>
+            <%= dashboard_configuration.selected_period? ? format_variation('public_undocumented_api') : trend_icon('public_undocumented_api') -%>
+          </p>
+        </div>
+      </td>
+      <td valign="top" width="50%">
+        <div class="dashbox">
+          <p class="title"><%= message('widget.documentation_comments.comments') -%></p>
+          <p>
+            <span class="big">
+              <%= format_measure('comment_lines_density',:url => url_for_drilldown('comment_lines_density'))%>
+            </span>
+            <%= dashboard_configuration.selected_period? ? format_variation('comment_lines_density') : trend_icon('comment_lines_density') -%>
+          </p>
+          <p>
+            <%= format_measure(measure('comment_lines'),:url => url_for_drilldown('comment_lines'), :suffix =>  ' ' + message('widget.documentation_comments.lines.suffix'))%>
+            <%= dashboard_configuration.selected_period? ? format_variation('comment_lines') : trend_icon('comment_lines') -%>
+          </p>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<%
+  end
+%>

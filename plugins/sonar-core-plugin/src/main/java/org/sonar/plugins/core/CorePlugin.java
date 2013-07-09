@@ -369,6 +369,7 @@ public final class CorePlugin extends SonarPlugin {
       MeasureFilterListWidget.class,
       MeasureFilterTreemapWidget.class,
       WelcomeWidget.class,
+      DocumentationCommentsWidget.class,
 
       // dashboards
       ProjectDefaultDashboard.class,
