@@ -26,8 +26,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.db.IssueDto;
@@ -46,13 +49,15 @@ public class IssueTrackingTest {
   Resource project;
   LastSnapshots lastSnapshots;
   long violationId = 0;
+  private FileLinesContextFactory fileLineContextFactory;
 
   @Before
   public void before() {
     lastSnapshots = mock(LastSnapshots.class);
 
     project = mock(Project.class);
-    tracking = new IssueTracking(lastSnapshots, null);
+    fileLineContextFactory = mock(FileLinesContextFactory.class);
+    tracking = new IssueTracking(lastSnapshots, null, fileLineContextFactory);
   }
 
   @Test
@@ -267,9 +272,9 @@ public class IssueTrackingTest {
 
     IssueTrackingResult result = new IssueTrackingResult();
     tracking.mapIssues(
-      Arrays.asList(newIssue1, newIssue2, newIssue3),
-      Arrays.asList(referenceIssue1),
-      source, project, result);
+        Arrays.asList(newIssue1, newIssue2, newIssue3),
+        Arrays.asList(referenceIssue1),
+        source, project, result);
 
     assertThat(result.matching(newIssue1)).isNull();
     assertThat(result.matching(newIssue2)).isSameAs(referenceIssue1);
@@ -283,30 +288,86 @@ public class IssueTrackingTest {
 
     IssueDto referenceIssue1 = newReferenceIssue("Avoid unused local variables such as 'j'.", 6, "squid", "AvoidCycle", "63c11570fc0a76434156be5f8138fa03");
     IssueDto referenceIssue2 = newReferenceIssue("Avoid unused private methods such as 'myMethod()'.", 13, "squid", "NullDeref", "ef23288705d1ef1e512448ace287586e");
-    IssueDto referenceIssue3 = newReferenceIssue("Method 'avoidUtilityClass' is not designed for extension - needs to be abstract, final or empty.", 9, "pmd", "UnusedLocalVariable", "ed5cdd046fda82727d6fedd1d8e3a310");
+    IssueDto referenceIssue3 = newReferenceIssue("Method 'avoidUtilityClass' is not designed for extension - needs to be abstract, final or empty.", 9, "pmd",
+        "UnusedLocalVariable", "ed5cdd046fda82727d6fedd1d8e3a310");
 
     // New issue
     DefaultIssue newIssue1 = newDefaultIssue("Avoid unused local variables such as 'msg'.", 18, RuleKey.of("squid", "AvoidCycle"), "a24254126be2bf1a9b9a8db43f633733");
     // Same as referenceIssue2
     DefaultIssue newIssue2 = newDefaultIssue("Avoid unused private methods such as 'myMethod()'.", 13, RuleKey.of("squid", "NullDeref"), "ef23288705d1ef1e512448ace287586e");
     // Same as referenceIssue3
-    DefaultIssue newIssue3 = newDefaultIssue("Method 'avoidUtilityClass' is not designed for extension - needs to be abstract, final or empty.", 9, RuleKey.of("pmd", "UnusedLocalVariable"), "ed5cdd046fda82727d6fedd1d8e3a310");
+    DefaultIssue newIssue3 = newDefaultIssue("Method 'avoidUtilityClass' is not designed for extension - needs to be abstract, final or empty.", 9,
+        RuleKey.of("pmd", "UnusedLocalVariable"), "ed5cdd046fda82727d6fedd1d8e3a310");
     // New issue
-    DefaultIssue newIssue4 = newDefaultIssue("Method 'newViolation' is not designed for extension - needs to be abstract, final or empty.", 17, RuleKey.of("pmd", "UnusedLocalVariable"), "7d58ac9040c27e4ca2f11a0269e251e2");
+    DefaultIssue newIssue4 = newDefaultIssue("Method 'newViolation' is not designed for extension - needs to be abstract, final or empty.", 17,
+        RuleKey.of("pmd", "UnusedLocalVariable"), "7d58ac9040c27e4ca2f11a0269e251e2");
     // Same as referenceIssue1
     DefaultIssue newIssue5 = newDefaultIssue("Avoid unused local variables such as 'j'.", 6, RuleKey.of("squid", "AvoidCycle"), "4432a2675ec3e1620daefe38386b51ef");
 
     IssueTrackingResult result = new IssueTrackingResult();
     tracking.mapIssues(
-      Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4, newIssue5),
-      Arrays.asList(referenceIssue1, referenceIssue2, referenceIssue3),
-      source, project, result);
+        Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4, newIssue5),
+        Arrays.asList(referenceIssue1, referenceIssue2, referenceIssue3),
+        source, project, result);
 
     assertThat(result.matching(newIssue1)).isNull();
     assertThat(result.matching(newIssue2)).isSameAs(referenceIssue2);
     assertThat(result.matching(newIssue3)).isSameAs(referenceIssue3);
     assertThat(result.matching(newIssue4)).isNull();
     assertThat(result.matching(newIssue5)).isSameAs(referenceIssue1);
+  }
+
+  @Test
+  public void should_update_scm_author_on_new_issues() {
+    Resource resource = mock(Resource.class);
+    FileLinesContext context = mock(FileLinesContext.class);
+    when(context.getStringValue("authors_by_line", 1)).thenReturn("julien");
+    when(fileLineContextFactory.createFor(resource)).thenReturn(context);
+
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
+
+    when(resource.getScope()).thenReturn(Scopes.FILE);
+    tracking.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
+    assertThat(newIssue.authorLogin()).isEqualTo("julien");
+  }
+
+  @Test
+  public void should_not_update_scm_author_when_resource_is_not_a_file() {
+    Resource resource = mock(Resource.class);
+
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
+
+    when(resource.getScope()).thenReturn(Scopes.PROJECT);
+    tracking.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
+    assertThat(newIssue.authorLogin()).isNull();
+  }
+
+  @Test
+  public void should_not_update_scm_author_when_issue_is_on_line_0() {
+    Resource resource = mock(Resource.class);
+    FileLinesContext context = mock(FileLinesContext.class);
+    when(context.getStringValue("authors_by_line", 1)).thenReturn("julien");
+    when(fileLineContextFactory.createFor(resource)).thenReturn(context);
+
+    DefaultIssue newIssue = newDefaultIssue("message", null, RuleKey.of("squid", "AvoidCycle"), "checksum1");
+
+    when(resource.getScope()).thenReturn(Scopes.FILE);
+    tracking.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
+    assertThat(newIssue.authorLogin()).isNull();
+  }
+
+  @Test
+  public void should_not_update_scm_author_when_unknow_scm_author() {
+    Resource resource = mock(Resource.class);
+    FileLinesContext context = mock(FileLinesContext.class);
+    when(context.getStringValue("authors_by_line", 1)).thenReturn(null);
+    when(fileLineContextFactory.createFor(resource)).thenReturn(context);
+
+    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
+
+    when(resource.getScope()).thenReturn(Scopes.FILE);
+    tracking.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
+    assertThat(newIssue.authorLogin()).isNull();
   }
 
   private static String load(String name) throws IOException {

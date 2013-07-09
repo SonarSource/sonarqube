@@ -29,6 +29,12 @@
       <span><%= message('issue.reported_by') -%> <%= @issue_results.user(issue.reporter).name -%></span>
       &nbsp;
     <% end %>
+    <% if issue.authorLogin %>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
+      &nbsp;
+      <span><%= message('issue.authorLogin') -%> <%= issue.authorLogin -%></span>
+      &nbsp;
+    <% end %>
   </div>
 
   <div class="issue-rule rule_detail" style="display: none"></div>
