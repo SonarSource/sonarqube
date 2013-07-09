@@ -623,9 +623,7 @@ ul.operations {
   list-style-type: none;
   margin: 0;
   background-color: #EFEFEF;
-  border-left: 1px solid #cdcdcd;
-  border-bottom: 1px solid #cdcdcd;
-  border-top: 1px solid #cdcdcd;
+  border: 1px solid #cdcdcd;
   border-radius: 3px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
