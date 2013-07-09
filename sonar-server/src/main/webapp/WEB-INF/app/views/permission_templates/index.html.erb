@@ -10,7 +10,7 @@
 
     <% @root_qualifiers.each do |qualifier| %>
       <%= label_tag("default_template_#{qualifier}", "Default permission template for #{message('qualifier.' + qualifier)}:") %>
-      <%= select_tag("default_template_#{qualifier}", options_for_select(@permission_templates_options, @default_templates[qualifier] ? @default_templates[qualifier].to_i : -1)) %>
+      <%= select_tag("default_template_#{qualifier}", options_for_select(@permission_templates_options, @default_templates[qualifier])) %>
     <% end %>
     <br/>
     <br/>
@@ -33,6 +33,7 @@
     <th class="left">Administrators</th>
     <th class="left">Users</th>
     <th class="left">Code viewers</th>
+    <th class="left" width="8%"><%= message('default') -%></th>
     <th class="right" width="5%" colspan="2"><%= message('operations') -%></th>
   </tr>
   </thead>
@@ -40,7 +41,7 @@
   <tbody>
   <% if @permission_templates.empty? %>
     <tr class="even">
-      <td colspan="6" align="left"><%= message('permission_template.no_results') %></td>
+      <td colspan="7" align="left"><%= message('permission_template.no_results') %></td>
     </tr>
   <% end %>
   <% @permission_templates.each do |permission_template| %>
@@ -84,13 +85,22 @@
         (<%= link_to message('select groups'), {:action => :edit_groups, :name => permission_template.name, :permission => 'codeviewer'},
                      :id => "selectg-codeviewer-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)
       </td>
+      <td>
+        <% if @default_templates.values.include?(permission_template.id.to_s)
+              qualifier = @default_templates.invert[permission_template.id.to_s]
+        %>
+          <%= image_tag 'tick.png', :id => "is_active_#{u permission_template.name}" %><span class="small gray">(Default for <%= message('qualifier.' + qualifier) %>)</span>
+        <% end %>
+      </td>
       <td align="right">
         <%= link_to message('edit'), {:action => :edit_form, :name => permission_template.name},
                     :id => "edit-template-#{u permission_template.name}", :class => 'open-modal link-action' %>
       </td>
       <td align="right">
-        <%= link_to message('delete'), {:action => :delete_form, :name => permission_template.name},
-                    :id => "delete-template-#{u permission_template.name}", :class => 'open-modal link-action link-red' %>
+        <% unless @default_templates.values.include?(permission_template.id.to_s) %>
+          <%= link_to message('delete'), {:action => :delete_form, :name => permission_template.name},
+                      :id => "delete-template-#{u permission_template.name}", :class => 'open-modal link-action link-red' %>
+        <% end %>
       </td>
     </tr>
   <%

@@ -48,9 +48,10 @@ class PermissionTemplatesController < ApplicationController
     @root_qualifiers = get_root_qualifiers
 
     @default_templates = {}
+    default_template_property = Property.by_key("sonar.permission.template.default")
     @root_qualifiers.each do |qualifier|
-      default_template_property = Property.by_key("sonar.permission.template.#{qualifier}.default")
-      @default_templates[qualifier] = default_template_property.text_value unless default_template_property.nil?
+      qualifier_template = Property.by_key("sonar.permission.template.#{qualifier}.default")
+      @default_templates[qualifier] = qualifier_template ? qualifier_template.text_value : default_template_property.text_value
     end
   end
 
