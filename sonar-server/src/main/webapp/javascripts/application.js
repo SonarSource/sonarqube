@@ -366,7 +366,9 @@ function openAccordionItem(url, elt, updateCurrentElement) {
   var ajaxRequest = $j.ajax({
       url: url
       }).fail(function (jqXHR, textStatus) {
-        alert("Server error. Please contact your administrator. The status of the error is : "+ jqXHR.status);
+        var error = "Server error. Please contact your administrator. The status of the error is : "+ jqXHR.status + ", textStatus is : "+ textStatus;
+        console.log(error);
+        $j("#accordion-panel").append($j('<div class="error">').append(error));
       }).done(function (html) {
         if (currentElement.length) {
           var body = currentElement.find('.accordion-item-body');
@@ -402,7 +404,7 @@ function openAccordionItem(url, elt, updateCurrentElement) {
           // Set the focus on the top of the current item with animation
           if (currentElement.length) {
             $j('html, body').animate({
-                  scrollTop: currentElement.offset().top}, 500
+              scrollTop: currentElement.offset().top}, 500
             );
           }
         }
