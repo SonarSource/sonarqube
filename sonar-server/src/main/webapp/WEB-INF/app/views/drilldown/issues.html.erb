@@ -189,6 +189,7 @@
   function displayIssues(){
     var params = {
       pageSize: '10',
+      resolved: 'false',
       <% if rids.empty? %>
         componentRoots: '<%= @snapshot.project.key %>',
       <% else %>
