@@ -29,7 +29,7 @@ class PermissionTemplatesController < ApplicationController
   helper RolesHelper
   include RolesHelper
 
-  SECTION=Navigation::SECTION_CONFIGURATION
+  SECTION = Navigation::SECTION_CONFIGURATION
 
   before_filter :admin_required
 
@@ -39,9 +39,13 @@ class PermissionTemplatesController < ApplicationController
   def index
     templates_names = Internal.permission_templates.selectAllPermissionTemplates.collect {|t| t.name}
     @permission_templates = []
-    templates_names.each do |t|
-      @permission_templates << Internal.permission_templates.selectPermissionTemplate(t)
+    @default_templates_list = []
+    templates_names.each do |template_name|
+      permission_template = Internal.permission_templates.selectPermissionTemplate(template_name)
+      @permission_templates << permission_template
+      @default_templates_list << [permission_template.name, permission_template.id]
     end
+    @root_qualifiers = get_root_qualifiers
   end
 
   def edit_users
@@ -162,6 +166,23 @@ class PermissionTemplatesController < ApplicationController
     require_parameters :id
     Internal.permission_templates.deletePermissionTemplate(params[:id].to_i)
     redirect_to :action => 'index'
+  end
+
+  #
+  # POST
+  #
+  def set_default_template
+    verify_post_request
+    get_root_qualifiers.each do |qualifier|
+      Property.set("sonar.permission.template.default.#{qualifier}", params["default_template_#{qualifier}"])
+    end
+    redirect_to :action => 'index'
+  end
+
+  private
+
+  def get_root_qualifiers
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceRootTypes().map {|type| type.getQualifier()}
   end
 
 end

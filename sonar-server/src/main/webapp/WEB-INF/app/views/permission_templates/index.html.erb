@@ -1,12 +1,31 @@
+<h1><%= message('permission_templates') -%></h1>
+<br/>
+<h2>Default templates</h2>
+<div class="box">
+  <p>
+    This section allows you to configure the default permission templates that will be applied by SonarQube while analysing your projects.
+  </p>
+  <br/>
+  <% form_tag(:controller => 'permission_templates', :action => 'set_default_template') do %>
+
+    <% @root_qualifiers.each do |qualifier| %>
+      <%= label_tag("default_template_#{qualifier}", "Default permission template for #{message('qualifier.' + qualifier)}:") %>
+      <%= select_tag("default_template_#{qualifier}", options_for_select(@default_templates_list, -1)) %>
+    <% end %>
+    <br/>
+    <br/>
+    <%= submit_tag "Save" %>
+  <% end %>
+</div>
+<br/>
 <div class="line-block">
   <ul style="float: right" class="horizontal">
     <li class="marginleft10 add">
       <a id="create-link-permission-template" href="permission_templates/create_form" class="open-modal link-action"><%= message('create') -%></a>
     </li>
   </ul>
-  <h1><%= message('permission_templates') -%></h1>
+  <h2>Available templates</h2>
 </div>
-
 <table class="data width100" id="permission-templates">
   <thead>
   <tr>
