@@ -21,6 +21,7 @@
 package org.sonar.server.permission;
 
 import com.google.common.collect.Lists;
+import org.h2.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -136,8 +137,8 @@ public class InternalPermissionTemplateService implements ServerComponent {
   }
 
   private void validateTemplateName(Long templateId, String templateName) {
-    if(templateName == null) {
-      String errorMsg = "The name field is mandatory";
+    if(StringUtils.isNullOrEmpty(templateName)) {
+      String errorMsg = "Name can't be blank";
       LOG.error(errorMsg);
       throw new BadRequestException(errorMsg);
     }

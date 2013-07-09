@@ -140,7 +140,7 @@ class PermissionTemplatesController < ApplicationController
   def edit_form
     @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
     render :partial => 'permission_templates/permission_template_form',
-           :locals => {:form_action => 'edit', :message_title => 'edit_template', :message_submit => 'edit_template'}
+           :locals => {:form_action => 'edit', :message_title => 'edit_template', :message_submit => 'update_template'}
   end
 
   #

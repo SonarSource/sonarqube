@@ -80,6 +80,14 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
+  public void should_reject_empty_name_on_creation() throws Exception {
+    expected.expect(BadRequestException.class);
+    expected.expectMessage("Name can't be blank");
+
+    permissionTemplateService.createPermissionTemplate("", DEFAULT_DESC);
+  }
+
+  @Test
   public void should_delete_permission_template() throws Exception {
     when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
 

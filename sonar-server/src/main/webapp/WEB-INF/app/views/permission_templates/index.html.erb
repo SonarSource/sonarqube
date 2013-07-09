@@ -40,7 +40,7 @@
   <tbody>
   <% if @permission_templates.empty? %>
     <tr class="even">
-      <td colspan="4" align="left"><%= message('no_results') %></td>
+      <td colspan="6" align="left"><%= message('permission_template.no_results') %></td>
     </tr>
   <% end %>
   <% @permission_templates.each do |permission_template| %>
@@ -90,7 +90,7 @@
       </td>
       <td align="right">
         <%= link_to message('delete'), {:action => :delete_form, :name => permission_template.name},
-                    :id => "delete-template-#{u permission_template.name}", :class => 'open-modal link-action' %>
+                    :id => "delete-template-#{u permission_template.name}", :class => 'open-modal link-action link-red' %>
       </td>
     </tr>
   <%
