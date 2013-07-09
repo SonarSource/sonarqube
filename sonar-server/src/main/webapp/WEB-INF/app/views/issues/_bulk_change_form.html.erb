@@ -1,10 +1,12 @@
 <%
-   issue_query = @issue_filter_result.query
    issues_result = @issue_filter_result.result
 
    issues = issues_result.issues
    max_page_size_reached = issues_result.issues.size >= issues_result.paging.pageSize()
-   project_key = issue_query.componentRoots.to_a.first if issue_query.componentRoots and issue_query.componentRoots.size == 1
+   project_key = nil
+   if issues_result.projects().to_a.size == 1
+     project_key = issues_result.project(issues.to_a.first).key unless issues.empty?
+   end
 
    transitions_by_issues = {}
    unresolved_issues = 0
@@ -44,7 +46,7 @@
         <span style="float:right;">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
       </div>
       <%
-         if project_key && !project_key.blank?
+         if project_key
            plans = Internal.issues.findOpenActionPlans(project_key)
            unless plans.empty?
              first_plan = plans[0]
