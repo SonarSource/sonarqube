@@ -10,11 +10,11 @@
   %>
     <div class="warning" style="margin: 10px">
 
-      <%= message('issue.manual.no_rules') -%>
       <% if is_admin %>
+        <%= message('issue.manual.no_rules.admin') -%>
         <a href="<%= ApplicationController.root_context -%>/manual_rules/index"><%= message('manage') -%></a>
       <% else %>
-        <%= message('contact_admin') -%>
+        <%= message('issue.manual.no_rules.non_admin') -%>
       <% end %>
 
       &nbsp;<%= link_to_function message('cancel'), 'closeCreateIssueForm(this)' -%>
