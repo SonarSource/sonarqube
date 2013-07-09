@@ -46,7 +46,8 @@ public final class ProjectDefaultDashboard extends DashboardTemplate {
 
   private void addFirstColumn(Dashboard dashboard) {
     dashboard.addWidget("size", 1);
-    dashboard.addWidget("comments_duplications", 1);
+    dashboard.addWidget("documentation_comments", 1);
+    dashboard.addWidget("duplications", 1);
     dashboard.addWidget("complexity", 1);
     dashboard.addWidget("events", 1);
     dashboard.addWidget("description", 1);

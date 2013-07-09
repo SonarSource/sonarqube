@@ -44,6 +44,6 @@ public class ProjectDefaultDashboardTest {
     Dashboard dashboard = template.createDashboard();
 
     assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
-    assertThat(dashboard.getWidgets()).hasSize(10);
+    assertThat(dashboard.getWidgets()).hasSize(11);
   }
 }
