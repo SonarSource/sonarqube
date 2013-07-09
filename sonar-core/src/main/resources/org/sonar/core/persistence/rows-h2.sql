@@ -14,17 +14,21 @@ ALTER TABLE GROUP_ROLES ALTER COLUMN ID RESTART WITH 6;
 INSERT INTO GROUPS_USERS(USER_ID, GROUP_ID) VALUES (1, 1);
 INSERT INTO GROUPS_USERS(USER_ID, GROUP_ID) VALUES (1, 2);
 
--- see migration 320
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (1, 'sonar.role.admin.TRK.defaultGroups', NULL, 'sonar-administrators', NULL);
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (2, 'sonar.role.user.TRK.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (3, 'sonar.role.codeviewer.TRK.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (4, 'sonar.role.admin.VW.defaultGroups', NULL, 'sonar-administrators', NULL);
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (5, 'sonar.role.user.VW.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (6, 'sonar.role.codeviewer.VW.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (7, 'sonar.role.admin.SVW.defaultGroups', NULL, 'sonar-administrators', NULL);
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (8, 'sonar.role.user.SVW.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (9, 'sonar.role.codeviewer.SVW.defaultGroups', NULL, 'Anyone,sonar-users', NULL);
-ALTER TABLE PROPERTIES ALTER COLUMN ID RESTART WITH 10;
+-- Default permissions - Replaces the previous role-based properties such as 'sonar.role.admin.TRK.defaultGroups' (see migration 418)
+INSERT INTO PERMISSION_TEMPLATES(ID, name, description) VALUES (1, 'Default template', 'This permission template will be used as default when no other permission configuration is available');
+ALTER TABLE PERMISSION_TEMPLATES ALTER COLUMN ID RESTART WITH 2;
+
+INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (1, 1, 1, 'admin');
+INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (2, 1, 1, 'user');
+INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (3, 1, NULL, 'user');
+INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (4, 1, 1, 'codeviewer');
+INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (5, 1, NULL, 'codeviewer');
+ALTER TABLE PERM_TEMPLATES_GROUPS ALTER COLUMN ID RESTART WITH 6;
+
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (1, 'sonar.permission.template.default', NULL, '1', NULL);
+ALTER TABLE PROPERTIES ALTER COLUMN ID RESTART WITH 2;
+-- Default permissions end
+
 
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('1');
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('2');
@@ -181,6 +185,7 @@ INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('414');
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('415');
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('416');
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('417');
+INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('418');
 
 INSERT INTO USERS(ID, LOGIN, NAME, EMAIL, CRYPTED_PASSWORD, SALT, CREATED_AT, UPDATED_AT, REMEMBER_TOKEN, REMEMBER_TOKEN_EXPIRES_AT) VALUES (1, 'admin', 'Administrator', '', 'a373a0e667abb2604c1fd571eb4ad47fe8cc0878', '48bc4b0d93179b5103fd3885ea9119498e9d161b', '2011-09-26 22:27:48.0', '2011-09-26 22:27:48.0', null, null);
 ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 2;

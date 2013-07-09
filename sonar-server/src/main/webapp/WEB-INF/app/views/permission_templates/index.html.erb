@@ -10,7 +10,7 @@
 
     <% @root_qualifiers.each do |qualifier| %>
       <%= label_tag("default_template_#{qualifier}", "Default permission template for #{message('qualifier.' + qualifier)}:") %>
-      <%= select_tag("default_template_#{qualifier}", options_for_select(@default_templates_list, -1)) %>
+      <%= select_tag("default_template_#{qualifier}", options_for_select(@permission_templates_options, @default_templates[qualifier] ? @default_templates[qualifier].to_i : -1)) %>
     <% end %>
     <br/>
     <br/>
@@ -51,7 +51,7 @@
       <td valign="top">
         <%
            users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('admin').collect {|u| u.userName})
-           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('admin').collect {|g| g.groupName})
+           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('admin').collect {|g| g.groupName.blank? ? 'Anyone' : g.groupName})
         %>
         <span id="u-admin-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
         (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => 'admin'},
@@ -63,7 +63,7 @@
       <td valign="top">
         <%
            users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('user').collect {|u| u.userName})
-           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('user').collect {|g| g.groupName})
+           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('user').collect {|g| g.groupName.blank? ? 'Anyone' : g.groupName})
         %>
         <span id="u-user-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
         (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => 'user'},
@@ -75,7 +75,7 @@
       <td valign="top">
         <%
            users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('codeviewer').collect {|u| u.userName})
-           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('codeviewer').collect {|g| g.groupName})
+           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('codeviewer').collect {|g| g.groupName.blank? ? 'Anyone' : g.groupName})
         %>
         <span id="u-codeviewer-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
         (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => 'codeviewer'},
