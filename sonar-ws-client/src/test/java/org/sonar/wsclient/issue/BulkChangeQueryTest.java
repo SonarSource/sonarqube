@@ -50,4 +50,20 @@ public class BulkChangeQueryTest {
     );
   }
 
+  @Test
+  public void should_not_add_null_issues() {
+    BulkChangeQuery query = BulkChangeQuery.create()
+      .issues(null);
+
+    assertThat(query.urlParams()).isEmpty();
+  }
+
+  @Test
+  public void should_not_add_null_actions() {
+    BulkChangeQuery query = BulkChangeQuery.create()
+      .actions(null);
+
+    assertThat(query.urlParams()).isEmpty();
+  }
+
 }

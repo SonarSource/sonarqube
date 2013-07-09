@@ -26,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
+import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
@@ -59,7 +60,6 @@ public class IssueBulkChangeServiceTest {
 
   private IssueBulkChangeService service;
 
-  private Action action = mock(Action.class);
   private List<Action> actions;
 
   @Before
@@ -68,8 +68,6 @@ public class IssueBulkChangeServiceTest {
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) issue));
 
     actions = newArrayList();
-    when(action.key()).thenReturn("assign");
-    actions.add(action);
 
     service = new IssueBulkChangeService(finder, issueStorage, issueNotifications, actions);
   }
@@ -80,10 +78,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("issues", "ABCD");
     properties.put("actions", "assign");
     properties.put("assign.assignee", "fred");
-
-    when(action.supports(any(Issue.class))).thenReturn(true);
-    when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
-    when(action.execute(eq(properties), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+    actions.add(new MockAction("assign"));
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
@@ -104,17 +99,8 @@ public class IssueBulkChangeServiceTest {
     properties.put("assign.assignee", "fred");
     properties.put("set_severity.severity", "MINOR");
 
-    Action setSeverityAction = mock(Action.class);
-    when(setSeverityAction.key()).thenReturn("set_severity");
-    actions.add(setSeverityAction);
-
-    when(action.supports(any(Issue.class))).thenReturn(true);
-    when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
-    when(action.execute(eq(properties), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
-
-    when(setSeverityAction.supports(any(Issue.class))).thenReturn(true);
-    when(setSeverityAction.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
-    when(setSeverityAction.execute(eq(properties), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+    actions.add(new MockAction("set_severity"));
+    actions.add(new MockAction("assign"));
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
@@ -133,10 +119,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("issues", "ABCD,DEFG");
     properties.put("actions", "assign");
     properties.put("assign.assignee", "fred");
-
-    when(action.supports(any(Issue.class))).thenReturn(true);
-    when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
-    when(action.execute(eq(properties), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+    actions.add(new MockAction("assign"));
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     service.execute(issueBulkChangeQuery, userSession);
@@ -155,8 +138,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("issues", "ABCD");
     properties.put("actions", "assign");
     properties.put("assign.assignee", "fred");
-
-    when(action.supports(any(Issue.class))).thenReturn(false);
+    actions.add(new MockAction("assign", true, true, false));
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
@@ -173,9 +155,7 @@ public class IssueBulkChangeServiceTest {
     properties.put("issues", "ABCD");
     properties.put("actions", "assign");
     properties.put("assign.assignee", "fred");
-
-    when(action.supports(any(Issue.class))).thenReturn(true);
-    when(action.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(false);
+    actions.add(new MockAction("assign", true, false, true));
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
@@ -193,6 +173,9 @@ public class IssueBulkChangeServiceTest {
     properties.put("actions", "assign");
     properties.put("assign.assignee", "fred");
 
+    Action action = mock(Action.class);
+    actions.add(action);
+    when(action.key()).thenReturn("assign");
     when(action.supports(any(Issue.class))).thenReturn(true);
     doThrow(new RuntimeException("Error")).when(action).execute(anyMap(), any(IssueBulkChangeService.ActionContext.class));
 
@@ -241,4 +224,36 @@ public class IssueBulkChangeServiceTest {
     verifyZeroInteractions(issueNotifications);
   }
 
+
+  class MockAction extends Action {
+
+    private boolean verify;
+    private boolean execute;
+
+    public MockAction(String key, boolean verify, boolean execute, final boolean support) {
+      super(key);
+      this.verify = verify;
+      this.execute = execute;
+      setConditions(new Condition() {
+        @Override
+        public boolean matches(Issue issue) {
+          return support;
+        }
+      });
+    }
+
+    public MockAction(String key) {
+      this(key, true, true, true);
+    }
+
+    @Override
+    boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
+      return verify;
+    }
+
+    @Override
+    boolean execute(Map<String, Object> properties, Context context) {
+      return execute;
+    }
+  }
 }

@@ -74,31 +74,6 @@ public abstract class Action implements ServerComponent {
 
   abstract boolean execute(Map<String, Object> properties, Context context);
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Action that = (Action) o;
-    if (!key.equals(that.key)) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return key.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return key;
-  }
-
   interface Context {
     Issue issue();
 
