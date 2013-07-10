@@ -35,7 +35,7 @@
     <% if is_admin? %>
       <td class="sep"></td>
       <td valign="top" align="right" width="210">
-        <form action="<%= ApplicationController.root_context -%>/manual_rules/create" method="POST" id="manual-rules-form">
+        <form action="<%= ApplicationController.root_context -%>/manual_rules/create" method="POST">
           <table class="admintable" width="100%">
             <input type="hidden" name="id" value="<%= @rule.id -%>"/>
             <tr>
@@ -57,7 +57,7 @@
             </tr>
             <tr>
               <td class="left" valign="top">
-                <input type="submit" value="<%= @rule.id.nil? ? message('create') : message('update') -%>"/>
+                <input type="submit" value="<%= @rule.id.nil? ? message('create') : message('edit') -%>"/>
               </td>
             </tr>
           </table>
