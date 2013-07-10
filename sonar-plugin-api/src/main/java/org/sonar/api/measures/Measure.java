@@ -24,6 +24,8 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.qualitymodel.Characteristic;
 
+import javax.annotation.Nullable;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
@@ -246,7 +248,7 @@ public class Measure {
    * @param v the measure value
    * @return the measure object instance
    */
-  public Measure setValue(Double v) {
+  public Measure setValue(@Nullable Double v) {
     return setValue(v, DEFAULT_PRECISION);
   }
 
@@ -272,7 +274,7 @@ public class Measure {
    * @param precision the measure value precision
    * @return the measure object instance
    */
-  public Measure setValue(Double v, int precision) {
+  public Measure setValue(@Nullable Double v, int precision) {
     if (v != null) {
       if (Double.isNaN(v)) {
         throw new IllegalArgumentException("Measure value can not be NaN");

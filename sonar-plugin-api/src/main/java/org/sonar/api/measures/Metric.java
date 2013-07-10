@@ -274,7 +274,7 @@ public class Metric implements ServerExtension, BatchExtension {
   /**
    * For internal use only
    */
-  public Metric setId(Integer id) {
+  public Metric setId(@Nullable Integer id) {
     this.id = id;
     return this;
   }

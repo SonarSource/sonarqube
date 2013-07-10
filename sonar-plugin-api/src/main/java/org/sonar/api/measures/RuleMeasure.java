@@ -121,7 +121,7 @@ public class RuleMeasure extends Measure {
   }
 
   @Override
-  public RuleMeasure setValue(Double v) {
+  public RuleMeasure setValue(@Nullable Double v) {
     return (RuleMeasure) super.setValue(v);
   }
 
