@@ -26,6 +26,7 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -211,7 +212,7 @@ public class Metric implements ServerExtension, BatchExtension {
    * @deprecated since 2.7 use the {@link Builder} factory.
    */
   @Deprecated
-  public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, String domain,
+  public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, @Nullable String domain,
       boolean userManaged) {
     this.key = key;
     this.description = description;

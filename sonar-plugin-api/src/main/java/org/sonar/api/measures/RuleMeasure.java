@@ -25,6 +25,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
+import javax.annotation.Nullable;
+
 /**
  * @since 1.10
  */
@@ -36,7 +38,7 @@ public class RuleMeasure extends Measure {
   /**
    * This constructor is for internal use only. Please use static methods createForXXX().
    */
-  public RuleMeasure(Metric metric, Rule rule, RulePriority rulePriority, Integer ruleCategory) {
+  public RuleMeasure(Metric metric, @Nullable Rule rule, @Nullable RulePriority rulePriority, @Nullable Integer ruleCategory) {
     super(metric);
     this.rule = rule;
     this.rulePriority = rulePriority;
@@ -103,7 +105,7 @@ public class RuleMeasure extends Measure {
     if (obj == null) {
       return false;
     }
-    if (!(obj.getClass().equals(RuleMeasure.class))) {//NOSONAR should be refactored but kept in the current state
+    if (!(obj.getClass().equals(RuleMeasure.class))) {// NOSONAR should be refactored but kept in the current state
       // for the moment.
       return false;
     }
@@ -112,10 +114,10 @@ public class RuleMeasure extends Measure {
     }
     RuleMeasure other = (RuleMeasure) obj;
     return new EqualsBuilder()
-      .append(getMetric(), other.getMetric())
-      .append(personId, other.personId)
-      .append(rule, other.rule)
-      .isEquals();
+        .append(getMetric(), other.getMetric())
+        .append(personId, other.personId)
+        .append(rule, other.rule)
+        .isEquals();
   }
 
   @Override
@@ -126,34 +128,34 @@ public class RuleMeasure extends Measure {
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-      .append(getMetric())
-      .append(personId)
-      .append(rule)
-      .toHashCode();
+        .append(getMetric())
+        .append(personId)
+        .append(rule)
+        .toHashCode();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("id", getId())
-      .append("metric", metric)
-      .append("personId", personId)
-      .append("rule", rule)
-      .append("value", value)
-      .append("data", data)
-      .append("description", description)
-      .append("alertStatus", alertStatus)
-      .append("alertText", alertText)
-      .append("tendency", tendency)
-      .append("severity", rulePriority)
-      .toString();
+        .append("id", getId())
+        .append("metric", metric)
+        .append("personId", personId)
+        .append("rule", rule)
+        .append("value", value)
+        .append("data", data)
+        .append("description", description)
+        .append("alertStatus", alertStatus)
+        .append("alertText", alertText)
+        .append("tendency", tendency)
+        .append("severity", rulePriority)
+        .toString();
   }
 
-  public static RuleMeasure createForRule(Metric metric, Rule rule, Double value) {
+  public static RuleMeasure createForRule(Metric metric, Rule rule, @Nullable Double value) {
     return new RuleMeasure(metric, rule, null, null).setValue(value);
   }
 
-  public static RuleMeasure createForPriority(Metric metric, RulePriority priority, Double value) {
+  public static RuleMeasure createForPriority(Metric metric, RulePriority priority, @Nullable Double value) {
     return new RuleMeasure(metric, null, priority, null).setValue(value);
   }
 
@@ -161,7 +163,7 @@ public class RuleMeasure extends Measure {
    * @deprecated since 2.5. See SONAR-2007.
    */
   @Deprecated
-  public static RuleMeasure createForCategory(Metric metric, Integer category, Double value) {
+  public static RuleMeasure createForCategory(Metric metric, Integer category, @Nullable Double value) {
     return new RuleMeasure(metric, null, null, category).setValue(value);
   }
 }

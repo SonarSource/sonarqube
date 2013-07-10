@@ -19,9 +19,11 @@
  */
 package org.sonar.api.measures;
 
-import java.util.Collection;
-
 import org.apache.commons.lang.StringUtils;
+
+import javax.annotation.Nullable;
+
+import java.util.Collection;
 
 /**
  * An utility class to manipulate measures
@@ -62,7 +64,7 @@ public final class MeasureUtils {
    * @return <code>defaultValue</code> if measure is null or has no values.
    */
 
-  public static Double getValue(Measure measure, Double defaultValue) {
+  public static Double getValue(Measure measure, @Nullable Double defaultValue) {
     if (MeasureUtils.hasValue(measure)) {
       return measure.getValue();
     }
@@ -80,7 +82,7 @@ public final class MeasureUtils {
     return getVariation(measure, periodIndex, null);
   }
 
-  public static Double getVariation(Measure measure, int periodIndex, Double defaultValue) {
+  public static Double getVariation(Measure measure, int periodIndex, @Nullable Double defaultValue) {
     Double result = null;
     if (measure != null) {
       result = measure.getVariation(periodIndex);
@@ -92,7 +94,7 @@ public final class MeasureUtils {
     return getVariationAsLong(measure, periodIndex, null);
   }
 
-  public static Long getVariationAsLong(Measure measure, int periodIndex, Long defaultValue) {
+  public static Long getVariationAsLong(Measure measure, int periodIndex, @Nullable Long defaultValue) {
     Double result = null;
     if (measure != null) {
       result = measure.getVariation(periodIndex);

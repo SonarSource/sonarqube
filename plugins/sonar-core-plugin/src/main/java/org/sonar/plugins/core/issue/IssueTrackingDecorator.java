@@ -19,19 +19,22 @@
  */
 package org.sonar.plugins.core.issue;
 
-import org.sonar.api.measures.FileLinesContextFactory;
-
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.FileLinesContext;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -64,13 +67,13 @@ public class IssueTrackingDecorator implements Decorator {
   private FileLinesContextFactory fileLineContextFactory;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
-                                IssueHandlers handlers, IssueWorkflow workflow,
-                                IssueUpdater updater,
-                                Project project,
-                                ResourcePerspectives perspectives,
-                                RulesProfile rulesProfile,
-                                RuleFinder ruleFinder,
-                                FileLinesContextFactory fileLineContextFactory) {
+      IssueHandlers handlers, IssueWorkflow workflow,
+      IssueUpdater updater,
+      Project project,
+      ResourcePerspectives perspectives,
+      RulesProfile rulesProfile,
+      RuleFinder ruleFinder,
+      FileLinesContextFactory fileLineContextFactory) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
@@ -133,9 +136,10 @@ public class IssueTrackingDecorator implements Decorator {
     if (ResourceUtils.isFile(resource)) {
       FileLinesContext fileLineContext = fileLineContextFactory.createFor(resource);
       for (DefaultIssue issue : newIssues) {
-        if (issue.line() != null) {
+        Integer line = issue.line();
+        if (line != null) {
           // TODO When issue is on line 0 then who is the author?
-          String scmAuthorLogin = fileLineContext.getStringValue(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY, issue.line());
+          String scmAuthorLogin = fileLineContext.getStringValue(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY, line);
           if (scmAuthorLogin != null) {
             issue.setAuthorLogin(scmAuthorLogin);
           }
