@@ -26,11 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.db.IssueDto;
@@ -49,15 +46,14 @@ public class IssueTrackingTest {
   Resource project;
   LastSnapshots lastSnapshots;
   long violationId = 0;
-  private FileLinesContextFactory fileLineContextFactory;
 
   @Before
   public void before() {
     lastSnapshots = mock(LastSnapshots.class);
 
     project = mock(Project.class);
-    fileLineContextFactory = mock(FileLinesContextFactory.class);
-    tracking = new IssueTracking(lastSnapshots, null, fileLineContextFactory);
+
+    tracking = new IssueTracking(lastSnapshots, null);
   }
 
   @Test
@@ -315,59 +311,6 @@ public class IssueTrackingTest {
     assertThat(result.matching(newIssue3)).isSameAs(referenceIssue3);
     assertThat(result.matching(newIssue4)).isNull();
     assertThat(result.matching(newIssue5)).isSameAs(referenceIssue1);
-  }
-
-  @Test
-  public void should_update_scm_author_on_new_issues() {
-    Resource resource = mock(Resource.class);
-    FileLinesContext context = mock(FileLinesContext.class);
-    when(context.getStringValue("authors_by_line", 1)).thenReturn("julien");
-    when(fileLineContextFactory.createFor(resource)).thenReturn(context);
-
-    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-
-    when(resource.getScope()).thenReturn(Scopes.FILE);
-    tracking.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
-    assertThat(newIssue.authorLogin()).isEqualTo("julien");
-  }
-
-  @Test
-  public void should_not_update_scm_author_when_resource_is_not_a_file() {
-    Resource resource = mock(Resource.class);
-
-    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-
-    when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    tracking.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
-    assertThat(newIssue.authorLogin()).isNull();
-  }
-
-  @Test
-  public void should_not_update_scm_author_when_issue_is_on_line_0() {
-    Resource resource = mock(Resource.class);
-    FileLinesContext context = mock(FileLinesContext.class);
-    when(context.getStringValue("authors_by_line", 1)).thenReturn("julien");
-    when(fileLineContextFactory.createFor(resource)).thenReturn(context);
-
-    DefaultIssue newIssue = newDefaultIssue("message", null, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-
-    when(resource.getScope()).thenReturn(Scopes.FILE);
-    tracking.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
-    assertThat(newIssue.authorLogin()).isNull();
-  }
-
-  @Test
-  public void should_not_update_scm_author_when_unknow_scm_author() {
-    Resource resource = mock(Resource.class);
-    FileLinesContext context = mock(FileLinesContext.class);
-    when(context.getStringValue("authors_by_line", 1)).thenReturn(null);
-    when(fileLineContextFactory.createFor(resource)).thenReturn(context);
-
-    DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
-
-    when(resource.getScope()).thenReturn(Scopes.FILE);
-    tracking.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
-    assertThat(newIssue.authorLogin()).isNull();
   }
 
   private static String load(String name) throws IOException {
