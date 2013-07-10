@@ -152,7 +152,7 @@ class MigrateDefaultPermissions < ActiveRecord::Migration
         end
       end
 
-      Property.create(:prop_key => "sonar.permission.template.#{qualifier}.default", :text_value => qualifier_template.id)
+      Property.create(:prop_key => "sonar.permission.template.#{qualifier}.default", :text_value => qualifier_template.id.to_s)
 
     end
 
