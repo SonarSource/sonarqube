@@ -117,7 +117,8 @@ class MigrateDefaultPermissions < ActiveRecord::Migration
 
       existing_properties.reject! {|prop| prop.nil?}
 
-      if existing_properties.length > 0
+      # Subviews permissions are not migrated since they are not used
+      if existing_properties.length > 0 && qualifier != :SVW
         migrate_existing_permissions(qualifier, existing_properties)
       end
 
