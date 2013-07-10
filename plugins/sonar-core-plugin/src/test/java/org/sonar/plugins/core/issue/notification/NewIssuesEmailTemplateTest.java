@@ -64,7 +64,7 @@ public class NewIssuesEmailTemplateTest {
       .setFieldValue("count", "32")
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
-      .setFieldValue("projectDate", "2010-05-18T15:50:45+0100");
+      .setFieldValue("projectDate", "2010-05-18T16:50:45+0200");
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId()).isEqualTo("new-issues/org.apache:struts");
@@ -73,7 +73,7 @@ public class NewIssuesEmailTemplateTest {
       "Project: Struts\n" +
       "32 new issues\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAfter=2010-05-18\n");
+      "See it in SonarQube: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAfter=2010-05-18T16%3A50%3A45%2B0200\n");
   }
 
   @Test

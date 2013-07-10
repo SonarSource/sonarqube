@@ -57,7 +57,7 @@ public class IssueNotificationsTest {
   }
 
   @Test
-  public void sendNewIssues() throws Exception {
+  public void should_send_new_issues() throws Exception {
     Date date = DateUtils.parseDateTime("2013-05-18T00:00:03+0200");
     Project project = new Project("struts").setAnalysisDate(date);
     Notification notification = issueNotifications.sendNewIssues(project, 42);
@@ -68,7 +68,7 @@ public class IssueNotificationsTest {
   }
 
   @Test
-  public void sendChanges() throws Exception {
+  public void should_send_changes() throws Exception {
     IssueChangeContext context = IssueChangeContext.createScan(new Date());
     DefaultIssue issue = new DefaultIssue()
       .setMessage("the message")
@@ -93,7 +93,7 @@ public class IssueNotificationsTest {
   }
 
   @Test
-  public void sendChangesWithComment() throws Exception {
+  public void should_send_changes_with_comment() throws Exception {
     IssueChangeContext context = IssueChangeContext.createScan(new Date());
     DefaultIssue issue = new DefaultIssue()
       .setMessage("the message")

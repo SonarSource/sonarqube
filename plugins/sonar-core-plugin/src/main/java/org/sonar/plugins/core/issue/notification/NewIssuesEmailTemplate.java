@@ -25,6 +25,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 
@@ -68,8 +69,16 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     if (projectKey != null && dateString != null) {
       Date date = DateUtils.parseDateTime(dateString);
       String url = String.format("%s/issues/search?componentRoots=%s&createdAfter=%s",
-        settings.getServerBaseURL(), URLEncoder.encode(projectKey), DateUtils.formatDate(date));
+        settings.getServerBaseURL(), encode(projectKey), encode(DateUtils.formatDateTime(date)));
       sb.append("\n").append("See it in SonarQube: ").append(url).append("\n");
+    }
+  }
+
+  public static String encode(String toEncode) {
+    try {
+      return URLEncoder.encode(toEncode, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException(e);
     }
   }
 
