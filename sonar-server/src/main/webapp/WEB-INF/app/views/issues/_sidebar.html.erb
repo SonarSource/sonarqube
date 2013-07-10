@@ -15,12 +15,15 @@
     <li id="criteria-project" class="marginbottom5">
       <%= message 'issue_filter.criteria.project' -%>:
       <% selected_componentRoot = Internal.component_api.findByKey(@issues_query.componentRoots.to_a.first) if @issues_query.componentRoots and @issues_query.componentRoots.size == 1 %>
-      <%= component_select_tag 'componentRoots', :resource_type_property => 'supportsGlobalDashboards', :width => '100%',
-                              :selected_resource => selected_componentRoot,
-                              :display_key => true,
-                              :placeholder => message('issue_filter.criteria.project'),
-                              :html_id => 'select-project',
-                              :allow_clear => true
+      <%= component_select_tag 'componentRoots',
+                               :width => '100%',
+                               :resource_type_property => 'supportsGlobalDashboards',
+                               :qualifiers => ['TRK'],
+                               :selected_resource => selected_componentRoot,
+                               :display_key => true,
+                               :placeholder => message('issue_filter.criteria.project'),
+                               :html_id => 'select-project',
+                               :allow_clear => true
       -%>
     </li>
     <li id="criteria-severity" class="marginbottom5">

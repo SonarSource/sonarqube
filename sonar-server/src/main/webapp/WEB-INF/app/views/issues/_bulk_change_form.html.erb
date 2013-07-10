@@ -3,10 +3,7 @@
 
    issues = issues_result.issues
    max_page_size_reached = issues_result.issues.size >= issues_result.paging.pageSize()
-   project_key = nil
-   if issues_result.projects().to_a.size == 1
-     project_key = issues_result.project(issues.to_a.first).key unless issues.empty?
-   end
+   project_key = issues_result.project(issues.to_a.first).key if !issues.empty? && issues_result.projects().to_a.size == 1
 
    transitions_by_issues = {}
    unresolved_issues = 0
