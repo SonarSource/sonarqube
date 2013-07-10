@@ -35,7 +35,7 @@
     <% if is_admin? %>
       <td class="sep"></td>
       <td valign="top" align="right" width="210">
-        <form action="<%= ApplicationController.root_context -%>/manual_rules/create" method="POST">
+        <form action="<%= ApplicationController.root_context -%>/manual_rules/create" method="POST" id="manual-rules-form">
           <table class="admintable" width="100%">
             <input type="hidden" name="id" value="<%= @rule.id -%>"/>
             <tr>
