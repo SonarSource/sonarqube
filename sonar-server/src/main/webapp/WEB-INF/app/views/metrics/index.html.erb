@@ -63,6 +63,9 @@
       <% form_for :metric, @metric, :url => { :action => 'save_from_web', :id => @metric.id } do |f| %>
       <tbody>
         <tr>
+          <td colspan="2" class="left"><h1 class="marginbottom10"><%= @metric && @metric.id.nil? ? 'Create Manual Metric' : 'Edit Manual Metric' -%></h1></td>
+        </tr>
+        <tr>
           <td class="left" valign="top">
             Name:<br/><%= f.text_field :short_name %><br/>
             <span class="desc">Ex. : Configuration management</span>
@@ -90,7 +93,7 @@
         </tr>
         <tr>
           <td class="left" valign="top">
-            <%= submit_tag @metric.id.nil? ? 'Create' : 'Update' %>
+            <%= submit_tag @metric.id.nil? ? message('create') : message('edit') %>
           </td>
         </tr>
       </tbody>

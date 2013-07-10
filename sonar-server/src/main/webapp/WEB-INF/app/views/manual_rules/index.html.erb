@@ -38,7 +38,9 @@
         <form action="<%= ApplicationController.root_context -%>/manual_rules/create" method="POST">
           <table class="admintable" width="100%">
             <input type="hidden" name="id" value="<%= @rule.id -%>"/>
-
+            <tr>
+              <td colspan="2" class="left"><h1 class="marginbottom10"><%= @rule && @rule.id.nil? ? 'Create Manual Rule' : 'Edit Manual Rule' -%></h1></td>
+            </tr>
             <tr>
               <td class="left" valign="top">
                 Name:<br/><input type="text" name="name" value="<%= h @rule.name -%>"/>
@@ -55,7 +57,7 @@
             </tr>
             <tr>
               <td class="left" valign="top">
-                <input type="submit" value="<%= @rule.id.nil? ? 'Create' : 'Update' -%>"/>
+                <input type="submit" value="<%= @rule.id.nil? ? message('create') : message('edit') -%>"/>
               </td>
             </tr>
           </table>
