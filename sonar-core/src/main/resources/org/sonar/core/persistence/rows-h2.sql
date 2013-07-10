@@ -19,9 +19,9 @@ INSERT INTO PERMISSION_TEMPLATES(ID, name, description) VALUES (1, 'Default temp
 ALTER TABLE PERMISSION_TEMPLATES ALTER COLUMN ID RESTART WITH 2;
 
 INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (1, 1, 1, 'admin');
-INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (2, 1, 1, 'user');
+INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (2, 1, 2, 'user');
 INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (3, 1, NULL, 'user');
-INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (4, 1, 1, 'codeviewer');
+INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (4, 1, 2, 'codeviewer');
 INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (5, 1, NULL, 'codeviewer');
 ALTER TABLE PERM_TEMPLATES_GROUPS ALTER COLUMN ID RESTART WITH 6;
 
