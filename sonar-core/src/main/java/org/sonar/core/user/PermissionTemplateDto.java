@@ -20,6 +20,7 @@
 
 package org.sonar.core.user;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +53,7 @@ public class PermissionTemplateDto {
     return this;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
@@ -61,6 +63,7 @@ public class PermissionTemplateDto {
     return this;
   }
 
+  @CheckForNull
   public List<PermissionTemplateUserDto> getUsersPermissions() {
     return usersPermissions;
   }
@@ -70,6 +73,7 @@ public class PermissionTemplateDto {
     return this;
   }
 
+  @CheckForNull
   public List<PermissionTemplateGroupDto> getGroupsPermissions() {
     return groupsPermissions;
   }

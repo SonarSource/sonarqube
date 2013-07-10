@@ -59,6 +59,12 @@
     </choose>
   </delete>
 
+  <select id="selectById" parameterType="Long" resultType="PermissionTemplate">
+    SELECT id, name, description, created_at AS createdAt, updated_at AS updatedAt
+    FROM permission_templates
+    WHERE id = #{templateId}
+  </select>
+
   <select id="selectByName" parameterType="String" resultType="PermissionTemplate">
     SELECT id, name, description, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates
@@ -101,6 +107,7 @@
     INNER JOIN perm_templates_groups ptg ON ptg.template_id = pt.id
     LEFT OUTER JOIN groups g ON g.id = ptg.group_id
     WHERE pt.name = #{templateName}
+    AND (g.name IS NOT NULL OR ptg.group_id IS NULL)
   </select>
 
   <resultMap id="fullPermissionsTemplateResult" type="PermissionTemplate">

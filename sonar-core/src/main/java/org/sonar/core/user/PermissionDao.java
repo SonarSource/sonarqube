@@ -50,6 +50,17 @@ public class PermissionDao implements TaskExtension, ServerExtension {
   }
 
   @CheckForNull
+  public PermissionTemplateDto selectTemplateById(Long templateId) {
+    SqlSession session = myBatis.openSession();
+    try {
+      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
+      return mapper.selectById(templateId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
   public PermissionTemplateDto selectPermissionTemplate(String templateName) {
     PermissionTemplateDto permissionTemplate = null;
     SqlSession session = myBatis.openSession();

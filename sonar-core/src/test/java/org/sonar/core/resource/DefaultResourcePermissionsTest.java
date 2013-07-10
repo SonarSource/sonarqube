@@ -19,12 +19,14 @@
  */
 package org.sonar.core.resource;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.user.PermissionDao;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
 
@@ -33,13 +35,20 @@ import static org.fest.assertions.Assertions.assertThat;
 public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
 
   private Resource project = new Project("project").setId(123);
+  private Settings settings;
+  private DefaultResourcePermissions permissions;
+
+  @Before
+  public void initResourcePermissions() {
+    settings = new Settings();
+    permissions = new DefaultResourcePermissions(settings, getMyBatis(),
+      new RoleDao(getMyBatis()), new UserDao(getMyBatis()), new PermissionDao(getMyBatis()));
+  }
 
   @Test
   public void grantGroupRole() {
     setupData("grantGroupRole");
 
-    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()));
     permissions.grantGroupRole(project, "sonar-administrators", "admin");
 
     // do not insert duplicated rows
@@ -52,8 +61,6 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   public void grantGroupRole_anyone() {
     setupData("grantGroupRole_anyone");
 
-    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()));
     permissions.grantGroupRole(project, DefaultGroups.ANYONE, "admin");
 
     checkTables("grantGroupRole_anyone", "group_roles");
@@ -63,8 +70,6 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   public void grantGroupRole_ignore_if_group_not_found() {
     setupData("grantGroupRole_ignore_if_group_not_found");
 
-    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()));
     permissions.grantGroupRole(project, "not_found", "admin");
 
     checkTables("grantGroupRole_ignore_if_group_not_found", "group_roles");
@@ -74,8 +79,6 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   public void grantGroupRole_ignore_if_not_persisted() {
     setupData("grantGroupRole_ignore_if_not_persisted");
 
-    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()));
     Project resourceWithoutId = new Project("");
     permissions.grantGroupRole(resourceWithoutId, "sonar-users", "admin");
 
@@ -86,8 +89,6 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   public void grantUserRole() {
     setupData("grantUserRole");
 
-    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()));
     permissions.grantUserRole(project, "marius", "admin");
 
     // do not insert duplicated rows
@@ -97,18 +98,10 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void grantDefaultRoles() {
+  public void grantDefaultRoles_qualifier_independent() {
     setupData("grantDefaultRoles");
 
-    Settings settings = new Settings();
-    settings.setProperty("sonar.role.admin.TRK.defaultGroups", "sonar-administrators");
-    settings.setProperty("sonar.role.admin.TRK.defaultUsers", "");
-    settings.setProperty("sonar.role.user.TRK.defaultGroups", "Anyone,sonar-users");
-    settings.setProperty("sonar.role.user.TRK.defaultUsers", "");
-    settings.setProperty("sonar.role.codeviewer.TRK.defaultGroups", "Anyone,sonar-users");
-    settings.setProperty("sonar.role.codeviewer.TRK.defaultUsers", "");
-    DefaultResourcePermissions permissions = new DefaultResourcePermissions(settings, getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()));
+    settings.setProperty("sonar.permission.template.default", "1");
 
     permissions.grantDefaultRoles(project);
 
@@ -116,13 +109,22 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void grantDefaultRoles_qualifier_specific() {
+    setupData("grantDefaultRolesProject");
+
+    settings.setProperty("sonar.permission.template.default", "1");
+    settings.setProperty("sonar.permission.template.TRK.default", "2");
+
+    permissions.grantDefaultRoles(project);
+
+    checkTables("grantDefaultRolesProject", "user_roles", "group_roles");
+  }
+
+  @Test
   public void grantDefaultRoles_unknown_group() {
     setupData("grantDefaultRoles_unknown_group");
 
-    Settings settings = new Settings();
-    settings.setProperty("sonar.role.admin.TRK.defaultGroups", "sonar-administrators,unknown");
-    DefaultResourcePermissions permissions = new DefaultResourcePermissions(settings, getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()));
+    settings.setProperty("sonar.permission.template.TRK.default", "1");
     permissions.grantDefaultRoles(project);
 
     checkTables("grantDefaultRoles_unknown_group", "group_roles");
@@ -132,10 +134,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   public void grantDefaultRoles_users() {
     setupData("grantDefaultRoles_users");
 
-    Settings settings = new Settings();
-    settings.setProperty("sonar.role.admin.TRK.defaultUsers", "marius,disabled,notfound");
-    DefaultResourcePermissions permissions = new DefaultResourcePermissions(settings, getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()));
+    settings.setProperty("sonar.permission.template.TRK.default", "1");
     permissions.grantDefaultRoles(project);
 
     checkTables("grantDefaultRoles_users", "user_roles");
@@ -144,8 +143,6 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   @Test
   public void hasRoles() {
     setupData("hasRoles");
-    DefaultResourcePermissions permissions = new DefaultResourcePermissions(new Settings(), getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()));
 
     // no groups and at least one user
     assertThat(permissions.hasRoles(new Project("only_users").setId(1))).isTrue();

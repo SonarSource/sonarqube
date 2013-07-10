@@ -90,6 +90,18 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_select_permission_template_by_id() throws Exception {
+    setupData("selectPermissionTemplate");
+
+    PermissionTemplateDto permissionTemplate = permissionDao.selectTemplateById(1L);
+
+    assertThat(permissionTemplate).isNotNull();
+    assertThat(permissionTemplate.getId()).isEqualTo(1L);
+    assertThat(permissionTemplate.getName()).isEqualTo("my template");
+    assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
+  }
+
+  @Test
   public void should_select_all_permission_templates() throws Exception {
     setupData("selectAllPermissionTemplates");
 

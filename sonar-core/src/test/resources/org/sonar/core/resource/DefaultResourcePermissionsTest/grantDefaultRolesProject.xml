@@ -18,6 +18,16 @@
   <perm_templates_groups id="4" template_id="1" group_id="101" permission_reference="codeviewer"/>
   <perm_templates_groups id="5" template_id="1" group_id="[null]" permission_reference="codeviewer"/>
 
-  <perm_templates_users/>
+
+  <!-- default permission template for TRK -->
+  <permission_templates id="2" name="default_for_TRK"/>
+
+  <perm_templates_groups id="6" template_id="2" group_id="100" permission_reference="admin"/>
+  <perm_templates_groups id="7" template_id="2" group_id="101" permission_reference="admin"/>
+  <perm_templates_groups id="8" template_id="2" group_id="100" permission_reference="user"/>
+  <perm_templates_groups id="9" template_id="2" group_id="100" permission_reference="codeviewer"/>
+  <perm_templates_groups id="10" template_id="2" group_id="[null]" permission_reference="codeviewer"/>
+
+  <perm_templates_users id="1" template_id="2" user_id="200" permission_reference="codeviewer"/>
 
 </dataset>

@@ -12,9 +12,20 @@
   new rows : sonar-administrators (admin), sonar-users (user & codeviewer), Anyone (user & codeviewer),
    -->
   <group_roles id="3" group_id="100" resource_id="123" role="admin"/>
-  <group_roles id="4" group_id="[null]" resource_id="123" role="user"/>
-  <group_roles id="5" group_id="101" resource_id="123" role="user"/>
-  <group_roles id="6" group_id="[null]" resource_id="123" role="codeviewer"/>
-  <group_roles id="7" group_id="101" resource_id="123" role="codeviewer"/>
+  <group_roles id="4" group_id="101" resource_id="123" role="user"/>
+  <group_roles id="5" group_id="[null]" resource_id="123" role="user"/>
+  <group_roles id="6" group_id="101" resource_id="123" role="codeviewer"/>
+  <group_roles id="7" group_id="[null]" resource_id="123" role="codeviewer"/>
+
+  <!-- default permission template for all qualifiers -->
+  <permission_templates id="1" name="default"/>
+
+  <perm_templates_groups id="1" template_id="1" group_id="100" permission_reference="admin"/>
+  <perm_templates_groups id="2" template_id="1" group_id="101" permission_reference="user"/>
+  <perm_templates_groups id="3" template_id="1" group_id="[null]" permission_reference="user"/>
+  <perm_templates_groups id="4" template_id="1" group_id="101" permission_reference="codeviewer"/>
+  <perm_templates_groups id="5" template_id="1" group_id="[null]" permission_reference="codeviewer"/>
+
+  <perm_templates_users/>
 
 </dataset>

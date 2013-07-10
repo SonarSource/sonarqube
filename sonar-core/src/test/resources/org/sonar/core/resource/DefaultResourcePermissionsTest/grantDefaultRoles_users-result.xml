@@ -9,8 +9,13 @@
   <group_roles id="2" group_id="101" resource_id="1" role="user"/>
   <user_roles id="1" user_id="200" resource_id="1" role="admin"/>
 
-  <!--
- new row : marius (admin)
-  -->
+  <!-- new row : marius (admin) -->
   <user_roles id="2" user_id="200" resource_id="123" role="admin"/>
+
+  <!-- default permission template for TRK -->
+  <permission_templates id="1" name="default_for_TRK"/>
+
+  <perm_templates_users id="1" template_id="1" user_id="200" permission_reference="admin"/>
+  <perm_templates_users id="2" template_id="1" user_id="201" permission_reference="admin"/>
+
 </dataset>

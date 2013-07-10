@@ -19,6 +19,7 @@
  */
 package org.sonar.core.resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.config.Settings;
@@ -30,6 +31,9 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @since 3.2
  */
@@ -39,12 +43,14 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
   private final MyBatis myBatis;
   private final RoleDao roleDao;
   private final UserDao userDao;
+  private final PermissionDao permissionDao;
 
-  public DefaultResourcePermissions(Settings settings, MyBatis myBatis, RoleDao roleDao, UserDao userDao) {
+  public DefaultResourcePermissions(Settings settings, MyBatis myBatis, RoleDao roleDao, UserDao userDao, PermissionDao permissionDao) {
     this.settings = settings;
     this.myBatis = myBatis;
     this.roleDao = roleDao;
     this.userDao = userDao;
+    this.permissionDao = permissionDao;
   }
 
   public boolean hasRoles(Resource resource) {
@@ -123,7 +129,9 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
   }
 
   private void grantDefaultRoles(Resource resource, String role, SqlSession session) {
-    String[] groupNames = settings.getStringArrayBySeparator("sonar.role." + role + "." + resource.getQualifier() + ".defaultGroups", ",");
+    PermissionTemplateDto applicablePermissionTemplate = getPermissionTemplate(resource.getQualifier());
+
+    List<String> groupNames = getEligibleGroups(role, applicablePermissionTemplate);
     for (String groupName : groupNames) {
       GroupRoleDto groupRole = new GroupRoleDto().setRole(role).setResourceId(Long.valueOf(resource.getId()));
       if (DefaultGroups.isAnyone(groupName)) {
@@ -136,7 +144,7 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
       }
     }
 
-    String[] logins = settings.getStringArrayBySeparator("sonar.role." + role + "." + resource.getQualifier() + ".defaultUsers", ",");
+    List<String> logins = getEligibleUsers(role, applicablePermissionTemplate);
     for (String login : logins) {
       UserDto user = userDao.selectActiveUserByLogin(login, session);
       if (user != null) {
@@ -144,5 +152,55 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
         roleDao.insertUserRole(userRoleDto, session);
       }
     }
+  }
+
+  private List<String> getEligibleGroups(String role, PermissionTemplateDto permissionTemplate) {
+    List<String> eligibleGroups = new ArrayList<String>();
+    if(permissionTemplate.getGroupsPermissions() != null) {
+      for (PermissionTemplateGroupDto groupPermission : permissionTemplate.getGroupsPermissions()) {
+        if(role.equals(groupPermission.getPermission())) {
+          String groupName = groupPermission.getGroupName() != null ? groupPermission.getGroupName() : DefaultGroups.ANYONE;
+          eligibleGroups.add(groupName);
+        }
+      }
+    }
+    return eligibleGroups;
+  }
+
+  private List<String> getEligibleUsers(String role, PermissionTemplateDto permissionTemplate) {
+    List<String> eligibleUsers = new ArrayList<String>();
+    if(permissionTemplate.getUsersPermissions() != null) {
+      for (PermissionTemplateUserDto userPermission : permissionTemplate.getUsersPermissions()) {
+        if(role.equals(userPermission.getPermission())) {
+          eligibleUsers.add(userPermission.getUserLogin());
+        }
+      }
+    }
+    return eligibleUsers;
+  }
+
+  private PermissionTemplateDto getPermissionTemplate(String qualifier) {
+    String qualifierTemplateId = settings.getString("sonar.permission.template." + qualifier + ".default");
+    if(!StringUtils.isBlank(qualifierTemplateId)) {
+      return getTemplateWithPermissions(qualifierTemplateId);
+    }
+
+    String defaultTemplateId = settings.getString("sonar.permission.template.default");
+    if(StringUtils.isBlank(defaultTemplateId)) {
+      throw new RuntimeException("At least one default permission template should be defined");
+    }
+    return getTemplateWithPermissions(defaultTemplateId);
+  }
+
+  private PermissionTemplateDto getTemplateWithPermissions(String templateId) {
+    PermissionTemplateDto permissionTemplateDto = permissionDao.selectTemplateById(Long.parseLong(templateId));
+    if(permissionTemplateDto == null) {
+      throw new RuntimeException("Could not retrieve permission template with id " + templateId);
+    }
+    PermissionTemplateDto templateWithPermissions = permissionDao.selectPermissionTemplate(permissionTemplateDto.getName());
+    if(templateWithPermissions == null) {
+      throw new RuntimeException("Could not retrieve permissions for template with id " + templateId);
+    }
+    return templateWithPermissions;
   }
 }
