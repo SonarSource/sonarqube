@@ -13,15 +13,14 @@
 <%
    else
      first_plan = plans[0]
-     plan_options = options_for_select(plans.map { |plan|
-       if plan.deadLine
-         label = "#{h plan.name} (#{format_date(plan.deadLine)})"
-       else
-         label = h plan.name
-       end
+     options = plans.map { |plan|
+       label = plan.deadLine ? "#{h plan.name} (#{format_date(plan.deadLine)})" : h(plan.name)
        [label, plan.key]
-     }, first_plan.key)
-
+     }
+     if @issue.actionPlanKey
+      options.unshift([escape_javascript(message('issue.unplan.submit')), ''])
+     end
+     plan_options = options_for_select(options, first_plan.key)
 %>
   <form method="POST">
     <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
@@ -31,12 +30,6 @@
 
     <input type="button" value="<%= message('issue.plan.submit') -%>" onclick="submitIssueForm(this)">
     &nbsp;
-    <% if @issue.actionPlanKey %>
-      <%= image_tag 'sep12.png' -%>
-      &nbsp;
-      <input type="button" value="<%= message('issue.unplan.submit') -%>"
-             onclick="$j('#action-<%= plans_select_box_id %>').val('unplan'); $j('#<%= plans_select_box_id -%>').prop('disabled', false); submitIssueForm(this)">
-    <% end %>
     <%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
     <span class="loading hidden"></span>
 
