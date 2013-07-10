@@ -68,7 +68,7 @@ public class PermissionTemplateDto {
     return usersPermissions;
   }
 
-  public PermissionTemplateDto setUsersPermissions(List<PermissionTemplateUserDto> usersPermissions) {
+  public PermissionTemplateDto setUsersPermissions(@Nullable List<PermissionTemplateUserDto> usersPermissions) {
     this.usersPermissions = usersPermissions;
     return this;
   }
@@ -78,7 +78,7 @@ public class PermissionTemplateDto {
     return groupsPermissions;
   }
 
-  public PermissionTemplateDto setGroupsByPermission(List<PermissionTemplateGroupDto> groupsPermissions) {
+  public PermissionTemplateDto setGroupsByPermission(@Nullable List<PermissionTemplateGroupDto> groupsPermissions) {
     this.groupsPermissions = groupsPermissions;
     return this;
   }

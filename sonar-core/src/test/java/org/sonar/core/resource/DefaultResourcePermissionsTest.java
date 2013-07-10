@@ -20,7 +20,9 @@
 package org.sonar.core.resource;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -37,6 +39,9 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   private Resource project = new Project("project").setId(123);
   private Settings settings;
   private DefaultResourcePermissions permissions;
+
+  @Rule
+  public ExpectedException throwable = ExpectedException.none();
 
   @Before
   public void initResourcePermissions() {
@@ -158,5 +163,12 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
 
     // does not exist
     assertThat(permissions.hasRoles(new Project("not_found"))).isFalse();
+  }
+
+  @Test
+  public void should_fail_when_no_default_template_is_defined() throws Exception {
+    throwable.expect(IllegalStateException.class);
+
+    permissions.grantDefaultRoles(project);
   }
 }

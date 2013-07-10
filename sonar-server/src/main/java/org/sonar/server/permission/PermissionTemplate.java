@@ -52,14 +52,18 @@ public class PermissionTemplate {
     }
     PermissionTemplate permissionTemplate =
       new PermissionTemplate(permissionTemplateDto.getId(), permissionTemplateDto.getName(), permissionTemplateDto.getDescription());
-    if(permissionTemplateDto.getUsersPermissions() != null) {
-      for (PermissionTemplateUserDto userPermission : permissionTemplateDto.getUsersPermissions()) {
+
+    List<PermissionTemplateUserDto> usersPermissions = permissionTemplateDto.getUsersPermissions();
+    if(usersPermissions != null) {
+      for (PermissionTemplateUserDto userPermission : usersPermissions) {
         permissionTemplate.registerUserPermission(permissionTemplateDto.getId(), userPermission.getUserId(),
           userPermission.getUserName(), userPermission.getUserLogin(), userPermission.getPermission());
       }
     }
-    if(permissionTemplateDto.getGroupsPermissions() != null) {
-      for (PermissionTemplateGroupDto groupPermission : permissionTemplateDto.getGroupsPermissions()) {
+
+    List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplateDto.getGroupsPermissions();
+    if(groupsPermissions != null) {
+      for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
         permissionTemplate.registerGroupPermission(groupPermission.getPermission(), permissionTemplateDto.getId(),
           groupPermission.getGroupId(), groupPermission.getGroupName());
       }

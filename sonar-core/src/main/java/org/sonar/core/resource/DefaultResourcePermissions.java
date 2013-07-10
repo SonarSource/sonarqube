@@ -156,8 +156,9 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
 
   private List<String> getEligibleGroups(String role, PermissionTemplateDto permissionTemplate) {
     List<String> eligibleGroups = new ArrayList<String>();
-    if(permissionTemplate.getGroupsPermissions() != null) {
-      for (PermissionTemplateGroupDto groupPermission : permissionTemplate.getGroupsPermissions()) {
+    List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();
+    if(groupsPermissions != null) {
+      for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
         if(role.equals(groupPermission.getPermission())) {
           String groupName = groupPermission.getGroupName() != null ? groupPermission.getGroupName() : DefaultGroups.ANYONE;
           eligibleGroups.add(groupName);
@@ -169,8 +170,9 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
 
   private List<String> getEligibleUsers(String role, PermissionTemplateDto permissionTemplate) {
     List<String> eligibleUsers = new ArrayList<String>();
-    if(permissionTemplate.getUsersPermissions() != null) {
-      for (PermissionTemplateUserDto userPermission : permissionTemplate.getUsersPermissions()) {
+    List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
+    if(usersPermissions != null) {
+      for (PermissionTemplateUserDto userPermission : usersPermissions) {
         if(role.equals(userPermission.getPermission())) {
           eligibleUsers.add(userPermission.getUserLogin());
         }
@@ -187,7 +189,7 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
 
     String defaultTemplateId = settings.getString("sonar.permission.template.default");
     if(StringUtils.isBlank(defaultTemplateId)) {
-      throw new RuntimeException("At least one default permission template should be defined");
+      throw new IllegalStateException("At least one default permission template should be defined");
     }
     return getTemplateWithPermissions(defaultTemplateId);
   }
@@ -195,11 +197,11 @@ public class DefaultResourcePermissions implements ResourcePermissions, TaskExte
   private PermissionTemplateDto getTemplateWithPermissions(String templateId) {
     PermissionTemplateDto permissionTemplateDto = permissionDao.selectTemplateById(Long.parseLong(templateId));
     if(permissionTemplateDto == null) {
-      throw new RuntimeException("Could not retrieve permission template with id " + templateId);
+      throw new IllegalArgumentException("Could not retrieve permission template with id " + templateId);
     }
     PermissionTemplateDto templateWithPermissions = permissionDao.selectPermissionTemplate(permissionTemplateDto.getName());
     if(templateWithPermissions == null) {
-      throw new RuntimeException("Could not retrieve permissions for template with id " + templateId);
+      throw new IllegalArgumentException("Could not retrieve permissions for template with id " + templateId);
     }
     return templateWithPermissions;
   }
