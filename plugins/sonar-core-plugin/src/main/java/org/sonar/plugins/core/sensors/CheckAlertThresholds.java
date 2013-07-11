@@ -21,11 +21,7 @@ package org.sonar.plugins.core.sensors;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
@@ -143,7 +139,7 @@ public class CheckAlertThresholds implements Decorator {
     stringBuilder.append(metric);
 
     if (alertPeriod != null && !alert.getMetric().getKey().startsWith(VARIATION_METRIC_PREFIX)) {
-      String variation = i18n.message(getLocale(), "variation", null).toLowerCase();
+      String variation = i18n.message(getLocale(), "variation", "variation").toLowerCase();
       stringBuilder.append(" ").append(variation);
     }
 

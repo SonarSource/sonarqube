@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
@@ -42,13 +43,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
-import static org.junit.Assert.assertFalse;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CheckAlertThresholdsTest {
 
@@ -70,7 +68,7 @@ public class CheckAlertThresholdsTest {
     context = mock(DecoratorContext.class);
     periods = mock(Periods.class);
     i18n = mock(I18n.class);
-    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("variation"), Mockito.isNull(String.class))).thenReturn("variation");
+    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("variation"), Mockito.eq("variation"))).thenReturn("variation");
 
     measureClasses = new Measure(CoreMetrics.CLASSES, 20d);
     measureCoverage = new Measure(CoreMetrics.COVERAGE, 35d);
@@ -88,9 +86,25 @@ public class CheckAlertThresholdsTest {
   }
 
   @Test
+  public void should_generates_alert_status(){
+    assertThat(decorator.generatesAlertStatus()).isEqualTo(CoreMetrics.ALERT_STATUS);
+  }
+
+  @Test
+  public void should_depends_on_variations(){
+    assertThat(decorator.dependsOnVariations()).isEqualTo(DecoratorBarriers.END_OF_TIME_MACHINE);
+  }
+
+  @Test
+  public void should_depends_upon_metrics(){
+    when(profile.getAlerts()).thenReturn(newArrayList(new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20")));
+    assertThat(decorator.dependsUponMetrics()).containsOnly(CoreMetrics.CLASSES);
+  }
+
+  @Test
   public void shouldNotCreateAlertsWhenNoThresholds() {
     when(profile.getAlerts()).thenReturn(new ArrayList<Alert>());
-    assertFalse(decorator.shouldExecuteOnProject(new Project("key")));
+    assertThat(decorator.shouldExecuteOnProject(new Project("key"))).isFalse();
   }
 
   @Test
@@ -110,8 +124,8 @@ public class CheckAlertThresholdsTest {
   public void checkRootProjectsOnly() {
     when(project.getQualifier()).thenReturn(Resource.QUALIFIER_FILE);
     when(profile.getAlerts()).thenReturn(Arrays.asList(
-        new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20"),
-        new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_GREATER, null, "35.0")));
+      new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_GREATER, null, "20"),
+      new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_GREATER, null, "35.0")));
 
     decorator.decorate(project, context);
 

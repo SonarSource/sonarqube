@@ -22,7 +22,6 @@ package org.sonar.api.i18n;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Locale;
@@ -37,7 +36,7 @@ public interface I18n extends ServerComponent, BatchComponent {
   /**
    * Searches the message of the <code>key</code> for the <code>locale</code> in the list of available bundles.
    * <br>
-   * If not found in any bundle, <code>defaultText</code> is returned.
+   * If not found in any bundle, <code>defaultValue</code> is returned.
    * <p/>
    * If additional parameters are given (in the objects list), the result is used as a message pattern
    * to use in a MessageFormat object along with the given parameters.
@@ -48,7 +47,6 @@ public interface I18n extends ServerComponent, BatchComponent {
    * @param parameters the parameters used to format the message from the translated pattern.
    * @return the message formatted with the translated pattern and the given parameters
    */
-  @CheckForNull
   String message(final Locale locale, final String key, @Nullable final String defaultValue, final Object... parameters);
 
 }
