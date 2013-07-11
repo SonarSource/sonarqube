@@ -23,24 +23,25 @@ import org.sonar.api.batch.maven.MavenPlugin;
 import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.Logs;
-import org.sonar.plugins.cobertura.base.CoberturaConstants;
 
 import java.io.File;
 
 /**
  * @since 2.4
  * @deprecated since 3.7 Used to keep backward compatibility since extraction
- * of Cobertura plugin.
+ * of Cobertura plugin. Should be duplicated in each project.
  */
 @Deprecated
 public final class CoberturaUtils {
 
   public static final String COBERTURA_GROUP_ID = MavenUtils.GROUP_ID_CODEHAUS_MOJO;
   public static final String COBERTURA_ARTIFACT_ID = "cobertura-maven-plugin";
+  public static final String COBERTURA_REPORT_PATH_PROPERTY = "sonar.cobertura.reportPath";
 
   /**
    * @deprecated in 2.8, because assumes that Sonar executed from Maven. Not used any more in sonar-cobertura-plugin.
    *             See http://jira.codehaus.org/browse/SONAR-2321
+   *             Used in groovy and flex plugins.
    */
   @Deprecated
   public static File getReport(Project project) {
@@ -60,7 +61,7 @@ public final class CoberturaUtils {
   }
 
   private static File getReportFromProperty(Project project) {
-    String path = (String) project.getProperty(CoberturaConstants.COBERTURA_REPORT_PATH_PROPERTY);
+    String path = (String) project.getProperty(COBERTURA_REPORT_PATH_PROPERTY);
     if (path != null) {
       return project.getFileSystem().resolvePath(path);
     }

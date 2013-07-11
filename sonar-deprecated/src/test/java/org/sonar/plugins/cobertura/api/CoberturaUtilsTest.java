@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.test.MavenTestUtils;
-import org.sonar.plugins.cobertura.base.CoberturaConstants;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -42,7 +41,7 @@ public class CoberturaUtilsTest {
 
     Project project = mock(Project.class);
     when(project.getFileSystem()).thenReturn(fileSystem);
-    when(project.getProperty(CoberturaConstants.COBERTURA_REPORT_PATH_PROPERTY)).thenReturn("foo");
+    when(project.getProperty(CoberturaUtils.COBERTURA_REPORT_PATH_PROPERTY)).thenReturn("foo");
 
     File report = CoberturaUtils.getReport(project);
     verify(fileSystem).resolvePath("foo");
