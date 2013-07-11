@@ -50,6 +50,7 @@ import org.sonar.core.measure.MeasureFilterExecutor;
 import org.sonar.core.measure.MeasureFilterFactory;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
+import org.sonar.core.permission.ComponentPermissionFacade;
 import org.sonar.core.persistence.*;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
@@ -257,6 +258,7 @@ public final class Platform {
     servicesContainer.addSingleton(NewUserNotifier.class);
     servicesContainer.addSingleton(DefaultUserFinder.class);
     servicesContainer.addSingleton(DefaultUserService.class);
+    servicesContainer.addSingleton(ComponentPermissionFacade.class);
     servicesContainer.addSingleton(InternalPermissionService.class);
     servicesContainer.addSingleton(InternalPermissionTemplateService.class);
 
