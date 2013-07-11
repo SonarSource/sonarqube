@@ -21,16 +21,17 @@
 package org.sonar.core.user;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.task.TaskExtension;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.task.TaskComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
-public class PermissionDao implements TaskExtension, ServerExtension {
+public class PermissionDao implements TaskComponent, ServerComponent {
 
   private final MyBatis myBatis;
 

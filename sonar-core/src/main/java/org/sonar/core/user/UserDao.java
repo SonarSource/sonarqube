@@ -21,6 +21,8 @@ package org.sonar.core.user;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.user.UserQuery;
 import org.sonar.core.persistence.MyBatis;
 
@@ -31,7 +33,8 @@ import java.util.List;
 /**
  * @since 3.2
  */
-public class UserDao {
+public class UserDao implements BatchComponent, ServerComponent {
+
   private final MyBatis mybatis;
 
   public UserDao(MyBatis mybatis) {

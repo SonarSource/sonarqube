@@ -21,12 +21,10 @@ package org.sonar.core.resource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerExtension;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.security.ResourcePermissions;
-import org.sonar.api.task.TaskExtension;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissionFacade;
 import org.sonar.core.persistence.MyBatis;
@@ -40,7 +38,7 @@ import java.util.List;
 /**
  * @since 3.2
  */
-public class DefaultResourcePermissions implements ResourcePermissions, TaskExtension, ServerExtension {
+public class DefaultResourcePermissions implements ResourcePermissions {
 
   private final Settings settings;
   private final MyBatis myBatis;

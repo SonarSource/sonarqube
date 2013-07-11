@@ -21,13 +21,13 @@
 package org.sonar.core.user;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.task.TaskExtension;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.task.TaskComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.List;
 
-public class RoleDao implements TaskExtension, ServerExtension {
+public class RoleDao implements TaskComponent, ServerComponent {
 
   private final MyBatis mybatis;
 
