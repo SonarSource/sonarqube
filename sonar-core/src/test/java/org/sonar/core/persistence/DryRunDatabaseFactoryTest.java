@@ -21,7 +21,6 @@ package org.sonar.core.persistence;
 
 import com.google.common.io.Files;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -143,7 +142,19 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
     byte[] database = localDatabaseFactory.createDatabaseForDryRun(302L);
     dataSource = createDatabase(database);
     assertThat(rowCount("issues")).isEqualTo(0);
-    FileUtils.cleanDirectory(temporaryFolder.newFolder());
+  }
+
+  @Test
+  public void should_copy_permission_templates_data() throws Exception {
+    setupData("should_copy_permission_templates");
+
+    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
+
+    byte[] database = localDatabaseFactory.createDatabaseForDryRun(null);
+    dataSource = createDatabase(database);
+    assertThat(rowCount("permission_templates")).isEqualTo(1);
+    assertThat(rowCount("perm_templates_users")).isEqualTo(1);
+    assertThat(rowCount("perm_templates_groups")).isEqualTo(1);
   }
 
   private BasicDataSource createDatabase(byte[] db) throws IOException {
