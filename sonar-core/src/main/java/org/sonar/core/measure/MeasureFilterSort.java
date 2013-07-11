@@ -24,8 +24,10 @@ import org.sonar.api.measures.Metric;
 class MeasureFilterSort {
   public static enum Field {
     KEY, NAME, VERSION, LANGUAGE, METRIC, SHORT_NAME, DESCRIPTION,
-    DATE,  // Sort by last analysis date
-    PROJECT_CREATION_DATE // Sort by project creation date
+    // Sort by last analysis date
+    DATE,
+    // Sort by project creation date
+    PROJECT_CREATION_DATE
   }
 
   private Field field = Field.NAME;
