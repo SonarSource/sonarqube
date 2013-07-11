@@ -34,6 +34,7 @@ import org.sonar.server.exceptions.ServerErrorException;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Used by ruby code <pre>Internal.permission_templates</pre>
@@ -134,6 +135,12 @@ public class InternalPermissionTemplateService implements ServerComponent {
       }
     };
     updater.executeUpdate();
+  }
+
+  public void applyPermissionTemplate(String templateName, Map<String, Object> params) {
+
+
+
   }
 
   private void validateTemplateName(Long templateId, String templateName) {

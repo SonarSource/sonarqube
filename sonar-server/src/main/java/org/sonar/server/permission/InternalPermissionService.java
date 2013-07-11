@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.core.permission.ComponentPermissionFacade;
 import org.sonar.core.user.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
@@ -43,10 +44,12 @@ public class InternalPermissionService implements ServerComponent {
 
   private final RoleDao roleDao;
   private final UserDao userDao;
+  private final ComponentPermissionFacade permissionFacade;
 
-  public InternalPermissionService(RoleDao roleDao, UserDao userDao) {
+  public InternalPermissionService(RoleDao roleDao, UserDao userDao, ComponentPermissionFacade permissionFacade) {
     this.roleDao = roleDao;
     this.userDao = userDao;
+    this.permissionFacade = permissionFacade;
   }
 
   public void addPermission(final Map<String, Object> params) {
@@ -55,6 +58,20 @@ public class InternalPermissionService implements ServerComponent {
 
   public void removePermission(Map<String, Object> params) {
     changePermission(REMOVE, params);
+  }
+
+  public void applyPermissionTemplate(Map<String, Object> params) {
+    UserSession.get().checkLoggedIn();
+    UserSession.get().checkGlobalPermission(Permission.SYSTEM_ADMIN);
+    ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);
+    query.validate();
+    for (String component : query.getSelectedComponents()) {
+      applyPermissionTemplate(query.getTemplateId(), component);
+    }
+  }
+
+  private void applyPermissionTemplate(Long templateId, String componentId) {
+    permissionFacade.applyPermissionTemplate(templateId, Long.parseLong(componentId));
   }
 
   private void changePermission(String permissionChange, Map<String, Object> params) {

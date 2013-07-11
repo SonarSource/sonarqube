@@ -132,4 +132,24 @@ public class RubyUtils {
     }
     throw new IllegalArgumentException("Unsupported type for boolean: " + o.getClass());
   }
+
+  @CheckForNull
+  public static Long toLong(@Nullable Object o) {
+    if (o == null) {
+      return null;
+    }
+    if (o instanceof Integer) {
+      return ((Integer)o).longValue();
+    }
+    if (o instanceof Long) {
+      return ((Long) o);
+    }
+    if (o instanceof String) {
+      if (StringUtils.isBlank((String)o)) {
+        return null;
+      }
+      return Long.parseLong((String) o);
+    }
+    throw new IllegalArgumentException("Unsupported type for long: " + o.getClass());
+  }
 }

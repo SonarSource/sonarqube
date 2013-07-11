@@ -27,6 +27,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.core.permission.ComponentPermissionFacade;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.user.PermissionDao;
 import org.sonar.core.user.RoleDao;
@@ -46,8 +47,9 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   @Before
   public void initResourcePermissions() {
     settings = new Settings();
-    permissions = new DefaultResourcePermissions(settings, getMyBatis(),
+    ComponentPermissionFacade permissionFacade = new ComponentPermissionFacade(getMyBatis(),
       new RoleDao(getMyBatis()), new UserDao(getMyBatis()), new PermissionDao(getMyBatis()));
+    permissions = new DefaultResourcePermissions(settings, getMyBatis(), permissionFacade);
   }
 
   @Test

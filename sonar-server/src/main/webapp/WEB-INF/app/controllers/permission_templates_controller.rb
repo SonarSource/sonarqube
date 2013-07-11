@@ -43,7 +43,7 @@ class PermissionTemplatesController < ApplicationController
     templates_names.each do |template_name|
       permission_template = Internal.permission_templates.selectPermissionTemplate(template_name)
       @permission_templates << permission_template
-      @permission_templates_options << [permission_template.name, permission_template.id]
+      @permission_templates_options << [permission_template.name, permission_template.id.to_s]
     end
     @root_qualifiers = get_root_qualifiers
 

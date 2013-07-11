@@ -11,6 +11,7 @@
     <% @root_qualifiers.each do |qualifier| %>
       <%= label_tag("default_template_#{qualifier}", "Default permission template for #{message('qualifier.' + qualifier)}:") %>
       <%= select_tag("default_template_#{qualifier}", options_for_select(@permission_templates_options, @default_templates[qualifier])) %>
+      <br/>
     <% end %>
     <br/>
     <br/>

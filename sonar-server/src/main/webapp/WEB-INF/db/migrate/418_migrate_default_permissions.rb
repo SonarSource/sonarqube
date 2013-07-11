@@ -75,7 +75,6 @@ class MigrateDefaultPermissions < ActiveRecord::Migration
     default_template = PermissionTemplate.create(
       :name => 'Default template',
       :description => 'This permission template will be used as default when no other permission configuration is available')
-    puts('default template created')
 
     sonar_admins_group = Group.find_by_name('sonar-administrators')
     sonar_users_group = Group.find_by_name('sonar-users')
@@ -83,14 +82,12 @@ class MigrateDefaultPermissions < ActiveRecord::Migration
     # sonar-administrators default permissions
     if sonar_admins_group
       PermissionTemplateGroup.create(:group_id => sonar_admins_group.id, :permission_reference => 'admin', :template_id => default_template.id)
-      puts('admin template group created')
     end
 
     # sonar-users default permissions
     if sonar_users_group
       PermissionTemplateGroup.create(:group_id => sonar_users_group.id, :permission_reference => 'user', :template_id => default_template.id)
       PermissionTemplateGroup.create(:group_id => sonar_users_group.id, :permission_reference => 'codeviewer', :template_id => default_template.id)
-      puts('users template group created')
     end
 
     # Anyone group default permissions

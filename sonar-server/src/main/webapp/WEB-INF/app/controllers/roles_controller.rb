@@ -86,7 +86,9 @@ class RolesController < ApplicationController
     bad_request('Missing qualifier') if params[:qualifier].blank?
   end
 
+  def bulk_apply_form
 
+  end
 
   # POST REQUESTS
 
@@ -118,8 +120,18 @@ class RolesController < ApplicationController
     redirect
   end
 
+  def bulk_apply_template
+    verify_post_request
+    require_parameters :name
+    Internal.permissions.applyPermissionTemplate(params)
+
+    redirect_to :action => 'projects'
+  end
+
   private
+
   def redirect
     redirect_to(:action => params['redirect'] || 'global', :q => params[:q], :qualifier => params[:qualifier], :page => params[:page])
   end
+
 end
