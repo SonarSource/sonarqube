@@ -21,9 +21,9 @@
 package org.sonar.core.permission;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.task.TaskExtension;
+import org.sonar.api.task.TaskComponent;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.*;
 
@@ -35,7 +35,7 @@ import java.util.List;
  *
  * This facade wraps all the db operations related to component-based permissions
  */
-public class ComponentPermissionFacade implements TaskExtension, ServerExtension {
+public class ComponentPermissionFacade implements TaskComponent, ServerComponent {
 
   private final MyBatis myBatis;
   private final RoleDao roleDao;
