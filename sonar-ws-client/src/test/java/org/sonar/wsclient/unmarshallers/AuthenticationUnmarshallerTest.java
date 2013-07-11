@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.wsclient.services.Authentication;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class AuthenticationUnmarshallerTest extends UnmarshallerTestCase {
   @Test
@@ -37,5 +38,22 @@ public class AuthenticationUnmarshallerTest extends UnmarshallerTestCase {
     Authentication authentication = new AuthenticationUnmarshaller().toModel(loadFile("/authentication/authentication_invalid.json"));
 
     assertThat(authentication.isValid()).isFalse();
+  }
+
+  @Test
+  public void should_unmarshall_empty_authentication() {
+    Authentication authentication = new AuthenticationUnmarshaller().toModel("{}");
+
+    assertThat(authentication.isValid()).isFalse();
+  }
+
+  @Test
+  public void should_not_umarshall_authentication_list() {
+    try {
+      new AuthenticationUnmarshaller().toModels("[{\"valid\":true},{\"valid\":true}]");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(UnsupportedOperationException.class);
+    }
   }
 }

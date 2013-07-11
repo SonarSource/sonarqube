@@ -32,6 +32,7 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -144,26 +145,39 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
   public static Result validate(PropertyType type, @Nullable String value, List<String> options) {
     if (StringUtils.isNotBlank(value)) {
       if (type == PropertyType.BOOLEAN) {
-        if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
-          return Result.newError("notBoolean");
-        }
+        return validateBoolean(value);
       } else if (type == PropertyType.INTEGER) {
-        if (!NumberUtils.isDigits(value)) {
-          return Result.newError("notInteger");
-        }
+        return validateInteger(value);
       } else if (type == PropertyType.FLOAT) {
-        try {
-          Double.parseDouble(value);
-        } catch (NumberFormatException e) {
-          return Result.newError("notFloat");
-        }
-      } else if (type == PropertyType.SINGLE_SELECT_LIST) {
-        if (!options.contains(value)) {
-          return Result.newError("notInOptions");
-        }
+        return validateFloat(value);
+      } else if (type == PropertyType.SINGLE_SELECT_LIST && !options.contains(value)) {
+        return Result.newError("notInOptions");
       }
     }
     return Result.SUCCESS;
+  }
+
+  private static Result validateBoolean(@Nullable String value) {
+    if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
+      return Result.newError("notBoolean");
+    }
+    return Result.SUCCESS;
+  }
+
+  private static Result validateInteger(@Nullable String value) {
+    if (!NumberUtils.isDigits(value)) {
+      return Result.newError("notInteger");
+    }
+    return Result.SUCCESS;
+  }
+
+  private static Result validateFloat(@Nullable String value) {
+    try {
+      Double.parseDouble(value);
+      return Result.SUCCESS;
+    } catch (NumberFormatException e) {
+      return Result.newError("notFloat");
+    }
   }
 
   public Result validate(@Nullable String value) {

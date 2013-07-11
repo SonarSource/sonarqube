@@ -162,12 +162,12 @@ public class IssueQuery {
 
   @CheckForNull
   public Date createdAfter() {
-    return createdAfter;
+    return (createdAfter == null ? null : new Date(createdAfter.getTime()));
   }
 
   @CheckForNull
   public Date createdBefore() {
-    return createdBefore;
+    return (createdBefore == null ? null : new Date(createdBefore.getTime()));
   }
 
   @CheckForNull

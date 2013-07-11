@@ -21,34 +21,32 @@ package org.sonar.wsclient.services;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ResourceQueryTest extends QueryTestCase {
 
   @Test
   public void resource() {
     ResourceQuery query = new ResourceQuery("org.foo:bar");
-    assertThat(query.getUrl(), is("/api/resources?resource=org.foo%3Abar&verbose=false&"));
-    assertThat(query.getResourceKeyOrId(), is("org.foo:bar"));
-    assertThat(query.isVerbose(), is(false));
+    assertThat(query.getUrl()).isEqualTo(("/api/resources?resource=org.foo%3Abar&verbose=false&"));
+    assertThat(query.getResourceKeyOrId()).isEqualTo(("org.foo:bar"));
+    assertThat(query.isVerbose()).isEqualTo((false));
   }
 
   @Test
   public void resourceByLanguages() {
     ResourceQuery query = new ResourceQuery("org.foo:bar").setLanguages("java,php");
-    assertThat(query.getUrl(), is("/api/resources?resource=org.foo%3Abar&languages=java%2Cphp&verbose=false&"));
-    assertThat(query.getResourceKeyOrId(), is("org.foo:bar"));
+    assertThat(query.getUrl()).isEqualTo(("/api/resources?resource=org.foo%3Abar&languages=java%2Cphp&verbose=false&"));
+    assertThat(query.getResourceKeyOrId()).isEqualTo(("org.foo:bar"));
   }
 
   @Test
   public void measures() {
     ResourceQuery query = new ResourceQuery();
     query.setMetrics("loc", "coverage", "lines");
-    assertThat(query.getUrl(), is("/api/resources?metrics=loc,coverage,lines&verbose=false&"));
-    assertThat(query.getResourceKeyOrId(), nullValue());
-    assertThat(query.getMetrics(), is(new String[] { "loc", "coverage", "lines" }));
+    assertThat(query.getUrl()).isEqualTo(("/api/resources?metrics=loc,coverage,lines&verbose=false&"));
+    assertThat(query.getResourceKeyOrId()).isNull();
+    assertThat(query.getMetrics()).isEqualTo((new String[]{"loc", "coverage", "lines"}));
   }
 
   @Test
@@ -56,14 +54,14 @@ public class ResourceQueryTest extends QueryTestCase {
     ResourceQuery query = new ResourceQuery();
     query.setIncludeTrends(true);
 
-    assertThat(query.getUrl(), is("/api/resources?includetrends=true&verbose=false&"));
+    assertThat(query.getUrl()).isEqualTo(("/api/resources?includetrends=true&verbose=false&"));
   }
 
   @Test
   public void measuresOnRules() {
     ResourceQuery query = new ResourceQuery().setMetrics("violations");
     query.setRules("ruleA", "ruleB");
-    assertThat(query.getUrl(), is("/api/resources?metrics=violations&rules=ruleA,ruleB&verbose=false&"));
+    assertThat(query.getUrl()).isEqualTo(("/api/resources?metrics=violations&rules=ruleA,ruleB&verbose=false&"));
   }
 
   @Test
@@ -71,13 +69,29 @@ public class ResourceQueryTest extends QueryTestCase {
     ResourceQuery query = new ResourceQuery().setMetrics("violations");
     query.setRuleSeverities("MAJOR", "MINOR");
 
-    assertThat(query.getUrl(), is("/api/resources?metrics=violations&rule_priorities=MAJOR,MINOR&verbose=false&"));
+    assertThat(query.getUrl()).isEqualTo(("/api/resources?metrics=violations&rule_priorities=MAJOR,MINOR&verbose=false&"));
   }
 
   @Test
-  public void build() {
+  public void should_create_query() {
     ResourceQuery query = ResourceQuery.createForMetrics("org.foo", "ncloc", "lines");
-    assertThat(query.getResourceKeyOrId(), is("org.foo"));
-    assertThat(query.getMetrics(), is(new String[] { "ncloc", "lines" }));
+    assertThat(query.getResourceKeyOrId()).isEqualTo(("org.foo"));
+    assertThat(query.getMetrics()).isEqualTo((new String[]{"ncloc", "lines"}));
+  }
+
+  @Test
+  public void should_create_query_from_resource() {
+    ResourceQuery query = ResourceQuery.createForResource(new Resource().setId(1), "ncloc");
+    assertThat(query.getResourceKeyOrId()).isEqualTo("1");
+    assertThat(query.getUrl()).isEqualTo("/api/resources?resource=1&metrics=ncloc&verbose=false&");
+  }
+
+  @Test
+  public void should_not_create_query_from_resource_without_id() {
+    try {
+      ResourceQuery.createForResource(new Resource());
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class);
+    }
   }
 }

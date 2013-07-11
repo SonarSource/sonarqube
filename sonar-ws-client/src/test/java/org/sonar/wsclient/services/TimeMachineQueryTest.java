@@ -19,18 +19,17 @@
  */
 package org.sonar.wsclient.services;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.wsclient.JdkUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.wsclient.JdkUtils;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class TimeMachineQueryTest extends QueryTestCase {
 
@@ -49,18 +48,31 @@ public class TimeMachineQueryTest extends QueryTestCase {
   }
 
   @Test
-  public void shouldGetUrl() {
+  public void should_get_url() {
     TimeMachineQuery query = TimeMachineQuery.createForMetrics("12345", "ncloc", "coverage");
-    assertThat(query.getUrl(), is("/api/timemachine?resource=12345&metrics=ncloc,coverage&"));
+    assertThat(query.getUrl()).isEqualTo("/api/timemachine?resource=12345&metrics=ncloc,coverage&");
   }
 
   @Test
-  public void shouldSetPeriod() throws ParseException {
+  public void should_set_period() throws ParseException {
     Date from = new SimpleDateFormat("yyyy-MM-dd").parse("2010-02-18");
     Date to = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse("2010-03-25 14:59");
     TimeMachineQuery query = TimeMachineQuery.createForMetrics("12345", "ncloc").setFrom(from).setTo(to);
-    assertThat(
-        query.getUrl(),
-        is("/api/timemachine?resource=12345&metrics=ncloc&fromDateTime=2010-02-18T00%3A00%3A00%2B0000&toDateTime=2010-03-25T14%3A59%3A00%2B0000&"));
+    assertThat(query.getUrl()).isEqualTo(
+        "/api/timemachine?resource=12345&metrics=ncloc&fromDateTime=2010-02-18T00%3A00%3A00%2B0000&toDateTime=2010-03-25T14%3A59%3A00%2B0000&");
+  }
+
+  @Test
+  public void should_create_query_from_resource() {
+    TimeMachineQuery query = TimeMachineQuery.createForMetrics(new Resource().setId(1), "ncloc");
+    assertThat(query.getUrl()).isEqualTo("/api/timemachine?resource=1&metrics=ncloc&");  }
+
+  @Test
+  public void should_not_create_query_from_resource_without_id() {
+    try {
+      TimeMachineQuery.createForMetrics(new Resource());
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class);
+    }
   }
 }

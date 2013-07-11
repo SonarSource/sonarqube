@@ -19,30 +19,44 @@
  */
 package org.sonar.wsclient.services;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ViolationQueryTest extends QueryTestCase {
 
   @Test
-  public void resourceViolations() {
+  public void should_create_query() {
     ViolationQuery query = ViolationQuery.createForResource("myproject:org.foo:bar");
-    assertThat(query.getUrl(), is("/api/violations?resource=myproject%3Aorg.foo%3Abar&"));
-    assertThat(query.getModelClass().getName(), is(Violation.class.getName()));
+    assertThat(query.getUrl()).isEqualTo("/api/violations?resource=myproject%3Aorg.foo%3Abar&");
+    assertThat(query.getModelClass().getName()).isEqualTo(Violation.class.getName());
   }
 
   @Test
-  public void resourceTreeViolations() {
+  public void should_create_query_tree() {
     ViolationQuery query = ViolationQuery.createForResource("myproject")
-        .setDepth(-1)
-        .setLimit(20)
-        .setSeverities("MAJOR", "BLOCKER")
-        .setQualifiers("FIL")
-        .setRuleKeys("checkstyle:foo", "pmd:bar");
-    assertThat(
-        query.getUrl(),
-        is("/api/violations?resource=myproject&depth=-1&limit=20&qualifiers=FIL&rules=checkstyle%3Afoo,pmd%3Abar&priorities=MAJOR,BLOCKER&"));
+      .setDepth(-1)
+      .setLimit(20)
+      .setSeverities("MAJOR", "BLOCKER")
+      .setQualifiers("FIL")
+      .setRuleKeys("checkstyle:foo", "pmd:bar");
+    assertThat(query.getUrl()).isEqualTo(
+      "/api/violations?resource=myproject&depth=-1&limit=20&qualifiers=FIL&rules=checkstyle%3Afoo,pmd%3Abar&priorities=MAJOR,BLOCKER&");
+  }
+
+  @Test
+  public void should_create_query_from_resource() {
+    ViolationQuery query = ViolationQuery.createForResource(new Resource().setId(1));
+    assertThat(query.getUrl()).isEqualTo("/api/violations?resource=1&");
+    assertThat(query.getModelClass().getName()).isEqualTo(Violation.class.getName());
+  }
+
+  @Test
+  public void should_not_create_query_from_resource_without_id() {
+    try {
+      ViolationQuery.createForResource(new Resource());
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class);
+    }
   }
 }

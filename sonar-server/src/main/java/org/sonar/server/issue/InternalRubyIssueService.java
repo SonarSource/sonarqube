@@ -62,6 +62,10 @@ import java.util.Map;
  */
 public class InternalRubyIssueService implements ServerComponent {
 
+  private final static String ID_PARAM = "id";
+  private final static String NAME_PARAM = "name";
+  private final static String DESCRIPTION_PARAM = "description";
+
   private final IssueService issueService;
   private final IssueCommentService commentService;
   private final IssueChangelogService changelogService;
@@ -285,13 +289,13 @@ public class InternalRubyIssueService implements ServerComponent {
   Result<ActionPlan> createActionPlanResult(Map<String, String> parameters, @Nullable DefaultActionPlan existingActionPlan) {
     Result<ActionPlan> result = Result.of();
 
-    String name = parameters.get("name");
-    String description = parameters.get("description");
+    String name = parameters.get(NAME_PARAM);
+    String description = parameters.get(DESCRIPTION_PARAM);
     String deadLineParam = parameters.get("deadLine");
     String projectParam = parameters.get("project");
 
-    checkMandatorySizeParameter(name, "name", 200, result);
-    checkOptionalSizeParameter(description, "description", 1000, result);
+    checkMandatorySizeParameter(name, NAME_PARAM, 200, result);
+    checkOptionalSizeParameter(description, DESCRIPTION_PARAM, 1000, result);
 
     // Can only set project on creation
     if (existingActionPlan == null) {
@@ -511,22 +515,22 @@ public class InternalRubyIssueService implements ServerComponent {
 
   @VisibleForTesting
   DefaultIssueFilter createIssueFilterResult(Map<String, String> params, boolean checkId, boolean checkUser) {
-    String id = params.get("id");
-    String name = params.get("name");
-    String description = params.get("description");
+    String id = params.get(ID_PARAM);
+    String name = params.get(NAME_PARAM);
+    String description = params.get(DESCRIPTION_PARAM);
     String data = params.get("data");
     String user = params.get("user");
     Boolean sharedParam = RubyUtils.toBoolean(params.get("shared"));
     boolean shared = sharedParam != null ? sharedParam : false;
 
     if (checkId) {
-      checkMandatoryParameter(id, "id");
+      checkMandatoryParameter(id, ID_PARAM);
     }
     if (checkUser) {
       checkMandatoryParameter(user, "user");
     }
-    checkMandatorySizeParameter(name, "name", 100);
-    checkOptionalSizeParameter(description, "description", 4000);
+    checkMandatorySizeParameter(name, NAME_PARAM, 100);
+    checkOptionalSizeParameter(description, DESCRIPTION_PARAM, 4000);
 
     DefaultIssueFilter defaultIssueFilter = DefaultIssueFilter.create(name)
       .setDescription(description)
