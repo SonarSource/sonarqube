@@ -199,6 +199,9 @@ function toggleIssueRule(elt) {
     $j.get(baseUrl + "/issue/rule/" + ruleKey, function (html) {
       ruleElt.html(html);
       ruleElt.slideDown('fast');
+
+      // re-enable the links opening modal popups
+      ruleElt.find('.open-modal').modal();
     });
   }
   return false;
