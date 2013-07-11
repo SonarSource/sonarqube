@@ -32,6 +32,7 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
+import java.net.SocketTimeoutException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
@@ -73,7 +74,15 @@ public class DryRunDatabaseTest {
   public void should_download_database() {
     new DryRunDatabase(settings, server, tempDirectories).start();
 
-    verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
+    verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 60000);
+  }
+
+  @Test
+  public void should_download_database_with_overriden_timeout() {
+    settings.setProperty(CoreProperties.DRY_RUN_READ_TIMEOUT, 80000);
+    new DryRunDatabase(settings, server, tempDirectories).start();
+
+    verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 80000);
   }
 
   @Test
@@ -81,7 +90,7 @@ public class DryRunDatabaseTest {
     settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch");
     new DryRunDatabase(settings, server, tempDirectories).start();
 
-    verify(server).download("/batch_bootstrap/db?project=group:project:mybranch", databaseFile);
+    verify(server).download("/batch_bootstrap/db?project=group:project:mybranch", databaseFile, 60000);
   }
 
   @Test
@@ -97,7 +106,7 @@ public class DryRunDatabaseTest {
 
   @Test
   public void should_fail_on_invalid_role() {
-    doThrow(new SonarException(new HttpDownloader.HttpException(null, 401))).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
+    doThrow(new SonarException(new HttpDownloader.HttpException(null, 401))).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 60000);
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("You don't have access rights to project [group:project]");
@@ -106,8 +115,18 @@ public class DryRunDatabaseTest {
   }
 
   @Test
+  public void should_fail_on_read_timeout() {
+    doThrow(new SonarException(new SocketTimeoutException())).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 60000);
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("DryRun database read timed out after 60000 ms. You can try to increase read timeout with property -Dsonar.dryRun.readTimeout");
+
+    new DryRunDatabase(settings, server, tempDirectories).start();
+  }
+
+  @Test
   public void should_fail() {
-    doThrow(new SonarException("BUG")).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile);
+    doThrow(new SonarException("BUG")).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 60000);
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("BUG");
@@ -120,6 +139,6 @@ public class DryRunDatabaseTest {
     // on non-scan tasks
     settings.removeProperty(CoreProperties.PROJECT_KEY_PROPERTY);
     new DryRunDatabase(settings, server, tempDirectories).start();
-    verify(server).download("/batch_bootstrap/db", databaseFile);
+    verify(server).download("/batch_bootstrap/db", databaseFile, 60000);
   }
 }

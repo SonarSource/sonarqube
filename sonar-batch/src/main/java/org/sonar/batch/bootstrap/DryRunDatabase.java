@@ -32,6 +32,7 @@ import org.sonar.api.utils.HttpDownloader.HttpException;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
+import java.net.SocketTimeoutException;
 
 /**
  * @since 3.4
@@ -44,6 +45,8 @@ public class DryRunDatabase implements BatchComponent {
   private static final String URL = "jdbc:h2:";
   private static final String USER = "sonar";
   private static final String PASSWORD = "sonar";
+
+  private static final int DEFAULT_DRY_RUN_READ_TIMEOUT = 60 * 1000;
 
   private final Settings settings;
   private final ServerClient server;
@@ -59,14 +62,19 @@ public class DryRunDatabase implements BatchComponent {
     if (settings.getBoolean(CoreProperties.DRY_RUN)) {
       LOG.info("Dry run");
       File databaseFile = tempDirectories.getFile("", "dryrun.h2.db");
-      downloadDatabase(databaseFile);
+
+      // SONAR-4488 Allow to increase dryRun timeout
+      int readTimeout = settings.getInt(CoreProperties.DRY_RUN_READ_TIMEOUT);
+      readTimeout = (readTimeout == 0) ? DEFAULT_DRY_RUN_READ_TIMEOUT : readTimeout;
+
+      downloadDatabase(databaseFile, readTimeout);
 
       String databasePath = StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db");
       replaceSettings(databasePath);
     }
   }
 
-  private void downloadDatabase(File toFile) {
+  private void downloadDatabase(File toFile, int readTimeout) {
     String projectKey = null;
     try {
       projectKey = settings.getString(CoreProperties.PROJECT_KEY_PROPERTY);
@@ -75,15 +83,22 @@ public class DryRunDatabase implements BatchComponent {
         projectKey = String.format("%s:%s", projectKey, branch);
       }
       if (StringUtils.isBlank(projectKey)) {
-        server.download("/batch_bootstrap/db", toFile);
+        server.download("/batch_bootstrap/db", toFile, readTimeout);
       } else {
-        server.download("/batch_bootstrap/db?project=" + projectKey, toFile);
+        server.download("/batch_bootstrap/db?project=" + projectKey, toFile, readTimeout);
       }
       LOG.debug("Dry Run database size: {}", FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(toFile)));
     } catch (SonarException e) {
       Throwable rootCause = Throwables.getRootCause(e);
+      if (rootCause instanceof SocketTimeoutException) {
+        // Pico will unwrap the first runtime exception
+        throw new SonarException(new SonarException(String.format("DryRun database read timed out after %s ms. You can try to increase read timeout with property -D"
+          + CoreProperties.DRY_RUN_READ_TIMEOUT,
+            readTimeout), e));
+      }
       if (projectKey != null && (rootCause instanceof HttpException) && (((HttpException) rootCause).getResponseCode() == 401)) {
-        throw new SonarException(String.format("You don't have access rights to project [%s]", projectKey), e);
+        // Pico will unwrap the first runtime exception
+        throw new SonarException(new SonarException(String.format("You don't have access rights to project [%s]", projectKey), e));
       }
       throw e;
     }

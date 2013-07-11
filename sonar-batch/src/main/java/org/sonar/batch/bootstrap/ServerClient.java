@@ -58,8 +58,12 @@ public class ServerClient implements BatchComponent {
   }
 
   public void download(String pathStartingWithSlash, File toFile) {
+    download(pathStartingWithSlash, toFile, null);
+  }
+
+  public void download(String pathStartingWithSlash, File toFile, Integer readTimeoutMillis) {
     try {
-      InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash);
+      InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash, readTimeoutMillis);
       Files.copy(inputSupplier, toFile);
     } catch (HttpDownloader.HttpException he) {
       throw handleHttpException(he);
@@ -73,7 +77,11 @@ public class ServerClient implements BatchComponent {
   }
 
   public String request(String pathStartingWithSlash, boolean wrapHttpException) {
-    InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash);
+    return request(pathStartingWithSlash, wrapHttpException, null);
+  }
+
+  public String request(String pathStartingWithSlash, boolean wrapHttpException, Integer timeoutMillis) {
+    InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash, timeoutMillis);
     try {
       return IOUtils.toString(inputSupplier.getInput(), "UTF-8");
     } catch (HttpDownloader.HttpException e) {
@@ -83,7 +91,7 @@ public class ServerClient implements BatchComponent {
     }
   }
 
-  private InputSupplier<InputStream> doRequest(String pathStartingWithSlash) {
+  private InputSupplier<InputStream> doRequest(String pathStartingWithSlash, Integer timeoutMillis) {
     Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
     String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
 
@@ -91,9 +99,9 @@ public class ServerClient implements BatchComponent {
     try {
       InputSupplier<InputStream> inputSupplier;
       if (Strings.isNullOrEmpty(getLogin())) {
-        inputSupplier = downloader.newInputSupplier(uri);
+        inputSupplier = downloader.newInputSupplier(uri, timeoutMillis);
       } else {
-        inputSupplier = downloader.newInputSupplier(uri, getLogin(), getPassword());
+        inputSupplier = downloader.newInputSupplier(uri, getLogin(), getPassword(), timeoutMillis);
       }
       return inputSupplier;
     } catch (Exception e) {

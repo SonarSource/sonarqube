@@ -37,6 +37,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 
+import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,12 +61,23 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
   public static final int TIMEOUT_MILLISECONDS = 20 * 1000;
 
   private final BaseHttpDownloader downloader;
+  private final Integer readTimeout;
 
   public HttpDownloader(Server server, Settings settings) {
+    this(server, settings, null);
+  }
+
+  public HttpDownloader(Server server, Settings settings, @Nullable Integer readTimeout) {
+    this.readTimeout = readTimeout;
     downloader = new BaseHttpDownloader(settings.getProperties(), server.getVersion());
   }
 
   public HttpDownloader(Settings settings) {
+    this(settings, null);
+  }
+
+  public HttpDownloader(Settings settings, @Nullable Integer readTimeout) {
+    this.readTimeout = readTimeout;
     downloader = new BaseHttpDownloader(settings.getProperties(), null);
   }
 
@@ -86,7 +99,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
   @Override
   String readString(URI uri, Charset charset) {
     try {
-      return CharStreams.toString(CharStreams.newReaderSupplier(downloader.newInputSupplier(uri), charset));
+      return CharStreams.toString(CharStreams.newReaderSupplier(downloader.newInputSupplier(uri, this.readTimeout), charset));
     } catch (IOException e) {
       throw failToDownload(uri, e);
     }
@@ -98,7 +111,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
   public byte[] download(URI uri) {
     try {
-      return ByteStreams.toByteArray(downloader.newInputSupplier(uri));
+      return ByteStreams.toByteArray(downloader.newInputSupplier(uri, this.readTimeout));
     } catch (IOException e) {
       throw failToDownload(uri, e);
     }
@@ -110,7 +123,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
   public InputStream openStream(URI uri) {
     try {
-      return downloader.newInputSupplier(uri).getInput();
+      return downloader.newInputSupplier(uri, this.readTimeout).getInput();
     } catch (IOException e) {
       throw failToDownload(uri, e);
     }
@@ -118,7 +131,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
   public void download(URI uri, File toFile) {
     try {
-      Files.copy(downloader.newInputSupplier(uri), toFile);
+      Files.copy(downloader.newInputSupplier(uri, this.readTimeout), toFile);
     } catch (IOException e) {
       FileUtils.deleteQuietly(toFile);
       throw failToDownload(uri, e);
@@ -193,11 +206,25 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri) {
-      return new HttpInputSupplier(uri, userAgent, null, null);
+      return new HttpInputSupplier(uri, userAgent, null, null, TIMEOUT_MILLISECONDS);
+    }
+
+    public InputSupplier<InputStream> newInputSupplier(URI uri, @Nullable Integer readTimeoutMillis) {
+      if (readTimeoutMillis != null) {
+        return new HttpInputSupplier(uri, userAgent, null, null, readTimeoutMillis);
+      }
+      return new HttpInputSupplier(uri, userAgent, null, null, TIMEOUT_MILLISECONDS);
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri, String login, String password) {
-      return new HttpInputSupplier(uri, userAgent, login, password);
+      return new HttpInputSupplier(uri, userAgent, login, password, TIMEOUT_MILLISECONDS);
+    }
+
+    public InputSupplier<InputStream> newInputSupplier(URI uri, String login, String password, @Nullable Integer readTimeoutMillis) {
+      if (readTimeoutMillis != null) {
+        return new HttpInputSupplier(uri, userAgent, login, password, readTimeoutMillis);
+      }
+      return new HttpInputSupplier(uri, userAgent, login, password, TIMEOUT_MILLISECONDS);
     }
 
     private static class HttpInputSupplier implements InputSupplier<InputStream> {
@@ -205,12 +232,14 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
       private final String password;
       private final URI uri;
       private final String userAgent;
+      private final int readTimeoutMillis;
 
-      HttpInputSupplier(URI uri, String userAgent, String login, String password) {
+      HttpInputSupplier(URI uri, String userAgent, String login, String password, int readTimeoutMillis) {
         this.uri = uri;
         this.userAgent = userAgent;
         this.login = login;
         this.password = password;
+        this.readTimeoutMillis = readTimeoutMillis;
       }
 
       public InputStream getInput() throws IOException {
@@ -222,7 +251,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
           connection.setRequestProperty("Authorization", "Basic " + encoded);
         }
         connection.setConnectTimeout(TIMEOUT_MILLISECONDS);
-        connection.setReadTimeout(TIMEOUT_MILLISECONDS);
+        connection.setReadTimeout(readTimeoutMillis);
         connection.setUseCaches(true);
         connection.setInstanceFollowRedirects(true);
         connection.setRequestProperty("User-Agent", userAgent);

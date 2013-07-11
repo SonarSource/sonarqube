@@ -400,4 +400,9 @@ public interface CoreProperties {
    */
   @Deprecated
   String CORE_COVERAGE_PLUGIN_PROPERTY = "sonar.core.codeCoveragePlugin";
+
+  /**
+   * @since 3.7
+   */
+  String DRY_RUN_READ_TIMEOUT = "sonar.dryRun.readTimeout";
 }

@@ -20,10 +20,13 @@
 package org.sonar.api.utils;
 
 import com.google.common.base.Charsets;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -39,6 +42,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -54,6 +58,9 @@ public class HttpDownloaderTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   private static SocketConnection socketConnection;
   private static String baseUrl;
 
@@ -65,7 +72,15 @@ public class HttpDownloaderTest {
           if (req.getPath().getPath().contains("/redirect/")) {
             resp.setCode(303);
             resp.add("Location", "/");
-          } else {
+          }
+          else {
+            if (req.getPath().getPath().contains("/timeout/")) {
+              try {
+                Thread.sleep(1000);
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+            }
             resp.getPrintStream().append("agent=" + req.getValues("User-Agent").get(0));
           }
         } catch (IOException e) {
@@ -99,6 +114,33 @@ public class HttpDownloaderTest {
   public void readString() throws URISyntaxException {
     String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl), Charsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
+  }
+
+  @Test
+  public void readStringWithDefaultTimeout() throws URISyntaxException {
+    String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
+    assertThat(text.length()).isGreaterThan(10);
+  }
+
+  @Test
+  public void readStringWithTimeout() throws URISyntaxException {
+    String text = new HttpDownloader(new Settings(), 2000).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
+    assertThat(text.length()).isGreaterThan(10);
+
+    thrown.expect(new BaseMatcher<Exception>() {
+      @Override
+      public boolean matches(Object ex) {
+        // TODO Auto-generated method stub
+        return ex instanceof SonarException && ((SonarException) ex).getCause() instanceof SocketTimeoutException;
+      }
+
+      @Override
+      public void describeTo(Description arg0) {
+        // TODO Auto-generated method stub
+
+      }
+    });
+    new HttpDownloader(new Settings(), 100).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
   }
 
   @Test(expected = SonarException.class)
