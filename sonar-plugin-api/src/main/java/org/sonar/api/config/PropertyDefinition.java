@@ -157,21 +157,21 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     return Result.SUCCESS;
   }
 
-  private static Result validateBoolean(@Nullable String value) {
+  private static Result validateBoolean(String value) {
     if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
       return Result.newError("notBoolean");
     }
     return Result.SUCCESS;
   }
 
-  private static Result validateInteger(@Nullable String value) {
+  private static Result validateInteger(String value) {
     if (!NumberUtils.isDigits(value)) {
       return Result.newError("notInteger");
     }
     return Result.SUCCESS;
   }
 
-  private static Result validateFloat(@Nullable String value) {
+  private static Result validateFloat(String value) {
     try {
       Double.parseDouble(value);
       return Result.SUCCESS;

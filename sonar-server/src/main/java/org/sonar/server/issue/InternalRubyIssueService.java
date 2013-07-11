@@ -62,9 +62,9 @@ import java.util.Map;
  */
 public class InternalRubyIssueService implements ServerComponent {
 
-  private final static String ID_PARAM = "id";
-  private final static String NAME_PARAM = "name";
-  private final static String DESCRIPTION_PARAM = "description";
+  private static final String ID_PARAM = "id";
+  private static final String NAME_PARAM = "name";
+  private static final String DESCRIPTION_PARAM = "description";
 
   private final IssueService issueService;
   private final IssueCommentService commentService;
