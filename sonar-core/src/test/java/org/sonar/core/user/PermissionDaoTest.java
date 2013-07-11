@@ -129,8 +129,8 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     permissionDao.deletePermissionTemplate(1L);
 
     checkTable("deletePermissionTemplate", "permission_templates", "id", "name", "description");
-    checkTable("deletePermissionTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission");
-    checkTable("deletePermissionTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission");
+    checkTable("deletePermissionTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
+    checkTable("deletePermissionTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
   }
 
   @Test
@@ -139,18 +139,18 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     permissionDao.addUserPermission(1L, 1L, "new_permission");
 
     checkTable("addUserPermissionToTemplate", "permission_templates", "id", "name", "description");
-    checkTable("addUserPermissionToTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission");
-    checkTable("addUserPermissionToTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission");
+    checkTable("addUserPermissionToTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
+    checkTable("addUserPermissionToTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
   }
 
   @Test
   public void should_remove_user_permission_from_template() throws Exception {
     setupData("removeUserPermissionFromTemplate");
-    permissionDao.removeUserPermission(1L, 2L, "existing_permission");
+    permissionDao.removeUserPermission(1L, 2L, "permission_to_remove");
 
     checkTable("removeUserPermissionFromTemplate", "permission_templates", "id", "name", "description");
-    checkTable("removeUserPermissionFromTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission");
-    checkTable("removeUserPermissionFromTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission");
+    checkTable("removeUserPermissionFromTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
+    checkTable("removeUserPermissionFromTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
   }
 
   @Test
@@ -159,18 +159,18 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     permissionDao.addGroupPermission(1L, 1L, "new_permission");
 
     checkTable("addGroupPermissionToTemplate", "permission_templates", "id", "name", "description");
-    checkTable("addGroupPermissionToTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission");
-    checkTable("addGroupPermissionToTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission");
+    checkTable("addGroupPermissionToTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
+    checkTable("addGroupPermissionToTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
   }
 
   @Test
   public void should_remove_group_permission_from_template() throws Exception {
     setupData("removeGroupPermissionFromTemplate");
-    permissionDao.removeGroupPermission(1L, 2L, "existing_permission");
+    permissionDao.removeGroupPermission(1L, 2L, "permission_to_remove");
 
     checkTable("removeGroupPermissionFromTemplate", "permission_templates", "id", "name", "description");
-    checkTable("removeGroupPermissionFromTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission");
-    checkTable("removeGroupPermissionFromTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission");
+    checkTable("removeGroupPermissionFromTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
+    checkTable("removeGroupPermissionFromTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
   }
 
   @Test
@@ -179,17 +179,17 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     permissionDao.addGroupPermission(1L, null, "new_permission");
 
     checkTable("addNullGroupPermissionToTemplate", "permission_templates", "id", "name", "description");
-    checkTable("addNullGroupPermissionToTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission");
-    checkTable("addNullGroupPermissionToTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission");
+    checkTable("addNullGroupPermissionToTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
+    checkTable("addNullGroupPermissionToTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
   }
 
   @Test
   public void should_remove_group_permission_with_null_name() throws Exception {
     setupData("removeNullGroupPermissionFromTemplate");
-    permissionDao.removeGroupPermission(1L, null, "existing_permission");
+    permissionDao.removeGroupPermission(1L, null, "permission_to_remove");
 
     checkTable("removeNullGroupPermissionFromTemplate", "permission_templates", "id", "name", "description");
-    checkTable("removeNullGroupPermissionFromTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission");
-    checkTable("removeNullGroupPermissionFromTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission");
+    checkTable("removeNullGroupPermissionFromTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
+    checkTable("removeNullGroupPermissionFromTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
   }
 }

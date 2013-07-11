@@ -20,5 +20,35 @@
 
 package org.sonar.core.permission;
 
-public class ComponentPermissionFacadeTest {
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.user.PermissionDao;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
+
+public class ComponentPermissionFacadeTest extends AbstractDaoTestCase {
+
+  private ComponentPermissionFacade permissionFacade;
+  private RoleDao roleDao;
+  private UserDao userDao;
+  private PermissionDao permissionDao;
+
+  @Before
+  public void setUp() {
+    roleDao = new RoleDao(getMyBatis());
+    userDao = new UserDao(getMyBatis());
+    permissionDao = new PermissionDao(getMyBatis());
+    permissionFacade = new ComponentPermissionFacade(getMyBatis(), roleDao, userDao, permissionDao);
+  }
+
+  @Test
+  public void should_apply_permission_template() throws Exception {
+    setupData("should_apply_permission_template");
+
+    permissionFacade.applyPermissionTemplate(1L, 123L);
+
+    checkTable("should_apply_permission_template", "group_roles", "group_id", "resource_id", "role");
+    checkTable("should_apply_permission_template", "user_roles", "group_id", "resource_id", "role");
+  }
 }

@@ -44,7 +44,8 @@ public class PermissionTemplateTest {
       ))
       .setGroupsByPermission(Lists.newArrayList(
         new PermissionTemplateGroupDto().setId(1L).setGroupId(1L).setGroupName("group1").setPermission("permission3"),
-        new PermissionTemplateGroupDto().setId(2L).setGroupId(2L).setGroupName("group2").setPermission("permission3")
+        new PermissionTemplateGroupDto().setId(2L).setGroupId(2L).setGroupName("group2").setPermission("permission3"),
+        new PermissionTemplateGroupDto().setId(3L).setGroupId(null).setGroupName(null).setPermission("permission3")
       ));
 
     PermissionTemplate permissionTemplate = PermissionTemplate.create(permissionTemplateDto);
@@ -59,7 +60,7 @@ public class PermissionTemplateTest {
     assertThat(permissionTemplate.getUsersForPermission("permission2")).onProperty("userName").containsOnly("user1");
     assertThat(permissionTemplate.getUsersForPermission("permission2")).onProperty("userId").containsOnly(1L);
     assertThat(permissionTemplate.getUsersForPermission("permission2")).onProperty("userLogin").containsOnly("login1");
-    assertThat(permissionTemplate.getGroupsForPermission("permission3")).onProperty("groupName").containsOnly("group1", "group2");
-    assertThat(permissionTemplate.getGroupsForPermission("permission3")).onProperty("groupId").containsOnly(1L, 2L);
+    assertThat(permissionTemplate.getGroupsForPermission("permission3")).onProperty("groupName").containsOnly("group1", "group2", null);
+    assertThat(permissionTemplate.getGroupsForPermission("permission3")).onProperty("groupId").containsOnly(1L, 2L, null);
   }
 }

@@ -67,8 +67,8 @@ class PermissionTemplatesController < ApplicationController
   def edit_groups
     @permission = params[:permission]
     @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
-    @groups_with_permission = @permission_template.getGroupsForPermission(params[:permission]).collect {|g| [g.groupName, g.groupName]}
-    @groups_without_permission = all_groups.select {|g| !g.nil?}.each.collect {|g| [g.name, g.name]} - @groups_with_permission
+    @groups_with_permission = @permission_template.getGroupsForPermission(params[:permission]).collect {|g| [group_ref(g.groupName), group_ref(g.groupName)]}
+    @groups_without_permission = all_groups.each.collect {|g| g.nil? ? ['Anyone', 'Anyone'] : [g.name, g.name]} - @groups_with_permission
 
     render :partial => 'permission_templates/edit_groups'
   end
@@ -112,8 +112,8 @@ class PermissionTemplatesController < ApplicationController
 
     selected_groups = params[:groups] || []
 
-    previous_groups_with_permission = @permission_template.getGroupsForPermission(params[:permission]).collect {|g| [g.groupName, g.groupName]}
-    new_groups_with_permission = all_groups.select {|g| !g.nil? && selected_groups.include?(g.name)}.collect {|g| [g.name, g.name]}
+    previous_groups_with_permission = @permission_template.getGroupsForPermission(params[:permission]).collect {|g| [group_ref(g.groupName), group_ref(g.groupName)]}
+    new_groups_with_permission = all_groups.collect {|g| g.nil? ? ['Anyone', 'Anyone'] : [g.name, g.name]}.select {|g| selected_groups.include?(g[1])}
 
     promoted_groups = new_groups_with_permission - previous_groups_with_permission
     demoted_groups = previous_groups_with_permission - new_groups_with_permission

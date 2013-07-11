@@ -15,7 +15,7 @@
 
             <select name="from" id="from" size="30" style="margin: 5px 0; width: 300px;" multiple="multiple">
               <% @groups_without_permission.sort.each do |group| %>
-                <option value="<%= group[1] -%>"><%= h group[0] -%></option>
+                <option value="<%= group[1] -%>"><%= h(group[0].blank? ? 'Anyone' : group[0]) -%></option>
               <% end %>
             </select>
           </td>

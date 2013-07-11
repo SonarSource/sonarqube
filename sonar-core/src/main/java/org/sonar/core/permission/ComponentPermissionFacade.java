@@ -135,6 +135,7 @@ public class ComponentPermissionFacade implements TaskComponent, ServerComponent
   public void applyPermissionTemplate(Long templateId, Long resourceId) {
     SqlSession session = myBatis.openSession();
     try {
+      removeAllPermissions(resourceId, session);
       PermissionTemplateDto permissionTemplate = getPermissionTemplate(templateId);
       List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
       if(usersPermissions != null) {
@@ -146,7 +147,8 @@ public class ComponentPermissionFacade implements TaskComponent, ServerComponent
       List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();
       if(groupsPermissions != null) {
         for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
-          addGroupPermission(resourceId, groupPermission.getGroupName(), groupPermission.getPermission(), session);
+          String groupName = groupPermission.getGroupName() == null ? DefaultGroups.ANYONE : groupPermission.getGroupName();
+          addGroupPermission(resourceId, groupName, groupPermission.getPermission(), session);
         }
       }
       session.commit();

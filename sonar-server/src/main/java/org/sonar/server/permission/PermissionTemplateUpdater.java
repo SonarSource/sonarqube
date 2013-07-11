@@ -21,6 +21,7 @@
 package org.sonar.server.permission;
 
 import com.google.common.collect.Lists;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.user.*;
 import org.sonar.server.exceptions.BadRequestException;
@@ -62,6 +63,9 @@ abstract class PermissionTemplateUpdater {
   }
 
   Long getGroupId() {
+    if(DefaultGroups.isAnyone(updatedReference)) {
+      return null;
+    }
     GroupDto groupDto = userDao.selectGroupByName(updatedReference);
     if(groupDto == null) {
       throw new BadRequestException("Unknown group: " + updatedReference);

@@ -46,6 +46,10 @@ module RolesHelper
     group ? group.name : 'Anyone'
   end
 
+  def group_ref(group_name)
+    group_name.blank? ? 'Anyone' : group_name
+  end
+
   def default_project_group_names(role, qualifier)
     group_names=(controller.java_facade.getConfigurationValue("sonar.role.#{role}.#{qualifier}.defaultGroups")||'').split(',')
 

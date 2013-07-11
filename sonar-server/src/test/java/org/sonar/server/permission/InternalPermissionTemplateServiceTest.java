@@ -248,6 +248,26 @@ public class InternalPermissionTemplateServiceTest {
     verify(permissionDao, times(1)).removeGroupPermission(1L, 1L, DEFAULT_PERMISSION);
   }
 
+  @Test
+  public void should_add_permission_to_anyone_group() throws Exception {
+    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+
+    permissionTemplateService.addGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "Anyone");
+
+    verify(permissionDao).addGroupPermission(1L, null, DEFAULT_PERMISSION);
+    verifyZeroInteractions(userDao);
+  }
+
+  @Test
+  public void should_remove_permission_from_anyone_group() throws Exception {
+    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+
+    permissionTemplateService.removeGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "Anyone");
+
+    verify(permissionDao).removeGroupPermission(1L, null, DEFAULT_PERMISSION);
+    verifyZeroInteractions(userDao);
+  }
+
   private PermissionTemplateUserDto buildUserPermission(String userName, String permission) {
     return new PermissionTemplateUserDto().setUserName(userName).setPermission(permission);
   }

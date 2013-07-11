@@ -122,9 +122,8 @@ class RolesController < ApplicationController
 
   def bulk_apply_template
     verify_post_request
-    require_parameters :name
+    require_parameters :template_id
     Internal.permissions.applyPermissionTemplate(params)
-
     redirect_to :action => 'projects'
   end
 

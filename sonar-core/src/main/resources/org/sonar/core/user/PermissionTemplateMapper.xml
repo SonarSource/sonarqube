@@ -38,6 +38,7 @@
     DELETE FROM perm_templates_users
     WHERE template_id = #{templateId}
     AND user_id = #{userId}
+    AND permission_reference = #{permission}
   </delete>
 
   <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup">
@@ -48,6 +49,7 @@
   <delete id="deleteGroupPermission" parameterType="PermissionTemplateGroup">
     DELETE FROM perm_templates_groups
     WHERE template_id = #{templateId}
+    AND permission_reference = #{permission}
     AND
     <choose>
       <when test="groupId != null">
