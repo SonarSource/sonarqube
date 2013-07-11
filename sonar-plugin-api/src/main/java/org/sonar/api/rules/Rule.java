@@ -32,6 +32,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.persistence.*;
 
 import java.util.ArrayList;
@@ -205,6 +207,7 @@ public final class Rule {
     this.id = id;
   }
 
+  @CheckForNull
   public String getName() {
     return name;
   }
@@ -212,7 +215,7 @@ public final class Rule {
   /**
    * Sets the rule name
    */
-  public Rule setName(String name) {
+  public Rule setName(@Nullable String name) {
     this.name = removeNewLineCharacters(name);
     return this;
   }
@@ -504,7 +507,8 @@ public final class Rule {
       .toString();
   }
 
-  private String removeNewLineCharacters(String text) {
+  @CheckForNull
+  private String removeNewLineCharacters(@Nullable String text) {
     String removedCRLF = StringUtils.remove(text, "\n");
     removedCRLF = StringUtils.remove(removedCRLF, "\r");
     removedCRLF = StringUtils.remove(removedCRLF, "\n\r");

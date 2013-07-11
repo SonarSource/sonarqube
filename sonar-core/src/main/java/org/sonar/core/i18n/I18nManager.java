@@ -31,17 +31,13 @@ import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 public class I18nManager implements I18n, ServerExtension, BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(I18nManager.class);
@@ -87,7 +83,8 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     fileContentCache=null;
   }
 
-  public String message(Locale locale, String key, String defaultValue, Object... parameters) {
+  @CheckForNull
+  public String message(Locale locale, String key, @Nullable String defaultValue, Object... parameters) {
     String bundleKey = propertyToBundles.get(key);
     String value = null;
     if (bundleKey != null) {
@@ -159,6 +156,7 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     return propertyToBundles.keySet();
   }
 
+  @CheckForNull
   private String formatMessage(@Nullable String message, Object... parameters) {
     if (message == null || parameters.length == 0) {
       return message;

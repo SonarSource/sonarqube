@@ -23,6 +23,8 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rules.Rule;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Locale;
 
 /**
@@ -43,6 +45,7 @@ public interface RuleI18n extends ServerComponent, BatchComponent {
    * @param locale the locale to translate into
    * @return the translated name of the rule, or the default English one if the given locale is not supported, or null
    */
+  @CheckForNull
   String getName(String repositoryKey, String ruleKey, Locale locale);
 
   /**
@@ -55,6 +58,7 @@ public interface RuleI18n extends ServerComponent, BatchComponent {
    * @param locale the locale to translate into
    * @return the translated name of the rule, or the default English one if the given locale is not supported, or the rule name.
    */
+  @CheckForNull
   String getName(Rule rule, Locale locale);
 
   /**
@@ -83,6 +87,7 @@ public interface RuleI18n extends ServerComponent, BatchComponent {
    * @return the translated name of the rule parameter, or the default English one if the given locale is not supported, or null if
    *         no translation can be found.
    */
+  @CheckForNull
   String getParamDescription(String repositoryKey, String ruleKey, String paramKey, Locale locale);
 
 }

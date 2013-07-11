@@ -25,6 +25,8 @@ import org.sonar.api.rules.Rule;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.CheckForNull;
+
 /**
  * Used through ruby code <pre>Internal.rules</pre>
  */
@@ -36,6 +38,7 @@ public class RubyRuleService implements ServerComponent, Startable {
     this.i18n = i18n;
   }
 
+  @CheckForNull
   public String ruleL10nName(Rule rule) {
     String name = i18n.getName(rule.getRepositoryKey(), rule.getKey(), UserSession.get().locale());
     if (name == null) {

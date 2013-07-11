@@ -26,6 +26,8 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.i18n.RuleI18n;
 import org.sonar.api.rules.Rule;
 
+import javax.annotation.CheckForNull;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -51,10 +53,12 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
     this.ruleKeys = list.toArray(new RuleKey[list.size()]);
   }
 
+  @CheckForNull
   public String getName(String repositoryKey, String ruleKey, Locale locale) {
     return message(repositoryKey, ruleKey, locale, NAME_SUFFIX);
   }
 
+  @CheckForNull
   public String getName(Rule rule, Locale locale) {
     String name = message(rule.getRepositoryKey(), rule.getKey(), locale, NAME_SUFFIX);
     return name != null ? name : rule.getName();
@@ -92,10 +96,12 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
     return description;
   }
 
+  @CheckForNull
   public String getParamDescription(String repositoryKey, String ruleKey, String paramKey, Locale locale) {
     return message(repositoryKey, ruleKey, locale, ".param." + paramKey);
   }
 
+  @CheckForNull
   String message(String repositoryKey, String ruleKey, Locale locale, String suffix) {
     String propertyKey = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(suffix).toString();
     return i18nManager.message(locale, propertyKey, null);
