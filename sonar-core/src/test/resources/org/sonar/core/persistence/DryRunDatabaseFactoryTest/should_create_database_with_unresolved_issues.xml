@@ -42,4 +42,28 @@
       updated_at="[null]"
       />
 
+  <issues
+      id="101"
+      kee="101"
+      component_id="401"
+      rule_id="501"
+      severity="MAJOR"
+      manual_severity="[false]"
+      message="[null]"
+      line="120"
+      effort_to_fix="[null]"
+      status="CLOSED"
+      resolution="FIXED"
+      checksum="[null]"
+      reporter="[null]"
+      assignee="user"
+      author_login="[null]"
+      issue_attributes="[null]"
+      issue_creation_date="2013-04-16"
+      issue_update_date="2013-04-16"
+      issue_close_date="2013-04-16"
+      created_at="[null]"
+      updated_at="[null]"
+      />
+
 </dataset>

@@ -22,12 +22,12 @@ package org.sonar.core.persistence;
 import com.google.common.io.Files;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -83,7 +83,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
 
       String forRootModule = "(root_component_id in (select id from projects where id=" + projectId + " and qualifier='TRK'))";
       String forSubModule = "(component_id in (select id from projects where id=" + projectId + " or root_id=" + projectId + "))";
-      template.copyTable(source, dest, "issues", "(" + forRootModule + ") or( " + forSubModule + ")", "status<>'" + Issue.STATUS_CLOSED + "'");
+      template.copyTable(source, dest, "issues", "(" + forRootModule + ") or( " + forSubModule + ")", "resolution is null");
     }
   }
 
