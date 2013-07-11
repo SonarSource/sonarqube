@@ -32,6 +32,8 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
+import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,7 +63,7 @@ public class ServerClient implements BatchComponent {
     download(pathStartingWithSlash, toFile, null);
   }
 
-  public void download(String pathStartingWithSlash, File toFile, Integer readTimeoutMillis) {
+  public void download(String pathStartingWithSlash, File toFile, @Nullable Integer readTimeoutMillis) {
     try {
       InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash, readTimeoutMillis);
       Files.copy(inputSupplier, toFile);
@@ -91,7 +93,7 @@ public class ServerClient implements BatchComponent {
     }
   }
 
-  private InputSupplier<InputStream> doRequest(String pathStartingWithSlash, Integer timeoutMillis) {
+  private InputSupplier<InputStream> doRequest(String pathStartingWithSlash, @Nullable Integer timeoutMillis) {
     Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
     String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
 
