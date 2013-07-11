@@ -25,20 +25,24 @@
   <!-- java project -->
   <projects kee="java_project" long_name="Java project" scope="PRJ" qualifier="TRK" name="Java project"
             id="1" root_id="[null]"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            created_at="2008-12-19 00:00:00.00"/>
 
   <projects kee="java_project:org.sonar.foo" scope="DIR" qualifier="PAC" long_name="org.sonar.foo" name="org.sonar.foo"
             id="2" root_id="1"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            created_at="2008-12-19 00:00:00.00"/>
 
   <projects kee="java_project:org.sonar.foo.Big" scope="FIL" qualifier="CLA" long_name="org.sonar.foo.Big"
             name="Big"
             id="3" root_id="1"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            created_at="2008-12-19 00:00:00.00"/>
 
   <projects kee="java_project:org.sonar.foo.Tiny" scope="FIL" qualifier="CLA" long_name="org.sonar.foo.Tiny" name="Tiny"
             id="4" root_id="1"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            created_at="2008-12-19 00:00:00.00"/>
 
   <snapshots id="101" project_id="1" root_project_id="1" root_snapshot_id="[null]" parent_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" path="" depth="0"
@@ -125,7 +129,8 @@
   <!-- php project -->
   <projects kee="php_project" long_name="PHP project" scope="PRJ" qualifier="TRK" name="PHP project"
             id="10" root_id="[null]"
-            description="[null]" enabled="[true]" language="php" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="[true]" language="php" copy_resource_id="[null]" person_id="[null]"
+            created_at="2012-12-12 04:06:00.00"/>
 
 
   <snapshots id="110" project_id="10" root_project_id="10" root_snapshot_id="[null]" parent_snapshot_id="[null]"

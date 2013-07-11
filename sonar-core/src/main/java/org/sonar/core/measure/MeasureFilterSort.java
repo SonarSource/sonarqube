@@ -23,7 +23,9 @@ import org.sonar.api.measures.Metric;
 
 class MeasureFilterSort {
   public static enum Field {
-    KEY, NAME, VERSION, LANGUAGE, DATE, METRIC, SHORT_NAME, DESCRIPTION
+    KEY, NAME, VERSION, LANGUAGE, METRIC, SHORT_NAME, DESCRIPTION,
+    DATE,  // Sort by last analysis date
+    PROJECT_CREATION_DATE // Sort by project creation date
   }
 
   private Field field = Field.NAME;
@@ -76,7 +78,7 @@ class MeasureFilterSort {
   }
 
   boolean isOnDate() {
-    return Field.DATE.equals(field);
+    return Field.DATE.equals(field) || Field.PROJECT_CREATION_DATE.equals(field);
   }
 
   boolean isAsc() {
@@ -107,6 +109,9 @@ class MeasureFilterSort {
         break;
       case DATE:
         column = "s.created_at";
+        break;
+      case PROJECT_CREATION_DATE:
+        column = "p.created_at";
         break;
       case METRIC:
         if (metric.isNumericType()) {

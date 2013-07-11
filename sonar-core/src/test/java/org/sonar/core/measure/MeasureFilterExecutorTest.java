@@ -336,6 +336,30 @@ public class MeasureFilterExecutorTest {
   }
 
   @Test
+  public void sort_by_ascending_created_at() throws SQLException {
+    db.prepareDbUnit(getClass(), "shared.xml");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOn(MeasureFilterSort.Field.PROJECT_CREATION_DATE);
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+
+    verifyJavaProject(rows.get(0));// 2008
+    assertThat(DateUtils.formatDate(rows.get(0).getSortDate())).isEqualTo("2008-12-19");
+    verifyPhpProject(rows.get(1));// 2012
+    assertThat(DateUtils.formatDate(rows.get(1).getSortDate())).isEqualTo("2012-12-12");
+  }
+
+  @Test
+  public void sort_by_descending_created_at() throws SQLException {
+    db.prepareDbUnit(getClass(), "shared.xml");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOn(MeasureFilterSort.Field.PROJECT_CREATION_DATE).setSortAsc(false);
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+
+    verifyPhpProject(rows.get(0));// 2012
+    assertThat(DateUtils.formatDate(rows.get(0).getSortDate())).isEqualTo("2012-12-12");
+    verifyJavaProject(rows.get(1));// 2008
+    assertThat(DateUtils.formatDate(rows.get(1).getSortDate())).isEqualTo("2008-12-19");
+  }
+
+  @Test
   public void condition_on_numeric_measure() throws SQLException {
     db.prepareDbUnit(getClass(), "shared.xml");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA"))

@@ -185,7 +185,7 @@ class MeasureFilter < ActiveRecord::Base
 
   def base_resource
     if criteria('base')
-      Project.find(:first, :conditions => ['kee=? and copy_resource_id is null and person_id is null', criteria('base')])
+      Project.first(:conditions => ['kee=? and copy_resource_id is null and person_id is null', criteria('base')])
     elsif criteria('baseId')
       Project.find(criteria('baseId'))
     end
@@ -249,7 +249,7 @@ class MeasureFilter < ActiveRecord::Base
 
     if !snapshot_ids.empty?
       rows_by_snapshot_id = {}
-      snapshots = Snapshot.find(:all, :include => ['project'], :conditions => ['id in (?)', snapshot_ids])
+      snapshots = Snapshot.all(:include => ['project'], :conditions => ['id in (?)', snapshot_ids])
       snapshots.each do |snapshot|
         row = Row.new(snapshot)
         rows_by_snapshot_id[snapshot.id] = row
@@ -261,7 +261,7 @@ class MeasureFilter < ActiveRecord::Base
       end
 
       unless metric_ids.empty?
-        measures = ProjectMeasure.find(:all, :conditions =>
+        measures = ProjectMeasure.all(:conditions =>
           ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id in (?) and metric_id in (?)', snapshot_ids, metric_ids]
         )
         measures.each do |measure|
@@ -277,7 +277,7 @@ class MeasureFilter < ActiveRecord::Base
           project_ids << snapshot.project_id
           rows_by_project_id[snapshot.project_id] = rows_by_snapshot_id[snapshot.id]
         end
-        links = ProjectLink.find(:all, :conditions => {:project_id => project_ids}, :order => 'link_type')
+        links = ProjectLink.all(:conditions => {:project_id => project_ids}, :order => 'link_type')
         links.each do |link|
           rows_by_project_id[link.project_id].add_link(link)
         end
@@ -288,7 +288,7 @@ class MeasureFilter < ActiveRecord::Base
       if base_snapshot
         @base_row = Row.new(base_snapshot)
         unless metric_ids.empty?
-          base_measures = ProjectMeasure.find(:all, :conditions =>
+          base_measures = ProjectMeasure.all(:conditions =>
             ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id=? and metric_id in (?)', base_snapshot.id, metric_ids]
           )
           base_measures.each do |base_measure|

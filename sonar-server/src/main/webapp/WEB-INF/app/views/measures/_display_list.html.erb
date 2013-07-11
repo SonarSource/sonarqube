@@ -126,7 +126,17 @@
                               :html_id => 'select-metric',
                               :allow_empty => true,
                               :key_prefix => 'metric:',
-                              :extra_values => [[message('measure_filter.col.name'), 'name'], [message('measure_filter.col.short_name'), 'short_name'], [message('measure_filter.col.description'), 'description'], [message('measure_filter.col.language'), 'language'], [message('measure_filter.col.version'), 'version']] -%>
+                              :extra_values => [
+                                  [message('measure_filter.col.name'), 'name'],
+                                  [message('measure_filter.col.short_name'), 'short_name'],
+                                  [message('measure_filter.col.description'), 'description'],
+                                  [message('measure_filter.col.language'), 'language'],
+                                  [message('measure_filter.col.version'), 'version'],
+                                  [message('measure_filter.col.date'), 'date'],
+                                  [message('measure_filter.col.project_creation_date'), 'project_creation_date'],
+                                  [message('measure_filter.col.links'), 'links']
+                              ]
+        -%>
         <select id="select-period" style="display: none;">
           <option value="">Value</option>
           <% period_labels.each_with_index do |period_label, index| %>
