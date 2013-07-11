@@ -1,4 +1,4 @@
-<% if SettingsController::SPECIAL_CATEGORIES.include?(@category) -%>
+<% if SettingsController::SPECIAL_CATEGORIES.include?(@category) && @category != SettingsController::LICENSES_CATEGORY -%>
   <%= render 'special', :url => url_for(:controller => "#{@category}_configuration") -%>
 <% else -%>
   <% form_remote_tag :url => {:controller => 'settings', :action => 'update', :category => @category, :subcategory => @subcategory, :resource_id => @resource ? @resource.id : nil},
@@ -14,70 +14,74 @@
         </li>
       <% end -%>
     </ul>
-    <table class="data marginbottom10">
-      <thead>
-      <% if @subcategory == @category && !category_desc(@category).blank? -%>
-        <tr>
-          <td class="categoryDescription"><%= category_desc(@category) -%> </td>
-        </tr>
-      <% end -%>
-      <% if @subcategory != @category && !subcategory_desc(@category, @subcategory).blank? -%>
-        <tr>
-          <td><%= subcategory_desc(@category, @subcategory) -%> </td>
-        </tr>
-      <% end -%>
-      </thead>
-      <tbody>
-      <% by_property_index_or_name(@definitions).each do |property| -%>
-        <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
-          <td style="padding: 10px" id="block_<%= property.key -%>">
-            <h3>
-              <div><%= property_name(property) -%></div>
-              <div class="note"><%= property.key -%></div>
-            </h3>
-            <% desc=property_description(property) -%>
-            <% unless desc.blank? %>
-              <p class="marginbottom10"><%= desc -%></p>
-            <% end -%>
-
-            <% value = property_value(property) -%>
-            <% if property.multi_values -%>
-              <% value.each_with_index do |sub_value, index| -%>
-                <%= render "settings/multi_value", :property => property, :value => sub_value, :hide_delete => index == 0 -%>
+    <% if @category == SettingsController::LICENSES_CATEGORY && @subcategory == SettingsController::SERVER_ID_SUBCATEGORY %>
+      <%= render 'special', :url => url_for(:controller => "#{SettingsController::SERVER_ID_SUBCATEGORY}_configuration") -%>
+    <% else %>
+      <table class="data marginbottom10">
+        <thead>
+        <% if @subcategory == @category && !category_desc(@category).blank? -%>
+          <tr>
+            <td class="categoryDescription"><%= category_desc(@category) -%> </td>
+          </tr>
+        <% end -%>
+        <% if @subcategory != @category && !subcategory_desc(@category, @subcategory).blank? -%>
+          <tr>
+            <td><%= subcategory_desc(@category, @subcategory) -%> </td>
+          </tr>
+        <% end -%>
+        </thead>
+        <tbody>
+        <% by_property_index_or_name(@definitions).each do |property| -%>
+          <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
+            <td style="padding: 10px" id="block_<%= property.key -%>">
+              <h3>
+                <div><%= property_name(property) -%></div>
+                <div class="note"><%= property.key -%></div>
+              </h3>
+              <% desc=property_description(property) -%>
+              <% unless desc.blank? %>
+                <p class="marginbottom10"><%= desc -%></p>
               <% end -%>
-              <div class="template" style="display:none;">
-                <%= render "settings/multi_value", :property => property, :value => nil, :hide_delete => false -%>
-              </div>
-              <button class="add_value"><%= message('settings.add') -%></button>
-              <br/>
-            <% else -%>
-              <%= render "settings/single_value", :property => property, :value => value -%>
-            <% end -%>
 
-            <%= render "settings/error", :key => property.key -%>
+              <% value = property_value(property) -%>
+              <% if property.multi_values -%>
+                <% value.each_with_index do |sub_value, index| -%>
+                  <%= render "settings/multi_value", :property => property, :value => sub_value, :hide_delete => index == 0 -%>
+                <% end -%>
+                <div class="template" style="display:none;">
+                  <%= render "settings/multi_value", :property => property, :value => nil, :hide_delete => false -%>
+                </div>
+                <button class="add_value"><%= message('settings.add') -%></button>
+                <br/>
+              <% else -%>
+                <%= render "settings/single_value", :property => property, :value => value -%>
+              <% end -%>
 
-            <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
-            <% unless default_prop_value.blank? -%>
-              <div class="note"><%= message('default') %>: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
-            <% end -%>
-          </td>
-        </tr>
-      <% end -%>
+              <%= render "settings/error", :key => property.key -%>
 
-      <% unless @subcategory != @category || category_help(@category).blank? -%>
-        <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
-          <td class="help"><%= category_help(@category) -%> </td>
-        </tr>
-      <% end -%>
+              <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
+              <% unless default_prop_value.blank? -%>
+                <div class="note"><%= message('default') %>: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
+              <% end -%>
+            </td>
+          </tr>
+        <% end -%>
 
-      </tbody>
-    </table>
-    <% unless @definitions.empty? %>
-    <div style="padding-left: 16px;">
-      <%= hidden_field_tag('page_version', (params[:page_version] || 0).to_i + 1) -%>
-      <%= submit_tag(message('settings.save_category', :params => [subcategory_name(@category, @subcategory)]), :id => 'submit_settings') -%>
-      <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="loading_settings" style="display:none;">
-    </div>
+        <% unless @subcategory != @category || category_help(@category).blank? -%>
+          <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
+            <td class="help"><%= category_help(@category) -%> </td>
+          </tr>
+        <% end -%>
+
+        </tbody>
+      </table>
+      <% unless @definitions.empty? %>
+      <div style="padding-left: 16px;">
+        <%= hidden_field_tag('page_version', (params[:page_version] || 0).to_i + 1) -%>
+        <%= submit_tag(message('settings.save_category', :params => [subcategory_name(@category, @subcategory)]), :id => 'submit_settings') -%>
+        <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="loading_settings" style="display:none;">
+      </div>
+      <% end %>
     <% end %>
   <% end -%>
 <% end -%>
