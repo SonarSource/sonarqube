@@ -287,6 +287,15 @@ public final class DefaultResourcePersister implements ResourcePersister {
       model.setDescription(resource.getDescription());
     }
     if (!ResourceUtils.isLibrary(resource)) {
+      // SONAR-4245
+      if (Scopes.PROJECT.equals(resource.getScope()) &&
+        Qualifiers.MODULE.equals(resource.getQualifier())
+        && Qualifiers.PROJECT.equals(model.getQualifier())) {
+        throw new SonarException(
+            String.format("The project '%s' is already defined in SonarQube but not as a module of project '%s'. "
+              + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+                resource.getKey(), resource.getParent().getKey(), resource.getKey(), resource.getParent().getKey()));
+      }
       model.setScope(resource.getScope());
       model.setQualifier(resource.getQualifier());
     }

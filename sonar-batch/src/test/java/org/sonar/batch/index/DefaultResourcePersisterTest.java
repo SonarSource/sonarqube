@@ -21,13 +21,16 @@ package org.sonar.batch.index;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.api.security.ResourcePermissions;
+import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.text.ParseException;
@@ -44,7 +47,10 @@ import static org.mockito.Mockito.when;
 
 public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
-  Project singleProject, singleCopyProject, multiModuleProject, moduleA, moduleB, moduleB1;
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  Project singleProject, singleCopyProject, multiModuleProject, moduleA, moduleB, moduleB1, existingProject;
   SnapshotCache snapshotCache = mock(SnapshotCache.class);
   ResourceCache resourceCache = mock(ResourceCache.class);
 
@@ -53,6 +59,9 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
     singleProject = newProject("foo", "java");
     singleProject.setName("Foo").setDescription("some description").setAnalysisDate(format.parse("25/12/2010"));
+
+    existingProject = newProject("my:key", "java");
+    existingProject.setName("Other project").setDescription("some description").setAnalysisDate(format.parse("25/12/2010"));
 
     singleCopyProject = newCopyProject("foo", "java", 10);
     singleCopyProject.setName("Foo").setDescription("some description").setAnalysisDate(format.parse("25/12/2010"));
@@ -108,6 +117,22 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(moduleB1, moduleB);
 
     checkTables("shouldSaveNewMultiModulesProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+  }
+
+  // SONAR-4245
+  @Test
+  public void shouldFailWhenTryingToConvertProjectIntoModule() {
+    setupData("shared");
+
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+    existingProject.setParent(multiModuleProject);
+    persister.saveProject(multiModuleProject, null);
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("The project 'my:key' is already defined in SonarQube but not as a module of project 'root'. "
+      + "If you really want to stop directly analysing project 'my:key', please first delete it from SonarQube and then relaunch the analysis of project 'root'.");
+
+    persister.saveProject(existingProject, multiModuleProject);
   }
 
   @Test
