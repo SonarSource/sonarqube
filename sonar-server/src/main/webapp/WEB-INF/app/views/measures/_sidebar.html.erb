@@ -35,21 +35,6 @@
         .on("change", function (e) {
             $j("#criteria-" + e.val).insertBefore($j("#more-td")).show();
 
-            if (e.val == 'lang' || e.val == 'project' || e.val == 'alert') {
-              $j("#select-" + e.val).select2("enable");
-              $j("#select-" + e.val).select2("focus");
-            } else if (e.val == 'fav') {
-              $j('#check-fav').attr('checked', 'checked');
-            } else if (e.val == 'date') {
-              $j("#criteria-" + e.val + " input[name=fromDate]").focus();
-            } else if (e.val == 'age') {
-              $j("#criteria-" + e.val + " input[name=ageMinDays]").focus();
-            } else if (e.val == 'key') {
-              $j("#criteria-" + e.val + " input").focus();
-            } else if (e.val == 'name') {
-              $j("#criteria-" + e.val + " input").focus();
-            }
-
             if (e.val == 'metric') {
               if (hiddenConditionIndexes.length > 0) {
                 var index = hiddenConditionIndexes.pop();
@@ -66,7 +51,26 @@
               }
             } else {
               // applies to any criteria except metrics
+
+              // remove disabled attribute before setting focus otherwise the focus will not be done. SONAR-4063
               $j("#criteria-" + e.val + " input").removeAttr('disabled');
+
+              if (e.val == 'lang' || e.val == 'project' || e.val == 'alert') {
+                $j("#select-" + e.val).select2("enable");
+                $j("#select-" + e.val).select2("focus");
+              } else if (e.val == 'fav') {
+                $j('#check-fav').attr('checked', 'checked');
+                $j('#check-fav').focus();
+              } else if (e.val == 'date') {
+                $j("#criteria-" + e.val + " input[name=fromDate]").focus();
+              } else if (e.val == 'age') {
+                $j("#criteria-" + e.val + " input[name=ageMinDays]").focus();
+              } else if (e.val == 'key') {
+                $j("#criteria-" + e.val + " input").focus();
+              } else if (e.val == 'name') {
+                $j("#criteria-" + e.val + " input").focus();
+              }
+
               $j("#more-criteria option[value='" + e.val + "']").remove();
             }
             $j("#more-criteria").select2("val", "");
