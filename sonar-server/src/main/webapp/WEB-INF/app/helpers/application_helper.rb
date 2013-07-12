@@ -486,7 +486,6 @@ module ApplicationHelper
   # Format variation value
   #
   # === Optional parameters
-  # * color: true|false. Default is true.
   # * period: integer between 1 and 5. By default the index is defined by the dashboard variation select-box
   # * style: light|normal|none. Default is normal (parenthesis + bold)
   #
@@ -509,18 +508,15 @@ module ApplicationHelper
         end
 
         formatted_val= m.format_numeric_value(val, :variation => true)
-        css_class=''
-        if options[:color]||true
-          css_class='var'
-          if m.metric.qualitative?
-            factor=m.metric.direction * val
-            if factor>0
-              # better
-              css_class='varb'
-            elsif factor<0
-              # worst
-              css_class='varw'
-            end
+        css_class='var'
+        if m.metric.qualitative?
+          factor=m.metric.direction * val
+          if factor>0
+            # better
+            css_class='varb'
+          elsif factor<0
+            # worst
+            css_class='varw'
           end
         end
 
