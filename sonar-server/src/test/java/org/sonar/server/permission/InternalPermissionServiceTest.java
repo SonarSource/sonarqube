@@ -181,14 +181,14 @@ public class InternalPermissionServiceTest {
   @Test
   public void should_apply_permission_template() throws Exception {
     params = Maps.newHashMap();
-    params.put("template_id", "1");
+    params.put("template_key", "my_template_key");
     params.put("components", "1,2,3");
 
     service.applyPermissionTemplate(params);
 
-    verify(permissionFacade).applyPermissionTemplate(1L, 1L);
-    verify(permissionFacade).applyPermissionTemplate(1L, 2L);
-    verify(permissionFacade).applyPermissionTemplate(1L, 3L);
+    verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
+    verify(permissionFacade).applyPermissionTemplate("my_template_key", 2L);
+    verify(permissionFacade).applyPermissionTemplate("my_template_key", 3L);
   }
 
   protected static class MatchesUserRole extends BaseMatcher<UserRoleDto> {

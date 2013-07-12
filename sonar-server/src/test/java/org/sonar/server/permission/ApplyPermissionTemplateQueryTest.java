@@ -41,12 +41,12 @@ public class ApplyPermissionTemplateQueryTest {
   public void should_populate_with_params() throws Exception {
 
     Map<String, Object> params = Maps.newHashMap();
-    params.put("template_id", "1");
+    params.put("template_key", "my_template_key");
     params.put("components", Lists.newArrayList("1", "2", "3"));
 
     ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);
 
-    assertThat(query.getTemplateId()).isEqualTo(1L);
+    assertThat(query.getTemplateKey()).isEqualTo("my_template_key");
     assertThat(query.getSelectedComponents()).containsOnly("1", "2", "3");
   }
 
@@ -57,7 +57,7 @@ public class ApplyPermissionTemplateQueryTest {
     throwable.expectMessage("Permission template is mandatory");
 
     Map<String, Object> params = Maps.newHashMap();
-    params.put("template_id", "");
+    params.put("template_key", "");
     params.put("components", Lists.newArrayList("1", "2", "3"));
 
     ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);
@@ -71,7 +71,7 @@ public class ApplyPermissionTemplateQueryTest {
     throwable.expectMessage("Please provide at least one entry to which the permission template should be applied");
 
     Map<String, Object> params = Maps.newHashMap();
-    params.put("template_id", "1");
+    params.put("template_key", "my_template_key");
     params.put("components", Collections.EMPTY_LIST);
 
     ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);

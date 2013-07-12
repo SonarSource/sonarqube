@@ -67,12 +67,12 @@ public class InternalPermissionService implements ServerComponent {
     ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);
     query.validate();
     for (String component : query.getSelectedComponents()) {
-      applyPermissionTemplate(query.getTemplateId(), component);
+      applyPermissionTemplate(query.getTemplateKey(), component);
     }
   }
 
-  private void applyPermissionTemplate(Long templateId, String componentId) {
-    permissionFacade.applyPermissionTemplate(templateId, Long.parseLong(componentId));
+  private void applyPermissionTemplate(String templateKey, String componentId) {
+    permissionFacade.applyPermissionTemplate(templateKey, Long.parseLong(componentId));
   }
 
   private void changePermission(String permissionChange, Map<String, Object> params) {

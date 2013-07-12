@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission;
 
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.annotations.Nullable;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.util.RubyUtils;
@@ -29,24 +30,24 @@ import java.util.Map;
 
 public class ApplyPermissionTemplateQuery {
 
-  private static final String TEMPLATE_ID = "template_id";
+  private static final String TEMPLATE_KEY = "template_key";
   private static final String COMPONENTS_KEY = "components";
 
-  private final Long templateId;
+  private final String templateKey;
   private List<String> selectedComponents;
 
-  private ApplyPermissionTemplateQuery(@Nullable Long templateId) {
-    this.templateId= templateId;
+  private ApplyPermissionTemplateQuery(@Nullable String templateKey) {
+    this.templateKey = templateKey;
   }
 
   public static ApplyPermissionTemplateQuery buildFromParams(Map<String, Object> params) {
-    ApplyPermissionTemplateQuery query = new ApplyPermissionTemplateQuery(RubyUtils.toLong(params.get(TEMPLATE_ID)));
+    ApplyPermissionTemplateQuery query = new ApplyPermissionTemplateQuery((String)params.get(TEMPLATE_KEY));
     query.setSelectedComponents(RubyUtils.toStrings(params.get(COMPONENTS_KEY)));
     return query;
   }
 
-  public Long getTemplateId() {
-    return templateId;
+  public String getTemplateKey() {
+    return templateKey;
   }
 
   public List<String> getSelectedComponents() {
@@ -54,7 +55,7 @@ public class ApplyPermissionTemplateQuery {
   }
 
   public void validate() {
-    if(templateId == null) {
+    if(StringUtils.isBlank(templateKey)) {
       throw new BadRequestException("Permission template is mandatory");
     }
     if(selectedComponents == null || selectedComponents.isEmpty()) {
