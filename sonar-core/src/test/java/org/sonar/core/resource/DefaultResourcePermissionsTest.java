@@ -108,7 +108,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   public void grantDefaultRoles_qualifier_independent() {
     setupData("grantDefaultRoles");
 
-    settings.setProperty("sonar.permission.template.default", "1");
+    settings.setProperty("sonar.permission.template.default", "default_template_20130101_010203");
 
     permissions.grantDefaultRoles(project);
 
@@ -119,8 +119,8 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   public void grantDefaultRoles_qualifier_specific() {
     setupData("grantDefaultRolesProject");
 
-    settings.setProperty("sonar.permission.template.default", "1");
-    settings.setProperty("sonar.permission.template.TRK.default", "2");
+    settings.setProperty("sonar.permission.template.default", "default_20130101_010203");
+    settings.setProperty("sonar.permission.template.TRK.default", "default_for_trk_20130101_010203");
 
     permissions.grantDefaultRoles(project);
 
@@ -131,7 +131,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   public void grantDefaultRoles_unknown_group() {
     setupData("grantDefaultRoles_unknown_group");
 
-    settings.setProperty("sonar.permission.template.TRK.default", "1");
+    settings.setProperty("sonar.permission.template.TRK.default", "default_template_20130101_010203");
     permissions.grantDefaultRoles(project);
 
     checkTables("grantDefaultRoles_unknown_group", "group_roles");
@@ -141,7 +141,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   public void grantDefaultRoles_users() {
     setupData("grantDefaultRoles_users");
 
-    settings.setProperty("sonar.permission.template.TRK.default", "1");
+    settings.setProperty("sonar.permission.template.TRK.default", "default_for_trk_20130101_010203");
     permissions.grantDefaultRoles(project);
 
     checkTables("grantDefaultRoles_users", "user_roles");

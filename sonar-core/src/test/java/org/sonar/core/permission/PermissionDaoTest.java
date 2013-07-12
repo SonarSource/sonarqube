@@ -112,7 +112,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   public void should_select_permission_template_by_id() throws Exception {
     setupData("selectPermissionTemplate");
 
-    PermissionTemplateDto permissionTemplate = permissionDao.selectTemplateById(1L);
+    PermissionTemplateDto permissionTemplate = permissionDao.selectTemplateByKey("my_template_20130102_030405");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);

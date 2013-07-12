@@ -74,6 +74,7 @@ class MigrateDefaultPermissions < ActiveRecord::Migration
 
     default_template = PermissionTemplate.create(
       :name => 'Default template',
+      :kee => 'default_template',
       :description => 'This permission template will be used as default when no other permission configuration is available')
 
     sonar_admins_group = Group.find_by_name('sonar-administrators')
@@ -130,6 +131,7 @@ class MigrateDefaultPermissions < ActiveRecord::Migration
 
       qualifier_template = PermissionTemplate.create(
         :name => "Default template for #{ROOT_QUALIFIERS[qualifier]}",
+        :kee => "default_template_for_#{ROOT_QUALIFIERS[qualifier].downcase}",
         :description => "This template has been automatically created using the previously configured default permissions for #{ROOT_QUALIFIERS[qualifier]}")
 
       properties.each do |property|

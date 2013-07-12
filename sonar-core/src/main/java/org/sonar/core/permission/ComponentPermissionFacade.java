@@ -120,23 +120,23 @@ public class ComponentPermissionFacade implements TaskComponent, ServerComponent
     }
   }
 
-  public PermissionTemplateDto getPermissionTemplate(Long templateId) {
-    PermissionTemplateDto permissionTemplateDto = permissionDao.selectTemplateById(templateId);
+  public PermissionTemplateDto getPermissionTemplate(String templateKey) {
+    PermissionTemplateDto permissionTemplateDto = permissionDao.selectTemplateByKey(templateKey);
     if(permissionTemplateDto == null) {
-      throw new IllegalArgumentException("Could not retrieve permission template with id " + templateId);
+      throw new IllegalArgumentException("Could not retrieve permission template with key " + templateKey);
     }
     PermissionTemplateDto templateWithPermissions = permissionDao.selectPermissionTemplate(permissionTemplateDto.getName());
     if(templateWithPermissions == null) {
-      throw new IllegalArgumentException("Could not retrieve permissions for template with id " + templateId);
+      throw new IllegalArgumentException("Could not retrieve permissions for template with key " + templateKey);
     }
     return templateWithPermissions;
   }
 
-  public void applyPermissionTemplate(Long templateId, Long resourceId) {
+  public void applyPermissionTemplate(String templateKey, Long resourceId) {
     SqlSession session = myBatis.openSession();
     try {
       removeAllPermissions(resourceId, session);
-      PermissionTemplateDto permissionTemplate = getPermissionTemplate(templateId);
+      PermissionTemplateDto permissionTemplate = getPermissionTemplate(templateKey);
       List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
       if(usersPermissions != null) {
         for (PermissionTemplateUserDto userPermission : usersPermissions) {

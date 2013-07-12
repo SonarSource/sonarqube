@@ -45,7 +45,7 @@ public class ComponentPermissionFacadeTest extends AbstractDaoTestCase {
   public void should_apply_permission_template() throws Exception {
     setupData("should_apply_permission_template");
 
-    permissionFacade.applyPermissionTemplate(1L, 123L);
+    permissionFacade.applyPermissionTemplate("default_20130101_010203", 123L);
 
     checkTable("should_apply_permission_template", "group_roles", "group_id", "resource_id", "role");
     checkTable("should_apply_permission_template", "user_roles", "group_id", "resource_id", "role");

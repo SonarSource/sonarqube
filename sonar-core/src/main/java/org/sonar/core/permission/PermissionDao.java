@@ -60,11 +60,11 @@ public class PermissionDao implements TaskComponent, ServerComponent {
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectTemplateById(Long templateId) {
+  public PermissionTemplateDto selectTemplateByKey(String templateKey) {
     SqlSession session = myBatis.openSession();
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      return mapper.selectById(templateId);
+      return mapper.selectByKey(templateKey);
     } finally {
       MyBatis.closeQuietly(session);
     }

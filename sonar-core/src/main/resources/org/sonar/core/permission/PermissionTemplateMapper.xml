@@ -61,10 +61,10 @@
     </choose>
   </delete>
 
-  <select id="selectById" parameterType="Long" resultType="PermissionTemplate">
-    SELECT id, name, description, created_at AS createdAt, updated_at AS updatedAt
+  <select id="selectByKey" parameterType="String" resultType="PermissionTemplate">
+    SELECT id, name, kee, description, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates
-    WHERE id = #{templateId}
+    WHERE kee = #{kee}
   </select>
 
   <select id="selectByName" parameterType="String" resultType="PermissionTemplate">

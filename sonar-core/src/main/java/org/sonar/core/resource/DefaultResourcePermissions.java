@@ -134,17 +134,15 @@ public class DefaultResourcePermissions implements ResourcePermissions {
   }
 
   private PermissionTemplateDto getPermissionTemplate(String qualifier) {
-    String qualifierTemplateId = settings.getString("sonar.permission.template." + qualifier + ".default");
-    if(!StringUtils.isBlank(qualifierTemplateId)) {
-      Long templateId = Long.parseLong(qualifierTemplateId);
-      return permissionFacade.getPermissionTemplate(templateId);
+    String qualifierTemplateKey = settings.getString("sonar.permission.template." + qualifier + ".default");
+    if(!StringUtils.isBlank(qualifierTemplateKey)) {
+      return permissionFacade.getPermissionTemplate(qualifierTemplateKey);
     }
 
-    String defaultTemplateId = settings.getString("sonar.permission.template.default");
-    if(StringUtils.isBlank(defaultTemplateId)) {
+    String defaultTemplateKey = settings.getString("sonar.permission.template.default");
+    if(StringUtils.isBlank(defaultTemplateKey)) {
       throw new IllegalStateException("At least one default permission template should be defined");
     }
-    Long templateId = Long.parseLong(defaultTemplateId);
-    return permissionFacade.getPermissionTemplate(templateId);
+    return permissionFacade.getPermissionTemplate(defaultTemplateKey);
   }
 }

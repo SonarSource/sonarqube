@@ -37,7 +37,7 @@ public interface PermissionTemplateMapper {
 
   PermissionTemplateDto selectByName(String templateName);
 
-  PermissionTemplateDto selectById(Long templateId);
+  PermissionTemplateDto selectByKey(String templateKey);
 
   PermissionTemplateDto selectTemplateUsersPermissions(String templateName);
 
