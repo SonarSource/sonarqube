@@ -84,21 +84,25 @@
       $j(document).ready(function () {
         $j("#select-metric").on("change", function (e) {
           var selectedKey = $j("#select-metric option:selected").val();
-          if (selectedKey.indexOf('metric:') == 0) {
-            if (selectedKey.indexOf('metric:new_') == 0) {
-              $j('#select-period option :eq(0)').attr('disabled', 'disabled');
-              $j('#select-period ').val('1');
+          if (selectedKey != null && selectedKey != '') {
+            if (selectedKey.indexOf('metric:') == 0) {
+              if (selectedKey.indexOf('metric:new_') == 0) {
+                $j('#select-period option :eq(0)').attr('disabled', 'disabled');
+                $j('#select-period ').val('1');
+              } else {
+                $j('#select-period option :eq(0)').removeAttr('disabled');
+                $j('#select-period').val('');
+              }
+              $j('#select-period').show();
             } else {
-              $j('#select-period option :eq(0)').removeAttr('disabled');
-              $j('#select-period').val('');
+              $j('#select-period').hide();
             }
-            $j('#select-period').show();
+            $j("#add-metric").removeAttr('disabled');
           } else {
-            $j('#select-period').hide();
+            $j("#add-metric").attr("disabled", "disabled");
           }
-          $j("#add-metric").removeAttr('disabled');
-
         });
+
         $j("#add-metric").on("click", function (e) {
           var cols = filterCriteria<%= widget_id -%>['cols']||[];
           var columnKey = $j("#select-metric option:selected").val();
@@ -110,6 +114,8 @@
           filterCriteria['edit']='true';
           window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria<%= widget_id -%>);
         });
+        $j("#add-metric").attr("disabled", "disabled");
+
         $j("#exit-edit").on("click", function (e) {
           delete filterCriteria['edit'];
           window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria<%= widget_id -%>);
