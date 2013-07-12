@@ -1829,12 +1829,9 @@ ul.bullet li {
   padding-left: 30px;
 }
 
-.rule_detail pre {
-  padding: 7px;
-}
-
-.rule_detail pre {
+.rule_detail pre, .code .rule_detail pre {
   margin: 10px 0;
+  padding: 7px;
   font-family: "Courier New", Courier, monospace;;
   border: 1px dashed #aaa;
   font-size: 93%;
