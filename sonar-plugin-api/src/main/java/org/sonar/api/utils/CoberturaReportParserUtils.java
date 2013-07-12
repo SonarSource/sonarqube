@@ -46,7 +46,7 @@ public class CoberturaReportParserUtils {
   private CoberturaReportParserUtils() {
   }
 
-  public static interface FileResolver {
+  public interface FileResolver {
 
     /**
      * Return a SonarQube file resource from a filename present in Cobertura report
@@ -62,12 +62,8 @@ public class CoberturaReportParserUtils {
       StaxParser parser = new StaxParser(new StaxParser.XmlStreamHandler() {
 
         public void stream(SMHierarchicCursor rootCursor) throws XMLStreamException {
-          try {
-            rootCursor.advance();
-            collectPackageMeasures(rootCursor.descendantElementCursor("package"), context, fileResolver);
-          } catch (ParseException e) {
-            throw new XMLStreamException(e);
-          }
+          rootCursor.advance();
+          collectPackageMeasures(rootCursor.descendantElementCursor("package"), context, fileResolver);
         }
       });
       parser.parse(xmlFile);
@@ -76,7 +72,7 @@ public class CoberturaReportParserUtils {
     }
   }
 
-  private static void collectPackageMeasures(SMInputCursor pack, SensorContext context, final FileResolver fileResolver) throws ParseException, XMLStreamException {
+  private static void collectPackageMeasures(SMInputCursor pack, SensorContext context, final FileResolver fileResolver) throws XMLStreamException {
     while (pack.getNext() != null) {
       Map<String, CoverageMeasuresBuilder> builderByFilename = Maps.newHashMap();
       collectFileMeasures(pack.descendantElementCursor("class"), builderByFilename);
@@ -96,7 +92,7 @@ public class CoberturaReportParserUtils {
     return context.getResource(file) != null;
   }
 
-  private static void collectFileMeasures(SMInputCursor clazz, Map<String, CoverageMeasuresBuilder> builderByFilename) throws ParseException, XMLStreamException {
+  private static void collectFileMeasures(SMInputCursor clazz, Map<String, CoverageMeasuresBuilder> builderByFilename) throws XMLStreamException {
     while (clazz.getNext() != null) {
       String fileName = clazz.getAttrValue("filename");
       CoverageMeasuresBuilder builder = builderByFilename.get(fileName);
@@ -108,11 +104,15 @@ public class CoberturaReportParserUtils {
     }
   }
 
-  private static void collectFileData(SMInputCursor clazz, CoverageMeasuresBuilder builder) throws ParseException, XMLStreamException {
+  private static void collectFileData(SMInputCursor clazz, CoverageMeasuresBuilder builder) throws XMLStreamException {
     SMInputCursor line = clazz.childElementCursor("lines").advance().childElementCursor("line");
     while (line.getNext() != null) {
       int lineId = Integer.parseInt(line.getAttrValue("number"));
-      builder.setHits(lineId, (int) parseNumber(line.getAttrValue("hits"), ENGLISH));
+      try {
+        builder.setHits(lineId, (int) parseNumber(line.getAttrValue("hits"), ENGLISH));
+      } catch (ParseException e) {
+        throw new XmlParserException(e);
+      }
 
       String isBranch = line.getAttrValue("branch");
       String text = line.getAttrValue("condition-coverage");

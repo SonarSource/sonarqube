@@ -89,18 +89,22 @@ public class DryRunDatabase implements BatchComponent {
       }
       LOG.debug("Dry Run database size: {}", FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(toFile)));
     } catch (SonarException e) {
-      Throwable rootCause = Throwables.getRootCause(e);
-      if (rootCause instanceof SocketTimeoutException) {
-        // Pico will unwrap the first runtime exception
-        throw new SonarException(new SonarException(String.format("DryRun database read timed out after %s ms. You can try to increase read timeout with property -D"
-          + CoreProperties.DRY_RUN_READ_TIMEOUT,
-            readTimeout), e));
-      }
-      if (projectKey != null && (rootCause instanceof HttpException) && (((HttpException) rootCause).getResponseCode() == 401)) {
-        // Pico will unwrap the first runtime exception
-        throw new SonarException(new SonarException(String.format("You don't have access rights to project [%s]", projectKey), e));
-      }
+      handleException(readTimeout, projectKey, e);
       throw e;
+    }
+  }
+
+  private void handleException(int readTimeout, String projectKey, SonarException e) {
+    Throwable rootCause = Throwables.getRootCause(e);
+    if (rootCause instanceof SocketTimeoutException) {
+      // Pico will unwrap the first runtime exception
+      throw new SonarException(new SonarException(String.format("DryRun database read timed out after %s ms. You can try to increase read timeout with property -D"
+        + CoreProperties.DRY_RUN_READ_TIMEOUT,
+          readTimeout), e));
+    }
+    if (projectKey != null && (rootCause instanceof HttpException) && (((HttpException) rootCause).getResponseCode() == 401)) {
+      // Pico will unwrap the first runtime exception
+      throw new SonarException(new SonarException(String.format("You don't have access rights to project [%s]", projectKey), e));
     }
   }
 

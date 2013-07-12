@@ -82,7 +82,7 @@ public class ServerClient implements BatchComponent {
     return request(pathStartingWithSlash, wrapHttpException, null);
   }
 
-  public String request(String pathStartingWithSlash, boolean wrapHttpException, Integer timeoutMillis) {
+  public String request(String pathStartingWithSlash, boolean wrapHttpException, @Nullable Integer timeoutMillis) {
     InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash, timeoutMillis);
     try {
       return IOUtils.toString(inputSupplier.getInput(), "UTF-8");
