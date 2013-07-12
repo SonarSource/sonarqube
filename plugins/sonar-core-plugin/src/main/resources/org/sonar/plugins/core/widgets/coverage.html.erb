@@ -46,17 +46,26 @@
             <% else %>
               <% if new_coverage %>
                 <p>
-                  <span class="big"><a href="<%= url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_coverage, :style => 'none') -%></a></span>
+                  <span class="big"><%= format_measure(new_coverage, :suffix => '',
+                                                       :period => dashboard_configuration.period_index,
+                                                       :url => url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index)) %>
+                  </span>
                 </p>
               <% end %>
               <% if new_line_coverage %>
                 <p>
-                  <a href="<%= url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_line_coverage, :style => 'none') -%><%= message('widget.code_coverage.line_coverage.suffix') -%></a>
+                  <%= format_measure(new_line_coverage, :suffix => message('widget.code_coverage.line_coverage.suffix'),
+                                     :period => dashboard_configuration.period_index,
+                                     :url => url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index),
+                                     :default => '-') %>
                 </p>
               <% end %>
               <% if new_branch_coverage %>
                 <p>
-                  <a href="<%= url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index) -%>"><%= format_variation(new_branch_coverage, :style => 'none') -%><%= message('widget.code_coverage.branch_coverage.suffix') -%></a>
+                  <%= format_measure(new_branch_coverage, :suffix => message('widget.code_coverage.branch_coverage.suffix'),
+                                     :period => dashboard_configuration.period_index,
+                                     :url => url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index),
+                                     :default => '-') %>
                 </p>
               <%
                  end
