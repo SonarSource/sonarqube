@@ -16,8 +16,8 @@
 <div id="project-roles-operations" style="float: right;">
   <ul class="operations">
     <li class="last">
-      <a id="bulk-update" href="<%= url_for params.merge({:action => 'bulk_apply_form'}) -%>"
-         class="link-action open-modal"><%= message('projects_role.apply_template') -%></a>
+      <%= link_to message('projects_role.apply_template'), {:action => :apply_template_form, :projects => @projects.collect {|proj| proj.id}, :qualifier => @qualifier},
+                   :id => 'apply-template-modal', :class => 'open-modal link-action' %>
     </li>
   </ul>
 </div>

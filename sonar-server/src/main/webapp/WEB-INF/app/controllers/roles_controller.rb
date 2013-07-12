@@ -86,8 +86,10 @@ class RolesController < ApplicationController
     bad_request('Missing qualifier') if params[:qualifier].blank?
   end
 
-  def bulk_apply_form
-
+  def apply_template_form
+    bad_request('There are currently no results to apply the permission template to') if params[:projects].blank?
+    @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().collect {|pt| [pt.name, pt.id]}
+    render :partial => 'apply_template_form', :locals => {:components => params[:projects], :qualifier => params[:qualifier] || 'TRK'}
   end
 
   # POST REQUESTS
@@ -120,7 +122,7 @@ class RolesController < ApplicationController
     redirect
   end
 
-  def bulk_apply_template
+  def apply_template
     verify_post_request
     require_parameters :template_id
     Internal.permissions.applyPermissionTemplate(params)

@@ -1,0 +1,36 @@
+<form id="apply-template-form" method="post" action="<%= ApplicationController.root_context -%>/roles/apply_template">
+  <input type="hidden" name="components" id="apply-template-components" value="<%= components.join(',') %>"/>
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message('roles.apply_template.form.title', {:params => ''}) -%></h2>
+    </div>
+    <div class="modal-body">
+      <div class="apply-template errors error" style="display:none;"/>
+      <div class="modal-field">
+        <span><%= "Select the template to apply to #{components.size} #{message('qualifier.' + qualifier)}(s):" %></span><br/>
+        <%= select_tag('template_id', options_for_select(@permission_templates, -1)) %>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span id="apply-template-loading-image" class="hidden"><%= image_tag 'loading.gif' %></span>
+      <input type="submit" value="<%= message('apply') -%>" id="apply-template-submit" class="apply-template" onclick="return displayLoadingImage()" />
+      <a href="#" onclick="return closeModalWindow()" id="apply-template-cancel"><%= message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+<script>
+  $j("#apply-template-form").modalForm({
+    error: function (xhr, textStatus, errorThrown) {
+      $j('#apply-template-loading-image').addClass("hidden");
+      var htmlClass = 'apply-template';
+      $j('input[type=submit].' + htmlClass).removeAttr('disabled');
+      $j('.' + htmlClass + '.errors').show();
+      $j('.' + htmlClass + '.errors').html(xhr.responseText);
+    }
+  });
+
+  function displayLoadingImage() {
+    $j('#apply-template-loading-image').removeClass("hidden");
+  }
+
+</script>

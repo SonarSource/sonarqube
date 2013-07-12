@@ -5,13 +5,11 @@
   <p>
     This section allows you to configure the default permission templates that will be applied by SonarQube while analysing your projects.
   </p>
-  <br/>
   <% form_tag(:controller => 'permission_templates', :action => 'set_default_template') do %>
 
     <% @root_qualifiers.each do |qualifier| %>
       <%= label_tag("default_template_#{qualifier}", "Default permission template for #{message('qualifier.' + qualifier)}:") %>
-      <%= select_tag("default_template_#{qualifier}", options_for_select(@permission_templates_options, @default_templates[qualifier])) %>
-      <br/>
+      <%= select_tag("default_template_#{qualifier}", options_for_select(@permission_templates_options, @default_templates[qualifier])) %>&nbsp;&nbsp;
     <% end %>
     <br/>
     <br/>
