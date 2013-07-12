@@ -97,18 +97,6 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_create_database_with_unresolved_issues() throws IOException, SQLException {
-    setupData("should_create_database_with_unresolved_issues");
-
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
-
-    byte[] database = localDatabaseFactory.createDatabaseForDryRun(399L);
-    dataSource = createDatabase(database);
-
-    assertThat(rowCount("issues")).isEqualTo(1);
-  }
-
-  @Test
   public void should_export_issues_of_project_tree() throws IOException, SQLException {
     setupData("multi-modules-with-issues");
 
