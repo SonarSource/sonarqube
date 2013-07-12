@@ -25,13 +25,12 @@ import org.sonar.api.user.RubyUserService;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
-import org.sonar.core.user.Permission;
+import org.sonar.core.permission.Permission;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 import java.util.Map;
 

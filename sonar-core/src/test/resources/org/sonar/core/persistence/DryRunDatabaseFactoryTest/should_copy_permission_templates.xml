@@ -1,6 +1,6 @@
 <dataset>
 
-  <permission_templates id="1" name="my template" description="my description"/>
+  <permission_templates id="1" name="my template" kee="my_template_20130101_010203" description="my description"/>
 
   <perm_templates_users id="1" template_id="1" user_id="1" permission_reference="codeviewer"/>
 

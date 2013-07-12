@@ -23,15 +23,14 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.core.permission.Permission;
 import org.sonar.core.user.AuthorizationDao;
-import org.sonar.core.user.Permission;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.platform.Platform;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;

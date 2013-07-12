@@ -12,7 +12,7 @@
   <group_roles id="3" group_id="100" resource_id="123" role="admin"/>
 
   <!-- default permission template -->
-  <permission_templates id="1" name="default_template"/>
+  <permission_templates id="1" name="default_template" kee="default_template_20130101_010203"/>
   <perm_templates_groups id="1" template_id="1" group_id="100" permission_reference="admin"/>
 
 </dataset>

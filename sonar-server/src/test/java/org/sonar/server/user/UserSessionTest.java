@@ -20,8 +20,8 @@
 package org.sonar.server.user;
 
 import org.junit.Test;
+import org.sonar.core.permission.Permission;
 import org.sonar.core.user.AuthorizationDao;
-import org.sonar.core.user.Permission;
 import org.sonar.server.exceptions.ForbiddenException;
 
 import java.util.Arrays;

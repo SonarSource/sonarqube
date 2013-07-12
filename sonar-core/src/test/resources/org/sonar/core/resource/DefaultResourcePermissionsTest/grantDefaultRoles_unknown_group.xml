@@ -9,7 +9,7 @@
   <user_roles id="1" user_id="200" resource_id="1" role="admin"/>
 
   <!-- default permission template for TRK -->
-  <permission_templates id="1" name="default_template"/>
+  <permission_templates id="1" name="default_template" kee="default_template_20130101_010203"/>
 
   <perm_templates_groups id="1" template_id="1" group_id="100" permission_reference="admin"/>
   <perm_templates_groups id="2" template_id="1" group_id="999" permission_reference="admin"/>

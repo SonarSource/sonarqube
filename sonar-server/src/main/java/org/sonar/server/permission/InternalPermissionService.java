@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.permission.ComponentPermissionFacade;
+import org.sonar.core.permission.Permission;
 import org.sonar.core.user.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;

@@ -24,7 +24,7 @@ import com.google.common.collect.Maps;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.user.Permission;
+import org.sonar.core.permission.Permission;
 import org.sonar.server.exceptions.BadRequestException;
 
 import java.util.Map;

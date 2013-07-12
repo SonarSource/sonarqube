@@ -27,10 +27,10 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissionFacade;
+import org.sonar.core.permission.PermissionTemplateDto;
+import org.sonar.core.permission.PermissionTemplateGroupDto;
+import org.sonar.core.permission.PermissionTemplateUserDto;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.user.PermissionTemplateDto;
-import org.sonar.core.user.PermissionTemplateGroupDto;
-import org.sonar.core.user.PermissionTemplateUserDto;
 
 import java.util.ArrayList;
 import java.util.List;

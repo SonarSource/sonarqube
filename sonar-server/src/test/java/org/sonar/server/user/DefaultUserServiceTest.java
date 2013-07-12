@@ -27,7 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
-import org.sonar.core.user.Permission;
+import org.sonar.core.permission.Permission;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -35,11 +35,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 public class DefaultUserServiceTest {
 

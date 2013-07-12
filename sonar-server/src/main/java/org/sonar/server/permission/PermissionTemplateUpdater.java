@@ -23,7 +23,12 @@ package org.sonar.server.permission;
 import com.google.common.collect.Lists;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.user.*;
+import org.sonar.core.permission.Permission;
+import org.sonar.core.permission.PermissionDao;
+import org.sonar.core.permission.PermissionTemplateDto;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 

@@ -1,0 +1,5 @@
+<dataset>
+  <permission_templates id="1" name="template1" kee="my_template_20130102_030405" description="description1" created_at="[null]" updated_at="[null]"/>
+  <permission_templates id="2" name="template2" kee="my_template_20130102_030405" description="description2" created_at="[null]" updated_at="[null]"/>
+  <permission_templates id="3" name="template3" kee="my_template_20130102_030405" description="description3" created_at="[null]" updated_at="[null]"/>
+</dataset>

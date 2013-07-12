@@ -34,8 +34,8 @@ import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
+import org.sonar.core.permission.Permission;
 import org.sonar.core.user.AuthorizationDao;
-import org.sonar.core.user.Permission;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -43,7 +43,6 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 import java.util.Map;
 

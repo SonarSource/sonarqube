@@ -15,7 +15,7 @@ INSERT INTO GROUPS_USERS(USER_ID, GROUP_ID) VALUES (1, 1);
 INSERT INTO GROUPS_USERS(USER_ID, GROUP_ID) VALUES (1, 2);
 
 -- Default permissions - Replaces the previous role-based properties such as 'sonar.role.admin.TRK.defaultGroups' (see migration 418)
-INSERT INTO PERMISSION_TEMPLATES(ID, name, description) VALUES (1, 'Default template', 'This permission template will be used as default when no other permission configuration is available');
+INSERT INTO PERMISSION_TEMPLATES(ID, name, kee, description) VALUES (1, 'Default template', 'default_template', 'This permission template will be used as default when no other permission configuration is available');
 ALTER TABLE PERMISSION_TEMPLATES ALTER COLUMN ID RESTART WITH 2;
 
 INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (1, 1, 1, 'admin');

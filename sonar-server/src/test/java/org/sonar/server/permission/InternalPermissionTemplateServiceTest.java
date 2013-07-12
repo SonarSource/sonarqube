@@ -26,7 +26,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.user.*;
+import org.sonar.core.permission.*;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.MockUserSession;
 

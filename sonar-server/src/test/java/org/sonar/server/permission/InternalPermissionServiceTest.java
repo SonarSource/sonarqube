@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.permission.ComponentPermissionFacade;
+import org.sonar.core.permission.Permission;
 import org.sonar.core.user.*;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;

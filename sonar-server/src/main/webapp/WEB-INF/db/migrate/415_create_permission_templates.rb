@@ -26,6 +26,7 @@ class CreatePermissionTemplates < ActiveRecord::Migration
   def self.up
     create_table :permission_templates do |t|
       t.column :name,        :string,  :null => false,   :limit => 100
+      t.column :kee,         :string,  :null => false,   :limit => 100
       t.column :description, :string,  :null => true,    :limit => 4000
       t.column :created_at,  :datetime,  :null => true
       t.column :updated_at,  :datetime,  :null => true

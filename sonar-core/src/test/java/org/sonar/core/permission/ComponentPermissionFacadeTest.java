@@ -23,7 +23,6 @@ package org.sonar.core.permission;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.user.PermissionDao;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
 

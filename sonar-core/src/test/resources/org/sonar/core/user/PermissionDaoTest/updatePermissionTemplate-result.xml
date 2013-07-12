@@ -1,4 +1,0 @@
-<dataset>
-  <permission_templates id="1" name="new_name" description="new_description" created_at="[null]" updated_at="[null]"/>
-  <permission_templates id="2" name="template2" description="description2" created_at="[null]" updated_at="[null]"/>
-</dataset>

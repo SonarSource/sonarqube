@@ -21,7 +21,7 @@
   <user_roles id="2" user_id="200" resource_id="123" role="admin"/>
 
   <!-- default permission template for all qualifiers -->
-  <permission_templates id="1" name="default"/>
+  <permission_templates id="1" name="default" kee="default_20130101_010203"/>
 
   <perm_templates_groups id="1" template_id="1" group_id="100" permission_reference="admin"/>
   <perm_templates_groups id="2" template_id="1" group_id="101" permission_reference="user"/>

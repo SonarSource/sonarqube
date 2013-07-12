@@ -21,7 +21,7 @@
 package org.sonar.server.permission;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.user.Permission;
+import org.sonar.core.permission.Permission;
 import org.sonar.server.exceptions.BadRequestException;
 
 import java.util.Map;

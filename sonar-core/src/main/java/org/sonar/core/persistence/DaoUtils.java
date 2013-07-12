@@ -26,6 +26,7 @@ import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.graph.jdbc.GraphDao;
 import org.sonar.core.issue.db.*;
 import org.sonar.core.measure.MeasureFilterDao;
+import org.sonar.core.permission.PermissionDao;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceDao;
@@ -34,7 +35,10 @@ import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.user.*;
+import org.sonar.core.user.AuthorDao;
+import org.sonar.core.user.AuthorizationDao;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
 
 import java.util.List;
 
