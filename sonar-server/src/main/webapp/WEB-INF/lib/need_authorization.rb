@@ -57,10 +57,10 @@ module NeedAuthorization
     # has_role?(:admin, [30,45,7]) checks if the user is administrator of the projects 30, 40 and 7. It returns an array of 3 booleans.
     #
     def has_role?(role, objects=nil)
-      role = role.key if role.java_kind_of?(Java::OrgSonarCoreUser::Permission)
+      role = role.key if role.java_kind_of?(Java::OrgSonarCorePermission::Permission)
       role = role.to_s
       if objects.nil?
-        if Java::OrgSonarCoreUser::Permission::allGlobal.keySet.include?(role)
+        if Java::OrgSonarCorePermission::Permission::allGlobal.keySet.include?(role)
           AuthorizerFactory.authorizer.has_role?(self, role.to_sym)
         else
           # There's no concept of global users or global codeviewers.
