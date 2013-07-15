@@ -99,7 +99,7 @@ public class DryRunDatabase implements BatchComponent {
     if (rootCause instanceof SocketTimeoutException) {
       // Pico will unwrap the first runtime exception
       throw new SonarException(new SonarException(String.format("DryRun database read timed out after %s ms. You can try to increase read timeout with property -D"
-        + CoreProperties.DRY_RUN_READ_TIMEOUT_SEC + "(in seconds)",
+        + CoreProperties.DRY_RUN_READ_TIMEOUT_SEC + " (in seconds)",
           readTimeout), e));
     }
     if (projectKey != null && (rootCause instanceof HttpException) && (((HttpException) rootCause).getResponseCode() == 401)) {
