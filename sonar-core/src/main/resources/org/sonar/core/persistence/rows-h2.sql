@@ -25,7 +25,7 @@ INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_referenc
 INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (5, 1, NULL, 'codeviewer');
 ALTER TABLE PERM_TEMPLATES_GROUPS ALTER COLUMN ID RESTART WITH 6;
 
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (1, 'sonar.permission.template.default', NULL, '1', NULL);
+INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (1, 'sonar.permission.template.default', NULL, 'default_template', NULL);
 ALTER TABLE PROPERTIES ALTER COLUMN ID RESTART WITH 2;
 -- Default permissions end
 
