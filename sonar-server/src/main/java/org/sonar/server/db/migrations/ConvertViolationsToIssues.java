@@ -119,6 +119,7 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
 
   private static class Converter {
     private String insertSql;
+    private String insertChangeSql;
     private Date oneYearAgo = DateUtils.addYears(new Date(), -1);
     private QueryRunner runner;
     private Connection readConnection, writeConnection;
@@ -139,10 +140,13 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
         insertSql = "INSERT INTO issues(id, kee, component_id, root_component_id, rule_id, severity, manual_severity, message, line, effort_to_fix, status, resolution, " +
           " checksum, reporter, assignee, action_plan_key, issue_attributes, issue_creation_date, issue_update_date, created_at, updated_at) " +
           " VALUES (issues_seq.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        insertChangeSql = "INSERT INTO issue_changes(id, kee, issue_key, user_login, change_type, change_data, created_at, updated_at) " +
+          " VALUES (issue_changes_seq.nextval, ?, ?, ?, 'comment', ?, ?, ?)";
       } else {
         insertSql = "INSERT INTO issues(kee, component_id, root_component_id, rule_id, severity, manual_severity, message, line, effort_to_fix, status, resolution, " +
           " checksum, reporter, assignee, action_plan_key, issue_attributes, issue_creation_date, issue_update_date, created_at, updated_at) " +
           " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        insertChangeSql = "INSERT INTO issue_changes(kee, issue_key, user_login, change_type, change_data, created_at, updated_at) VALUES (?, ?, ?, 'comment', ?, ?, ?)";
       }
     }
 
@@ -258,10 +262,7 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
         }
       }
       if (!allParams.isEmpty()) {
-        runner.batch(writeConnection,
-          "INSERT INTO issue_changes(kee, issue_key, user_login, change_type, change_data, created_at, updated_at) VALUES (?, ?, ?, 'comment', ?, ?, ?)",
-          allParams.toArray(new Object[allParams.size()][])
-        );
+        runner.batch(writeConnection, insertChangeSql, allParams.toArray(new Object[allParams.size()][]));
         writeConnection.commit();
       }
     }
