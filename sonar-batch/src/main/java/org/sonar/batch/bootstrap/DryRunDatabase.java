@@ -46,7 +46,7 @@ public class DryRunDatabase implements BatchComponent {
   private static final String USER = "sonar";
   private static final String PASSWORD = "sonar";
 
-  private static final int DEFAULT_DRY_RUN_READ_TIMEOUT = 60 * 1000;
+  private static final int DEFAULT_DRY_RUN_READ_TIMEOUT_SEC = 60;
 
   private final Settings settings;
   private final ServerClient server;
@@ -64,10 +64,10 @@ public class DryRunDatabase implements BatchComponent {
       File databaseFile = tempDirectories.getFile("", "dryrun.h2.db");
 
       // SONAR-4488 Allow to increase dryRun timeout
-      int readTimeout = settings.getInt(CoreProperties.DRY_RUN_READ_TIMEOUT);
-      readTimeout = (readTimeout == 0) ? DEFAULT_DRY_RUN_READ_TIMEOUT : readTimeout;
+      int readTimeoutSec = settings.getInt(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC);
+      readTimeoutSec = (readTimeoutSec == 0) ? DEFAULT_DRY_RUN_READ_TIMEOUT_SEC : readTimeoutSec;
 
-      downloadDatabase(databaseFile, readTimeout);
+      downloadDatabase(databaseFile, readTimeoutSec * 1000);
 
       String databasePath = StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db");
       replaceSettings(databasePath);
@@ -99,7 +99,7 @@ public class DryRunDatabase implements BatchComponent {
     if (rootCause instanceof SocketTimeoutException) {
       // Pico will unwrap the first runtime exception
       throw new SonarException(new SonarException(String.format("DryRun database read timed out after %s ms. You can try to increase read timeout with property -D"
-        + CoreProperties.DRY_RUN_READ_TIMEOUT,
+        + CoreProperties.DRY_RUN_READ_TIMEOUT_SEC + "(in seconds)",
           readTimeout), e));
     }
     if (projectKey != null && (rootCause instanceof HttpException) && (((HttpException) rootCause).getResponseCode() == 401)) {

@@ -404,5 +404,5 @@ public interface CoreProperties {
   /**
    * @since 3.7
    */
-  String DRY_RUN_READ_TIMEOUT = "sonar.dryRun.readTimeout";
+  String DRY_RUN_READ_TIMEOUT_SEC = "sonar.dryRun.readTimeout";
 }

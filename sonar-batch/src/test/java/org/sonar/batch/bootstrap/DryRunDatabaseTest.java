@@ -79,7 +79,7 @@ public class DryRunDatabaseTest {
 
   @Test
   public void should_download_database_with_overriden_timeout() {
-    settings.setProperty(CoreProperties.DRY_RUN_READ_TIMEOUT, 80000);
+    settings.setProperty(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, 80);
     new DryRunDatabase(settings, server, tempDirectories).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 80000);
@@ -119,7 +119,7 @@ public class DryRunDatabaseTest {
     doThrow(new SonarException(new SocketTimeoutException())).when(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 60000);
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("DryRun database read timed out after 60000 ms. You can try to increase read timeout with property -Dsonar.dryRun.readTimeout");
+    thrown.expectMessage("DryRun database read timed out after 60000 ms. You can try to increase read timeout with property -Dsonar.dryRun.readTimeout (in seconds)");
 
     new DryRunDatabase(settings, server, tempDirectories).start();
   }
