@@ -14,21 +14,6 @@ ALTER TABLE GROUP_ROLES ALTER COLUMN ID RESTART WITH 6;
 INSERT INTO GROUPS_USERS(USER_ID, GROUP_ID) VALUES (1, 1);
 INSERT INTO GROUPS_USERS(USER_ID, GROUP_ID) VALUES (1, 2);
 
--- Default permissions - Replaces the previous role-based properties such as 'sonar.role.admin.TRK.defaultGroups' (see migration 418)
-INSERT INTO PERMISSION_TEMPLATES(ID, name, kee, description) VALUES (1, 'Default template', 'default_template', 'This permission template will be used as default when no other permission configuration is available');
-ALTER TABLE PERMISSION_TEMPLATES ALTER COLUMN ID RESTART WITH 2;
-
-INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (1, 1, 1, 'admin');
-INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (2, 1, 2, 'user');
-INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (3, 1, NULL, 'user');
-INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (4, 1, 2, 'codeviewer');
-INSERT INTO PERM_TEMPLATES_GROUPS(ID, template_id, group_id, permission_reference) VALUES (5, 1, NULL, 'codeviewer');
-ALTER TABLE PERM_TEMPLATES_GROUPS ALTER COLUMN ID RESTART WITH 6;
-
-INSERT INTO PROPERTIES(ID, prop_key, resource_id, text_value, user_id) VALUES (1, 'sonar.permission.template.default', NULL, 'default_template', NULL);
-ALTER TABLE PROPERTIES ALTER COLUMN ID RESTART WITH 2;
--- Default permissions end
-
 
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('1');
 INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('2');

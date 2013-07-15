@@ -214,6 +214,9 @@ public class PermissionDao implements TaskComponent, ServerComponent {
   }
 
   private String generateTemplateKee(String name, Date timeStamp) {
+    if(PermissionTemplateDto.DEFAULT.getName().equals(name)) {
+      return PermissionTemplateDto.DEFAULT.getKee();
+    }
     String normalizedName = Normalizer.normalize(name, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").replace(" ", "_");
     return normalizedName.toLowerCase() + "_" + DateFormatUtils.format(timeStamp, "yyyyMMdd_HHmmss");
   }

@@ -20,18 +20,19 @@
 
 package org.sonar.core.permission;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.date.DateProvider;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.MyBatis;
 
 import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.*;
 
 public class PermissionDaoTest extends AbstractDaoTestCase {
 
@@ -63,6 +64,26 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     checkTable("createNonAsciiPermissionTemplate", "permission_templates", "id", "name", "kee", "description");
+  }
+
+  @Test
+  public void should_skip_key_normalization_on_default_template() throws Exception {
+
+    PermissionTemplateMapper mapper = mock(PermissionTemplateMapper.class);
+
+    SqlSession session = mock(SqlSession.class);
+    when(session.getMapper(PermissionTemplateMapper.class)).thenReturn(mapper);
+
+    MyBatis myBatis = mock(MyBatis.class);
+    when(myBatis.openSession()).thenReturn(session);
+
+    permissionDao = new PermissionDao(myBatis, dateProvider);
+    PermissionTemplateDto permissionTemplate = permissionDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), null);
+
+    verify(mapper).insert(permissionTemplate);
+    verify(session).commit();
+
+    assertThat(permissionTemplate.getKee()).isEqualTo(PermissionTemplateDto.DEFAULT.getKee());
   }
 
   @Test
