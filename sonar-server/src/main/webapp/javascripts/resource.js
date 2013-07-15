@@ -45,7 +45,7 @@ function collapseTests(index, elt){
 function highlight_usages(event){
   var isAlreadyHighlighted = false;
   var selectedElementClasses = $j(this).attr("class").split(" ");
-  if(selectedElementClasses.indexOf("highlighted") != -1) {
+  if(selectedElementClasses.indexOf("highlighted") !== -1) {
     isAlreadyHighlighted = true;
   }
   $j("#" + event.data.id + " span.highlighted").removeClass("highlighted");

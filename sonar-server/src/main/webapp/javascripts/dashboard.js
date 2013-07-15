@@ -1,23 +1,25 @@
 var Portal = Class.create();
 Portal.prototype = {
     initialize: function (options) {
-        this.setOptions(options);
-        if (!this.options.editorEnabled) return;
+      this.setOptions(options);
+      if (!this.options.editorEnabled) {
+        return;
+      }
 
-        Droppables.add(this.options.blocklist, {
-            containment : $A($$("."+this.options.column)),
-            hoverclass  : this.options.hoverclass,
-            overlap     : 'horizontal',
-            onDrop: function(dragged, dropped) {
-                $(dragged).remove();
-            }
-        });
+      Droppables.add(this.options.blocklist, {
+        containment: $A($$("." + this.options.column)),
+        hoverclass: this.options.hoverclass,
+        overlap: 'horizontal',
+        onDrop: function (dragged, dropped) {
+          $(dragged).remove();
+        }
+      });
 
-        this.createAllSortables();
+      this.createAllSortables();
 
-        this.lastSaveString = "";
+      this.lastSaveString = "";
 
-        this.saveDashboardsState();
+      this.saveDashboardsState();
     },
     /****************************************************/
 
@@ -56,12 +58,14 @@ Portal.prototype = {
         var result = "";
         var index = 1;
         $$("."+this.options.column).each(function (sortable) {
-            if ($(sortable).select("."+this.options.block).length == 0) {
+            if ($(sortable).select("."+this.options.block).length === 0) {
                 $(sortable).select("."+this.options.columnhandle)[0].show();
             } else {
                 $(sortable).select("."+this.options.columnhandle)[0].hide();
             }
-            if (index > 1) result += ";";
+            if (index > 1) {
+              result += ";";
+            }
             result += Sortable.sequence($(sortable).identify());
             index++;
         });
@@ -71,7 +75,9 @@ Portal.prototype = {
         var firstTime=this.lastSaveString=="";
         this.lastSaveString=result;
 
-        if (firstTime) return;
+        if (firstTime) {
+          return;
+        }
 
         try {
             if ($(this.options.dashboardstate)) {

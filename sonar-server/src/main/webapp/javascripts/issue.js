@@ -52,7 +52,7 @@ function submitIssueForm(elt) {
       var issueKey = issueElt.attr('data-issue-key');
       var replaced = $j(htmlResponse);
       issueElt.replaceWith(replaced);
-      notifyIssueChange(issueKey)
+      notifyIssueChange(issueKey);
     }
   ).fail(function (jqXHR, textStatus) {
       closeIssueForm(elt);
@@ -87,17 +87,17 @@ function doIssueAction(elt, action, parameters) {
 // Used for actions defined by plugins
 function doPluginIssueAction(elt, action) {
   var parameters = {};
-  return doIssueAction(elt, action, parameters)
+  return doIssueAction(elt, action, parameters);
 }
 
 function assignIssueToMe(elt) {
   var parameters = {'me': true};
-  return doIssueAction(elt, 'assign', parameters)
+  return doIssueAction(elt, 'assign', parameters);
 }
 
 function doIssueTransition(elt, transition) {
   var parameters = {'transition': transition};
-  return doIssueAction(elt, 'transition', parameters)
+  return doIssueAction(elt, 'transition', parameters);
 }
 
 function formDeleteIssueComment(elt) {
