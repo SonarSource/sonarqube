@@ -22,13 +22,6 @@
   <div class="source_tabs">
     <ul class="tablinks">
       <% first=true %>
-      <% if logged_in? && @display_issues %>
-        <li class="<%= 'first' if first -%>">
-          <a href="<%= url_for @issues_query_params.merge({:controller => 'issues', :action => 'bulk_change_form', 'componentRoots' => @resource.root ? @resource.root.key : nil}) -%>"
-             class="bulk-change-link open-modal"><%= message('bulk_change') -%></a>
-        </li>
-      <% first=false
-         end %>
       <% if @snapshot.has_source && has_role?(:codeviewer, @snapshot) %>
         <li class="<%= 'first' if first -%>">
           <a href="<%= ApplicationController.root_context -%>/api/sources?resource=<%= @resource.key -%>&amp;format=txt"><%= message('raw') -%></a>

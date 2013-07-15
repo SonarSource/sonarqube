@@ -57,6 +57,11 @@
             </td>
 
             <td class="<%= 'first' if first -%>"><%= render :partial => 'rules_filter' -%></td>
+
+            <td class="<%= 'first' if first -%>">
+              <a href="<%= url_for @issues_query_params.merge({:controller => 'issues', :action => 'bulk_change_form', 'componentRoots' => @resource.root ? @resource.root.key : nil}) -%>"
+                 class="bulk-change-link open-modal link-action"><%= message('bulk_change') -%></a>
+            </td>
           <% first=false
              end %>
 
