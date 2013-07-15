@@ -12,7 +12,7 @@
 
       <% if is_admin %>
         <%= message('issue.manual.no_rules.admin') -%>
-        <a href="<%= ApplicationController.root_context -%>/manual_rules/index"><%= message('manage') -%></a>
+        &nbsp;<a href="<%= ApplicationController.root_context -%>/manual_rules/index"><%= message('manage') -%></a>
       <% else %>
         <%= message('issue.manual.no_rules.non_admin') -%>
       <% end %>
