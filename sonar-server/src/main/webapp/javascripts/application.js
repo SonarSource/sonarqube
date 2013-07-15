@@ -132,8 +132,12 @@ var SelectBox = {
       a = a.text.toLowerCase();
       b = b.text.toLowerCase();
       try {
-        if (a > b) return 1;
-        if (a < b) return -1;
+        if (a > b) {
+          return 1;
+        }
+        if (a < b) {
+          return -1;
+        }
       }
       catch (e) {
         // silently fail on IE 'unknown' exception
@@ -238,7 +242,7 @@ Treemap.prototype.initNodes = function () {
         }
 
       }
-    )
+    );
   });
 };
 
@@ -431,7 +435,7 @@ var hideCurrentDropdownMenu = function () {
     currentlyDisplayedDropdownMenu.hide();
   }
   $j(document).unbind('mouseup', hideCurrentDropdownMenu);
-}
+};
 
 var clickOnDropdownMenuLink = function (event) {
   var link = $j(event.target).children('a');
@@ -445,7 +449,7 @@ var clickOnDropdownMenuLink = function (event) {
       link.click();
     }
   }
-}
+};
 
 function showDropdownMenu(menuId) {
   showDropdownMenuOnElement($j('#' + menuId));
