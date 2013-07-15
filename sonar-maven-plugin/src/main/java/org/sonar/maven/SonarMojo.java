@@ -23,6 +23,7 @@ import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactCollector;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.RuntimeInformation;
 import org.apache.maven.lifecycle.LifecycleExecutor;
@@ -122,13 +123,18 @@ public final class SonarMojo extends AbstractMojo {
    * @component
    * @required
    * @readonly
+   * @VisibleForTesting
    */
-  private RuntimeInformation runtimeInformation;
+  RuntimeInformation runtimeInformation;
 
   public void execute() throws MojoExecutionException, MojoFailureException {
+    ArtifactVersion mavenVersion = getMavenVersion();
+    if (mavenVersion.getMajorVersion() == 2 && mavenVersion.getMinorVersion() < 2) {
+      throw new MojoExecutionException("Please use at least Maven 2.2.x to perform SonarQube analysis (current version is " + mavenVersion.toString() + ")");
+    }
 
     EmbeddedRunner runner = EmbeddedRunner.create()
-        .setApp("Maven", getMavenVersion())
+        .setApp("Maven", mavenVersion.toString())
         .addProperties(session.getExecutionProperties())
         .addProperties(project.getModel().getProperties())
         // Add user properties (ie command line arguments -Dsonar.xxx=yyyy) in last position to override all other
@@ -159,15 +165,15 @@ public final class SonarMojo extends AbstractMojo {
         // Include everything else
         .unmask("");
     runner.addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
-            dependencyTreeBuilder, projectBuilder);
+        dependencyTreeBuilder, projectBuilder);
     if (getLog().isDebugEnabled()) {
       runner.setProperty("sonar.verbose", "true");
     }
     runner.execute();
   }
 
-  private String getMavenVersion() {
-    return runtimeInformation.getApplicationVersion().toString();
+  private ArtifactVersion getMavenVersion() {
+    return runtimeInformation.getApplicationVersion();
   }
 
   public static String toString(Object obj) {
