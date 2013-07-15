@@ -69,7 +69,7 @@ class RolesController < ApplicationController
 
   def apply_template_form
     bad_request('There are currently no results to apply the permission template to') if params[:projects].blank?
-    @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().collect {|pt| [pt.name, pt.id]}
+    @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().collect {|pt| [pt.name, pt.key]}
     render :partial => 'apply_template_form', :locals => {:components => params[:projects], :qualifier => params[:qualifier] || 'TRK'}
   end
 
@@ -105,7 +105,7 @@ class RolesController < ApplicationController
 
   def apply_template
     verify_post_request
-    require_parameters :template_id
+    require_parameters :template_key
     Internal.permissions.applyPermissionTemplate(params)
     redirect_to :action => 'projects'
   end

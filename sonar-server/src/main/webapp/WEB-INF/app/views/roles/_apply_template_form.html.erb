@@ -2,13 +2,13 @@
   <input type="hidden" name="components" id="apply-template-components" value="<%= components.join(',') %>"/>
   <fieldset>
     <div class="modal-head">
-      <h2><%= message('roles.apply_template.form.title', {:params => ''}) -%></h2>
+      <h2><%= message('projects_role.apply_template.form.title', {:params => ''}) -%></h2>
     </div>
     <div class="modal-body">
       <div class="apply-template errors error" style="display:none;"/>
       <div class="modal-field">
         <span><%= "Select the template to apply to #{components.size} #{message('qualifier.' + qualifier)}(s):" %></span><br/>
-        <%= select_tag('template_id', options_for_select(@permission_templates, -1)) %>
+        <%= select_tag('template_key', options_for_select(@permission_templates, -1)) %>
       </div>
     </div>
     <div class="modal-foot">
