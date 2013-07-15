@@ -68,13 +68,13 @@
   </select>
 
   <select id="selectByName" parameterType="String" resultType="PermissionTemplate">
-    SELECT id, name, description, created_at AS createdAt, updated_at AS updatedAt
+    SELECT id, name, kee, description, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates
     WHERE name = #{templateName}
   </select>
 
   <select id="selectAllPermissionTemplates" resultType="PermissionTemplate">
-    SELECT id, name, description, created_at AS createdAt, updated_at AS updatedAt
+    SELECT id, name, kee, description, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates
   </select>
 

@@ -43,7 +43,7 @@ class PermissionTemplatesController < ApplicationController
     templates_names.each do |template_name|
       permission_template = Internal.permission_templates.selectPermissionTemplate(template_name)
       @permission_templates << permission_template
-      @permission_templates_options << [permission_template.name, permission_template.id.to_s]
+      @permission_templates_options << [permission_template.name, permission_template.key]
     end
     @root_qualifiers = get_root_qualifiers
 
@@ -78,7 +78,7 @@ class PermissionTemplatesController < ApplicationController
   #
   def update_users_permissions
     verify_post_request
-    require_parameters :id, :name, :permission
+    require_parameters :name, :permission
 
     @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
 
@@ -106,7 +106,7 @@ class PermissionTemplatesController < ApplicationController
   #
   def update_groups_permissions
     verify_post_request
-    require_parameters :id, :name, :permission
+    require_parameters :name, :permission
 
     @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
 

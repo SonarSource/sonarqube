@@ -93,6 +93,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
+    assertThat(permissionTemplate.getKee()).isEqualTo("my_template_20130102_030405");
     assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
     assertThat(permissionTemplate.getUsersPermissions()).hasSize(3);
     assertThat(permissionTemplate.getUsersPermissions()).onProperty("userId").containsOnly(1L, 2L, 1L);
@@ -126,11 +127,12 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
+    assertThat(permissionTemplate.getKee()).isEqualTo("my_template_20130102_030405");
     assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
   }
 
   @Test
-  public void should_select_permission_template_by_id() throws Exception {
+  public void should_select_permission_template_by_key() throws Exception {
     setupData("selectPermissionTemplate");
 
     PermissionTemplateDto permissionTemplate = permissionDao.selectTemplateByKey("my_template_20130102_030405");
@@ -138,6 +140,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
+    assertThat(permissionTemplate.getKee()).isEqualTo("my_template_20130102_030405");
     assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
   }
 
@@ -150,6 +153,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     assertThat(permissionTemplates).hasSize(3);
     assertThat(permissionTemplates).onProperty("id").containsOnly(1L, 2L, 3L);
     assertThat(permissionTemplates).onProperty("name").containsOnly("template1", "template2", "template3");
+    assertThat(permissionTemplates).onProperty("kee").containsOnly("template1_20130102_030405", "template2_20130102_030405", "template3_20130102_030405");
     assertThat(permissionTemplates).onProperty("description").containsOnly("description1", "description2", "description3");
   }
 

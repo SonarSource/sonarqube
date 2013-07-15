@@ -36,6 +36,7 @@ public class PermissionTemplateTest {
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto()
       .setId(1L)
       .setName("name")
+      .setKee("key")
       .setDescription("description")
       .setUsersPermissions(Lists.newArrayList(
         new PermissionTemplateUserDto().setId(1L).setUserId(1L).setUserName("user1").setUserLogin("login1").setPermission("permission1"),
@@ -52,6 +53,7 @@ public class PermissionTemplateTest {
 
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     assertThat(permissionTemplate.getName()).isEqualTo("name");
+    assertThat(permissionTemplate.getKey()).isEqualTo("key");
     assertThat(permissionTemplate.getDescription()).isEqualTo("description");
     assertThat(permissionTemplate.getUsersForPermission("unmatchedPermission")).isEmpty();
     assertThat(permissionTemplate.getUsersForPermission("permission1")).onProperty("userName").containsOnly("user1", "user2");

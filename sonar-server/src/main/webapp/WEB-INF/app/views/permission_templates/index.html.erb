@@ -85,10 +85,13 @@
                      :id => "selectg-codeviewer-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)
       </td>
       <td>
-        <% if @default_templates.values.include?(permission_template.id.to_s)
-              qualifier = @default_templates.invert[permission_template.id.to_s]
+        <% qualifiers = []
+           @default_templates.each_pair do |q, t|
+             qualifiers << q if t == permission_template.key
+           end
+           if qualifiers.length > 0
         %>
-          <%= image_tag 'tick.png', :id => "is_active_#{u permission_template.name}" %><span class="small gray">(Default for <%= message('qualifier.' + qualifier) %>)</span>
+          <%= image_tag 'tick.png', :id => "is_active_#{u permission_template.name}" %><span class="small gray">(Default for <%= qualifiers.collect {|q| message('qualifier.' + q)}.join(',') %>)</span>
         <% end %>
       </td>
       <td align="right">
@@ -96,7 +99,7 @@
                     :id => "edit-template-#{u permission_template.name}", :class => 'open-modal link-action' %>
       </td>
       <td align="right">
-        <% unless @default_templates.values.include?(permission_template.id.to_s) %>
+        <% unless @default_templates.values.include?(permission_template.key) %>
           <%= link_to message('delete'), {:action => :delete_form, :name => permission_template.name},
                       :id => "delete-template-#{u permission_template.name}", :class => 'open-modal link-action link-red' %>
         <% end %>

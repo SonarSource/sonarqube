@@ -84,7 +84,7 @@ public class RegisterPermissionTemplates {
     } else {
       GroupDto groupDto = userDao.selectGroupByName(groupName);
       if(groupDto != null) {
-        groupId = userDao.selectGroupByName(groupName).getId();
+        groupId = groupDto.getId();
       } else {
         throw new IllegalArgumentException("Cannot setup default permission for group: " + groupName);
       }

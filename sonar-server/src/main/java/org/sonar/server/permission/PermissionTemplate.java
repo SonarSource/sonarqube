@@ -34,13 +34,15 @@ public class PermissionTemplate {
 
   private final Long id;
   private final String name;
+  private final String key;
   private final String description;
   private Multimap<String, PermissionTemplateUser> usersByPermission;
   private Multimap<String, PermissionTemplateGroup> groupsByPermission;
 
-  private PermissionTemplate(Long id, String name, String description) {
+  private PermissionTemplate(Long id, String name, String key, String description) {
     this.id = id;
     this.name = name;
+    this.key = key;
     this.description = description;
     usersByPermission = HashMultimap.create();
     groupsByPermission = HashMultimap.create();
@@ -50,8 +52,8 @@ public class PermissionTemplate {
     if(permissionTemplateDto == null) {
       return null;
     }
-    PermissionTemplate permissionTemplate =
-      new PermissionTemplate(permissionTemplateDto.getId(), permissionTemplateDto.getName(), permissionTemplateDto.getDescription());
+    PermissionTemplate permissionTemplate = new PermissionTemplate(
+      permissionTemplateDto.getId(), permissionTemplateDto.getName(), permissionTemplateDto.getKee(), permissionTemplateDto.getDescription());
 
     List<PermissionTemplateUserDto> usersPermissions = permissionTemplateDto.getUsersPermissions();
     if(usersPermissions != null) {
@@ -81,6 +83,10 @@ public class PermissionTemplate {
 
   public String getDescription() {
     return description;
+  }
+
+  public String getKey() {
+    return key;
   }
 
   public List<PermissionTemplateUser> getUsersForPermission(String permission) {
