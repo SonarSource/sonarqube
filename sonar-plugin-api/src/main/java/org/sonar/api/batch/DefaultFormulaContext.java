@@ -44,6 +44,10 @@ public class DefaultFormulaContext implements FormulaContext {
     return decoratorContext.getResource();
   }
 
+  /**
+   * @deprecated in 3.7. Use {@link org.sonar.api.config.Settings}.
+   */
+  @Deprecated
   public Configuration getConfiguration() {
     return decoratorContext.getProject().getConfiguration();
   }

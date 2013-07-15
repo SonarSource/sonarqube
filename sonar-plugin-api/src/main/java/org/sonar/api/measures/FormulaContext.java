@@ -31,6 +31,10 @@ public interface FormulaContext {
 
   Resource getResource();
 
+  /**
+   * @deprecated in 3.7. Use {@link org.sonar.api.config.Settings}.
+   */
+  @Deprecated
   Configuration getConfiguration();
 
 }

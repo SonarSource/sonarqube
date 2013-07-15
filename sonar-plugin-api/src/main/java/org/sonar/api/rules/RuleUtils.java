@@ -27,7 +27,9 @@ import org.sonar.api.utils.KeyValueFormat;
 
 /**
  * A utility class to manipulate concepts around rules
+ * @deprecated in 3.7. Commons Configuration must be replaced by {@link org.sonar.api.config.Settings}
  */
+@Deprecated
 public final class RuleUtils {
 
   private RuleUtils() {

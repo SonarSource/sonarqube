@@ -19,13 +19,11 @@
  */
 package org.sonar.core.config;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 
 import javax.annotation.WillClose;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -82,14 +80,5 @@ public final class ConfigurationUtils {
       result.setProperty(key, interpolatedValue);
     }
     return result;
-  }
-
-  public static void copyToCommonsConfiguration(Map<String, String> input, Configuration commonsConfig) {
-    // update deprecated configuration
-    commonsConfig.clear();
-    for (Map.Entry<String, String> entry : input.entrySet()) {
-      String key = entry.getKey();
-      commonsConfig.setProperty(key, entry.getValue());
-    }
   }
 }
