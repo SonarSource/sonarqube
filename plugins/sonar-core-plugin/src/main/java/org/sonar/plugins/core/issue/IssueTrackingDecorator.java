@@ -64,23 +64,20 @@ public class IssueTrackingDecorator implements Decorator {
   private final ResourcePerspectives perspectives;
   private final RulesProfile rulesProfile;
   private final RuleFinder ruleFinder;
-  private FileLinesContextFactory fileLineContextFactory;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
-      IssueHandlers handlers, IssueWorkflow workflow,
-      IssueUpdater updater,
-      Project project,
-      ResourcePerspectives perspectives,
-      RulesProfile rulesProfile,
-      RuleFinder ruleFinder,
-      FileLinesContextFactory fileLineContextFactory) {
+                                IssueHandlers handlers, IssueWorkflow workflow,
+                                IssueUpdater updater,
+                                Project project,
+                                ResourcePerspectives perspectives,
+                                RulesProfile rulesProfile,
+                                RuleFinder ruleFinder) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
     this.handlers = handlers;
     this.workflow = workflow;
     this.updater = updater;
-    this.fileLineContextFactory = fileLineContextFactory;
     this.changeContext = IssueChangeContext.createScan(project.getAnalysisDate());
     this.perspectives = perspectives;
     this.rulesProfile = rulesProfile;
@@ -110,8 +107,6 @@ public class IssueTrackingDecorator implements Decorator {
     // all the issues that are not closed in db before starting this module scan, including manual issues
     Collection<IssueDto> dbOpenIssues = initialOpenIssues.selectAndRemove(resource.getEffectiveKey());
 
-    setScmAuthorOnNewIssues(resource, issues);
-
     IssueTrackingResult trackingResult = tracking.track(resource, dbOpenIssues, issues);
 
     // unmatched = issues that have been resolved + issues on disabled/removed rules + manual issues
@@ -128,23 +123,6 @@ public class IssueTrackingDecorator implements Decorator {
       workflow.doAutomaticTransition(issue, changeContext);
       handlers.execute(issue, changeContext);
       issueCache.put(issue);
-    }
-  }
-
-  @VisibleForTesting
-  void setScmAuthorOnNewIssues(Resource resource, Collection<DefaultIssue> newIssues) {
-    if (ResourceUtils.isFile(resource)) {
-      FileLinesContext fileLineContext = fileLineContextFactory.createFor(resource);
-      for (DefaultIssue issue : newIssues) {
-        Integer line = issue.line();
-        if (line != null) {
-          // TODO When issue is on line 0 then who is the author?
-          String scmAuthorLogin = fileLineContext.getStringValue(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY, line);
-          if (scmAuthorLogin != null) {
-            issue.setAuthorLogin(scmAuthorLogin);
-          }
-        }
-      }
     }
   }
 

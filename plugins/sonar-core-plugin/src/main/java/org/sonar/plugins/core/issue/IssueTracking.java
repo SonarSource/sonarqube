@@ -33,22 +33,11 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.plugins.core.issue.tracking.HashedSequence;
-import org.sonar.plugins.core.issue.tracking.HashedSequenceComparator;
-import org.sonar.plugins.core.issue.tracking.RollingHashSequence;
-import org.sonar.plugins.core.issue.tracking.RollingHashSequenceComparator;
-import org.sonar.plugins.core.issue.tracking.SourceChecksum;
-import org.sonar.plugins.core.issue.tracking.StringText;
-import org.sonar.plugins.core.issue.tracking.StringTextComparator;
-import org.sonar.plugins.core.issue.tracking.ViolationTrackingBlocksRecognizer;
+import org.sonar.plugins.core.issue.tracking.*;
 
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IssueTracking implements BatchExtension {
 
@@ -113,9 +102,9 @@ public class IssueTracking implements BatchExtension {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue, result)) {
         mapIssue(
-            newIssue,
-            findLastIssueWithSameLineAndChecksum(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
-            result);
+          newIssue,
+          findLastIssueWithSameLineAndChecksum(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
+          result);
       }
     }
   }
@@ -190,9 +179,9 @@ public class IssueTracking implements BatchExtension {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue, result)) {
         mapIssue(
-            newIssue,
-            findLastIssueWithSameChecksumAndMessage(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
-            result);
+          newIssue,
+          findLastIssueWithSameChecksumAndMessage(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
+          result);
       }
     }
 
@@ -200,9 +189,9 @@ public class IssueTracking implements BatchExtension {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue, result)) {
         mapIssue(
-            newIssue,
-            findLastIssueWithSameLineAndMessage(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
-            result);
+          newIssue,
+          findLastIssueWithSameLineAndMessage(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
+          result);
       }
     }
 
@@ -211,9 +200,9 @@ public class IssueTracking implements BatchExtension {
     for (DefaultIssue newIssue : newIssues) {
       if (isNotAlreadyMapped(newIssue, result)) {
         mapIssue(
-            newIssue,
-            findLastIssueWithSameChecksum(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
-            result);
+          newIssue,
+          findLastIssueWithSameChecksum(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
+          result);
       }
     }
   }

@@ -27,13 +27,10 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -50,18 +47,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.RETURNS_MOCKS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
@@ -75,23 +61,20 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
   RulesProfile profile = mock(RulesProfile.class);
   RuleFinder ruleFinder = mock(RuleFinder.class);
-  private FileLinesContextFactory fileLineContextFactory;
 
   @Before
   public void init() {
-    fileLineContextFactory = mock(FileLinesContextFactory.class);
     decorator = new IssueTrackingDecorator(
-        issueCache,
-        initialOpenIssues,
-        tracking,
-        handlers,
-        workflow,
-        updater,
-        mock(Project.class),
-        perspectives,
-        profile,
-        ruleFinder,
-        fileLineContextFactory);
+      issueCache,
+      initialOpenIssues,
+      tracking,
+      handlers,
+      workflow,
+      updater,
+      mock(Project.class),
+      perspectives,
+      profile,
+      ruleFinder);
   }
 
   @Test
@@ -239,66 +222,5 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
         return "ABCDE".equals(dead.key()) && !dead.isNew() && dead.isEndOfLife();
       }
     }));
-  }
-
-  @Test
-  public void should_update_scm_author_on_new_issues() {
-    Resource resource = mock(Resource.class);
-    FileLinesContext context = mock(FileLinesContext.class);
-    when(context.getStringValue("authors_by_line", 1)).thenReturn("julien");
-    when(fileLineContextFactory.createFor(resource)).thenReturn(context);
-
-    DefaultIssue newIssue = mock(DefaultIssue.class);
-    when(newIssue.line()).thenReturn(1);
-
-    when(resource.getScope()).thenReturn(Scopes.FILE);
-    decorator.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
-
-    verify(newIssue).setAuthorLogin("julien");
-  }
-
-  @Test
-  public void should_not_update_scm_author_when_resource_is_not_a_file() {
-    Resource resource = mock(Resource.class);
-
-    DefaultIssue newIssue = mock(DefaultIssue.class);
-    when(newIssue.line()).thenReturn(1);
-
-    when(resource.getScope()).thenReturn(Scopes.PROJECT);
-    decorator.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
-
-    verify(newIssue, never()).setAuthorLogin(anyString());
-  }
-
-  @Test
-  public void should_not_update_scm_author_when_issue_is_on_line_0() {
-    Resource resource = mock(Resource.class);
-    FileLinesContext context = mock(FileLinesContext.class);
-    when(context.getStringValue("authors_by_line", 1)).thenReturn("julien");
-    when(fileLineContextFactory.createFor(resource)).thenReturn(context);
-
-    DefaultIssue newIssue = mock(DefaultIssue.class);
-    when(newIssue.line()).thenReturn(null);
-
-    when(resource.getScope()).thenReturn(Scopes.FILE);
-    decorator.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
-
-    verify(newIssue, never()).setAuthorLogin(anyString());
-  }
-
-  @Test
-  public void should_not_update_scm_author_when_unknow_scm_author() {
-    Resource resource = mock(Resource.class);
-    FileLinesContext context = mock(FileLinesContext.class);
-    when(context.getStringValue("authors_by_line", 1)).thenReturn(null);
-    when(fileLineContextFactory.createFor(resource)).thenReturn(context);
-
-    DefaultIssue newIssue = mock(DefaultIssue.class);
-    when(newIssue.line()).thenReturn(1);
-
-    when(resource.getScope()).thenReturn(Scopes.FILE);
-    decorator.setScmAuthorOnNewIssues(resource, Arrays.asList(newIssue));
-
-    verify(newIssue, never()).setAuthorLogin(anyString());
   }
 }
