@@ -1,17 +1,32 @@
-<h1><%= message('roles.page') -%></h1>
+<%= render :partial => 'roles/tabs', :locals => {:selected_tab=>'Projects'} %>
 
-<% if @qualifiers.size>1 %>
-  <ul class="tabs" id="qualifier-tabs">
-    <% @qualifiers.each do |q|
-      css_class = (q==@qualifier ? 'selected' : '')
-    %>
-      <li>
-        <%= link_to message("qualifiers.#{q}"), {:action => 'projects', :qualifier => q}, {:class => css_class, :id => "tab-#{u q}"} -%>
-      </li>
-    <% end %>
-  </ul>
-  <div class="tabs-panel">
-<% end %>
+<div class="tabs-panel marginbottom10 background-gray">
+  <% form_tag({:action => 'projects'}, {:id => 'project-search-form', :method => 'get'}) do %>
+    <div class="table">
+      <div class="project-search top">
+        <span class="note"><%= message('projects_role.criteria.name') -%></span><br/>
+        <% selected_name = @query_result.query.names.to_a.first if @query_result.query.names && @query_result.query.names.size == 1 %>
+        <%= text_field_tag 'names', selected_name, :id => 'search-text' %>
+      </div>
+      <div class="project-search top">
+        <span class="note"><%= message('projects_role.criteria.key') -%></span><br/>
+        <% selected_key = @query_result.query.keys.to_a.first if @query_result.query.keys && @query_result.query.keys.size == 1 %>
+        <%= text_field_tag 'keys', selected_key, :id => 'search-text' %>
+      </div>
+      <div class="project-search top">
+        <span class="note"><%= message('type') -%></span><br/>
+        <% selected_qualifier = @query_result.query.qualifiers.to_a.first if @query_result.query.qualifiers && @query_result.query.qualifiers.size == 1 %>
+        <%= dropdown_tag 'qualifiers', options_for_select(@available_qualifiers, selected_qualifier), {
+            :width => '150px'
+        }, {:id => 'search-qualifier'} -%>
+      </div>
+      <div class="project-search">
+        <br/>
+        <%= submit_tag message('search_verb'), :id => 'submit-search', :onclick => 'submitSearch();' %>
+      </div>
+    </div>
+  <% end %>
+</div>
 
 <div id="project-roles-operations" style="float: right;">
   <ul class="operations">
@@ -22,77 +37,75 @@
   </ul>
 </div>
 
-  <table class="data width100" id="projects">
-    <thead>
-    <tr>
-      <th>
-        <form action="<%= url_for :action => 'projects', :qualifier => @qualifier -%>" method="GET">
-          <input type="hidden" name="qualifier" value="<%= @qualifier -%>"/>
-          <input type="text" name="q" value="<%= params[:q] -%>" id="search_text"/>
-          <input type="submit" value="<%= message('search_verb') -%>" id="search_submit"/>
-        </form>
-      </th>
-      <th><%= message('projects_role.admin') -%></th>
-      <th><%= message('projects_role.user') -%></th>
-      <th><%= message('projects_role.codeviewer') -%></th>
+<table class="data width100" id="projects">
+  <thead>
+  <tr>
+    <th>&nbsp;</th>
+    <th><%= message('projects_role.admin') -%></th>
+    <th><%= message('projects_role.user') -%></th>
+    <th><%= message('projects_role.codeviewer') -%></th>
+  </tr>
+  </thead>
+
+  <%= paginate_java(@query_result.paging, :colspan => 4, :id => 'project-roles-foot', :include_loading_icon => true) { |label, page_id|
+      link_to(label, params.merge({:pageIndex => page_id}))
+    }
+  %>
+
+  <tbody>
+  <% if @projects.empty? %>
+    <tr class="even">
+      <td colspan="4" align="left"><%= message('no_results') %></td>
     </tr>
-    </thead>
+  <% end
 
-    <%= table_pagination(@pagination, :colspan => 4) { |label, page_id| link_to(label, params.merge({:page => page_id}))} -%>
+     @projects.each do |project|
+  %>
+    <tr class="<%= cycle('even', 'odd') -%>">
+      <td valign="top"><b><%= h project.name %></b><br/>
+        <span class="small gray"><%= h project.key -%></span>
+      </td>
+      <td valign="top">
+        <%
+           users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role=='admin' }.map { |ur| ur.user.name })
+           groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='admin' }.map { |gr| group_name(gr.group) })
+        %>
+        <span id="u-admin-<%= u project.kee -%>"><%= users.join(', ') %></span>
+        (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=admin&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-admin-<%= u project.kee -%>">select users</a>)<br/>
+        <span id="g-admin-<%= u project.kee -%>"><%= groups.join(', ') %></span>
+        (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=admin&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-admin-<%= u project.kee -%>">select groups</a>)
+      </td>
+      <td valign="top">
+        <%
+           users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role=='user' }.map { |ur| ur.user.name })
+           groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='user' }.map { |gr| group_name(gr.group) })
+        %>
+        <span id="u-user-<%= u project.kee -%>"><%= users.join(', ') %></span>
+        (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=user&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-user-<%= u project.kee -%>">select users</a>)<br/>
+        <span id="g-user-<%= u project.kee -%>"><%= groups.join(', ') %></span>
+        (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=user&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-user-<%= u project.kee -%>">select groups</a>)
+      </td>
+      <td valign="top">
+        <%
+           users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role=='codeviewer' }.map { |ur| ur.user.name })
+           groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='codeviewer' }.map { |gr| group_name(gr.group) })
+        %>
+        <span id="u-codeviewer-<%= u project.kee -%>"><%= users.join(', ') %></span>
+        (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=codeviewer&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-codeviewer-<%= u project.kee -%>">select users</a>)<br/>
+        <span id="g-codeviewer-<%= u project.kee -%>"><%= groups.join(', ') %></span>
+        (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=codeviewer&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-codeviewer-<%= u project.kee -%>">select groups</a>)
+      </td>
+    </tr>
+  <%
+     end %>
+  </tbody>
+</table>
 
-    <tbody>
-    <% if @projects.empty? %>
-      <tr class="even">
-        <td colspan="4" align="left"><%= message('no_results') %></td>
-      </tr>
-    <% end
-
-       @projects.each do |project|
-    %>
-      <tr class="<%= cycle('even', 'odd') -%>">
-        <td valign="top"><b><%= h project.name %></b><br/>
-          <span class="small gray"><%= h project.key -%></span>
-        </td>
-        <td valign="top">
-          <%
-             users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role=='admin' }.map { |ur| ur.user.name })
-             groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='admin' }.map { |gr| group_name(gr.group) })
-          %>
-          <span id="u-admin-<%= u project.kee -%>"><%= users.join(', ') %></span>
-          (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=admin&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-admin-<%= u project.kee -%>">select users</a>)<br/>
-          <span id="g-admin-<%= u project.kee -%>"><%= groups.join(', ') %></span>
-          (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=admin&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-admin-<%= u project.kee -%>">select groups</a>)
-        </td>
-        <td valign="top">
-          <%
-             users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role=='user' }.map { |ur| ur.user.name })
-             groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='user' }.map { |gr| group_name(gr.group) })
-          %>
-          <span id="u-user-<%= u project.kee -%>"><%= users.join(', ') %></span>
-          (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=user&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-user-<%= u project.kee -%>">select users</a>)<br/>
-          <span id="g-user-<%= u project.kee -%>"><%= groups.join(', ') %></span>
-          (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=user&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-user-<%= u project.kee -%>">select groups</a>)
-        </td>
-        <td valign="top">
-          <%
-             users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role=='codeviewer' }.map { |ur| ur.user.name })
-             groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='codeviewer' }.map { |gr| group_name(gr.group) })
-          %>
-          <span id="u-codeviewer-<%= u project.kee -%>"><%= users.join(', ') %></span>
-          (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=codeviewer&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-codeviewer-<%= u project.kee -%>">select users</a>)<br/>
-          <span id="g-codeviewer-<%= u project.kee -%>"><%= groups.join(', ') %></span>
-          (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=codeviewer&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-codeviewer-<%= u project.kee -%>">select groups</a>)
-        </td>
-      </tr>
-    <%
-       end %>
-    </tbody>
-  </table>
-
-<% if @qualifiers.size>1 %>
-  </div>
-<% end %>
 
 <script>
-  $('search_text').focus();
+  function submitSearch() {
+    $j("#project-search-form").submit();
+  }
+
+  $j('#search-text').focus();
 </script>

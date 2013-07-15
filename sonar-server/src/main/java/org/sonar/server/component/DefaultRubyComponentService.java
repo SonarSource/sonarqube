@@ -19,21 +19,46 @@
  */
 package org.sonar.server.component;
 
+import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.server.util.RubyUtils;
+
+import java.util.Map;
 
 public class DefaultRubyComponentService implements RubyComponentService {
 
   private final ResourceDao resourceDao;
+  private final DefaultComponentFinder finder;
 
-  public DefaultRubyComponentService(ResourceDao resourceDao) {
+  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder) {
     this.resourceDao = resourceDao;
+    this.finder = finder;
   }
 
   @Override
   public Component findByKey(String key) {
     return resourceDao.findByKey(key);
+  }
+
+  public DefaultComponentQueryResult find(Map<String, Object> params) {
+    return finder.find(toQuery(params));
+  }
+
+  static ComponentQuery toQuery(Map<String, Object> props) {
+    ComponentQuery.Builder builder = ComponentQuery.builder()
+      .keys(RubyUtils.toStrings(props.get("keys")))
+      .names(RubyUtils.toStrings(props.get("names")))
+      .qualifiers(RubyUtils.toStrings(props.get("qualifiers")))
+      .pageSize(RubyUtils.toInteger(props.get("pageSize")))
+      .pageIndex(RubyUtils.toInteger(props.get("pageIndex")));
+    String sort = (String) props.get("sort");
+    if (!Strings.isNullOrEmpty(sort)) {
+      builder.sort(sort);
+      builder.asc(RubyUtils.toBoolean(props.get("asc")));
+    }
+    return builder.build();
   }
 
 }

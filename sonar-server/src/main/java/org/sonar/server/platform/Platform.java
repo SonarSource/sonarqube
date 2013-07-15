@@ -70,6 +70,7 @@ import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.charts.ChartFactory;
+import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
@@ -263,6 +264,7 @@ public final class Platform {
     servicesContainer.addSingleton(InternalPermissionTemplateService.class);
 
     // components
+    servicesContainer.addSingleton(DefaultComponentFinder.class);
     servicesContainer.addSingleton(DefaultRubyComponentService.class);
 
     // issues

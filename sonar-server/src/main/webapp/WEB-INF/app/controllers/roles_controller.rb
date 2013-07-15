@@ -32,38 +32,19 @@ class RolesController < ApplicationController
   end
 
   def projects
-    # for backward-compatibility with versions of views plugin that do not depend on sonar 3.0
-    if java_facade.hasPlugin('views')
-      @qualifiers = (['VW'] + java_facade.getQualifiersWithProperty('hasRolePolicy').to_a).compact.uniq
-    else
-      @qualifiers = java_facade.getQualifiersWithProperty('hasRolePolicy')
-    end
-    @qualifier = params[:qualifier] || 'TRK'
+    params['pageSize'] = 25
+    params['qualifiers'] ||= 'TRK'
+    @query_result = Internal.component_api.find(params)
 
+    @available_qualifiers = java_facade.getQualifiersWithProperty('hasRolePolicy').collect { |qualifier| [message("qualifiers.#{qualifier}"), qualifier] }.sort
 
-    conditions_sql = 'projects.enabled=:enabled and projects.qualifier=:qualifier and projects.copy_resource_id is null'
-    conditions_values = {:enabled => true, :qualifier => @qualifier}
-    joins = "INNER JOIN resource_index on resource_index.resource_id=projects.id "
-    joins += "and resource_index.qualifier=#{ActiveRecord::Base::sanitize(@qualifier)} "
-    if params[:q].present?
-      query = params[:q].downcase + '%'
-      joins +="and resource_index.kee like #{ActiveRecord::Base::sanitize(query)}"
-    else
-      joins += "and resource_index.position=0"
-    end
-
-    @pagination = Api::Pagination.new(params)
-    @projects=Project.all(:select => 'distinct(resource_index.resource_id),projects.id,projects.kee,projects.name,resource_index.kee as resource_index_key',
-                           :include => ['user_roles','group_roles'],
-                           :joins => joins,
-                           :conditions => [conditions_sql, conditions_values],
-                           :order => 'resource_index.kee',
-                           :offset => @pagination.offset,
-                           :limit => @pagination.limit)
-    @pagination.count=Project.count(
-        :select => 'distinct(projects.id)',
-        :joins => joins,
-        :conditions => [conditions_sql, conditions_values])
+    # For the moment, we return projects from rails models, but it should be replaced to return java components (this will need methods on ComponentQueryResult to return roles from component)
+    @projects = Project.all(
+        :include => ['user_roles','group_roles'],
+        :conditions => ['kee in (?)', @query_result.components().to_a.collect{|component| component.key()}],
+        # Even if components are already sorted, we must sort them again as this SQL query will not keep order
+        :order => 'name'
+    )
   end
 
   def edit_users

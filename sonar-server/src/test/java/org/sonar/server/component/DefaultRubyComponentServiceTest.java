@@ -21,29 +21,72 @@
 package org.sonar.server.component;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.core.resource.ResourceDao;
 
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class DefaultRubyComponentServiceTest {
 
   private ResourceDao resourceDao;
+  private DefaultComponentFinder finder;
   private DefaultRubyComponentService componentService;
 
   @Before
-  public void before(){
+  public void before() {
     resourceDao = mock(ResourceDao.class);
-    componentService = new DefaultRubyComponentService(resourceDao);
+    finder = mock(DefaultComponentFinder.class);
+    componentService = new DefaultRubyComponentService(resourceDao, finder);
   }
 
-  @Before
+  @Test
   public void should_find_by_key() {
     Component component = mock(Component.class);
     when(resourceDao.findByKey("struts")).thenReturn(component);
 
     assertThat(componentService.findByKey("struts")).isEqualTo(component);
+  }
+
+  @Test
+  public void should_find() {
+    Map<String, Object> map = newHashMap();
+    map.put("keys", newArrayList("org.codehaus.sonar"));
+    map.put("names", newArrayList("Sonar"));
+    map.put("qualifiers", newArrayList("TRK"));
+    map.put("pageSize", 10l);
+    map.put("pageIndex", 50);
+    map.put("sort", "NAME");
+    map.put("asc", true);
+
+    componentService.find(map);
+    verify(finder).find(any(ComponentQuery.class));
+  }
+
+  @Test
+  public void should_create_query_from_parameters() {
+    Map<String, Object> map = newHashMap();
+    map.put("keys", newArrayList("org.codehaus.sonar"));
+    map.put("names", newArrayList("Sonar"));
+    map.put("qualifiers", newArrayList("TRK"));
+    map.put("pageSize", 10l);
+    map.put("pageIndex", 50);
+    map.put("sort", "NAME");
+    map.put("asc", true);
+
+    ComponentQuery query = DefaultRubyComponentService.toQuery(map);
+    assertThat(query.keys()).containsOnly("org.codehaus.sonar");
+    assertThat(query.names()).containsOnly("Sonar");
+    assertThat(query.qualifiers()).containsOnly("TRK");
+    assertThat(query.pageSize()).isEqualTo(10);
+    assertThat(query.pageIndex()).isEqualTo(50);
+    assertThat(query.sort()).isEqualTo(ComponentQuery.SORT_BY_NAME);
+    assertThat(query.asc()).isTrue();
   }
 }

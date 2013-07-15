@@ -19,6 +19,8 @@
  */
 package org.sonar.core.resource;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
@@ -199,12 +201,21 @@ public class ResourceDao {
     }
   }
 
-  public ComponentDto toComponent(ResourceDto resourceDto){
+  public static ComponentDto toComponent(ResourceDto resourceDto){
     return new ComponentDto()
       .setKey(resourceDto.getKey())
       .setLongName(resourceDto.getLongName())
       .setName(resourceDto.getName())
       .setQualifier(resourceDto.getQualifier());
+  }
+
+  public static List<ComponentDto> toComponents(List<ResourceDto> resourceDto){
+    return newArrayList(Iterables.transform(resourceDto, new Function<ResourceDto, ComponentDto>() {
+      @Override
+      public ComponentDto apply(ResourceDto resourceDto) {
+        return toComponent(resourceDto);
+      }
+    }));
   }
 
   public void insertUsingExistingSession(ResourceDto resourceDto, SqlSession session) {

@@ -1,0 +1,13 @@
+<%
+  selected_tab = nil unless defined?(:selected_tab)
+%>
+<ul class="tabs">
+  <li>
+    <a href="<%= url_for :controller => 'roles', :action => 'projects' %>" <%= "class='selected'" if selected_tab=='Projects' -%>
+       id="tab-projects"><%= message('projects') -%></a>
+  </li>
+  <li>
+    <a href="<%= url_for :controller => 'permission_templates', :action => 'index' -%>" <%= "class='selected'" if selected_tab=='Permission templates' -%>
+       id="tab-perm-templates"><%= message('permission_templates') -%></a>
+  </li>
+</ul>
