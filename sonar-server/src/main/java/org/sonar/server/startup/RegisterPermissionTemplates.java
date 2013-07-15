@@ -29,6 +29,7 @@ import org.sonar.core.permission.PermissionDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.platform.PersistentSettings;
 
@@ -81,7 +82,12 @@ public class RegisterPermissionTemplates {
     if(DefaultGroups.isAnyone(groupName)) {
       groupId = null;
     } else {
-      groupId = userDao.selectGroupByName(groupName).getId();
+      GroupDto groupDto = userDao.selectGroupByName(groupName);
+      if(groupDto != null) {
+        groupId = userDao.selectGroupByName(groupName).getId();
+      } else {
+        throw new IllegalArgumentException("Cannot setup default permission for group: " + groupName);
+      }
     }
     permissionDao.addGroupPermission(template.getId(), groupId, permission);
   }
