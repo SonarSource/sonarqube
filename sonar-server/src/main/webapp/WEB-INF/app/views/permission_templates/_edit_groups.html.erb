@@ -4,9 +4,10 @@
   <input type="hidden" name="permission" value="<%= @permission -%>"/>
   <fieldset>
     <div class="modal-head">
-      <h2><%= message("permission_template.edit_permissions") -%></h2>
+      <h2><%= message('permission_template.edit_permissions') -%></h2>
     </div>
     <div class="modal-body">
+      <div id="permission-template-error" class="permission-template error" style="display:none;" />
       <table>
         <tbody>
         <tr>
@@ -37,7 +38,7 @@
       </table>
     </div>
     <div class="modal-foot">
-      <input type="submit" onclick="SelectBox.select_all('to');" value="<%= h message("permission_template.update_permissions") -%>" id="submit-permission-template-update"/>
+      <input type="submit" onclick="SelectBox.select_all('to');" value="<%= h message('permission_template.update_permissions') -%>" id="submit-permission-template-update"/>
       <a href="#" onclick="return closeModalWindow()" id="cancel-update-template"><%= h message('cancel') -%></a>
     </div>
   </fieldset>
@@ -52,9 +53,9 @@
     },
     error: function (xhr, textStatus, errorThrown) {
       var htmlClass = 'permission-template';
-      $j('input[id^="submit-permission-template"]').removeAttr('disabled');
-      $j('.' + htmlClass + '.errors').show();
-      $j('.' + htmlClass + '.errors').html(xhr.responseText);
+      $j('input[id="submit-permission-template-update"]').removeAttr('disabled');
+      $j('.' + htmlClass + '.error').show();
+      $j('.' + htmlClass + '.error').html(xhr.responseText);
     }
   });
 </script>

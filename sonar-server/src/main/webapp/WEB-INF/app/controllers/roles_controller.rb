@@ -50,21 +50,13 @@ class RolesController < ApplicationController
   def edit_users
     @project=Project.by_key(params[:resource]) if params[:resource].present?
     @role = params[:role]
+    render :partial => 'edit_users'
   end
 
   def edit_groups
     @project=Project.by_key(params[:resource]) if params[:resource].present?
     @role = params[:role]
-  end
-
-  def edit_default_project_groups
-    bad_request('Missing role') if params[:role].blank?
-    bad_request('Missing qualifier') if params[:qualifier].blank?
-  end
-
-  def edit_default_project_users
-    bad_request('Missing role') if params[:role].blank?
-    bad_request('Missing qualifier') if params[:qualifier].blank?
+    render :partial => 'edit_groups'
   end
 
   def apply_template_form
@@ -78,7 +70,7 @@ class RolesController < ApplicationController
   def set_users
     bad_request('Missing role') if params[:role].blank?
     UserRole.grant_users(params[:users], params[:role], params[:resource])
-    redirect
+    render :text => '', :status => 200
   end
 
   def set_groups

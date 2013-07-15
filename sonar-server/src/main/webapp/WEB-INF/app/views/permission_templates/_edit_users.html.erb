@@ -7,6 +7,7 @@
       <h2><%= message('permission_template.edit_permissions') -%></h2>
     </div>
     <div class="modal-body">
+      <div id="permission-template-error" class="permission-template error" style="display:none;" />
       <table>
         <tbody>
         <tr>
@@ -46,15 +47,16 @@
 <script>
   SelectBox.init('from');
   SelectBox.init('to');
+
   $j("#permission-template-form").modalForm({
     success: function (data) {
       window.location.reload();
     },
     error: function (xhr, textStatus, errorThrown) {
       var htmlClass = 'permission-template';
-      $j('input[id^="submit-permission-template"]').removeAttr('disabled');
-      $j('.' + htmlClass + '.errors').show();
-      $j('.' + htmlClass + '.errors').html(xhr.responseText);
+      $j('input[id="submit-permission-template-update"]').removeAttr('disabled');
+      $j('.' + htmlClass + '.error').show();
+      $j('.' + htmlClass + '.error').html(xhr.responseText);
     }
   });
 </script>

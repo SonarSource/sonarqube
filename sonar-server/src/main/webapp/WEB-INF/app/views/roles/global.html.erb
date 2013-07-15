@@ -16,11 +16,13 @@
         <span class="small gray"><%= message('global_permissions.' + global_permission_key + '.desc') -%></span></td>
       <td valign="top" style="word-break:break-all;width:30%;">
         <span><%= users(global_permission_key).map(&:name).join(', ') -%></span>
-        (<%= link_to "select", {:action => 'edit_users', :role => global_permission_key, :redirect => 'global'}, :class => 'link-action', :id => "select-users-#{global_permission_key}" -%>)
+        (<%= link_to message('select'), {:action => :edit_users, :role => global_permission_key},
+                     :id => "select-users-#{global_permission_key}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
       </td>
       <td valign="top" style="word-break:break-all;width:30%;">
         <span><%= groups(global_permission_key).map{|g| group_name(g)}.join(', ') %></span>
-        (<%= link_to "select", {:action => 'edit_groups', :role => global_permission_key, :redirect => 'global'}, :class => 'link-action', :id => "select-groups-#{global_permission_key}" -%>)
+        (<%= link_to message('select'), {:action => :edit_groups, :role => global_permission_key},
+                     :id => "select-groups-#{global_permission_key}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
       </td>
     </tr>
     <% end %>

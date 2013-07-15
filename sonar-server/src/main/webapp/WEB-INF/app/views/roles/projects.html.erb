@@ -71,9 +71,11 @@
            groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='admin' }.map { |gr| group_name(gr.group) })
         %>
         <span id="u-admin-<%= u project.kee -%>"><%= users.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=admin&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-admin-<%= u project.kee -%>">select users</a>)<br/>
+        (<%= link_to message('select users'), {:action => :edit_users, :role => 'admin', :resource => project.id},
+                     :id => "selectu-admin-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
         <span id="g-admin-<%= u project.kee -%>"><%= groups.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=admin&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-admin-<%= u project.kee -%>">select groups</a>)
+        (<%= link_to message('select groups'), {:action => :edit_groups, :role => 'admin', :resource => project.id},
+                     :id => "selectg-admin-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
       </td>
       <td valign="top">
         <%
@@ -81,9 +83,11 @@
            groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='user' }.map { |gr| group_name(gr.group) })
         %>
         <span id="u-user-<%= u project.kee -%>"><%= users.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=user&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-user-<%= u project.kee -%>">select users</a>)<br/>
+        (<%= link_to message('select users'), {:action => :edit_users, :role => 'user', :resource => project.id},
+                     :id => "selectu-user-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
         <span id="g-user-<%= u project.kee -%>"><%= groups.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=user&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-user-<%= u project.kee -%>">select groups</a>)
+        (<%= link_to message('select groups'), {:action => :edit_groups, :role => 'user', :resource => project.id},
+                     :id => "selectg-user-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
       </td>
       <td valign="top">
         <%
@@ -91,9 +95,11 @@
            groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='codeviewer' }.map { |gr| group_name(gr.group) })
         %>
         <span id="u-codeviewer-<%= u project.kee -%>"><%= users.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/roles/edit_users?redirect=projects&role=codeviewer&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectu-codeviewer-<%= u project.kee -%>">select users</a>)<br/>
+        (<%= link_to message('select users'), {:action => :edit_users, :role => 'codeviewer', :resource => project.id},
+                     :id => "selectu-codeviewer-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
         <span id="g-codeviewer-<%= u project.kee -%>"><%= groups.join(', ') %></span>
-        (<a href="<%= ApplicationController.root_context -%>/roles/edit_groups?redirect=projects&role=codeviewer&resource=<%= project.id -%>&q=<%= u params[:q] -%>&qualifier=<%= @qualifier -%>&page=<%= params[:page] -%>" class="link-action" id="selectg-codeviewer-<%= u project.kee -%>">select groups</a>)
+        (<%= link_to message('select groups'), {:action => :edit_groups, :role => 'codeviewer', :resource => project.id},
+                     :id => "selectg-codeviewer-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
       </td>
     </tr>
   <%
