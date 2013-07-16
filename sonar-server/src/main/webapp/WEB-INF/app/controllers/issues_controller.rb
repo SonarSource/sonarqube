@@ -158,7 +158,7 @@ class IssuesController < ApplicationController
     render :partial => 'issues/bulk_change_form'
   end
 
-  # POST /issues/bulk_change
+  # POST /issues/bulk_change?criteria
   def bulk_change
     verify_post_request
     Internal.issues.bulkChange(params, params[:comment])

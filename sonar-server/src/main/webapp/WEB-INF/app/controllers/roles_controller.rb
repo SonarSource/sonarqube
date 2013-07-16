@@ -23,14 +23,14 @@ class RolesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   before_filter :admin_required
-  verify :method => :post, :only => [:set_users, :set_groups, :set_default_project_groups, :set_default_project_users], :redirect_to => {:action => 'global'}
+  verify :method => :post, :only => [:set_users, :set_groups], :redirect_to => {:action => 'global'}
 
 
-  # GET REQUESTS
-
+  # GET /roles/global
   def global
   end
 
+  # GET /roles/projects
   def projects
     params['pageSize'] = 25
     params['qualifiers'] ||= 'TRK'
@@ -47,65 +47,47 @@ class RolesController < ApplicationController
     )
   end
 
+  # GET /roles/edit_users[?resource=<resource>]
   def edit_users
     @project=Project.by_key(params[:resource]) if params[:resource].present?
     @role = params[:role]
     render :partial => 'edit_users'
   end
 
-  def edit_groups
-    @project=Project.by_key(params[:resource]) if params[:resource].present?
-    @role = params[:role]
-    render :partial => 'edit_groups'
-  end
-
-  def apply_template_form
-    bad_request('There are currently no results to apply the permission template to') if params[:projects].blank?
-    @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().collect {|pt| [pt.name, pt.key]}
-    render :partial => 'apply_template_form', :locals => {:components => params[:projects], :qualifier => params[:qualifier] || 'TRK'}
-  end
-
-  # POST REQUESTS
-
+  # POST /roles/set_users?users=<users>&role=<role>[&resource=<resource>]
   def set_users
     bad_request('Missing role') if params[:role].blank?
     UserRole.grant_users(params[:users], params[:role], params[:resource])
     render :text => '', :status => 200
   end
 
+  # GET /roles/edit_groups[?resource=<resource>]
+  def edit_groups
+    @project=Project.by_key(params[:resource]) if params[:resource].present?
+    @role = params[:role]
+    render :partial => 'edit_groups'
+  end
+
+  # POST /roles/set_groups?users=<users>&role=<role>[&resource=<resource>]
   def set_groups
     bad_request('Missing role') if params[:role].blank?
     GroupRole.grant_groups(params[:groups], params[:role], params[:resource])
-    redirect
+    render :text => '', :status => 200
   end
 
-  def set_default_project_groups
-    bad_request('Missing role') if params[:role].blank?
-    bad_request('Missing qualifier') if params[:qualifier].blank?
-    group_names = params[:groups] || []
-    Property.set("sonar.role.#{params[:role]}.#{params[:qualifier]}.defaultGroups", group_names.join(','))
-    redirect
+  # GET /roles/apply_template_form?projects=<projects>&qualifier=<qualifier>
+  def apply_template_form
+    bad_request('There are currently no results to apply the permission template to') if params[:projects].blank?
+    @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().collect {|pt| [pt.name, pt.key]}
+    render :partial => 'apply_template_form', :locals => {:components => params[:projects], :qualifier => params[:qualifier] || 'TRK'}
   end
 
-  def set_default_project_users
-    bad_request('Missing role') if params[:role].blank?
-    bad_request('Missing qualifier') if params[:qualifier].blank?
-    logins = params[:logins] || []
-    Property.set("sonar.role.#{params[:role]}.#{params[:qualifier]}.defaultUsers", logins.join(','))
-    redirect
-  end
-
+  # POST /roles/apply_template?criteria
   def apply_template
     verify_post_request
     require_parameters :template_key
     Internal.permissions.applyPermissionTemplate(params)
     redirect_to :action => 'projects'
-  end
-
-  private
-
-  def redirect
-    redirect_to(:action => params['redirect'] || 'global', :q => params[:q], :qualifier => params[:qualifier], :page => params[:page])
   end
 
 end

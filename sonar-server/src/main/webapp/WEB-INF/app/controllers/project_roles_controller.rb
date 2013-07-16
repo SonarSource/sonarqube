@@ -22,39 +22,10 @@ class ProjectRolesController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
-  verify :method => :post, :only => [:grant_users, :grant_groups ], :redirect_to => { :action => 'index' }
-
+  # GET /project_roles/@project
   def index
     @project=Project.by_key(params[:id])
     access_denied unless is_admin?(@project)
-  end
-
-  def edit_users
-    @project=Project.by_key(params[:id])
-    access_denied unless is_admin?(@project)
-    @role = params[:role]
-  end
-
-  def edit_groups
-    @project=Project.by_key(params[:id])
-    access_denied unless is_admin?(@project)
-    @role = params[:role]
-  end
-
-  def grant_users
-    project=Project.by_key(params[:id])
-    access_denied unless is_admin?(project)
-
-    UserRole.grant_users(params[:users], params[:role], project.id)
-    redirect_to(:action => 'index', :id => project.id)
-  end
-
-  def grant_groups
-    project=Project.by_key(params[:id])
-    access_denied unless is_admin?(project)
-
-    GroupRole.grant_groups(params[:groups], params[:role], project.id)
-    redirect_to(:action => 'index', :id => project.id)
   end
 
 end

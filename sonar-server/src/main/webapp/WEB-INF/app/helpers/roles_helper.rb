@@ -21,19 +21,19 @@ module RolesHelper
 
   def users(role, resource_id=nil)
     resource_id=(resource_id.blank? ? nil : resource_id.to_i)
-    user_roles=UserRole.find(:all, :include => 'user', :conditions => {:role => role, :resource_id => resource_id, :users => {:active => true}})
+    user_roles=UserRole.all(:include => 'user', :conditions => {:role => role, :resource_id => resource_id, :users => {:active => true}})
     users = user_roles.map { |ur| ur.user }
     Api::Utils.insensitive_sort(users) { |user| user.name }
   end
 
   def all_users
-    users = User.find(:all, :conditions => ["active=?", true])
+    users = User.all(:conditions => ["active=?", true])
     Api::Utils.insensitive_sort(users) { |user| user.name }
   end
 
   def groups(role, resource_id=nil)
     resource_id=(resource_id.blank? ? nil : resource_id.to_i)
-    group_roles=GroupRole.find(:all, :include => 'group', :conditions => {:role => role, :resource_id => resource_id})
+    group_roles=GroupRole.all(:include => 'group', :conditions => {:role => role, :resource_id => resource_id})
     groups = group_roles.map { |ur| ur.group }
     Api::Utils.insensitive_sort(groups) { |group| group ? group.name : '' }
   end
@@ -56,7 +56,7 @@ module RolesHelper
     # verify that groups still exist
     result = []
     if group_names.size>0
-      groups = Group.find(:all, :conditions => ['name in (?)', group_names])
+      groups = Group.all(:conditions => ['name in (?)', group_names])
       result = Api::Utils.insensitive_sort(groups.map{|g| g.name})
       result = ['Anyone'].concat(result) if group_names.include? 'Anyone'
     end
@@ -65,7 +65,7 @@ module RolesHelper
 
   def default_project_users(role, qualifier)
     logins=(controller.java_facade.getConfigurationValue("sonar.role.#{role}.#{qualifier}.defaultUsers") || '').split(',')
-    users = User.find(:all, :conditions => ['login in (?) and active=?', logins, true])
+    users = User.all(:conditions => ['login in (?) and active=?', logins, true])
     Api::Utils.insensitive_sort(users) { |user| user.name }
   end
 

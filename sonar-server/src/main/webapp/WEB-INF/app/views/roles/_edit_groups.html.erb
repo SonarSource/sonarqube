@@ -1,10 +1,11 @@
 <%
-  granted_groups=groups(@role, params[:resource])
+  project_id = @project ? @project.id : nil
+  granted_groups=groups(@role, project_id)
   ungranted_groups=all_groups - granted_groups
 %>
 <div>
-  <form id="permission-groups-form" action="<%= url_for :action => 'set_groups' -%>" method="post">
-    <input name="resource" value="<%= params[:resource] -%>" type="hidden"/>
+  <form id="permission-groups-form" action="<%= url_for :controller => :roles, :action => :set_groups -%>" method="post">
+    <input name="resource" value="<%= project_id -%>" type="hidden"/>
     <input name="role" value="<%= @role -%>" type="hidden"/>
     <fieldset>
       <div class="modal-head">

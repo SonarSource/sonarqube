@@ -1,9 +1,10 @@
 <%
-   granted_users=users(@role, params[:resource])
+   project_id = @project ? @project.id : nil
+   granted_users=users(@role, project_id)
    ungranted_users=(all_users - granted_users)
 %>
-<form id="permission-users-form" action="<%= url_for :action => 'set_users' -%>" method="post">
-  <input name="resource" value="<%= params[:resource] -%>" type="hidden"/>
+<form id="permission-users-form" action="<%= url_for :controller => :roles, :action => :set_users -%>" method="post">
+  <input name="resource" value="<%= project_id -%>" type="hidden"/>
   <input name="role" value="<%= @role -%>" type="hidden" />
   <fieldset>
     <div class="modal-head">
