@@ -212,8 +212,8 @@ public class ResourceDao {
   public static List<ComponentDto> toComponents(List<ResourceDto> resourceDto){
     return newArrayList(Iterables.transform(resourceDto, new Function<ResourceDto, ComponentDto>() {
       @Override
-      public ComponentDto apply(ResourceDto resourceDto) {
-        return toComponent(resourceDto);
+      public ComponentDto apply(@Nullable ResourceDto resourceDto) {
+        return resourceDto == null ? null : toComponent(resourceDto);
       }
     }));
   }
