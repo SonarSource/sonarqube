@@ -124,13 +124,6 @@ class IssueController < ApplicationController
     render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
   end
 
-  # Form in a modal window to delete comment
-  def delete_comment_form
-    verify_ajax_request
-    require_parameters :id
-    render :partial => 'issue/delete_comment_form'
-  end
-
   # Delete an existing comment
   def delete_comment
     verify_post_request

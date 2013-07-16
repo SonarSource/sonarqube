@@ -100,11 +100,20 @@ function doIssueTransition(elt, transition) {
   return doIssueAction(elt, 'transition', parameters);
 }
 
-function formDeleteIssueComment(elt) {
+function deleteIssueComment(elt, confirmMsg) {
   var commentElt = $j(elt).closest("[data-comment-key]");
-  var htmlId = commentElt.attr('id');
   var commentKey = commentElt.attr('data-comment-key');
-  return openModalWindow(baseUrl + '/issue/delete_comment_form/' + commentKey + '?htmlId=' + htmlId, {});
+  var issueElt = commentElt.closest('[data-issue-key]');
+  if (confirm(confirmMsg)) {
+    $j.ajax({
+      type: "POST",
+      url: baseUrl + "/issue/delete_comment?id=" + commentKey,
+      success: function (htmlResponse) {
+        issueElt.replaceWith($j(htmlResponse));
+      }
+    });
+  }
+  return false;
 }
 
 function formEditIssueComment(elt) {
