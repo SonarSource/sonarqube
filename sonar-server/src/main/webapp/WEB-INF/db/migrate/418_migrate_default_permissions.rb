@@ -113,18 +113,22 @@ class MigrateDefaultPermissions < ActiveRecord::Migration
         role = key_fields[2]
         if 'defaultGroups'.eql?(key_fields[4])
           value_fields.each do |group_name|
-            group_id = 'Anyone'.eql?(group_name) ? nil : Group.find_by_name(group_name).id
-            PermissionTemplateGroup.create(:group_id => group_id, :permission_reference => role, :template_id => qualifier_template.id)
+            if 'Anyone'.eql?(group_name) || !Group.find_by_name(group_name).nil?
+              group_id = 'Anyone'.eql?(group_name) ? nil : Group.find_by_name(group_name).id
+              PermissionTemplateGroup.create(:group_id => group_id, :permission_reference => role, :template_id => qualifier_template.id)
+            end
           end
         else
-          value_fields.each do |user_name|
-            user = User.find_by_name(user_name)
-            PermissionTemplateUser.create(:user_id => user.id, :permission_reference => role, :template_id => qualifier_template.id)
+          value_fields.each do |user_login|
+            user = User.find_by_login(user_login)
+            unless user.nil?
+              PermissionTemplateUser.create(:user_id => user.id, :permission_reference => role, :template_id => qualifier_template.id)
+            end
           end
         end
       end
 
-      Property.create(:prop_key => "sonar.permission.template.#{qualifier}.default", :text_value => qualifier_template.id.to_s)
+      Property.create(:prop_key => "sonar.permission.template.#{qualifier}.default", :text_value => qualifier_template.kee)
 
     end
 
