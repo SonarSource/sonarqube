@@ -32,9 +32,6 @@ import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -66,12 +63,12 @@ public class IssueTrackingDecorator implements Decorator {
   private final RuleFinder ruleFinder;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
-                                IssueHandlers handlers, IssueWorkflow workflow,
-                                IssueUpdater updater,
-                                Project project,
-                                ResourcePerspectives perspectives,
-                                RulesProfile rulesProfile,
-                                RuleFinder ruleFinder) {
+      IssueHandlers handlers, IssueWorkflow workflow,
+      IssueUpdater updater,
+      Project project,
+      ResourcePerspectives perspectives,
+      RulesProfile rulesProfile,
+      RuleFinder ruleFinder) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;

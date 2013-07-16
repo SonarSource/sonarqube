@@ -523,7 +523,6 @@ public final class CorePlugin extends SonarPlugin {
 
         // Notify alerts on my favourite projects
         NewAlerts.class,
-        NewAlerts.newMetadata()
-        );
+        NewAlerts.newMetadata());
   }
 }
