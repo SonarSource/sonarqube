@@ -29,7 +29,7 @@ SonarWidgets.StackArea = function (divId) {
   this.colors = function (colors) {
     this.wColors = colors;
     return this;
-  }
+  };
 };
 
 SonarWidgets.StackArea.prototype.render = function () {
@@ -49,7 +49,7 @@ SonarWidgets.StackArea.prototype.render = function () {
     for (j = 0; j < metrics.size(); j++) {
       total[i] += trendData[j][i].y;
     }
-    total[i] = "" + Math.round(total[i] * 10) / 10
+    total[i] = "" + Math.round(total[i] * 10) / 10;
   }
 
   /* Computes the highest Y value */
@@ -67,7 +67,8 @@ SonarWidgets.StackArea.prototype.render = function () {
   /* Computes minimum width of left margin according to the max Y value so that the Y-axis is correctly displayed */
   var leftMargin = 25;
   var maxYLength = (Math.round(maxY) + "").length;
-  minMargin = maxYLength * 7 + Math.floor(maxYLength / 3) * 2; // first part is for numbers and second for commas (1000-separator)
+  // first part is for numbers and second for commas (1000-separator)
+  minMargin = maxYLength * 7 + Math.floor(maxYLength / 3) * 2;
   if (minMargin > leftMargin) {
     leftMargin = minMargin;
   }
@@ -81,7 +82,7 @@ SonarWidgets.StackArea.prototype.render = function () {
     return d;
   })),
     function (d) {
-      return d.x
+      return d.x;
     }).range(0, w);
   var y = pv.Scale.linear(0, maxY).range(0, h - headerHeight);
   var idx_numbers = trendData[0].size();
@@ -206,25 +207,25 @@ SonarWidgets.StackArea.prototype.render = function () {
       return s.e.size() > 0;
     })
     .fillStyle(function () {
-      return this.index == idx ? eventHoverColor : eventColor;
+      return this.index === idx ? eventHoverColor : eventColor;
     })
     .add(pv.Dot)
     .radius(3)
     .visible(function (s) {
-      return s.e.size() > 0 && this.index == idx;
+      return s.e.size() > 0 && this.index === idx;
     })
     .left(w / 2 + 8)
     .top(24)
     .shape("triangle")
     .fillStyle(function () {
-      return this.index == idx ? eventHoverColor : eventColor;
+      return this.index === idx ? eventHoverColor : eventColor;
     })
     .strokeStyle("grey")
     .anchor("right")
     .add(pv.Label)
     .font(headerFont)
     .text(function (s) {
-      return s.e.size() == 0 ? "" : s.e[0] + ( s.e[1] ? " (... +" + (s.e.size() - 1) + ")" : "");
+      return s.e.size() === 0 ? "" : s.e[0] + ( s.e[1] ? " (... +" + (s.e.size() - 1) + ")" : "");
     });
 
   /* An invisible bar to capture events (without flickering). */
@@ -336,7 +337,7 @@ SonarWidgets.Timeline.prototype.render = function () {
     return d;
   })),
     function (d) {
-      return d.x
+      return d.x;
     }).range(0, w);
   var y = new Array(trendData.size());
   for (var i = 0; i < trendData.size(); i++) {

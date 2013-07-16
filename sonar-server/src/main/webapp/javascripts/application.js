@@ -44,7 +44,7 @@ var SelectBox = {
   init: function (id) {
     var box = document.getElementById(id);
     var node;
-    SelectBox.cache[id] = new Array();
+    SelectBox.cache[id] = [];
     var cache = SelectBox.cache[id];
     for (var i = 0; (node = box.options[i]); i++) {
       cache.push({value: node.value, text: node.text, displayed: 1});
@@ -53,7 +53,8 @@ var SelectBox = {
   redisplay: function (id) {
     // Repopulate HTML select box from cache
     var box = document.getElementById(id);
-    box.options.length = 0; // clear all options
+    // clear all options
+    box.options.length = 0;
     for (var i = 0, j = SelectBox.cache[id].length; i < j; i++) {
       var node = SelectBox.cache[id][i];
       if (node.displayed) {
