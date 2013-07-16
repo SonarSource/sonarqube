@@ -121,6 +121,7 @@
    paths=[]
    rids=[]
    first_column=true
+   last_base_snapshot=nil
    @drilldown.columns.each_with_index do |column, index|
 %>
   <% if first_column %>
@@ -173,6 +174,9 @@
   <% end
      first_column = column.switch?
      rids<<column.selected_snapshot.project_id if column.selected_snapshot
+
+     # column.base_snapshot contain the real snapshot that is selected. We have to use in when loading issues in order to corretly load issues, for instance on views.
+     last_base_snapshot = column.base_snapshot
      end
   %>
 
@@ -190,11 +194,7 @@
     var params = {
       pageSize: '10',
       resolved: 'false',
-      <% if rids.empty? %>
-        componentRoots: '<%= @snapshot.project.key %>',
-      <% else %>
-        componentRoots: '<%= Project.by_key(rids.last).key %>',
-      <% end %>
+      componentRoots: '<%= last_base_snapshot ? last_base_snapshot.project.key : @snapshot.project.key %>',
       <% if @rule %>
         rules: '<%= @rule.plugin_name + ':' + @rule.plugin_rule_key %>',
       <% end %>
