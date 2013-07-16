@@ -33,6 +33,8 @@ import java.util.Map;
 
 public class PropertiesBackup implements Backupable {
 
+  private static final String PERMISSION_PROPERTIES_PREFIX = "sonar.permission.template";
+
   private final PersistentSettings persistentSettings;
 
   public PropertiesBackup(PersistentSettings persistentSettings) {
@@ -43,8 +45,7 @@ public class PropertiesBackup implements Backupable {
     List<Property> xmlProperties = Lists.newArrayList();
 
     for (PropertyDto property : persistentSettings.getGlobalProperties()) {
-      // "sonar.core.id" must never be restored, it is unique for a server and it created once at the 1rst server startup
-      if (!CoreProperties.SERVER_ID.equals(property.getKey())) {
+      if (shouldBeExported(property.getKey())) {
         xmlProperties.add(new Property(property.getKey(), property.getValue()));
       }
     }
@@ -54,24 +55,39 @@ public class PropertiesBackup implements Backupable {
   public void importXml(SonarConfig sonarConfig) {
     LoggerFactory.getLogger(getClass()).info("Restore properties");
 
-    // "sonar.core.id" property should not be cleared, because it is the unique key used to identify the server
-    // and it is used by the batch to verify that it connects to the same DB as the remote server (see SONAR-3126).
-    String serverId = persistentSettings.getString(CoreProperties.SERVER_ID);
-    String serverStartTime = persistentSettings.getString(CoreProperties.SERVER_STARTTIME);
-
     Map<String, String> properties = Maps.newHashMap();
+
     if (sonarConfig.getProperties() != null && !sonarConfig.getProperties().isEmpty()) {
       for (Property xmlProperty : sonarConfig.getProperties()) {
         properties.put(xmlProperty.getKey(), xmlProperty.getValue());
       }
     }
-    properties.put(CoreProperties.SERVER_ID, serverId);
-    properties.put(CoreProperties.SERVER_STARTTIME, serverStartTime);
+
+    for (PropertyDto property : persistentSettings.getGlobalProperties()) {
+      if (shouldNotBeErased(property.getKey())) {
+        properties.put(property.getKey(), property.getValue());
+      }
+    }
+
     persistentSettings.deleteProperties();
     persistentSettings.saveProperties(properties);
   }
 
   public void configure(XStream xStream) {
     xStream.alias("property", Property.class);
+  }
+
+  private boolean shouldBeExported(String propertyKey) {
+    // "sonar.core.id" must never be restored, it is unique for a server and it created once at the 1rst server startup
+    // default permissions properties should not be exported as they reference permission_templates entries in the DB
+    return !CoreProperties.SERVER_ID.equals(propertyKey) && !propertyKey.startsWith(PERMISSION_PROPERTIES_PREFIX);
+  }
+
+  private boolean shouldNotBeErased(String propertyKey) {
+    // "sonar.core.id" property should not be cleared, because it is the unique key used to identify the server
+    // and it is used by the batch to verify that it connects to the same DB as the remote server (see SONAR-3126).
+    // default permissions properties should not be erased as they reference permission_templates entries in the DB
+    return CoreProperties.SERVER_ID.equals(propertyKey) || CoreProperties.SERVER_STARTTIME.equals(propertyKey)
+      || propertyKey.startsWith(PERMISSION_PROPERTIES_PREFIX);
   }
 }
