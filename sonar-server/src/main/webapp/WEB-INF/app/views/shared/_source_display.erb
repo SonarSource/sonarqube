@@ -119,7 +119,11 @@
 </table>
 
 <% if filtered && !has_displayed_lines %>
-  <p style="padding: 10px"><%= message('no_lines_match_your_filter_criteria') -%></p>
+  <% if display_issues && !has_global_issues %>
+    <%= render :partial => 'shared/no_issues' -%>
+  <% elsif display_coverage  %>
+    <p style="padding: 10px"><%= message('no_lines_match_your_filter_criteria') -%></p>
+  <% end %>
 <% end %>
 
 
