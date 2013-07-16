@@ -40,7 +40,7 @@
         <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
         <%= user_select_tag('assign.assignee', :html_id => 'assignee', :open => false, :selected_user => current_user,
                             :include_choices => {'' => escape_javascript(message('unassigned')), current_user.login => escape_javascript(message('assigned_to_me'))}) -%>
-        <span style="float:right;">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
+        <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
       </div>
       <%
          if project_key
@@ -60,7 +60,7 @@
           </label>
           <input id="plan-action" name="actions[]" type="checkbox" value="plan"/>
           <%= dropdown_tag('plan.plan', plan_options, {:show_search_box => false}, {:id => 'plan'}) -%>
-          <span style="float:right;">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
+          <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
         </div>
         <% end %>
       <% end %>
@@ -71,7 +71,7 @@
         <input id="set-severity-action" name="actions[]" type="checkbox" value="set_severity"/>
         <%= severity_dropdown_tag('set_severity.severity', severitiy_select_option_tags, {:show_search_box => false},
                          {:id => 'severity'}) -%>
-        <span style="float:right;">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
+        <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
       </div>
       <% end %>
 
@@ -83,7 +83,7 @@
         <% transitions_by_issues.keys.sort.each do |transition| %>
           <input type="radio" id="transition-<%= transition -%>" name="do_transition.transition" value="<%= transition -%>"
                  onClick="addTransitionAction();">&nbsp;<%= message("issue.transition.#{transition}") -%>
-          <span style="float:right;">(<%= message('issue_bulk_change.x_issues', :params => transitions_by_issues[transition].to_s) %>)</span><br/>
+          <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => transitions_by_issues[transition].to_s) %>)</span><br/>
       <% end %>
       </div>
       <% end %>
