@@ -89,4 +89,21 @@ public class DefaultRubyComponentServiceTest {
     assertThat(query.sort()).isEqualTo(ComponentQuery.SORT_BY_NAME);
     assertThat(query.asc()).isTrue();
   }
+
+  @Test
+  public void should_create_query_with_default_paging_from_parameters() {
+    Map<String, Object> map = newHashMap();
+    map.put("keys", newArrayList("org.codehaus.sonar"));
+    map.put("names", newArrayList("Sonar"));
+    map.put("qualifiers", newArrayList("TRK"));
+
+    ComponentQuery query = DefaultRubyComponentService.toQuery(map);
+    assertThat(query.keys()).containsOnly("org.codehaus.sonar");
+    assertThat(query.names()).containsOnly("Sonar");
+    assertThat(query.qualifiers()).containsOnly("TRK");
+    assertThat(query.pageSize()).isEqualTo(100);
+    assertThat(query.pageIndex()).isEqualTo(1);
+    assertThat(query.sort()).isEqualTo(ComponentQuery.SORT_BY_NAME);
+    assertThat(query.asc()).isTrue();
+  }
 }

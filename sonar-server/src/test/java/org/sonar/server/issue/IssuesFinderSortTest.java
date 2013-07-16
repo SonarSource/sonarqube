@@ -31,6 +31,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IssuesFinderSortTest {
 
@@ -88,6 +90,24 @@ public class IssuesFinderSortTest {
     Assertions.assertThat(result.get(0).getSeverity()).isEqualTo("INFO");
     Assertions.assertThat(result.get(1).getSeverity()).isEqualTo("MAJOR");
     Assertions.assertThat(result.get(2).getSeverity()).isEqualTo("BLOCKER");
+  }
+
+  @Test
+  public void should_sort_by_desc_severity() {
+    IssueDto issue1 = new IssueDto().setId(1L).setSeverity("INFO");
+    IssueDto issue2 = new IssueDto().setId(2L).setSeverity("BLOCKER");
+    IssueDto issue3 = new IssueDto().setId(3L).setSeverity("MAJOR");
+    List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
+
+    IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(false).build();
+    IssuesFinderSort issuesFinderSort = new IssuesFinderSort(dtoList, query);
+
+    List<IssueDto> result = newArrayList(issuesFinderSort.sort());
+
+    Assertions.assertThat(result).hasSize(3);
+    Assertions.assertThat(result.get(0).getSeverity()).isEqualTo("BLOCKER");
+    Assertions.assertThat(result.get(1).getSeverity()).isEqualTo("MAJOR");
+    Assertions.assertThat(result.get(2).getSeverity()).isEqualTo("INFO");
   }
 
   @Test
@@ -154,6 +174,38 @@ public class IssuesFinderSortTest {
     Assertions.assertThat(result.get(0).getIssueCloseDate()).isEqualTo(date3);
     Assertions.assertThat(result.get(1).getIssueCloseDate()).isEqualTo(date2);
     Assertions.assertThat(result.get(2).getIssueCloseDate()).isEqualTo(date1);
+  }
+
+  @Test
+  public void should_not_sort_with_null_sort() {
+    IssueDto issue1 = new IssueDto().setId(1L).setAssignee("perceval");
+    IssueDto issue2 = new IssueDto().setId(2L).setAssignee("arthur");
+    IssueDto issue3 = new IssueDto().setId(3L).setAssignee("vincent");
+    IssueDto issue4 = new IssueDto().setId(4L).setAssignee(null);
+    List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3, issue4);
+
+    IssueQuery query = IssueQuery.builder().sort(null).build();
+    IssuesFinderSort issuesFinderSort = new IssuesFinderSort(dtoList, query);
+
+    List<IssueDto> result = newArrayList(issuesFinderSort.sort());
+
+    assertThat(result).hasSize(4);
+    assertThat(result.get(0).getAssignee()).isEqualTo("perceval");
+    assertThat(result.get(1).getAssignee()).isEqualTo("arthur");
+    assertThat(result.get(2).getAssignee()).isEqualTo("vincent");
+    assertThat(result.get(3).getAssignee()).isNull();
+  }
+
+  @Test
+  public void should_fail_to_sort_with_unknown_sort() {
+    IssueQuery query = mock(IssueQuery.class);
+    when(query.sort()).thenReturn("unknown");
+    IssuesFinderSort issuesFinderSort = new IssuesFinderSort(null, query);
+    try {
+      issuesFinderSort.sort();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Cannot sort on field : unknown");
+    }
   }
 
 }

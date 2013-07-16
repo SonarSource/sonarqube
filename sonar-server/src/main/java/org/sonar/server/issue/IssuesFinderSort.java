@@ -70,7 +70,7 @@ class IssuesFinderSort {
     if (IssueQuery.SORT_BY_CLOSE_DATE.equals(sort)) {
       return new CloseDateSortIssueProcessor();
     }
-    throw new IllegalArgumentException("Cannot sort issues on field : " + sort);
+    throw new IllegalArgumentException("Cannot sort on field : " + sort);
   }
 
   abstract static class IssueProcessor {

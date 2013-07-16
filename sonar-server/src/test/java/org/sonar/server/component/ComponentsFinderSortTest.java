@@ -28,11 +28,13 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComponentsFinderSortTest {
 
   @Test
-  public void should_sort_by_name() {
+  public void should_sort_by_asc_name() {
     List<? extends Component> dtoList = newArrayList(
       new ComponentDto().setKey("org.codehaus.sonar").setName("Sonar"),
       new ComponentDto().setKey("org.apache.tika:tika").setName("Apache Tika"),
@@ -41,15 +43,69 @@ public class ComponentsFinderSortTest {
     );
 
     ComponentQuery query = ComponentQuery.builder().sort(ComponentQuery.SORT_BY_NAME).asc(true).build();
-    ComponentsFinderSort issuesFinderSort = new ComponentsFinderSort(dtoList, query);
+    ComponentsFinderSort finderSort = new ComponentsFinderSort(dtoList, query);
 
-    List<Component> result = newArrayList(issuesFinderSort.sort());
+    List<Component> result = newArrayList(finderSort.sort());
 
     assertThat(result).hasSize(4);
     assertThat(result.get(0).name()).isEqualTo("Apache Tika");
     assertThat(result.get(1).name()).isEqualTo("PicoContainer Parent");
     assertThat(result.get(2).name()).isEqualTo("Sonar");
     assertThat(result.get(3).name()).isNull();
+  }
+
+  @Test
+  public void should_sort_by_desc_name() {
+    List<? extends Component> dtoList = newArrayList(
+      new ComponentDto().setKey("org.codehaus.sonar").setName("Sonar"),
+      new ComponentDto().setKey("org.apache.tika:tika").setName("Apache Tika"),
+      new ComponentDto().setKey("org.picocontainer:picocontainer-parent").setName("PicoContainer Parent"),
+      new ComponentDto().setKey("org.codehaus.sample")
+    );
+
+    ComponentQuery query = ComponentQuery.builder().sort(ComponentQuery.SORT_BY_NAME).asc(false).build();
+    ComponentsFinderSort finderSort = new ComponentsFinderSort(dtoList, query);
+
+    List<Component> result = newArrayList(finderSort.sort());
+
+    assertThat(result).hasSize(4);
+    assertThat(result.get(0).name()).isNull();
+    assertThat(result.get(1).name()).isEqualTo("Sonar");
+    assertThat(result.get(2).name()).isEqualTo("PicoContainer Parent");
+    assertThat(result.get(3).name()).isEqualTo("Apache Tika");
+  }
+
+  @Test
+  public void should_not_sort_with_null_sort() {
+    List<? extends Component> dtoList = newArrayList(
+      new ComponentDto().setKey("org.codehaus.sonar").setName("Sonar"),
+      new ComponentDto().setKey("org.apache.tika:tika").setName("Apache Tika"),
+      new ComponentDto().setKey("org.picocontainer:picocontainer-parent").setName("PicoContainer Parent"),
+      new ComponentDto().setKey("org.codehaus.sample")
+    );
+
+    ComponentQuery query = ComponentQuery.builder().sort(null).build();
+    ComponentsFinderSort finderSort = new ComponentsFinderSort(dtoList, query);
+
+    List<Component> result = newArrayList(finderSort.sort());
+
+    assertThat(result).hasSize(4);
+    assertThat(result.get(0).name()).isEqualTo("Sonar");
+    assertThat(result.get(1).name()).isEqualTo("Apache Tika");
+    assertThat(result.get(2).name()).isEqualTo("PicoContainer Parent");
+    assertThat(result.get(3).name()).isNull();
+  }
+
+  @Test
+  public void should_fail_to_sort_with_unknown_sort() {
+    ComponentQuery query = mock(ComponentQuery.class);
+    when(query.sort()).thenReturn("unknown");
+    ComponentsFinderSort finderSort = new ComponentsFinderSort(null, query);
+    try {
+      finderSort.sort();
+    } catch (Exception e) {
+       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Cannot sort on field : unknown");
+    }
   }
 
 }
