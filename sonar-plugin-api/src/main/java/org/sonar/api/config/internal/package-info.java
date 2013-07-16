@@ -17,21 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.config;
+@ParametersAreNonnullByDefault
+package org.sonar.api.config.internal;
 
-import org.junit.Test;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class CategoryTest {
-
-  @Test
-  public void category_key_is_case_insentive() {
-    assertThat(new Category("Licenses")).isEqualTo(new Category("licenses"));
-  }
-
-  @Test
-  public void should_preserve_original_key() {
-    assertThat(new Category("Licenses").originalKey()).isEqualTo("Licenses");
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

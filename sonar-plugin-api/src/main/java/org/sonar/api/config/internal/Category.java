@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.config;
+package org.sonar.api.config.internal;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -35,7 +35,7 @@ public class Category {
     this(originalKey, false);
   }
 
-  Category(String originalKey, boolean special) {
+  public Category(String originalKey, boolean special) {
     this.originalKey = originalKey;
     this.special = special;
   }

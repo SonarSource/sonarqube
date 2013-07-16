@@ -282,7 +282,7 @@ class ApplicationController < ActionController::Base
       default_category = @categories.empty? ? nil : @categories[0]
       @category = default_category
     else
-      @category = @categories.select {|c| c == Java::OrgSonarApiConfig::Category.new(params[:category])}.first
+      @category = @categories.select {|c| c == Java::OrgSonarApiConfigInternal::Category.new(params[:category])}.first
       not_found('category') if @category.nil?
     end
 
@@ -296,7 +296,7 @@ class ApplicationController < ActionController::Base
                   ((@subcategories_per_categories[@category].include? @category) ? @category : @subcategories_per_categories[@category][0])
         @subcategory = default_subcategory
       else
-        @subcategory = @subcategories_per_categories[@category].select {|s| s == Java::OrgSonarApiConfig::SubCategory.new(params[:subcategory])}.first
+        @subcategory = @subcategories_per_categories[@category].select {|s| s == Java::OrgSonarApiConfigInternal::SubCategory.new(params[:subcategory])}.first
         not_found('subcategory') if @subcategory.nil?
       end
 

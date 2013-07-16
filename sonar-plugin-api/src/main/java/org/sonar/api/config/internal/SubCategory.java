@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.config;
+package org.sonar.api.config.internal;
+
 
 /**
  * @since 3.7
@@ -28,7 +29,7 @@ public class SubCategory extends Category {
     super(originalKey);
   }
 
-  SubCategory(String originalKey, boolean special) {
+  public SubCategory(String originalKey, boolean special) {
     super(originalKey, special);
   }
 

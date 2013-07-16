@@ -19,6 +19,9 @@
  */
 package org.sonar.api.config;
 
+import org.sonar.api.config.internal.SubCategory;
+
+import org.sonar.api.config.internal.Category;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
