@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.wsclient.user;
+package org.sonar.wsclient.user.internal;
 
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.internal.HttpRequestFactory;
+import org.sonar.wsclient.user.User;
+import org.sonar.wsclient.user.UserClient;
+import org.sonar.wsclient.user.UserParameters;
+import org.sonar.wsclient.user.UserQuery;
 
 import java.util.ArrayList;
 import java.util.HashMap;

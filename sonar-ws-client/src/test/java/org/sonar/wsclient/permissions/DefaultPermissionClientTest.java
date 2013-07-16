@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
+import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.MapAssert.entry;

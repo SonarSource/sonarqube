@@ -24,10 +24,10 @@ import org.sonar.wsclient.issue.ActionPlanClient;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.internal.DefaultActionPlanClient;
 import org.sonar.wsclient.issue.internal.DefaultIssueClient;
-import org.sonar.wsclient.permissions.DefaultPermissionClient;
 import org.sonar.wsclient.permissions.PermissionClient;
-import org.sonar.wsclient.user.DefaultUserClient;
+import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
 import org.sonar.wsclient.user.UserClient;
+import org.sonar.wsclient.user.internal.DefaultUserClient;
 
 import javax.annotation.Nullable;
 

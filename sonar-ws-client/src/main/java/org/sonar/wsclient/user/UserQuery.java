@@ -58,7 +58,7 @@ public class UserQuery {
     return this;
   }
 
-  Map<String, Object> urlParams() {
+  public Map<String, Object> urlParams() {
     return params;
   }
 }

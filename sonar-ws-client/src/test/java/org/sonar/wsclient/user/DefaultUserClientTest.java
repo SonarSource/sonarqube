@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
+import org.sonar.wsclient.user.internal.DefaultUserClient;
 
 import java.util.Arrays;
 import java.util.List;

@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.wsclient.permissions;
+package org.sonar.wsclient.permissions.internal;
 
 import org.sonar.wsclient.internal.HttpRequestFactory;
+import org.sonar.wsclient.permissions.PermissionClient;
+import org.sonar.wsclient.permissions.PermissionParameters;
 
 public class DefaultPermissionClient implements PermissionClient {
 
