@@ -72,6 +72,11 @@ public interface CoreProperties {
    */
   String CATEGORY_EXCLUSIONS = "exclusions";
 
+  /**
+   * @since 3.7
+   */
+  String CATEGORY_LICENSES = "licenses";
+
   /* Global settings */
   String SONAR_HOME = "SONAR_HOME";
   String PROJECT_BRANCH_PROPERTY = "sonar.branch";

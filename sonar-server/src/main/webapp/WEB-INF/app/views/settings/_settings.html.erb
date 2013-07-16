@@ -12,8 +12,8 @@
           </thead>
           <tbody>
           <% @categories.each do |category| -%>
-            <tr id="select_<%= category -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category==category -%>">
-              <td class="category"><%= link_to category_name(category), :category => category -%></td>
+            <tr id="select_<%= category.key -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category.key==category.key -%>">
+              <td class="category"><%= link_to category_name(category), :category => category.key -%></td>
             </tr>
           <% end -%>
           </tbody>

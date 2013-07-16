@@ -21,15 +21,18 @@ module SettingsHelper
   include PropertiesHelper
 
   def category_name(category)
-    message("property.category.#{category}", :default => category)
+    # Try with lowercase key then with original key for backward compatibility
+    message("property.category.#{category.key}", :default => message("property.category.#{category.originalKey}", :default => category.originalKey))
   end
 
   def subcategory_name(category, subcategory)
-    if (category == subcategory)
+    if (category.key == subcategory.key)
       # If subcategory == category then it is the default one
       category_name(category)
     else
-      message("property.category.#{category}.#{subcategory}", :default => subcategory)
+      # Try with lowercase key then with original key for backward compatibility
+      message("property.category.#{category.key}.#{subcategory.key}",
+        :default => message("property.category.#{category.originalKey}.#{subcategory.originalKey}", :default => subcategory.originalKey))
     end
   end
 
@@ -62,11 +65,11 @@ module SettingsHelper
   end
 
   def category_desc(category)
-    message("property.category.#{category}.description", :default => '')
+    message("property.category.#{category.key}.description", :default => '')
   end
 
   def subcategory_desc(category, subcategory)
-    message("property.category.#{category}.#{subcategory}.description", :default => '')
+    message("property.category.#{category.key}.#{subcategory.key}.description", :default => '')
   end
 
   def property_value(property)

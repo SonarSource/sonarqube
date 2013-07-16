@@ -1,7 +1,7 @@
-<% if SettingsController::SPECIAL_CATEGORIES.include?(@category) && @category != SettingsController::LICENSES_CATEGORY -%>
-  <%= render 'special', :url => url_for(:controller => "#{@category}_configuration") -%>
+<% if @category.isSpecial -%>
+  <%= render 'special', :url => url_for(:controller => "#{@category.key}_configuration") -%>
 <% else -%>
-  <% form_remote_tag :url => {:controller => 'settings', :action => 'update', :category => @category, :subcategory => @subcategory, :resource_id => @resource ? @resource.id : nil},
+  <% form_remote_tag :url => {:controller => 'settings', :action => 'update', :category => @category.key, :subcategory => @subcategory.key, :resource_id => @resource ? @resource.id : nil},
                      :method => :post,
                      :before => "$('submit_settings').hide();$('loading_settings').show();",
                      :update => 'properties',
@@ -10,21 +10,21 @@
     <ul class="tabs2">
       <% subcategories.each do |subcategory| -%>
         <li>
-          <%= link_to subcategory_name(@category, subcategory), {:controller => @resource ? 'project' : 'settings', :action => @resource ? 'settings' : 'index', :category => @category, :subcategory => subcategory, :id => @resource ? @resource.id : nil}, :class => @subcategory==subcategory ? 'selected' : nil -%>
+          <%= link_to subcategory_name(@category, subcategory), {:controller => @resource ? 'project' : 'settings', :action => @resource ? 'settings' : 'index', :category => @category.key, :subcategory => subcategory.key, :id => @resource ? @resource.id : nil}, :class => @subcategory==subcategory ? 'selected' : nil -%>
         </li>
       <% end -%>
     </ul>
-    <% if @category == SettingsController::LICENSES_CATEGORY && @subcategory == SettingsController::SERVER_ID_SUBCATEGORY %>
-      <%= render 'special', :url => url_for(:controller => "#{SettingsController::SERVER_ID_SUBCATEGORY}_configuration") -%>
+    <% if @subcategory.isSpecial %>
+      <%= render 'special', :url => url_for(:controller => "#{@subcategory.key}_configuration") -%>
     <% else %>
       <table class="data marginbottom10">
         <thead>
-        <% if @subcategory == @category && !category_desc(@category).blank? -%>
+        <% if @subcategory.key == @category.key && !category_desc(@category).blank? -%>
           <tr>
             <td class="categoryDescription"><%= category_desc(@category) -%> </td>
           </tr>
         <% end -%>
-        <% if @subcategory != @category && !subcategory_desc(@category, @subcategory).blank? -%>
+        <% if @subcategory.key != @category.key && !subcategory_desc(@category, @subcategory).blank? -%>
           <tr>
             <td><%= subcategory_desc(@category, @subcategory) -%> </td>
           </tr>

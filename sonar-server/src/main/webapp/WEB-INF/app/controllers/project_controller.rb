@@ -239,30 +239,12 @@ class ProjectController < ApplicationController
     @resource = get_current_project(params[:id])
 
     @snapshot = @resource.last_snapshot
-    if @resource && !java_facade.getResourceTypeBooleanProperty(@resource.qualifier, 'configurable')
+    if !java_facade.getResourceTypeBooleanProperty(@resource.qualifier, 'configurable')
       redirect_to :action => 'index', :id => params[:id]
     end
 
-    definitions_per_category = java_facade.propertyDefinitions.getPropertiesByCategory(@resource ? @resource.qualifier : nil)
-    @categories = definitions_per_category.keys || []
-    @categories = by_category_name(@categories)
-
-    default_category = nil
-    default_category = @categories[0] if !@categories.empty?
-    @category = params[:category] || default_category
-
-    not_found('category') unless @categories.include? @category
-
-    @subcategories_per_categories = {}
-    definitions_per_category.each {|category, definitions_per_subcategories| @subcategories_per_categories.store(category, by_subcategory_name(category, definitions_per_subcategories.keys)) }
-
-    default_subcategory =
-      @subcategories_per_categories[@category].nil? ? nil :
-        ((@subcategories_per_categories[@category].include? @category) ? @category : @subcategories_per_categories[@category][0])
-    @subcategory = params[:subcategory] || default_subcategory
-
-    @definitions = definitions_per_category[@category] || {}
-    @definitions = @definitions[@subcategory] || []
+    definitions_per_category = java_facade.propertyDefinitions.propertiesByCategory(@resource.qualifier)
+    processProperties(definitions_per_category)
   end
 
   def update_version

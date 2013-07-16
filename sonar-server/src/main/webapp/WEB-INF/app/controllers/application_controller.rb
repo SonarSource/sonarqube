@@ -258,11 +258,51 @@ class ApplicationController < ActionController::Base
   end
 
   def category_name(category)
-    message("property.category.#{category}", :default => category)
+    # Try with lowercase key then with original key for backward compatibility
+    message("property.category.#{category.key}", :default => message("property.category.#{category.originalKey}", :default => category.originalKey))
   end
 
   def subcategory_name(category, subcategory)
-    message("property.category.#{category}.#{subcategory}", :default => subcategory)
+    if (category.key == subcategory.key)
+      # If subcategory == category then it is the default one
+      category_name(category)
+    else
+      # Try with lowercase key then with original key for backward compatibility
+      message("property.category.#{category.key}.#{subcategory.key}",
+        :default => message("property.category.#{category.originalKey}.#{subcategory.originalKey}", :default => subcategory.originalKey))
+    end
+  end
+
+  def processProperties(definitions_per_category)
+    @categories = by_category_name(definitions_per_category.keys)
+
+    default_category = @categories.empty? ? nil : @categories[0]
+
+    if params[:category].nil?
+      default_category = @categories.empty? ? nil : @categories[0]
+      @category = default_category
+    else
+      @category = @categories.select {|c| c == Java::OrgSonarApiConfig::Category.new(params[:category])}.first
+      not_found('category') if @category.nil?
+    end
+
+    unless @category.isSpecial then
+      @subcategories_per_categories = {}
+      definitions_per_category.each {|category, definitions_per_subcategories| @subcategories_per_categories.store(category, by_subcategory_name(category, definitions_per_subcategories.keys)) }
+
+      if params[:subcategory].nil?
+        default_subcategory =
+                @subcategories_per_categories[@category].nil? ? nil :
+                  ((@subcategories_per_categories[@category].include? @category) ? @category : @subcategories_per_categories[@category][0])
+        @subcategory = default_subcategory
+      else
+        @subcategory = @subcategories_per_categories[@category].select {|s| s == Java::OrgSonarApiConfig::SubCategory.new(params[:subcategory])}.first
+        not_found('subcategory') if @subcategory.nil?
+      end
+
+      @definitions = definitions_per_category[@category] || {}
+      @definitions = @definitions[@subcategory] || []
+    end
   end
 
 end

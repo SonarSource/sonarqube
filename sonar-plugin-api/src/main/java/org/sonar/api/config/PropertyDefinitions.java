@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.ServerComponent;
@@ -44,8 +45,8 @@ import java.util.Map;
 public final class PropertyDefinitions implements BatchComponent, ServerComponent {
 
   private final Map<String, PropertyDefinition> definitions = Maps.newHashMap();
-  private final Map<String, String> categories = Maps.newHashMap();
-  private final Map<String, String> subcategories = Maps.newHashMap();
+  private final Map<String, Category> categories = Maps.newHashMap();
+  private final Map<String, SubCategory> subcategories = Maps.newHashMap();
 
   // deprecated key -> new key
   private final Map<String, String> deprecatedKeys = Maps.newHashMap();
@@ -107,8 +108,9 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     if (!definitions.containsKey(definition.key())) {
       definitions.put(definition.key(), definition);
       String category = StringUtils.defaultIfBlank(definition.category(), defaultCategory);
-      categories.put(definition.key(), category);
-      subcategories.put(definition.key(), StringUtils.defaultIfBlank(definition.subCategory(), category));
+      categories.put(definition.key(), new Category(category));
+      String subcategory = StringUtils.defaultIfBlank(definition.subCategory(), category);
+      subcategories.put(definition.key(), new SubCategory(subcategory));
       if (!Strings.isNullOrEmpty(definition.deprecatedKey()) && !definition.deprecatedKey().equals(definition.key())) {
         deprecatedKeys.put(definition.deprecatedKey(), definition.key());
       }
@@ -130,7 +132,9 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
 
   /**
    * @since 3.6
+   * @deprecated since 3.7 use {@link #propertiesByCategory(String)}
    */
+  @Deprecated
   public Map<String, Map<String, Collection<PropertyDefinition>>> getPropertiesByCategory(@Nullable String qualifier) {
     Map<String, Map<String, Collection<PropertyDefinition>>> byCategory = new HashMap<String, Map<String, Collection<PropertyDefinition>>>();
 
@@ -151,8 +155,43 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     return byCategory;
   }
 
+  /**
+   * @since 3.6
+   * @deprecated since 3.7 use {@link #propertiesByCategory(String)}
+   */
+  @Deprecated
   public Map<String, Map<String, Collection<PropertyDefinition>>> getPropertiesByCategory() {
     return getPropertiesByCategory(null);
+  }
+
+  /**
+   * @since 3.7
+   */
+  public Map<Category, Map<SubCategory, Collection<PropertyDefinition>>> propertiesByCategory(@Nullable String qualifier) {
+    Map<Category, Map<SubCategory, Collection<PropertyDefinition>>> byCategory = new HashMap<Category, Map<SubCategory, Collection<PropertyDefinition>>>();
+    if (qualifier == null) {
+      // Special categories on global page
+      byCategory.put(new Category("email", true), new HashMap<SubCategory, Collection<PropertyDefinition>>());
+      byCategory.put(new Category("encryption", true), new HashMap<SubCategory, Collection<PropertyDefinition>>());
+      HashMap<SubCategory, Collection<PropertyDefinition>> licenseSubCategories = new HashMap<SubCategory, Collection<PropertyDefinition>>();
+      licenseSubCategories.put(new SubCategory("server_id", true), new ArrayList<PropertyDefinition>());
+      byCategory.put(new Category(CoreProperties.CATEGORY_LICENSES, false), licenseSubCategories);
+    }
+    for (PropertyDefinition definition : getAll()) {
+      if (qualifier == null ? definition.global() : definition.qualifiers().contains(qualifier)) {
+        Category category = categories.get(definition.key());
+        if (!byCategory.containsKey(category)) {
+          byCategory.put(category, new HashMap<SubCategory, Collection<PropertyDefinition>>());
+        }
+        SubCategory subCategory = subcategories.get(definition.key());
+        if (!byCategory.get(category).containsKey(subCategory)) {
+          byCategory.get(category).put(subCategory, new ArrayList<PropertyDefinition>());
+        }
+        byCategory.get(category).get(subCategory).add(definition);
+      }
+    }
+
+    return byCategory;
   }
 
   public String getDefaultValue(String key) {
@@ -164,11 +203,11 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   }
 
   public String getCategory(String key) {
-    return categories.get(validKey(key));
+    return categories.get(validKey(key)).toString();
   }
 
   public String getSubCategory(String key) {
-    return subcategories.get(validKey(key));
+    return subcategories.get(validKey(key)).toString();
   }
 
   public String getCategory(Property prop) {
