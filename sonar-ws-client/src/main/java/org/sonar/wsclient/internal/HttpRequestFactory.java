@@ -155,7 +155,7 @@ public class HttpRequestFactory {
       .connectTimeout(connectTimeoutInMilliseconds)
       .readTimeout(readTimeoutInMilliseconds)
       .trustAllCerts()
-      .trustAllCerts();
+      .trustAllHosts();
     if (login != null) {
       request.basic(login, password);
     }
