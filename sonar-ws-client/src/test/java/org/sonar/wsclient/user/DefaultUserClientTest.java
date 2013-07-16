@@ -29,11 +29,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.MapAssert.entry;
 
 public class DefaultUserClientTest {
 
-  private HttpRequestFactory requestFactory;
-  private DefaultUserClient client;
+  HttpRequestFactory requestFactory;
+  DefaultUserClient client;
 
   @Rule
   public MockHttpServerInterceptor httpServer = new MockHttpServerInterceptor();
@@ -51,7 +52,7 @@ public class DefaultUserClientTest {
     UserQuery query = UserQuery.create().logins("simon", "loic");
     List<User> users = client.find(query);
 
-    assertThatRequestUrlContains("/api/users/search?", "logins=simon,loic");
+    assertThatGetRequestUrlContains("/api/users/search?", "logins=simon,loic");
     assertThat(users).hasSize(1);
     User simon = users.get(0);
     assertThat(simon.login()).isEqualTo("simon");
@@ -67,7 +68,12 @@ public class DefaultUserClientTest {
     UserParameters params = UserParameters.create().login("daveloper").password("pass1").passwordConfirmation("pass1");
     User createdUser = client.create(params);
 
-    assertThatRequestUrlContains("/api/users/create?", "login=daveloper", "password=pass1", "password_confirmation=pass1");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/users/create");
+    assertThat(httpServer.requestParams()).includes(
+      entry("login", "daveloper"),
+      entry("password", "pass1"),
+      entry("password_confirmation", "pass1")
+    );
     assertThat(createdUser).isNotNull();
     assertThat(createdUser.login()).isEqualTo("daveloper");
     assertThat(createdUser.name()).isEqualTo("daveloper");
@@ -81,7 +87,11 @@ public class DefaultUserClientTest {
     UserParameters params = UserParameters.create().login("daveloper").email("new_email");
     User updatedUser = client.update(params);
 
-    assertThatRequestUrlContains("/api/users/update?", "login=daveloper", "email=new_email");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/users/update");
+    assertThat(httpServer.requestParams()).includes(
+      entry("login", "daveloper"),
+      entry("email", "new_email")
+    );
     assertThat(updatedUser).isNotNull();
     assertThat(updatedUser.login()).isEqualTo("daveloper");
     assertThat(updatedUser.name()).isEqualTo("daveloper");
@@ -94,10 +104,13 @@ public class DefaultUserClientTest {
 
     client.deactivate("daveloper");
 
-    assertThatRequestUrlContains("/api/users/deactivate?", "login=daveloper");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/users/deactivate");
+    assertThat(httpServer.requestParams()).includes(
+      entry("login", "daveloper")
+    );
   }
 
-  private void assertThatRequestUrlContains(String baseUrl, String... parameters) {
+  private void assertThatGetRequestUrlContains(String baseUrl, String... parameters) {
     assertThat(httpServer.requestedPath()).startsWith(baseUrl);
     List<String> requestParameters = Arrays.asList(httpServer.requestedPath().substring(baseUrl.length()).split("&"));
     assertThat(requestParameters).containsOnly(parameters);

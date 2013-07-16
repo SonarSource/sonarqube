@@ -37,6 +37,7 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.fest.assertions.MapAssert.entry;
 
 public class DefaultActionPlanClientTest {
 
@@ -86,7 +87,13 @@ public class DefaultActionPlanClientTest {
     ActionPlan result = client.create(
       NewActionPlan.create().name("Short term").project("org.sonar.Sample").description("Short term issues").deadLine(stringToDate("2014-01-01")));
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/create?project=org.sonar.Sample&description=Short%20term%20issues&name=Short%20term&deadLine=2014-01-01");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/create");
+    assertThat(httpServer.requestParams()).includes(
+      entry("project", "org.sonar.Sample"),
+      entry("description", "Short term issues"),
+      entry("name", "Short term"),
+      entry("deadLine", "2014-01-01")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -99,7 +106,13 @@ public class DefaultActionPlanClientTest {
     ActionPlan result = client.update(
       UpdateActionPlan.create().key("382f6f2e-ad9d-424a-b973-9b065e04348a").name("Short term").description("Short term issues").deadLine(stringToDate("2014-01-01")));
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/update?description=Short%20term%20issues&name=Short%20term&deadLine=2014-01-01&key=382f6f2e-ad9d-424a-b973-9b065e04348a");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/update");
+    assertThat(httpServer.requestParams()).includes(
+      entry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a"),
+      entry("description", "Short term issues"),
+      entry("name", "Short term"),
+      entry("deadLine", "2014-01-01")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -110,7 +123,10 @@ public class DefaultActionPlanClientTest {
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
     client.delete("382f6f2e-ad9d-424a-b973-9b065e04348a");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/delete?key=382f6f2e-ad9d-424a-b973-9b065e04348a");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/delete");
+    assertThat(httpServer.requestParams()).includes(
+      entry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a")
+    );
   }
 
   @Test
@@ -125,7 +141,10 @@ public class DefaultActionPlanClientTest {
     } catch (HttpException e) {
       assertThat(e.status()).isEqualTo(500);
       assertThat(e.url()).startsWith("http://localhost");
-      assertThat(e.url()).endsWith("/api/action_plans/delete?key=382f6f2e-ad9d-424a-b973-9b065e04348a");
+      assertThat(e.url()).endsWith("/api/action_plans/delete");
+      assertThat(httpServer.requestParams()).includes(
+        entry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a")
+      );
     }
   }
 
@@ -137,7 +156,10 @@ public class DefaultActionPlanClientTest {
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
     ActionPlan result = client.open("382f6f2e-ad9d-424a-b973-9b065e04348a");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/open?key=382f6f2e-ad9d-424a-b973-9b065e04348a");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/open");
+    assertThat(httpServer.requestParams()).includes(
+      entry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -149,7 +171,10 @@ public class DefaultActionPlanClientTest {
     ActionPlanClient client = new DefaultActionPlanClient(requestFactory);
     ActionPlan result = client.close("382f6f2e-ad9d-424a-b973-9b065e04348a");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/close?key=382f6f2e-ad9d-424a-b973-9b065e04348a");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/action_plans/close");
+    assertThat(httpServer.requestParams()).includes(
+      entry("key", "382f6f2e-ad9d-424a-b973-9b065e04348a")
+    );
     assertThat(result).isNotNull();
   }
 

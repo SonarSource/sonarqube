@@ -31,6 +31,7 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.fest.assertions.MapAssert.entry;
 
 public class DefaultIssueClientTest {
   @Rule
@@ -74,7 +75,11 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.setSeverity("ABCDE", "BLOCKER");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/set_severity?issue=ABCDE&severity=BLOCKER");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/set_severity");
+    assertThat(httpServer.requestParams()).includes(
+      entry("issue", "ABCDE"),
+      entry("severity", "BLOCKER")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -86,7 +91,11 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.assign("ABCDE", "emmerik");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign?issue=ABCDE&assignee=emmerik");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign");
+    assertThat(httpServer.requestParams()).includes(
+      entry("issue", "ABCDE"),
+      entry("assignee", "emmerik")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -98,7 +107,10 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.assign("ABCDE", null);
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign?issue=ABCDE");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/assign");
+    assertThat(httpServer.requestParams()).includes(
+      entry("issue", "ABCDE")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -110,7 +122,11 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.plan("ABCDE", "DEFGH");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/plan?issue=ABCDE&plan=DEFGH");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/plan");
+    assertThat(httpServer.requestParams()).includes(
+      entry("issue", "ABCDE"),
+      entry("plan", "DEFGH")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -122,7 +138,10 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.plan("ABCDE", null);
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/plan?issue=ABCDE");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/plan");
+    assertThat(httpServer.requestParams()).includes(
+      entry("issue", "ABCDE")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -134,7 +153,11 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.create(NewIssue.create().component("Action.java").rule("squid:AvoidCycle"));
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/create?component=Action.java&rule=squid:AvoidCycle");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/create");
+    assertThat(httpServer.requestParams()).includes(
+      entry("component", "Action.java"),
+      entry("rule", "squid:AvoidCycle")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -164,7 +187,11 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.doTransition("ABCDE", "resolve");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_transition?issue=ABCDE&transition=resolve");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_transition");
+    assertThat(httpServer.requestParams()).includes(
+      entry("issue", "ABCDE"),
+      entry("transition", "resolve")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -176,7 +203,11 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     IssueComment comment = client.addComment("ISSUE-1", "this is my comment");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/add_comment?issue=ISSUE-1&text=this%20is%20my%20comment");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/add_comment");
+    assertThat(httpServer.requestParams()).includes(
+      entry("issue", "ISSUE-1"),
+      entry("text", "this is my comment")
+    );
     assertThat(comment).isNotNull();
     assertThat(comment.key()).isEqualTo("COMMENT-123");
     assertThat(comment.htmlText()).isEqualTo("this is my comment");
@@ -210,7 +241,11 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     Issue result = client.doAction("ABCDE", "tweet");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_action?issue=ABCDE&actionKey=tweet");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/do_action");
+    assertThat(httpServer.requestParams()).includes(
+      entry("issue", "ABCDE"),
+      entry("actionKey", "tweet")
+    );
     assertThat(result).isNotNull();
   }
 
@@ -227,7 +262,12 @@ public class DefaultIssueClientTest {
     IssueClient client = new DefaultIssueClient(requestFactory);
     BulkChange result = client.bulkChange(query);
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/bulk_change?assign.assignee=geoffrey&issues=ABCD,EFGH&actions=assign");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/bulk_change");
+    assertThat(httpServer.requestParams()).includes(
+      entry("assign.assignee", "geoffrey"),
+      entry("issues", "ABCD,EFGH"),
+      entry("actions", "assign")
+    );
     assertThat(result).isNotNull();
   }
 }

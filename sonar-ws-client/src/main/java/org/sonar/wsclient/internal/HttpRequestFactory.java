@@ -117,20 +117,19 @@ public class HttpRequestFactory {
   }
 
   public String get(String wsUrl, Map<String, Object> queryParams) {
-    HttpRequest request = HttpRequest.get(baseUrl + wsUrl, queryParams, true);
+    HttpRequest request = prepare(HttpRequest.get(baseUrl + wsUrl, queryParams, true));
     return execute(request);
   }
 
   public String post(String wsUrl, Map<String, Object> queryParams) {
-    HttpRequest request = HttpRequest.post(baseUrl + wsUrl, queryParams, true);
+    HttpRequest request = prepare(HttpRequest.post(baseUrl + wsUrl, true)).form(queryParams, HttpRequest.CHARSET_UTF8);
     return execute(request);
   }
 
   private String execute(HttpRequest request) {
     try {
-      prepare(request);
       if (request.ok()) {
-        return request.body("UTF-8");
+        return request.body(HttpRequest.CHARSET_UTF8);
       }
       // TODO handle error messages
       throw new HttpException(request.url().toString(), request.code());
@@ -140,7 +139,7 @@ public class HttpRequestFactory {
     }
   }
 
-  private void prepare(HttpRequest request) {
+  private HttpRequest prepare(HttpRequest request) {
     if (proxyHost != null) {
       request.useProxy(proxyHost, proxyPort);
       if (proxyLogin != null) {
@@ -159,5 +158,6 @@ public class HttpRequestFactory {
     if (login != null) {
       request.basic(login, password);
     }
+    return request;
   }
 }

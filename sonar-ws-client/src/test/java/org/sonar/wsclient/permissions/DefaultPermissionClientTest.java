@@ -26,15 +26,13 @@ import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.MapAssert.entry;
 
 public class DefaultPermissionClientTest {
 
-  private HttpRequestFactory requestFactory;
-  private DefaultPermissionClient client;
+  HttpRequestFactory requestFactory;
+  DefaultPermissionClient client;
 
   @Rule
   public MockHttpServerInterceptor httpServer = new MockHttpServerInterceptor();
@@ -52,7 +50,11 @@ public class DefaultPermissionClientTest {
     PermissionParameters params = PermissionParameters.create().user("daveloper").permission("admin");
     client.addPermission(params);
 
-    assertThatRequestUrlContains("/api/permissions/add?", "user=daveloper", "permission=admin");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/add");
+    assertThat(httpServer.requestParams()).includes(
+      entry("user", "daveloper"),
+      entry("permission", "admin")
+    );
   }
 
   @Test
@@ -62,7 +64,11 @@ public class DefaultPermissionClientTest {
     PermissionParameters params = PermissionParameters.create().group("my_group").permission("admin");
     client.addPermission(params);
 
-    assertThatRequestUrlContains("/api/permissions/add?", "group=my_group", "permission=admin");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/add");
+    assertThat(httpServer.requestParams()).includes(
+      entry("group", "my_group"),
+      entry("permission", "admin")
+    );
   }
 
   @Test
@@ -72,7 +78,11 @@ public class DefaultPermissionClientTest {
     PermissionParameters params = PermissionParameters.create().user("daveloper").permission("admin");
     client.removePermission(params);
 
-    assertThatRequestUrlContains("/api/permissions/remove?", "user=daveloper", "permission=admin");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/remove");
+    assertThat(httpServer.requestParams()).includes(
+      entry("user", "daveloper"),
+      entry("permission", "admin")
+    );
   }
 
   @Test
@@ -82,12 +92,10 @@ public class DefaultPermissionClientTest {
     PermissionParameters params = PermissionParameters.create().group("my_group").permission("admin");
     client.removePermission(params);
 
-    assertThatRequestUrlContains("/api/permissions/remove?", "group=my_group", "permission=admin");
-  }
-
-  private void assertThatRequestUrlContains(String baseUrl, String... parameters) {
-    assertThat(httpServer.requestedPath()).startsWith(baseUrl);
-    List<String> requestParameters = Arrays.asList(httpServer.requestedPath().substring(baseUrl.length()).split("&"));
-    assertThat(requestParameters).containsOnly(parameters);
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/remove");
+    assertThat(httpServer.requestParams()).includes(
+      entry("group", "my_group"),
+      entry("permission", "admin")
+    );
   }
 }

@@ -57,6 +57,10 @@ public final class MockHttpServerInterceptor extends ExternalResource {
     return server.requestHeaders();
   }
 
+  public Map requestParams() {
+    return server.requestParams();
+  }
+
   public int port() {
     return server.getPort();
   }
