@@ -14,7 +14,7 @@
         <div class="dashbox">
           <p class="title"><%= message('widget.documentation_comments.documentation') -%></p>
           <p>
-            <%= format_measure(public_documented_api_density, :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_DOCUMENTED_API_DENSITY), :suffix =>  message('widget.documentation_comments.docu_api.suffix'))%>
+            <span class="big"><%= format_measure(public_documented_api_density, :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_DOCUMENTED_API_DENSITY))%></span><%= message('widget.documentation_comments.docu_api.suffix') %>
             <%= dashboard_configuration.selected_period? ? format_variation('public_documented_api_density') : trend_icon('public_documented_api_density') -%>
           </p>
           <p>
