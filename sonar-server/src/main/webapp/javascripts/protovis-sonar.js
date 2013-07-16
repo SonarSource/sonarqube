@@ -259,7 +259,7 @@ SonarWidgets.StackArea.prototype.render = function () {
  *   - events: array of maps {sid,d,l[{n}]} where sid is the snapshot id corresponding to an event, d is the (JS) date of the event, and l
  *             is an array containing the different event names for this date.
  *   - height: height of the chart area (notice header excluded). Defaults to 80.
- * 
+ *
  * Example: displays 2 metrics:
  * 
  <code>
