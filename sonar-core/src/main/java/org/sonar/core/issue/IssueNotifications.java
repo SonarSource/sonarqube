@@ -86,7 +86,8 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
   }
 
   @CheckForNull
-  private Notification createChangeNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component, @Nullable String comment) {
+  private Notification createChangeNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project,
+                                                @Nullable Component component, @Nullable String comment) {
     FieldDiffs currentChange = issue.currentChange();
     if (comment == null && (currentChange == null || currentChange.diffs().isEmpty())) {
       return null;

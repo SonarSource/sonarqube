@@ -34,8 +34,8 @@ import com.google.common.annotations.Beta;
  * Also note that you can't update what already was saved, however it is safe to call {@link #save()} several times.
  * <p>
  * Instances of this interface can be obtained using {@link FileLinesContextFactory}.
- *
- * <p>This interface is not intended to be implemented by clients.</p>
+ * <p/>
+ * This interface is not intended to be implemented by clients.
  *
  * @since 2.14
  */
