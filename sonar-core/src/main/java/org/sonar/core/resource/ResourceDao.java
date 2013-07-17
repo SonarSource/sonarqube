@@ -201,6 +201,23 @@ public class ResourceDao {
     }
   }
 
+  public List<Component> selectComponentsByQualifiers(Collection<String> qualifiers) {
+    if (qualifiers.isEmpty()) {
+      return Collections.emptyList();
+    }
+    SqlSession session = mybatis.openSession();
+    try {
+      List<ResourceDto> resourceDtos = session.getMapper(ResourceMapper.class).selectComponentsByQualifiers(qualifiers);
+      List<Component> components = newArrayList();
+      for (ResourceDto resourceDto : resourceDtos) {
+        components.add(toComponent(resourceDto));
+      }
+      return components;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public static ComponentDto toComponent(ResourceDto resourceDto){
     return new ComponentDto()
       .setKey(resourceDto.getKey())

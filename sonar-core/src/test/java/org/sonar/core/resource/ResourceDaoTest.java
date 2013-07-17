@@ -308,4 +308,16 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(dao.findByKey("org.struts:struts:org.struts.RequestContext")).isNotNull();
     assertThat(dao.findByKey("unknown")).isNull();
   }
+
+  @Test
+  public void should_select_components_by_qualifiers(){
+    setupData("fixture", "technical-project");
+
+    List<Component> components = dao.selectComponentsByQualifiers(newArrayList("TRK"));
+    assertThat(components).hasSize(1);
+    assertThat(components.get(0).key()).isEqualTo("org.struts:struts");
+
+    assertThat(dao.selectComponentsByQualifiers(newArrayList("unknown"))).isEmpty();
+    assertThat(dao.selectComponentsByQualifiers(Collections.<String>emptyList())).isEmpty();
+  }
 }

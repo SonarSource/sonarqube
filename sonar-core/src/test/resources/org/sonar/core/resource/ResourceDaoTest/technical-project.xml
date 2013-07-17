@@ -1,0 +1,9 @@
+<dataset>
+
+  <!-- technical project -->
+  <projects id="5" root_id="[null]" scope="PRJ" qualifier="TRK" kee="COPYorg.struts:struts" name="Struts"
+            description="the description" long_name="Apache Struts"
+            enabled="[true]" language="java" copy_resource_id="1" person_id="[null]"/>
+
+
+</dataset>

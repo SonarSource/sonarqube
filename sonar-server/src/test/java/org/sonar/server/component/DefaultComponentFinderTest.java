@@ -22,16 +22,14 @@ package org.sonar.server.component;
 
 import org.junit.Test;
 import org.sonar.api.component.Component;
+import org.sonar.api.resources.Project;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceQuery;
 
 import java.util.Iterator;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,14 +38,14 @@ public class DefaultComponentFinderTest {
   ResourceDao dao = mock(ResourceDao.class);
   DefaultComponentFinder finder = new DefaultComponentFinder(dao);
 
+
   @Test
   public void should_return_all_components_when_no_parameter() {
-    List<ResourceDto> dtoList = newArrayList(
-      new ResourceDto().setKey("org.codehaus.sonar").setName("Sonar").setQualifier("TRK"),
-      new ResourceDto().setKey("org.apache.tika:tika").setName("Apache Tika").setQualifier("TRK"),
-      new ResourceDto().setKey("org.picocontainer:picocontainer-parent").setName("PicoContainer Parent").setQualifier("TRK")
-    );
-    when(dao.getResources(any(ResourceQuery.class))).thenReturn(dtoList);
+    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+      createProject("org.codehaus.sonar", "Sonar"),
+      createProject("org.apache.tika:tika", "Apache Tika"),
+      createProject("org.picocontainer:picocontainer-parent", "PicoContainer Parent")
+    ));
 
     ComponentQuery query = ComponentQuery.builder().build();
     DefaultComponentQueryResult results = finder.find(query);
@@ -61,12 +59,11 @@ public class DefaultComponentFinderTest {
 
   @Test
   public void should_find_components_by_key_pattern() {
-    List<ResourceDto> dtoList = newArrayList(
-      new ResourceDto().setKey("org.codehaus.sonar").setName("Sonar").setQualifier("TRK"),
-      new ResourceDto().setKey("org.apache.tika:tika").setName("Apache Tika").setQualifier("TRK"),
-      new ResourceDto().setKey("org.apache.jackrabbit:jackrabbit").setName("Apache Jackrabbit").setQualifier("TRK")
-    );
-    when(dao.getResources(any(ResourceQuery.class))).thenReturn(dtoList);
+    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+      createProject("org.codehaus.sonar", "Sonar"),
+      createProject("org.apache.tika:tika", "Apache Tika"),
+      createProject("org.apache.jackrabbit:jackrabbit", "Apache Jackrabbit")
+    ));
 
     ComponentQuery query = ComponentQuery.builder().keys(newArrayList("org.apache")).build();
     assertThat(finder.find(query).components()).hasSize(2);
@@ -74,12 +71,11 @@ public class DefaultComponentFinderTest {
 
   @Test
   public void should_find_components_by_name_pattern() {
-    List<ResourceDto> dtoList = newArrayList(
-      new ResourceDto().setKey("org.codehaus.sonar").setName("Sonar").setQualifier("TRK"),
-      new ResourceDto().setKey("org.apache.tika:tika").setName("Apache Tika").setQualifier("TRK"),
-      new ResourceDto().setKey("org.apache.jackrabbit:jackrabbit").setName("Apache Jackrabbit").setQualifier("TRK")
-    );
-    when(dao.getResources(any(ResourceQuery.class))).thenReturn(dtoList);
+    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+      createProject("org.codehaus.sonar", "Sonar"),
+      createProject("org.apache.tika:tika", "Apache Tika"),
+      createProject("org.apache.jackrabbit:jackrabbit", "Apache Jackrabbit")
+    ));
 
     ComponentQuery query = ComponentQuery.builder().names(newArrayList("Apache")).build();
     assertThat(finder.find(query).components()).hasSize(2);
@@ -87,12 +83,11 @@ public class DefaultComponentFinderTest {
 
   @Test
   public void should_sort_result_by_name() {
-    List<ResourceDto> dtoList = newArrayList(
-      new ResourceDto().setKey("org.codehaus.sonar").setName("Sonar").setQualifier("TRK"),
-      new ResourceDto().setKey("org.apache.tika:tika").setName("Apache Tika").setQualifier("TRK"),
-      new ResourceDto().setKey("org.picocontainer:picocontainer-parent").setName("PicoContainer Parent").setQualifier("TRK")
-    );
-    when(dao.getResources(any(ResourceQuery.class))).thenReturn(dtoList);
+    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+      createProject("org.codehaus.sonar", "Sonar"),
+      createProject("org.apache.tika:tika", "Apache Tika"),
+      createProject("org.picocontainer:picocontainer-parent", "PicoContainer Parent")
+    ));
 
     ComponentQuery query = ComponentQuery.builder().build();
     DefaultComponentQueryResult results = finder.find(query);
@@ -108,17 +103,20 @@ public class DefaultComponentFinderTest {
   public void should_find_paginate_result() {
     ComponentQuery query = ComponentQuery.builder().pageSize(1).pageIndex(1).build();
 
-    List<ResourceDto> dtoList = newArrayList(
-      new ResourceDto().setKey("org.codehaus.sonar").setName("Sonar").setQualifier("TRK"),
-      new ResourceDto().setKey("org.apache.tika:tika").setName("Apache Tika").setQualifier("TRK"),
-      new ResourceDto().setKey("org.picocontainer:picocontainer-parent").setName("PicoContainer Parent").setQualifier("TRK")
-    );
-    when(dao.getResources(any(ResourceQuery.class))).thenReturn(dtoList);
+    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+      createProject("org.codehaus.sonar", "Sonar"),
+      createProject("org.apache.tika:tika", "Apache Tika"),
+      createProject("org.picocontainer:picocontainer-parent", "PicoContainer Parent")
+    ));
 
     DefaultComponentQueryResult results = finder.find(query);
     assertThat(results.paging().offset()).isEqualTo(0);
     assertThat(results.paging().pages()).isEqualTo(3);
     assertThat(results.paging().total()).isEqualTo(3);
+  }
+
+  private Component createProject(String key, String name){
+    return new Project(key, null, name);
   }
 
 }

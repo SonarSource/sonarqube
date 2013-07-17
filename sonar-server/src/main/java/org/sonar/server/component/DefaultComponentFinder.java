@@ -26,9 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Component;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceQuery;
 
 import java.util.Collection;
 import java.util.List;
@@ -52,10 +50,9 @@ public class DefaultComponentFinder {
     LOG.debug("ComponentQuery : {}", query);
     long start = System.currentTimeMillis();
     try {
-      // 1. Search components
-      ResourceQuery resourceQuery = ResourceQuery.create().setQualifiers(query.qualifiers().toArray(new String[]{}));
-      List<ComponentDto> dtos = ResourceDao.toComponents(resourceDao.getResources(resourceQuery));
-      Collection<Component> foundComponents = search(query, dtos);
+      // 1. Search components for selected qualifiers
+      List<Component> components = resourceDao.selectComponentsByQualifiers(query.qualifiers());
+      Collection<Component> foundComponents = search(query, components);
 
       // 2. Sort components
       Collection<? extends Component> sortedComponents = new ComponentsFinderSort(foundComponents, query).sort();
