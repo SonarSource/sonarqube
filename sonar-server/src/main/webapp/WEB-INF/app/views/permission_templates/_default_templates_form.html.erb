@@ -7,7 +7,7 @@
       <div id="permission-template-error" class="permission-template error errors" style="display:none;" />
       <% @root_qualifiers.each do |qualifier| %>
         <div class="modal-field">
-          <%= label_tag("default_template_#{qualifier}", "#{message('qualifier.' + qualifier)}(s):") %>
+          <%= label_tag("default_template_#{qualifier}", " For #{message('qualifier.' + qualifier).downcase}s:") %>
           <%= select_tag("default_template_#{qualifier}", options_for_select(@permission_templates_options, @default_templates[qualifier])) %>
         </div>
       <% end %>
