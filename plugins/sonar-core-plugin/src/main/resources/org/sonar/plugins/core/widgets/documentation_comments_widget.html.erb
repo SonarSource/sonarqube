@@ -5,7 +5,6 @@
     public_undocumented_api=measure('public_undocumented_api')
     comment_lines=measure('comment_lines')
     comment_lines_density=measure('comment_lines_density')
-    comment_blank_lines=measure('comment_blank_lines')
 %>
 <table width="100%">
   <tbody>
@@ -40,13 +39,6 @@
             <%= format_measure(comment_lines,:url => url_for_drilldown(comment_lines), :suffix =>  message('widget.documentation_comments.lines.suffix'))%>
             <%= dashboard_configuration.selected_period? ? format_variation(comment_lines) : trend_icon(comment_lines) -%>
           </p>
-            <%
-            if comment_blank_lines && comment_blank_lines.value>0
-            %>
-            <p>+<%= format_measure(comment_blank_lines, :suffix => message('widget.documentation_comments.blank.suffix'), :url => url_for_drilldown(comment_blank_lines)) %>
-            <%= dashboard_configuration.selected_period? ? format_variation(comment_blank_lines) : trend_icon(comment_blank_lines) -%>
-            </p>
-            <% end %>
         </div>
       </td>
     </tr>
