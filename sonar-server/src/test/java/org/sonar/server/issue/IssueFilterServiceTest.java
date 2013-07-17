@@ -244,6 +244,31 @@ public class IssueFilterServiceTest {
   }
 
   @Test
+  public void should_update_sharing() {
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(true).setUserLogin("john"));
+
+    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setShared(false).setUser("john"), userSession);
+    assertThat(result.shared()).isFalse();
+
+    verify(issueFilterDao).update(any(IssueFilterDto.class));
+  }
+
+  @Test
+  public void should_not_update_sharing_if_not_owner() {
+    // John is admin and want to change arthur filter sharing
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("Arthur Filter").setShared(true).setUserLogin("arthur"));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+
+    try {
+      service.update(new DefaultIssueFilter().setId(1L).setName("Arthur Filter").setShared(false).setUser("john"), userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("Only owner of a filter can change sharing");
+    }
+    verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
+  }
+
+  @Test
   public void should_update_own_user_filter_without_changing_anything() {
     IssueFilterDto dto = new IssueFilterDto().setId(1L).setName("My Filter").setUserLogin("john");
     when(issueFilterDao.selectById(1L)).thenReturn(dto);
@@ -273,11 +298,11 @@ public class IssueFilterServiceTest {
   @Test
   public void should_update_other_shared_filter_if_admin() {
     when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
-    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("arthur").setShared(true));
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
-    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter"), userSession);
+    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true), userSession);
     assertThat(result.name()).isEqualTo("My New Filter");
-    assertThat(result.shared()).isFalse();
+    assertThat(result.description()).isEqualTo("New description");
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
   }

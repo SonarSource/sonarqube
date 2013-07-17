@@ -21,7 +21,11 @@
     <input id="user" name="user" type="hidden" value="<%= h(@filter.user) if @filter -%>"/>
   <% end %>
   <div class="modal-field">
-    <label for="shared"><%= message('issue_filter.form.share') -%></label>
-    <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if (@filter && @filter.shared) -%>/>
+    <% if !@filter || @filter.user == current_user.login %>
+      <label for="shared"><%= message('issue_filter.form.share') -%></label>
+      <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if (@filter && @filter.shared) -%>/>
+    <% else %>
+      <input id="shared" name="shared" type="hidden" value="<%= @filter.shared if @filter -%>"/>
+    <% end %>
   </div>
 </div>

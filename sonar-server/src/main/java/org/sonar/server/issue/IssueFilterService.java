@@ -43,6 +43,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -100,6 +101,7 @@ public class IssueFilterService implements ServerComponent {
     String login = getLoggedLogin(userSession);
     IssueFilterDto existingFilterDto = findIssueFilterDto(issueFilter.id(), login);
     verifyCurrentUserCanModifyFilter(existingFilterDto.toIssueFilter(), login);
+    verifyCurrentUserCanChangeFilterSharingFilter(issueFilter, existingFilterDto, login);
     if (!existingFilterDto.getUserLogin().equals(issueFilter.user())) {
       verifyCurrentUserCanChangeFilterOwnership(login);
     }
@@ -213,6 +215,12 @@ public class IssueFilterService implements ServerComponent {
   private void verifyCurrentUserCanModifyFilter(DefaultIssueFilter issueFilter, String user) {
     if (!issueFilter.user().equals(user) && !isAdmin(user)) {
       throw new ForbiddenException("User is not authorized to modify this filter");
+    }
+  }
+
+  private void verifyCurrentUserCanChangeFilterSharingFilter(DefaultIssueFilter issueFilter, IssueFilterDto existingFilterDto, String login) {
+    if (existingFilterDto.isShared() != issueFilter.shared() && !existingFilterDto.getUserLogin().equals(login)) {
+      throw new ForbiddenException("Only owner of a filter can change sharing");
     }
   }
 
