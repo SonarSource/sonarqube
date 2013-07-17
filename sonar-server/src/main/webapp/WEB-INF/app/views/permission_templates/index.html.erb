@@ -1,26 +1,13 @@
 <%= render :partial => 'roles/tabs', :locals => {:selected_tab=>'Permission templates'} %>
 <br/>
-<h2>Default templates</h2>
-<div class="box">
-  <p>
-    This section allows you to configure the default permission templates that will be applied by SonarQube while analysing your projects.
-  </p>
-  <% form_tag(:controller => 'permission_templates', :action => 'set_default_template') do %>
-
-    <% @root_qualifiers.each do |qualifier| %>
-      <%= label_tag("default_template_#{qualifier}", "Default permission template for #{message('qualifier.' + qualifier)}:") %>
-      <%= select_tag("default_template_#{qualifier}", options_for_select(@permission_templates_options, @default_templates[qualifier])) %>&nbsp;&nbsp;
-    <% end %>
-    <br/>
-    <br/>
-    <%= submit_tag "Save" %>
-  <% end %>
-</div>
-<br/>
 <div class="line-block">
   <ul style="float: right" class="horizontal">
+    <li style="padding-top: 3px; padding-right: 10px;">
+      <%= link_to message('permission_template.set_default_templates'), {:action => :default_templates_form, :qualifiers => @root_qualifiers},
+                  :id => 'configure-defaults-permission-template', :class => 'open-modal link-action' %>
+    </li>
     <li class="marginleft10 add">
-      <a id="create-link-permission-template" href="permission_templates/create_form" class="open-modal link-action"><%= message('create') -%></a>
+      <%= link_to message('create'), {:action => :create_form}, :id => 'create-link-permission-template', :class => 'open-modal link-action' %>
     </li>
   </ul>
   <h2>Available templates</h2>
@@ -91,7 +78,7 @@
            end
            if qualifiers.length > 0
         %>
-          <%= image_tag 'tick.png', :id => "is_active_#{u permission_template.name}" %><span class="small gray">(Default for <%= qualifiers.collect {|q| message('qualifier.' + q)}.join(',') %>)</span>
+          <%= image_tag 'tick.png', :id => "is_active_#{u permission_template.name}" %><span class="small gray">(Default for <%= qualifiers.collect {|q| message('qualifier.' + q)}.join(', ') %>)</span>
         <% end %>
       </td>
       <td align="right">

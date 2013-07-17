@@ -37,24 +37,16 @@ class PermissionTemplatesController < ApplicationController
   # GET
   #
   def index
-    templates_names = Internal.permission_templates.selectAllPermissionTemplates.collect {|t| t.name}
-    @permission_templates = []
-    @permission_templates_options = []
-    templates_names.each do |template_name|
-      permission_template = Internal.permission_templates.selectPermissionTemplate(template_name)
-      @permission_templates << permission_template
-      @permission_templates_options << [permission_template.name, permission_template.key]
-    end
-    @root_qualifiers = get_root_qualifiers
+    all_templates = Internal.permission_templates.selectAllPermissionTemplates
 
-    @default_templates = {}
-    default_template_property = Property.by_key("sonar.permission.template.default")
-    @root_qualifiers.each do |qualifier|
-      qualifier_template = Property.by_key("sonar.permission.template.#{qualifier}.default")
-      @default_templates[qualifier] = qualifier_template ? qualifier_template.text_value : default_template_property.text_value
-    end
+    @permission_templates = get_templates_and_permissions(all_templates)
+    @root_qualifiers = get_root_qualifiers
+    @default_templates = get_default_templates_per_qualifier(@root_qualifiers)
   end
 
+  #
+  # GET (modal form)
+  #
   def edit_users
     @permission = params[:permission]
     @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
@@ -64,6 +56,9 @@ class PermissionTemplatesController < ApplicationController
     render :partial => 'permission_templates/edit_users'
   end
 
+  #
+  # GET (modal form)
+  #
   def edit_groups
     @permission = params[:permission]
     @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
@@ -129,7 +124,9 @@ class PermissionTemplatesController < ApplicationController
     redirect_to :action => 'index'
   end
 
-
+  #
+  # GET (modal form)
+  #
   def create_form
     render :partial => 'permission_templates/permission_template_form',
            :locals => {:form_action => 'create', :message_title => 'new_template', :message_submit => 'create_template'}
@@ -144,6 +141,9 @@ class PermissionTemplatesController < ApplicationController
     redirect_to :action => 'index'
   end
 
+  #
+  # GET (modal form)
+  #
   def edit_form
     @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
     render :partial => 'permission_templates/permission_template_form',
@@ -160,6 +160,9 @@ class PermissionTemplatesController < ApplicationController
     redirect_to :action => 'index'
   end
 
+  #
+  # GET (modal form)
+  #
   def delete_form
     @permission_template = Internal.permission_templates.selectPermissionTemplate(params[:name])
     render :partial => 'permission_templates/delete_form'
@@ -176,9 +179,22 @@ class PermissionTemplatesController < ApplicationController
   end
 
   #
+  # GET (modal form)
+  #
+  def default_templates_form
+    all_templates = Internal.permission_templates.selectAllPermissionTemplates
+
+    @permission_templates_options = all_templates.collect {|t| [t.name, t.key]}
+    @root_qualifiers = get_root_qualifiers
+    @default_templates = get_default_templates_per_qualifier(@root_qualifiers)
+
+    render :partial => 'permission_templates/default_templates_form'
+  end
+
+  #
   # POST
   #
-  def set_default_template
+  def update_default_templates
     verify_post_request
     get_root_qualifiers.each do |qualifier|
       Property.set("sonar.permission.template.#{qualifier}.default", params["default_template_#{qualifier}"])
@@ -189,10 +205,30 @@ class PermissionTemplatesController < ApplicationController
     redirect_to :action => 'index'
   end
 
+
   private
 
   def get_root_qualifiers
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceRootTypes().map {|type| type.getQualifier()}
+  end
+
+  def get_default_templates_per_qualifier(root_qualifiers)
+    default_templates = {}
+    default_template_property = Property.by_key("sonar.permission.template.default")
+    root_qualifiers.each do |qualifier|
+      qualifier_template = Property.by_key("sonar.permission.template.#{qualifier}.default")
+      default_templates[qualifier] = qualifier_template ? qualifier_template.text_value : default_template_property.text_value
+    end
+    default_templates
+  end
+
+  def get_templates_and_permissions(permission_templates)
+    templates_names = permission_templates.collect {|t| t.name}
+    permission_templates = []
+    templates_names.each do |template_name|
+      permission_templates << Internal.permission_templates.selectPermissionTemplate(template_name)
+    end
+    permission_templates
   end
 
 end
