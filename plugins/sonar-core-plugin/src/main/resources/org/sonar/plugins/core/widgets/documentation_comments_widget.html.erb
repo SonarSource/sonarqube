@@ -37,7 +37,7 @@
             <%= dashboard_configuration.selected_period? ? format_variation(comment_lines_density) : trend_icon(comment_lines_density) -%>
           </p>
           <p>
-            <%= format_measure(measure(comment_lines),:url => url_for_drilldown(comment_lines), :suffix =>  message('widget.documentation_comments.lines.suffix'))%>
+            <%= format_measure(comment_lines,:url => url_for_drilldown(comment_lines), :suffix =>  message('widget.documentation_comments.lines.suffix'))%>
             <%= dashboard_configuration.selected_period? ? format_variation(comment_lines) : trend_icon(comment_lines) -%>
           </p>
             <%
