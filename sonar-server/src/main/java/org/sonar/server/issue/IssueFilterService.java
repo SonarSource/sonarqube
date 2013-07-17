@@ -35,7 +35,6 @@ import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.core.permission.Permission;
-import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -57,15 +56,13 @@ public class IssueFilterService implements ServerComponent {
   private final IssueFilterDao filterDao;
   private final IssueFilterFavouriteDao favouriteDao;
   private final IssueFinder finder;
-  private final AuthorizationDao authorizationDao;
   private final IssueFilterSerializer serializer;
 
-  public IssueFilterService(IssueFilterDao filterDao, IssueFilterFavouriteDao favouriteDao, IssueFinder finder, AuthorizationDao authorizationDao,
+  public IssueFilterService(IssueFilterDao filterDao, IssueFilterFavouriteDao favouriteDao, IssueFinder finder,
       IssueFilterSerializer serializer) {
     this.filterDao = filterDao;
     this.favouriteDao = favouriteDao;
     this.finder = finder;
-    this.authorizationDao = authorizationDao;
     this.serializer = serializer;
   }
 
