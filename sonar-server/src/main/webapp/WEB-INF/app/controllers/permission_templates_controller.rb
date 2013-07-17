@@ -182,6 +182,9 @@ class PermissionTemplatesController < ApplicationController
     verify_post_request
     get_root_qualifiers.each do |qualifier|
       Property.set("sonar.permission.template.#{qualifier}.default", params["default_template_#{qualifier}"])
+      if 'TRK' == qualifier
+        Property.set("sonar.permission.template.default", params["default_template_#{qualifier}"])
+      end
     end
     redirect_to :action => 'index'
   end
