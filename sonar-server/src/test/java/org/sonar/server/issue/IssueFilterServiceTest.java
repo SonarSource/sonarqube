@@ -242,7 +242,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_have_permission_to_share_filter() {
-    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions(Permission.DASHBOARD_SHARING);
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.DASHBOARD_SHARING.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false).setUserLogin("john"));
 
     DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setShared(true).setUser("john"), userSession);
@@ -253,14 +253,14 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_share_filter_if_no_permission() {
-    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions();
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(Collections.<String>emptyList());
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false).setUserLogin("john"));
 
     try {
       service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setShared(true).setUser("john"), userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to share this filter");
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User cannot own this filter because of insufficient rights");
     }
     verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
   }
@@ -268,7 +268,7 @@ public class IssueFilterServiceTest {
   @Test
   public void should_not_update_sharing_if_not_owner() {
     // John is admin and want to change arthur filter sharing
-    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions(Permission.SYSTEM_ADMIN);
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("Arthur Filter").setShared(true).setUserLogin("arthur"));
 
     try {
@@ -308,15 +308,31 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_update_other_shared_filter_if_admin() {
-    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions(Permission.SYSTEM_ADMIN, Permission.DASHBOARD_SHARING);
+  public void should_update_other_shared_filter_if_admin_and_if_filter_owner_has_sharing_permission() {
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+    when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(newArrayList(Permission.DASHBOARD_SHARING.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
-    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true), userSession);
+    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUser("arthur"), userSession);
     assertThat(result.name()).isEqualTo("My New Filter");
     assertThat(result.description()).isEqualTo("New description");
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
+  }
+
+  @Test
+  public void should_not_update_other_shared_filter_if_admin_and_if_filter_owner_has_no_sharing_permission() {
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+    when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(Collections.<String>emptyList());
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
+
+    try {
+      service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUser("arthur"), userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User cannot own this filter because of insufficient rights");
+    }
+    verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
   }
 
   @Test
@@ -376,11 +392,12 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_change_shared_filter_ownership_when_admin() throws Exception {
-    String currentUser = "dave.loper";
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin("former.owner").setShared(true);
     IssueFilterDto expectedDto = new IssueFilterDto().setName("My filter").setUserLogin("new.owner").setShared(true);
 
-    UserSession userSession = MockUserSession.create().setLogin(currentUser).setPermissions(Permission.SYSTEM_ADMIN, Permission.DASHBOARD_SHARING);
+    // New owner should have sharing perm in order to own the filter
+    when(authorizationDao.selectGlobalPermissions("new.owner")).thenReturn(newArrayList(Permission.DASHBOARD_SHARING.key()));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
 
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
     when(issueFilterDao.selectSharedFilters()).thenReturn(Lists.newArrayList(sharedFilter));
@@ -445,7 +462,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_delete_shared_filter_if_user_is_admin() {
-    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions(Permission.SYSTEM_ADMIN);
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
 
     service.delete(1L, userSession);

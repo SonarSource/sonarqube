@@ -321,8 +321,14 @@ class MeasureFilter < ActiveRecord::Base
         count = MeasureFilter.count('id', :conditions => ['name=? and shared=? and (user_id is null or user_id<>?)', name, true, user_id])
       end
       errors.add_to_base('Other users already share filters with the same name') if count>0
+
+      # Verify filter owner has sharing permission
+      if user && !user.has_role?(:shareDashboard)
+        errors.add(:user, "cannot own this filter because of insufficient rights")
+      end
     elsif system?
       errors.add_to_base("System filters can't be unshared")
     end
   end
+
 end
