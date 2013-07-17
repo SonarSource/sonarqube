@@ -31,7 +31,7 @@
 <div id="project-roles-operations" style="float: right;">
   <ul class="operations">
     <li class="last">
-      <%= link_to message('projects_role.apply_template'), {:action => :apply_template_form, :projects => @projects.collect {|proj| proj.id}, :qualifier => @qualifier},
+      <%= link_to message('projects_role.bulk_change'), {:action => :apply_template_form, :projects => @projects.collect {|proj| proj.id}, :qualifier => @qualifier},
                    :id => 'apply-template-modal', :class => 'open-modal link-action' %>
     </li>
   </ul>

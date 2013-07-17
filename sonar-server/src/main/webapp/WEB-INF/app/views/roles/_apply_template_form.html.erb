@@ -1,19 +1,31 @@
 <form id="apply-template-form" method="post" action="<%= ApplicationController.root_context -%>/roles/apply_template">
-  <input type="hidden" name="components" id="apply-template-components" value="<%= components.join(',') %>"/>
+  <% unless components.nil? %>
+    <input type="hidden" name="components" id="apply-template-components" value="<%= components.join(',') %>"/>
+  <% end %>
   <fieldset>
     <div class="modal-head">
       <h2><%= message('projects_role.apply_template.form.title', {:params => ''}) -%></h2>
     </div>
     <div class="modal-body">
       <div class="apply-template errors error" style="display:none;"/>
-      <div class="modal-field">
-        <span><%= "Select the template to apply to #{components.size} #{message('qualifier.' + qualifier)}(s):" %></span><br/>
-        <%= select_tag('template_key', options_for_select(@permission_templates, -1)) %>
-      </div>
+      <% if components.nil? %>
+        <div class="info">
+          <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
+          <%= message 'projects_role.no_projects' -%>
+        </div>
+      <% else %>
+        <div class="modal-field">
+          <%= label_tag 'template_key', 'Permission template:' %>
+          <%= select_tag('template_key', options_for_select(@permission_templates, -1), :style => 'width: 250px;') %>
+          <span style="float:right" class="note">(<%= "#{components.size} #{message('qualifier.' + qualifier)}(s)" %>)</span><br/>
+        </div>
+      <% end %>
     </div>
     <div class="modal-foot">
-      <span id="apply-template-loading-image" class="hidden"><%= image_tag 'loading.gif' %></span>
-      <input type="submit" value="<%= message('apply') -%>" id="apply-template-submit" class="apply-template" onclick="return displayLoadingImage()" />
+      <% unless components.nil? %>
+        <span id="apply-template-loading-image" class="hidden"><%= image_tag 'loading.gif' %></span>
+        <input type="submit" value="<%= message('apply') -%>" id="apply-template-submit" class="apply-template" onclick="return displayLoadingImage()" />
+      <% end %>
       <a href="#" onclick="return closeModalWindow()" id="apply-template-cancel"><%= message('cancel') -%></a>
     </div>
   </fieldset>
