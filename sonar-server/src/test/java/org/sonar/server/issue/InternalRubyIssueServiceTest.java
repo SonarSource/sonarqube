@@ -531,11 +531,17 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_check_is_user_is_authorized_to_see_issue_filter() {
+  public void should_check_if_user_is_authorized_to_see_issue_filter() {
     DefaultIssueFilter issueFilter = new DefaultIssueFilter();
     service.isUserAuthorized(issueFilter);
     verify(issueFilterService).getLoggedLogin(any(UserSession.class));
     verify(issueFilterService).verifyCurrentUserCanReadFilter(eq(issueFilter), anyString());
+  }
+
+  @Test
+  public void should_check_if_user_can_share_issue_filter(){
+    service.canUserShareIssueFilter();
+    verify(issueFilterService).canShareFilter(any(UserSession.class));
   }
 
   @Test

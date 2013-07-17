@@ -93,19 +93,19 @@ public class IssueFilterService implements ServerComponent {
   public DefaultIssueFilter save(DefaultIssueFilter issueFilter, UserSession userSession) {
     String user = getLoggedLogin(userSession);
     issueFilter.setUser(user);
-    validateFilter(issueFilter);
+    validateFilter(issueFilter, userSession);
     return insertIssueFilter(issueFilter, user);
   }
 
   public DefaultIssueFilter update(DefaultIssueFilter issueFilter, UserSession userSession) {
     String login = getLoggedLogin(userSession);
     IssueFilterDto existingFilterDto = findIssueFilterDto(issueFilter.id(), login);
-    verifyCurrentUserCanModifyFilter(existingFilterDto.toIssueFilter(), login);
+    verifyCurrentUserCanModifyFilter(existingFilterDto.toIssueFilter(), userSession);
     verifyCurrentUserCanChangeFilterSharingFilter(issueFilter, existingFilterDto, login);
     if (!existingFilterDto.getUserLogin().equals(issueFilter.user())) {
-      verifyCurrentUserCanChangeFilterOwnership(login);
+      verifyCurrentUserCanChangeFilterOwnership(userSession);
     }
-    validateFilter(issueFilter);
+    validateFilter(issueFilter, userSession);
     deleteOtherFavoriteFiltersIfFilterBecomeUnshared(existingFilterDto, issueFilter);
     filterDao.update(IssueFilterDto.toIssueFilter(issueFilter));
     return issueFilter;
@@ -124,7 +124,7 @@ public class IssueFilterService implements ServerComponent {
   public DefaultIssueFilter updateFilterQuery(Long issueFilterId, Map<String, Object> filterQuery, UserSession userSession) {
     String login = getLoggedLogin(userSession);
     IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilterId, login);
-    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), login);
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), userSession);
 
     DefaultIssueFilter issueFilter = issueFilterDto.toIssueFilter();
     issueFilter.setData(serializeFilterQuery(filterQuery));
@@ -135,7 +135,7 @@ public class IssueFilterService implements ServerComponent {
   public void delete(Long issueFilterId, UserSession userSession) {
     String login = getLoggedLogin(userSession);
     IssueFilterDto issueFilterDto = findIssueFilterDto(issueFilterId, login);
-    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), login);
+    verifyCurrentUserCanModifyFilter(issueFilterDto.toIssueFilter(), userSession);
 
     deleteFavouriteIssueFilters(issueFilterDto);
     filterDao.delete(issueFilterId);
@@ -144,9 +144,11 @@ public class IssueFilterService implements ServerComponent {
   public DefaultIssueFilter copy(Long issueFilterIdToCopy, DefaultIssueFilter issueFilter, UserSession userSession) {
     String login = getLoggedLogin(userSession);
     IssueFilterDto issueFilterDtoToCopy = findIssueFilterDto(issueFilterIdToCopy, login);
+    // Copy of filter should not be shared
+    issueFilterDtoToCopy.setShared(false);
     issueFilter.setUser(login);
     issueFilter.setData(issueFilterDtoToCopy.getData());
-    validateFilter(issueFilter);
+    validateFilter(issueFilter, userSession);
     return insertIssueFilter(issueFilter, login);
   }
 
@@ -198,9 +200,13 @@ public class IssueFilterService implements ServerComponent {
     return issueFilterDto;
   }
 
+  public boolean canShareFilter(UserSession userSession){
+    return userSession.hasGlobalPermission(Permission.DASHBOARD_SHARING);
+  }
+
   String getLoggedLogin(UserSession userSession) {
     String user = userSession.login();
-    if (!userSession.isLoggedIn() && user != null) {
+    if (!userSession.isLoggedIn()) {
       throw new UnauthorizedException("User is not logged in");
     }
     return user;
@@ -212,8 +218,8 @@ public class IssueFilterService implements ServerComponent {
     }
   }
 
-  private void verifyCurrentUserCanModifyFilter(DefaultIssueFilter issueFilter, String user) {
-    if (!issueFilter.user().equals(user) && !isAdmin(user)) {
+  private void verifyCurrentUserCanModifyFilter(DefaultIssueFilter issueFilter, UserSession userSession) {
+    if (!issueFilter.user().equals(userSession.login()) && !isAdmin(userSession)) {
       throw new ForbiddenException("User is not authorized to modify this filter");
     }
   }
@@ -224,13 +230,19 @@ public class IssueFilterService implements ServerComponent {
     }
   }
 
-  private void verifyCurrentUserCanChangeFilterOwnership(String user) {
-    if (!isAdmin(user)) {
+  private void verifyCurrentUserCanChangeFilterOwnership(UserSession userSession) {
+    if (!isAdmin(userSession)) {
       throw new ForbiddenException("User is not authorized to change the owner of this filter");
     }
   }
 
-  private void validateFilter(final DefaultIssueFilter issueFilter) {
+  private void verifyCurrentUserCanShareFilter(DefaultIssueFilter issueFilter, UserSession userSession) {
+    if (issueFilter.shared() && !canShareFilter(userSession)) {
+      throw new ForbiddenException("User is not authorized to share this filter");
+    }
+  }
+
+  private void validateFilter(final DefaultIssueFilter issueFilter, UserSession userSession) {
     List<IssueFilterDto> userFilters = selectUserIssueFilters(issueFilter.user());
     IssueFilterDto userFilterSameName = findFilterWithSameName(userFilters, issueFilter.name());
     if (userFilterSameName != null && !userFilterSameName.getId().equals(issueFilter.id())) {
@@ -242,6 +254,7 @@ public class IssueFilterService implements ServerComponent {
       if (sharedFilterWithSameName != null && !sharedFilterWithSameName.getId().equals(issueFilter.id())) {
         throw new BadRequestException("Other users already share filters with the same name");
       }
+      verifyCurrentUserCanShareFilter(issueFilter, userSession);
     }
   }
 
@@ -308,8 +321,8 @@ public class IssueFilterService implements ServerComponent {
     }));
   }
 
-  private boolean isAdmin(String user) {
-    return authorizationDao.selectGlobalPermissions(user).contains(Permission.SYSTEM_ADMIN.key());
+  private boolean isAdmin(UserSession userSession) {
+    return userSession.hasGlobalPermission(Permission.SYSTEM_ADMIN);
   }
 
   private IssueFilterResult createIssueFilterResult(IssueQueryResult issueQueryResult, IssueQuery issueQuery) {

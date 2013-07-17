@@ -74,10 +74,7 @@ public class IssueFilterServiceTest {
 
   @Before
   public void before() {
-    userSession = mock(UserSession.class);
-    when(userSession.isLoggedIn()).thenReturn(true);
-    when(userSession.userId()).thenReturn(10);
-    when(userSession.login()).thenReturn("john");
+    userSession = MockUserSession.create().setLogin("john");
 
     issueFilterDao = mock(IssueFilterDao.class);
     issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
@@ -131,7 +128,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_find_by_id_if_not_logged() {
-    when(userSession.isLoggedIn()).thenReturn(false);
+    UserSession userSession = MockUserSession.create().setLogin(null);
     try {
       service.find(1L, userSession);
       fail();
@@ -165,7 +162,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_find_by_user_if_not_logged() {
-    when(userSession.isLoggedIn()).thenReturn(false);
+    UserSession userSession = MockUserSession.create().setLogin(null);
     try {
       service.findByUser(userSession);
       fail();
@@ -195,7 +192,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_save_if_not_logged() {
-    when(userSession.isLoggedIn()).thenReturn(false);
+    UserSession userSession = MockUserSession.create().setLogin(null);
     try {
       DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue");
       service.save(issueFilter, userSession);
@@ -244,20 +241,35 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_update_sharing() {
-    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(true).setUserLogin("john"));
+  public void should_have_permission_to_share_filter() {
+    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions(Permission.DASHBOARD_SHARING);
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false).setUserLogin("john"));
 
-    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setShared(false).setUser("john"), userSession);
-    assertThat(result.shared()).isFalse();
+    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setShared(true).setUser("john"), userSession);
+    assertThat(result.shared()).isTrue();
 
     verify(issueFilterDao).update(any(IssueFilterDto.class));
   }
 
   @Test
+  public void should_not_share_filter_if_no_permission() {
+    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions();
+    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false).setUserLogin("john"));
+
+    try {
+      service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setShared(true).setUser("john"), userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to share this filter");
+    }
+    verify(issueFilterDao, never()).update(any(IssueFilterDto.class));
+  }
+
+  @Test
   public void should_not_update_sharing_if_not_owner() {
     // John is admin and want to change arthur filter sharing
+    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions(Permission.SYSTEM_ADMIN);
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("Arthur Filter").setShared(true).setUserLogin("arthur"));
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
 
     try {
       service.update(new DefaultIssueFilter().setId(1L).setName("Arthur Filter").setShared(false).setUser("john"), userSession);
@@ -297,7 +309,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_update_other_shared_filter_if_admin() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions(Permission.SYSTEM_ADMIN, Permission.DASHBOARD_SHARING);
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
     DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true), userSession);
@@ -368,12 +380,13 @@ public class IssueFilterServiceTest {
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin("former.owner").setShared(true);
     IssueFilterDto expectedDto = new IssueFilterDto().setName("My filter").setUserLogin("new.owner").setShared(true);
 
-    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+    UserSession userSession = MockUserSession.create().setLogin(currentUser).setPermissions(Permission.SYSTEM_ADMIN, Permission.DASHBOARD_SHARING);
+
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
     when(issueFilterDao.selectSharedFilters()).thenReturn(Lists.newArrayList(sharedFilter));
 
     DefaultIssueFilter issueFilter = new DefaultIssueFilter().setId(1L).setName("My filter").setShared(true).setUser("new.owner");
-    service.update(issueFilter, MockUserSession.create().setUserId(1).setLogin(currentUser));
+    service.update(issueFilter, userSession);
 
     verify(issueFilterDao).update(argThat(Matches.filter(expectedDto)));
   }
@@ -432,7 +445,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_delete_shared_filter_if_user_is_admin() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions(Permission.SYSTEM_ADMIN);
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
 
     service.delete(1L, userSession);
@@ -489,6 +502,7 @@ public class IssueFilterServiceTest {
     DefaultIssueFilter result = service.copy(1L, issueFilter, userSession);
     assertThat(result.name()).isEqualTo("Copy Of My Issue");
     assertThat(result.user()).isEqualTo("john");
+    assertThat(result.shared()).isFalse();
 
     verify(issueFilterDao).insert(any(IssueFilterDto.class));
   }
@@ -535,7 +549,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_find_favourite_issue_filter_if_not_logged() {
-    when(userSession.isLoggedIn()).thenReturn(false);
+    UserSession userSession = MockUserSession.create().setLogin(null);
 
     try {
       service.findFavoriteFilters(userSession);

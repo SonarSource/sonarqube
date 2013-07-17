@@ -411,6 +411,10 @@ public class InternalRubyIssueService implements ServerComponent {
     }
   }
 
+  public boolean canUserShareIssueFilter(){
+    return issueFilterService.canShareFilter(UserSession.get());
+  }
+
   public String serializeFilterQuery(Map<String, Object> filterQuery) {
     return issueFilterService.serializeFilterQuery(filterQuery);
   }

@@ -78,7 +78,7 @@ class Api::ApiController < ApplicationController
   #
   #
 
-  def render_native_access_denied
+  def render_native_access_denied(exception)
     render_access_denied
   end
 

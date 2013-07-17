@@ -174,17 +174,21 @@ class ApplicationController < ActionController::Base
     render :text => message, :status => exception.httpCode
   end
 
-  def render_native_access_denied
-    access_denied
+  def render_native_access_denied(exception)
+    if request.xhr?
+      render_server_exception(exception)
+    else
+      access_denied
+    end
   end
 
   def render_native_exception(error)
     if error.cause.java_kind_of? Java::JavaLang::IllegalArgumentException
       render_bad_request(error.cause.getMessage)
     elsif error.cause.java_kind_of? Java::OrgSonarServerExceptions::UnauthorizedException
-      render_native_access_denied
+      render_native_access_denied(error.cause)
     elsif error.cause.java_kind_of? Java::OrgSonarServerExceptions::ForbiddenException
-      render_native_access_denied
+      render_native_access_denied(error.cause)
     elsif error.cause.java_kind_of? Java::OrgSonarServerExceptions::HttpException
       render_server_exception(error.cause)
     else
