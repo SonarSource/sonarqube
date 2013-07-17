@@ -4,7 +4,11 @@
   <% end %>
   <fieldset>
     <div class="modal-head">
-      <h2><%= message('projects_role.apply_template.form.title', {:params => ''}) -%></h2>
+    <% if params[:project_name] %>
+      <h2><%= message('projects_role.apply_template_to_xxx', :params => params[:project_name]) -%></h2>
+    <% else %>
+      <h2><%= message('projects_role.apply_template') -%></h2>
+    <% end %>
     </div>
     <div class="modal-body">
       <div class="apply-template errors error" style="display:none;"/>
@@ -17,7 +21,9 @@
         <div class="modal-field">
           <%= label_tag 'template_key', 'Permission template:' %>
           <%= select_tag('template_key', options_for_select(@permission_templates, -1), :style => 'width: 250px;') %>
-          <span style="float:right" class="note">(<%= "#{components.size} #{message('qualifier.' + qualifier)}(s)" %>)</span><br/>
+          <% unless params[:project_name] %>
+            <span style="float:right" class="note">(<%= "#{components.size} #{message('qualifier.' + qualifier)}(s)" %>)</span><br/>
+          <% end %>
         </div>
       <% end %>
     </div>

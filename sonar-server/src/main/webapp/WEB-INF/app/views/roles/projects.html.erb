@@ -44,6 +44,7 @@
     <th><%= message('projects_role.admin') -%></th>
     <th><%= message('projects_role.user') -%></th>
     <th><%= message('projects_role.codeviewer') -%></th>
+    <th></th>
   </tr>
   </thead>
 
@@ -100,6 +101,10 @@
         <span id="g-codeviewer-<%= u project.kee -%>"><%= groups.join(', ') %></span>
         (<%= link_to message('select groups'), {:action => :edit_groups, :role => 'codeviewer', :resource => project.id},
                      :id => "selectg-codeviewer-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
+      </td>
+      <td align="right">
+        <%= link_to message('projects_role.apply_template'), {:action => :apply_template_form, :projects => [project.id], :project_name => project.name, :qualifier => @qualifier},
+                    :id => "apply-template-modal-#{project.id}", :class => 'open-modal link-action' %>
       </td>
     </tr>
   <%
