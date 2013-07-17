@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.db.IssueFilterDao;
@@ -36,6 +37,7 @@ import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.core.permission.Permission;
+import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -65,6 +67,7 @@ public class IssueFilterServiceTest {
   private IssueFilterDao issueFilterDao;
   private IssueFilterFavouriteDao issueFilterFavouriteDao;
   private IssueFinder issueFinder;
+  private AuthorizationDao authorizationDao;
   private IssueFilterSerializer issueFilterSerializer;
 
   private UserSession userSession;
@@ -76,9 +79,10 @@ public class IssueFilterServiceTest {
     issueFilterDao = mock(IssueFilterDao.class);
     issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
     issueFinder = mock(IssueFinder.class);
+    authorizationDao = mock(AuthorizationDao.class);
     issueFilterSerializer = mock(IssueFilterSerializer.class);
 
-    service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder, issueFilterSerializer);
+    service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder, authorizationDao, issueFilterSerializer);
   }
 
   @Test
@@ -330,7 +334,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_update_if_shared_and_not_admin() {
-    UserSession userSession = MockUserSession.create().setLogin("john").setPermissions();
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.USER));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setUserLogin("arthur").setShared(true));
 
     try {
@@ -392,12 +396,12 @@ public class IssueFilterServiceTest {
     String currentUser = "dave.loper";
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin(currentUser).setShared(true);
 
-    UserSession userSession = MockUserSession.create().setLogin(currentUser).setUserId(1).setPermissions();
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(Permission.DRY_RUN_EXECUTION.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
 
     try {
       DefaultIssueFilter issueFilter = new DefaultIssueFilter().setId(1L).setName("My filter").setShared(true).setUser("new.owner");
-      service.update(issueFilter, userSession);
+      service.update(issueFilter, MockUserSession.create().setUserId(1).setLogin(currentUser));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to change the owner of this filter");
@@ -451,7 +455,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_delete_not_shared_filter_if_user_is_admin() {
-    UserSession userSession = MockUserSession.create().setLogin("john").setUserId(1).setPermissions(Permission.SYSTEM_ADMIN);
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(false));
 
     try {
@@ -465,7 +469,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_delete_shared_filter_if_not_admin() {
-    UserSession userSession = MockUserSession.create().setLogin("john").setUserId(1).setPermissions();
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(UserRole.USER));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
 
     try {
