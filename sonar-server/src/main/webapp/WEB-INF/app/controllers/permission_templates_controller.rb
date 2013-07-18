@@ -184,7 +184,7 @@ class PermissionTemplatesController < ApplicationController
   def default_templates_form
     all_templates = Internal.permission_templates.selectAllPermissionTemplates
 
-    @permission_templates_options = all_templates.collect {|t| [t.name, t.key]}
+    @permission_templates_options = all_templates.sort_by {|t| t.name}.collect {|t| [t.name, t.key]}
     @root_qualifiers = get_root_qualifiers
     @default_templates = get_default_templates_per_qualifier(@root_qualifiers)
 
@@ -228,7 +228,7 @@ class PermissionTemplatesController < ApplicationController
     templates_names.each do |template_name|
       permission_templates << Internal.permission_templates.selectPermissionTemplate(template_name)
     end
-    permission_templates
+    permission_templates.sort_by {|t| t.name}
   end
 
 end

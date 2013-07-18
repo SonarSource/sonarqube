@@ -72,15 +72,15 @@
              users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role==permission }.map { |ur| ur.user.name })
              groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role==permission }.map { |gr| group_name(gr.group) })
           %>
-          <span id="u-<%= permission -%>-<%= u project.kee -%>"><%= users.join(', ') %></span>
-          (<%= link_to_edit_roles_permission_form(message('select users'), permission, project.id, "selectu-#{permission}-#{u project.kee}") %>)<br/>
-          <span id="g-<%= permission -%>-<%= u project.kee -%>"><%= groups.join(', ') %></span>
-          (<%= link_to_edit_groups_permission_form(message('select groups'), permission, project.id, "selectg-#{permission}-#{u project.kee}") %>)<br/>
+          <span class="nowrap" id="u-<%= permission -%>-<%= u project.kee -%>"><%= users.join(', ') %></span>
+          (<%= link_to_edit_roles_permission_form(message('select users'), permission, project.id, "select-u-#{permission}-#{u project.kee}") %>)<br/>
+          <span class="nowrap" id="g-<%= permission -%>-<%= u project.kee -%>"><%= groups.join(', ') %></span>
+          (<%= link_to_edit_groups_permission_form(message('select groups'), permission, project.id, "select-g-#{permission}-#{u project.kee}") %>)<br/>
         </td>
       <% end %>
       <td align="right">
         <%= link_to message('projects_role.apply_template'), {:action => :apply_template_form, :projects => [project.id], :project_name => project.name, :qualifier => @qualifier},
-                    :id => "apply-template-modal-#{project.id}", :class => 'open-modal link-action' %>
+                    :id => "apply-template-#{u project.kee}", :class => 'open-modal link-action' %>
       </td>
     </tr>
   <%

@@ -4,7 +4,7 @@
   <input type="hidden" name="permission" value="<%= @permission -%>"/>
   <fieldset>
     <div class="modal-head">
-      <h2><%= message('permission_template.edit_permissions') -%></h2>
+      <h2><%= message('permission_template.edit_permissions', :params => @permission_template.name) -%></h2>
     </div>
     <div class="modal-body">
       <div id="permission-template-error" class="permission-template error" style="display:none;" />

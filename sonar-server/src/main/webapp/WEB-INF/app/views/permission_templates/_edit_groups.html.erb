@@ -4,7 +4,7 @@
   <input type="hidden" name="permission" value="<%= @permission -%>"/>
   <fieldset>
     <div class="modal-head">
-      <h2><%= message('permission_template.edit_permissions') -%></h2>
+      <h2><%= message('permission_template.edit_permissions', :params => @permission_template.name) -%></h2>
     </div>
     <div class="modal-body">
       <div id="permission-template-error" class="permission-template error" style="display:none;" />
@@ -12,7 +12,7 @@
         <tbody>
         <tr>
           <td style="padding: 5px 0;" valign="top">
-            <h2>Add Users</h2>
+            <h2>Add Groups</h2>
 
             <select name="from" id="from" size="30" style="margin: 5px 0; width: 300px;" multiple="multiple">
               <% @groups_without_permission.sort.each do |group| %>
