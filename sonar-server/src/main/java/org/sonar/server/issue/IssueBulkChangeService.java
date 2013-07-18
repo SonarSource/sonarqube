@@ -72,8 +72,9 @@ public class IssueBulkChangeService {
       if (action == null) {
         throw new BadRequestException("The action : '"+ actionName + "' is unknown");
       }
-      action.verify(issueBulkChangeQuery.properties(actionName), issues, userSession);
-      bulkActions.add(action);
+      if (action.verify(issueBulkChangeQuery.properties(actionName), issues, userSession)) {
+        bulkActions.add(action);
+      }
     }
 
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());

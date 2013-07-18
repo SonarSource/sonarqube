@@ -20,11 +20,14 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.core.issue.workflow.IssueWorkflow;
+import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -49,7 +52,21 @@ public class TransitionAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return workflow.doTransition((DefaultIssue) context.issue(), transition(properties), context.issueChangeContext());
+    DefaultIssue issue = (DefaultIssue) context.issue();
+    String transition = transition(properties);
+    if (canExecuteTransition(issue, transition)){
+      return workflow.doTransition((DefaultIssue) context.issue(), transition(properties), context.issueChangeContext());
+    }
+    return false;
+  }
+
+  private boolean canExecuteTransition(Issue issue, final String transition){
+    return Iterables.find(workflow.outTransitions(issue), new Predicate<Transition>() {
+      @Override
+      public boolean apply(Transition input) {
+        return input.key().equals(transition);
+      }
+    }, null) != null;
   }
 
   private String transition(Map<String, Object> properties) {

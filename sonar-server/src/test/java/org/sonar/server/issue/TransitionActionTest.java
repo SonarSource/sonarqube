@@ -27,10 +27,12 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.core.issue.workflow.IssueWorkflow;
+import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -59,8 +61,27 @@ public class TransitionActionTest {
     Action.Context context = mock(Action.Context.class);
     when(context.issue()).thenReturn(issue);
 
+    when(workflow.outTransitions(context.issue())).thenReturn(newArrayList(Transition.create(transition, "REOPEN", "CONFIRMED")));
+
     action.execute(properties, context);
     verify(workflow).doTransition(eq(issue), eq(transition), any(IssueChangeContext.class));
+  }
+
+  @Test
+  public void should_not_execute_if_transition_is_not_available() {
+    String transition = "reopen";
+    Map<String, Object> properties = newHashMap();
+    properties.put("transition", transition);
+    DefaultIssue issue = mock(DefaultIssue.class);
+
+    Action.Context context = mock(Action.Context.class);
+    when(context.issue()).thenReturn(issue);
+
+    // Do not contain reopen, transition is not possible
+    when(workflow.outTransitions(context.issue())).thenReturn(newArrayList(Transition.create("resolve", "OPEN", "RESOLVED")));
+
+    assertThat(action.execute(properties, context)).isFalse();
+    verify(workflow, never()).doTransition(eq(issue), eq(transition), any(IssueChangeContext.class));
   }
 
   @Test

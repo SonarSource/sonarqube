@@ -177,6 +177,7 @@ public class IssueBulkChangeServiceTest {
     actions.add(action);
     when(action.key()).thenReturn("assign");
     when(action.supports(any(Issue.class))).thenReturn(true);
+    when(action.verify(anyMap(), anyListOf(Issue.class), any(UserSession.class))).thenReturn(true);
     doThrow(new RuntimeException("Error")).when(action).execute(anyMap(), any(IssueBulkChangeService.ActionContext.class));
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
