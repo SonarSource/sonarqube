@@ -24,7 +24,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
@@ -44,6 +43,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -163,9 +163,6 @@ public class IssueFilterService implements ServerComponent {
   }
 
   public List<DefaultIssueFilter> findFavoriteFilters(UserSession userSession) {
-    if (!userSession.isLoggedIn()) {
-      return Collections.emptyList();
-    }
     return toIssueFilters(filterDao.selectFavoriteFiltersByUser(getLoggedLogin(userSession)));
   }
 

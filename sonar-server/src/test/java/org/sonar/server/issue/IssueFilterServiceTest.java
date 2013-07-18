@@ -218,7 +218,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_save_shared_filter_if_name_already_used_by_shared_filter() {
-    when(issueFilterDao.selectByUser(eq("john"))).thenReturn(Collections.<IssueFilterDto>emptyList());
+    when(issueFilterDao.selectByUser(eq("john"))).thenReturn(Collections.<IssueFilterDto> emptyList());
     when(issueFilterDao.selectSharedFilters()).thenReturn(newArrayList(new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("henry").setShared(true)));
     DefaultIssueFilter issueFilter = new DefaultIssueFilter().setName("My Issue").setShared(true);
     try {
@@ -548,7 +548,7 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectSharedFilters()).thenReturn(newArrayList(
         new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john").setShared(true),
         new IssueFilterDto().setId(2L).setName("Project Issues").setUserLogin("arthur").setShared(true)
-    ));
+        ));
 
     List<DefaultIssueFilter> results = service.findSharedFiltersWithoutUserFilters(userSession);
     assertThat(results).hasSize(1);
@@ -565,16 +565,22 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_find_empty_favourite_issue_filter_if_not_logged() {
+  public void should_not_find_favourite_issue_filter_if_not_logged() {
     UserSession userSession = MockUserSession.create().setLogin(null);
-    assertThat(service.findFavoriteFilters(userSession)).isEmpty();
+
+    try {
+      service.findFavoriteFilters(userSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(UnauthorizedException.class).hasMessage("User is not logged in");
+    }
   }
 
   @Test
   public void should_add_favourite_issue_filter_id() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("john").setData("componentRoots=struts"));
     // The filter is not in the favorite list --> add to favorite
-    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto>emptyList());
+    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto> emptyList());
 
     ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
     service.toggleFavouriteIssueFilter(1L, userSession);
@@ -589,7 +595,7 @@ public class IssueFilterServiceTest {
   public void should_add_favourite_on_shared_filter() {
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
     // The filter is not in the favorite list --> add to favorite
-    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto>emptyList());
+    when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto> emptyList());
 
     ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
     service.toggleFavouriteIssueFilter(1L, userSession);
@@ -660,10 +666,10 @@ public class IssueFilterServiceTest {
       if (o != null && o instanceof IssueFilterDto) {
         IssueFilterDto otherFilter = (IssueFilterDto) o;
         return ObjectUtils.equals(referenceFilter.isShared(), otherFilter.isShared())
-            && ObjectUtils.equals(referenceFilter.getUserLogin(), otherFilter.getUserLogin())
-            && ObjectUtils.equals(referenceFilter.getDescription(), otherFilter.getDescription())
-            && ObjectUtils.equals(referenceFilter.getName(), otherFilter.getName())
-            && ObjectUtils.equals(referenceFilter.getData(), otherFilter.getData());
+          && ObjectUtils.equals(referenceFilter.getUserLogin(), otherFilter.getUserLogin())
+          && ObjectUtils.equals(referenceFilter.getDescription(), otherFilter.getDescription())
+          && ObjectUtils.equals(referenceFilter.getName(), otherFilter.getName())
+          && ObjectUtils.equals(referenceFilter.getData(), otherFilter.getData());
       }
       return false;
     }
