@@ -583,7 +583,8 @@ public class IssueFilterServiceTest {
     when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto> emptyList());
 
     ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
-    service.toggleFavouriteIssueFilter(1L, userSession);
+    boolean result = service.toggleFavouriteIssueFilter(1L, userSession);
+    assertThat(result).isTrue();
     verify(issueFilterFavouriteDao).insert(issueFilterFavouriteDtoCaptor.capture());
 
     IssueFilterFavouriteDto issueFilterFavouriteDto = issueFilterFavouriteDtoCaptor.getValue();
@@ -598,7 +599,8 @@ public class IssueFilterServiceTest {
     when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(Collections.<IssueFilterFavouriteDto> emptyList());
 
     ArgumentCaptor<IssueFilterFavouriteDto> issueFilterFavouriteDtoCaptor = ArgumentCaptor.forClass(IssueFilterFavouriteDto.class);
-    service.toggleFavouriteIssueFilter(1L, userSession);
+    boolean result = service.toggleFavouriteIssueFilter(1L, userSession);
+    assertThat(result).isTrue();
     verify(issueFilterFavouriteDao).insert(issueFilterFavouriteDtoCaptor.capture());
 
     IssueFilterFavouriteDto issueFilterFavouriteDto = issueFilterFavouriteDtoCaptor.getValue();
@@ -612,7 +614,8 @@ public class IssueFilterServiceTest {
     // The filter is in the favorite list --> remove favorite
     when(issueFilterFavouriteDao.selectByFilterId(1L)).thenReturn(newArrayList(new IssueFilterFavouriteDto().setId(10L).setUserLogin("john").setIssueFilterId(1L)));
 
-    service.toggleFavouriteIssueFilter(1L, userSession);
+    boolean result = service.toggleFavouriteIssueFilter(1L, userSession);
+    assertThat(result).isFalse();
     verify(issueFilterFavouriteDao).delete(10L);
   }
 

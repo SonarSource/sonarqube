@@ -166,14 +166,19 @@ public class IssueFilterService implements ServerComponent {
     return toIssueFilters(filterDao.selectFavoriteFiltersByUser(getLoggedLogin(userSession)));
   }
 
-  public void toggleFavouriteIssueFilter(Long filterId, UserSession userSession) {
+  /**
+   * Return true if favorite is added, false if favorite is removed
+   */
+  public boolean toggleFavouriteIssueFilter(Long filterId, UserSession userSession) {
     String user = getLoggedLogin(userSession);
     findIssueFilterDto(filterId, user);
     IssueFilterFavouriteDto issueFilterFavouriteDto = selectFavouriteFilterForUser(filterId, user);
     if (issueFilterFavouriteDto == null) {
       addFavouriteIssueFilter(filterId, user);
+      return true;
     } else {
       deleteFavouriteIssueFilter(issueFilterFavouriteDto);
+      return false;
     }
   }
 

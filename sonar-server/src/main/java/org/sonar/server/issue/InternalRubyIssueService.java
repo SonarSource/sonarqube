@@ -555,10 +555,8 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueFilterService.findFavoriteFilters(UserSession.get());
   }
 
-  public Result toggleFavouriteIssueFilter(Long issueFilterId) {
-    Result result = Result.of();
-    issueFilterService.toggleFavouriteIssueFilter(issueFilterId, UserSession.get());
-    return result;
+  public boolean toggleFavouriteIssueFilter(Long issueFilterId) {
+    return issueFilterService.toggleFavouriteIssueFilter(issueFilterId, UserSession.get());
   }
 
   /**

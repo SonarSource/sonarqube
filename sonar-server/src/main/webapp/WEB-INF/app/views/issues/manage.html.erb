@@ -3,12 +3,20 @@
     $j(document).ready(function () {
       $j(".issue-filter-star").click(function () {
         var filterId = $j(this).attr('filter-id');
+        var star = $j(this);
         $j.ajax({
           type: 'POST',
           url: baseUrl + "/issues/toggle_fav",
           data: {id: filterId},
           success: function (data) {
-            window.location = baseUrl + '/issues/manage';
+            if (data == 'true') {
+              star.removeClass('notfav').addClass('fav');
+              star.attr('title', '<%= escape_javascript message('click_to_remove_from_favourites') -%>');
+            } else {
+              star.removeClass('fav').addClass('notfav');
+              star.attr('title', '<%= escape_javascript message('click_to_add_to_favourites') -%>');
+            }
+            $j('#sidebar-favourites').load(baseUrl + '/issues/favourites');
           }
         });
       });

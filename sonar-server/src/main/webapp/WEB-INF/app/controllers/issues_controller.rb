@@ -22,7 +22,7 @@ require 'set'
 class IssuesController < ApplicationController
 
   before_filter :init_options
-  before_filter :load_fav_filters, :only => [:index, :search, :filter, :manage, :toggle_fav]
+  before_filter :load_fav_filters, :only => [:index, :search, :filter, :manage, :favourites, :toggle_fav]
 
   PAGE_SIZE = 100
 
@@ -139,12 +139,17 @@ class IssuesController < ApplicationController
     redirect_to :action => 'manage'
   end
 
+  # GET /issues/favourites
+  def favourites
+    verify_ajax_request
+    render :partial => 'issues/filter_favourites'
+  end
+
   # POST /issues/toggle_fav/<filter id>
   def toggle_fav
     verify_ajax_request
     require_parameters :id
-    Internal.issues.toggleFavouriteIssueFilter(params[:id].to_i)
-    render :text => '', :status => 200
+    render :text => Internal.issues.toggleFavouriteIssueFilter(params[:id].to_i), :status => 200
   end
 
   # GET /issues/bulk_change_form?[&criteria]

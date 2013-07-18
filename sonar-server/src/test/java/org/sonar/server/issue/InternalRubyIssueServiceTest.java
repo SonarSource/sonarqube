@@ -525,8 +525,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void should_toggle_favourite_issue_filter() {
-    Result result = service.toggleFavouriteIssueFilter(10L);
-    assertThat(result.ok()).isTrue();
+    service.toggleFavouriteIssueFilter(10L);
     verify(issueFilterService).toggleFavouriteIssueFilter(eq(10L), any(UserSession.class));
   }
 

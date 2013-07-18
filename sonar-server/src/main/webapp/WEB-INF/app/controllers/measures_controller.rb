@@ -143,10 +143,11 @@ class MeasuresController < ApplicationController
       @filter.user = User.find_by_login(params[:owner])
     end
 
-    # SONAR-4469
-    # If filter become unshared then remove all favorite filters linked to it, expect favorite of filter's owner
-    MeasureFilterFavourite.delete_all(['user_id<>? and measure_filter_id=?', @filter.user.id, params[:id]]) if params[:shared]!='true'
     if @filter.save
+      # SONAR-4469
+      # If filter become unshared then remove all favorite filters linked to it, expect favorite of filter's owner
+      MeasureFilterFavourite.delete_all(['user_id<>? and measure_filter_id=?', @filter.user.id, params[:id]]) if params[:shared]!='true'
+
       render :text => @filter.id.to_s, :status => 200
     else
       render :partial => 'measures/edit_form', :status => 400
