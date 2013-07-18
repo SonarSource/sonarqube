@@ -14,7 +14,7 @@
       </div>
       <div class="modal-field">
         <label for="description"><%= h message('description') -%></label>
-        <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= @permission_template ? @permission_template.description : '' -%>"/>
+        <textarea id="description" name="description" maxlength="4000" rows="10" style="width: 330px;"><%= @permission_template ? @permission_template.description : '' -%></textarea>
       </div>
     </div>
     <div class="modal-foot">

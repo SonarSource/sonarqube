@@ -8,7 +8,7 @@
       <div id="permission-template-error" class="permission-template error errors" style="display:none;" />
       <div class="info">
         <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
-        <%= message 'permission_template.do_you_want_to_delete_template' -%>
+        <%= message 'permission_template.do_you_want_to_delete_template_xxx', :params => @permission_template.name -%>
       </div>
     </div>
     <div class="modal-foot">
