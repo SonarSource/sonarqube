@@ -91,7 +91,7 @@ class MeasuresController < ApplicationController
       current_user.favourited_measure_filters<<@filter if add_to_favourites
       render :text => @filter.id.to_s, :status => 200
     else
-      render :partial => 'measures/save_as_form', :status => 400
+      render_measures_error(@filter)
     end
   end
 
@@ -150,7 +150,7 @@ class MeasuresController < ApplicationController
 
       render :text => @filter.id.to_s, :status => 200
     else
-      render :partial => 'measures/edit_form', :status => 400
+      render_measures_error(@filter)
     end
   end
 
@@ -179,10 +179,7 @@ class MeasuresController < ApplicationController
       current_user.favourited_measure_filters << target
       render :text => target.id.to_s, :status => 200
     else
-      # keep the id (from source) and errors (from target) in the copy form
-      target.id= source.id
-      @filter = target
-      render :partial => 'measures/copy_form', :status => 400
+      render_measures_error(target)
     end
   end
 
@@ -238,5 +235,11 @@ class MeasuresController < ApplicationController
 
   def criteria_params
     params.merge({:controller => nil, :action => nil, :search => nil, :widget_id => nil, :edit => nil})
+  end
+
+  def render_measures_error(filter)
+    errors = []
+    filter.errors.full_messages.each{|msg| errors<<msg + '<br/>'}
+    render :text => errors, :status => 400
   end
 end

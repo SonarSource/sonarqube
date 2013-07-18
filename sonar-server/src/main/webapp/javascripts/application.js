@@ -311,7 +311,16 @@ function openModalWindow(url, options) {
               window.location.reload();
             },
             error: function (xhr, textStatus, errorThrown) {
-              $j("#modal").html(xhr.responseText);
+              // If the modal window has defined a modal-error element, then returned text must be displayed in it
+              var errorElt = obj.find(".modal-error");
+              if (errorElt.length) {
+                $j('input[type=submit]', obj).removeAttr('disabled');
+                errorElt.show();
+                errorElt.html(xhr.responseText);
+                // otherwise replace modal window by the returned text
+              } else {
+                $j("#modal").html(xhr.responseText);
+              }
             }
           }, ajax_options));
           return false;

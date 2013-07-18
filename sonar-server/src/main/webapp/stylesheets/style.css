@@ -2354,6 +2354,15 @@ ul.modal-head-metadata li {
   color: #777;
 }
 
+.modal-error {
+  border: 1px solid red;
+  background-color: #FF5252;
+  color: #eee;
+  margin: 0 0 4px;
+  padding: 4px;
+  display: none;
+}
+
 input[type=text], input[type=password] {
   height: 18px;
   padding: 0 3px;
