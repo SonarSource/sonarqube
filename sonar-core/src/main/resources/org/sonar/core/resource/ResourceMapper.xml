@@ -124,8 +124,8 @@
     select * from projects p
     <where>
       <if test="qualifiers != null and qualifiers.size() > 0">
-        and p.qualifier in
-        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}</foreach>
+        and <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">p.qualifier=#{qualifier}
+      </foreach>
       </if>
       and p.enabled=${_true}
       and p.copy_resource_id is null
