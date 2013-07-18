@@ -652,6 +652,20 @@ public class IssueFilterServiceTest {
     verify(issueFilterSerializer).deserialize("componentRoots=struts");
   }
 
+  @Test
+  public void user_can_share_filter_if_logged_and_own_sharing_permission(){
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.DASHBOARD_SHARING.key()));
+    UserSession userSession = MockUserSession.create().setLogin("john");
+    assertThat(service.canShareFilter(userSession)).isTrue();
+
+    userSession = MockUserSession.create().setLogin(null);
+    assertThat(service.canShareFilter(userSession)).isFalse();
+
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(Collections.<String>emptyList());
+    userSession = MockUserSession.create().setLogin("john");
+    assertThat(service.canShareFilter(userSession)).isFalse();
+  }
+
   private static class Matches extends BaseMatcher<IssueFilterDto> {
 
     private final IssueFilterDto referenceFilter;

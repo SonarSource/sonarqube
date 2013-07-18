@@ -32,10 +32,7 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
 
 import java.util.Date;
 import java.util.List;
@@ -66,36 +63,18 @@ public class IssueBulkChangeService {
     IssueBulkChangeResult result = new IssueBulkChangeResult();
     IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issues()).pageSize(-1).requiredRole(UserRole.USER).build());
     List<Issue> issues = issueQueryResult.issues();
-    List<Action> bulkActions = newArrayList();
-    for (String actionName : issueBulkChangeQuery.actions()) {
-      Action action = getAction(actionName);
-      if (action == null) {
-        throw new BadRequestException("The action : '"+ actionName + "' is unknown");
-      }
-      if (action.verify(issueBulkChangeQuery.properties(actionName), issues, userSession)) {
-        bulkActions.add(action);
-      }
-    }
+    List<Action> bulkActions = getActionsToApply(issueBulkChangeQuery, issues, userSession);
 
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
     for (Issue issue : issues) {
       ActionContext actionContext = new ActionContext(issue, issueChangeContext);
       for (Action action : bulkActions) {
-        try {
-          if (applyAction(action, actionContext, issueBulkChangeQuery)) {
-            result.addIssueChanged(issue);
-          } else {
-            result.addIssueNotChanged(issue);
-          }
-        } catch (Exception e) {
-          result.addIssueNotChanged(issue);
-          LOG.info("An error occur when trying to apply the action : "+ action.key() + " on issue : "+ issue.key() + ". This issue has been ignored.", e);
-        }
+        applyAction(action, actionContext, issueBulkChangeQuery, result);
       }
       if (result.issuesChanged().contains(issue)) {
         // Apply comment action only on changed issues
         if (issueBulkChangeQuery.hasComment()) {
-          applyAction(getAction(CommentAction.KEY), actionContext, issueBulkChangeQuery);
+          applyAction(getAction(CommentAction.KEY), actionContext, issueBulkChangeQuery, result);
         }
         issueStorage.save((DefaultIssue) issue);
         issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
@@ -105,18 +84,38 @@ public class IssueBulkChangeService {
     return result;
   }
 
-  private boolean applyAction(Action action, ActionContext actionContext, IssueBulkChangeQuery issueBulkChangeQuery){
-    return action.supports(actionContext.issue()) && action.execute(issueBulkChangeQuery.properties(action.key()), actionContext);
+  private List<Action> getActionsToApply(IssueBulkChangeQuery issueBulkChangeQuery, List<Issue> issues, UserSession userSession) {
+    List<Action> bulkActions = newArrayList();
+    for (String actionName : issueBulkChangeQuery.actions()) {
+      Action action = getAction(actionName);
+      if (action.verify(issueBulkChangeQuery.properties(actionName), issues, userSession)) {
+        bulkActions.add(action);
+      }
+    }
+    return bulkActions;
   }
 
-  @CheckForNull
+  private void applyAction(Action action, ActionContext actionContext, IssueBulkChangeQuery issueBulkChangeQuery, IssueBulkChangeResult result) {
+    Issue issue = actionContext.issue();
+    try {
+      if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(action.key()), actionContext)) {
+        result.addIssueChanged(issue);
+      } else {
+        result.addIssueNotChanged(issue);
+      }
+    } catch (Exception e) {
+      result.addIssueNotChanged(issue);
+      LOG.info("An error occur when trying to apply the action : " + action.key() + " on issue : " + issue.key() + ". This issue has been ignored.", e);
+    }
+  }
+
   private Action getAction(final String actionKey) {
     return Iterables.find(actions, new Predicate<Action>() {
       @Override
       public boolean apply(Action action) {
         return action.key().equals(actionKey);
       }
-    }, null);
+    });
   }
 
   static class ActionContext implements Action.Context {

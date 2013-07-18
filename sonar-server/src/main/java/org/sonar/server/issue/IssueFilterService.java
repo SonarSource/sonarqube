@@ -205,8 +205,12 @@ public class IssueFilterService implements ServerComponent {
     return issueFilterDto;
   }
 
-  public boolean canShareFilter(String user){
-    return authorizationDao.selectGlobalPermissions(user).contains(Permission.DASHBOARD_SHARING.key());
+  public boolean canShareFilter(UserSession userSession){
+    if (userSession.isLoggedIn()) {
+      String user = userSession.login();
+      return hasUserSharingPermission(user);
+    }
+    return false;
   }
 
   String getLoggedLogin(UserSession userSession) {
@@ -242,7 +246,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   private void verifyCurrentUserCanShareFilter(DefaultIssueFilter issueFilter, String user) {
-    if (issueFilter.shared() && !canShareFilter(user)) {
+    if (issueFilter.shared() && !hasUserSharingPermission(user)) {
       throw new ForbiddenException("User cannot own this filter because of insufficient rights");
     }
   }
@@ -332,6 +336,10 @@ public class IssueFilterService implements ServerComponent {
 
   private IssueFilterResult createIssueFilterResult(IssueQueryResult issueQueryResult, IssueQuery issueQuery) {
     return new IssueFilterResult(issueQueryResult, issueQuery);
+  }
+
+  private boolean hasUserSharingPermission(String user){
+    return authorizationDao.selectGlobalPermissions(user).contains(Permission.DASHBOARD_SHARING.key());
   }
 
 }
