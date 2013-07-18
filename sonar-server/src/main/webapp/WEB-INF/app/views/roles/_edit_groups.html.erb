@@ -9,7 +9,7 @@
     <input name="role" value="<%= @role -%>" type="hidden"/>
     <fieldset>
       <div class="modal-head">
-        <h2><%= @project ? 'Edit permissions for: ' + h(@project.name) : "System #{role_name(@role)}" -%></h2>
+        <h2><%= @project ? 'Edit permissions for: ' + h(@project.name) : "System #{message("global_permissions.#{@role}")}" -%></h2>
       </div>
       <div class="modal-body">
         <div id="permission-groups-error" class="permission-groups error" style="display:none;" />
