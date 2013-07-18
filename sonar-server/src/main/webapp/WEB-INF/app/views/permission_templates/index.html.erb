@@ -35,42 +35,20 @@
       <td valign="top"><b><%= h permission_template.name %></b><br/>
         <span class="small gray"><%= h permission_template.description -%></span>
       </td>
-      <td valign="top">
-        <%
-           users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('admin').collect {|u| u.userName})
-           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('admin').collect {|g| g.groupName.blank? ? 'Anyone' : g.groupName})
-        %>
-        <span id="u-admin-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
-        (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => 'admin'},
-                    :id => "selectu-admin-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
-        <span id="g-admin-<%= u permission_template.name -%>"><%= groups.join(', ') %></span>
-        (<%= link_to message('select groups'), {:action => :edit_groups, :name => permission_template.name, :permission => 'admin'},
-                     :id => "selectg-admin-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)
-      </td>
-      <td valign="top">
-        <%
-           users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('user').collect {|u| u.userName})
-           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('user').collect {|g| g.groupName.blank? ? 'Anyone' : g.groupName})
-        %>
-        <span id="u-user-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
-        (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => 'user'},
-                     :id => "selectu-user-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
-        <span id="g-user-<%= u permission_template.name -%>"><%= groups.join(', ') %></span>
-        (<%= link_to message('select groups'), {:action => :edit_groups, :name => permission_template.name, :permission => 'user'},
-                     :id => "selectg-user-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)
-      </td>
-      <td valign="top">
-        <%
-           users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission('codeviewer').collect {|u| u.userName})
-           groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission('codeviewer').collect {|g| g.groupName.blank? ? 'Anyone' : g.groupName})
-        %>
-        <span id="u-codeviewer-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
-        (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => 'codeviewer'},
-                     :id => "selectu-codeviewer-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
-        <span id="g-codeviewer-<%= u permission_template.name -%>"><%= groups.join(', ') %></span>
-        (<%= link_to message('select groups'), {:action => :edit_groups, :name => permission_template.name, :permission => 'codeviewer'},
-                     :id => "selectg-codeviewer-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)
-      </td>
+      <% ['admin', 'user', 'codeviewer'].each do |permission| -%>
+        <td valign="top">
+          <%
+             users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission(permission).collect {|u| u.userName})
+             groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission(permission).collect {|g| g.groupName.blank? ? 'Anyone' : g.groupName})
+          %>
+          <span id="u-<%= permission -%>-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
+          (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => permission},
+                       :id => "selectu-#{permission}-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '780px' %>)<br/>
+          <span id="g-<%= permission -%>-<%= u permission_template.name -%>"><%= groups.join(', ') %></span>
+          (<%= link_to message('select groups'), {:action => :edit_groups, :name => permission_template.name, :permission => permission},
+                       :id => "selectg-#{permission}-#{u permission_template.name}", :class => 'open-modal link-action', 'modal-width' => '780px' %>)<br/>
+        </td>
+      <% end %>
       <td>
         <% qualifiers = []
            @default_templates.each_pair do |q, t|

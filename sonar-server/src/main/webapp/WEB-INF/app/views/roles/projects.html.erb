@@ -66,42 +66,18 @@
       <td valign="top"><b><%= h project.name %></b><br/>
         <span class="small gray"><%= h project.key -%></span>
       </td>
-      <td valign="top">
-        <%
-           users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role=='admin' }.map { |ur| ur.user.name })
-           groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='admin' }.map { |gr| group_name(gr.group) })
-        %>
-        <span id="u-admin-<%= u project.kee -%>"><%= users.join(', ') %></span>
-        (<%= link_to message('select users'), {:action => :edit_users, :role => 'admin', :resource => project.id},
-                     :id => "selectu-admin-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
-        <span id="g-admin-<%= u project.kee -%>"><%= groups.join(', ') %></span>
-        (<%= link_to message('select groups'), {:action => :edit_groups, :role => 'admin', :resource => project.id},
-                     :id => "selectg-admin-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
-      </td>
-      <td valign="top">
-        <%
-           users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role=='user' }.map { |ur| ur.user.name })
-           groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='user' }.map { |gr| group_name(gr.group) })
-        %>
-        <span id="u-user-<%= u project.kee -%>"><%= users.join(', ') %></span>
-        (<%= link_to message('select users'), {:action => :edit_users, :role => 'user', :resource => project.id},
-                     :id => "selectu-user-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
-        <span id="g-user-<%= u project.kee -%>"><%= groups.join(', ') %></span>
-        (<%= link_to message('select groups'), {:action => :edit_groups, :role => 'user', :resource => project.id},
-                     :id => "selectg-user-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
-      </td>
-      <td valign="top">
-        <%
-           users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role=='codeviewer' }.map { |ur| ur.user.name })
-           groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role=='codeviewer' }.map { |gr| group_name(gr.group) })
-        %>
-        <span id="u-codeviewer-<%= u project.kee -%>"><%= users.join(', ') %></span>
-        (<%= link_to message('select users'), {:action => :edit_users, :role => 'codeviewer', :resource => project.id},
-                     :id => "selectu-codeviewer-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
-        <span id="g-codeviewer-<%= u project.kee -%>"><%= groups.join(', ') %></span>
-        (<%= link_to message('select groups'), {:action => :edit_groups, :role => 'codeviewer', :resource => project.id},
-                     :id => "selectg-codeviewer-#{u project.kee}", :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
-      </td>
+      <% ['admin', 'user', 'codeviewer'].each do |permission| -%>
+        <td valign="top">
+          <%
+             users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role==permission }.map { |ur| ur.user.name })
+             groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role==permission }.map { |gr| group_name(gr.group) })
+          %>
+          <span id="u-<%= permission -%>-<%= u project.kee -%>"><%= users.join(', ') %></span>
+          (<%= link_to_edit_roles_permission_form(message('select users'), permission, project.id, "selectu-#{permission}-#{u project.kee}") %>)<br/>
+          <span id="g-<%= permission -%>-<%= u project.kee -%>"><%= groups.join(', ') %></span>
+          (<%= link_to_edit_groups_permission_form(message('select groups'), permission, project.id, "selectg-#{permission}-#{u project.kee}") %>)<br/>
+        </td>
+      <% end %>
       <td align="right">
         <%= link_to message('projects_role.apply_template'), {:action => :apply_template_form, :projects => [project.id], :project_name => project.name, :qualifier => @qualifier},
                     :id => "apply-template-modal-#{project.id}", :class => 'open-modal link-action' %>

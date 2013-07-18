@@ -12,40 +12,34 @@
     <td valign="top"><b>Administrators</b><br/><span class="small gray">Ability to perform administration functions for a project by accessing its settings.</span></td>
     <td valign="top" style="word-break:break-all;width:35%;">
       <span id="admin-role-users"><%= users('admin', @project.id).map(&:name).join(', ') %></span>
-      (<%= link_to message('select'), {:controller => :roles, :action => :edit_users, :role => 'admin', :resource => @project.id},
-                   :id => 'select-admin-edit-users', :class => 'open-modal link-action', 'modal-width' => '760px' %>)
+      (<%= link_to_edit_roles_permission_form(message('select'), 'admin', @project.id, 'select-admin-edit-users') %>)<br/>
     </td>
     <td valign="top" style="word-break:break-all;width:35%;">
       <span id="admin-role-groups"><%= groups('admin', @project.id).map{|g| group_name(g)}.join(', ') %></span>
-      (<%= link_to message('select'), {:controller => :roles, :action => :edit_groups, :role => 'admin', :resource => @project.id},
-                   :id => 'select-admin-edit-groups', :class => 'open-modal link-action', 'modal-width' => '760px' %>)
+      (<%= link_to_edit_groups_permission_form(message('select'), 'admin', @project.id, 'select-admin-edit-groups') %>)<br/>
     </td>
   </tr>
   <tr class="odd">
     <td valign="top"><b>Users</b><br/><span class="small gray">Ability to navigate through every service of a project, except viewing source code and settings.</span></td>
     <td valign="top" style="word-break:break-all;width:35%;">
       <span id="user-role-users"><%= users('user', @project.id).map(&:name).join(', ') %></span>
-      (<%= link_to message('select'), {:controller => :roles, :action => :edit_users, :role => 'user', :resource => @project.id},
-                   :id => 'select-user-edit-users', :class => 'open-modal link-action', 'modal-width' => '760px' %>)
+      (<%= link_to_edit_roles_permission_form(message('select'), 'user', @project.id, 'select-user-edit-users') %>)<br/>
     </td>
     <td valign="top" style="word-break:break-all;width:35%;">
       <span id="user-role-groups"><%= groups('user', @project.id).map{|g| group_name(g)}.join(', ') %></span>
-      (<%= link_to message('select'), {:controller => :roles, :action => :edit_groups, :role => 'user', :resource => @project.id},
-                   :id => 'select-user-edit-groups', :class => 'open-modal link-action', 'modal-width' => '760px' %>)
+      (<%= link_to_edit_groups_permission_form(message('select'), 'user', @project.id, 'select-user-edit-groups') %>)<br/>
     </td>
   </tr>
   <tr class="even" >
     <td valign="top"><b>Code viewers</b><br/><span class="small gray">Ability to view source code of a project.</span></td>
     <td valign="top" style="word-break:break-all;width:35%;">
       <span id="codeviewer-role-users"><%= users('codeviewer', @project.id).map(&:name).join(', ') %></span>
-      (<%= link_to message('select'), {:controller => :roles, :action => :edit_users, :role => 'codeviewer', :resource => @project.id},
-                   :id => 'select-codeviewer-edit-users', :class => 'open-modal link-action', 'modal-width' => '760px' %>)<br/>
+      (<%= link_to_edit_roles_permission_form(message('select'), 'codeviewer', @project.id, 'select-codeviewer-edit-users') %>)<br/>
     </td>
     <td valign="top" style="word-break:break-all;width:35%;">
       <span id="codeviewer-role-groups"><%= groups('codeviewer', @project.id).map{|g| group_name(g)}.join(', ') %></span>
-      (<%= link_to message('select'), {:controller => :roles, :action => :edit_groups, :role => 'codeviewer', :resource => @project.id},
-                   :id => 'select-codeviewer-edit-groups', :class => 'open-modal link-action', 'modal-width' => '760px' %>)
-
+      (<%= link_to_edit_groups_permission_form(message('select'), 'codeviewer', @project.id, 'select-codeviewer-edit-groups') %>)<br/>
+    </td>
   </tr>
   </tbody>
 </table>
