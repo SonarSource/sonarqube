@@ -78,7 +78,7 @@
            end
            if qualifiers.length > 0
         %>
-          <%= image_tag 'tick.png', :id => "is_active_#{u permission_template.name}" %><span class="small gray">(Default for <%= qualifiers.collect {|q| message('qualifier.' + q)}.join(', ') %>)</span>
+          <%= image_tag 'tick.png', :alt => 'is_default' %><span class="small gray" id="<%= "is-default-#{u permission_template.name}" %>">(Default for <%= qualifiers.collect {|q| message('qualifier.' + q)}.join(', ') %>)</span>
         <% end %>
       </td>
       <td align="right">
