@@ -32,13 +32,13 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -277,7 +277,7 @@ public class IssueBulkChangeServiceTest {
       service.execute(issueBulkChangeQuery, userSession);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(NoSuchElementException.class);
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("The action : 'unknown' is unknown");
     }
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);

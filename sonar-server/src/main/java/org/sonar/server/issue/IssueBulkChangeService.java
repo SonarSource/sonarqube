@@ -32,6 +32,7 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import java.util.Date;
@@ -110,12 +111,16 @@ public class IssueBulkChangeService {
   }
 
   private Action getAction(final String actionKey) {
-    return Iterables.find(actions, new Predicate<Action>() {
+    Action action = Iterables.find(actions, new Predicate<Action>() {
       @Override
       public boolean apply(Action action) {
         return action.key().equals(actionKey);
       }
-    });
+    }, null);
+    if (action == null) {
+      throw new BadRequestException("The action : '"+ actionKey + "' is unknown");
+    }
+    return action;
   }
 
   static class ActionContext implements Action.Context {
