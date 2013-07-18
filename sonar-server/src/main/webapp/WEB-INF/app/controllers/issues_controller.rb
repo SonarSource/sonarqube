@@ -22,7 +22,7 @@ require 'set'
 class IssuesController < ApplicationController
 
   before_filter :init_options
-  before_filter :load_filters, :only => [:index, :search, :filter, :manage, :toggle_fav]
+  before_filter :load_fav_filters, :only => [:index, :search, :filter, :manage, :toggle_fav]
 
   PAGE_SIZE = 100
 
@@ -173,8 +173,8 @@ class IssuesController < ApplicationController
     @options_for_resolutions = Internal.issues.listResolutions().map { |s| [message('issue.resolution.' + s), s] }
   end
 
-  def load_filters
-    @favourite_filters = Internal.issues.findFavouriteIssueFiltersForCurrentUser()
+  def load_fav_filters
+    @favourite_filters = Internal.issues.findFavouriteIssueFiltersForCurrentUser() if logged_in?
   end
 
   def find_filter(id)
