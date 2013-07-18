@@ -80,7 +80,8 @@ public class IssueBulkChangeQueryTest {
     params.put("assign.assignee", "arthur");
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(params, "My comment for bulk change");
-    assertThat(issueBulkChangeQuery.actions()).containsOnly("assign", "comment");
+    assertThat(issueBulkChangeQuery.hasComment()).isTrue();
+    assertThat(issueBulkChangeQuery.actions()).containsOnly("assign");
     assertThat(issueBulkChangeQuery.properties("comment").get("comment")).isEqualTo("My comment for bulk change");
   }
 

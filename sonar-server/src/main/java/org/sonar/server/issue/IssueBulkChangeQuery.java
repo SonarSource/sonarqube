@@ -46,6 +46,7 @@ public class IssueBulkChangeQuery {
 
   private List<String> issues;
   private List<String> actions;
+  private boolean hasComment;
 
   Map<String, Map<String, Object>> propertiesByActions = new HashMap<String, Map<String, Object>>();
 
@@ -72,7 +73,7 @@ public class IssueBulkChangeQuery {
       propertiesByActions.put(action, actionProperties);
     }
     if (!Strings.isNullOrEmpty(comment)) {
-      actions.add(CommentAction.KEY);
+      hasComment = true;
       Map<String, Object> commentMap = newHashMap();
       commentMap.put(CommentAction.COMMENT_PROPERTY, comment);
       propertiesByActions.put(CommentAction.KEY, commentMap);
@@ -95,8 +96,16 @@ public class IssueBulkChangeQuery {
     return issues;
   }
 
+  /**
+   * The list of actions to apply
+   * Note that even if a comment has been added, this list will NOT contains the comment action
+   */
   public List<String> actions() {
     return actions;
+  }
+
+  public boolean hasComment(){
+    return hasComment;
   }
 
   public Map<String, Object> properties(String action) {

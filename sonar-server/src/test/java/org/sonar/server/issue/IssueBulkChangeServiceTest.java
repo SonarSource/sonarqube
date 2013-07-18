@@ -92,7 +92,65 @@ public class IssueBulkChangeServiceTest {
   }
 
   @Test
-  public void should_do_sve_once_per_issue() {
+  public void should_execute_bulk_change_with_comment() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
+
+    Action commentAction = mock(Action.class);
+    when(commentAction.key()).thenReturn("comment");
+    when(commentAction.supports(any(Issue.class))).thenReturn(true);
+    when(commentAction.verify(anyMap(), anyListOf(Issue.class), any(UserSession.class))).thenReturn(true);
+    when(commentAction.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+    actions.add(commentAction);
+    actions.add(new MockAction("assign"));
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, "my comment");
+    IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result.issuesChanged()).hasSize(1);
+    assertThat(result.issuesNotChanged()).isEmpty();
+
+    verify(commentAction).execute(anyMap(), any(IssueBulkChangeService.ActionContext.class));
+    verify(issueStorage).save(eq(issue));
+  }
+
+  @Test
+  public void should_execute_bulk_change_with_comment_only_on_changed_issues() {
+    when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) new DefaultIssue().setKey("ABCD"), new DefaultIssue().setKey("EFGH")));
+
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD,EFGH");
+    properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
+
+    Action commentAction = mock(Action.class);
+    when(commentAction.key()).thenReturn("comment");
+    when(commentAction.supports(any(Issue.class))).thenReturn(true);
+    when(commentAction.verify(anyMap(), anyListOf(Issue.class), any(UserSession.class))).thenReturn(true);
+    when(commentAction.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true);
+    actions.add(commentAction);
+
+    // This action will only be executed on the first issue, not the second
+    Action assignAction = mock(Action.class);
+    when(assignAction.key()).thenReturn("assign");
+    when(assignAction.supports(any(Issue.class))).thenReturn(true).thenReturn(false);
+    when(assignAction.verify(anyMap(), anyListOf(Issue.class), any(UserSession.class))).thenReturn(true);
+    when(assignAction.execute(anyMap(), any(IssueBulkChangeService.ActionContext.class))).thenReturn(true).thenReturn(false);
+    actions.add(assignAction);
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, "my comment");
+    IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result.issuesChanged()).hasSize(1);
+    assertThat(result.issuesNotChanged()).hasSize(1);
+
+    // Only one issue will receive the comment
+    verify(assignAction, times(1)).execute(anyMap(), any(IssueBulkChangeService.ActionContext.class));
+    verify(issueStorage).save(eq(issue));
+  }
+
+  @Test
+  public void should_save_once_per_issue() {
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD");
     properties.put("actions", "assign,set_severity");
@@ -174,11 +232,11 @@ public class IssueBulkChangeServiceTest {
     properties.put("assign.assignee", "fred");
 
     Action action = mock(Action.class);
-    actions.add(action);
     when(action.key()).thenReturn("assign");
     when(action.supports(any(Issue.class))).thenReturn(true);
     when(action.verify(anyMap(), anyListOf(Issue.class), any(UserSession.class))).thenReturn(true);
     doThrow(new RuntimeException("Error")).when(action).execute(anyMap(), any(IssueBulkChangeService.ActionContext.class));
+    actions.add(action);
 
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
     IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);

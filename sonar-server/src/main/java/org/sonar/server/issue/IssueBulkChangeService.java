@@ -82,7 +82,7 @@ public class IssueBulkChangeService {
       ActionContext actionContext = new ActionContext(issue, issueChangeContext);
       for (Action action : bulkActions) {
         try {
-          if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(action.key()), actionContext)) {
+          if (applyAction(action, actionContext, issueBulkChangeQuery)) {
             result.addIssueChanged(issue);
           } else {
             result.addIssueNotChanged(issue);
@@ -93,12 +93,20 @@ public class IssueBulkChangeService {
         }
       }
       if (result.issuesChanged().contains(issue)) {
+        // Apply comment action only on changed issues
+        if (issueBulkChangeQuery.hasComment()) {
+          applyAction(getAction(CommentAction.KEY), actionContext, issueBulkChangeQuery);
+        }
         issueStorage.save((DefaultIssue) issue);
         issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
       }
     }
     LOG.debug("BulkChange execution time : {} ms", System.currentTimeMillis() - start);
     return result;
+  }
+
+  private boolean applyAction(Action action, ActionContext actionContext, IssueBulkChangeQuery issueBulkChangeQuery){
+    return action.supports(actionContext.issue()) && action.execute(issueBulkChangeQuery.properties(action.key()), actionContext);
   }
 
   @CheckForNull
