@@ -9,6 +9,7 @@
 <table width="100%">
   <tbody>
     <tr>
+      <% if public_documented_api_density || public_api || public_undocumented_api %>
       <td valign="top" width="50%">
         <div class="dashbox">
           <p class="title"><%= message('widget.documentation_comments.documentation') -%></p>
@@ -30,6 +31,7 @@
           </p>
         </div>
       </td>
+      <% end %>
       <td valign="top" width="50%">
         <div class="dashbox">
           <p class="title"><%= message('widget.documentation_comments.comments') -%></p>
