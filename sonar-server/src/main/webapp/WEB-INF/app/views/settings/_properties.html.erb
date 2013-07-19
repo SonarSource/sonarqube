@@ -73,7 +73,7 @@
       </tbody>
     </table>
     <% unless @definitions.empty? %>
-    <div style="padding-left: 5px">
+    <div style="padding-left: 16px;">
       <%= hidden_field_tag('page_version', (params[:page_version] || 0).to_i + 1) -%>
       <%= submit_tag(message('settings.save_category', :params => [subcategory_name(@category, @subcategory)]), :id => 'submit_settings') -%>
       <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="loading_settings" style="display:none;">
