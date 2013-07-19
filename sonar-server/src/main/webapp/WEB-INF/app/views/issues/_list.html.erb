@@ -1,6 +1,6 @@
 <%
    if @issues_result.issues && !@issues_result.issues.empty?
-    colspan = 9
+    colspan = 6
 %>
   <% if @issues_result && @issues_result.maxResultsReached() %>
     <p class="notes"><%= message('issue_filter.max_results_reached', :params => @issues_result.paging.total()) -%></p>
@@ -15,14 +15,8 @@
           <th width="1%" nowrap class="column-status">
             <%= column_html(@issues_query, @issues_result, message('status'), message('status'), 'STATUS') %>
           </th>
-          <th width="1%" nowrap>
-            <%= message('issue_filter.header.resolution') -%>
-          </th>
           <th>
             <%= message('description') -%>
-          </th>
-          <th nowrap>
-            <%= message('project') -%>
           </th>
           <th nowrap>
             <%= message('component') -%>
@@ -32,9 +26,6 @@
           </th>
           <th width="1%" nowrap>
             <%= message('issue_filter.header.action_plan') -%>
-          </th>
-          <th width="1%" nowrap class="column-creation-date">
-            <%= column_html(@issues_query, @issues_result, message('issue_filter.header.creation_date'), message('issue_filter.header.creation_date'), 'CREATION_DATE') %>
           </th>
           <th width="1%" nowrap class="column-update-date">
             <%= column_html(@issues_query, @issues_result, message('issue_filter.header.update_date'), message('issue_filter.header.update_date'), 'UPDATE_DATE') %>
@@ -49,23 +40,25 @@
           <td width="1%" nowrap>
             <img src="<%= ApplicationController.root_context -%>/images/priority/<%= issue.severity -%>.png" title="<%= message(issue.severity.downcase).capitalize -%>"/>
           </td>
-          <td width="1%" nowrap>
+          <td>
             <%= message("issue.status.#{issue.status}") -%>
-          </td>
-          <td width="1%" nowrap>
-            <%= message("issue.resolution.#{issue.resolution}") if issue.resolution -%>
+            <% if issue.resolution %>
+              <span class="note" style="white-space: nowrap">[<%= message("issue.resolution.#{issue.resolution}") -%>]</span>
+            <% end %>
           </td>
           <td>
             <a class='open-modal rule-modal issue-detail-link' modal-width='900' href='<%= url_for :controller => 'issue', :action => 'show', :id => issue.key, :modal => true -%>'>
               <%= h truncate(issue.message, :length => 100) -%></a>
           </td>
           <td>
-            <%= h (truncate(@issues_result.project(issue).name, :length => 100)) -%>
-          </td>
-          <td>
-            <% component = @issues_result.component(issue) %>
+            <% project = @issues_result.project(issue)
+               component = @issues_result.component(issue) -%>
+            <div class="subtitle"><%= h (truncate(project.name, :length => 100)) -%></div>
             <% if component %>
-              <%= h component.longName() -%>
+              <!-- Do not display component name when issue is on module -->
+              <% if component.key != project.key %>
+                <%= h component.longName() -%>
+              <% end %>
             <% else %>
               <del><%= h issue.componentKey() %></del>
             <% end %>
@@ -75,9 +68,6 @@
           </td>
           <td>
             <%= h @issues_result.actionPlan(issue).name if issue.actionPlanKey() -%>
-          </td>
-          <td width="1%" nowrap>
-            <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%>
           </td>
           <td width="1%" nowrap>
             <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.updateDate())) -%>
