@@ -480,8 +480,8 @@ table.data th img, table.data td img {
   padding-right: 15px;
 }
 
-.data td.categoryDescription {
-  padding-bottom: 5px;
+.categoryDescription {
+  padding: 10px 5px;
 }
 
 .data td.category.withSubcategories {
@@ -827,18 +827,20 @@ ul.operations li img {
 }
 
 .code-global-issues {
-  padding: 10px;
+  padding: 10px 10px 0;
 }
 
 .code-issues {
   background-color: #FFF;
-  padding: 10px;
+  padding: 10px 10px 0;
+  line-height: 0;
 }
 
 .code-issue {
   background-color: #FFF;
   margin: 0;
   font-size: 12px;
+  padding: 0 0 10px 0;
 }
 
 .code-issue-name {
