@@ -37,4 +37,15 @@ public class CategoryTest {
   public void should_preserve_original_key() {
     assertThat(new Category("Licenses").originalKey()).isEqualTo("Licenses");
   }
+
+  @Test
+  public void should_normalize_key() throws Exception {
+    assertThat(new Category("Licenses").key()).isEqualTo("licenses");
+  }
+
+  @Test
+  public void should_use_original_key() throws Exception {
+    assertThat(new Category("Licenses").toString()).isEqualTo("Licenses");
+  }
+
 }
