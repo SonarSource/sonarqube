@@ -98,7 +98,7 @@ class SettingsController < ApplicationController
   end
 
   def load_properties
-    definitions_per_category = java_facade.propertyDefinitions.propertiesByCategory(nil)
+    definitions_per_category = java_facade.propertyDefinitions.propertiesByCategory(@resource.nil? ? nil : @resource.qualifier)
     processProperties(definitions_per_category)
   end
 
