@@ -2,7 +2,7 @@
 
   <users id="200" login="dave.loper" name="Dave Loper" email="dave.loper@company.net" active="[true]"/>
 
-  <user_roles user_id="200" resource_id="123" role="user"/>
-  <user_roles user_id="200" resource_id="123" role="admin"/>
+  <user_roles id="1" user_id="200" resource_id="123" role="user"/>
+  <user_roles id="2" user_id="200" resource_id="123" role="admin"/>
 
 </dataset>
