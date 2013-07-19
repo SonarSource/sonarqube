@@ -7,7 +7,7 @@
       <h2><%= message("permission_template.#{message_title}") -%></h2>
     </div>
     <div class="modal-body">
-      <div id="permission-template-error" class="permission-template error errors" style="display:none;" />
+      <div class="modal-error"/>
       <div class="modal-field">
         <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
         <input id="name" name="name" type="text" size="50" maxlength="256" value="<%= @permission_template ? @permission_template.name : '' -%>" autofocus="autofocus"/>
@@ -28,12 +28,6 @@
   $j("#permission-template-form").modalForm({
     success: function (data) {
       window.location.reload();
-    },
-    error: function (xhr, textStatus, errorThrown) {
-      var htmlClass = 'permission-template';
-      $j('input[id^="submit-permission-template"]').removeAttr('disabled');
-      $j('.' + htmlClass + '.errors').show();
-      $j('.' + htmlClass + '.errors').html(xhr.responseText);
     }
   });
 </script>

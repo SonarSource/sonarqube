@@ -30,7 +30,7 @@
         <p class="notes"><%= message('issue_bulk_change.max_issues_reached', :params => issues.size) -%></p>
       <% end %>
       </div>
-      <div class="bulk-change errors error" style="display:none;"/>
+      <div class="modal-error"/>
 
       <% if unresolved_issues > 0 %>
       <div class="modal-field">
@@ -104,7 +104,7 @@
       </div>
     </div>
     <div class="modal-foot">
-      <span id="bulk-change-loading-image" class="hidden"><%= image_tag 'loading.gif' %></span>
+      <span id="bulk-change-loading-image" class="loading-image hidden"><%= image_tag 'loading.gif' %></span>
       <input type="submit" value="<%= message('apply') -%>" id="bulk-change-submit" class="bulk-change" onclick="return displayLoadingImage()" />
       <a href="#" onclick="return closeModalWindow()" id="bulk-change-cancel"><%= message('cancel') -%></a>
     </div>
@@ -114,13 +114,6 @@
   $j("#bulk-change-form").modalForm({
     success: function () {
       onBulkIssues(<%= params.to_json -%>);
-    },
-    error: function (xhr, textStatus, errorThrown) {
-      $j('#bulk-change-loading-image').addClass("hidden");
-      var htmlClass = 'bulk-change';
-      $j('input[type=submit].' + htmlClass).removeAttr('disabled');
-      $j('.' + htmlClass + '.errors').show();
-      $j('.' + htmlClass + '.errors').html(xhr.responseText);
     }
   });
 

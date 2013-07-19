@@ -314,6 +314,9 @@ function openModalWindow(url, options) {
               // If the modal window has defined a modal-error element, then returned text must be displayed in it
               var errorElt = obj.find(".modal-error");
               if (errorElt.length) {
+                // Hide all loading images
+                $j('.loading-image').addClass("hidden");
+                // Re activate submit button
                 $j('input[type=submit]', obj).removeAttr('disabled');
                 errorElt.show();
                 errorElt.html(xhr.responseText);

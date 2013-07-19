@@ -4,7 +4,7 @@
       <h2><%= message('permission_template.set_default_templates') -%></h2>
     </div>
     <div class="modal-body">
-      <div id="permission-template-error" class="permission-template error errors" style="display:none;" />
+      <div class="modal-error"/>
       <% @root_qualifiers.each do |qualifier| %>
         <div class="modal-field">
           <%= label_tag("default_template_#{qualifier}", " For #{message('qualifier.' + qualifier).downcase}s:") %>
@@ -23,12 +23,6 @@
   $j("#default-templates-form").modalForm({
     success: function (data) {
       window.location.reload();
-    },
-    error: function (xhr, textStatus, errorThrown) {
-      var htmlClass = 'permission-template';
-      $j('input[id^="submit-default-templates"]').removeAttr('disabled');
-      $j('.' + htmlClass + '.errors').show();
-      $j('.' + htmlClass + '.errors').html(xhr.responseText);
     }
   });
 </script>

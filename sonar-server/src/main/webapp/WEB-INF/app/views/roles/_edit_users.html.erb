@@ -11,7 +11,7 @@
       <h2><%= @project ? 'Edit permissions for: ' + h(@project.name) : "Edit system permissions: #{message("global_permissions.#{@role}")}" -%></h2>
     </div>
     <div class="modal-body">
-      <div id="permission-users-error" class="permission-users error" style="display:none;" />
+      <div class="modal-error"/>
       <table>
         <tbody>
           <tr>
@@ -53,12 +53,6 @@
   $j("#permission-users-form").modalForm({
     success: function (data) {
       window.location.reload();
-    },
-    error: function (xhr, textStatus, errorThrown) {
-      var htmlClass = 'permission-users';
-      $j('input[id="submit-permission-users-update"]').removeAttr('disabled');
-      $j('.' + htmlClass + '.error').show();
-      $j('.' + htmlClass + '.error').html(xhr.responseText);
     }
   });
 </script>

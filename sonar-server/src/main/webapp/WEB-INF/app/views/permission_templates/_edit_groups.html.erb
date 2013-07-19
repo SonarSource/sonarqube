@@ -7,7 +7,7 @@
       <h2><%= message('permission_template.edit_permissions', :params => @permission_template.name) -%></h2>
     </div>
     <div class="modal-body">
-      <div id="permission-template-error" class="permission-template error" style="display:none;" />
+      <div class="modal-error"/>
       <table>
         <tbody>
         <tr>
@@ -50,12 +50,6 @@
   $j("#permission-template-form").modalForm({
     success: function (data) {
       window.location.reload();
-    },
-    error: function (xhr, textStatus, errorThrown) {
-      var htmlClass = 'permission-template';
-      $j('input[id="submit-permission-template-update"]').removeAttr('disabled');
-      $j('.' + htmlClass + '.error').show();
-      $j('.' + htmlClass + '.error').html(xhr.responseText);
     }
   });
 </script>

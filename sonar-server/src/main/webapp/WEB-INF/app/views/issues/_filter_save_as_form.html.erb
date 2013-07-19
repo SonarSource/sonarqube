@@ -15,12 +15,6 @@
   $j("#save-as-filter-form").modalForm({
     success: function (data) {
       window.location = baseUrl + '/issues/filter/' + data;
-    },
-    error: function (xhr, textStatus, errorThrown) {
-      var htmlClass = 'issue-filter';
-      $j('input[type=submit].' + htmlClass).removeAttr('disabled');
-      $j('.' + htmlClass + '.errors').show();
-      $j('.' + htmlClass + '.errors').html(xhr.responseText);
     }
   });
 </script>

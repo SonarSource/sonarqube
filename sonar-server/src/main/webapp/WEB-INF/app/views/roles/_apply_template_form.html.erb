@@ -11,7 +11,7 @@
     <% end %>
     </div>
     <div class="modal-body">
-      <div class="apply-template errors error" style="display:none;"/>
+      <div class="modal-error"/>
       <% if components.nil? %>
         <div class="info">
           <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
@@ -29,7 +29,7 @@
     </div>
     <div class="modal-foot">
       <% unless components.nil? %>
-        <span id="apply-template-loading-image" class="hidden"><%= image_tag 'loading.gif' %></span>
+        <span id="apply-template-loading-image" class="loading-image hidden"><%= image_tag 'loading.gif' %></span>
         <input type="submit" value="<%= message('apply') -%>" id="apply-template-submit" class="apply-template" onclick="return displayLoadingImage()" />
       <% end %>
       <a href="#" onclick="return closeModalWindow()" id="apply-template-cancel"><%= message('cancel') -%></a>
@@ -37,18 +37,9 @@
   </fieldset>
 </form>
 <script>
-  $j("#apply-template-form").modalForm({
-    error: function (xhr, textStatus, errorThrown) {
-      $j('#apply-template-loading-image').addClass("hidden");
-      var htmlClass = 'apply-template';
-      $j('input[type=submit].' + htmlClass).removeAttr('disabled');
-      $j('.' + htmlClass + '.errors').show();
-      $j('.' + htmlClass + '.errors').html(xhr.responseText);
-    }
-  });
+  $j("#apply-template-form").modalForm();
 
   function displayLoadingImage() {
     $j('#apply-template-loading-image').removeClass("hidden");
   }
-
 </script>
