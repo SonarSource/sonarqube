@@ -11,7 +11,7 @@
       <div class="project-search top">
         <span class="note"><%= message('projects_role.criteria.key') -%></span><br/>
         <% selected_key = @query_result.query.keys.to_a.first if @query_result.query.keys && @query_result.query.keys.size == 1 %>
-        <%= text_field_tag 'keys', selected_key, :id => 'search-text' %>
+        <%= text_field_tag 'keys', selected_key, :id => 'search-key' %>
       </div>
       <div class="project-search top">
         <span class="note"><%= message('type') -%></span><br/>
