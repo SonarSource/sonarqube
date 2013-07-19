@@ -32,7 +32,7 @@
               <td class="box" style="padding: 5px 10px;" valign="top">
                 <h2>Permission: <%= @project ? role_name(@role) : global_role_name(@role) -%></h2>
 
-                <select name="groups[]" id="to" size="20" multiple="multiple" style="margin: 5px 0pt; width: 300px;">
+                <select name="groups[]" id="to" size="30" multiple="multiple" style="margin: 5px 0pt; width: 300px;">
                   <% granted_groups.each do |group| %>
                     <option value="<%= group ? group.id : '' -%>"><%= group_name(group) -%></option>
                   <% end %>
