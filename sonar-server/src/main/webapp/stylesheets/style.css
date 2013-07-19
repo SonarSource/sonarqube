@@ -480,8 +480,8 @@ table.data th img, table.data td img {
   padding-right: 15px;
 }
 
-.data td.categoryDescription {
-  padding-bottom: 5px;
+td.categoryDescription {
+  padding: 10px 5px;
 }
 
 .data td.category.withSubcategories {
