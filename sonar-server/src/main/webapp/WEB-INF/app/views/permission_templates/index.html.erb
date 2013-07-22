@@ -1,3 +1,5 @@
+<h1 class="marginbottom10"><%= message 'roles.page' -%></h1>
+
 <%= render :partial => 'roles/tabs', :locals => {:selected_tab=>'Permission templates'} %>
 <br/>
 <div class="line-block">
@@ -10,7 +12,6 @@
       <%= link_to message('create'), {:action => :create_form}, :id => 'create-link-permission-template', :class => 'open-modal link-action' %>
     </li>
   </ul>
-  <h2>Available templates</h2>
 </div>
 <table class="data width100" id="permission-templates">
   <thead>
