@@ -19,25 +19,23 @@
  */
 package org.sonar.server.db;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.core.persistence.dialect.H2;
 
 public class EmbeddedDatabaseFactory {
   private final Settings settings;
-  private final H2 dialect;
   private EmbeddedDatabase embeddedDatabase;
 
   public EmbeddedDatabaseFactory(Settings settings) {
     this.settings = settings;
-    dialect = new H2();
   }
 
   public void start() {
     if (embeddedDatabase == null) {
       String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
-      if (dialect.matchesJdbcURL(jdbcUrl)) {
-        embeddedDatabase = new EmbeddedDatabase(settings);
+      if (jdbcUrl.startsWith("jdbc:h2:tcp:")) {
+        embeddedDatabase = getEmbeddedDatabase(settings);
         embeddedDatabase.start();
       }
     }
@@ -47,5 +45,10 @@ public class EmbeddedDatabaseFactory {
     if (embeddedDatabase != null) {
       embeddedDatabase.stop();
     }
+  }
+
+  @VisibleForTesting
+  EmbeddedDatabase getEmbeddedDatabase(Settings settings) {
+    return new EmbeddedDatabase(settings);
   }
 }

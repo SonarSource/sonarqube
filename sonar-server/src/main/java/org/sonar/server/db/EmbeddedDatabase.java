@@ -19,6 +19,7 @@
  */
 package org.sonar.server.db;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.h2.Driver;
 import org.h2.tools.Server;
@@ -42,25 +43,8 @@ public class EmbeddedDatabase {
     this.settings = settings;
   }
 
-  private static File getDataDirectory(Settings settings) {
-    String dirName = settings.getString(DatabaseProperties.PROP_EMBEDDED_DATA_DIR);
-    if (!StringUtils.isBlank(dirName)) {
-      return new File(dirName);
-    }
-
-    File sonarHome = new File(settings.getString(CoreProperties.SONAR_HOME));
-    if (sonarHome.isDirectory() && sonarHome.exists()) {
-      return new File(sonarHome, "data");
-    }
-
-    throw new IllegalStateException("SonarQube home directory does not exist");
-  }
-
   public void start() {
     File dbHome = getDataDirectory(settings);
-    if (dbHome.exists() && !dbHome.isDirectory()) {
-      throw new SonarException("Database home " + dbHome.getPath() + " is not a directory");
-    }
     if (!dbHome.exists()) {
       dbHome.mkdirs();
     }
@@ -93,6 +77,31 @@ public class EmbeddedDatabase {
       server = null;
       LOG.info("Embedded database stopped");
     }
+  }
+
+  @VisibleForTesting
+  File getDataDirectory(Settings settings) {
+    String dirName = settings.getString(DatabaseProperties.PROP_EMBEDDED_DATA_DIR);
+    if (!StringUtils.isBlank(dirName)) {
+      return getEmbeddedDataDirectory(dirName);
+    }
+    return getSonarHomeDataDirectory(settings);
+  }
+
+  private File getEmbeddedDataDirectory(String directoryName) {
+    File embeddedDataDirectory = new File(directoryName);
+    if(embeddedDataDirectory.exists() && !embeddedDataDirectory.isDirectory()) {
+      throw new SonarException("Database home " + embeddedDataDirectory.getAbsolutePath() + " is not a directory");
+    }
+    return embeddedDataDirectory;
+  }
+
+  private File getSonarHomeDataDirectory(Settings settings) {
+    File sonarHome = new File(settings.getString(CoreProperties.SONAR_HOME));
+    if (!sonarHome.isDirectory()) {
+      throw new IllegalStateException("SonarQube home directory is not valid");
+    }
+    return new File(sonarHome, "data");
   }
 
   private String getSetting(String name, String defaultValue) {

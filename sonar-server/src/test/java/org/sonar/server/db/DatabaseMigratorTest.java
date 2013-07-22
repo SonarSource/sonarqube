@@ -19,13 +19,18 @@
  */
 package org.sonar.server.db;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.H2;
 import org.sonar.core.persistence.dialect.MySql;
+
+import java.sql.Connection;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -72,6 +77,25 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
     assertThat(FakeMigration.executed).isFalse();
     migrator.executeMigration(FakeMigration.class.getName());
     assertThat(FakeMigration.executed).isTrue();
+  }
+
+  @Test
+  public void should_create_schema_on_h2() throws Exception {
+
+    Dialect supportedDialect = new H2();
+    when(database.getDialect()).thenReturn(supportedDialect);
+    Connection connection = mock(Connection.class);
+    SqlSession session = mock(SqlSession.class);
+    when(session.getConnection()).thenReturn(connection);
+    when(mybatis.openSession()).thenReturn(session);
+
+    DatabaseMigrator databaseMigrator = new DatabaseMigrator(mybatis, database) {
+      @Override
+      protected void createSchema(Connection connection, String dialectId) {
+      }
+    };
+
+    assertThat(databaseMigrator.createDatabase()).isTrue();
   }
 
   public static class FakeMigration implements DatabaseMigration {

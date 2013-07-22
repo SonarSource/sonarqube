@@ -19,6 +19,7 @@
  */
 package org.sonar.server.db;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public class DatabaseMigrator implements ServerComponent {
     try {
       session = myBatis.openSession();
       connection = session.getConnection();
-      DdlUtils.createSchema(connection, database.getDialect().getId());
+      createSchema(connection, database.getDialect().getId());
       return true;
     } finally {
       MyBatis.closeQuietly(session);
@@ -81,5 +82,10 @@ public class DatabaseMigrator implements ServerComponent {
       LoggerFactory.getLogger(getClass()).error("Fail to execute database migration: " + className, e);
       throw new IllegalStateException("Fail to execute database migration: " + className, e);
     }
+  }
+
+  @VisibleForTesting
+  protected void createSchema(Connection connection, String dialectId) {
+    DdlUtils.createSchema(connection, dialectId);
   }
 }
