@@ -21,6 +21,7 @@ package org.sonar.server.configuration;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -91,7 +92,8 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   @Test
   public void testRemoveActivatedRules() {
     setupData("initialData");
-    profilesManager.removeActivatedRules(1);
+    Rule rule = getSession().reattach(Rule.class, 1);
+    profilesManager.removeActivatedRules(rule);
     checkTables("removeActivatedRules", new String[]{"change_date"}, "active_rule_changes", "active_rules");
   }
 

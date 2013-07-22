@@ -101,8 +101,7 @@ public class ProfilesManager extends BaseDao {
    * Deactivate all active rules from profiles using a rule, then remove then.
    * @param ruleId
    */
-  public void removeActivatedRules(int ruleId) {
-    Rule rule = getSession().getEntity(Rule.class, ruleId);
+  public void removeActivatedRules(Rule rule) {
     List<RulesProfile> profiles = getSession().createQuery("FROM " + RulesProfile.class.getSimpleName()).getResultList();
     for (RulesProfile profile : profiles) {
       List<ActiveRule> activeRulesToRemove = newArrayList();

@@ -65,17 +65,18 @@ public final class RegisterRules {
   }
 
   public void start() {
-    TimeProfiler profiler = new TimeProfiler();
     DatabaseSession session = sessionFactory.getSession();
     RulesByRepository existingRules = new RulesByRepository(findAllRules(session));
 
-    List<Rule> registeredRules = registerRules(existingRules, profiler, session);
+    List<Rule> registeredRules = registerRules(existingRules, session);
+
+    LOG.info("Removing deprecated rules");
     disableDeprecatedRules(existingRules, registeredRules, session);
     disableDeprecatedRepositories(existingRules, session);
 
     session.commit();
 
-    notifyForRemovedRules(existingRules);
+    //notifyForRemovedRules(existingRules);
   }
 
   private List<Rule> findAllRules(DatabaseSession session) {
@@ -85,7 +86,8 @@ public final class RegisterRules {
       .getResultList();
   }
 
-  private List<Rule> registerRules(RulesByRepository existingRules, TimeProfiler profiler, DatabaseSession session) {
+  private List<Rule> registerRules(RulesByRepository existingRules, DatabaseSession session) {
+    TimeProfiler profiler = new TimeProfiler();
     List<Rule> registeredRules = newArrayList();
     for (RuleRepository repository : repositories) {
       profiler.start("Register rules [" + repository.getKey() + "/" + StringUtils.defaultString(repository.getLanguage(), "-") + "]");
@@ -229,7 +231,7 @@ public final class RegisterRules {
   private void disableDeprecatedRules(RulesByRepository existingRules, List<Rule> registeredRules, DatabaseSession session) {
     for (Rule rule : existingRules.rules()) {
       if (!registeredRules.contains(rule)) {
-        disable(rule, existingRules, session);
+        disable(rule, session);
       }
     }
   }
@@ -242,66 +244,44 @@ public final class RegisterRules {
         }
       })) {
         for (Rule rule : existingRules.get(repositoryKey)) {
-          disable(rule, existingRules, session);
+          disable(rule, session);
         }
       }
     }
   }
 
-  private void disable(Rule rule, RulesByRepository existingRules, DatabaseSession session) {
+  private void disable(Rule rule, DatabaseSession session) {
     if (!rule.getStatus().equals(Rule.STATUS_REMOVED)) {
-      LOG.debug("Disable rule " + rule);
+      LOG.info("Removing rule " + rule.ruleKey());
+      profilesManager.removeActivatedRules(rule);
+      rule = session.reattach(Rule.class, rule.getId());
       rule.setStatus(Rule.STATUS_REMOVED);
       rule.setUpdatedAt(new Date());
-      session.saveWithoutFlush(rule);
-      existingRules.addRuleToRemove(rule);
-    }
-  }
-
-  private void notifyForRemovedRules(RulesByRepository existingRules) {
-    for (Rule rule : existingRules.getRulesToRemove()) {
-      profilesManager.removeActivatedRules(rule.getId());
+      session.save(rule);
+      session.commit();
     }
   }
 
   static class RulesByRepository {
     Multimap<String, Rule> ruleRepositoryList;
-    List<Rule> rulesToRemove;
 
-    public RulesByRepository() {
+    RulesByRepository(List<Rule> rules) {
       ruleRepositoryList = ArrayListMultimap.create();
-      rulesToRemove = newArrayList();
-    }
-
-    public RulesByRepository(List<Rule> rules) {
-      this();
       for (Rule rule : rules) {
         ruleRepositoryList.put(rule.getRepositoryKey(), rule);
       }
     }
 
-    public void add(Rule rule) {
-      ruleRepositoryList.put(rule.getRepositoryKey(), rule);
-    }
-
-    public Collection<Rule> get(String repositoryKey) {
+    Collection<Rule> get(String repositoryKey) {
       return ruleRepositoryList.get(repositoryKey);
     }
 
-    public Collection<String> repositories() {
+    Collection<String> repositories() {
       return ruleRepositoryList.keySet();
     }
 
-    public Collection<Rule> rules() {
+    Collection<Rule> rules() {
       return ruleRepositoryList.values();
-    }
-
-    public void addRuleToRemove(Rule rule) {
-      rulesToRemove.add(rule);
-    }
-
-    public List<Rule> getRulesToRemove() {
-      return rulesToRemove;
     }
   }
 

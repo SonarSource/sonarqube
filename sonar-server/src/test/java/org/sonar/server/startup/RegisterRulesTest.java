@@ -107,7 +107,7 @@ public class RegisterRulesTest extends AbstractDbUnitTestCase {
     setupData("shared");
     task.start();
 
-    verify(profilesManager).removeActivatedRules(anyInt());
+    verify(profilesManager).removeActivatedRules(any(Rule.class));
   }
 
   @Test
