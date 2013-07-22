@@ -8,7 +8,7 @@
   <input name="role" value="<%= @role -%>" type="hidden"/>
   <fieldset>
     <div class="modal-head">
-      <h2><%= @project ? 'Edit Permissions for: ' + h(@project.name) : "Edit Global Permission: #{message("global_permissions.#{@role}")}" -%></h2>
+      <h2><%= @project ? 'Edit Permissions For: ' + h(@project.name) : "Edit Global Permission: #{message("global_permissions.#{@role}")}" -%></h2>
     </div>
     <div class="modal-body">
       <div class="modal-error"/>

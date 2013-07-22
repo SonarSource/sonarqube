@@ -19,7 +19,7 @@
         </div>
       <% else %>
         <div class="modal-field">
-          <%= label_tag 'template_key', 'Permission Template:' %>
+          <%= label_tag 'template_key', 'Permission Template' %>
           <%= select_tag('template_key', options_for_select(@permission_templates, -1), :style => 'width: 250px;') %>
           <% unless params[:project_name] %>
             <span style="float:right" class="note">(<%= "#{components.size} #{message('qualifier.' + qualifier)}s" %>)</span><br/>
