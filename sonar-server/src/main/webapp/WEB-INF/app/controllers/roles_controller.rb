@@ -77,7 +77,7 @@ class RolesController < ApplicationController
 
   # GET /roles/apply_template_form?projects=<projects>&qualifier=<qualifier>
   def apply_template_form
-    @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().sort_by {|t| t.name}.collect {|pt| [pt.name, pt.key]}
+    @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
     render :partial => 'apply_template_form', :locals => {:components => params[:projects], :project_name => params[:project_name], :qualifier => params[:qualifier] || 'TRK'}
   end
 
