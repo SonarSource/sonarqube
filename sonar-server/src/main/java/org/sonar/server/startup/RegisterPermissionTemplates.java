@@ -36,6 +36,7 @@ import org.sonar.server.platform.PersistentSettings;
 public class RegisterPermissionTemplates {
 
   public static final String DEFAULT_TEMPLATE_PROPERTY = "sonar.permission.template.default";
+  public static final String DEFAULT_PROJECTS_TEMPLATE_PROPERTY = "sonar.permission.template.TRK.default";
 
   private static final Logger LOG = LoggerFactory.getLogger(RegisterPermissionTemplates.class);
 
@@ -56,11 +57,20 @@ public class RegisterPermissionTemplates {
     TimeProfiler profiler = new TimeProfiler(LOG).start("Register permission templates");
 
     if(shouldRegister()) {
-      insertDefaultTemplate(PermissionTemplateDto.DEFAULT.getName());
+      if(hasExistingPermissionsConfig()) {
+        String projectsPermissionsKey = settings.getString(DEFAULT_PROJECTS_TEMPLATE_PROPERTY);
+        setDefaultProperty(projectsPermissionsKey);
+      } else {
+        insertDefaultTemplate(PermissionTemplateDto.DEFAULT.getName());
+        setDefaultProperty(PermissionTemplateDto.DEFAULT.getKee());
+      }
       registerInitialization();
-      setDefaultProperty(PermissionTemplateDto.DEFAULT.getKee());
     }
     profiler.stop();
+  }
+
+  private boolean hasExistingPermissionsConfig() {
+    return settings.getString(DEFAULT_PROJECTS_TEMPLATE_PROPERTY) != null;
   }
 
   private boolean shouldRegister() {

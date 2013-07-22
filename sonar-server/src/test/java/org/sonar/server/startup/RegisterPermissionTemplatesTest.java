@@ -90,6 +90,21 @@ public class RegisterPermissionTemplatesTest {
     verify(loadedTemplateDao, never()).insert(any(LoadedTemplateDto.class));
   }
 
+  @Test
+  public void should_reference_TRK_template_as_default_when_present() throws Exception {
+    when(settings.getString(RegisterPermissionTemplates.DEFAULT_PROJECTS_TEMPLATE_PROPERTY)).thenReturn("my_projects_template");
+
+    LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(PermissionTemplateDto.DEFAULT.getKee())
+      .setType(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
+
+    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(loadedTemplateDao, permissionDao, userDao, settings);
+    initializer.start();
+
+    verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
+    verify(settings).saveProperty(RegisterPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY, "my_projects_template");
+    verifyZeroInteractions(permissionDao);
+  }
+
   private static class Matches extends BaseMatcher<LoadedTemplateDto> {
 
     private final LoadedTemplateDto referenceTemplate;
