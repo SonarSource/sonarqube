@@ -81,9 +81,7 @@ public class RegisterPermissionTemplates {
     PermissionTemplateDto defaultPermissionTemplate = permissionDao
       .createPermissionTemplate(templateName, PermissionTemplateDto.DEFAULT.getDescription());
     addGroupPermission(defaultPermissionTemplate, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
-    addGroupPermission(defaultPermissionTemplate, UserRole.USER, DefaultGroups.USERS);
     addGroupPermission(defaultPermissionTemplate, UserRole.USER, DefaultGroups.ANYONE);
-    addGroupPermission(defaultPermissionTemplate, UserRole.CODEVIEWER, DefaultGroups.USERS);
     addGroupPermission(defaultPermissionTemplate, UserRole.CODEVIEWER, DefaultGroups.ANYONE);
   }
 

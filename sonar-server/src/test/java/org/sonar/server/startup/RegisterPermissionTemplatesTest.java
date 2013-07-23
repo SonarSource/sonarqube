@@ -71,10 +71,9 @@ public class RegisterPermissionTemplatesTest {
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
     verify(permissionDao).createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription());
     verify(permissionDao).addGroupPermission(1L, 1L, UserRole.ADMIN);
-    verify(permissionDao).addGroupPermission(1L, 2L, UserRole.USER);
     verify(permissionDao).addGroupPermission(1L, null, UserRole.USER);
-    verify(permissionDao).addGroupPermission(1L, 2L, UserRole.CODEVIEWER);
     verify(permissionDao).addGroupPermission(1L, null, UserRole.CODEVIEWER);
+    verifyNoMoreInteractions(permissionDao);
     verify(settings).saveProperty(RegisterPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY, PermissionTemplateDto.DEFAULT.getKee());
   }
 
