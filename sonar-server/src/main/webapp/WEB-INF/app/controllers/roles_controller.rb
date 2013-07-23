@@ -21,7 +21,7 @@ class RolesController < ApplicationController
   helper RolesHelper
 
   SECTION=Navigation::SECTION_CONFIGURATION
-  BULK_LIMIT=1
+  BULK_LIMIT=500
 
   before_filter :admin_required
   verify :method => :post, :only => [:set_users, :set_groups], :redirect_to => {:action => 'global'}
