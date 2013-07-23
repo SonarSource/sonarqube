@@ -83,6 +83,8 @@ class RolesController < ApplicationController
     @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
 
     params['qualifiers'] ||= 'TRK'
+    params['pageSize'] = 500
+
     @query_result = Internal.component_api.find(params).components().to_a
     @projects_ids = @query_result.collect{|component| component.getId()}
 
