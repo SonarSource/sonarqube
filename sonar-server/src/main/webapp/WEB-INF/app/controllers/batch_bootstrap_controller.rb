@@ -67,8 +67,6 @@ class BatchBootstrapController < Api::ApiController
     end
 
     # apply security
-    has_user_role=has_role?(:user, root_project)
-    has_admin_role=has_role?(:admin, root_project)
     properties = properties.select{|prop| allowed?(prop.key, dryRun, has_scan_role)}
 
     json_properties=properties.map { |property| to_json_property(property) }
