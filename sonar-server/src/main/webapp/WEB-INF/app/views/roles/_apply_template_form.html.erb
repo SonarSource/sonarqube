@@ -1,6 +1,6 @@
 <form id="apply-template-form" method="post" action="<%= ApplicationController.root_context -%>/roles/apply_template">
-  <% unless components.nil? %>
-    <input type="hidden" name="components" id="apply-template-components" value="<%= components.join(',') %>"/>
+  <% unless @projects_ids.nil? %>
+    <input type="hidden" name="components" id="apply-template-components" value="<%= @projects_ids.join(',') %>"/>
   <% end %>
   <fieldset>
     <div class="modal-head">
@@ -12,23 +12,28 @@
     </div>
     <div class="modal-body">
       <div class="modal-error"/>
-      <% if components.nil? %>
+      <% if empty %>
         <div class="info">
           <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
           <%= message 'projects_role.no_projects' -%>
+        </div>
+      <% elsif overflow %>
+        <div class="info">
+          <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
+          <%= message 'projects_role.exceeds_projects_limit_xxx', :params => RolesController::BULK_LIMIT -%>
         </div>
       <% else %>
         <div class="modal-field">
           <%= label_tag 'template_key', 'Permission Template' %>
           <%= select_tag('template_key', options_for_select(@permission_templates, -1), :style => 'width: 250px;') %>
           <% unless project_name %>
-            <span style="float:right" class="note">(<%= "#{components.size} #{message('qualifier.' + qualifier)}s" %>)</span><br/>
+            <span style="float:right" class="note">(<%= "#{@projects_ids.size} #{message('qualifier.' + @qualifier)}s" %>)</span><br/>
           <% end %>
         </div>
       <% end %>
     </div>
     <div class="modal-foot">
-      <% unless components.nil? %>
+      <% unless empty || overflow %>
         <span id="apply-template-loading-image" class="loading-image hidden"><%= image_tag 'loading.gif' %></span>
         <input type="submit" value="<%= message('apply') -%>" id="apply-template-submit" class="apply-template" onclick="return displayLoadingImage()" />
       <% end %>

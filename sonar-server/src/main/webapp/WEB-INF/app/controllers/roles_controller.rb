@@ -21,6 +21,7 @@ class RolesController < ApplicationController
   helper RolesHelper
 
   SECTION=Navigation::SECTION_CONFIGURATION
+  BULK_LIMIT=1
 
   before_filter :admin_required
   verify :method => :post, :only => [:set_users, :set_groups], :redirect_to => {:action => 'global'}
@@ -85,11 +86,17 @@ class RolesController < ApplicationController
     params['qualifiers'] ||= 'TRK'
     params['pageSize'] = 500
 
-    @query_result = Internal.component_api.find(params).components().to_a
-    @projects_ids = @query_result.collect{|component| component.getId()}
+    query_result = Internal.component_api.find(params)
+    components = query_result.components().to_a
+    total_results_count = query_result.paging.total.to_i
+
+    @projects_ids = components.collect{|component| component.getId()}
+    @qualifier = params[:qualifiers]
 
     render :partial => 'apply_template_form',
-           :locals => {:components => @projects_ids, :project_name => @query_result.size == 1 ? @query_result[0].name : nil, :qualifier => params[:qualifiers]}
+           :locals => {:project_name => components.size == 1 ? components[0].name : nil,
+                       :empty => @projects_ids.nil? || @projects_ids.size == 0,
+                       :overflow => total_results_count > BULK_LIMIT}
   end
 
   # POST /roles/apply_template?criteria
