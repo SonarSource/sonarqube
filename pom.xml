@@ -1075,6 +1075,11 @@
         <artifactId>http-request</artifactId>
         <version>5.2</version>
       </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar.runner</groupId>
+        <artifactId>sonar-runner-api</artifactId>
+        <version>2.3</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
