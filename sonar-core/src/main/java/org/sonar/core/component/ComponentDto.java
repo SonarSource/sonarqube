@@ -23,10 +23,20 @@ import org.sonar.api.component.Component;
 
 public class ComponentDto implements Component {
 
+  private Long id;
   private String key;
   private String name;
   private String longName;
   private String qualifier;
+
+  public Long getId() {
+    return id;
+  }
+
+  public ComponentDto setId(Long id) {
+    this.id = id;
+    return this;
+  }
 
   @Override
   public String key() {

@@ -209,7 +209,7 @@ class PermissionTemplatesController < ApplicationController
   private
 
   def get_root_qualifiers
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceRootTypes().map {|type| type.getQualifier()}
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceRootTypes().map {|type| type.getQualifier()}.sort
   end
 
   def get_default_templates_per_qualifier(root_qualifiers)

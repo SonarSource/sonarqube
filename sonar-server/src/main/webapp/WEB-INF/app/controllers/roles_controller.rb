@@ -45,6 +45,9 @@ class RolesController < ApplicationController
         # Even if components are already sorted, we must sort them again as this SQL query will not keep order
         :order => 'name'
     )
+    @components_names = params[:names]
+    @components_keys = params[:keys]
+    @components_qualifiers = params[:qualifiers]
   end
 
   # GET /roles/edit_users[?resource=<resource>]
@@ -75,10 +78,16 @@ class RolesController < ApplicationController
     render :text => '', :status => 200
   end
 
-  # GET /roles/apply_template_form?projects=<projects>&qualifier=<qualifier>
+  # GET /roles/apply_template_form?criteria
   def apply_template_form
     @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
-    render :partial => 'apply_template_form', :locals => {:components => params[:projects], :project_name => params[:project_name], :qualifier => params[:qualifier] || 'TRK'}
+
+    params['qualifiers'] ||= 'TRK'
+    @query_result = Internal.component_api.find(params).components().to_a
+    @projects_ids = @query_result.collect{|component| component.getId()}
+
+    render :partial => 'apply_template_form',
+           :locals => {:components => @projects_ids, :project_name => @query_result.size == 1 ? @query_result[0].name : nil, :qualifier => params[:qualifiers]}
   end
 
   # POST /roles/apply_template?criteria

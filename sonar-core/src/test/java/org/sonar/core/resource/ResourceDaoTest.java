@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Collection;
@@ -316,6 +317,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     List<Component> components = dao.selectComponentsByQualifiers(newArrayList("TRK"));
     assertThat(components).hasSize(1);
     assertThat(components.get(0).key()).isEqualTo("org.struts:struts");
+    assertThat(((ComponentDto)components.get(0)).getId()).isEqualTo(1L);
 
     assertThat(dao.selectComponentsByQualifiers(newArrayList("unknown"))).isEmpty();
     assertThat(dao.selectComponentsByQualifiers(Collections.<String>emptyList())).isEmpty();

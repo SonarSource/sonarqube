@@ -141,7 +141,6 @@ public class ComponentPermissionFacade implements TaskComponent, ServerComponent
       if(usersPermissions != null) {
         for (PermissionTemplateUserDto userPermission : usersPermissions) {
           addUserPermission(resourceId, userPermission.getUserLogin(), userPermission.getPermission(), session);
-
         }
       }
       List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();

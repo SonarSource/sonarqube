@@ -2,44 +2,31 @@
 <table class="data width100">
   <thead>
   <tr>
-    <th>Permission</th>
-    <th width="35%">Users</th>
-    <th width="35%">Groups</th>
+    <th>&nbsp;</th>
+    <th><%= message('projects_role.admin') -%></th>
+    <th><%= message('projects_role.user') -%></th>
+    <th><%= message('projects_role.codeviewer') -%></th>
   </tr>
   </thead>
   <tbody>
-  <tr class="even" >
-    <td valign="top"><b>Administrators</b><br/><span class="small gray">Ability to perform administration functions for a project by accessing its settings.</span></td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span id="admin-role-users"><%= users('admin', @project.id).map(&:name).join(', ') %></span>
-      (<%= link_to_edit_roles_permission_form(message('select'), 'admin', @project.id, 'select-admin-edit-users') %>)<br/>
-    </td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span id="admin-role-groups"><%= groups('admin', @project.id).map{|g| group_name(g)}.join(', ') %></span>
-      (<%= link_to_edit_groups_permission_form(message('select'), 'admin', @project.id, 'select-admin-edit-groups') %>)<br/>
-    </td>
+  <tr class="even">
+    <td valign="top"><b>Users</b></td>
+
+    <% ['admin', 'user', 'codeviewer'].each do |permission| -%>
+      <td valign="top">
+        <span class="nowrap" id="<%= permission -%>-role-users"><%= users(permission, @project.id).map(&:name).join(', ') %></span>
+        (<%= link_to_edit_roles_permission_form(message('select'), permission, @project.id, "select-#{permission}-edit-users") %>)<br/>
+      </td>
+    <% end %>
   </tr>
   <tr class="odd">
-    <td valign="top"><b>Users</b><br/><span class="small gray">Ability to navigate through every service of a project, except viewing source code and settings.</span></td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span id="user-role-users"><%= users('user', @project.id).map(&:name).join(', ') %></span>
-      (<%= link_to_edit_roles_permission_form(message('select'), 'user', @project.id, 'select-user-edit-users') %>)<br/>
-    </td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span id="user-role-groups"><%= groups('user', @project.id).map{|g| group_name(g)}.join(', ') %></span>
-      (<%= link_to_edit_groups_permission_form(message('select'), 'user', @project.id, 'select-user-edit-groups') %>)<br/>
-    </td>
-  </tr>
-  <tr class="even" >
-    <td valign="top"><b>Code viewers</b><br/><span class="small gray">Ability to view source code of a project.</span></td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span id="codeviewer-role-users"><%= users('codeviewer', @project.id).map(&:name).join(', ') %></span>
-      (<%= link_to_edit_roles_permission_form(message('select'), 'codeviewer', @project.id, 'select-codeviewer-edit-users') %>)<br/>
-    </td>
-    <td valign="top" style="word-break:break-all;width:35%;">
-      <span id="codeviewer-role-groups"><%= groups('codeviewer', @project.id).map{|g| group_name(g)}.join(', ') %></span>
-      (<%= link_to_edit_groups_permission_form(message('select'), 'codeviewer', @project.id, 'select-codeviewer-edit-groups') %>)<br/>
-    </td>
+    <td valign="top"><b>Groups</b></td>
+    <% ['admin', 'user', 'codeviewer'].each do |permission| -%>
+      <td valign="top">
+        <span class="nowrap" id="<%= permission -%>-role-groups"><%= groups(permission, @project.id).map{|g| group_name(g)}.join(', ') %></span>
+        (<%= link_to_edit_groups_permission_form(message('select'), permission, @project.id, "select-#{permission}-edit-groups") %>)<br/>
+      </td>
+    <% end %>
   </tr>
   </tbody>
 </table>

@@ -220,6 +220,7 @@ public class ResourceDao {
 
   public static ComponentDto toComponent(ResourceDto resourceDto){
     return new ComponentDto()
+      .setId(resourceDto.getId())
       .setKey(resourceDto.getKey())
       .setLongName(resourceDto.getLongName())
       .setName(resourceDto.getName())
