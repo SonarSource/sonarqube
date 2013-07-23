@@ -31,14 +31,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
 
 import javax.sql.DataSource;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.List;
 
 public class DbTemplate implements ServerComponent {
@@ -46,6 +39,7 @@ public class DbTemplate implements ServerComponent {
 
   public DbTemplate copyTable(DataSource source, DataSource dest, String table, String... whereClauses) {
     LOG.debug("Copy table {}", table);
+    long startup = System.currentTimeMillis();
 
     String selectQuery = selectQuery(table, whereClauses);
     truncate(dest, table);
@@ -56,6 +50,7 @@ public class DbTemplate implements ServerComponent {
     Connection destConnection = null;
     ResultSet destResultSet = null;
     PreparedStatement destStatement = null;
+    int count = 0;
     try {
       sourceConnection = source.getConnection();
       sourceStatement = sourceConnection.createStatement();
@@ -71,7 +66,7 @@ public class DbTemplate implements ServerComponent {
         String insertSql = new StringBuilder().append("INSERT INTO ").append(table).append("(").append(Joiner.on(",").join(columnNames))
           .append(") VALUES(").append(StringUtils.repeat("?", ",", columnNames.length)).append(")").toString();
         destStatement = destConnection.prepareStatement(insertSql);
-        int count = 0;
+
         do {
           copyColumns(sourceResultSet, destStatement, columnNames, columnTypes);
           count++;
@@ -85,6 +80,9 @@ public class DbTemplate implements ServerComponent {
 
         destStatement.executeBatch();
         destConnection.commit();
+      }
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("  " + count + " rows of " + table + " copied in " + (System.currentTimeMillis() - startup) + " ms");
       }
     } catch (SQLException e) {
       LOG.error("Fail to copy table " + table, e);

@@ -76,9 +76,20 @@
     <level value="WARN"/>
   </logger>
 
+  <!-- Execution of measure filters -->
   <logger name="org.sonar.MEASURE_FILTER">
     <level value="WARN"/>
   </logger>
+
+  <!-- Export of dry run database -->
+  <!--
+  <logger name="org.sonar.core.persistence.DbTemplate">
+    <level value="DEBUG"/>
+  </logger>
+  <logger name="org.sonar.core.persistence.DryRunDatabaseFactory">
+    <level value="DEBUG"/>
+  </logger>
+  -->
 
   <root>
     <level value="INFO"/>

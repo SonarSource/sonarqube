@@ -21,6 +21,8 @@ package org.sonar.core.persistence;
 
 import com.google.common.io.Files;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.platform.ServerFileSystem;
@@ -33,6 +35,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class DryRunDatabaseFactory implements ServerComponent {
+  private static final Logger LOG = LoggerFactory.getLogger(DryRunDatabaseFactory.class);
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
   private static final String URL = "jdbc:h2:";
@@ -47,6 +50,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
   }
 
   public byte[] createDatabaseForDryRun(@Nullable Long projectId) {
+    long startup = System.currentTimeMillis();
     String name = serverFileSystem.getTempDir().getAbsolutePath() + "db-" + System.nanoTime();
 
     try {
@@ -55,6 +59,17 @@ public class DryRunDatabaseFactory implements ServerComponent {
 
       copy(source, destination, projectId);
       close(destination);
+
+      if (LOG.isDebugEnabled()) {
+        File dbFile = new File(name + ".h2.db");
+        long size = dbFile.length();
+        long duration = System.currentTimeMillis() - startup;
+        if (projectId == null) {
+          LOG.debug("Dry Run Database created in " + duration + " ms, size is " + size + " bytes");
+        } else {
+          LOG.debug("Dry Run Database for project " + projectId + " created in " + duration + " ms, size is " + size + " bytes");
+        }
+      }
 
       return dbFileContent(name);
     } catch (SQLException e) {
