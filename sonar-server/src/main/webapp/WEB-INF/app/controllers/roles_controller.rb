@@ -81,26 +81,25 @@ class RolesController < ApplicationController
   # GET /roles/apply_template_form?criteria
   def apply_template_form
     @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
+    @names = params[:names]
+    @keys = params[:keys]
+    @qualifiers = params[:qualifiers] || 'TRK'
+    @results_count = params[:results_count].to_i || 0
 
-    params['qualifiers'] ||= 'TRK'
-    params['pageSize'] = -1
-
-    query_result = Internal.component_api.find(params)
-    components = query_result.components().to_a
-
-    @projects_ids = components.collect{|component| component.getId()}
-    @qualifier = params[:qualifiers]
-
-    render :partial => 'apply_template_form',
-           :locals => {:project_name => components.size == 1 ? components[0].name : nil,
-                       :empty => @projects_ids.nil? || @projects_ids.size == 0}
+    render :partial => 'apply_template_form'
   end
 
   # POST /roles/apply_template?criteria
   def apply_template
     verify_post_request
     require_parameters :template_key
+
+    params['pageSize'] = -1
+    components = Internal.component_api.find(params).components().to_a
+
+    params['components'] = components.collect{|component| component.getId()}.join(',')
     Internal.permissions.applyPermissionTemplate(params)
+
     redirect_to :action => 'projects'
   end
 

@@ -1,18 +1,20 @@
 <form id="apply-template-form" method="post" action="<%= ApplicationController.root_context -%>/roles/apply_template">
-  <% unless empty %>
-    <input type="hidden" name="components" id="apply-template-components" value="<%= @projects_ids.join(',') %>"/>
+  <% unless @results_count == 0 %>
+    <input type="hidden" name="names" id="apply-template-names" value="<%= @names %>"/>
+    <input type="hidden" name="keys" id="apply-template-keys" value="<%= @keys %>"/>
+    <input type="hidden" name="qualifiers" id="apply-template-qualifiers" value="<%= @qualifiers %>"/>
   <% end %>
   <fieldset>
     <div class="modal-head">
-    <% if project_name %>
-      <h2><%= message('projects_role.apply_template_to_xxx', :params => project_name) -%></h2>
+    <% if @results_count == 1 %>
+      <h2><%= message('projects_role.apply_template_to_xxx', :params => @names) -%></h2>
     <% else %>
       <h2><%= message('projects_role.apply_template') -%></h2>
     <% end %>
     </div>
     <div class="modal-body">
       <div class="modal-error"/>
-      <% if empty %>
+      <% if @results_count == 0 %>
         <div class="info">
           <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
           <%= message 'projects_role.no_projects' -%>
@@ -21,14 +23,14 @@
         <div class="modal-field">
           <%= label_tag 'template_key', 'Permission Template' %>
           <%= select_tag('template_key', options_for_select(@permission_templates, -1), :style => 'width: 250px;') %>
-          <% unless project_name %>
-            <span style="float:right" class="note">(<%= "#{@projects_ids.size} #{message('qualifier.' + @qualifier)}s" %>)</span><br/>
+          <% unless @results_count == 1 %>
+            <span style="float:right" class="note">(<%= "#{@results_count} #{message('qualifier.' + @qualifiers)}s" %>)</span><br/>
           <% end %>
         </div>
       <% end %>
     </div>
     <div class="modal-foot">
-      <% unless empty %>
+      <% unless @results_count == 0 %>
         <span id="apply-template-loading-image" class="loading-image hidden"><%= image_tag 'loading.gif' %></span>
         <input type="submit" value="<%= message('apply') -%>" id="apply-template-submit" class="apply-template" onclick="return displayLoadingImage()" />
       <% end %>

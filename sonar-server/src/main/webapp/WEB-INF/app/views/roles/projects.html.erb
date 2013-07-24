@@ -34,7 +34,8 @@
   <ul class="operations">
     <li class="last">
       <%= link_to message('projects_role.bulk_change'), {:action => :apply_template_form, :names => @components_names,
-                                                         :keys => @components_keys, :qualifiers => @components_qualifiers},
+                                                         :keys => @components_keys, :qualifiers => @components_qualifiers,
+                                                         :results_count => @query_result.paging.total},
                    :id => 'apply-template-modal', :class => 'open-modal link-action' %>
     </li>
   </ul>
@@ -82,7 +83,7 @@
         </td>
       <% end %>
       <td align="right">
-        <%= link_to message('projects_role.apply_template'), {:action => :apply_template_form, :names => project.name},
+        <%= link_to message('projects_role.apply_template'), {:action => :apply_template_form, :names => project.name, :results_count => 1},
                     :id => "apply-template-#{u project.kee}", :class => 'open-modal link-action' %>
       </td>
     </tr>
