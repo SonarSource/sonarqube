@@ -37,10 +37,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
-  private DryRunDatabaseFactory localDatabaseFactory;
-
-  private ServerFileSystem serverFileSystem = mock(ServerFileSystem.class);
-  private BasicDataSource dataSource;
+  DryRunDatabaseFactory localDatabaseFactory;
+  ServerFileSystem serverFileSystem = mock(ServerFileSystem.class);
+  BasicDataSource dataSource;
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
