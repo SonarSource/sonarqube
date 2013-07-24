@@ -57,11 +57,16 @@ public class DefaultComponentFinder {
       // 2. Sort components
       Collection<? extends Component> sortedComponents = new ComponentsFinderSort(foundComponents, query).sort();
 
-      // 3. Apply pagination
-      Paging paging = Paging.create(query.pageSize(), query.pageIndex(), foundComponents.size());
-      Collection<? extends Component> pagedComponents = pagedComponents(sortedComponents, paging);
+      if(ComponentQuery.NO_PAGINATION == query.pageSize()) {
+        return new DefaultComponentQueryResult(sortedComponents).setQuery(query);
+      } else {
+        // 3. Apply pagination
+        Paging paging = Paging.create(query.pageSize(), query.pageIndex(), foundComponents.size());
+        Collection<? extends Component> pagedComponents = pagedComponents(sortedComponents, paging);
 
-      return new DefaultComponentQueryResult(pagedComponents).setPaging(paging).setQuery(query);
+        return new DefaultComponentQueryResult(pagedComponents).setPaging(paging).setQuery(query);
+      }
+
     } finally {
       LOG.debug("ComponentQuery execution time : {} ms", System.currentTimeMillis() - start);
     }

@@ -115,6 +115,22 @@ public class DefaultComponentFinderTest {
     assertThat(results.paging().total()).isEqualTo(3);
   }
 
+  @Test
+  public void should_skip_pagination() throws Exception {
+    ComponentQuery query = ComponentQuery.builder().pageSize(ComponentQuery.NO_PAGINATION)
+      .pageIndex(ComponentQuery.DEFAULT_PAGE_INDEX).build();
+
+    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+      createProject("org.codehaus.sonar", "Sonar"),
+      createProject("org.apache.tika:tika", "Apache Tika"),
+      createProject("org.picocontainer:picocontainer-parent", "PicoContainer Parent")
+    ));
+
+    DefaultComponentQueryResult results = finder.find(query);
+    assertThat(results.paging()).isNull();
+    assertThat(results.components().size()).isEqualTo(3);
+  }
+
   private Component createProject(String key, String name){
     return new Project(key, null, name);
   }

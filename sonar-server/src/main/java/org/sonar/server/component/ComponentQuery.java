@@ -37,6 +37,7 @@ public class ComponentQuery {
 
   public static final int DEFAULT_PAGE_INDEX = 1;
   public static final int DEFAULT_PAGE_SIZE = 100;
+  public static final int NO_PAGINATION = -1;
 
   public static final String SORT_BY_NAME = "NAME";
   public static final Set<String> SORTS = ImmutableSet.of(SORT_BY_NAME);

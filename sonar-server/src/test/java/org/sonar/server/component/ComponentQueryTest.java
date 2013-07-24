@@ -78,4 +78,10 @@ public class ComponentQueryTest {
     assertThat(query.pageIndex()).isEqualTo(ComponentQuery.DEFAULT_PAGE_INDEX);
   }
 
+  @Test
+  public void should_build_non_paginated_query() throws Exception {
+    ComponentQuery query = ComponentQuery.builder().pageSize(ComponentQuery.NO_PAGINATION).build();
+    assertThat(query.pageSize()).isEqualTo(ComponentQuery.NO_PAGINATION);
+    assertThat(query.pageIndex()).isEqualTo(ComponentQuery.DEFAULT_PAGE_INDEX);
+  }
 }
