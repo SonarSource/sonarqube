@@ -83,7 +83,8 @@
         </td>
       <% end %>
       <td align="right">
-        <%= link_to message('projects_role.apply_template'), {:action => :apply_template_form, :names => project.name, :results_count => 1},
+        <%= link_to message('projects_role.apply_template'), {:action => :apply_template_form, :components => [project.id], :names => project.name,
+                                                              :results_count => 1, :qualifiers => @components_qualifiers},
                     :id => "apply-template-#{u project.kee}", :class => 'open-modal link-action' %>
       </td>
     </tr>

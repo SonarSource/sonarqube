@@ -85,6 +85,7 @@ class RolesController < ApplicationController
     @keys = params[:keys]
     @qualifiers = params[:qualifiers] || 'TRK'
     @results_count = params[:results_count].to_i || 0
+    @components = params[:components]
 
     render :partial => 'apply_template_form'
   end
@@ -94,10 +95,12 @@ class RolesController < ApplicationController
     verify_post_request
     require_parameters :template_key
 
-    params['pageSize'] = -1
-    components = Internal.component_api.find(params).components().to_a
+    if params['components'].blank?
+      params['pageSize'] = -1
+      components = Internal.component_api.find(params).components().to_a
+      params['components'] = components.collect{|component| component.getId()}.join(',')
+    end
 
-    params['components'] = components.collect{|component| component.getId()}.join(',')
     Internal.permissions.applyPermissionTemplate(params)
 
     redirect_to :action => 'projects'
