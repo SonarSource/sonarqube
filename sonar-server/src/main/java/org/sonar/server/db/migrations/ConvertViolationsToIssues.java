@@ -27,7 +27,6 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.AbstractListHandler;
-import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.Database;
@@ -37,9 +36,13 @@ import org.sonar.server.db.DatabaseMigration;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Used in the Active Record Migration 401
@@ -118,9 +121,10 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
   }
 
   private static class Converter {
+    private static final long ONE_YEAR = 365L * 24 * 60 * 60 * 1000;
     private String insertSql;
     private String insertChangeSql;
-    private Date oneYearAgo = DateUtils.addYears(new Date(), -1);
+    private Date oneYearAgo = new Date(System.currentTimeMillis() - ONE_YEAR);
     private QueryRunner runner;
     private Connection readConnection, writeConnection;
     private Map<Long, String> loginsByUserId;
@@ -188,8 +192,8 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
         String issueKey = UUID.randomUUID().toString();
         String status, severity, reporter = null;
         boolean manualSeverity;
-        Date createdAt = Objects.firstNonNull((Date) row.get("createdAt"), oneYearAgo);
-        Date updatedAt;
+        Object createdAt = Objects.firstNonNull(row.get("createdAt"), oneYearAgo);
+        Object updatedAt;
         Long reviewId = (Long) row.get("reviewId");
         if (reviewId == null) {
           // violation without review
@@ -203,7 +207,7 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
           status = ("OPEN".equals(reviewStatus) ? "CONFIRMED" : reviewStatus);
           manualSeverity = Objects.firstNonNull((Boolean) row.get("reviewManualSeverity"), false);
           severity = (String) row.get("reviewSeverity");
-          updatedAt = Objects.firstNonNull((Date) row.get("reviewUpdatedAt"), oneYearAgo);
+          updatedAt = Objects.firstNonNull(row.get("reviewUpdatedAt"), oneYearAgo);
           if ((Boolean) row.get("reviewManualViolation")) {
             reporter = login((Long) row.get("reviewReporterId"));
           }
