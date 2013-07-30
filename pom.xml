@@ -349,22 +349,8 @@
                   </excludes>
                   <searchTransitive>true</searchTransitive>
                 </bannedDependencies>
-              </rules>
-            </configuration>
-          </execution>
-          <execution>
-            <!-- TODO Merge with execution enforce-rules as soon as we will remove exclusions for this rule - see SONAR-2938 -->
-            <id>enforce-no-repositories</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
                 <requireNoRepositories>
-                  <!-- Also see SONAR-2849 -->
-                  <message>The rules for repo1.maven.org are that pom.xml files should not include repository
-                    definitions.
-                  </message>
+                  <message>Definition of new repositories is not allowed in order to deploy to central repository.</message>
                 </requireNoRepositories>
               </rules>
             </configuration>
