@@ -19,9 +19,7 @@
  */
 package org.sonar.core.i18n;
 
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
@@ -38,22 +36,7 @@ import static org.mockito.Mockito.when;
 
 public class I18nManagerTest {
 
-  private static Locale defaultLocale;
   private I18nManager manager;
-
-  /**
-   * See http://jira.codehaus.org/browse/SONAR-2927
-   */
-  @BeforeClass
-  public static void fixDefaultLocaleBug() {
-    defaultLocale = Locale.getDefault();
-    Locale.setDefault(Locale.ENGLISH);
-  }
-
-  @AfterClass
-  public static void revertFix() {
-    Locale.setDefault(defaultLocale);
-  }
 
   @Before
   public void init() {
@@ -81,6 +64,20 @@ public class I18nManagerTest {
     assertThat(manager.message(Locale.ENGLISH, "by", null)).isEqualTo("By");
     assertThat(manager.message(Locale.ENGLISH, "sqale.page", null)).isEqualTo("Sqale page title");
     assertThat(manager.message(Locale.ENGLISH, "checkstyle.rule1.name", null)).isEqualTo("Rule one");
+  }
+
+  // SONAR-2927
+  @Test
+  public void should_get_english_labels_when_default_locale_is_not_english() {
+    Locale defaultLocale = Locale.getDefault();
+    try {
+      Locale.setDefault(Locale.FRENCH);
+      assertThat(manager.message(Locale.ENGLISH, "by", null)).isEqualTo("By");
+      assertThat(manager.message(Locale.ENGLISH, "sqale.page", null)).isEqualTo("Sqale page title");
+      assertThat(manager.message(Locale.ENGLISH, "checkstyle.rule1.name", null)).isEqualTo("Rule one");
+    } finally {
+      Locale.setDefault(defaultLocale);
+    }
   }
 
   @Test
