@@ -84,13 +84,14 @@ public class SendIssueNotificationsPostJobTest {
   }
 
   @Test
-  public void should_send_notification_if_issue_change() throws Exception {
+  public void should_send_notification() throws Exception {
     when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
     Rule rule = new Rule("squid", "AvoidCycles");
     DefaultIssue issue = new DefaultIssue()
       .setNew(false)
       .setChanged(true)
+      .setSendNotifications(true)
       .setFieldChange(mock(IssueChangeContext.class), "severity", "MINOR", "BLOCKER")
       .setRuleKey(ruleKey);
     when(issueCache.all()).thenReturn(Arrays.asList(issue));
@@ -110,6 +111,26 @@ public class SendIssueNotificationsPostJobTest {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
     DefaultIssue issue = new DefaultIssue()
       .setChanged(true)
+      .setFieldChange(changeContext, "severity", "MINOR", "BLOCKER")
+      .setRuleKey(ruleKey);
+    when(issueCache.all()).thenReturn(Arrays.asList(issue));
+    when(ruleFinder.findByKey(ruleKey)).thenReturn(null);
+
+    SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
+    job.executeOn(project, sensorContext);
+
+    verify(notifications, never()).sendChanges(eq(issue), eq(changeContext), any(Rule.class), any(Component.class), any(Component.class));
+  }
+
+  @Test
+  public void should_not_send_notification_on_any_change() throws Exception {
+    IssueChangeContext changeContext = mock(IssueChangeContext.class);
+
+    when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
+    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
+    DefaultIssue issue = new DefaultIssue()
+      .setChanged(true)
+      .setSendNotifications(false)
       .setFieldChange(changeContext, "severity", "MINOR", "BLOCKER")
       .setRuleKey(ruleKey);
     when(issueCache.all()).thenReturn(Arrays.asList(issue));

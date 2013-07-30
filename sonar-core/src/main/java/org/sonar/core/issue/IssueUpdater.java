@@ -63,6 +63,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setManualSeverity(true);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
+      issue.setSendNotifications(true);
       return true;
     }
     return false;
@@ -75,6 +76,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setAssignee(sanitizedAssignee);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
+      issue.setSendNotifications(true);
       return true;
     }
     return false;
@@ -101,6 +103,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setResolution(resolution);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
+      issue.setSendNotifications(true);
       return true;
     }
     return false;
@@ -112,6 +115,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setStatus(status);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
+      issue.setSendNotifications(true);
       return true;
     }
     return false;
@@ -123,6 +127,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setAuthorLogin(authorLogin);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
+      // do not send notifications to prevent spam when installing the developer cockpit plugin
       return true;
     }
     return false;
@@ -163,6 +168,8 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setEffortToFix(d);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
+      // Do not send notifications to prevent spam when installing the SQALE plugin,
+      // and do not complete the changelog (for the moment)
       return true;
     }
     return false;
@@ -193,6 +200,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       issue.setActionPlanKey(sanitizedActionPlanKey);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
+      issue.setSendNotifications(true);
       return true;
     }
     return false;

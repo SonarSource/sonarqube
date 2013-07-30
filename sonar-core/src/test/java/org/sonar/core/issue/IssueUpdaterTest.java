@@ -39,6 +39,7 @@ public class IssueUpdaterTest {
     boolean updated = updater.assign(issue, "emmerik", context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isEqualTo("emmerik");
+    assertThat(issue.mustSendNotifications()).isTrue();
     FieldDiffs.Diff diff = issue.currentChange().get("assignee");
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("emmerik");
@@ -50,6 +51,7 @@ public class IssueUpdaterTest {
     boolean updated = updater.assign(issue, null, context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isNull();
+    assertThat(issue.mustSendNotifications()).isTrue();
     FieldDiffs.Diff diff = issue.currentChange().get("assignee");
     assertThat(diff.oldValue()).isEqualTo("morgan");
     assertThat(diff.newValue()).isNull();
@@ -61,6 +63,7 @@ public class IssueUpdaterTest {
     boolean updated = updater.assign(issue, "emmerik", context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isEqualTo("emmerik");
+    assertThat(issue.mustSendNotifications()).isTrue();
     FieldDiffs.Diff diff = issue.currentChange().get("assignee");
     assertThat(diff.oldValue()).isEqualTo("morgan");
     assertThat(diff.newValue()).isEqualTo("emmerik");
@@ -72,6 +75,7 @@ public class IssueUpdaterTest {
     boolean updated = updater.assign(issue, "morgan", context);
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
 
@@ -81,6 +85,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isTrue();
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.manualSeverity()).isFalse();
+    assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get("severity");
     assertThat(diff.oldValue()).isNull();
@@ -93,6 +98,7 @@ public class IssueUpdaterTest {
     boolean updated = updater.setPastSeverity(issue, "INFO", context);
     assertThat(updated).isTrue();
     assertThat(issue.severity()).isEqualTo("BLOCKER");
+    assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get("severity");
     assertThat(diff.oldValue()).isEqualTo("INFO");
@@ -106,6 +112,7 @@ public class IssueUpdaterTest {
 
     assertThat(updated).isTrue();
     assertThat(issue.severity()).isEqualTo("MINOR");
+    assertThat(issue.mustSendNotifications()).isFalse();
     FieldDiffs.Diff diff = issue.currentChange().get("severity");
     assertThat(diff.oldValue()).isEqualTo("BLOCKER");
     assertThat(diff.newValue()).isEqualTo("MINOR");
@@ -116,6 +123,7 @@ public class IssueUpdaterTest {
     issue.setSeverity("MINOR");
     boolean updated = updater.setSeverity(issue, "MINOR", context);
     assertThat(updated).isFalse();
+    assertThat(issue.mustSendNotifications()).isFalse();
     assertThat(issue.currentChange()).isNull();
   }
 
@@ -137,6 +145,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isTrue();
     assertThat(issue.severity()).isEqualTo("MINOR");
     assertThat(issue.manualSeverity()).isTrue();
+    assertThat(issue.mustSendNotifications()).isTrue();
     FieldDiffs.Diff diff = issue.currentChange().get("severity");
     assertThat(diff.oldValue()).isEqualTo("BLOCKER");
     assertThat(diff.newValue()).isEqualTo("MINOR");
@@ -148,6 +157,7 @@ public class IssueUpdaterTest {
     boolean updated = updater.setManualSeverity(issue, "MINOR", context);
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -155,7 +165,7 @@ public class IssueUpdaterTest {
     boolean updated = updater.setLine(issue, 123);
     assertThat(updated).isTrue();
     assertThat(issue.line()).isEqualTo(123);
-
+    assertThat(issue.mustSendNotifications()).isFalse();
     // do not save change
     assertThat(issue.currentChange()).isNull();
   }
@@ -166,6 +176,7 @@ public class IssueUpdaterTest {
     boolean updated = updater.setPastLine(issue, 123);
     assertThat(updated).isTrue();
     assertThat(issue.line()).isEqualTo(42);
+    assertThat(issue.mustSendNotifications()).isFalse();
 
     // do not save change
     assertThat(issue.currentChange()).isNull();
@@ -178,6 +189,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isFalse();
     assertThat(issue.line()).isEqualTo(123);
     assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -189,6 +201,7 @@ public class IssueUpdaterTest {
     FieldDiffs.Diff diff = issue.currentChange().get("resolution");
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("OPEN");
+    assertThat(issue.mustSendNotifications()).isTrue();
   }
 
   @Test
@@ -198,6 +211,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isFalse();
     assertThat(issue.resolution()).isEqualTo("FIXED");
     assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -209,6 +223,7 @@ public class IssueUpdaterTest {
     FieldDiffs.Diff diff = issue.currentChange().get("status");
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("OPEN");
+    assertThat(issue.mustSendNotifications()).isTrue();
   }
 
   @Test
@@ -218,6 +233,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isFalse();
     assertThat(issue.status()).isEqualTo("CLOSED");
     assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -228,6 +244,7 @@ public class IssueUpdaterTest {
     assertThat(issue.currentChange().diffs()).hasSize(1);
     assertThat(issue.currentChange().get("JIRA").oldValue()).isNull();
     assertThat(issue.currentChange().get("JIRA").newValue()).isEqualTo("FOO-123");
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -239,6 +256,7 @@ public class IssueUpdaterTest {
     assertThat(issue.currentChange().diffs()).hasSize(1);
     assertThat(issue.currentChange().get("JIRA").oldValue()).isEqualTo("FOO-123");
     assertThat(issue.currentChange().get("JIRA").newValue()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -246,6 +264,7 @@ public class IssueUpdaterTest {
     issue.setAttribute("JIRA", "FOO-123");
     boolean updated = updater.setAttribute(issue, "JIRA", "FOO-123", context);
     assertThat(updated).isFalse();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -257,6 +276,7 @@ public class IssueUpdaterTest {
     FieldDiffs.Diff diff = issue.currentChange().get("actionPlanKey");
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("ABCD");
+    assertThat(issue.mustSendNotifications()).isTrue();
   }
 
   @Test
@@ -265,6 +285,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isTrue();
     assertThat(issue.isChanged()).isTrue();
     assertThat(issue.effortToFix()).isEqualTo(3.14);
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -274,6 +295,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isFalse();
     assertThat(issue.isChanged()).isFalse();
     assertThat(issue.effortToFix()).isEqualTo(3.14);
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -285,6 +307,7 @@ public class IssueUpdaterTest {
 
     // do not save change
     assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -293,6 +316,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isTrue();
     assertThat(issue.isChanged()).isTrue();
     assertThat(issue.message()).isEqualTo("the message");
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -304,6 +328,7 @@ public class IssueUpdaterTest {
 
     // do not save change
     assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
@@ -315,5 +340,6 @@ public class IssueUpdaterTest {
     FieldDiffs.Diff diff = issue.currentChange().get("author");
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("eric");
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 }
