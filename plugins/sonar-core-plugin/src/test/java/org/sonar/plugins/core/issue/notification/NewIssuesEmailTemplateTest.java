@@ -68,7 +68,7 @@ public class NewIssuesEmailTemplateTest {
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId()).isEqualTo("new-issues/org.apache:struts");
-    assertThat(message.getSubject()).isEqualTo("Project Struts, new issues");
+    assertThat(message.getSubject()).isEqualTo("Struts: new issues");
     assertThat(message.getMessage()).isEqualTo("" +
       "Project: Struts\n" +
       "32 new issues\n" +
