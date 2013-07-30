@@ -94,6 +94,7 @@
         <tr>
           <td class="left" valign="top">
             <%= submit_tag @metric.id.nil? ? message('create') : message('edit') %>
+            <%= link_to message('cancel'), { :controller => 'metrics', :action => 'index', :id => nil}, { :class => 'action' } %>
           </td>
         </tr>
       </tbody>

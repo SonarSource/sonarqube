@@ -32,6 +32,7 @@
     <tr>
       <td class="left" valign="top">
         <input type="submit" value="<%= @action_plan && @action_plan.key() ? message('edit') : message('create') -%>"/>
+        <%= link_to message('cancel'), { :controller => 'action_plans', :action => 'index', :id => @resource.id}, { :class => 'action' } %>
       </td>
     </tr>
     </tbody>
