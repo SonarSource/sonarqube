@@ -27,7 +27,6 @@ import org.sonar.plugins.design.batch.MavenDependenciesSensor;
 import org.sonar.plugins.design.batch.PackageTangleIndexDecorator;
 import org.sonar.plugins.design.batch.ProjectDsmDecorator;
 import org.sonar.plugins.design.batch.SuspectLcom4DensityDecorator;
-import org.sonar.plugins.design.ui.dependencies.DependenciesViewer;
 import org.sonar.plugins.design.ui.libraries.GwtLibrariesPage;
 import org.sonar.plugins.design.ui.page.GwtDesignPage;
 import org.sonar.plugins.design.ui.widgets.FileDesignWidget;
@@ -39,7 +38,6 @@ import java.util.List;
 
 public class DesignPlugin extends SonarPlugin {
 
-  @SuppressWarnings("unchecked")
   public List<Class<? extends Extension>> getExtensions() {
     return ImmutableList.of(
         // Batch
@@ -52,7 +50,6 @@ public class DesignPlugin extends SonarPlugin {
 
         // UI
         GwtDesignPage.class,
-        DependenciesViewer.class,
         FileDesignWidget.class,
         PackageDesignWidget.class,
         LCOM4Widget.class,
