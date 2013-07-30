@@ -88,31 +88,31 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
   @CheckForNull
   private Notification createChangeNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project,
                                                 @Nullable Component component, @Nullable String comment) {
-    FieldDiffs currentChange = issue.currentChange();
-    if (comment == null && (currentChange == null || currentChange.diffs().isEmpty())) {
-      return null;
-    }
-    Notification notification = newNotification(project, "issue-changes");
-    notification.setFieldValue("key", issue.key());
-    notification.setFieldValue("changeAuthor", context.login());
-    notification.setFieldValue("reporter", issue.reporter());
-    notification.setFieldValue("assignee", issue.assignee());
-    notification.setFieldValue("message", issue.message());
-    notification.setFieldValue("ruleName", ruleName(rule));
-    notification.setFieldValue("componentKey", issue.componentKey());
-    if (component != null) {
-      notification.setFieldValue("componentName", component.longName());
-    }
-    if (comment != null) {
-      notification.setFieldValue("comment", comment);
-    }
+    Notification notification = null;
+    if (comment != null || issue.mustSendNotifications()) {
+      FieldDiffs currentChange = issue.currentChange();
+      notification = newNotification(project, "issue-changes");
+      notification.setFieldValue("key", issue.key());
+      notification.setFieldValue("changeAuthor", context.login());
+      notification.setFieldValue("reporter", issue.reporter());
+      notification.setFieldValue("assignee", issue.assignee());
+      notification.setFieldValue("message", issue.message());
+      notification.setFieldValue("ruleName", ruleName(rule));
+      notification.setFieldValue("componentKey", issue.componentKey());
+      if (component != null) {
+        notification.setFieldValue("componentName", component.longName());
+      }
+      if (comment != null) {
+        notification.setFieldValue("comment", comment);
+      }
 
-    if (currentChange != null) {
-      for (Map.Entry<String, FieldDiffs.Diff> entry : currentChange.diffs().entrySet()) {
-        String type = entry.getKey();
-        FieldDiffs.Diff diff = entry.getValue();
-        notification.setFieldValue("old." + type, diff.oldValue() != null ? diff.oldValue().toString() : null);
-        notification.setFieldValue("new." + type, diff.newValue() != null ? diff.newValue().toString() : null);
+      if (currentChange != null) {
+        for (Map.Entry<String, FieldDiffs.Diff> entry : currentChange.diffs().entrySet()) {
+          String type = entry.getKey();
+          FieldDiffs.Diff diff = entry.getValue();
+          notification.setFieldValue("old." + type, diff.oldValue() != null ? diff.oldValue().toString() : null);
+          notification.setFieldValue("new." + type, diff.newValue() != null ? diff.newValue().toString() : null);
+        }
       }
     }
     return notification;

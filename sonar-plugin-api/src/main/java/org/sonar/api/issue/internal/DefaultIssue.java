@@ -91,6 +91,9 @@ public class DefaultIssue implements Issue {
   // true if some fields have been changed since the previous scan
   private boolean isChanged = false;
 
+  // true if notifications have to be sent
+  private boolean sendNotifications = false;
+
   // Date when issue was loaded from db (only when isNew=false)
   private Date selectedAt;
 
@@ -306,6 +309,15 @@ public class DefaultIssue implements Issue {
 
   public DefaultIssue setChanged(boolean b) {
     isChanged = b;
+    return this;
+  }
+
+  public boolean mustSendNotifications() {
+    return sendNotifications;
+  }
+
+  public DefaultIssue setSendNotifications(boolean b) {
+    sendNotifications = b;
     return this;
   }
 

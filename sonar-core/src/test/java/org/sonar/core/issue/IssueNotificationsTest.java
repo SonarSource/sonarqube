@@ -76,6 +76,7 @@ public class IssueNotificationsTest {
       .setAssignee("freddy")
       .setFieldChange(context, "resolution", null, "FIXED")
       .setFieldChange(context, "status", "OPEN", "RESOLVED")
+      .setSendNotifications(true)
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
     DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
