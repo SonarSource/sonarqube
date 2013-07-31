@@ -19,9 +19,11 @@
  */
 package org.sonar.batch;
 
+import com.google.common.base.Joiner;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.utils.SonarException;
@@ -29,21 +31,23 @@ import org.sonar.jpa.dao.ProfilesDao;
 
 public class DefaultProfileLoader implements ProfileLoader {
   private ProfilesDao dao;
+  private Languages languages;
 
-  public DefaultProfileLoader(ProfilesDao dao) {
+  public DefaultProfileLoader(ProfilesDao dao, Languages languages) {
     this.dao = dao;
+    this.languages = languages;
   }
 
   public RulesProfile load(Project project, Settings settings) {
+    if (!languages.allKey().contains(project.getLanguageKey())) {
+      String languageList = Joiner.on(", ").join(languages.allKey());
+      throw new SonarException("You must install a plugin that supports the language '" + project.getLanguageKey() +
+        "'. Supported language keys are: " + languageList);
+    }
+
     String profileName = StringUtils.defaultIfBlank(
         settings.getString("sonar.profile"),
         settings.getString("sonar.profile." + project.getLanguageKey()));
-
-    if (StringUtils.isBlank(profileName)) {
-      // This means that the current language is not supported by any installed plugin, otherwise at least a
-      // "Default <Language Name>" profile would have been created by ActivateDefaultProfiles class.
-      throw new SonarException("You must install a plugin that supports the language '" + project.getLanguageKey() + "'");
-    }
 
     RulesProfile profile = dao.getProfile(project.getLanguageKey(), profileName);
     if (profile == null) {
