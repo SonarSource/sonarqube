@@ -90,9 +90,8 @@ public class PurgeProfiler {
     for (Entry<String, Long> item : sortedFullList) {
       if (i++ >= maxSize || item.getValue() == 0) {
         return result;
-      } else {
-        result.add(item);
       }
+      result.add(item);
     }
     return result;
   }

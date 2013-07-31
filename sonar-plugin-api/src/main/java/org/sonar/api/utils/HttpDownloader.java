@@ -265,9 +265,8 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
               String errorResponseContent = IOUtils.toString(errorResponse);
               throw new HttpException(uri, responseCode, errorResponseContent);
             }
-            else {
-              throw new HttpException(uri, responseCode);
-            }
+            throw new HttpException(uri, responseCode);
+
           } finally {
             IOUtils.closeQuietly(errorResponse);
           }

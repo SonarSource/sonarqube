@@ -92,9 +92,7 @@ public abstract class AbstractTimeProfiling {
       if (i++ >= maxSize || item.totalTime() == 0) {
         return result;
       }
-      else {
-        result.add(item);
-      }
+      result.add(item);
     }
     return result;
   }

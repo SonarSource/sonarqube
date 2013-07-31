@@ -100,8 +100,7 @@ public abstract class BaseChartWeb extends BaseChart {
       } else {
         configureDefaultColors(renderer);
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       configureDefaultColors(renderer);
     }
   }
@@ -117,8 +116,7 @@ public abstract class BaseChartWeb extends BaseChart {
     if (isParamValueValid(paramValue)) {
       try {
         result = Double.parseDouble(paramValue);
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
         // ignore
       }
     }
@@ -144,8 +142,7 @@ public abstract class BaseChartWeb extends BaseChart {
         setWidth(iWidth);
         setHeight(iHeight);
       }
-    }
-    catch (NumberFormatException e) {
+    } catch (NumberFormatException e) {
       // Do nothing, default dimensions are already setted
     }
   }

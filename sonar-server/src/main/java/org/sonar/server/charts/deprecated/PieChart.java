@@ -85,8 +85,7 @@ public class PieChart extends BaseChartWeb implements DeprecatedChart {
       } else {
         configureDefaultColors();
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       configureDefaultColors();
     }
   }
@@ -117,8 +116,7 @@ public class PieChart extends BaseChartWeb implements DeprecatedChart {
         double measure = 0;
         try {
           measure = Double.parseDouble(st.nextToken());
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
           // ignore
         }
         dataset.setValue(Integer.toString(i), measure);

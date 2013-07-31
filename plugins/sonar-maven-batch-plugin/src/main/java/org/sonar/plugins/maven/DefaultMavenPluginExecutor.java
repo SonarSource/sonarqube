@@ -105,11 +105,9 @@ public class DefaultMavenPluginExecutor implements MavenPluginExecutor {
     }
     if (executeMethod.getParameterTypes().length == 1) {
       concreteExecuteMaven3(pom, goal);
-    }
-    else if (executeMethod.getParameterTypes().length == 3) {
+    } else if (executeMethod.getParameterTypes().length == 3) {
       concreteExecuteMaven2(executeMethod, pom, goal);
-    }
-    else {
+    } else {
       throw new SonarException("Unexpected parameter count on Maven LifecycleExecutor#execute method. Please check your Maven version.");
     }
   }
