@@ -33,9 +33,9 @@ import java.util.Map.Entry;
 
 public class PurgeProfiler {
 
-  Map<String, Long> durations = new HashMap<String, Long>();
-  long startTime;
-  String currentTable;
+  private Map<String, Long> durations = new HashMap<String, Long>();
+  private long startTime;
+  private String currentTable;
   private final Clock clock;
 
   public PurgeProfiler() {
@@ -90,8 +90,7 @@ public class PurgeProfiler {
     for (Entry<String, Long> item : sortedFullList) {
       if (i++ >= maxSize || item.getValue() == 0) {
         return result;
-      }
-      else {
+      } else {
         result.add(item);
       }
     }

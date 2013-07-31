@@ -95,8 +95,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     if (event.isStart()) {
       decoratorsProfiler = new DecoratorsProfiler();
       currentModuleProfiling = new ModuleProfiling(module, clock);
-    }
-    else {
+    } else {
       currentModuleProfiling.stop();
       modulesProfilings.put(module, currentModuleProfiling);
       long moduleTotalTime = currentModuleProfiling.totalTime();
@@ -135,8 +134,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   public void onSensorsPhase(SensorsPhaseEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addPhaseProfiling(Phases.Phase.SENSOR);
-    }
-    else {
+    } else {
       currentModuleProfiling.getProfilingPerPhase(Phases.Phase.SENSOR).stop();
     }
   }
@@ -165,8 +163,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   public void onDecoratorsPhase(DecoratorsPhaseEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addPhaseProfiling(Phases.Phase.DECORATOR);
-    }
-    else {
+    } else {
       for (Decorator decorator : decoratorsProfiler.getDurations().keySet()) {
         currentModuleProfiling.getProfilingPerPhase(Phases.Phase.DECORATOR)
             .getProfilingPerItem(decorator).setTotalTime(decoratorsProfiler.getDurations().get(decorator));
@@ -178,8 +175,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   public void onPostJobsPhase(PostJobsPhaseEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addPhaseProfiling(Phases.Phase.POSTJOB);
-    }
-    else {
+    } else {
       currentModuleProfiling.getProfilingPerPhase(Phases.Phase.POSTJOB).stop();
     }
   }
@@ -197,8 +193,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   public void onMavenPhase(MavenPhaseEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addPhaseProfiling(Phases.Phase.MAVEN);
-    }
-    else {
+    } else {
       currentModuleProfiling.getProfilingPerPhase(Phases.Phase.MAVEN).stop();
     }
   }
@@ -234,10 +229,10 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   }
 
   class DecoratorsProfiler {
-    List<Decorator> decorators = Lists.newArrayList();
-    Map<Decorator, Long> durations = new IdentityHashMap<Decorator, Long>();
-    long startTime;
-    Decorator currentDecorator;
+    private List<Decorator> decorators = Lists.newArrayList();
+    private Map<Decorator, Long> durations = new IdentityHashMap<Decorator, Long>();
+    private long startTime;
+    private Decorator currentDecorator;
 
     DecoratorsProfiler() {
     }
