@@ -19,13 +19,15 @@
 #
 class ProfilesController < ApplicationController
 
-  ROOT_BREADCRUMB = {:name => Api::Utils.message('quality_profiles.page'), :url => {:controller => 'profiles', :action => 'index'}}
+  def self.root_breadcrumb
+    {:name => Api::Utils.message('quality_profiles.page'), :url => {:controller => 'profiles', :action => 'index'}}
+  end
 
   before_filter :hide_sidebar
 
   # GET /profiles/index
   def index
-    add_breadcrumbs ROOT_BREADCRUMB
+    add_breadcrumbs ProfilesController::root_breadcrumb
     @profiles = Profile.all
     Api::Utils.insensitive_sort!(@profiles){|profile| profile.name}
   end
@@ -373,7 +375,7 @@ class ProfilesController < ApplicationController
         end
       end
     end
-    add_breadcrumbs ROOT_BREADCRUMB, Api::Utils.message('compare')
+    add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.message('compare')
   end
 
   DIFF_IN1=1
@@ -519,6 +521,6 @@ class ProfilesController < ApplicationController
   end
 
   def set_profile_breadcrumbs
-    add_breadcrumbs ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
+    add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
   end
 end
