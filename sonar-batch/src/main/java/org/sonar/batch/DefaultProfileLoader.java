@@ -31,14 +31,12 @@ import org.sonar.jpa.dao.ProfilesDao;
 
 public class DefaultProfileLoader implements ProfileLoader {
   private ProfilesDao dao;
-  private Languages languages;
 
-  public DefaultProfileLoader(ProfilesDao dao, Languages languages) {
+  public DefaultProfileLoader(ProfilesDao dao) {
     this.dao = dao;
-    this.languages = languages;
   }
 
-  public RulesProfile load(Project project, Settings settings) {
+  public RulesProfile load(Project project, Settings settings, Languages languages) {
     if (!languages.allKey().contains(project.getLanguageKey())) {
       String languageList = Joiner.on(", ").join(languages.allKey());
       throw new SonarException("You must install a plugin that supports the language '" + project.getLanguageKey() +

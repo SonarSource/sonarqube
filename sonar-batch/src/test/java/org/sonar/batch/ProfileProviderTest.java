@@ -22,6 +22,7 @@ package org.sonar.batch;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 
 import static org.hamcrest.Matchers.is;
@@ -40,11 +41,12 @@ public class ProfileProviderTest {
     ProfileLoader loader = mock(ProfileLoader.class);
     Project project = new Project("project");
     RulesProfile profile = RulesProfile.create();
-    when(loader.load(eq(project), any(Settings.class))).thenReturn(profile);
+    Languages languages = mock(Languages.class);
+    when(loader.load(eq(project), any(Settings.class), eq(languages))).thenReturn(profile);
 
-    assertThat(provider.provide(project, loader, new Settings()), is(profile));
-    assertThat(provider.provide(project, loader, new Settings()), is(profile));
-    verify(loader).load(eq(project), any(Settings.class));
+    assertThat(provider.provide(project, loader, new Settings(), languages), is(profile));
+    assertThat(provider.provide(project, loader, new Settings(), languages), is(profile));
+    verify(loader).load(eq(project), any(Settings.class), eq(languages));
     verifyNoMoreInteractions(loader);
   }
 }
