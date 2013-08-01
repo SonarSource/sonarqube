@@ -21,15 +21,13 @@ package org.sonar.batch;
 
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 
 public interface ProfileLoader {
 
   /**
    * Loads quality profile for specified project.
-   * @param languages remove this parameter when Languages is no more in scope ModuleScanContainer
    */
-  RulesProfile load(Project project, Settings settings, Languages languages);
+  RulesProfile load(Project project, Settings settings);
 
 }

@@ -19,11 +19,18 @@
  */
 package org.sonar.batch;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.SonarException;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -35,18 +42,60 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ProfileProviderTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  private Project javaProject;
+  private Languages languages;
+
+  @Before
+  public void setUp() {
+
+    Language java = new AbstractLanguage("java", "Java") {
+      public String[] getFileSuffixes() {
+        return null;
+      };
+    };
+    Language cobol = new AbstractLanguage("js", "JavaScript") {
+      public String[] getFileSuffixes() {
+        return null;
+      };
+    };
+    languages = new Languages(java, cobol);
+    javaProject = newProject("java");
+  }
+
   @Test
   public void shouldProvideProfile() {
     ProfileProvider provider = new ProfileProvider();
     ProfileLoader loader = mock(ProfileLoader.class);
-    Project project = new Project("project");
     RulesProfile profile = RulesProfile.create();
-    Languages languages = mock(Languages.class);
-    when(loader.load(eq(project), any(Settings.class), eq(languages))).thenReturn(profile);
+    when(loader.load(eq(javaProject), any(Settings.class))).thenReturn(profile);
 
-    assertThat(provider.provide(project, loader, new Settings(), languages), is(profile));
-    assertThat(provider.provide(project, loader, new Settings(), languages), is(profile));
-    verify(loader).load(eq(project), any(Settings.class), eq(languages));
+    assertThat(provider.provide(javaProject, loader, new Settings(), languages), is(profile));
+    assertThat(provider.provide(javaProject, loader, new Settings(), languages), is(profile));
+    verify(loader).load(eq(javaProject), any(Settings.class));
     verifyNoMoreInteractions(loader);
+  }
+
+  /**
+   * SONAR-4515
+   */
+  @Test
+  public void should_give_explicit_message_if_language_not_found() {
+    Project cobolProject = newProject("cobol");
+
+    ProfileProvider provider = new ProfileProvider();
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("You must install a plugin that supports the language 'cobol'. Supported language keys are: java, js");
+    provider.provide(cobolProject, mock(ProfileLoader.class), new Settings(), languages);
+  }
+
+  private Project newProject(String language) {
+    PropertiesConfiguration configuration = new PropertiesConfiguration();
+    configuration.setProperty("sonar.language", language);
+    return new Project("project").setConfiguration(configuration);
   }
 }
