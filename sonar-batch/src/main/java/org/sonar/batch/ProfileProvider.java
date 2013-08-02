@@ -19,15 +19,12 @@
  */
 package org.sonar.batch;
 
-import com.google.common.base.Joiner;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
 
 public class ProfileProvider extends ProviderAdapter {
 
@@ -35,15 +32,8 @@ public class ProfileProvider extends ProviderAdapter {
 
   private RulesProfile profile;
 
-  public RulesProfile provide(Project project, ProfileLoader profileLoader, Settings settings, Languages languages) {
+  public RulesProfile provide(Project project, ProfileLoader profileLoader, Settings settings) {
     if (profile == null) {
-      // TODO Move this check to ProjectReactorValidator when Languages is available as TaskComponent
-      if (!languages.allKey().contains(project.getLanguageKey())) {
-        String languageList = Joiner.on(", ").join(languages.allKey());
-        throw new SonarException("You must install a plugin that supports the language '" + project.getLanguageKey() +
-          "'. Supported language keys are: " + languageList);
-      }
-
       profile = profileLoader.load(project, settings);
       LOG.info("Quality profile : {}", profile);
     }
