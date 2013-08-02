@@ -70,7 +70,7 @@ public class NotificationService implements ServerComponent {
   private boolean stopping = false;
 
   /**
-   * Constructor for {@link NotificationService} 
+   * Constructor for {@link NotificationService}
    */
   public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
     delayInSeconds = settings.getLong(PROPERTY_DELAY);
@@ -90,7 +90,11 @@ public class NotificationService implements ServerComponent {
     executorService = Executors.newSingleThreadScheduledExecutor();
     executorService.scheduleWithFixedDelay(new Runnable() {
       public void run() {
-        processQueue();
+        try {
+          processQueue();
+        } catch (Exception e) {
+          LOG.error("Error in NotificationService", e);
+        }
       }
     }, 0, delayInSeconds, TimeUnit.SECONDS);
     LOG.info("Notification service started (delay {} sec.)", delayInSeconds);

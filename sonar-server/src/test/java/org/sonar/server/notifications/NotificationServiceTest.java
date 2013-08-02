@@ -75,7 +75,7 @@ public class NotificationServiceTest {
    *
    * When:
    * Freddy adds comment to review created by Simon and assigned to Simon.
-   * 
+   *
    * Then:
    * Only one notification should be delivered to Simon by Email.
    */
@@ -96,10 +96,10 @@ public class NotificationServiceTest {
    * Given:
    * Evgeny wants to receive notification by GTalk on comments for reviews created by him.
    * Simon wants to receive notification by Email on comments for reviews assigned to him.
-   * 
+   *
    * When:
    * Freddy adds comment to review created by Evgeny and assigned to Simon.
-   * 
+   *
    * Then:
    * Two notifications should be delivered - one to Simon by Email and another to Evgeny by GTalk.
    */
@@ -121,10 +121,10 @@ public class NotificationServiceTest {
   /**
    * Given:
    * Simon wants to receive notifications by Email and GTLak on comments for reviews assigned to him.
-   * 
+   *
    * When:
    * Freddy adds comment to review created by Evgeny and assigned to Simon.
-   * 
+   *
    * Then:
    * Two notifications should be delivered to Simon - one by Email and another by GTalk.
    */
@@ -146,10 +146,10 @@ public class NotificationServiceTest {
   /**
    * Given:
    * Nobody wants to receive notifications.
-   * 
+   *
    * When:
    * Freddy adds comment to review created by Evgeny and assigned to Simon.
-   * 
+   *
    * Then:
    * No notifications.
    */
@@ -162,6 +162,22 @@ public class NotificationServiceTest {
 
     verify(emailChannel, never()).deliver(any(Notification.class), anyString());
     verify(gtalkChannel, never()).deliver(any(Notification.class), anyString());
+  }
+
+  // SONAR-4548
+  @Test
+  public void shouldNotStopWhenException() {
+    setUpMocks(CREATOR_SIMON, ASSIGNEE_SIMON);
+    when(queueElement.getNotification()).thenThrow(new RuntimeException("Unexpected exception")).thenReturn(notification);
+    when(manager.getFromQueue()).thenReturn(queueElement).thenReturn(queueElement).thenReturn(null);
+    doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+    doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+
+    service.start();
+    verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
+    service.stop();
+
+    verify(gtalkChannel, never()).deliver(notification, ASSIGNEE_SIMON);
   }
 
   @Test
