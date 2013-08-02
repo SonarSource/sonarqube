@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 
 import static org.hamcrest.Matchers.is;
@@ -56,8 +57,8 @@ public class ProfileProviderTest {
     RulesProfile profile = RulesProfile.create();
     when(loader.load(eq(javaProject), any(Settings.class))).thenReturn(profile);
 
-    assertThat(provider.provide(javaProject, loader, new Settings()), is(profile));
-    assertThat(provider.provide(javaProject, loader, new Settings()), is(profile));
+    assertThat(provider.provide(javaProject, loader, new Settings(), mock(Languages.class)), is(profile));
+    assertThat(provider.provide(javaProject, loader, new Settings(), mock(Languages.class)), is(profile));
     verify(loader).load(eq(javaProject), any(Settings.class));
     verifyNoMoreInteractions(loader);
   }

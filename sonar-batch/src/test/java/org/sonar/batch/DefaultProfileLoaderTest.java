@@ -92,7 +92,7 @@ public class DefaultProfileLoaderTest {
     Project cobolProject = newProject("cobol");
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("You must install a plugin that supports the language 'cobol'");
+    thrown.expectMessage("You must install a plugin that supports the language key 'cobol'");
     new DefaultProfileLoader(dao).load(cobolProject, new Settings());
   }
 
