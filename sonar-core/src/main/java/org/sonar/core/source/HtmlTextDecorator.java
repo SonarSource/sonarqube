@@ -84,7 +84,11 @@ class HtmlTextDecorator {
       }
 
       closeCurrentSyntaxTags(charsReader, currentHtmlLine);
-      if (currentHtmlLine.length() > 0) {
+
+      if (shouldStartNewLine(charsReader)) {
+        decoratedHtmlLines.add(currentHtmlLine.toString());
+        decoratedHtmlLines.add("");
+      } else if (currentHtmlLine.length() > 0) {
         decoratedHtmlLines.add(currentHtmlLine.toString());
       }
 
@@ -108,7 +112,7 @@ class HtmlTextDecorator {
     } else if (currentChar == AMPERSAND) {
       normalizedChars = ENCODED_AMPERSAND.toCharArray();
     } else {
-      normalizedChars = new char[]{currentChar};
+      normalizedChars = new char[] {currentChar};
     }
     return normalizedChars;
   }
@@ -154,7 +158,7 @@ class HtmlTextDecorator {
   }
 
   private void closeCompletedTags(CharactersReader charactersReader, int numberOfTagsToClose,
-                                  StringBuilder decoratedText) {
+      StringBuilder decoratedText) {
     for (int i = 0; i < numberOfTagsToClose; i++) {
       injectClosingHtml(decoratedText);
       charactersReader.removeLastOpenTag();
@@ -162,7 +166,7 @@ class HtmlTextDecorator {
   }
 
   private void openNewTags(CharactersReader charactersReader, Collection<String> tagsToOpen,
-                           StringBuilder decoratedText) {
+      StringBuilder decoratedText) {
     for (String tagToOpen : tagsToOpen) {
       injectOpeningHtmlForRule(tagToOpen, decoratedText);
       charactersReader.registerOpenTag(tagToOpen);
@@ -189,4 +193,3 @@ class HtmlTextDecorator {
     decoratedText.append("</span>");
   }
 }
-
