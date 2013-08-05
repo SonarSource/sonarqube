@@ -19,6 +19,8 @@
 #
 class Group < ActiveRecord::Base
 
+  ANYONE = 'anyone'
+
   has_and_belongs_to_many :users
   has_many :group_roles, :dependent => :delete_all
   
@@ -26,6 +28,7 @@ class Group < ActiveRecord::Base
   validates_length_of       :name,    :within => 1..255
   validates_length_of       :description,    :within => 0..200
   validates_uniqueness_of   :name
+  validate       :name_cant_be_anyone
 
   # all the users that are NOT members of this group
   def available_users
@@ -44,5 +47,9 @@ class Group < ActiveRecord::Base
     return -1 if name.nil?
     return 1 if other.nil? || other.name.nil?
     name.downcase<=>other.name.downcase
+  end
+
+  def name_cant_be_anyone
+    errors.add(:name, 'cannot be "Anyone" as this is a reserved group name.') if name && name.downcase == ANYONE
   end
 end
