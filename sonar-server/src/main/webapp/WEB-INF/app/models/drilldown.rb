@@ -105,7 +105,7 @@ class DrilldownColumn
       condition_values[:best_value]=@drilldown.metric.best_value
     end
 
-    if options[:exclude_zero_value] || options[:period]
+    if options[:exclude_zero_value] || (options[:period] && !@drilldown.metric.on_new_code?)
       conditions += " AND project_measures.#{value_column}<>0"
     end
 

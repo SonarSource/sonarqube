@@ -35,10 +35,7 @@ import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class NewCoverageFileAnalyzerTest {
 
@@ -46,9 +43,9 @@ public class NewCoverageFileAnalyzerTest {
   public void shouldDoNothingIfNoScmData() throws ParseException {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA))
-        .thenReturn(new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=10"));
+      .thenReturn(new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=10"));
 
-    AbstractNewCoverageFileAnalyzer decorator = newDecorator();
+    NewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
     verify(context, never()).saveMeasure(any(Measure.class));
   }
@@ -57,9 +54,9 @@ public class NewCoverageFileAnalyzerTest {
   public void shouldDoNothingIfNoCoverageData() throws ParseException {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE))
-        .thenReturn(new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2008-05-18T00:00:00+0000"));
+      .thenReturn(new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2008-05-18T00:00:00+0000"));
 
-    AbstractNewCoverageFileAnalyzer decorator = newDecorator();
+    NewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
 
     verify(context, never()).saveMeasure(any(Measure.class));
@@ -69,11 +66,11 @@ public class NewCoverageFileAnalyzerTest {
   public void shouldGetNewLines() throws ParseException {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA)).thenReturn(
-        new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "10=2;11=3"));
+      new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "10=2;11=3"));
     when(context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)).thenReturn(
-        new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2007-01-15T00:00:00+0000;11=2011-01-01T00:00:00+0000"));
+      new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2007-01-15T00:00:00+0000;11=2011-01-01T00:00:00+0000"));
 
-    AbstractNewCoverageFileAnalyzer decorator = newDecorator();
+    NewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
 
     // line 11 has been updated after date1 (2009-12-25). This line is covered.
@@ -81,8 +78,8 @@ public class NewCoverageFileAnalyzerTest {
     verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_LINES, 1, 0.0)));
 
     // no line have been updated after date3 (2011-02-18)
-    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_LINES_TO_COVER, 3, 0.0)));
-    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_LINES, 3, 0.0)));
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_LINES_TO_COVER, 3, null)));
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_LINES, 3, null)));
 
     // no data on other periods
     verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_LINES_TO_COVER, 2, null)));
@@ -97,15 +94,15 @@ public class NewCoverageFileAnalyzerTest {
   public void shouldGetNewConditions() throws ParseException {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA)).thenReturn(
-        new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "10=2;11=3"));
+      new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "10=2;11=3"));
     when(context.getMeasure(CoreMetrics.CONDITIONS_BY_LINE)).thenReturn(
-        new Measure(CoreMetrics.CONDITIONS_BY_LINE, "11=4"));
+      new Measure(CoreMetrics.CONDITIONS_BY_LINE, "11=4"));
     when(context.getMeasure(CoreMetrics.COVERED_CONDITIONS_BY_LINE)).thenReturn(
-        new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "11=1"));
+      new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "11=1"));
     when(context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)).thenReturn(
-        new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2007-01-15T00:00:00+0000;11=2011-01-01T00:00:00+0000"));
+      new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2007-01-15T00:00:00+0000;11=2011-01-01T00:00:00+0000"));
 
-    AbstractNewCoverageFileAnalyzer decorator = newDecorator();
+    NewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
 
     // line 11 has been updated after date1 (2009-12-25). This line has 1 covered condition amongst 4
@@ -113,8 +110,8 @@ public class NewCoverageFileAnalyzerTest {
     verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_CONDITIONS, 1, 3.0)));
 
     // no line have been updated after date3 (2011-02-18)
-    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_CONDITIONS_TO_COVER, 3, 0.0)));
-    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_CONDITIONS, 3, 0.0)));
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_CONDITIONS_TO_COVER, 3, null)));
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_CONDITIONS, 3, null)));
 
     // no data on other periods
     verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_CONDITIONS_TO_COVER, 2, null)));
@@ -129,15 +126,15 @@ public class NewCoverageFileAnalyzerTest {
   public void shouldNotGetNewConditionsWhenNewLineHasNoConditions() throws ParseException {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA)).thenReturn(
-        new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "10=2;11=3"));
+      new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "10=2;11=3"));
     when(context.getMeasure(CoreMetrics.CONDITIONS_BY_LINE)).thenReturn(
-        new Measure(CoreMetrics.CONDITIONS_BY_LINE, "10=1"));
+      new Measure(CoreMetrics.CONDITIONS_BY_LINE, "10=1"));
     when(context.getMeasure(CoreMetrics.COVERED_CONDITIONS_BY_LINE)).thenReturn(
-        new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "10=1"));
+      new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "10=1"));
     when(context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)).thenReturn(
-        new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2007-01-15T00:00:00+0000;11=2011-01-01T00:00:00+0000"));
+      new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "10=2007-01-15T00:00:00+0000;11=2011-01-01T00:00:00+0000"));
 
-    AbstractNewCoverageFileAnalyzer decorator = newDecorator();
+    NewCoverageFileAnalyzer decorator = newDecorator();
     decorator.doDecorate(context);
 
     // line 11 has been updated after date1 (2009-12-25) but it has no conditions
@@ -145,6 +142,36 @@ public class NewCoverageFileAnalyzerTest {
     verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_CONDITIONS, 1, 0.0)));
   }
 
+  @Test
+  public void shouldSetNullValueWhenNothingHasChanged() throws Exception {
+    String lastCommitDatesByLine = "1=2008-08-02T13:56:37+0200;" +
+                                   "2=2008-08-02T13:56:37+0200;" +
+                                   "3=2008-08-02T13:56:37+0200;" +
+                                   "4=2008-08-02T13:56:37+0200";
+
+    DecoratorContext context = mock(DecoratorContext.class);
+    when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA)).thenReturn(
+      new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "2=1;3=1"));
+    when(context.getMeasure(CoreMetrics.CONDITIONS_BY_LINE)).thenReturn(
+      new Measure(CoreMetrics.CONDITIONS_BY_LINE, "2=1"));
+    when(context.getMeasure(CoreMetrics.COVERED_CONDITIONS_BY_LINE)).thenReturn(
+      new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "2=1"));
+    when(context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)).thenReturn(
+      new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, lastCommitDatesByLine));
+
+    NewCoverageFileAnalyzer decorator = newDecorator();
+    decorator.doDecorate(context);
+
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_LINES_TO_COVER, 1, null)));
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_LINES, 1, null)));
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_CONDITIONS_TO_COVER, 1, null)));
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_CONDITIONS, 1, null)));
+
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_LINES_TO_COVER, 3, null)));
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_LINES, 3, null)));
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_CONDITIONS_TO_COVER, 3, null)));
+    verify(context).saveMeasure(argThat(new VariationMatcher(CoreMetrics.NEW_UNCOVERED_CONDITIONS, 3, null)));
+  }
 
   static class VariationMatcher extends ArgumentMatcher<Measure> {
     Metric metric;
@@ -159,10 +186,10 @@ public class NewCoverageFileAnalyzerTest {
 
     @Override
     public boolean matches(Object o) {
-      Measure m = (Measure)o;
+      Measure m = (Measure) o;
       if (m.getMetric().equals(metric)) {
-        if ((variation==null && m.getVariation(index)==null) ||
-            (variation!=null && variation.equals(m.getVariation(index)))) {
+        if ((variation == null && m.getVariation(index) == null) ||
+          (variation != null && variation.equals(m.getVariation(index)))) {
           return true;
         }
       }
@@ -170,10 +197,10 @@ public class NewCoverageFileAnalyzerTest {
     }
   }
 
-  private AbstractNewCoverageFileAnalyzer newDecorator() throws ParseException {
+  private NewCoverageFileAnalyzer newDecorator() throws ParseException {
     List<AbstractNewCoverageFileAnalyzer.PeriodStruct> structs = Arrays.asList(
-        new AbstractNewCoverageFileAnalyzer.PeriodStruct(1, newDate("2009-12-25")),
-        new AbstractNewCoverageFileAnalyzer.PeriodStruct(3, newDate("2011-02-18")));
+      new AbstractNewCoverageFileAnalyzer.PeriodStruct(1, newDate("2009-12-25")),
+      new AbstractNewCoverageFileAnalyzer.PeriodStruct(3, newDate("2011-02-18")));
     return new NewCoverageFileAnalyzer(structs);
   }
 
