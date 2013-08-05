@@ -17,7 +17,7 @@
         <% if profiles_administrator? %>
           | &nbsp;
           <a href="#" id="<%= edit_active_note_link_id -%>" class="link-action"
-             onclick="$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_form_div_id -%>').show();$('<%= active_note_textarea_id -%>').focus();return false;"><%= message('edit') %></a>
+             onclick="$j('#<%= active_note_detail_div_id -%>').hide();$j('#<%= active_note_form_div_id -%>').show();$j('#<%= active_note_textarea_id -%>').focus();return false;"><%= message('edit') %></a>
           &nbsp;
           <%= link_to_remote message('delete'),
                             :url => {:action => 'delete_active_rule_note', :active_rule_id => active_rule.id },
@@ -29,7 +29,7 @@
       <p><%= note.html_text -%></p>
     </blockquote>
   <% elsif profiles_administrator? %>
-    <a href="#" onclick="$('<%= active_note_form_div_id -%>').show();$('<%= active_note_detail_div_id -%>').hide();$('<%= active_note_textarea_id -%>').focus(); return false;"
+    <a href="#" onclick="$j('#<%= active_note_form_div_id -%>').show();$j('#<%= active_note_detail_div_id -%>').hide();$j('#<%= active_note_textarea_id -%>').focus(); return false;"
        class="link-action spacer-right" id="<%= add_active_note_button_id -%>"><%= message('rules_configuration.add_note') -%></a>
   <% end %>
 </div>
@@ -43,13 +43,13 @@
       <tr>
         <td class="width100" colspan="2">
           <textarea name="note" id="<%= active_note_textarea_id -%>" rows="10" style="width:100%"
-                    onkeyup="if (this.value=='') $('<%= submit_active_note_update_button_id -%>').disabled=true; else $('<%= submit_active_note_update_button_id -%>').disabled=false;"><%= h(note.plain_text) if note -%></textarea>
+                    onkeyup="if (this.value=='') $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', true); else $j('#<%= submit_active_note_update_button_id -%>').prop('disabled', false);"><%= h(note.plain_text) if note -%></textarea>
         </td>
       </tr>
     <tr>
       <td>
         <input type="submit" value="<%= note ? message('update_verb') : message('rules_configuration.add_note') -%>" name="submit-active-note" id="<%= submit_active_note_update_button_id -%>" disabled="disabled"/>
-        <a href="#" onclick="$('<%= active_note_detail_div_id -%>').show();$('<%= active_note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
+        <a href="#" onclick="$j('#<%= active_note_detail_div_id -%>').show();$j('#<%= active_note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
       </td>
       <td align="right">
         <%= render :partial => 'markdown/tips' -%>
