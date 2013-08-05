@@ -23,7 +23,9 @@ import org.sonar.api.ServerExtension;
 
 /**
  * @since 1.10
+ * @deprecated in 3.7. Replaced by Ruby on Rails extensions
  */
+@Deprecated
 public interface GwtExtension extends ServerExtension {
   String getGwtId();
 }
