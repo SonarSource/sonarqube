@@ -8,9 +8,9 @@
   function submitBulkForm() {
     if (localModifications) {
       alert("Please refresh the search results before.");
-      $('bulk-form').reset();
+      $j('#bulk-form').reset();
     } else {
-      $('bulk-form').submit();
+      $j('#bulk-form').submit();
     }
     return !localModifications;
   }
@@ -23,20 +23,11 @@
   }
 
   function expand_rules(){
-    $$('.rule_detail').each(function(element) {
-        element.show();
-    });
-  }
-  function collapse_rules(){
-    $$('.rule_detail').each(function(element) {
-      element.hide();
-    });
+     $j('.rule_detail').show();
   }
 
-  function replaceTextField(span_id, key) {
-    var text_field_value = $F(key);
-    var text_area = '<textarea cols="100" id="' + key + '" name="value" rows="10">' + text_field_value + '</textarea><br/>';
-    $(span_id).replace(text_area);
+  function collapse_rules(){
+    $j('.rule_detail').hide();
   }
 
   function submitSearch() {
