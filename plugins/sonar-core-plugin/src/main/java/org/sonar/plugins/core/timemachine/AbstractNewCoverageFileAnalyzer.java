@@ -152,11 +152,6 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
         newUncoveredLines.setVariation(struct.index, (double) (struct.getNewLines() - struct.getNewCoveredLines()));
         newConditions.setVariation(struct.index, (double) struct.getNewConditions());
         newUncoveredConditions.setVariation(struct.index, (double) struct.getNewConditions() - struct.getNewCoveredConditions());
-      } else {
-        newLines.setVariation(struct.index, null);
-        newUncoveredLines.setVariation(struct.index, null);
-        newConditions.setVariation(struct.index, null);
-        newUncoveredConditions.setVariation(struct.index, null);
       }
     }
 

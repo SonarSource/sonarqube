@@ -143,7 +143,7 @@ public class NewCoverageFileAnalyzerTest {
   }
 
   @Test
-  public void shouldSetNullValueWhenNothingHasChanged() throws Exception {
+  public void shouldLeaveNullValueWhenNothingHasChanged() throws Exception {
     String lastCommitDatesByLine = "1=2008-08-02T13:56:37+0200;" +
                                    "2=2008-08-02T13:56:37+0200;" +
                                    "3=2008-08-02T13:56:37+0200;" +
