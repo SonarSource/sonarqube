@@ -51,17 +51,18 @@ class Api::UsersController < Api::ApiController
   #
   # -- Mandatory parameters
   # 'login' is the user identifier
+  # 'name' is the user display name
   # 'password' is the user password
   # 'password_confirmation' is the confirmed user password
   #
   # -- Optional parameters
-  # 'name' is the user display name
   # 'email' is the user email
   #
   # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/users/create?login=user&password=user_pw&password_confirmation=user_pw'
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/users/create?login=user&name=user_name&password=user_pw&password_confirmation=user_pw'
   #
-  # since 3.7
+  # since SonarQube 3.7
+  # SonarQube 4.0 update : name is now mandatory
   #
   def create
     verify_post_request

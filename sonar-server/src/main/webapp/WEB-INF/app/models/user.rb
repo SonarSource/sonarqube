@@ -43,7 +43,9 @@ class User < ActiveRecord::Base
   include NeedAuthorization::ForUser
   include NeedAuthentication::ForUser
 
-  validates_length_of :name, :maximum => 200, :allow_blank => true, :allow_nil => true
+  validates_presence_of :name
+  validates_length_of :name, :maximum => 200, :unless => 'name.blank?'
+
   validates_length_of :email, :maximum => 100, :allow_blank => true, :allow_nil => true
 
   # The following two validations not needed, because they come with Authentication::ByPassword - see SONAR-2656
@@ -61,10 +63,6 @@ class User < ActiveRecord::Base
   # anything else you want your user to change should be added here.
   attr_accessible :login, :email, :name, :password, :password_confirmation
 
-  def name(login_if_nil=false)
-    result=read_attribute :name
-    result.blank? ? login : result
-  end
 
   def email=(value)
     write_attribute :email, (value ? value.downcase : nil)
