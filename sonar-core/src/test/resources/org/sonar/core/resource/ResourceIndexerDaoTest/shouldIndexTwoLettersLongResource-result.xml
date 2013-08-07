@@ -1,0 +1,4 @@
+<dataset>
+  <resource_index kee="ab" position="0" name_size="2" resource_id="10" root_project_id="3" qualifier="FIL"/>
+  <resource_index kee="b" position="1" name_size="2" resource_id="10" root_project_id="3" qualifier="FIL"/>
+</dataset>

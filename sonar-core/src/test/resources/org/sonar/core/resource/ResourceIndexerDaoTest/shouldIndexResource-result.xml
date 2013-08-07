@@ -5,4 +5,6 @@
   <resource_index kee="utils" position="3" name_size="8" resource_id="10" root_project_id="8" qualifier="FIL"/>
   <resource_index kee="tils" position="4" name_size="8" resource_id="10" root_project_id="8" qualifier="FIL"/>
   <resource_index kee="ils" position="5" name_size="8" resource_id="10" root_project_id="8" qualifier="FIL"/>
+  <resource_index kee="ls" position="6" name_size="8" resource_id="10" root_project_id="8" qualifier="FIL"/>
+  <resource_index kee="s" position="7" name_size="8" resource_id="10" root_project_id="8" qualifier="FIL"/>
 </dataset>

@@ -3,4 +3,6 @@
   <resource_index kee="truts" position="1" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index kee="ruts" position="2" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index kee="uts" position="3" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index kee="ts" position="4" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index kee="s" position="5" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
 </dataset>

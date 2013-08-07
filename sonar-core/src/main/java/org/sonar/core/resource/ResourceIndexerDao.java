@@ -29,7 +29,7 @@ import org.sonar.core.persistence.MyBatis;
 
 public class ResourceIndexerDao {
 
-  public static final int MINIMUM_KEY_SIZE = 3;
+  public static final int MINIMUM_KEY_SIZE = 1;
 
   // The scopes and qualifiers that are not in the following constants are not indexed at all.
   // Directories and packages are explicitly excluded.

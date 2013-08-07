@@ -109,12 +109,12 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldNotIndexWhenTooShortName() {
-    setupData("empty");
+  public void shouldIndexTwoLettersLongResources() {
+    setupData("shouldIndexTwoLettersLongResource");
 
     dao.indexResource(10, "AB", Qualifiers.FILE, 3);
 
-    checkTables("empty", new String[] {"id"}, "resource_index");
+    checkTables("shouldIndexTwoLettersLongResource", new String[] {"id"}, "resource_index");
   }
 
   @Test
