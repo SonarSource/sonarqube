@@ -2,7 +2,7 @@
   var localModifications=false;
 
   function get_level_for_rule(rule_select_box,rule_check_box) {
-    return rule_check_box.checked ? rule_select_box.value : '';
+     return rule_check_box.prop('checked') ? rule_select_box.val() : '';
   }
 
   function submitBulkForm() {

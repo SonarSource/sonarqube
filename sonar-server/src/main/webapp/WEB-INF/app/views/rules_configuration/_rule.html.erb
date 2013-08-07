@@ -3,17 +3,15 @@
     <% enable_modification = profiles_administrator?
        select_box_id = "levels_select_#{rule.id}"
        check_box_id = "levels_check_#{rule.id}"
-       rule_select_box = "$('#{select_box_id}')"
-       rule_check_box = "$('#{check_box_id}')"
-       changel_level = remote_function(
-           :url => {:action => 'activate_rule', :rule_id => rule.id, :id => profile.id},
-           :loading => "$('levels_#{rule.id}').replace('<img src=\"#{ApplicationController.root_context}/images/loading.gif\"/>');",
-           :with => "'level=' + #{rule_select_box}.value", :condition => "#{rule_check_box}.checked")
-       activate_rule = remote_function(
-           :url => {:action => 'activate_rule', :rule_id => rule.id, :id => profile.id},
-           :loading => "$('levels_#{rule.id}').replace('<img src=\"#{ApplicationController.root_context}/images/loading.gif\"/>');",
-           :with => "'level=' + get_level_for_rule(#{rule_select_box},#{rule_check_box})")
+       activate_rule = "$j.ajax({url:'#{ApplicationController.root_context}/rules_configuration/activate_rule/#{profile.id}?rule_id=#{rule.id}',type: 'POST',
+                                 beforeSend: function(request){$j('#levels_#{rule.id}').replaceWith('<img src=\"#{ApplicationController.root_context}/images/loading.gif\"/>');},
+                                 data: 'level='+ get_level_for_rule($j('#levels_select_#{rule.id} :selected'),$j('#levels_check_#{rule.id}'))});"
+       changel_level = "if($j('#levels_check_#{rule.id}').prop('checked'))
+                        {$j.ajax({url:'#{ApplicationController.root_context}/rules_configuration/activate_rule/#{profile.id}?rule_id=#{rule.id}',type:'POST',
+                                  beforeSend:function(request){$j('#levels_#{rule.id}').replaceWith('<img src=\"#{ApplicationController.root_context}/images/loading.gif\"/>');},
+                                  data:'level='+$j('#levels_select_#{rule.id} :selected').val()})}"
     %>
+
     <%= check_box_tag(check_box_id, 'yes', (!active_rule.nil?), :onclick => activate_rule, :disabled => !enable_modification || (active_rule && (active_rule.inherited? || active_rule.overrides?))) %>
     <%= select_tag(select_box_id, options_for_select(RulesConfigurationController::RULE_PRIORITIES, (active_rule.nil? ? rule.priority_text : active_rule.priority_text)),
                    {:onchange => changel_level, :disabled => (!(enable_modification) || active_rule.nil?)}) %>
