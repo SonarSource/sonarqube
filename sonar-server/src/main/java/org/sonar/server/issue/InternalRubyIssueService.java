@@ -171,8 +171,14 @@ public class InternalRubyIssueService implements ServerComponent {
     return commentService.deleteComment(commentKey, UserSession.get());
   }
 
-  public IssueComment editComment(String commentKey, String newText) {
-    return commentService.editComment(commentKey, newText, UserSession.get());
+  public Result<IssueComment> editComment(String commentKey, String newText) {
+    Result<IssueComment> result = Result.of();
+    try {
+      result.set(commentService.editComment(commentKey, newText, UserSession.get()));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
   }
 
   public IssueComment findComment(String commentKey) {

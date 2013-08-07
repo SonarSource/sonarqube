@@ -115,13 +115,18 @@ class IssueController < ApplicationController
   def edit_comment
     verify_ajax_request
     verify_post_request
-    require_parameters :key, :text
+    require_parameters :key
 
     text = Api::Utils.read_post_request_param(params[:text])
-    comment = Internal.issues.editComment(params[:key], text)
+    edit_result = Internal.issues.editComment(params[:key], text)
 
-    @issue_results = Api.issues.find(comment.issueKey)
-    render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
+    if edit_result.ok
+      @issue_results = Api.issues.find(edit_result.get.issueKey)
+      render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
+    else
+      @errors = edit_result.errors
+      render :partial => 'issue/error', :status => edit_result.httpStatus
+    end
   end
 
   # Delete an existing comment
