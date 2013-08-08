@@ -18,6 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 require 'time'
+require 'uri'
 
 class Api::Utils
 
@@ -218,4 +219,12 @@ class Api::Utils
     java_facade.getPeriodAbbreviation(index)
   end
 
+  # Prevent CSRF
+  def self.absolute_to_relative_url(url)
+    begin
+      URI(url).request_uri
+    rescue
+      url
+    end
+  end
 end

@@ -53,7 +53,7 @@ class SessionsController < ApplicationController
   def new
     if params[:return_to]
       # user clicked on the link "login" : redirect to the original uri after authentication
-      session[:return_to] = params[:return_to]
+      session[:return_to] = Api::Utils.absolute_to_relative_url(params[:return_to])
     # else the original uri can be set by ApplicationController#access_denied
     end
   end

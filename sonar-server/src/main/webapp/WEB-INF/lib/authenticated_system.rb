@@ -96,7 +96,14 @@ module AuthenticatedSystem
   #   after_filter :store_location, :only => [:index, :new, :show, :edit]
   # for any controller you want to be bounce-backable.
   def redirect_back_or_default(default)
-    redirect_to(session[:return_to] || default)
+    # Prevent CSRF attack -> do not accept absolute urls
+    url = session[:return_to] || default
+    begin
+      url = URI(url).request_uri
+    rescue
+      url
+    end
+    redirect_to(url)
     session[:return_to] = nil
   end
 
