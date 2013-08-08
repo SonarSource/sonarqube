@@ -21,6 +21,7 @@ package org.sonar.core.issue.workflow;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
@@ -31,6 +32,7 @@ import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.Nullable;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -158,7 +160,7 @@ public class IssueWorkflowTest {
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(now);
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -176,7 +178,7 @@ public class IssueWorkflowTest {
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(now);
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -194,7 +196,7 @@ public class IssueWorkflowTest {
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(now);
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -212,7 +214,7 @@ public class IssueWorkflowTest {
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(now);
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
 

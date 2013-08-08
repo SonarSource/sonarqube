@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -92,9 +93,9 @@ public class IssueDtoTest {
     assertThat(issue.assignee()).isEqualTo("perceval");
     assertThat(issue.attribute("key")).isEqualTo("value");
     assertThat(issue.authorLogin()).isEqualTo("pierre");
-    assertThat(issue.creationDate()).isEqualTo(createdAt);
-    assertThat(issue.updateDate()).isEqualTo(updatedAt);
-    assertThat(issue.closeDate()).isEqualTo(closedAt);
+    assertThat(issue.creationDate()).isEqualTo(DateUtils.truncate(createdAt, Calendar.SECOND));
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(updatedAt, Calendar.SECOND));
+    assertThat(issue.closeDate()).isEqualTo(DateUtils.truncate(closedAt, Calendar.SECOND));
     assertThat(issue.isNew()).isFalse();
   }
 
