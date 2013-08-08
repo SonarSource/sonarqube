@@ -13,7 +13,8 @@
     <tr class="<%= cycle('even', 'odd', :name => 'global_permission') -%>" >
       <td valign="top">
         <b><%= message("global_permissions.#{global_permission_key}") -%></b><br/>
-        <span class="small gray"><%= message("global_permissions.#{global_permission_key}.desc") -%></span></td>
+        <span class="small gray"><%= message("global_permissions.#{global_permission_key}.desc") -%></span>
+      </td>
       <td valign="top" style="word-break:break-all;width:30%;">
         <span><%= users(global_permission_key).map(&:name).join(', ') -%></span>
         (<%= link_to_edit_roles_permission_form(message('select'), global_permission_key, nil, "select-users-#{global_permission_key}") %>)<br/>

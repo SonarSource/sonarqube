@@ -45,9 +45,18 @@
   <thead>
   <tr>
     <th>&nbsp;</th>
-    <th><%= message('projects_role.admin') -%></th>
-    <th><%= message('projects_role.user') -%></th>
-    <th><%= message('projects_role.codeviewer') -%></th>
+    <th>
+      <%= message('projects_role.admin') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.admin.desc') -%></span>
+    </th>
+    <th>
+      <%= message('projects_role.user') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.user.desc') -%></span>
+    </th>
+    <th>
+      <%= message('projects_role.codeviewer') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.codeviewer.desc') -%></span>
+    </th>
     <th></th>
   </tr>
   </thead>
