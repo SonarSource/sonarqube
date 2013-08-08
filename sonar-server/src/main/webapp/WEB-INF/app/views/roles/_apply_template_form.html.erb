@@ -7,7 +7,11 @@
   <% end %>
   <fieldset>
     <div class="modal-head">
-      <h2><%= message('projects_role.apply_template') -%></h2>
+      <% if @components %>
+        <h2><%= message('projects_role.apply_template_to_xxx', :params => @names) -%></h2>
+      <% else %>
+        <h2><%= message('projects_role.apply_template') -%></h2>
+      <% end %>
     </div>
     <div class="modal-body">
       <div class="modal-error"/>
