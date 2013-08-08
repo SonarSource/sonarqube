@@ -44,10 +44,7 @@ import org.sonar.api.test.IsRuleMeasure;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -68,6 +65,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   Date rightNow;
   Date tenDaysAgo;
   Date fiveDaysAgo;
+  Date sameSecond;
 
   @Before
   public void before() {
@@ -83,6 +81,7 @@ public class CountUnresolvedIssuesDecoratorTest {
     rightNow = new Date();
     tenDaysAgo = DateUtils.addDays(rightNow, -10);
     fiveDaysAgo = DateUtils.addDays(rightNow, -5);
+    sameSecond = DateUtils.truncate(rightNow, Calendar.SECOND);
 
     PastSnapshot pastSnapshot = mock(PastSnapshot.class);
     when(pastSnapshot.getIndex()).thenReturn(1);
@@ -226,6 +225,7 @@ public class CountUnresolvedIssuesDecoratorTest {
     assertThat(decorator.countIssuesAfterDate(null, fiveDaysAgo)).isEqualTo(0);
     assertThat(decorator.countIssuesAfterDate(issues, fiveDaysAgo)).isEqualTo(1); // 1 rightNow
     assertThat(decorator.countIssuesAfterDate(issues, tenDaysAgo)).isEqualTo(3); // 1 rightNow + 2 fiveDaysAgo
+    assertThat(decorator.countIssuesAfterDate(issues, sameSecond)).isEqualTo(0); // 0
   }
 
   @Test

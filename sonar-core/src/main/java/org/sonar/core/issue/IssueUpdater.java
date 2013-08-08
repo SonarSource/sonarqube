@@ -21,6 +21,7 @@ package org.sonar.core.issue;
 
 import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -29,6 +30,7 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 
 import javax.annotation.Nullable;
 
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -156,7 +158,8 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   }
 
   public void setCloseDate(DefaultIssue issue, @Nullable Date d, IssueChangeContext context) {
-    if (!Objects.equal(d, issue.closeDate())) {
+    Date dateWithoutMilliseconds = (d == null ? null : DateUtils.truncate(d, Calendar.SECOND));
+    if (!Objects.equal(dateWithoutMilliseconds, issue.closeDate())) {
       issue.setCloseDate(d);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.issue;
 
+import org.apache.commons.lang.time.DateUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -33,6 +35,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -46,6 +49,10 @@ public class ScanIssuesTest {
   IssueFilters filters = mock(IssueFilters.class);
   ScanIssues scanIssues = new ScanIssues(qProfile, cache, project, filters);
 
+  @Before
+  public void setUp() {
+    when(project.getAnalysisDate()).thenReturn(new Date());
+  }
   @Test
   public void should_ignore_null_active_rule() throws Exception {
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(null);
@@ -93,7 +100,7 @@ public class ScanIssuesTest {
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
     assertThat(argument.getValue().severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(argument.getValue().creationDate()).isEqualTo(analysisDate);
+    assertThat(argument.getValue().creationDate()).isEqualTo(DateUtils.truncate(analysisDate, Calendar.SECOND));
   }
 
   @Test
@@ -114,7 +121,7 @@ public class ScanIssuesTest {
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
     assertThat(argument.getValue().severity()).isEqualTo(Severity.INFO);
-    assertThat(argument.getValue().creationDate()).isEqualTo(analysisDate);
+    assertThat(argument.getValue().creationDate()).isEqualTo(DateUtils.truncate(analysisDate, Calendar.SECOND));
   }
 
   @Test
