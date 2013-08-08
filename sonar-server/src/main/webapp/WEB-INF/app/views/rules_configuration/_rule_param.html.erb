@@ -8,12 +8,15 @@
 <td class="form-key-cell"><%= parameter.name -%></td>
 
 <td class="form-val-cell">
-  <%= form_remote_tag :url => {:action => :update_param, :id => active_param_id, :profile_id => profile.id, :param_id => parameter.id, :active_rule_id => active_rule_id},
-                      :update => {:success => "rule_#{rule.id}", :failure => "error_#{parameter.id}"},
-                      :loading => "$('param_loading_#{parameter.id}').show();",
-                      :complete => "$('desc_#{rule.id}').show();",
-                      :failure => "$('error_#{parameter.id}').show();$('param_loading_#{parameter.id}').hide();",
-                      :html => {:name => "form-#{u parameter.name}"} %>
+    <form  onsubmit="$j.ajax({  url: '<%= ApplicationController.root_context -%>/rules_configuration/update_param/<%=active_param_id-%>?active_rule_id=<%=active_rule_id-%>&param_id=<%=parameter.id-%>&profile_id=<%=profile.id-%>',
+                                type:'post',beforeSend: function(request){$j('#param_loading_<%=parameter.id-%>').show();$j('#error_<%=parameter.id-%>').hide();},
+                                data: $j(this).serialize(),
+                                success: function(htmlSuccess){$j('#rule_<%=rule.id-%>').replaceWith(htmlSuccess);},
+                                complete: function(request){$j('#desc_<%=rule.id-%>').show();$j('#param_loading_<%=parameter.id-%>').hide();},
+                                error: 	function(request){$j('#error_<%=parameter.id-%>').text(request.responseText);$j('#error_<%=parameter.id-%>').show();}
+                            }); return false;"
+           name="form-<%=u parameter.name-%>" method="post"
+           action="<%= ApplicationController.root_context -%>/rules_configuration/update_param/<%=active_param_id-%>?active_rule_id=<%=active_rule_id-%>&param_id=<%=parameter.id-%>&profile_id=<%=profile.id-%>">
 
   <div id="error_<%= parameter.id -%>" class="error" style="display: none"></div>
 
