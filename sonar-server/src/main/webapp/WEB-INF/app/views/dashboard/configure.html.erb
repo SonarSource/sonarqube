@@ -70,12 +70,12 @@
   Event.observe(window, 'load', init_dashboard, false);
 
   function filterWidgetsByCategory(category) {
-    new Ajax.Updater(
-      'widget_defs',
-      '<%= add_category_to_url(url_for dashboard_action(:widget_definitions))  -%>' + encodeURIComponent(category),
-      {asynchronous:true, evalScripts:true});
-    $('filter-widgets-loading').show();
-    return false;
+      $j('#filter-widgets-loading').show();
+      $j.ajax ({    url: '<%= add_category_to_url(url_for dashboard_action(:widget_definitions))  -%>' + encodeURIComponent(category),
+                    success: function(responseHTML){$j('#widget_defs').html(responseHTML);},
+                    error:function(error){alert('error');},
+              });
+      return false;
   }
 
   var widgetContents = [
@@ -106,5 +106,5 @@
   }
   //-->
 
-  $('filter-widget-box').focus();
+  $j('#filter-widget-box').focus();
 </script>
