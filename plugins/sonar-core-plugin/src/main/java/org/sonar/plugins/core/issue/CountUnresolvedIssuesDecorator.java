@@ -44,7 +44,7 @@ import java.util.*;
  *
  * @since 3.6
  */
-@DependsUpon(DecoratorBarriers.END_OF_VIOLATION_TRACKING)
+@DependsUpon(DecoratorBarriers.ISSUES_TRACKED)
 public class CountUnresolvedIssuesDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;
@@ -270,7 +270,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
   }
 
   private boolean isAfter(Issue issue, @Nullable Date date) {
-    return date == null || (issue.creationDate() != null && issue.creationDate().after(date));
+    return date == null || (issue.creationDate() != null && DateUtils.truncatedCompareTo(issue.creationDate(), date, Calendar.SECOND)>0);
   }
 
   private boolean shouldSaveNewMetrics(DecoratorContext context) {

@@ -26,25 +26,6 @@
           </p>
        </div>
       </td>
-<%
-  useless_code=measure('total-useless-lines')
-  if useless_code
-%>
-
-      <td valign="top" width="50%">
-        <div class="dashbox">
-          <p class="title"><%= message('widget.duplications.useless-duplications-title') -%></p>
-          <p>
-            <span class="big">
-              <%= format_measure(measure('useless-duplicated-lines'),:url => url_for_drilldown('useless-duplicated-lines'), :suffix =>  ' ' + message('widget.duplications.lines.suffix'))%>
-            </span>
-            <%= dashboard_configuration.selected_period? ? format_variation('useless-duplicated-lines') : trend_icon('useless-duplicated-lines') -%>
-          </p>
-        </div>
-      </td>
-<%
-  end
-%>
     </tr>
   </tbody>
 </table>

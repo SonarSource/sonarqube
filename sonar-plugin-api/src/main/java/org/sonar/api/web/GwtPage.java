@@ -21,7 +21,9 @@ package org.sonar.api.web;
 
 /**
  * @since 1.11
+ * @deprecated in 3.7. Replaced by Ruby on Rails pages.
  */
+@Deprecated
 public abstract class GwtPage implements Page, GwtExtension {
 
   public final String getId() {
