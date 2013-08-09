@@ -25,7 +25,7 @@ function autocompleteResources() {
   $('searchInput').value = '';
   new Ajax.Autocompleter('searchInput', 'searchResourcesResults', baseUrl + '/search', {
     method: 'post',
-    minChars: 3,
+    minChars: 2,
     indicator: 'searchingResources',
     paramName: 's',
     updateElement: function (item) {
