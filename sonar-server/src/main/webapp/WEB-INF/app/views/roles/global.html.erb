@@ -1,27 +1,40 @@
-<h1 class="marginbottom10"><%= message 'global_permissions.page' -%></h1>
+<h1 class="marginbottom10"><%= h message 'global_permissions.page' -%></h1>
 
-<table class="data width100" id="global-roles">
+<table class="data width100" id="global-permissions">
   <thead>
   <tr >
-    <th><%= message('global_permissions.permission') -%></th>
-    <th width="30%"><%= message('global_permissions.users') -%></th>
-    <th width="30%"><%= message('global_permissions.groups') -%></th>
+    <th><%= h message('global_permissions.permission') -%></th>
+    <th width="30%"><%= h message('global_permissions.users') -%></th>
+    <th width="30%"><%= h message('global_permissions.groups') -%></th>
   </tr>
   </thead>
   <tbody>
-    <% Java::OrgSonarCorePermission::Permission::allGlobal.keySet.each do |global_permission_key| %>
+  <%
+     permission_keys = Java::OrgSonarCorePermission::Permission::allGlobal.keySet
+     key_to_name = permission_keys.inject({}) do |hash, key|
+       hash[key] = message("global_permissions.#{key}")
+       hash
+     end
+  %>
+
+  <%
+     # Note that sorting by names should be case insensitive but it's not the case. It's not a problem in this page.
+     key_to_name.sort{|a,b| a[1]<=>b[1]}.each do |elem|
+       permission_key = elem[0]
+       permission_name = elem[1]
+  %>
     <tr class="<%= cycle('even', 'odd', :name => 'global_permission') -%>" >
       <td valign="top">
-        <b><%= message("global_permissions.#{global_permission_key}") -%></b><br/>
-        <span class="small gray"><%= message("global_permissions.#{global_permission_key}.desc") -%></span>
+        <b><%= h permission_name -%></b><br/>
+        <span class="small gray"><%= h message("global_permissions.#{permission_key}.desc") -%></span>
       </td>
       <td valign="top" style="word-break:break-all;width:30%;">
-        <span><%= users(global_permission_key).map(&:name).join(', ') -%></span>
-        (<%= link_to_edit_roles_permission_form(message('select'), global_permission_key, nil, "select-users-#{global_permission_key}") %>)<br/>
+        <span id="users-<%= permission_key.parameterize -%>"><%= users(permission_key).map(&:name).join(', ') -%></span>
+        (<%= link_to_edit_roles_permission_form(message('select'), permission_key, nil, "select-users-#{permission_key}") -%>)<br/>
       </td>
       <td valign="top" style="word-break:break-all;width:30%;">
-        <span><%= groups(global_permission_key).map{|g| group_name(g)}.join(', ') %></span>
-        (<%= link_to_edit_groups_permission_form(message('select'), global_permission_key, nil, "select-groups-#{global_permission_key}") %>)<br/>
+        <span id="groups-<%= permission_key.parameterize -%>"><%= groups(permission_key).map{|g| group_name(g)}.join(', ') %></span>
+        (<%= link_to_edit_groups_permission_form(message('select'), permission_key, nil, "select-groups-#{permission_key}") -%>)<br/>
       </td>
     </tr>
     <% end %>
