@@ -11,6 +11,7 @@
       $j('#bulk-form').reset();
     } else {
       $j('#bulk-form').submit();
+      $j('#select-bulk-change').select2('disable');
     }
     return !localModifications;
   }
@@ -107,7 +108,7 @@
          onClick="return downloadCsv()" id="download-link" class=""><%= message('download_verb') -%></a>
       </div>
     </li>
-    <% if enable_modification %>
+    <% if enable_modification && @rules.size>0 %>
       <li class="marginleft10">
         <div class="bulk-edit"><%= message('bulk_change') -%>:
         <form action="<%= ApplicationController.root_context -%>/rules_configuration/bulk_edit" method="POST" id="bulk-form"
@@ -116,7 +117,7 @@
           <input type="hidden" name="bulk_rule_ids" value="<%= @rules.map{|r| r.id}.join(',') -%>"/>
           <%= dropdown_tag "bulk_action", options_for_select([ ["", ""], [message('activate_all'), "activate"], [message('deactivate_all'), "deactivate"] ], ''), {
               :width => '110px'
-          }, {:onChange => 'submitBulkForm()'} -%>
+          }, {:onChange => 'submitBulkForm()', :id => 'select-bulk-change'} -%>
         </form>
         </div>
       </li>
