@@ -40,9 +40,10 @@ import java.util.List;
 public class PluginDownloader implements ServerComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
-  private UpdateCenterMatrixFactory updateCenterMatrixFactory;
-  private HttpDownloader downloader;
-  private File downloadDir;
+
+  private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
+  private final HttpDownloader downloader;
+  private final File downloadDir;
 
   public PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader, DefaultServerFileSystem fileSystem) {
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
@@ -68,7 +69,7 @@ public class PluginDownloader implements ServerComponent {
   }
 
   public boolean hasDownloads() {
-    return getDownloads().size() > 0;
+    return !getDownloads().isEmpty();
   }
 
   public List<String> getDownloads() {
@@ -96,12 +97,16 @@ public class PluginDownloader implements ServerComponent {
   private void downloadRelease(Release release) throws URISyntaxException, IOException {
     String url = release.getDownloadUrl();
     URI uri = new URI(url);
-    if (!url.startsWith("file:")) {
-      String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
-      downloader.download(uri, new File(downloadDir, filename));
-    } else {
+    if (url.startsWith("file:")) {
+      // used for tests
       File file = FileUtils.toFile(uri.toURL());
       FileUtils.copyFileToDirectory(file, downloadDir);
+    } else {
+      String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
+      File targetFile = new File(downloadDir, filename);
+      File tempFile = new File(downloadDir, filename + ".tmp");
+      downloader.download(uri, tempFile);
+      FileUtils.moveFile(tempFile, targetFile);
     }
   }
 }
