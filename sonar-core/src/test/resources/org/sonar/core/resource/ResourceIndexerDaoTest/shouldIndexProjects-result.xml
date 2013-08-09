@@ -36,15 +36,11 @@
   <resource_index kee="ntext" position="9" name_size="14" resource_id="3" root_project_id="1" qualifier="CLA"/>
   <resource_index kee="text" position="10" name_size="14" resource_id="3" root_project_id="1" qualifier="CLA"/>
   <resource_index kee="ext" position="11" name_size="14" resource_id="3" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="xt" position="12" name_size="14" resource_id="3" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="t" position="13" name_size="14" resource_id="3" root_project_id="1" qualifier="CLA"/>
 
   <!-- Struts -->
   <resource_index kee="struts" position="0" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index kee="truts" position="1" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index kee="ruts" position="2" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index kee="uts" position="3" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index kee="ts" position="4" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index kee="s" position="5" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
 
 </dataset>

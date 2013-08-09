@@ -112,9 +112,27 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
   public void shouldIndexTwoLettersLongResources() {
     setupData("shouldIndexTwoLettersLongResource");
 
-    dao.indexResource(10, "AB", Qualifiers.FILE, 3);
+    dao.indexResource(10, "AB", Qualifiers.PROJECT, 3);
 
     checkTables("shouldIndexTwoLettersLongResource", new String[] {"id"}, "resource_index");
+  }
+
+  @Test
+  public void shouldReIndexTwoLettersLongResources() {
+    setupData("shouldReIndexTwoLettersLongResource");
+
+    dao.indexResource(1, "AS", Qualifiers.PROJECT, 1);
+
+    checkTables("shouldReIndexTwoLettersLongResource", new String[] {"id"}, "resource_index");
+  }
+
+  @Test
+  public void shouldReIndexNewTwoLettersLongResource() {
+    setupData("shouldReIndexNewTwoLettersLongResource");
+
+    dao.indexResource(1, "AS", Qualifiers.PROJECT, 1);
+
+    checkTables("shouldReIndexNewTwoLettersLongResource", new String[] {"id"}, "resource_index");
   }
 
   @Test

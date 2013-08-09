@@ -18,7 +18,5 @@
   <resource_index kee="truts" position="8" name_size="13" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index kee="ruts" position="9" name_size="13" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index kee="uts" position="10" name_size="13" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index kee="ts" position="11" name_size="13" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index kee="s" position="12" name_size="13" resource_id="1" root_project_id="1" qualifier="TRK"/>
 
 </dataset>

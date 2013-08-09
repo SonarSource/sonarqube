@@ -1,6 +1,16 @@
 <dataset>
+
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="AS"
+            root_id="[null]"
+            description="[null]"
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+
+  <snapshots purge_status="[null]" id="1" islast="[true]" root_project_id="1" project_id="1" scope="PRJ" qualifier="TRK"/>
+
+  <!-- the index is on the old name "ST" but not on "AS" -->
   <resource_index id="1" kee="struts" position="0" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index id="2" kee="truts" position="1" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index id="3" kee="ruts" position="2" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index id="4" kee="uts" position="3" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+
 </dataset>
