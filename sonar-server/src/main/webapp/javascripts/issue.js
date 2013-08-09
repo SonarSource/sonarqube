@@ -44,6 +44,7 @@ function submitIssueForm(elt) {
   formElt.find('.loading').removeClass('hidden');
   formElt.find(':submit').prop('disabled', true);
   var issueElt = formElt.closest('[data-issue-key]');
+  var issueKey = issueElt.attr('data-issue-key');
 
   $j.ajax({
       type: "POST",
