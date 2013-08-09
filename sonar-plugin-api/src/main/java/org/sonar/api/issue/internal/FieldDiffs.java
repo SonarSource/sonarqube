@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
+ * PLUGINS MUST NOT USE THIS CLASS, EXCEPT FOR UNIT TESTING.
  *
  * @since 3.6
  */
@@ -118,13 +118,15 @@ public class FieldDiffs implements Serializable {
           String[] values = keyValues[1].split("\\|");
           String oldValue = "";
           String newValue = "";
-          if (values.length > 0) {
+          if(values.length == 1) {
+            newValue = Strings.nullToEmpty(values[0]);
+          } else if(values.length == 2) {
             oldValue = Strings.nullToEmpty(values[0]);
-          }
-          if (values.length > 1) {
             newValue = Strings.nullToEmpty(values[1]);
           }
           diffs.setDiff(keyValues[0], oldValue, newValue);
+        } else {
+          diffs.setDiff(keyValues[0], "", "");
         }
       }
     }
@@ -155,11 +157,11 @@ public class FieldDiffs implements Serializable {
     public String toString() {
       //TODO escape , and | characters
       StringBuilder sb = new StringBuilder();
-      if (oldValue != null) {
-        sb.append(oldValue.toString());
-      }
-      sb.append('|');
-      if (newValue != null) {
+      if(newValue != null) {
+        if(oldValue != null) {
+          sb.append(oldValue.toString());
+          sb.append('|');
+        }
         sb.append(newValue.toString());
       }
       return sb.toString();

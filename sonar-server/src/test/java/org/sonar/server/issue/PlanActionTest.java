@@ -22,6 +22,7 @@ package org.sonar.server.issue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
@@ -61,8 +62,11 @@ public class PlanActionTest {
     Action.Context context = mock(Action.Context.class);
     when(context.issue()).thenReturn(issue);
 
+    ActionPlan actionPlan = new DefaultActionPlan();
+    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(actionPlan);
+
     action.execute(properties, context);
-    verify(issueUpdater).plan(eq(issue), eq(planKey), any(IssueChangeContext.class));
+    verify(issueUpdater).plan(eq(issue), eq(actionPlan), any(IssueChangeContext.class));
   }
 
   @Test
@@ -74,20 +78,7 @@ public class PlanActionTest {
     when(context.issue()).thenReturn(issue);
 
     action.execute(properties, context);
-    verify(issueUpdater).plan(eq(issue), eq((String) null), any(IssueChangeContext.class));
-  }
-
-  @Test
-  public void should_execute_on_empty_action_plan(){
-    Map<String, Object> properties = newHashMap();
-    properties.put("plan", "");
-    DefaultIssue issue = mock(DefaultIssue.class);
-
-    Action.Context context = mock(Action.Context.class);
-    when(context.issue()).thenReturn(issue);
-
-    action.execute(properties, context);
-    verify(issueUpdater).plan(eq(issue), eq(""), any(IssueChangeContext.class));
+    verify(issueUpdater).plan(eq(issue), eq((ActionPlan) null), any(IssueChangeContext.class));
   }
 
   @Test

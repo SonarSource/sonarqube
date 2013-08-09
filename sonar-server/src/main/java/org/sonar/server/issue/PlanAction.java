@@ -62,7 +62,8 @@ public class PlanAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return issueUpdater.plan((DefaultIssue) context.issue(), planKey(properties), context.issueChangeContext());
+    ActionPlan actionPlan = actionPlanService.findByKey(planKey(properties), UserSession.get());
+    return issueUpdater.plan((DefaultIssue) context.issue(), actionPlan, context.issueChangeContext());
   }
 
   private String planKey(Map<String, Object> properties) {

@@ -24,7 +24,9 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueHandler;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.user.User;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.user.DefaultUser;
 
 import javax.annotation.Nullable;
 
@@ -114,7 +116,13 @@ public class IssueHandlers implements BatchExtension {
 
     @Override
     public IssueHandler.Context assign(@Nullable String assignee) {
-      updater.assign(issue, assignee, changeContext);
+      updater.assign(issue, new DefaultUser().setLogin(assignee).setName(assignee), changeContext);
+      return this;
+    }
+
+    @Override
+    public IssueHandler.Context assign(@Nullable User user) {
+      updater.assign(issue, user, changeContext);
       return this;
     }
 

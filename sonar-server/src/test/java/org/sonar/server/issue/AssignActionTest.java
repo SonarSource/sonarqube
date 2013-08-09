@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.user.DefaultUser;
@@ -63,8 +64,11 @@ public class AssignActionTest {
     Action.Context context = mock(Action.Context.class);
     when(context.issue()).thenReturn(issue);
 
+    User user = new DefaultUser();
+    when(userFinder.findByLogin(assignee)).thenReturn(user);
+
     action.execute(properties, context);
-    verify(issueUpdater).assign(eq(issue), eq(assignee), any(IssueChangeContext.class));
+    verify(issueUpdater).assign(eq(issue), eq(user), any(IssueChangeContext.class));
   }
 
   @Test

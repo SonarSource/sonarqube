@@ -25,6 +25,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
@@ -58,7 +59,8 @@ public class AssignAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return issueUpdater.assign((DefaultIssue) context.issue(), assignee(properties), context.issueChangeContext());
+    User user = userFinder.findByLogin(assignee(properties));
+    return issueUpdater.assign((DefaultIssue) context.issue(), user, context.issueChangeContext());
   }
 
   private String assignee(Map<String, Object> properties){

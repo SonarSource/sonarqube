@@ -24,6 +24,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.user.User;
 import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.Nullable;
@@ -62,8 +63,8 @@ public class FunctionExecutor implements BatchComponent, ServerComponent {
     }
 
     @Override
-    public Function.Context setAssignee(@Nullable String s) {
-      updater.assign(issue, s, changeContext);
+    public Function.Context setAssignee(@Nullable User user) {
+      updater.assign(issue, user, changeContext);
       return this;
     }
 

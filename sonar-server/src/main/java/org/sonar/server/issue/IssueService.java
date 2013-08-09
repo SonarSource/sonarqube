@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
@@ -28,6 +29,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueNotifications;
@@ -42,7 +44,6 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -123,11 +124,15 @@ public class IssueService implements ServerComponent {
     verifyLoggedIn(userSession);
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
-    if (assignee != null && userFinder.findByLogin(assignee) == null) {
-      throw new IllegalArgumentException("Unknown user: " + assignee);
+    User user = null;
+    if (!Strings.isNullOrEmpty(assignee)) {
+      user = userFinder.findByLogin(assignee);
+      if(user == null) {
+        throw new IllegalArgumentException("Unknown user: " + assignee);
+      }
     }
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
-    if (issueUpdater.assign(issue, assignee, context)) {
+    if (issueUpdater.assign(issue, user, context)) {
       issueStorage.save(issue);
       issueNotifications.sendChanges(issue, context, queryResult);
     }
@@ -136,14 +141,18 @@ public class IssueService implements ServerComponent {
 
   public Issue plan(String issueKey, @Nullable String actionPlanKey, UserSession userSession) {
     verifyLoggedIn(userSession);
-    if (!Strings.isNullOrEmpty(actionPlanKey) && actionPlanService.findByKey(actionPlanKey, userSession) == null) {
-      throw new IllegalArgumentException("Unknown action plan: " + actionPlanKey);
+    ActionPlan actionPlan = null;
+    if (!Strings.isNullOrEmpty(actionPlanKey)) {
+      actionPlan = actionPlanService.findByKey(actionPlanKey, userSession);
+      if(actionPlan == null) {
+        throw new IllegalArgumentException("Unknown action plan: " + actionPlanKey);
+      }
     }
     IssueQueryResult queryResult = loadIssue(issueKey);
     DefaultIssue issue = (DefaultIssue) queryResult.first();
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
-    if (issueUpdater.plan(issue, actionPlanKey, context)) {
+    if (issueUpdater.plan(issue, actionPlan, context)) {
       issueStorage.save(issue);
       issueNotifications.sendChanges(issue, context, queryResult);
     }

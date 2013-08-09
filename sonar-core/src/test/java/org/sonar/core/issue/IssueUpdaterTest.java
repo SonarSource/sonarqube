@@ -20,13 +20,17 @@
 package org.sonar.core.issue;
 
 import org.junit.Test;
+import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.user.User;
+import org.sonar.core.user.DefaultUser;
 
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.core.issue.IssueUpdater.*;
 
 public class IssueUpdaterTest {
 
@@ -36,13 +40,15 @@ public class IssueUpdaterTest {
 
   @Test
   public void should_assign() throws Exception {
-    boolean updated = updater.assign(issue, "emmerik", context);
+    User user = new DefaultUser().setLogin("emmerik").setName("Emmerik");
+
+    boolean updated = updater.assign(issue, user, context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isEqualTo("emmerik");
     assertThat(issue.mustSendNotifications()).isTrue();
-    FieldDiffs.Diff diff = issue.currentChange().get("assignee");
-    assertThat(diff.oldValue()).isNull();
-    assertThat(diff.newValue()).isEqualTo("emmerik");
+    FieldDiffs.Diff diff = issue.currentChange().get(ASSIGNEE);
+    assertThat(diff.oldValue()).isEqualTo(UNUSED);
+    assertThat(diff.newValue()).isEqualTo("Emmerik");
   }
 
   @Test
@@ -52,32 +58,35 @@ public class IssueUpdaterTest {
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isNull();
     assertThat(issue.mustSendNotifications()).isTrue();
-    FieldDiffs.Diff diff = issue.currentChange().get("assignee");
-    assertThat(diff.oldValue()).isEqualTo("morgan");
+    FieldDiffs.Diff diff = issue.currentChange().get(ASSIGNEE);
+    assertThat(diff.oldValue()).isEqualTo(UNUSED);
     assertThat(diff.newValue()).isNull();
   }
 
   @Test
   public void should_change_assignee() throws Exception {
+    User user = new DefaultUser().setLogin("emmerik").setName("Emmerik");
+
     issue.setAssignee("morgan");
-    boolean updated = updater.assign(issue, "emmerik", context);
+    boolean updated = updater.assign(issue, user, context);
     assertThat(updated).isTrue();
     assertThat(issue.assignee()).isEqualTo("emmerik");
     assertThat(issue.mustSendNotifications()).isTrue();
-    FieldDiffs.Diff diff = issue.currentChange().get("assignee");
-    assertThat(diff.oldValue()).isEqualTo("morgan");
-    assertThat(diff.newValue()).isEqualTo("emmerik");
+    FieldDiffs.Diff diff = issue.currentChange().get(ASSIGNEE);
+    assertThat(diff.oldValue()).isEqualTo(UNUSED);
+    assertThat(diff.newValue()).isEqualTo("Emmerik");
   }
 
   @Test
   public void should_not_change_assignee() throws Exception {
+    User user = new DefaultUser().setLogin("morgan").setName("Morgan");
+
     issue.setAssignee("morgan");
-    boolean updated = updater.assign(issue, "morgan", context);
+    boolean updated = updater.assign(issue, user, context);
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
   }
-
 
   @Test
   public void should_set_severity() throws Exception {
@@ -87,7 +96,7 @@ public class IssueUpdaterTest {
     assertThat(issue.manualSeverity()).isFalse();
     assertThat(issue.mustSendNotifications()).isFalse();
 
-    FieldDiffs.Diff diff = issue.currentChange().get("severity");
+    FieldDiffs.Diff diff = issue.currentChange().get(SEVERITY);
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("BLOCKER");
   }
@@ -100,7 +109,7 @@ public class IssueUpdaterTest {
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.mustSendNotifications()).isFalse();
 
-    FieldDiffs.Diff diff = issue.currentChange().get("severity");
+    FieldDiffs.Diff diff = issue.currentChange().get(SEVERITY);
     assertThat(diff.oldValue()).isEqualTo("INFO");
     assertThat(diff.newValue()).isEqualTo("BLOCKER");
   }
@@ -113,7 +122,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isTrue();
     assertThat(issue.severity()).isEqualTo("MINOR");
     assertThat(issue.mustSendNotifications()).isFalse();
-    FieldDiffs.Diff diff = issue.currentChange().get("severity");
+    FieldDiffs.Diff diff = issue.currentChange().get(SEVERITY);
     assertThat(diff.oldValue()).isEqualTo("BLOCKER");
     assertThat(diff.newValue()).isEqualTo("MINOR");
   }
@@ -146,7 +155,7 @@ public class IssueUpdaterTest {
     assertThat(issue.severity()).isEqualTo("MINOR");
     assertThat(issue.manualSeverity()).isTrue();
     assertThat(issue.mustSendNotifications()).isTrue();
-    FieldDiffs.Diff diff = issue.currentChange().get("severity");
+    FieldDiffs.Diff diff = issue.currentChange().get(SEVERITY);
     assertThat(diff.oldValue()).isEqualTo("BLOCKER");
     assertThat(diff.newValue()).isEqualTo("MINOR");
   }
@@ -198,7 +207,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isTrue();
     assertThat(issue.resolution()).isEqualTo("OPEN");
 
-    FieldDiffs.Diff diff = issue.currentChange().get("resolution");
+    FieldDiffs.Diff diff = issue.currentChange().get(RESOLUTION);
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("OPEN");
     assertThat(issue.mustSendNotifications()).isTrue();
@@ -220,7 +229,7 @@ public class IssueUpdaterTest {
     assertThat(updated).isTrue();
     assertThat(issue.status()).isEqualTo("OPEN");
 
-    FieldDiffs.Diff diff = issue.currentChange().get("status");
+    FieldDiffs.Diff diff = issue.currentChange().get(STATUS);
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("OPEN");
     assertThat(issue.mustSendNotifications()).isTrue();
@@ -268,15 +277,59 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void should_plan() throws Exception {
-    boolean updated = updater.plan(issue, "ABCD", context);
-    assertThat(updated).isTrue();
-    assertThat(issue.actionPlanKey()).isEqualTo("ABCD");
+  public void should_plan_with_no_existing_plan() throws Exception {
+    ActionPlan newActionPlan = DefaultActionPlan.create("newName");
 
-    FieldDiffs.Diff diff = issue.currentChange().get("actionPlanKey");
-    assertThat(diff.oldValue()).isNull();
-    assertThat(diff.newValue()).isEqualTo("ABCD");
+    boolean updated = updater.plan(issue, newActionPlan, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.actionPlanKey()).isEqualTo(newActionPlan.key());
+
+    FieldDiffs.Diff diff = issue.currentChange().get(ACTION_PLAN);
+    assertThat(diff.oldValue()).isEqualTo(UNUSED);
+    assertThat(diff.newValue()).isEqualTo("newName");
     assertThat(issue.mustSendNotifications()).isTrue();
+  }
+
+  @Test
+  public void should_plan_with_existing_plan() throws Exception {
+    issue.setActionPlanKey("formerActionPlan");
+
+    ActionPlan newActionPlan = DefaultActionPlan.create("newName").setKey("newKey");
+
+    boolean updated = updater.plan(issue, newActionPlan, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.actionPlanKey()).isEqualTo(newActionPlan.key());
+
+    FieldDiffs.Diff diff = issue.currentChange().get(ACTION_PLAN);
+    assertThat(diff.oldValue()).isEqualTo(UNUSED);
+    assertThat(diff.newValue()).isEqualTo("newName");
+    assertThat(issue.mustSendNotifications()).isTrue();
+  }
+
+  @Test
+  public void should_unplan() throws Exception {
+    issue.setActionPlanKey("formerActionPlan");
+
+    boolean updated = updater.plan(issue, null, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.actionPlanKey()).isNull();
+
+    FieldDiffs.Diff diff = issue.currentChange().get(ACTION_PLAN);
+    assertThat(diff.oldValue()).isEqualTo(UNUSED);
+    assertThat(diff.newValue()).isNull();
+    assertThat(issue.mustSendNotifications()).isTrue();
+  }
+
+  @Test
+  public void should_not_plan_again() throws Exception {
+    issue.setActionPlanKey("existingActionPlan");
+
+    ActionPlan newActionPlan = DefaultActionPlan.create("existingActionPlan").setKey("existingActionPlan");
+
+    boolean updated = updater.plan(issue, newActionPlan, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
