@@ -65,7 +65,7 @@
             <li class="spacer"></li>
             <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
 
-            <li class="<%= 'active' if request.request_uri.include?('/dependencies/index') -%>">
+            <li class="<%= 'active' if controller.controller_path=='dependencies' -%>">
               <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
             <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/comparison/index"><%= message('comparison.page') -%></a>
