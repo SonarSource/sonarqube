@@ -129,26 +129,4 @@ public class IssueNotificationsTest {
     assertThat(notification).isNull();
     Mockito.verifyZeroInteractions(manager);
   }
-
-  @Test
-  public void should_store_changelog_in_notification() throws Exception {
-    IssueChangeContext context = IssueChangeContext.createScan(new Date());
-
-    DefaultIssue issue = new DefaultIssue()
-      .setMessage("the message")
-      .setKey("ABCDE")
-      .setAssignee("freddy")
-      .setFieldChange(context, "resolution", null, "FIXED")
-      .setFieldChange(context, "status", "OPEN", "RESOLVED")
-      .setSendNotifications(true)
-      .setComponentKey("struts:Action")
-      .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
-    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
-
-    Notification notification = issueNotifications.sendChanges(issue, context, queryResult);
-
-    assertThat(notification.getFieldValue("changeLog")).contains("Resolution: FIXED");
-    assertThat(notification.getFieldValue("changeLog")).contains("Status: RESOLVED (was OPEN)");
-  }
 }
