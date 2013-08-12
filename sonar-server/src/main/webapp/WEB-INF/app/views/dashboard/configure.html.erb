@@ -64,7 +64,7 @@
   function init_dashboard() {
     portal = new Portal(options);
   <% if params[:highlight] %>
-    portal.highlightWidget(<%= params[:highlight] -%>);
+    portal.highlightWidget(<%= escape_javascript(params[:highlight]) -%>);
   <% end %>
   }
   $j(document).ready(function(){init_dashboard();});
