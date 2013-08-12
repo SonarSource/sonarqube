@@ -120,8 +120,13 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_by_date_creation() {
     setupData("shared", "should_select_by_date_creation");
 
-    IssueQuery query = IssueQuery.builder().createdAfter(DateUtils.parseDate("2013-04-15")).requiredRole("user").build();
+    IssueQuery query = IssueQuery.builder().createdAfter(DateUtils.parseDate("2013-04-15")).build();
     assertThat(dao.selectIssueIds(query)).hasSize(1);
+    assertThat(dao.selectIssueIds(query).get(0).getId()).isEqualTo(100L);
+
+    query = IssueQuery.builder().createdAtOrAfter(DateUtils.parseDate("2013-04-15")).build();
+    assertThat(dao.selectIssueIds(query)).hasSize(1);
+    assertThat(dao.selectIssueIds(query).get(0).getId()).isEqualTo(100L);
 
     query = IssueQuery.builder().createdBefore(DateUtils.parseDate("2013-04-17")).requiredRole("user").build();
     assertThat(dao.selectIssueIds(query)).hasSize(2);

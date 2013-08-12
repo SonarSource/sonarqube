@@ -73,7 +73,7 @@ public class NewIssuesEmailTemplateTest {
       "Project: Struts\n" +
       "32 new issues\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAfter=2010-05-18T16%3A50%3A45%2B0200\n");
+      "See it in SonarQube: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAtOrAfter=2010-05-18T16%3A50%3A45%2B0200\n");
   }
 
   @Test

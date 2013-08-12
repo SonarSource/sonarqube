@@ -70,6 +70,7 @@ public class IssueQuery {
   private final Boolean assigned;
   private final Boolean planned;
   private final Boolean resolved;
+  private final Date createdAtOrAfter;
   private final Date createdAfter;
   private final Date createdBefore;
   private final String sort;
@@ -96,6 +97,7 @@ public class IssueQuery {
     this.assigned = builder.assigned;
     this.planned = builder.planned;
     this.resolved = builder.resolved;
+    this.createdAtOrAfter = builder.createdAtOrAfter;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
@@ -166,6 +168,11 @@ public class IssueQuery {
   }
 
   @CheckForNull
+  public Date createdAtOrAfter() {
+    return (createdAtOrAfter == null ? null : new Date(createdAtOrAfter.getTime()));
+  }
+
+  @CheckForNull
   public Date createdBefore() {
     return (createdBefore == null ? null : new Date(createdBefore.getTime()));
   }
@@ -219,6 +226,7 @@ public class IssueQuery {
     private Boolean assigned = null;
     private Boolean planned = null;
     private Boolean resolved = null;
+    private Date createdAtOrAfter;
     private Date createdAfter;
     private Date createdBefore;
     private String sort;
@@ -304,6 +312,11 @@ public class IssueQuery {
      */
     public Builder resolved(@Nullable Boolean resolved) {
       this.resolved = resolved;
+      return this;
+    }
+
+    public Builder createdAtOrAfter(@Nullable Date d) {
+      this.createdAtOrAfter = (d == null ? null : new Date(d.getTime()));
       return this;
     }
 

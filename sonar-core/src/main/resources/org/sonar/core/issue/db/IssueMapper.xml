@@ -290,6 +290,9 @@
       <if test="query.createdAfter() != null">
         and i.issue_creation_date &gt; #{query.createdAfter}
       </if>
+      <if test="query.createdAtOrAfter() != null">
+        and i.issue_creation_date &gt;= #{query.createdAtOrAfter}
+      </if>
       <if test="query.createdBefore() != null">
         and i.issue_creation_date &lt; #{query.createdBefore}
       </if>
