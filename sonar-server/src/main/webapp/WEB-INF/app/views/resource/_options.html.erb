@@ -7,15 +7,15 @@
       applyOptions = function (elt) {
         var currentForm = $j(elt).closest('.options-form');
         var params = currentForm.serialize();
-        var url = '<%= ApplicationController.root_context -%>/resource/index/<%= @resource.key %>?display_title=<%= params[:display_title].to_s -%>&'+ params;
+        var url = '<%= ApplicationController.root_context -%>/resource/index/<%= h @resource.key %>?display_title=<%= h params[:display_title].to_s -%>&'+ params;
         openAccordionItem(url, elt, true);
         return true;
       };
     </script>
     <form method="GET" action="<%= url_for :controller => 'resource', :action => 'index', :id => @resource.key -%>" class="options-form">
-      <input type="hidden" name="tab" value="<%= params[:tab] -%>"/>
-      <input type="hidden" name="metric" value="<%= params[:metric] -%>"/>
-      <input type="hidden" name="period" value="<%= params[:period] -%>"/>
+      <input type="hidden" name="tab" value="<%= h params[:tab] -%>"/>
+      <input type="hidden" name="metric" value="<%= h params[:metric] -%>"/>
+      <input type="hidden" name="period" value="<%= h params[:period] -%>"/>
 
       <table>
         <tr>

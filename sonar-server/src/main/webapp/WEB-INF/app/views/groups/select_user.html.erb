@@ -12,7 +12,7 @@
             <h2>Non-members</h2>
             <select name="from" id="from" size="30" style="margin: 5px 0pt; width: 300px;" multiple="multiple">
               <% @group.available_users.sort.each do |user| %>
-                <option value="<%= user.id -%>"><%= user.name -%></option>
+                <option value="<%= user.id -%>"><%= h user.name -%></option>
               <% end %>
             </select>
           </td>

@@ -4,7 +4,7 @@
      selected_section = Navigation::SECTION_HOME
    end
    @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
-   period_param = "period=#{params[:period]}" if params[:period]
+   period_param = "period=#{h(params[:period])}" if params[:period]
 %>
 <div id="container">
   <%= yield :header -%>

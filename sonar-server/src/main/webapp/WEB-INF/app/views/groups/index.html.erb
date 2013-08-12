@@ -15,8 +15,8 @@
         <tbody >
         <% @groups.each do |group|%>
           <tr id="group-<%= u group.name -%>">
-            <td class="left"><%= group.name %></td>
-            <td class="left" style="word-break:break-all"><%=group.description%></td>
+            <td class="left"><%= h group.name %></td>
+            <td class="left" style="word-break:break-all"><%= h group.description%></td>
             <td class="left">
               <span id="count-<%= u group.name -%>"><%= group.users.count %></span> (<%= link_to "select", { :action => 'select_user', :id => group.id}, {:id => "select-#{u group.name}", :class => 'link-action'} %>)
             </td>
