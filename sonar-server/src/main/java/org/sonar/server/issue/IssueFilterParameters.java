@@ -47,6 +47,7 @@ public class IssueFilterParameters {
   public static final String ASSIGNED = "assigned";
   public static final String PLANNED = "planned";
   public static final String CREATED_AFTER = "createdAfter";
+  public static final String CREATED_AT_OR_AFTER = "createdAtOrAfter";
   public static final String CREATED_BEFORE = "createdBefore";
   public static final String PAGE_SIZE = "pageSize";
   public static final String PAGE_INDEX = "pageIndex";

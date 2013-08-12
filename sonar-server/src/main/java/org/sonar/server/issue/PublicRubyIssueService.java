@@ -88,6 +88,7 @@ public class PublicRubyIssueService implements RubyIssueService {
       .assignees(RubyUtils.toStrings(props.get(IssueFilterParameters.ASSIGNEES)))
       .assigned(RubyUtils.toBoolean(props.get(IssueFilterParameters.ASSIGNED)))
       .planned(RubyUtils.toBoolean(props.get(IssueFilterParameters.PLANNED)))
+      .createdAtOrAfter(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_AT_OR_AFTER)))
       .createdAfter(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_AFTER)))
       .createdBefore(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_BEFORE)))
       .pageSize(RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_SIZE)))
