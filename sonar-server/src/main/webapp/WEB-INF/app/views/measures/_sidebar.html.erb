@@ -83,12 +83,12 @@
 
   <form id="search-form" method="GET" action="<%= ApplicationController.root_context -%>/measures/search" onsubmit="submitSearch()">
     <% if @filter.id %>
-      <input type="hidden" name="id" value="<%= @filter.id -%>">
+      <input type="hidden" name="id" value="<%= h @filter.id -%>">
     <% end %>
     <%
        if @filter.display
     %>
-      <input type="hidden" name="display" value="<%= @filter.display.key -%>"/>
+      <input type="hidden" name="display" value="<%= h @filter.display.key -%>"/>
       <%
          @filter.display.url_params.each do |k_v_array|
            if k_v_array[1].is_a?(String)
@@ -180,10 +180,10 @@
     <li id="criteria-date" <%= "style='display:none'" unless @filter.criteria('fromDate') || @filter.criteria('toDate') -%> class="marginbottom5">
       <% disabled = @filter.criteria['fromDate'].blank? && @filter.criteria['toDate'].blank? %>
       <%= message('measure_filter.criteria.from_date') -%>:<br>
-      <input type="text" name="fromDate" value="<%= @filter.criteria['fromDate'] -%>" size="10" maxlength="10" class="marginbottom5" <%= 'disabled' if disabled -%>>
+      <input type="text" name="fromDate" value="<%= h @filter.criteria['fromDate'] -%>" size="10" maxlength="10" class="marginbottom5" <%= 'disabled' if disabled -%>>
       <br>
       <%= message 'measure_filter.criteria.to_date' -%>:<br>
-      <input type="text" name="toDate" value="<%= @filter.criteria['toDate'] -%>" size="10" maxlength="10" <%= 'disabled' if disabled -%>><br>
+      <input type="text" name="toDate" value="<%= h @filter.criteria['toDate'] -%>" size="10" maxlength="10" <%= 'disabled' if disabled -%>><br>
       <span class="small gray"><%= message 'measure_filter.criteria.date_format' -%></span>
     </li>
 
@@ -191,10 +191,10 @@
     <li id="criteria-age" <%= "style='display:none'" unless @filter.criteria('ageMinDays') || @filter.criteria('ageMaxDays') -%> class="marginbottom5">
       <% disabled = @filter.criteria['ageMinDays'].blank? && @filter.criteria['ageMaxDays'].blank? %>
       <%= message 'measure_filter.criteria.age.more_than' -%>:<br>
-      <input type="text" name="ageMinDays" value="<%= @filter.criteria['ageMinDays'] -%>" size="3" class="marginbottom5" <%= 'disabled' if disabled -%>> <%= message 'measure_filter.criteria.age.days_ago' -%>
+      <input type="text" name="ageMinDays" value="<%= h @filter.criteria['ageMinDays'] -%>" size="3" class="marginbottom5" <%= 'disabled' if disabled -%>> <%= message 'measure_filter.criteria.age.days_ago' -%>
       <br>
       <%= message 'measure_filter.criteria.age.within_last' -%>:<br>
-      <input type="text" name="ageMaxDays" value="<%= @filter.criteria['ageMaxDays'] -%>" size="3" <%= 'disabled' if disabled -%>> <%= message 'measure_filter.criteria.age.days' -%>
+      <input type="text" name="ageMaxDays" value="<%= h @filter.criteria['ageMaxDays'] -%>" size="3" <%= 'disabled' if disabled -%>> <%= message 'measure_filter.criteria.age.days' -%>
     </li>
 
     <li id="more-td" class="marginbottom5">
