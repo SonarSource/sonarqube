@@ -65,7 +65,7 @@ public interface RubyIssueService extends ServerComponent {
    *   <li>'assigned': true to get only assigned issues, false to get only unassigned issues. By default no filtering is done.</li>
    *   <li>'createdAfter': match all the issues created after the given date (strictly).
    *   Both date and datetime ISO formats are supported: 2013-05-18 or 2010-05-18T15:50:45+0100</li>
-   *   <li>'createdAtOrAfter': match all the issues created after the given date (inclusive).
+   *   <li>'createdAt': match all the issues created at the given date (require second precision).
    *   Both date and datetime ISO formats are supported: 2013-05-18 or 2010-05-18T15:50:45+0100</li>
    *   <li>'createdBefore': match all the issues created before the given date (exclusive).
    *   Both date and datetime ISO formats are supported: 2013-05-18 or 2010-05-18T15:50:45+0100</li>

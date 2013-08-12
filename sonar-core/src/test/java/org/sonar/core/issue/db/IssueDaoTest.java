@@ -120,16 +120,31 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void should_select_by_date_creation() {
     setupData("shared", "should_select_by_date_creation");
 
+    // created after, strictly
     IssueQuery query = IssueQuery.builder().createdAfter(DateUtils.parseDate("2013-04-15")).build();
     assertThat(dao.selectIssueIds(query)).hasSize(1);
     assertThat(dao.selectIssueIds(query).get(0).getId()).isEqualTo(100L);
 
-    query = IssueQuery.builder().createdAtOrAfter(DateUtils.parseDate("2013-04-15")).build();
+    query = IssueQuery.builder().createdAfter(DateUtils.parseDate("2022-01-01")).build();
+    assertThat(dao.selectIssueIds(query)).isEmpty();
+
+
+    // created at a given date
+    query = IssueQuery.builder().createdAt(DateUtils.parseDate("2013-04-16")).build();
     assertThat(dao.selectIssueIds(query)).hasSize(1);
     assertThat(dao.selectIssueIds(query).get(0).getId()).isEqualTo(100L);
 
-    query = IssueQuery.builder().createdBefore(DateUtils.parseDate("2013-04-17")).requiredRole("user").build();
-    assertThat(dao.selectIssueIds(query)).hasSize(2);
+    query = IssueQuery.builder().createdAt(DateUtils.parseDate("2010-01-01")).build();
+    assertThat(dao.selectIssueIds(query)).isEmpty();
+
+
+    // created before
+    query = IssueQuery.builder().createdBefore(DateUtils.parseDate("2013-04-14")).build();
+    assertThat(dao.selectIssueIds(query)).hasSize(1);
+    assertThat(dao.selectIssueIds(query).get(0).getId()).isEqualTo(101L);
+
+    query = IssueQuery.builder().createdBefore(DateUtils.parseDate("2010-01-01")).build();
+    assertThat(dao.selectIssueIds(query)).isEmpty();
   }
 
   @Test
