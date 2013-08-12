@@ -101,6 +101,15 @@ public class IssueQuery {
     return this;
   }
 
+  /**
+   * Require second precision.
+   * @since 3.7
+   */
+  public IssueQuery createdAt(Date d) {
+    params.put("createdAt", EncodingUtils.toQueryParam(d, true));
+    return this;
+  }
+
   public IssueQuery createdAfter(Date d) {
     params.put("createdAfter", EncodingUtils.toQueryParam(d, true));
     return this;
