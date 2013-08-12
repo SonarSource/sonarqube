@@ -27,7 +27,7 @@ class Api::SourcesController < Api::RestController
     if resource_id
       @resource=Project.by_key(resource_id)
       if @resource.nil?
-        rest_status_ko("Resource [#{resource_id}] not found", 404)
+        rest_status_ko('Resource not found', 404)
         return
       end
     end
@@ -35,7 +35,7 @@ class Api::SourcesController < Api::RestController
 
     source = @resource.last_snapshot.source
     if !source
-      rest_status_ko("Resource [#{@resource.id}] has no sources", 404)
+      rest_status_ko('Resource has no sources', 404)
     else
       #optimization
       #source.snapshot.project=@resource
