@@ -41,6 +41,8 @@ public class AssignAction extends Action implements ServerComponent {
   private final UserFinder userFinder;
   private final IssueUpdater issueUpdater;
 
+  private User assignee;
+
   public AssignAction(UserFinder userFinder, IssueUpdater issueUpdater) {
     super(KEY);
     this.userFinder = userFinder;
@@ -50,8 +52,8 @@ public class AssignAction extends Action implements ServerComponent {
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession){
-    String assignee = assignee(properties);
-    if (!Strings.isNullOrEmpty(assignee) && userFinder.findByLogin(assignee) == null) {
+    String assignee = assigneeValue(properties);
+    if (!Strings.isNullOrEmpty(assignee) && getOrSelectUser(assignee) == null) {
       throw new IllegalArgumentException("Unknown user: " + assignee);
     }
     return true;
@@ -59,11 +61,18 @@ public class AssignAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    User user = userFinder.findByLogin(assignee(properties));
-    return issueUpdater.assign((DefaultIssue) context.issue(), user, context.issueChangeContext());
+    String assignee = assigneeValue(properties);
+    return issueUpdater.assign((DefaultIssue) context.issue(), getOrSelectUser(assignee), context.issueChangeContext());
   }
 
-  private String assignee(Map<String, Object> properties){
+  private String assigneeValue(Map<String, Object> properties) {
     return (String) properties.get("assignee");
+  }
+
+  private User getOrSelectUser(String assigneeKey) {
+    if(assignee == null) {
+      assignee = userFinder.findByLogin(assigneeKey);
+    }
+    return assignee;
   }
 }
