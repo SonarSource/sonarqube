@@ -36,7 +36,7 @@ public class IssueQueryTest {
 
   @Test
   public void get_all_issues_by_parameter() throws ParseException {
-    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     IssueQuery query = IssueQuery.create()
       .issues("ABCDE", "FGHIJ")
       .assignees("arthur", "perceval")
@@ -51,14 +51,15 @@ public class IssueQueryTest {
       .statuses("OPEN", "CLOSED")
       .severities("BLOCKER", "INFO")
       .reporters("login1", "login2")
-      .createdBefore(df.parse("2015-12-13T05:59"))
-      .createdAfter(df.parse("2012-01-23T13:40"))
+      .createdAt(df.parse("2015-01-02T05:59:50:50"))
+      .createdBefore(df.parse("2015-12-13T05:59:50"))
+      .createdAfter(df.parse("2012-01-23T13:40:50"))
       .sort("ASSIGNEE")
       .asc(false)
       .pageSize(5)
       .pageIndex(4);
 
-    assertThat(query.urlParams()).hasSize(19);
+    assertThat(query.urlParams()).hasSize(20);
     assertThat(query.urlParams()).includes(entry("issues", "ABCDE,FGHIJ"));
     assertThat(query.urlParams()).includes(entry("assignees", "arthur,perceval"));
     assertThat(query.urlParams()).includes(entry("assigned", true));
@@ -72,8 +73,9 @@ public class IssueQueryTest {
     assertThat(query.urlParams()).includes(entry("statuses", "OPEN,CLOSED"));
     assertThat(query.urlParams()).includes(entry("severities", "BLOCKER,INFO"));
     assertThat(query.urlParams()).includes(entry("reporters", "login1,login2"));
-    assertThat((String)query.urlParams().get("createdBefore")).startsWith("2015-12-13T05:59");
-    assertThat((String)query.urlParams().get("createdAfter")).startsWith("2012-01-23T13:40:00");
+    assertThat((String)query.urlParams().get("createdBefore")).startsWith("2015-12-13T05:59:50");
+    assertThat((String)query.urlParams().get("createdAfter")).startsWith("2012-01-23T13:40:50");
+    assertThat((String)query.urlParams().get("createdAt")).startsWith("2015-01-02T05:59:50");
     assertThat(query.urlParams()).includes(entry("sort", "ASSIGNEE"));
     assertThat(query.urlParams()).includes(entry("asc", false));
     assertThat(query.urlParams()).includes(entry("pageSize", 5));
