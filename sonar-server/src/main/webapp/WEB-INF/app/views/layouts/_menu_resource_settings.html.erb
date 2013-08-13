@@ -25,10 +25,7 @@
       %>
       <li><a href="<%= ApplicationController.root_context -%>/project_roles/index/<%= @project.id -%>"><%= message('roles.page') -%></a></li>
       <% end %>
-      <%
-         # NOTE: we keep "@project.view?" in the test for backward compatibility with the Views plugin
-         if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view?)
-      %>
+      <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') %>
         <li><a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
       <% end %>
       <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key') %>
