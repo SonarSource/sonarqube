@@ -307,7 +307,7 @@ class RulesConfigurationController < ApplicationController
   def update_param
     verify_post_request
     access_denied unless has_role?(:profileadmin)
-    require_parameters :profile_id, :param_id, :active_rule_id, :value
+    require_parameters :profile_id, :param_id, :active_rule_id
     profile = Profile.find(params[:profile_id].to_i)
     rule_param = RulesParameter.find(params[:param_id].to_i)
     active_rule = ActiveRule.find(params[:active_rule_id].to_i)
@@ -327,7 +327,8 @@ class RulesConfigurationController < ApplicationController
       active_param = nil
       java_facade.ruleParamChanged(profile.id, active_rule.id, rule_param.name, old_value, nil, current_user.name)
     end
-                  # let's reload the active rule
+
+    # let's reload the active rule
     active_rule = ActiveRule.find(active_rule.id)
     render :partial => 'rule', :locals => {:profile => profile, :rule => active_rule.rule, :active_rule => active_rule}
   end
