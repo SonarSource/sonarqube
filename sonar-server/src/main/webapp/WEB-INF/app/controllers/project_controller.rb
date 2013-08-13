@@ -179,8 +179,7 @@ class ProjectController < ApplicationController
   def history
     @project = get_current_project(params[:id])
 
-    # NOTE: we keep "@project.view? || @project.subview?" in the test for backward compatibility with the Views plugin
-    unless java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view?
+    unless java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history')
       redirect_to :action => 'index', :id => params[:id]
     end
 
