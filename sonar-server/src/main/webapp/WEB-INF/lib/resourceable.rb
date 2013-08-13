@@ -53,10 +53,12 @@ module Resourceable
     qualifier==QUALIFIER_LIB
   end
 
+  # No more used since SonarQube 4.0 and should not be used anymore
   def view?
     qualifier==QUALIFIER_VIEW
   end
 
+  # No more used and should not be used
   def subview?
     qualifier==QUALIFIER_SUBVIEW
   end
