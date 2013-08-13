@@ -181,8 +181,23 @@ class DashboardController < ApplicationController
   end
 
   def load_resource
-    init_resource_for_user_role unless !params[:id]
-    @project=@resource # for backward compatibility with old widgets
+    if params[:id]
+      @resource=Project.by_key(params[:id])
+      return project_not_found unless @resource
+      @resource=@resource.permanent_resource
+
+      @snapshot=@resource.last_snapshot
+      return project_not_found unless @snapshot
+
+      access_denied unless has_role?(:user, @resource)
+
+      @project=@resource # for backward compatibility with old widgets
+    end
+  end
+
+  def project_not_found
+    flash[:error] = message('dashboard.project_not_found')
+    redirect_to :action => :index
   end
 
   def load_authorized_widget_definitions
