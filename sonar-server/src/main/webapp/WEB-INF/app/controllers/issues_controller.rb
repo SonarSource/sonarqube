@@ -33,12 +33,16 @@ class IssuesController < ApplicationController
 
   # GET /issues/search
   def search
-    if params[:id]
-      @filter = find_filter(params[:id].to_i)
-    end
     @first_search = issues_query_params_sanitized.empty?
     @issues_query_params = criteria_params
-    issue_filter_result = Internal.issues.execute(@issues_query_params)
+
+    if params[:id]
+      @filter = find_filter(params[:id].to_i)
+      @first_search = false
+      issue_filter_result = Internal.issues.execute(params[:id].to_i, @issues_query_params)
+    else
+      issue_filter_result = Internal.issues.execute(@issues_query_params)
+    end
     @issues_query = issue_filter_result.query
     @issues_result = issue_filter_result.result
 
