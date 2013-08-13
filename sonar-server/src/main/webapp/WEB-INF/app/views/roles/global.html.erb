@@ -26,7 +26,7 @@
     <tr class="<%= cycle('even', 'odd', :name => 'global_permission') -%>" >
       <td valign="top">
         <b><%= h permission_name -%></b><br/>
-        <span class="small gray"><%= h message("global_permissions.#{permission_key}.desc") -%></span>
+        <span class="small gray"><%= message("global_permissions.#{permission_key}.desc") -%></span>
       </td>
       <td valign="top" style="word-break:break-all;width:30%;">
         <span id="users-<%= permission_key.parameterize -%>"><%= users(permission_key).map(&:name).join(', ') -%></span>
