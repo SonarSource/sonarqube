@@ -17,29 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.api.utils;
 
-import org.slf4j.LoggerFactory;
-import org.sonar.api.ServerComponent;
-import org.sonar.api.utils.MessageException;
-import org.sonar.core.persistence.DatabaseVersion;
+import org.junit.Test;
 
-public class DatabaseServerCompatibility implements ServerComponent {
-  
-  private DatabaseVersion version;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-  public DatabaseServerCompatibility(DatabaseVersion version) {
-    this.version = version;
-  }
+import static org.fest.assertions.Assertions.assertThat;
 
-  public void start() {
-    DatabaseVersion.Status status = version.getStatus();
-    if (status== DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
-      throw new MessageException("Database relates to a more recent version of sonar. Please check your settings.");
+public class MessageExceptionTest {
+
+  /**
+   * The exception should log only the message, without the "org.sonar.api.utils.MessageException" prefix
+   * and stack traces
+   */
+  @Test
+  public void should_not_print_stacktrace() throws Exception {
+    String message = "the message";
+    try {
+      throw new MessageException(message);
+
+    } catch (MessageException e) {
+      StringWriter writer = new StringWriter();
+      e.printStackTrace(new PrintWriter(writer));
+
+      assertThat(e.getStackTrace()).isEmpty();
+      assertThat(e.getMessage()).isEqualTo(message);
+      assertThat(writer.toString()).isEqualTo(message + System.getProperty("line.separator"));
     }
-    if (status== DatabaseVersion.Status.REQUIRES_UPGRADE) {
-      LoggerFactory.getLogger(DatabaseServerCompatibility.class).info("Database must be upgraded. Please browse /setup");
-    }
   }
-
 }

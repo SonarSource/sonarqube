@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.core.persistence.BadDatabaseVersion;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.DatabaseVersion;
 
 import static org.mockito.Mockito.mock;
@@ -60,7 +60,7 @@ public class DatabaseCompatibilityTest {
   public void shouldFailIfRequiresDowngrade() {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_DOWNGRADE);
 
-    thrown.expect(BadDatabaseVersion.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Database relates to a more recent version of SonarQube. Please check your settings (JDBC settings, version of Maven plugin)");
 
     new DatabaseCompatibility(databaseVersion, server, settings).start();
@@ -70,7 +70,7 @@ public class DatabaseCompatibilityTest {
   public void shouldFailIfRequiresUpgrade() {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
 
-    thrown.expect(BadDatabaseVersion.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Database must be upgraded.");
 
     new DatabaseCompatibility(databaseVersion, server, settings).start();
@@ -80,7 +80,7 @@ public class DatabaseCompatibilityTest {
   public void shouldFailIfNotSameServerId() throws Exception {
     settings.setProperty(CoreProperties.SERVER_ID, "11111111");
 
-    thrown.expect(BadDatabaseVersion.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("The current batch process and the configured remote server do not share the same DB configuration.");
     thrown.expectMessage("- Batch side: jdbc:postgresql://localhost/foo (bar / *****)");
     thrown.expectMessage("- Server side: check the configuration at http://localhost:9000/system");
@@ -94,7 +94,7 @@ public class DatabaseCompatibilityTest {
 
     settings.removeProperty(DatabaseProperties.PROP_USER);
 
-    thrown.expect(BadDatabaseVersion.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("- Batch side: jdbc:postgresql://localhost/foo (sonar / *****)");
 
     new DatabaseCompatibility(databaseVersion, server, settings).start();

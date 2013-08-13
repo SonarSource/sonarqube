@@ -23,7 +23,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.core.persistence.BadDatabaseVersion;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.DatabaseVersion;
 
 /**
@@ -59,21 +59,21 @@ public class DatabaseCompatibility implements BatchComponent {
       message.append(" / *****)\n\t- Server side: check the configuration at ");
       message.append(server.getURL());
       message.append("/system\n");
-      throw new BadDatabaseVersion(message.toString());
+      throw new MessageException(message.toString());
     }
   }
 
   private void checkDatabaseStatus() {
     DatabaseVersion.Status status = version.getStatus();
     if (status == DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
-      throw new BadDatabaseVersion("Database relates to a more recent version of SonarQube. Please check your settings (JDBC settings, version of Maven plugin)");
+      throw new MessageException("Database relates to a more recent version of SonarQube. Please check your settings (JDBC settings, version of Maven plugin)");
     }
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
-      throw new BadDatabaseVersion("Database must be upgraded. Please browse " + server.getURL() + "/setup");
+      throw new MessageException("Database must be upgraded. Please browse " + server.getURL() + "/setup");
     }
     if (status != DatabaseVersion.Status.UP_TO_DATE) {
       // Support other future values
-      throw new BadDatabaseVersion("Unknown database status: " + status);
+      throw new MessageException("Unknown database status: " + status);
     }
   }
 

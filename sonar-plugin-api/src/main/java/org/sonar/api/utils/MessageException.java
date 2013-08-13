@@ -17,29 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.api.utils;
 
-import org.slf4j.LoggerFactory;
-import org.sonar.api.ServerComponent;
-import org.sonar.api.utils.MessageException;
-import org.sonar.core.persistence.DatabaseVersion;
+/**
+ * Runtime exception for "functional" errors. It aims to be displayed to end-users, without any technical information
+ * like stack traces.
+ *
+ * @since 4.0
+ */
+public class MessageException extends RuntimeException {
 
-public class DatabaseServerCompatibility implements ServerComponent {
-  
-  private DatabaseVersion version;
-
-  public DatabaseServerCompatibility(DatabaseVersion version) {
-    this.version = version;
+  public MessageException(String s) {
+    super(s);
   }
 
-  public void start() {
-    DatabaseVersion.Status status = version.getStatus();
-    if (status== DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
-      throw new MessageException("Database relates to a more recent version of sonar. Please check your settings.");
-    }
-    if (status== DatabaseVersion.Status.REQUIRES_UPGRADE) {
-      LoggerFactory.getLogger(DatabaseServerCompatibility.class).info("Database must be upgraded. Please browse /setup");
-    }
+  /**
+   * Does not fill in the stack trace
+   *
+   * @see java.lang.Throwable#fillInStackTrace()
+   */
+  @Override
+  public synchronized Throwable fillInStackTrace() {
+    return this;
   }
+
+  @Override
+  public String toString() {
+    return getMessage();
+  }
+
 
 }
