@@ -44,8 +44,7 @@ class BulkDeletionController < ApplicationController
 
     conditions += " AND projects.enabled=:enabled"
     values[:enabled] = true
-    @resources = Project.find(:all,
-                              :select => 'distinct(resource_index.resource_id),projects.id,projects.name,projects.kee,projects.long_name',
+    @resources = Project.all(:select => 'distinct(resource_index.resource_id),projects.id,projects.name,projects.kee,projects.long_name',
                               :conditions => [conditions, values],
                               :joins => :resource_index)
     @resources = Api::Utils.insensitive_sort!(@resources){|r| r.name}
@@ -61,10 +60,14 @@ class BulkDeletionController < ApplicationController
     
     conditions = "scope=:scope AND qualifier IN (:qualifiers) AND status=:status"
     values = {:scope => 'PRJ', :qualifiers => @tabs}
-    unprocessed_project_ids = Snapshot.find(:all, :select => 'project_id', :conditions => [conditions, values.merge({:status => Snapshot::STATUS_UNPROCESSED})]).map(&:project_id).uniq
-    already_processed_project_ids = Snapshot.find(:all, :select => 'project_id', :conditions => [conditions + " AND project_id IN (:pids)", values.merge({:status => Snapshot::STATUS_PROCESSED, :pids => unprocessed_project_ids})]).map(&:project_id).uniq
+    unprocessed_project_ids = Snapshot.all(
+        :select => 'project_id',
+        :conditions => [conditions, values.merge({:status => Snapshot::STATUS_UNPROCESSED})]).map(&:project_id).uniq
+    already_processed_project_ids = Snapshot.all(
+        :select => 'project_id',
+        :conditions => [conditions + " AND project_id IN (:pids)", values.merge({:status => Snapshot::STATUS_PROCESSED, :pids => unprocessed_project_ids})]).map(&:project_id).uniq
     
-    @ghosts = Project.find(:all, :conditions => ["id IN (?)", unprocessed_project_ids - already_processed_project_ids])
+    @ghosts = Project.all(:conditions => ["id IN (?)", unprocessed_project_ids - already_processed_project_ids])
     
     @ghosts_by_qualifier = {}
     @ghosts.each do |p|
