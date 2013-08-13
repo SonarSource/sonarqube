@@ -395,6 +395,9 @@ function openAccordionItem(url, elt, updateCurrentElement) {
           }
         } else {
           $j("#accordion-panel").height('auto');
+
+          // Current element is not in a working view, remove again all working views to purge elements that could be added just before this one
+          $j('.'+ htmlClass).remove();
         }
 
         if (updateCurrentElement) {
