@@ -30,7 +30,7 @@
     <%= message('no_results') -%>
   <% else %>
 
-    <% form_remote_tag( :url => {:action => 'delete_resources'}, :loading => "window.location='#{url_for :action => 'pending_deletions'}';") do %>
+    <% form_remote_tag( :url => {:action => 'delete_resources'}, :loading => "window.location='#{url_for :action => 'pending_deletions', :resource_type => @selected_tab}';") do %>
 
     <table class="data" id="resources-to-delete">
       <tfoot>
