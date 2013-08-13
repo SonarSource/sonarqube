@@ -40,8 +40,6 @@ public class PlanAction extends Action implements ServerComponent {
   private final ActionPlanService actionPlanService;
   private final IssueUpdater issueUpdater;
 
-  private ActionPlan actionPlan;
-
   public PlanAction(ActionPlanService actionPlanService, IssueUpdater issueUpdater) {
     super(KEY);
     this.actionPlanService = actionPlanService;
@@ -53,7 +51,7 @@ public class PlanAction extends Action implements ServerComponent {
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
     String actionPlanValue = planValue(properties);
     if (!Strings.isNullOrEmpty(actionPlanValue)) {
-      ActionPlan actionPlan = getOrSelectActionPlan(actionPlanValue, userSession);
+      ActionPlan actionPlan = selectActionPlan(actionPlanValue, userSession);
       if (actionPlan == null) {
         throw new IllegalArgumentException("Unknown action plan: " + actionPlanValue);
       }
@@ -64,8 +62,12 @@ public class PlanAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    String actionPlan = planValue(properties);
-    return issueUpdater.plan((DefaultIssue) context.issue(), getOrSelectActionPlan(actionPlan, UserSession.get()), context.issueChangeContext());
+    ActionPlan actionPlan = null;
+    String actionPlanValue = planValue(properties);
+    if (!Strings.isNullOrEmpty(actionPlanValue)) {
+      actionPlan = selectActionPlan(actionPlanValue, UserSession.get());
+    }
+    return issueUpdater.plan((DefaultIssue) context.issue(), actionPlan, context.issueChangeContext());
   }
 
   private String planValue(Map<String, Object> properties) {
@@ -83,10 +85,7 @@ public class PlanAction extends Action implements ServerComponent {
     }
   }
 
-  private ActionPlan getOrSelectActionPlan(String planValue, UserSession userSession) {
-    if(actionPlan == null) {
-      actionPlan = actionPlanService.findByKey(planValue, userSession);
-    }
-    return actionPlan;
+  private ActionPlan selectActionPlan(String planValue, UserSession userSession) {
+    return actionPlanService.findByKey(planValue, userSession);
   }
 }
