@@ -109,7 +109,7 @@
       AND (gr.role=#{permission} AND gr.resource_id IS NULL)
       AND u.active=${_true}
     </where>
-    ) AS tmp
+    ) tmp
   </select>
 
 </mapper>
