@@ -130,17 +130,16 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    @user = User.find(params[:id])
-
-    if current_user.id==@user.id
-      flash[:error] = 'Please log in with another user in order to delete yourself.'
-
-    else
-      Api.users.deactivate(@user.login)
+    begin
+      user = User.find(params[:id])
+      Api.users.deactivate(user.login)
       flash[:notice] = 'User is deleted.'
+    rescue Java::OrgSonarServerExceptions::HttpException => exception
+      error = exception.cause
+      flash[:error] = (error.getMessage ? error.getMessage : Api::Utils.message(error.l10nKey, :params => error.l10nParams.to_a))
     end
 
-    to_index(@user.errors, nil)
+    redirect_to(:action => 'index', :id => nil)
   end
 
   def select_group
@@ -158,7 +157,7 @@ class UsersController < ApplicationController
   end
 
   def to_index(errors, id)
-    if !errors.empty?
+    unless errors.empty?
       flash[:error] = errors.full_messages.join("<br/>\n")
     end
 

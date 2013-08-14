@@ -19,6 +19,14 @@
  */
 package org.sonar.api.utils;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.util.Collection;
+import java.util.Collections;
+
+import static com.google.common.collect.Lists.newArrayList;
+
 /**
  * Runtime exception for "functional" errors. It aims to be displayed to end-users, without any technical information
  * like stack traces.
@@ -27,8 +35,17 @@ package org.sonar.api.utils;
  */
 public class MessageException extends RuntimeException {
 
+  private String l10nKey;
+  private Collection<Object> l10nParams;
+
   public MessageException(String s) {
     super(s);
+  }
+
+  public MessageException(@Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams) {
+    super(message);
+    this.l10nKey = l10nKey;
+    this.l10nParams = l10nParams == null ? Collections.emptyList() : Collections.unmodifiableCollection(newArrayList(l10nParams));
   }
 
   /**
@@ -46,5 +63,14 @@ public class MessageException extends RuntimeException {
     return getMessage();
   }
 
+  @CheckForNull
+  public String l10nKey() {
+    return l10nKey;
+  }
+
+  @CheckForNull
+  public Collection<Object> l10nParams() {
+    return l10nParams;
+  }
 
 }
