@@ -312,7 +312,7 @@ class RulesConfigurationController < ApplicationController
     rule_param = RulesParameter.find(params[:param_id].to_i)
     active_rule = ActiveRule.find(params[:active_rule_id].to_i)
     # As the active param can be null, we should not raise a RecordNotFound exception when it's not found (as it would be done when using find(:id) function)
-    active_param = ActiveRuleParameter.first(params[:id].to_i) if params[:id].to_i > 0
+    active_param = ActiveRuleParameter.find_by_id(params[:id].to_i) if params[:id].to_i > 0
     value = params[:value]
     if value != ""
       active_param = ActiveRuleParameter.new(:rules_parameter => rule_param, :active_rule => active_rule) if active_param.nil?
@@ -327,7 +327,6 @@ class RulesConfigurationController < ApplicationController
       active_param.destroy
       java_facade.ruleParamChanged(profile.id, active_rule.id, rule_param.name, old_value, nil, current_user.name)
     end
-
     # let's reload the active rule
     active_rule = ActiveRule.find(active_rule.id)
     render :partial => 'rule', :locals => {:profile => profile, :rule => active_rule.rule, :active_rule => active_rule}
