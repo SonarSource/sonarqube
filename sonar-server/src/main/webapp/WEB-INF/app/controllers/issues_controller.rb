@@ -37,6 +37,7 @@ class IssuesController < ApplicationController
     @first_search = issues_query_params_sanitized.empty?
     @unchanged = issues_query_params_sanitized.empty?
 
+    init_params
     if params[:id]
       @filter = find_filter(params[:id].to_i)
       @first_search = false
@@ -193,10 +194,13 @@ class IssuesController < ApplicationController
 
   def criteria_params
     new_params = params.clone
-    new_params['pageSize'] = PAGE_SIZE unless request.xhr?
     new_params.delete('controller')
     new_params.delete('action')
     new_params
+  end
+
+  def init_params
+    params['pageSize'] = PAGE_SIZE unless request.xhr?
   end
 
   def issues_query_params_sanitized
