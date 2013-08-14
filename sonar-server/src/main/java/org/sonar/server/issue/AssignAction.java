@@ -37,11 +37,10 @@ import java.util.Map;
 public class AssignAction extends Action implements ServerComponent {
 
   public static final String KEY = "assign";
+  public static final String VERIFIED_ASSIGNEE = "verifiedAssignee";
 
   private final UserFinder userFinder;
   private final IssueUpdater issueUpdater;
-
-  private User assignee;
 
   public AssignAction(UserFinder userFinder, IssueUpdater issueUpdater) {
     super(KEY);
@@ -53,26 +52,32 @@ public class AssignAction extends Action implements ServerComponent {
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession){
     String assignee = assigneeValue(properties);
-    if (!Strings.isNullOrEmpty(assignee) && getOrSelectUser(assignee) == null) {
-      throw new IllegalArgumentException("Unknown user: " + assignee);
+    if(!Strings.isNullOrEmpty(assignee)) {
+      User user = selectUser(assignee);
+      if (user == null) {
+        throw new IllegalArgumentException("Unknown user: " + assignee);
+      }
+      properties.put(VERIFIED_ASSIGNEE, user);
+    } else {
+      properties.put(VERIFIED_ASSIGNEE, null);
     }
     return true;
   }
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    String assignee = assigneeValue(properties);
-    return issueUpdater.assign((DefaultIssue) context.issue(), getOrSelectUser(assignee), context.issueChangeContext());
+    if(!properties.containsKey(VERIFIED_ASSIGNEE)) {
+      throw new IllegalArgumentException("Assignee is missing from the execution parameters");
+    }
+    User assignee = (User) properties.get(VERIFIED_ASSIGNEE);
+    return issueUpdater.assign((DefaultIssue) context.issue(), assignee, context.issueChangeContext());
   }
 
   private String assigneeValue(Map<String, Object> properties) {
     return (String) properties.get("assignee");
   }
 
-  private User getOrSelectUser(String assigneeKey) {
-    if(assignee == null) {
-      assignee = userFinder.findByLogin(assigneeKey);
-    }
-    return assignee;
+  private User selectUser(String assigneeKey) {
+    return userFinder.findByLogin(assigneeKey);
   }
 }

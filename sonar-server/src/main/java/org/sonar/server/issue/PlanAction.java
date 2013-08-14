@@ -36,6 +36,7 @@ import java.util.Map;
 public class PlanAction extends Action implements ServerComponent {
 
   public static final String KEY = "plan";
+  public static final String VERIFIED_ACTION_PLAN = "verifiedActionPlan";
 
   private final ActionPlanService actionPlanService;
   private final IssueUpdater issueUpdater;
@@ -56,17 +57,19 @@ public class PlanAction extends Action implements ServerComponent {
         throw new IllegalArgumentException("Unknown action plan: " + actionPlanValue);
       }
       verifyIssuesAreAllRelatedOnActionPlanProject(issues, actionPlan);
+      properties.put(VERIFIED_ACTION_PLAN, actionPlan);
+    } else {
+      properties.put(VERIFIED_ACTION_PLAN, null);
     }
     return true;
   }
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    ActionPlan actionPlan = null;
-    String actionPlanValue = planValue(properties);
-    if (!Strings.isNullOrEmpty(actionPlanValue)) {
-      actionPlan = selectActionPlan(actionPlanValue, UserSession.get());
+    if(!properties.containsKey(VERIFIED_ACTION_PLAN)) {
+      throw new IllegalArgumentException("Action plan is missing from the execution parameters");
     }
+    ActionPlan actionPlan = (ActionPlan) properties.get(VERIFIED_ACTION_PLAN);
     return issueUpdater.plan((DefaultIssue) context.issue(), actionPlan, context.issueChangeContext());
   }
 

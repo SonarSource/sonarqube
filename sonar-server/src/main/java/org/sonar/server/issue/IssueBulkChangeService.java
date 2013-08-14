@@ -87,9 +87,9 @@ public class IssueBulkChangeService {
 
   private List<Action> getActionsToApply(IssueBulkChangeQuery issueBulkChangeQuery, List<Issue> issues, UserSession userSession) {
     List<Action> bulkActions = newArrayList();
-    for (String actionName : issueBulkChangeQuery.actions()) {
-      Action action = getAction(actionName);
-      if (action.verify(issueBulkChangeQuery.properties(actionName), issues, userSession)) {
+    for (String actionKey : issueBulkChangeQuery.actions()) {
+      Action action = getAction(actionKey);
+      if (action.verify(issueBulkChangeQuery.properties(actionKey), issues, userSession)) {
         bulkActions.add(action);
       }
     }

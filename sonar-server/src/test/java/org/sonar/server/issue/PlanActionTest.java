@@ -21,7 +21,9 @@
 package org.sonar.server.issue;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -47,6 +49,9 @@ public class PlanActionTest {
   private ActionPlanService actionPlanService = mock(ActionPlanService.class);
   private IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
+  @Rule
+  public ExpectedException throwable = ExpectedException.none();
+
   @Before
   public void before(){
     action = new PlanAction(actionPlanService, issueUpdater);
@@ -54,24 +59,33 @@ public class PlanActionTest {
 
   @Test
   public void should_execute(){
-    String planKey = "ABCD";
+    ActionPlan actionPlan = new DefaultActionPlan();
     Map<String, Object> properties = newHashMap();
-    properties.put("plan", planKey);
+    properties.put(PlanAction.VERIFIED_ACTION_PLAN, actionPlan);
     DefaultIssue issue = mock(DefaultIssue.class);
 
     Action.Context context = mock(Action.Context.class);
     when(context.issue()).thenReturn(issue);
-
-    ActionPlan actionPlan = new DefaultActionPlan();
-    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(actionPlan);
 
     action.execute(properties, context);
     verify(issueUpdater).plan(eq(issue), eq(actionPlan), any(IssueChangeContext.class));
   }
 
   @Test
+  public void should_fail_on_unverified_action_plan() throws Exception {
+    throwable.expect(IllegalArgumentException.class);
+    throwable.expectMessage("Action plan is missing from the execution parameters");
+
+    Map<String, Object> properties = newHashMap();
+    Action.Context context = mock(Action.Context.class);
+
+    action.execute(properties, context);
+  }
+
+  @Test
   public void should_execute_on_null_action_plan(){
     Map<String, Object> properties = newHashMap();
+    properties.put(PlanAction.VERIFIED_ACTION_PLAN, null);
     DefaultIssue issue = mock(DefaultIssue.class);
 
     Action.Context context = mock(Action.Context.class);
@@ -86,55 +100,52 @@ public class PlanActionTest {
     String planKey = "ABCD";
     Map<String, Object> properties = newHashMap();
     properties.put("plan", planKey);
+    ActionPlan actionPlan = new DefaultActionPlan().setProjectKey("struts");
 
     List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC").setProjectKey("struts"));
-    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(new DefaultActionPlan().setProjectKey("struts"));
+    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(actionPlan);
     assertThat(action.verify(properties, issues, mock(UserSession.class))).isTrue();
+    assertThat(properties.get(PlanAction.VERIFIED_ACTION_PLAN)).isEqualTo(actionPlan);
   }
 
   @Test
-  public void should_fail_if_action_plan_does_not_exists(){
+  public void should_fail_if_action_plan_does_not_exist(){
+    throwable.expect(IllegalArgumentException.class);
+    throwable.expectMessage("Unknown action plan: ABCD");
+
     String planKey = "ABCD";
     Map<String, Object> properties = newHashMap();
     properties.put("plan", planKey);
 
     List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC").setProjectKey("struts"));
     when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(null);
-    try {
-      action.verify(properties, issues, mock(UserSession.class));
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown action plan: ABCD");
-    }
+    action.verify(properties, issues, mock(UserSession.class));
   }
 
   @Test
-  public void should_fail_if_action_plan_is_empty(){
+  public void should_unplan_if_action_plan_is_empty() throws Exception {
     String planKey = "";
     Map<String, Object> properties = newHashMap();
     properties.put("plan", planKey);
 
     List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC").setProjectKey("struts"));
-    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(null);
-    try {
-      action.verify(properties, issues, mock(UserSession.class));
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown action plan: ");
-    }
+    action.verify(properties, issues, mock(UserSession.class));
+    assertThat(properties.containsKey(PlanAction.VERIFIED_ACTION_PLAN)).isTrue();
+    assertThat(properties.get(PlanAction.VERIFIED_ACTION_PLAN)).isNull();
   }
 
   @Test
   public void should_verify_issues_are_on_the_same_project(){
+    throwable.expect(IllegalArgumentException.class);
+    throwable.expectMessage("Issues are not all related to the action plan project: struts");
+
     String planKey = "ABCD";
     Map<String, Object> properties = newHashMap();
     properties.put("plan", planKey);
 
     when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(new DefaultActionPlan().setProjectKey("struts"));
     List<Issue> issues = newArrayList(new DefaultIssue().setKey("ABC").setProjectKey("struts"), (Issue) new DefaultIssue().setKey("ABE").setProjectKey("mybatis"));
-    try {
-      action.verify(properties, issues, mock(UserSession.class));
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues are not all related to the action plan project: struts");
-    }
+    action.verify(properties, issues, mock(UserSession.class));
   }
 
   @Test
