@@ -97,7 +97,7 @@
     INNER JOIN user_roles AS ur ON ur.user_id = u.id
     <where>
       AND (ur.role = #{permission} AND ur.resource_id IS NULL)
-      AND u.active = true
+      AND u.active = ${_true}
     </where>
     UNION
     select u.id as id
@@ -107,7 +107,7 @@
     INNER JOIN groups AS g ON g.id = gu.group_id
     <where>
       AND (gr.role = #{permission} AND gr.resource_id IS NULL)
-      AND u.active = true
+      AND u.active = ${_true}
     </where>
     ) AS tmp
   </select>
