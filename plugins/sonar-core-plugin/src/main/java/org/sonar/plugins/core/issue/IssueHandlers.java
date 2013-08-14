@@ -116,7 +116,11 @@ public class IssueHandlers implements BatchExtension {
 
     @Override
     public IssueHandler.Context assign(@Nullable String assignee) {
-      updater.assign(issue, new DefaultUser().setLogin(assignee).setName(assignee), changeContext);
+      User user = null;
+      if(assignee != null) {
+        user = new DefaultUser().setLogin(assignee).setName(assignee);
+      }
+      updater.assign(issue, user, changeContext);
       return this;
     }
 
