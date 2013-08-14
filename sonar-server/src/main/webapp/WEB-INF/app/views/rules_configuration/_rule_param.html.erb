@@ -24,7 +24,7 @@
 
   <% unless read_only %>
     <%= submit_tag(message('update_verb'), :id => 'submit_' + parameter.id.to_s) %>
-    <img src="<%= ApplicationController.root_context -%>/images/loading.gif" style="display:none;" id="param_loading_<%= parameter.id -%>">
+    <img src="<%= ApplicationController.root_context -%>/images/loading.gif" style="display:none;" id="param_loading_<%= parameter.id -%>" class="rule-param-loading">
     <% if active_parameter and active_parameter.errors.size>0 %>
       <span class="error"><%= active_parameter.errors.on 'value' %></span>
     <% end %>
