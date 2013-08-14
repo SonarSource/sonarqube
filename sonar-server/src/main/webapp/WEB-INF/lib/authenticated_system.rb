@@ -197,7 +197,8 @@ module AuthenticatedSystem
   def send_remember_cookie!
     cookies[:auth_token] = {
       :value   => @current_user.remember_token,
-      :expires => @current_user.remember_token_expires_at }
+      :expires => @current_user.remember_token_expires_at,
+      :http_only => true }
   end
 
 end
