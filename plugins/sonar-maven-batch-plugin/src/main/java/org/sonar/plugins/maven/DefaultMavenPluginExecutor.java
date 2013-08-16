@@ -57,7 +57,7 @@ public class DefaultMavenPluginExecutor implements MavenPluginExecutor {
       MavenPlugin plugin = MavenPlugin.getPlugin(project.getPom(), handler.getGroupId(), handler.getArtifactId());
       execute(project,
           fs,
-          getGoal(handler.getGroupId(), handler.getArtifactId(), (plugin != null && plugin.getPlugin() != null ? plugin.getPlugin().getVersion() : null), goal));
+          getGoal(handler.getGroupId(), handler.getArtifactId(), plugin != null && plugin.getPlugin() != null ? plugin.getPlugin().getVersion() : null, goal));
     }
     return handler;
   }
@@ -82,7 +82,7 @@ public class DefaultMavenPluginExecutor implements MavenPluginExecutor {
   }
 
   static String getGoal(String groupId, String artifactId, @Nullable String version, String goal) {
-    String defaultVersion = (version == null ? "" : version);
+    String defaultVersion = version == null ? "" : version;
     return new StringBuilder()
         .append(groupId).append(":")
         .append(artifactId).append(":")

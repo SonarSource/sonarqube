@@ -106,7 +106,7 @@ public final class KeyValueFormat {
 
     @Override
     String format(Integer s) {
-      return (s == null ? "" : String.valueOf(s));
+      return s == null ? "" : String.valueOf(s);
     }
 
     @Override
@@ -127,7 +127,7 @@ public final class KeyValueFormat {
 
     @Override
     String format(RulePriority s) {
-      return (s == null ? "" : s.toString());
+      return s == null ? "" : s.toString();
     }
 
     @Override
@@ -148,7 +148,7 @@ public final class KeyValueFormat {
 
     @Override
     String format(Double d) {
-      return (d == null ? "" : String.valueOf(d));
+      return d == null ? "" : String.valueOf(d);
     }
 
     @Override
@@ -178,7 +178,7 @@ public final class KeyValueFormat {
 
     @Override
     String format(Date d) {
-      return (d == null ? "" : dateFormat.format(d));
+      return d == null ? "" : dateFormat.format(d);
     }
 
     @Override
@@ -220,7 +220,7 @@ public final class KeyValueFormat {
       for (String pair : pairs) {
         String[] keyValue = StringUtils.split(pair, FIELD_SEPARATOR);
         String key = keyValue[0];
-        String value = (keyValue.length == 2 ? keyValue[1] : "");
+        String value = keyValue.length == 2 ? keyValue[1] : "";
         map.put(keyConverter.parse(key), valueConverter.parse(value));
       }
     }
@@ -294,7 +294,7 @@ public final class KeyValueFormat {
       for (String pair : pairs) {
         String[] keyValue = StringUtils.split(pair, FIELD_SEPARATOR);
         String key = keyValue[0];
-        String value = (keyValue.length == 2 ? keyValue[1] : "0");
+        String value = keyValue.length == 2 ? keyValue[1] : "0";
         multiset.add(keyConverter.parse(key), new IntegerConverter().parse(value));
       }
     }

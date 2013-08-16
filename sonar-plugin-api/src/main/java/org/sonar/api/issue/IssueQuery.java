@@ -164,17 +164,17 @@ public class IssueQuery {
 
   @CheckForNull
   public Date createdAfter() {
-    return (createdAfter == null ? null : new Date(createdAfter.getTime()));
+    return createdAfter == null ? null : new Date(createdAfter.getTime());
   }
 
   @CheckForNull
   public Date createdAt() {
-    return (createdAt == null ? null : new Date(createdAt.getTime()));
+    return createdAt == null ? null : new Date(createdAt.getTime());
   }
 
   @CheckForNull
   public Date createdBefore() {
-    return (createdBefore == null ? null : new Date(createdBefore.getTime()));
+    return createdBefore == null ? null : new Date(createdBefore.getTime());
   }
 
   @CheckForNull
@@ -316,17 +316,17 @@ public class IssueQuery {
     }
 
     public Builder createdAt(@Nullable Date d) {
-      this.createdAt = (d == null ? null : new Date(d.getTime()));
+      this.createdAt = d == null ? null : new Date(d.getTime());
       return this;
     }
 
     public Builder createdAfter(@Nullable Date d) {
-      this.createdAfter = (d == null ? null : new Date(d.getTime()));
+      this.createdAfter = d == null ? null : new Date(d.getTime());
       return this;
     }
 
     public Builder createdBefore(@Nullable Date d) {
-      this.createdBefore = (d == null ? null : new Date(d.getTime()));
+      this.createdBefore = d == null ? null : new Date(d.getTime());
       return this;
     }
 
