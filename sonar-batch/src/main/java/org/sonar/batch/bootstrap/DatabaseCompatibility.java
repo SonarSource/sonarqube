@@ -59,21 +59,21 @@ public class DatabaseCompatibility implements BatchComponent {
       message.append(" / *****)\n\t- Server side: check the configuration at ");
       message.append(server.getURL());
       message.append("/system\n");
-      throw new MessageException(message.toString());
+      throw MessageException.of(message.toString());
     }
   }
 
   private void checkDatabaseStatus() {
     DatabaseVersion.Status status = version.getStatus();
     if (status == DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
-      throw new MessageException("Database relates to a more recent version of SonarQube. Please check your settings (JDBC settings, version of Maven plugin)");
+      throw MessageException.of("Database relates to a more recent version of SonarQube. Please check your settings (JDBC settings, version of Maven plugin)");
     }
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
-      throw new MessageException("Database must be upgraded. Please browse " + server.getURL() + "/setup");
+      throw MessageException.of("Database must be upgraded. Please browse " + server.getURL() + "/setup");
     }
     if (status != DatabaseVersion.Status.UP_TO_DATE) {
       // Support other future values
-      throw new MessageException("Unknown database status: " + status);
+      throw MessageException.of("Unknown database status: " + status);
     }
   }
 

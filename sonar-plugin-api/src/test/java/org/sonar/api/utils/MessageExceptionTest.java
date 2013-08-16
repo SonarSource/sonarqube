@@ -21,30 +21,15 @@ package org.sonar.api.utils;
 
 import org.junit.Test;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MessageExceptionTest {
 
-  /**
-   * The exception should log only the message, without the "org.sonar.api.utils.MessageException" prefix
-   * and stack traces
-   */
   @Test
-  public void should_not_print_stacktrace() throws Exception {
+  public void should_create_exception() throws Exception {
     String message = "the message";
-    try {
-      throw new MessageException(message);
-
-    } catch (MessageException e) {
-      StringWriter writer = new StringWriter();
-      e.printStackTrace(new PrintWriter(writer));
-
-      assertThat(e.getStackTrace()).isEmpty();
-      assertThat(e.getMessage()).isEqualTo(message);
-      assertThat(writer.toString()).isEqualTo(message + System.getProperty("line.separator"));
-    }
+    MessageException exception = MessageException.of(message);
+    assertThat(exception.getMessage()).isEqualTo(message);
+    assertThat(exception).isInstanceOf(RuntimeException.class);
   }
 }

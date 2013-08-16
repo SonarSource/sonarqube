@@ -29,7 +29,6 @@ import org.apache.maven.execution.RuntimeInformation;
 import org.apache.maven.lifecycle.LifecycleExecutor;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
@@ -127,23 +126,25 @@ public final class SonarMojo extends AbstractMojo {
    */
   RuntimeInformation runtimeInformation;
 
-  public void execute() throws MojoExecutionException, MojoFailureException {
+  @Override
+  public void execute() throws MojoExecutionException {
     ArtifactVersion mavenVersion = getMavenVersion();
     if (mavenVersion.getMajorVersion() == 2 && mavenVersion.getMinorVersion() < 2) {
-      throw new MojoExecutionException("Please use at least Maven 2.2.x to perform SonarQube analysis (current version is " + mavenVersion.toString() + ")");
+      ExceptionHandling.handle("Please use at least Maven 2.2.x to perform SonarQube analysis (current version is " + mavenVersion.toString() + ")", getLog());
     }
 
-    EmbeddedRunner runner = EmbeddedRunner.create()
+    try {
+      EmbeddedRunner runner = EmbeddedRunner.create()
         .setApp("Maven", mavenVersion.toString())
         .addProperties(session.getExecutionProperties())
         .addProperties(project.getModel().getProperties())
         // Add user properties (ie command line arguments -Dsonar.xxx=yyyy) in last position to override all other
         .addProperties(session.getUserProperties());
-    String encoding = getSourceEncoding(project);
-    if (encoding != null) {
-      runner.setProperty(ScanProperties.PROJECT_SOURCE_ENCODING, encoding);
-    }
-    runner
+      String encoding = getSourceEncoding(project);
+      if (encoding != null) {
+        runner.setProperty(ScanProperties.PROJECT_SOURCE_ENCODING, encoding);
+      }
+      runner
         .setProperty(ScanProperties.PROJECT_KEY, getSonarKey(project))
         .setProperty(RunnerProperties.WORK_DIR, getSonarWorkDir(project).getAbsolutePath())
         .setProperty(ScanProperties.PROJECT_BASEDIR, project.getBasedir().getAbsolutePath())
@@ -151,25 +152,28 @@ public final class SonarMojo extends AbstractMojo {
         .setProperty(ScanProperties.PROJECT_NAME, toString(project.getName()))
         .setProperty(ScanProperties.PROJECT_DESCRIPTION, toString(project.getDescription()))
         .setProperty(ScanProperties.PROJECT_SOURCE_DIRS, ".");
-    // Exclude log implementation to not conflict with Maven 3.1 logging impl
-    runner.mask("org.slf4j.LoggerFactory")
+      // Exclude log implementation to not conflict with Maven 3.1 logging impl
+      runner.mask("org.slf4j.LoggerFactory")
         // Include slf4j Logger that is exposed by some Sonar components
         .unmask("org.slf4j.Logger")
         .unmask("org.slf4j.ILoggerFactory")
-        // Exclude other slf4j classes
-        // .unmask("org.slf4j.impl.")
+          // Exclude other slf4j classes
+          // .unmask("org.slf4j.impl.")
         .mask("org.slf4j.")
-        // Exclude logback
+          // Exclude logback
         .mask("ch.qos.logback.")
         .mask("org.sonar.")
-        // Include everything else
+          // Include everything else
         .unmask("");
-    runner.addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
+      runner.addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
         dependencyTreeBuilder, projectBuilder);
-    if (getLog().isDebugEnabled()) {
-      runner.setProperty("sonar.verbose", "true");
+      if (getLog().isDebugEnabled()) {
+        runner.setProperty("sonar.verbose", "true");
+      }
+      runner.execute();
+    } catch (Exception e) {
+      throw ExceptionHandling.handle(e, getLog());
     }
-    runner.execute();
   }
 
   private ArtifactVersion getMavenVersion() {

@@ -17,29 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.maven;
 
-import org.slf4j.LoggerFactory;
-import org.sonar.api.ServerComponent;
-import org.sonar.api.utils.MessageException;
-import org.sonar.core.persistence.DatabaseVersion;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 
-public class DatabaseServerCompatibility implements ServerComponent {
-  
-  private DatabaseVersion version;
+class ExceptionHandling {
 
-  public DatabaseServerCompatibility(DatabaseVersion version) {
-    this.version = version;
+  static RuntimeException handle(Exception e, Log log) throws MojoExecutionException {
+    Throwable source = e;
+    if (e.getClass().getName().equals("org.sonar.runner.impl.RunnerException") && e.getCause() != null) {
+      source = e.getCause();
+    }
+    log.error(source.getMessage());
+    throw new MojoExecutionException(source.getMessage(), source);
   }
 
-  public void start() {
-    DatabaseVersion.Status status = version.getStatus();
-    if (status== DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
-      throw MessageException.of("Database relates to a more recent version of sonar. Please check your settings.");
-    }
-    if (status== DatabaseVersion.Status.REQUIRES_UPGRADE) {
-      LoggerFactory.getLogger(DatabaseServerCompatibility.class).info("Database must be upgraded. Please browse /setup");
-    }
+  static RuntimeException handle(String message, Log log) throws MojoExecutionException {
+    return handle(new MojoExecutionException(message), log);
   }
-
 }

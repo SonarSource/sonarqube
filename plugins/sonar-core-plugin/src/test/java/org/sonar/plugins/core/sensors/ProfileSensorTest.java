@@ -20,13 +20,14 @@
 package org.sonar.plugins.core.sensors;
 
 import org.junit.Test;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.test.IsMeasure;
+
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.*;
 
 public class ProfileSensorTest {
 

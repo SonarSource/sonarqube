@@ -20,31 +20,21 @@
 package org.sonar.api.utils;
 
 /**
- * Runtime exception for "functional" errors. It aims to be displayed to end-users, without any technical information
- * like stack traces.
+ * Runtime exception for "functional" error. It aims to be displayed to end-users, without any technical information
+ * like stack traces. It requires sonar-runner 2.4. Previous versions log stack trace.
+ * <p/>
+ * Note that by design Maven still logs the stack trace when the option -e is set.
  *
  * @since 4.0
  */
 public class MessageException extends RuntimeException {
 
-  public MessageException(String s) {
-    super(s);
+  private MessageException(String message) {
+    super(message);
   }
 
-  /**
-   * Does not fill in the stack trace
-   *
-   * @see java.lang.Throwable#fillInStackTrace()
-   */
-  @Override
-  public synchronized Throwable fillInStackTrace() {
-    return this;
+  public static MessageException of(String message) {
+    return new MessageException(message);
   }
-
-  @Override
-  public String toString() {
-    return getMessage();
-  }
-
 
 }
