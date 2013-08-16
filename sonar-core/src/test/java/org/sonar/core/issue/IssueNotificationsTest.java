@@ -58,12 +58,12 @@ public class IssueNotificationsTest {
 
   @Test
   public void should_send_new_issues() throws Exception {
-    Date date = DateUtils.parseDateTime("2013-05-18T00:00:03+0200");
+    Date date = DateUtils.parseDateTime("2013-05-18T13:00:03+0200");
     Project project = new Project("struts").setAnalysisDate(date);
     Notification notification = issueNotifications.sendNewIssues(project, 42);
 
     assertThat(notification.getFieldValue("count")).isEqualTo("42");
-    assertThat(notification.getFieldValue("projectDate")).isEqualTo("2013-05-18T00:00:03+0200");
+    assertThat(DateUtils.parseDateTime(notification.getFieldValue("projectDate"))).isEqualTo(date);
     Mockito.verify(manager).scheduleForSending(notification);
   }
 

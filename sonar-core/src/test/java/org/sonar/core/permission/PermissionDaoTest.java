@@ -28,6 +28,8 @@ import org.sonar.core.date.DateProvider;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -36,13 +38,13 @@ import static org.mockito.Mockito.*;
 
 public class PermissionDaoTest extends AbstractDaoTestCase {
 
-  private final Date now = DateUtils.parseDateTime("2013-01-02T03:04:05+0100");
-
-  private PermissionDao permissionDao;
-  private DateProvider dateProvider;
+  Date now;
+  PermissionDao permissionDao;
+  DateProvider dateProvider;
 
   @Before
-  public void setUpDao() {
+  public void setUpDao() throws ParseException {
+    now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
     dateProvider = mock(DateProvider.class);
     stub(dateProvider.now()).toReturn(now);
     permissionDao = new PermissionDao(getMyBatis(), dateProvider);

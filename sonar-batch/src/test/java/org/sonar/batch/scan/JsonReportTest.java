@@ -21,6 +21,7 @@ package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
 import org.json.JSONException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,6 +46,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -62,15 +64,23 @@ public class JsonReportTest {
   RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
   Settings settings;
   IssueCache issueCache = mock(IssueCache.class);
+  TimeZone initialTimeZone;
 
   @Before
   public void setUp() {
+    initialTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
 
     settings = new Settings();
     settings.setProperty(CoreProperties.DRY_RUN, true);
     jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache, mock(EventBus.class));
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    TimeZone.setDefault(initialTimeZone);
   }
 
   @Test

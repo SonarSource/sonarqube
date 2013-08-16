@@ -31,6 +31,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.TimeZone;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -44,7 +45,7 @@ public class HttpRequestFactoryTest {
     httpServer.stubStatusCode(200).stubResponseBody("{'issues': []}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    String json = factory.get("/api/issues", Collections.<String, Object> emptyMap());
+    String json = factory.get("/api/issues", Collections.<String, Object>emptyMap());
 
     assertThat(json).isEqualTo("{'issues': []}");
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues");
@@ -54,7 +55,7 @@ public class HttpRequestFactoryTest {
   public void should_throw_illegal_state_exc_if_connect_exception() {
     HttpRequestFactory factory = new HttpRequestFactory("http://localhost:1");
     try {
-      factory.get("/api/issues", Collections.<String, Object> emptyMap());
+      factory.get("/api/issues", Collections.<String, Object>emptyMap());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
@@ -68,7 +69,7 @@ public class HttpRequestFactoryTest {
     httpServer.stubStatusCode(200).stubResponseBody("{}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    String json = factory.post("/api/issues/change", Collections.<String, Object> emptyMap());
+    String json = factory.post("/api/issues/change", Collections.<String, Object>emptyMap());
 
     assertThat(json).isEqualTo("{}");
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change");
@@ -79,7 +80,7 @@ public class HttpRequestFactoryTest {
     httpServer.stubStatusCode(200).stubResponseBody("{}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url()).setLogin("karadoc").setPassword("legrascestlavie");
-    String json = factory.get("/api/issues", Collections.<String, Object> emptyMap());
+    String json = factory.get("/api/issues", Collections.<String, Object>emptyMap());
 
     assertThat(json).isEqualTo("{}");
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues");
@@ -89,10 +90,10 @@ public class HttpRequestFactoryTest {
   @Test
   public void test_proxy() throws Exception {
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url())
-        .setProxyHost("localhost").setProxyPort(1)
-        .setProxyLogin("john").setProxyPassword("smith");
+      .setProxyHost("localhost").setProxyPort(1)
+      .setProxyLogin("john").setProxyPassword("smith");
     try {
-      factory.get("/api/issues", Collections.<String, Object> emptyMap());
+      factory.get("/api/issues", Collections.<String, Object>emptyMap());
       fail();
     } catch (IllegalStateException e) {
       // it's not possible to check that the proxy is correctly configured
@@ -102,18 +103,24 @@ public class HttpRequestFactoryTest {
 
   @Test
   public void should_encode_characters() {
-    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.stubResponseBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
+    TimeZone initialTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+    try {
+      HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+      httpServer.stubResponseBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");
 
-    IssueClient client = new DefaultIssueClient(requestFactory);
-    client.find(IssueQuery.create().issues("ABC DE"));
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?issues=ABC%20DE");
+      IssueClient client = new DefaultIssueClient(requestFactory);
+      client.find(IssueQuery.create().issues("ABC DE"));
+      assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?issues=ABC%20DE");
 
-    client.find(IssueQuery.create().issues("ABC+BDE"));
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?issues=ABC%2BBDE");
+      client.find(IssueQuery.create().issues("ABC+BDE"));
+      assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?issues=ABC%2BBDE");
 
-    client.find(IssueQuery.create().createdAfter(toDate("2013-01-01")));
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?createdAfter=2013-01-01T00:00:00%2B0100");
+      client.find(IssueQuery.create().createdAfter(toDate("2013-01-01")));
+      assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/search?createdAfter=2013-01-01T00:00:00%2B0000");
+    } finally {
+      TimeZone.setDefault(initialTimeZone);
+    }
   }
 
   protected static Date toDate(String sDate) {
