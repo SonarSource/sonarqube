@@ -81,9 +81,9 @@ public class TimeProfiler {
   public TimeProfiler stop() {
     if (start > 0) {
       if (debug) {
-        logger.debug("{} done: {} ms", name, (System.currentTimeMillis() - start));
+        logger.debug("{} done: {} ms", name, System.currentTimeMillis() - start);
       } else {
-        logger.info("{} done: {} ms", name, (System.currentTimeMillis() - start));
+        logger.info("{} done: {} ms", name, System.currentTimeMillis() - start);
       }
     }
     start = 0;

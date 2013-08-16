@@ -175,7 +175,7 @@ public class Project extends Resource implements Component {
   }
 
   public Project getRoot() {
-    return (parent == null ? this : parent.getRoot());
+    return parent==null ? this : parent.getRoot();
   }
 
   /**
@@ -318,7 +318,7 @@ public class Project extends Resource implements Component {
    */
   @Deprecated
   public boolean getReuseExistingRulesConfig() {
-    return (configuration != null && configuration.getBoolean(CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY, false));
+    return configuration!=null && configuration.getBoolean(CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY, false);
   }
 
   /**
