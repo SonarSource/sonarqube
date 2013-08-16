@@ -73,7 +73,7 @@ public class PastSnapshot {
   }
 
   public Date getDate() {
-    return (projectSnapshot != null ? projectSnapshot.getCreatedAt() : null);
+    return projectSnapshot != null ? projectSnapshot.getCreatedAt() : null;
   }
 
   public String getMode() {
@@ -90,11 +90,11 @@ public class PastSnapshot {
   }
 
   Integer getProjectSnapshotId() {
-    return (projectSnapshot != null ? projectSnapshot.getId() : null);
+    return projectSnapshot != null ? projectSnapshot.getId() : null;
   }
 
   public String getQualifier() {
-    return (projectSnapshot != null ? projectSnapshot.getQualifier() : null);
+    return projectSnapshot != null ? projectSnapshot.getQualifier() : null;
   }
 
   public Date getTargetDate() {

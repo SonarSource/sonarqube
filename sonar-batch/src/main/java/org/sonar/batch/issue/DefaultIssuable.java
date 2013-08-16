@@ -50,7 +50,7 @@ public class DefaultIssuable implements Issuable {
 
   @Override
   public boolean addIssue(Issue issue) {
-    return scanIssues.initAndAddIssue(((DefaultIssue) issue));
+    return scanIssues.initAndAddIssue((DefaultIssue) issue);
   }
 
   @SuppressWarnings("unchecked")

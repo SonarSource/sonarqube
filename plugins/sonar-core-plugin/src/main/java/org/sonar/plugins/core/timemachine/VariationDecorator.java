@@ -93,10 +93,10 @@ public class VariationDecorator implements Decorator {
     // for each measure, search equivalent past measure
     for (Measure measure : context.getMeasures(MeasuresFilters.all())) {
       // compare with past measure
-      Integer metricId = (measure.getMetric().getId() != null ? measure.getMetric().getId() : metricFinder.findByKey(measure.getMetric().getKey()).getId());
-      Integer characteristicId = (measure.getCharacteristic() != null ? measure.getCharacteristic().getId() : null);
+      Integer metricId = measure.getMetric().getId() != null ? measure.getMetric().getId() : metricFinder.findByKey(measure.getMetric().getKey()).getId();
+      Integer characteristicId = measure.getCharacteristic() != null ? measure.getCharacteristic().getId() : null;
       Integer personId = measure.getPersonId();
-      Integer ruleId = (measure instanceof RuleMeasure ? ((RuleMeasure) measure).getRule().getId() : null);
+      Integer ruleId = measure instanceof RuleMeasure ? ((RuleMeasure) measure).getRule().getId() : null;
 
       Object[] pastMeasure = pastMeasuresByKey.get(new MeasureKey(metricId, characteristicId, personId, ruleId));
       if (updateVariation(measure, pastMeasure, index)) {
@@ -107,7 +107,7 @@ public class VariationDecorator implements Decorator {
 
   boolean updateVariation(Measure measure, Object[] pastMeasure, int index) {
     if (pastMeasure != null && PastMeasuresLoader.hasValue(pastMeasure) && measure.getValue() != null) {
-      double variation = (measure.getValue().doubleValue() - PastMeasuresLoader.getValue(pastMeasure));
+      double variation = measure.getValue() - PastMeasuresLoader.getValue(pastMeasure);
       measure.setVariation(index, variation);
       return true;
     }

@@ -20,6 +20,7 @@
 package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
@@ -74,14 +75,12 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
   private static final String PROPERTY_OLD_TESTS = "tests";
   private static final String PROPERTY_OLD_BINARIES = "binaries";
   private static final String PROPERTY_OLD_LIBRARIES = "libraries";
-  private static final Map<String, String> DEPRECATED_PROPS_TO_NEW_PROPS = new HashMap<String, String>() {
-    {
-      put(PROPERTY_OLD_SOURCES, PROPERTY_SOURCES);
-      put(PROPERTY_OLD_TESTS, PROPERTY_TESTS);
-      put(PROPERTY_OLD_BINARIES, PROPERTY_BINARIES);
-      put(PROPERTY_OLD_LIBRARIES, PROPERTY_LIBRARIES);
-    }
-  };
+  private static final Map<String, String> DEPRECATED_PROPS_TO_NEW_PROPS = ImmutableMap.of(
+    PROPERTY_OLD_SOURCES, PROPERTY_SOURCES,
+    PROPERTY_OLD_TESTS, PROPERTY_TESTS,
+    PROPERTY_OLD_BINARIES, PROPERTY_BINARIES,
+    PROPERTY_OLD_LIBRARIES, PROPERTY_LIBRARIES
+  );
 
   /**
    * @since 1.4

@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 public final class CommandException extends RuntimeException {
 
-  private transient Command command = null;
+  private final Command command;
 
   public CommandException(Command command, String message, @Nullable Throwable throwable) {
     super(message + " [command: " + command + "]", throwable);

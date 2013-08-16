@@ -153,7 +153,7 @@ class MeasureFilterSql {
       if (filter.isOnBaseResourceChildren()) {
         sb.append(" AND s.parent_snapshot_id=").append(baseSnapshot.getId());
       } else {
-        Long rootSnapshotId = (baseSnapshot.getRootId() != null ? baseSnapshot.getRootId() : baseSnapshot.getId());
+        Long rootSnapshotId = baseSnapshot.getRootId() != null ? baseSnapshot.getRootId() : baseSnapshot.getId();
         sb.append(" AND s.root_snapshot_id=").append(rootSnapshotId);
         sb.append(" AND s.path LIKE '").append(StringUtils.defaultString(baseSnapshot.getPath())).append(baseSnapshot.getId()).append(".%'");
       }

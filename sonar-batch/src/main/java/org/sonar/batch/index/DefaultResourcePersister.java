@@ -194,7 +194,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     if (snapshots.isEmpty()) {
       snapshots = session.getResults(Snapshot.class, "resourceId", resourceId, "version", version, "scope", Scopes.PROJECT, "qualifier", Qualifiers.LIBRARY);
     }
-    return (snapshots.isEmpty() ? null : snapshots.get(0));
+    return snapshots.isEmpty() ? null : snapshots.get(0);
   }
 
   /**

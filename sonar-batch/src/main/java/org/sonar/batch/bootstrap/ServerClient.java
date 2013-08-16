@@ -87,7 +87,7 @@ public class ServerClient implements BatchComponent {
     try {
       return IOUtils.toString(inputSupplier.getInput(), "UTF-8");
     } catch (HttpDownloader.HttpException e) {
-      throw (wrapHttpException ? handleHttpException(e) : e);
+      throw wrapHttpException ? handleHttpException(e) : e;
     } catch (IOException e) {
       throw new SonarException(String.format("Unable to request: %s", pathStartingWithSlash), e);
     }

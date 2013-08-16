@@ -68,9 +68,9 @@ public class TendencyAnalyser {
     if (nullValuesYList || nbrPoints == 1) {
       return null;
     }
-    double n0 = (((nbrPoints) * (sumXY)) - ((sumX) * (sumY)));
-    double d = (((nbrPoints) * (sumXPower2)) - ((sumX) * (sumX)));
-    double n1 = (((sumY) * (sumXPower2)) - ((sumX) * (sumXY)));
+    double n0 = ((nbrPoints * sumXY) - (sumX * sumY));
+    double d = ((nbrPoints * sumXPower2) - (sumX * sumX));
+    double n1 = ((sumY * sumXPower2) - (sumX * sumXY));
 
     SlopeData result = new SlopeData();
 
@@ -94,7 +94,7 @@ public class TendencyAnalyser {
     if (sumXPower2 == 0 || sumYPower2 == 0) {
       result.setCorrelationRate(0.0);
     } else {
-      result.setCorrelationRate((sumXY) / (Math.sqrt(sumXPower2 * sumYPower2)));
+      result.setCorrelationRate(sumXY / Math.sqrt(sumXPower2 * sumYPower2));
     }
 
     return result;

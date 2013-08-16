@@ -171,7 +171,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   }
 
   public void setCloseDate(DefaultIssue issue, @Nullable Date d, IssueChangeContext context) {
-    Date dateWithoutMilliseconds = (d == null ? null : DateUtils.truncate(d, Calendar.SECOND));
+    Date dateWithoutMilliseconds = d == null ? null : DateUtils.truncate(d, Calendar.SECOND);
     if (!Objects.equal(dateWithoutMilliseconds, issue.closeDate())) {
       issue.setCloseDate(d);
       issue.setUpdateDate(context.date());
