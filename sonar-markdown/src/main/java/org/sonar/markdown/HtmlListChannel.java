@@ -65,7 +65,7 @@ class HtmlListChannel extends Channel<MarkdownOutput> {
     private int searchIndexOfFirstCharacter(CharSequence token) {
       for (int index = 0; index < token.length(); index++) {
         if (token.charAt(index) == '*') {
-          for (index++; index < token.length(); index++) {
+          while (++index<token.length()) {
             if (token.charAt(index) != ' ') {
               return index;
             }

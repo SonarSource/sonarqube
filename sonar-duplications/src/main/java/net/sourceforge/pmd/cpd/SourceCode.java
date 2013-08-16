@@ -69,7 +69,7 @@ public class SourceCode {
         }
         return lines;
       } catch (Exception e) {
-        throw new RuntimeException("Problem while reading " + getFileName() + ":" + e.getMessage(), e);
+        throw new IllegalStateException("Problem while reading " + getFileName() + ":" + e.getMessage(), e);
       } finally {
         Closeables.closeQuietly(lnr);
       }
