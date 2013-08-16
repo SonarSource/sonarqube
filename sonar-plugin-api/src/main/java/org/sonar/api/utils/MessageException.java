@@ -24,6 +24,10 @@ package org.sonar.api.utils;
  * like stack traces. It requires sonar-runner 2.4. Previous versions log stack trace.
  * <p/>
  * Note that by design Maven still logs the stack trace when the option -e is set.
+ * <p/>
+ * Message should be clear and complete. Keep in mind that context is not added to the exception.
+ * Names of processed resource and decorator are for example not automatically added when throwing {@link MessageException}
+ * from {@link org.sonar.api.batch.Decorator}.
  *
  * @since 4.0
  */
