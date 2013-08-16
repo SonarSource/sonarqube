@@ -74,7 +74,7 @@ public class UpdateStatusJob implements BatchComponent {
 
   private void enableCurrentSnapshot() {
     Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, false);
-    boolean isLast = (previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt()));
+    boolean isLast = previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt());
     setFlags(snapshot, isLast, Snapshot.STATUS_PROCESSED);
     logSuccess(LoggerFactory.getLogger(getClass()));
   }
@@ -113,7 +113,7 @@ public class UpdateStatusJob implements BatchComponent {
     query.setParameter("last", last);
     query.setParameter("rootId", snapshot.getId());
     query.setParameter("path", snapshot.getPath() + snapshot.getId() + ".%");
-    query.setParameter("pathRootId", (snapshot.getRootId() == null ? snapshot.getId() : snapshot.getRootId()));
+    query.setParameter("pathRootId", snapshot.getRootId()==null ? snapshot.getId() : snapshot.getRootId());
     query.executeUpdate();
     session.commit();
 

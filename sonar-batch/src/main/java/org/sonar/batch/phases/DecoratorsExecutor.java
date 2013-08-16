@@ -61,7 +61,7 @@ public class DecoratorsExecutor implements BatchComponent {
   DecoratorContext decorateResource(Resource resource, Collection<Decorator> decorators, boolean executeDecorators) {
     List<DecoratorContext> childrenContexts = Lists.newArrayList();
     for (Resource child : index.getChildren(resource)) {
-      boolean isModule = (child instanceof Project);
+      boolean isModule = child instanceof Project;
       DefaultDecoratorContext childContext = (DefaultDecoratorContext) decorateResource(child, decorators, !isModule);
       childrenContexts.add(childContext.setReadOnly(true));
     }

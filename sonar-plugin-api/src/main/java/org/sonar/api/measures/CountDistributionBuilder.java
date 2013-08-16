@@ -106,7 +106,7 @@ public class CountDistributionBuilder implements MeasureBuilder {
       Map<String, String> map = KeyValueFormat.parse(measure.getData());
       for (Map.Entry<String, String> entry : map.entrySet()) {
         String key = entry.getKey();
-        int value = (StringUtils.isBlank(entry.getValue()) ? 0 : Integer.parseInt(entry.getValue()));
+        int value = StringUtils.isBlank(entry.getValue()) ? 0 : Integer.parseInt(entry.getValue());
         if (NumberUtils.isNumber(key)) {
           add(NumberUtils.toInt(key), value);
         } else {

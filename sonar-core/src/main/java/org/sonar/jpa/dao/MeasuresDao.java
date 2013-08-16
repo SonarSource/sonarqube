@@ -71,7 +71,7 @@ public class MeasuresDao extends BaseDao {
     return CollectionUtils.select(getMetricsByName().values(), new Predicate() {
       public boolean evaluate(Object o) {
         Metric m = (Metric) o;
-        return (m.getEnabled() && m.getOrigin() != Metric.Origin.JAV);
+        return m.getEnabled() && m.getOrigin() != Metric.Origin.JAV;
       }
     });
   }

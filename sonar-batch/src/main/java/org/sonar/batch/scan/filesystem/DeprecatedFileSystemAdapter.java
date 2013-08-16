@@ -176,7 +176,7 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
 
   public File getFileFromBuildDirectory(String filename) {
     File file = new File(getBuildDir(), filename);
-    return (file.exists() ? file : null);
+    return file.exists() ? file : null;
   }
 
   public Resource toResource(File file) {
@@ -187,7 +187,7 @@ public class DeprecatedFileSystemAdapter implements ProjectFileSystem {
     if (relativePath == null) {
       return null;
     }
-    return (file.isFile() ? new org.sonar.api.resources.File(relativePath.path()) : new org.sonar.api.resources.Directory(relativePath.path()));
+    return file.isFile() ? new org.sonar.api.resources.File(relativePath.path()) : new org.sonar.api.resources.Directory(relativePath.path());
   }
 
   public List<InputFile> mainFiles(String... langs) {

@@ -55,7 +55,7 @@ public class ScanGraph extends BeanGraph implements BatchComponent {
 
   public ComponentVertex getComponent(String key) {
     Vertex vertex = GraphUtil.single(getUnderlyingGraph().getVertices("key", key));
-    return (vertex != null ? wrapComponent(vertex) : null);
+    return vertex != null ? wrapComponent(vertex) : null;
   }
 
   public ComponentVertex addComponent(Resource resource, @Nullable Snapshot snapshot) {
