@@ -320,8 +320,8 @@ function openModalWindow(url, options) {
                 $j('input[type=submit]', obj).removeAttr('disabled');
                 errorElt.show();
                 errorElt.html(xhr.responseText);
-              } else {
                 // otherwise replace modal window by the returned text
+              } else {
                 $j("#modal").html(xhr.responseText);
               }
             }

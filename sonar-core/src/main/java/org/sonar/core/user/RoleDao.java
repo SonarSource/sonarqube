@@ -144,14 +144,4 @@ public class RoleDao implements TaskComponent, ServerComponent {
       MyBatis.closeQuietly(session);
     }
   }
-
-  public int countUserWithPermission(String permission) {
-    SqlSession session = mybatis.openSession();
-    try {
-      RoleMapper mapper = session.getMapper(RoleMapper.class);
-      return mapper.countUserWithPermission(permission);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
 }

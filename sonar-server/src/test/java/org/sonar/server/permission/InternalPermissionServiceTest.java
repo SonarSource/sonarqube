@@ -30,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.utils.MessageException;
 import org.sonar.core.permission.ComponentPermissionFacade;
 import org.sonar.core.permission.Permission;
 import org.sonar.core.user.*;
@@ -41,8 +40,6 @@ import org.sonar.server.user.MockUserSession;
 
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
@@ -192,22 +189,6 @@ public class InternalPermissionServiceTest {
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 2L);
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 3L);
-  }
-
-  @Test
-  public void should_check_at_least_one_sys_admin_exists() throws Exception {
-    // One admin exists -> all is ok
-    when(roleDao.countUserWithPermission(anyString())).thenReturn(1);
-    service.checkAtLeatOneSysAdminExists();
-
-    // No admin -> fail
-    try {
-      when(roleDao.countUserWithPermission(anyString())).thenReturn(0);
-      service.checkAtLeatOneSysAdminExists();
-      fail();
-    } catch (Exception e){
-      assertThat(e).isInstanceOf(MessageException.class);
-    }
   }
 
   protected static class MatchesUserRole extends BaseMatcher<UserRoleDto> {
