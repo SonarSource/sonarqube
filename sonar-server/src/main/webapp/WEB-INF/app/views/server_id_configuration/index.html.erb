@@ -1,10 +1,4 @@
-<style>
-  #body {
-    padding: 0 1px 0 0;
-  }
-</style>
-
-<% form_tag :action => 'generate' do %>
+<form method="post" action="<%= ApplicationController.root_context -%>/server_id_configuration/generate">
   <table class="data marginbottom10">
     <thead>
     <tr>
@@ -51,6 +45,6 @@
   </table>
 
   <%= submit_tag message('server_id_configuration.generate_button'), :disable_with => message('server_id_configuration.generating_button'), :id => 'generate-button' -%>
-<% end %>
+</form>
 
 

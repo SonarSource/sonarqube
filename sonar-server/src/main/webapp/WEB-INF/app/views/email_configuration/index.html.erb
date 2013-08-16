@@ -1,10 +1,4 @@
-<style>
-  #body {
-    padding: 0 1px 0 0;
-  }
-</style>
-
-<% form_tag({:action => 'save'}) do -%>
+<form method="post" action="<%= ApplicationController.root_context -%>/email_configuration/save" class="marginbottom10">
   <table class="data form marginbottom10">
     <thead>
     <tr>
@@ -56,11 +50,9 @@
     </tr>
     </tfoot>
   </table>
-<% end -%>
+</form>
 
-<br/>
-
-<% form_tag({:action => 'send_test_email'}) do -%>
+<form method="post" action="<%= ApplicationController.root_context -%>/email_configuration/send_test_email">
   <table class="data form marginbottom10">
     <thead>
     <tr>
@@ -89,5 +81,4 @@
     </tr>
     </tbody>
   </table>
-<% end -%>
-
+</form>
