@@ -32,4 +32,18 @@ public class MessageExceptionTest {
     assertThat(exception.getMessage()).isEqualTo(message);
     assertThat(exception).isInstanceOf(RuntimeException.class);
   }
+
+  @Test
+  public void should_create_exception_with_status_and_l10n_message_with_param(){
+    MessageException exception = MessageException.ofL10n("key", new String[]{"value"});
+    assertThat(exception.l10nKey()).isEqualTo("key");
+    assertThat(exception.l10nParams()).containsOnly("value");
+  }
+
+  @Test
+  public void should_create_exception_with_status_and_l10n_message_without_param(){
+    MessageException exception = MessageException.ofL10n("key", null);
+    assertThat(exception.l10nKey()).isEqualTo("key");
+    assertThat(exception.l10nParams()).isEmpty();
+  }
 }

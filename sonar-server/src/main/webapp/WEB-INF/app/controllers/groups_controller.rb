@@ -23,7 +23,7 @@ class GroupsController < ApplicationController
   before_filter :admin_required
 
   def index
-    @groups = Group.find(:all, :order => 'name')
+    @groups = Group.all(:order => 'name')
     if params[:id]
       @group = Group.find(params[:id])
     else
@@ -72,7 +72,7 @@ class GroupsController < ApplicationController
   end
 
   def to_index(errors, id)
-    if !errors.empty?
+    unless errors.empty?
       flash[:error] = errors.full_messages.join("<br/>\n")
     end
 

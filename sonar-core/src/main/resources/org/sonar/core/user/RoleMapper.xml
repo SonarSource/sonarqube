@@ -88,4 +88,28 @@
     SELECT count(id)
     FROM group_roles WHERE resource_id=#{id}
   </select>
+
+  <select id="countUserWithPermission" parameterType="map" resultType="int">
+    SELECT COUNT(DISTINCT tmp.id)
+    FROM (
+    SELECT u.id as id
+    FROM users u
+    INNER JOIN user_roles ur ON ur.user_id = u.id
+    <where>
+      AND (ur.role=#{permission} AND ur.resource_id IS NULL)
+      AND u.active=${_true}
+    </where>
+    UNION
+    select u.id as id
+    FROM users u
+    INNER JOIN groups_users gu ON gu.user_id = u.id
+    INNER JOIN group_roles gr ON gr.group_id = gu.group_id
+    INNER JOIN groups g ON g.id = gu.group_id
+    <where>
+      AND (gr.role=#{permission} AND gr.resource_id IS NULL)
+      AND u.active=${_true}
+    </where>
+    ) tmp
+  </select>
+
 </mapper>

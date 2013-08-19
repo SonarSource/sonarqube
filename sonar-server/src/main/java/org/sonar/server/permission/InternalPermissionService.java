@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.permission.ComponentPermissionFacade;
 import org.sonar.core.permission.Permission;
 import org.sonar.core.user.*;
@@ -68,6 +69,12 @@ public class InternalPermissionService implements ServerComponent {
     query.validate();
     for (String component : query.getSelectedComponents()) {
       applyPermissionTemplate(query.getTemplateKey(), component);
+    }
+  }
+
+  public void checkAtLeastOneSysAdminExists(){
+    if (roleDao.countUserWithPermission(Permission.SYSTEM_ADMIN.key()) == 0){
+      throw MessageException.ofL10n("global_permissions.error.need_at_lest_one_admin", null);
     }
   }
 
