@@ -161,7 +161,7 @@ class UsersController < ApplicationController
   end
 
   def to_index(errors, id)
-    unless errors.empty?
+    if !errors.empty?
       flash[:error] = errors.full_messages.join("<br/>\n")
     end
 

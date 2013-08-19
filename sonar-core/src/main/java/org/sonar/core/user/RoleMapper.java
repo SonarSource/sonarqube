@@ -21,6 +21,8 @@ package org.sonar.core.user;
 
 import org.apache.ibatis.annotations.Param;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -48,6 +50,5 @@ public interface RoleMapper {
 
   int countUserRoles(Long resourceId);
 
-  int countUserWithPermission(@Param("permission") String permission);
-
+  List<Long> countSystemAdministrators(@Nullable @Param("groupName") String groupName);
 }

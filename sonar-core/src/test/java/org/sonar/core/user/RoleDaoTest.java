@@ -76,19 +76,4 @@ public class RoleDaoTest extends AbstractDaoTestCase {
     checkTable("groupPermissions", "group_roles", "group_id", "role");
   }
 
-  @Test
-  public void should_count_user_with_permission() {
-    setupData("should_count_user_with_permission");
-
-    RoleDao dao = new RoleDao(getMyBatis());
-
-    // 1 user have role 'admin', 1 user owns to the 'admin' group
-    assertThat(dao.countUserWithPermission("admin")).isEqualTo(2);
-    // 1 user have role 'profileadmin'
-    assertThat(dao.countUserWithPermission("profileadmin")).isEqualTo(1);
-    // 1 user owns to the 'user' group
-    assertThat(dao.countUserWithPermission("user")).isEqualTo(1);
-    assertThat(dao.countUserWithPermission("unknown")).isEqualTo(0);
-  }
-
 }
