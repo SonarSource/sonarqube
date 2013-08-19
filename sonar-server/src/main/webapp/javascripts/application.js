@@ -213,38 +213,48 @@ Treemap.prototype.rootNode = function () {
 
 Treemap.prototype.initNodes = function () {
   var self = this;
+  console.log(this);
   $j('#tm-' + this.id).find('a').each(function (index) {
     $j(this).on("click", function (event) {
       event.stopPropagation();
     });
   });
-  $j('#tm-' + this.id).find('[rid]').each(function (index) {
-    $j(this).on("contextmenu", function (event) {
-      event.stopPropagation();
-      event.preventDefault();
-      // right click
-      if (self.breadcrumb.length > 1) {
-        self.breadcrumb.pop();
-        self.load();
-      } else if (self.breadcrumb.length == 1) {
-        $j("#tm-loading-" + self.id).show();
-        location.reload();
-      }
+  if ($j('#tm-' + this.id).is(':empty')){
+    // SONAR-3524
+    // If the content is empty, then the right click should lead to return to the parent (will in fact reload the page)
+    $j('#tm-' + this.id).on("contextmenu", function (event) {
+      location.reload();
       return false;
     });
-    $j(this).on("click", function (event) {
-        var source = $j(this);
-        var rid = source.attr('rid');
-        var has_leaves = !!(source.attr('l'));
-        if (!has_leaves) {
-          var context = new TreemapContext(rid, source.text());
-          self.breadcrumb.push(context);
+  } else {
+    $j('#tm-' + this.id).find('[rid]').each(function (index) {
+      $j(this).on("contextmenu", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        // right click
+        if (self.breadcrumb.length > 1) {
+          self.breadcrumb.pop();
           self.load();
+        } else if (self.breadcrumb.length == 1) {
+          $j("#tm-loading-" + self.id).show();
+          location.reload();
         }
+        return false;
+      });
+      $j(this).on("click", function (event) {
+          var source = $j(this);
+          var rid = source.attr('rid');
+          var has_leaves = !!(source.attr('l'));
+          if (!has_leaves) {
+            var context = new TreemapContext(rid, source.text());
+            self.breadcrumb.push(context);
+            self.load();
+          }
 
-      }
-    );
-  });
+        }
+      );
+    });
+  }
 };
 
 function openModalWindow(url, options) {
