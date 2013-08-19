@@ -11,8 +11,8 @@
     "reporter": "julien",
     "assignee": "simon",
     "effortToFix": 3.14,
-    "creationDate": "2013-04-24T00:00:00+0200",
-    "updateDate": "2013-04-25T00:00:00+0200"
+    "creationDate": "2013-04-24T00:00:00+0000",
+    "updateDate": "2013-04-25T00:00:00+0000"
   }
 ], "components": [
   {
