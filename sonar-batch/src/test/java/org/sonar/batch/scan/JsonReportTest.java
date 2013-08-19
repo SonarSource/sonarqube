@@ -97,8 +97,8 @@ public class JsonReportTest {
         .setEffortToFix(3.14)
         .setReporter("julien")
         .setAssignee("simon")
-        .setCreationDate(DateUtils.parseDate("2013-04-24"))
-        .setUpdateDate(DateUtils.parseDate("2013-04-25"))
+        .setCreationDate(DateUtils.parseDateTime("2013-04-24T00:00:00+0000"))
+        .setUpdateDate(DateUtils.parseDateTime("2013-04-25T00:00:00+0000"))
         .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
     when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue> newArrayList(issue));
@@ -118,9 +118,9 @@ public class JsonReportTest {
         .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
         .setStatus(Issue.STATUS_CLOSED)
         .setResolution(Issue.RESOLUTION_FIXED)
-        .setCreationDate(DateUtils.parseDate("2013-04-24"))
-        .setUpdateDate(DateUtils.parseDate("2013-04-25"))
-        .setCloseDate(DateUtils.parseDate("2013-04-26"))
+        .setCreationDate(DateUtils.parseDateTime("2013-04-24T00:00:00+0000"))
+        .setUpdateDate(DateUtils.parseDateTime("2013-04-25T00:00:00+0000"))
+        .setCloseDate(DateUtils.parseDateTime("2013-04-26T00:00:00+0000"))
         .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
     when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue> newArrayList(issue));
