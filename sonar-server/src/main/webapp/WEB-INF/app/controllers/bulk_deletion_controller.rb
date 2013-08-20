@@ -35,15 +35,12 @@ class BulkDeletionController < ApplicationController
     @selected_tab = 'TRK' unless @tabs.include?(@selected_tab)
     
     # Search for resources having snapshot with islast column to true
-    conditions = "resource_index.qualifier=:qualifier AND snapshots.islast=:islast"
-    values = {:qualifier => @selected_tab, :islast => true}
+    conditions = "resource_index.qualifier=:qualifier AND projects.qualifier=:qualifier AND projects.enabled=:enabled AND snapshots.islast=:islast"
+    values = {:qualifier => @selected_tab, :enabled => true, :islast => true}
     if params[:name_filter] && !params[:name_filter].blank?
       conditions += " AND resource_index.kee LIKE :kee"
       values[:kee] = params[:name_filter].strip.downcase + '%'
     end
-
-    conditions += " AND projects.enabled=:enabled"
-    values[:enabled] = true
     @resources = Project.all(:select => 'distinct(resource_index.resource_id),projects.id,projects.name,projects.kee,projects.long_name',
                               :conditions => [conditions, values],
                               :joins => [:resource_index, :snapshots])
