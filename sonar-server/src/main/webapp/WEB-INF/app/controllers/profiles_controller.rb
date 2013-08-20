@@ -201,7 +201,7 @@ class ProfilesController < ApplicationController
     versions = ActiveRuleChange.all(:select => 'profile_version, MAX(change_date) AS change_date', :conditions => ['profile_id=?', @profile.id], :group => 'profile_version')
     versions.sort! { |a, b| b.profile_version <=> a.profile_version }
 
-    if !versions.empty?
+    unless versions.empty?
       last_version = versions[0].profile_version
       if params[:since].blank?
         @since_version = last_version - 1
@@ -218,7 +218,9 @@ class ProfilesController < ApplicationController
       end
       @changes = ActiveRuleChange.all(:conditions => ['profile_id=? and ?<profile_version and profile_version<=?', @profile.id, @since_version, @to_version], :order => 'id desc')
 
-      @select_versions = versions.map { |u| [message(u.profile_version == last_version ? 'quality_profiles.last_version_x_with_date' : 'quality_profiles.version_x_with_date', :params => [u.profile_version.to_s, l(u.change_date)]), u.profile_version] } | [[message('quality_profiles.no_version'), 0]];
+      @select_versions = versions.map { |u| [message(u.profile_version == last_version ? 'quality_profiles.last_version_x_with_date' : 'quality_profiles.version_x_with_date',
+                                                     :params => [u.profile_version.to_s, l(u.change_date)]), u.profile_version] } |
+          [[message('quality_profiles.version_1'), 0]]
     end
 
     set_profile_breadcrumbs

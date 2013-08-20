@@ -23,11 +23,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleChange;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleParam;
-import org.sonar.api.rules.RulePriority;
+import org.sonar.api.rules.*;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
@@ -232,15 +228,21 @@ public class ProfilesManager extends BaseDao {
     }
   }
 
+  private synchronized boolean shouldTrackChanges(RulesProfile profile) {
+    return profile.getVersion() > 1 || profile.getVersion() == 1 && profile.getUsed();
+  }
+
   /**
    * Deal with creation of ActiveRuleChange item when a rule param is changed on a profile
    */
   private void ruleParamChanged(RulesProfile profile, Rule rule, String paramKey, String oldValue, String newValue, String userName) {
-    incrementProfileVersionIfNeeded(profile);
-    ActiveRuleChange rc = new ActiveRuleChange(userName, profile, rule);
-    if (!StringUtils.equals(oldValue, newValue)) {
-      rc.setParameterChange(paramKey, oldValue, newValue);
-      getSession().saveWithoutFlush(rc);
+    if (shouldTrackChanges(profile)) {
+      incrementProfileVersionIfNeeded(profile);
+      ActiveRuleChange rc = new ActiveRuleChange(userName, profile, rule);
+      if (!StringUtils.equals(oldValue, newValue)) {
+        rc.setParameterChange(paramKey, oldValue, newValue);
+        getSession().saveWithoutFlush(rc);
+      }
     }
   }
 
@@ -248,12 +250,14 @@ public class ProfilesManager extends BaseDao {
    * Deal with creation of ActiveRuleChange item when a rule severity is changed on a profile
    */
   private void ruleSeverityChanged(RulesProfile profile, Rule rule, RulePriority oldSeverity, RulePriority newSeverity, String userName) {
-    incrementProfileVersionIfNeeded(profile);
-    ActiveRuleChange rc = new ActiveRuleChange(userName, profile, rule);
-    if (!ObjectUtils.equals(oldSeverity, newSeverity)) {
-      rc.setOldSeverity(oldSeverity);
-      rc.setNewSeverity(newSeverity);
-      getSession().saveWithoutFlush(rc);
+    if (shouldTrackChanges(profile)) {
+      incrementProfileVersionIfNeeded(profile);
+      ActiveRuleChange rc = new ActiveRuleChange(userName, profile, rule);
+      if (!ObjectUtils.equals(oldSeverity, newSeverity)) {
+        rc.setOldSeverity(oldSeverity);
+        rc.setNewSeverity(newSeverity);
+        getSession().saveWithoutFlush(rc);
+      }
     }
   }
 
@@ -261,62 +265,68 @@ public class ProfilesManager extends BaseDao {
    * Deal with creation of ActiveRuleChange item when a rule is changed (severity and/or param(s)) on a profile
    */
   private void ruleChanged(RulesProfile profile, ActiveRule oldActiveRule, ActiveRule newActiveRule, String userName) {
-    incrementProfileVersionIfNeeded(profile);
-    ActiveRuleChange rc = new ActiveRuleChange(userName, profile, newActiveRule.getRule());
+    if (shouldTrackChanges(profile)) {
+      incrementProfileVersionIfNeeded(profile);
+      ActiveRuleChange rc = new ActiveRuleChange(userName, profile, newActiveRule.getRule());
 
-    if (oldActiveRule.getSeverity() != newActiveRule.getSeverity()) {
-      rc.setOldSeverity(oldActiveRule.getSeverity());
-      rc.setNewSeverity(newActiveRule.getSeverity());
-    }
-    if (oldActiveRule.getRule().getParams() != null) {
-      for (RuleParam p : oldActiveRule.getRule().getParams()) {
-        String oldParam = oldActiveRule.getParameter(p.getKey());
-        String newParam = newActiveRule.getParameter(p.getKey());
-        if (!StringUtils.equals(oldParam, newParam)) {
-          rc.setParameterChange(p.getKey(), oldParam, newParam);
+      if (oldActiveRule.getSeverity() != newActiveRule.getSeverity()) {
+        rc.setOldSeverity(oldActiveRule.getSeverity());
+        rc.setNewSeverity(newActiveRule.getSeverity());
+      }
+      if (oldActiveRule.getRule().getParams() != null) {
+        for (RuleParam p : oldActiveRule.getRule().getParams()) {
+          String oldParam = oldActiveRule.getParameter(p.getKey());
+          String newParam = newActiveRule.getParameter(p.getKey());
+          if (!StringUtils.equals(oldParam, newParam)) {
+            rc.setParameterChange(p.getKey(), oldParam, newParam);
+          }
         }
       }
-    }
 
-    getSession().saveWithoutFlush(rc);
+      getSession().saveWithoutFlush(rc);
+    }
   }
 
   /**
    * Deal with creation of ActiveRuleChange item when a rule is enabled on a profile
    */
   private void ruleEnabled(RulesProfile profile, ActiveRule newActiveRule, String userName) {
-    incrementProfileVersionIfNeeded(profile);
-    ActiveRuleChange rc = new ActiveRuleChange(userName, profile, newActiveRule.getRule());
-    rc.setEnabled(true);
-    rc.setNewSeverity(newActiveRule.getSeverity());
-    if (newActiveRule.getRule().getParams() != null) {
-      for (RuleParam p : newActiveRule.getRule().getParams()) {
-        String newParam = newActiveRule.getParameter(p.getKey());
-        if (newParam != null) {
-          rc.setParameterChange(p.getKey(), null, newParam);
+    if (shouldTrackChanges(profile)) {
+      incrementProfileVersionIfNeeded(profile);
+      ActiveRuleChange rc = new ActiveRuleChange(userName, profile, newActiveRule.getRule());
+      rc.setEnabled(true);
+      rc.setNewSeverity(newActiveRule.getSeverity());
+      if (newActiveRule.getRule().getParams() != null) {
+        for (RuleParam p : newActiveRule.getRule().getParams()) {
+          String newParam = newActiveRule.getParameter(p.getKey());
+          if (newParam != null) {
+            rc.setParameterChange(p.getKey(), null, newParam);
+          }
         }
       }
+      getSession().saveWithoutFlush(rc);
     }
-    getSession().saveWithoutFlush(rc);
   }
 
   /**
    * Deal with creation of ActiveRuleChange item when a rule is disabled on a profile
    */
   private void ruleDisabled(RulesProfile profile, ActiveRule disabledRule, String userName) {
-    incrementProfileVersionIfNeeded(profile);
-    ActiveRuleChange rc = new ActiveRuleChange(userName, profile, disabledRule.getRule());
-    rc.setEnabled(false);
-    rc.setOldSeverity(disabledRule.getSeverity());
-    if (disabledRule.getRule().getParams() != null) {
-      for (RuleParam p : disabledRule.getRule().getParams()) {
-        String oldParam = disabledRule.getParameter(p.getKey());
-        if (oldParam != null) {
-          rc.setParameterChange(p.getKey(), oldParam, null);
+    if (shouldTrackChanges(profile)) {
+      incrementProfileVersionIfNeeded(profile);
+      ActiveRuleChange rc = new ActiveRuleChange(userName, profile, disabledRule.getRule());
+      rc.setEnabled(false);
+      rc.setOldSeverity(disabledRule.getSeverity());
+      if (disabledRule.getRule().getParams() != null) {
+        for (RuleParam p : disabledRule.getRule().getParams()) {
+          String oldParam = disabledRule.getParameter(p.getKey());
+          if (oldParam != null) {
+            rc.setParameterChange(p.getKey(), oldParam, null);
+          }
         }
       }
+      getSession().saveWithoutFlush(rc);
     }
-    getSession().saveWithoutFlush(rc);
   }
 
   private void activateOrChange(RulesProfile profile, ActiveRule parentActiveRule, String userName) {
