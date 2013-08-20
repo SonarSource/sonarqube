@@ -1,0 +1,14 @@
+<dataset>
+
+  <rules id="1" name="foo" description="test" plugin_config_key="checker/foo"
+         plugin_rule_key="checkstyle.rule1" plugin_name="plugin" status="READY" cardinality="SINGLE" parent_id="[null]"/>
+
+  <rules id="2" name="bar" description="test2" plugin_config_key="checker/bar"
+         plugin_rule_key="checkstyle.rule2" plugin_name="plugin" status="READY" cardinality="SINGLE" parent_id="[null]"/>
+  <rules_parameters id="13" rule_id="2" name="param1" description="[null]" param_type="REGULAR_EXPRESSION"/>
+
+  <rules_profiles id="1" version="1" used_profile="true" name="parent" language="java" parent_name="[null]" />
+
+  <active_rules id="1" profile_id="1" rule_id="1" failure_level="2" inheritance="[null]"/>
+
+</dataset>

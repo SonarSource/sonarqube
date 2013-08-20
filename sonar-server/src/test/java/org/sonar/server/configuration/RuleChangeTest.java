@@ -21,9 +21,12 @@ package org.sonar.server.configuration;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rules.ActiveRuleChange;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class RuleChangeTest extends AbstractDbUnitTestCase {
   private ProfilesManager profilesManager;
@@ -34,63 +37,79 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void testVersionIncreaseIfUsed() {
+  public void should_increase_version_if_used() {
     setupData("initialData");
     profilesManager.activated(2, 3, "admin");
     checkTables("versionIncreaseIfUsed", "rules_profiles");
   }
 
   @Test
-  public void testVersionIncreaseIfUsedAndInChildren() {
+  public void should_increase_version_if_used_and_in_children() {
     setupData("initialData");
     profilesManager.activated(1, 1, "admin");
     checkTables("versionIncreaseIfUsedAndInChildren", "rules_profiles");
   }
 
   @Test
-  public void testRuleActivated() {
+  public void should_track_rule_activation() {
     setupData("initialData");
     profilesManager.activated(2, 3, "admin");
     checkTables("ruleActivated", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
-  public void testRuleDeactivated() {
+  public void should_not_track_rule_activation_on_not_used_first_version_profile() {
+    setupData("should_not_track_rule_activation_on_not_used_first_version_profile");
+    profilesManager.activated(1, 1, "admin");
+    assertThat(getHQLCount(ActiveRuleChange.class)).isEqualTo(0);
+    checkTables("should_not_track_rule_activation_on_not_used_first_version_profile", "rules_profiles");
+  }
+
+  @Test
+  public void should_track_rule_activation_on_used_first_version_profile() {
+    setupData("should_track_rule_activation_on_used_first_version_profile");
+    profilesManager.activated(1, 1, "admin");
+    assertThat(getHQLCount(ActiveRuleChange.class)).isEqualTo(1);
+    checkTables("should_track_rule_activation_on_used_first_version_profile", "rules_profiles");
+  }
+
+  @Test
+  public void should_track_rule_deactivation() {
     setupData("initialData");
     profilesManager.deactivated(2, 3, "admin");
     checkTables("ruleDeactivated", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
-  public void testRuleParamChanged() {
+  public void should_track_rule_param_change() {
     setupData("initialData");
     profilesManager.ruleParamChanged(2, 3, "param1", "20", "30", "admin");
     checkTables("ruleParamChanged", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
   }
 
   @Test
-  public void testRuleSeverityChanged() {
+  public void should_track_rule_severity_change() {
     setupData("initialData");
     profilesManager.ruleSeverityChanged(2, 3, RulePriority.BLOCKER, RulePriority.CRITICAL, "admin");
     checkTables("ruleSeverityChanged", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
-  public void testRuleReverted() {
+  public void should_track_rule_revert() {
     setupData("ruleReverted");
     profilesManager.revert(2, 3, "admin");
     checkTables("ruleReverted", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
   }
 
   @Test
-  public void testChangeParentProfile() {
+  public void should_track_change_parent_profile() {
     setupData("changeParentProfile");
     profilesManager.changeParentProfile(2, "parent", "admin");
     checkTables("changeParentProfile", new String[]{"change_date"}, "active_rule_changes");
   }
 
   @Test
-  public void testRemoveActivatedRules() {
+  public void should_track_remove_activated_rules() {
     setupData("initialData");
     Rule rule = getSession().reattach(Rule.class, 1);
     profilesManager.removeActivatedRules(rule);

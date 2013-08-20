@@ -37,17 +37,18 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void test_delete_all_profiles() {
+  public void should_delete_all_profiles() {
     RulesProfile test1 = RulesProfile.create("test1", "java");
     test1.setDefaultProfile(true);
     RulesProfile test2 = RulesProfile.create("test2", "java");
 
     getSession().save(test1, test2);
 
-    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(new Long(2));
+    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(2);
 
     manager.deleteAllProfiles();
 
-    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(new Long(0));
+    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(0);
   }
+
 }
