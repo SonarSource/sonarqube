@@ -30,16 +30,20 @@ import static com.google.common.collect.Lists.newArrayList;
 public class HttpException extends RuntimeException {
   private final int httpCode;
 
-  private String l10nKey;
-  private Collection<Object> l10nParams;
+  private final String l10nKey;
+  private final Collection<Object> l10nParams;
 
   public HttpException(int httpCode) {
     this.httpCode = httpCode;
+    this.l10nKey = null;
+    this.l10nParams = null;
   }
 
   public HttpException(int httpCode, String message) {
     super(message);
     this.httpCode = httpCode;
+    this.l10nKey = null;
+    this.l10nParams = null;
   }
 
   public HttpException(int httpCode, @Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams) {

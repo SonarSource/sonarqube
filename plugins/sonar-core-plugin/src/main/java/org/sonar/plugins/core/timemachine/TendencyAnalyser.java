@@ -68,9 +68,9 @@ public class TendencyAnalyser {
     if (nullValuesYList || nbrPoints == 1) {
       return null;
     }
-    double n0 = ((nbrPoints * sumXY) - (sumX * sumY));
-    double d = ((nbrPoints * sumXPower2) - (sumX * sumX));
-    double n1 = ((sumY * sumXPower2) - (sumX * sumXY));
+    double n0 = (nbrPoints * sumXY) - (sumX * sumY);
+    double d = (nbrPoints * sumXPower2) - (sumX * sumX);
+    double n1 = (sumY * sumXPower2) - (sumX * sumXY);
 
     SlopeData result = new SlopeData();
 

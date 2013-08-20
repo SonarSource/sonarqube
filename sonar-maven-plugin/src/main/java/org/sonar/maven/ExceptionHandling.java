@@ -24,9 +24,13 @@ import org.apache.maven.plugin.logging.Log;
 
 class ExceptionHandling {
 
+  private ExceptionHandling(){
+    // Hide public constructor
+  }
+
   static RuntimeException handle(Exception e, Log log) throws MojoExecutionException {
     Throwable source = e;
-    if (e.getClass().getName().equals("org.sonar.runner.impl.RunnerException") && e.getCause() != null) {
+    if ("org.sonar.runner.impl.RunnerException".equals(e.getClass().getName()) && e.getCause() != null) {
       source = e.getCause();
     }
     log.error(source.getMessage());

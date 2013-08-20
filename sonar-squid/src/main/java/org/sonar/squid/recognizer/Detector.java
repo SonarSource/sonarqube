@@ -22,7 +22,7 @@ package org.sonar.squid.recognizer;
 
 public abstract class Detector {
 
-  public final double probability;
+  private final double probability;
 
   public Detector(double probability) {
     if (probability < 0 || probability > 1) {

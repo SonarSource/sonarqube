@@ -25,16 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.events.DecoratorExecutionHandler;
-import org.sonar.api.batch.events.DecoratorsPhaseHandler;
-import org.sonar.api.batch.events.InitializerExecutionHandler;
-import org.sonar.api.batch.events.InitializersPhaseHandler;
-import org.sonar.api.batch.events.MavenPhaseHandler;
-import org.sonar.api.batch.events.PostJobExecutionHandler;
-import org.sonar.api.batch.events.PostJobsPhaseHandler;
-import org.sonar.api.batch.events.ProjectAnalysisHandler;
-import org.sonar.api.batch.events.SensorExecutionHandler;
-import org.sonar.api.batch.events.SensorsPhaseHandler;
+import org.sonar.api.batch.events.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.events.BatchStepHandler;
@@ -51,7 +42,7 @@ import static org.sonar.batch.profiling.AbstractTimeProfiling.sortByDescendingTo
 import static org.sonar.batch.profiling.AbstractTimeProfiling.truncate;
 
 public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorExecutionHandler, DecoratorExecutionHandler, PostJobExecutionHandler, DecoratorsPhaseHandler,
-    SensorsPhaseHandler, PostJobsPhaseHandler, MavenPhaseHandler, InitializersPhaseHandler, InitializerExecutionHandler, BatchStepHandler {
+  SensorsPhaseHandler, PostJobsPhaseHandler, MavenPhaseHandler, InitializersPhaseHandler, InitializerExecutionHandler, BatchStepHandler {
 
   static final Logger LOG = LoggerFactory.getLogger(PhasesSumUpTimeProfiler.class);
   private static final int TEXT_RIGHT_PAD = 60;
@@ -166,7 +157,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     } else {
       for (Decorator decorator : decoratorsProfiler.getDurations().keySet()) {
         currentModuleProfiling.getProfilingPerPhase(Phases.Phase.DECORATOR)
-            .getProfilingPerItem(decorator).setTotalTime(decoratorsProfiler.getDurations().get(decorator));
+          .getProfilingPerItem(decorator).setTotalTime(decoratorsProfiler.getDurations().get(decorator));
       }
       currentModuleProfiling.getProfilingPerPhase(Phases.Phase.DECORATOR).stop();
     }
@@ -202,8 +193,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   public void onInitializersPhase(InitializersPhaseEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addPhaseProfiling(Phases.Phase.INIT);
-    }
-    else {
+    } else {
       currentModuleProfiling.getProfilingPerPhase(Phases.Phase.INIT).stop();
     }
   }
@@ -222,8 +212,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   public void onBatchStep(BatchStepEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addBatchStepProfiling(event.stepName());
-    }
-    else {
+    } else {
       currentModuleProfiling.getProfilingPerBatchStep(event.stepName()).stop();
     }
   }

@@ -32,11 +32,7 @@ import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MeasureFilterFactory implements ServerComponent {
 
@@ -55,7 +51,7 @@ public class MeasureFilterFactory implements ServerComponent {
     filter.setResourceScopes(toList(properties.get("scopes")));
     filter.setResourceQualifiers(toList(properties.get("qualifiers")));
     filter.setResourceLanguages(toList(properties.get("languages")));
-    MeasureFilterCondition condition = alertToCondition((toList(properties.get("alertLevels"))));
+    MeasureFilterCondition condition = alertToCondition(toList(properties.get("alertLevels")));
     if (condition != null) {
       filter.addCondition(condition);
     }

@@ -34,6 +34,7 @@ import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.server.platform.PersistentSettings;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -137,7 +138,7 @@ public class Backup {
 
       return (SonarConfig) xStream.fromXML(inputStream);
     } catch (IOException e) {
-      throw new RuntimeException("Can't read xml", e);
+      throw new IllegalStateException("Can't read xml", e);
     }
   }
 

@@ -19,12 +19,7 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.Event;
-import org.sonar.api.batch.TimeMachine;
-import org.sonar.api.batch.TimeMachineQuery;
+import org.sonar.api.batch.*;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -71,7 +66,7 @@ public class GenerateAlertEvents implements Decorator {
     TimeMachineQuery query = new TimeMachineQuery(resource).setOnlyLastAnalysis(true).setMetrics(CoreMetrics.ALERT_STATUS);
     List<Measure> measures = timeMachine.getMeasures(query);
 
-    Measure pastStatus = (measures != null && measures.size() == 1 ? measures.get(0) : null);
+    Measure pastStatus = measures != null && measures.size() == 1 ? measures.get(0) : null;
     String alertText = currentStatus.getAlertText();
     Level alertLevel = currentStatus.getDataAsLevel();
     String alertName = null;

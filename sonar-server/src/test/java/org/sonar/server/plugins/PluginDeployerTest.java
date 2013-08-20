@@ -48,7 +48,6 @@ public class PluginDeployerTest {
   private File deployDir;
   private PluginDeployer deployer;
   private Server server = mock(Server.class);
-  private UpdateCenterMatrixFactory updateCenterMatrixFactory;
 
   @Before
   public void start() {

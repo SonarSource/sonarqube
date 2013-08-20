@@ -28,6 +28,7 @@ import org.hibernate.annotations.SortType;
 import org.sonar.api.rules.Rule;
 
 import javax.persistence.*;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -299,7 +300,7 @@ public final class Characteristic implements Comparable<Characteristic> {
 
   public Double getPropertyValue(String key, Double defaultValue) {
     CharacteristicProperty property = getProperty(key);
-    Double value = (property != null ? property.getValue() : null);
+    Double value = property != null ? property.getValue() : null;
     return value == null ? defaultValue : value;
   }
 
