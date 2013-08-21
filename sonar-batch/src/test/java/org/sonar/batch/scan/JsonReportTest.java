@@ -21,9 +21,7 @@ package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
 import org.json.JSONException;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -36,7 +34,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -45,9 +42,9 @@ import org.sonar.test.TestUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -65,12 +62,9 @@ public class JsonReportTest {
   RuleI18nManager ruleI18nManager = mock(RuleI18nManager.class);
   Settings settings;
   IssueCache issueCache = mock(IssueCache.class);
-  TimeZone initialTimeZone;
 
   @Before
   public void setUp() {
-    initialTimeZone = TimeZone.getDefault();
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
 
@@ -79,14 +73,8 @@ public class JsonReportTest {
     jsonReport = new JsonReport(settings, fileSystem, server, ruleI18nManager, issueCache, mock(EventBus.class));
   }
 
-  @After
-  public void tearDown() throws Exception {
-    TimeZone.setDefault(initialTimeZone);
-  }
-
   @Test
-  @Ignore
-  public void should_write_json() throws JSONException {
+  public void should_write_json() throws Exception {
     DefaultIssue issue = new DefaultIssue()
         .setKey("200")
         .setComponentKey("struts:org.apache.struts.Action")
@@ -99,9 +87,9 @@ public class JsonReportTest {
         .setEffortToFix(3.14)
         .setReporter("julien")
         .setAssignee("simon")
-        .setCreationDate(DateUtils.parseDateTime("2013-04-24T00:00:00+0000"))
-        .setUpdateDate(DateUtils.parseDateTime("2013-04-25T00:00:00+0000"))
-        .setNew(false);
+        .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-24"))
+          .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-25"))
+          .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
     when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue> newArrayList(issue));
 
@@ -113,16 +101,16 @@ public class JsonReportTest {
   }
 
   @Test
-  public void should_exclude_resolved_issues() throws JSONException {
+  public void should_exclude_resolved_issues() throws Exception {
     DefaultIssue issue = new DefaultIssue()
         .setKey("200")
         .setComponentKey("struts:org.apache.struts.Action")
         .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
         .setStatus(Issue.STATUS_CLOSED)
         .setResolution(Issue.RESOLUTION_FIXED)
-        .setCreationDate(DateUtils.parseDateTime("2013-04-24T00:00:00+0000"))
-        .setUpdateDate(DateUtils.parseDateTime("2013-04-25T00:00:00+0000"))
-        .setCloseDate(DateUtils.parseDateTime("2013-04-26T00:00:00+0000"))
+        .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-24"))
+        .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-25"))
+        .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-04-26"))
         .setNew(false);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
     when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue> newArrayList(issue));
