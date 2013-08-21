@@ -21,12 +21,9 @@ package org.sonar.server.configuration;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rules.ActiveRuleChange;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 public class RuleChangeTest extends AbstractDbUnitTestCase {
   private ProfilesManager profilesManager;
@@ -55,22 +52,6 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
     setupData("initialData");
     profilesManager.activated(2, 3, "admin");
     checkTables("ruleActivated", new String[]{"change_date"}, "active_rule_changes");
-  }
-
-  @Test
-  public void should_not_track_rule_activation_on_not_used_first_version_profile() {
-    setupData("should_not_track_rule_activation_on_not_used_first_version_profile");
-    profilesManager.activated(1, 1, "admin");
-    assertThat(getHQLCount(ActiveRuleChange.class)).isEqualTo(0);
-    checkTables("should_not_track_rule_activation_on_not_used_first_version_profile", "rules_profiles");
-  }
-
-  @Test
-  public void should_track_rule_activation_on_used_first_version_profile() {
-    setupData("should_track_rule_activation_on_used_first_version_profile");
-    profilesManager.activated(1, 1, "admin");
-    assertThat(getHQLCount(ActiveRuleChange.class)).isEqualTo(1);
-    checkTables("should_track_rule_activation_on_used_first_version_profile", "rules_profiles");
   }
 
   @Test
