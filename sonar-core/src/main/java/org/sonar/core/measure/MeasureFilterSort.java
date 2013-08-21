@@ -19,6 +19,7 @@
  */
 package org.sonar.core.measure;
 
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 
 class MeasureFilterSort {
@@ -81,6 +82,10 @@ class MeasureFilterSort {
 
   boolean isOnDate() {
     return Field.DATE.equals(field) || Field.PROJECT_CREATION_DATE.equals(field);
+  }
+
+  boolean isOnAlert() {
+    return metric != null && metric.getKey().equals(CoreMetrics.ALERT_STATUS_KEY);
   }
 
   boolean isAsc() {

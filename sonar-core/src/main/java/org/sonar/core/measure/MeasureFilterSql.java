@@ -20,6 +20,7 @@
 package org.sonar.core.measure;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.apache.commons.dbutils.DbUtils;
@@ -191,6 +192,8 @@ class MeasureFilterSql {
       rowProcessor = new NumericSortRowProcessor();
     } else if (filter.sort().isOnDate()) {
       rowProcessor = new DateSortRowProcessor();
+    } else if (filter.sort().isOnAlert()) {
+      rowProcessor = new AlertSortRowProcessor();
     } else {
       rowProcessor = new TextSortRowProcessor();
     }
@@ -250,7 +253,25 @@ class MeasureFilterSql {
       }
       return ordering;
     }
+  }
 
+  static class AlertSortRowProcessor extends TextSortRowProcessor {
+    Function sortFieldFunction() {
+      return new Function<MeasureFilterRow, Integer>() {
+        public Integer apply(MeasureFilterRow row) {
+          return ImmutableList.of("OK", "WARN", "ERROR").indexOf(row.getSortText());
+        }
+      };
+    }
+
+    @Override
+    Ordering sortFieldOrdering(boolean ascending) {
+      Ordering<Integer> ordering = Ordering.<Integer>natural().nullsLast();
+      if (!ascending) {
+        ordering = ordering.reverse();
+      }
+      return ordering;
+    }
   }
 
   static class NumericSortRowProcessor extends RowProcessor {
@@ -325,3 +346,4 @@ class MeasureFilterSql {
     });
   }
 }
+
