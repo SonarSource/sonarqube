@@ -33,8 +33,9 @@ class BulkDeletionController < ApplicationController
     
     @selected_tab = params[:resource_type]
     @selected_tab = 'TRK' unless @tabs.include?(@selected_tab)
-    
+
     # Search for resources having snapshot with islast column to true
+    # SONAR-4569
     conditions = "resource_index.qualifier=:qualifier AND projects.qualifier=:qualifier AND projects.enabled=:enabled AND snapshots.islast=:islast"
     values = {:qualifier => @selected_tab, :enabled => true, :islast => true}
     if params[:name_filter] && !params[:name_filter].blank?
@@ -64,6 +65,7 @@ class BulkDeletionController < ApplicationController
         :select => 'project_id',
         :conditions => [conditions + " AND project_id IN (:pids)", values.merge({:status => Snapshot::STATUS_PROCESSED, :pids => unprocessed_project_ids})]).map(&:project_id).uniq
 
+    # SONAR-4569
     # Detect active projects without any snapshots or with no snapshot having islast column to true
     projects_not_having_snapshots_islast_to_true =
         Project.find_by_sql ["SELECT p.id FROM projects p WHERE p.enabled=? AND p.scope=? AND p.qualifier IN (?) AND NOT EXISTS (SELECT id FROM snapshots WHERE islast=? and project_id=p.id)",
