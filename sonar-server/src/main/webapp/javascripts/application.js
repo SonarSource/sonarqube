@@ -201,8 +201,14 @@ Treemap.prototype.load = function () {
     url: baseUrl + '/treemap/index?html_id=' + this.id + '&size_metric=' + this.sizeMetric + '&color_metric=' + this.colorMetric + '&resource=' + context.rid,
     dataType: "html",
     success: function (data) {
-      self.rootNode().html(data);
-      self.initNodes();
+      if (data.length > 1) {
+        self.rootNode().html(data);
+        self.initNodes();
+      } else {
+        // SONAR-3524
+        // When data is empty, do not display it and revert breadcrumb state
+        self.breadcrumb.pop();
+      }
       $j("#tm-loading-" + self.id).hide();
     }
   });
@@ -241,7 +247,6 @@ Treemap.prototype.initNodes = function () {
           self.breadcrumb.push(context);
           self.load();
         }
-
       }
     );
   });

@@ -42,10 +42,11 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
   end
 
   def html
-    if filter.rows
+    # SONAR-3524
+    # If filter is empty, we return a empty result in order to be treated more easily
+    if filter.rows && !filter.rows.empty?
       root = Treemap::Node.new(:id => -1, :label => '')
       build_tree(root)
-
       output = Sonar::HtmlOutput.new do |o|
         # width in percents
         o.width = 100
