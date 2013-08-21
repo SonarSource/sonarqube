@@ -21,9 +21,13 @@ package org.sonar.server.configuration;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rules.ActiveRuleChange;
+import org.sonar.api.rules.ActiveRuleParamChange;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class RuleChangeTest extends AbstractDbUnitTestCase {
   private ProfilesManager profilesManager;
@@ -69,6 +73,13 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void should_not_track_rule_param_change_if_no_change() {
+    setupData("initialData");
+    profilesManager.ruleParamChanged(2, 3, "param1", "20", "20", "admin");
+    assertThat(getHQLCount(ActiveRuleChange.class)).isEqualTo(0);
+  }
+
+  @Test
   public void should_track_rule_severity_change() {
     setupData("initialData");
     profilesManager.ruleSeverityChanged(2, 3, RulePriority.BLOCKER, RulePriority.CRITICAL, "admin");
@@ -76,10 +87,31 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  public void should_not_track_rule_severity_change_if_no_change() {
+    setupData("initialData");
+    profilesManager.ruleSeverityChanged(2, 3, RulePriority.BLOCKER, RulePriority.BLOCKER, "admin");
+    assertThat(getHQLCount(ActiveRuleChange.class)).isEqualTo(0);
+  }
+
+  @Test
   public void should_track_rule_revert() {
     setupData("ruleReverted");
     profilesManager.revert(2, 3, "admin");
     checkTables("ruleReverted", new String[]{"change_date"}, "active_rule_changes", "active_rule_param_changes");
+  }
+
+  @Test
+  public void should_not_track_param_change_on_rule_revert_if_no_param() {
+    setupData("should_not_track_param_change_on_rule_revert_if_no_param");
+    profilesManager.revert(2, 3, "admin");
+    assertThat(getHQLCount(ActiveRuleParamChange.class)).isEqualTo(0);
+  }
+
+  @Test
+  public void should_not_track_param_change_on_rule_revert_if_no_change() {
+    setupData("should_not_track_param_change_on_rule_revert_if_no_param");
+    profilesManager.revert(2, 3, "admin");
+    assertThat(getHQLCount(ActiveRuleParamChange.class)).isEqualTo(0);
   }
 
   @Test
