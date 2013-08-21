@@ -50,6 +50,7 @@ public class IssueQueryTest {
       .assigned(true)
       .createdAfter(new Date())
       .createdBefore(new Date())
+      .createdAt(new Date())
       .planned(true)
       .resolved(true)
       .sort(IssueQuery.SORT_BY_ASSIGNEE)
@@ -71,6 +72,7 @@ public class IssueQueryTest {
     assertThat(query.actionPlans()).containsOnly("AP1", "AP2");
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();
+    assertThat(query.createdAt()).isNotNull();
     assertThat(query.planned()).isTrue();
     assertThat(query.resolved()).isTrue();
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_ASSIGNEE);
@@ -84,11 +86,15 @@ public class IssueQueryTest {
   public void should_build_query_without_dates() throws Exception {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(newArrayList("ABCDE"))
+      .createdAfter(null)
+      .createdBefore(null)
+      .createdAt(null)
       .build();
 
     assertThat(query.issueKeys()).containsOnly("ABCDE");
     assertThat(query.createdAfter()).isNull();
     assertThat(query.createdBefore()).isNull();
+    assertThat(query.createdAt()).isNull();
   }
 
   @Test
