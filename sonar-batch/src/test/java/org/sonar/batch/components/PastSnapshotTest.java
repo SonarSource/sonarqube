@@ -47,8 +47,8 @@ public class PastSnapshotTest {
   }
 
   @Test
-  public void test_some_setters_and_getters2() {
-    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, new Date(), new Snapshot());
+  public void test_some_setters_and_getters_with_empty_snapshot() {
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION);
 
     assertThat(pastSnapshot.getQualifier()).isNull();
     assertThat(pastSnapshot.getDate()).isNull();

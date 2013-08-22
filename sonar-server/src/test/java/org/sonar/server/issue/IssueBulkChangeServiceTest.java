@@ -208,6 +208,23 @@ public class IssueBulkChangeServiceTest {
   }
 
   @Test
+  public void should_not_execute_bulk_if_action_is_not_verified() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
+    actions.add(new MockAction("assign", false, true, true));
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result.issuesChanged()).isEmpty();
+    assertThat(result.issuesNotChanged()).isEmpty();
+
+    verifyZeroInteractions(issueStorage);
+    verifyZeroInteractions(issueNotifications);
+  }
+
+  @Test
   public void should_not_execute_bulk_if_action_could_not_be_executed_on_issue() {
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD");

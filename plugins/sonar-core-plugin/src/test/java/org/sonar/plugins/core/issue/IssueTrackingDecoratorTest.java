@@ -201,6 +201,35 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void manual_issues_should_be_closed_if_manual_rule_is_not_found() throws Exception {
+    // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
+    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+
+    // INPUT : one issue existing during previous scan
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(null);
+
+    IssueTrackingResult trackingResult = new IssueTrackingResult();
+    trackingResult.addUnmatched(unmatchedIssue);
+
+    when(tracking.track(eq(file), anyCollection(), anyCollection())).thenReturn(trackingResult);
+
+    decorator.doDecorate(file);
+
+    verify(workflow, times(1)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
+    verify(handlers, times(1)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueCache).put(argument.capture());
+
+    DefaultIssue issue = argument.getValue();
+    assertThat(issue.key()).isEqualTo("ABCDE");
+    assertThat(issue.isNew()).isFalse();
+    assertThat(issue.isEndOfLife()).isTrue();
+    assertThat(issue.isOnDisabledRule()).isTrue();
+  }
+
+  @Test
   public void should_register_issues_on_deleted_components() throws Exception {
     Project project = new Project("struts");
     DefaultIssue openIssue = new DefaultIssue();

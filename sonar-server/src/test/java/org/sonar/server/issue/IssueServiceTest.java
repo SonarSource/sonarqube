@@ -201,6 +201,26 @@ public class IssueServiceTest {
     verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
   }
 
+
+  @Test
+  public void should_unassign() {
+    when(issueUpdater.assign(eq(issue), eq((User) null), any(IssueChangeContext.class))).thenReturn(true);
+
+    Issue result = issueService.assign("ABCD", null, userSession);
+    assertThat(result).isNotNull();
+
+    ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
+    verify(issueUpdater).assign(eq(issue), eq((User) null), measureCaptor.capture());
+    verify(issueStorage).save(issue);
+
+    IssueChangeContext issueChangeContext = measureCaptor.getValue();
+    assertThat(issueChangeContext.login()).isEqualTo("arthur");
+    assertThat(issueChangeContext.date()).isNotNull();
+
+    verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
+    verify(userFinder, never()).findByLogin(anyString());
+  }
+
   @Test
   public void should_not_assign() {
     String assignee = "perceval";
@@ -256,6 +276,25 @@ public class IssueServiceTest {
     assertThat(issueChangeContext.date()).isNotNull();
 
     verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
+  }
+
+  @Test
+  public void should_unplan() {
+    when(issueUpdater.plan(eq(issue), eq((ActionPlan) null), any(IssueChangeContext.class))).thenReturn(true);
+
+    Issue result = issueService.plan("ABCD", null, userSession);
+    assertThat(result).isNotNull();
+
+    ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
+    verify(issueUpdater).plan(eq(issue), eq((ActionPlan) null), measureCaptor.capture());
+    verify(issueStorage).save(issue);
+
+    IssueChangeContext issueChangeContext = measureCaptor.getValue();
+    assertThat(issueChangeContext.login()).isEqualTo("arthur");
+    assertThat(issueChangeContext.date()).isNotNull();
+
+    verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
+    verify(actionPlanService, never()).findByKey(anyString(), any(UserSession.class));
   }
 
   @Test
