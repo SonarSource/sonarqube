@@ -60,7 +60,7 @@ public class MavenProjectConverter implements TaskExtension {
 
       rebuildModuleHierarchy(paths, defs);
     } catch (IOException e) {
-      throw new SonarException(e);
+      throw new SonarException("Cannot configure project", e);
     }
 
     ProjectDefinition rootProject = defs.get(root);

@@ -78,7 +78,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     try {
       return URLEncoder.encode(toEncode, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException(e);
+      throw new IllegalStateException("Encoding not supported", e);
     }
   }
 

@@ -32,11 +32,7 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -58,20 +54,12 @@ import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 import javax.annotation.Nullable;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class SonarEngine extends CpdEngine {
 
@@ -140,7 +128,7 @@ public class SonarEngine extends CpdEngine {
         reader = new InputStreamReader(new FileInputStream(file), fileSystem.sourceCharset());
         statements = statementChunker.chunk(tokenChunker.chunk(reader));
       } catch (FileNotFoundException e) {
-        throw new SonarException(e);
+        throw new SonarException("Cannot find file "+ file, e);
       } finally {
         IOUtils.closeQuietly(reader);
       }
@@ -169,9 +157,9 @@ public class SonarEngine extends CpdEngine {
           clones = null;
           LOG.warn("Timeout during detection of duplications for " + file, e);
         } catch (InterruptedException e) {
-          throw new SonarException(e);
+          throw new SonarException("Fail during detection of duplication for "+ file, e);
         } catch (ExecutionException e) {
-          throw new SonarException(e);
+          throw new SonarException("Fail during detection of duplication for "+ file, e);
         }
 
         save(context, resource, clones);
