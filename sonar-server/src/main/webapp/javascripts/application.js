@@ -241,12 +241,9 @@ Treemap.prototype.initNodes = function () {
     $j(this).on("click", function (event) {
         var source = $j(this);
         var rid = source.attr('rid');
-        var has_leaves = !!(source.attr('l'));
-        if (!has_leaves) {
-          var context = new TreemapContext(rid, source.text());
-          self.breadcrumb.push(context);
-          self.load();
-        }
+        var context = new TreemapContext(rid, source.text());
+        self.breadcrumb.push(context);
+        self.load();
       }
     );
   });
