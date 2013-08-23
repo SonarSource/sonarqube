@@ -107,6 +107,9 @@ class Rule < ActiveRecord::Base
         begin
           result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName(I18n.locale, repository_key, plugin_rule_key)
           result = read_attribute(:name) unless result
+          # SONAR-4583
+          # name should return an empty string instead of nil
+          result = '' unless result
           result
         end
     else
@@ -115,6 +118,9 @@ class Rule < ActiveRecord::Base
           result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName("en", repository_key, plugin_rule_key)
           # if no name present in the bundle, try to find it in the DB
           result = read_attribute(:name) unless result
+          # SONAR-4583
+          # name should return an empty string instead of nil
+          result = '' unless result
           result
         end
     end
@@ -129,6 +135,9 @@ class Rule < ActiveRecord::Base
       begin
         result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleDescription(I18n.locale, repository_key, plugin_rule_key)
         result = read_attribute(:description) unless result
+        # SONAR-4583
+        # description should return an empty string instead of nil
+        result = '' unless result
         result
       end
   end
