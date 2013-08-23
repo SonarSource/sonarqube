@@ -26,6 +26,9 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class PurgeCommandsTest extends AbstractDaoTestCase {
 
@@ -51,6 +54,20 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
     }
     checkTables("shouldDeleteSnapshot",
         "snapshots", "project_measures", "measure_data", "snapshot_sources", "duplications_index", "events", "dependencies", "snapshot_data");
+  }
+
+  /**
+   * Test that SQL queries execution do not fail with a huge number of parameter
+   */
+  @Test
+  public void should_not_fail_when_deleting_huge_number_of_snapshots() {
+    SqlSession session = getMyBatis().openSession();
+    try {
+      new PurgeCommands(session, profiler).deleteSnapshots(getHugeNumberOfIds());
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    // The goal of this test is only to check that the query do no fail, not to check result
   }
 
   /**
@@ -83,6 +100,20 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
     checkTables("shouldDeleteWastedMeasuresWhenPurgingSnapshot", "project_measures");
   }
 
+  /**
+   * Test that SQL queries execution do not fail with a huge number of parameter
+   */
+  @Test
+  public void should_not_fail_when_purging_huge_number_of_snapshots() {
+    SqlSession session = getMyBatis().openSession();
+    try {
+      new PurgeCommands(session, profiler).purgeSnapshots(getHugeNumberOfIds());
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    // The goal of this test is only to check that the query do no fail, not to check result
+  }
+
   @Test
   public void shouldDeleteResource() {
     setupData("shouldDeleteResource");
@@ -93,6 +124,28 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
       MyBatis.closeQuietly(session);
     }
     assertEmptyTables("projects", "snapshots", "events", "issues", "issue_changes", "authors");
+  }
+
+  /**
+   * Test that SQL queries execution do not fail with a huge number of parameter
+   */
+  @Test
+  public void should_not_fail_when_deleting_huge_number_of_resources() {
+    SqlSession session = getMyBatis().openSession();
+    try {
+      new PurgeCommands(session, profiler).deleteResources(getHugeNumberOfIds());
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    // The goal of this test is only to check that the query do no fail, not to check result
+  }
+
+  private List<Long> getHugeNumberOfIds(){
+    List<Long> hugeNbOfSnapshotIds = newArrayList();
+    for (long i=0; i<4500; i++) {
+      hugeNbOfSnapshotIds.add(i);
+    }
+    return hugeNbOfSnapshotIds;
   }
 
 }

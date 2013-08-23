@@ -122,18 +122,24 @@
     </foreach>
   </delete>
 
-  <delete id="deleteSnapshotDependencies" parameterType="map">
+  <delete id="deleteSnapshotDependenciesFromSnapshotId" parameterType="map">
     delete from dependencies where from_snapshot_id in
     <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
         #{snapshotId}
     </foreach>
-    or to_snapshot_id in
+  </delete>
+
+  <delete id="deleteSnapshotDependenciesToSnapshotId" parameterType="map">
+    delete from dependencies where to_snapshot_id in
     <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-        #{snapshotId}
+      #{snapshotId}
     </foreach>
-    or project_snapshot_id in
+  </delete>
+
+  <delete id="deleteSnapshotDependenciesProjectSnapshotId" parameterType="map">
+    delete from dependencies where project_snapshot_id in
     <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-        #{snapshotId}
+      #{snapshotId}
     </foreach>
   </delete>
 

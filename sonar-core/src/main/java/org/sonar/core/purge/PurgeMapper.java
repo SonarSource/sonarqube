@@ -36,7 +36,11 @@ public interface PurgeMapper {
 
   void deleteSnapshot(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotDependencies(@Param("snapshotIds") List<Long> snapshotIds);
+  void deleteSnapshotDependenciesFromSnapshotId(@Param("snapshotIds") List<Long> snapshotIds);
+
+  void deleteSnapshotDependenciesToSnapshotId(@Param("snapshotIds") List<Long> snapshotIds);
+
+  void deleteSnapshotDependenciesProjectSnapshotId(@Param("snapshotIds") List<Long> snapshotIds);
 
   void deleteSnapshotDuplications(@Param("snapshotIds") List<Long> snapshotIds);
 
