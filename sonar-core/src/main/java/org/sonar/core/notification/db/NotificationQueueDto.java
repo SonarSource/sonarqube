@@ -17,56 +17,88 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.notification;
+
+package org.sonar.core.notification.db;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.SonarException;
 
-import javax.persistence.*;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Date;
 
-@Entity
-@Table(name = "notifications")
-public class NotificationQueueElement {
+/**
+ * @since 4.0
+ */
+public class NotificationQueueDto {
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
-  private Integer id;
-
-  @Column(name = "created_at")
+  private Long id;
   private Date createdAt;
-
-  @Column(name = "data", updatable = true, nullable = true, length = 167772150)
   private byte[] data;
 
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public NotificationQueueDto setId(Long id) {
     this.id = id;
+    return this;
   }
 
   public Date getCreatedAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(Date createdAt) {
+  public NotificationQueueDto setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
+    return this;
   }
 
-  public void setNotification(Notification notification) {
+  public byte[] getData() {
+    return data;
+  }
+
+  public NotificationQueueDto setData(byte[] data) {
+    this.data = data;
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    NotificationQueueDto actionPlanDto = (NotificationQueueDto) o;
+    return !(id != null ? !id.equals(actionPlanDto.id) : actionPlanDto.id != null);
+  }
+
+  @Override
+  public int hashCode() {
+    return id != null ? id.hashCode() : 0;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  public static NotificationQueueDto toNotificationQueueDto(Notification notification) {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     try {
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
       objectOutputStream.writeObject(notification);
       objectOutputStream.close();
-      this.data = byteArrayOutputStream.toByteArray();
+      return new NotificationQueueDto().setData(byteArrayOutputStream.toByteArray());
 
     } catch (IOException e) {
       throw new SonarException(e);
@@ -76,7 +108,7 @@ public class NotificationQueueElement {
     }
   }
 
-  public Notification getNotification() {
+  public Notification toNotification() {
     if (this.data == null) {
       return null;
     }
@@ -93,14 +125,10 @@ public class NotificationQueueElement {
 
     } catch (ClassNotFoundException e) {
       throw new SonarException(e);
-      
+
     } finally {
       IOUtils.closeQuietly(byteArrayInputStream);
     }
   }
 
-  @Override
-  public String toString() {
-    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
-  }
 }

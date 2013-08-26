@@ -1,0 +1,75 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2013 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.core.notification.db;
+
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.MyBatis;
+
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * @since 4.0
+ */
+public class NotificationQueueDao implements BatchComponent, ServerComponent {
+
+  private final MyBatis mybatis;
+
+  public NotificationQueueDao(MyBatis mybatis) {
+    this.mybatis = mybatis;
+  }
+
+  public void insert(NotificationQueueDto dto) {
+    SqlSession session = mybatis.openSession();
+    try {
+      session.getMapper(NotificationQueueMapper.class).insert(dto);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void delete(List<NotificationQueueDto> dtos) {
+    SqlSession session = mybatis.openBatchSession();
+    try {
+      for (NotificationQueueDto dto : dtos) {
+        session.getMapper(NotificationQueueMapper.class).delete(dto.getId());
+      }
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<NotificationQueueDto> findOldest(int count) {
+    if (count < 1) {
+      return Collections.emptyList();
+    }
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(NotificationQueueMapper.class).findOldest(count);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+}

@@ -27,7 +27,6 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.core.notification.NotificationQueueElement;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -46,7 +45,6 @@ public class NotificationServiceTest {
   private static String ASSIGNEE_SIMON = "simon";
 
   private final DefaultNotificationManager manager = mock(DefaultNotificationManager.class);
-  private final NotificationQueueElement queueElement = mock(NotificationQueueElement.class);
   private final Notification notification = mock(Notification.class);
   private final NotificationChannel emailChannel = mock(NotificationChannel.class);
   private final NotificationChannel gtalkChannel = mock(NotificationChannel.class);
@@ -60,13 +58,12 @@ public class NotificationServiceTest {
     when(gtalkChannel.getKey()).thenReturn("gtalk");
     when(commentOnReviewAssignedToMe.getKey()).thenReturn("comment on review assigned to me");
     when(commentOnReviewCreatedByMe.getKey()).thenReturn("comment on review created by me");
-    when(queueElement.getNotification()).thenReturn(notification);
-    when(manager.getFromQueue()).thenReturn(queueElement).thenReturn(null);
+    when(manager.getFromQueue()).thenReturn(notification).thenReturn(null);
 
     Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
     service = new NotificationService(settings, manager,
-        new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe});
+      new NotificationDispatcher[] {commentOnReviewAssignedToMe, commentOnReviewCreatedByMe});
   }
 
   /**
@@ -132,7 +129,7 @@ public class NotificationServiceTest {
   public void scenario3() {
     setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
     doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[] {emailChannel, gtalkChannel}))
-        .when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
+      .when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     service.start();
     verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
@@ -168,8 +165,7 @@ public class NotificationServiceTest {
   @Test
   public void shouldNotStopWhenException() {
     setUpMocks(CREATOR_SIMON, ASSIGNEE_SIMON);
-    when(queueElement.getNotification()).thenThrow(new RuntimeException("Unexpected exception")).thenReturn(notification);
-    when(manager.getFromQueue()).thenReturn(queueElement).thenReturn(queueElement).thenReturn(null);
+    when(manager.getFromQueue()).thenThrow(new RuntimeException("Unexpected exception")).thenReturn(notification).thenReturn(null);
     doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnReviewAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
     doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnReviewCreatedByMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 

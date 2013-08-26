@@ -33,7 +33,6 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.core.notification.NotificationQueueElement;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -115,13 +114,13 @@ public class NotificationService implements ServerComponent {
   synchronized void processQueue() {
     TIME_PROFILER.start("Processing notifications queue");
 
-    NotificationQueueElement queueElement = manager.getFromQueue();
-    while (queueElement != null) {
-      deliver(queueElement.getNotification());
+    Notification notifToSend = manager.getFromQueue();
+    while (notifToSend != null) {
+      deliver(notifToSend);
       if (stopping) {
         break;
       }
-      queueElement = manager.getFromQueue();
+      notifToSend = manager.getFromQueue();
     }
 
     TIME_PROFILER.stop();

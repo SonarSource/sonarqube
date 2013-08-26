@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
+
+<mapper namespace="org.sonar.core.notification.db.NotificationQueueMapper">
+
+  <insert id="insert" parameterType="NotificationQueue" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO notifications (created_at, data)
+    VALUES (current_timestamp, #{data})
+  </insert>
+
+  <delete id="delete" parameterType="long">
+    delete from notifications where id=#{id}
+  </delete>
+
+  <select id="findOldest" parameterType="int" resultType="NotificationQueue">
+    select id, created_at, data
+    from notifications
+    order by created_at asc
+    limit #{count}
+  </select>
+
+  <!-- SQL Server -->
+  <select id="findOldest" parameterType="int" resultType="NotificationQueue" databaseId="mssql">
+    select top (#{count}) id, created_at, data
+    from notifications
+    order by created_at asc
+  </select>
+
+  <!-- Oracle -->
+  <select id="findOldest" parameterType="int" resultType="NotificationQueue" databaseId="oracle">
+    select * from (select
+      id, created_at, data
+      from notifications
+      order by created_at asc
+    )
+    where rownum &lt;= #{count}
+  </select>
+
+</mapper>
