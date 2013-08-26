@@ -126,7 +126,7 @@ class Server
 
   def realm_name
     realm_factory = Api::Utils.java_facade.getCoreComponentByClassname('org.sonar.server.ui.SecurityRealmFactory')
-    if realm_factory
+    if realm_factory && realm_factory.getRealm()
       realm_factory.getRealm().getName()
     else
       nil
