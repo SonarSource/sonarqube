@@ -30,6 +30,9 @@ import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.DryRunIncompatible;
 import org.sonar.core.issue.IssueNotifications;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * @since 3.6
  */
@@ -54,6 +57,7 @@ public class SendIssueNotificationsPostJob implements PostJob {
   private void sendNotifications(Project project) {
     int newIssues = 0;
     IssueChangeContext context = IssueChangeContext.createScan(project.getAnalysisDate());
+    Map<DefaultIssue, Rule> shouldSentNotification = new LinkedHashMap<DefaultIssue, Rule>();
     for (DefaultIssue issue : issueCache.all()) {
       if (issue.isNew() && issue.resolution() == null) {
         newIssues++;
@@ -62,9 +66,12 @@ public class SendIssueNotificationsPostJob implements PostJob {
         Rule rule = ruleFinder.findByKey(issue.ruleKey());
         // TODO warning - rules with status REMOVED are currently ignored, but should not
         if (rule != null) {
-          notifications.sendChanges(issue, context, rule, project, null);
+          shouldSentNotification.put(issue, rule);
         }
       }
+    }
+    if (!shouldSentNotification.isEmpty()) {
+      notifications.sendChanges(shouldSentNotification, context, project, null);
     }
     if (newIssues > 0) {
       notifications.sendNewIssues(project, newIssues);

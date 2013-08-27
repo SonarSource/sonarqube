@@ -20,7 +20,9 @@
 package org.sonar.core.notification;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import org.sonar.api.notifications.Notification;
@@ -66,7 +68,16 @@ public class DefaultNotificationManager implements NotificationManager {
    */
   public void scheduleForSending(Notification notification) {
     NotificationQueueDto dto = NotificationQueueDto.toNotificationQueueDto(notification);
-    notificationQueueDao.insert(dto);
+    notificationQueueDao.insert(Arrays.asList(dto));
+  }
+
+  public void scheduleForSending(List<Notification> notification) {
+    notificationQueueDao.insert(Lists.transform(notification, new Function<Notification, NotificationQueueDto>() {
+      @Override
+      public NotificationQueueDto apply(Notification notification) {
+        return NotificationQueueDto.toNotificationQueueDto(notification);
+      }
+    }));
   }
 
   /**

@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueNotificationsTest {
@@ -82,10 +83,10 @@ public class IssueNotificationsTest {
       .setSendNotifications(true)
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
-    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue> asList(issue));
+    queryResult.addProjects(Arrays.<Component> asList(new Project("struts")));
 
-    Notification notification = issueNotifications.sendChanges(issue, context, queryResult);
+    Notification notification = issueNotifications.sendChanges(issue, context, queryResult).get(0);
 
     assertThat(notification.getFieldValue("message")).isEqualTo("the message");
     assertThat(notification.getFieldValue("key")).isEqualTo("ABCDE");
@@ -97,7 +98,7 @@ public class IssueNotificationsTest {
     assertThat(notification.getFieldValue("new.status")).isEqualTo("RESOLVED");
     assertThat(notification.getFieldValue("old.assignee")).isEqualTo("simon");
     assertThat(notification.getFieldValue("new.assignee")).isNull();
-    Mockito.verify(manager).scheduleForSending(notification);
+    Mockito.verify(manager).scheduleForSending(eq(Arrays.asList(notification)));
   }
 
   @Test
@@ -109,8 +110,8 @@ public class IssueNotificationsTest {
       .setAssignee("freddy")
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
-    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue> asList(issue));
+    queryResult.addProjects(Arrays.<Component> asList(new Project("struts")));
 
     Notification notification = issueNotifications.sendChanges(issue, context, queryResult, "I don't know how to fix it?");
 
@@ -131,11 +132,11 @@ public class IssueNotificationsTest {
       .setSendNotifications(true)
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
-    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
-    queryResult.addComponents(Arrays.<Component>asList(new ResourceComponent(new File("struts:Action").setEffectiveKey("struts:Action"))));
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue> asList(issue));
+    queryResult.addProjects(Arrays.<Component> asList(new Project("struts")));
+    queryResult.addComponents(Arrays.<Component> asList(new ResourceComponent(new File("struts:Action").setEffectiveKey("struts:Action"))));
 
-    Notification notification = issueNotifications.sendChanges(issue, context, queryResult);
+    Notification notification = issueNotifications.sendChanges(issue, context, queryResult).get(0);
 
     assertThat(notification.getFieldValue("message")).isEqualTo("the message");
     assertThat(notification.getFieldValue("key")).isEqualTo("ABCDE");
@@ -143,7 +144,7 @@ public class IssueNotificationsTest {
     assertThat(notification.getFieldValue("componentName")).isEqualTo("struts:Action");
     assertThat(notification.getFieldValue("old.resolution")).isNull();
     assertThat(notification.getFieldValue("new.resolution")).isEqualTo("FIXED");
-    Mockito.verify(manager).scheduleForSending(notification);
+    Mockito.verify(manager).scheduleForSending(eq(Arrays.asList(notification)));
   }
 
   @Test
@@ -154,8 +155,8 @@ public class IssueNotificationsTest {
       .setKey("ABCDE")
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
-    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue> asList(issue));
+    queryResult.addProjects(Arrays.<Component> asList(new Project("struts")));
 
     Notification notification = issueNotifications.sendChanges(issue, context, queryResult, null);
 

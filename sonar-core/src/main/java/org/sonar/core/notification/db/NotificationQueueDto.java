@@ -31,7 +31,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Date;
 
 /**
  * @since 4.0
@@ -39,7 +38,6 @@ import java.util.Date;
 public class NotificationQueueDto {
 
   private Long id;
-  private Date createdAt;
   private byte[] data;
 
   public Long getId() {
@@ -51,15 +49,6 @@ public class NotificationQueueDto {
     return this;
   }
 
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
-  public NotificationQueueDto setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
   public byte[] getData() {
     return data;
   }
@@ -67,24 +56,6 @@ public class NotificationQueueDto {
   public NotificationQueueDto setData(byte[] data) {
     this.data = data;
     return this;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    NotificationQueueDto actionPlanDto = (NotificationQueueDto) o;
-    return !(id != null ? !id.equals(actionPlanDto.id) : actionPlanDto.id != null);
-  }
-
-  @Override
-  public int hashCode() {
-    return id != null ? id.hashCode() : 0;
   }
 
   @Override
@@ -101,7 +72,7 @@ public class NotificationQueueDto {
       return new NotificationQueueDto().setData(byteArrayOutputStream.toByteArray());
 
     } catch (IOException e) {
-      throw new SonarException(e);
+      throw new SonarException("Unable to write notification", e);
 
     } finally {
       IOUtils.closeQuietly(byteArrayOutputStream);
@@ -121,10 +92,10 @@ public class NotificationQueueDto {
       return (Notification) result;
 
     } catch (IOException e) {
-      throw new SonarException(e);
+      throw new SonarException("Unable to read notification", e);
 
     } catch (ClassNotFoundException e) {
-      throw new SonarException(e);
+      throw new SonarException("Unable to read notification", e);
 
     } finally {
       IOUtils.closeQuietly(byteArrayInputStream);

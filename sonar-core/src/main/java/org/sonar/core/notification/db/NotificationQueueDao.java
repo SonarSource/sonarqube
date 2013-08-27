@@ -39,10 +39,12 @@ public class NotificationQueueDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public void insert(NotificationQueueDto dto) {
-    SqlSession session = mybatis.openSession();
+  public void insert(List<NotificationQueueDto> dtos) {
+    SqlSession session = mybatis.openBatchSession();
     try {
-      session.getMapper(NotificationQueueMapper.class).insert(dto);
+      for (NotificationQueueDto dto : dtos) {
+        session.getMapper(NotificationQueueMapper.class).insert(dto);
+      }
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

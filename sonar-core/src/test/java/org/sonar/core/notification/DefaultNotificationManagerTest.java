@@ -88,7 +88,7 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
     Notification notification = new Notification("test");
     manager.scheduleForSending(notification);
 
-    verify(notificationQueueDao, only()).insert(any(NotificationQueueDto.class));
+    verify(notificationQueueDao, only()).insert(any(List.class));
   }
 
   @Test
