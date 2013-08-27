@@ -21,14 +21,10 @@
 #
 # @since SonarQube 4.0
 #
-class AddIndexToNotificationsCreatedAt < ActiveRecord::Migration
+class RemoveNotificationsCreatedAt < ActiveRecord::Migration
 
   def self.up
-    begin
-      add_index :notifications, :created_at, :name => 'notifications_created_at'
-    rescue
-      # already exists
-    end
+    remove_column('notifications', 'created_at')
   end
 
 end

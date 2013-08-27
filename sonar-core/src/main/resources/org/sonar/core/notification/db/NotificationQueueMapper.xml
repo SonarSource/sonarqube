@@ -5,8 +5,8 @@
 <mapper namespace="org.sonar.core.notification.db.NotificationQueueMapper">
 
   <insert id="insert" parameterType="NotificationQueue" useGeneratedKeys="false">
-    INSERT INTO notifications (created_at, data)
-    VALUES (current_timestamp, #{data})
+    INSERT INTO notifications (data)
+    VALUES (#{data})
   </insert>
 
   <delete id="delete" parameterType="long">
@@ -16,7 +16,7 @@
   <select id="findOldest" parameterType="int" resultType="NotificationQueue">
     select id, data
     from notifications
-    order by created_at asc
+    order by id asc
     limit #{count}
   </select>
 
@@ -24,7 +24,7 @@
   <select id="findOldest" parameterType="int" resultType="NotificationQueue" databaseId="mssql">
     select top (#{count}) id, data
     from notifications
-    order by created_at asc
+    order by id asc
   </select>
 
   <!-- Oracle -->
@@ -32,7 +32,7 @@
     select * from (select
       id, data
       from notifications
-      order by created_at asc
+      order by id asc
     )
     where rownum &lt;= #{count}
   </select>

@@ -45,7 +45,7 @@ public class NotificationQueueDaoTest extends AbstractDaoTestCase {
 
     dao.insert(Arrays.asList(notificationQueueDto));
 
-    checkTables("should_insert_new_notification_queue", new String[] {"id", "created_at"}, "notifications");
+    checkTables("should_insert_new_notification_queue", new String[] {"id"}, "notifications");
     assertThat(dao.findOldest(1).get(0).toNotification().getType()).isEqualTo("email");
   }
 
@@ -67,7 +67,7 @@ public class NotificationQueueDaoTest extends AbstractDaoTestCase {
 
     Collection<NotificationQueueDto> result = dao.findOldest(3);
     assertThat(result).hasSize(3);
-    assertThat(result).onProperty("id").containsOnly(1L, 2L, 4L);
+    assertThat(result).onProperty("id").containsOnly(1L, 2L, 3L);
 
     result = dao.findOldest(6);
     assertThat(result).hasSize(4);
