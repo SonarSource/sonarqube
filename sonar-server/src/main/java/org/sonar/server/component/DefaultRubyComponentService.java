@@ -25,6 +25,7 @@ import org.sonar.api.component.RubyComponentService;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.util.RubyUtils;
 
+import java.util.List;
 import java.util.Map;
 
 public class DefaultRubyComponentService implements RubyComponentService {
@@ -43,7 +44,15 @@ public class DefaultRubyComponentService implements RubyComponentService {
   }
 
   public DefaultComponentQueryResult find(Map<String, Object> params) {
-    return finder.find(toQuery(params));
+    ComponentQuery query = toQuery(params);
+    List<Component> components = resourceDao.selectComponentsByQualifiers(query.qualifiers());
+    return finder.find(query, components);
+  }
+
+  public DefaultComponentQueryResult findWithUncompleteProjects(Map<String, Object> params) {
+    ComponentQuery query = toQuery(params);
+    List<Component> components = resourceDao.selectComponentsIncludingNotCompletedOnesByQualifiers(query.qualifiers());
+    return finder.find(query, components);
   }
 
   static ComponentQuery toQuery(Map<String, Object> props) {

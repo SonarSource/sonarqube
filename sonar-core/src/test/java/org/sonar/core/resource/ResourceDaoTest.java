@@ -312,14 +312,25 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_select_components_by_qualifiers(){
-    setupData("fixture", "technical-project");
+    setupData("fixture-including-technical-project-and-not-finished-projects");
 
     List<Component> components = dao.selectComponentsByQualifiers(newArrayList("TRK"));
     assertThat(components).hasSize(1);
     assertThat(components.get(0).key()).isEqualTo("org.struts:struts");
     assertThat(((ComponentDto)components.get(0)).getId()).isEqualTo(1L);
 
-    assertThat(dao.selectComponentsByQualifiers(newArrayList("unknown"))).isEmpty();
-    assertThat(dao.selectComponentsByQualifiers(Collections.<String>emptyList())).isEmpty();
+    assertThat(dao.selectComponentsIncludingNotCompletedOnesByQualifiers(newArrayList("unknown"))).isEmpty();
+    assertThat(dao.selectComponentsIncludingNotCompletedOnesByQualifiers(Collections.<String>emptyList())).isEmpty();
+  }
+
+  @Test
+  public void should_select_components_including_not_finished_by_qualifiers(){
+    setupData("fixture-including-technical-project-and-not-finished-projects");
+
+    List<Component> components = dao.selectComponentsIncludingNotCompletedOnesByQualifiers(newArrayList("TRK"));
+    assertThat(components).hasSize(3);
+
+    assertThat(dao.selectComponentsIncludingNotCompletedOnesByQualifiers(newArrayList("unknown"))).isEmpty();
+    assertThat(dao.selectComponentsIncludingNotCompletedOnesByQualifiers(Collections.<String>emptyList())).isEmpty();
   }
 }

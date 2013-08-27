@@ -122,6 +122,20 @@
 
   <select id="selectComponentsByQualifiers" parameterType="map" resultMap="resourceResultMap">
     select * from projects p
+    inner join snapshots s on s.project_id=p.id
+    <where>
+      <if test="qualifiers != null and qualifiers.size() > 0">
+        and <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">p.qualifier=#{qualifier}
+      </foreach>
+      </if>
+      and p.enabled=${_true}
+      and p.copy_resource_id is null
+      and s.islast=${_true}
+    </where>
+  </select>
+
+  <select id="selectComponentsIncludingNotCompletedOnesByQualifiers" parameterType="map" resultMap="resourceResultMap">
+    select * from projects p
     <where>
       <if test="qualifiers != null and qualifiers.size() > 0">
         and <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">p.qualifier=#{qualifier}

@@ -207,12 +207,22 @@ public class ResourceDao {
     }
     SqlSession session = mybatis.openSession();
     try {
-      List<ResourceDto> resourceDtos = session.getMapper(ResourceMapper.class).selectComponentsByQualifiers(qualifiers);
-      List<Component> components = newArrayList();
-      for (ResourceDto resourceDto : resourceDtos) {
-        components.add(toComponent(resourceDto));
-      }
-      return components;
+      return toComponents(session.getMapper(ResourceMapper.class).selectComponentsByQualifiers(qualifiers));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  /**
+   * Return enabled components including not completed ones, ie without snapshots or without snapshot having islast=true
+   */
+  public List<Component> selectComponentsIncludingNotCompletedOnesByQualifiers(Collection<String> qualifiers) {
+    if (qualifiers.isEmpty()) {
+      return Collections.emptyList();
+    }
+    SqlSession session = mybatis.openSession();
+    try {
+      return toComponents(session.getMapper(ResourceMapper.class).selectComponentsIncludingNotCompletedOnesByQualifiers(qualifiers));
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -227,10 +237,10 @@ public class ResourceDao {
       .setQualifier(resourceDto.getQualifier());
   }
 
-  public static List<ComponentDto> toComponents(List<ResourceDto> resourceDto){
-    return newArrayList(Iterables.transform(resourceDto, new Function<ResourceDto, ComponentDto>() {
+  public static List<Component> toComponents(List<ResourceDto> resourceDto){
+    return newArrayList(Iterables.transform(resourceDto, new Function<ResourceDto, Component>() {
       @Override
-      public ComponentDto apply(@Nullable ResourceDto resourceDto) {
+      public Component apply(@Nullable ResourceDto resourceDto) {
         return resourceDto == null ? null : toComponent(resourceDto);
       }
     }));
