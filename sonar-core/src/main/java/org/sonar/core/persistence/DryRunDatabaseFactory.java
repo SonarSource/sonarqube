@@ -106,6 +106,9 @@ public class DryRunDatabaseFactory implements ServerComponent {
       projectQuery.append(" )");
       template.copyTable(source, dest, "projects", projectQuery.toString());
 
+      template.copyTable(source, dest, "snapshots", "SELECT * FROM snapshots WHERE project_id=" + projectId);
+      template.copyTable(source, dest, "project_measures", "SELECT m.* FROM project_measures m INNER JOIN snapshots s on m.snapshot_id=s.id WHERE s.project_id=" + projectId);
+
       String forRootModule = "root_component_id in (select id from projects where id=" + projectId + " and qualifier='TRK')";
       String forSubModule = "component_id in (select id from projects where id=" + projectId + " or root_id=" + projectId + ")";
       template.copyTable(source, dest, "issues", "SELECT * FROM issues WHERE ((" + forRootModule + ") OR ( " + forSubModule + ")) AND status <> '" + Issue.STATUS_CLOSED + "'");

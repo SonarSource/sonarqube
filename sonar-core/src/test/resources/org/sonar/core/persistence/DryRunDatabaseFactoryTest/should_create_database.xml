@@ -23,4 +23,6 @@
 
   <alerts id="1" profile_id="1" metric_id="1" operator="lt" value_error="5" value_warning="" period="[null]"/>
 
+  <project_measures id="1" value="10" metric_id="1" snapshot_id="1000" />
+
 </dataset>
