@@ -1,7 +1,7 @@
 <% if @rule %>
 <div class="modal-head">
   <h2 class="rule-title">
-    <%= @rule.name %>
+    <%= h @rule.name %>
   </h2>
   <% unless @rule.ready? %>
     <div class="rule-status">
@@ -13,7 +13,7 @@
     </div>
   <% end %>
   <ul class="modal-head-metadata">
-    <li><%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%></li>
+    <li><%= h @rule.plugin_name -%> : <%= h @rule.plugin_rule_key -%></li>
   </ul>
 </div>
 
