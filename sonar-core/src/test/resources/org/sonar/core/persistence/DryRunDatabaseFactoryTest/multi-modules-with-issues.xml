@@ -31,10 +31,10 @@
   <projects id="302" kee="struts-el" root_id="300" qualifier="BRC" scope="PRJ" />
   <projects id="303" kee="Action.java" root_id="301" qualifier="CLA" scope="FIL" />
 
-  <snapshots id="3000" project_id="300" root_snapshot_id="[null]" path="" islast="[true]"/>
-  <snapshots id="3001" project_id="301" root_snapshot_id="3000" path="3000." islast="[true]"/>
-  <snapshots id="3002" project_id="302" root_snapshot_id="3000" path="3000." islast="[true]"/>
-  <snapshots id="3003" project_id="303" root_snapshot_id="3000" path="3000.3001." islast="[true]"/>
+  <snapshots id="3000" project_id="300" root_project_id="300" root_snapshot_id="[null]" path="" islast="[true]"/>
+  <snapshots id="3001" project_id="301" root_project_id="300" root_snapshot_id="3000" path="3000." islast="[true]"/>
+  <snapshots id="3002" project_id="302" root_project_id="300" root_snapshot_id="3000" path="3000." islast="[true]"/>
+  <snapshots id="3003" project_id="303" root_project_id="300" root_snapshot_id="3000" path="3000.3001." islast="[true]"/>
 
   <rules id="500" plugin_rule_key="AvoidCycle" plugin_name="squid"/>
   <rules id="501" plugin_rule_key="NullRef" plugin_name="squid"/>

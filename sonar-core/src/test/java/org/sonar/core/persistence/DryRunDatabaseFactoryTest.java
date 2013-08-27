@@ -105,6 +105,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
     byte[] database = localDatabaseFactory.createDatabaseForDryRun(300L);
     dataSource = createDatabase(database);
     assertThat(rowCount("issues")).isEqualTo(1);
+    assertThat(rowCount("projects")).isEqualTo(4);
   }
 
   @Test
@@ -117,6 +118,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
     byte[] database = localDatabaseFactory.createDatabaseForDryRun(301L);
     dataSource = createDatabase(database);
     assertThat(rowCount("issues")).isEqualTo(1);
+    assertThat(rowCount("projects")).isEqualTo(2);
   }
 
   @Test

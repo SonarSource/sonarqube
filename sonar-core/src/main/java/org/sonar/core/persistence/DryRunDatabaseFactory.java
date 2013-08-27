@@ -30,6 +30,7 @@ import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -95,14 +96,19 @@ public class DryRunDatabaseFactory implements ServerComponent {
       .copyTable(source, dest, "rules_profiles")
       .copyTable(source, dest, "alerts");
     if (projectId != null) {
-      String snapshotCondition = "islast=" + database.getDialect().getTrueSqlValue() + " and (project_id=" + projectId + " or root_project_id=" + projectId + ")";
-      template.copyTable(source, dest, "projects",
-        "id in (select project_id from snapshots where " + snapshotCondition + ") or (id=" + projectId + " or root_id=" + projectId + ")");
-      template.copyTable(source, dest, "snapshots", snapshotCondition);
+      StringBuilder projectQuery = new StringBuilder();
+      projectQuery.append("SELECT p.* FROM projects p INNER JOIN snapshots s ON p.id = s.project_id");
+      projectQuery.append(" WHERE s.islast=").append(database.getDialect().getTrueSqlValue());
+      projectQuery.append(" AND (");
+      projectQuery.append("   s.root_project_id=").append(projectId);
+      projectQuery.append("   OR p.id=").append(projectId);
+      projectQuery.append("   OR p.root_id=").append(projectId);
+      projectQuery.append(" )");
+      template.copyTable(source, dest, "projects", projectQuery.toString());
 
-      String forRootModule = "(root_component_id in (select id from projects where id=" + projectId + " and qualifier='TRK'))";
-      String forSubModule = "(component_id in (select id from projects where id=" + projectId + " or root_id=" + projectId + "))";
-      template.copyTable(source, dest, "issues", "(" + forRootModule + ") or( " + forSubModule + ")", "status<>'" + Issue.STATUS_CLOSED + "'");
+      String forRootModule = "root_component_id in (select id from projects where id=" + projectId + " and qualifier='TRK')";
+      String forSubModule = "component_id in (select id from projects where id=" + projectId + " or root_id=" + projectId + ")";
+      template.copyTable(source, dest, "issues", "SELECT * FROM issues WHERE ((" + forRootModule + ") OR ( " + forSubModule + ")) AND status <> '" + Issue.STATUS_CLOSED + "'");
     }
   }
 
