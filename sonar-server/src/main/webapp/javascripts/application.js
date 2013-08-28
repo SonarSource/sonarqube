@@ -206,8 +206,9 @@ Treemap.prototype.load = function () {
         self.initNodes();
       } else {
         // SONAR-3524
-        // When data is empty, do not display it and revert breadcrumb state
+        // When data is empty, do not display it, revert breadcrumb state and display a message to user
         self.breadcrumb.pop();
+        $j("#tm-bottom-level-reached-msg-" + self.id).show();
       }
       $j("#tm-loading-" + self.id).hide();
     }
@@ -228,6 +229,7 @@ Treemap.prototype.initNodes = function () {
     $j(this).on("contextmenu", function (event) {
       event.stopPropagation();
       event.preventDefault();
+      $j("#tm-bottom-level-reached-msg-" + self.id).hide();
       // right click
       if (self.breadcrumb.length > 1) {
         self.breadcrumb.pop();

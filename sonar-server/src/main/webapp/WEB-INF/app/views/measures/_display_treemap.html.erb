@@ -18,6 +18,7 @@
       <% end %>
       <td>
         <%= image_tag 'loading-small.gif', :id => "tm-loading-#{treemap_id}", :style => 'display:none' -%>
+        <span id="tm-bottom-level-reached-msg-<%= treemap_id %>" class="note" style="display:none;"><%= message('treemap.bootom_level_reached') -%></span>
       </td>
     </tr>
   </table>
