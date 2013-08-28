@@ -143,9 +143,13 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
   }
 
   public static class BaseHttpDownloader {
+
+    private static final String HTTP_PROXY_USER = "http.proxyUser";
+    private static final String HTTP_PROXY_PASSWORD = "http.proxyPassword";
+
     private static final List<String> PROXY_SETTINGS = ImmutableList.of(
-        "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
-        "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
+      "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
+      "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
 
     private String userAgent;
 
@@ -189,12 +193,12 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
     private void registerProxyCredentials(Map<String, String> settings) {
       Authenticator.setDefault(new ProxyAuthenticator(
-          settings.get("http.proxyUser"),
-          settings.get("http.proxyPassword")));
+        settings.get(HTTP_PROXY_USER),
+        settings.get(HTTP_PROXY_PASSWORD)));
     }
 
     private boolean requiresProxyAuthentication(Map<String, String> settings) {
-      return settings.containsKey("http.proxyUser");
+      return settings.containsKey(HTTP_PROXY_USER);
     }
 
     private void propagateProxySystemProperties(Map<String, String> settings) {

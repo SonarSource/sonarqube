@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A very simple profiler to log the time elapsed performing some tasks.
  * This implementation is not thread-safe.
- * 
+ *
  * @since 2.0
  */
 public class TimeProfiler {
@@ -80,10 +80,11 @@ public class TimeProfiler {
 
   public TimeProfiler stop() {
     if (start > 0) {
+      String format = "{} done: {} ms";
       if (debug) {
-        logger.debug("{} done: {} ms", name, System.currentTimeMillis() - start);
+        logger.debug(format, name, System.currentTimeMillis() - start);
       } else {
-        logger.info("{} done: {} ms", name, System.currentTimeMillis() - start);
+        logger.info(format, name, System.currentTimeMillis() - start);
       }
     }
     start = 0;

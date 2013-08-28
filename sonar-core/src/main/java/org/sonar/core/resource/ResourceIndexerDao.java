@@ -29,6 +29,7 @@ import org.sonar.core.persistence.MyBatis;
 
 public class ResourceIndexerDao {
 
+  private static final String SELECT_RESOURCES = "org.sonar.core.resource.ResourceIndexerMapper.selectResources";
   public static final int MINIMUM_KEY_SIZE = 3;
   public static final int SINGLE_INDEX_SIZE = 2;
 
@@ -85,12 +86,12 @@ public class ResourceIndexerDao {
   private void doIndexProject(int rootProjectId, SqlSession session, final ResourceIndexerMapper mapper) {
     // non indexed resources
     ResourceIndexerQuery query = ResourceIndexerQuery.create()
-        .setNonIndexedOnly(true)
-        .setQualifiers(NOT_RENAMABLE_QUALIFIERS)
-        .setScopes(NOT_RENAMABLE_SCOPES)
-        .setRootProjectId(rootProjectId);
+      .setNonIndexedOnly(true)
+      .setQualifiers(NOT_RENAMABLE_QUALIFIERS)
+      .setScopes(NOT_RENAMABLE_SCOPES)
+      .setRootProjectId(rootProjectId);
 
-    session.select("org.sonar.core.resource.ResourceIndexerMapper.selectResources", query, new ResultHandler() {
+    session.select(SELECT_RESOURCES, query, new ResultHandler() {
       public void handleResult(ResultContext context) {
         ResourceDto resource = (ResourceDto) context.getResultObject();
         doIndex(resource, mapper);
@@ -100,12 +101,12 @@ public class ResourceIndexerDao {
     // some resources can be renamed, so index must be regenerated
     // -> delete existing rows and create them again
     query = ResourceIndexerQuery.create()
-        .setNonIndexedOnly(false)
-        .setQualifiers(RENAMABLE_QUALIFIERS)
-        .setScopes(RENAMABLE_SCOPES)
-        .setRootProjectId(rootProjectId);
+      .setNonIndexedOnly(false)
+      .setQualifiers(RENAMABLE_QUALIFIERS)
+      .setScopes(RENAMABLE_SCOPES)
+      .setRootProjectId(rootProjectId);
 
-    session.select("org.sonar.core.resource.ResourceIndexerMapper.selectResources", query, new ResultHandler() {
+    session.select(SELECT_RESOURCES, query, new ResultHandler() {
       public void handleResult(ResultContext context) {
         ResourceDto resource = (ResourceDto) context.getResultObject();
 
@@ -114,7 +115,6 @@ public class ResourceIndexerDao {
       }
     });
   }
-
 
   void doIndex(ResourceDto resource, ResourceIndexerMapper mapper) {
     String key = nameToKey(resource.getName());

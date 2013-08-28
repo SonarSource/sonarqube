@@ -34,6 +34,7 @@ import java.util.Map;
 
 public class PropertiesDao implements BatchComponent, ServerComponent {
 
+  private static final String NOTIFICATION_PREFIX = "notification.";
   private MyBatis mybatis;
 
   public PropertiesDao(MyBatis mybatis) {
@@ -53,7 +54,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     SqlSession session = mybatis.openSession();
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
-      return mapper.findUsersForNotification("notification." + notificationDispatcherKey + "." + notificationChannelKey, resourceId);
+      return mapper.findUsersForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, resourceId);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -63,7 +64,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     SqlSession session = mybatis.openSession();
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
-      return mapper.findNotificationSubscribers("notification." + notificationDispatcherKey + "." + notificationChannelKey, componentKey);
+      return mapper.findNotificationSubscribers(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, componentKey);
     } finally {
       MyBatis.closeQuietly(session);
     }

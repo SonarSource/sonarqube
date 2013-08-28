@@ -32,6 +32,9 @@ public enum RulePriority {
    */
   INFO, MINOR, MAJOR, CRITICAL, BLOCKER;
 
+  private static final String UNKNOWN_PRIORITY = "Unknown priority ";
+
+
   /**
    * A class to map priority level prior to Sonar 1.10 to the new ones
    *
@@ -52,7 +55,7 @@ public enum RulePriority {
         return RulePriority.INFO;
       }
     }
-    throw new IllegalArgumentException("Unknown priority " + level);
+    throw new IllegalArgumentException(UNKNOWN_PRIORITY + level);
   }
 
 
@@ -72,6 +75,6 @@ public enum RulePriority {
     if (checkPriority == Priority.INFO) {
       return RulePriority.INFO;
     }
-    throw new IllegalArgumentException("Unknown priority " + checkPriority);
+    throw new IllegalArgumentException(UNKNOWN_PRIORITY + checkPriority);
   }
 }

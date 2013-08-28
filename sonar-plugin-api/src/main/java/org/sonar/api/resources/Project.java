@@ -34,10 +34,13 @@ import java.util.List;
 
 /**
  * A class that manipulates Projects in the Sonar way.
- * 
+ *
  * @since 1.10
  */
 public class Project extends Resource implements Component {
+
+  private static final String MAVEN_KEY_FORMAT = "%s:%s";
+  private static final String BRANCH_KEY_FORMAT = "%s:%s";
 
   public static final String SCOPE = Scopes.PROJECT;
 
@@ -86,7 +89,7 @@ public class Project extends Resource implements Component {
 
   public Project(String key, String branch, String name) {
     if (StringUtils.isNotBlank(branch)) {
-      setKey(String.format("%s:%s", key, branch));
+      setKey(String.format(BRANCH_KEY_FORMAT, key, branch));
       this.name = String.format("%s %s", name, branch);
     } else {
       setKey(key);
@@ -158,7 +161,7 @@ public class Project extends Resource implements Component {
 
   /**
    * For internal use only.
-   * 
+   *
    * @deprecated in 2.8. See http://jira.codehaus.org/browse/SONAR-2341
    */
   @Deprecated
@@ -199,7 +202,7 @@ public class Project extends Resource implements Component {
 
   /**
    * whether it's the latest analysis done on this project (displayed in sonar dashboard) or an analysis on a past revision.
-   * 
+   *
    * @since 2.0
    * @deprecated in 3.6. The analysis is now always the latest one (past analysis must be done in a chronological order). See http://jira.codehaus.org/browse/SONAR-4334
    */
@@ -396,7 +399,7 @@ public class Project extends Resource implements Component {
 
   /**
    * For internal use only.
-   * 
+   *
    * @deprecated since 2.6. See http://jira.codehaus.org/browse/SONAR-2126
    */
   @Deprecated
@@ -457,7 +460,7 @@ public class Project extends Resource implements Component {
   }
 
   public static Project createFromMavenIds(String groupId, String artifactId) {
-    return new Project(String.format("%s:%s", groupId, artifactId));
+    return new Project(String.format(MAVEN_KEY_FORMAT, groupId, artifactId));
   }
 
   @Override

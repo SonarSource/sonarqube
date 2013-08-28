@@ -40,6 +40,7 @@ import java.util.Map;
  */
 public final class AnnotationCheckFactory extends CheckFactory {
 
+  private static final String CAN_NOT_INSTANTIATE_THE_CHECK_RELATED_TO_THE_RULE = "Can not instantiate the check related to the rule ";
   private Map<String, Object> checksByKey = Maps.newHashMap();
 
   private AnnotationCheckFactory(RulesProfile profile, String repositoryKey, Collection checks) {
@@ -81,10 +82,10 @@ public final class AnnotationCheckFactory extends CheckFactory {
       return check;
 
     } catch (InstantiationException e) {
-      throw new SonarException("Can not instantiate the check related to the rule " + activeRule, e);
+      throw new SonarException(CAN_NOT_INSTANTIATE_THE_CHECK_RELATED_TO_THE_RULE + activeRule, e);
 
     } catch (IllegalAccessException e) {
-      throw new SonarException("Can not instantiate the check related to the rule " + activeRule, e);
+      throw new SonarException(CAN_NOT_INSTANTIATE_THE_CHECK_RELATED_TO_THE_RULE + activeRule, e);
     }
   }
 

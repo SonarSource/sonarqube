@@ -34,6 +34,8 @@ import javax.annotation.CheckForNull;
 import java.util.List;
 
 public class DefaultTestPlan extends BeanVertex implements MutableTestPlan {
+  private static final String TESTCASE = "testcase";
+
   public Component component() {
     Vertex component = GraphUtil.singleAdjacent(element(), Direction.IN, "testplan");
     return beanGraph().wrap(component, ComponentVertex.class);
@@ -51,13 +53,13 @@ public class DefaultTestPlan extends BeanVertex implements MutableTestPlan {
   }
 
   public MutableTestCase addTestCase(String name) {
-    DefaultTestCase testCase = beanGraph().createAdjacentVertex(this, DefaultTestCase.class, "testcase");
+    DefaultTestCase testCase = beanGraph().createAdjacentVertex(this, DefaultTestCase.class, TESTCASE);
     testCase.setName(name);
     return testCase;
   }
 
   public Iterable<MutableTestCase> testCases() {
-    return (Iterable) getVertices(DefaultTestCase.class, Direction.OUT, "testcase");
+    return (Iterable) getVertices(DefaultTestCase.class, Direction.OUT, TESTCASE);
   }
 
 }
