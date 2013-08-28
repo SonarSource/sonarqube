@@ -59,12 +59,16 @@
             </td>
           </tr>
         <% end %>
+        <tr>
+          <td colspan="3">
+            <input id="delete_resources" class="action red-button" type="submit" value="<%= message('delete') -%>" onclick="return checkBeforeDeleting();" name="commit">
+          </td>
+        </tr>
         </tbody>
         <%= paginate_java(@query_result.paging, :colspan => 3, :id => 'projects-bulk-deletion-foot', :include_loading_icon => true) { |label, page_id|
               link_to(label, params.merge({:pageIndex => page_id}))
             }
         %>
-        <input id="delete_resources" class="action red-button" type="submit" value="<%= message('delete') -%>" onclick="return checkBeforeDeleting();" name="commit">
       </table>
     <% end %>
 
