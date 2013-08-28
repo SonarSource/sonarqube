@@ -43,7 +43,8 @@ public class Measure {
    */
   public static final int DEFAULT_PRECISION = 1;
 
-  private Long id; // for internal use
+  // for internal use
+  private Long id;
   protected String metricKey;
   protected Metric metric;
   protected Double value;

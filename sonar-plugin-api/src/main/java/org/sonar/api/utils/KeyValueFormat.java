@@ -288,7 +288,8 @@ public final class KeyValueFormat {
    * @since 2.7
    */
   public static <K> Multiset<K> parseMultiset(String data, Converter<K> keyConverter) {
-    Multiset<K> multiset = LinkedHashMultiset.create();// to keep the same order
+    // to keep the same order
+    Multiset<K> multiset = LinkedHashMultiset.create();
     if (data != null) {
       String[] pairs = StringUtils.split(data, PAIR_SEPARATOR);
       for (String pair : pairs) {

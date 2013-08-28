@@ -25,12 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Library;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.resources.*;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 
@@ -79,7 +74,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
     project.setEffectiveKey(project.getKey());
 
     ResourceModel model = findOrCreateModel(project);
-    model.setLanguageKey(project.getLanguageKey());// ugly, only for projects
+    // ugly, only for projects
+    model.setLanguageKey(project.getLanguageKey());
 
     // For views
     if (project instanceof ResourceCopy) {
@@ -162,7 +158,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private Snapshot persistLibrary(Project project, Library library) {
     ResourceModel model = findOrCreateModel(library);
     model = session.save(model);
-    library.setId(model.getId()); // TODO to be removed
+    // TODO to be removed
+    library.setId(model.getId());
     library.setEffectiveKey(library.getKey());
 
     Snapshot snapshot = findLibrarySnapshot(model.getId(), library.getVersion());

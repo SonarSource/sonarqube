@@ -33,13 +33,15 @@ import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourcePersister;
 
 import javax.persistence.Query;
+
 import java.util.List;
 
 public class UpdateStatusJob implements BatchComponent {
 
   private DatabaseSession session;
   private ServerClient server;
-  private Snapshot snapshot; // TODO remove this component
+  // TODO remove this component
+  private Snapshot snapshot;
   private ResourcePersister resourcePersister;
   private Settings settings;
   private Project project;

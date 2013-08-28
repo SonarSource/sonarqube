@@ -64,7 +64,8 @@ public class CountDistributionBuilder implements MeasureBuilder {
 
     } else {
       if (this.countBag.add(value, count)) {
-        this.countBag.add(value, 1);//hack
+        //hack
+        this.countBag.add(value, 1);
       }
     }
     return this;
@@ -151,7 +152,8 @@ public class CountDistributionBuilder implements MeasureBuilder {
    */
   public Measure build(boolean allowEmptyData) {
     if (!isEmpty() || allowEmptyData) {
-      return new Measure(metric, KeyValueFormat.format(countBag, -1)); //-1 is a hack to include zero values
+      //-1 is a hack to include zero values
+      return new Measure(metric, KeyValueFormat.format(countBag, -1));
     }
     return null;
   }

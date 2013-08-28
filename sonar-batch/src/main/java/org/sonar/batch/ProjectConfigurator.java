@@ -71,7 +71,8 @@ public class ProjectConfigurator implements BatchComponent {
     checkCurrentAnalysisIsTheLatestOne(project.getKey(), analysisDate);
 
     project
-      .setConfiguration(new PropertiesConfiguration()) // will be populated by ProjectSettings
+      // will be populated by ProjectSettings
+      .setConfiguration(new PropertiesConfiguration())
       .setAnalysisDate(analysisDate)
       .setAnalysisVersion(loadAnalysisVersion())
       .setAnalysisType(loadAnalysisType());

@@ -105,7 +105,8 @@ public class TendencyAnalyser {
     private double sumXPower2;
     private double sumYPower2;
     private double sumXY;
-    private double yIntercept; // not used today
+    // not used today
+    private double yIntercept;
     private Double slope;
     private Double correlationRate;
 

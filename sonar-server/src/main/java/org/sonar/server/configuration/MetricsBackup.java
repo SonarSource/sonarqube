@@ -83,7 +83,8 @@ public class MetricsBackup implements Backupable {
 
       public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         Metric unmarshalled = (Metric) builtIn.unmarshal(reader, context);
-        unmarshalled.setId(null); // See http://jira.codehaus.org/browse/SONAR-1819
+        // See http://jira.codehaus.org/browse/SONAR-1819
+        unmarshalled.setId(null);
         unmarshalled.setUserManaged(true);
         unmarshalled.setEnabled(true);
         return unmarshalled;

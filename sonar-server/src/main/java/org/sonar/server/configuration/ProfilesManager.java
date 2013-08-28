@@ -323,7 +323,8 @@ public class ProfilesManager extends BaseDao {
       } else {
         oldActiveRule.setInheritance(ActiveRule.OVERRIDES);
         getSession().saveWithoutFlush(oldActiveRule);
-        return; // no need to change in children
+        // no need to change in children
+        return;
       }
     }
     ActiveRule newActiveRule = (ActiveRule) parentActiveRule.clone();
@@ -352,7 +353,8 @@ public class ProfilesManager extends BaseDao {
       } else {
         activeRule.setInheritance(null);
         getSession().saveWithoutFlush(activeRule);
-        return; // no need to change in children
+        // no need to change in children
+        return;
       }
 
       for (RulesProfile child : getChildren(profile)) {

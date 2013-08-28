@@ -101,9 +101,12 @@ import javax.servlet.ServletContext;
 public final class Platform {
 
   private static final Platform INSTANCE = new Platform();
-  private ComponentContainer rootContainer;// level 1 : only database connectors
-  private ComponentContainer coreContainer;// level 2 : level 1 + core components
-  private ComponentContainer servicesContainer;// level 3 : level 2 + plugin extensions + core components that depend on plugin extensions
+  // level 1 : only database connectors
+  private ComponentContainer rootContainer;
+  // level 2 : level 1 + core components
+  private ComponentContainer coreContainer;
+  // level 3 : level 2 + plugin extensions + core components that depend on plugin extensions
+  private ComponentContainer servicesContainer;
   private boolean connected = false;
   private boolean started = false;
 
@@ -221,7 +224,8 @@ public final class Platform {
     servicesContainer.addSingleton(UpdateCenterMatrixFactory.class);
     servicesContainer.addSingleton(PluginDownloader.class);
     servicesContainer.addSingleton(ServerIdGenerator.class);
-    servicesContainer.addSingleton(DefaultModelFinder.class); // depends on plugins
+    // depends on plugins
+    servicesContainer.addSingleton(DefaultModelFinder.class);
     servicesContainer.addSingleton(DefaultModelManager.class);
     servicesContainer.addSingleton(ChartFactory.class);
     servicesContainer.addSingleton(Languages.class);

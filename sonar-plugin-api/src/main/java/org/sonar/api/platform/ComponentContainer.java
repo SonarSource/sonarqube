@@ -40,7 +40,8 @@ import java.util.List;
  */
 public class ComponentContainer implements BatchComponent, ServerComponent {
 
-  ComponentContainer parent, child; // no need for multiple children
+  // no need for multiple children
+  ComponentContainer parent, child;
   MutablePicoContainer pico;
   PropertyDefinitions propertyDefinitions;
 
