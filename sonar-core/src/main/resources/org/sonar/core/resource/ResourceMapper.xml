@@ -186,21 +186,21 @@
   <sql id="selectAuthorizedChildrenComponentIdsQuery">
     select s.project_id
     from snapshots s, (
-    select project_components.id as id,
-      snapshot_components.id as sid,
-      root_snapshot_components.project_id as root_project_id,
-      root_snapshot_components.id as root_snapshot_id,
-      snapshot_components.path as path
-    from projects project_components
-    inner join snapshots snapshot_components on snapshot_components.project_id = project_components.id and snapshot_components.islast = ${_true}
-    inner join snapshots root_snapshot_components on root_snapshot_components.project_id = snapshot_components.root_project_id and root_snapshot_components.islast = ${_true}
-    inner join (
-      <include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />
-    ) authorized_projects on authorized_projects.root_project_id = root_snapshot_components.project_id
-    <where>
-      and <foreach item="componentRootKey" index="index" collection="componentRootKeys" open="(" separator=" or " close=")"> project_components.kee=#{componentRootKey}</foreach>
-      and project_components.enabled = ${_true}
-    </where>
+      select project_components.id as id,
+        snapshot_components.id as sid,
+        root_snapshot_components.project_id as root_project_id,
+        root_snapshot_components.id as root_snapshot_id,
+        snapshot_components.path as path
+      from projects project_components
+      inner join snapshots snapshot_components on snapshot_components.project_id = project_components.id and snapshot_components.islast = ${_true}
+      inner join snapshots root_snapshot_components on root_snapshot_components.project_id = snapshot_components.root_project_id and root_snapshot_components.islast = ${_true}
+      inner join (
+        <include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />
+      ) authorized_projects on authorized_projects.root_project_id = root_snapshot_components.project_id
+      <where>
+        and <foreach item="componentRootKey" index="index" collection="componentRootKeys" open="(" separator=" or " close=")"> project_components.kee=#{componentRootKey}</foreach>
+        and project_components.enabled = ${_true}
+      </where>
     ) authorized_input_components
     <where>
       and s.root_project_id = authorized_input_components.root_project_id
