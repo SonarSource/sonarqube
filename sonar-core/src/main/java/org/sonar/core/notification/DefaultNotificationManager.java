@@ -93,7 +93,10 @@ public class DefaultNotificationManager implements NotificationManager {
 
     // If batchSize is increased then we should return a list instead of a single element
     return notifications.get(0).toNotification();
+  }
 
+  public long count() {
+    return notificationQueueDao.count();
   }
 
   /**

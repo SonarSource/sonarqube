@@ -50,6 +50,17 @@ public class NotificationQueueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_count_notification_queue() {
+    NotificationQueueDto notificationQueueDto = NotificationQueueDto.toNotificationQueueDto(new Notification("email"));
+
+    assertThat(dao.count()).isEqualTo(0);
+
+    dao.insert(Arrays.asList(notificationQueueDto));
+
+    assertThat(dao.count()).isEqualTo(1);
+  }
+
+  @Test
   public void should_delete_notification() {
     setupData("should_delete_notification");
 

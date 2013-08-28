@@ -74,4 +74,13 @@ public class NotificationQueueDao implements BatchComponent, ServerComponent {
       MyBatis.closeQuietly(session);
     }
   }
+
+  public long count() {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(NotificationQueueMapper.class).count();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
 }

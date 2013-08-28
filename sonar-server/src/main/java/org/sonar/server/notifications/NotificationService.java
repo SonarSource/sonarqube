@@ -113,17 +113,38 @@ public class NotificationService implements ServerComponent {
   @VisibleForTesting
   synchronized void processQueue() {
     TIME_PROFILER.start("Processing notifications queue");
+    long start = now();
+    long lastLog = start;
+    long notifSentCount = 0;
 
     Notification notifToSend = manager.getFromQueue();
     while (notifToSend != null) {
       deliver(notifToSend);
+      notifSentCount++;
       if (stopping) {
         break;
+      }
+      long now = now();
+      if (now - lastLog > 10 * 60 * 1000) {
+        long remainingNotifCount = manager.count();
+        lastLog = now;
+        long spentTimeInMinutes = (now - start) / (60 * 1000);
+        log(notifSentCount, remainingNotifCount, spentTimeInMinutes);
       }
       notifToSend = manager.getFromQueue();
     }
 
     TIME_PROFILER.stop();
+  }
+
+  @VisibleForTesting
+  void log(long notifSentCount, long remainingNotifCount, long spentTimeInMinutes) {
+    LOG.info("{} notifications sent during the past {} minutes and {} still waiting to be sent", new Object[] {notifSentCount, spentTimeInMinutes, remainingNotifCount});
+  }
+
+  @VisibleForTesting
+  long now() {
+    return System.currentTimeMillis();
   }
 
   private void deliver(Notification notification) {

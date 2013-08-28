@@ -13,6 +13,10 @@
     delete from notifications where id=#{id}
   </delete>
 
+  <select id="count" resultType="long">
+    select count(*) from notifications
+  </select>
+
   <select id="findOldest" parameterType="int" resultType="NotificationQueue">
     select id, data
     from notifications

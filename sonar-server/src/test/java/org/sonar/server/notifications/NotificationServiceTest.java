@@ -35,6 +35,7 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -201,6 +202,21 @@ public class NotificationServiceTest {
 
     service = new NotificationService(settings, manager);
     assertThat(service.getDispatchers()).hasSize(0);
+  }
+
+  @Test
+  public void shouldLogEvery10Minutes() throws InterruptedException {
+    setUpMocks(CREATOR_EVGENY, ASSIGNEE_SIMON);
+    // Emulate 2 notifications in DB
+    when(manager.getFromQueue()).thenReturn(notification).thenReturn(notification).thenReturn(null);
+    when(manager.count()).thenReturn(1L).thenReturn(0L);
+    service = spy(service);
+    // Emulate processing of each notification take 10 min to have a log each time
+    when(service.now()).thenReturn(0L).thenReturn(10 * 60 * 1000 + 1L).thenReturn(20 * 60 * 1000 + 2L);
+    service.start();
+    verify(service, timeout(100)).log(1, 1, 10);
+    verify(service, timeout(100)).log(2, 0, 20);
+    service.stop();
   }
 
   private static Answer<Object> addUser(final String user, final NotificationChannel channel) {

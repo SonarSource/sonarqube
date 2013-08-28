@@ -33,4 +33,6 @@ public interface NotificationQueueMapper {
 
   List<NotificationQueueDto> findOldest(int count);
 
+  long count();
+
 }

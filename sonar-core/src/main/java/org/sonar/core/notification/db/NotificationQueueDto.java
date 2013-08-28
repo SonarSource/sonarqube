@@ -37,6 +37,7 @@ import java.io.ObjectOutputStream;
  */
 public class NotificationQueueDto {
 
+  private static final String UNABLE_TO_READ_NOTIFICATION = "Unable to read notification";
   private Long id;
   private byte[] data;
 
@@ -92,10 +93,10 @@ public class NotificationQueueDto {
       return (Notification) result;
 
     } catch (IOException e) {
-      throw new SonarException("Unable to read notification", e);
+      throw new SonarException(UNABLE_TO_READ_NOTIFICATION, e);
 
     } catch (ClassNotFoundException e) {
-      throw new SonarException("Unable to read notification", e);
+      throw new SonarException(UNABLE_TO_READ_NOTIFICATION, e);
 
     } finally {
       IOUtils.closeQuietly(byteArrayInputStream);
