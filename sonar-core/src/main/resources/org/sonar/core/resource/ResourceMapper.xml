@@ -153,7 +153,7 @@
   </select>
 
   <sql id="selectProjectsByQualifiersQuery">
-    select <include refid="resourceColumns"/> from projects p
+    select p.* from projects p
     inner join snapshots s on s.project_id=p.id
     <where>
       <if test="qualifiers != null and qualifiers.size() > 0">
@@ -166,8 +166,8 @@
     </where>
   </sql>
 
-  <select id="selectGhostsProjects" parameterType="map" resultType="Resource">
-    select <include refid="resourceColumns"/> from projects p
+  <select id="selectGhostsProjects" parameterType="map" resultMap="resourceResultMap">
+    select p.* from projects p
     left join (<include refid="selectProjectsByQualifiersQuery" />) availableProjects on availableProjects.id=p.id
     <where>
       and availableProjects.id is null
