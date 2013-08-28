@@ -40,9 +40,9 @@
         <td>
           <ul>
       <%
-             ghosts.sort {|x,y| x.name <=> y.name}.each_with_index do |resource, index| 
+             ghosts.sort {|x,y| x.name <=> y.name}.each do |resource|
       %>
-          <li><%= h resource.name -%> <span class="small gray">( <%= h resource.key -%> )</span></li>
+              <li><%= h resource.name -%> <span class="small gray">( <%= h resource.key -%> )</span></li>
       <% 
              end
       %>

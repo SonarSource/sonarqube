@@ -31,21 +31,12 @@ class BulkDeletionController < ApplicationController
         
     @tabs = deletable_qualifiers
     
-    @selected_tab = params[:resource_type]
+    @selected_tab = params[:qualifiers]
     @selected_tab = 'TRK' unless @tabs.include?(@selected_tab)
 
-    # Search for resources having snapshot with islast column to true
-    # SONAR-4569
-    conditions = "resource_index.qualifier=:qualifier AND projects.qualifier=:qualifier AND projects.enabled=:enabled AND snapshots.islast=:islast"
-    values = {:qualifier => @selected_tab, :enabled => true, :islast => true}
-    if params[:name_filter] && !params[:name_filter].blank?
-      conditions += " AND resource_index.kee LIKE :kee"
-      values[:kee] = params[:name_filter].strip.downcase + '%'
-    end
-    @resources = Project.all(:select => 'distinct(resource_index.resource_id),projects.id,projects.name,projects.kee,projects.long_name',
-                              :conditions => [conditions, values],
-                              :joins => [:resource_index, :snapshots])
-    @resources = Api::Utils.insensitive_sort!(@resources){|r| r.name}
+    params['pageSize'] = 20
+    params['qualifiers'] = @selected_tab
+    @query_result = Internal.component_api.find(params)
   end
 
   def ghosts
@@ -55,23 +46,12 @@ class BulkDeletionController < ApplicationController
     end
       
     @tabs = deletable_qualifiers
-    
-    conditions = "scope=:scope AND qualifier IN (:qualifiers) AND status=:status"
-    values = {:scope => 'PRJ', :qualifiers => @tabs}
-    unprocessed_project_ids = Snapshot.all(
-        :select => 'project_id',
-        :conditions => [conditions, values.merge({:status => Snapshot::STATUS_UNPROCESSED})]).map(&:project_id).uniq
-    already_processed_project_ids = Snapshot.all(
-        :select => 'project_id',
-        :conditions => [conditions + " AND project_id IN (:pids)", values.merge({:status => Snapshot::STATUS_PROCESSED, :pids => unprocessed_project_ids})]).map(&:project_id).uniq
 
-    # SONAR-4569
-    # Detect active projects without any snapshots or with no snapshot having islast column to true
-    projects_not_having_snapshots_islast_to_true =
-        Project.find_by_sql ["SELECT p.id FROM projects p WHERE p.enabled=? AND p.scope=? AND p.qualifier IN (?) AND NOT EXISTS (SELECT id FROM snapshots WHERE islast=? and project_id=p.id)",
-                             true, 'PRJ', @tabs, true]
+    params['pageSize'] = -1
+    params['qualifiers'] = @tabs
+    @query_result = Internal.component_api.findGhostsProjects(params)
 
-    @ghosts = Project.all(:conditions => ["id IN (?)", unprocessed_project_ids - already_processed_project_ids + projects_not_having_snapshots_islast_to_true])
+    @ghosts = @query_result.components
     
     @ghosts_by_qualifier = {}
     @ghosts.each do |p|

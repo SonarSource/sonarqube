@@ -201,28 +201,46 @@ public class ResourceDao {
     }
   }
 
-  public List<Component> selectComponentsByQualifiers(Collection<String> qualifiers) {
+  public List<Component> selectProjectsByQualifiers(Collection<String> qualifiers) {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
     SqlSession session = mybatis.openSession();
     try {
-      return toComponents(session.getMapper(ResourceMapper.class).selectComponentsByQualifiers(qualifiers));
+      return toComponents(session.getMapper(ResourceMapper.class).selectProjectsByQualifiers(qualifiers));
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   /**
-   * Return enabled components including not completed ones, ie without snapshots or without snapshot having islast=true
+   * Return enabled projects including not completed ones, ie without snapshots or without snapshot having islast=true
    */
-  public List<Component> selectComponentsIncludingNotCompletedOnesByQualifiers(Collection<String> qualifiers) {
+  public List<Component> selectProjectsIncludingNotCompletedOnesByQualifiers(Collection<String> qualifiers) {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
     SqlSession session = mybatis.openSession();
     try {
-      return toComponents(session.getMapper(ResourceMapper.class).selectComponentsIncludingNotCompletedOnesByQualifiers(qualifiers));
+      return toComponents(session.getMapper(ResourceMapper.class).selectProjectsIncludingNotCompletedOnesByQualifiers(qualifiers));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  /**
+   * Return ghosts projects :
+   * - not enabled projects
+   * - enabled projects without snapshot having islast=true
+   * - enabled projects without snapshot
+   */
+  public List<Component> selectGhostsProjects(Collection<String> qualifiers) {
+    if (qualifiers.isEmpty()) {
+      return Collections.emptyList();
+    }
+    SqlSession session = mybatis.openSession();
+    try {
+      return toComponents(session.getMapper(ResourceMapper.class).selectGhostsProjects(qualifiers));
     } finally {
       MyBatis.closeQuietly(session);
     }

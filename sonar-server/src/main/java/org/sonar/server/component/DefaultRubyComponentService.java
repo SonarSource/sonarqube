@@ -45,13 +45,19 @@ public class DefaultRubyComponentService implements RubyComponentService {
 
   public DefaultComponentQueryResult find(Map<String, Object> params) {
     ComponentQuery query = toQuery(params);
-    List<Component> components = resourceDao.selectComponentsByQualifiers(query.qualifiers());
+    List<Component> components = resourceDao.selectProjectsByQualifiers(query.qualifiers());
     return finder.find(query, components);
   }
 
   public DefaultComponentQueryResult findWithUncompleteProjects(Map<String, Object> params) {
     ComponentQuery query = toQuery(params);
-    List<Component> components = resourceDao.selectComponentsIncludingNotCompletedOnesByQualifiers(query.qualifiers());
+    List<Component> components = resourceDao.selectProjectsIncludingNotCompletedOnesByQualifiers(query.qualifiers());
+    return finder.find(query, components);
+  }
+
+  public DefaultComponentQueryResult findGhostsProjects(Map<String, Object> params) {
+    ComponentQuery query = toQuery(params);
+    List<Component> components = resourceDao.selectGhostsProjects(query.qualifiers());
     return finder.find(query, components);
   }
 

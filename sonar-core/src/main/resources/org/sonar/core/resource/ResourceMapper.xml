@@ -3,6 +3,22 @@
 
 <mapper namespace="org.sonar.core.resource.ResourceMapper">
 
+  <sql id="resourceColumns">
+    p.id,
+    p.kee as key,
+    p.name as name,
+    p.long_name as longName,
+    p.root_id as rootId,
+    p.scope as scope,
+    p.qualifier as qualifier,
+    p.enabled as enabled,
+    p.description as description,
+    p.language as language,
+    p.copy_resource_id as copyResourceId,
+    p.person_id as personId,
+    p.created_at as createdAt
+  </sql>
+
   <resultMap id="snapshotResultMap" type="Snapshot">
     <id property="id" column="id"/>
     <result property="parentId" column="parent_snapshot_id"/>
@@ -120,8 +136,24 @@
     </where>
   </select>
 
-  <select id="selectComponentsByQualifiers" parameterType="map" resultMap="resourceResultMap">
+  <select id="selectProjectsIncludingNotCompletedOnesByQualifiers" parameterType="map" resultMap="resourceResultMap">
     select * from projects p
+    <where>
+      <if test="qualifiers != null and qualifiers.size() > 0">
+        and <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">p.qualifier=#{qualifier}
+      </foreach>
+      </if>
+      and p.enabled=${_true}
+      and p.copy_resource_id is null
+    </where>
+  </select>
+
+  <select id="selectProjectsByQualifiers" parameterType="map" resultMap="resourceResultMap">
+    <include refid="selectProjectsByQualifiersQuery" />
+  </select>
+
+  <sql id="selectProjectsByQualifiersQuery">
+    select <include refid="resourceColumns"/> from projects p
     inner join snapshots s on s.project_id=p.id
     <where>
       <if test="qualifiers != null and qualifiers.size() > 0">
@@ -132,16 +164,17 @@
       and p.copy_resource_id is null
       and s.islast=${_true}
     </where>
-  </select>
+  </sql>
 
-  <select id="selectComponentsIncludingNotCompletedOnesByQualifiers" parameterType="map" resultMap="resourceResultMap">
-    select * from projects p
+  <select id="selectGhostsProjects" parameterType="map" resultType="Resource">
+    select <include refid="resourceColumns"/> from projects p
+    left join (<include refid="selectProjectsByQualifiersQuery" />) availableProjects on availableProjects.id=p.id
     <where>
+      and availableProjects.id is null
       <if test="qualifiers != null and qualifiers.size() > 0">
         and <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">p.qualifier=#{qualifier}
-      </foreach>
+        </foreach>
       </if>
-      and p.enabled=${_true}
       and p.copy_resource_id is null
     </where>
   </select>
