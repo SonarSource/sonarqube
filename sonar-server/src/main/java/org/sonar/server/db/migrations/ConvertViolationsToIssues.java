@@ -75,10 +75,10 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
 
   private static final String STATUS_OPEN = "OPEN";
   private static final String STATUS_CONFIRMED = "CONFIRMED";
-  public static final String UPDATED_AT = "updatedAt";
-  public static final String REVIEW_TEXT = "reviewText";
-  public static final String USER_ID = "userId";
-  public static final String SEVERITY_MAJOR = "MAJOR";
+  private static final String UPDATED_AT = "updatedAt";
+  private static final String REVIEW_TEXT = "reviewText";
+  private static final String USER_ID = "userId";
+  private static final String SEVERITY_MAJOR = "MAJOR";
 
   private QueryRunner runner = new QueryRunner();
 
