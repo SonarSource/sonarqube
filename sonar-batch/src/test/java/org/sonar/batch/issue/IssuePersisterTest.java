@@ -19,29 +19,52 @@
  */
 package org.sonar.batch.issue;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class IssuePersisterTest extends AbstractDaoTestCase {
 
   IssuePersister persister;
+  private ScanIssueStorage storage;
+  private List<DefaultIssue> issues;
+  private Settings settings;
+
+  @Before
+  public void prepare() {
+    issues = Arrays.asList(new DefaultIssue());
+    IssueCache issueCache = mock(IssueCache.class);
+    when(issueCache.all()).thenReturn(issues);
+    storage = mock(ScanIssueStorage.class);
+
+    settings = new Settings();
+    persister = new IssuePersister(issueCache, storage, settings);
+  }
 
   @Test
   public void should_persist_all_issues() throws Exception {
-    List<DefaultIssue> issues = Arrays.asList(new DefaultIssue());
-    IssueCache issueCache = mock(IssueCache.class);
-    when(issueCache.all()).thenReturn(issues);
-    ScanIssueStorage storage = mock(ScanIssueStorage.class);
-
-    persister = new IssuePersister(issueCache, storage);
     persister.persist();
 
     verify(storage, times(1)).save(issues);
+  }
+
+  @Test
+  public void should_not_persist_issues_in_dry_run() throws Exception {
+    settings.setProperty("sonar.dryRun", true);
+
+    persister.persist();
+
+    verify(storage, never()).save(issues);
   }
 }
