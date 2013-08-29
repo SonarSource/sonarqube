@@ -41,11 +41,11 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class MessageException extends RuntimeException {
 
-  private String l10nKey;
-  private Collection<Object> l10nParams;
+  private final String l10nKey;
+  private final Collection<Object> l10nParams;
 
   private MessageException(String s) {
-    super(s);
+    this(s, null, null);
   }
 
   private MessageException(@Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams) {
