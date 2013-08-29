@@ -51,6 +51,12 @@ import java.util.concurrent.TimeUnit;
     defaultValue = "60",
     name = "Delay of notifications, in seconds",
     project = false,
+    global = false),
+  @Property(
+    key = NotificationService.PROPERTY_DELAY_BEFORE_REPORTING_STATUS,
+    defaultValue = "600",
+    name = "Delay before reporting notification status, in seconds",
+    project = false,
     global = false)
 })
 public class NotificationService implements ServerComponent {
@@ -58,10 +64,12 @@ public class NotificationService implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
 
   public static final String PROPERTY_DELAY = "sonar.notifications.delay";
+  public static final String PROPERTY_DELAY_BEFORE_REPORTING_STATUS = "sonar.notifications.runningDelayBeforeReportingStatus";
 
   private static final TimeProfiler TIME_PROFILER = new TimeProfiler(LOG).setLevelToDebug();
 
   private final long delayInSeconds;
+  private final long delayBeforeReportingStatusInSeconds;
   private final DefaultNotificationManager manager;
   private final NotificationDispatcher[] dispatchers;
 
@@ -73,6 +81,7 @@ public class NotificationService implements ServerComponent {
    */
   public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
     delayInSeconds = settings.getLong(PROPERTY_DELAY);
+    delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
     this.manager = manager;
     this.dispatchers = dispatchers;
   }
@@ -125,7 +134,7 @@ public class NotificationService implements ServerComponent {
         break;
       }
       long now = now();
-      if (now - lastLog > 10 * 60 * 1000) {
+      if (now - lastLog > delayBeforeReportingStatusInSeconds * 1000) {
         long remainingNotifCount = manager.count();
         lastLog = now;
         long spentTimeInMinutes = (now - start) / (60 * 1000);
