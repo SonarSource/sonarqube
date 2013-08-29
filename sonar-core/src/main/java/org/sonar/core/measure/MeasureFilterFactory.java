@@ -43,10 +43,12 @@ public class MeasureFilterFactory implements ServerComponent {
   }
 
   public MeasureFilter create(Map<String, Object> properties) {
+
     MeasureFilter filter = new MeasureFilter();
     filter.setBaseResourceKey((String) properties.get("base"));
-    if (properties.containsKey("baseId")) {
-      filter.setBaseResourceId(Long.valueOf((String) properties.get("baseId")));
+    String baseId = "baseId";
+    if (properties.containsKey(baseId)) {
+      filter.setBaseResourceId(Long.valueOf((String) properties.get(baseId)));
     }
     filter.setResourceScopes(toList(properties.get("scopes")));
     filter.setResourceQualifiers(toList(properties.get("qualifiers")));
@@ -55,13 +57,15 @@ public class MeasureFilterFactory implements ServerComponent {
     if (condition != null) {
       filter.addCondition(condition);
     }
-    if (properties.containsKey("onBaseComponents")) {
-      filter.setOnBaseResourceChildren(Boolean.valueOf((String) properties.get("onBaseComponents")));
+    String onBaseComponents = "onBaseComponents";
+    if (properties.containsKey(onBaseComponents)) {
+      filter.setOnBaseResourceChildren(Boolean.valueOf((String) properties.get(onBaseComponents)));
     }
     filter.setResourceName((String) properties.get("nameSearch"));
     filter.setResourceKeyRegexp((String) properties.get("keyRegexp"));
-    if (properties.containsKey("onFavourites")) {
-      filter.setUserFavourites(Boolean.valueOf((String) properties.get("onFavourites")));
+    String onFavourites = "onFavourites";
+    if (properties.containsKey(onFavourites)) {
+      filter.setUserFavourites(Boolean.valueOf((String) properties.get(onFavourites)));
     }
     fillDateConditions(filter, properties);
     fillSorting(filter, properties);
@@ -70,15 +74,23 @@ public class MeasureFilterFactory implements ServerComponent {
   }
 
   private void fillDateConditions(MeasureFilter filter, Map<String, Object> properties) {
-    if (properties.containsKey("fromDate")) {
-      filter.setFromDate(toDate((String) properties.get("fromDate")));
-    } else if (properties.containsKey("ageMaxDays")) {
-      filter.setFromDate(toDays((String) properties.get("ageMaxDays")));
+    String fromDate = "fromDate";
+    if (properties.containsKey(fromDate)) {
+      filter.setFromDate(toDate((String) properties.get(fromDate)));
+    } else {
+      String ageMaxDays = "ageMaxDays";
+      if (properties.containsKey(ageMaxDays)) {
+        filter.setFromDate(toDays((String) properties.get(ageMaxDays)));
+      }
     }
-    if (properties.containsKey("toDate")) {
-      filter.setToDate(toDate((String) properties.get("toDate")));
-    } else if (properties.containsKey("ageMinDays")) {
-      filter.setToDate(toDays((String) properties.get("ageMinDays")));
+    String toDate = "toDate";
+    if (properties.containsKey(toDate)) {
+      filter.setToDate(toDate((String) properties.get(toDate)));
+    } else {
+      String ageMinDays = "ageMinDays";
+      if (properties.containsKey(ageMinDays)) {
+        filter.setToDate(toDays((String) properties.get(ageMinDays)));
+      }
     }
   }
 

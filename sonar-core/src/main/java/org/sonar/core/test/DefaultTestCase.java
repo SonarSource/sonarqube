@@ -39,60 +39,70 @@ import java.util.List;
 
 public class DefaultTestCase extends BeanVertex implements MutableTestCase {
 
+  private static final String DURATION = "duration";
+  private static final String TYPE = "type";
+  private static final String STATUS = "status";
+  private static final String NAME = "name";
+  private static final String MESSAGE = "message";
+  private static final String STACK_TRACE = "stackTrace";
+  private static final String COVERS = "covers";
+  private static final String LINES = "lines";
+  private static final String TESTCASE = "testcase";
+
   public String type() {
-    return (String) getProperty("type");
+    return (String) getProperty(TYPE);
   }
 
   public MutableTestCase setType(@Nullable String s) {
-    setProperty("type", s);
+    setProperty(TYPE, s);
     return this;
   }
 
   public Long durationInMs() {
-    return (Long) getProperty("duration");
+    return (Long) getProperty(DURATION);
   }
 
   public MutableTestCase setDurationInMs(@Nullable Long l) {
     if (l != null && l < 0) {
       throw new IllegalDurationException("Test duration must be positive (got: " + l + ")");
     }
-    setProperty("duration", l);
+    setProperty(DURATION, l);
     return this;
   }
 
   public Status status() {
-    return Status.of((String) getProperty("status"));
+    return Status.of((String) getProperty(STATUS));
   }
 
   public MutableTestCase setStatus(@Nullable Status s) {
-    setProperty("status", s == null ? null : s.name());
+    setProperty(STATUS, s == null ? null : s.name());
     return this;
   }
 
   public String name() {
-    return (String) getProperty("name");
+    return (String) getProperty(NAME);
   }
 
   public MutableTestCase setName(String s) {
-    setProperty("name", s);
+    setProperty(NAME, s);
     return this;
   }
 
   public String message() {
-    return (String) getProperty("message");
+    return (String) getProperty(MESSAGE);
   }
 
   public MutableTestCase setMessage(String s) {
-    setProperty("message", s);
+    setProperty(MESSAGE, s);
     return this;
   }
 
   public String stackTrace() {
-    return (String) getProperty("stackTrace");
+    return (String) getProperty(STACK_TRACE);
   }
 
   public MutableTestCase setStackTrace(String s) {
-    setProperty("stackTrace", s);
+    setProperty(STACK_TRACE, s);
     return this;
   }
 
@@ -100,12 +110,12 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     if (coverageBlock(testable) != null) {
       throw new CoverageAlreadyExistsException("The link between " + name() + " and " + testable.component().key() + " already exists");
     }
-    beanGraph().getUnderlyingGraph().addEdge(null, element(), ((BeanVertex) testable).element(), "covers").setProperty("lines", lines);
+    beanGraph().getUnderlyingGraph().addEdge(null, element(), ((BeanVertex) testable).element(), COVERS).setProperty(LINES, lines);
     return this;
   }
 
   public TestPlan testPlan() {
-    Vertex plan = GraphUtil.singleAdjacent(element(), Direction.IN, "testcase");
+    Vertex plan = GraphUtil.singleAdjacent(element(), Direction.IN, TESTCASE);
     return beanGraph().wrap(plan, DefaultTestPlan.class);
   }
 
@@ -116,18 +126,18 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   public int countCoveredLines() {
     int result = 0;
     for (Edge edge : edgeCovers()) {
-      List<Integer> lines = (List<Integer>) edge.getProperty("lines");
+      List<Integer> lines = (List<Integer>) edge.getProperty(LINES);
       result = result + lines.size();
     }
     return result;
   }
 
   public Iterable<CoverageBlock> coverageBlocks() {
-    return (Iterable) getEdges(DefaultCoverageBlock.class, Direction.OUT, "covers");
+    return (Iterable) getEdges(DefaultCoverageBlock.class, Direction.OUT, COVERS);
   }
 
   public CoverageBlock coverageBlock(final Testable testable) {
-    return Iterables.find(getEdges(DefaultCoverageBlock.class, Direction.OUT, "covers"), new Predicate<CoverageBlock>() {
+    return Iterables.find(getEdges(DefaultCoverageBlock.class, Direction.OUT, COVERS), new Predicate<CoverageBlock>() {
       public boolean apply(CoverageBlock input) {
         return input.testable().component().key().equals(testable.component().key());
       }
@@ -135,7 +145,7 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   }
 
   private Iterable<Edge> edgeCovers() {
-    return element().query().labels("covers").direction(Direction.OUT).edges();
+    return element().query().labels(COVERS).direction(Direction.OUT).edges();
   }
 
 }

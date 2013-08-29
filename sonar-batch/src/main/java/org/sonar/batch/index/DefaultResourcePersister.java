@@ -39,6 +39,12 @@ import java.util.Map;
 
 public final class DefaultResourcePersister implements ResourcePersister {
 
+  private static final String RESOURCE_ID = "resourceId";
+  private static final String LAST = "last";
+  private static final String VERSION = "version";
+  private static final String SCOPE = "scope";
+  private static final String QUALIFIER = "qualifier";
+
   private final DatabaseSession session;
   private final Map<Resource, Snapshot> snapshotsByResource = Maps.newHashMap();
   private final ResourcePermissions permissions;
@@ -182,14 +188,14 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private Snapshot findLibrarySnapshot(Integer resourceId, String version) {
     Query query = session.createQuery("from " + Snapshot.class.getSimpleName() +
       " s WHERE s.resourceId=:resourceId AND s.version=:version AND s.scope=:scope AND s.qualifier<>:qualifier AND s.last=:last");
-    query.setParameter("resourceId", resourceId);
-    query.setParameter("version", version);
-    query.setParameter("scope", Scopes.PROJECT);
-    query.setParameter("qualifier", Qualifiers.LIBRARY);
-    query.setParameter("last", Boolean.TRUE);
+    query.setParameter(RESOURCE_ID, resourceId);
+    query.setParameter(VERSION, version);
+    query.setParameter(SCOPE, Scopes.PROJECT);
+    query.setParameter(QUALIFIER, Qualifiers.LIBRARY);
+    query.setParameter(LAST, Boolean.TRUE);
     List<Snapshot> snapshots = query.getResultList();
     if (snapshots.isEmpty()) {
-      snapshots = session.getResults(Snapshot.class, "resourceId", resourceId, "version", version, "scope", Scopes.PROJECT, "qualifier", Qualifiers.LIBRARY);
+      snapshots = session.getResults(Snapshot.class, RESOURCE_ID, resourceId, VERSION, version, SCOPE, Scopes.PROJECT, QUALIFIER, Qualifiers.LIBRARY);
     }
     return snapshots.isEmpty() ? null : snapshots.get(0);
   }
@@ -218,8 +224,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
       hql += " AND s.createdAt<:date";
     }
     Query query = session.createQuery(hql);
-    query.setParameter("last", true);
-    query.setParameter("resourceId", snapshot.getResourceId());
+    query.setParameter(LAST, true);
+    query.setParameter(RESOURCE_ID, snapshot.getResourceId());
     if (onlyOlder) {
       query.setParameter("date", snapshot.getCreatedAt());
     }

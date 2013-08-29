@@ -33,14 +33,21 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.jpa.dao.RulesDao;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RulesBackup implements Backupable {
+
+  private static final String PARENT_REPOSITORY_KEY = "parentRepositoryKey";
+  private static final String PARENT_KEY = "parentKey";
+  private static final String REPOSITORY_KEY = "repositoryKey";
+  private static final String KEY = "key";
+  private static final String CONFIG_KEY = "configKey";
+  private static final String LEVEL = "level";
+  private static final String NAME = "name";
+  private static final String DESCRIPTION = "description";
+  private static final String PARAMS = "params";
+  private static final String VALUE = "value";
+
   private Collection<Rule> rules;
   private RulesDao rulesDao;
   private DatabaseSession session;
@@ -112,7 +119,7 @@ public class RulesBackup implements Backupable {
       rule.setLanguage(matchingParentRuleInDb.getLanguage());
       Rule matchingRuleInDb = session.getSingleResult(Rule.class,
         "pluginName", rule.getRepositoryKey(),
-        "key", rule.getKey());
+        KEY, rule.getKey());
       if (matchingRuleInDb != null) {
         // merge
         matchingRuleInDb.setParent(matchingParentRuleInDb);
@@ -138,21 +145,21 @@ public class RulesBackup implements Backupable {
     xStream.registerConverter(new Converter() {
       public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
         Rule rule = (Rule) source;
-        writeNode(writer, "parentRepositoryKey", rule.getParent().getRepositoryKey());
-        writeNode(writer, "parentKey", rule.getParent().getKey());
-        writeNode(writer, "repositoryKey", rule.getRepositoryKey());
-        writeNode(writer, "key", rule.getKey());
-        writeNode(writer, "configKey", rule.getConfigKey());
-        writeNode(writer, "level", rule.getSeverity().name());
-        writeNode(writer, "name", rule.getName());
-        writeNode(writer, "description", rule.getDescription());
+        writeNode(writer, PARENT_REPOSITORY_KEY, rule.getParent().getRepositoryKey());
+        writeNode(writer, PARENT_KEY, rule.getParent().getKey());
+        writeNode(writer, REPOSITORY_KEY, rule.getRepositoryKey());
+        writeNode(writer, KEY, rule.getKey());
+        writeNode(writer, CONFIG_KEY, rule.getConfigKey());
+        writeNode(writer, LEVEL, rule.getSeverity().name());
+        writeNode(writer, NAME, rule.getName());
+        writeNode(writer, DESCRIPTION, rule.getDescription());
 
         if (!rule.getParams().isEmpty()) {
-          writer.startNode("params");
+          writer.startNode(PARAMS);
           for (RuleParam ruleParam : rule.getParams()) {
             writer.startNode("param");
-            writeNode(writer, "key", ruleParam.getKey());
-            writeNode(writer, "value", ruleParam.getDefaultValue());
+            writeNode(writer, KEY, ruleParam.getKey());
+            writeNode(writer, VALUE, ruleParam.getDefaultValue());
             writer.endNode();
           }
           writer.endNode();
@@ -166,13 +173,13 @@ public class RulesBackup implements Backupable {
         while (reader.hasMoreChildren()) {
           reader.moveDown();
           valuesRule.put(reader.getNodeName(), reader.getValue());
-          if ("params".equals(reader.getNodeName())) {
+          if (PARAMS.equals(reader.getNodeName())) {
             while (reader.hasMoreChildren()) {
               reader.moveDown();
               Map<String, String> valuesParam = readNode(reader);
               rule.createParameter()
-                .setKey(valuesParam.get("key"))
-                .setDefaultValue(valuesParam.get("value"));
+                .setKey(valuesParam.get(KEY))
+                .setDefaultValue(valuesParam.get(VALUE));
               reader.moveUp();
             }
           }
@@ -180,15 +187,15 @@ public class RulesBackup implements Backupable {
         }
 
         Rule parent = Rule.create()
-          .setRepositoryKey(valuesRule.get("parentRepositoryKey"))
-          .setKey(valuesRule.get("parentKey"));
+          .setRepositoryKey(valuesRule.get(PARENT_REPOSITORY_KEY))
+          .setKey(valuesRule.get(PARENT_KEY));
         rule.setParent(parent)
-          .setRepositoryKey(valuesRule.get("repositoryKey"))
-          .setKey(valuesRule.get("key"))
-          .setConfigKey(valuesRule.get("configKey"))
-          .setName(valuesRule.get("name"))
-          .setDescription(valuesRule.get("description"))
-          .setSeverity(RulePriority.valueOf(valuesRule.get("level")));
+          .setRepositoryKey(valuesRule.get(REPOSITORY_KEY))
+          .setKey(valuesRule.get(KEY))
+          .setConfigKey(valuesRule.get(CONFIG_KEY))
+          .setName(valuesRule.get(NAME))
+          .setDescription(valuesRule.get(DESCRIPTION))
+          .setSeverity(RulePriority.valueOf(valuesRule.get(LEVEL)));
         return rule;
       }
 

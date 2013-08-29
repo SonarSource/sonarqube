@@ -118,9 +118,10 @@ public final class PhaseExecutor {
       decoratorsExecutor.execute();
     }
 
-    eventBus.fireEvent(new BatchStepEvent("Save measures", true));
+    String saveMeasures = "Save measures";
+    eventBus.fireEvent(new BatchStepEvent(saveMeasures, true));
     persistenceManager.dump();
-    eventBus.fireEvent(new BatchStepEvent("Save measures", false));
+    eventBus.fireEvent(new BatchStepEvent(saveMeasures, false));
     persistenceManager.setDelayedMode(false);
 
     if (module.isRoot()) {
@@ -138,19 +139,21 @@ public final class PhaseExecutor {
 
   private void executePersisters() {
     LOGGER.info("Store results in database");
-    eventBus.fireEvent(new BatchStepEvent("Persisters", true));
+    String persistersStep = "Persisters";
+    eventBus.fireEvent(new BatchStepEvent(persistersStep, true));
     for (ScanPersister persister : persisters) {
       LOGGER.debug("Execute {}", persister.getClass().getName());
       persister.persist();
     }
-    eventBus.fireEvent(new BatchStepEvent("Persisters", false));
+    eventBus.fireEvent(new BatchStepEvent(persistersStep, false));
   }
 
   private void updateStatusJob() {
     if (updateStatusJob != null) {
-      eventBus.fireEvent(new BatchStepEvent("Update status job", true));
-      updateStatusJob.execute();
-      eventBus.fireEvent(new BatchStepEvent("Update status job", false));
+      String updateStatusJob = "Update status job";
+      eventBus.fireEvent(new BatchStepEvent(updateStatusJob, true));
+      this.updateStatusJob.execute();
+      eventBus.fireEvent(new BatchStepEvent(updateStatusJob, false));
     }
   }
 
@@ -171,9 +174,10 @@ public final class PhaseExecutor {
   }
 
   private void cleanMemory() {
-    eventBus.fireEvent(new BatchStepEvent("Clean memory", true));
+    String cleanMemory = "Clean memory";
+    eventBus.fireEvent(new BatchStepEvent(cleanMemory, true));
     persistenceManager.clear();
     index.clear();
-    eventBus.fireEvent(new BatchStepEvent("Clean memory", false));
+    eventBus.fireEvent(new BatchStepEvent(cleanMemory, false));
   }
 }
