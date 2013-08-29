@@ -150,10 +150,10 @@ public final class PhaseExecutor {
 
   private void updateStatusJob() {
     if (updateStatusJob != null) {
-      String updateStatusJob = "Update status job";
-      eventBus.fireEvent(new BatchStepEvent(updateStatusJob, true));
+      String stepName = "Update status job";
+      eventBus.fireEvent(new BatchStepEvent(stepName, true));
       this.updateStatusJob.execute();
-      eventBus.fireEvent(new BatchStepEvent(updateStatusJob, false));
+      eventBus.fireEvent(new BatchStepEvent(stepName, false));
     }
   }
 
