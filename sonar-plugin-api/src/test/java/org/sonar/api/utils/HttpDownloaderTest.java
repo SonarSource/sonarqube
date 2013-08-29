@@ -47,6 +47,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.zip.GZIPOutputStream;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -81,7 +82,15 @@ public class HttpDownloaderTest {
                 e.printStackTrace();
               }
             }
-            resp.getPrintStream().append("agent=" + req.getValues("User-Agent").get(0));
+            if (req.getPath().getPath().contains("/gzip/")) {
+              resp.set("Content-Encoding", "gzip");
+              GZIPOutputStream gzipOutputStream = new GZIPOutputStream(resp.getOutputStream());
+              gzipOutputStream.write("GZIP response".getBytes());
+              gzipOutputStream.close();
+            }
+            else {
+              resp.getPrintStream().append("agent=" + req.getValues("User-Agent").get(0));
+            }
           }
         } catch (IOException e) {
         } finally {
@@ -114,6 +123,12 @@ public class HttpDownloaderTest {
   public void readString() throws URISyntaxException {
     String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl), Charsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
+  }
+
+  @Test
+  public void readGzipString() throws URISyntaxException {
+    String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl + "/gzip/"), Charsets.UTF_8);
+    assertThat(text).isEqualTo("GZIP response");
   }
 
   @Test

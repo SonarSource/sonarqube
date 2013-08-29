@@ -51,6 +51,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 /**
  * This component downloads HTTP files
@@ -250,6 +251,8 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
         LoggerFactory.getLogger(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri, ProxySelector.getDefault()) + ")");
 
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+        // allow both GZip and Deflate (ZLib) encodings
+        connection.setRequestProperty("Accept-Encoding", "gzip");
         if (!Strings.isNullOrEmpty(login)) {
           String encoded = new String(Base64.encodeBase64((login + ":" + password).getBytes()));
           connection.setRequestProperty("Authorization", "Basic " + encoded);
@@ -259,6 +262,12 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
         connection.setUseCaches(true);
         connection.setInstanceFollowRedirects(true);
         connection.setRequestProperty("User-Agent", userAgent);
+
+        // establish connection, get response headers
+        connection.connect();
+
+        // obtain the encoding returned by the server
+        String encoding = connection.getContentEncoding();
 
         int responseCode = connection.getResponseCode();
         if (responseCode >= 400) {
@@ -276,7 +285,15 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
           }
         }
 
-        return connection.getInputStream();
+        InputStream resultingInputStream = null;
+        // create the appropriate stream wrapper based on the encoding type
+        if (encoding != null && encoding.equalsIgnoreCase("gzip")) {
+          resultingInputStream = new GZIPInputStream(connection.getInputStream());
+        }
+        else {
+          resultingInputStream = connection.getInputStream();
+        }
+        return resultingInputStream;
       }
     }
 
