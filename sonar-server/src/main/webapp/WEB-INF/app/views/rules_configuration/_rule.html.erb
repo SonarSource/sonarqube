@@ -1,5 +1,5 @@
 <td nowrap valign="top" class="left" x="<%= active_rule.failure_level if active_rule -%>" width="1%">
-  <form id="levels_<%= rule.id -%>" action="">
+  <form id="levels_<%= rule.id -%>" action="" class="rule-levels-form">
     <% enable_modification = profiles_administrator?
        select_box_id = "levels_select_#{rule.id}"
        check_box_id = "levels_check_#{rule.id}"
