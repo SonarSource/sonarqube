@@ -65,6 +65,7 @@ public class InternalRubyIssueService implements ServerComponent {
   private static final String ID_PARAM = "id";
   private static final String NAME_PARAM = "name";
   private static final String DESCRIPTION_PARAM = "description";
+  private static final String ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST = "action_plans.errors.action_plan_does_not_exist";
 
   private final IssueService issueService;
   private final IssueCommentService commentService;
@@ -248,7 +249,7 @@ public class InternalRubyIssueService implements ServerComponent {
     DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key, UserSession.get());
     if (existingActionPlan == null) {
       Result<ActionPlan> result = Result.of();
-      result.addError(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", key));
+      result.addError(Result.Message.ofL10n(ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST, key));
       return result;
     } else {
       Result<ActionPlan> result = createActionPlanResult(parameters, existingActionPlan);
@@ -362,7 +363,7 @@ public class InternalRubyIssueService implements ServerComponent {
   private Result<ActionPlan> createResultForExistingActionPlan(String actionPlanKey) {
     Result<ActionPlan> result = Result.of();
     if (findActionPlan(actionPlanKey) == null) {
-      result.addError(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", actionPlanKey));
+      result.addError(Result.Message.ofL10n(ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST, actionPlanKey));
     }
     return result;
   }

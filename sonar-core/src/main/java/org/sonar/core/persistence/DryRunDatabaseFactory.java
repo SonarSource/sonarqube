@@ -40,8 +40,11 @@ public class DryRunDatabaseFactory implements ServerComponent {
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
   private static final String URL = "jdbc:h2:";
-  private static final String USER = "sonar";
-  private static final String PASSWORD = "sonar";
+  private static final String H2_FILE_SUFFIX = ".h2.db";
+  private static final String SONAR = "sonar";
+  private static final String USER = SONAR;
+  private static final String PASSWORD = SONAR;
+
   private final Database database;
   private final ServerFileSystem serverFileSystem;
 
@@ -62,7 +65,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
       close(destination);
 
       if (LOG.isDebugEnabled()) {
-        File dbFile = new File(name + ".h2.db");
+        File dbFile = new File(name + H2_FILE_SUFFIX);
         long size = dbFile.length();
         long duration = System.currentTimeMillis() - startup;
         if (projectId == null) {
@@ -136,7 +139,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
 
   private byte[] dbFileContent(String name) {
     try {
-      File dbFile = new File(name + ".h2.db");
+      File dbFile = new File(name + H2_FILE_SUFFIX);
       byte[] content = Files.toByteArray(dbFile);
       dbFile.delete();
       return content;
