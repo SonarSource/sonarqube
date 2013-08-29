@@ -96,23 +96,32 @@ public class DryRunDatabaseFactory implements ServerComponent {
       .copyTable(source, dest, "rules_profiles")
       .copyTable(source, dest, "alerts");
     if (projectId != null) {
-      StringBuilder projectQuery = new StringBuilder();
-      projectQuery.append("SELECT p.* FROM projects p INNER JOIN snapshots s ON p.id = s.project_id");
-      projectQuery.append(" WHERE s.islast=").append(database.getDialect().getTrueSqlValue());
-      projectQuery.append(" AND (");
-      projectQuery.append("   s.root_project_id=").append(projectId);
-      projectQuery.append("   OR p.id=").append(projectId);
-      projectQuery.append("   OR p.root_id=").append(projectId);
-      projectQuery.append(" )");
-      template.copyTable(source, dest, "projects", projectQuery.toString());
+      template.copyTable(source, dest, "projects", projectQuery(projectId, false));
 
       template.copyTable(source, dest, "snapshots", "SELECT * FROM snapshots WHERE project_id=" + projectId);
       template.copyTable(source, dest, "project_measures", "SELECT m.* FROM project_measures m INNER JOIN snapshots s on m.snapshot_id=s.id WHERE s.project_id=" + projectId);
 
-      String forRootModule = "root_component_id in (select id from projects where id=" + projectId + " and qualifier='TRK')";
-      String forSubModule = "component_id in (select id from projects where id=" + projectId + " or root_id=" + projectId + ")";
-      template.copyTable(source, dest, "issues", "SELECT * FROM issues WHERE ((" + forRootModule + ") OR ( " + forSubModule + ")) AND status <> '" + Issue.STATUS_CLOSED + "'");
+      StringBuilder issueQuery = new StringBuilder()
+        .append("SELECT issues.* FROM issues")
+        .append(" INNER JOIN (")
+        .append(projectQuery(projectId, true))
+        .append(") resources")
+        .append(" ON issues.component_id=resources.id")
+        .append(" AND status <> '").append(Issue.STATUS_CLOSED).append("'");
+      template.copyTable(source, dest, "issues", issueQuery.toString());
     }
+  }
+
+  private String projectQuery(Long projectId, boolean returnOnlyIds) {
+    return new StringBuilder()
+      .append("SELECT p.").append(returnOnlyIds ? "id" : "*")
+      .append(" FROM projects p INNER JOIN snapshots s ON p.id = s.project_id")
+      .append(" WHERE s.islast=").append(database.getDialect().getTrueSqlValue())
+      .append(" AND (")
+      .append("   s.root_project_id=").append(projectId)
+      .append("   OR p.id=").append(projectId)
+      .append("   OR p.root_id=").append(projectId)
+      .append(" )").toString();
   }
 
   private BasicDataSource create(String dialect, String driver, String user, String password, String url) {
