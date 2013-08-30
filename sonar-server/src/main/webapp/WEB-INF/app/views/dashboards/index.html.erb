@@ -1,7 +1,7 @@
 <div class="admin_page">
   <ul style="float: right" class="horizontal">
     <li class="marginleft10 add">
-      <%= link_to message('create'), {:action => :create_form, :resource => params[:resource]}, :id => "create-link-dashboard", :class => 'open-modal link-action' %>
+      <%= link_to message('create'), {:action => :create_form, :resource => (@resource.id if @resource)}, :id => "create-link-dashboard", :class => 'open-modal link-action' %>
     </li>
   </ul>
 

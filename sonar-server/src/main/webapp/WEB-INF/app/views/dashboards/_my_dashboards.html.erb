@@ -15,9 +15,10 @@
     </tr>
   <% else %>
     <% @actives.map(&:dashboard).each_with_index do |dashboard, index| %>
+      <% resource_id = @resource.id if @resource %>
       <tr id="dashboard-<%= dashboard.id -%>" class="<%= cycle('even', 'odd', :name => 'dashboard') -%>">
         <td>
-          <%= link_to h(dashboard.name(true)), {:controller => :dashboard, :action => :index, :did => dashboard.id, :id => (h(params[:resource]) unless dashboard.global?)},
+          <%= link_to h(dashboard.name(true)), {:controller => :dashboard, :action => :index, :did => dashboard.id, :id => (resource_id unless dashboard.global?)},
                       :id => "view-#{u dashboard.name}" %>
           <div class="description"><%= h dashboard.description -%></div>
         </td>
@@ -29,12 +30,12 @@
         </td>
         <td class="order">
           <% if index > 0 %>
-            <%= link_to image_tag('blue-up.png'), {:action => :up, :id => dashboard.id, :resource => h(params[:resource])}, :method => :post, :id => "up-#{u dashboard.name}" %>
+            <%= link_to image_tag('blue-up.png'), {:action => :up, :id => dashboard.id, :resource => resource_id}, :method => :post, :id => "up-#{u dashboard.name}" %>
           <% else %>
             <%= image_tag('transparent_16.gif') %>
           <% end %>
           <% if index < @actives.size-1 %>
-            <%= link_to image_tag('blue-down.png'), {:action => :down, :id => dashboard.id, :resource => h(params[:resource])}, :method => :post, :id => "down-#{u dashboard.name}" %>
+            <%= link_to image_tag('blue-down.png'), {:action => :down, :id => dashboard.id, :resource => resource_id}, :method => :post, :id => "down-#{u dashboard.name}" %>
           <% else %>
             <%= image_tag('transparent_16.gif') %>
         <% end %>
