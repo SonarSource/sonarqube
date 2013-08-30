@@ -14,11 +14,11 @@
             <input id="user_name" name="user[name]" size="30" type="text"/>
           </p>
           <h3><%= label_tag 'user_password', message('password') %></h3>
-          <p><input id="user_password" maxLength="50" name="user[password]" size="30" type="password"/></p>
+          <p><input id="user_password" maxLength="50" name="user[password]" size="30" type="password" autocomplete="off"/></p>
 
           <h3><%= label_tag 'user_password_confirmation', message('sessions.confirm_password') %></h3>
           <p>
-            <input id="user_password_confirmation" maxLength="50" name="user[password_confirmation]" size="30" type="password"/>
+            <input id="user_password_confirmation" maxLength="50" name="user[password_confirmation]" size="30" type="password" autocomplete="off"/>
           </p>
           <p>
             <%= submit_tag message('sessions.sign_up') %> <a href="<%= home_path -%>" class="action"><%= message('cancel') -%></a>

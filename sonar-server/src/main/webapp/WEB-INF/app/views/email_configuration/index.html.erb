@@ -28,7 +28,7 @@
     </tr>
     <tr class="even">
       <td class="keyCell"><label for="smtp_password"><%= message('email_configuration.smtp_password') -%>:</label></td>
-      <td><%= password_field_tag 'smtp_password', @smtp_password %></td>
+      <td><%= password_field_tag 'smtp_password', @smtp_password, {:autocomplete => 'off'}  %></td>
       <td class="comments"><%= message('email_configuration.smtp_password.description') -%></td>
     </tr>
     <tr class="odd">

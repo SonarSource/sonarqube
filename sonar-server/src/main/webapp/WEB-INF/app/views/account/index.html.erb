@@ -38,15 +38,15 @@
         <table class="form">
           <tr>
             <td class="keyCell"><label for="old_password"><%= message('my_profile.password.old') -%>:</label></td>
-            <td><%= password_field_tag 'old_password' %></td>
+            <td><%= password_field_tag 'old_password', nil, {:autocomplete => 'off'} %></td>
           </tr>
           <tr>
             <td class="keyCell"><label for="password"><%= message('my_profile.password.new') -%>:</label></td>
-            <td><%= password_field_tag 'password' %></td>
+            <td><%= password_field_tag 'password', nil, {:autocomplete => 'off'}  %></td>
           </tr>
           <tr>
             <td class="keyCell"><label for="password_confirmation"><%= message('my_profile.password.confirm') -%>:</label></td>
-            <td><%= password_field_tag 'password_confirmation' %></td>
+            <td><%= password_field_tag 'password_confirmation', nil, {:autocomplete => 'off'}  %></td>
           </tr>
           <tr>
             <td></td>

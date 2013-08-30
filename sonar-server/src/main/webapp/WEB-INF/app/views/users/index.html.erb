@@ -95,17 +95,17 @@
         <% end %>
         <% if !@user.id %>
         <tr>
-          <td class="left" valign="top">Password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50 %></td>
+          <td class="left" valign="top">Password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50, :autocomplete => 'off' %></td>
         </tr>
         <tr>
-          <td class="left" valign="top">Confirm password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50 %></td>
+          <td class="left" valign="top">Confirm password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50, :autocomplete => 'off' %></td>
         </tr>
         <% elsif params[:action] == 'change_password' %>
         <tr>
-          <td class="left" valign="top">New password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50 %></td>
+          <td class="left" valign="top">New password:<br/><%= f.password_field :password, :size => 30, :maxLength => 50, :autocomplete => 'off' %></td>
         </tr>
         <tr>
-          <td class="left" valign="top">Confirm new password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50 %></td>
+          <td class="left" valign="top">Confirm new password:<br/><%= f.password_field :password_confirmation, :size => 30, :maxLength => 50, :autocomplete => 'off' %></td>
         </tr>
         <% end %>
       <% end %>
