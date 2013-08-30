@@ -19,6 +19,7 @@
  */
 package org.sonar.server.configuration;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
@@ -30,7 +31,6 @@ import org.sonar.jpa.dao.RulesDao;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 
 public class ProfilesManager extends BaseDao {
 
@@ -95,26 +95,25 @@ public class ProfilesManager extends BaseDao {
 
   /**
    * Deactivate all active rules from profiles using a rule, then remove then.
-   * @param ruleId
    */
   public void removeActivatedRules(Rule rule) {
-    List<RulesProfile> profiles = getSession().createQuery("FROM " + RulesProfile.class.getSimpleName()).getResultList();
-    for (RulesProfile profile : profiles) {
-      List<ActiveRule> activeRulesToRemove = newArrayList();
-      for (ActiveRule activeRule : profile.getActiveRules(true)) {
-        if (activeRule.getRule().equals(rule) && !activeRule.isInherited()) {
-          incrementProfileVersionIfNeeded(profile);
-          ruleDisabled(profile, activeRule, null);
-          for (RulesProfile child : getChildren(profile.getId())) {
-            deactivate(child, activeRule.getRule(), null);
-          }
-          activeRulesToRemove.add(activeRule);
+    List<ActiveRule> activeRules = getSession().createQuery("FROM " + ActiveRule.class.getSimpleName() + " WHERE rule=:rule").setParameter("rule", rule).getResultList();
+    List<ActiveRule> activeRulesToRemove = Lists.newArrayList();
+
+    for (ActiveRule activeRule : activeRules) {
+      if (!activeRule.isInherited()) {
+        RulesProfile profile = activeRule.getRulesProfile();
+        incrementProfileVersionIfNeeded(profile);
+        ruleDisabled(profile, activeRule, null);
+        for (RulesProfile child : getChildren(profile.getId())) {
+          deactivate(child, activeRule.getRule(), null);
         }
+        activeRulesToRemove.add(activeRule);
       }
-      for (ActiveRule activeRule : activeRulesToRemove) {
-        ActiveRule activeRuleToRemove = getSession().getSingleResult(ActiveRule.class, "id", activeRule.getId());
-        removeActiveRule(profile, activeRuleToRemove);
-      }
+    }
+    for (ActiveRule activeRule : activeRulesToRemove) {
+      ActiveRule activeRuleToRemove = getSession().getSingleResult(ActiveRule.class, "id", activeRule.getId());
+      removeActiveRule(activeRuleToRemove);
     }
     getSession().commit();
   }
@@ -202,7 +201,7 @@ public class ProfilesManager extends BaseDao {
     ActiveRule oldActiveRule = getSession().getEntity(ActiveRule.class, activeRuleId);
     if (oldActiveRule != null && oldActiveRule.doesOverride()) {
       ActiveRule parentActiveRule = getParentProfile(profile).getActiveRule(oldActiveRule.getRule());
-      removeActiveRule(profile, oldActiveRule);
+      removeActiveRule(oldActiveRule);
       ActiveRule newActiveRule = (ActiveRule) parentActiveRule.clone();
       newActiveRule.setRulesProfile(profile);
       newActiveRule.setInheritance(ActiveRule.INHERITED);
@@ -319,7 +318,7 @@ public class ProfilesManager extends BaseDao {
     ActiveRule oldActiveRule = profile.getActiveRule(parentActiveRule.getRule());
     if (oldActiveRule != null) {
       if (oldActiveRule.isInherited()) {
-        removeActiveRule(profile, oldActiveRule);
+        removeActiveRule(oldActiveRule);
       } else {
         oldActiveRule.setInheritance(ActiveRule.OVERRIDES);
         getSession().saveWithoutFlush(oldActiveRule);
@@ -349,7 +348,7 @@ public class ProfilesManager extends BaseDao {
     if (activeRule != null) {
       if (activeRule.isInherited()) {
         ruleDisabled(profile, activeRule, userName);
-        removeActiveRule(profile, activeRule);
+        removeActiveRule(activeRule);
       } else {
         activeRule.setInheritance(null);
         getSession().saveWithoutFlush(activeRule);
@@ -374,7 +373,8 @@ public class ProfilesManager extends BaseDao {
       "parentName", parent.getName());
   }
 
-  private void removeActiveRule(RulesProfile profile, ActiveRule activeRule) {
+  private void removeActiveRule(ActiveRule activeRule) {
+    org.sonar.api.profiles.RulesProfile profile = activeRule.getRulesProfile();
     profile.removeActiveRule(activeRule);
     getSession().removeWithoutFlush(activeRule);
   }
