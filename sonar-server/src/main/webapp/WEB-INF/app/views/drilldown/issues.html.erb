@@ -144,7 +144,7 @@
           <tr class="<%= clazz -%>" id="row_<%= index -%>_<%= row_index -%>">
             <td nowrap>
               <% if resource.source_code? %>
-                <a href="<%= url_for :controller => 'resource', :action => 'index', :id => resource.key, :period => params[:period], :metric => @metric ? @metric.id : nil,
+                <a href="<%= url_for :controller => 'resource', :action => 'index', :id => resource.key, :period => @period, :metric => @metric ? @metric.id : nil,
                                      :rule => @rule ? @rule.id : @severity, :display_title => 'true' -%>"
                    onclick="window.open(this.href,'resource-<%= resource.key.parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"
                    id="popup-<%= resource.key.parameterize -%>"

@@ -67,7 +67,7 @@
     </tbody>
 
       <%= table_pagination(@filter.pagination, :colspan => colspan) { |label, page_id|
-            link_to(label, :action => 'index', :qualifier => @qualifier, :asc => @filter.criteria[:asc], :page => page_id)
+            link_to(label, :action => 'index', :qualifier => h(@qualifier), :asc => h(@filter.criteria[:asc]), :page => page_id)
           }
       -%>
     

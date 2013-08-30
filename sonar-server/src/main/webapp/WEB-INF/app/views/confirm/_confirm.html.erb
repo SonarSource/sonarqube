@@ -4,7 +4,7 @@
    message_params = params['mp'] || []
    button_key = params[:bk] || title_key
 %>
-<form id="confirm-form" method="post" action="<%= Api::Utils.absolute_to_relative_url(params[:url]) -%>">
+<form id="confirm-form" method="post" action="<%= Api::Utils.absolute_to_relative_url(h(params[:url])) -%>">
   <fieldset>
     <div class="modal-head">
       <h2><%= h message title_key -%></h2>
