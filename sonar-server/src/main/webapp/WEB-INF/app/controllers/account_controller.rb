@@ -41,7 +41,7 @@ class AccountController < ApplicationController
   end
 
   def change_password
-    return unless request.post?
+    verify_post_request
     if User.authenticate(current_user.login, params[:old_password], servlet_request)
       if ((params[:password] == params[:password_confirmation]))
         current_user.password = params[:password]
@@ -62,6 +62,7 @@ class AccountController < ApplicationController
   end
 
   def update_notifications
+    verify_post_request
     # Global notifs
     global_notifs = params[:global_notifs]
     Property.delete_all(['prop_key like ? AND user_id = ? AND resource_id IS NULL', 'notification.%', current_user.id])
