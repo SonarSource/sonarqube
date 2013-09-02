@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class ProjectReactorValidator {
 
-  private static final String VALID_MODULE_KEY_REGEXP = "[0-9a-zA-Z\\-_\\.:]+";
+  private static final String VALID_MODULE_KEY_REGEXP = "[0-9a-zA-Z\\-_\\.:/]+";
   private final Settings settings;
 
   public ProjectReactorValidator(Settings settings) {
