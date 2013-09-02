@@ -11,7 +11,7 @@
       <td>
         <form action="<%= url_for :controller => "columns", :action => "add" -%>" >
           <input type="hidden" name="rid" value="<%= @resource.id if @resource %>" />
-          <select name="id" onchange="$('add_column_loading').show();submit();" id="select_add_column">
+          <select name="id" onchange="$j('#add_column_loading').show();submit();" id="select_add_column">
             <option value=""></option>
             <% addeable_columns.keys.sort.each do |domain| %>
               <optgroup label="<%= domain %>">
@@ -31,7 +31,7 @@
       <td>
         <form action="<%= url_for :controller => "columns", :action => "default_sorting" -%>">
           <input type="hidden" name="rid" value="<%= @resource.id if @resource %>" />
-          <select name="id" onchange="$('sort_column_loading').show();submit();" id="select_default_sorting">
+          <select name="id" onchange="$j('#sort_column_loading').show();submit();" id="select_default_sorting">
 	        <option value="project" <%= 'selected' if components_configuration.sorted_by_project_name? -%>><%= message('project_name') -%></option>
             <% configured_columns.sort_by{|col| col.name}.each do |column| 
                 if column.sortable? %>
