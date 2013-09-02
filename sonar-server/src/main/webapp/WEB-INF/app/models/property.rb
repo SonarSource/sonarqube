@@ -176,7 +176,7 @@ class Property < ActiveRecord::Base
   private
 
   def self.setGlobalProperty(key, value, resource_id, user_id)
-    Api::Utils.java_facade.setGlobalProperty(key, value) unless (resource_id || user_id)
+    Api::Utils.java_facade.updateProperty(key, value, resource_id, user_id)
   end
 
   def self.all(key, resource_id=nil, user_id=nil)

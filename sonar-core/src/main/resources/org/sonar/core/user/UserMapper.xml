@@ -13,6 +13,12 @@
     u.active as "active"
   </sql>
 
+    <select id="selectUser" parameterType="long" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u WHERE u.id=#{id}
+  </select>
+
   <select id="selectUserByLogin" parameterType="string" resultType="User">
     SELECT
     <include refid="userColumns"/>

@@ -25,6 +25,7 @@ import com.thoughtworks.xstream.XStream;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.configuration.Property;
+import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.platform.PersistentSettings;
 
@@ -80,7 +81,9 @@ public class PropertiesBackup implements Backupable {
   private boolean shouldBeExported(String propertyKey) {
     // "sonar.core.id" must never be restored, it is unique for a server and it created once at the 1rst server startup
     // default permissions properties should not be exported as they reference permission_templates entries in the DB
-    return !CoreProperties.SERVER_ID.equals(propertyKey) && !propertyKey.startsWith(PERMISSION_PROPERTIES_PREFIX);
+    return !CoreProperties.SERVER_ID.equals(propertyKey)
+      && !propertyKey.startsWith(PERMISSION_PROPERTIES_PREFIX)
+      && !propertyKey.startsWith(DryRunDatabaseFactory.SONAR_DRY_RUN_CACHE_KEY_PREFIX);
   }
 
   private boolean shouldNotBeErased(String propertyKey) {

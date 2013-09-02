@@ -19,55 +19,66 @@
  */
 package org.sonar.api.config;
 
+import org.sonar.api.ServerExtension;
+
 import javax.annotation.Nullable;
 
 /**
- * Observe changes of global properties done from web application. It does not support :
+ * Observe changes of properties done from web application. It does not support :
  * <ul>
- * <li>changes done by end-users from the page "Project Settings"</li>
  * <li>changes done programmatically on the component org.sonar.api.config.Settings</li>
  * </ul>
  *
- * @since 3.0
+ * @since 4.0
  */
-public abstract class GlobalPropertyChangeHandler implements SettingsChangeHandler {
+public interface SettingsChangeHandler extends ServerExtension {
 
-  public static final class PropertyChange {
+  public static final class SettingsChange {
     private String key;
     private String newValue;
+    private String componentKey;
+    private String userLogin;
 
-    private PropertyChange(String key, @Nullable String newValue) {
+    private SettingsChange(String key, @Nullable String newValue, @Nullable String componentKey, @Nullable String userLogin) {
       this.key = key;
       this.newValue = newValue;
+      this.componentKey = componentKey;
+      this.userLogin = userLogin;
     }
 
-    public static PropertyChange create(String key, @Nullable String newValue) {
-      return new PropertyChange(key, newValue);
+    public static SettingsChange create(String key, @Nullable String newValue, @Nullable String componentKey, @Nullable String userLogin) {
+      return new SettingsChange(key, newValue, componentKey, userLogin);
     }
 
-    public String getKey() {
+    public String key() {
       return key;
     }
 
-    public String getNewValue() {
+    public String newValue() {
       return newValue;
+    }
+
+    public String componentKey() {
+      return componentKey;
+    }
+
+    public String userLogin() {
+      return userLogin;
+    }
+
+    public boolean isGlobal() {
+      return componentKey == null && userLogin == null;
     }
 
     @Override
     public String toString() {
-      return String.format("[key=%s, newValue=%s]", key, newValue);
+      return String.format("[key=%s, newValue=%s, componentKey=%s]", key, newValue, componentKey);
     }
   }
 
   /**
    * This method gets called when a property is changed.
    */
-  public abstract void onChange(PropertyChange change);
+  public void onChange(SettingsChange change);
 
-  @Override
-  public void onChange(SettingsChange change) {
-    if (change.isGlobal()) {
-      onChange(PropertyChange.create(change.key(), change.newValue()));
-    }
-  }
 }

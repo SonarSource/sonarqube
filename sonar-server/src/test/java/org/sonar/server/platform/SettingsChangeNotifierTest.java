@@ -21,7 +21,9 @@ package org.sonar.server.platform;
 
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
-import org.sonar.api.config.GlobalPropertyChangeHandler;
+import org.sonar.api.config.SettingsChangeHandler;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.user.UserDao;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
@@ -31,27 +33,27 @@ import static org.mockito.Mockito.verify;
 public class SettingsChangeNotifierTest {
   @Test
   public void onGlobalPropertyChange() {
-    GlobalPropertyChangeHandler handler = mock(GlobalPropertyChangeHandler.class);
-    SettingsChangeNotifier notifier = new SettingsChangeNotifier(new GlobalPropertyChangeHandler[]{handler});
+    SettingsChangeHandler handler = mock(SettingsChangeHandler.class);
+    SettingsChangeNotifier notifier = new SettingsChangeNotifier(mock(ResourceDao.class), mock(UserDao.class), new SettingsChangeHandler[] {handler});
 
-    notifier.onGlobalPropertyChange("foo", "bar");
+    notifier.onPropertyChange("foo", "bar", null, null);
 
-    verify(handler).onChange(argThat(new ArgumentMatcher<GlobalPropertyChangeHandler.PropertyChange>() {
+    verify(handler).onChange(argThat(new ArgumentMatcher<SettingsChangeHandler.SettingsChange>() {
       @Override
       public boolean matches(Object o) {
-        GlobalPropertyChangeHandler.PropertyChange change = (GlobalPropertyChangeHandler.PropertyChange) o;
-        return change.getKey().equals("foo") && change.getNewValue().equals("bar");
+        SettingsChangeHandler.SettingsChange change = (SettingsChangeHandler.SettingsChange) o;
+        return change.key().equals("foo") && change.newValue().equals("bar") && change.componentKey() == null && change.userLogin() == null;
       }
     }));
   }
 
   @Test
   public void no_handlers() {
-    SettingsChangeNotifier notifier = new SettingsChangeNotifier();
+    SettingsChangeNotifier notifier = new SettingsChangeNotifier(mock(ResourceDao.class), mock(UserDao.class));
 
     assertThat(notifier.changeHandlers).isEmpty();
 
     // does not fail
-    notifier.onGlobalPropertyChange("foo", "bar");
+    notifier.onPropertyChange("foo", "bar", null, null);
   }
 }

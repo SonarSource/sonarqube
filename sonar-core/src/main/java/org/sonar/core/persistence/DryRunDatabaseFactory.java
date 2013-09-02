@@ -44,7 +44,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class DryRunDatabaseFactory implements ServerComponent {
-  private static final String SONAR_DRY_RUN_CACHE_LAST_UPDATE = "sonar.dryRun.cache.lastUpdate";
+  public static final String SONAR_DRY_RUN_CACHE_KEY_PREFIX = "sonar.dryRun.cache.";
+  public static final String SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY = SONAR_DRY_RUN_CACHE_KEY_PREFIX + "lastUpdate";
   private static final Logger LOG = LoggerFactory.getLogger(DryRunDatabaseFactory.class);
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
@@ -58,6 +59,10 @@ public class DryRunDatabaseFactory implements ServerComponent {
   private final ServerFileSystem serverFileSystem;
   private final Settings settings;
   private final ResourceDao resourceDao;
+
+  public static String getCacheLastUpdateKey(Long rootProjectId) {
+    return SONAR_DRY_RUN_CACHE_KEY_PREFIX + rootProjectId + ".lastUpdate";
+  }
 
   public DryRunDatabaseFactory(Database database, ServerFileSystem serverFileSystem, Settings settings, ResourceDao resourceDao) {
     this.database = database;
@@ -100,14 +105,14 @@ public class DryRunDatabaseFactory implements ServerComponent {
   }
 
   private boolean isValid(@Nullable Long projectId, long lastTimestampInCache) {
-    long globalTimestamp = settings.getLong(SONAR_DRY_RUN_CACHE_LAST_UPDATE);
+    long globalTimestamp = settings.getLong(SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY);
     if (globalTimestamp > lastTimestampInCache) {
       return false;
     }
     if (projectId != null) {
       // For modules look for root project last modification timestamp
       Long rootId = resourceDao.getRootProjectByComponentId(projectId).getId();
-      long projectTimestamp = settings.getLong("sonar.dryRun.cache." + rootId + ".lastUpdate");
+      long projectTimestamp = settings.getLong(getCacheLastUpdateKey(rootId));
       if (projectTimestamp > lastTimestampInCache) {
         return false;
       }
