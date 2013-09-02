@@ -19,14 +19,19 @@
  */
 package org.sonar.core.persistence;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,10 +48,18 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  private File dryRunCache;
+  private ResourceDao resourceDao;
+  private Settings settings;
 
   @Before
-  public void setUp() {
-    localDatabaseFactory = new DryRunDatabaseFactory(getDatabase(), serverFileSystem);
+  public void setUp() throws Exception {
+    File tempFolder = temporaryFolder.newFolder();
+    dryRunCache = new File(tempFolder, "dryRun");
+    when(serverFileSystem.getTempDir()).thenReturn(tempFolder);
+    resourceDao = mock(ResourceDao.class);
+    settings = new Settings();
+    localDatabaseFactory = new DryRunDatabaseFactory(getDatabase(), serverFileSystem, settings, resourceDao);
   }
 
   @After
@@ -60,7 +73,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   public void should_create_database_without_project() throws IOException, SQLException {
     setupData("should_create_database");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
+    assertThat(new File(dryRunCache, "default")).doesNotExist();
 
     byte[] database = localDatabaseFactory.createDatabaseForDryRun(null);
     dataSource = createDatabase(database);
@@ -68,13 +81,48 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
     assertThat(rowCount("metrics")).isEqualTo(2);
     assertThat(rowCount("projects")).isZero();
     assertThat(rowCount("alerts")).isEqualTo(1);
+
+    assertThat(new File(dryRunCache, "default")).isDirectory();
+  }
+
+  @Test
+  public void should_reuse_database_without_project() throws IOException, SQLException {
+    setupData("should_create_database");
+
+    FileUtils.write(new File(new File(dryRunCache, "default"), "123456.h2.db"), "fakeDbContent");
+
+    byte[] database = localDatabaseFactory.createDatabaseForDryRun(null);
+
+    assertThat(new String(database, Charsets.UTF_8)).isEqualTo("fakeDbContent");
+  }
+
+  @Test
+  public void should_evict_database_without_project() throws IOException, SQLException {
+    setupData("should_create_database");
+
+    // There is a DB in cache
+    File existingDb = new File(new File(dryRunCache, "default"), "123456.h2.db");
+    FileUtils.write(existingDb, "fakeDbContent");
+
+    // But last modification timestamp is greater
+    settings.setProperty("sonar.dryRun.cache.lastUpdate", "123457");
+
+    byte[] database = localDatabaseFactory.createDatabaseForDryRun(null);
+    dataSource = createDatabase(database);
+
+    assertThat(rowCount("metrics")).isEqualTo(2);
+    assertThat(rowCount("projects")).isZero();
+    assertThat(rowCount("alerts")).isEqualTo(1);
+
+    // Previous cached DB was deleted
+    assertThat(existingDb).doesNotExist();
   }
 
   @Test
   public void should_create_database_with_project() throws IOException, SQLException {
     setupData("should_create_database");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
+    assertThat(new File(dryRunCache, "123")).doesNotExist();
 
     byte[] database = localDatabaseFactory.createDatabaseForDryRun(123L);
     dataSource = createDatabase(database);
@@ -83,13 +131,50 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
     assertThat(rowCount("projects")).isEqualTo(1);
     assertThat(rowCount("snapshots")).isEqualTo(1);
     assertThat(rowCount("project_measures")).isEqualTo(1);
+
+    assertThat(new File(dryRunCache, "123")).isDirectory();
+  }
+
+  @Test
+  public void should_reuse_database_with_project() throws IOException, SQLException {
+    setupData("should_create_database");
+
+    FileUtils.write(new File(new File(dryRunCache, "123"), "123456.h2.db"), "fakeDbContent");
+
+    when(resourceDao.getRootProjectByComponentId(123L)).thenReturn(new ResourceDto().setId(123L));
+    byte[] database = localDatabaseFactory.createDatabaseForDryRun(123L);
+
+    assertThat(new String(database, Charsets.UTF_8)).isEqualTo("fakeDbContent");
+  }
+
+  @Test
+  public void should_evict_database_with_project() throws IOException, SQLException {
+    setupData("should_create_database");
+
+    when(resourceDao.getRootProjectByComponentId(123L)).thenReturn(new ResourceDto().setId(123L));
+
+    // There is a DB in cache
+    File existingDb = new File(new File(dryRunCache, "123"), "123456.h2.db");
+    FileUtils.write(existingDb, "fakeDbContent");
+
+    // But last project modification timestamp is greater
+    settings.setProperty("sonar.dryRun.cache.123.lastUpdate", "123457");
+
+    byte[] database = localDatabaseFactory.createDatabaseForDryRun(123L);
+    dataSource = createDatabase(database);
+
+    assertThat(rowCount("metrics")).isEqualTo(2);
+    assertThat(rowCount("projects")).isEqualTo(1);
+    assertThat(rowCount("snapshots")).isEqualTo(1);
+    assertThat(rowCount("project_measures")).isEqualTo(1);
+
+    // Previous cached DB was deleted
+    assertThat(existingDb).doesNotExist();
   }
 
   @Test
   public void should_create_database_with_issues() throws IOException, SQLException {
     setupData("should_create_database_with_issues");
-
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
 
     byte[] database = localDatabaseFactory.createDatabaseForDryRun(399L);
     dataSource = createDatabase(database);
@@ -116,8 +201,6 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   public void should_export_issues_of_sub_module() throws IOException, SQLException {
     setupData("multi-modules-with-issues");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
-
     // 301 : sub module with 1 closed issue and 1 open issue
     byte[] database = localDatabaseFactory.createDatabaseForDryRun(301L);
     dataSource = createDatabase(database);
@@ -131,8 +214,6 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   public void should_export_issues_of_sub_module_2() throws IOException, SQLException {
     setupData("multi-modules-with-issues");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
-
     // 302 : sub module without any issues
     byte[] database = localDatabaseFactory.createDatabaseForDryRun(302L);
     dataSource = createDatabase(database);
@@ -142,8 +223,6 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   @Test
   public void should_copy_permission_templates_data() throws Exception {
     setupData("should_copy_permission_templates");
-
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
 
     byte[] database = localDatabaseFactory.createDatabaseForDryRun(null);
     dataSource = createDatabase(database);
