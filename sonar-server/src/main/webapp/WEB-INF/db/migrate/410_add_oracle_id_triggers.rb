@@ -25,14 +25,12 @@ class AddOracleIdTriggers < ActiveRecord::Migration
 
   def self.up
     case dialect()
-    when "oracle"
+    when 'oracle'
       upgrade_oracle()
     else
       # Do nothing
     end
   end
-
-  private
 
   def self.upgrade_oracle
     create_id_trigger('action_plans')
