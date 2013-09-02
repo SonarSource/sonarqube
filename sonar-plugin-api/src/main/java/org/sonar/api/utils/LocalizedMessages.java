@@ -73,35 +73,13 @@ public class LocalizedMessages extends ResourceBundle {
   }
 
   /*
-  * (non-Javadoc)
-  *
-  * @see java.util.ResourceBundle#getKeys()
-  */
-
+   * (non-Javadoc)
+   *
+   * @see java.util.ResourceBundle#getKeys()
+   */
   @Override
   public Enumeration<String> getKeys() {
-    return new Enumeration<String>() {
-      private Set<String> keys = new HashSet<String>();
-
-      // Set iterator to simulate enumeration
-      private Iterator<String> i;
-
-      // Constructor
-      {
-        for (ResourceBundle b : bundles) {
-          keys.addAll(Lists.newArrayList(Iterators.forEnumeration(b.getKeys())));
-        }
-        i = keys.iterator();
-      }
-
-      public boolean hasMoreElements() {
-        return i.hasNext();
-      }
-
-      public String nextElement() {
-        return i.next();
-      }
-    };
+    return new KeyEnumeration();
   }
 
   /*
@@ -109,7 +87,6 @@ public class LocalizedMessages extends ResourceBundle {
     *
     * @see java.util.ResourceBundle#handleGetObject(java.lang.String)
     */
-
   @Override
   protected Object handleGetObject(String key) {
     for (ResourceBundle b : bundles) {
@@ -120,5 +97,28 @@ public class LocalizedMessages extends ResourceBundle {
       }
     }
     throw new MissingResourceException(null, null, key);
+  }
+
+  private class KeyEnumeration implements Enumeration<String> {
+    private Set<String> keys = new HashSet<String>();
+
+    // Set iterator to simulate enumeration
+    private Iterator<String> i;
+
+    // Constructor
+    {
+      for (ResourceBundle b : bundles) {
+        keys.addAll(Lists.newArrayList(Iterators.forEnumeration(b.getKeys())));
+      }
+      i = keys.iterator();
+    }
+
+    public boolean hasMoreElements() {
+      return i.hasNext();
+    }
+
+    public String nextElement() {
+      return i.next();
+    }
   }
 }
