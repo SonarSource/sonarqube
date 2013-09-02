@@ -97,7 +97,7 @@ padding: 5px;
   <% end %>
 </div>
 <script>
-$$('#artifacts_col tr.selected').each(function(item) {item.scrollIntoView(true);});
-$$('#versions_col tr.selected').each(function(item) {item.scrollIntoView(true);});
-$$('#results_col tr.selected').each(function(item) {item.scrollIntoView(true);});
+$j('#artifacts_col tr.selected').each(function(index,item) {item.scrollIntoView(true);});
+$j('#versions_col tr.selected').each(function(index,item) {item.scrollIntoView(true);});
+$j('#results_col tr.selected').each(function(index,item) {item.scrollIntoView(true);});
 </script>
