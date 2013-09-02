@@ -25,13 +25,12 @@ import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.PersistentSettings;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 /**
  * @since 4.0
  */
-public final class CleanDryRunCache {
+public class CleanDryRunCache {
 
   private DefaultServerFileSystem serverFileSystem;
   private PersistentSettings settings;
@@ -45,7 +44,11 @@ public final class CleanDryRunCache {
     return new File(serverFileSystem.getTempDir(), "dryRun");
   }
 
-  public void start() throws IOException {
+  public void start() {
+    clean();
+  }
+
+  public void clean() {
     // Delete folder where dryRun DB are stored
     FileUtils.deleteQuietly(getRootCacheLocation());
     // Delete all lastUpdate properties to force generation of new DB

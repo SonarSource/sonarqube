@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
  * Observe changes of properties done from web application. It does not support :
  * <ul>
  * <li>changes done programmatically on the component org.sonar.api.config.Settings</li>
+ * <li>changes done when restoring settings from XML using backup/restore feature</li>
  * </ul>
  *
  * @since 4.0

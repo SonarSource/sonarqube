@@ -28,6 +28,7 @@ import org.sonar.api.database.configuration.Property;
 import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.platform.PersistentSettings;
+import org.sonar.server.startup.CleanDryRunCache;
 
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,11 @@ public class PropertiesBackup implements Backupable {
 
   private final PersistentSettings persistentSettings;
 
-  public PropertiesBackup(PersistentSettings persistentSettings) {
+  private final CleanDryRunCache cleanDryRunCache;
+
+  public PropertiesBackup(PersistentSettings persistentSettings, CleanDryRunCache cleanDryRunCache) {
     this.persistentSettings = persistentSettings;
+    this.cleanDryRunCache = cleanDryRunCache;
   }
 
   public void exportXml(SonarConfig sonarConfig) {
@@ -72,6 +76,7 @@ public class PropertiesBackup implements Backupable {
 
     persistentSettings.deleteProperties();
     persistentSettings.saveProperties(properties);
+    cleanDryRunCache.clean();
   }
 
   public void configure(XStream xStream) {

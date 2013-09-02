@@ -259,6 +259,7 @@ public final class Platform {
     coreContainer.addPicoAdapter(new DatabaseSessionProvider());
     coreContainer.addSingleton(ServerMetadataPersister.class);
     coreContainer.addSingleton(DryRunCacheListener.class);
+    coreContainer.addSingleton(CleanDryRunCache.class);
     coreContainer.startComponents();
   }
 
@@ -389,7 +390,6 @@ public final class Platform {
     startupContainer.addSingleton(RenameDeprecatedPropertyKeys.class);
     startupContainer.addSingleton(LogServerId.class);
     startupContainer.addSingleton(RegisterServletFilters.class);
-    startupContainer.addSingleton(CleanDryRunCache.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
