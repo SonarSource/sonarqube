@@ -147,22 +147,22 @@ public class ProfilesBackup implements Backupable {
         LoggerFactory.getLogger(getClass()).error(
           "Unable to find active rule " + unMarshalledRule.getRepositoryKey() + ":" + unMarshalledRule.getKey());
         iar.remove();
-        continue;
-      }
-      activeRule.setRule(matchingRuleInDb);
-      activeRule.setRulesProfile(profile);
-      activeRule.getActiveRuleParams();
-      for (Iterator<ActiveRuleParam> irp = activeRule.getActiveRuleParams().iterator(); irp.hasNext(); ) {
-        ActiveRuleParam activeRuleParam = irp.next();
-        RuleParam unMarshalledRP = activeRuleParam.getRuleParam();
-        RuleParam matchingRPInDb = rulesDao.getRuleParam(matchingRuleInDb, unMarshalledRP.getKey());
-        if (matchingRPInDb == null) {
-          LoggerFactory.getLogger(getClass()).error("Unable to find active rule parameter " + unMarshalledRP.getKey());
-          irp.remove();
-          continue;
+      } else {
+        activeRule.setRule(matchingRuleInDb);
+        activeRule.setRulesProfile(profile);
+        activeRule.getActiveRuleParams();
+        for (Iterator<ActiveRuleParam> irp = activeRule.getActiveRuleParams().iterator(); irp.hasNext(); ) {
+          ActiveRuleParam activeRuleParam = irp.next();
+          RuleParam unMarshalledRP = activeRuleParam.getRuleParam();
+          RuleParam matchingRPInDb = rulesDao.getRuleParam(matchingRuleInDb, unMarshalledRP.getKey());
+          if (matchingRPInDb == null) {
+            LoggerFactory.getLogger(getClass()).error("Unable to find active rule parameter " + unMarshalledRP.getKey());
+            irp.remove();
+            continue;
+          }
+          activeRuleParam.setActiveRule(activeRule);
+          activeRuleParam.setRuleParam(matchingRPInDb);
         }
-        activeRuleParam.setActiveRule(activeRule);
-        activeRuleParam.setRuleParam(matchingRPInDb);
       }
     }
   }

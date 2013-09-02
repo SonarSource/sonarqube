@@ -287,10 +287,9 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
         InputStream resultingInputStream = null;
         // create the appropriate stream wrapper based on the encoding type
-        if (encoding != null && encoding.equalsIgnoreCase("gzip")) {
+        if (encoding != null && "gzip".equalsIgnoreCase(encoding)) {
           resultingInputStream = new GZIPInputStream(connection.getInputStream());
-        }
-        else {
+        } else {
           resultingInputStream = connection.getInputStream();
         }
         return resultingInputStream;
