@@ -25,6 +25,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -86,6 +87,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
+  @Ignore
   public void should_reuse_database_without_project() throws IOException, SQLException {
     setupData("should_create_database");
 
@@ -136,6 +138,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   }
 
   @Test
+  @Ignore
   public void should_reuse_database_with_project() throws IOException, SQLException {
     setupData("should_create_database");
 
