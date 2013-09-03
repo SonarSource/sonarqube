@@ -215,11 +215,12 @@ public class DryRunDatabaseFactory implements ServerComponent {
       .append("SELECT p.").append(returnOnlyIds ? "id" : "*")
       .append(" FROM projects p INNER JOIN snapshots s ON p.id = s.project_id")
       .append(" WHERE s.islast=").append(database.getDialect().getTrueSqlValue())
-      .append(" AND (")
-      .append("   s.root_project_id=").append(projectId)
-      .append("   OR p.id=").append(projectId)
-      .append("   OR p.root_id=").append(projectId)
-      .append(" )").toString();
+      .append(" AND s.root_project_id=").append(projectId)
+      .append(" UNION")
+      .append(" SELECT p.").append(returnOnlyIds ? "id" : "*")
+      .append(" FROM projects p")
+      .append(" WHERE p.id=").append(projectId)
+      .append(" OR p.root_id=").append(projectId).toString();
   }
 
   private BasicDataSource create(String dialect, String driver, String user, String password, String url) {
