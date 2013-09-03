@@ -72,7 +72,7 @@
   });
 
   $j('#alert_metric_id').change(function (event) {
-    metricId = $('alert_metric_id').value;
+    metricId = $j('#alert_metric_id').val();
     $j.ajax({
       type: 'POST',
       url: "<%= ApplicationController.root_context -%>/alerts/new?profile_id=<%= @profile.id -%>&alert[metric_id]="+ metricId,
