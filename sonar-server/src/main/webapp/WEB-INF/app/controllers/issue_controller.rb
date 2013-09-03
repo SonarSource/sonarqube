@@ -156,7 +156,7 @@ class IssueController < ApplicationController
     component_key = params[:component]
     if Api::Utils.is_integer?(component_key)
       component = Project.find(component_key)
-      component_key = (component ? component.key : nil)
+      component_key = (component && component.key)
     end
 
     issue_result = Internal.issues.create(params.merge({:component => component_key}))

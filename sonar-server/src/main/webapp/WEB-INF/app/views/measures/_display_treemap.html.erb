@@ -53,7 +53,7 @@
         <%= metric_select_tag 'tmColor', Metric.all.select { |m| m.treemap_color? },
                               :html_id => 'select-tm-color',
                               :allow_empty => false,
-                              :selected_key => (filter.display.color_metric ? filter.display.color_metric.key : nil) -%>
+                              :selected_key => (filter.display.color_metric && filter.display.color_metric.key) -%>
 
         <button id="update-treemap"><%= message 'refresh' -%></button>
       </td>

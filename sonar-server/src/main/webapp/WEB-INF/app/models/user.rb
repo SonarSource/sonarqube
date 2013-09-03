@@ -65,7 +65,7 @@ class User < ActiveRecord::Base
 
 
   def email=(value)
-    write_attribute :email, (value ? value.downcase : nil)
+    write_attribute :email, (value && value.downcase)
   end
 
   def available_groups
@@ -113,7 +113,7 @@ class User < ActiveRecord::Base
 
   def property_value(key)
     prop=property(key)
-    prop ? prop.value : nil
+    prop && prop.value
   end
 
   def set_property(options)

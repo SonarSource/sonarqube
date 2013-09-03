@@ -172,7 +172,7 @@ class DashboardController < ApplicationController
     end
 
     unless @dashboard
-      @dashboard=(active ? active.dashboard : nil)
+      @dashboard=(active && active.dashboard)
     end
 
     not_found('dashboard') unless @dashboard

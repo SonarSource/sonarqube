@@ -57,7 +57,7 @@ class Api::Utils
   # -- Revisions
   # Added in 3.6
   def self.java_to_ruby_datetime(java_date)
-    java_date ? Time.at(java_date.time/1000) : nil
+    java_date && Time.at(java_date.time/1000)
   end
 
   def self.is_number?(s)

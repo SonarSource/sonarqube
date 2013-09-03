@@ -57,7 +57,7 @@ module SettingsHelper
   end
 
   def option_name(property, field, option)
-    option_name_with_key(property.key, field ? field.key : nil, option, nil)
+    option_name_with_key(property.key, field && field.key, option, nil)
   end
 
   def category_help(category)
@@ -74,9 +74,9 @@ module SettingsHelper
 
   def property_value(property)
     if property.multi_values?
-      Property.values(property.key, @resource ? @resource.id : nil)
+      Property.values(property.key, @resource && @resource.id)
     else
-      Property.value(property.key, @resource ? @resource.id : nil, '')
+      Property.value(property.key, @resource && @resource.id, '')
     end
   end
 

@@ -87,7 +87,7 @@ class Metric < ActiveRecord::Base
 
   def self.name_for(metric_key)
     m=by_key(metric_key)
-    m ? m.short_name : nil
+    m && m.short_name
   end
  
   def key
