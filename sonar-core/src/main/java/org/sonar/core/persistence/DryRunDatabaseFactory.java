@@ -124,11 +124,12 @@ public class DryRunDatabaseFactory implements ServerComponent {
     long startup = System.currentTimeMillis();
 
     Long lastTimestampInCache = getLastTimestampInCache(projectId);
-    if (lastTimestampInCache == null || !isValid(projectId, lastTimestampInCache)) {
-      lastTimestampInCache = System.nanoTime();
-      cleanCache(projectId);
-      createNewDatabaseForDryRun(projectId, startup, lastTimestampInCache);
-    }
+    // TODO Temporary disable cache until cache eviction is ok
+    // if (lastTimestampInCache == null || !isValid(projectId, lastTimestampInCache)) {
+    lastTimestampInCache = System.nanoTime();
+    cleanCache(projectId);
+    createNewDatabaseForDryRun(projectId, startup, lastTimestampInCache);
+    // }
     return dbFileContent(projectId, lastTimestampInCache);
   }
 

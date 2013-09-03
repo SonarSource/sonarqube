@@ -20,9 +20,7 @@
 package org.sonar.server.platform;
 
 import org.sonar.api.config.SettingsChangeHandler;
-import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
 
 public class DryRunCacheListener implements SettingsChangeHandler {
 
@@ -36,11 +34,12 @@ public class DryRunCacheListener implements SettingsChangeHandler {
 
   @Override
   public void onChange(SettingsChange change) {
-    if (change.isGlobal()) {
-      settings.saveProperty(DryRunDatabaseFactory.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY, String.valueOf(System.nanoTime()));
-    } else if (change.componentKey() != null) {
-      ResourceDto rootProject = resourceDao.getRootProjectByComponentKey(change.componentKey());
-      settings.saveProperty(DryRunDatabaseFactory.getCacheLastUpdateKey(rootProject.getId()), String.valueOf(System.nanoTime()));
-    }
+    // TODO Temporary disable cache eviction
+    // if (change.isGlobal()) {
+    // settings.saveProperty(DryRunDatabaseFactory.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY, String.valueOf(System.nanoTime()));
+    // } else if (change.componentKey() != null) {
+    // ResourceDto rootProject = resourceDao.getRootProjectByComponentKey(change.componentKey());
+    // settings.saveProperty(DryRunDatabaseFactory.getCacheLastUpdateKey(rootProject.getId()), String.valueOf(System.nanoTime()));
+    // }
   }
 }
