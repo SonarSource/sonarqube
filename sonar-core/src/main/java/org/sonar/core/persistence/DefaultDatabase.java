@@ -19,6 +19,11 @@
  */
 package org.sonar.core.persistence;
 
+import com.codahale.metrics.Timer;
+
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.MetricRegistry;
+
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
@@ -59,6 +64,8 @@ public class DefaultDatabase implements Database {
 
   private Settings settings;
   private BasicDataSource datasource;
+  private DataSource monitoredDataSource;
+
   private Dialect dialect;
   private Properties properties;
 
@@ -70,6 +77,7 @@ public class DefaultDatabase implements Database {
     try {
       initSettings();
       initDatasource();
+      initMonitoring();
       checkConnection();
       doAfterStart();
       return this;
@@ -137,6 +145,37 @@ public class DefaultDatabase implements Database {
     datasource.setValidationQuery(dialect.getValidationQuery());
   }
 
+  private void initMonitoring() {
+    boolean jmxActive = settings.getBoolean("sonar.jmx.monitoring");
+    if (jmxActive) {
+      final BasicDataSource dbcpDataSoure = (BasicDataSource) datasource;
+      MetricRegistry registry = MetricRegistryLocator.INSTANCE.getRegistry();
+      Timer getConnectionTimer = registry.timer(MetricRegistry.name(DataSource.class, "getConnection"));
+      registry.register(MetricRegistry.name(DataSource.class, "active"),
+          new Gauge<Integer>() {
+        public Integer getValue() {
+          return dbcpDataSoure.getNumActive();
+        }
+      });
+      registry.register(MetricRegistry.name(DataSource.class, "idle"),
+          new Gauge<Integer>() {
+        public Integer getValue() {
+          return dbcpDataSoure.getNumIdle();
+        }
+      });
+      registry.register(MetricRegistry.name(DataSource.class, "maxActive"),
+          new Gauge<Integer>() {
+        public Integer getValue() {
+          return dbcpDataSoure.getMaxActive();
+        }
+      });
+      monitoredDataSource = new MonitoredDataSource(datasource, getConnectionTimer);
+    } else {
+      // monitoring disabled
+      monitoredDataSource = datasource;
+    }
+  }
+
   private void checkConnection() {
     Connection connection = null;
     try {
@@ -188,7 +227,7 @@ public class DefaultDatabase implements Database {
   }
 
   public final DataSource getDataSource() {
-    return datasource;
+    return monitoredDataSource;
   }
 
   public final Properties getProperties() {

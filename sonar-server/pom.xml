@@ -146,6 +146,25 @@
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>
+	
+	<!-- Monitoring -->
+    <dependency>
+      <groupId>com.codahale.metrics</groupId>
+      <artifactId>metrics-core</artifactId>
+    </dependency>
+	<dependency>
+      <groupId>com.codahale.metrics</groupId>
+      <artifactId>metrics-jvm</artifactId>
+    </dependency>
+	<dependency>
+      <groupId>com.codahale.metrics</groupId>
+      <artifactId>metrics-servlet</artifactId>
+    </dependency>
+	<dependency>
+      <groupId>com.codahale.metrics</groupId>
+      <artifactId>metrics-servlets</artifactId>
+    </dependency>
+	
   </dependencies>
 
 

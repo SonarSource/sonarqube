@@ -63,6 +63,14 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
       <param-value>16384</param-value>
     </init-param>
   </filter>
+  <filter>
+    <filter-name>MonitoringFilter</filter-name>
+    <filter-class>org.sonar.server.ui.MonitoringFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>MonitoringFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
   <filter-mapping>
     <filter-name>ContinuationFilter</filter-name>
     <url-pattern>/*</url-pattern>
@@ -104,7 +112,14 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
     <servlet-name>batch</servlet-name>
     <servlet-class>org.sonar.server.plugins.BatchResourcesServlet</servlet-class>
   </servlet>
-
+  <servlet>
+    <servlet-name>metrics</servlet-name>
+    <servlet-class>com.codahale.metrics.servlets.MetricsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>metrics</servlet-name>
+    <url-pattern>/metrics</url-pattern>
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>chart</servlet-name>
     <url-pattern>/chart</url-pattern>

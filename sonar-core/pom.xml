@@ -169,6 +169,12 @@
       <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
+	
+	<!-- Monitoring -->
+    <dependency>
+      <groupId>com.codahale.metrics</groupId>
+      <artifactId>metrics-core</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
