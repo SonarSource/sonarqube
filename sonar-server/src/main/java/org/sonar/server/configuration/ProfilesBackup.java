@@ -31,10 +31,20 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.Alert;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.dao.RulesDao;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class ProfilesBackup implements Backupable {
 
@@ -52,9 +62,11 @@ public class ProfilesBackup implements Backupable {
 
   private Collection<RulesProfile> profiles;
   private DatabaseSession session;
+  private DryRunCache dryRunCache;
 
-  public ProfilesBackup(DatabaseSession session) {
+  public ProfilesBackup(DatabaseSession session, DryRunCache dryRunCache) {
     this.session = session;
+    this.dryRunCache = dryRunCache;
   }
 
   /**
@@ -95,7 +107,7 @@ public class ProfilesBackup implements Backupable {
   public void importXml(SonarConfig sonarConfig) {
     if (sonarConfig.getProfiles() != null && !sonarConfig.getProfiles().isEmpty()) {
       LoggerFactory.getLogger(getClass()).info("Delete profiles");
-      ProfilesManager profilesManager = new ProfilesManager(session, null);
+      ProfilesManager profilesManager = new ProfilesManager(session, null, dryRunCache);
       profilesManager.deleteAllProfiles();
 
       RulesDao rulesDao = new RulesDao(session);
@@ -122,7 +134,7 @@ public class ProfilesBackup implements Backupable {
 
   private void importAlerts(RulesProfile profile) {
     if (profile.getAlerts() != null) {
-      for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext(); ) {
+      for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext();) {
         Alert alert = ia.next();
         Metric unMarshalledMetric = alert.getMetric();
         String validKey = unMarshalledMetric.getKey();
@@ -139,7 +151,7 @@ public class ProfilesBackup implements Backupable {
   }
 
   private void importActiveRules(RulesDao rulesDao, RulesProfile profile) {
-    for (Iterator<ActiveRule> iar = profile.getActiveRules(true).iterator(); iar.hasNext(); ) {
+    for (Iterator<ActiveRule> iar = profile.getActiveRules(true).iterator(); iar.hasNext();) {
       ActiveRule activeRule = iar.next();
       Rule unMarshalledRule = activeRule.getRule();
       Rule matchingRuleInDb = rulesDao.getRuleByKey(unMarshalledRule.getRepositoryKey(), unMarshalledRule.getKey());
@@ -151,7 +163,7 @@ public class ProfilesBackup implements Backupable {
         activeRule.setRule(matchingRuleInDb);
         activeRule.setRulesProfile(profile);
         activeRule.getActiveRuleParams();
-        for (Iterator<ActiveRuleParam> irp = activeRule.getActiveRuleParams().iterator(); irp.hasNext(); ) {
+        for (Iterator<ActiveRuleParam> irp = activeRule.getActiveRuleParams().iterator(); irp.hasNext();) {
           ActiveRuleParam activeRuleParam = irp.next();
           RuleParam unMarshalledRP = activeRuleParam.getRuleParam();
           RuleParam matchingRPInDb = rulesDao.getRuleParam(matchingRuleInDb, unMarshalledRP.getKey());

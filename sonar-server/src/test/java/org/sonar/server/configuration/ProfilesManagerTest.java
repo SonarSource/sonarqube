@@ -22,10 +22,11 @@ package org.sonar.server.configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
-
+import static org.mockito.Mockito.mock;
 
 public class ProfilesManagerTest extends AbstractDbUnitTestCase {
 
@@ -33,7 +34,7 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
 
   @Before
   public void before() {
-    manager = new ProfilesManager(getSession(), null);
+    manager = new ProfilesManager(getSession(), null, mock(DryRunCache.class));
   }
 
   @Test

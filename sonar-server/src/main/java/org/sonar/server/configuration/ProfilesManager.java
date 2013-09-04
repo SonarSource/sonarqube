@@ -24,30 +24,37 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleChange;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.dao.BaseDao;
 import org.sonar.jpa.dao.RulesDao;
 
 import java.util.List;
 
-
 public class ProfilesManager extends BaseDao {
 
   private RulesDao rulesDao;
+  private DryRunCache dryRunCache;
 
-  public ProfilesManager(DatabaseSession session, RulesDao rulesDao) {
+  public ProfilesManager(DatabaseSession session, RulesDao rulesDao, DryRunCache dryRunCache) {
     super(session);
     this.rulesDao = rulesDao;
+    this.dryRunCache = dryRunCache;
   }
 
   public void copyProfile(int profileId, String newProfileName) {
     RulesProfile profile = getSession().getSingleResult(RulesProfile.class, "id", profileId);
     RulesProfile toImport = (RulesProfile) profile.clone();
     toImport.setName(newProfileName);
-    ProfilesBackup pb = new ProfilesBackup(getSession());
+    ProfilesBackup pb = new ProfilesBackup(getSession(), dryRunCache);
     pb.importProfile(rulesDao, toImport);
     getSession().commit();
+    dryRunCache.reportGlobalModification();
   }
 
   public void deleteAllProfiles() {
@@ -60,6 +67,7 @@ public class ProfilesManager extends BaseDao {
       getSession().removeWithoutFlush(profile);
     }
     getSession().commit();
+    dryRunCache.reportGlobalModification();
   }
 
   // Managing inheritance of profiles
@@ -89,6 +97,7 @@ public class ProfilesManager extends BaseDao {
       profile.setParentName(newParent == null ? null : newParent.getName());
       getSession().saveWithoutFlush(profile);
       getSession().commit();
+      dryRunCache.reportGlobalModification();
     }
     return messages;
   }
@@ -116,6 +125,7 @@ public class ProfilesManager extends BaseDao {
       removeActiveRule(activeRuleToRemove);
     }
     getSession().commit();
+    dryRunCache.reportGlobalModification();
   }
 
   /**
@@ -168,6 +178,7 @@ public class ProfilesManager extends BaseDao {
       activateOrChange(child, parentActiveRule, userName);
     }
     getSession().commit();
+    dryRunCache.reportGlobalModification();
   }
 
   /**
@@ -181,6 +192,7 @@ public class ProfilesManager extends BaseDao {
       deactivate(child, parentActiveRule.getRule(), userName);
     }
     getSession().commit();
+    dryRunCache.reportGlobalModification();
   }
 
   /**
@@ -216,6 +228,7 @@ public class ProfilesManager extends BaseDao {
       }
 
       getSession().commit();
+      dryRunCache.reportGlobalModification();
     }
   }
 

@@ -175,6 +175,15 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void deleteAllProperties() {
+    setupData("deleteAllProperties");
+
+    dao.deleteAllProperties("to_be_deleted");
+
+    checkTables("deleteAllProperties", "properties");
+  }
+
+  @Test
   public void insertGlobalProperties() {
     setupData("insertGlobalProperties");
 

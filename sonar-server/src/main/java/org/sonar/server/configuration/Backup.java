@@ -30,9 +30,9 @@ import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.startup.CleanDryRunCache;
 
 import javax.annotation.Nullable;
 
@@ -55,7 +55,7 @@ public class Backup {
     backupables = new ArrayList<Backupable>();
   }
 
-  public Backup(DatabaseSession session, PersistentSettings persistentSettings, CleanDryRunCache cleanDryRunCache) {
+  public Backup(DatabaseSession session, PersistentSettings persistentSettings, DryRunCache dryRunCache) {
     this();
     this.session = session;
 
@@ -63,7 +63,7 @@ public class Backup {
     backupables.add(new PropertiesBackup(persistentSettings));
     // Note that order is important, because profile can have reference to rule
     backupables.add(new RulesBackup(session));
-    backupables.add(new ProfilesBackup(session));
+    backupables.add(new ProfilesBackup(session, dryRunCache));
   }
 
   /**

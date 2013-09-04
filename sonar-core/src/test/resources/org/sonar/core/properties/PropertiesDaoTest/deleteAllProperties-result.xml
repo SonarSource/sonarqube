@@ -1,0 +1,15 @@
+<dataset>
+
+  <!-- global -->
+  <!-- <properties id="1" prop_key="to_be_deleted" text_value="new_global" resource_id="[null]" user_id="[null]"/> -->
+  <properties id="2" prop_key="global.key" text_value="new_global" resource_id="[null]" user_id="[null]"/>
+
+  <!-- project -->
+  <!--  <properties id="3" prop_key="to_be_deleted" text_value="new_project" resource_id="10" user_id="[null]"/> -->
+  <properties id="4" prop_key="project.key" text_value="new_project" resource_id="10" user_id="[null]"/>
+
+  <!-- user -->
+  <!-- <properties id="5" prop_key="to_be_deleted" text_value="new_user" resource_id="[null]" user_id="100"/> -->
+  <properties id="6" prop_key="user.key" text_value="new_user" resource_id="[null]" user_id="100"/>
+
+</dataset>

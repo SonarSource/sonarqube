@@ -27,11 +27,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.dryrun.DryRunCache;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
@@ -44,8 +42,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class DryRunDatabaseFactory implements ServerComponent {
-  public static final String SONAR_DRY_RUN_CACHE_KEY_PREFIX = "sonar.dryRun.cache.";
-  public static final String SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY = SONAR_DRY_RUN_CACHE_KEY_PREFIX + "lastUpdate";
   private static final Logger LOG = LoggerFactory.getLogger(DryRunDatabaseFactory.class);
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
@@ -56,31 +52,15 @@ public class DryRunDatabaseFactory implements ServerComponent {
   private static final String PASSWORD = SONAR;
 
   private final Database database;
-  private final ServerFileSystem serverFileSystem;
-  private final Settings settings;
-  private final ResourceDao resourceDao;
+  private DryRunCache dryRunCache;
 
-  public static String getCacheLastUpdateKey(Long rootProjectId) {
-    return SONAR_DRY_RUN_CACHE_KEY_PREFIX + rootProjectId + ".lastUpdate";
-  }
-
-  public DryRunDatabaseFactory(Database database, ServerFileSystem serverFileSystem, Settings settings, ResourceDao resourceDao) {
+  public DryRunDatabaseFactory(Database database, DryRunCache dryRunCache) {
     this.database = database;
-    this.serverFileSystem = serverFileSystem;
-    this.settings = settings;
-    this.resourceDao = resourceDao;
-  }
-
-  private File getRootCacheLocation() {
-    return new File(serverFileSystem.getTempDir(), "dryRun");
-  }
-
-  private File getCacheLocation(@Nullable Long projectId) {
-    return new File(getRootCacheLocation(), projectId != null ? projectId.toString() : "default");
+    this.dryRunCache = dryRunCache;
   }
 
   private Long getLastTimestampInCache(@Nullable Long projectId) {
-    File cacheLocation = getCacheLocation(projectId);
+    File cacheLocation = dryRunCache.getCacheLocation(projectId);
     if (!cacheLocation.exists()) {
       return null;
     }
@@ -105,14 +85,12 @@ public class DryRunDatabaseFactory implements ServerComponent {
   }
 
   private boolean isValid(@Nullable Long projectId, long lastTimestampInCache) {
-    long globalTimestamp = settings.getLong(SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY);
+    long globalTimestamp = dryRunCache.getModificationTimestamp(null);
     if (globalTimestamp > lastTimestampInCache) {
       return false;
     }
     if (projectId != null) {
-      // For modules look for root project last modification timestamp
-      Long rootId = resourceDao.getRootProjectByComponentId(projectId).getId();
-      long projectTimestamp = settings.getLong(getCacheLastUpdateKey(rootId));
+      long projectTimestamp = dryRunCache.getModificationTimestamp(projectId);
       if (projectTimestamp > lastTimestampInCache) {
         return false;
       }
@@ -126,14 +104,10 @@ public class DryRunDatabaseFactory implements ServerComponent {
     Long lastTimestampInCache = getLastTimestampInCache(projectId);
     if (lastTimestampInCache == null || !isValid(projectId, lastTimestampInCache)) {
       lastTimestampInCache = System.nanoTime();
-      cleanCache(projectId);
+      dryRunCache.clean(projectId);
       createNewDatabaseForDryRun(projectId, startup, lastTimestampInCache);
     }
     return dbFileContent(projectId, lastTimestampInCache);
-  }
-
-  private void cleanCache(@Nullable Long projectId) {
-    FileUtils.deleteQuietly(getCacheLocation(projectId));
   }
 
   public String getH2DBName(File location, long timestamp) {
@@ -145,8 +119,8 @@ public class DryRunDatabaseFactory implements ServerComponent {
   }
 
   private void createNewDatabaseForDryRun(Long projectId, long startup, Long lastTimestampInCache) {
-    String tmpName = getTemporaryH2DBName(getCacheLocation(projectId), lastTimestampInCache);
-    String finalName = getH2DBName(getCacheLocation(projectId), lastTimestampInCache);
+    String tmpName = getTemporaryH2DBName(dryRunCache.getCacheLocation(projectId), lastTimestampInCache);
+    String finalName = getH2DBName(dryRunCache.getCacheLocation(projectId), lastTimestampInCache);
 
     try {
       DataSource source = database.getDataSource();
@@ -234,7 +208,7 @@ public class DryRunDatabaseFactory implements ServerComponent {
   }
 
   private byte[] dbFileContent(@Nullable Long projectId, long timestamp) {
-    File cacheLocation = getCacheLocation(projectId);
+    File cacheLocation = dryRunCache.getCacheLocation(projectId);
     try {
       FileUtils.forceMkdir(cacheLocation);
     } catch (IOException e) {

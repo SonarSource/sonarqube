@@ -100,6 +100,16 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public PropertyDto selectProjectProperty(long resourceId, String propertyKey) {
+    SqlSession session = mybatis.openSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      return mapper.selectByKey(new PropertyDto().setKey(propertyKey).setResourceId(resourceId));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public void setProperty(PropertyDto property) {
     SqlSession session = mybatis.openSession();
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
@@ -136,6 +146,18 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       mapper.deleteGlobalProperty(key);
+      session.commit();
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteAllProperties(String key) {
+    SqlSession session = mybatis.openSession();
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      mapper.deleteAllProperties(key);
       session.commit();
 
     } finally {

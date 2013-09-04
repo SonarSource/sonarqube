@@ -17,22 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.startup;
+@ParametersAreNonnullByDefault
+package org.sonar.core.dryrun;
 
-import org.sonar.core.dryrun.DryRunCache;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * @since 4.0
- */
-public class CleanDryRunCache {
-
-  private DryRunCache dryRunCache;
-
-  public CleanDryRunCache(DryRunCache dryRunCache) {
-    this.dryRunCache = dryRunCache;
-  }
-
-  public void start() {
-    dryRunCache.cleanAll();
-  }
-}

@@ -37,6 +37,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.UriReader;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.config.Logback;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -258,7 +259,6 @@ public final class Platform {
     coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.addPicoAdapter(new DatabaseSessionProvider());
     coreContainer.addSingleton(ServerMetadataPersister.class);
-    coreContainer.addSingleton(CleanDryRunCache.class);
     coreContainer.startComponents();
   }
 
@@ -305,6 +305,7 @@ public final class Platform {
     servicesContainer.addSingleton(MeasureFilterExecutor.class);
     servicesContainer.addSingleton(MeasureFilterEngine.class);
     servicesContainer.addSingleton(DryRunDatabaseFactory.class);
+    servicesContainer.addSingleton(DryRunCache.class);
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
 
@@ -389,6 +390,7 @@ public final class Platform {
     startupContainer.addSingleton(RenameDeprecatedPropertyKeys.class);
     startupContainer.addSingleton(LogServerId.class);
     startupContainer.addSingleton(RegisterServletFilters.class);
+    startupContainer.addSingleton(CleanDryRunCache.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
