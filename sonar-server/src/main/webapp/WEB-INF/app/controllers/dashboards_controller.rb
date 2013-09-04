@@ -53,6 +53,7 @@ class DashboardsController < ApplicationController
 
   def create
     verify_post_request
+    @global = !params[:resource]
     @dashboard = Dashboard.new()
     @dashboard.user_id = current_user.id
     load_dashboard_from_params(@dashboard)
