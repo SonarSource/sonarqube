@@ -134,6 +134,15 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void selectProjectProperty() {
+    setupData("selectProjectProperties");
+    PropertyDto property = dao.selectProjectProperty(11L, "commonslang.one");
+
+    assertThat(property.getKey(), is("commonslang.one"));
+    assertThat(property.getValue(), is("two"));
+  }
+
+  @Test
   public void setProperty_update() {
     setupData("update");
 

@@ -22,6 +22,7 @@ package org.sonar.core.dryrun;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.utils.SonarException;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.resource.ResourceDao;
@@ -65,8 +66,11 @@ public class DryRunCache implements ServerExtension {
       return Long.valueOf(dto.getValue());
     }
     // For modules look for root project last modification timestamp
-    Long rootId = resourceDao.getRootProjectByComponentId(projectId).getId();
-    PropertyDto dto = propertiesDao.selectProjectProperty(rootId, SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY);
+    ResourceDto rootProject = resourceDao.getRootProjectByComponentId(projectId);
+    if (rootProject == null) {
+      throw new SonarException("Unable to find root project for project with [id=" + projectId + "]");
+    }
+    PropertyDto dto = propertiesDao.selectProjectProperty(rootProject.getId(), SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY);
     if (dto == null) {
       return 0;
     }
