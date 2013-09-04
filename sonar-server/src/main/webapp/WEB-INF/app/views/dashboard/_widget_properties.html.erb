@@ -1,6 +1,5 @@
-<form 	onsubmit="$j.ajax
-        ({
-                url: 	'<%= ApplicationController.root_context-%>/dashboard/save_widget?wid=<%=widget.id-%>',
+<form onsubmit="$j.ajax({
+                url: 	'<%= ApplicationController.root_context-%>/dashboard/save_widget?wid=<%=widget.id-%>&id=<%= params[:id] -%>',
                 type: 	'post',
                 data: 	$j(this).serialize(),
                 error:	function(request)
@@ -9,7 +8,7 @@
                                 $j('#error<%=widget.id-%>').show();
                         }
                 });
-        return false;"
+           return false;"
          method="post"
          action="<%= ApplicationController.root_context-%>/dashboard/save_widget?wid=<%=widget.id-%>">
   <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
