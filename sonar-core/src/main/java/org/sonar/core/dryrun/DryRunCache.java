@@ -19,9 +19,8 @@
  */
 package org.sonar.core.dryrun;
 
-import org.sonar.api.ServerExtension;
-
 import org.apache.commons.io.FileUtils;
+import org.sonar.api.ServerExtension;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -93,11 +92,8 @@ public class DryRunCache implements ServerExtension {
     propertiesDao.setProperty(new PropertyDto().setKey(SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY).setValue(String.valueOf(System.nanoTime())));
   }
 
-  public void reportResourceModification(long projectId) {
-    // Delete folder where dryRun DB are stored
-    FileUtils.deleteQuietly(getCacheLocation(projectId));
-
-    ResourceDto rootProject = resourceDao.getRootProjectByComponentId(projectId);
+  public void reportResourceModification(String resourceKey) {
+    ResourceDto rootProject = resourceDao.getRootProjectByComponentKey(resourceKey);
     propertiesDao.setProperty(new PropertyDto().setKey(SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY).setResourceId(rootProject.getId())
       .setValue(String.valueOf(System.nanoTime())));
   }

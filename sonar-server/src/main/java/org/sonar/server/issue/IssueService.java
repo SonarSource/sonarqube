@@ -32,6 +32,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
@@ -44,6 +45,7 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -64,17 +66,19 @@ public class IssueService implements ServerComponent {
   private final ResourceDao resourceDao;
   private final AuthorizationDao authorizationDao;
   private final UserFinder userFinder;
+  private final DryRunCache dryRunCache;
 
   public IssueService(DefaultIssueFinder finder,
-                      IssueWorkflow workflow,
-                      IssueStorage issueStorage,
-                      IssueUpdater issueUpdater,
-                      IssueNotifications issueNotifications,
-                      ActionPlanService actionPlanService,
-                      RuleFinder ruleFinder,
-                      ResourceDao resourceDao,
-                      AuthorizationDao authorizationDao,
-                      UserFinder userFinder) {
+    IssueWorkflow workflow,
+    IssueStorage issueStorage,
+    IssueUpdater issueUpdater,
+    IssueNotifications issueNotifications,
+    ActionPlanService actionPlanService,
+    RuleFinder ruleFinder,
+    ResourceDao resourceDao,
+    AuthorizationDao authorizationDao,
+    UserFinder userFinder,
+    DryRunCache dryRunCache) {
     this.finder = finder;
     this.workflow = workflow;
     this.issueStorage = issueStorage;
@@ -85,6 +89,7 @@ public class IssueService implements ServerComponent {
     this.resourceDao = resourceDao;
     this.authorizationDao = authorizationDao;
     this.userFinder = userFinder;
+    this.dryRunCache = dryRunCache;
   }
 
   /**
@@ -116,6 +121,7 @@ public class IssueService implements ServerComponent {
     if (workflow.doTransition(issue, transition, context)) {
       issueStorage.save(issue);
       issueNotifications.sendChanges(issue, context, queryResult);
+      dryRunCache.reportResourceModification(issue.componentKey());
     }
     return issue;
   }
@@ -127,7 +133,7 @@ public class IssueService implements ServerComponent {
     User user = null;
     if (!Strings.isNullOrEmpty(assignee)) {
       user = userFinder.findByLogin(assignee);
-      if(user == null) {
+      if (user == null) {
         throw new IllegalArgumentException("Unknown user: " + assignee);
       }
     }
@@ -135,6 +141,7 @@ public class IssueService implements ServerComponent {
     if (issueUpdater.assign(issue, user, context)) {
       issueStorage.save(issue);
       issueNotifications.sendChanges(issue, context, queryResult);
+      dryRunCache.reportResourceModification(issue.componentKey());
     }
     return issue;
   }
@@ -144,7 +151,7 @@ public class IssueService implements ServerComponent {
     ActionPlan actionPlan = null;
     if (!Strings.isNullOrEmpty(actionPlanKey)) {
       actionPlan = actionPlanService.findByKey(actionPlanKey, userSession);
-      if(actionPlan == null) {
+      if (actionPlan == null) {
         throw new IllegalArgumentException("Unknown action plan: " + actionPlanKey);
       }
     }
@@ -155,6 +162,7 @@ public class IssueService implements ServerComponent {
     if (issueUpdater.plan(issue, actionPlan, context)) {
       issueStorage.save(issue);
       issueNotifications.sendChanges(issue, context, queryResult);
+      dryRunCache.reportResourceModification(issue.componentKey());
     }
     return issue;
   }
@@ -168,6 +176,7 @@ public class IssueService implements ServerComponent {
     if (issueUpdater.setManualSeverity(issue, severity, context)) {
       issueStorage.save(issue);
       issueNotifications.sendChanges(issue, context, queryResult);
+      dryRunCache.reportResourceModification(issue.componentKey());
     }
     return issue;
   }
@@ -195,6 +204,7 @@ public class IssueService implements ServerComponent {
     issue.setCreationDate(now);
     issue.setUpdateDate(now);
     issueStorage.save(issue);
+    dryRunCache.reportResourceModification(issue.componentKey());
     return issue;
   }
 

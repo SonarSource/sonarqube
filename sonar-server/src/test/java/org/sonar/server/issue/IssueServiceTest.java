@@ -35,6 +35,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
@@ -59,7 +60,11 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class IssueServiceTest {
 
@@ -90,7 +95,8 @@ public class IssueServiceTest {
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) issue));
     when(issueQueryResult.first()).thenReturn(issue);
 
-    issueService = new IssueService(finder, workflow, issueStorage, issueUpdater, issueNotifications, actionPlanService, ruleFinder, resourceDao, authorizationDao, userFinder);
+    issueService = new IssueService(finder, workflow, issueStorage, issueUpdater, issueNotifications, actionPlanService, ruleFinder, resourceDao, authorizationDao, userFinder,
+      mock(DryRunCache.class));
   }
 
   @Test
@@ -101,7 +107,7 @@ public class IssueServiceTest {
 
   @Test
   public void should_fail_to_load_issue() {
-    when(issueQueryResult.issues()).thenReturn(Collections.<Issue>emptyList());
+    when(issueQueryResult.issues()).thenReturn(Collections.<Issue> emptyList());
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
     try {
@@ -166,7 +172,6 @@ public class IssueServiceTest {
     verifyZeroInteractions(issueNotifications);
   }
 
-
   @Test
   public void should_fail_do_transition_if_not_logged() {
     when(userSession.isLoggedIn()).thenReturn(false);
@@ -200,7 +205,6 @@ public class IssueServiceTest {
 
     verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
   }
-
 
   @Test
   public void should_unassign() {
@@ -438,6 +442,5 @@ public class IssueServiceTest {
     }
     verifyZeroInteractions(issueStorage);
   }
-
 
 }

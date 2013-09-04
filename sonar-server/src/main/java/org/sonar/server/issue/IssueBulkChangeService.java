@@ -30,13 +30,16 @@ import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -47,13 +50,15 @@ public class IssueBulkChangeService {
   private final DefaultIssueFinder issueFinder;
   private final IssueStorage issueStorage;
   private final IssueNotifications issueNotifications;
+  private final DryRunCache dryRunCache;
   private final List<Action> actions;
 
-  public IssueBulkChangeService(DefaultIssueFinder issueFinder, IssueStorage issueStorage, IssueNotifications issueNotifications, List<Action> actions) {
+  public IssueBulkChangeService(DefaultIssueFinder issueFinder, IssueStorage issueStorage, IssueNotifications issueNotifications, List<Action> actions, DryRunCache dryRunCache) {
     this.issueFinder = issueFinder;
     this.issueStorage = issueStorage;
     this.issueNotifications = issueNotifications;
     this.actions = actions;
+    this.dryRunCache = dryRunCache;
   }
 
   public IssueBulkChangeResult execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
@@ -67,6 +72,7 @@ public class IssueBulkChangeService {
     List<Action> bulkActions = getActionsToApply(issueBulkChangeQuery, issues, userSession);
 
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
+    Set<String> concernedProjects = new HashSet<String>();
     for (Issue issue : issues) {
       ActionContext actionContext = new ActionContext(issue, issueChangeContext);
       for (Action action : bulkActions) {
@@ -79,7 +85,12 @@ public class IssueBulkChangeService {
         }
         issueStorage.save((DefaultIssue) issue);
         issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
+        concernedProjects.add(((DefaultIssue) issue).projectKey());
       }
+    }
+    // Purge dryRun cache
+    for (String projectKey : concernedProjects) {
+      dryRunCache.reportResourceModification(projectKey);
     }
     LOG.debug("BulkChange execution time : {} ms", System.currentTimeMillis() - start);
     return result;
@@ -118,7 +129,7 @@ public class IssueBulkChangeService {
       }
     }, null);
     if (action == null) {
-      throw new BadRequestException("The action : '"+ actionKey + "' is unknown");
+      throw new BadRequestException("The action : '" + actionKey + "' is unknown");
     }
     return action;
   }
