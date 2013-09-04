@@ -24,7 +24,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.configuration.Property;
@@ -36,7 +35,6 @@ import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.server.startup.CleanDryRunCache;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,13 +54,6 @@ import static org.mockito.Mockito.verify;
 
 public class BackupTest {
 
-  private CleanDryRunCache cleanDryRunCache;
-
-  @Before
-  public void prepare() {
-    this.cleanDryRunCache = mock(CleanDryRunCache.class);
-  }
-
   @Test
   public void shouldExportXml() throws Exception {
     SonarConfig sonarConfig = getSonarConfig();
@@ -76,7 +67,7 @@ public class BackupTest {
 
   @Test
   public void shouldReturnAValidXml() throws Exception {
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null, cleanDryRunCache),
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
       new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
     SonarConfig sonarConfig = getSonarConfig();
     sonarConfig.setMetrics(getMetrics());
@@ -92,7 +83,7 @@ public class BackupTest {
   public void shouldExportXmlInCdata() throws Exception {
     SonarConfig sonarConfig = getSonarConfig();
     sonarConfig.setProperties(getPropertiesWithXmlIlliciteCharacters());
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null, cleanDryRunCache)));
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null)));
 
     String xml = backup.getXmlFromSonarConfig(sonarConfig);
     assertXmlAreSimilar(xml, "backup-with-cdata.xml");
@@ -102,7 +93,7 @@ public class BackupTest {
   public void shouldExportXmlWithUtf8Characters() throws Exception {
     SonarConfig sonarConfig = getSonarConfig();
     sonarConfig.setProperties(getPropertiesWithUtf8Characters());
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null, cleanDryRunCache)));
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null)));
 
     String xml = backup.getXmlFromSonarConfig(sonarConfig);
     assertXmlAreSimilar(xml, "backup-with-utf8-char.xml");
@@ -110,7 +101,7 @@ public class BackupTest {
 
   @Test
   public void shouldImportXml() {
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null, cleanDryRunCache),
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
       new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
 
     String xml = getFileFromClasspath("backup-restore-valid.xml");
@@ -193,7 +184,7 @@ public class BackupTest {
 
   @Test
   public void shouldImportXmlWithoutInheritanceInformation() {
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null, cleanDryRunCache),
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
       new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
 
     String xml = getFileFromClasspath("backup-restore-without-inheritance.xml");
@@ -209,7 +200,7 @@ public class BackupTest {
 
   @Test
   public void shouldImportXmlWithXmlIlliciteCharacters() {
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null, cleanDryRunCache)));
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null)));
 
     String xml = getFileFromClasspath("backup-with-cdata.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
@@ -219,7 +210,7 @@ public class BackupTest {
 
   @Test
   public void shouldImportOneDotFiveFormat() {
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null, cleanDryRunCache)));
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null)));
 
     String xml = getFileFromClasspath("shouldImportOneDotFiveFormat.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
@@ -231,7 +222,7 @@ public class BackupTest {
 
   @Test
   public void shouldImportXmlWithUtf8Character() {
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null, cleanDryRunCache)));
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null)));
 
     String xml = getFileFromClasspath("backup-with-utf8-char.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
@@ -241,7 +232,7 @@ public class BackupTest {
 
   @Test
   public void shouldNotImportMetricIds() {
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null, cleanDryRunCache)));
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null)));
 
     String xml = getFileFromClasspath("backup-with-id-for-metrics.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
@@ -255,7 +246,7 @@ public class BackupTest {
     SonarConfig sonarConfig = getSonarConfig();
     sonarConfig.setProperties(getPropertiesWithCDATA());
 
-    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null, cleanDryRunCache)));
+    Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null)));
     String xml = backup.getXmlFromSonarConfig(sonarConfig);
     assertXmlAreSimilar(xml, "backup-with-splitted-cdata.xml");
 

@@ -19,6 +19,8 @@
  */
 package org.sonar.api.config;
 
+import org.sonar.api.ServerExtension;
+
 import javax.annotation.Nullable;
 
 /**
@@ -31,7 +33,7 @@ import javax.annotation.Nullable;
  *
  * @since 3.0
  */
-public abstract class GlobalPropertyChangeHandler implements SettingsChangeHandler {
+public abstract class GlobalPropertyChangeHandler implements ServerExtension {
 
   public static final class PropertyChange {
     private String key;
@@ -65,10 +67,4 @@ public abstract class GlobalPropertyChangeHandler implements SettingsChangeHandl
    */
   public abstract void onChange(PropertyChange change);
 
-  @Override
-  public void onChange(SettingsChange change) {
-    if (change.isGlobal()) {
-      onChange(PropertyChange.create(change.key(), change.newValue()));
-    }
-  }
 }

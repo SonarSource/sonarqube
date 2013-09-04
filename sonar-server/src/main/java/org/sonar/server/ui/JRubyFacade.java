@@ -342,11 +342,9 @@ public final class JRubyFacade {
     return get(ProfilesManager.class);
   }
 
-  public void updateProperty(String key, @Nullable String value, @Nullable Long componentId, @Nullable Long userId) {
-    if (componentId == null && userId == null) {
-      get(ServerSettings.class).setProperty(key, value);
-    }
-    get(SettingsChangeNotifier.class).onPropertyChange(key, value, componentId, userId);
+  public void setGlobalProperty(String key, @Nullable String value) {
+    get(ServerSettings.class).setProperty(key, value);
+    get(SettingsChangeNotifier.class).onGlobalPropertyChange(key, value);
   }
 
   public Settings getSettings() {

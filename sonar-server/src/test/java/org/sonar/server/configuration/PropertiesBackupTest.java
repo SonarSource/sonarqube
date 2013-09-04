@@ -28,7 +28,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.database.configuration.Property;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.startup.CleanDryRunCache;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -49,7 +48,7 @@ public class PropertiesBackupTest {
   @Before
   public void setup() {
     persistentSettings = mock(PersistentSettings.class);
-    backup = new PropertiesBackup(persistentSettings, mock(CleanDryRunCache.class));
+    backup = new PropertiesBackup(persistentSettings);
   }
 
   @Test

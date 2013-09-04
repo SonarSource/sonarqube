@@ -60,7 +60,7 @@ public class Backup {
     this.session = session;
 
     backupables.add(new MetricsBackup(session));
-    backupables.add(new PropertiesBackup(persistentSettings, cleanDryRunCache));
+    backupables.add(new PropertiesBackup(persistentSettings));
     // Note that order is important, because profile can have reference to rule
     backupables.add(new RulesBackup(session));
     backupables.add(new ProfilesBackup(session));

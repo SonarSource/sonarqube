@@ -258,7 +258,6 @@ public final class Platform {
     coreContainer.addSingleton(ThreadLocalDatabaseSessionFactory.class);
     coreContainer.addPicoAdapter(new DatabaseSessionProvider());
     coreContainer.addSingleton(ServerMetadataPersister.class);
-    coreContainer.addSingleton(DryRunCacheListener.class);
     coreContainer.addSingleton(CleanDryRunCache.class);
     coreContainer.startComponents();
   }

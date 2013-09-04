@@ -21,44 +21,26 @@ package org.sonar.server.platform;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.config.SettingsChangeHandler;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.user.UserDao;
-import org.sonar.core.user.UserDto;
+import org.sonar.api.config.GlobalPropertyChangeHandler;
 
 import javax.annotation.Nullable;
 
 public class SettingsChangeNotifier implements ServerComponent {
 
   @VisibleForTesting
-  SettingsChangeHandler[] changeHandlers;
-  private final ResourceDao resourceDao;
-  private final UserDao userDao;
+  GlobalPropertyChangeHandler[] changeHandlers;
 
-  public SettingsChangeNotifier(ResourceDao resourceDao, UserDao userDao, SettingsChangeHandler[] changeHandlers) {
-    this.resourceDao = resourceDao;
-    this.userDao = userDao;
+  public SettingsChangeNotifier(GlobalPropertyChangeHandler[] changeHandlers) {
     this.changeHandlers = changeHandlers;
   }
 
-  public SettingsChangeNotifier(ResourceDao resourceDao, UserDao userDao) {
-    this(resourceDao, userDao, new SettingsChangeHandler[0]);
+  public SettingsChangeNotifier() {
+    this(new GlobalPropertyChangeHandler[0]);
   }
 
-  public void onPropertyChange(String key, @Nullable String value, @Nullable Long componentId, @Nullable Long userId) {
-    String resourceKey = null;
-    if (componentId != null) {
-      ResourceDto resource = resourceDao.getResource(componentId);
-      resourceKey = resource != null ? resource.getKey() : null;
-    }
-    String userLogin = null;
-    if (userId != null) {
-      UserDto user = userDao.getUser(userId);
-      userLogin = user != null ? user.getLogin() : null;
-    }
-    SettingsChangeHandler.SettingsChange change = SettingsChangeHandler.SettingsChange.create(key, value, resourceKey, userLogin);
-    for (SettingsChangeHandler changeHandler : changeHandlers) {
+  public void onGlobalPropertyChange(String key, @Nullable String value) {
+    GlobalPropertyChangeHandler.PropertyChange change = GlobalPropertyChangeHandler.PropertyChange.create(key, value);
+    for (GlobalPropertyChangeHandler changeHandler : changeHandlers) {
       changeHandler.onChange(change);
     }
   }
