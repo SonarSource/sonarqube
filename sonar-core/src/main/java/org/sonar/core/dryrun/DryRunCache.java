@@ -19,6 +19,8 @@
  */
 package org.sonar.core.dryrun;
 
+import org.sonar.api.ServerExtension;
+
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.core.properties.PropertiesDao;
@@ -33,7 +35,7 @@ import java.io.File;
 /**
  * @since 4.0
  */
-public class DryRunCache {
+public class DryRunCache implements ServerExtension {
 
   public static final String SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY = "sonar.dryRun.cache.lastUpdate";
 

@@ -31,6 +31,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourcePersister;
+import org.sonar.core.dryrun.DryRunCache;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 
 import javax.persistence.Query;
 
@@ -45,19 +48,31 @@ public class UpdateStatusJob implements BatchComponent {
   private ResourcePersister resourcePersister;
   private Settings settings;
   private Project project;
+  private PropertiesDao propertiesDao;
 
-  public UpdateStatusJob(Settings settings, ServerClient server, DatabaseSession session, ResourcePersister resourcePersister, Project project, Snapshot snapshot) {
+  public UpdateStatusJob(Settings settings, ServerClient server, DatabaseSession session,
+    ResourcePersister resourcePersister, Project project, Snapshot snapshot, PropertiesDao propertiesDao) {
     this.session = session;
     this.server = server;
     this.resourcePersister = resourcePersister;
     this.project = project;
     this.snapshot = snapshot;
     this.settings = settings;
+    this.propertiesDao = propertiesDao;
   }
 
   public void execute() {
     disablePreviousSnapshot();
     enableCurrentSnapshot();
+    updateDryRunLastModificationTimestamp();
+  }
+
+  private void updateDryRunLastModificationTimestamp() {
+    propertiesDao.setProperty(
+      new PropertyDto()
+        .setKey(DryRunCache.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY)
+        .setResourceId(Long.valueOf(project.getId()))
+        .setValue(String.valueOf(System.nanoTime())));
   }
 
   private void disablePreviousSnapshot() {
@@ -115,7 +130,7 @@ public class UpdateStatusJob implements BatchComponent {
     query.setParameter("last", last);
     query.setParameter("rootId", snapshot.getId());
     query.setParameter("path", snapshot.getPath() + snapshot.getId() + ".%");
-    query.setParameter("pathRootId", snapshot.getRootId()==null ? snapshot.getId() : snapshot.getRootId());
+    query.setParameter("pathRootId", snapshot.getRootId() == null ? snapshot.getId() : snapshot.getRootId());
     query.executeUpdate();
     session.commit();
 

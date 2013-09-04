@@ -32,6 +32,7 @@ import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.index.SnapshotCache;
+import org.sonar.core.properties.PropertiesDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.Query;
@@ -60,9 +61,11 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     setupData("sharedFixture", fixture);
 
     DatabaseSession session = getSession();
+    Project project = new Project("foo");
+    project.setId(1);
     UpdateStatusJob job = new UpdateStatusJob(new Settings().appendProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/"), mock(ServerClient.class), session,
       new DefaultResourcePersister(session, mock(ResourcePermissions.class), mock(SnapshotCache.class), mock(ResourceCache.class)),
-      mock(Project.class), loadSnapshot(snapshotId));
+      project, loadSnapshot(snapshotId), mock(PropertiesDao.class));
     job.execute();
 
     checkTables(fixture, "snapshots");
@@ -80,7 +83,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
     Project project = new Project("struts");
     UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class));
+      mock(ResourcePersister.class), project, mock(Snapshot.class), mock(PropertiesDao.class));
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -94,7 +97,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     settings.setProperty("sonar.dryRun", true);
     Project project = new Project("struts");
     UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class));
+      mock(ResourcePersister.class), project, mock(Snapshot.class), mock(PropertiesDao.class));
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
