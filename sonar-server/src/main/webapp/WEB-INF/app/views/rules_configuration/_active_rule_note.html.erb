@@ -19,11 +19,14 @@
           <a href="#" id="<%= edit_active_note_link_id -%>" class="link-action"
              onclick="$j('#<%= active_note_detail_div_id -%>').hide();$j('#<%= active_note_form_div_id -%>').show();$j('#<%= active_note_textarea_id -%>').focus();return false;"><%= message('edit') %></a>
           &nbsp;
-          <%= link_to_remote message('delete'),
-                            :url => {:action => 'delete_active_rule_note', :active_rule_id => active_rule.id },
-                            :update => "active_rule_note_#{active_rule.id}",
-                            :confirm => message('rules_configuration.confirm_delete_note'),
-                            :html => {:class => 'link-action'} -%>
+          <a class="link-action"
+             onclick="if(confirm('<%= escape_javascript(message('rules_configuration.confirm_delete_note')) -%>')){
+                             $j.ajax({
+                                       url: '<%=ApplicationController.root_context-%>/rules_configuration/delete_active_rule_note?active_rule_id=<%=active_rule.id-%>',
+                                       type: 'post',
+                                       success:function(response){$j('#active_rule_note_<%= active_rule.id -%>').html(response);}
+                                     });};"
+             href="#!"><%=message('delete')-%></a>
         <% end %>
       </cite>
       <p><%= note.html_text -%></p>
@@ -36,8 +39,15 @@
 
 <% if profiles_administrator? %>
 
-  <%= form_remote_tag :url => {:action => 'update_active_rule_note', :active_rule_id => active_rule.id},
-                      :update => "active_rule_note_#{active_rule.id}" -%>
+   <form onsubmit="$j.ajax({
+                            url:'<%= ApplicationController.root_context -%>/rules_configuration/update_active_rule_note?active_rule_id=<%=active_rule.id-%>',
+                            data: $j(this).serialize(),
+                            type:'post',
+                            success:function(response){$j('#active_rule_note_<%= active_rule.id -%>').html(response);}
+                          });
+                  return false;"
+          method="post"
+          action="<%= ApplicationController.root_context -%>/rules_configuration//update_active_rule_note?active_rule_id=<%=active_rule.id-%>">
   <table id="<%= active_note_form_div_id -%>" style="display: none" class="admin table width100">
     <tbody>
       <tr>
