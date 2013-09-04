@@ -30,8 +30,15 @@
 
 <% if profiles_administrator? %>
 <div id="<%= note_form_div_id -%>" style="display: none" class="admin">
-  <%= form_remote_tag :url => {:action => 'update_rule_note', :rule_id => rule.id},
-                      :update => "rule_note_#{rule.id}" %>
+
+  <form onsubmit="$j.ajax({
+                        url:'<%=ApplicationController.root_context-%>/rules_configuration/update_rule_note?rule_id=<%=rule.id-%>',
+                        success:function(response){;$j('#rule_note_<%=rule.id-%>').html(response);},
+                        data: $j(this).serialize(),
+                        type:'post'});
+                  return false;"
+        method="post"
+        action="<%=ApplicationController.root_context-%>/rules_configuration/update_rule_note?rule_id=<%=rule.id-%>">
   <table class="width100 table">
     <tbody>
       <tr>

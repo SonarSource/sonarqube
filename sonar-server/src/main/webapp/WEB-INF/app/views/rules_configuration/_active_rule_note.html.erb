@@ -25,7 +25,7 @@
                                        url: '<%=ApplicationController.root_context-%>/rules_configuration/delete_active_rule_note?active_rule_id=<%=active_rule.id-%>',
                                        type: 'post',
                                        success:function(response){$j('#active_rule_note_<%= active_rule.id -%>').html(response);}
-                                     });};"
+                                     });};return false;"
              href="#!"><%=message('delete')-%></a>
         <% end %>
       </cite>
@@ -38,8 +38,7 @@
 </div>
 
 <% if profiles_administrator? %>
-
-   <form onsubmit="$j.ajax({
+  <form onsubmit="$j.ajax({
                             url:'<%= ApplicationController.root_context -%>/rules_configuration/update_active_rule_note?active_rule_id=<%=active_rule.id-%>',
                             data: $j(this).serialize(),
                             type:'post',
