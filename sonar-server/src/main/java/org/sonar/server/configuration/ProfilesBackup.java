@@ -130,6 +130,7 @@ public class ProfilesBackup implements Backupable {
     importActiveRules(rulesDao, toImport);
     importAlerts(toImport);
     session.save(toImport);
+    dryRunCache.reportGlobalModification();
   }
 
   private void importAlerts(RulesProfile profile) {

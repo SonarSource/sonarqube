@@ -124,6 +124,7 @@ class ProjectController < ApplicationController
     else
       begin
         java_facade.updateResourceKey(project.id, new_key)
+        reportProjectModification(project.id)
         flash[:notice] = message('update_key.key_updated')
       rescue Exception => e
         flash[:error] = message('update_key.error_occured_while_renaming_key_of_x',
@@ -166,6 +167,7 @@ class ProjectController < ApplicationController
     unless string_to_replace.blank? || replacement_string.blank?
       begin
         java_facade.bulkUpdateKey(project.id, string_to_replace, replacement_string)
+        reportProjectModification(project.id)
         flash[:notice] = message('update_key.key_updated')
       rescue Exception => e
         flash[:error] = message('update_key.error_occured_while_renaming_key_of_x',
@@ -194,6 +196,7 @@ class ProjectController < ApplicationController
     sid = params[:snapshot_id]
     if sid
       Snapshot.update_all("status='U'", ["id=? or root_snapshot_id=(?)", sid.to_i, sid.to_i])
+      reportProjectModification(@project.id)
       flash[:notice] = message('project_history.snapshot_deleted')
     end
 
@@ -276,6 +279,7 @@ class ProjectController < ApplicationController
           end
           flash[:notice] = message('project_history.version_created', :params => params[:version_name])
         end
+        reportProjectModification(snapshot.root_project_id)
       end
     end
 
@@ -300,6 +304,8 @@ class ProjectController < ApplicationController
     old_version_name = event.name
     events = find_events(event)
     Event.delete(events.map { |e| e.id })
+
+    reportProjectModification(parent_snapshot.root_project_id)
 
     flash[:notice] = message('project_history.version_removed', :params => old_version_name)
     redirect_to :action => 'history', :id => parent_snapshot.root_project_id
@@ -391,6 +397,10 @@ class ProjectController < ApplicationController
 
   def redirect_to_default
     redirect_to home_path
+  end
+
+  def reportProjectModification(project_id)
+    Property.set(Java::OrgSonarCoreDryrun::DryRunCache::SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY, java.lang.System.nanoTime, project_id)
   end
 
 end

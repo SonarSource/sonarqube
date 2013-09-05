@@ -84,6 +84,7 @@ class AlertsController < ApplicationController
     @alert = @profile.alerts.build(params[:alert])
 
     if @alert.save
+      reportGlobalModification
       flash[:notice] = message('alerts.alert_created')
       render :text => 'ok', :status => 200
     else
@@ -109,6 +110,7 @@ class AlertsController < ApplicationController
     alert = @alerts.find(params[:id])
 
     if alert.update_attributes(params[:alert])
+      reportGlobalModification
       flash[:notice] = message('alerts.alert_updated')
       render :text => 'ok', :status => 200
     else
@@ -130,8 +132,15 @@ class AlertsController < ApplicationController
     @profile = Profile.find(params[:profile_id])
     @alert = @profile.alerts.find(params[:id])
     @alert.destroy
+    reportGlobalModification
     flash[:notice] = message('alerts.alert_deleted')
     redirect_to(:action => 'index', :id=>@profile.id)
+  end
+
+  private
+
+  def reportGlobalModification
+    Property.set(Java::OrgSonarCoreDryrun::DryRunCache::SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY, java.lang.System.nanoTime)
   end
 
 end
