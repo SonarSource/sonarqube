@@ -83,6 +83,9 @@ public class HttpDownloaderTest {
               }
             }
             if (req.getPath().getPath().contains("/gzip/")) {
+              if (!"gzip".equals(req.getValue("Accept-Encoding"))) {
+                throw new IllegalStateException("Should accept gzip");
+              }
               resp.set("Content-Encoding", "gzip");
               GZIPOutputStream gzipOutputStream = new GZIPOutputStream(resp.getOutputStream());
               gzipOutputStream.write("GZIP response".getBytes());
@@ -93,6 +96,7 @@ public class HttpDownloaderTest {
             }
           }
         } catch (IOException e) {
+          throw new IllegalStateException(e);
         } finally {
           try {
             resp.close();

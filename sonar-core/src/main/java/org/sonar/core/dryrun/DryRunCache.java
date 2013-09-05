@@ -98,6 +98,9 @@ public class DryRunCache implements ServerExtension {
 
   public void reportResourceModification(String resourceKey) {
     ResourceDto rootProject = resourceDao.getRootProjectByComponentKey(resourceKey);
+    if (rootProject == null) {
+      throw new SonarException("Unable to find root project for component with [key=" + resourceKey + "]");
+    }
     propertiesDao.setProperty(new PropertyDto().setKey(SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY).setResourceId(rootProject.getId())
       .setValue(String.valueOf(System.nanoTime())));
   }
