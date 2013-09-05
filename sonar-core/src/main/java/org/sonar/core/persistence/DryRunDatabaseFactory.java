@@ -170,6 +170,8 @@ public class DryRunDatabaseFactory implements ServerComponent {
     if (projectId != null) {
       template.copyTable(source, dest, "projects", projectQuery(projectId, false));
 
+      template.copyTable(source, dest, "events", "SELECT * FROM events WHERE resource_id=" + projectId);
+
       template.copyTable(source, dest, "snapshots", "SELECT * FROM snapshots WHERE project_id=" + projectId);
       template.copyTable(source, dest, "project_measures", "SELECT m.* FROM project_measures m INNER JOIN snapshots s on m.snapshot_id=s.id WHERE s.project_id=" + projectId);
 

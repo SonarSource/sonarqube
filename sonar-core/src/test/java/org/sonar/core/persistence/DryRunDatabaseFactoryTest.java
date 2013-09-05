@@ -79,6 +79,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
     assertThat(rowCount("metrics")).isEqualTo(2);
     assertThat(rowCount("projects")).isZero();
     assertThat(rowCount("alerts")).isEqualTo(1);
+    assertThat(rowCount("events")).isZero();
 
     assertThat(dryRunCacheFolder).isDirectory();
   }
@@ -129,6 +130,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
     assertThat(rowCount("projects")).isEqualTo(1);
     assertThat(rowCount("snapshots")).isEqualTo(1);
     assertThat(rowCount("project_measures")).isEqualTo(1);
+    assertThat(rowCount("events")).isEqualTo(2);
 
     assertThat(dryRunCacheFolder).isDirectory();
   }

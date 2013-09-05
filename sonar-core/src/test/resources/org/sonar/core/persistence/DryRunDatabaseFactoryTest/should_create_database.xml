@@ -25,4 +25,8 @@
 
   <project_measures id="1" value="10" metric_id="1" snapshot_id="1000" />
 
+  <events id="1" name="1.0-SNAPSHOT" resource_id="123" />
+  <events id="2" name="2.0-SNAPSHOT" resource_id="123" />
+  <events id="3" name="1.0-SNAPSHOT" resource_id="456" />
+
 </dataset>
