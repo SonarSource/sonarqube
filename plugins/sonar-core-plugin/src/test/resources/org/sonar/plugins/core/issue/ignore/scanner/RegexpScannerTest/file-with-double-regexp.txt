@@ -1,0 +1,35 @@
+package org.sonar.plugins.switchoffviolations.pattern;
+
+import com.google.common.collect.Sets;
+
+import java.util.Set;
+
+/**
+ * 
+ */
+public class LineRange {
+  int from, to;
+
+  public LineRange(int from, int to) {
+    if (to < from) {
+      throw new IllegalArgumentException("Line range is not valid: " + from + " must be greater than " + to);
+    }
+    this.from = from;
+    this.to = to;
+  }
+
+  // SONAR-OFF
+  public boolean in(int lineId) {
+    return from <= lineId && lineId <= to;
+  }
+  // SONAR-ON
+
+  public Set<Integer> toLines() {
+    Set<Integer> lines = Sets.newLinkedHashSet();
+    for (int index = from; index <= to; index++) {
+      lines.add(index);
+    }
+    return lines;
+  }
+
+}
