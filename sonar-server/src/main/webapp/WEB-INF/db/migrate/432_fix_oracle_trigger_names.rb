@@ -19,12 +19,60 @@
 #
 
 #
-# Sonar 3.7
-# SONAR-4178
-class AddOracleIdTriggers < ActiveRecord::Migration
+# Sonar 4.0
+# SONAR-4633
+#
+class FixOracleTriggerNames < ActiveRecord::Migration
 
   def self.up
     if dialect()=='oracle'
+      # sonar 3.7 creates triggers with names longer than max allowed (30 characters)
+      # Drop them and re-create them with shorter names.
+      # The triggers active_rule_param_changes_id_trg, characteristic_properties_id_trg and measure_filter_favourites_id_trg
+      # are not supposed to exist.
+      drop_trigger_quietly('action_plans_id_trg')
+      drop_trigger_quietly('active_dashboards_id_trg')
+      drop_trigger_quietly('active_rule_changes_id_trg')
+      drop_trigger_quietly('active_rule_notes_id_trg')
+      drop_trigger_quietly('active_rule_parameters_id_trg')
+      drop_trigger_quietly('active_rules_id_trg')
+      drop_trigger_quietly('alerts_id_trg')
+      drop_trigger_quietly('authors_id_trg')
+      drop_trigger_quietly('characteristics_id_trg')
+      drop_trigger_quietly('dashboards_id_trg')
+      drop_trigger_quietly('dependencies_id_trg')
+      drop_trigger_quietly('duplications_index_id_trg')
+      drop_trigger_quietly('events_id_trg')
+      drop_trigger_quietly('graphs_id_trg')
+      drop_trigger_quietly('group_roles_id_trg')
+      drop_trigger_quietly('groups_id_trg')
+      drop_trigger_quietly('issue_changes_id_trg')
+      drop_trigger_quietly('issues_id_trg')
+      drop_trigger_quietly('loaded_templates_id_trg')
+      drop_trigger_quietly('manual_measures_id_trg')
+      drop_trigger_quietly('measure_data_id_trg')
+      drop_trigger_quietly('measure_filters_id_trg')
+      drop_trigger_quietly('metrics_id_trg')
+      drop_trigger_quietly('notifications_id_trg')
+      drop_trigger_quietly('project_links_id_trg')
+      drop_trigger_quietly('project_measures_id_trg')
+      drop_trigger_quietly('projects_id_trg')
+      drop_trigger_quietly('properties_id_trg')
+      drop_trigger_quietly('quality_models_id_trg')
+      drop_trigger_quietly('resource_index_id_trg')
+      drop_trigger_quietly('rule_notes_id_trg')
+      drop_trigger_quietly('rules_id_trg')
+      drop_trigger_quietly('rules_parameters_id_trg')
+      drop_trigger_quietly('rules_profiles_id_trg')
+      drop_trigger_quietly('semaphores_id_trg')
+      drop_trigger_quietly('snapshot_data_id_trg')
+      drop_trigger_quietly('snapshot_sources_id_trg')
+      drop_trigger_quietly('snapshots_id_trg')
+      drop_trigger_quietly('user_roles_id_trg')
+      drop_trigger_quietly('users_id_trg')
+      drop_trigger_quietly('widget_properties_id_trg')
+      drop_trigger_quietly('widgets_id_trg')
+
       create_id_trigger('action_plans')
       create_id_trigger('active_dashboards')
       create_id_trigger('active_rule_changes')
@@ -73,5 +121,12 @@ class AddOracleIdTriggers < ActiveRecord::Migration
     end
   end
 
+  def self.drop_trigger_quietly(trigger_name)
+    begin
+      drop_trigger(trigger_name)
+    rescue
+      # name is too long, trigger does not exist, ...
+    end
+  end
 end
 
