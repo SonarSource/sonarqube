@@ -23,7 +23,7 @@
 
     <% ['admin', 'user', 'codeviewer'].each do |permission| -%>
       <td valign="top">
-        <span class="nowrap" id="<%= permission -%>-role-users"><%= users(permission, @project.id).map(&:name).join(', ') %></span>
+        <span id="<%= permission -%>-role-users"><%= users(permission, @project.id).map(&:name).join(', ') %></span>
         (<%= link_to_edit_roles_permission_form(message('select'), permission, @project.id, "select-#{permission}-edit-users") %>)<br/>
       </td>
     <% end %>
@@ -32,7 +32,7 @@
     <td valign="top"><b>Groups</b></td>
     <% ['admin', 'user', 'codeviewer'].each do |permission| -%>
       <td valign="top">
-        <span class="nowrap" id="<%= permission -%>-role-groups"><%= groups(permission, @project.id).map{|g| group_name(g)}.join(', ') %></span>
+        <span id="<%= permission -%>-role-groups"><%= groups(permission, @project.id).map{|g| group_name(g)}.join(', ') %></span>
         (<%= link_to_edit_groups_permission_form(message('select'), permission, @project.id, "select-#{permission}-edit-groups") %>)<br/>
       </td>
     <% end %>
