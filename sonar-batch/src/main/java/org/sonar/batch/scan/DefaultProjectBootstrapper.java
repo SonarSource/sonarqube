@@ -34,14 +34,13 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
+import org.sonar.batch.bootstrap.BootstrapSettings;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -80,7 +79,7 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
     PROPERTY_OLD_TESTS, PROPERTY_TESTS,
     PROPERTY_OLD_BINARIES, PROPERTY_BINARIES,
     PROPERTY_OLD_LIBRARIES, PROPERTY_LIBRARIES
-  );
+    );
 
   /**
    * @since 1.4
@@ -111,17 +110,17 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
    */
   private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, PROPERTY_MODULES, CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
 
-  private Settings settings;
+  private BootstrapSettings settings;
   private File rootProjectWorkDir;
 
-  DefaultProjectBootstrapper(Settings settings) {
+  DefaultProjectBootstrapper(BootstrapSettings settings) {
     this.settings = settings;
   }
 
   @Override
   public ProjectReactor bootstrap() {
     Properties bootstrapProperties = new Properties();
-    bootstrapProperties.putAll(settings.getProperties());
+    bootstrapProperties.putAll(settings.properties());
     ProjectDefinition rootProject = defineProject(bootstrapProperties, null);
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject);
@@ -145,14 +144,14 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
     }
 
     ProjectDefinition definition = ProjectDefinition.create().setProperties(properties)
-        .setBaseDir(baseDir)
-        .setWorkDir(workDir);
+      .setBaseDir(baseDir)
+      .setWorkDir(workDir);
     return definition;
   }
 
   @VisibleForTesting
   protected File initRootProjectWorkDir(File baseDir) {
-    String workDir = settings.getString(PROPERTY_WORK_DIRECTORY);
+    String workDir = settings.property(PROPERTY_WORK_DIRECTORY);
     if (StringUtils.isBlank(workDir)) {
       return new File(baseDir, DEF_VALUE_WORK_DIRECTORY);
     }
@@ -389,7 +388,7 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
       if (sourceFolder.isDirectory()) {
         LOG.warn("/!\\ A multi-module project can't have source folders, so '{}' won't be used for the analysis. " +
           "If you want to analyse files of this folder, you should create another sub-module and move them inside it.",
-            sourceFolder.toString());
+          sourceFolder.toString());
       }
     }
 
