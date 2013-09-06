@@ -51,7 +51,6 @@ import java.util.Map;
  *
  * @since 2.14
  */
-@Beta
 @Immutable
 public class ResourceType {
 
@@ -230,5 +229,10 @@ public class ResourceType {
   @Override
   public int hashCode() {
     return qualifier.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return qualifier;
   }
 }

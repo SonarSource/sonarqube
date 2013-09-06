@@ -33,6 +33,12 @@ import static org.fest.assertions.Fail.fail;
 public class PropertyDefinitionTest {
 
   @Test
+  public void should_override_toString() {
+    PropertyDefinition def = PropertyDefinition.builder("hello").build();
+    assertThat(def.toString()).isEqualTo("hello");
+  }
+
+  @Test
   public void should_create_property() {
     PropertyDefinition def = PropertyDefinition.builder("hello")
       .name("Hello")
