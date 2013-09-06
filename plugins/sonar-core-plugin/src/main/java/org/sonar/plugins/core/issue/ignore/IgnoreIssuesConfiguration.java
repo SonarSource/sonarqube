@@ -42,14 +42,14 @@ public final class IgnoreIssuesConfiguration {
       PropertyDefinition.builder(Constants.PATTERNS_MULTICRITERIA_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(Constants.SUB_CATEGORY_IGNORE_ISSUES)
-        .name("Resource Key Pattern")
+        .name("File Path Pattern")
         .description("Patterns used to identify which violations to switch off.<br/>" +
           "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
         .onQualifiers(Qualifiers.PROJECT)
         .fields(
           PropertyFieldDefinition.build(Constants.RESOURCE_KEY)
-            .name("Resource Key Pattern")
-            .description("Pattern used to match resources which should be ignored")
+            .name("File Path Pattern")
+            .description("Pattern used to match files which should be ignored")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
@@ -76,7 +76,7 @@ public final class IgnoreIssuesConfiguration {
         .fields(
           PropertyFieldDefinition.build(Constants.BEGIN_BLOCK_REGEXP)
             .name("Regular expression for start of block")
-            .description("If this regular expression is found in a resource, then following lines are ignored until end of block.")
+            .description("If this regular expression is found in a file, then following lines are ignored until end of block.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
@@ -97,7 +97,7 @@ public final class IgnoreIssuesConfiguration {
         .fields(
           PropertyFieldDefinition.build(Constants.FILE_REGEXP)
             .name("Regular expression")
-            .description("If this regular expression is found in a resource, then following lines are ignored.")
+            .description("If this regular expression is found in a file, then following lines are ignored.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build())
