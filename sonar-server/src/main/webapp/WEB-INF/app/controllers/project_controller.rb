@@ -400,7 +400,7 @@ class ProjectController < ApplicationController
   end
 
   def reportProjectModification(project_id)
-    Property.set(Java::OrgSonarCoreDryrun::DryRunCache::SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY, java.lang.System.nanoTime, project_id)
+    Property.set(Java::OrgSonarCoreDryrun::DryRunCache::SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY, java.lang.System.currentTimeMillis, project_id)
   end
 
 end

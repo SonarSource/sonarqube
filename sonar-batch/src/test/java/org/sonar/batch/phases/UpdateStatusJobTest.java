@@ -32,12 +32,14 @@ import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.index.SnapshotCache;
-import org.sonar.core.properties.PropertiesDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.Query;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
@@ -65,7 +67,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     project.setId(1);
     UpdateStatusJob job = new UpdateStatusJob(new Settings().appendProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/"), mock(ServerClient.class), session,
       new DefaultResourcePersister(session, mock(ResourcePermissions.class), mock(SnapshotCache.class), mock(ResourceCache.class)),
-      project, loadSnapshot(snapshotId), mock(PropertiesDao.class));
+      project, loadSnapshot(snapshotId));
     job.execute();
 
     checkTables(fixture, "snapshots");
@@ -83,7 +85,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
     Project project = new Project("struts");
     UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class), mock(PropertiesDao.class));
+      mock(ResourcePersister.class), project, mock(Snapshot.class));
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -97,11 +99,36 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     settings.setProperty("sonar.dryRun", true);
     Project project = new Project("struts");
     UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class), mock(PropertiesDao.class));
+      mock(ResourcePersister.class), project, mock(Snapshot.class));
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
 
     verify(logger).info("ANALYSIS SUCCESSFUL");
+  }
+
+  @Test
+  public void should_evict_cache_for_regular_analysis() throws Exception {
+    Settings settings = new Settings();
+    Project project = new Project("struts");
+    ServerClient serverClient = mock(ServerClient.class);
+    UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, mock(DatabaseSession.class),
+      mock(ResourcePersister.class), project, mock(Snapshot.class));
+
+    job.evictDryRunDB();
+    verify(serverClient).request(contains("/batch_bootstrap/evict"));
+  }
+
+  @Test
+  public void should_not_evict_cache_for_dry_run_analysis() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.dryRun", true);
+    Project project = new Project("struts");
+    ServerClient serverClient = mock(ServerClient.class);
+    UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, mock(DatabaseSession.class),
+      mock(ResourcePersister.class), project, mock(Snapshot.class));
+
+    job.evictDryRunDB();
+    verify(serverClient, never()).request(anyString());
   }
 }

@@ -140,7 +140,7 @@ class AlertsController < ApplicationController
   private
 
   def reportGlobalModification
-    Property.set(Java::OrgSonarCoreDryrun::DryRunCache::SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY, java.lang.System.nanoTime)
+    Property.set(Java::OrgSonarCoreDryrun::DryRunCache::SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY, java.lang.System.currentTimeMillis)
   end
 
 end

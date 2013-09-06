@@ -29,17 +29,17 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourcePersister;
-import org.sonar.core.dryrun.DryRunCache;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
 
 import javax.persistence.Query;
 
 import java.util.List;
 
 public class UpdateStatusJob implements BatchComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(UpdateStatusJob.class);
 
   private DatabaseSession session;
   private ServerClient server;
@@ -48,31 +48,36 @@ public class UpdateStatusJob implements BatchComponent {
   private ResourcePersister resourcePersister;
   private Settings settings;
   private Project project;
-  private PropertiesDao propertiesDao;
 
   public UpdateStatusJob(Settings settings, ServerClient server, DatabaseSession session,
-    ResourcePersister resourcePersister, Project project, Snapshot snapshot, PropertiesDao propertiesDao) {
+    ResourcePersister resourcePersister, Project project, Snapshot snapshot) {
     this.session = session;
     this.server = server;
     this.resourcePersister = resourcePersister;
     this.project = project;
     this.snapshot = snapshot;
     this.settings = settings;
-    this.propertiesDao = propertiesDao;
   }
 
   public void execute() {
     disablePreviousSnapshot();
     enableCurrentSnapshot();
-    updateDryRunLastModificationTimestamp();
+    evictDryRunDB();
   }
 
-  private void updateDryRunLastModificationTimestamp() {
-    propertiesDao.setProperty(
-      new PropertyDto()
-        .setKey(DryRunCache.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY)
-        .setResourceId(Long.valueOf(project.getId()))
-        .setValue(String.valueOf(System.nanoTime())));
+  @VisibleForTesting
+  void evictDryRunDB() {
+    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+      // If this is a dryRun analysis then we should not evict dryRun database
+      return;
+    }
+    String url = "/batch_bootstrap/evict?project=" + project.getId();
+    try {
+      LOG.debug("Evict dryRun database");
+      server.request(url);
+    } catch (Exception e) {
+      throw new SonarException("Unable to evict dryRun database: " + url, e);
+    }
   }
 
   private void disablePreviousSnapshot() {

@@ -24,17 +24,26 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,12 +57,127 @@ public class DryRunCacheTest {
   private PropertiesDao propertiesDao;
   private ResourceDao resourceDao;
 
+  private DryRunDatabaseFactory dryRunDatabaseFactory;
+
+  private File dryRunCacheLocation;
+
   @Before
-  public void prepare() {
+  public void prepare() throws IOException {
     serverFileSystem = mock(ServerFileSystem.class);
     propertiesDao = mock(PropertiesDao.class);
     resourceDao = mock(ResourceDao.class);
-    dryRunCache = new DryRunCache(serverFileSystem, propertiesDao, resourceDao);
+    dryRunDatabaseFactory = mock(DryRunDatabaseFactory.class);
+
+    File tempLocation = temp.newFolder();
+    when(serverFileSystem.getTempDir()).thenReturn(tempLocation);
+    dryRunCacheLocation = new File(tempLocation, "dryRun");
+
+    dryRunCache = new DryRunCache(serverFileSystem, propertiesDao, resourceDao, dryRunDatabaseFactory);
+  }
+
+  @Test
+  public void test_getDatabaseForDryRun_on_new_project() throws Exception {
+    when(dryRunDatabaseFactory.createNewDatabaseForDryRun(isNull(Long.class), any(File.class), anyString())).thenAnswer(new Answer<File>() {
+      public File answer(InvocationOnMock invocation) throws IOException {
+        Object[] args = invocation.getArguments();
+        File dbFile = new File(new File(dryRunCacheLocation, "default"), (String) args[2] + ".h2.db");
+        FileUtils.write(dbFile, "fake db content");
+        return dbFile;
+      }
+    });
+    byte[] dbContent = dryRunCache.getDatabaseForDryRun(null);
+    assertThat(new String(dbContent)).isEqualTo("fake db content");
+
+    dbContent = dryRunCache.getDatabaseForDryRun(null);
+    assertThat(new String(dbContent)).isEqualTo("fake db content");
+
+    verify(dryRunDatabaseFactory, times(1)).createNewDatabaseForDryRun(anyLong(), any(File.class), anyString());
+  }
+
+  @Test
+  public void test_getDatabaseForDryRun_on_existing_project() throws Exception {
+    when(dryRunDatabaseFactory.createNewDatabaseForDryRun(eq(123L), any(File.class), anyString())).thenAnswer(new Answer<File>() {
+      public File answer(InvocationOnMock invocation) throws IOException {
+        Object[] args = invocation.getArguments();
+        File dbFile = new File(new File(dryRunCacheLocation, "123"), (String) args[2] + ".h2.db");
+        FileUtils.write(dbFile, "fake db content");
+        return dbFile;
+      }
+    });
+    when(resourceDao.getRootProjectByComponentId(123L)).thenReturn(new ResourceDto().setId(123L));
+    byte[] dbContent = dryRunCache.getDatabaseForDryRun(123L);
+    assertThat(new String(dbContent)).isEqualTo("fake db content");
+
+    dbContent = dryRunCache.getDatabaseForDryRun(123L);
+    assertThat(new String(dbContent)).isEqualTo("fake db content");
+
+    verify(dryRunDatabaseFactory, times(1)).createNewDatabaseForDryRun(anyLong(), any(File.class), anyString());
+  }
+
+  @Test
+  public void test_getDatabaseForDryRun_global_invalidation() throws Exception {
+    when(dryRunDatabaseFactory.createNewDatabaseForDryRun(isNull(Long.class), any(File.class), anyString()))
+      .thenAnswer(new Answer<File>() {
+        public File answer(InvocationOnMock invocation) throws IOException {
+          Object[] args = invocation.getArguments();
+          File dbFile = new File(new File(dryRunCacheLocation, "default"), (String) args[2] + ".h2.db");
+          FileUtils.write(dbFile, "fake db content 1");
+          return dbFile;
+        }
+      })
+      .thenAnswer(new Answer<File>() {
+        public File answer(InvocationOnMock invocation) throws IOException {
+          Object[] args = invocation.getArguments();
+          File dbFile = new File(new File(dryRunCacheLocation, "default"), (String) args[2] + ".h2.db");
+          FileUtils.write(dbFile, "fake db content 2");
+          return dbFile;
+        }
+      });
+    byte[] dbContent = dryRunCache.getDatabaseForDryRun(null);
+    assertThat(new String(dbContent)).isEqualTo("fake db content 1");
+
+    // Emulate invalidation of cache
+    Thread.sleep(100);
+    when(propertiesDao.selectGlobalProperty(DryRunCache.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY)).thenReturn(new PropertyDto().setValue("" + System.currentTimeMillis()));
+
+    dbContent = dryRunCache.getDatabaseForDryRun(null);
+    assertThat(new String(dbContent)).isEqualTo("fake db content 2");
+
+    verify(dryRunDatabaseFactory, times(2)).createNewDatabaseForDryRun(anyLong(), any(File.class), anyString());
+  }
+
+  @Test
+  public void test_getDatabaseForDryRun_project_invalidation() throws Exception {
+    when(dryRunDatabaseFactory.createNewDatabaseForDryRun(eq(123L), any(File.class), anyString()))
+      .thenAnswer(new Answer<File>() {
+        public File answer(InvocationOnMock invocation) throws IOException {
+          Object[] args = invocation.getArguments();
+          File dbFile = new File(new File(dryRunCacheLocation, "123"), (String) args[2] + ".h2.db");
+          FileUtils.write(dbFile, "fake db content 1");
+          return dbFile;
+        }
+      })
+      .thenAnswer(new Answer<File>() {
+        public File answer(InvocationOnMock invocation) throws IOException {
+          Object[] args = invocation.getArguments();
+          File dbFile = new File(new File(dryRunCacheLocation, "123"), (String) args[2] + ".h2.db");
+          FileUtils.write(dbFile, "fake db content 2");
+          return dbFile;
+        }
+      });
+    when(resourceDao.getRootProjectByComponentId(123L)).thenReturn(new ResourceDto().setId(123L));
+
+    byte[] dbContent = dryRunCache.getDatabaseForDryRun(123L);
+    assertThat(new String(dbContent)).isEqualTo("fake db content 1");
+
+    // Emulate invalidation of cache
+    Thread.sleep(100);
+    when(propertiesDao.selectProjectProperty(123L, DryRunCache.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY)).thenReturn(new PropertyDto().setValue("" + System.currentTimeMillis()));
+
+    dbContent = dryRunCache.getDatabaseForDryRun(123L);
+    assertThat(new String(dbContent)).isEqualTo("fake db content 2");
+
+    verify(dryRunDatabaseFactory, times(2)).createNewDatabaseForDryRun(anyLong(), any(File.class), anyString());
   }
 
   @Test
@@ -66,23 +190,6 @@ public class DryRunCacheTest {
   }
 
   @Test
-  public void test_get_modification_timestamp() {
-    when(propertiesDao.selectGlobalProperty(DryRunCache.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY)).thenReturn(null);
-    assertThat(dryRunCache.getModificationTimestamp(null)).isEqualTo(0L);
-
-    when(propertiesDao.selectGlobalProperty(DryRunCache.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY)).thenReturn(new PropertyDto().setValue("123456"));
-    assertThat(dryRunCache.getModificationTimestamp(null)).isEqualTo(123456L);
-
-    when(resourceDao.getRootProjectByComponentId(123L)).thenReturn(new ResourceDto().setId(456L));
-
-    when(propertiesDao.selectProjectProperty(456L, DryRunCache.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY)).thenReturn(null);
-    assertThat(dryRunCache.getModificationTimestamp(123L)).isEqualTo(0L);
-
-    when(propertiesDao.selectProjectProperty(456L, DryRunCache.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY)).thenReturn(new PropertyDto().setValue("123456"));
-    assertThat(dryRunCache.getModificationTimestamp(123L)).isEqualTo(123456L);
-  }
-
-  @Test
   public void test_clean_all() throws Exception {
     File tempFolder = temp.newFolder();
     when(serverFileSystem.getTempDir()).thenReturn(tempFolder);
@@ -91,18 +198,6 @@ public class DryRunCacheTest {
 
     dryRunCache.cleanAll();
     verify(propertiesDao).deleteAllProperties(DryRunCache.SONAR_DRY_RUN_CACHE_LAST_UPDATE_KEY);
-
-    assertThat(cacheLocation).doesNotExist();
-  }
-
-  @Test
-  public void test_clean() throws Exception {
-    File tempFolder = temp.newFolder();
-    when(serverFileSystem.getTempDir()).thenReturn(tempFolder);
-    File cacheLocation = dryRunCache.getCacheLocation(null);
-    FileUtils.forceMkdir(cacheLocation);
-
-    dryRunCache.clean(null);
 
     assertThat(cacheLocation).doesNotExist();
   }

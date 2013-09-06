@@ -19,119 +19,48 @@
  */
 package org.sonar.core.persistence;
 
-import com.google.common.io.Files;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFileFilter;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.dryrun.DryRunCache;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 public class DryRunDatabaseFactory implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(DryRunDatabaseFactory.class);
   private static final String DIALECT = "h2";
   private static final String DRIVER = "org.h2.Driver";
   private static final String URL = "jdbc:h2:";
-  private static final String H2_FILE_SUFFIX = ".h2.db";
+  public static final String H2_FILE_SUFFIX = ".h2.db";
   private static final String SONAR = "sonar";
   private static final String USER = SONAR;
   private static final String PASSWORD = SONAR;
 
   private final Database database;
-  private DryRunCache dryRunCache;
 
-  public DryRunDatabaseFactory(Database database, DryRunCache dryRunCache) {
+  public DryRunDatabaseFactory(Database database) {
     this.database = database;
-    this.dryRunCache = dryRunCache;
   }
 
-  private Long getLastTimestampInCache(@Nullable Long projectId) {
-    File cacheLocation = dryRunCache.getCacheLocation(projectId);
-    if (!cacheLocation.exists()) {
-      return null;
-    }
-    Collection<File> dbInCache = FileUtils.listFiles(cacheLocation, FileFileFilter.FILE, null);
-    if (dbInCache.isEmpty()) {
-      return null;
-    }
-    SortedSet<Long> timestamps = new TreeSet<Long>();
-    for (File file : dbInCache) {
-      if (file.getName().endsWith(H2_FILE_SUFFIX)) {
-        try {
-          timestamps.add(Long.valueOf(StringUtils.removeEnd(file.getName(), H2_FILE_SUFFIX)));
-        } catch (NumberFormatException e) {
-          LOG.warn("Unexpected file in dryrun cache folder " + file.getAbsolutePath(), e);
-        }
-      }
-    }
-    if (timestamps.isEmpty()) {
-      return null;
-    }
-    return timestamps.last();
-  }
-
-  private boolean isValid(@Nullable Long projectId, long lastTimestampInCache) {
-    long globalTimestamp = dryRunCache.getModificationTimestamp(null);
-    if (globalTimestamp > lastTimestampInCache) {
-      return false;
-    }
-    if (projectId != null) {
-      long projectTimestamp = dryRunCache.getModificationTimestamp(projectId);
-      if (projectTimestamp > lastTimestampInCache) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  public byte[] createDatabaseForDryRun(@Nullable Long projectId) {
+  public File createNewDatabaseForDryRun(Long projectId, File destFolder, String dbFileName) {
     long startup = System.currentTimeMillis();
 
-    Long lastTimestampInCache = getLastTimestampInCache(projectId);
-    if (lastTimestampInCache == null || !isValid(projectId, lastTimestampInCache)) {
-      lastTimestampInCache = System.nanoTime();
-      dryRunCache.clean(projectId);
-      createNewDatabaseForDryRun(projectId, startup, lastTimestampInCache);
-    }
-    return dbFileContent(projectId, lastTimestampInCache);
-  }
-
-  public String getH2DBName(File location, long timestamp) {
-    return location.getAbsolutePath() + File.separator + timestamp;
-  }
-
-  public String getTemporaryH2DBName(File location, long timestamp) {
-    return location.getAbsolutePath() + File.separator + ".tmp" + timestamp;
-  }
-
-  private void createNewDatabaseForDryRun(Long projectId, long startup, Long lastTimestampInCache) {
-    String tmpName = getTemporaryH2DBName(dryRunCache.getCacheLocation(projectId), lastTimestampInCache);
-    String finalName = getH2DBName(dryRunCache.getCacheLocation(projectId), lastTimestampInCache);
+    String h2Name = destFolder.getAbsolutePath() + File.separator + dbFileName;
 
     try {
       DataSource source = database.getDataSource();
-      BasicDataSource destination = create(DIALECT, DRIVER, USER, PASSWORD, URL + tmpName);
+      BasicDataSource destination = create(DIALECT, DRIVER, USER, PASSWORD, URL + h2Name);
 
       copy(source, destination, projectId);
       close(destination);
 
-      File tempDbFile = new File(tmpName + H2_FILE_SUFFIX);
-      File dbFile = new File(finalName + H2_FILE_SUFFIX);
-      Files.move(tempDbFile, dbFile);
+      File dbFile = new File(h2Name + H2_FILE_SUFFIX);
       if (LOG.isDebugEnabled()) {
         long size = dbFile.length();
         long duration = System.currentTimeMillis() - startup;
@@ -141,11 +70,10 @@ public class DryRunDatabaseFactory implements ServerComponent {
           LOG.debug("Dry Run Database for project " + projectId + " created in " + duration + " ms, size is " + size + " bytes");
         }
       }
+      return dbFile;
 
     } catch (SQLException e) {
       throw new SonarException("Unable to create database for DryRun", e);
-    } catch (IOException e) {
-      throw new SonarException("Unable to cache database for DryRun", e);
     }
 
   }
@@ -207,22 +135,6 @@ public class DryRunDatabaseFactory implements ServerComponent {
 
   private void close(BasicDataSource destination) throws SQLException {
     destination.close();
-  }
-
-  private byte[] dbFileContent(@Nullable Long projectId, long timestamp) {
-    File cacheLocation = dryRunCache.getCacheLocation(projectId);
-    try {
-      FileUtils.forceMkdir(cacheLocation);
-    } catch (IOException e) {
-      throw new SonarException("Unable to create cache directory " + cacheLocation, e);
-    }
-    String name = getH2DBName(cacheLocation, timestamp);
-    try {
-      File dbFile = new File(name + H2_FILE_SUFFIX);
-      return Files.toByteArray(dbFile);
-    } catch (IOException e) {
-      throw new SonarException("Unable to read h2 database file", e);
-    }
   }
 
 }
