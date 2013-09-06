@@ -42,7 +42,6 @@ public final class IgnoreIssuesConfiguration {
       PropertyDefinition.builder(Constants.PATTERNS_MULTICRITERIA_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(Constants.SUB_CATEGORY_IGNORE_ISSUES)
-        .deprecatedKey(Constants.DEPRECATED_MULTICRITERIA_KEY)
         .name("Resource Key Pattern")
         .description("Patterns used to identify which violations to switch off.<br/>" +
           "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
@@ -70,7 +69,6 @@ public final class IgnoreIssuesConfiguration {
         PropertyDefinition.builder(Constants.PATTERNS_BLOCK_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(Constants.SUB_CATEGORY_IGNORE_ISSUES)
-        .deprecatedKey(Constants.DEPRECATED_BLOCK_KEY)
         .name("Block exclusion patterns")
         .description("Patterns used to identify blocks in which violations are switched off.<br/>" +
           "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
@@ -92,7 +90,6 @@ public final class IgnoreIssuesConfiguration {
         PropertyDefinition.builder(Constants.PATTERNS_ALLFILE_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(Constants.SUB_CATEGORY_IGNORE_ISSUES)
-        .deprecatedKey(Constants.DEPRECATED_ALLFILE_KEY)
         .name("File exclusion patterns")
         .description("Patterns used to identify files in which violations are switched off.<br/>" +
           "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")

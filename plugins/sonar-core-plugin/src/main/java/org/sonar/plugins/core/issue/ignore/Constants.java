@@ -25,23 +25,19 @@ public interface Constants {
   String SUB_CATEGORY_IGNORE_ISSUES = "Ignore Issues";
 
   String CORE_KEY_PREFIX = "sonar.issue.ignore";
-  String DEPRECATED_PLUGIN_KEY_PREFIX = "sonar.switchoffviolations";
 
   String MULTICRITERIA_SUFFIX = ".multicriteria";
   String PATTERNS_MULTICRITERIA_KEY = CORE_KEY_PREFIX + MULTICRITERIA_SUFFIX;
-  String DEPRECATED_MULTICRITERIA_KEY = DEPRECATED_PLUGIN_KEY_PREFIX + MULTICRITERIA_SUFFIX;
   String RESOURCE_KEY = "resourceKey";
   String RULE_KEY = "ruleKey";
   String LINE_RANGE_KEY = "lineRange";
 
   String BLOCK_SUFFIX = ".block";
   String PATTERNS_BLOCK_KEY = CORE_KEY_PREFIX + BLOCK_SUFFIX;
-  String DEPRECATED_BLOCK_KEY = DEPRECATED_PLUGIN_KEY_PREFIX + BLOCK_SUFFIX;
   String BEGIN_BLOCK_REGEXP = "beginBlockRegexp";
   String END_BLOCK_REGEXP = "endBlockRegexp";
 
   String ALLFILE_SUFFIX = ".allfile";
   String PATTERNS_ALLFILE_KEY = CORE_KEY_PREFIX + ALLFILE_SUFFIX;
-  String DEPRECATED_ALLFILE_KEY = DEPRECATED_PLUGIN_KEY_PREFIX + ALLFILE_SUFFIX;
   String FILE_REGEXP = "fileRegexp";
 }
