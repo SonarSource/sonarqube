@@ -35,7 +35,7 @@
           controller.java_facade.getPages(Navigation::SECTION_RESOURCE_CONFIGURATION, @project.scope, @project.qualifier, @project.language, nil).each do |page|
             page_url = "#{page.getId()}?resource=#{@project.id}"
       %>
-        <li><a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
+        <li><a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= h message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
       <%   end
          end %>
     </ul>

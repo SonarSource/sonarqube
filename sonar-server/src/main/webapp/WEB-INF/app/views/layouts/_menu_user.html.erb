@@ -1,5 +1,5 @@
 <li>
-  <a href="#" onclick="showDropdownMenu('user-panel'); return false;" class="link-more"><%= current_user.name -%></a>
+  <a href="#" onclick="showDropdownMenu('user-panel'); return false;" class="link-more"><%= h current_user.name -%></a>
   
   <div id="user-panel" class="dropdown-menu" style="display: none">
     <ul>
