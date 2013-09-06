@@ -22,12 +22,9 @@ package org.sonar.plugins.core.issue.ignore.pattern;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.SonarException;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 public class PatternDecoder {
@@ -45,23 +42,6 @@ public class PatternDecoder {
       }
     }
     return patterns;
-  }
-
-  public List<Pattern> decode(File file) {
-    try {
-      List<String> lines = FileUtils.readLines(file);
-      List<Pattern> patterns = Lists.newLinkedList();
-      for (String line : lines) {
-        Pattern pattern = decodeLine(line);
-        if (pattern != null) {
-          patterns.add(pattern);
-        }
-      }
-      return patterns;
-
-    } catch (IOException e) {
-      throw new SonarException("Fail to load the file: " + file.getAbsolutePath(), e);
-    }
   }
 
   /**
@@ -138,7 +118,7 @@ public class PatternDecoder {
 
   @VisibleForTesting
   boolean isBlankOrComment(String line) {
-    return StringUtils.isBlank(line) || StringUtils.startsWith(line, "#");
+    return StringUtils.isBlank(line) ^ StringUtils.startsWith(line, "#");
   }
 
   @VisibleForTesting

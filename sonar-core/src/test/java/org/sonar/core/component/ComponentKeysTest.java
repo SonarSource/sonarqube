@@ -17,16 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.plugins.core.issue.ignore;
+package org.sonar.core.component;
 
 import org.junit.Test;
+import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class IgnoreIssuesPluginTest {
+public class ComponentKeysTest {
+
   @Test
-  public void justForCoverage() {
-    assertThat(IgnoreIssuesPlugin.getExtensions()).hasSize(3 /* properties */ + 4 /* extensions */);
+  public void shouldCreateUID() {
+    Project project = new Project("my_project");
+    assertThat(ComponentKeys.createKey(project, project)).isEqualTo("my_project");
+
+    JavaPackage javaPackage = new JavaPackage("org.foo");
+    assertThat(ComponentKeys.createKey(project, javaPackage)).isEqualTo("my_project:org.foo");
+
+    Library library = new Library("junit:junit", "4.7");
+    assertThat(ComponentKeys.createKey(project, library)).isEqualTo("junit:junit");
   }
+
 }

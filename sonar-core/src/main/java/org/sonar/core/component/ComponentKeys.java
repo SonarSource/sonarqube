@@ -17,16 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.component;
 
-package org.sonar.plugins.core.issue.ignore;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.database.model.ResourceModel;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 
-import org.junit.Test;
+public final class ComponentKeys {
 
-import static org.fest.assertions.Assertions.assertThat;
+  private ComponentKeys() {}
 
-public class IgnoreIssuesPluginTest {
-  @Test
-  public void justForCoverage() {
-    assertThat(IgnoreIssuesPlugin.getExtensions()).hasSize(3 /* properties */ + 4 /* extensions */);
+  public static String createKey(Project project, Resource<?> resource) {
+    String key = resource.getKey();
+    if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
+      // not a project nor a library
+      key = new StringBuilder(ResourceModel.KEY_SIZE)
+        .append(project.getKey())
+        .append(':')
+        .append(resource.getKey())
+        .toString();
+    }
+    return key;
   }
+
 }

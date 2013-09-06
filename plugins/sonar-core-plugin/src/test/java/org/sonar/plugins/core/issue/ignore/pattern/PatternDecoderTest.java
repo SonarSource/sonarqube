@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.SonarException;
 
-import java.io.File;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -136,14 +135,6 @@ public class PatternDecoderTest {
 
     assertThat(pattern.getResourcePattern()).isNull();
     assertThat(pattern.getAllFileRegexp()).isEqualTo("SONAR-ALL-OFF");
-  }
-
-  @Test
-  public void shouldFailIfUnexistingFile() {
-    thrown.expect(SonarException.class);
-    thrown.expectMessage("Fail to load the file");
-
-    decoder.decode(new File("foo"));
   }
 
   @Test

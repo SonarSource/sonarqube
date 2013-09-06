@@ -60,28 +60,28 @@ public class IgnoreIssuesFilterTest {
 
   @Test
   public void shouldBeIgnoredWithStandardPatterns() throws IOException {
-    when(patternsInitializer.getMulticriteriaPatterns()).thenReturn(createPatterns("org.foo.Bar;*;*\norg.foo.Hello;checkstyle:MagicNumber;[15-200]"));
+    when(patternsInitializer.getPatternsForComponent(JAVA_FILE)).thenReturn(createPatterns("org.foo.Hello;checkstyle:MagicNumber;[15-200]"));
 
     assertThat(filter.accept(create(CHECKSTYLE_RULE, JAVA_FILE, 150))).isFalse();
   }
 
   @Test
   public void shouldNotBeIgnoredWithStandardPatterns() throws IOException {
-    when(patternsInitializer.getMulticriteriaPatterns()).thenReturn(createPatterns("org.foo.Bar;*;*\norg.foo.Hello;checkstyle:MagicNumber;[15-200]"));
+    when(patternsInitializer.getPatternsForComponent(JAVA_FILE)).thenReturn(createPatterns("org.foo.Hello;checkstyle:MagicNumber;[15-200]"));
 
     assertThat(filter.accept(create(CHECKSTYLE_RULE, JAVA_FILE, 5))).isTrue();
   }
 
   @Test
   public void shouldBeIgnoredWithExtraPattern() throws IOException {
-    when(patternsInitializer.getExtraPattern(JAVA_FILE)).thenReturn(createPatterns("org.foo.Hello;*;[15-200]").get(0));
+    when(patternsInitializer.getPatternsForComponent(JAVA_FILE)).thenReturn(createPatterns("org.foo.Hello;*;[15-200]"));
 
     assertThat(filter.accept(create(CHECKSTYLE_RULE, JAVA_FILE, 150))).isFalse();
   }
 
   @Test
   public void shouldNotBeIgnoredWithExtraPattern() throws IOException {
-    when(patternsInitializer.getExtraPattern(JAVA_FILE)).thenReturn(createPatterns("org.foo.Hello;*;[15-200]").get(0));
+    when(patternsInitializer.getPatternsForComponent(JAVA_FILE)).thenReturn(createPatterns("org.foo.Hello;*;[15-200]"));
 
     assertThat(filter.accept(create(CHECKSTYLE_RULE, JAVA_FILE, 5))).isTrue();
   }

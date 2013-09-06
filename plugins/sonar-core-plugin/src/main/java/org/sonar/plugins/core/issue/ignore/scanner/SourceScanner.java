@@ -26,9 +26,12 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
 
 import java.io.File;
@@ -41,15 +44,17 @@ public final class SourceScanner implements Sensor {
   private final RegexpScanner regexpScanner;
   private final PatternsInitializer patternsInitializer;
   private final ModuleFileSystem fileSystem;
+  private final PathResolver pathResolver;
 
   public SourceScanner(RegexpScanner regexpScanner, PatternsInitializer patternsInitializer, ModuleFileSystem fileSystem) {
     this.regexpScanner = regexpScanner;
     this.patternsInitializer = patternsInitializer;
     this.fileSystem = fileSystem;
+    this.pathResolver = new PathResolver();
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return patternsInitializer.getAllFilePatterns().size() > 0 || patternsInitializer.getBlockPatterns().size() > 0;
+    return patternsInitializer.hasConfiguredPatterns();
   }
 
   /**
@@ -64,17 +69,24 @@ public final class SourceScanner implements Sensor {
     Charset sourcesEncoding = fileSystem.sourceCharset();
 
     List<File> files;
+    List<File> dirs;
     if (isTest) {
       files = fileSystem.files(FileQuery.onTest().onLanguage(project.getLanguageKey()));
+      dirs = fileSystem.testDirs();
     } else {
       files = fileSystem.files(FileQuery.onSource().onLanguage(project.getLanguageKey()));
+      dirs = fileSystem.sourceDirs();
     }
 
     for (File inputFile : files) {
       try {
-        String resource = defineResource(inputFile, fileSystem, project, isTest);
-        if (resource != null) {
-          regexpScanner.scan(resource, inputFile, sourcesEncoding);
+        String componentKey = resolveComponent(inputFile, fileSystem, project, isTest);
+        if (componentKey != null) {
+          String relativePath = pathResolver.relativePath(dirs, inputFile).path();
+          patternsInitializer.configurePatternsForComponent(componentKey, relativePath);
+          if (patternsInitializer.hasFileContentPattern()) {
+            regexpScanner.scan(componentKey, inputFile, sourcesEncoding);
+          }
         }
       } catch (Exception e) {
         throw new SonarException("Unable to read the source file : '" + inputFile.getAbsolutePath() + "' with the charset : '"
@@ -86,7 +98,8 @@ public final class SourceScanner implements Sensor {
   /*
    * This method is necessary because Java resources are not treated as every other resource...
    */
-  private String defineResource(File inputFile, ModuleFileSystem fileSystem, Project project, boolean isTest) {
+  private String resolveComponent(File inputFile, ModuleFileSystem fileSystem, Project project, boolean isTest) {
+    Resource<?> resource = null;
     if (Java.KEY.equals(project.getLanguageKey()) && Java.isJavaFile(inputFile)) {
       List<File> sourceDirs = null;
       if (isTest) {
@@ -94,19 +107,21 @@ public final class SourceScanner implements Sensor {
       } else {
         sourceDirs = fileSystem.sourceDirs();
       }
-      JavaFile file = JavaFile.fromIOFile(inputFile, sourceDirs, isTest);
-      if (file == null) {
-        return null;
-      } else {
-        return file.getKey();
-      }
+      resource = JavaFile.fromIOFile(inputFile, sourceDirs, isTest);
+    } else {
+      resource = new org.sonar.api.resources.File(inputFile.getPath());
     }
-    return inputFile.getPath();
+
+    if (resource == null) {
+      return null;
+    } else {
+      return ComponentKeys.createKey(project, resource);
+    }
   }
 
   @Override
   public String toString() {
-    return "Ignore Issues - Source Scanner";
+    return "Issues Exclusions - Source Scanner";
   }
 
 }

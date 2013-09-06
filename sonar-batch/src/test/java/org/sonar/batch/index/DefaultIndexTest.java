@@ -82,18 +82,6 @@ public class DefaultIndexTest {
   }
 
   @Test
-  public void shouldCreateUID() {
-    Project project = new Project("my_project");
-    assertThat(DefaultIndex.createUID(project, project)).isEqualTo("my_project");
-
-    JavaPackage javaPackage = new JavaPackage("org.foo");
-    assertThat(DefaultIndex.createUID(project, javaPackage)).isEqualTo("my_project:org.foo");
-
-    Library library = new Library("junit:junit", "4.7");
-    assertThat(DefaultIndex.createUID(project, library)).isEqualTo("junit:junit");
-  }
-
-  @Test
   public void shouldIndexParentOfDeprecatedFiles() {
     File file = new File("org/foo/Bar.java");
     assertThat(index.index(file)).isTrue();

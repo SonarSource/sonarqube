@@ -21,6 +21,7 @@
 package org.sonar.plugins.core.issue.ignore.pattern;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +43,7 @@ public class PatternsInitializer implements BatchExtension {
   private List<Pattern> multicriteriaPatterns;
   private List<Pattern> blockPatterns;
   private List<Pattern> allFilePatterns;
-  private Map<String, Pattern> extraPatternByResource = Maps.newHashMap();
+  private Map<String, List<Pattern>> patternByComponent = Maps.newHashMap();
 
   public PatternsInitializer(Settings settings) {
     this.settings = settings;
@@ -61,8 +62,16 @@ public class PatternsInitializer implements BatchExtension {
     return allFilePatterns;
   }
 
-  public Pattern getExtraPattern(String resource) {
-    return extraPatternByResource.get(resource.substring(resource.lastIndexOf(":") + 1));
+  public boolean hasFileContentPattern() {
+    return ! (blockPatterns.isEmpty() && allFilePatterns.isEmpty());
+  }
+
+  public boolean hasMulticriteriaPatterns() {
+    return ! multicriteriaPatterns.isEmpty();
+  }
+
+  public boolean hasConfiguredPatterns() {
+    return hasFileContentPattern() || hasMulticriteriaPatterns();
   }
 
   @VisibleForTesting
@@ -108,11 +117,34 @@ public class PatternsInitializer implements BatchExtension {
   }
 
   public void addPatternToExcludeResource(String resource) {
-    extraPatternByResource.put(resource, new Pattern(resource, "*").setCheckLines(false));
+    addPatternForComponent(resource, new Pattern(resource, "*").setCheckLines(false));
   }
 
   public void addPatternToExcludeLines(String resource, Set<LineRange> lineRanges) {
-    extraPatternByResource.put(resource, new Pattern(resource, "*", lineRanges));
+    addPatternForComponent(resource, new Pattern(resource, "*", lineRanges));
   }
 
+  public void configurePatternsForComponent(String componentKey, String path) {
+    for (Pattern pattern: multicriteriaPatterns) {
+      if (pattern.matchResource(path)) {
+        addPatternForComponent(componentKey, pattern);
+      }
+    }
+  }
+
+  public List<Pattern> getPatternsForComponent(String componentKey) {
+    if (patternByComponent.containsKey(componentKey)) {
+      return patternByComponent.get(componentKey);
+    } else {
+      return ImmutableList.of();
+    }
+  }
+
+  private void addPatternForComponent(String component, Pattern pattern) {
+    if (!patternByComponent.containsKey(component)) {
+      List<Pattern> newList = Lists.newArrayList();
+      patternByComponent.put(component, newList);
+    }
+    patternByComponent.get(component).add(pattern);
+  }
 }

@@ -40,14 +40,7 @@ public final class IgnoreIssuesFilter implements IssueFilter {
   }
 
   public boolean accept(Issue issue) {
-    Pattern extraPattern = patternsInitializer.getExtraPattern(issue.componentKey());
-    LOG.debug("Extra pattern for resource {}: {}", issue.componentKey(), extraPattern);
-    if (extraPattern != null && extraPattern.match(issue)) {
-      logExclusion(issue, extraPattern);
-      return false;
-    }
-
-    List<Pattern> patterns = patternsInitializer.getMulticriteriaPatterns();
+    List<Pattern> patterns = patternsInitializer.getPatternsForComponent(issue.componentKey());
     for (Pattern pattern : patterns) {
       if (pattern.match(issue)) {
         logExclusion(issue, pattern);

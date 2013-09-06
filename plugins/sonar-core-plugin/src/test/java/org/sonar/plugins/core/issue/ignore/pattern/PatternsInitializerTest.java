@@ -20,17 +20,20 @@
 
 package org.sonar.plugins.core.issue.ignore.pattern;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.plugins.core.issue.ignore.Constants;
-import org.sonar.plugins.core.issue.ignore.IgnoreIssuesPlugin;
+import org.sonar.plugins.core.issue.ignore.IgnoreIssuesConfiguration;
 
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PatternsInitializerTest {
 
@@ -40,13 +43,14 @@ public class PatternsInitializerTest {
 
   @Before
   public void init() {
-    settings = new Settings(new PropertyDefinitions(new IgnoreIssuesPlugin()));
+    settings = new Settings(new PropertyDefinitions(IgnoreIssuesConfiguration.getPropertyDefinitions()));
     patternsInitializer = new PatternsInitializer(settings);
   }
 
   @Test
   public void testNoConfiguration() {
     patternsInitializer.initPatterns();
+    assertThat(patternsInitializer.hasConfiguredPatterns()).isFalse();
     assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(0);
   }
 
@@ -55,7 +59,7 @@ public class PatternsInitializerTest {
     String file = "foo";
     patternsInitializer.addPatternToExcludeResource(file);
 
-    Pattern extraPattern = patternsInitializer.getExtraPattern(file);
+    Pattern extraPattern = patternsInitializer.getPatternsForComponent(file).get(0);
     assertThat(extraPattern.matchResource(file)).isTrue();
     assertThat(extraPattern.isCheckLines()).isFalse();
   }
@@ -67,7 +71,7 @@ public class PatternsInitializerTest {
     lineRanges.add(new LineRange(25, 28));
     patternsInitializer.addPatternToExcludeLines(file, lineRanges);
 
-    Pattern extraPattern = patternsInitializer.getExtraPattern(file);
+    Pattern extraPattern = patternsInitializer.getPatternsForComponent(file).get(0);
     assertThat(extraPattern.matchResource(file)).isTrue();
     assertThat(extraPattern.getAllLines()).isEqualTo(Sets.newHashSet(25, 26, 27, 28));
   }
@@ -75,14 +79,17 @@ public class PatternsInitializerTest {
   @Test
   public void shouldReturnMulticriteriaPattern() {
     settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY, "1,2");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "org.foo.Bar");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "org/foo/Bar.java");
     settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RULE_KEY, "*");
     settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "*");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.LINE_RANGE_KEY, "org.foo.Hello");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.LINE_RANGE_KEY, "org/foo/Hello.java");
     settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.RULE_KEY, "checkstyle:MagicNumber");
     settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.LINE_RANGE_KEY, "[15-200]");
     patternsInitializer.initPatterns();
 
+    assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
+    assertThat(patternsInitializer.hasFileContentPattern()).isFalse();
+    assertThat(patternsInitializer.hasMulticriteriaPatterns()).isTrue();
     assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(2);
     assertThat(patternsInitializer.getBlockPatterns().size()).isEqualTo(0);
     assertThat(patternsInitializer.getAllFilePatterns().size()).isEqualTo(0);
@@ -97,6 +104,9 @@ public class PatternsInitializerTest {
     settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".2." + Constants.END_BLOCK_REGEXP, "// FOO-ON");
     patternsInitializer.initPatterns();
 
+    assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
+    assertThat(patternsInitializer.hasFileContentPattern()).isTrue();
+    assertThat(patternsInitializer.hasMulticriteriaPatterns()).isFalse();
     assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(0);
     assertThat(patternsInitializer.getBlockPatterns().size()).isEqualTo(2);
     assertThat(patternsInitializer.getAllFilePatterns().size()).isEqualTo(0);
@@ -109,8 +119,32 @@ public class PatternsInitializerTest {
     settings.setProperty(Constants.PATTERNS_ALLFILE_KEY + ".2." + Constants.FILE_REGEXP, "//FOO-IGNORE-ALL");
     patternsInitializer.initPatterns();
 
+    assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
+    assertThat(patternsInitializer.hasFileContentPattern()).isTrue();
+    assertThat(patternsInitializer.hasMulticriteriaPatterns()).isFalse();
     assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(0);
     assertThat(patternsInitializer.getBlockPatterns().size()).isEqualTo(0);
     assertThat(patternsInitializer.getAllFilePatterns().size()).isEqualTo(2);
+  }
+
+  @Test
+  public void shouldConfigurePatternsForComponents() {
+    String componentKey = "groupId:artifactId:org.foo.Bar";
+    String path = "org/foo/Bar.java";
+
+    Pattern matching1, matching2, notMatching;
+    matching1 = mock(Pattern.class);
+    when(matching1.matchResource(path)).thenReturn(true);
+    matching2 = mock(Pattern.class);
+    when(matching2.matchResource(path)).thenReturn(true);
+    notMatching = mock(Pattern.class);
+    when(notMatching.matchResource(path)).thenReturn(false);
+
+    patternsInitializer.initPatterns();
+    patternsInitializer.getMulticriteriaPatterns().addAll(Lists.newArrayList(matching1, matching2, notMatching));
+    patternsInitializer.configurePatternsForComponent(componentKey, path);
+
+    assertThat(patternsInitializer.getPatternsForComponent(componentKey).size()).isEqualTo(2);
+    assertThat(patternsInitializer.getPatternsForComponent("other").size()).isEqualTo(0);
   }
 }

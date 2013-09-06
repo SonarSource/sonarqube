@@ -29,6 +29,8 @@ import java.util.List;
 
 public final class IgnoreIssuesPlugin {
 
+  private IgnoreIssuesPlugin() {}
+
   public static List<?> getExtensions() {
     ImmutableList.Builder<Object> extensions = ImmutableList.builder();
 

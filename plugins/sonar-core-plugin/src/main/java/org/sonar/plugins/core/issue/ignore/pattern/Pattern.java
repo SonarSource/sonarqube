@@ -116,7 +116,8 @@ public class Pattern {
   }
 
   public boolean match(Issue violation) {
-    boolean match = matchResource(violation.componentKey()) && matchRule(violation.ruleKey());
+    boolean match = violation.componentKey() != null
+      && matchRule(violation.ruleKey());
     if (checkLines && violation.line() != null) {
       match = match && matchLine(violation.line());
     }
@@ -138,7 +139,6 @@ public class Pattern {
   }
 
   boolean matchRule(RuleKey rule) {
-    System.out.printf("Matching rule {} against pattern {}", rule, rulePattern);
     if (rule == null) {
       return false;
     }
@@ -148,7 +148,6 @@ public class Pattern {
   }
 
   boolean matchResource(String resource) {
-    System.out.printf("Matching resource {} against pattern {}", resource, resourcePattern);
     return resource != null && resourcePattern.match(resource);
   }
 

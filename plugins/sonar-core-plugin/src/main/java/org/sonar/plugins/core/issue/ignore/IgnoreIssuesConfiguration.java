@@ -1,4 +1,3 @@
-// POLOP_IS_GREAT
 /*
  * SonarQube, open source software quality management tool.
  * Copyright (C) 2008-2013 SonarSource
@@ -31,8 +30,9 @@ import org.sonar.api.config.PropertyDefinition;
 
 import java.util.List;
 
-public class IgnoreIssuesConfiguration {
+public final class IgnoreIssuesConfiguration {
 
+  private IgnoreIssuesConfiguration() {}
 
   static final int LARGE_SIZE = 20;
   static final int SMALL_SIZE = 10;
