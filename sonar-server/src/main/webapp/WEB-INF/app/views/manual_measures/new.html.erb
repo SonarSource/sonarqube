@@ -1,10 +1,10 @@
 <script type="text/javascript">
   function changeMetric() {
-    document.location = '<%= ApplicationController.root_context-%>/manual_measures/new/<%= @resource.id -%>?metric=' + $('metricSelect').getValue();
+    document.location = '<%= ApplicationController.root_context-%>/manual_measures/new/<%= @resource.id -%>?metric=' + $j('#metricSelect').val();
     return false;
   }
   function saveAndAddNew() {
-    $('redirect_to_new').setValue('true');
+    $j('#redirect_to_new').val('true');
     return true;
   }
 </script>
@@ -94,6 +94,6 @@
 
 <% if @metric %>
   <script type="text/javascript">
-    $('valueText').focus();
+    $j('#valueText').focus();
   </script>
 <% end %>
