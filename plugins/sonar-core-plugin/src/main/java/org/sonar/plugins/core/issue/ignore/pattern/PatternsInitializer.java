@@ -121,7 +121,7 @@ public class PatternsInitializer implements BatchExtension {
   }
 
   public void addPatternToExcludeLines(String resource, Set<LineRange> lineRanges) {
-    addPatternForComponent(resource, new Pattern(resource, "*", lineRanges));
+    addPatternForComponent(resource, new Pattern(resource, "*", lineRanges).setCheckLines(true));
   }
 
   public void configurePatternsForComponent(String componentKey, String path) {

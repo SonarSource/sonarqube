@@ -115,11 +115,15 @@ public class Pattern {
     return allLines;
   }
 
-  public boolean match(Issue violation) {
-    boolean match = violation.componentKey() != null
-      && matchRule(violation.ruleKey());
-    if (checkLines && violation.line() != null) {
-      match = match && matchLine(violation.line());
+  public boolean match(Issue issue) {
+    boolean match = matchResource(issue.componentKey())
+      && matchRule(issue.ruleKey());
+    if (checkLines) {
+      if (issue.line() == null) {
+        match = false;
+      } else {
+        match = match && matchLine(issue.line());
+      }
     }
     return match;
   }
