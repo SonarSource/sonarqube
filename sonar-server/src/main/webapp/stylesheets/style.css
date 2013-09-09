@@ -2116,7 +2116,7 @@ table.nowrap td, td.nowrap, th.nowrap {
   max-width: 220px;
   min-width: 160px;
   padding: 0;
-  position: fixed;
+  position: absolute;
   z-index: 1000;
 }
 
