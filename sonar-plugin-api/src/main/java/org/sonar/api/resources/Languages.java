@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A class to store the list of languages
@@ -90,11 +89,4 @@ public class Languages implements BatchComponent, ServerComponent {
     map.put(language.getKey(), language);
   }
 
-  /**
-   * @return list of all available language keys
-   * @since 3.7.1
-   */
-  public Set<String> allKey() {
-    return map.keySet();
-  }
 }
