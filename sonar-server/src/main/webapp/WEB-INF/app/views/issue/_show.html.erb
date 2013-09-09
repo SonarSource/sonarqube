@@ -29,5 +29,10 @@
     <div class="bordered">
       <%= snapshot_html_source(@snapshot, {:line_range => (@issue.line-5)..(@issue.line+5), :highlighted_lines => [@issue.line]}) -%>
     </div>
+  <% else %>
+    <!-- SONAR-4438
+      If no source code, add a blank component in order for the "more action" link to be weel displayed
+    -->
+    <div style="height: 60px;"></div>
   <% end %>
 </div>
