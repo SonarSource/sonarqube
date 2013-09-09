@@ -49,7 +49,7 @@ public interface IssueHandler extends BatchExtension {
     Context setAttribute(String key, @Nullable String value);
 
     /**
-     * @deprecated since 4.0
+     * @deprecated since 3.7.1
      */
     @Deprecated
     Context assign(@Nullable String login);

@@ -42,7 +42,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * @since 4.0
+ * @since 3.7.1
  */
 public class DryRunCache implements ServerExtension {
 

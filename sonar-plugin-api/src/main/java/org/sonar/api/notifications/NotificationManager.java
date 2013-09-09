@@ -51,7 +51,7 @@ public interface NotificationManager extends ServerComponent, BatchComponent {
    * Receives notifications and stores them so that they are processed by the notification service.
    *
    * @param notifications the notifications.
-   * @since 4.0
+   * @since 3.7.1
    */
   void scheduleForSending(List<Notification> notifications);
 

@@ -37,7 +37,7 @@ import static com.google.common.collect.Lists.newArrayList;
  * Names of processed resource and decorator are for example not automatically added when throwing {@link MessageException}
  * from {@link org.sonar.api.batch.Decorator}.
  *
- * @since 4.0
+ * @since 3.7.1
  */
 public class MessageException extends RuntimeException {
 

@@ -1538,12 +1538,12 @@ public final class CoreMetrics {
   // --------------------------------------------------------------------------------------------------------------------
 
   /**
-   * @deprecated since 4.0
+   * @deprecated since 3.7.1
    */
   @Deprecated
   public static final String ABSTRACTNESS_KEY = "abstractness";
   /**
-   * @deprecated since 4.0
+   * @deprecated since 3.7.1
    */
   @Deprecated
   public static final Metric ABSTRACTNESS = new Metric.Builder(ABSTRACTNESS_KEY, "Abstractness", Metric.ValueType.PERCENT)
@@ -1555,12 +1555,12 @@ public final class CoreMetrics {
       .create();
 
   /**
-   * @deprecated since 4.0
+   * @deprecated since 3.7.1
    */
   @Deprecated
   public static final String INSTABILITY_KEY = "instability";
   /**
-   * @deprecated since 4.0
+   * @deprecated since 3.7.1
    */
   @Deprecated
   public static final Metric INSTABILITY = new Metric.Builder(INSTABILITY_KEY, "Instability", Metric.ValueType.PERCENT)
@@ -1572,12 +1572,12 @@ public final class CoreMetrics {
       .create();
 
   /**
-   * @deprecated since 4.0
+   * @deprecated since 3.7.1
    */
   @Deprecated
   public static final String DISTANCE_KEY = "distance";
   /**
-   * @deprecated since 4.0
+   * @deprecated since 3.7.1
    */
   @Deprecated
   public static final Metric DISTANCE = new Metric.Builder(DISTANCE_KEY, "Distance", Metric.ValueType.FLOAT)
@@ -1660,12 +1660,12 @@ public final class CoreMetrics {
       .create();
 
   /**
-   * @deprecated since 4.0
+   * @deprecated since 3.7.1
    */
   @Deprecated
   public static final String AFFERENT_COUPLINGS_KEY = "ca";
   /**
-   * @deprecated since 4.0
+   * @deprecated since 3.7.1
    */
   @Deprecated
   public static final Metric AFFERENT_COUPLINGS = new Metric.Builder(AFFERENT_COUPLINGS_KEY, "Afferent couplings", Metric.ValueType.INT)
@@ -1676,12 +1676,12 @@ public final class CoreMetrics {
       .create();
 
   /**
-   * @deprecated since 4.0
+   * @deprecated since 3.7.1
    */
   @Deprecated
   public static final String EFFERENT_COUPLINGS_KEY = "ce";
   /**
-   * @deprecated since 4.0
+   * @deprecated since 3.7.1
    */
   @Deprecated
   public static final Metric EFFERENT_COUPLINGS = new Metric.Builder(EFFERENT_COUPLINGS_KEY, "Efferent couplings", Metric.ValueType.INT)

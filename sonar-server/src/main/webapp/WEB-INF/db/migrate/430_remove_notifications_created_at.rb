@@ -19,7 +19,7 @@
 #
 
 #
-# @since SonarQube 4.0
+# @since SonarQube 3.7.1
 #
 class RemoveNotificationsCreatedAt < ActiveRecord::Migration
 

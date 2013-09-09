@@ -92,7 +92,7 @@ public class Languages implements BatchComponent, ServerComponent {
 
   /**
    * @return list of all available language keys
-   * @since 4.0
+   * @since 3.7.1
    */
   public Set<String> allKey() {
     return map.keySet();

@@ -23,7 +23,7 @@ package org.sonar.core.notification.db;
 import java.util.List;
 
 /**
- * @since 4.0
+ * @since 3.7.1
  */
 public interface NotificationQueueMapper {
 

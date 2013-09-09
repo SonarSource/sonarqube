@@ -19,7 +19,7 @@
 #
 
 #
-# Sonar 4.0
+# Sonar 3.7.1
 # SONAR-4633
 #
 class FixOracleTriggerNames < ActiveRecord::Migration

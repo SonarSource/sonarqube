@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @since 4.0
+ * @since 3.7.1
  */
 public class NotificationQueueDao implements BatchComponent, ServerComponent {
 
