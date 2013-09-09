@@ -80,7 +80,7 @@ public final class SourceScanner implements Sensor {
 
     for (File inputFile : files) {
       try {
-        String componentKey = resolveComponent(inputFile, fileSystem, project, isTest);
+        String componentKey = resolveComponent(inputFile, dirs, project, isTest);
         if (componentKey != null) {
           String relativePath = pathResolver.relativePath(dirs, inputFile).path();
           patternsInitializer.configurePatternsForComponent(componentKey, relativePath);
@@ -98,18 +98,14 @@ public final class SourceScanner implements Sensor {
   /*
    * This method is necessary because Java resources are not treated as every other resource...
    */
-  private String resolveComponent(File inputFile, ModuleFileSystem fileSystem, Project project, boolean isTest) {
+  private String resolveComponent(File inputFile, List<File> sourceDirs, Project project, boolean isTest) {
     Resource<?> resource = null;
+
     if (Java.KEY.equals(project.getLanguageKey()) && Java.isJavaFile(inputFile)) {
-      List<File> sourceDirs = null;
-      if (isTest) {
-        sourceDirs = fileSystem.testDirs();
-      } else {
-        sourceDirs = fileSystem.sourceDirs();
-      }
+
       resource = JavaFile.fromIOFile(inputFile, sourceDirs, isTest);
     } else {
-      resource = new org.sonar.api.resources.File(inputFile.getPath());
+      resource = new org.sonar.api.resources.File(pathResolver.relativePath(sourceDirs, inputFile).path());
     }
 
     if (resource == null) {
