@@ -1821,32 +1821,71 @@ ul.bullet li {
   color: #777;
 }
 
-.rule_detail ul li {
-  list-style: disc outside;
-  padding: 2px;
+
+/* API for Rule Descriptions */
+.rule-desc h2 {
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #2B547D;
 }
 
-.rule_detail ul, .rule_detail ol {
-  list-style: none outside;
-  padding-left: 30px;
+.rule-desc h3 {
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #2B547D;
+  font-weight: bold;
 }
 
-.rule_detail ol li {
-  list-style: decimal outside;
-  padding: 2px;
+.rule-desc p {
+  margin-top: 10px;
 }
 
-.rule_detail pre, .code .rule_detail pre {
+.rule-desc pre {
   margin: 10px 0;
-  padding: 7px;
-  font-family: "Courier New", Courier, monospace;;
+  padding: 10px;
   border: 1px dashed #aaa;
-  font-size: 93%;
+  font-size: 12px;
+  font-family: monospace;;
 }
 
-.rule_detail p {
-  margin: 8px 0;
+.rule-desc blockquote {
+  margin-top: 10px;
+  padding: 10px;
 }
+
+.rule-desc ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin: 10px;
+}
+
+.rule-desc ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin: 10px;
+}
+
+.rule-table {
+  margin-top: 10px;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+.rule-table th {
+  background: none no-repeat scroll right center #EFEFEF;
+  border: 1px solid #DDD;
+  padding: 5px 10px;
+  font-weight: bold;
+}
+.rule-table td {
+  background: none no-repeat scroll right center transparent;
+  border: 1px solid #DDD;
+  padding: 5px 10px;
+}
+/* End of API for Rule Descriptions */
+
+
 
 .tip:hover {
   background: #FFF;

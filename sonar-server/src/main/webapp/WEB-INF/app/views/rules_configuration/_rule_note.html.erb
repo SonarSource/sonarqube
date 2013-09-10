@@ -8,7 +8,7 @@
 %>
 
 <div id="<%= note_detail_div_id -%>">
-  <div>
+  <div class="marginbottom10">
   <% if rule.description.strip.start_with?('<p>') %>
     <%= Internal.text.interpretMacros(rule.description) %>
   <% else %>

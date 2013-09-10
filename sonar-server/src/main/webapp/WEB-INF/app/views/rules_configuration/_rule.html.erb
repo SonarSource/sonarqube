@@ -42,10 +42,10 @@
   end
   %></div>
 
-  <div id="desc_<%= rule.id -%>" class="rule_detail" style="<%= 'display:none' -%>">
+  <div id="desc_<%= rule.id -%>" class="rule-desc" style="<%= 'display:none' -%>">
     <a name="rule<%= rule.id -%>"></a>
 
-    <div class="spacer-top spacer-bottom" id="rule_note_<%= rule.id -%>">
+    <div id="rule_note_<%= rule.id -%>" class="marginbottom10">
       <%= render :partial => 'rule_note', :locals => {:rule => rule} %>
     </div>
 
