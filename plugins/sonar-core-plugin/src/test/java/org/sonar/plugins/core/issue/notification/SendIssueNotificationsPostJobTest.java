@@ -170,24 +170,4 @@ public class SendIssueNotificationsPostJobTest {
       return map.size() == 1 && map.get(issue) != null && map.get(issue).equals(rule);
     }
   }
-
-  @Test
-  public void should_not_send_notification_on_any_change() throws Exception {
-    IssueChangeContext changeContext = mock(IssueChangeContext.class);
-
-    when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
-    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
-    DefaultIssue issue = new DefaultIssue()
-      .setChanged(true)
-      .setSendNotifications(false)
-      .setFieldChange(changeContext, "severity", "MINOR", "BLOCKER")
-      .setRuleKey(ruleKey);
-    when(issueCache.all()).thenReturn(Arrays.asList(issue));
-    when(ruleFinder.findByKey(ruleKey)).thenReturn(null);
-
-    SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
-    job.executeOn(project, sensorContext);
-
-    verify(notifications, never()).sendChanges(eq(issue), eq(changeContext), any(Rule.class), any(Component.class), any(Component.class));
-  }
 }
