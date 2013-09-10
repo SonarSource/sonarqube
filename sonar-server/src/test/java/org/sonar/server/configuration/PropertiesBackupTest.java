@@ -36,7 +36,9 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PropertiesBackupTest {
 
@@ -149,10 +151,10 @@ public class PropertiesBackupTest {
 
     @Override
     public boolean matches(Object argument) {
-      if(argument != null && argument instanceof Map) {
+      if (argument != null && argument instanceof Map) {
         Map<String, String> argAsMap = (Map<String, String>) argument;
         for (String key : argAsMap.keySet()) {
-          if(!referenceMap.containsKey(key) || !referenceMap.get(key).equals(argAsMap.get(key))) {
+          if (!referenceMap.containsKey(key) || !referenceMap.get(key).equals(argAsMap.get(key))) {
             return false;
           }
         }
@@ -163,7 +165,7 @@ public class PropertiesBackupTest {
 
     @Override
     public void describeTo(Description description) {
-      if(referenceMap != null) {
+      if (referenceMap != null) {
         description.appendText(referenceMap.toString());
       }
     }

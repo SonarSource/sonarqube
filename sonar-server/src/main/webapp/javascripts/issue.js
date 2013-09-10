@@ -43,20 +43,21 @@ function submitIssueForm(elt) {
   var formElt = $j(elt).closest('form');
   formElt.find('.loading').removeClass('hidden');
   formElt.find(':submit').prop('disabled', true);
+  var issueElt = formElt.closest('[data-issue-key]');
+  var issueKey = issueElt.attr('data-issue-key');
+
   $j.ajax({
       type: "POST",
       url: baseUrl + '/issue/do_action',
       data: formElt.serialize()}
   ).success(function (htmlResponse) {
-      var issueElt = formElt.closest('[data-issue-key]');
-      var issueKey = issueElt.attr('data-issue-key');
       var replaced = $j(htmlResponse);
       issueElt.replaceWith(replaced);
       notifyIssueChange(issueKey);
     }
   ).fail(function (jqXHR, textStatus) {
       closeIssueForm(elt);
-      alert(textStatus);
+      issueElt.find('.code-issue-actions').replaceWith(jqXHR.responseText);
     });
   return false;
 }
@@ -142,6 +143,11 @@ function doEditIssueComment(elt) {
       var replaced = $j(htmlResponse);
       issueElt.replaceWith(replaced);
       notifyIssueChange(issueKey);
+    },
+    error: function (jqXHR, textStatus) {
+      closeIssueForm(elt);
+      var commentElt = formElt.closest('[data-comment-key]');
+      commentElt.replaceWith(jqXHR.responseText);
     }
   });
   return false;

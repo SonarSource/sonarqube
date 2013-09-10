@@ -331,9 +331,9 @@ public class DefaultIndex extends SonarIndex {
   }
 
   private static boolean isFiltered(Violation violation, ViolationQuery.SwitchMode mode) {
-    return (mode == ViolationQuery.SwitchMode.BOTH
+    return mode == ViolationQuery.SwitchMode.BOTH
       || (mode == ViolationQuery.SwitchMode.OFF && violation.isSwitchedOff())
-      || (mode == ViolationQuery.SwitchMode.ON && !violation.isSwitchedOff()));
+      || (mode == ViolationQuery.SwitchMode.ON && !violation.isSwitchedOff());
   }
 
   @Override
@@ -535,7 +535,8 @@ public class DefaultIndex extends SonarIndex {
 
     boolean excluded = checkExclusion(resource, parentBucket);
     if (!excluded) {
-      Snapshot snapshot = persistence.saveResource(currentProject, resource, (parentBucket != null ? parentBucket.getResource() : null));
+      Resource parentSnapshot = parentBucket != null ? parentBucket.getResource() : null;
+      Snapshot snapshot = persistence.saveResource(currentProject, resource, parentSnapshot);
       if (ResourceUtils.isPersistable(resource) && !Qualifiers.LIBRARY.equals(resource.getQualifier())) {
         graph.addComponent(resource, snapshot);
       }

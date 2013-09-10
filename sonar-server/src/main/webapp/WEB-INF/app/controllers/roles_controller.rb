@@ -34,7 +34,7 @@ class RolesController < ApplicationController
   def projects
     params['pageSize'] = 25
     params['qualifiers'] ||= 'TRK'
-    @query_result = Internal.component_api.find(params)
+    @query_result = Internal.component_api.findWithUncompleteProjects(params)
 
     @available_qualifiers = java_facade.getQualifiersWithProperty('hasRolePolicy').collect { |qualifier| [message("qualifiers.#{qualifier}"), qualifier] }.sort
 
@@ -97,7 +97,7 @@ class RolesController < ApplicationController
 
     if params['components'].blank?
       params['pageSize'] = -1
-      components = Internal.component_api.find(params).components().to_a
+      components = Internal.component_api.findWithUncompleteProjects(params).components().to_a
       params['components'] = components.collect{|component| component.getId()}.join(',')
     end
 

@@ -40,6 +40,7 @@ import org.sonar.api.violations.ViolationQuery;
 
 public class DefaultDecoratorContext implements DecoratorContext {
 
+  private static final String SAVE_MEASURE_METHOD = "saveMeasure";
   private SonarIndex index;
   private Resource resource;
   private boolean readOnly = false;
@@ -107,13 +108,13 @@ public class DefaultDecoratorContext implements DecoratorContext {
   }
 
   public DecoratorContext saveMeasure(Measure measure) {
-    checkReadOnly("saveMeasure");
+    checkReadOnly(SAVE_MEASURE_METHOD);
     index.addMeasure(resource, measure);
     return this;
   }
 
   public DecoratorContext saveMeasure(Metric metric, Double value) {
-    checkReadOnly("saveMeasure");
+    checkReadOnly(SAVE_MEASURE_METHOD);
     index.addMeasure(resource, new Measure(metric, value));
     return this;
   }

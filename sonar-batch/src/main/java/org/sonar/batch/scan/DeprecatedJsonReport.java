@@ -119,7 +119,7 @@ public class DeprecatedJsonReport implements BatchComponent {
             .name("rule_repository").value(issue.ruleKey().repository())
             .name("rule_name").value(ruleName(issue.ruleKey()))
             .name("switched_off").value(Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution()))
-            .name("is_new").value((issue.isNew()))
+            .name("is_new").value(issue.isNew())
             .name("created_at").value(DateUtils.formatDateTime(issue.creationDate()))
             .endObject();
         }

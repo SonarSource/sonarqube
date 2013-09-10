@@ -25,12 +25,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.web.ServletFilter;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
@@ -117,6 +112,7 @@ public class MasterServletFilter implements Filter {
       this.chain = chain;
     }
 
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
       if (iterator == null) {
         iterator = filters.iterator();

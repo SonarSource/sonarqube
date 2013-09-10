@@ -31,7 +31,6 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-
 public class UserDaoTest extends AbstractDaoTestCase {
 
   private UserDao dao;
@@ -45,7 +44,10 @@ public class UserDaoTest extends AbstractDaoTestCase {
   public void selectUserByLogin_ignore_inactive() {
     setupData("selectActiveUserByLogin");
 
-    UserDto user = dao.selectActiveUserByLogin("inactive_user");
+    UserDto user = dao.getUser(50);
+    assertThat(user.getLogin()).isEqualTo("inactive_user");
+
+    user = dao.selectActiveUserByLogin("inactive_user");
     assertThat(user).isNull();
   }
 
@@ -69,7 +71,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   @Test
   public void selectUsersByLogins_empty_logins() throws Exception {
     // no need to access db
-    Collection<UserDto> users = dao.selectUsersByLogins(Collections.<String>emptyList());
+    Collection<UserDto> users = dao.selectUsersByLogins(Collections.<String> emptyList());
     assertThat(users).isEmpty();
   }
 

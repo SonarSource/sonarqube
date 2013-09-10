@@ -53,13 +53,14 @@ class DashboardsController < ApplicationController
 
   def create
     verify_post_request
+    @global = !params[:resource]
     @dashboard = Dashboard.new()
     @dashboard.user_id = current_user.id
     load_dashboard_from_params(@dashboard)
 
     active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==@dashboard.name }
     if active_dashboard
-      @dashboard.errors.add(Api::Utils.message('dashboard.error_create_existing_name'))
+      @dashboard.errors.add_to_base(Api::Utils.message('dashboard.error_create_existing_name'))
       render :partial => 'dashboards/create_form', :status => 400, :resource => params[:resource]
     elsif @dashboard.save
       add_default_dashboards_if_first_user_dashboard(@dashboard.global?)

@@ -44,7 +44,7 @@ public class DryRunDatabase implements BatchComponent {
   private static final String DRIVER = "org.h2.Driver";
   private static final String URL = "jdbc:h2:";
   private static final String USER = "sonar";
-  private static final String PASSWORD = "sonar";
+  private static final String PASSWORD = USER;
 
   private static final int DEFAULT_DRY_RUN_READ_TIMEOUT_SEC = 60;
 

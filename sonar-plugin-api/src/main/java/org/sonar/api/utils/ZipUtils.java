@@ -39,6 +39,8 @@ import java.util.zip.ZipOutputStream;
  */
 public final class ZipUtils {
 
+  private static final String ERROR_CREATING_DIRECTORY = "Error creating directory: ";
+
   private ZipUtils() {
     // only static methods
   }
@@ -86,12 +88,12 @@ public final class ZipUtils {
           File to = new File(toDir, entry.getName());
           if (entry.isDirectory()) {
             if (!to.exists() && !to.mkdirs()) {
-              throw new IOException("Error creating directory: " + to);
+              throw new IOException(ERROR_CREATING_DIRECTORY + to);
             }
           } else {
             File parent = to.getParentFile();
             if (parent != null && !parent.exists() && !parent.mkdirs()) {
-              throw new IOException("Error creating directory: " + parent);
+              throw new IOException(ERROR_CREATING_DIRECTORY + parent);
             }
 
             FileOutputStream fos = new FileOutputStream(to);

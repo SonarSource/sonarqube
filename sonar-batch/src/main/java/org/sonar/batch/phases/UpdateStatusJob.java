@@ -29,22 +29,28 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourcePersister;
 
 import javax.persistence.Query;
+
 import java.util.List;
 
 public class UpdateStatusJob implements BatchComponent {
 
+  private static final Logger LOG = LoggerFactory.getLogger(UpdateStatusJob.class);
+
   private DatabaseSession session;
   private ServerClient server;
-  private Snapshot snapshot; // TODO remove this component
+  // TODO remove this component
+  private Snapshot snapshot;
   private ResourcePersister resourcePersister;
   private Settings settings;
   private Project project;
 
-  public UpdateStatusJob(Settings settings, ServerClient server, DatabaseSession session, ResourcePersister resourcePersister, Project project, Snapshot snapshot) {
+  public UpdateStatusJob(Settings settings, ServerClient server, DatabaseSession session,
+    ResourcePersister resourcePersister, Project project, Snapshot snapshot) {
     this.session = session;
     this.server = server;
     this.resourcePersister = resourcePersister;
@@ -56,6 +62,22 @@ public class UpdateStatusJob implements BatchComponent {
   public void execute() {
     disablePreviousSnapshot();
     enableCurrentSnapshot();
+    evictDryRunDB();
+  }
+
+  @VisibleForTesting
+  void evictDryRunDB() {
+    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+      // If this is a dryRun analysis then we should not evict dryRun database
+      return;
+    }
+    String url = "/batch_bootstrap/evict?project=" + project.getId();
+    try {
+      LOG.debug("Evict dryRun database");
+      server.request(url);
+    } catch (Exception e) {
+      throw new SonarException("Unable to evict dryRun database: " + url, e);
+    }
   }
 
   private void disablePreviousSnapshot() {
@@ -74,7 +96,7 @@ public class UpdateStatusJob implements BatchComponent {
 
   private void enableCurrentSnapshot() {
     Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, false);
-    boolean isLast = (previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt()));
+    boolean isLast = previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt());
     setFlags(snapshot, isLast, Snapshot.STATUS_PROCESSED);
     logSuccess(LoggerFactory.getLogger(getClass()));
   }
@@ -113,7 +135,7 @@ public class UpdateStatusJob implements BatchComponent {
     query.setParameter("last", last);
     query.setParameter("rootId", snapshot.getId());
     query.setParameter("path", snapshot.getPath() + snapshot.getId() + ".%");
-    query.setParameter("pathRootId", (snapshot.getRootId() == null ? snapshot.getId() : snapshot.getRootId()));
+    query.setParameter("pathRootId", snapshot.getRootId() == null ? snapshot.getId() : snapshot.getRootId());
     query.executeUpdate();
     session.commit();
 

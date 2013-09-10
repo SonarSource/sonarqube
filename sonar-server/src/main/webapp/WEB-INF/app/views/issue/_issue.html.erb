@@ -1,4 +1,4 @@
-<div class="code-issue" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>" data-issue-rule="<%= issue.ruleKey().toString() -%>">
+<div class="code-issue" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>" data-issue-rule="<%= u issue.ruleKey().toString() -%>">
   <div class="code-issue-name">
     <div style="float: right">
       <a href="#" onclick="return openIssuePopup(this)" class="issue-permalink"><img src="<%= ApplicationController.root_context -%>/images/new-window-16.gif"></a>
@@ -21,7 +21,7 @@
     <% end %>
     <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
     &nbsp;
-    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
+    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link" id="toggle-issue-changelog"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
     &nbsp;
     <% if issue.reporter %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
@@ -38,7 +38,7 @@
   </div>
 
   <div class="issue-rule rule_detail" style="display: none"></div>
-  <div class="issue-changelog" style="display: none"></div>
+  <div class="issue-changelog" id="issue-changelog" style="display: none"></div>
 
   <% unless issue.message.blank? %>
     <div class="code-issue-msg">

@@ -147,10 +147,12 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     Measure newUncoveredConditions = new Measure(getNewUncoveredConditionsMetric());
 
     for (PeriodStruct struct : structs) {
-      newLines.setVariation(struct.index, (double) struct.newLines);
-      newUncoveredLines.setVariation(struct.index, (double) (struct.newLines - struct.newCoveredLines));
-      newConditions.setVariation(struct.index, (double) struct.newConditions);
-      newUncoveredConditions.setVariation(struct.index, (double) struct.newConditions - struct.newCoveredConditions);
+      if(struct.hasNewCode()) {
+        newLines.setVariation(struct.index, (double) struct.getNewLines());
+        newUncoveredLines.setVariation(struct.index, (double) (struct.getNewLines() - struct.getNewCoveredLines()));
+        newConditions.setVariation(struct.index, (double) struct.getNewConditions());
+        newUncoveredConditions.setVariation(struct.index, (double) struct.getNewConditions() - struct.getNewCoveredConditions());
+      }
     }
 
     context.saveMeasure(newLines);
@@ -169,7 +171,10 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
   public static final class PeriodStruct {
     int index;
     Date date;
-    int newLines = 0, newCoveredLines = 0, newConditions = 0, newCoveredConditions = 0;
+    Integer newLines;
+    Integer newCoveredLines;
+    Integer newConditions;
+    Integer newCoveredConditions;
 
     PeriodStruct(PastSnapshot pastSnapshot) {
       this.index = pastSnapshot.getIndex();
@@ -182,10 +187,10 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     }
 
     void reset() {
-      newLines = 0;
-      newCoveredLines = 0;
-      newConditions = 0;
-      newCoveredConditions = 0;
+      newLines = null;
+      newCoveredLines = null;
+      newConditions = null;
+      newCoveredConditions = null;
     }
 
     void analyze(Date lineDate, int hits, int conditions, int coveredConditions) {
@@ -200,17 +205,49 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     }
 
     void addLine(boolean covered) {
+      if(newLines == null) {
+        newLines = 0;
+      }
       newLines += 1;
       if (covered) {
+        if(newCoveredLines == null) {
+          newCoveredLines = 0;
+        }
         newCoveredLines += 1;
       }
     }
 
     void addConditions(int count, int countCovered) {
+      if(newConditions == null) {
+        newConditions = 0;
+      }
       newConditions += count;
       if (count > 0) {
+        if(newCoveredConditions == null) {
+          newCoveredConditions = 0;
+        }
         newCoveredConditions += countCovered;
       }
+    }
+
+    boolean hasNewCode() {
+      return newLines != null;
+    }
+
+    public int getNewLines() {
+      return newLines != null ? newLines : 0;
+    }
+
+    public int getNewCoveredLines() {
+      return newCoveredLines != null ? newCoveredLines : 0;
+    }
+
+    public int getNewConditions() {
+      return newConditions != null ? newConditions : 0;
+    }
+
+    public int getNewCoveredConditions() {
+      return newCoveredConditions != null ? newCoveredConditions : 0;
     }
   }
 }

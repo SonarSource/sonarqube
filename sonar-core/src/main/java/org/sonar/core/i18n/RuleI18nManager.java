@@ -67,7 +67,7 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
   public String getDescription(String repositoryKey, String ruleKey, Locale locale) {
     String relatedProperty = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(NAME_SUFFIX).toString();
 
-    Locale localeWithoutCountry = (locale.getCountry() == null ? locale : new Locale(locale.getLanguage()));
+    Locale localeWithoutCountry = locale.getCountry() == null ? locale : new Locale(locale.getLanguage());
     String ruleDescriptionFilePath = "rules/" + repositoryKey + "/" + ruleKey + ".html";
     String description = i18nManager.messageFromFile(localeWithoutCountry, ruleDescriptionFilePath, relatedProperty, true);
     if (description == null) {

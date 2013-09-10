@@ -1,28 +1,24 @@
-<style>
-  #body {
-    padding: 0 1px 0 0;
-  }
-</style>
-
-<% form_tag :action => 'generate' do %>
+<form method="post" action="<%= ApplicationController.root_context -%>/server_id_configuration/generate">
   <table class="data marginbottom10">
     <thead>
-    </thead>
-    <tbody>
-    <tr class="even">
+    <tr>
       <td style="padding: 10px">
-        <p class="marginbottom10"><%= message('server_id_configuration.information') -%></p>
+        <p><%= message('server_id_configuration.information') -%></p>
 
         <% if @server_id %>
-          <big><b><span class="<%= @bad_id ? 'error' : 'notice' -%>" id="server_id"><%= @server_id -%></span></b></big>
+          <p>
+            <br/>
+            <span class="<%= @bad_id ? 'error' : 'notice' -%>" id="server_id"><big><%= @server_id -%></big></span>
           <% if @bad_id %>
             <span class="error"><%= message('server_id_configuration.bad_key') -%></span>
           <% end %>
-          <br/>
+          </p>
         <% end %>
       </td>
     </tr>
-    <tr class="odd">
+    </thead>
+    <tbody>
+    <tr class="even">
       <td style="padding: 10px">
         <h3><%= message('server_id_configuration.organisation.title') -%></h3>
 
@@ -32,7 +28,7 @@
         <span class="note"><%= message('server_id_configuration.organisation.pattern') -%></span>
       </td>
     </tr>
-    <tr class="even">
+    <tr class="odd">
       <td style="padding: 10px">
         <h3><%= message('server_id_configuration.ip.title') -%></h3>
 
@@ -49,6 +45,6 @@
   </table>
 
   <%= submit_tag message('server_id_configuration.generate_button'), :disable_with => message('server_id_configuration.generating_button'), :id => 'generate-button' -%>
-<% end %>
+</form>
 
 

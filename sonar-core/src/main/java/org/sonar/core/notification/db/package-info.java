@@ -17,16 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.persistence;
+@ParametersAreNonnullByDefault
+package org.sonar.core.notification.db;
 
-import org.junit.Test;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class DbTemplateTest {
-  @Test
-  public void selectQuery() {
-    String select = DbTemplate.selectQuery("measures", "metric_id=2", "enabled=true");
-    assertThat(select).isEqualTo("SELECT * FROM measures WHERE (metric_id=2) AND (enabled=true)");
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

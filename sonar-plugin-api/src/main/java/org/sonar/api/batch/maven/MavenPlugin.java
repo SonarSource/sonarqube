@@ -37,6 +37,7 @@ import java.util.List;
  */
 public class MavenPlugin {
 
+  private static final String CONFIGURATION_ELEMENT = "configuration";
   private Plugin plugin;
   private Xpp3Dom configuration;
 
@@ -49,7 +50,7 @@ public class MavenPlugin {
     this.plugin = plugin;
     this.configuration = (Xpp3Dom) plugin.getConfiguration();
     if (this.configuration == null) {
-      configuration = new Xpp3Dom("configuration");
+      configuration = new Xpp3Dom(CONFIGURATION_ELEMENT);
       plugin.setConfiguration(this.configuration);
     }
   }
@@ -66,7 +67,7 @@ public class MavenPlugin {
     plugin.setGroupId(groupId);
     plugin.setArtifactId(artifactId);
     plugin.setVersion(version);
-    configuration = new Xpp3Dom("configuration");
+    configuration = new Xpp3Dom(CONFIGURATION_ELEMENT);
     plugin.setConfiguration(this.configuration);
   }
 
@@ -163,7 +164,7 @@ public class MavenPlugin {
    * Removes all parameters from the maven plugin
    */
   public void removeParameters() {
-    configuration = new Xpp3Dom("configuration");
+    configuration = new Xpp3Dom(CONFIGURATION_ELEMENT);
     plugin.setConfiguration(this.configuration);
   }
 
@@ -200,7 +201,7 @@ public class MavenPlugin {
   }
 
   private static int getIndex(String key) {
-    //parsing index-syntax (e.g. item[1])
+    // parsing index-syntax (e.g. item[1])
     if (key.matches(".*?\\[\\d+\\]")) {
       return Integer.parseInt(StringUtils.substringBetween(key, "[", "]"));
     }
@@ -231,7 +232,7 @@ public class MavenPlugin {
     Xpp3Dom node = configuration;
     for (String keyPart : keyParts) {
 
-      if(node.getChildren(removeIndexSnippet(keyPart)).length <= getIndex(keyPart)) {
+      if (node.getChildren(removeIndexSnippet(keyPart)).length <= getIndex(keyPart)) {
         return null;
       }
 
@@ -258,7 +259,7 @@ public class MavenPlugin {
    * @return whether the maven plugin has got configuration
    */
   public boolean hasConfiguration() {
-    return configuration.getChildCount()>0;
+    return configuration.getChildCount() > 0;
   }
 
   private static void checkKeyArgument(String key) {
@@ -416,13 +417,12 @@ public class MavenPlugin {
     }
   }
 
-
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("groupId", plugin.getGroupId())
-        .append("artifactId", plugin.getArtifactId())
-        .append("version", plugin.getVersion())
-        .toString();
+      .append("groupId", plugin.getGroupId())
+      .append("artifactId", plugin.getArtifactId())
+      .append("version", plugin.getVersion())
+      .toString();
   }
 }

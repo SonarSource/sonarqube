@@ -30,11 +30,12 @@ import java.util.Collection;
 
 /**
  * An utility class to manipulate Maven concepts
- * 
+ *
  * @since 1.10
  */
 public final class MavenUtils {
 
+  private static final String MAVEN_COMPILER_PLUGIN = "maven-compiler-plugin";
   public static final String GROUP_ID_APACHE_MAVEN = "org.apache.maven.plugins";
   public static final String GROUP_ID_CODEHAUS_MOJO = "org.codehaus.mojo";
 
@@ -44,12 +45,12 @@ public final class MavenUtils {
 
   /**
    * Returns the version of Java used by the maven compiler plugin
-   * 
+   *
    * @param pom the project pom
    * @return the java version
    */
   public static String getJavaVersion(MavenProject pom) {
-    MavenPlugin compilerPlugin = MavenPlugin.getPlugin(pom, GROUP_ID_APACHE_MAVEN, "maven-compiler-plugin");
+    MavenPlugin compilerPlugin = MavenPlugin.getPlugin(pom, GROUP_ID_APACHE_MAVEN, MAVEN_COMPILER_PLUGIN);
     if (compilerPlugin != null) {
       return compilerPlugin.getParameter("target");
     }
@@ -57,7 +58,7 @@ public final class MavenUtils {
   }
 
   public static String getJavaSourceVersion(MavenProject pom) {
-    MavenPlugin compilerPlugin = MavenPlugin.getPlugin(pom, GROUP_ID_APACHE_MAVEN, "maven-compiler-plugin");
+    MavenPlugin compilerPlugin = MavenPlugin.getPlugin(pom, GROUP_ID_APACHE_MAVEN, MAVEN_COMPILER_PLUGIN);
     if (compilerPlugin != null) {
       return compilerPlugin.getParameter("source");
     }
@@ -66,7 +67,7 @@ public final class MavenUtils {
 
   /**
    * Queries a collection of plugins based on a group id and an artifact id and returns the plugin if it exists
-   * 
+   *
    * @param plugins the plugins collection
    * @param groupId the group id
    * @param artifactId the artifact id
@@ -85,7 +86,7 @@ public final class MavenUtils {
 
   /**
    * Tests whether a plugin has got a given artifact id and group id
-   * 
+   *
    * @param plugin the plugin to test
    * @param groupId the group id
    * @param artifactId the artifact id
@@ -103,7 +104,7 @@ public final class MavenUtils {
 
   /**
    * Tests whether a ReportPlugin has got a given artifact id and group id
-   * 
+   *
    * @param plugin the ReportPlugin to test
    * @param groupId the group id
    * @param artifactId the artifact id
@@ -128,7 +129,7 @@ public final class MavenUtils {
 
   /**
    * Returns the charset of a pom
-   * 
+   *
    * @param pom the project pom
    * @return the charset
    */

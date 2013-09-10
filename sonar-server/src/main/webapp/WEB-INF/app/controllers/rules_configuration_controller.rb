@@ -33,7 +33,7 @@ class RulesConfigurationController < ApplicationController
     require_parameters :id
 
     @profile = Profile.find(params[:id])
-    add_breadcrumbs ProfilesController::ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language),
+    add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language),
                     {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
 
     init_params()
@@ -307,11 +307,12 @@ class RulesConfigurationController < ApplicationController
   def update_param
     verify_post_request
     access_denied unless has_role?(:profileadmin)
-    require_parameters :profile_id, :param_id, :active_rule_id, :value
+    require_parameters :profile_id, :param_id, :active_rule_id
     profile = Profile.find(params[:profile_id].to_i)
     rule_param = RulesParameter.find(params[:param_id].to_i)
     active_rule = ActiveRule.find(params[:active_rule_id].to_i)
-    active_param = ActiveRuleParameter.find(params[:id].to_i) if params[:id].to_i > 0
+    # As the active param can be null, we should not raise a RecordNotFound exception when it's not found (as it would be done when using find(:id) function)
+    active_param = ActiveRuleParameter.find_by_id(params[:id].to_i) if params[:id].to_i > 0
     value = params[:value]
     if value != ""
       active_param = ActiveRuleParameter.new(:rules_parameter => rule_param, :active_rule => active_rule) if active_param.nil?
@@ -324,10 +325,9 @@ class RulesConfigurationController < ApplicationController
     elsif !active_param.nil?
       old_value = active_param.value
       active_param.destroy
-      active_param = nil
       java_facade.ruleParamChanged(profile.id, active_rule.id, rule_param.name, old_value, nil, current_user.name)
     end
-                  # let's reload the active rule
+    # let's reload the active rule
     active_rule = ActiveRule.find(active_rule.id)
     render :partial => 'rule', :locals => {:profile => profile, :rule => active_rule.rule, :active_rule => active_rule}
   end

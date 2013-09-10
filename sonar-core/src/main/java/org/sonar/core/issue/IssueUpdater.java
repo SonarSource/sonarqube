@@ -24,12 +24,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.user.User;
 
 import javax.annotation.Nullable;
-
 import java.util.Calendar;
 import java.util.Date;
 
@@ -38,12 +39,20 @@ import java.util.Date;
  */
 public class IssueUpdater implements BatchComponent, ServerComponent {
 
+  public static final String UNUSED = "";
+  public static final String SEVERITY = "severity";
+  public static final String ASSIGNEE = "assignee";
+  public static final String RESOLUTION = "resolution";
+  public static final String STATUS = "status";
+  public static final String AUTHOR = "author";
+  public static final String ACTION_PLAN = "actionPlan";
+
   public boolean setSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (issue.manualSeverity()) {
       throw new IllegalStateException("Severity can't be changed");
     }
     if (!Objects.equal(severity, issue.severity())) {
-      issue.setFieldChange(context, "severity", issue.severity(), severity);
+      issue.setFieldChange(context, SEVERITY, issue.severity(), severity);
       issue.setSeverity(severity);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -60,7 +69,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean setManualSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (!issue.manualSeverity() || !Objects.equal(severity, issue.severity())) {
-      issue.setFieldChange(context, "severity", issue.severity(), severity);
+      issue.setFieldChange(context, SEVERITY, issue.severity(), severity);
       issue.setSeverity(severity);
       issue.setManualSeverity(true);
       issue.setUpdateDate(context.date());
@@ -71,10 +80,14 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
-  public boolean assign(DefaultIssue issue, @Nullable String assignee, IssueChangeContext context) {
-    String sanitizedAssignee = StringUtils.defaultIfBlank(assignee, null);
+  public boolean assign(DefaultIssue issue, @Nullable User user, IssueChangeContext context) {
+    String sanitizedAssignee = null;
+    if(user != null) {
+      sanitizedAssignee = StringUtils.defaultIfBlank(user.login(), null);
+    }
     if (!Objects.equal(sanitizedAssignee, issue.assignee())) {
-      issue.setFieldChange(context, "assignee", issue.assignee(), sanitizedAssignee);
+      String newAssignee = user != null ? user.name() : null;
+      issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssignee);
       issue.setAssignee(sanitizedAssignee);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -101,7 +114,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean setResolution(DefaultIssue issue, @Nullable String resolution, IssueChangeContext context) {
     if (!Objects.equal(resolution, issue.resolution())) {
-      issue.setFieldChange(context, "resolution", issue.resolution(), resolution);
+      issue.setFieldChange(context, RESOLUTION, issue.resolution(), resolution);
       issue.setResolution(resolution);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -113,7 +126,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean setStatus(DefaultIssue issue, String status, IssueChangeContext context) {
     if (!Objects.equal(status, issue.status())) {
-      issue.setFieldChange(context, "status", issue.status(), status);
+      issue.setFieldChange(context, STATUS, issue.status(), status);
       issue.setStatus(status);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -125,7 +138,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
 
   public boolean setAuthorLogin(DefaultIssue issue, @Nullable String authorLogin, IssueChangeContext context) {
     if (!Objects.equal(authorLogin, issue.authorLogin())) {
-      issue.setFieldChange(context, "author", issue.authorLogin(), authorLogin);
+      issue.setFieldChange(context, AUTHOR, issue.authorLogin(), authorLogin);
       issue.setAuthorLogin(authorLogin);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -158,7 +171,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   }
 
   public void setCloseDate(DefaultIssue issue, @Nullable Date d, IssueChangeContext context) {
-    Date dateWithoutMilliseconds = (d == null ? null : DateUtils.truncate(d, Calendar.SECOND));
+    Date dateWithoutMilliseconds = d == null ? null : DateUtils.truncate(d, Calendar.SECOND);
     if (!Objects.equal(dateWithoutMilliseconds, issue.closeDate())) {
       issue.setCloseDate(d);
       issue.setUpdateDate(context.date());
@@ -196,10 +209,14 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
-  public boolean plan(DefaultIssue issue, @Nullable String actionPlanKey, IssueChangeContext context) {
-    String sanitizedActionPlanKey = StringUtils.defaultIfBlank(actionPlanKey, null);
+  public boolean plan(DefaultIssue issue, @Nullable ActionPlan actionPlan, IssueChangeContext context) {
+    String sanitizedActionPlanKey = null;
+    if(actionPlan != null) {
+      sanitizedActionPlanKey = StringUtils.defaultIfBlank(actionPlan.key(), null);
+    }
     if (!Objects.equal(sanitizedActionPlanKey, issue.actionPlanKey())) {
-      issue.setFieldChange(context, "actionPlanKey", issue.actionPlanKey(), sanitizedActionPlanKey);
+      String newActionPlanName = actionPlan != null ? actionPlan.name() : null;
+      issue.setFieldChange(context, ACTION_PLAN, UNUSED, newActionPlanName);
       issue.setActionPlanKey(sanitizedActionPlanKey);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);

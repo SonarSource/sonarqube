@@ -117,8 +117,7 @@ public class UserSession {
         Permission perm = Permission.allGlobal().get(permissionKey);
         if (perm == null) {
           LOG.warn("Ignoring unknown permission {} for user {}", permissionKey, login);
-        }
-        else {
+        } else {
           permissions.add(perm);
         }
       }

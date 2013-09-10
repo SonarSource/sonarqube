@@ -20,6 +20,7 @@
 package org.sonar.api.issue;
 
 import org.sonar.api.BatchExtension;
+import org.sonar.api.user.User;
 
 import javax.annotation.Nullable;
 
@@ -47,7 +48,13 @@ public interface IssueHandler extends BatchExtension {
 
     Context setAttribute(String key, @Nullable String value);
 
+    /**
+     * @deprecated since 3.7.1
+     */
+    @Deprecated
     Context assign(@Nullable String login);
+
+    Context assign(@Nullable User user);
 
     Context addComment(String text);
 

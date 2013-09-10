@@ -34,8 +34,8 @@
      if @resource && Project.root_qualifiers.include?(@resource.qualifier)
   %>
   else {
-    sonarRecentHistory.add('<%= h @resource.key -%>',
-                           '<%= h @resource.name -%>',
+    sonarRecentHistory.add('<%= escape_javascript(h(@resource.key)) -%>',
+                           '<%= escape_javascript(h(@resource.name)) -%>',
                            '<%= Api::Utils.java_facade.getResourceType(@resource.qualifier).getIconPath() -%>');
   }
   <% end %>

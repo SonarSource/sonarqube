@@ -42,7 +42,7 @@ public class JdbcDriverDeployer {
         FileUtils.copyFile(driver, deployedDriver);
 
       } catch (IOException e) {
-        throw new RuntimeException("Can not copy the JDBC driver from " + driver + " to " + deployedDriver, e);
+        throw new IllegalStateException("Can not copy the JDBC driver from " + driver + " to " + deployedDriver, e);
       }
     }
     File deployedDriverIndex = fileSystem.getDeployedJdbcDriverIndex();

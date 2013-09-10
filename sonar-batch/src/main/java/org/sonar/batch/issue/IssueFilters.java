@@ -50,7 +50,7 @@ public class IssueFilters implements BatchExtension {
       }
     }
     if (!deprecatedFilters.isEmpty()) {
-      Violation v = (violation != null ? violation : deprecatedViolations.toViolation(issue));
+      Violation v = violation != null ? violation : deprecatedViolations.toViolation(issue);
       return !deprecatedFilters.isIgnored(v);
     }
     return true;

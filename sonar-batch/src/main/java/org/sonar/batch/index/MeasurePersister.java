@@ -130,7 +130,8 @@ public final class MeasurePersister {
 
   private MeasureModel model(Measure measure) {
     MeasureModel model = new MeasureModel();
-    model.setMetricId(measure.getMetric().getId()); // we assume that the index has updated the metric
+    // we assume that the index has updated the metric
+    model.setMetricId(measure.getMetric().getId());
     model.setDescription(measure.getDescription());
     model.setData(measure.getData());
     model.setAlertStatus(measure.getAlertStatus());

@@ -22,8 +22,11 @@ package org.sonar.api.issue.internal;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
+import org.sonar.api.rule.RuleKey;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -33,6 +36,77 @@ import static org.fest.assertions.MapAssert.entry;
 public class DefaultIssueTest {
 
   DefaultIssue issue = new DefaultIssue();
+
+  @Test
+  public void test_setters_and_getters() throws Exception {
+    issue.setKey("ABCD")
+      .setComponentKey("org.sample.Sample")
+      .setProjectKey("Sample")
+      .setRuleKey(RuleKey.of("squid", "S100"))
+      .setSeverity("MINOR")
+      .setManualSeverity(true)
+      .setMessage("a message")
+      .setLine(7)
+      .setEffortToFix(1.2d)
+      .setActionPlanKey("BCDE")
+      .setStatus(Issue.STATUS_CLOSED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setReporter("simon")
+      .setAssignee("julien")
+      .setAuthorLogin("steph")
+      .setChecksum("c7b5db46591806455cf082bb348631e8")
+      .setNew(true)
+      .setEndOfLife(true)
+      .setOnDisabledRule(true)
+      .setChanged(true)
+      .setSendNotifications(true)
+      .setCreationDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"))
+      .setUpdateDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"))
+      .setCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"))
+      .setSelectedAt(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-22"))
+    ;
+
+    assertThat(issue.key()).isEqualTo("ABCD");
+    assertThat(issue.componentKey()).isEqualTo("org.sample.Sample");
+    assertThat(issue.projectKey()).isEqualTo("Sample");
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("squid", "S100"));
+    assertThat(issue.severity()).isEqualTo("MINOR");
+    assertThat(issue.manualSeverity()).isTrue();
+    assertThat(issue.message()).isEqualTo("a message");
+    assertThat(issue.line()).isEqualTo(7);
+    assertThat(issue.effortToFix()).isEqualTo(1.2d);
+    assertThat(issue.actionPlanKey()).isEqualTo("BCDE");
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    assertThat(issue.reporter()).isEqualTo("simon");
+    assertThat(issue.assignee()).isEqualTo("julien");
+    assertThat(issue.authorLogin()).isEqualTo("steph");
+    assertThat(issue.checksum()).isEqualTo("c7b5db46591806455cf082bb348631e8");
+    assertThat(issue.isNew()).isTrue();
+    assertThat(issue.isEndOfLife()).isTrue();
+    assertThat(issue.isOnDisabledRule()).isTrue();
+    assertThat(issue.isChanged()).isTrue();
+    assertThat(issue.mustSendNotifications()).isTrue();
+    assertThat(issue.creationDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-19"));
+    assertThat(issue.updateDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-20"));
+    assertThat(issue.closeDate()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-21"));
+    assertThat(issue.selectedAt()).isEqualTo(new SimpleDateFormat("yyyy-MM-dd").parse("2013-08-22"));
+  }
+
+  @Test
+  public void should_set_empty_dates() throws Exception {
+    issue
+      .setCreationDate(null)
+      .setUpdateDate(null)
+      .setCloseDate(null)
+      .setSelectedAt(null)
+    ;
+
+    assertThat(issue.creationDate()).isNull();
+    assertThat(issue.updateDate()).isNull();
+    assertThat(issue.closeDate()).isNull();
+    assertThat(issue.selectedAt()).isNull();
+  }
 
   @Test
   public void test_attributes() throws Exception {

@@ -23,6 +23,7 @@ package org.sonar.server.issue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
@@ -31,8 +32,10 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
@@ -57,7 +60,11 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class IssueServiceTest {
 
@@ -88,7 +95,8 @@ public class IssueServiceTest {
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) issue));
     when(issueQueryResult.first()).thenReturn(issue);
 
-    issueService = new IssueService(finder, workflow, issueStorage, issueUpdater, issueNotifications, actionPlanService, ruleFinder, resourceDao, authorizationDao, userFinder);
+    issueService = new IssueService(finder, workflow, issueStorage, issueUpdater, issueNotifications, actionPlanService, ruleFinder, resourceDao, authorizationDao, userFinder,
+      mock(DryRunCache.class));
   }
 
   @Test
@@ -99,7 +107,7 @@ public class IssueServiceTest {
 
   @Test
   public void should_fail_to_load_issue() {
-    when(issueQueryResult.issues()).thenReturn(Collections.<Issue>emptyList());
+    when(issueQueryResult.issues()).thenReturn(Collections.<Issue> emptyList());
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
     try {
@@ -164,7 +172,6 @@ public class IssueServiceTest {
     verifyZeroInteractions(issueNotifications);
   }
 
-
   @Test
   public void should_fail_do_transition_if_not_logged() {
     when(userSession.isLoggedIn()).thenReturn(false);
@@ -180,15 +187,16 @@ public class IssueServiceTest {
   @Test
   public void should_assign() {
     String assignee = "perceval";
+    User user = new DefaultUser();
 
-    when(userFinder.findByLogin(assignee)).thenReturn(new DefaultUser());
-    when(issueUpdater.assign(eq(issue), eq(assignee), any(IssueChangeContext.class))).thenReturn(true);
+    when(userFinder.findByLogin(assignee)).thenReturn(user);
+    when(issueUpdater.assign(eq(issue), eq(user), any(IssueChangeContext.class))).thenReturn(true);
 
     Issue result = issueService.assign("ABCD", assignee, userSession);
     assertThat(result).isNotNull();
 
     ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
-    verify(issueUpdater).assign(eq(issue), eq(assignee), measureCaptor.capture());
+    verify(issueUpdater).assign(eq(issue), eq(user), measureCaptor.capture());
     verify(issueStorage).save(issue);
 
     IssueChangeContext issueChangeContext = measureCaptor.getValue();
@@ -199,15 +207,36 @@ public class IssueServiceTest {
   }
 
   @Test
+  public void should_unassign() {
+    when(issueUpdater.assign(eq(issue), eq((User) null), any(IssueChangeContext.class))).thenReturn(true);
+
+    Issue result = issueService.assign("ABCD", null, userSession);
+    assertThat(result).isNotNull();
+
+    ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
+    verify(issueUpdater).assign(eq(issue), eq((User) null), measureCaptor.capture());
+    verify(issueStorage).save(issue);
+
+    IssueChangeContext issueChangeContext = measureCaptor.getValue();
+    assertThat(issueChangeContext.login()).isEqualTo("arthur");
+    assertThat(issueChangeContext.date()).isNotNull();
+
+    verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
+    verify(userFinder, never()).findByLogin(anyString());
+  }
+
+  @Test
   public void should_not_assign() {
     String assignee = "perceval";
+    User user = new DefaultUser();
 
-    when(userFinder.findByLogin(assignee)).thenReturn(new DefaultUser());
-    when(issueUpdater.assign(eq(issue), eq(assignee), any(IssueChangeContext.class))).thenReturn(false);
+    when(userFinder.findByLogin(assignee)).thenReturn(user);
+    when(issueUpdater.assign(eq(issue), eq(user), any(IssueChangeContext.class))).thenReturn(false);
 
     Issue result = issueService.assign("ABCD", assignee, userSession);
     assertThat(result).isNotNull();
-    verify(issueUpdater).assign(eq(issue), eq(assignee),any(IssueChangeContext.class));
+
+    verify(issueUpdater).assign(eq(issue), eq(user), any(IssueChangeContext.class));
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
   }
@@ -234,14 +263,16 @@ public class IssueServiceTest {
   public void should_plan() {
     String actionPlanKey = "EFGH";
 
-    when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(new DefaultActionPlan());
-    when(issueUpdater.plan(eq(issue), eq(actionPlanKey), any(IssueChangeContext.class))).thenReturn(true);
+    ActionPlan actionPlan = new DefaultActionPlan();
+
+    when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(actionPlan);
+    when(issueUpdater.plan(eq(issue), eq(actionPlan), any(IssueChangeContext.class))).thenReturn(true);
 
     Issue result = issueService.plan("ABCD", actionPlanKey, userSession);
     assertThat(result).isNotNull();
 
     ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
-    verify(issueUpdater).plan(eq(issue), eq(actionPlanKey), measureCaptor.capture());
+    verify(issueUpdater).plan(eq(issue), eq(actionPlan), measureCaptor.capture());
     verify(issueStorage).save(issue);
 
     IssueChangeContext issueChangeContext = measureCaptor.getValue();
@@ -252,15 +283,36 @@ public class IssueServiceTest {
   }
 
   @Test
+  public void should_unplan() {
+    when(issueUpdater.plan(eq(issue), eq((ActionPlan) null), any(IssueChangeContext.class))).thenReturn(true);
+
+    Issue result = issueService.plan("ABCD", null, userSession);
+    assertThat(result).isNotNull();
+
+    ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
+    verify(issueUpdater).plan(eq(issue), eq((ActionPlan) null), measureCaptor.capture());
+    verify(issueStorage).save(issue);
+
+    IssueChangeContext issueChangeContext = measureCaptor.getValue();
+    assertThat(issueChangeContext.login()).isEqualTo("arthur");
+    assertThat(issueChangeContext.date()).isNotNull();
+
+    verify(issueNotifications).sendChanges(eq(issue), eq(issueChangeContext), eq(issueQueryResult));
+    verify(actionPlanService, never()).findByKey(anyString(), any(UserSession.class));
+  }
+
+  @Test
   public void should_not_plan() {
     String actionPlanKey = "EFGH";
 
-    when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(new DefaultActionPlan());
-    when(issueUpdater.plan(eq(issue), eq(actionPlanKey), any(IssueChangeContext.class))).thenReturn(false);
+    ActionPlan actionPlan = new DefaultActionPlan();
+
+    when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(actionPlan);
+    when(issueUpdater.plan(eq(issue), eq(actionPlan), any(IssueChangeContext.class))).thenReturn(false);
 
     Issue result = issueService.plan("ABCD", actionPlanKey, userSession);
     assertThat(result).isNotNull();
-    verify(issueUpdater).plan(eq(issue), eq(actionPlanKey), any(IssueChangeContext.class));
+    verify(issueUpdater).plan(eq(issue), eq(actionPlan), any(IssueChangeContext.class));
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
   }
@@ -390,6 +442,5 @@ public class IssueServiceTest {
     }
     verifyZeroInteractions(issueStorage);
   }
-
 
 }

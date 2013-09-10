@@ -31,7 +31,7 @@ class SessionsController < ApplicationController
     if logged_in?
       if params[:remember_me] == '1'
         self.current_user.remember_me
-        cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at }
+        cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at, :http_only => true }
       end
       redirect_back_or_default(home_url)
     else
@@ -53,7 +53,7 @@ class SessionsController < ApplicationController
   def new
     if params[:return_to]
       # user clicked on the link "login" : redirect to the original uri after authentication
-      session[:return_to] = params[:return_to]
+      session[:return_to] = Api::Utils.absolute_to_relative_url(params[:return_to])
     # else the original uri can be set by ApplicationController#access_denied
     end
   end

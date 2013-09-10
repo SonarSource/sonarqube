@@ -13,7 +13,7 @@
 <% end %>
 
 <div class="note">
-  <%= @rule.plugin_name -%>
+  <%= h @rule.plugin_name -%>
   &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
-  <a href="#" onclick="return openIssueRulePopup(this)"><%= @rule.plugin_rule_key -%></a>
+  <a href="#" onclick="return openIssueRulePopup(this)"><%= h @rule.plugin_rule_key -%></a>
 </div>

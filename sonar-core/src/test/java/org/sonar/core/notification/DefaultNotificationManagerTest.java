@@ -23,21 +23,27 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.core.notification.db.NotificationQueueDao;
+import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
@@ -56,6 +62,9 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
   @Mock
   private NotificationChannel twitterChannel;
 
+  @Mock
+  private NotificationQueueDao notificationQueueDao;
+
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
@@ -63,14 +72,14 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
     when(emailChannel.getKey()).thenReturn("Email");
     when(twitterChannel.getKey()).thenReturn("Twitter");
 
-    manager = new DefaultNotificationManager(new NotificationChannel[] {emailChannel, twitterChannel}, getSessionFactory(), propertiesDao);
+    manager = new DefaultNotificationManager(new NotificationChannel[] {emailChannel, twitterChannel}, notificationQueueDao, propertiesDao);
   }
 
   @Test
   public void shouldProvideChannelList() {
     assertThat(manager.getChannels()).containsOnly(emailChannel, twitterChannel);
 
-    manager = new DefaultNotificationManager(getSessionFactory(), propertiesDao);
+    manager = new DefaultNotificationManager(notificationQueueDao, propertiesDao);
     assertThat(manager.getChannels()).hasSize(0);
   }
 
@@ -79,10 +88,21 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
     Notification notification = new Notification("test");
     manager.scheduleForSending(notification);
 
-    NotificationQueueElement queueElement = manager.getFromQueue();
-    assertThat(queueElement.getNotification(), is(notification));
+    verify(notificationQueueDao, only()).insert(any(List.class));
+  }
 
-    assertThat(manager.getFromQueue(), nullValue());
+  @Test
+  public void shouldGetFromQueueAndDelete() throws Exception {
+    Notification notification = new Notification("test");
+    NotificationQueueDto dto = NotificationQueueDto.toNotificationQueueDto(notification);
+    List<NotificationQueueDto> dtos = Arrays.asList(dto);
+    when(notificationQueueDao.findOldest(1)).thenReturn(dtos);
+
+    assertThat(manager.getFromQueue()).isNotNull();
+
+    InOrder inOrder = inOrder(notificationQueueDao);
+    inOrder.verify(notificationQueueDao).findOldest(1);
+    inOrder.verify(notificationQueueDao).delete(dtos);
   }
 
   @Test
@@ -116,7 +136,7 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
     when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", null)).thenReturn(Lists.newArrayList("user3"));
     when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", null)).thenReturn(Lists.newArrayList("user4"));
 
-    Multimap<String, NotificationChannel> multiMap = manager.findSubscribedRecipientsForDispatcher(dispatcher, (Integer)null);
+    Multimap<String, NotificationChannel> multiMap = manager.findSubscribedRecipientsForDispatcher(dispatcher, (Integer) null);
     assertThat(multiMap.entries()).hasSize(3);
 
     Map<String, Collection<NotificationChannel>> map = multiMap.asMap();

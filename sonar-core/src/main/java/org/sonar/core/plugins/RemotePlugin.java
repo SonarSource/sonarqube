@@ -88,10 +88,6 @@ public class RemotePlugin {
     return files;
   }
 
-  public String getPluginFilename() {
-    return (!files.isEmpty() ? files.get(0).getFilename() : null);
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

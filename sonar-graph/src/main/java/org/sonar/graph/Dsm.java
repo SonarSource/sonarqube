@@ -53,7 +53,7 @@ public class Dsm<V> {
         V to = vertices[y];
 
         Edge<V> edge = graph.getEdge(from, to);
-        boolean isFeedbackEdge = (edge != null && feedbackEdges.contains(edge));
+        boolean isFeedbackEdge = edge != null && feedbackEdges.contains(edge);
         DsmCell cell = new DsmCell(edge, isFeedbackEdge);
         cells[x][y] = cell;
       }

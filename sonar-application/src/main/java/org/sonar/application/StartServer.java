@@ -30,6 +30,7 @@ public final class StartServer {
   private static final String DEFAULT_WEB_HOST = "0.0.0.0";
   private static final int DEFAULT_WEB_PORT = 9000;
   private static final String DEFAULT_WEB_CONTEXT = "/";
+  private static final String PROPERTIES_FILE_PATH = "/conf/sonar.properties";
 
   private StartServer() {
   }
@@ -64,12 +65,12 @@ public final class StartServer {
 
   private static Properties getConfiguration() throws IOException {
     Properties properties = new Properties();
-    properties.load(StartServer.class.getResourceAsStream("/conf/sonar.properties"));
+    properties.load(StartServer.class.getResourceAsStream(PROPERTIES_FILE_PATH));
     return properties;
   }
 
   private static void configureHome() throws URISyntaxException {
-    File confFile = new File(StartServer.class.getResource("/conf/sonar.properties").toURI());
+    File confFile = new File(StartServer.class.getResource(PROPERTIES_FILE_PATH).toURI());
     System.setProperty("SONAR_HOME" /* see constant org.sonar.server.platform.SonarHome.PROPERTY */,
         confFile.getParentFile().getParentFile().getAbsolutePath());
   }

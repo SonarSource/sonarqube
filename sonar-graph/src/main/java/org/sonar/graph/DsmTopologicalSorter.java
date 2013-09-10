@@ -39,7 +39,7 @@ public final class DsmTopologicalSorter<V> {
       boolean dsmCanBeSortedOnRight = partitionner.pushToRightVerticesWithoutOutgointEdges();
       dsmCanBeSorted = dsmCanBeSortedOnLeft || dsmCanBeSortedOnRight;
     }
-    boolean isCyclicGraph = (partitionner.leftOrderedIndex < partitionner.rightOrderedIndex);
+    boolean isCyclicGraph = partitionner.leftOrderedIndex < partitionner.rightOrderedIndex;
     if (isCyclicGraph) {
       throw new IllegalStateException("Can't sort a cyclic graph.");
     }

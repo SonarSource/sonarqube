@@ -19,20 +19,13 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.task.TaskExtension;
 
 import javax.annotation.concurrent.Immutable;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +33,6 @@ import java.util.List;
 /**
  * @since 2.14
  */
-@Beta
 @Immutable
 public class ResourceTypeTree implements TaskExtension, ServerExtension {
 
@@ -72,6 +64,11 @@ public class ResourceTypeTree implements TaskExtension, ServerExtension {
         return relations.get(qualifier).isEmpty();
       }
     }));
+  }
+
+  @Override
+  public String toString() {
+    return root.getQualifier();
   }
 
   public static Builder builder() {

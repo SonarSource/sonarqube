@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
  * <ul>
  * <li>changes done by end-users from the page "Project Settings"</li>
  * <li>changes done programmatically on the component org.sonar.api.config.Settings</li>
+ * <li>changes done when restoring settings from XML using backup/restore feature</li>
  * </ul>
  *
  * @since 3.0
@@ -65,4 +66,5 @@ public abstract class GlobalPropertyChangeHandler implements ServerExtension {
    * This method gets called when a property is changed.
    */
   public abstract void onChange(PropertyChange change);
+
 }

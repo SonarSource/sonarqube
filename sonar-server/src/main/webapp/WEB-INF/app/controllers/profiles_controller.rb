@@ -19,13 +19,15 @@
 #
 class ProfilesController < ApplicationController
 
-  ROOT_BREADCRUMB = {:name => Api::Utils.message('quality_profiles.page'), :url => {:controller => 'profiles', :action => 'index'}}
+  def self.root_breadcrumb
+    {:name => Api::Utils.message('quality_profiles.page'), :url => {:controller => 'profiles', :action => 'index'}}
+  end
 
   before_filter :hide_sidebar
 
   # GET /profiles/index
   def index
-    add_breadcrumbs ROOT_BREADCRUMB
+    add_breadcrumbs ProfilesController::root_breadcrumb
     @profiles = Profile.all
     Api::Utils.insensitive_sort!(@profiles){|profile| profile.name}
   end
@@ -197,9 +199,13 @@ class ProfilesController < ApplicationController
     @profile = Profile.find(params[:id])
 
     versions = ActiveRuleChange.all(:select => 'profile_version, MAX(change_date) AS change_date', :conditions => ['profile_id=?', @profile.id], :group => 'profile_version')
+    # Add false change version 1 when no change have been made in profile version 1
+    versions << ActiveRuleChange.new(:profile_version => 1, :profile_id => @profile.id) unless versions.find {|version| version.profile_version == 1}
     versions.sort! { |a, b| b.profile_version <=> a.profile_version }
 
-    if !versions.empty?
+    # SONAR-2986
+    # Display changelog only from profile version 2
+    if @profile.version > 1
       last_version = versions[0].profile_version
       if params[:since].blank?
         @since_version = last_version - 1
@@ -216,7 +222,16 @@ class ProfilesController < ApplicationController
       end
       @changes = ActiveRuleChange.all(:conditions => ['profile_id=? and ?<profile_version and profile_version<=?', @profile.id, @since_version, @to_version], :order => 'id desc')
 
-      @select_versions = versions.map { |u| [message(u.profile_version == last_version ? 'quality_profiles.last_version_x_with_date' : 'quality_profiles.version_x_with_date', :params => [u.profile_version.to_s, l(u.change_date)]), u.profile_version] } | [[message('quality_profiles.no_version'), 0]];
+      @select_versions = versions.map do |u|
+        if u.change_date
+          message = message(u.profile_version == last_version ? 'quality_profiles.last_version_x_with_date' : 'quality_profiles.version_x_with_date',
+                            :params => [u.profile_version.to_s, l(u.change_date)])
+        else
+          # Specific case when no change have been made in profile version 1 -> no date will be displayed
+          message = message('quality_profiles.version_x', :params => u.profile_version)
+        end
+        [message, u.profile_version]
+      end
     end
 
     set_profile_breadcrumbs
@@ -373,7 +388,7 @@ class ProfilesController < ApplicationController
         end
       end
     end
-    add_breadcrumbs ROOT_BREADCRUMB, Api::Utils.message('compare')
+    add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.message('compare')
   end
 
   DIFF_IN1=1
@@ -519,6 +534,6 @@ class ProfilesController < ApplicationController
   end
 
   def set_profile_breadcrumbs
-    add_breadcrumbs ROOT_BREADCRUMB, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
+    add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
   end
 end

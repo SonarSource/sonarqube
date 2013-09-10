@@ -1,8 +1,16 @@
-<% form_remote_tag :url => {:action => :save_widget, :wid => widget.id, :id => params[:id]},
-                   :method => :post,
-                   :update => {:failure => "error#{widget.id}"},
-                   :failure => "$('error#{widget.id}').show()",
-                   :id => "form-edit-#{widget.key.parameterize}" do -%>
+<form onsubmit="$j.ajax({
+                url: 	'<%= ApplicationController.root_context-%>/dashboard/save_widget?wid=<%=widget.id-%>&id=<%= params[:id] -%>',
+                type: 	'post',
+                data: 	$j(this).serialize(),
+                error:	function(request)
+                        {
+                                $j('#error<%=widget.id-%>').text(request.responseText);
+                                $j('#error<%=widget.id-%>').show();
+                        }
+                });
+           return false;"
+         method="post"
+         action="<%= ApplicationController.root_context-%>/dashboard/save_widget?wid=<%=widget.id-%>">
   <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
   <table class="table width100">
     <tbody>
@@ -56,4 +64,4 @@
     </tbody>
   </table>
   <%= hidden_field_tag "widgetid", "", :class => "widgetid" %>
-<% end -%>
+</form>

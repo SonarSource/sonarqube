@@ -96,7 +96,7 @@ class ResourceDeletionManager
         @start_time = Time.now
         # launch the deletion
         resource_ids.each_with_index do |resource_id, index|
-          resource = Project.find(:first, :conditions => {:id => resource_id.to_i})
+          resource = Project.first(:conditions => {:id => resource_id.to_i})
           @message = Api::Utils.message('bulk_deletion.deletion_manager.currently_deleting_x_out_of_x', :params => [(index+1).to_s, resource_ids.size.to_s])
           if resource && java_facade.getResourceTypeBooleanProperty(resource.qualifier, 'deletable')
             begin

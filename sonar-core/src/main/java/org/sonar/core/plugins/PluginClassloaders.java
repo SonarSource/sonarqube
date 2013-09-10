@@ -133,7 +133,7 @@ public class PluginClassloaders {
     } catch (UnsupportedClassVersionError e) {
       throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
 
-    } catch (Throwable e) {
+    } catch (Exception e) {
       throw new SonarException("Fail to build the classloader of " + plugin.getKey(), e);
     }
   }
@@ -158,7 +158,7 @@ public class PluginClassloaders {
     } catch (UnsupportedClassVersionError e) {
       throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
 
-    } catch (Throwable e) {
+    } catch (Exception e) {
       throw new SonarException("Fail to extend the plugin " + plugin.getBasePlugin() + " for " + plugin.getKey(), e);
     }
   }
@@ -225,7 +225,7 @@ public class PluginClassloaders {
     } catch (UnsupportedClassVersionError e) {
       throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
 
-    } catch (Throwable e) {
+    } catch (Exception e) {
       throw new SonarException("Fail to load plugin " + plugin.getKey(), e);
     }
   }

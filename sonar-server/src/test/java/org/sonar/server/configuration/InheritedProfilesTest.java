@@ -22,18 +22,20 @@ package org.sonar.server.configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class InheritedProfilesTest extends AbstractDbUnitTestCase {
   private ProfilesManager profilesManager;
 
   @Before
   public void setUp() {
-    profilesManager = new ProfilesManager(getSession(), null);
+    profilesManager = new ProfilesManager(getSession(), null, mock(DryRunCache.class));
   }
 
   @Test

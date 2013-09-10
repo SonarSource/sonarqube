@@ -20,6 +20,8 @@
 package org.sonar.batch;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
@@ -28,6 +30,9 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.dao.ProfilesDao;
 
 public class DefaultProfileLoader implements ProfileLoader {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultProfileLoader.class);
+
   private ProfilesDao dao;
 
   public DefaultProfileLoader(ProfilesDao dao) {
@@ -35,6 +40,7 @@ public class DefaultProfileLoader implements ProfileLoader {
   }
 
   public RulesProfile load(Project project, Settings settings) {
+
     String profileName = StringUtils.defaultIfBlank(
         settings.getString("sonar.profile"),
         settings.getString("sonar.profile." + project.getLanguageKey()));
@@ -42,7 +48,13 @@ public class DefaultProfileLoader implements ProfileLoader {
     if (StringUtils.isBlank(profileName)) {
       // This means that the current language is not supported by any installed plugin, otherwise at least a
       // "Default <Language Name>" profile would have been created by ActivateDefaultProfiles class.
-      throw new SonarException("You must install a plugin that supports the language '" + project.getLanguageKey() + "'");
+      String msg = "You must install a plugin that supports the language key '" + project.getLanguageKey() + "'.";
+      if (!LOG.isDebugEnabled()) {
+        msg += " Run analysis in verbose mode to see list of available language keys.";
+      } else {
+        msg += " See analysis log for a list of available language keys.";
+      }
+      throw new SonarException(msg);
     }
 
     RulesProfile profile = dao.getProfile(project.getLanguageKey(), profileName);

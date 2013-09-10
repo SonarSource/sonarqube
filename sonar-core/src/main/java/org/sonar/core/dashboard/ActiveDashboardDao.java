@@ -48,7 +48,7 @@ public class ActiveDashboardDao implements BatchComponent, ServerComponent {
     ActiveDashboardMapper mapper = session.getMapper(ActiveDashboardMapper.class);
     try {
       Integer max = mapper.selectMaxOrderIndexForNullUser();
-      return (max != null ? max.intValue() : 0);
+      return max != null ? max.intValue() : 0;
     } finally {
       session.close();
     }

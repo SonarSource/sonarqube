@@ -39,7 +39,7 @@ public class CodeColorizer {
   }
 
   public String toHtml(Reader code, HtmlOptions options) {
-    HtmlOptions opts = (options == null ? HtmlOptions.DEFAULT : options);
+    HtmlOptions opts = options == null ? HtmlOptions.DEFAULT : options;
     return new HtmlRenderer(opts).render(code, tokenizers);
   }
 

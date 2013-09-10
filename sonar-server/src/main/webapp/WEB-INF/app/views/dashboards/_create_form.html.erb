@@ -2,7 +2,7 @@
   <% if @global %>
     <input type="hidden" name="global" value="true" />
   <% else %>
-    <input type="hidden" name="resource" value="<%= params[:resource] %>"/>
+    <input type="hidden" name="resource" value="<%= h params[:resource] %>"/>
   <% end %>
   <fieldset>
     <div class="modal-head">

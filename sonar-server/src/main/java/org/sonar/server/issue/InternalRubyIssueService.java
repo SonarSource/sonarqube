@@ -65,6 +65,12 @@ public class InternalRubyIssueService implements ServerComponent {
   private static final String ID_PARAM = "id";
   private static final String NAME_PARAM = "name";
   private static final String DESCRIPTION_PARAM = "description";
+  private static final String PROJECT_PARAM = "project";
+  private static final String USER_PARAM = "user";
+
+  private static final String ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE = "action_plans.errors.action_plan_does_not_exist";
+  private static final String ERRORS_CANT_BE_EMPTY_MESSAGE = "errors.cant_be_empty";
+  private static final String ERRORS_IS_TOO_LONG_MESSAGE = "errors.is_too_long";
 
   private final IssueService issueService;
   private final IssueCommentService commentService;
@@ -171,8 +177,14 @@ public class InternalRubyIssueService implements ServerComponent {
     return commentService.deleteComment(commentKey, UserSession.get());
   }
 
-  public IssueComment editComment(String commentKey, String newText) {
-    return commentService.editComment(commentKey, newText, UserSession.get());
+  public Result<IssueComment> editComment(String commentKey, String newText) {
+    Result<IssueComment> result = Result.of();
+    try {
+      result.set(commentService.editComment(commentKey, newText, UserSession.get()));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
   }
 
   public IssueComment findComment(String commentKey) {
@@ -242,7 +254,7 @@ public class InternalRubyIssueService implements ServerComponent {
     DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key, UserSession.get());
     if (existingActionPlan == null) {
       Result<ActionPlan> result = Result.of();
-      result.addError(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", key));
+      result.addError(Result.Message.ofL10n(ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE, key));
       return result;
     } else {
       Result<ActionPlan> result = createActionPlanResult(parameters, existingActionPlan);
@@ -292,7 +304,7 @@ public class InternalRubyIssueService implements ServerComponent {
     String name = parameters.get(NAME_PARAM);
     String description = parameters.get(DESCRIPTION_PARAM);
     String deadLineParam = parameters.get("deadLine");
-    String projectParam = parameters.get("project");
+    String projectParam = parameters.get(PROJECT_PARAM);
 
     checkMandatorySizeParameter(name, NAME_PARAM, 200, result);
     checkOptionalSizeParameter(description, DESCRIPTION_PARAM, 1000, result);
@@ -303,8 +315,8 @@ public class InternalRubyIssueService implements ServerComponent {
     }
     Date deadLine = checkAndReturnDeadline(deadLineParam, result);
 
-    if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && (existingActionPlan == null || !name.equals(existingActionPlan.name()))
-      && actionPlanService.isNameAlreadyUsedForProject(name, projectParam)) {
+    // TODO move this check in the service, on creation and update
+    if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && isActionPlanNameAvailable(existingActionPlan, name, projectParam)) {
       result.addError(Result.Message.ofL10n("action_plans.same_name_in_same_project"));
     }
 
@@ -326,9 +338,13 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
+  private boolean isActionPlanNameAvailable(@Nullable DefaultActionPlan existingActionPlan, String name, String projectParam){
+    return (existingActionPlan == null || !name.equals(existingActionPlan.name())) && actionPlanService.isNameAlreadyUsedForProject(name, projectParam);
+  }
+
   private void checkProject(String projectParam, Result<ActionPlan> result) {
     if (Strings.isNullOrEmpty(projectParam)) {
-      result.addError(Result.Message.ofL10n("errors.cant_be_empty", "project"));
+      result.addError(Result.Message.ofL10n(ERRORS_CANT_BE_EMPTY_MESSAGE, PROJECT_PARAM));
     } else {
       ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
       if (project == null) {
@@ -356,7 +372,7 @@ public class InternalRubyIssueService implements ServerComponent {
   private Result<ActionPlan> createResultForExistingActionPlan(String actionPlanKey) {
     Result<ActionPlan> result = Result.of();
     if (findActionPlan(actionPlanKey) == null) {
-      result.addError(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", actionPlanKey));
+      result.addError(Result.Message.ofL10n(ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE, actionPlanKey));
     }
     return result;
   }
@@ -523,7 +539,7 @@ public class InternalRubyIssueService implements ServerComponent {
     String name = params.get(NAME_PARAM);
     String description = params.get(DESCRIPTION_PARAM);
     String data = params.get("data");
-    String user = params.get("user");
+    String user = params.get(USER_PARAM);
     Boolean sharedParam = RubyUtils.toBoolean(params.get("shared"));
     boolean shared = sharedParam != null ? sharedParam : false;
 
@@ -531,7 +547,7 @@ public class InternalRubyIssueService implements ServerComponent {
       checkMandatoryParameter(id, ID_PARAM);
     }
     if (checkUser) {
-      checkMandatoryParameter(user, "user");
+      checkMandatoryParameter(user, USER_PARAM);
     }
     checkMandatorySizeParameter(name, NAME_PARAM, 100);
     checkOptionalSizeParameter(description, DESCRIPTION_PARAM, 4000);
@@ -569,39 +585,39 @@ public class InternalRubyIssueService implements ServerComponent {
 
   private void checkMandatoryParameter(String value, String paramName, Result result) {
     if (Strings.isNullOrEmpty(value)) {
-      result.addError(Result.Message.ofL10n("errors.cant_be_empty", paramName));
+      result.addError(Result.Message.ofL10n(ERRORS_CANT_BE_EMPTY_MESSAGE, paramName));
     }
   }
 
   private void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result) {
     checkMandatoryParameter(value, paramName, result);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
+      result.addError(Result.Message.ofL10n(ERRORS_IS_TOO_LONG_MESSAGE, paramName, size));
     }
   }
 
   private void checkOptionalSizeParameter(String value, String paramName, Integer size, Result result) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      result.addError(Result.Message.ofL10n("errors.is_too_long", paramName, size));
+      result.addError(Result.Message.ofL10n(ERRORS_IS_TOO_LONG_MESSAGE, paramName, size));
     }
   }
 
   private void checkMandatoryParameter(String value, String paramName) {
     if (Strings.isNullOrEmpty(value)) {
-      throw BadRequestException.ofL10n("errors.cant_be_empty", paramName);
+      throw BadRequestException.ofL10n(ERRORS_CANT_BE_EMPTY_MESSAGE, paramName);
     }
   }
 
   private void checkMandatorySizeParameter(String value, String paramName, Integer size) {
     checkMandatoryParameter(value, paramName);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw BadRequestException.ofL10n("errors.is_too_long", paramName, size);
+      throw BadRequestException.ofL10n(ERRORS_IS_TOO_LONG_MESSAGE, paramName, size);
     }
   }
 
   private void checkOptionalSizeParameter(String value, String paramName, Integer size) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw BadRequestException.ofL10n("errors.is_too_long", paramName, size);
+      throw BadRequestException.ofL10n(ERRORS_IS_TOO_LONG_MESSAGE, paramName, size);
     }
   }
 

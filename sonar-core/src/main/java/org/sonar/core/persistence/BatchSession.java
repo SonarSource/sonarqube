@@ -123,7 +123,7 @@ public final class BatchSession implements SqlSession {
       if (null != mappedStatement) {
         KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
         if (keyGenerator instanceof Jdbc3KeyGenerator) {
-          throw new IllegalStateException("Batch updates cannot use generated keys");
+          throw new IllegalStateException("Batch inserts cannot use generated keys");
         }
       }
     }

@@ -25,7 +25,7 @@ function autocompleteResources() {
   $('searchInput').value = '';
   new Ajax.Autocompleter('searchInput', 'searchResourcesResults', baseUrl + '/search', {
     method: 'post',
-    minChars: 3,
+    minChars: 2,
     indicator: 'searchingResources',
     paramName: 's',
     updateElement: function (item) {
@@ -201,8 +201,15 @@ Treemap.prototype.load = function () {
     url: baseUrl + '/treemap/index?html_id=' + this.id + '&size_metric=' + this.sizeMetric + '&color_metric=' + this.colorMetric + '&resource=' + context.rid,
     dataType: "html",
     success: function (data) {
-      self.rootNode().html(data);
-      self.initNodes();
+      if (data.length > 1) {
+        self.rootNode().html(data);
+        self.initNodes();
+      } else {
+        // SONAR-3524
+        // When data is empty, do not display it, revert breadcrumb state and display a message to user
+        self.breadcrumb.pop();
+        $j("#tm-bottom-level-reached-msg-" + self.id).show();
+      }
       $j("#tm-loading-" + self.id).hide();
     }
   });
@@ -222,6 +229,7 @@ Treemap.prototype.initNodes = function () {
     $j(this).on("contextmenu", function (event) {
       event.stopPropagation();
       event.preventDefault();
+      $j("#tm-bottom-level-reached-msg-" + self.id).hide();
       // right click
       if (self.breadcrumb.length > 1) {
         self.breadcrumb.pop();
@@ -235,13 +243,9 @@ Treemap.prototype.initNodes = function () {
     $j(this).on("click", function (event) {
         var source = $j(this);
         var rid = source.attr('rid');
-        var has_leaves = !!(source.attr('l'));
-        if (!has_leaves) {
-          var context = new TreemapContext(rid, source.text());
-          self.breadcrumb.push(context);
-          self.load();
-        }
-
+        var context = new TreemapContext(rid, source.text());
+        self.breadcrumb.push(context);
+        self.load();
       }
     );
   });
@@ -320,8 +324,8 @@ function openModalWindow(url, options) {
                 $j('input[type=submit]', obj).removeAttr('disabled');
                 errorElt.show();
                 errorElt.html(xhr.responseText);
-                // otherwise replace modal window by the returned text
               } else {
+                // otherwise replace modal window by the returned text
                 $j("#modal").html(xhr.responseText);
               }
             }
@@ -395,6 +399,9 @@ function openAccordionItem(url, elt, updateCurrentElement) {
           }
         } else {
           $j("#accordion-panel").height('auto');
+
+          // Current element is not in a working view, remove again all working views to purge elements that could be added just before this one
+          $j('.'+ htmlClass).remove();
         }
 
         if (updateCurrentElement) {

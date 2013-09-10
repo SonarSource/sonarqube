@@ -39,7 +39,7 @@ class ComparisonController < ApplicationController
       # the request comes from the comparison page: let's compare the given snapshots
       sids = get_params_as_array(:sids)
       unless sids.empty?
-        selected_snapshots = Snapshot.find(:all, :conditions => ['id in (?)', sids])
+        selected_snapshots = Snapshot.all(:conditions => ['id in (?)', sids])
         # next loop is required to keep the order that was decided by the user and which comes from the "sids" parameter
         sids.each do |id|
           selected_snapshots.each do |s|

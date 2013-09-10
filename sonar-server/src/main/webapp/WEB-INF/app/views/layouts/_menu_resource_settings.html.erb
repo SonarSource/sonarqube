@@ -19,29 +19,23 @@
       <% if (is_admin && @project.project?) %>
          <li><a href="<%= ApplicationController.root_context -%>/project/links/<%= @project.id -%>"><%= message('project_links.page') -%></a></li>
       <% end %>
-      <%
-         # NOTE: we keep "@project.view?" in the test for backward compatibility with the Views plugin
-         if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') || @project.view?)
-      %>
-      <li><a href="<%= ApplicationController.root_context -%>/project_roles/index/<%= @project.id -%>"><%= message('roles.page') -%></a></li>
+      <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') %>
+      <li><a href="<%= ApplicationController.root_context -%>/project_roles/index/<%= @project.id -%>"><%= message('permissions.page') -%></a></li>
       <% end %>
-      <%
-         # NOTE: we keep "@project.view?" in the test for backward compatibility with the Views plugin
-         if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') || @project.view?)
-      %>
+      <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') %>
         <li><a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
       <% end %>
       <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key') %>
         <li><a href="<%= ApplicationController.root_context -%>/project/key/<%= @project.id -%>"><%= message('update_key.page') -%></a></li>
       <% end %>
       <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable') %>
-        <li><a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('resource_deletion.page', :params => message('qualifier.' + @project.qualifier)) -%></a></li>
+        <li><a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('deletion.page') -%></a></li>
       <% end %>
       <% if is_admin
           controller.java_facade.getPages(Navigation::SECTION_RESOURCE_CONFIGURATION, @project.scope, @project.qualifier, @project.language, nil).each do |page|
             page_url = "#{page.getId()}?resource=#{@project.id}"
       %>
-        <li><a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
+        <li><a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= h message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
       <%   end
          end %>
     </ul>

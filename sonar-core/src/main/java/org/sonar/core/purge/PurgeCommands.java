@@ -158,7 +158,8 @@ class PurgeCommands {
     deleteSnapshots(purgeMapper.selectSnapshotIds(query));
   }
 
-  private void deleteSnapshots(final List<Long> snapshotIds) {
+  @VisibleForTesting
+  protected void deleteSnapshots(final List<Long> snapshotIds) {
 
     List<List<Long>> snapshotIdsPartition = Lists.partition(snapshotIds, MAX_SNAPSHOTS_PER_QUERY);
 
@@ -205,7 +206,8 @@ class PurgeCommands {
     purgeSnapshots(purgeMapper.selectSnapshotIds(query));
   }
 
-  private void purgeSnapshots(final List<Long> snapshotIds) {
+  @VisibleForTesting
+  protected void purgeSnapshots(final List<Long> snapshotIds) {
     // note that events are not deleted
     List<List<Long>> snapshotIdsPartition = Lists.partition(snapshotIds, MAX_SNAPSHOTS_PER_QUERY);
 
@@ -289,7 +291,11 @@ class PurgeCommands {
   private void deleteSnapshotDependencies(final List<List<Long>> snapshotIdsPartition) {
     profiler.start("deleteSnapshotDependencies (dependencies)");
     for (List<Long> partSnapshotIds : snapshotIdsPartition) {
-      purgeMapper.deleteSnapshotDependencies(partSnapshotIds);
+      // SONAR-4586
+      // On MsSQL, the maximum number of parameters allowed in a query is 2000, so we have to execute 3 queries instead of one with 3 or inside
+      purgeMapper.deleteSnapshotDependenciesFromSnapshotId(partSnapshotIds);
+      purgeMapper.deleteSnapshotDependenciesToSnapshotId(partSnapshotIds);
+      purgeMapper.deleteSnapshotDependenciesProjectSnapshotId(partSnapshotIds);
     }
     session.commit();
     profiler.stop();

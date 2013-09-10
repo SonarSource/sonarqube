@@ -56,7 +56,7 @@ class Sonar::RulePriority
   def self.id(priority)
     begin
       javaPriority=Java::OrgSonarApiRules::RulePriority.valueOf(priority)
-      javaPriority ? javaPriority.ordinal : nil
+      javaPriority && javaPriority.ordinal
     rescue
       nil
     end

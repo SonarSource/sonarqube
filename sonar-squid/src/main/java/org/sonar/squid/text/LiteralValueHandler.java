@@ -55,6 +55,7 @@ public class LiteralValueHandler extends LineContextHandler {
 
   @Override
   boolean matchWithEndOfLine(Line line, StringBuilder pendingLine) {
-    return true; //see http://jira.codehaus.org/browse/SONAR-1555
+    //see http://jira.codehaus.org/browse/SONAR-1555
+    return true;
   }
 }

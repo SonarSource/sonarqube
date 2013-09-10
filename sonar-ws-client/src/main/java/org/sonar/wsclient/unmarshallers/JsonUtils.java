@@ -111,7 +111,7 @@ public final class JsonUtils {
         return dateFormat.parse(value);
 
       } catch (ParseException e) {
-        throw new RuntimeException(e);
+        throw new IllegalArgumentException("Fail to parse date property '" + field + "': " + format, e);
       }
     }
     return null;

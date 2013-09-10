@@ -20,7 +20,7 @@
 package org.sonar.server.platform;
 
 import org.junit.Test;
-import org.sonar.core.persistence.BadDatabaseVersion;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.DatabaseVersion;
 
 import static org.mockito.Mockito.mock;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 public class DatabaseServerCompatibilityTest {
 
-  @Test(expected = BadDatabaseVersion.class)
+  @Test(expected = MessageException.class)
   public void shouldFailIfRequiresDowngrade() {
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_DOWNGRADE);

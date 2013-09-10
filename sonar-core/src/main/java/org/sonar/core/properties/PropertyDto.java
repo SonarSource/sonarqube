@@ -19,6 +19,8 @@
  */
 package org.sonar.core.properties;
 
+import com.google.common.base.Objects;
+
 public final class PropertyDto {
   private Long id;
   private String key;
@@ -69,5 +71,36 @@ public final class PropertyDto {
   public PropertyDto setUserId(Long userId) {
     this.userId = userId;
     return this;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final PropertyDto other = (PropertyDto) obj;
+
+    return Objects.equal(this.key, other.key)
+      && Objects.equal(this.value, other.value)
+      && Objects.equal(this.userId, other.userId)
+      && Objects.equal(this.resourceId, other.resourceId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(this.key, this.value, this.resourceId, this.userId);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+      .addValue(this.key)
+      .addValue(this.value)
+      .addValue(this.resourceId)
+      .addValue(this.userId)
+      .toString();
   }
 }

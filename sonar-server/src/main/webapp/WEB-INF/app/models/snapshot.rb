@@ -161,7 +161,7 @@ class Snapshot < ActiveRecord::Base
 
   def f_measure(metric)
     m=measure(metric)
-    m ? m.formatted_value : nil
+    m && m.formatted_value
   end
 
   def rule_measures(metrics=nil, rule=nil)

@@ -4,20 +4,30 @@
 <%
    treemap_id = widget_id.nil? ? 1 : widget_id
    unless edit_mode
+    colspan = 1
 %>
   <table class="spaced">
     <tr>
       <% if filter.display.size_metric %>
         <td class="thin nowrap"><span class="note"><%= message('size') -%>: <b><%= filter.display.size_metric.short_name -%></b></span></td>
-      <% end %>
+      <%
+         colspan += 1
+         end %>
       <% if filter.display.color_metric %>
         <td class="thin nowrap">
           <span class="note"><%= message('color') -%>
             : <b><%= filter.display.color_metric.short_name -%></b> <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %></span>
         </td>
-      <% end %>
+      <%
+         colspan += 1
+         end %>
       <td>
         <%= image_tag 'loading-small.gif', :id => "tm-loading-#{treemap_id}", :style => 'display:none' -%>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="<%= colspan.to_s %>">
+        <span id="tm-bottom-level-reached-msg-<%= treemap_id %>" class="note" style="display:none;"><%= message('treemap.bootom_level_reached') -%></span>
       </td>
     </tr>
   </table>
@@ -43,7 +53,7 @@
         <%= metric_select_tag 'tmColor', Metric.all.select { |m| m.treemap_color? },
                               :html_id => 'select-tm-color',
                               :allow_empty => false,
-                              :selected_key => (filter.display.color_metric ? filter.display.color_metric.key : nil) -%>
+                              :selected_key => (filter.display.color_metric && filter.display.color_metric.key) -%>
 
         <button id="update-treemap"><%= message 'refresh' -%></button>
       </td>

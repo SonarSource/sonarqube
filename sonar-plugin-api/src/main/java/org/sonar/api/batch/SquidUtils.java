@@ -25,14 +25,16 @@ import org.sonar.api.resources.JavaPackage;
 
 public final class SquidUtils {
 
+  private static final String JAVA_FILE_SUFFIX = ".java";
+
   private SquidUtils() {
     // only static methods
   }
 
   public static JavaFile convertJavaFileKeyFromSquidFormat(String key) {
-    boolean isJavaFile = key.endsWith(".java");
+    boolean isJavaFile = key.endsWith(JAVA_FILE_SUFFIX);
     if (isJavaFile) {
-      key = key.substring(0, key.length() - ".java".length());
+      key = key.substring(0, key.length() - JAVA_FILE_SUFFIX.length());
     }
 
     String convertedKey = key.replace('/', '.');
@@ -53,11 +55,11 @@ public final class SquidUtils {
 
   public static String convertToSquidKeyFormat(JavaFile file) {
     String key = file.getKey();
-    if (file.getParent()==null || file.getParent().isDefault()) {
+    if (file.getParent() == null || file.getParent().isDefault()) {
       key = StringUtils.substringAfterLast(file.getKey(), ".");
     } else {
       key = StringUtils.replace(key, ".", "/");
     }
-    return  key + ".java";
+    return key + JAVA_FILE_SUFFIX;
   }
 }

@@ -72,7 +72,7 @@
        link_params[:period] = params[:period]
     %>
     <%= paginate_java(paging, :colspan => 3, :id => "issue-filter-foot-#{widget_id}", :include_loading_icon => true,
-                      :url_results => url_for({:controller => 'issues', :action => 'search' }.merge(search_options)) ) { |label, page_id|
+                      :url_results => url_for(search_options.merge({:controller => 'issues', :action => 'search' }).except('pageSize', 'pageIndex', 'table_limit', 'widget_id')) ) { |label, page_id|
       link_to_remote(label,
                      :update => "issues-widget-#{widget_id}",
                      :url => link_params.merge({:pageIndex => page_id}))

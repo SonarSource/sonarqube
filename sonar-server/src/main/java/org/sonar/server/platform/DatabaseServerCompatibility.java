@@ -21,7 +21,7 @@ package org.sonar.server.platform;
 
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.BadDatabaseVersion;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.DatabaseVersion;
 
 public class DatabaseServerCompatibility implements ServerComponent {
@@ -35,7 +35,7 @@ public class DatabaseServerCompatibility implements ServerComponent {
   public void start() {
     DatabaseVersion.Status status = version.getStatus();
     if (status== DatabaseVersion.Status.REQUIRES_DOWNGRADE) {
-      throw new BadDatabaseVersion("Database relates to a more recent version of sonar. Please check your settings.");
+      throw MessageException.of("Database relates to a more recent version of sonar. Please check your settings.");
     }
     if (status== DatabaseVersion.Status.REQUIRES_UPGRADE) {
       LoggerFactory.getLogger(DatabaseServerCompatibility.class).info("Database must be upgraded. Please browse /setup");

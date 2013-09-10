@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -112,7 +113,8 @@ public final class ClassLoaderUtils {
         if (StringUtils.substringAfterLast(rootPath, "/").indexOf('.') >= 0) {
           rootDirectory = StringUtils.substringBeforeLast(rootPath, "/");
         }
-        jarPath = root.getPath().substring(5, root.getPath().indexOf("!")); //strip out only the JAR file
+        //strip out only the JAR file
+        jarPath = root.getPath().substring(5, root.getPath().indexOf("!"));
         jar = new JarFile(URLDecoder.decode(jarPath, CharEncoding.UTF_8));
         Enumeration<JarEntry> entries = jar.entries();
         while (entries.hasMoreElements()) {

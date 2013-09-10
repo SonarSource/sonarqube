@@ -134,13 +134,13 @@ public class ActionPlanServiceTest {
 
     IssueDto issueDto = new IssueDto().setId(100L).setStatus(Issue.STATUS_OPEN).setRuleKey_unit_test_only("squid", "s100");
     when(issueDao.selectIssues(any(IssueQuery.class))).thenReturn(newArrayList(issueDto));
-    when(issueUpdater.plan(any(DefaultIssue.class), eq((String) null), any(IssueChangeContext.class))).thenReturn(true);
+    when(issueUpdater.plan(any(DefaultIssue.class), eq((ActionPlan) null), any(IssueChangeContext.class))).thenReturn(true);
 
     ArgumentCaptor<DefaultIssue> captor = ArgumentCaptor.forClass(DefaultIssue.class);
     actionPlanService.delete("ABCD", userSession);
     verify(actionPlanDao).delete("ABCD");
     verify(authorizationDao).isAuthorizedComponentId(anyLong(), anyInt(), eq(UserRole.ADMIN));
-    verify(issueUpdater).plan(captor.capture(), eq((String) null), any(IssueChangeContext.class));
+    verify(issueUpdater).plan(captor.capture(), eq((ActionPlan) null), any(IssueChangeContext.class));
     verify(issueStorage).save(newArrayList(captor.getAllValues()));
   }
 

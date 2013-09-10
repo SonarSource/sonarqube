@@ -49,7 +49,7 @@ module PropertiesHelper
         text_area_tag name, value, {:class => html_class, :rows => '5', :cols => cols}.update(html_options)
 
       when PropertyType::TYPE_PASSWORD
-        password_field_tag name, value, {:size => options[:size] || 50}.update(html_options)
+        password_field_tag name, value, {:size => options[:size] || 50, :autocomplete => 'off'}.update(html_options)
 
       when PropertyType::TYPE_BOOLEAN
         select_options = "<option value='' #{ 'selected' if value.blank? }>#{ message('default') }</option>"

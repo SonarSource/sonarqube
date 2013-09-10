@@ -24,13 +24,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.TimeMachine;
-import org.sonar.api.batch.TimeMachineQuery;
+import org.sonar.api.batch.*;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
@@ -81,7 +75,8 @@ public class TendencyDecorator implements Decorator {
   protected TimeMachineQuery initQuery(Project project) {
     int days = configuration.getTendencyPeriodInDays();
 
-    query = new TimeMachineQuery(null) // resource is set after
+    // resource is set after
+    query = new TimeMachineQuery(null)
         .setFrom(DateUtils.addDays(project.getAnalysisDate(), -days))
         .setToCurrentAnalysis(true)
         .setMetrics(metrics);

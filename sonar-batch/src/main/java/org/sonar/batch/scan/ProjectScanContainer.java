@@ -33,6 +33,7 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
+import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -98,7 +99,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
       if (bootstrapper == null) {
         // Use default SonarRunner project bootstrapper
-        Settings settings = getComponentByType(Settings.class);
+        BootstrapSettings settings = getComponentByType(BootstrapSettings.class);
         bootstrapper = new DefaultProjectBootstrapper(settings);
       }
       reactor = bootstrapper.bootstrap();
@@ -111,51 +112,51 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addBatchComponents() {
     add(
-        DefaultResourceCreationLock.class,
-        DefaultPersistenceManager.class,
-        DependencyPersister.class,
-        EventPersister.class,
-        LinkPersister.class,
-        MeasurePersister.class,
-        MemoryOptimizer.class,
-        DefaultResourcePersister.class,
-        SourcePersister.class,
-        DefaultNotificationManager.class,
-        MetricProvider.class,
-        ProjectConfigurator.class,
-        DefaultIndex.class,
-        DefaultFileLinesContextFactory.class,
-        ProjectLock.class,
-        LastSnapshots.class,
-        Caches.class,
-        SnapshotCache.class,
-        ResourceCache.class,
-        ComponentDataCache.class,
-        ComponentDataPersister.class,
+      DefaultResourceCreationLock.class,
+      DefaultPersistenceManager.class,
+      DependencyPersister.class,
+      EventPersister.class,
+      LinkPersister.class,
+      MeasurePersister.class,
+      MemoryOptimizer.class,
+      DefaultResourcePersister.class,
+      SourcePersister.class,
+      DefaultNotificationManager.class,
+      MetricProvider.class,
+      ProjectConfigurator.class,
+      DefaultIndex.class,
+      DefaultFileLinesContextFactory.class,
+      ProjectLock.class,
+      LastSnapshots.class,
+      Caches.class,
+      SnapshotCache.class,
+      ResourceCache.class,
+      ComponentDataCache.class,
+      ComponentDataPersister.class,
 
-        // issues
-        IssueUpdater.class,
-        FunctionExecutor.class,
-        IssueWorkflow.class,
-        DeprecatedViolations.class,
-        IssueCache.class,
-        ScanIssueStorage.class,
-        IssuePersister.class,
-        IssueNotifications.class,
+      // issues
+      IssueUpdater.class,
+      FunctionExecutor.class,
+      IssueWorkflow.class,
+      DeprecatedViolations.class,
+      IssueCache.class,
+      ScanIssueStorage.class,
+      IssuePersister.class,
+      IssueNotifications.class,
 
-        // tests
-        TestPlanPerspectiveLoader.class,
-        TestablePerspectiveLoader.class,
-        TestPlanBuilder.class,
-        TestableBuilder.class,
-        ScanGraph.create(),
-        GraphPersister.class,
+      // tests
+      TestPlanPerspectiveLoader.class,
+      TestablePerspectiveLoader.class,
+      TestPlanBuilder.class,
+      TestableBuilder.class,
+      ScanGraph.create(),
+      GraphPersister.class,
 
-        // lang
-        HighlightableBuilder.class,
-        SymbolizableBuilder.class,
+      // lang
+      HighlightableBuilder.class,
+      SymbolizableBuilder.class,
 
-        ProjectSettingsReady.class);
+      ProjectSettingsReady.class);
   }
 
   private void fixMavenExecutor() {

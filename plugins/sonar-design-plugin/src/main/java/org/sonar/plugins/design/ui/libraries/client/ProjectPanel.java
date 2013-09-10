@@ -108,7 +108,7 @@ public class ProjectPanel extends FlowPanel {
   }
 
   public void filter() {
-    boolean visible = (tree.getItemCount() == 0 && !filters.hasKeyword());
+    boolean visible = tree.getItemCount() == 0 && !filters.hasKeyword();
     for (int index = 0; index < tree.getItemCount(); index++) {
       Library lib = (Library) tree.getItem(index);
       visible |= !lib.filter(filters.getKeywordFilter().getKeyword(), filters.isTestFiltered());

@@ -50,7 +50,7 @@ class ProjectMeasure < ActiveRecord::Base
 
   def data
     if metric.data?
-      text_value || (measure_data ? measure_data.data : nil)
+      text_value || (measure_data && measure_data.data)
     else
       text_value
     end
@@ -186,13 +186,13 @@ class ProjectMeasure < ActiveRecord::Base
   def typed_value
     case metric().val_type
     when Metric::VALUE_TYPE_INT
-      (value ? value.to_i : nil)
+      (value && value.to_i)
     when Metric::VALUE_TYPE_FLOAT
-      (value ? value.to_f : nil)
+      (value && value.to_f)
     when Metric::VALUE_TYPE_PERCENT
-      (value ? value.to_f : nil)
+      (value && value.to_f)
     when Metric::VALUE_TYPE_MILLISEC
-      (value ? value.to_i : nil)
+      (value && value.to_i)
     when Metric::VALUE_TYPE_BOOLEAN
       value
     when Metric::VALUE_TYPE_LEVEL
@@ -200,9 +200,9 @@ class ProjectMeasure < ActiveRecord::Base
     when Metric::VALUE_TYPE_STRING
       text_value
     when Metric::VALUE_TYPE_RATING
-      text_value || (value ? value.to_i : nil)
+      text_value || (value && value.to_i)
     else
-      text_value || (value ? value.to_i : nil)
+      text_value || (value && value.to_i)
     end
   end
 

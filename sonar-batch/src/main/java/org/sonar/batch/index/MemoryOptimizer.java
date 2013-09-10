@@ -71,11 +71,11 @@ public class MemoryOptimizer implements SensorExecutionHandler, DecoratorExecuti
       Integer dataId = dataIdByMeasureId.get(measure.getId());
       MeasureData data = session.getSingleResult(MeasureData.class, "id", dataId);
       if (data == null) {
-        LoggerFactory.getLogger(getClass()).error("The MEASURE_DATA row with id " + dataId + " is lost");
+        LOG.error("The MEASURE_DATA row with id {} is lost", dataId);
 
       } else {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Reload the data measure: " + measure.getMetricKey() + ", id=" + measure.getId());
+          LOG.debug("Reload the data measure: {}, id={}", measure.getMetricKey(), measure.getId());
         }
         measure.setData(data.getText());
         loadedMeasures.add(measure);
@@ -86,7 +86,7 @@ public class MemoryOptimizer implements SensorExecutionHandler, DecoratorExecuti
 
   public void flushMemory() {
     if (LOG.isDebugEnabled() && !loadedMeasures.isEmpty()) {
-      LOG.debug("Flush " + loadedMeasures.size() + " data measures from memory: ");
+      LOG.debug("Flush {} data measures from memory: ", loadedMeasures.size());
     }
     for (Measure measure : loadedMeasures) {
       measure.unsetData();

@@ -115,8 +115,7 @@ public class MeasureFilterCondition {
     sql.append(" ").append(operator.getSql()).append(" ");
     if (textValue == null) {
       sql.append(value);
-    }
-    else {
+    } else {
       sql.append(textValue);
     }
     sql.append(" AND ");

@@ -57,7 +57,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
 
     EmailMessage message = new EmailMessage()
       .setMessageId("new-issues/" + notification.getFieldValue("projectKey"))
-      .setSubject("Project " + projectName + ", new issues")
+      .setSubject(projectName + ": new issues")
       .setMessage(sb.toString());
 
     return message;
@@ -78,7 +78,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     try {
       return URLEncoder.encode(toEncode, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException(e);
+      throw new IllegalStateException("Encoding not supported", e);
     }
   }
 

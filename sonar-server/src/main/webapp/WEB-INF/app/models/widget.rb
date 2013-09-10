@@ -45,9 +45,9 @@ class Widget < ActiveRecord::Base
     prop=property(property_key)
     if default_value && property_key=='depth'
       # we're in SQALE.... Keep the text_value
-      result = (prop ? prop.text_value : nil)||default_value
+      result = (prop && prop.text_value)||default_value
     else
-      result = (prop ? prop.value : nil)
+      result = (prop && prop.value)
       unless result
         property_definition=java_definition.getWidgetProperty(property_key)
         result = WidgetProperty.text_to_value(property_definition.defaultValue(), property_definition.type().name()) if property_definition
@@ -58,7 +58,7 @@ class Widget < ActiveRecord::Base
 
   def property_text_value(key)
       prop=property(key)
-      prop ? prop.text_value : nil
+      prop && prop.text_value
     end
 
   def properties_as_hash

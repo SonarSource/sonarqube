@@ -19,14 +19,16 @@
  */
 package org.sonar.core.issue.workflow;
 
+import org.sonar.api.user.User;
+
 import javax.annotation.Nullable;
 
 public class SetAssignee implements Function {
   public static final SetAssignee UNASSIGN = new SetAssignee(null);
 
-  private final String assignee;
+  private final User assignee;
 
-  public SetAssignee(@Nullable String assignee) {
+  public SetAssignee(@Nullable User assignee) {
     this.assignee = assignee;
   }
 

@@ -201,18 +201,46 @@ public class ResourceDao {
     }
   }
 
-  public List<Component> selectComponentsByQualifiers(Collection<String> qualifiers) {
+  public List<Component> selectProjectsByQualifiers(Collection<String> qualifiers) {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
     SqlSession session = mybatis.openSession();
     try {
-      List<ResourceDto> resourceDtos = session.getMapper(ResourceMapper.class).selectComponentsByQualifiers(qualifiers);
-      List<Component> components = newArrayList();
-      for (ResourceDto resourceDto : resourceDtos) {
-        components.add(toComponent(resourceDto));
-      }
-      return components;
+      return toComponents(session.getMapper(ResourceMapper.class).selectProjectsByQualifiers(qualifiers));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  /**
+   * Return enabled projects including not completed ones, ie without snapshots or without snapshot having islast=true
+   */
+  public List<Component> selectProjectsIncludingNotCompletedOnesByQualifiers(Collection<String> qualifiers) {
+    if (qualifiers.isEmpty()) {
+      return Collections.emptyList();
+    }
+    SqlSession session = mybatis.openSession();
+    try {
+      return toComponents(session.getMapper(ResourceMapper.class).selectProjectsIncludingNotCompletedOnesByQualifiers(qualifiers));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  /**
+   * Return ghosts projects :
+   * - not enabled projects
+   * - enabled projects without snapshot having islast=true
+   * - enabled projects without snapshot
+   */
+  public List<Component> selectGhostsProjects(Collection<String> qualifiers) {
+    if (qualifiers.isEmpty()) {
+      return Collections.emptyList();
+    }
+    SqlSession session = mybatis.openSession();
+    try {
+      return toComponents(session.getMapper(ResourceMapper.class).selectGhostsProjects(qualifiers));
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -227,10 +255,10 @@ public class ResourceDao {
       .setQualifier(resourceDto.getQualifier());
   }
 
-  public static List<ComponentDto> toComponents(List<ResourceDto> resourceDto){
-    return newArrayList(Iterables.transform(resourceDto, new Function<ResourceDto, ComponentDto>() {
+  public static List<Component> toComponents(List<ResourceDto> resourceDto){
+    return newArrayList(Iterables.transform(resourceDto, new Function<ResourceDto, Component>() {
       @Override
-      public ComponentDto apply(@Nullable ResourceDto resourceDto) {
+      public Component apply(@Nullable ResourceDto resourceDto) {
         return resourceDto == null ? null : toComponent(resourceDto);
       }
     }));

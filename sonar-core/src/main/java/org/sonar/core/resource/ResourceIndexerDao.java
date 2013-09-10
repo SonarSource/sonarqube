@@ -29,7 +29,9 @@ import org.sonar.core.persistence.MyBatis;
 
 public class ResourceIndexerDao {
 
+  private static final String SELECT_RESOURCES = "org.sonar.core.resource.ResourceIndexerMapper.selectResources";
   public static final int MINIMUM_KEY_SIZE = 3;
+  public static final int SINGLE_INDEX_SIZE = 2;
 
   // The scopes and qualifiers that are not in the following constants are not indexed at all.
   // Directories and packages are explicitly excluded.
@@ -84,12 +86,12 @@ public class ResourceIndexerDao {
   private void doIndexProject(int rootProjectId, SqlSession session, final ResourceIndexerMapper mapper) {
     // non indexed resources
     ResourceIndexerQuery query = ResourceIndexerQuery.create()
-        .setNonIndexedOnly(true)
-        .setQualifiers(NOT_RENAMABLE_QUALIFIERS)
-        .setScopes(NOT_RENAMABLE_SCOPES)
-        .setRootProjectId(rootProjectId);
+      .setNonIndexedOnly(true)
+      .setQualifiers(NOT_RENAMABLE_QUALIFIERS)
+      .setScopes(NOT_RENAMABLE_SCOPES)
+      .setRootProjectId(rootProjectId);
 
-    session.select("org.sonar.core.resource.ResourceIndexerMapper.selectResources", query, new ResultHandler() {
+    session.select(SELECT_RESOURCES, query, new ResultHandler() {
       public void handleResult(ResultContext context) {
         ResourceDto resource = (ResourceDto) context.getResultObject();
         doIndex(resource, mapper);
@@ -99,12 +101,12 @@ public class ResourceIndexerDao {
     // some resources can be renamed, so index must be regenerated
     // -> delete existing rows and create them again
     query = ResourceIndexerQuery.create()
-        .setNonIndexedOnly(false)
-        .setQualifiers(RENAMABLE_QUALIFIERS)
-        .setScopes(RENAMABLE_SCOPES)
-        .setRootProjectId(rootProjectId);
+      .setNonIndexedOnly(false)
+      .setQualifiers(RENAMABLE_QUALIFIERS)
+      .setScopes(RENAMABLE_SCOPES)
+      .setRootProjectId(rootProjectId);
 
-    session.select("org.sonar.core.resource.ResourceIndexerMapper.selectResources", query, new ResultHandler() {
+    session.select(SELECT_RESOURCES, query, new ResultHandler() {
       public void handleResult(ResultContext context) {
         ResourceDto resource = (ResourceDto) context.getResultObject();
 
@@ -114,21 +116,10 @@ public class ResourceIndexerDao {
     });
   }
 
-
   void doIndex(ResourceDto resource, ResourceIndexerMapper mapper) {
     String key = nameToKey(resource.getName());
-    if (key.length() >= MINIMUM_KEY_SIZE) {
-      ResourceIndexDto dto = new ResourceIndexDto()
-          .setResourceId(resource.getId())
-          .setQualifier(resource.getQualifier())
-          .setRootProjectId(resource.getRootId())
-          .setNameSize(resource.getName().length());
-
-      for (int position = 0; position <= key.length() - MINIMUM_KEY_SIZE; position++) {
-        dto.setPosition(position);
-        dto.setKey(StringUtils.substring(key, position));
-        mapper.insert(dto);
-      }
+    if (key.length() >= MINIMUM_KEY_SIZE || key.length() == SINGLE_INDEX_SIZE) {
+      insertIndexEntries(key, resource.getId(), resource.getQualifier(), resource.getRootId(), resource.getName().length(), mapper);
     }
   }
 
@@ -166,27 +157,31 @@ public class ResourceIndexerDao {
   private boolean indexResource(long id, String name, String qualifier, long rootId, SqlSession session, ResourceIndexerMapper mapper) {
     boolean indexed = false;
     String key = nameToKey(name);
-    if (key.length() >= MINIMUM_KEY_SIZE) {
+    if (key.length() >= MINIMUM_KEY_SIZE || key.length() == SINGLE_INDEX_SIZE) {
       indexed = true;
       boolean toBeIndexed = sanitizeIndex(id, key, mapper);
       if (toBeIndexed) {
-        ResourceIndexDto dto = new ResourceIndexDto()
-            .setResourceId(id)
-            .setQualifier(qualifier)
-            .setRootProjectId(rootId)
-            .setNameSize(name.length());
-
-        for (int position = 0; position <= key.length() - MINIMUM_KEY_SIZE; position++) {
-          dto.setPosition(position);
-          dto.setKey(StringUtils.substring(key, position));
-          mapper.insert(dto);
-        }
+        insertIndexEntries(key, id, qualifier, rootId, name.length(), mapper);
         session.commit();
       }
     }
     return indexed;
   }
 
+  private void insertIndexEntries(String key, long resourceId, String qualifier, long rootId, int nameLength, ResourceIndexerMapper mapper) {
+    ResourceIndexDto dto = new ResourceIndexDto()
+      .setResourceId(resourceId)
+      .setQualifier(qualifier)
+      .setRootProjectId(rootId)
+      .setNameSize(nameLength);
+
+    int maxPosition = key.length() == SINGLE_INDEX_SIZE ? 0 : key.length() - MINIMUM_KEY_SIZE;
+    for (int position = 0; position <= maxPosition; position++) {
+      dto.setPosition(position);
+      dto.setKey(StringUtils.substring(key, position));
+      mapper.insert(dto);
+    }
+  }
 
   /**
    * Return true if the resource must be indexed, false if the resource is already indexed.

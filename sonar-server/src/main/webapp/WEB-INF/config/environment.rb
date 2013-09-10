@@ -129,29 +129,22 @@ class ActiveRecord::Migration
 
   # SONAR-4178
   def self.create_table(table_name, options = {})
+    # Oracle constraint (see names of triggers and indices)
+    raise ArgumentError, "Table name is too long: #{table_name}" if table_name.to_s.length>25
+
     super(table_name, options)
-    case dialect()
-      when "oracle"
-        create_id_trigger(table_name) unless options[:id] == false
-      else
-        # Do nothing
-    end
+    create_id_trigger(table_name) if dialect()=='oracle' && options[:id] != false
   end
 
   def drop_table(table_name, options = {})
     super(table_name, options)
-    case dialect()
-      when "oracle"
-        drop_id_trigger(table_name)
-      else
-        # Do nothing
-    end
+    drop_id_trigger(table_name) if dialect()=='oracle'
   end
 
   def self.create_id_trigger(table)
       execute_ddl("create trigger for table #{table}",
 
-      %{CREATE OR REPLACE TRIGGER #{table}_id_trg
+      %{CREATE OR REPLACE TRIGGER #{table}_idt
           BEFORE INSERT ON #{table}
           FOR EACH ROW
         BEGIN
@@ -163,28 +156,18 @@ class ActiveRecord::Migration
 
 
   def self.drop_id_trigger(table)
-      execute_ddl("drop trigger for table #{table}",
+      drop_trigger("#{table}_idt")
+  end
 
-      %{DECLARE
-          e EXCEPTION;
-          PRAGMA EXCEPTION_INIT(e,-4080);
-        BEGIN
-           EXECUTE IMMEDIATE 'DROP TRIGGER #{table}_id_trg';
-        EXCEPTION
-          WHEN e THEN
-            NULL;
-        END;})
+  def self.drop_trigger(trigger_name)
+    execute_ddl("drop trigger #{trigger_name}", "DROP TRIGGER #{trigger_name}")
   end
 
   private
 
   def self.execute_ddl(message, ddl)
-    begin
-      say_with_time(message) do
-        ActiveRecord::Base.connection.execute(ddl)
-      end
-    rescue
-      # already executed
+    say_with_time(message) do
+      ActiveRecord::Base.connection.execute(ddl)
     end
   end
 end

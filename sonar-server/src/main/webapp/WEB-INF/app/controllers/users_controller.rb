@@ -130,17 +130,20 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    @user = User.find(params[:id])
-
-    if current_user.id==@user.id
-      flash[:error] = 'Please log in with another user in order to delete yourself.'
-
-    else
-      Api.users.deactivate(@user.login)
+    begin
+      user = User.find(params[:id])
+      Api.users.deactivate(user.login)
       flash[:notice] = 'User is deleted.'
+    rescue NativeException => exception
+      if exception.cause.java_kind_of? Java::OrgSonarServerExceptions::HttpException
+        error = exception.cause
+        flash[:error] = (error.getMessage ? error.getMessage : Api::Utils.message(error.l10nKey, :params => error.l10nParams.to_a))
+      else
+        flash[:error] = 'Error when deleting this user.'
+      end
     end
 
-    to_index(@user.errors, nil)
+    redirect_to(:action => 'index', :id => nil)
   end
 
   def select_group

@@ -33,7 +33,6 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.core.notification.NotificationQueueElement;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,6 +51,12 @@ import java.util.concurrent.TimeUnit;
     defaultValue = "60",
     name = "Delay of notifications, in seconds",
     project = false,
+    global = false),
+  @Property(
+    key = NotificationService.PROPERTY_DELAY_BEFORE_REPORTING_STATUS,
+    defaultValue = "600",
+    name = "Delay before reporting notification status, in seconds",
+    project = false,
     global = false)
 })
 public class NotificationService implements ServerComponent {
@@ -59,10 +64,12 @@ public class NotificationService implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
 
   public static final String PROPERTY_DELAY = "sonar.notifications.delay";
+  public static final String PROPERTY_DELAY_BEFORE_REPORTING_STATUS = "sonar.notifications.runningDelayBeforeReportingStatus";
 
   private static final TimeProfiler TIME_PROFILER = new TimeProfiler(LOG).setLevelToDebug();
 
   private final long delayInSeconds;
+  private final long delayBeforeReportingStatusInSeconds;
   private final DefaultNotificationManager manager;
   private final NotificationDispatcher[] dispatchers;
 
@@ -70,10 +77,11 @@ public class NotificationService implements ServerComponent {
   private boolean stopping = false;
 
   /**
-   * Constructor for {@link NotificationService} 
+   * Constructor for {@link NotificationService}
    */
   public NotificationService(Settings settings, DefaultNotificationManager manager, NotificationDispatcher[] dispatchers) {
     delayInSeconds = settings.getLong(PROPERTY_DELAY);
+    delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
     this.manager = manager;
     this.dispatchers = dispatchers;
   }
@@ -90,7 +98,11 @@ public class NotificationService implements ServerComponent {
     executorService = Executors.newSingleThreadScheduledExecutor();
     executorService.scheduleWithFixedDelay(new Runnable() {
       public void run() {
-        processQueue();
+        try {
+          processQueue();
+        } catch (Exception e) {
+          LOG.error("Error in NotificationService", e);
+        }
       }
     }, 0, delayInSeconds, TimeUnit.SECONDS);
     LOG.info("Notification service started (delay {} sec.)", delayInSeconds);
@@ -110,17 +122,38 @@ public class NotificationService implements ServerComponent {
   @VisibleForTesting
   synchronized void processQueue() {
     TIME_PROFILER.start("Processing notifications queue");
+    long start = now();
+    long lastLog = start;
+    long notifSentCount = 0;
 
-    NotificationQueueElement queueElement = manager.getFromQueue();
-    while (queueElement != null) {
-      deliver(queueElement.getNotification());
+    Notification notifToSend = manager.getFromQueue();
+    while (notifToSend != null) {
+      deliver(notifToSend);
+      notifSentCount++;
       if (stopping) {
         break;
       }
-      queueElement = manager.getFromQueue();
+      long now = now();
+      if (now - lastLog > delayBeforeReportingStatusInSeconds * 1000) {
+        long remainingNotifCount = manager.count();
+        lastLog = now;
+        long spentTimeInMinutes = (now - start) / (60 * 1000);
+        log(notifSentCount, remainingNotifCount, spentTimeInMinutes);
+      }
+      notifToSend = manager.getFromQueue();
     }
 
     TIME_PROFILER.stop();
+  }
+
+  @VisibleForTesting
+  void log(long notifSentCount, long remainingNotifCount, long spentTimeInMinutes) {
+    LOG.info("{} notifications sent during the past {} minutes and {} still waiting to be sent", new Object[] {notifSentCount, spentTimeInMinutes, remainingNotifCount});
+  }
+
+  @VisibleForTesting
+  long now() {
+    return System.currentTimeMillis();
   }
 
   private void deliver(Notification notification) {

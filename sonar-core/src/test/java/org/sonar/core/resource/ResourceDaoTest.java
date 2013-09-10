@@ -19,6 +19,8 @@
  */
 package org.sonar.core.resource;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +29,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -311,15 +315,46 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_components_by_qualifiers(){
-    setupData("fixture", "technical-project");
+  public void should_select_projects_by_qualifiers(){
+    setupData("fixture-including-ghost-projects-and-technical-project");
 
-    List<Component> components = dao.selectComponentsByQualifiers(newArrayList("TRK"));
+    List<Component> components = dao.selectProjectsByQualifiers(newArrayList("TRK"));
     assertThat(components).hasSize(1);
     assertThat(components.get(0).key()).isEqualTo("org.struts:struts");
     assertThat(((ComponentDto)components.get(0)).getId()).isEqualTo(1L);
 
-    assertThat(dao.selectComponentsByQualifiers(newArrayList("unknown"))).isEmpty();
-    assertThat(dao.selectComponentsByQualifiers(Collections.<String>emptyList())).isEmpty();
+    assertThat(dao.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("unknown"))).isEmpty();
+    assertThat(dao.selectProjectsIncludingNotCompletedOnesByQualifiers(Collections.<String>emptyList())).isEmpty();
+  }
+
+  @Test
+  public void should_select_projects_including_not_finished_by_qualifiers(){
+    setupData("fixture-including-ghost-projects-and-technical-project");
+
+    List<Component> components = dao.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("TRK"));
+    assertThat(getKeys(components)).containsOnly("org.struts:struts", "org.apache.shindig", "org.sample:sample");
+
+    assertThat(dao.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("unknown"))).isEmpty();
+    assertThat(dao.selectProjectsIncludingNotCompletedOnesByQualifiers(Collections.<String>emptyList())).isEmpty();
+  }
+
+  @Test
+  public void should_select_ghosts_projects_by_qualifiers(){
+    setupData("fixture-including-ghost-projects-and-technical-project");
+
+    List<Component> components = dao.selectGhostsProjects(newArrayList("TRK"));
+    assertThat(getKeys(components)).containsOnly("org.apache.shindig", "org.sample:sample", "org.apache:tika");
+
+    assertThat(dao.selectGhostsProjects(newArrayList("unknown"))).isEmpty();
+    assertThat(dao.selectGhostsProjects(Collections.<String>emptyList())).isEmpty();
+  }
+
+  private List<String> getKeys(final List<Component> components){
+    return newArrayList(Iterables.transform(components, new Function<Component, String>() {
+      @Override
+      public String apply(@Nullable Component input) {
+        return input.key();
+      }
+    }));
   }
 }

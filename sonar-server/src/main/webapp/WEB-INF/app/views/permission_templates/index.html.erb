@@ -15,11 +15,20 @@
 </div>
 <table class="data width100" id="permission-templates">
   <thead>
-  <tr>
+  <tr valign="top">
     <th class="left" width="20%"><%= message('name') -%></th>
-    <th class="left"><%= message('projects_role.admin') -%></th>
-    <th class="left"><%= message('projects_role.user') -%></th>
-    <th class="left"><%= message('projects_role.codeviewer') -%></th>
+    <th class="left">
+      <%= message('projects_role.admin') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.admin.desc') -%></span>
+    </th>
+    <th class="left">
+      <%= message('projects_role.user') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.user.desc') -%></span>
+    </th>
+    <th class="left">
+      <%= message('projects_role.codeviewer') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.codeviewer.desc') -%></span>
+    </th>
     <th class="left" width="8%"><%= message('default') -%></th>
     <th class="right" width="5%" colspan="2"><%= message('operations') -%></th>
   </tr>
@@ -42,10 +51,10 @@
              users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission(permission).collect {|u| u.userName})
              groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission(permission).collect {|g| g.groupName.blank? ? 'Anyone' : g.groupName})
           %>
-          <span class="nowrap" id="u-<%= permission -%>-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
+          <span id="u-<%= permission -%>-<%= u permission_template.name -%>"><%= users.join(', ') %></span>
           (<%= link_to message('select users'), {:action => :edit_users, :name => permission_template.name, :permission => permission},
                        :id => "select-u-#{permission}-#{u permission_template.name}", :class => 'open-modal link-action nowrap', 'modal-width' => '780px' %>)<br/>
-          <span class="nowrap" id="g-<%= permission -%>-<%= u permission_template.name -%>"><%= groups.join(', ') %></span>
+          <span id="g-<%= permission -%>-<%= u permission_template.name -%>"><%= groups.join(', ') %></span>
           (<%= link_to message('select groups'), {:action => :edit_groups, :name => permission_template.name, :permission => permission},
                        :id => "select-g-#{permission}-#{u permission_template.name}", :class => 'open-modal link-action nowrap', 'modal-width' => '780px' %>)<br/>
         </td>

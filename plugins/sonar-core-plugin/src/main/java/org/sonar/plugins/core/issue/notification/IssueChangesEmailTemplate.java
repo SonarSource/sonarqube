@@ -75,13 +75,13 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
 
   private void appendChanges(Notification notif, StringBuilder sb) {
     appendField(sb, "Comment", null, notif.getFieldValue("comment"));
-    appendField(sb, "Assignee", notif.getFieldValue("old.assignee"), notif.getFieldValue("new.assignee"));
+    appendFieldWithoutHistory(sb, "Assignee", notif.getFieldValue("old.assignee"), notif.getFieldValue("new.assignee"));
     appendField(sb, "Severity", notif.getFieldValue("old.severity"), notif.getFieldValue("new.severity"));
     appendField(sb, "Resolution", notif.getFieldValue("old.resolution"), notif.getFieldValue("new.resolution"));
     appendField(sb, "Status", notif.getFieldValue("old.status"), notif.getFieldValue("new.status"));
     appendField(sb, "Message", notif.getFieldValue("old.message"), notif.getFieldValue("new.message"));
     appendField(sb, "Author", notif.getFieldValue("old.author"), notif.getFieldValue("new.author"));
-    appendField(sb, "Action Plan", notif.getFieldValue("old.actionPlanKey"), notif.getFieldValue("new.actionPlanKey"));
+    appendFieldWithoutHistory(sb, "Action Plan", notif.getFieldValue("old.actionPlan"), notif.getFieldValue("new.actionPlan")) ;
   }
 
   private void appendHeader(Notification notif, StringBuilder sb) {
@@ -109,6 +109,19 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
       }
       if (oldValue != null) {
         sb.append(" (was ").append(oldValue).append(")");
+      }
+      sb.append(NEW_LINE);
+    }
+  }
+
+  private void appendFieldWithoutHistory(StringBuilder sb, String name, @Nullable String oldValue, @Nullable String newValue) {
+    if (oldValue != null || newValue != null) {
+      sb.append(name);
+      if (newValue != null) {
+        sb.append(" changed to ");
+        sb.append(newValue);
+      } else {
+        sb.append(" removed");
       }
       sb.append(NEW_LINE);
     }

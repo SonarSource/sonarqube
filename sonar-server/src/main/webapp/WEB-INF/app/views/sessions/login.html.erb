@@ -12,7 +12,7 @@
 						</p>
 						<h3><%= label_tag message('password') %></h3>
 						<p>
-							<%= password_field_tag 'password', nil, :style => 'width:200px;' %>
+							<%= password_field_tag 'password', nil, {:style => 'width:200px;', :autocomplete => 'off'} %>
 						</p>
 						<p>
 							<%= check_box_tag 'remember_me', '1', @remember_me %> <%= label_tag 'remember_me', message('sessions.remember_me') %>

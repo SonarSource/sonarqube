@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Component;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.resource.ResourceDao;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,35 +39,21 @@ import static com.google.common.collect.Lists.newArrayList;
 public class DefaultComponentFinder {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultComponentFinder.class);
-  private final ResourceDao resourceDao;
 
-  public DefaultComponentFinder(ResourceDao resourceDao) {
-    this.resourceDao = resourceDao;
-  }
-
-  public DefaultComponentQueryResult find(ComponentQuery query) {
+  public DefaultComponentQueryResult find(ComponentQuery query, List<Component> allComponents) {
     LOG.debug("ComponentQuery : {}", query);
-    long start = System.currentTimeMillis();
-    try {
-      // 1. Search components for selected qualifiers
-      List<Component> components = resourceDao.selectComponentsByQualifiers(query.qualifiers());
-      Collection<Component> foundComponents = search(query, components);
+    Collection<Component> foundComponents = search(query, allComponents);
 
-      // 2. Sort components
-      Collection<? extends Component> sortedComponents = new ComponentsFinderSort(foundComponents, query).sort();
+    // Sort components
+    Collection<? extends Component> sortedComponents = new ComponentsFinderSort(foundComponents, query).sort();
 
-      if(ComponentQuery.NO_PAGINATION == query.pageSize()) {
-        return new DefaultComponentQueryResult(sortedComponents).setQuery(query);
-      } else {
-        // 3. Apply pagination
-        Paging paging = Paging.create(query.pageSize(), query.pageIndex(), foundComponents.size());
-        Collection<? extends Component> pagedComponents = pagedComponents(sortedComponents, paging);
-
-        return new DefaultComponentQueryResult(pagedComponents).setPaging(paging).setQuery(query);
-      }
-
-    } finally {
-      LOG.debug("ComponentQuery execution time : {} ms", System.currentTimeMillis() - start);
+    // Apply pagination if needed
+    if (ComponentQuery.NO_PAGINATION == query.pageSize()) {
+      return new DefaultComponentQueryResult(sortedComponents).setQuery(query);
+    } else {
+      Paging paging = Paging.create(query.pageSize(), query.pageIndex(), foundComponents.size());
+      Collection<? extends Component> pagedComponents = pagedComponents(sortedComponents, paging);
+      return new DefaultComponentQueryResult(pagedComponents).setPaging(paging).setQuery(query);
     }
   }
 

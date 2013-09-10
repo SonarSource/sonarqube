@@ -1821,14 +1821,19 @@ ul.bullet li {
   color: #777;
 }
 
-.rule_detail li {
+.rule_detail ul li {
   list-style: disc outside;
   padding: 2px;
 }
 
-.rule_detail ul {
+.rule_detail ul, .rule_detail ol {
   list-style: none outside;
   padding-left: 30px;
+}
+
+.rule_detail ol li {
+  list-style: decimal outside;
+  padding: 2px;
 }
 
 .rule_detail pre, .code .rule_detail pre {

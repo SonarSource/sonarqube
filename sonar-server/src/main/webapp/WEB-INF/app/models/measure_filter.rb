@@ -201,7 +201,7 @@ class MeasureFilter < ActiveRecord::Base
     init_results
     init_display(options)
     user = options[:user]
-    result = Api::Utils.java_facade.executeMeasureFilter(criteria, (user ? user.id : nil))
+    result = Api::Utils.java_facade.executeMeasureFilter(criteria, (user && user.id))
     if result.error
       errors.add_to_base(Api::Utils.message("measure_filter.error.#{result.error}"))
     else

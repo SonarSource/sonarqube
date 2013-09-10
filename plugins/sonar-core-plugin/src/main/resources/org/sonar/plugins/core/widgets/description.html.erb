@@ -24,12 +24,6 @@
       <td><span id="resource_profile"><%= link_to profile_measure.data, {:controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => format_measure('profile_version', :default => '1')) -%>)</td>
     </tr>
     <% end %>
-    <% if Project::SCOPE_SET==@project.scope %>
-    <tr>
-      <td><%= message('widget.description.alerts') -%>: </td>
-      <td><%= image_tag 'rss-12x12.png' -%> <a href="<%= url_for :controller => :feeds, :action => 'project', :id => @project.key, :category => EventCategory::KEY_ALERT -%>" class="action"><%= message('widget.description.alerts_rss_feed') -%></a></td>
-    </tr>
-    <% end %>
     <% unless @project.project_links.empty? %>
       <tr>
         <td valign="top"><%= message('widget.description.links') -%>: </td>

@@ -20,7 +20,6 @@
 package org.sonar.api.web;
 
 import com.google.common.base.Joiner;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedSet;
 
@@ -32,6 +31,8 @@ import java.util.Set;
  * @since 3.1
  */
 public final class Criterion {
+  private static final String METRIC_FAMILY = "metric";
+  private static final String QUALIFIER_FAMILY = "qualifier";
   public static final String EQ = "eq";
   public static final String GT = "gt";
   public static final String GTE = "gte";
@@ -87,7 +88,7 @@ public final class Criterion {
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
   public static Criterion createForMetric(String key, String operator, Float value, boolean variation) {
-    return new Criterion("metric", key, operator, value, null, variation);
+    return new Criterion(METRIC_FAMILY, key, operator, value, null, variation);
   }
 
   /**
@@ -98,19 +99,19 @@ public final class Criterion {
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
   public static Criterion createForMetric(String key, String operator, String textValue, boolean variation) {
-    return new Criterion("metric", key, operator, null, textValue, variation);
+    return new Criterion(METRIC_FAMILY, key, operator, null, textValue, variation);
   }
 
   /**
    * Creates a new {@link Criterion} on a qualifier.
    */
   public static Criterion createForQualifier(Object... values) {
-    return new Criterion("qualifier", null, EQ, null, Joiner.on(',').join(values), false);
+    return new Criterion(QUALIFIER_FAMILY, null, EQ, null, Joiner.on(',').join(values), false);
   }
 
   /**
    * Get the the criterion's family.
-   * 
+   *
    * @return the family
    */
   public String getFamily() {
@@ -119,7 +120,7 @@ public final class Criterion {
 
   /**
    * Get the the criterion's key.
-   * 
+   *
    * @return the key
    */
   public String getKey() {
@@ -139,7 +140,7 @@ public final class Criterion {
 
   /**
    * Get the the criterion's value.
-   * 
+   *
    * @return the value
    */
   public Float getValue() {
@@ -148,7 +149,7 @@ public final class Criterion {
 
   /**
    * Get the the criterion's value as text.
-   * 
+   *
    * @return the value as text
    */
   public String getTextValue() {
@@ -157,7 +158,7 @@ public final class Criterion {
 
   /**
    * A criterion can be based on the varation of a value rather than on the value itself.
-   * 
+   *
    * @return <code>true</code> when the variation is used rather than the value
    */
   public boolean isVariation() {

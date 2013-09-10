@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
-import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.PluginInstaller;
@@ -83,7 +82,7 @@ public class PluginDeployer implements ServerComponent {
         FileUtils.deleteDirectory(trashDir);
       }
     } catch (IOException e) {
-      throw new SonarException("Fail to clean the plugin trash directory: " + trashDir, e);
+      throw new IllegalStateException("Fail to clean the plugin trash directory: " + trashDir, e);
     }
   }
 
@@ -161,7 +160,7 @@ public class PluginDeployer implements ServerComponent {
         File masterFile = new File(fileSystem.getUserPluginsDir(), metadata.getFile().getName());
         FileUtils.moveFileToDirectory(masterFile, fileSystem.getRemovedPluginsDir(), true);
       } catch (IOException e) {
-        throw new SonarException("Fail to uninstall plugin: " + pluginKey, e);
+        throw new IllegalStateException("Fail to uninstall plugin: " + pluginKey, e);
       }
     }
   }
@@ -184,7 +183,7 @@ public class PluginDeployer implements ServerComponent {
         try {
           FileUtils.moveFileToDirectory(file, fileSystem.getUserPluginsDir(), false);
         } catch (IOException e) {
-          throw new SonarException("Fail to cancel plugin uninstalls", e);
+          throw new IllegalStateException("Fail to cancel plugin uninstalls", e);
         }
       }
     }
@@ -215,7 +214,7 @@ public class PluginDeployer implements ServerComponent {
 
       installer.install(plugin, pluginDeployDir);
     } catch (IOException e) {
-      throw new RuntimeException("Fail to deploy the plugin " + plugin, e);
+      throw new IllegalStateException("Fail to deploy the plugin " + plugin, e);
     }
   }
 

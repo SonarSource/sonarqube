@@ -37,7 +37,12 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 public class I18nManager implements I18n, ServerExtension, BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(I18nManager.class);
@@ -48,9 +53,21 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
   private I18nClassloader i18nClassloader;
   private Map<String, String> propertyToBundles;
   private Map<String, Map<Locale, String>> fileContentCache = Maps.newHashMap();
+  private final ResourceBundle.Control control;
 
   public I18nManager(PluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
+    // SONAR-2927
+    this.control = new ResourceBundle.Control() {
+      @Override
+      public Locale getFallbackLocale(String baseName, Locale locale) {
+        if (baseName == null) {
+          throw new NullPointerException();
+        }
+        Locale defaultLocale = Locale.ENGLISH;
+        return locale.equals(defaultLocale) ? null : defaultLocale;
+      }
+    };
   }
 
   public void start() {
@@ -64,7 +81,7 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     for (PluginMetadata plugin : pluginRepository.getMetadata()) {
       try {
         String bundleKey = BUNDLE_PACKAGE + plugin.getKey();
-        ResourceBundle bundle = ResourceBundle.getBundle(bundleKey, Locale.ENGLISH, i18nClassloader);
+        ResourceBundle bundle = ResourceBundle.getBundle(bundleKey, Locale.ENGLISH, i18nClassloader, control);
         Enumeration<String> keys = bundle.getKeys();
         while (keys.hasMoreElements()) {
           String key = keys.nextElement();
@@ -78,9 +95,9 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
   }
 
   public void stop() {
-    i18nClassloader=null;
-    propertyToBundles=null;
-    fileContentCache=null;
+    i18nClassloader = null;
+    propertyToBundles = null;
+    fileContentCache = null;
   }
 
   @CheckForNull
@@ -89,7 +106,7 @@ public class I18nManager implements I18n, ServerExtension, BatchExtension {
     String value = null;
     if (bundleKey != null) {
       try {
-        ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleKey, locale, i18nClassloader);
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleKey, locale, i18nClassloader, control);
         value = resourceBundle.getString(key);
       } catch (MissingResourceException e1) {
         // ignore

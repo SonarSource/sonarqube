@@ -2,15 +2,16 @@
   var localModifications=false;
 
   function get_level_for_rule(rule_select_box,rule_check_box) {
-    return rule_check_box.checked ? rule_select_box.value : '';
+     return rule_check_box.prop('checked') ? rule_select_box.val() : '';
   }
 
   function submitBulkForm() {
     if (localModifications) {
       alert("Please refresh the search results before.");
-      $('bulk-form').reset();
+      $j('#bulk-form').reset();
     } else {
-      $('bulk-form').submit();
+      $j('#bulk-form').submit();
+      $j('#select-bulk-change').select2('disable');
     }
     return !localModifications;
   }
@@ -23,20 +24,11 @@
   }
 
   function expand_rules(){
-    $$('.rule_detail').each(function(element) {
-        element.show();
-    });
-  }
-  function collapse_rules(){
-    $$('.rule_detail').each(function(element) {
-      element.hide();
-    });
+     $j('.rule_detail').show();
   }
 
-  function replaceTextField(span_id, key) {
-    var text_field_value = $F(key);
-    var text_area = '<textarea cols="100" id="' + key + '" name="value" rows="10">' + text_field_value + '</textarea><br/>';
-    $(span_id).replace(text_area);
+  function collapse_rules(){
+    $j('.rule_detail').hide();
   }
 
   function submitSearch() {
@@ -116,7 +108,7 @@
          onClick="return downloadCsv()" id="download-link" class=""><%= message('download_verb') -%></a>
       </div>
     </li>
-    <% if enable_modification %>
+    <% if enable_modification && @rules.size>0 %>
       <li class="marginleft10">
         <div class="bulk-edit"><%= message('bulk_change') -%>:
         <form action="<%= ApplicationController.root_context -%>/rules_configuration/bulk_edit" method="POST" id="bulk-form"
@@ -125,7 +117,7 @@
           <input type="hidden" name="bulk_rule_ids" value="<%= @rules.map{|r| r.id}.join(',') -%>"/>
           <%= dropdown_tag "bulk_action", options_for_select([ ["", ""], [message('activate_all'), "activate"], [message('deactivate_all'), "deactivate"] ], ''), {
               :width => '110px'
-          }, {:onChange => 'submitBulkForm()'} -%>
+          }, {:onChange => 'submitBulkForm()', :id => 'select-bulk-change'} -%>
         </form>
         </div>
       </li>

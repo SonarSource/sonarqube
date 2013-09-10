@@ -25,35 +25,45 @@ import org.sonar.api.ServerComponent;
 
 import javax.annotation.Nullable;
 
+import java.util.List;
+
 /**
  * <p>
  * The notification manager receives notifications and is in charge of storing them so that they are processed by the notification service.
  * </p>
  * <p>
- * Pico provides an instance of this class, and plugins just need to create notifications and pass them to this manager with 
+ * Pico provides an instance of this class, and plugins just need to create notifications and pass them to this manager with
  * the {@link NotificationManager#scheduleForSending(Notification)} method.
  * </p>
- * 
+ *
  * @since 2.10
  */
 public interface NotificationManager extends ServerComponent, BatchComponent {
 
   /**
    * Receives a notification and stores it so that it is processed by the notification service.
-   * 
+   *
    * @param notification the notification.
    */
   void scheduleForSending(Notification notification);
 
   /**
+   * Receives notifications and stores them so that they are processed by the notification service.
+   *
+   * @param notifications the notifications.
+   * @since 3.7.1
+   */
+  void scheduleForSending(List<Notification> notifications);
+
+  /**
    * <p>
-   * Returns the list of users who subscribed to the given dispatcher, along with the notification channels (email, twitter, ...) that they choose 
+   * Returns the list of users who subscribed to the given dispatcher, along with the notification channels (email, twitter, ...) that they choose
    * for this dispatcher.
    * </p>
    * <p>
    * The resource ID can be null in case of notifications that have nothing to do with a specific project (like system notifications).
    * </p>
-   * 
+   *
    * @param dispatcher the dispatcher for which this list of users is requested
    * @param resourceId the optional resource which is concerned by this request
    * @return the list of user login along with the subscribed channels

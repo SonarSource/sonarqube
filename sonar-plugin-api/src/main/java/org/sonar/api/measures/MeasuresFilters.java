@@ -136,10 +136,8 @@ public final class MeasuresFilters {
     return new MetricFilter<Collection<RuleMeasure>>(metric) {
 
       private boolean apply(Measure measure) {
-        return measure instanceof RuleMeasure
-          && metric.equals(measure.getMetric())
-          && measure.getPersonId() == null
-          && ((RuleMeasure) measure).getRule() != null;
+        return measure instanceof RuleMeasure && metric.equals(measure.getMetric())
+          && measure.getPersonId() == null && ((RuleMeasure) measure).getRule() != null;
       }
 
       public Collection<RuleMeasure> filter(Collection<Measure> measures) {

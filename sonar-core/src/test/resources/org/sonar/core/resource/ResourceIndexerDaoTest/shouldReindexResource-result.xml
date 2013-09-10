@@ -7,5 +7,4 @@
   <resource_index kee="truts" position="5" name_size="10" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index kee="ruts" position="6" name_size="10" resource_id="1" root_project_id="1" qualifier="TRK"/>
   <resource_index kee="uts" position="7" name_size="10" resource_id="1" root_project_id="1" qualifier="TRK"/>
-
 </dataset>

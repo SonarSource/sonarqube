@@ -30,6 +30,7 @@ import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.server.exceptions.BadRequestException;
@@ -45,8 +46,16 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class IssueBulkChangeServiceTest {
 
@@ -69,7 +78,7 @@ public class IssueBulkChangeServiceTest {
 
     actions = newArrayList();
 
-    service = new IssueBulkChangeService(finder, issueStorage, issueNotifications, actions);
+    service = new IssueBulkChangeService(finder, issueStorage, issueNotifications, actions, mock(DryRunCache.class));
   }
 
   @Test
@@ -208,6 +217,23 @@ public class IssueBulkChangeServiceTest {
   }
 
   @Test
+  public void should_not_execute_bulk_if_action_is_not_verified() {
+    Map<String, Object> properties = newHashMap();
+    properties.put("issues", "ABCD");
+    properties.put("actions", "assign");
+    properties.put("assign.assignee", "fred");
+    actions.add(new MockAction("assign", false, true, true));
+
+    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties);
+    IssueBulkChangeResult result = service.execute(issueBulkChangeQuery, userSession);
+    assertThat(result.issuesChanged()).isEmpty();
+    assertThat(result.issuesNotChanged()).isEmpty();
+
+    verifyZeroInteractions(issueStorage);
+    verifyZeroInteractions(issueNotifications);
+  }
+
+  @Test
   public void should_not_execute_bulk_if_action_could_not_be_executed_on_issue() {
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD");
@@ -282,7 +308,6 @@ public class IssueBulkChangeServiceTest {
     verifyZeroInteractions(issueStorage);
     verifyZeroInteractions(issueNotifications);
   }
-
 
   class MockAction extends Action {
 

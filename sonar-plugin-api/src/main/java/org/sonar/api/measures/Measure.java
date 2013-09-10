@@ -36,6 +36,8 @@ import java.util.Date;
  * @since 1.10
  */
 public class Measure {
+  private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
+
   protected static final int MAX_TEXT_SIZE = 96;
 
   /**
@@ -43,7 +45,8 @@ public class Measure {
    */
   public static final int DEFAULT_PRECISION = 1;
 
-  private Long id; // for internal use
+  // for internal use
+  private Long id;
   protected String metricKey;
   protected Metric metric;
   protected Double value;
@@ -530,7 +533,7 @@ public class Measure {
       case 5:
         return variation5;
       default:
-        throw new IndexOutOfBoundsException("Index should be in range from 1 to 5");
+        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
     }
   }
 
@@ -557,7 +560,7 @@ public class Measure {
         variation5 = d;
         break;
       default:
-        throw new IndexOutOfBoundsException("Index should be in range from 1 to 5");
+        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
     }
     return this;
   }

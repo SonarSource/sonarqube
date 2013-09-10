@@ -19,12 +19,16 @@
  */
 package org.sonar.server.plugins;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.server.platform.DefaultServerFileSystem;
@@ -63,6 +67,14 @@ public class PluginDownloaderTest {
     when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
 
     httpDownloader = mock(HttpDownloader.class);
+    doAnswer(new Answer() {
+      @Override
+      public Object answer(InvocationOnMock inv) throws Throwable {
+        File toFile = (File)inv.getArguments()[1];
+        FileUtils.touch(toFile);
+        return null;
+      }
+    }).when(httpDownloader).download(any(URI.class), any(File.class));
 
     DefaultServerFileSystem defaultServerFileSystem = mock(DefaultServerFileSystem.class);
     downloadDir = testFolder.newFolder("downloads");
@@ -80,7 +92,12 @@ public class PluginDownloaderTest {
     when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
 
     pluginDownloader.download("foo", Version.create("1.0"));
-    verify(httpDownloader).download(any(URI.class), argThat(new HasFileName("test-1.0.jar")));
+
+    // SONAR-4523: do not corrupt JAR files when restarting the server while a plugin is being downloaded.
+    // The JAR file is downloaded in a temp file
+    verify(httpDownloader).download(any(URI.class), argThat(new HasFileName("test-1.0.jar.tmp")));
+    assertThat(new File(downloadDir, "test-1.0.jar")).exists();
+    assertThat(new File(downloadDir, "test-1.0.jar.tmp")).doesNotExist();
   }
 
   @Test

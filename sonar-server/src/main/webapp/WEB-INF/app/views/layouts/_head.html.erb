@@ -6,16 +6,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=9">
   <link rel="shortcut icon" type="image/x-icon" href="<%= image_path('favicon.ico') -%>"/>
   <%
-     if @project
-  %>
-    <link rel="alternate" title="SonarQube Alerts on <%= h @project.name -%>" href="<%= ApplicationController.root_context -%>/feeds/project/<%= h @project.key -%>?category=<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
-  <%
-     else
-  %>
-    <link rel="alternate" title="SonarQube Alerts" href="<%= ApplicationController.root_context -%>/feeds/projects/<%= EventCategory::KEY_ALERT -%>" type="application/atom+xml">
-  <%
-     end
-
      if @page_title
        title="SonarQube - #{h(@page_title)}"
      elsif @project

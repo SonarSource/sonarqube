@@ -31,24 +31,12 @@ class BulkDeletionController < ApplicationController
         
     @tabs = deletable_qualifiers
     
-    @selected_tab = params[:resource_type]
+    @selected_tab = params[:qualifiers]
     @selected_tab = 'TRK' unless @tabs.include?(@selected_tab)
-    
-    # Search for resources
-    conditions = "resource_index.qualifier=:qualifier"
-    values = {:qualifier => @selected_tab}
-    if params[:name_filter] && !params[:name_filter].blank?
-      conditions += " AND resource_index.kee LIKE :kee"
-      values[:kee] = params[:name_filter].strip.downcase + '%'
-    end
 
-    conditions += " AND projects.enabled=:enabled"
-    values[:enabled] = true
-    @resources = Project.find(:all,
-                              :select => 'distinct(resource_index.resource_id),projects.id,projects.name,projects.kee,projects.long_name',
-                              :conditions => [conditions, values],
-                              :joins => :resource_index)
-    @resources = Api::Utils.insensitive_sort!(@resources){|r| r.name}
+    params['pageSize'] = 20
+    params['qualifiers'] = @selected_tab
+    @query_result = Internal.component_api.find(params)
   end
 
   def ghosts
@@ -58,13 +46,12 @@ class BulkDeletionController < ApplicationController
     end
       
     @tabs = deletable_qualifiers
-    
-    conditions = "scope=:scope AND qualifier IN (:qualifiers) AND status=:status"
-    values = {:scope => 'PRJ', :qualifiers => @tabs}
-    unprocessed_project_ids = Snapshot.find(:all, :select => 'project_id', :conditions => [conditions, values.merge({:status => Snapshot::STATUS_UNPROCESSED})]).map(&:project_id).uniq
-    already_processed_project_ids = Snapshot.find(:all, :select => 'project_id', :conditions => [conditions + " AND project_id IN (:pids)", values.merge({:status => Snapshot::STATUS_PROCESSED, :pids => unprocessed_project_ids})]).map(&:project_id).uniq
-    
-    @ghosts = Project.find(:all, :conditions => ["id IN (?)", unprocessed_project_ids - already_processed_project_ids])
+
+    params['pageSize'] = -1
+    params['qualifiers'] = @tabs
+    @query_result = Internal.component_api.findGhostsProjects(params)
+
+    @ghosts = @query_result.components
     
     @ghosts_by_qualifier = {}
     @ghosts.each do |p|
@@ -98,7 +85,7 @@ class BulkDeletionController < ApplicationController
       # display the same page again and again
       # => implicit render "pending_deletions.html.erb"
     else
-      redirect_to :action => 'index'
+      redirect_to :action => 'index', :resource_type => params[:resource_type]
     end
   end
   
@@ -106,7 +93,7 @@ class BulkDeletionController < ApplicationController
     # It is important to reinit the ResourceDeletionManager so that the deletion screens can be available again
     ResourceDeletionManager.instance.reinit
     
-    redirect_to :action => 'index'
+    redirect_to :action => 'index', :resource_type => params[:resource_type]
   end
   
   private

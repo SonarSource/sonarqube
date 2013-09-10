@@ -42,28 +42,29 @@ import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ScanIssues;
 import org.sonar.core.component.ScanGraph;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultIndexTest {
 
   private DefaultIndex index = null;
+  private DeprecatedViolations deprecatedViolations;
   private DefaultResourceCreationLock lock;
   private Rule rule;
   private RuleFinder ruleFinder;
 
   @Before
   public void createIndex() {
+    deprecatedViolations = mock(DeprecatedViolations.class);
     lock = new DefaultResourceCreationLock(new Settings());
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
     ruleFinder = mock(RuleFinder.class);
 
-    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, mock(ScanGraph.class),
-      mock(DeprecatedViolations.class));
+    index = new DefaultIndex(mock(PersistenceManager.class), lock, mock(ProjectTree.class), metricFinder, mock(ScanGraph.class), deprecatedViolations);
     Project project = new Project("project");
 
     ResourceFilter filter = new ResourceFilter() {
@@ -83,26 +84,26 @@ public class DefaultIndexTest {
   @Test
   public void shouldCreateUID() {
     Project project = new Project("my_project");
-    assertThat(DefaultIndex.createUID(project, project), is("my_project"));
+    assertThat(DefaultIndex.createUID(project, project)).isEqualTo("my_project");
 
     JavaPackage javaPackage = new JavaPackage("org.foo");
-    assertThat(DefaultIndex.createUID(project, javaPackage), is("my_project:org.foo"));
+    assertThat(DefaultIndex.createUID(project, javaPackage)).isEqualTo("my_project:org.foo");
 
     Library library = new Library("junit:junit", "4.7");
-    assertThat(DefaultIndex.createUID(project, library), is("junit:junit"));
+    assertThat(DefaultIndex.createUID(project, library)).isEqualTo("junit:junit");
   }
 
   @Test
   public void shouldIndexParentOfDeprecatedFiles() {
     File file = new File("org/foo/Bar.java");
-    assertThat(index.index(file), is(true));
+    assertThat(index.index(file)).isTrue();
 
     Directory reference = new Directory("org/foo");
-    assertThat(index.getResource(reference).getName(), is("org/foo"));
-    assertThat(index.isIndexed(reference, true), is(true));
-    assertThat(index.isExcluded(reference), is(false));
-    assertThat(index.getChildren(reference).size(), is(1));
-    assertThat(index.getParent(reference), is(Project.class));
+    assertThat(index.getResource(reference).getName()).isEqualTo("org/foo");
+    assertThat(index.isIndexed(reference, true)).isTrue();
+    assertThat(index.isExcluded(reference)).isFalse();
+    assertThat(index.getChildren(reference)).hasSize(1);
+    assertThat(index.getParent(reference)).isInstanceOf(Project.class);
   }
 
   @Test
@@ -111,27 +112,27 @@ public class DefaultIndexTest {
     File file = new File("org/foo/Bar.java");
     file.setLanguage(Java.INSTANCE);
 
-    assertThat(index.index(directory), is(true));
-    assertThat(index.index(file, directory), is(true));
+    assertThat(index.index(directory)).isTrue();
+    assertThat(index.index(file, directory)).isTrue();
 
     File fileRef = new File("org/foo/Bar.java");
-    assertThat(index.getResource(fileRef).getKey(), is("org/foo/Bar.java"));
-    assertThat(index.getResource(fileRef).getLanguage(), is((Language) Java.INSTANCE));
-    assertThat(index.isIndexed(fileRef, true), is(true));
-    assertThat(index.isExcluded(fileRef), is(false));
-    assertThat(index.getChildren(fileRef).size(), is(0));
-    assertThat(index.getParent(fileRef), is(Directory.class));
+    assertThat(index.getResource(fileRef).getKey()).isEqualTo("org/foo/Bar.java");
+    assertThat(index.getResource(fileRef).getLanguage().getKey()).isEqualTo("java");
+    assertThat(index.isIndexed(fileRef, true)).isTrue();
+    assertThat(index.isExcluded(fileRef)).isFalse();
+    assertThat(index.getChildren(fileRef)).isEmpty();
+    assertThat(index.getParent(fileRef)).isInstanceOf(Directory.class);
   }
 
   @Test
   public void shouldIndexLibraryOutsideProjectTree() {
     Library lib = new Library("junit", "4.8");
-    assertThat(index.index(lib), is(true));
+    assertThat(index.index(lib)).isTrue();
 
     Library reference = new Library("junit", "4.8");
-    assertThat(index.getResource(reference).getQualifier(), is(Qualifiers.LIBRARY));
-    assertThat(index.isIndexed(reference, true), is(true));
-    assertThat(index.isExcluded(reference), is(false));
+    assertThat(index.getResource(reference).getQualifier()).isEqualTo(Qualifiers.LIBRARY);
+    assertThat(index.isIndexed(reference, true)).isTrue();
+    assertThat(index.isExcluded(reference)).isFalse();
   }
 
   @Test
@@ -139,14 +140,14 @@ public class DefaultIndexTest {
     Directory directory = new Directory("org/other");
     File file = new File("org/foo/Bar.java");
 
-    assertThat(index.index(file, directory), is(false));
+    assertThat(index.index(file, directory)).isFalse();
 
     File fileRef = new File("org/foo/Bar.java");
-    assertThat(index.isIndexed(directory, true), is(false));
-    assertThat(index.isIndexed(fileRef, true), is(false));
-    assertThat(index.isExcluded(fileRef), is(false));
-    assertThat(index.getChildren(fileRef).size(), is(0));
-    assertThat(index.getParent(fileRef), nullValue());
+    assertThat(index.isIndexed(directory, true)).isFalse();
+    assertThat(index.isIndexed(fileRef, true)).isFalse();
+    assertThat(index.isExcluded(fileRef)).isFalse();
+    assertThat(index.getChildren(fileRef)).isEmpty();
+    assertThat(index.getParent(fileRef)).isNull();
   }
 
   /**
@@ -157,8 +158,8 @@ public class DefaultIndexTest {
     lock.lock();
 
     Directory dir = new Directory("org/foo");
-    assertThat(index.index(dir), is(true));
-    assertThat(index.isIndexed(dir, true), is(true));
+    assertThat(index.index(dir)).isTrue();
+    assertThat(index.isIndexed(dir, true)).isTrue();
   }
 
   @Test(expected = SonarException.class)
@@ -173,10 +174,10 @@ public class DefaultIndexTest {
   @Test
   public void shouldBeExcluded() {
     File file = new File("org/foo/ExcludedBar.java");
-    assertThat(index.index(file), is(false));
-    assertThat(index.isIndexed(file, true), is(true));
-    assertThat(index.isIndexed(file, false), is(false));
-    assertThat(index.isExcluded(file), is(true));
+    assertThat(index.index(file)).isFalse();
+    assertThat(index.isIndexed(file, true)).isTrue();
+    assertThat(index.isIndexed(file, false)).isFalse();
+    assertThat(index.isExcluded(file)).isTrue();
   }
 
   @Test
@@ -184,8 +185,8 @@ public class DefaultIndexTest {
     Resource dir = new Directory("org/foo");
     index.addMeasure(dir, new Measure("ncloc").setValue(50.0));
 
-    assertThat(index.isIndexed(dir, true), is(true));
-    assertThat(index.getMeasures(dir, MeasuresFilters.metric("ncloc")).getIntValue(), is(50));
+    assertThat(index.isIndexed(dir, true)).isTrue();
+    assertThat(index.getMeasures(dir, MeasuresFilters.metric("ncloc")).getIntValue()).isEqualTo(50);
   }
 
   /**
@@ -197,7 +198,7 @@ public class DefaultIndexTest {
     Violation violation = Violation.create((Rule) null, file);
     index.addViolation(violation);
 
-    assertThat(index.getViolations(file).size(), is(0));
+    assertThat(index.getViolations(file)).isEmpty();
   }
 
   /**
@@ -211,7 +212,45 @@ public class DefaultIndexTest {
     Violation violation = Violation.create(ruleWithoutID, file);
     index.addViolation(violation);
 
-    assertThat(index.getViolations(file).size(), is(0));
+    assertThat(index.getViolations(file)).isEmpty();
+  }
+
+  @Test
+  public void should_get_violation() {
+    Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
+    File file = new File("org/foo/Bar.java");
+    Violation violation = Violation.create(rule, file);
+    when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
+
+    index.addViolation(violation);
+
+    assertThat(index.getViolations(file)).hasSize(1);
+  }
+
+  @Test
+  public void should_get_filtered_violation_with_off_switch_mode() {
+    Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
+    File file = new File("org/foo/Bar.java");
+    Violation violation = Violation.create(rule, file).setSwitchedOff(true);
+
+    when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
+
+    index.addViolation(violation);
+
+    assertThat(index.getViolations(ViolationQuery.create().forResource(file).setSwitchMode(ViolationQuery.SwitchMode.OFF))).hasSize(1);
+  }
+
+  @Test
+  public void should_get_filtered_violation_with_on_switch_mode() {
+    Rule rule = Rule.create("repoKey", "ruleKey", "Rule");
+    File file = new File("org/foo/Bar.java");
+    Violation violation = Violation.create(rule, file).setSwitchedOff(false);
+
+    when(deprecatedViolations.get(anyString())).thenReturn(newArrayList(violation));
+
+    index.addViolation(violation);
+
+    assertThat(index.getViolations(ViolationQuery.create().forResource(file).setSwitchMode(ViolationQuery.SwitchMode.ON))).hasSize(1);
   }
 
   @Test(expected = IllegalArgumentException.class)
