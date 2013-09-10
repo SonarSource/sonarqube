@@ -28,11 +28,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.*;
-import org.sonar.api.resources.*;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectLink;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
@@ -42,9 +50,17 @@ import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ScanIssues;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultIndex extends SonarIndex {
 
@@ -444,19 +460,6 @@ public class DefaultIndex extends SonarIndex {
     return null;
   }
 
-  static String createUID(Project project, Resource resource) {
-    String uid = resource.getKey();
-    if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
-      // not a project nor a library
-      uid = new StringBuilder(ResourceModel.KEY_SIZE)
-        .append(project.getKey())
-        .append(':')
-        .append(resource.getKey())
-        .toString();
-    }
-    return uid;
-  }
-
   private boolean checkExclusion(Resource resource, Bucket parent) {
     boolean excluded = (parent != null && parent.isExcluded()) || (resourceFilters != null && resourceFilters.isExcluded(resource));
     resource.setExcluded(excluded);
@@ -529,7 +532,7 @@ public class DefaultIndex extends SonarIndex {
       return null;
     }
 
-    resource.setEffectiveKey(createUID(currentProject, resource));
+    resource.setEffectiveKey(ComponentKeys.createKey(currentProject, resource));
     bucket = new Bucket(resource).setParent(parentBucket);
     buckets.put(resource, bucket);
 

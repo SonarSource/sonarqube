@@ -47,6 +47,7 @@ import org.sonar.plugins.core.issue.IssueTracking;
 import org.sonar.plugins.core.issue.IssueTrackingDecorator;
 import org.sonar.plugins.core.issue.IssuesDensityDecorator;
 import org.sonar.plugins.core.issue.WeightedIssuesDecorator;
+import org.sonar.plugins.core.issue.ignore.IgnoreIssuesPlugin;
 import org.sonar.plugins.core.issue.notification.ChangesOnMyIssueNotificationDispatcher;
 import org.sonar.plugins.core.issue.notification.IssueChangesEmailTemplate;
 import org.sonar.plugins.core.issue.notification.NewFalsePositiveNotificationDispatcher;
@@ -406,9 +407,11 @@ import java.util.List;
 })
 public final class CorePlugin extends SonarPlugin {
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public List getExtensions() {
-    return ImmutableList.of(
+    ImmutableList.Builder<Object> extensions = ImmutableList.builder();
+
+    extensions.add(
         DefaultResourceTypes.class,
         UserManagedMetrics.class,
         Periods.class,
@@ -524,5 +527,9 @@ public final class CorePlugin extends SonarPlugin {
         // Notify alerts on my favourite projects
         NewAlerts.class,
         NewAlerts.newMetadata());
+
+    extensions.addAll(IgnoreIssuesPlugin.getExtensions());
+
+    return extensions.build();
   }
 }
