@@ -46,6 +46,7 @@ public final class IgnoreIssuesConfiguration {
         .description("Patterns used to identify which violations to switch off.<br/>" +
           "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
         .onQualifiers(Qualifiers.PROJECT)
+        .index(3)
         .fields(
           PropertyFieldDefinition.build(Constants.RESOURCE_KEY)
             .name("File Path Pattern")
@@ -73,6 +74,7 @@ public final class IgnoreIssuesConfiguration {
         .description("Patterns used to identify blocks in which violations are switched off.<br/>" +
           "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
         .onQualifiers(Qualifiers.PROJECT)
+        .index(2)
         .fields(
           PropertyFieldDefinition.build(Constants.BEGIN_BLOCK_REGEXP)
             .name("Regular expression for start of block")
@@ -94,6 +96,7 @@ public final class IgnoreIssuesConfiguration {
         .description("Patterns used to identify files in which violations are switched off.<br/>" +
           "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
         .onQualifiers(Qualifiers.PROJECT)
+        .index(1)
         .fields(
           PropertyFieldDefinition.build(Constants.FILE_REGEXP)
             .name("Regular expression")
