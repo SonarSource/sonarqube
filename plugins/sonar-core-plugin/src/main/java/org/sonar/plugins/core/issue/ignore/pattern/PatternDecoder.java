@@ -66,6 +66,7 @@ public class PatternDecoder {
       checkDoubleRegexpLineConstraints(line, fields);
       pattern = new Pattern().setBeginBlockRegexp(fields[0]).setEndBlockRegexp(fields[1]);
     } else {
+      checkWholeFileRegexp(fields[0]);
       pattern = new Pattern().setAllFileRegexp(fields[0]);
     }
 
@@ -84,12 +85,18 @@ public class PatternDecoder {
     }
   }
 
-  private void checkDoubleRegexpLineConstraints(String line, String[] fields) {
+  static void checkDoubleRegexpLineConstraints(String line, String[] fields) {
     if (!isRegexp(fields[0])) {
       throw new SonarException("Invalid format. The first field does not define a regular expression: " + line);
     }
     if (!isRegexp(fields[1])) {
       throw new SonarException("Invalid format. The second field does not define a regular expression: " + line);
+    }
+  }
+
+  static void checkWholeFileRegexp(String regexp) {
+    if (!isRegexp(regexp)) {
+      throw new SonarException("Invalid format. The field does not define a regular expression: " + regexp);
     }
   }
 

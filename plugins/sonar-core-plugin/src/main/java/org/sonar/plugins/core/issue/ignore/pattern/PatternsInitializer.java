@@ -104,6 +104,8 @@ public class PatternsInitializer implements BatchExtension {
       String propPrefix = Constants.PATTERNS_BLOCK_KEY + "." + id + ".";
       String beginBlockRegexp = settings.getString(propPrefix + Constants.BEGIN_BLOCK_REGEXP);
       String endBlockRegexp = settings.getString(propPrefix + Constants.END_BLOCK_REGEXP);
+      String[] fields = new String[] { beginBlockRegexp, endBlockRegexp };
+      PatternDecoder.checkDoubleRegexpLineConstraints(StringUtils.join(fields, ","), fields);
       Pattern pattern = new Pattern().setBeginBlockRegexp(nullToEmpty(beginBlockRegexp)).setEndBlockRegexp(nullToEmpty(endBlockRegexp));
       blockPatterns.add(pattern);
     }
@@ -113,6 +115,7 @@ public class PatternsInitializer implements BatchExtension {
     for (String id : StringUtils.split(patternConf, ',')) {
       String propPrefix = Constants.PATTERNS_ALLFILE_KEY + "." + id + ".";
       String allFileRegexp = settings.getString(propPrefix + Constants.FILE_REGEXP);
+      PatternDecoder.checkWholeFileRegexp(allFileRegexp);
       Pattern pattern = new Pattern().setAllFileRegexp(nullToEmpty(allFileRegexp));
       allFilePatterns.add(pattern);
     }

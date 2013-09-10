@@ -20,15 +20,13 @@
 
 package org.sonar.plugins.core.issue.ignore.pattern;
 
-import org.sonar.api.utils.SonarException;
-
-import org.junit.Ignore;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.core.issue.ignore.Constants;
 import org.sonar.plugins.core.issue.ignore.IgnoreIssuesConfiguration;
 
@@ -142,6 +140,22 @@ public class PatternsInitializerTest {
     assertThat(patternsInitializer.getAllFilePatterns().size()).isEqualTo(0);
   }
 
+  @Test(expected = SonarException.class)
+  public void shouldLogInvalidStartBlockPattern() {
+    settings.setProperty(Constants.PATTERNS_BLOCK_KEY, "1");
+    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".1." + Constants.BEGIN_BLOCK_REGEXP, "");
+    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".1." + Constants.END_BLOCK_REGEXP, "// SONAR-ON");
+    patternsInitializer.initPatterns();
+  }
+
+  @Test(expected = SonarException.class)
+  public void shouldLogInvalidEndBlockPattern() {
+    settings.setProperty(Constants.PATTERNS_BLOCK_KEY, "1");
+    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".1." + Constants.BEGIN_BLOCK_REGEXP, "// SONAR-OFF");
+    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".1." + Constants.END_BLOCK_REGEXP, "");
+    patternsInitializer.initPatterns();
+  }
+
   @Test
   public void shouldReturnAllFilePattern() {
     settings.setProperty(Constants.PATTERNS_ALLFILE_KEY, "1,2");
@@ -155,6 +169,13 @@ public class PatternsInitializerTest {
     assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(0);
     assertThat(patternsInitializer.getBlockPatterns().size()).isEqualTo(0);
     assertThat(patternsInitializer.getAllFilePatterns().size()).isEqualTo(2);
+  }
+
+  @Test(expected = SonarException.class)
+  public void shouldLogInvalidAllFilePattern() {
+    settings.setProperty(Constants.PATTERNS_ALLFILE_KEY, "1");
+    settings.setProperty(Constants.PATTERNS_ALLFILE_KEY + ".1." + Constants.FILE_REGEXP, "");
+    patternsInitializer.initPatterns();
   }
 
   @Test
