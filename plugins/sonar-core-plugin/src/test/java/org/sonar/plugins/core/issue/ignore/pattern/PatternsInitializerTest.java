@@ -20,6 +20,9 @@
 
 package org.sonar.plugins.core.issue.ignore.pattern;
 
+import org.sonar.api.utils.SonarException;
+
+import org.junit.Ignore;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
@@ -81,8 +84,8 @@ public class PatternsInitializerTest {
     settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY, "1,2");
     settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "org/foo/Bar.java");
     settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RULE_KEY, "*");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "*");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.LINE_RANGE_KEY, "org/foo/Hello.java");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.LINE_RANGE_KEY, "*");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.RESOURCE_KEY, "org/foo/Hello.java");
     settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.RULE_KEY, "checkstyle:MagicNumber");
     settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.LINE_RANGE_KEY, "[15-200]");
     patternsInitializer.initPatterns();
@@ -93,6 +96,33 @@ public class PatternsInitializerTest {
     assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(2);
     assertThat(patternsInitializer.getBlockPatterns().size()).isEqualTo(0);
     assertThat(patternsInitializer.getAllFilePatterns().size()).isEqualTo(0);
+  }
+
+  @Test(expected = SonarException.class)
+  public void shouldLogInvalidResourceKey() {
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY, "1");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RULE_KEY, "*");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.LINE_RANGE_KEY, "*");
+    patternsInitializer.initPatterns();
+  }
+
+  @Test(expected = SonarException.class)
+  public void shouldLogInvalidRuleKey() {
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY, "1");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "*");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RULE_KEY, "");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.LINE_RANGE_KEY, "*");
+    patternsInitializer.initPatterns();
+  }
+
+  @Test(expected = SonarException.class)
+  public void shouldLogInvalidLineRange() {
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY, "1");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "org/foo/Bar.java");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RULE_KEY, "*");
+    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.LINE_RANGE_KEY, "notALineRange");
+    patternsInitializer.initPatterns();
   }
 
   @Test

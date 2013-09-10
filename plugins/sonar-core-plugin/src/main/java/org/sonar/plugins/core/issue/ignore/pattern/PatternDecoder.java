@@ -72,7 +72,7 @@ public class PatternDecoder {
     return pattern;
   }
 
-  private void checkRegularLineConstraints(String line, String[] fields) {
+  static void checkRegularLineConstraints(String line, String[] fields) {
     if (!isResource(fields[0])) {
       throw new SonarException("Invalid format. The first field does not define a resource pattern: " + line);
     }
@@ -112,27 +112,27 @@ public class PatternDecoder {
   }
 
   @VisibleForTesting
-  boolean isLinesRange(String field) {
+  static boolean isLinesRange(String field) {
     return StringUtils.equals(field, "*") || java.util.regex.Pattern.matches(LINE_RANGE_REGEXP, field);
   }
 
   @VisibleForTesting
-  boolean isBlankOrComment(String line) {
+  static boolean isBlankOrComment(String line) {
     return StringUtils.isBlank(line) ^ StringUtils.startsWith(line, "#");
   }
 
   @VisibleForTesting
-  boolean isResource(String field) {
+  static boolean isResource(String field) {
     return StringUtils.isNotBlank(field);
   }
 
   @VisibleForTesting
-  boolean isRule(String field) {
+  static boolean isRule(String field) {
     return StringUtils.isNotBlank(field);
   }
 
   @VisibleForTesting
-  boolean isRegexp(String field) {
+  static boolean isRegexp(String field) {
     return StringUtils.isNotBlank(field);
   }
 }

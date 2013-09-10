@@ -90,8 +90,10 @@ public class PatternsInitializer implements BatchExtension {
       String propPrefix = Constants.PATTERNS_MULTICRITERIA_KEY + "." + id + ".";
       String resourceKeyPattern = settings.getString(propPrefix + Constants.RESOURCE_KEY);
       String ruleKeyPattern = settings.getString(propPrefix + Constants.RULE_KEY);
-      Pattern pattern = new Pattern(firstNonNull(resourceKeyPattern, "*"), firstNonNull(ruleKeyPattern, "*"));
       String lineRange = settings.getString(propPrefix + Constants.LINE_RANGE_KEY);
+      String[] fields = new String[] { resourceKeyPattern, ruleKeyPattern, lineRange };
+      PatternDecoder.checkRegularLineConstraints(StringUtils.join(fields, ","), fields);
+      Pattern pattern = new Pattern(firstNonNull(resourceKeyPattern, "*"), firstNonNull(ruleKeyPattern, "*"));
       PatternDecoder.decodeRangeOfLines(pattern, firstNonNull(lineRange, "*"));
       multicriteriaPatterns.add(pattern);
     }

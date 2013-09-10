@@ -56,32 +56,32 @@ public class PatternDecoderTest {
 
   @Test
   public void shouldCheckFormatOfResource() {
-    assertThat(decoder.isResource("")).isFalse();
-    assertThat(decoder.isResource("*")).isTrue();
-    assertThat(decoder.isResource("com.foo.*")).isTrue();
+    assertThat(PatternDecoder.isResource("")).isFalse();
+    assertThat(PatternDecoder.isResource("*")).isTrue();
+    assertThat(PatternDecoder.isResource("com.foo.*")).isTrue();
   }
 
   @Test
   public void shouldCheckFormatOfRule() {
-    assertThat(decoder.isRule("")).isFalse();
-    assertThat(decoder.isRule("*")).isTrue();
-    assertThat(decoder.isRule("com.foo.*")).isTrue();
+    assertThat(PatternDecoder.isRule("")).isFalse();
+    assertThat(PatternDecoder.isRule("*")).isTrue();
+    assertThat(PatternDecoder.isRule("com.foo.*")).isTrue();
   }
 
   @Test
   public void shouldCheckFormatOfLinesRange() {
-    assertThat(decoder.isLinesRange("")).isFalse();
-    assertThat(decoder.isLinesRange("   ")).isFalse();
-    assertThat(decoder.isLinesRange("12")).isFalse();
-    assertThat(decoder.isLinesRange("12,212")).isFalse();
+    assertThat(PatternDecoder.isLinesRange("")).isFalse();
+    assertThat(PatternDecoder.isLinesRange("   ")).isFalse();
+    assertThat(PatternDecoder.isLinesRange("12")).isFalse();
+    assertThat(PatternDecoder.isLinesRange("12,212")).isFalse();
 
-    assertThat(decoder.isLinesRange("*")).isTrue();
-    assertThat(decoder.isLinesRange("[]")).isTrue();
-    assertThat(decoder.isLinesRange("[13]")).isTrue();
-    assertThat(decoder.isLinesRange("[13,24]")).isTrue();
-    assertThat(decoder.isLinesRange("[13,24,25-500]")).isTrue();
-    assertThat(decoder.isLinesRange("[24-65]")).isTrue();
-    assertThat(decoder.isLinesRange("[13,24-65,84-89,122]")).isTrue();
+    assertThat(PatternDecoder.isLinesRange("*")).isTrue();
+    assertThat(PatternDecoder.isLinesRange("[]")).isTrue();
+    assertThat(PatternDecoder.isLinesRange("[13]")).isTrue();
+    assertThat(PatternDecoder.isLinesRange("[13,24]")).isTrue();
+    assertThat(PatternDecoder.isLinesRange("[13,24,25-500]")).isTrue();
+    assertThat(PatternDecoder.isLinesRange("[24-65]")).isTrue();
+    assertThat(PatternDecoder.isLinesRange("[13,24-65,84-89,122]")).isTrue();
   }
 
   @Test
