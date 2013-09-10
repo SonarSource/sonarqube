@@ -145,6 +145,6 @@ public class PatternsInitializer implements BatchExtension {
       List<Pattern> newList = Lists.newArrayList();
       patternByComponent.put(component, newList);
     }
-    patternByComponent.get(component).add(pattern);
+    patternByComponent.get(component).add(pattern.forResource(component));
   }
 }

@@ -155,6 +155,10 @@ public class Pattern {
     return resource != null && resourcePattern.match(resource);
   }
 
+  public Pattern forResource(String resource) {
+    return new Pattern(resource, rulePattern.toString(), lineRanges).setCheckLines(isCheckLines());
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
