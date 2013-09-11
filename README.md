@@ -9,6 +9,11 @@ Put your technical debt under control. For more information please see:
 ## Sources
 
 This Git repository is core platform. Plugins are hosted in SonarCommunity and SonarSource organisations.
+
+### Build
+
+* Install Maven 3.0.5 or greater
+* Execute `mvn clean install`
  
 ## License
 
