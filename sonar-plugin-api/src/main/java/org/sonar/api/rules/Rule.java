@@ -34,20 +34,7 @@ import org.sonar.check.Cardinality;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -72,12 +59,14 @@ public final class Rule {
 
   /**
    * For internal use only.
+   *
    * @since 3.6
    */
   public static final String STATUS_REMOVED = "REMOVED";
 
   /**
    * List of available status
+   *
    * @since 3.6
    */
   private static final Set<String> STATUS_LIST = ImmutableSet.of(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED);
@@ -158,52 +147,6 @@ public final class Rule {
     this.pluginName = pluginName;
     this.key = key;
     this.configKey = key;
-  }
-
-  /**
-   * Creates a fully qualified rule
-   *
-   * @param pluginKey     the plugin the rule belongs to
-   * @param key           the key should be unique within a plugin, but it is even more careful for the time being that it is unique across the
-   *                      application
-   * @param name          the name displayed in the UI
-   * @param rulesCategory the ISO category the rule belongs to
-   * @param severity      this is the severity associated to the rule
-   * @deprecated since 2.3. Use the factory method {@link #create()}
-   */
-  @Deprecated
-  public Rule(String pluginKey, String key, String name, RulesCategory rulesCategory, RulePriority severity) {
-    setName(name);
-    this.key = key;
-    this.configKey = key;
-    this.priority = severity;
-    this.pluginName = pluginKey;
-  }
-
-  /**
-   * @deprecated since 2.3. Use the factory method {@link #create()}
-   */
-  @Deprecated
-  public Rule(String name, String key, RulesCategory rulesCategory, String pluginName, String description) {
-    this();
-    setName(name);
-    this.key = key;
-    this.configKey = key;
-    this.pluginName = pluginName;
-    this.description = description;
-  }
-
-  /**
-   * @deprecated since 2.3. Use the factory method {@link #create()}
-   */
-  @Deprecated
-  public Rule(String name, String key, String configKey, RulesCategory rulesCategory, String pluginName, String description) {
-    this();
-    setName(name);
-    this.key = key;
-    this.configKey = configKey;
-    this.pluginName = pluginName;
-    this.description = description;
   }
 
   public Integer getId() {
@@ -470,6 +413,7 @@ public final class Rule {
 
   /**
    * For internal use only.
+   *
    * @since 3.6
    */
   public Rule setLanguage(String language) {
