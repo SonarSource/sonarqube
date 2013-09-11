@@ -31,24 +31,26 @@ import java.util.List;
 
 public final class IgnoreIssuesConfiguration {
 
-  public static String SUB_CATEGORY_IGNORE_ISSUES = "Ignore Issues";
+  public static final String CONFIG_DOCUMENTATION_LINK = "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>";
 
-  public static String CORE_KEY_PREFIX = "sonar.issue.ignore";
+  public static final String SUB_CATEGORY_IGNORE_ISSUES = "Issues";
 
-  public static String MULTICRITERIA_SUFFIX = ".multicriteria";
-  public static String PATTERNS_MULTICRITERIA_KEY = CORE_KEY_PREFIX + MULTICRITERIA_SUFFIX;
-  public static String RESOURCE_KEY = "resourceKey";
-  public static String RULE_KEY = "ruleKey";
-  public static String LINE_RANGE_KEY = "lineRange";
+  public static final String CORE_KEY_PREFIX = "sonar.issue.ignore";
 
-  public static String BLOCK_SUFFIX = ".block";
-  public static String PATTERNS_BLOCK_KEY = CORE_KEY_PREFIX + BLOCK_SUFFIX;
-  public static String BEGIN_BLOCK_REGEXP = "beginBlockRegexp";
-  public static String END_BLOCK_REGEXP = "endBlockRegexp";
+  public static final String MULTICRITERIA_SUFFIX = ".multicriteria";
+  public static final String PATTERNS_MULTICRITERIA_KEY = CORE_KEY_PREFIX + MULTICRITERIA_SUFFIX;
+  public static final String RESOURCE_KEY = "resourceKey";
+  public static final String RULE_KEY = "ruleKey";
+  public static final String LINE_RANGE_KEY = "lineRange";
 
-  public static String ALLFILE_SUFFIX = ".allfile";
-  public static String PATTERNS_ALLFILE_KEY = CORE_KEY_PREFIX + ALLFILE_SUFFIX;
-  public static String FILE_REGEXP = "fileRegexp";
+  public static final String BLOCK_SUFFIX = ".block";
+  public static final String PATTERNS_BLOCK_KEY = CORE_KEY_PREFIX + BLOCK_SUFFIX;
+  public static final String BEGIN_BLOCK_REGEXP = "beginBlockRegexp";
+  public static final String END_BLOCK_REGEXP = "endBlockRegexp";
+
+  public static final String ALLFILE_SUFFIX = ".allfile";
+  public static final String PATTERNS_ALLFILE_KEY = CORE_KEY_PREFIX + ALLFILE_SUFFIX;
+  public static final String FILE_REGEXP = "fileRegexp";
 
   private IgnoreIssuesConfiguration() {}
 
@@ -62,7 +64,7 @@ public final class IgnoreIssuesConfiguration {
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("File Path Pattern")
         .description("Patterns used to identify which violations to switch off.<br/>" +
-          "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
+          CONFIG_DOCUMENTATION_LINK)
         .onQualifiers(Qualifiers.PROJECT)
         .index(3)
         .fields(
@@ -90,7 +92,7 @@ public final class IgnoreIssuesConfiguration {
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Block exclusion patterns")
         .description("Patterns used to identify blocks in which violations are switched off.<br/>" +
-          "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
+          CONFIG_DOCUMENTATION_LINK)
         .onQualifiers(Qualifiers.PROJECT)
         .index(2)
         .fields(
@@ -112,7 +114,7 @@ public final class IgnoreIssuesConfiguration {
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("File exclusion patterns")
         .description("Patterns used to identify files in which violations are switched off.<br/>" +
-          "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
+          CONFIG_DOCUMENTATION_LINK)
         .onQualifiers(Qualifiers.PROJECT)
         .index(1)
         .fields(
