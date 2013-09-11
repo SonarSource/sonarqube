@@ -94,7 +94,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
+      <groupId>org.mortbay.jetty</groupId>
       <artifactId>servlet-api</artifactId>
       <scope>test</scope>
     </dependency>

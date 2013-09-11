@@ -126,7 +126,7 @@
       <artifactId>xalan</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
+      <groupId>org.mortbay.jetty</groupId>
       <artifactId>servlet-api</artifactId>
       <optional>true</optional>
     </dependency>

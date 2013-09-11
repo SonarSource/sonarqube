@@ -114,7 +114,7 @@
       <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
+      <groupId>org.mortbay.jetty</groupId>
       <artifactId>servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
