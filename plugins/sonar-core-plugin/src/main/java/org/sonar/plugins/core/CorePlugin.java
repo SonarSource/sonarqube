@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.core;
 
+import org.sonar.api.resources.Qualifiers;
+
+import org.sonar.api.config.PropertyDefinition;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
@@ -181,45 +184,6 @@ import java.util.List;
     global = true,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
-    key = CoreProperties.PROJECT_INCLUSIONS_PROPERTY,
-    name = "Source File Inclusions",
-    project = true,
-    global = true,
-    multiValues = true,
-    category = CoreProperties.CATEGORY_EXCLUSIONS),
-  @Property(
-    key = CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY,
-    name = "Test File Inclusions",
-    project = true,
-    global = true,
-    multiValues = true,
-    category = CoreProperties.CATEGORY_EXCLUSIONS),
-  @Property(
-    key = CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY,
-    name = "Global Source File Exclusions",
-    multiValues = true,
-    category = CoreProperties.CATEGORY_EXCLUSIONS),
-  @Property(
-    key = CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY,
-    name = "Global Test File Exclusions",
-    multiValues = true,
-    category = CoreProperties.CATEGORY_EXCLUSIONS,
-    defaultValue = CoreProperties.GLOBAL_TEST_EXCLUSIONS_DEFAULT),
-  @Property(
-    key = CoreProperties.PROJECT_EXCLUSIONS_PROPERTY,
-    name = "Source File Exclusions",
-    project = true,
-    global = true,
-    multiValues = true,
-    category = CoreProperties.CATEGORY_EXCLUSIONS),
-  @Property(
-    key = CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY,
-    name = "Test File Exclusions",
-    project = true,
-    global = true,
-    multiValues = true,
-    category = CoreProperties.CATEGORY_EXCLUSIONS),
-  @Property(
     key = CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
     defaultValue = "" + CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE,
     name = "Import sources",
@@ -229,14 +193,6 @@ import java.util.List;
     global = true,
     category = CoreProperties.CATEGORY_SECURITY,
     type = PropertyType.BOOLEAN),
-  @Property(
-    key = CoreProperties.CORE_SKIPPED_MODULES_PROPERTY,
-    name = "Exclude modules",
-    description = "Maven artifact ids of modules to exclude.",
-    project = true,
-    global = false,
-    multiValues = true,
-    category = CoreProperties.CATEGORY_EXCLUSIONS),
   @Property(
     key = CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY,
     defaultValue = "" + CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE,
@@ -528,8 +484,62 @@ public final class CorePlugin extends SonarPlugin {
         NewAlerts.class,
         NewAlerts.newMetadata());
 
+    extensions.addAll(getPropertyDefinitions());
     extensions.addAll(IgnoreIssuesPlugin.getExtensions());
 
     return extensions.build();
+  }
+
+  private static List<PropertyDefinition> getPropertyDefinitions() {
+    return ImmutableList.of(
+      PropertyDefinition.builder(CoreProperties.PROJECT_INCLUSIONS_PROPERTY)
+        .name("Source File Inclusions")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY)
+        .name("Test File Inclusions")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY)
+        .name("Global Source File Exclusions")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY)
+        .name("Global Test File Exclusions")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .defaultValue(CoreProperties.GLOBAL_TEST_EXCLUSIONS_DEFAULT)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY)
+        .name("Source File Exclusions")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY)
+        .name("Test File Exclusions")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.CORE_SKIPPED_MODULES_PROPERTY)
+        .name("Exclude Modules")
+        .description("Maven artifact ids of modules to exclude.")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .onlyOnQualifiers(Qualifiers.PROJECT)
+        .build());
   }
 }

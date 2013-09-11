@@ -73,6 +73,11 @@ public interface CoreProperties {
   String CATEGORY_EXCLUSIONS = "exclusions";
 
   /**
+   * @since 4.0
+   */
+  String SUBCATEGORY_FILES_EXCLUSIONS = "files";
+
+  /**
    * @since 3.7
    */
   String CATEGORY_LICENSES = "licenses";
