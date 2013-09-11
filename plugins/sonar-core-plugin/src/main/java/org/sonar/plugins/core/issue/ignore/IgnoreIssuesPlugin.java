@@ -29,7 +29,9 @@ import java.util.List;
 
 public final class IgnoreIssuesPlugin {
 
-  private IgnoreIssuesPlugin() {}
+  private IgnoreIssuesPlugin() {
+    // static extension declaration only
+  }
 
   public static List<?> getExtensions() {
     ImmutableList.Builder<Object> extensions = ImmutableList.builder();

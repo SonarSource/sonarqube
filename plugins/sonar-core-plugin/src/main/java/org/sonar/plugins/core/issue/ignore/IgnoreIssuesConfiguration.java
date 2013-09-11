@@ -31,7 +31,8 @@ import java.util.List;
 
 public final class IgnoreIssuesConfiguration {
 
-  public static final String CONFIG_DOCUMENTATION_LINK = "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>";
+  public static final String CONFIG_DOCUMENTATION_LINK = "More information on the "
+    + "<a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>";
 
   public static final String SUB_CATEGORY_IGNORE_ISSUES = "Issues";
 
@@ -52,7 +53,9 @@ public final class IgnoreIssuesConfiguration {
   public static final String PATTERNS_ALLFILE_KEY = CORE_KEY_PREFIX + ALLFILE_SUFFIX;
   public static final String FILE_REGEXP = "fileRegexp";
 
-  private IgnoreIssuesConfiguration() {}
+  private IgnoreIssuesConfiguration() {
+    // static configuration declaration only
+  }
 
   static final int LARGE_SIZE = 20;
   static final int SMALL_SIZE = 10;

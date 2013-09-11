@@ -161,7 +161,7 @@ public class RegexpScanner implements BatchExtension {
     }
 
     public LineRange toLineRange() {
-      return new LineRange(start, (end == -1 ? fileLength : end));
+      return new LineRange(start, end == -1 ? fileLength : end);
     }
 
   }
