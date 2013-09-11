@@ -13,8 +13,9 @@ This Git repository is core platform. Plugins are hosted in SonarCommunity and S
 ### Build
 
 * Install Maven 3.0.5 or greater
-* Execute `mvn clean install`
- 
+* Execute `mvn clean install`. To quickly build in development environment, the script `quick-build.sh` does not execute unit tests and compile GWT components for Firefox/Chrome only.
+* ZIP file of application is generated in sonar-application/target/
+
 ## License
 
 Copyright 2008-2013 SonarSource.
