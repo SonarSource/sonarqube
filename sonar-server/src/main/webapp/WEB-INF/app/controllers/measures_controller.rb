@@ -239,7 +239,7 @@ class MeasuresController < ApplicationController
 
   def render_measures_error(filter)
     errors = []
-    filter.errors.full_messages.each{|msg| errors<<msg + '<br/>'}
+    filter.errors.full_messages.each{|msg| errors<<CGI.escapeHTML(msg) + '<br/>'}
     render :text => errors, :status => 400
   end
 end

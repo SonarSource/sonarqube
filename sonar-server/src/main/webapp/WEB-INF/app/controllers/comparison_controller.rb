@@ -28,6 +28,8 @@ class ComparisonController < ApplicationController
     if resource_key && !resource_key.blank?
       # the request comes from a project: let's select its 5 latest versions
       project = Project.by_key(resource_key)
+      return render_not_found('Project not found') unless project
+
       snapshots = project.events.select { |event| !event.snapshot_id.nil? && event.category==EventCategory::KEY_VERSION }[0..5].reverse.map {|e| e.snapshot}
       # if last snapshot is not in the list, add it at the end (=> might be the case for views or developers which do not have events)
       last_snapshot = project.last_snapshot

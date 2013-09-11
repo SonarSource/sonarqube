@@ -90,7 +90,7 @@ class AlertsController < ApplicationController
     else
       @alerts = @profile.alerts.reload
       errors = []
-      @alert.errors.full_messages.each{|msg| errors<<msg + '<br/>'}
+      @alert.errors.full_messages.each{|msg| errors<<CGI.escapeHTML(msg) + '<br/>'}
       render :text => errors, :status => 404
     end
   end
@@ -115,7 +115,7 @@ class AlertsController < ApplicationController
       render :text => 'ok', :status => 200
     else
       errors = []
-      alert.errors.full_messages.each{|msg| errors<<msg + '<br/>'}
+      alert.errors.full_messages.each{|msg| errors<<CGI.escapeHTML(msg) + '<br/>'}
       render :text => errors, :status => 404
     end
   end

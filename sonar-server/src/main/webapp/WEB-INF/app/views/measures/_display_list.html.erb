@@ -1,7 +1,7 @@
 <div id="measure_filter_list<%= widget_id -%>">
 <% content_for :script do %>
   <script>
-    var filterCriteria<%= widget_id -%> = <%= filter.criteria.to_json -%>;
+    var filterCriteria<%= widget_id -%> = <%= json_escape(filter.criteria.to_json) -%>;
 
     function refreshList<%= widget_id -%>(sort, asc, page) {
       $j('#measure_filter_foot<%= widget_id -%>_pages').hide();

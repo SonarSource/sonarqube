@@ -183,6 +183,20 @@ module ActiveSupport
   end
 end
 
+class ActionView::Base
+
+  # Fix XSS - embed secure JSON in HTML
+  # http://jfire.io/blog/2012/04/30/how-to-securely-bootstrap-json-in-a-rails-view/
+  # Default implmentation of json_escape also removes double quote (") characters. It is documented to return invalid JSON !
+  def json_escape(s)
+    result = s.to_s.gsub('/', '\/')
+    s.html_safe? ? result.html_safe : result
+  end
+
+  alias j json_escape
+end
+
+
 #
 # other patches :
 # - activerecord : fix Oracle bug when more than 1000 elements in IN clause. See lib/active_record/association_preload.rb

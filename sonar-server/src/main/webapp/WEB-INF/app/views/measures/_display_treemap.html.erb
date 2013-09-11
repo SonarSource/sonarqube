@@ -1,5 +1,5 @@
 <script>
-  var filterCriteria<%= widget_id -%> = <%= filter.criteria.to_json -%>;
+  var filterCriteria<%= widget_id -%> = <%= json_escape(filter.criteria.to_json) -%>;
 </script>
 <%
    treemap_id = widget_id.nil? ? 1 : widget_id
