@@ -33,7 +33,7 @@ import java.util.List;
 
 public final class CpdPlugin extends SonarPlugin {
 
-  public List getExtensions() {
+  public List<?> getExtensions() {
     return ImmutableList.of(
       PropertyDefinition.builder(CoreProperties.CPD_CROSS_RPOJECT)
         .defaultValue(CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE + "")
@@ -57,7 +57,8 @@ public final class CpdPlugin extends SonarPlugin {
         .description("Patterns used to exclude some source files from the duplication detection mechanism. " +
           "See the \"Exclusions\" category to know how to use wildcards to specify this property.")
         .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
-        .category(CoreProperties.CATEGORY_DUPLICATIONS)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
         .multiValues(true)
         .build(),
 

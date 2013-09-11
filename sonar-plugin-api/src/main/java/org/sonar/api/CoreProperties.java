@@ -76,6 +76,7 @@ public interface CoreProperties {
    * @since 4.0
    */
   String SUBCATEGORY_FILES_EXCLUSIONS = "files";
+  String SUBCATEGORY_DUPLICATIONS_EXCLUSIONS = "duplications";
 
   /**
    * @since 3.7
