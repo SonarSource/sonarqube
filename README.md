@@ -61,6 +61,39 @@ Debug Maven analysis by executing `mvnDebug sonar:sonar`. Then attach your IDE t
 
 Example in Intellij Idea : Run -> Edit configurations -> Add new configuration -> Remote -> port 8000.
 
+### Profile Maven Analysis with JProfiler
+
+Duplicate $MAVEN_HOME/bin/mvnDebug to mvnJProfiler and replace the property MAVEN_DEBUG_OPTS by:
+
+    MAVEN_DEBUG_OPTS="-Xint -agentlib:jprofilerti=port=8849 -Xbootclasspath/a:/path/to/jprofiler/bin/agent.jar"
+
+Then start JProfiler -> Connect to an application on a remote computer
+
+### Log All Server SQL Requests
+
+Download log4jdbc4-1.2.jar from http://log4jdbc.googlecode.com/files/log4jdbc4-1.2.jar in $SONAR_HOME/war/sonar-server/WEB-INF/lib/log4jdbc4-1.2.jar, and edit conf/logback.xml:
+
+    <logger name="jdbc.sqltiming">
+      <level value="OFF"/>
+      <appender-ref ref="PROFILING_FILE"/>
+    </logger>
+    <logger name="jdbc.connection">
+        <level value="INFO"/>
+        <appender-ref ref="PROFILING_FILE"/>
+    </logger>
+    <logger name="jdbc.audit">
+        <level value="OFF"/>
+        <appender-ref ref="PROFILING_FILE"/>
+    </logger>
+    <logger name="jdbc.resultset">
+        <level value="OFF"/>
+        <appender-ref ref="PROFILING_FILE"/>
+    </logger>
+    <logger name="jdbc.sqlonly">
+        <level value="OFF"/>
+        <appender-ref ref="PROFILING_FILE"/>
+    </logger>
+    
 ## License
 
 Copyright 2008-2013 SonarSource.
