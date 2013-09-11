@@ -21,7 +21,6 @@
 package org.sonar.plugins.core.issue.ignore;
 
 import org.sonar.api.PropertyType;
-
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.CoreProperties;
@@ -32,6 +31,25 @@ import java.util.List;
 
 public final class IgnoreIssuesConfiguration {
 
+  public static String SUB_CATEGORY_IGNORE_ISSUES = "Ignore Issues";
+
+  public static String CORE_KEY_PREFIX = "sonar.issue.ignore";
+
+  public static String MULTICRITERIA_SUFFIX = ".multicriteria";
+  public static String PATTERNS_MULTICRITERIA_KEY = CORE_KEY_PREFIX + MULTICRITERIA_SUFFIX;
+  public static String RESOURCE_KEY = "resourceKey";
+  public static String RULE_KEY = "ruleKey";
+  public static String LINE_RANGE_KEY = "lineRange";
+
+  public static String BLOCK_SUFFIX = ".block";
+  public static String PATTERNS_BLOCK_KEY = CORE_KEY_PREFIX + BLOCK_SUFFIX;
+  public static String BEGIN_BLOCK_REGEXP = "beginBlockRegexp";
+  public static String END_BLOCK_REGEXP = "endBlockRegexp";
+
+  public static String ALLFILE_SUFFIX = ".allfile";
+  public static String PATTERNS_ALLFILE_KEY = CORE_KEY_PREFIX + ALLFILE_SUFFIX;
+  public static String FILE_REGEXP = "fileRegexp";
+
   private IgnoreIssuesConfiguration() {}
 
   static final int LARGE_SIZE = 20;
@@ -39,66 +57,66 @@ public final class IgnoreIssuesConfiguration {
 
   public static List<PropertyDefinition> getPropertyDefinitions() {
     return ImmutableList.of(
-      PropertyDefinition.builder(Constants.PATTERNS_MULTICRITERIA_KEY)
+      PropertyDefinition.builder(PATTERNS_MULTICRITERIA_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
-        .subCategory(Constants.SUB_CATEGORY_IGNORE_ISSUES)
+        .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("File Path Pattern")
         .description("Patterns used to identify which violations to switch off.<br/>" +
           "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
         .onQualifiers(Qualifiers.PROJECT)
         .index(3)
         .fields(
-          PropertyFieldDefinition.build(Constants.RESOURCE_KEY)
+          PropertyFieldDefinition.build(RESOURCE_KEY)
             .name("File Path Pattern")
             .description("Pattern used to match files which should be ignored")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
-          PropertyFieldDefinition.build(Constants.RULE_KEY)
+          PropertyFieldDefinition.build(RULE_KEY)
             .name("Rule Key Pattern")
             .description("Pattern used to match rules which should be ignored")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
-          PropertyFieldDefinition.build(Constants.LINE_RANGE_KEY)
+          PropertyFieldDefinition.build(LINE_RANGE_KEY)
             .name("Line Range")
             .description("Range of lines that should be ignored.")
             .type(PropertyType.STRING)
             .indicativeSize(SMALL_SIZE)
             .build())
         .build(),
-        PropertyDefinition.builder(Constants.PATTERNS_BLOCK_KEY)
+        PropertyDefinition.builder(PATTERNS_BLOCK_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
-        .subCategory(Constants.SUB_CATEGORY_IGNORE_ISSUES)
+        .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Block exclusion patterns")
         .description("Patterns used to identify blocks in which violations are switched off.<br/>" +
           "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
         .onQualifiers(Qualifiers.PROJECT)
         .index(2)
         .fields(
-          PropertyFieldDefinition.build(Constants.BEGIN_BLOCK_REGEXP)
+          PropertyFieldDefinition.build(BEGIN_BLOCK_REGEXP)
             .name("Regular expression for start of block")
             .description("If this regular expression is found in a file, then following lines are ignored until end of block.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
-          PropertyFieldDefinition.build(Constants.END_BLOCK_REGEXP)
+          PropertyFieldDefinition.build(END_BLOCK_REGEXP)
             .name("Regular expression for end of block")
             .description("If specified, this regular expression is used to determine the end of code blocks to ignore. If not, then block ends at the end of file.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build())
         .build(),
-        PropertyDefinition.builder(Constants.PATTERNS_ALLFILE_KEY)
+        PropertyDefinition.builder(PATTERNS_ALLFILE_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
-        .subCategory(Constants.SUB_CATEGORY_IGNORE_ISSUES)
+        .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("File exclusion patterns")
         .description("Patterns used to identify files in which violations are switched off.<br/>" +
           "More information on the <a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>")
         .onQualifiers(Qualifiers.PROJECT)
         .index(1)
         .fields(
-          PropertyFieldDefinition.build(Constants.FILE_REGEXP)
+          PropertyFieldDefinition.build(FILE_REGEXP)
             .name("Regular expression")
             .description("If this regular expression is found in a file, then following lines are ignored.")
             .type(PropertyType.STRING)

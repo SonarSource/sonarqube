@@ -27,7 +27,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.config.Settings;
-import org.sonar.plugins.core.issue.ignore.Constants;
+import org.sonar.plugins.core.issue.ignore.IgnoreIssuesConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -85,12 +85,12 @@ public class PatternsInitializer implements BatchExtension {
 
   private void loadPatternsFromNewProperties() {
     // Patterns Multicriteria
-    String patternConf = StringUtils.defaultIfBlank(settings.getString(Constants.PATTERNS_MULTICRITERIA_KEY), "");
+    String patternConf = StringUtils.defaultIfBlank(settings.getString(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY), "");
     for (String id : StringUtils.split(patternConf, ',')) {
-      String propPrefix = Constants.PATTERNS_MULTICRITERIA_KEY + "." + id + ".";
-      String resourceKeyPattern = settings.getString(propPrefix + Constants.RESOURCE_KEY);
-      String ruleKeyPattern = settings.getString(propPrefix + Constants.RULE_KEY);
-      String lineRange = settings.getString(propPrefix + Constants.LINE_RANGE_KEY);
+      String propPrefix = IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + "." + id + ".";
+      String resourceKeyPattern = settings.getString(propPrefix + IgnoreIssuesConfiguration.RESOURCE_KEY);
+      String ruleKeyPattern = settings.getString(propPrefix + IgnoreIssuesConfiguration.RULE_KEY);
+      String lineRange = settings.getString(propPrefix + IgnoreIssuesConfiguration.LINE_RANGE_KEY);
       String[] fields = new String[] { resourceKeyPattern, ruleKeyPattern, lineRange };
       PatternDecoder.checkRegularLineConstraints(StringUtils.join(fields, ","), fields);
       Pattern pattern = new Pattern(firstNonNull(resourceKeyPattern, "*"), firstNonNull(ruleKeyPattern, "*"));
@@ -99,11 +99,11 @@ public class PatternsInitializer implements BatchExtension {
     }
 
     // Patterns Block
-    patternConf = StringUtils.defaultIfBlank(settings.getString(Constants.PATTERNS_BLOCK_KEY), "");
+    patternConf = StringUtils.defaultIfBlank(settings.getString(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY), "");
     for (String id : StringUtils.split(patternConf, ',')) {
-      String propPrefix = Constants.PATTERNS_BLOCK_KEY + "." + id + ".";
-      String beginBlockRegexp = settings.getString(propPrefix + Constants.BEGIN_BLOCK_REGEXP);
-      String endBlockRegexp = settings.getString(propPrefix + Constants.END_BLOCK_REGEXP);
+      String propPrefix = IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + "." + id + ".";
+      String beginBlockRegexp = settings.getString(propPrefix + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP);
+      String endBlockRegexp = settings.getString(propPrefix + IgnoreIssuesConfiguration.END_BLOCK_REGEXP);
       String[] fields = new String[] { beginBlockRegexp, endBlockRegexp };
       PatternDecoder.checkDoubleRegexpLineConstraints(StringUtils.join(fields, ","), fields);
       Pattern pattern = new Pattern().setBeginBlockRegexp(nullToEmpty(beginBlockRegexp)).setEndBlockRegexp(nullToEmpty(endBlockRegexp));
@@ -111,10 +111,10 @@ public class PatternsInitializer implements BatchExtension {
     }
 
     // Patterns All File
-    patternConf = StringUtils.defaultIfBlank(settings.getString(Constants.PATTERNS_ALLFILE_KEY), "");
+    patternConf = StringUtils.defaultIfBlank(settings.getString(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY), "");
     for (String id : StringUtils.split(patternConf, ',')) {
-      String propPrefix = Constants.PATTERNS_ALLFILE_KEY + "." + id + ".";
-      String allFileRegexp = settings.getString(propPrefix + Constants.FILE_REGEXP);
+      String propPrefix = IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY + "." + id + ".";
+      String allFileRegexp = settings.getString(propPrefix + IgnoreIssuesConfiguration.FILE_REGEXP);
       PatternDecoder.checkWholeFileRegexp(allFileRegexp);
       Pattern pattern = new Pattern().setAllFileRegexp(nullToEmpty(allFileRegexp));
       allFilePatterns.add(pattern);

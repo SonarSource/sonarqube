@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
-import org.sonar.plugins.core.issue.ignore.Constants;
 import org.sonar.plugins.core.issue.ignore.IgnoreIssuesConfiguration;
 
 import java.util.Set;
@@ -79,13 +78,13 @@ public class PatternsInitializerTest {
 
   @Test
   public void shouldReturnMulticriteriaPattern() {
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY, "1,2");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "org/foo/Bar.java");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RULE_KEY, "*");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.LINE_RANGE_KEY, "*");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.RESOURCE_KEY, "org/foo/Hello.java");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.RULE_KEY, "checkstyle:MagicNumber");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".2." + Constants.LINE_RANGE_KEY, "[15-200]");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY, "1,2");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.RESOURCE_KEY, "org/foo/Bar.java");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.RULE_KEY, "*");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.LINE_RANGE_KEY, "*");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".2." + IgnoreIssuesConfiguration.RESOURCE_KEY, "org/foo/Hello.java");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".2." + IgnoreIssuesConfiguration.RULE_KEY, "checkstyle:MagicNumber");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".2." + IgnoreIssuesConfiguration.LINE_RANGE_KEY, "[15-200]");
     patternsInitializer.initPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
@@ -98,38 +97,38 @@ public class PatternsInitializerTest {
 
   @Test(expected = SonarException.class)
   public void shouldLogInvalidResourceKey() {
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY, "1");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RULE_KEY, "*");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.LINE_RANGE_KEY, "*");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY, "1");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.RESOURCE_KEY, "");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.RULE_KEY, "*");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.LINE_RANGE_KEY, "*");
     patternsInitializer.initPatterns();
   }
 
   @Test(expected = SonarException.class)
   public void shouldLogInvalidRuleKey() {
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY, "1");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "*");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RULE_KEY, "");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.LINE_RANGE_KEY, "*");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY, "1");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.RESOURCE_KEY, "*");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.RULE_KEY, "");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.LINE_RANGE_KEY, "*");
     patternsInitializer.initPatterns();
   }
 
   @Test(expected = SonarException.class)
   public void shouldLogInvalidLineRange() {
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY, "1");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RESOURCE_KEY, "org/foo/Bar.java");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.RULE_KEY, "*");
-    settings.setProperty(Constants.PATTERNS_MULTICRITERIA_KEY + ".1." + Constants.LINE_RANGE_KEY, "notALineRange");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY, "1");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.RESOURCE_KEY, "org/foo/Bar.java");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.RULE_KEY, "*");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_KEY + ".1." + IgnoreIssuesConfiguration.LINE_RANGE_KEY, "notALineRange");
     patternsInitializer.initPatterns();
   }
 
   @Test
   public void shouldReturnBlockPattern() {
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY, "1,2");
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".1." + Constants.BEGIN_BLOCK_REGEXP, "// SONAR-OFF");
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".1." + Constants.END_BLOCK_REGEXP, "// SONAR-ON");
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".2." + Constants.BEGIN_BLOCK_REGEXP, "// FOO-OFF");
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".2." + Constants.END_BLOCK_REGEXP, "// FOO-ON");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY, "1,2");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "// SONAR-OFF");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "// SONAR-ON");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".2." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "// FOO-OFF");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".2." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "// FOO-ON");
     patternsInitializer.initPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
@@ -142,25 +141,25 @@ public class PatternsInitializerTest {
 
   @Test(expected = SonarException.class)
   public void shouldLogInvalidStartBlockPattern() {
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY, "1");
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".1." + Constants.BEGIN_BLOCK_REGEXP, "");
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".1." + Constants.END_BLOCK_REGEXP, "// SONAR-ON");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY, "1");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "// SONAR-ON");
     patternsInitializer.initPatterns();
   }
 
   @Test(expected = SonarException.class)
   public void shouldLogInvalidEndBlockPattern() {
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY, "1");
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".1." + Constants.BEGIN_BLOCK_REGEXP, "// SONAR-OFF");
-    settings.setProperty(Constants.PATTERNS_BLOCK_KEY + ".1." + Constants.END_BLOCK_REGEXP, "");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY, "1");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "// SONAR-OFF");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "");
     patternsInitializer.initPatterns();
   }
 
   @Test
   public void shouldReturnAllFilePattern() {
-    settings.setProperty(Constants.PATTERNS_ALLFILE_KEY, "1,2");
-    settings.setProperty(Constants.PATTERNS_ALLFILE_KEY + ".1." + Constants.FILE_REGEXP, "@SONAR-IGNORE-ALL");
-    settings.setProperty(Constants.PATTERNS_ALLFILE_KEY + ".2." + Constants.FILE_REGEXP, "//FOO-IGNORE-ALL");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY, "1,2");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY + ".1." + IgnoreIssuesConfiguration.FILE_REGEXP, "@SONAR-IGNORE-ALL");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY + ".2." + IgnoreIssuesConfiguration.FILE_REGEXP, "//FOO-IGNORE-ALL");
     patternsInitializer.initPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
@@ -173,8 +172,8 @@ public class PatternsInitializerTest {
 
   @Test(expected = SonarException.class)
   public void shouldLogInvalidAllFilePattern() {
-    settings.setProperty(Constants.PATTERNS_ALLFILE_KEY, "1");
-    settings.setProperty(Constants.PATTERNS_ALLFILE_KEY + ".1." + Constants.FILE_REGEXP, "");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY, "1");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY + ".1." + IgnoreIssuesConfiguration.FILE_REGEXP, "");
     patternsInitializer.initPatterns();
   }
 
