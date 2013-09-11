@@ -34,7 +34,7 @@ public final class IgnoreIssuesConfiguration {
   public static final String CONFIG_DOCUMENTATION_LINK = "More information on the "
     + "<a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>";
 
-  public static final String SUB_CATEGORY_IGNORE_ISSUES = "Issues";
+  public static final String SUB_CATEGORY_IGNORE_ISSUES = "issues";
 
   public static final String CORE_KEY_PREFIX = "sonar.issue.ignore";
 
