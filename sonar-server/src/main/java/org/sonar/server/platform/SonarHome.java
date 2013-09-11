@@ -22,19 +22,14 @@ package org.sonar.server.platform;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.config.ConfigurationUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 /**
  * Search fo the Sonar installation directory in the following ordered steps :
  * <ol>
- *   <li>system property SONAR_HOME</li>
- *   <li>environment variable SONAR_HOME</li>
- *   <li>property SONAR_HOME in the file WEB-INF/classes/sonar-war.properties</li>
+ * <li>system property SONAR_HOME</li>
+ * <li>environment variable SONAR_HOME</li>
  * </ol>
  *
  * @since 2.12
@@ -45,11 +40,12 @@ final class SonarHome {
     // only static methods
   }
 
-  static final String PROPERTY = "SONAR_HOME";
+  static final String SONAR_HOME = "SONAR_HOME";
+
   static Supplier<File> homeSupplier = Suppliers.memoize(new Supplier<File>() {
     public File get() {
       File home = locate();
-      System.setProperty(PROPERTY, home.getAbsolutePath());
+      System.setProperty(SONAR_HOME, home.getAbsolutePath());
       return home;
     }
   });
@@ -59,34 +55,20 @@ final class SonarHome {
   }
 
   static File locate() {
-    String value = System.getProperty(PROPERTY);
+    String value = System.getProperty(SONAR_HOME);
     if (StringUtils.isBlank(value)) {
-      value = System.getenv(PROPERTY);
-      if (StringUtils.isBlank(value)) {
-        value = openWarProperties().getProperty(PROPERTY);
-      }
+      value = System.getenv(SONAR_HOME);
     }
 
     if (StringUtils.isBlank(value)) {
-      throw new IllegalStateException("SonarQube value is not defined. " +
-          "Please set the environment variable/system property " + PROPERTY + " or edit the file WEB-INF/classes/sonar-war.properties");
+      throw new IllegalStateException("The system property or env variable " + SONAR_HOME + " is not set");
     }
 
     File dir = new File(value);
     if (!dir.isDirectory() || !dir.exists()) {
-      throw new IllegalStateException(PROPERTY + " is not valid: " + value + ". Please fix the environment variable/system property SONAR_HOME or " +
-          "the file WEB-INF/classes/sonar-war.properties");
+      throw new IllegalStateException(SONAR_HOME + " is not valid: " + value + ". Please fix the env variable/system " +
+        "property " + SONAR_HOME);
     }
     return dir;
-  }
-
-  private static Properties openWarProperties() {
-    try {
-      InputStream input = SonarHome.class.getResourceAsStream("/sonar-war.properties");
-      // it closes the stream
-      return ConfigurationUtils.readInputStream(input);
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to load the file sonar-war.properties", e);
-    }
   }
 }

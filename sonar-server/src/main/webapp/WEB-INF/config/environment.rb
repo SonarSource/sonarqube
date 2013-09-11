@@ -9,7 +9,7 @@ require File.join(File.dirname(__FILE__), 'boot')
 require 'color'
 
 # Disable all the warnings :
-# Gem::SourceIndex#initialize called from /.../war/sonar-server/WEB-INF/gems/gems/rails-2.3.15/lib/rails/vendor_gem_source_index.rb:100.
+# Gem::SourceIndex#initialize called from /.../web/WEB-INF/gems/gems/rails-2.3.15/lib/rails/vendor_gem_source_index.rb:100.
 # The other solutions are to upgrade to rails 3 or to use gembundler.com
 require 'rubygems'
 Gem::Deprecate.skip = (RAILS_ENV == 'production')

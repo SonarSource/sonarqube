@@ -37,7 +37,7 @@
     </dependencySet>
     <!-- Server -->
     <dependencySet>
-      <outputDirectory>war/sonar-server</outputDirectory>
+      <outputDirectory>web</outputDirectory>
       <includes>
         <include>org.codehaus.sonar:sonar-server</include>
       </includes>

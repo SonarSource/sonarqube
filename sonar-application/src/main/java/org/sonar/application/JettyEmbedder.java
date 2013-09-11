@@ -92,7 +92,7 @@ public class JettyEmbedder {
       handlers.add(shutdownHandler);
     }
 
-    WebAppContext context = new WebAppContext(getPath("/war/sonar-server"), contextPath);
+    WebAppContext context = new WebAppContext(getPath("/web"), contextPath);
     // Set up the path to the custom webdefault.xml (SONAR-3962).
     context.setDefaultsDescriptor("/org/sonar/application/webdefault.xml");
     handlers.add(context);

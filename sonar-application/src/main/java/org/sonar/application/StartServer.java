@@ -69,9 +69,11 @@ public final class StartServer {
     return properties;
   }
 
+  /**
+   * @see org.sonar.server.platform.SonarHome.SONAR_HOME
+   */
   private static void configureHome() throws URISyntaxException {
     File confFile = new File(StartServer.class.getResource(PROPERTIES_FILE_PATH).toURI());
-    System.setProperty("SONAR_HOME" /* see constant org.sonar.server.platform.SonarHome.PROPERTY */,
-        confFile.getParentFile().getParentFile().getAbsolutePath());
+    System.setProperty("SONAR_HOME", confFile.getParentFile().getParentFile().getAbsolutePath());
   }
 }
