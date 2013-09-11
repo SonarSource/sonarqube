@@ -30,7 +30,7 @@
         <% end -%>
         <% if @subcategory.key != @category.key && !subcategory_desc(@category, @subcategory).blank? -%>
           <tr>
-            <td><%= subcategory_desc(@category, @subcategory) -%> </td>
+            <td class="categoryDescription"><%= subcategory_desc(@category, @subcategory) -%> </td>
           </tr>
         <% end -%>
         </thead>
