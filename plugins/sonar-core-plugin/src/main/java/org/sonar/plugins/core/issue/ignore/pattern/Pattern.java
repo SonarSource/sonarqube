@@ -119,10 +119,11 @@ public class Pattern {
     boolean match = matchResource(issue.componentKey())
       && matchRule(issue.ruleKey());
     if (checkLines) {
-      if (issue.line() == null) {
+      Integer line = issue.line();
+      if (line == null) {
         match = false;
       } else {
-        match = match && matchLine(issue.line());
+        match = match && matchLine(line);
       }
     }
     return match;
