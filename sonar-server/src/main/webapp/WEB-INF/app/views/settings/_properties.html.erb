@@ -1,10 +1,11 @@
 <% if @category.isSpecial -%>
   <%= render 'special', :url => url_for(:controller => "#{@category.key}_configuration") -%>
 <% else -%>
-  <form	onsubmit="$j('#submit_settings').hide();$j('#loading_settings').show();
+  <form	onsubmit="$j('#submit_settings').hide();
+                  $j('#loading_settings').show();
                   $j.ajax({ url:'<%= url_for :controller => 'settings', :action => 'update', :category => @category.key, :subcategory => @subcategory.key, :resource_id => (@resource && @resource.id) -%>',
                             type:'post',
-                            success:function(responseHTML){$j('#properties').text(responseHTML.responseText);$j('#loading_settings').hide();$j('#submit_settings').show()},
+                            success:function(responseHTML){$j('#properties').html($j(responseHTML));$j('#loading_settings').hide();$j('#submit_settings').show()},
                             data:$j(this).serialize()});
                   return false;"
          method='post'
