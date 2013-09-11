@@ -498,6 +498,7 @@ public final class CorePlugin extends SonarPlugin {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
         .onQualifiers(Qualifiers.PROJECT)
+        .index(3)
         .build(),
       PropertyDefinition.builder(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY)
         .name("Test File Inclusions")
@@ -505,12 +506,14 @@ public final class CorePlugin extends SonarPlugin {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
         .onQualifiers(Qualifiers.PROJECT)
+        .index(5)
         .build(),
       PropertyDefinition.builder(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY)
         .name("Global Source File Exclusions")
         .multiValues(true)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .index(0)
         .build(),
       PropertyDefinition.builder(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY)
         .name("Global Test File Exclusions")
@@ -518,6 +521,7 @@ public final class CorePlugin extends SonarPlugin {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
         .defaultValue(CoreProperties.GLOBAL_TEST_EXCLUSIONS_DEFAULT)
+        .index(1)
         .build(),
       PropertyDefinition.builder(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY)
         .name("Source File Exclusions")
@@ -525,6 +529,7 @@ public final class CorePlugin extends SonarPlugin {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
         .onQualifiers(Qualifiers.PROJECT)
+        .index(2)
         .build(),
       PropertyDefinition.builder(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY)
         .name("Test File Exclusions")
@@ -532,6 +537,7 @@ public final class CorePlugin extends SonarPlugin {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
         .onQualifiers(Qualifiers.PROJECT)
+        .index(4)
         .build(),
       PropertyDefinition.builder(CoreProperties.CORE_SKIPPED_MODULES_PROPERTY)
         .name("Exclude Modules")
@@ -540,6 +546,16 @@ public final class CorePlugin extends SonarPlugin {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
         .onlyOnQualifiers(Qualifiers.PROJECT)
+        .index(0)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.CORE_INCLUDED_MODULES_PROPERTY)
+        .name("Include Modules")
+        .description("Maven artifact ids of modules to include.")
+        .multiValues(true)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
+        .onlyOnQualifiers(Qualifiers.PROJECT)
+        .index(1)
         .build());
   }
 }

@@ -69,7 +69,7 @@ public class ProjectExclusions implements TaskComponent {
   }
 
   private boolean isExcluded(String projectKey, boolean isRoot) {
-    String[] includedKeys = settings.getStringArray("sonar.includedModules");
+    String[] includedKeys = settings.getStringArray(CoreProperties.CORE_INCLUDED_MODULES_PROPERTY);
     boolean excluded = false;
     if (!isRoot && includedKeys.length > 0) {
       excluded = !ArrayUtils.contains(includedKeys, projectKey);

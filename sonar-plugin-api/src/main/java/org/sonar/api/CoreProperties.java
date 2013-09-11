@@ -146,6 +146,11 @@ public interface CoreProperties {
   String CORE_RULE_WEIGHTS_DEFAULT_VALUE = "INFO=0;MINOR=1;MAJOR=3;CRITICAL=5;BLOCKER=10";
 
   /**
+   * @since 4.0
+   */
+  String CORE_INCLUDED_MODULES_PROPERTY = "sonar.includedModules";
+
+  /**
    * @deprecated since 3.6. See http://jira.codehaus.org/browse/SONAR-4145
    */
   @Deprecated
