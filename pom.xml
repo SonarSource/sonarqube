@@ -823,7 +823,7 @@
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.24</version>
+        <version>5.1.26</version>
       </dependency>
       <dependency>
         <groupId>postgresql</groupId>
@@ -1042,6 +1042,7 @@
       <dependency>
         <groupId>com.akiban</groupId>
         <artifactId>akiban-persistit</artifactId>
+        <!-- do not use 3.3.0. It was build only for Java 7. Waiting for 3.3.1 to be deployed in central repo -->
         <version>3.2.7</version>
         <exclusions>
           <exclusion>
