@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.core.issue.ignore.scanner;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
@@ -102,6 +104,11 @@ public class RegexpScanner implements BatchExtension {
       checkDoubleRegexps(line, lineIndex);
     }
 
+    if (currentMatcher != null && !currentMatcher.hasSecondPattern()) {
+      // this will happen when there is a start block regexp but no end block regexp
+      endExclusion(lineIndex + 1);
+    }
+
     // now create the new line-based pattern for this file if there are exclusions
     fileLength = lineIndex;
     if (!lineExclusions.isEmpty()) {
@@ -181,9 +188,12 @@ public class RegexpScanner implements BatchExtension {
     }
 
     boolean matchesSecondPattern(String line) {
-      return secondPattern.matcher(line).find();
+      return hasSecondPattern() && secondPattern.matcher(line).find();
     }
 
+    boolean hasSecondPattern() {
+      return StringUtils.isNotEmpty(secondPattern.toString());
+    }
   }
 
 }

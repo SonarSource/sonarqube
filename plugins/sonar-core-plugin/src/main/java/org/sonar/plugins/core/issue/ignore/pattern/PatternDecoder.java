@@ -31,6 +31,7 @@ public class PatternDecoder {
 
   private static final int THREE_FIELDS_PER_LINE = 3;
   private static final String LINE_RANGE_REGEXP = "\\[((\\d+|\\d+-\\d+),?)*\\]";
+  private static final String CONFIG_FORMAT_ERROR_PREFIX = "Exclusions > Issues : Invalid format. ";
 
   public List<Pattern> decode(String patternsList) {
     List<Pattern> patterns = Lists.newLinkedList();
@@ -54,7 +55,7 @@ public class PatternDecoder {
 
     String[] fields = StringUtils.splitPreserveAllTokens(line, ';');
     if (fields.length > THREE_FIELDS_PER_LINE) {
-      throw new SonarException("Invalid format. The following line has more than 3 fields separated by comma: " + line);
+      throw new SonarException(CONFIG_FORMAT_ERROR_PREFIX + "The following line has more than 3 fields separated by comma: " + line);
     }
 
     Pattern pattern;
@@ -75,28 +76,26 @@ public class PatternDecoder {
 
   static void checkRegularLineConstraints(String line, String[] fields) {
     if (!isResource(fields[0])) {
-      throw new SonarException("Invalid format. The first field does not define a resource pattern: " + line);
+      throw new SonarException(CONFIG_FORMAT_ERROR_PREFIX + "The first field does not define a resource pattern: " + line);
     }
     if (!isRule(fields[1])) {
-      throw new SonarException("Invalid format. The second field does not define a rule pattern: " + line);
+      throw new SonarException(CONFIG_FORMAT_ERROR_PREFIX + "The second field does not define a rule pattern: " + line);
     }
     if (!isLinesRange(fields[2])) {
-      throw new SonarException("Invalid format. The third field does not define a range of lines: " + line);
+      throw new SonarException(CONFIG_FORMAT_ERROR_PREFIX + "The third field does not define a range of lines: " + line);
     }
   }
 
   static void checkDoubleRegexpLineConstraints(String line, String[] fields) {
     if (!isRegexp(fields[0])) {
-      throw new SonarException("Invalid format. The first field does not define a regular expression: " + line);
+      throw new SonarException(CONFIG_FORMAT_ERROR_PREFIX + "The first field does not define a regular expression: " + line);
     }
-    if (!isRegexp(fields[1])) {
-      throw new SonarException("Invalid format. The second field does not define a regular expression: " + line);
-    }
+    // As per configuration help, missing second field means: from start regexp to EOF
   }
 
   static void checkWholeFileRegexp(String regexp) {
     if (!isRegexp(regexp)) {
-      throw new SonarException("Invalid format. The field does not define a regular expression: " + regexp);
+      throw new SonarException(CONFIG_FORMAT_ERROR_PREFIX + "The field does not define a regular expression: " + regexp);
     }
   }
 

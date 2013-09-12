@@ -124,18 +124,20 @@ public class PatternsInitializerTest {
 
   @Test
   public void shouldReturnBlockPattern() {
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY, "1,2");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY, "1,2,3");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "// SONAR-OFF");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "// SONAR-ON");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".2." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "// FOO-OFF");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".2." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "// FOO-ON");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".3." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "// IGNORE-TO-EOF");
+    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".3." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "");
     patternsInitializer.initPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
     assertThat(patternsInitializer.hasFileContentPattern()).isTrue();
     assertThat(patternsInitializer.hasMulticriteriaPatterns()).isFalse();
     assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(0);
-    assertThat(patternsInitializer.getBlockPatterns().size()).isEqualTo(2);
+    assertThat(patternsInitializer.getBlockPatterns().size()).isEqualTo(3);
     assertThat(patternsInitializer.getAllFilePatterns().size()).isEqualTo(0);
   }
 
@@ -144,14 +146,6 @@ public class PatternsInitializerTest {
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY, "1");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "// SONAR-ON");
-    patternsInitializer.initPatterns();
-  }
-
-  @Test(expected = SonarException.class)
-  public void shouldLogInvalidEndBlockPattern() {
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY, "1");
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.BEGIN_BLOCK_REGEXP, "// SONAR-OFF");
-    settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_BLOCK_KEY + ".1." + IgnoreIssuesConfiguration.END_BLOCK_REGEXP, "");
     patternsInitializer.initPatterns();
   }
 
