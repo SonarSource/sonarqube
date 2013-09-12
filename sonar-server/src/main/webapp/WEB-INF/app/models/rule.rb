@@ -284,6 +284,7 @@ class Rule < ActiveRecord::Base
       values[:status] = STATUS_REMOVED
     elsif status == 'ACTIVE' || status == 'INACTIVE'
       # For retro compatibility for the Sqale plugin
+      # To be removed when SonarQube version will no more be compatible with SQALE version < 1.10
       options[:activation] = status
       conditions << ['status <> :status']
       values[:status] = STATUS_REMOVED
