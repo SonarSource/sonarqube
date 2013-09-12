@@ -72,7 +72,7 @@
           </tr>
         <% end -%>
 
-        <% unless @subcategory != @category || category_help(@category).blank? -%>
+        <% unless category_help(@category).blank? -%>
           <tr class="property <%= cycle('even', 'odd', :name => 'properties') -%>">
             <td class="help"><%= category_help(@category) -%> </td>
           </tr>
