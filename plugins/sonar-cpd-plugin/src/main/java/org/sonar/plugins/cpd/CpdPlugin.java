@@ -53,9 +53,9 @@ public final class CpdPlugin extends SonarPlugin {
         .build(),
       PropertyDefinition.builder(CoreProperties.CPD_EXCLUSIONS)
         .defaultValue("")
-        .name("Duplication exclusions")
+        .name("Duplication Exclusions")
         .description("Patterns used to exclude some source files from the duplication detection mechanism. " +
-          "See the \"Exclusions\" category to know how to use wildcards to specify this property.")
+          "See below to know how to use wildcards to specify this property.")
         .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
