@@ -793,7 +793,7 @@ module ApplicationHelper
     "#{html}<script>$j(document).ready(function() {#{js}});</script>"
   end
 
-  #
+  # Since 3.6
   # Creates a dropdown selection box.
   #
   # ==== Options
