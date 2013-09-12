@@ -65,7 +65,7 @@ public final class IgnoreIssuesConfiguration {
       PropertyDefinition.builder(PATTERNS_MULTICRITERIA_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
-        .name("Multi-criteria exclusion patterns")
+        .name("Multi-criteria Exclusion Patterns")
         .description("Patterns used to identify which issues are ignored.<br/>" +
           CONFIG_DOCUMENTATION_LINK)
         .onQualifiers(Qualifiers.PROJECT)
@@ -73,13 +73,13 @@ public final class IgnoreIssuesConfiguration {
         .fields(
           PropertyFieldDefinition.build(RESOURCE_KEY)
             .name("File Path Pattern")
-            .description("Pattern used to match files which should be ignored")
+            .description("Pattern used to match files which should be ignored.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
           PropertyFieldDefinition.build(RULE_KEY)
             .name("Rule Key Pattern")
-            .description("Pattern used to match rules which should be ignored")
+            .description("Pattern used to match rules which should be ignored.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
@@ -93,20 +93,20 @@ public final class IgnoreIssuesConfiguration {
         PropertyDefinition.builder(PATTERNS_BLOCK_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
-        .name("Block exclusion patterns")
+        .name("Block Exclusion Patterns")
         .description("Patterns used to identify blocks in which issues are ignored.<br/>" +
           CONFIG_DOCUMENTATION_LINK)
         .onQualifiers(Qualifiers.PROJECT)
         .index(2)
         .fields(
           PropertyFieldDefinition.build(BEGIN_BLOCK_REGEXP)
-            .name("Regular expression for start of block")
+            .name("Regular Expression for Start of Block")
             .description("If this regular expression is found in a file, then following lines are ignored until end of block.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
           PropertyFieldDefinition.build(END_BLOCK_REGEXP)
-            .name("Regular expression for end of block")
+            .name("Regular Expression for End of Block")
             .description("If specified, this regular expression is used to determine the end of code blocks to ignore. If not, then block ends at the end of file.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
@@ -115,14 +115,14 @@ public final class IgnoreIssuesConfiguration {
         PropertyDefinition.builder(PATTERNS_ALLFILE_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
-        .name("File exclusion patterns")
+        .name("File Exclusion Patterns")
         .description("Patterns used to identify files in which issues are ignored.<br/>" +
           CONFIG_DOCUMENTATION_LINK)
         .onQualifiers(Qualifiers.PROJECT)
         .index(1)
         .fields(
           PropertyFieldDefinition.build(FILE_REGEXP)
-            .name("Regular expression")
+            .name("Regular Expression")
             .description("If this regular expression is found in a file, then the whole file is ignored.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
