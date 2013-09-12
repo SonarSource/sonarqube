@@ -1843,8 +1843,8 @@ ul.bullet li {
 }
 
 .rule-desc pre {
-  margin: 10px 0;
-  padding: 10px;
+  margin: 10px 0 !important;
+  padding: 10px !important;
   border: 1px dashed #aaa;
   font-size: 12px;
   font-family: monospace;;
