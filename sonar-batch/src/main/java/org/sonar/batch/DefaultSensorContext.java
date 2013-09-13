@@ -19,6 +19,8 @@
  */
 package org.sonar.batch;
 
+import org.sonar.core.measure.MeasurementFilters;
+
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
@@ -40,10 +42,12 @@ public class DefaultSensorContext implements SensorContext {
 
   private SonarIndex index;
   private Project project;
+  private MeasurementFilters filters;
 
-  public DefaultSensorContext(SonarIndex index, Project project) {
+  public DefaultSensorContext(SonarIndex index, Project project, MeasurementFilters filters) {
     this.index = index;
     this.project = project;
+    this.filters = filters;
   }
 
   public Project getProject() {
@@ -115,11 +119,15 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   public Measure saveMeasure(Resource resource, Metric metric, Double value) {
-    return index.addMeasure(resourceOrProject(resource), new Measure(metric, value));
+    return saveMeasure(resource, new Measure(metric, value));
   }
 
   public Measure saveMeasure(Resource resource, Measure measure) {
-    return index.addMeasure(resourceOrProject(resource), measure);
+    if(filters.accept(resource, measure)) {
+      return index.addMeasure(resourceOrProject(resource), measure);
+    } else {
+      return measure;
+    }
   }
 
   public void saveViolation(Violation violation, boolean force) {

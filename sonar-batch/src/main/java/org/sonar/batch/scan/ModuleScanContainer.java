@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.core.measure.MeasurementFilters;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -104,6 +106,7 @@ public class ModuleScanContainer extends ComponentContainer {
       DefaultTimeMachine.class,
       ViolationFilters.class,
       IssueFilters.class,
+      MeasurementFilters.class,
       ResourceFilters.class,
       DeprecatedJsonReport.class,
       JsonReport.class,

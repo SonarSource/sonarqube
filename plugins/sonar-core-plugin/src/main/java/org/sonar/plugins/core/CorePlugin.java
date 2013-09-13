@@ -20,7 +20,6 @@
 package org.sonar.plugins.core;
 
 import org.sonar.api.resources.Qualifiers;
-
 import org.sonar.api.config.PropertyDefinition;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.CoreProperties;
@@ -65,6 +64,7 @@ import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
 import org.sonar.plugins.core.sensors.CheckAlertThresholds;
 import org.sonar.plugins.core.sensors.CommentDensityDecorator;
 import org.sonar.plugins.core.sensors.CoverageDecorator;
+import org.sonar.plugins.core.sensors.CoverageMeasurementFilter;
 import org.sonar.plugins.core.sensors.DirectoriesDecorator;
 import org.sonar.plugins.core.sensors.FilesDecorator;
 import org.sonar.plugins.core.sensors.GenerateAlertEvents;
@@ -463,6 +463,7 @@ public final class CorePlugin extends SonarPlugin {
         OverallLineCoverageDecorator.class,
         OverallCoverageDecorator.class,
         OverallBranchCoverageDecorator.class,
+        CoverageMeasurementFilter.class,
         ApplyProjectRolesDecorator.class,
         CommentDensityDecorator.class,
         NoSonarFilter.class,
@@ -486,6 +487,7 @@ public final class CorePlugin extends SonarPlugin {
 
     extensions.addAll(getPropertyDefinitions());
     extensions.addAll(IgnoreIssuesPlugin.getExtensions());
+    extensions.addAll(CoverageMeasurementFilter.getPropertyDefinitions());
 
     return extensions.build();
   }
