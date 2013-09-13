@@ -24,8 +24,15 @@ class ApplicationController < ActionController::Base
 
   before_filter :check_database_version, :set_user_session, :check_authentication
 
+  # Required for JRuby 1.7
+  rescue_from 'Java::JavaLang::Exception', :with => :render_java_exception
+
   rescue_from Exception, :with => :render_error
-  rescue_from NativeException, :with => :render_native_exception
+
+  # Is it still required for JRuby 1.7 ? Java exception no longer inherits from ruby exception.
+  # See http://pivotallabs.com/upgrading-to-jruby-1-7-0/
+  rescue_from NativeException, :with => :render_java_exception
+
   rescue_from Errors::BadRequest, :with => :render_bad_request
   rescue_from ActionController::UnknownAction, :with => :render_not_found
   rescue_from ActionController::RoutingError, :with => :render_not_found
@@ -182,15 +189,15 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def render_native_exception(error)
-    if error.cause.java_kind_of? Java::JavaLang::IllegalArgumentException
-      render_bad_request(error.cause.getMessage)
-    elsif error.cause.java_kind_of? Java::OrgSonarServerExceptions::UnauthorizedException
-      render_native_access_denied(error.cause)
-    elsif error.cause.java_kind_of? Java::OrgSonarServerExceptions::ForbiddenException
-      render_native_access_denied(error.cause)
-    elsif error.cause.java_kind_of? Java::OrgSonarServerExceptions::HttpException
-      render_server_exception(error.cause)
+  def render_java_exception(error)
+    if error.java_kind_of? Java::JavaLang::IllegalArgumentException
+      render_bad_request(error.getMessage)
+    elsif error.java_kind_of? Java::OrgSonarServerExceptions::UnauthorizedException
+      render_native_access_denied(error)
+    elsif error.java_kind_of? Java::OrgSonarServerExceptions::ForbiddenException
+      render_native_access_denied(error)
+    elsif error.java_kind_of? Java::OrgSonarServerExceptions::HttpException
+      render_server_exception(error)
     else
       render_error(error)
     end

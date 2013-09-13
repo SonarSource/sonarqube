@@ -139,7 +139,6 @@ public class InternalPermissionTemplateService implements ServerComponent {
   private void validateTemplateName(Long templateId, String templateName) {
     if(StringUtils.isNullOrEmpty(templateName)) {
       String errorMsg = "Name can't be blank";
-      LOG.error(errorMsg);
       throw new BadRequestException(errorMsg);
     }
     List<PermissionTemplateDto> existingTemplates = permissionDao.selectAllPermissionTemplates();
@@ -147,7 +146,6 @@ public class InternalPermissionTemplateService implements ServerComponent {
       for (PermissionTemplateDto existingTemplate : existingTemplates) {
         if((templateId == null ||  !existingTemplate.getId().equals(templateId)) && (existingTemplate.getName().equals(templateName))) {
           String errorMsg = "A template with that name already exists";
-          LOG.error(errorMsg);
           throw new BadRequestException(errorMsg);
         }
       }
