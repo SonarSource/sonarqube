@@ -45,7 +45,7 @@ public class NotificationQueueDaoTest extends AbstractDaoTestCase {
 
     dao.insert(Arrays.asList(notificationQueueDto));
 
-    checkTables("should_insert_new_notification_queue", new String[] {"id"}, "notifications");
+    assertThat(dao.count()).isEqualTo(1);
     assertThat(dao.findOldest(1).get(0).toNotification().getType()).isEqualTo("email");
   }
 
