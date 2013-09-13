@@ -83,7 +83,7 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
     return ImmutableList.of(
       PropertyDefinition.builder("sonar.coverage.exclusions")
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
-        .subCategory(CoreProperties.CATEGORY_CODE_COVERAGE) // TODO Replace with dedicated subcat
+        .subCategory(CoreProperties.SUBCATEGORY_COVERAGE_EXCLUSIONS)
         .type(PropertyType.STRING)
         .multiValues(true)
         .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
