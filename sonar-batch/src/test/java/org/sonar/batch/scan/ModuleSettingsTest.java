@@ -30,6 +30,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchSettings;
+import org.sonar.batch.bootstrap.ServerClient;
 
 import java.util.List;
 
@@ -41,6 +42,8 @@ public class ModuleSettingsTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  ServerClient client = mock(ServerClient.class);
 
   @Test
   public void testOrderedProjects() {
@@ -61,18 +64,17 @@ public class ModuleSettingsTest {
     BatchSettings batchSettings = mock(BatchSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
-        "overridding", "batch",
-        "on-batch", "true"
-        ));
-    when(batchSettings.getModuleProperties("struts-core")).thenReturn(ImmutableMap.of(
-        "on-module", "true",
-        "overridding", "module"
-        ));
+      "overridding", "batch",
+      "on-batch", "true"
+      ));
+    when(client.request("/batch_bootstrap/properties?project=struts-core&dryRun=false"))
+      .thenReturn("[{\"k\":\"on-module\",\"v\":\"true\"}," +
+        "{\"k\":\"overridding\",\"v\":\"module\"}]");
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
     Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, client);
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
@@ -88,16 +90,15 @@ public class ModuleSettingsTest {
     BatchSettings batchSettings = mock(BatchSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
-        "sonar.foo.secured", "bar"
-        ));
-    when(batchSettings.getModuleProperties("struts-core")).thenReturn(ImmutableMap.of(
-        "sonar.foo.license.secured", "bar2"
-        ));
+      "sonar.foo.secured", "bar"
+      ));
+    when(client.request("/batch_bootstrap/properties?project=struts-core&dryRun=false"))
+      .thenReturn("[{\"k\":\"sonar.foo.license.secured\",\"v\":\"bar2\"}]");
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
     Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, client);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(moduleSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -109,22 +110,21 @@ public class ModuleSettingsTest {
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getString(CoreProperties.DRY_RUN)).thenReturn("true");
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
-        "sonar.foo.secured", "bar"
-        ));
-    when(batchSettings.getModuleProperties("struts-core")).thenReturn(ImmutableMap.of(
-        "sonar.foo.license.secured", "bar2"
-        ));
+      "sonar.foo.secured", "bar"
+      ));
+    when(client.request("/batch_bootstrap/properties?project=struts-core&dryRun=true"))
+      .thenReturn("[{\"k\":\"sonar.foo.license.secured\",\"v\":\"bar2\"}]");
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
     Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, client);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
 
     thrown.expect(SonarException.class);
     thrown
-        .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin which requires this property must be deactivated in dry run mode.");
+      .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin which requires this property must be deactivated in dry run mode.");
     moduleSettings.getString("sonar.foo.secured");
   }
 }
