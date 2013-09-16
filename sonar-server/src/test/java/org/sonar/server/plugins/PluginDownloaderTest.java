@@ -21,10 +21,7 @@ package org.sonar.server.plugins;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
@@ -38,6 +35,7 @@ import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.net.URI;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -52,13 +50,11 @@ public class PluginDownloaderTest {
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
-  private File downloadDir;
-
-  private UpdateCenterMatrixFactory updateCenterMatrixFactory;
-  private UpdateCenter updateCenter;
-  private HttpDownloader httpDownloader;
-
-  private PluginDownloader pluginDownloader;
+  File downloadDir;
+  UpdateCenterMatrixFactory updateCenterMatrixFactory;
+  UpdateCenter updateCenter;
+  HttpDownloader httpDownloader;
+  PluginDownloader pluginDownloader;
 
   @Before
   public void before() throws Exception {
@@ -83,6 +79,23 @@ public class PluginDownloaderTest {
     pluginDownloader = new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem);
   }
 
+  @After
+  public void stop() {
+    pluginDownloader.stop();
+  }
+
+  @Test
+  public void should_clean_temporary_files_at_startup() throws Exception {
+    FileUtils.touch(new File(downloadDir, "sonar-php.jar"));
+    FileUtils.touch(new File(downloadDir, "sonar-js.jar.tmp"));
+    assertThat(downloadDir.listFiles()).hasSize(2);
+    pluginDownloader.start();
+
+    File[] files = downloadDir.listFiles();
+    assertThat(files).hasSize(1);
+    assertThat(files[0].getName()).isEqualTo("sonar-php.jar");
+  }
+
   @Test
   public void should_download_from_url() throws Exception {
     Plugin test = new Plugin("test");
@@ -91,6 +104,7 @@ public class PluginDownloaderTest {
 
     when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
 
+    pluginDownloader.start();
     pluginDownloader.download("foo", Version.create("1.0"));
 
     // SONAR-4523: do not corrupt JAR files when restarting the server while a plugin is being downloaded.
@@ -107,10 +121,11 @@ public class PluginDownloaderTest {
     File downloadDir = testFolder.newFile();
     when(defaultServerFileSystem.getDownloadedPluginsDir()).thenReturn(downloadDir);
 
+    pluginDownloader = new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem);
     try {
-      new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem);
+      pluginDownloader.start();
       fail();
-    } catch (SonarException e) {
+    } catch (IllegalStateException e) {
       // ok
     }
   }
@@ -125,6 +140,7 @@ public class PluginDownloaderTest {
 
     when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
 
+    pluginDownloader.start();
     pluginDownloader.download("foo", Version.create("1.0"));
     verify(httpDownloader, never()).download(any(URI.class), any(File.class));
     assertThat(pluginDownloader.hasDownloads()).isTrue();
@@ -138,6 +154,7 @@ public class PluginDownloaderTest {
 
     when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
 
+    pluginDownloader.start();
     try {
       pluginDownloader.download("foo", Version.create("1.0"));
       fail();
@@ -155,6 +172,7 @@ public class PluginDownloaderTest {
 
     doThrow(new RuntimeException()).when(httpDownloader).download(any(URI.class), any(File.class));
 
+    pluginDownloader.start();
     try {
       pluginDownloader.download("foo", Version.create("1.0"));
       fail();
@@ -165,6 +183,7 @@ public class PluginDownloaderTest {
 
   @Test
   public void should_read_download_folder() throws Exception {
+    pluginDownloader.start();
     assertThat(pluginDownloader.getDownloads()).hasSize(0);
 
     File file1 = new File(downloadDir, "file1.jar");
@@ -182,13 +201,13 @@ public class PluginDownloaderTest {
     File file2 = new File(downloadDir, "file2.jar");
     file2.createNewFile();
 
+    pluginDownloader.start();
     assertThat(pluginDownloader.hasDownloads()).isTrue();
     pluginDownloader.cancelDownloads();
     assertThat(pluginDownloader.hasDownloads()).isFalse();
   }
 
   class HasFileName extends ArgumentMatcher<File> {
-
     private final String name;
 
     HasFileName(String name) {
