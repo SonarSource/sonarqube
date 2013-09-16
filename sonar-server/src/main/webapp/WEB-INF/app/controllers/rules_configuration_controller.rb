@@ -336,7 +336,7 @@ class RulesConfigurationController < ApplicationController
   def update_rule_note
     verify_post_request
     access_denied unless has_role?(:profileadmin)
-    require_parameters :rule_id, :text
+    require_parameters :rule_id
     rule = Rule.find(params[:rule_id])
     note = rule.note
     unless note
