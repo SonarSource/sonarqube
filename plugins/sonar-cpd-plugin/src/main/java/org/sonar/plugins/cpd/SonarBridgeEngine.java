@@ -93,7 +93,7 @@ public class SonarBridgeEngine extends CpdEngine {
     TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fileSystem.sourceCharset().name(), getBlockSize(project));
     for (File file : sourceFiles) {
       LOG.debug("Populating index from {}", file);
-      Resource<?> resource = mapping.createResource(file, fileSystem.sourceDirs());
+      Resource resource = mapping.createResource(file, fileSystem.sourceDirs());
       String resourceId = SonarEngine.getFullKey(project, resource);
       List<Block> blocks = bridge.chunk(resourceId, file);
       index.insert(resource, blocks);
@@ -106,7 +106,7 @@ public class SonarBridgeEngine extends CpdEngine {
     try {
       for (File file : sourceFiles) {
         LOG.debug("Detection of duplications for {}", file);
-        Resource<?> resource = mapping.createResource(file, fileSystem.sourceDirs());
+        Resource resource = mapping.createResource(file, fileSystem.sourceDirs());
         String resourceKey = SonarEngine.getFullKey(project, resource);
 
         Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);

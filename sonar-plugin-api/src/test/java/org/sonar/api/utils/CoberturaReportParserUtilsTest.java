@@ -58,7 +58,7 @@ public class CoberturaReportParserUtilsTest {
   private static FileResolver JAVA_FILE_RESOLVER = new FileResolver() {
 
     @Override
-    public Resource<?> resolve(String filename) {
+    public Resource resolve(String filename) {
       return new JavaFile(filename);
     }
   };

@@ -99,7 +99,7 @@ public final class SourceScanner implements Sensor {
    * This method is necessary because Java resources are not treated as every other resource...
    */
   private String resolveComponent(File inputFile, List<File> sourceDirs, Project project, boolean isTest) {
-    Resource<?> resource = null;
+    Resource resource = null;
 
     if (Java.KEY.equals(project.getLanguageKey()) && Java.isJavaFile(inputFile)) {
 

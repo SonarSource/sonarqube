@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
 public class SonarEngineTest {
 
   private SensorContext context;
-  private Resource<?> resource;
+  private Resource resource;
 
   @Before
   public void setUp() {
@@ -67,7 +67,7 @@ public class SonarEngineTest {
     when(pathResolver.relativePath(anyCollection(), any(java.io.File.class))).thenReturn(relativePath);
 
     SonarEngine engine = new SonarEngine(null, fileSystem, pathResolver, null);
-    Resource<?> resource = engine.getResource(new java.io.File(""));
+    Resource resource = engine.getResource(new java.io.File(""));
 
     assertThat(resource.getKey()).isEqualTo("com.foo.Bar");
     assertThat(resource).isInstanceOf(JavaFile.class);

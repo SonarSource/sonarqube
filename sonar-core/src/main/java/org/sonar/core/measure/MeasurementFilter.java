@@ -37,5 +37,5 @@ public interface MeasurementFilter extends BatchExtension {
    * @param measure
    * @return <code>true</code> if the given measure can be saved for the given resource
    */
-  boolean accept(Resource<?> resource, Measure measure);
+  boolean accept(Resource resource, Measure measure);
 }

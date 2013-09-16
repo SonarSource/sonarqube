@@ -51,7 +51,7 @@ public class FilesDecoratorTest {
   private DecoratorContext context;
 
   @Mock
-  private Resource<?> resource;
+  private Resource resource;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

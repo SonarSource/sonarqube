@@ -89,7 +89,7 @@ public class SonarEngine extends CpdEngine {
     return Java.KEY.equals(language.getKey());
   }
 
-  static String getFullKey(Project project, Resource<?> resource) {
+  static String getFullKey(Project project, Resource resource) {
     return new StringBuilder(ResourceModel.KEY_SIZE)
         .append(project.getKey())
         .append(':')
@@ -118,7 +118,7 @@ public class SonarEngine extends CpdEngine {
 
     for (File file : sourceFiles) {
       LOG.debug("Populating index from {}", file);
-      Resource<?> resource = getResource(file);
+      Resource resource = getResource(file);
       String resourceKey = getFullKey(project, resource);
 
       List<Statement> statements;
@@ -145,7 +145,7 @@ public class SonarEngine extends CpdEngine {
     try {
       for (File file : sourceFiles) {
         LOG.debug("Detection of duplications for {}", file);
-        Resource<?> resource = getResource(file);
+        Resource resource = getResource(file);
         String resourceKey = getFullKey(project, resource);
 
         Collection<Block> fileBlocks = index.getByResource(resource, resourceKey);
@@ -183,12 +183,12 @@ public class SonarEngine extends CpdEngine {
     }
   }
 
-  protected Resource<?> getResource(File file) {
+  protected Resource getResource(File file) {
     String relativePath = pathResolver.relativePath(fileSystem.sourceDirs(), file).path();
     return JavaFile.fromRelativePath(relativePath, false);
   }
 
-  static void save(SensorContext context, Resource<?> resource, @Nullable Iterable<CloneGroup> duplications) {
+  static void save(SensorContext context, Resource resource, @Nullable Iterable<CloneGroup> duplications) {
     if (duplications == null || Iterables.isEmpty(duplications)) {
       return;
     }

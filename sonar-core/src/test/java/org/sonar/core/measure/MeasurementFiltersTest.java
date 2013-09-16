@@ -36,14 +36,14 @@ public class MeasurementFiltersTest {
   @Test
   public void shouldAcceptEverythingWithEmptyFilters() {
     filters = new MeasurementFilters();
-    Resource<?> resource = mock(Resource.class);
+    Resource resource = mock(Resource.class);
     Measure measure = mock(Measure.class);
     assertThat(filters.accept(resource, measure)).isTrue();
   }
 
   @Test
   public void shouldAcceptIfAllFiltersAccept() {
-    Resource<?> resource = mock(Resource.class);
+    Resource resource = mock(Resource.class);
     Measure measure = mock(Measure.class);
     MeasurementFilter filter1 = mock(MeasurementFilter.class);
     when(filter1.accept(resource, measure)).thenReturn(true);
@@ -56,7 +56,7 @@ public class MeasurementFiltersTest {
 
   @Test
   public void shouldNnotAcceptIfOneFilterDoesntAccept() {
-    Resource<?> resource = mock(Resource.class);
+    Resource resource = mock(Resource.class);
     Measure measure = mock(Measure.class);
     MeasurementFilter filter1 = mock(MeasurementFilter.class);
     when(filter1.accept(resource, measure)).thenReturn(false);

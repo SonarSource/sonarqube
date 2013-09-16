@@ -51,7 +51,7 @@ public class CoberturaReportParserUtils {
     /**
      * Return a SonarQube file resource from a filename present in Cobertura report
      */
-    Resource<?> resolve(String filename);
+    Resource resolve(String filename);
   }
 
   /**
@@ -78,7 +78,7 @@ public class CoberturaReportParserUtils {
       collectFileMeasures(pack.descendantElementCursor("class"), builderByFilename);
       for (Map.Entry<String, CoverageMeasuresBuilder> entry : builderByFilename.entrySet()) {
         String filename = sanitizeFilename(entry.getKey());
-        Resource<?> file = fileResolver.resolve(filename);
+        Resource file = fileResolver.resolve(filename);
         if (fileExists(context, file)) {
           for (Measure measure : entry.getValue().createMeasures()) {
             context.saveMeasure(file, measure);
@@ -88,7 +88,7 @@ public class CoberturaReportParserUtils {
     }
   }
 
-  private static boolean fileExists(SensorContext context, Resource<?> file) {
+  private static boolean fileExists(SensorContext context, Resource file) {
     return context.getResource(file) != null;
   }
 

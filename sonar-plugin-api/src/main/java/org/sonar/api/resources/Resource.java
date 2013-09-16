@@ -26,7 +26,7 @@ import java.io.Serializable;
  * 
  * @since 1.10
  */
-public abstract class Resource<P extends Resource> implements Serializable {
+public abstract class Resource implements Serializable {
 
   /**
    * @deprecated since 2.6. Use Scopes.PROJECT.
@@ -178,7 +178,7 @@ public abstract class Resource<P extends Resource> implements Serializable {
    * Return null if the parent is the project.
    * </p>
    */
-  public abstract P getParent();
+  public abstract Resource getParent();
 
   /**
    * Check resource against an Ant pattern, like mypackag?/*Foo.java. It's used for example to match resource exclusions.

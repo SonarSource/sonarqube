@@ -29,7 +29,7 @@ public final class ComponentKeys {
 
   private ComponentKeys() {}
 
-  public static String createKey(Project project, Resource<?> resource) {
+  public static String createKey(Project project, Resource resource) {
     String key = resource.getKey();
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library

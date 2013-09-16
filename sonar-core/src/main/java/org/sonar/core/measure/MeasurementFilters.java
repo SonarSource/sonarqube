@@ -44,7 +44,7 @@ public class MeasurementFilters implements BatchExtension {
     this.filters = ImmutableList.copyOf(filters);
   }
 
-  public boolean accept(Resource<?> resource, Measure measure) {
+  public boolean accept(Resource resource, Measure measure) {
     boolean accept = true;
     Iterator<MeasurementFilter> iteratorFilter = filters.iterator();
     while(accept && iteratorFilter.hasNext()) {

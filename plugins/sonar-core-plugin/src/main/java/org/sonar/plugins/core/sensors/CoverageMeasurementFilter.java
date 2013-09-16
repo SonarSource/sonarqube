@@ -53,7 +53,7 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
   }
 
   @Override
-  public boolean accept(Resource<?> resource, Measure measure) {
+  public boolean accept(Resource resource, Measure measure) {
     if (this.decorator.usedMetrics().contains(measure.getMetric())) {
       return !hasMatchingPattern(resource);
     } else {
@@ -61,7 +61,7 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
     }
   }
 
-  private boolean hasMatchingPattern(Resource<?> resource) {
+  private boolean hasMatchingPattern(Resource resource) {
     boolean found = false;
     Iterator<WildcardPattern> iterator = resourcePatterns.iterator();
     while (!found && iterator.hasNext()) {

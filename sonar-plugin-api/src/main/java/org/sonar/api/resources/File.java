@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @since 1.10
  */
-public class File extends Resource<Directory> {
+public class File extends Resource {
 
   public static final String SCOPE = Scopes.FILE;
 

@@ -37,7 +37,7 @@ public abstract class AbstractCoberturaParser {
   public void parseReport(File xmlFile, final SensorContext context) {
     CoberturaReportParserUtils.parseReport(xmlFile, context, new FileResolver() {
       @Override
-      public Resource<?> resolve(String filename) {
+      public Resource resolve(String filename) {
         return getResource(filename);
       }
     });
