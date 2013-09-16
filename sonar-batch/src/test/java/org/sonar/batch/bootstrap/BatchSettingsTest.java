@@ -46,12 +46,10 @@ public class BatchSettingsTest {
   private static final String JSON_RESPONSE_WITH_SECURED = "[{\"k\":\"sonar.foo.secured\",\"v\":\"bar\"},{\"k\":\"sonar.foo.license.secured\",\"v\":\"bar2\"}]";
 
   private static final String REACTOR_JSON_RESPONSE = "[{\"k\":\"sonar.cpd.cross\",\"v\":\"true\"}," +
-    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\",\"p\":\"struts\"}," +
-    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"cobertura\",\"p\":\"struts-core\"}]";
+    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\"}]";
 
   private static final String BRANCH_REACTOR_JSON_RESPONSE = "[{\"k\":\"sonar.cpd.cross\",\"v\":\"true\"}," +
-    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\",\"p\":\"struts:mybranch\"}," +
-    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"cobertura\",\"p\":\"struts-core:mybranch\"}]";
+    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\"}]";
 
   ServerClient client = mock(ServerClient.class);
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
