@@ -1822,7 +1822,7 @@ ul.bullet li {
 }
 
 
-/* API for Rule Descriptions */
+/* API for Rule and Property Descriptions  */
 .rule-desc h2 {
   margin-top: 16px;
   font-size: 16px;
@@ -1838,11 +1838,11 @@ ul.bullet li {
   font-weight: bold;
 }
 
-.rule-desc p {
+.rule-desc p, .property p {
   margin-top: 10px;
 }
 
-.rule-desc pre {
+.rule-desc pre, .property pre {
   margin: 10px 0 !important;
   padding: 10px !important;
   border: 1px dashed #aaa;
@@ -1850,18 +1850,18 @@ ul.bullet li {
   font-family: monospace;;
 }
 
-.rule-desc blockquote {
+.rule-desc blockquote, .property blockquote {
   margin-top: 10px;
   padding: 10px;
 }
 
-.rule-desc ul {
+.rule-desc ul, .property ul {
   list-style-type: disc;
   list-style-position: inside;
   margin: 10px;
 }
 
-.rule-desc ol {
+.rule-desc ol, .property ol {
   list-style-type: decimal;
   list-style-position: inside;
   margin: 10px;
