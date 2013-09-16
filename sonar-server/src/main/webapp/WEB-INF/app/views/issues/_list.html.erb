@@ -53,7 +53,7 @@
           <td>
             <% project = @issues_result.project(issue)
                component = @issues_result.component(issue) -%>
-            <div class="subtitle"><%= h (truncate(project.name, :length => 100)) -%></div>
+            <div class="subtitle"><a href='<%= url_for :controller => 'dashboard', :action => 'index', :id=> project.key -%>'><%= h (truncate(project.name, :length => 100)) -%></a></div>
             <% if component %>
               <!-- Do not display component name when issue is on module -->
               <% if component.key != project.key %>
