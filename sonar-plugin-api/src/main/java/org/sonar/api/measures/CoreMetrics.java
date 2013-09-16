@@ -130,8 +130,8 @@ public final class CoreMetrics {
       .create();
 
   public static final String FUNCTIONS_KEY = "functions";
-  public static final Metric FUNCTIONS = new Metric.Builder(FUNCTIONS_KEY, "Methods", Metric.ValueType.INT)
-      .setDescription("Methods")
+  public static final Metric FUNCTIONS = new Metric.Builder(FUNCTIONS_KEY, "Functions", Metric.ValueType.INT)
+      .setDescription("Functions")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(false)
       .setDomain(DOMAIN_SIZE)
@@ -225,7 +225,7 @@ public final class CoreMetrics {
 
   public static final String PUBLIC_DOCUMENTED_API_DENSITY_KEY = "public_documented_api_density";
   public static final Metric PUBLIC_DOCUMENTED_API_DENSITY = new Metric.Builder(PUBLIC_DOCUMENTED_API_DENSITY_KEY, "Public documented API (%)", Metric.ValueType.PERCENT)
-      .setDescription("Public documented classes and methods balanced by ncloc")
+      .setDescription("Public documented classes and functions balanced by ncloc")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
       .setDomain(DOMAIN_DOCUMENTATION)
@@ -236,7 +236,7 @@ public final class CoreMetrics {
 
   public static final String PUBLIC_UNDOCUMENTED_API_KEY = "public_undocumented_api";
   public static final Metric PUBLIC_UNDOCUMENTED_API = new Metric.Builder(PUBLIC_UNDOCUMENTED_API_KEY, "Public undocumented API", Metric.ValueType.INT)
-      .setDescription("Public undocumented classes, methods and variables")
+      .setDescription("Public undocumented classes, functions and variables")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
       .setDomain(DOMAIN_DOCUMENTATION)
@@ -321,7 +321,7 @@ public final class CoreMetrics {
    * @since 3.6
    */
   public static final Metric COMPLEXITY_IN_FUNCTIONS = new Metric.Builder(COMPLEXITY_IN_FUNCTIONS_KEY, "Complexity in functions", Metric.ValueType.INT)
-      .setDescription("Cyclomatic complexity in methods")
+      .setDescription("Cyclomatic complexity in functions")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(false)
       .setDomain(DOMAIN_COMPLEXITY)
@@ -335,8 +335,8 @@ public final class CoreMetrics {
    * Information about the cyclomatic complexity per function, calculated by divided the complexity in functions by the number of functions.
    * If the complexity in functions is not available, the complexity of the file is used.
    */
-  public static final Metric FUNCTION_COMPLEXITY = new Metric.Builder(FUNCTION_COMPLEXITY_KEY, "Complexity /method", Metric.ValueType.FLOAT)
-      .setDescription("Complexity average by method")
+  public static final Metric FUNCTION_COMPLEXITY = new Metric.Builder(FUNCTION_COMPLEXITY_KEY, "Complexity /function", Metric.ValueType.FLOAT)
+      .setDescription("Complexity average by function")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
       .setDomain(DOMAIN_COMPLEXITY)
@@ -1642,7 +1642,7 @@ public final class CoreMetrics {
 
   public static final String LCOM4_KEY = "lcom4";
   public static final Metric LCOM4 = new Metric.Builder(LCOM4_KEY, "LCOM4", Metric.ValueType.FLOAT)
-      .setDescription("Lack of Cohesion of Methods")
+      .setDescription("Lack of Cohesion of Functions")
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
       .setDomain(DOMAIN_DESIGN)
