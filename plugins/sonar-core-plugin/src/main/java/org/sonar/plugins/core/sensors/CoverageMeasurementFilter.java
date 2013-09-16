@@ -71,7 +71,7 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
   }
 
   @VisibleForTesting
-  void initPatterns() {
+  final void initPatterns() {
     Builder<WildcardPattern> builder = ImmutableList.<WildcardPattern>builder();
     for (String pattern : settings.getStringArray(PROPERTY_COVERAGE_EXCLUSIONS)) {
       builder.add(WildcardPattern.create(pattern));
@@ -81,7 +81,7 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
 
   public static List<? extends PropertyDefinition> getPropertyDefinitions() {
     return ImmutableList.of(
-      PropertyDefinition.builder("sonar.coverage.exclusions")
+      PropertyDefinition.builder(PROPERTY_COVERAGE_EXCLUSIONS)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_COVERAGE_EXCLUSIONS)
         .type(PropertyType.STRING)
