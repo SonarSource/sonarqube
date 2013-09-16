@@ -1588,20 +1588,38 @@ public final class CoreMetrics {
       .setHidden(true)
       .create();
 
+  /**
+   * @deprecated since 4.0. See SONAR-4643
+   */
+  @Deprecated
   public static final String DEPTH_IN_TREE_KEY = "dit";
+  /**
+   * @deprecated since 4.0. See SONAR-4643
+   */
+  @Deprecated
   public static final Metric DEPTH_IN_TREE = new Metric.Builder(DEPTH_IN_TREE_KEY, "Depth in Tree", Metric.ValueType.INT)
       .setDescription("Depth in Inheritance Tree")
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
       .create();
 
+  /**
+   * @deprecated since 4.0. See SONAR-4643
+   */
+  @Deprecated
   public static final String NUMBER_OF_CHILDREN_KEY = "noc";
+  /**
+   * @deprecated since 4.0. See SONAR-4643
+   */
+  @Deprecated
   public static final Metric NUMBER_OF_CHILDREN = new Metric.Builder(NUMBER_OF_CHILDREN_KEY, "Number of Children", Metric.ValueType.INT)
       .setDescription("Number of Children")
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false)
       .setDomain(DOMAIN_DESIGN)
+      .setHidden(true)
       .create();
 
   public static final String RFC_KEY = "rfc";
