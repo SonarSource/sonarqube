@@ -44,13 +44,13 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void should_not_fail_with_valid_key() {
+  public void not_fail_with_valid_key() {
     ProjectReactor reactor = createProjectReactor("foo");
     validator.validate(reactor);
   }
 
   @Test
-  public void should_not_fail_with_alphanumeric_key() {
+  public void not_fail_with_alphanumeric_key() {
     ProjectReactor reactor = createProjectReactor("Foobar2");
     validator.validate(reactor);
   }
@@ -62,25 +62,25 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void should_not_fail_with_dash_key() {
+  public void not_fail_with_dash_key() {
     ProjectReactor reactor = createProjectReactor("foo-bar");
     validator.validate(reactor);
   }
 
   @Test
-  public void should_not_fail_with_colon_key() {
+  public void not_fail_with_colon_key() {
     ProjectReactor reactor = createProjectReactor("foo:bar");
     validator.validate(reactor);
   }
 
   @Test
-  public void should_not_fail_with_underscore_key() {
+  public void not_fail_with_underscore_key() {
     ProjectReactor reactor = createProjectReactor("foo_bar");
     validator.validate(reactor);
   }
 
   @Test
-  public void should_fail_with_invalid_key() {
+  public void fail_with_invalid_key() {
     ProjectReactor reactor = createProjectReactor("foo$bar");
 
     thrown.expect(SonarException.class);
@@ -89,7 +89,7 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void should_fail_with_backslash_in_key() {
+  public void fail_with_backslash_in_key() {
     ProjectReactor reactor = createProjectReactor("foo\\bar");
 
     thrown.expect(SonarException.class);
@@ -98,7 +98,7 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void should_not_fail_with_valid_branch() {
+  public void not_fail_with_valid_branch() {
     validator.validate(createProjectReactor("foo", "branch"));
     validator.validate(createProjectReactor("foo", "Branch2"));
     validator.validate(createProjectReactor("foo", "bra.nch"));
@@ -108,10 +108,19 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void should_fail_with_invalid_branch() {
+  public void fail_with_invalid_branch() {
     ProjectReactor reactor = createProjectReactor("foo", "bran#ch");
     thrown.expect(SonarException.class);
     thrown.expectMessage("bran#ch is not a valid branch name");
+    validator.validate(reactor);
+  }
+
+  @Test
+  public void fail_with_only_digits() {
+    ProjectReactor reactor = createProjectReactor("12345");
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("12345 is not a valid project or module key");
     validator.validate(reactor);
   }
 
