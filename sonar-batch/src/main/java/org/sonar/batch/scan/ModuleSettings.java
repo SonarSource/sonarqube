@@ -22,17 +22,21 @@ package org.sonar.batch.scan;
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.json.simple.JSONValue;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchSettings;
+import org.sonar.batch.bootstrap.ServerClient;
 
 import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.sonar.batch.bootstrap.BatchSettings.BATCH_BOOTSTRAP_PROPERTIES_URL;
 
 /**
  * @since 2.12
@@ -41,9 +45,11 @@ public class ModuleSettings extends Settings {
 
   private final Configuration deprecatedCommonsConf;
   private boolean dryRun;
+  private final ServerClient client;
 
-  public ModuleSettings(BatchSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf) {
+  public ModuleSettings(BatchSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf, ServerClient client) {
     super(batchSettings.getDefinitions());
+    this.client = client;
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     this.dryRun = "true".equals(batchSettings.getString(CoreProperties.DRY_RUN));
 
@@ -67,11 +73,17 @@ public class ModuleSettings extends Settings {
       projectKey = String.format("%s:%s", projectKey, branch);
     }
     addProperties(batchSettings.getProperties());
-    Map<String, String> moduleProps = batchSettings.getModuleProperties(projectKey);
-    if (moduleProps != null) {
-      for (Map.Entry<String, String> entry : moduleProps.entrySet()) {
-        setProperty(entry.getKey(), entry.getValue());
-      }
+    downloadSettings(projectKey);
+  }
+
+  private void downloadSettings(String moduleKey) {
+    String url = BATCH_BOOTSTRAP_PROPERTIES_URL + "?project=" + moduleKey + "&dryRun=" + dryRun;
+    String jsonText = client.request(url);
+    List<Map<String, String>> json = (List<Map<String, String>>) JSONValue.parse(jsonText);
+    for (Map<String, String> jsonProperty : json) {
+      String key = jsonProperty.get("k");
+      String value = jsonProperty.get("v");
+      setProperty(key, value);
     }
   }
 
