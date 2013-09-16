@@ -47,8 +47,8 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 
 import java.util.Collection;
 
-@DependsUpon({DecoratorBarriers.ISSUES_ADDED, DecoratorBarriers.ISSUES_ADDED})
-@DependedUpon({DecoratorBarriers.ISSUES_TRACKED, DecoratorBarriers.ISSUES_TRACKED})
+@DependsUpon(DecoratorBarriers.ISSUES_ADDED)
+@DependedUpon(DecoratorBarriers.ISSUES_TRACKED)
 public class IssueTrackingDecorator implements Decorator {
 
   private final IssueCache issueCache;
