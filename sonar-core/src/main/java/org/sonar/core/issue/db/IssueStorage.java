@@ -142,7 +142,7 @@ public abstract class IssueStorage {
       }
     }
     FieldDiffs diffs = issue.currentChange();
-    if (diffs != null) {
+    if (!issue.isNew() && diffs != null) {
       IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), diffs);
       mapper.insert(changeDto);
     }
