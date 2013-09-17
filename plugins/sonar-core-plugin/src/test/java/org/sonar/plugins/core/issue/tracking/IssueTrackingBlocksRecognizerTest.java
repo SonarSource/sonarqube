@@ -20,11 +20,11 @@
 package org.sonar.plugins.core.issue.tracking;
 
 import org.junit.Test;
-import org.sonar.plugins.core.issue.tracking.ViolationTrackingBlocksRecognizer;
+import org.sonar.plugins.core.issue.tracking.IssueTrackingBlocksRecognizer;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ViolationTrackingBlocksRecognizerTest {
+public class IssueTrackingBlocksRecognizerTest {
 
   @Test
   public void test() {
@@ -35,7 +35,7 @@ public class ViolationTrackingBlocksRecognizerTest {
   }
 
   private static int compute(String a, String b, int ai, int bi) {
-    ViolationTrackingBlocksRecognizer rec = new ViolationTrackingBlocksRecognizer(a, b);
+    IssueTrackingBlocksRecognizer rec = new IssueTrackingBlocksRecognizer(a, b);
     return rec.computeLengthOfMaximalBlock(ai, bi);
   }
 

@@ -27,20 +27,20 @@ import org.sonar.plugins.core.issue.tracking.StringTextComparator;
 
 import javax.annotation.Nullable;
 
-public class ViolationTrackingBlocksRecognizer {
+public class IssueTrackingBlocksRecognizer {
 
   private final HashedSequence<StringText> a;
   private final HashedSequence<StringText> b;
   private final HashedSequenceComparator<StringText> cmp;
 
   @VisibleForTesting
-  public ViolationTrackingBlocksRecognizer(String referenceSource, String source) {
+  public IssueTrackingBlocksRecognizer(String referenceSource, String source) {
     this.a = HashedSequence.wrap(new StringText(referenceSource), StringTextComparator.IGNORE_WHITESPACE);
     this.b = HashedSequence.wrap(new StringText(source), StringTextComparator.IGNORE_WHITESPACE);
     this.cmp = new HashedSequenceComparator<StringText>(StringTextComparator.IGNORE_WHITESPACE);
   }
 
-  public ViolationTrackingBlocksRecognizer(HashedSequence<StringText> a, HashedSequence<StringText> b, HashedSequenceComparator<StringText> cmp) {
+  public IssueTrackingBlocksRecognizer(HashedSequence<StringText> a, HashedSequence<StringText> b, HashedSequenceComparator<StringText> cmp) {
     this.a = a;
     this.b = b;
     this.cmp = cmp;
