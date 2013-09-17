@@ -103,6 +103,21 @@ module MeasuresHelper
     [Api::Utils.period_label(1), Api::Utils.period_label(2), Api::Utils.period_label(3)]
   end
 
+  def more_criteria_options(filter)
+    more_criteria_options = [['', '']]
+    more_criteria_options << [message('measure_filter.criteria.metric'), 'metric']
+    more_criteria_options << [message('measure_filter.criteria.age'), 'age'] unless filter.criteria('ageMinDays') || filter.criteria('ageMaxDays')
+    more_criteria_options << [message('measure_filter.criteria.date'), 'date'] unless filter.criteria('fromDate') || filter.criteria('toDate')
+    more_criteria_options << [message('measure_filter.criteria.only_favourites'), 'fav'] unless filter.criteria('onFavourites')
+    more_criteria_options << [message('measure_filter.criteria.key'), 'key'] unless filter.criteria('keyRegexp')
+    more_criteria_options << [message('measure_filter.criteria.language'), 'lang'] unless filter.criteria('languages')
+    more_criteria_options << [message('measure_filter.criteria.name'), 'name'] unless filter.criteria('nameSearch')
+    more_criteria_options << [message('measure_filter.criteria.components_of_project'), 'project'] unless filter.base_resource
+    more_criteria_options << [message('measure_filter.criteria.alert'), 'alert'] unless filter.criteria('alertLevels')
+    # SONAR-4508 sort criterias
+    Api::Utils.insensitive_sort(more_criteria_options){|option| option[0]}
+  end
+
 
   private
 
