@@ -31,8 +31,8 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<actionpack>, ["= 2.3.15"])
       # sonar - unused
       #s.add_runtime_dependency(%q<actionmailer>, ["= 2.3.15"])
+      #s.add_runtime_dependency(%q<activeresource>, ["= 2.3.15"])
       # /sonar
-      s.add_runtime_dependency(%q<activeresource>, ["= 2.3.15"])
     else
       # sonar - unused
       #s.add_dependency(%q<rake>, [">= 0.8.3"])
@@ -42,8 +42,8 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<actionpack>, ["= 2.3.15"])
       # sonar - unused
       #s.add_dependency(%q<actionmailer>, ["= 2.3.15"])
+      #s.add_dependency(%q<activeresource>, ["= 2.3.15"])
       # /sonar
-      s.add_dependency(%q<activeresource>, ["= 2.3.15"])
     end
   else
     # sonar - unused
@@ -54,7 +54,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<actionpack>, ["= 2.3.15"])
     # sonar - unused
     #s.add_dependency(%q<actionmailer>, ["= 2.3.15"])
+    #s.add_dependency(%q<activeresource>, ["= 2.3.15"])
     # /sonar
-    s.add_dependency(%q<activeresource>, ["= 2.3.15"])
   end
 end

@@ -37,7 +37,7 @@ Rails::Initializer.run do |config|
 
   # Skip frameworks you're not going to use. To use Rails without a database
   # you must remove the Active Record framework.
-  config.frameworks -= [:action_mailer]
+  config.frameworks -= [:action_mailer, :active_resource]
 
   # This property can't be set in config/environments because of execution order
   # See http://strd6.com/2009/04/cant-dup-nilclass-maybe-try-unloadable/
