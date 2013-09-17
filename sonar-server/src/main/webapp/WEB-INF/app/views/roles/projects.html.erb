@@ -46,12 +46,12 @@
   <tr>
     <th>&nbsp;</th>
     <th>
-      <%= message('projects_role.admin') -%><br/>
-      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.admin.desc') -%></span>
-    </th>
-    <th>
       <%= message('projects_role.user') -%><br/>
       <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.user.desc') -%></span>
+    </th>
+    <th>
+      <%= message('projects_role.admin') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.admin.desc') -%></span>
     </th>
     <th>
       <%= message('projects_role.codeviewer') -%><br/>
@@ -79,7 +79,7 @@
       <td valign="top"><b><%= h project.name %></b><br/>
         <span class="small gray"><%= h project.key -%></span>
       </td>
-      <% ['admin', 'user', 'codeviewer'].each do |permission| -%>
+      <% ['user', 'admin', 'codeviewer'].each do |permission| -%>
         <td valign="top">
           <%
              users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role==permission }.map { |ur| ur.user.name })
