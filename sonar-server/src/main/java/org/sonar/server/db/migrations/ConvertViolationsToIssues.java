@@ -27,8 +27,10 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.AbstractListHandler;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.Oracle;
 import org.sonar.server.db.DatabaseMigration;
@@ -81,6 +83,7 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
   private static final String SEVERITY_MAJOR = "MAJOR";
 
   private QueryRunner runner = new QueryRunner();
+  private Logger logger = LoggerFactory.getLogger(ConvertViolationsToIssues.class);
 
   @Override
   public void execute(Database db) {
@@ -91,8 +94,15 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
       writeConnection.setAutoCommit(false);
       truncateIssueTables(writeConnection);
       convertViolations(readConnection, new Converter(db, runner, readConnection, writeConnection));
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to convert violations to issues", e);
+    } catch (SQLException e) {
+      logger.error("Fail to convert violations to issues", e);
+      SQLException next = e.getNextException();
+      while (next!=null) {
+        logger.error("SQL error: {}. Message: {}", next.getSQLState(), next.getMessage());
+        next = next.getNextException();
+      }
+      throw MessageException.of("Fail to convert violations to issues");
+
     } finally {
       DbUtils.closeQuietly(readConnection);
       DbUtils.closeQuietly(writeConnection);
