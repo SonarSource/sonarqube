@@ -22,29 +22,24 @@ package org.sonar.core.issue;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.Severity;
 
 public class IssuesBySeverity {
 
-  Multimap<String, Issue> issuesBySeverity = ArrayListMultimap.create();
+  private Multimap<String, Issue> issuesBySeverity = ArrayListMultimap.create();
 
   public IssuesBySeverity() {
     this.issuesBySeverity = ArrayListMultimap.create();
   }
 
   public void add(Issue issue) {
-    for (String severity : Severity.ALL) {
-      if (severity.equals(issue.severity())) {
-        issuesBySeverity.put(severity, issue);
-      }
-    }
+    issuesBySeverity.put(issue.severity(), issue);
   }
 
-  public int issues(String severity){
+  public int issues(String severity) {
     return issuesBySeverity.get(severity).size();
   }
 
-  public int size(){
+  public int size() {
     return issuesBySeverity.values().size();
   }
 }
