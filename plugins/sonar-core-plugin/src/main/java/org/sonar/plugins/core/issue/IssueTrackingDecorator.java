@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.issue;
 
+import org.sonar.api.batch.SonarIndex;
+import org.sonar.batch.scan.LastSnapshots;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -54,6 +56,8 @@ public class IssueTrackingDecorator implements Decorator {
   private final IssueCache issueCache;
   private final InitialOpenIssuesStack initialOpenIssues;
   private final IssueTracking tracking;
+  private final LastSnapshots lastSnapshots;
+  private final SonarIndex index;
   private final IssueHandlers handlers;
   private final IssueWorkflow workflow;
   private final IssueUpdater updater;
@@ -63,6 +67,7 @@ public class IssueTrackingDecorator implements Decorator {
   private final RuleFinder ruleFinder;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
+      LastSnapshots lastSnapshots, SonarIndex index,
       IssueHandlers handlers, IssueWorkflow workflow,
       IssueUpdater updater,
       Project project,
@@ -72,6 +77,8 @@ public class IssueTrackingDecorator implements Decorator {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
+    this.lastSnapshots = lastSnapshots;
+    this.index = index;
     this.handlers = handlers;
     this.workflow = workflow;
     this.updater = updater;
@@ -104,7 +111,9 @@ public class IssueTrackingDecorator implements Decorator {
     // all the issues that are not closed in db before starting this module scan, including manual issues
     Collection<IssueDto> dbOpenIssues = initialOpenIssues.selectAndRemove(resource.getEffectiveKey());
 
-    IssueTrackingResult trackingResult = tracking.track(resource, dbOpenIssues, issues);
+    SourceHashHolder sourceHashHolder = new SourceHashHolder(index, lastSnapshots, resource);
+
+    IssueTrackingResult trackingResult = tracking.track(sourceHashHolder, dbOpenIssues, issues);
 
     // unmatched = issues that have been resolved + issues on disabled/removed rules + manual issues
     addUnmatched(trackingResult.unmatched(), issues);

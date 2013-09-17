@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.core.issue;
 
+import org.sonar.api.batch.SonarIndex;
+
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.junit.Before;
@@ -44,15 +46,18 @@ public class IssueTrackingTest {
 
   IssueTracking tracking;
   Resource project;
+  SourceHashHolder sourceHashHolder;
+  SonarIndex index;
   LastSnapshots lastSnapshots;
   long violationId = 0;
 
   @Before
   public void before() {
+    index = mock(SonarIndex.class);
     lastSnapshots = mock(LastSnapshots.class);
 
     project = mock(Project.class);
-    tracking = new IssueTracking(lastSnapshots, null);
+    tracking = new IssueTracking();
   }
 
   @Test
@@ -64,13 +69,15 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("message", 10, RuleKey.of("squid", "AvoidCycle"), "checksum1").setKey("200");
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue1, referenceIssue2), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue1, referenceIssue2), null, result);
     // same key
     assertThat(result.matching(newIssue)).isSameAs(referenceIssue2);
   }
 
   @Test
   public void checksum_should_have_greater_priority_than_line() {
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+
     IssueDto referenceIssue1 = newReferenceIssue("message", 1, "squid", "AvoidCycle", "checksum1");
     IssueDto referenceIssue2 = newReferenceIssue("message", 3, "squid", "AvoidCycle", "checksum2");
 
@@ -78,7 +85,7 @@ public class IssueTrackingTest {
     DefaultIssue newIssue2 = newDefaultIssue("message", 5, RuleKey.of("squid", "AvoidCycle"), "checksum2");
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue1, newIssue2), newArrayList(referenceIssue1, referenceIssue2), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue1, newIssue2), newArrayList(referenceIssue1, referenceIssue2), sourceHashHolder, result);
     assertThat(result.matching(newIssue1)).isSameAs(referenceIssue1);
     assertThat(result.matching(newIssue2)).isSameAs(referenceIssue2);
   }
@@ -88,51 +95,61 @@ public class IssueTrackingTest {
    */
   @Test
   public void same_rule_and_null_line_and_checksum_but_different_messages() {
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+
     DefaultIssue newIssue = newDefaultIssue("new message", null, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("old message", null, "squid", "AvoidCycle", "checksum1");
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
     assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   @Test
   public void same_rule_and_line_and_checksum_but_different_messages() {
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+
     DefaultIssue newIssue = newDefaultIssue("new message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("old message", 1, "squid", "AvoidCycle", "checksum1");
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
     assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   @Test
   public void same_rule_and_line_message() {
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 1, "squid", "AvoidCycle", "checksum2");
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
     assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   @Test
   public void should_ignore_reference_measure_without_checksum() {
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), null);
     IssueDto referenceIssue = newReferenceIssue("message", 1, "squid", "NullDeref", null);
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
     assertThat(result.matching(newIssue)).isNull();
   }
 
   @Test
   public void same_rule_and_message_and_checksum_but_different_line() {
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 2, "squid", "AvoidCycle", "checksum1");
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
     assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
@@ -141,56 +158,65 @@ public class IssueTrackingTest {
    */
   @Test
   public void same_checksum_and_rule_but_different_line_and_different_message() {
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+
     DefaultIssue newIssue = newDefaultIssue("new message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("old message", 2, "squid", "AvoidCycle", "checksum1");
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
     assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   @Test
   public void should_create_new_issue_when_same_rule_same_message_but_different_line_and_checksum() {
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 2, "squid", "AvoidCycle", "checksum2");
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
     assertThat(result.matching(newIssue)).isNull();
   }
 
   @Test
   public void should_not_track_issue_if_different_rule() {
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+
     DefaultIssue newIssue = newDefaultIssue("message", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 1, "squid", "NullDeref", "checksum1");
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
     assertThat(result.matching(newIssue)).isNull();
   }
 
   @Test
   public void should_compare_issues_with_database_format() {
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+
     // issue messages are trimmed and can be abbreviated when persisted in database.
     // Comparing issue messages must use the same format.
     DefaultIssue newIssue = newDefaultIssue("      message    ", 1, RuleKey.of("squid", "AvoidCycle"), "checksum1");
     IssueDto referenceIssue = newReferenceIssue("message", 1, "squid", "AvoidCycle", "checksum2");
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), null, null, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
     assertThat(result.matching(newIssue)).isSameAs(referenceIssue);
   }
 
   @Test
   public void past_issue_not_associated_with_line_should_not_cause_npe() throws Exception {
     when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
-    String source = load("example2-v2");
+    when(index.getSource(project)).thenReturn(load("example2-v2"));
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, project);
 
     DefaultIssue newIssue = newDefaultIssue("Indentation", 9, RuleKey.of("squid", "AvoidCycle"), "foo");
     IssueDto referenceIssue = newReferenceIssue("2 branches need to be covered", null, "squid", "AvoidCycle", null);
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), source, project, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
 
     assertThat(result.matched()).isEmpty();
   }
@@ -198,13 +224,14 @@ public class IssueTrackingTest {
   @Test
   public void new_issue_not_associated_with_line_should_not_cause_npe() throws Exception {
     when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
-    String source = load("example2-v2");
+    when(index.getSource(project)).thenReturn(load("example2-v2"));
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, project);
 
     DefaultIssue newIssue = newDefaultIssue("1 branch need to be covered", null, RuleKey.of("squid", "AvoidCycle"), "foo");
     IssueDto referenceIssue = newReferenceIssue("Indentationd", 7, "squid", "AvoidCycle", null);
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), source, project, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
 
     assertThat(result.matched()).isEmpty();
   }
@@ -215,13 +242,14 @@ public class IssueTrackingTest {
   @Test
   public void issue_not_associated_with_line() throws Exception {
     when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
-    String source = load("example2-v2");
+    when(index.getSource(project)).thenReturn(load("example2-v2"));
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, project);
 
     DefaultIssue newIssue = newDefaultIssue("1 branch need to be covered", null, RuleKey.of("squid", "AvoidCycle"), null);
     IssueDto referenceIssue = newReferenceIssue("2 branches need to be covered", null, "squid", "AvoidCycle", null);
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), source, project, result);
+    tracking.mapIssues(newArrayList(newIssue), newArrayList(referenceIssue), sourceHashHolder, result);
 
     assertThat(result.matching(newIssue)).isEqualTo(referenceIssue);
   }
@@ -232,7 +260,8 @@ public class IssueTrackingTest {
   @Test
   public void should_track_issues_based_on_blocks_recognition_on_example1() throws Exception {
     when(lastSnapshots.getSource(project)).thenReturn(load("example1-v1"));
-    String source = load("example1-v2");
+    when(index.getSource(project)).thenReturn(load("example1-v2"));
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, project);
 
     IssueDto referenceIssue1 = newReferenceIssue("Indentation", 7, "squid", "AvoidCycle", null);
     IssueDto referenceIssue2 = newReferenceIssue("Indentation", 11, "squid", "AvoidCycle", null);
@@ -243,7 +272,7 @@ public class IssueTrackingTest {
     DefaultIssue newIssue4 = newDefaultIssue("Indentation", 21, RuleKey.of("squid", "AvoidCycle"), null);
 
     IssueTrackingResult result = new IssueTrackingResult();
-    tracking.mapIssues(Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4), Arrays.asList(referenceIssue1, referenceIssue2), source, project, result);
+    tracking.mapIssues(Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4), Arrays.asList(referenceIssue1, referenceIssue2), sourceHashHolder, result);
 
     assertThat(result.matching(newIssue1)).isNull();
     assertThat(result.matching(newIssue2)).isNull();
@@ -257,7 +286,8 @@ public class IssueTrackingTest {
   @Test
   public void should_track_issues_based_on_blocks_recognition_on_example2() throws Exception {
     when(lastSnapshots.getSource(project)).thenReturn(load("example2-v1"));
-    String source = load("example2-v2");
+    when(index.getSource(project)).thenReturn(load("example2-v2"));
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, project);
 
     IssueDto referenceIssue1 = newReferenceIssue("SystemPrintln", 5, "squid", "AvoidCycle", null);
 
@@ -269,7 +299,7 @@ public class IssueTrackingTest {
     tracking.mapIssues(
       Arrays.asList(newIssue1, newIssue2, newIssue3),
       Arrays.asList(referenceIssue1),
-      source, project, result);
+      sourceHashHolder, result);
 
     assertThat(result.matching(newIssue1)).isNull();
     assertThat(result.matching(newIssue2)).isSameAs(referenceIssue1);
@@ -279,7 +309,8 @@ public class IssueTrackingTest {
   @Test
   public void should_track_issues_based_on_blocks_recognition_on_example3() throws Exception {
     when(lastSnapshots.getSource(project)).thenReturn(load("example3-v1"));
-    String source = load("example3-v2");
+    when(index.getSource(project)).thenReturn(load("example3-v2"));
+    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, project);
 
     IssueDto referenceIssue1 = newReferenceIssue("Avoid unused local variables such as 'j'.", 6, "squid", "AvoidCycle", "63c11570fc0a76434156be5f8138fa03");
     IssueDto referenceIssue2 = newReferenceIssue("Avoid unused private methods such as 'myMethod()'.", 13, "squid", "NullDeref", "ef23288705d1ef1e512448ace287586e");
@@ -300,7 +331,7 @@ public class IssueTrackingTest {
     tracking.mapIssues(
       Arrays.asList(newIssue1, newIssue2, newIssue3, newIssue4, newIssue5),
       Arrays.asList(referenceIssue1, referenceIssue2, referenceIssue3),
-      source, project, result);
+      sourceHashHolder, result);
 
     assertThat(result.matching(newIssue1)).isNull();
     assertThat(result.matching(newIssue2)).isSameAs(referenceIssue2);

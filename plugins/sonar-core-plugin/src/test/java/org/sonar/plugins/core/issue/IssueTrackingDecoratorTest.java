@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.core.issue;
 
+import org.sonar.api.batch.SonarIndex;
+
+import org.sonar.batch.scan.LastSnapshots;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -55,6 +58,8 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   IssueCache issueCache = mock(IssueCache.class, RETURNS_MOCKS);
   InitialOpenIssuesStack initialOpenIssues = mock(InitialOpenIssuesStack.class);
   IssueTracking tracking = mock(IssueTracking.class, RETURNS_MOCKS);
+  LastSnapshots lastSnapshots = mock(LastSnapshots.class);
+  SonarIndex index = mock(SonarIndex.class);
   IssueHandlers handlers = mock(IssueHandlers.class);
   IssueWorkflow workflow = mock(IssueWorkflow.class);
   IssueUpdater updater = mock(IssueUpdater.class);
@@ -68,6 +73,8 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       issueCache,
       initialOpenIssues,
       tracking,
+      lastSnapshots,
+      index,
       handlers,
       workflow,
       updater,
@@ -103,7 +110,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     decorator.doDecorate(file);
 
     // Apply filters, track, apply transitions, notify extensions then update cache
-    verify(tracking).track(eq(file), eq(dbIssues), argThat(new ArgumentMatcher<Collection<DefaultIssue>>() {
+    verify(tracking).track(isA(SourceHashHolder.class), eq(dbIssues), argThat(new ArgumentMatcher<Collection<DefaultIssue>>() {
       @Override
       public boolean matches(Object o) {
         List<DefaultIssue> issues = (List<DefaultIssue>) o;
@@ -126,7 +133,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     IssueTrackingResult trackingResult = new IssueTrackingResult();
     trackingResult.addUnmatched(unmatchedIssue);
 
-    when(tracking.track(eq(file), anyCollection(), anyCollection())).thenReturn(trackingResult);
+    when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
     decorator.doDecorate(file);
 
@@ -154,7 +161,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     IssueTrackingResult trackingResult = new IssueTrackingResult();
     trackingResult.addUnmatched(unmatchedIssue);
 
-    when(tracking.track(eq(file), anyCollection(), anyCollection())).thenReturn(trackingResult);
+    when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
     decorator.doDecorate(file);
 
@@ -183,7 +190,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     IssueTrackingResult trackingResult = new IssueTrackingResult();
     trackingResult.addUnmatched(unmatchedIssue);
 
-    when(tracking.track(eq(file), anyCollection(), anyCollection())).thenReturn(trackingResult);
+    when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
     decorator.doDecorate(file);
 
@@ -212,7 +219,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     IssueTrackingResult trackingResult = new IssueTrackingResult();
     trackingResult.addUnmatched(unmatchedIssue);
 
-    when(tracking.track(eq(file), anyCollection(), anyCollection())).thenReturn(trackingResult);
+    when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
     decorator.doDecorate(file);
 

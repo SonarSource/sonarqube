@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.core.issue;
 
+import org.sonar.plugins.core.issue.tracking.SourceChecksum;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.LinkedHashMultimap;
@@ -27,48 +29,47 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.plugins.core.issue.tracking.*;
+import org.sonar.plugins.core.issue.tracking.HashedSequence;
+import org.sonar.plugins.core.issue.tracking.HashedSequenceComparator;
+import org.sonar.plugins.core.issue.tracking.IssueTrackingBlocksRecognizer;
+import org.sonar.plugins.core.issue.tracking.RollingHashSequence;
+import org.sonar.plugins.core.issue.tracking.RollingHashSequenceComparator;
+import org.sonar.plugins.core.issue.tracking.StringText;
+import org.sonar.plugins.core.issue.tracking.StringTextComparator;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 public class IssueTracking implements BatchExtension {
 
-  private final LastSnapshots lastSnapshots;
-  private final SonarIndex index;
-
-  public IssueTracking(LastSnapshots lastSnapshots, SonarIndex index) {
-    this.lastSnapshots = lastSnapshots;
-    this.index = index;
-  }
-
-  public IssueTrackingResult track(Resource resource, Collection<IssueDto> dbIssues, Collection<DefaultIssue> newIssues) {
+  public IssueTrackingResult track(SourceHashHolder sourceHashHolder, Collection<IssueDto> dbIssues, Collection<DefaultIssue> newIssues) {
     IssueTrackingResult result = new IssueTrackingResult();
 
-    String source = index.getSource(resource);
-    setChecksumOnNewIssues(newIssues, source);
+    setChecksumOnNewIssues(newIssues, sourceHashHolder);
 
     // Map new issues with old ones
-    mapIssues(newIssues, dbIssues, source, resource, result);
+    mapIssues(newIssues, dbIssues, sourceHashHolder, result);
     return result;
   }
 
-  private void setChecksumOnNewIssues(Collection<DefaultIssue> issues, String source) {
-    List<String> checksums = SourceChecksum.lineChecksumsOfFile(source);
+  private void setChecksumOnNewIssues(Collection<DefaultIssue> issues, SourceHashHolder sourceHashHolder) {
+    List<String> checksums = SourceChecksum.lineChecksumsOfFile(sourceHashHolder.getSource());
     for (DefaultIssue issue : issues) {
       issue.setChecksum(SourceChecksum.getChecksumForLine(checksums, issue.line()));
     }
   }
 
+
   @VisibleForTesting
-  void mapIssues(Collection<DefaultIssue> newIssues, @Nullable Collection<IssueDto> lastIssues, @Nullable String source, @Nullable Resource resource, IssueTrackingResult result) {
+  void mapIssues(Collection<DefaultIssue> newIssues, @Nullable Collection<IssueDto> lastIssues, SourceHashHolder sourceHashHolder, IssueTrackingResult result) {
     boolean hasLastScan = false;
 
     if (lastIssues != null) {
@@ -78,11 +79,8 @@ public class IssueTracking implements BatchExtension {
 
     // If each new issue matches an old one we can stop the matching mechanism
     if (result.matched().size() != newIssues.size()) {
-      if (source != null && resource != null && hasLastScan) {
-        String referenceSource = lastSnapshots.getSource(resource);
-        if (referenceSource != null) {
-          mapNewissues(referenceSource, newIssues, source, result);
-        }
+      if (sourceHashHolder.hasBothReferenceAndCurrentSource() && hasLastScan) {
+        mapNewissues(sourceHashHolder, newIssues, result);
       }
       mapIssuesOnSameRule(newIssues, result);
     }
@@ -109,19 +107,17 @@ public class IssueTracking implements BatchExtension {
     }
   }
 
-  private void mapNewissues(String referenceSource, Collection<DefaultIssue> newIssues, String source, IssueTrackingResult result) {
-    HashedSequence<StringText> hashedReference = HashedSequence.wrap(new StringText(referenceSource), StringTextComparator.IGNORE_WHITESPACE);
-    HashedSequence<StringText> hashedSource = HashedSequence.wrap(new StringText(source), StringTextComparator.IGNORE_WHITESPACE);
-    HashedSequenceComparator<StringText> hashedComparator = new HashedSequenceComparator<StringText>(StringTextComparator.IGNORE_WHITESPACE);
+  private void mapNewissues(SourceHashHolder sourceHashHolder, Collection<DefaultIssue> newIssues, IssueTrackingResult result) {
 
-    IssueTrackingBlocksRecognizer rec = new IssueTrackingBlocksRecognizer(hashedReference, hashedSource, hashedComparator);
+    HashedSequenceComparator<StringText> hashedComparator = new HashedSequenceComparator<StringText>(StringTextComparator.IGNORE_WHITESPACE);
+    IssueTrackingBlocksRecognizer rec = new IssueTrackingBlocksRecognizer(sourceHashHolder.getHashedReference(), sourceHashHolder.getHashedSource(), hashedComparator);
+
+    RollingHashSequence<HashedSequence<StringText>> a = RollingHashSequence.wrap(sourceHashHolder.getHashedReference(), hashedComparator, 5);
+    RollingHashSequence<HashedSequence<StringText>> b = RollingHashSequence.wrap(sourceHashHolder.getHashedSource(), hashedComparator, 5);
+    RollingHashSequenceComparator<HashedSequence<StringText>> cmp = new RollingHashSequenceComparator<HashedSequence<StringText>>(hashedComparator);
 
     Multimap<Integer, DefaultIssue> newIssuesByLines = newIssuesByLines(newIssues, rec, result);
     Multimap<Integer, IssueDto> lastIssuesByLines = lastIssuesByLines(result.unmatched(), rec);
-
-    RollingHashSequence<HashedSequence<StringText>> a = RollingHashSequence.wrap(hashedReference, hashedComparator, 5);
-    RollingHashSequence<HashedSequence<StringText>> b = RollingHashSequence.wrap(hashedSource, hashedComparator, 5);
-    RollingHashSequenceComparator<HashedSequence<StringText>> cmp = new RollingHashSequenceComparator<HashedSequence<StringText>>(hashedComparator);
 
     Map<Integer, HashOccurrence> map = Maps.newHashMap();
 
