@@ -29,6 +29,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.DryRunIncompatible;
 import org.sonar.core.issue.IssueNotifications;
+import org.sonar.core.issue.IssuesBySeverity;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -55,12 +56,12 @@ public class SendIssueNotificationsPostJob implements PostJob {
   }
 
   private void sendNotifications(Project project) {
-    int newIssues = 0;
+    IssuesBySeverity newIssues = new IssuesBySeverity();
     IssueChangeContext context = IssueChangeContext.createScan(project.getAnalysisDate());
     Map<DefaultIssue, Rule> shouldSentNotification = new LinkedHashMap<DefaultIssue, Rule>();
     for (DefaultIssue issue : issueCache.all()) {
       if (issue.isNew() && issue.resolution() == null) {
-        newIssues++;
+        newIssues.add(issue);
       }
       if (!issue.isNew() && issue.isChanged() && issue.mustSendNotifications()) {
         Rule rule = ruleFinder.findByKey(issue.ruleKey());
@@ -73,7 +74,7 @@ public class SendIssueNotificationsPostJob implements PostJob {
     if (!shouldSentNotification.isEmpty()) {
       notifications.sendChanges(shouldSentNotification, context, project, null);
     }
-    if (newIssues > 0) {
+    if (newIssues.size() > 0) {
       notifications.sendNewIssues(project, newIssues);
     }
   }

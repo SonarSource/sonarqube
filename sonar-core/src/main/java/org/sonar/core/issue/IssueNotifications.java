@@ -31,6 +31,7 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -58,11 +59,14 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
     this.ruleI18n = ruleI18n;
   }
 
-  public Notification sendNewIssues(Project project, int newIssues) {
+  public Notification sendNewIssues(Project project, IssuesBySeverity newIssues) {
     Notification notification = newNotification(project, "new-issues")
-      .setDefaultMessage(newIssues + " new issues on " + project.getLongName() + ".")
+      .setDefaultMessage(newIssues.size() + " new issues on " + project.getLongName() + ".\n")
       .setFieldValue("projectDate", DateUtils.formatDateTime(project.getAnalysisDate()))
-      .setFieldValue("count", String.valueOf(newIssues));
+      .setFieldValue("count", String.valueOf(newIssues.size()));
+    for (String severity : Severity.ALL) {
+      notification.setFieldValue("count-"+ severity,  String.valueOf(newIssues.issues(severity)));
+    }
     notificationsManager.scheduleForSending(notification);
     return notification;
   }
@@ -145,5 +149,9 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
     return new Notification(key)
       .setFieldValue("projectName", project.longName())
       .setFieldValue("projectKey", project.key());
+  }
+
+  private Locale getLocale() {
+    return Locale.ENGLISH;
   }
 }

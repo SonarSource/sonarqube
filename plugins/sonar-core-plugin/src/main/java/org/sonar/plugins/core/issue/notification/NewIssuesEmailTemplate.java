@@ -19,8 +19,11 @@
  */
 package org.sonar.plugins.core.issue.notification;
 
+import com.google.common.collect.Lists;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
@@ -28,6 +31,8 @@ import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Locale;
 
 /**
  * Creates email message for notification "new-issues".
@@ -37,9 +42,11 @@ import java.util.Date;
 public class NewIssuesEmailTemplate extends EmailTemplate {
 
   private final EmailSettings settings;
+  private final I18n i18n;
 
-  public NewIssuesEmailTemplate(EmailSettings settings) {
+  public NewIssuesEmailTemplate(EmailSettings settings, I18n i18n) {
     this.settings = settings;
+    this.i18n = i18n;
   }
 
   @Override
@@ -48,11 +55,21 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
       return null;
     }
     String projectName = notification.getFieldValue("projectName");
-    String violationsCount = notification.getFieldValue("count");
 
     StringBuilder sb = new StringBuilder();
-    sb.append("Project: ").append(projectName).append('\n');
-    sb.append(violationsCount).append(" new issues").append('\n');
+    sb.append("Project: ").append(projectName).append("\n\n");
+    sb.append(notification.getFieldValue("count")).append(" new issues").append("\n\n");
+    sb.append("   ");
+    for (Iterator<String> severityIterator = Lists.reverse(Severity.ALL).iterator(); severityIterator.hasNext(); ) {
+      String severity = severityIterator.next();
+      String severityLabel = i18n.message(getLocale(), "severity."+ severity, severity);
+      sb.append(severityLabel).append(": ").append(notification.getFieldValue("count-"+ severity));
+      if (severityIterator.hasNext()) {
+        sb.append("   ");
+      }
+    }
+    sb.append('\n');
+
     appendFooter(sb, notification);
 
     EmailMessage message = new EmailMessage()
@@ -80,6 +97,10 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException("Encoding not supported", e);
     }
+  }
+
+  private Locale getLocale() {
+    return Locale.ENGLISH;
   }
 
 }

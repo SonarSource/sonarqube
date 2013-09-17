@@ -21,6 +21,7 @@ package org.sonar.plugins.core.issue.notification;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -35,19 +36,17 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.IssueNotifications;
+import org.sonar.core.issue.IssuesBySeverity;
 
 import java.util.Arrays;
 import java.util.Map;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SendIssueNotificationsPostJobTest {
@@ -70,14 +69,16 @@ public class SendIssueNotificationsPostJobTest {
   public void should_send_notif_if_new_issues() throws Exception {
     when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
     when(issueCache.all()).thenReturn(Arrays.asList(
-      new DefaultIssue().setNew(true),
-      new DefaultIssue().setNew(false)
+      new DefaultIssue().setNew(true).setSeverity("MAJOR"),
+      new DefaultIssue().setNew(false).setSeverity("MINOR")
       ));
 
     SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
 
-    verify(notifications).sendNewIssues(project, 1);
+    ArgumentCaptor<IssuesBySeverity> argument = ArgumentCaptor.forClass(IssuesBySeverity.class);
+    verify(notifications).sendNewIssues(eq(project), argument.capture());
+    assertThat(argument.getValue().size()).isEqualTo(1);
   }
 
   @Test

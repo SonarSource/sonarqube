@@ -42,6 +42,8 @@ import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueNotificationsTest {
@@ -63,9 +65,13 @@ public class IssueNotificationsTest {
   public void should_send_new_issues() throws Exception {
     Date date = DateUtils.parseDateTime("2013-05-18T13:00:03+0200");
     Project project = new Project("struts").setAnalysisDate(date);
-    Notification notification = issueNotifications.sendNewIssues(project, 42);
+    IssuesBySeverity issuesBySeverity = mock(IssuesBySeverity.class);
+    when(issuesBySeverity.size()).thenReturn(42);
+    when(issuesBySeverity.issues("MINOR")).thenReturn(10);
+    Notification notification = issueNotifications.sendNewIssues(project, issuesBySeverity);
 
     assertThat(notification.getFieldValue("count")).isEqualTo("42");
+    assertThat(notification.getFieldValue("count-MINOR")).isEqualTo("10");
     assertThat(DateUtils.parseDateTime(notification.getFieldValue("projectDate"))).isEqualTo(date);
     Mockito.verify(manager).scheduleForSending(notification);
   }
@@ -83,8 +89,8 @@ public class IssueNotificationsTest {
       .setSendNotifications(true)
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue> asList(issue));
-    queryResult.addProjects(Arrays.<Component> asList(new Project("struts")));
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
+    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
 
     Notification notification = issueNotifications.sendChanges(issue, context, queryResult).get(0);
 
@@ -110,8 +116,8 @@ public class IssueNotificationsTest {
       .setAssignee("freddy")
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue> asList(issue));
-    queryResult.addProjects(Arrays.<Component> asList(new Project("struts")));
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
+    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
 
     Notification notification = issueNotifications.sendChanges(issue, context, queryResult, "I don't know how to fix it?");
 
@@ -132,9 +138,9 @@ public class IssueNotificationsTest {
       .setSendNotifications(true)
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue> asList(issue));
-    queryResult.addProjects(Arrays.<Component> asList(new Project("struts")));
-    queryResult.addComponents(Arrays.<Component> asList(new ResourceComponent(new File("struts:Action").setEffectiveKey("struts:Action"))));
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
+    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
+    queryResult.addComponents(Arrays.<Component>asList(new ResourceComponent(new File("struts:Action").setEffectiveKey("struts:Action"))));
 
     Notification notification = issueNotifications.sendChanges(issue, context, queryResult).get(0);
 
@@ -155,8 +161,8 @@ public class IssueNotificationsTest {
       .setKey("ABCDE")
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue> asList(issue));
-    queryResult.addProjects(Arrays.<Component> asList(new Project("struts")));
+    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
+    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
 
     Notification notification = issueNotifications.sendChanges(issue, context, queryResult, null);
 
