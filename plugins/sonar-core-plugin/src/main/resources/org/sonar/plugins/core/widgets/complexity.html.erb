@@ -54,10 +54,10 @@ complexity=measure('complexity')
  <script type='text/javascript'>
    //<![CDATA[
    function selectComplexity(metric) {
-     $$('#cmp_charts .chart').each(function(chart) {
+     $j('#cmp_charts .chart').each(function(index,chart) {
        chart.hide();
      });
-     $('chart_' + metric).show();
+     $j('#chart_' + metric).show();
    }
  </script>
  <style>
