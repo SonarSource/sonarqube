@@ -1,9 +1,0 @@
-<% current_user_login = current_user.login if current_user %>
-<ul>
-  <% 
-    @users.each do |user|
-      user_name =  user.name
-  %>
-    <li id="<%= h(user.login) -%>"><strong><%= h(user_name)[0..@char_count-1] -%></strong><%= h(user_name)[@char_count..user_name.size-1] -%> <i><%= "(#{message('me').downcase})" if current_user_login == user.login -%></i></li>
-  <% end %>
-</ul>

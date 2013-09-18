@@ -176,12 +176,6 @@ class UsersController < ApplicationController
     user
   end
 
-  def autocomplete
-    starts_with = Regexp.new(params[:user_name_start].parameterize.upcase + '(.*)')
-    @users = User.find(:all, :conditions => ["active=?", true]).to_a.select { |user| user.name.parameterize.upcase =~ starts_with }
-    @char_count = params[:user_name_start].size
-    render :partial => 'autocomplete'
-  end
 
   private
 
