@@ -1,7 +1,7 @@
 <div id="body" class="nolayout">
   <% if @snapshot %><div class="print"><h2><%= h @snapshot.project.name(true) %></h2></div><% end %>
-  <div class="error" id="error" style="display:none"><span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('error').hide();return false;"><%= message('hide').downcase -%></a>]</div>
-  <div class="warning" id="warning" style="display:none"><span id="warningmsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('warning').hide();return false;"><%= message('hide').downcase -%></a>]</div>
-  <div class="notice" id="info" style="display:none"><span id="infomsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$('info').hide();return false;"><%= message('hide').downcase -%></a>]</div>
+  <div class="error" id="error" style="display:none"><span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$j('#error').hide();return false;"><%= message('hide').downcase -%></a>]</div>
+  <div class="warning" id="warning" style="display:none"><span id="warningmsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$j('#warning').hide();return false;"><%= message('hide').downcase -%></a>]</div>
+  <div class="notice" id="info" style="display:none"><span id="infomsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$j('#info').hide();return false;"><%= message('hide').downcase -%></a>]</div>
   <%= yield %>
 </div>
