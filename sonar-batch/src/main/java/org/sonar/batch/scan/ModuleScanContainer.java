@@ -42,7 +42,7 @@ import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.IssuableFactory;
 import org.sonar.batch.issue.IssueFilters;
-import org.sonar.batch.issue.ScanIssues;
+import org.sonar.batch.issue.DefaultModuleIssues;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.scan.filesystem.*;
@@ -113,7 +113,7 @@ public class ModuleScanContainer extends ComponentContainer {
       new ProfileProvider(),
 
       // issues
-      ScanIssues.class,
+      DefaultModuleIssues.class,
       IssuableFactory.class,
 
       ScanPerspectives.class
@@ -140,7 +140,7 @@ public class ModuleScanContainer extends ComponentContainer {
     DefaultIndex index = getComponentByType(DefaultIndex.class);
     index.setCurrentProject(module,
       getComponentByType(ResourceFilters.class),
-      getComponentByType(ScanIssues.class));
+      getComponentByType(DefaultModuleIssues.class));
 
     getComponentByType(PhaseExecutor.class).execute(module);
   }

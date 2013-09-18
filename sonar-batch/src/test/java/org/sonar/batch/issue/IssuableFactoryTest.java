@@ -34,12 +34,12 @@ import static org.mockito.Mockito.mock;
 
 public class IssuableFactoryTest {
 
-  ScanIssues scanIssues = mock(ScanIssues.class);
+  DefaultModuleIssues moduleIssues = mock(DefaultModuleIssues.class);
   IssueCache cache = mock(IssueCache.class, Mockito.RETURNS_MOCKS);
 
   @Test
   public void file_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(scanIssues, cache);
+    IssuableFactory factory = new IssuableFactory(moduleIssues, cache);
     Component component = new ResourceComponent(new File("foo/bar.c").setEffectiveKey("foo/bar.c"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
@@ -50,7 +50,7 @@ public class IssuableFactoryTest {
 
   @Test
   public void project_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(scanIssues, cache);
+    IssuableFactory factory = new IssuableFactory(moduleIssues, cache);
     Component component = new ResourceComponent(new Project("Foo").setEffectiveKey("foo"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
@@ -61,7 +61,7 @@ public class IssuableFactoryTest {
 
   @Test
   public void java_file_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(scanIssues, cache);
+    IssuableFactory factory = new IssuableFactory(moduleIssues, cache);
     Component component = new ResourceComponent(new JavaFile("org.apache.Action").setEffectiveKey("struts:org.apache.Action"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
@@ -72,7 +72,7 @@ public class IssuableFactoryTest {
 
   @Test
   public void java_class_should_not_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(scanIssues, cache);
+    IssuableFactory factory = new IssuableFactory(moduleIssues, cache);
     Component component = new ResourceComponent(JavaClass.create("org.apache.Action").setEffectiveKey("struts:org.apache.Action"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 

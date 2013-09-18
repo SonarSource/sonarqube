@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 
 public class DefaultIssuableTest {
 
-  ScanIssues scanIssues = mock(ScanIssues.class);
+  DefaultModuleIssues moduleIssues = mock(DefaultModuleIssues.class);
   IssueCache cache = mock(IssueCache.class);
   Component component = mock(Component.class);
 
@@ -44,7 +44,7 @@ public class DefaultIssuableTest {
     DefaultIssue unresolved = new DefaultIssue();
     when(cache.byComponent("struts:org.apache.Action")).thenReturn(Arrays.asList(resolved, unresolved));
 
-    DefaultIssuable perspective = new DefaultIssuable(component, scanIssues, cache);
+    DefaultIssuable perspective = new DefaultIssuable(component, moduleIssues, cache);
 
     List<Issue> issues = perspective.issues();
     assertThat(issues).containsOnly(unresolved);
@@ -57,7 +57,7 @@ public class DefaultIssuableTest {
     DefaultIssue unresolved = new DefaultIssue();
     when(cache.byComponent("struts:org.apache.Action")).thenReturn(Arrays.asList(resolved, unresolved));
 
-    DefaultIssuable perspective = new DefaultIssuable(component, scanIssues, cache);
+    DefaultIssuable perspective = new DefaultIssuable(component, moduleIssues, cache);
 
     List<Issue> issues = perspective.resolvedIssues();
     assertThat(issues).containsOnly(resolved);

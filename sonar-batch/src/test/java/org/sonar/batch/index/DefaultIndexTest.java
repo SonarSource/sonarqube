@@ -39,7 +39,7 @@ import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.issue.DeprecatedViolations;
-import org.sonar.batch.issue.ScanIssues;
+import org.sonar.batch.issue.DefaultModuleIssues;
 import org.sonar.core.component.ScanGraph;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -77,7 +77,7 @@ public class DefaultIndexTest {
     rule = Rule.create("repoKey", "ruleKey", "Rule");
     rule.setId(1);
     rulesProfile.activateRule(rule, null);
-    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[]{filter}), mock(ScanIssues.class));
+    index.setCurrentProject(project, new ResourceFilters(new ResourceFilter[]{filter}), mock(DefaultModuleIssues.class));
     index.doStart(project);
   }
 

@@ -19,7 +19,10 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.api.BatchComponent;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.ModuleIssues;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
@@ -33,14 +36,14 @@ import javax.annotation.Nullable;
 /**
  * Initialize the issues raised during scan.
  */
-public class ScanIssues implements BatchComponent {
+public class DefaultModuleIssues implements ModuleIssues {
 
   private final RulesProfile qProfile;
   private final IssueCache cache;
   private final Project project;
   private final IssueFilters filters;
 
-  public ScanIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters) {
+  public DefaultModuleIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters) {
     this.qProfile = qProfile;
     this.cache = cache;
     this.project = project;
@@ -88,4 +91,29 @@ public class ScanIssues implements BatchComponent {
     return false;
   }
 
+  @Override
+  public Iterable<Issue> issues() {
+    return (Iterable) Iterables.filter(cache.all(), new ModulePredicate(false));
+  }
+
+  @Override
+  public Iterable<Issue> resolvedIssues() {
+    return (Iterable) Iterables.filter(cache.all(), new ModulePredicate(true));
+  }
+
+  private class ModulePredicate implements Predicate<DefaultIssue> {
+    private final boolean resolved;
+
+    private ModulePredicate(boolean resolved) {
+      this.resolved = resolved;
+    }
+
+    @Override
+    public boolean apply(@Nullable DefaultIssue issue) {
+      if (issue != null && (issue.componentKey().equals(project.getEffectiveKey()) || issue.componentKey().startsWith(project.getEffectiveKey() + ":"))) {
+        return resolved ? issue.resolution() != null : issue.resolution()==null;
+      }
+      return false;
+    }
+  }
 }

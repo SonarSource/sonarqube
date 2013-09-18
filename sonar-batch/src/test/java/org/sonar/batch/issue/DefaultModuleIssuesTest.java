@@ -19,10 +19,12 @@
  */
 package org.sonar.batch.issue;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.JavaFile;
@@ -35,30 +37,36 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class ScanIssuesTest {
+public class DefaultModuleIssuesTest {
+
+  static final RuleKey SQUID_RULE_KEY = RuleKey.of("squid", "AvoidCycle");
 
   IssueCache cache = mock(IssueCache.class);
   RulesProfile qProfile = mock(RulesProfile.class);
   Project project = mock(Project.class);
   IssueFilters filters = mock(IssueFilters.class);
-  ScanIssues scanIssues = new ScanIssues(qProfile, cache, project, filters);
+  DefaultModuleIssues moduleIssues = new DefaultModuleIssues(qProfile, cache, project, filters);
 
   @Before
   public void setUp() {
     when(project.getAnalysisDate()).thenReturn(new Date());
+    when(project.getEffectiveKey()).thenReturn("org.apache:struts-core");
   }
+
   @Test
   public void should_ignore_null_active_rule() throws Exception {
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(null);
 
-    DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-    boolean added = scanIssues.initAndAddIssue(issue);
+    DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
+    boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
     verifyZeroInteractions(cache);
@@ -70,8 +78,8 @@ public class ScanIssuesTest {
     when(activeRule.getRule()).thenReturn(null);
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
 
-    DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-    boolean added = scanIssues.initAndAddIssue(issue);
+    DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
+    boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
     verifyZeroInteractions(cache);
@@ -90,11 +98,11 @@ public class ScanIssuesTest {
 
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.CRITICAL);
     when(filters.accept(issue, null)).thenReturn(true);
 
-    boolean added = scanIssues.initAndAddIssue(issue);
+    boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isTrue();
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
@@ -114,9 +122,9 @@ public class ScanIssuesTest {
     Date analysisDate = new Date();
     when(project.getAnalysisDate()).thenReturn(analysisDate);
 
-    DefaultIssue issue = new DefaultIssue().setRuleKey(RuleKey.of("squid", "AvoidCycle")).setSeverity(null);
+    DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY).setSeverity(null);
     when(filters.accept(issue, null)).thenReturn(true);
-    scanIssues.initAndAddIssue(issue);
+    moduleIssues.initAndAddIssue(issue);
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
@@ -139,7 +147,7 @@ public class ScanIssuesTest {
     when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
     when(filters.accept(any(DefaultIssue.class), eq(violation))).thenReturn(true);
 
-    boolean added = scanIssues.initAndAddViolation(violation);
+    boolean added = moduleIssues.initAndAddViolation(violation);
     assertThat(added).isTrue();
 
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
@@ -163,14 +171,38 @@ public class ScanIssuesTest {
 
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setRuleKey(SQUID_RULE_KEY)
       .setSeverity(Severity.CRITICAL);
 
     when(filters.accept(issue, null)).thenReturn(false);
 
-    boolean added = scanIssues.initAndAddIssue(issue);
+    boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
     verifyZeroInteractions(cache);
+  }
+
+  @Test
+  public void should_get_module_issues() throws Exception {
+    DefaultIssue issueOnModule = new DefaultIssue().setKey("1").setRuleKey(SQUID_RULE_KEY).setComponentKey("org.apache:struts-core");
+    DefaultIssue issueInModule = new DefaultIssue().setKey("2").setRuleKey(SQUID_RULE_KEY).setComponentKey("org.apache:struts-core:Action");
+    DefaultIssue resolvedIssueInModule = new DefaultIssue().setKey("3").setRuleKey(SQUID_RULE_KEY).setComponentKey("org.apache:struts-core:Action").setResolution(Issue.RESOLUTION_FIXED);
+
+    when(cache.all()).thenReturn(Arrays.<DefaultIssue>asList(
+      // issue on root module
+      new DefaultIssue().setKey("4").setRuleKey(SQUID_RULE_KEY).setSeverity(Severity.CRITICAL).setComponentKey("org.apache:struts"),
+
+      // issue in root module
+      new DefaultIssue().setKey("5").setRuleKey(SQUID_RULE_KEY).setSeverity(Severity.CRITICAL).setComponentKey("org.apache:struts:FileInRoot"),
+
+      issueOnModule, issueInModule, resolvedIssueInModule
+    ));
+
+    // unresolved issues
+    List<Issue> issues = Lists.newArrayList(moduleIssues.issues());
+    assertThat(issues).containsOnly(issueInModule, issueOnModule);
+
+    List<Issue> resolvedIssues = Lists.newArrayList(moduleIssues.resolvedIssues());
+    assertThat(resolvedIssues).containsOnly(resolvedIssueInModule);
   }
 }

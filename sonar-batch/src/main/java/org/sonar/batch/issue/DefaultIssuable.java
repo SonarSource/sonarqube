@@ -33,13 +33,13 @@ import java.util.List;
  */
 public class DefaultIssuable implements Issuable {
 
-  private final ScanIssues scanIssues;
+  private final DefaultModuleIssues moduleIssues;
   private final IssueCache cache;
   private final Component component;
 
-  DefaultIssuable(Component component, ScanIssues scanIssues, IssueCache cache) {
+  DefaultIssuable(Component component, DefaultModuleIssues moduleIssues, IssueCache cache) {
     this.component = component;
-    this.scanIssues = scanIssues;
+    this.moduleIssues = moduleIssues;
     this.cache = cache;
   }
 
@@ -50,7 +50,7 @@ public class DefaultIssuable implements Issuable {
 
   @Override
   public boolean addIssue(Issue issue) {
-    return scanIssues.initAndAddIssue((DefaultIssue) issue);
+    return moduleIssues.initAndAddIssue((DefaultIssue) issue);
   }
 
   @SuppressWarnings("unchecked")
