@@ -93,7 +93,7 @@
   function filtersWidgetsByContent(text) {
     var userInput = text.toLowerCase();
     widgetContents.each(function (widget) {
-      var element = $(widget.id);
+      var element = $j('#'+widget.id);
       if (element != null) {
         if (widget.c.indexOf(userInput) != -1) {
           element.show();
