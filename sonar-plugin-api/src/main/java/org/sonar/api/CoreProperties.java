@@ -38,23 +38,57 @@ public interface CoreProperties {
   String CATEGORY_GENERAL = "general";
 
   /**
+   * @since 4.0
+   */
+  String SUBCATEGORY_DATABASE_CLEANER = "databaseCleaner";
+
+  /**
+   * @since 4.0
+   */
+  String SUBCATEGORY_DUPLICATIONS = "duplications";
+
+  /**
+   * @since 4.0
+   */
+  String SUBCATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
+
+  /**
+   *@since 4.0
+   */
+  String SUBCATEGORY_SECURITY = "security";
+
+  /**
+   *@since 4.0
+   */
+  String SUBCATEGORY_L10N = "localization";
+
+  /**
    * @since 2.11
    */
   String CATEGORY_CODE_COVERAGE = "codeCoverage";
 
   /**
    * @since 2.11
+   * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
+   * @see #SUBCATEGORY_DUPLICATIONS
    */
+  @Deprecated
   String CATEGORY_DUPLICATIONS = "duplications";
 
   /**
    * @since 2.11
+   * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
+   * @see #SUBCATEGORY_SECURITY
    */
+  @Deprecated
   String CATEGORY_SECURITY = "security";
 
   /**
    * @since 2.11
+   * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
+   * @see #SUBCATEGORY_L10N
    */
+  @Deprecated
   String CATEGORY_L10N = "localization";
 
   /**
@@ -64,7 +98,10 @@ public interface CoreProperties {
 
   /**
    * @since 2.11
+   * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
+   * @see #SUBCATEGORY_DIFFERENTIAL_VIEWS
    */
+  @Deprecated
   String CATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
 
   /**
@@ -76,7 +113,15 @@ public interface CoreProperties {
    * @since 4.0
    */
   String SUBCATEGORY_FILES_EXCLUSIONS = "files";
+
+  /**
+   * @since 4.0
+   */
   String SUBCATEGORY_DUPLICATIONS_EXCLUSIONS = "duplications";
+
+  /**
+   * @since 4.0
+   */
   String SUBCATEGORY_COVERAGE_EXCLUSIONS = "coverage";
 
   /**

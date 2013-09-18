@@ -20,6 +20,7 @@
 package org.sonar.plugins.dbcleaner;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
@@ -45,6 +46,8 @@ public final class DbCleanerPlugin extends SonarPlugin {
         .description("If set to true, no history is kept at directory/package level. Setting this to false can cause database bloat.")
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(1)
         .build(),
 
@@ -54,6 +57,8 @@ public final class DbCleanerPlugin extends SonarPlugin {
         .description("Issues that have been closed for more than this number of days will be deleted.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(2)
         .build(),
 
@@ -64,6 +69,8 @@ public final class DbCleanerPlugin extends SonarPlugin {
           + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(3)
         .build(),
 
@@ -74,6 +81,8 @@ public final class DbCleanerPlugin extends SonarPlugin {
           + "the DbCleaner keeps the most recent one and fully deletes the other ones")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(4)
         .build(),
 
@@ -84,6 +93,8 @@ public final class DbCleanerPlugin extends SonarPlugin {
           + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(5)
         .build(),
 
@@ -93,6 +104,8 @@ public final class DbCleanerPlugin extends SonarPlugin {
         .description("After this number of weeks, all snapshots are fully deleted.")
         .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(6)
         .build()
     );

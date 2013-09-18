@@ -20,18 +20,22 @@
 package org.sonar.batch.components;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Qualifiers;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class PastSnapshotFinder implements BatchExtension {
 
@@ -44,8 +48,8 @@ public class PastSnapshotFinder implements BatchExtension {
   private PastSnapshotFinderByPreviousVersion finderByPreviousVersion;
 
   public PastSnapshotFinder(PastSnapshotFinderByDays finderByDays, PastSnapshotFinderByVersion finderByVersion,
-      PastSnapshotFinderByDate finderByDate, PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis,
-      PastSnapshotFinderByPreviousVersion finderByPreviousVersion) {
+                            PastSnapshotFinderByDate finderByDate, PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis,
+                            PastSnapshotFinderByPreviousVersion finderByPreviousVersion) {
     this.finderByDays = finderByDays;
     this.finderByVersion = finderByVersion;
     this.finderByDate = finderByDate;
@@ -183,6 +187,62 @@ public class PastSnapshotFinder implements BatchExtension {
     } catch (NumberFormatException e) {
       return null;
     }
+  }
+
+  public static List<? extends PropertyDefinition> getPropertyDefinitions() {
+    return ImmutableList.of(
+      PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 1)
+        .name("Period 1")
+        .description("Period used to compare measures and track new violations. Values are : <ul class='bullet'><li>Number of days before " +
+          "analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to " +
+          "compare to previous analysis</li><li>'previous_version' to compare to the previous version in the project history</li></ul>" +
+          "<p>When specifying a number of days or a date, the snapshot selected for comparison is " +
+          " the first one available inside the corresponding time range. </p>" +
+          "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
+        .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .build(),
+
+      PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 2)
+        .name("Period 2")
+        .description("See the property 'Period 1'")
+        .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .build(),
+
+      PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 3)
+        .name("Period 3")
+        .description("See the property 'Period 1'")
+        .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .build(),
+
+      PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 4)
+        .name("Period 4")
+        .description("Period used to compare measures and track new violations. This property is specific to the project. Values are : " +
+          "<ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, " +
+          "for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li>" +
+          "<li>'previous_version' to compare to the previous version in the project history</li><li>A version, for example 1.2</li></ul>" +
+          "<p>When specifying a number of days or a date, the snapshot selected for comparison is the first one available inside the corresponding time range. </p>" +
+          "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
+        .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4)
+        .onlyOnQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .build(),
+
+      PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 5)
+        .name("Period 5")
+        .description("See the property 'Period 4'")
+        .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5)
+        .onlyOnQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .build()
+    );
   }
 
 }

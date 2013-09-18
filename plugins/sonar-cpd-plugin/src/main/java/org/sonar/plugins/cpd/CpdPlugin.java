@@ -40,7 +40,8 @@ public final class CpdPlugin extends SonarPlugin {
         .name("Cross project duplication detection")
         .description("SonarQube supports the detection of cross project duplications. Activating this property will slightly increase each SonarQube analysis time.")
         .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
-        .category(CoreProperties.CATEGORY_DUPLICATIONS)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)
         .type(PropertyType.BOOLEAN)
         .build(),
       PropertyDefinition.builder(CoreProperties.CPD_SKIP_PROPERTY)
@@ -48,7 +49,8 @@ public final class CpdPlugin extends SonarPlugin {
         .name("Skip")
         .description("Disable detection of duplications")
         .hidden()
-        .category(CoreProperties.CATEGORY_DUPLICATIONS)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)
         .type(PropertyType.BOOLEAN)
         .build(),
       PropertyDefinition.builder(CoreProperties.CPD_EXCLUSIONS)
