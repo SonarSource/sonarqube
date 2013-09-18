@@ -15,13 +15,30 @@
     <td style="padding: 10px">
       <p class="spacer-bottom">Secret key is registered. You can encrypt any property value with the following form:</p>
 
-      <%= form_remote_tag :url => {:action => 'encrypt'},
-                          :update => {:success => 'encrypted_section', :failure => 'encryption_error'},
-                          :success => "$('encrypted_section').show();$('encryption_error').hide();",
-                          :failure => "$('encryption_error').show()",
-                          :html => {:class => 'spacer-bottom'} -%>
-      <input type="text" name="text" id="clear_text"/>
-      <input type="submit" value="Encrypt" id="submit_encrypt"/>
+        <form 	class="spacer-bottom"
+               onsubmit=
+                 "$j.ajax({
+                   url:'<%=ApplicationController.root_context-%>/encryption_configuration/encrypt',
+                   type:'post',
+                   success:function(response)
+                     {
+                       $j('#encrypted_section').html(response);
+                       $j('#encrypted_section').show();
+                       $j('#encryption_error').hide();
+                       },
+                   error:function(response)
+                     {
+                       $j('#encryption_error').html(response);
+                       $j('#encryption_error').show();
+                       $j('#encrypted_section').hide();
+                       },
+                   data:$j(this).serialize()
+                   });
+                   return false;"
+               method="post"
+               action="<%=ApplicationController.root_context-%>/encryption_configuration/encrypt"	>
+        <input type="text" name="text" id="clear_text"/>
+        <input type="submit" value="Encrypt" id="submit_encrypt"/>
       </form>
 
       <div id="encrypted_section" style="display:none"></div>
