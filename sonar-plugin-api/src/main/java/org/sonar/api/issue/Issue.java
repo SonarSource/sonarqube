@@ -157,4 +157,10 @@ public interface Issue extends Serializable {
    * (from {@link org.sonar.api.BatchExtension}).
    */
   List<IssueComment> comments();
+
+  /**
+   * During a scan return if the current issue is a new one.
+   * @return always false on server side
+   */
+  boolean isNew();
 }

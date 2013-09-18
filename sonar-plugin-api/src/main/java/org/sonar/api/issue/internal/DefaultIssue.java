@@ -37,8 +37,13 @@ import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
@@ -70,7 +75,6 @@ public class DefaultIssue implements Issue {
   private Date creationDate;
   private Date updateDate;
   private Date closeDate;
-
 
   // FOLLOWING FIELDS ARE AVAILABLE ONLY DURING SCAN
 
@@ -256,7 +260,6 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
-
   @CheckForNull
   public String checksum() {
     return checksum;
@@ -267,6 +270,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   public boolean isNew() {
     return isNew;
   }
@@ -338,7 +342,7 @@ public class DefaultIssue implements Issue {
   }
 
   public Map<String, String> attributes() {
-    return attributes == null ? Collections.<String, String>emptyMap() : ImmutableMap.copyOf(attributes);
+    return attributes == null ? Collections.<String, String> emptyMap() : ImmutableMap.copyOf(attributes);
   }
 
   public DefaultIssue setAttributes(@Nullable Map<String, String> map) {
@@ -437,6 +441,5 @@ public class DefaultIssue implements Issue {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
-
 
 }
