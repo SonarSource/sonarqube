@@ -66,7 +66,7 @@ public class CoverageMeasurementFilterTest {
   public void shouldNotFilterFileBasedOnPattern() {
     Resource resource = new File("org/polop/File.php");
     Measure coverageMeasure = mock(Measure.class);
-    when(coverageMeasure.getMetric()).thenReturn(CoreMetrics.LINES_TO_COVER);
+    when(coverageMeasure.getMetric()).thenReturn(CoreMetrics.COVERAGE);
 
     settings.setProperty(CoverageMeasurementFilter.PROPERTY_COVERAGE_EXCLUSIONS, "org/other/*");
     filter.initPatterns();

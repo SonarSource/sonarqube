@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import org.sonar.api.measures.Metric;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -54,11 +56,16 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
 
   @Override
   public boolean accept(Resource resource, Measure measure) {
-    if (this.decorator.usedMetrics().contains(measure.getMetric())) {
+    if (isCoverageMetric(measure.getMetric())) {
       return !hasMatchingPattern(resource);
     } else {
       return true;
     }
+  }
+
+  private boolean isCoverageMetric(Metric metric) {
+    return this.decorator.usedMetrics().contains(metric)
+      || this.decorator.generatedMetrics().contains(metric);
   }
 
   private boolean hasMatchingPattern(Resource resource) {
