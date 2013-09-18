@@ -151,7 +151,4 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
       .setFieldValue("projectKey", project.key());
   }
 
-  private Locale getLocale() {
-    return Locale.ENGLISH;
-  }
 }

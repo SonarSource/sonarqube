@@ -42,4 +42,8 @@ public class IssuesBySeverity {
   public int size() {
     return issuesBySeverity.values().size();
   }
+
+  public boolean isEmpty() {
+    return issuesBySeverity.values().isEmpty();
+  }
 }
