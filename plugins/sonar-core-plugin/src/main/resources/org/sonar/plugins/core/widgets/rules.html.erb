@@ -36,7 +36,7 @@
               <br/>
                 <span style="font-weight: bold">
                   <%= message('widget.rules.removed') -%>&nbsp;
-                  <span class="varb"><%= estimated_cleared_issues -%></span>
+                  <span class="varb"><%= number_with_precision(estimated_cleared_issues, :precision => 0) -%></span>
                 </span>
             <% end %>
           <% end %>
