@@ -110,16 +110,16 @@ public class DryRunCache implements ServerExtension {
 
   private void generateNewDB(@Nullable Long projectId) {
     if (projectId != null) {
-      LOG.info("Generate new dryRun database for project [id={}]", projectId);
+      LOG.debug("Generate new dryRun database for project [id={}]", projectId);
     } else {
-      LOG.info("Generate new dryRun database for new project");
+      LOG.debug("Generate new dryRun database for new project");
     }
     long notNullProjectId = projectId != null ? projectId.longValue() : 0L;
     long newTimestamp = System.currentTimeMillis();
     File cacheLocation = getCacheLocation(projectId);
     FileUtils.deleteQuietly(cacheLocation);
     File dbFile = dryRunDatabaseFactory.createNewDatabaseForDryRun(projectId, cacheLocation, String.valueOf(newTimestamp));
-    LOG.info("Cached DB at {}", dbFile);
+    LOG.debug("Cached DB at {}", dbFile);
     lastTimestampPerProject.put(notNullProjectId, newTimestamp);
   }
 
