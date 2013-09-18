@@ -162,19 +162,16 @@ class MeasureFilterSql {
   }
 
   private void appendResourceKeyCondition(StringBuilder sb) {
-    if (StringUtils.isNotBlank(filter.getResourceKeyRegexp())) {
-      sb.append(" AND UPPER(p.kee) LIKE '");
-      // limitation : special characters _ and % are not escaped
-      String regexp = StringEscapeUtils.escapeSql(filter.getResourceKeyRegexp());
-      regexp = StringUtils.replaceChars(regexp, '*', '%');
-      regexp = StringUtils.replaceChars(regexp, '?', '_');
-      sb.append(StringUtils.upperCase(regexp)).append("'");
+    if (StringUtils.isNotBlank(filter.getResourceKey())) {
+      sb.append(" AND p.kee LIKE '%");
+      sb.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceKey())));
+      sb.append("%'");
     }
   }
 
   private void appendResourceNameCondition(StringBuilder sb) {
     if (StringUtils.isNotBlank(filter.getResourceName())) {
-      sb.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee like '");
+      sb.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee LIKE '");
       sb.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName())));
       sb.append("%'");
       if (!filter.getResourceQualifiers().isEmpty()) {

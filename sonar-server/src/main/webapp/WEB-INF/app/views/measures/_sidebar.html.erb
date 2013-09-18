@@ -134,10 +134,9 @@
       <input type="text" name="nameSearch" value="<%= h @filter.criteria['nameSearch'] -%>" <%= 'disabled' if @filter.criteria['nameSearch'].blank? -%>>
     </li>
 
-    <li id="criteria-key" <%= "style='display:none'" unless @filter.criteria('keyRegexp') -%> class="marginbottom5">
-      <%= message('measure_filter.key_like') -%>:<br>
-      <input type="text" name="keyRegexp" value="<%= h @filter.criteria['keyRegexp'] -%>" <%= 'disabled' if @filter.criteria['keyRegexp'].blank? -%>><br>
-      <span class="note"><%= message 'measure.filter.criteria.key_note' -%></span>
+    <li id="criteria-key" <%= "style='display:none'" unless @filter.criteria('keySearch') -%> class="marginbottom5">
+      <%= message('measure_filter.key_contains') -%>:<br>
+      <input type="text" name="keySearch" value="<%= h @filter.criteria['keySearch'] -%>" <%= 'disabled' if @filter.criteria['keySearch'].blank? -%>><br>
     </li>
 
     <li id="criteria-fav" <%= "style='display:none'" unless @filter.criteria('onFavourites') -%> class="marginbottom5">

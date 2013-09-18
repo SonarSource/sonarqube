@@ -118,7 +118,7 @@ public final class RegisterNewMeasureFilters {
       } else if ("name".equals(criterion.getFamily())) {
         fields.add("nameSearch=" + criterion.getTextValue());
       } else if ("key".equals(criterion.getFamily())) {
-        fields.add("keyRegexp=" + criterion.getTextValue());
+        fields.add("keySearch=" + criterion.getTextValue());
       } else if ("language".equals(criterion.getFamily())) {
         fields.add("languages=" + criterion.getTextValue());
       } else if ("date".equals(criterion.getFamily())) {

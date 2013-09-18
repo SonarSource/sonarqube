@@ -62,7 +62,7 @@ public class MeasureFilterFactory implements ServerComponent {
       filter.setOnBaseResourceChildren(Boolean.valueOf((String) properties.get(onBaseComponents)));
     }
     filter.setResourceName((String) properties.get("nameSearch"));
-    filter.setResourceKeyRegexp((String) properties.get("keyRegexp"));
+    filter.setResourceKey((String) properties.get("keySearch"));
     String onFavourites = "onFavourites";
     if (properties.containsKey(onFavourites)) {
       filter.setUserFavourites(Boolean.valueOf((String) properties.get(onFavourites)));

@@ -133,7 +133,7 @@ public class MeasureFilterExecutorTest {
       .setResourceQualifiers(Arrays.asList("'"))
       .setResourceLanguages(Arrays.asList("'"))
       .setBaseResourceKey("'")
-      .setResourceKeyRegexp("'")
+      .setResourceKey("'")
       .setResourceName("'")
       .setResourceName("'")
       .setResourceScopes(Arrays.asList("'"));
@@ -472,20 +472,11 @@ public class MeasureFilterExecutorTest {
   }
 
   @Test
-  public void filter_by_resource_key_star_regexp() throws SQLException {
+  public void filter_by_resource_key() throws SQLException {
     db.prepareDbUnit(getClass(), "shared.xml");
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setResourceKeyRegexp("java*");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setResourceKey("Va_proje");
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
-    assertThat(rows).hasSize(1);
-    verifyJavaProject(rows.get(0));
-  }
-
-  @Test
-  public void filter_by_resource_key_exclamation_mark() throws SQLException {
-    db.prepareDbUnit(getClass(), "shared.xml");
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setResourceKeyRegexp("JaV?_proje*");
-    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
     assertThat(rows).hasSize(1);
     verifyJavaProject(rows.get(0));
   }
