@@ -18,38 +18,38 @@
 <script type="text/javascript">
   function changeCategory(categoryId, widgetId) {
     var eventTableMaxSize = 8;
-    $$('#events_' + widgetId + ' tr.event').invoke('hide');
+    $j('#events_' + widgetId + ' tr.event').hide();
     var elements;
     if (categoryId=='all') {
-      elements = $$('#events_' + widgetId + ' tr.event');
+      elements = $j('#events_' + widgetId + ' tr.event');
     } else {
-      elements = $$('#events_' + widgetId + ' tr.cat_' + categoryId);
+      elements = $j('#events_' + widgetId + ' tr.cat_' + categoryId);
     }
     var elementsToDisplay = elements.slice(0,eventTableMaxSize);
     if (elementsToDisplay.size()==0) {
-      $('events_' + widgetId).hide();
-      $('show_more_events_' + widgetId).hide();
-      $('no_event_message_' + widgetId).show();
+      $j('#events_' + widgetId).hide();
+      $j('#show_more_events_' + widgetId).hide();
+      $j('#no_event_message_' + widgetId).show();
     } else {
-      $('events_' + widgetId).show();
-      $('no_event_message_' + widgetId).hide();
-      elementsToDisplay.invoke('show');
+      $j('#events_' + widgetId).show();
+      $j('#no_event_message_' + widgetId).hide();
+      elementsToDisplay.show();
       if (elements.size() > eventTableMaxSize) {
-        $('show_more_events_' + widgetId).show();
+        $j('#show_more_events_' + widgetId).show();
       } else {
-        $('show_more_events_' + widgetId).hide();
+        $j('#show_more_events_' + widgetId).hide();
       }
     }
   }
-  
+
   function showAllEvents(widgetId) {
-    var selectedCategory = $('select_category_' + widgetId).value;
+    var selectedCategory = $j('#select_category_' + widgetId).val();
     if (selectedCategory=='all') {
-      $$('#events_' + widgetId + ' tr.event').invoke('show');
+      $j('#events_' + widgetId + ' tr.event').show();
     } else {
-      $$('#events_' + widgetId + ' tr.cat_' + selectedCategory).invoke('show');
+      $j('#events_' + widgetId + ' tr.cat_' + selectedCategory).show();
     }
-    $('show_more_events_' + widgetId).hide();
+    $j('#show_more_events_' + widgetId).hide();
   }
 </script>
 
