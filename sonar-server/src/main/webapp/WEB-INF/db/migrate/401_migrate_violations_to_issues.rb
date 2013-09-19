@@ -25,7 +25,7 @@
 class MigrateViolationsToIssues < ActiveRecord::Migration
 
   def self.up
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.ConvertViolationsToIssues')
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.violation.ViolationMigration')
 
     # Currently not possible in Java because of Oracle (triggers and sequences must be dropped)
     drop_table('rule_failures')

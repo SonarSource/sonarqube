@@ -17,23 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations;
+package org.sonar.server.db.migrations.violation;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.persistence.TestDatabase;
 
-public class ConvertViolationsToIssuesTest {
+public class ViolationMigrationTest {
 
   @Rule
   public TestDatabase db = new TestDatabase().schema(getClass(), "schema.sql");
 
   @Test
-  public void convert_violations() throws Exception {
-    db.prepareDbUnit(getClass(), "convert_violations.xml");
+  public void migrate_violations() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_violations.xml");
 
-    new ConvertViolationsToIssues().execute(db.database());
+    new ViolationMigration().execute(db.database());
 
-    db.assertDbUnit(getClass(), "convert_violations_result.xml", "issues", "issue_changes");
+    //Thread.sleep(5000L);
+    db.assertDbUnit(getClass(), "migrate_violations_result.xml", "issues", "issue_changes");
   }
 }
