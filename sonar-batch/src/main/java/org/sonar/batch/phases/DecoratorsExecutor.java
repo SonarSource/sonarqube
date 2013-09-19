@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.phases;
 
+import org.sonar.core.measure.MeasurementFilters;
+
 import com.google.common.collect.Lists;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchExtensionDictionnary;
@@ -42,13 +44,15 @@ public class DecoratorsExecutor implements BatchComponent {
   private SonarIndex index;
   private EventBus eventBus;
   private Project project;
+  private MeasurementFilters measurementFilters;
 
   public DecoratorsExecutor(BatchExtensionDictionnary batchExtDictionnary,
-      Project project, SonarIndex index, EventBus eventBus) {
+      Project project, SonarIndex index, EventBus eventBus, MeasurementFilters measurementFilters) {
     this.decoratorsSelector = new DecoratorsSelector(batchExtDictionnary);
     this.index = index;
     this.eventBus = eventBus;
     this.project = project;
+    this.measurementFilters = measurementFilters;
   }
 
   public void execute() {
@@ -66,7 +70,7 @@ public class DecoratorsExecutor implements BatchComponent {
       childrenContexts.add(childContext.setReadOnly(true));
     }
 
-    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts);
+    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, measurementFilters);
     if (executeDecorators) {
       for (Decorator decorator : decorators) {
         executeDecorator(decorator, context, resource);

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch;
 
+import org.sonar.core.measure.MeasurementFilters;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -43,16 +45,19 @@ public class DefaultDecoratorContext implements DecoratorContext {
   private static final String SAVE_MEASURE_METHOD = "saveMeasure";
   private SonarIndex index;
   private Resource resource;
+  private MeasurementFilters measurementFilters;
   private boolean readOnly = false;
 
   private List<DecoratorContext> childrenContexts;
 
   public DefaultDecoratorContext(Resource resource,
                                  SonarIndex index,
-                                 List<DecoratorContext> childrenContexts) {
+                                 List<DecoratorContext> childrenContexts,
+                                 MeasurementFilters measurementFilters) {
     this.index = index;
     this.resource = resource;
     this.childrenContexts = childrenContexts;
+    this.measurementFilters = measurementFilters;
   }
 
   public DefaultDecoratorContext setReadOnly(boolean b) {
@@ -109,13 +114,15 @@ public class DefaultDecoratorContext implements DecoratorContext {
 
   public DecoratorContext saveMeasure(Measure measure) {
     checkReadOnly(SAVE_MEASURE_METHOD);
-    index.addMeasure(resource, measure);
+    if(measurementFilters.accept(resource, measure)) {
+      index.addMeasure(resource, measure);
+    }
     return this;
   }
 
   public DecoratorContext saveMeasure(Metric metric, Double value) {
     checkReadOnly(SAVE_MEASURE_METHOD);
-    index.addMeasure(resource, new Measure(metric, value));
+    saveMeasure(new Measure(metric, value));
     return this;
   }
 
@@ -125,7 +132,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
   public List<Violation> getViolations(ViolationQuery violationQuery) {
     return index.getViolations(violationQuery);
   }
-  
+
   /**
   * {@inheritDoc}
   */

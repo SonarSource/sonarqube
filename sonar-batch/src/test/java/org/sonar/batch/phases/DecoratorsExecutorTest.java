@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.phases;
 
+import org.sonar.core.measure.MeasurementFilters;
+
 import org.junit.Test;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
@@ -30,7 +32,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.events.EventBus;
-
 import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
 import static org.hamcrest.number.OrderingComparisons.lessThan;
 import static org.junit.Assert.assertThat;
@@ -66,7 +67,7 @@ public class DecoratorsExecutorTest {
     doThrow(new SonarException()).when(decorator).decorate(any(Resource.class), any(DecoratorContext.class));
 
     DecoratorsExecutor executor = new DecoratorsExecutor(mock(BatchExtensionDictionnary.class), new Project("key"), mock(SonarIndex.class),
-        mock(EventBus.class));
+        mock(EventBus.class), mock(MeasurementFilters.class));
     try {
       executor.executeDecorator(decorator, mock(DefaultDecoratorContext.class), new File("org/foo/Bar.java"));
       fail("Exception has not been thrown");
