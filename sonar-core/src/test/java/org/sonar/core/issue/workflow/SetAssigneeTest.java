@@ -21,16 +21,19 @@
 package org.sonar.core.issue.workflow;
 
 import org.junit.Test;
+import org.sonar.api.user.User;
+import org.sonar.core.user.DefaultUser;
 
 import static org.mockito.Mockito.*;
 
 public class SetAssigneeTest {
   @Test
   public void assign() throws Exception {
-    SetAssignee function = new SetAssignee("eric");
+    User user = new DefaultUser().setLogin("eric").setName("eric");
+    SetAssignee function = new SetAssignee(user);
     Function.Context context = mock(Function.Context.class);
     function.execute(context);
-    verify(context, times(1)).setAssignee("eric");
+    verify(context, times(1)).setAssignee(user);
   }
 
   @Test

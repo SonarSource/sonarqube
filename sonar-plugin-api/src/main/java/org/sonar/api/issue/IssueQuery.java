@@ -70,6 +70,7 @@ public class IssueQuery {
   private final Boolean assigned;
   private final Boolean planned;
   private final Boolean resolved;
+  private final Date createdAt;
   private final Date createdAfter;
   private final Date createdBefore;
   private final String sort;
@@ -96,6 +97,7 @@ public class IssueQuery {
     this.assigned = builder.assigned;
     this.planned = builder.planned;
     this.resolved = builder.resolved;
+    this.createdAt = builder.createdAt;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
@@ -162,12 +164,17 @@ public class IssueQuery {
 
   @CheckForNull
   public Date createdAfter() {
-    return (createdAfter == null ? null : new Date(createdAfter.getTime()));
+    return createdAfter == null ? null : new Date(createdAfter.getTime());
+  }
+
+  @CheckForNull
+  public Date createdAt() {
+    return createdAt == null ? null : new Date(createdAt.getTime());
   }
 
   @CheckForNull
   public Date createdBefore() {
-    return (createdBefore == null ? null : new Date(createdBefore.getTime()));
+    return createdBefore == null ? null : new Date(createdBefore.getTime());
   }
 
   @CheckForNull
@@ -219,6 +226,7 @@ public class IssueQuery {
     private Boolean assigned = null;
     private Boolean planned = null;
     private Boolean resolved = null;
+    private Date createdAt;
     private Date createdAfter;
     private Date createdBefore;
     private String sort;
@@ -307,13 +315,18 @@ public class IssueQuery {
       return this;
     }
 
+    public Builder createdAt(@Nullable Date d) {
+      this.createdAt = d == null ? null : new Date(d.getTime());
+      return this;
+    }
+
     public Builder createdAfter(@Nullable Date d) {
-      this.createdAfter = (d == null ? null : new Date(d.getTime()));
+      this.createdAfter = d == null ? null : new Date(d.getTime());
       return this;
     }
 
     public Builder createdBefore(@Nullable Date d) {
-      this.createdBefore = (d == null ? null : new Date(d.getTime()));
+      this.createdBefore = d == null ? null : new Date(d.getTime());
       return this;
     }
 

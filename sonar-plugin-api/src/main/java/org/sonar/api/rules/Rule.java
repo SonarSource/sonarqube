@@ -34,7 +34,19 @@ import org.sonar.check.Cardinality;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -69,7 +81,6 @@ public final class Rule {
    * @since 3.6
    */
   private static final Set<String> STATUS_LIST = ImmutableSet.of(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED);
-
 
   @Id
   @Column(name = "id")
@@ -282,7 +293,7 @@ public final class Rule {
   }
 
   public Boolean isEnabled() {
-    return !"REMOVED".equals(status);
+    return !STATUS_REMOVED.equals(status);
   }
 
   public List<RuleParam> getParams() {
@@ -449,7 +460,6 @@ public final class Rule {
     this.updatedAt = updatedAt;
     return this;
   }
-
 
   /**
    * @since 3.6

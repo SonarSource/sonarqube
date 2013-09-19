@@ -24,7 +24,7 @@ class ResourceIndex < ActiveRecord::Base
   belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
   belongs_to :root_project, :class_name => 'Project', :foreign_key => 'root_project_id'
 
-  MIN_SEARCH_SIZE=3
+  MIN_SEARCH_SIZE=2
 
   def resource_id_for_authorization
     root_project_id

@@ -52,7 +52,7 @@ public final class NewCoverageAggregator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorate(resource)) {
-      int maxPeriods = (Qualifiers.isView(resource, true) ? 3 : 5);
+      int maxPeriods = Qualifiers.isView(resource, true) ? 3 : 5;
       aggregate(context, CoreMetrics.NEW_LINES_TO_COVER, maxPeriods);
       aggregate(context, CoreMetrics.NEW_UNCOVERED_LINES, maxPeriods);
       aggregate(context, CoreMetrics.NEW_CONDITIONS_TO_COVER, maxPeriods);

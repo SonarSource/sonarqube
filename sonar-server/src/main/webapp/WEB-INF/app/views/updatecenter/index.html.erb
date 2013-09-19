@@ -23,8 +23,8 @@
             release = plugin.lastRelease
      %>
        <tr class="select <%= cycle('even', 'odd', :name => 'user') -%>" id="select_<%= plugin.getKey() -%>">
-         <td width="1%" nowrap><b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b> <span class="note">[<%= h plugin.getKey() -%>]</span></td>
-         <td><%= release.getVersion() || '-' -%></td>
+         <td width="1%" class="nowrap"><b><a href="#plugin" onclick="showPlugin('<%= plugin.getKey() -%>')"><%= h(plugin.getName()) -%></a></b> <span class="note">[<%= h plugin.getKey() -%>]</span></td>
+         <td class="nowrap"><%= release.getVersion() || '-' -%></td>
          <td>
          <%= plugin.getDescription() -%>
          <div id="detail-<%= plugin.getKey() -%>" style="display:none">

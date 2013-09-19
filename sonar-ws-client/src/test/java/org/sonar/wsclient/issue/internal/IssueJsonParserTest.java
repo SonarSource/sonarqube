@@ -27,6 +27,7 @@ import org.sonar.wsclient.issue.*;
 import org.sonar.wsclient.user.User;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.fest.assertions.Assertions.assertThat;
 

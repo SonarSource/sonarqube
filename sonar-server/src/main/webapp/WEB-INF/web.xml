@@ -125,6 +125,13 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
   <session-config>
     <!-- in minutes -->
     <session-timeout>20</session-timeout>
+    <!--
+    Only servlet 3.0+. We're currently stuck at servlet 2.5. Meanwhile
+    we use jetty-web.xml and META-INF/context.xml for Tomcat (see useHttpOnly attribute)
+    <cookie-config>
+      <http-only>true</http-only>
+    </cookie-config>
+    -->
   </session-config>
 
   <listener>

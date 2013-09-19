@@ -25,13 +25,15 @@ import java.util.List;
 
 public final class GroovyTokenizers {
 
+  private static final String SPAN_END = "</span>";
+
   private GroovyTokenizers() {
   }
 
   public static List<Tokenizer> forHtml() {
-    return Collections.unmodifiableList(Arrays.asList(new JavaAnnotationTokenizer("<span class=\"a\">", "</span>"), new LiteralTokenizer(
-        "<span class=\"s\">", "</span>"), new CDocTokenizer("<span class=\"cd\">", "</span>"), new CppDocTokenizer("<span class=\"cppd\">",
-        "</span>"), new JavadocTokenizer("<span class=\"j\">", "</span>"), new JavaConstantTokenizer("<span class=\"c\">", "</span>"),
-        new KeywordsTokenizer("<span class=\"k\">", "</span>", GroovyKeywords.get())));
+    return Collections.unmodifiableList(Arrays.asList(new JavaAnnotationTokenizer("<span class=\"a\">", SPAN_END), new LiteralTokenizer(
+        "<span class=\"s\">", SPAN_END), new CDocTokenizer("<span class=\"cd\">", SPAN_END), new CppDocTokenizer("<span class=\"cppd\">",
+        SPAN_END), new JavadocTokenizer("<span class=\"j\">", SPAN_END), new JavaConstantTokenizer("<span class=\"c\">", SPAN_END),
+        new KeywordsTokenizer("<span class=\"k\">", SPAN_END, GroovyKeywords.get())));
   }
 }

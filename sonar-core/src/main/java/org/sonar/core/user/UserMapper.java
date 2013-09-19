@@ -23,9 +23,13 @@ import org.apache.ibatis.annotations.Param;
 import org.sonar.api.user.UserQuery;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public interface UserMapper {
+
+  @CheckForNull
+  UserDto selectUser(long userId);
 
   /**
    * Select user by login. Note that disabled users are ignored.
@@ -41,13 +45,22 @@ public interface UserMapper {
   GroupDto selectGroupByName(String name);
 
   void removeUserFromGroups(long userId);
+
   void deleteUserActiveDashboards(long userId);
+
   void deleteUserDashboards(long userId);
+
   void deleteUserIssueFilters(String login);
+
   void deleteUserIssueFilterFavourites(String login);
+
   void deleteUserMeasureFilters(long userId);
+
   void deleteUserMeasureFilterFavourites(long userId);
+
   void deleteUserProperties(long userId);
+
   void deleteUserRoles(long userId);
+
   void deactivateUser(long userId);
 }

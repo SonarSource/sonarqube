@@ -18,6 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 require 'time'
+require 'uri'
 
 class Api::Utils
 
@@ -56,7 +57,7 @@ class Api::Utils
   # -- Revisions
   # Added in 3.6
   def self.java_to_ruby_datetime(java_date)
-    java_date ? Time.at(java_date.time/1000) : nil
+    java_date && Time.at(java_date.time/1000)
   end
 
   def self.is_number?(s)
@@ -218,4 +219,12 @@ class Api::Utils
     java_facade.getPeriodAbbreviation(index)
   end
 
+  # Prevent CSRF
+  def self.absolute_to_relative_url(url)
+    begin
+      URI(url).request_uri
+    rescue
+      url
+    end
+  end
 end

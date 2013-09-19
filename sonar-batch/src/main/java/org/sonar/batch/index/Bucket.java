@@ -71,7 +71,7 @@ public final class Bucket {
   }
 
   public List<Bucket> getChildren() {
-    return (children == null ? Collections.<Bucket>emptyList() : children);
+    return children == null ? Collections.<Bucket>emptyList() : children;
   }
 
   public Bucket getParent() {

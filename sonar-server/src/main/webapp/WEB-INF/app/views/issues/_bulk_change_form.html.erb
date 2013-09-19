@@ -113,7 +113,7 @@
 <script>
   $j("#bulk-change-form").modalForm({
     success: function () {
-      onBulkIssues(<%= params.to_json -%>);
+      onBulkIssues(<%= json_escape(params.to_json) -%>);
     }
   });
 

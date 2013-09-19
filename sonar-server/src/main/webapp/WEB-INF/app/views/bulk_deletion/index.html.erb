@@ -3,7 +3,7 @@
 <ul class="tabs">
 <% @tabs.each do |tab| %>
   <li>
-    <a href="<%= url_for :action => 'index', :resource_type => tab %>" <%= "class='selected'" if @selected_tab==tab -%> id="tab-<%= u tab -%>"><%= message('qualifiers.' + tab) -%></a>
+    <a href="<%= url_for :action => 'index', :qualifiers => tab %>" <%= "class='selected'" if @selected_tab==tab -%> id="tab-<%= u tab -%>"><%= message('qualifiers.' + tab) -%></a>
   </li>
 <% end %>
   <li>
@@ -14,66 +14,62 @@
 <div class="tabs-panel marginbottom10">
 
 <%
-  found_resources_count = @resources.size
-  found_resources_ids = @resources.map {|r| r.id.to_s}.join(',')
-  page_size = (params[:page_size] && params[:page_size].to_i) || 20
+  found_resources_count = @query_result.paging.total
+  found_resources_ids =  @query_result.components.map {|r| r.id.to_s}.join(',')
 %>
 
   <% form_tag( {:action => 'index'}, :method => :get ) do %>
-    <%= message('bulk_deletion.resource_name_filter_by_name') -%> <input type="text" id="resource_filter" name="name_filter" size="40px" value="<%= h params[:name_filter] -%>"/>
-    <input type="hidden" name="resource_type" value="<%= @selected_tab -%>"/>
+    <%= message('bulk_deletion.resource_name_filter_by_name') -%> <input type="text" id="resource_filter" name="names" size="40px" value="<%= h params[:names] -%>"/>
+    <input type="hidden" name="qualifiers" value="<%= @selected_tab -%>"/>
     <%= submit_tag message('bulk_deletion.filter'), :id => 'filter_resources' %>
   <% end %>
 
-  <% if @resources.empty? %>
+  <% if  @query_result.components.empty? %>
     <br/>
     <%= message('no_results') -%>
   <% else %>
 
-    <% form_remote_tag( :url => {:action => 'delete_resources'}, :loading => "window.location='#{url_for :action => 'pending_deletions'}';") do %>
-
-    <table class="data" id="resources-to-delete">
-      <tfoot>
+    <% form_remote_tag( :url => {:action => 'delete_resources'}, :loading => "window.location='#{url_for :action => 'pending_deletions', :qualifiers => @selected_tab}';") do %>
+      <table class="data" id="resources-to-delete">
+        <thead>
+          <tr>
+            <th><input id="r-all" type="checkbox" onclick="selectOrDeselect()"></th>
+            <th>
+              <span>&laquo; <%= message('bulk_deletion.select_all') -%></span>
+              <% if found_resources_count - @query_result.components.size > 0 %>
+                <a id="select_all_action" style="padding-left: 10px; font-weight: normal; display: none"
+                   href="#" onclick="handleSelectAllAction(); return false;"><%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%></a>
+                <input type="hidden" id="all_resources" name="all_resources" value=""/>
+              <% end %>
+            </th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+        <% @query_result.components.each_with_index do |resource, index| %>
+          <tr class="<%= cycle 'even', 'odd' -%>">
+            <td class="thin">
+              <input id="r-<%= index -%>" type="checkbox" value="<%= resource.id -%>" name="resources[]">
+            </td>
+            <td>
+              <%= h resource.name -%>
+            </td>
+            <td>
+              <span class="small gray"><%= h resource.key -%></span></td>
+            </td>
+          </tr>
+        <% end %>
         <tr>
-          <td colspan="2"><%= paginate @resources, {:page_size => page_size} %></td>
-        </tr>
-        <tr>
-          <td colspan="2">
+          <td colspan="3">
             <input id="delete_resources" class="action red-button" type="submit" value="<%= message('delete') -%>" onclick="return checkBeforeDeleting();" name="commit">
           </td>
         </tr>
-      </tfoot>
-      <thead>
-        <tr>
-          <th><input id="r-all" type="checkbox" onclick="selectOrDeselect()"></th>
-          <th>
-            <span>&laquo; <%= message('bulk_deletion.select_all') -%></span>
-            <% if found_resources_count - @resources.size > 0 %>
-              <a id="select_all_action" style="padding-left: 10px; font-weight: normal; display: none"
-                 href="#" onclick="handleSelectAllAction(); return false;"><%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%></a>
-              <input type="hidden" id="all_resources" name="all_resources" value=""/>
-            <% end %>
-          </th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-      <% @resources.each_with_index do |resource, index| %>
-        <tr class="<%= cycle 'even', 'odd' -%>">
-          <td class="thin">
-            <input id="r-<%= index -%>" type="checkbox" value="<%= resource.id -%>" name="resources[]">
-          </td>
-          <td>
-            <%= h resource.name -%>
-          </td>
-          <td>
-            <span class="small gray"><%= h resource.key -%></span></td>
-          </td>
-        </tr>
-      <% end %>
-      </tbody>
-    </table>
-
+        </tbody>
+        <%= paginate_java(@query_result.paging, :colspan => 3, :id => 'projects-bulk-deletion-foot', :include_loading_icon => true) { |label, page_id|
+              link_to(label, params.merge({:pageIndex => page_id}))
+            }
+        %>
+      </table>
     <% end %>
 
     <script>
@@ -99,7 +95,7 @@
         $$('tbody input').each(function(input) {
           input.checked = status;
         });
-        <% if found_resources_count - @resources.size > 0 %>
+        <% if found_resources_count - @query_result.components.size > 0 %>
         selectNotAllResources();
         if (status) {
           $('select_all_action').show();

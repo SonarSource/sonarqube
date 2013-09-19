@@ -87,7 +87,7 @@ public final class MeasureUtils {
     if (measure != null) {
       result = measure.getVariation(periodIndex);
     }
-    return (result != null ? result : defaultValue);
+    return result != null ? result : defaultValue;
   }
 
   public static Long getVariationAsLong(Measure measure, int periodIndex) {

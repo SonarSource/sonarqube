@@ -27,6 +27,7 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DecoratorsSelector;
 import org.sonar.batch.DefaultDecoratorContext;
@@ -60,7 +61,7 @@ public class DecoratorsExecutor implements BatchComponent {
   DecoratorContext decorateResource(Resource resource, Collection<Decorator> decorators, boolean executeDecorators) {
     List<DecoratorContext> childrenContexts = Lists.newArrayList();
     for (Resource child : index.getChildren(resource)) {
-      boolean isModule = (child instanceof Project);
+      boolean isModule = child instanceof Project;
       DefaultDecoratorContext childContext = (DefaultDecoratorContext) decorateResource(child, decorators, !isModule);
       childrenContexts.add(childContext.setReadOnly(true));
     }
@@ -79,6 +80,9 @@ public class DecoratorsExecutor implements BatchComponent {
       eventBus.fireEvent(new DecoratorExecutionEvent(decorator, true));
       decorator.decorate(resource, context);
       eventBus.fireEvent(new DecoratorExecutionEvent(decorator, false));
+
+    } catch (MessageException e) {
+      throw e;
 
     } catch (Exception e) {
       // SONAR-2278 the resource should not be lost in exception stacktrace.

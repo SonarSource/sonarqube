@@ -28,18 +28,29 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import java.io.*;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
 
 /**
  * XML Parsing tool using XPATH. It's recommended to use StaxParser when parsing big XML files.
@@ -48,6 +59,7 @@ import javax.xml.xpath.*;
  */
 public class XpathParser {
 
+  private static final String CAN_NOT_PARSE_XML = "can not parse xml : ";
   private Element root = null;
   private Document doc = null;
   private DocumentBuilder builder;
@@ -120,9 +132,9 @@ public class XpathParser {
       xpath = factory.newXPath();
 
     } catch (SAXException e) {
-      throw new XmlParserException("can not parse xml : " + xml, e);
+      throw new XmlParserException(CAN_NOT_PARSE_XML + xml, e);
     } catch (IOException e) {
-      throw new XmlParserException("can not parse xml : " + xml, e);
+      throw new XmlParserException(CAN_NOT_PARSE_XML + xml, e);
     }
   }
 

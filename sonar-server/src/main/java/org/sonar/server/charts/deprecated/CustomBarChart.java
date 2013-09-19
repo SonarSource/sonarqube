@@ -70,7 +70,8 @@ public class CustomBarChart extends BarChart {
   protected void configureCategoryPlot() {
     CategoryPlot plot = jfreechart.getCategoryPlot();
     plot.setNoDataMessage(DEFAULT_MESSAGE_NODATA);
-    plot.setInsets(RectangleInsets.ZERO_INSETS); // To remove inner space around chart
+    // To remove inner space around chart
+    plot.setInsets(RectangleInsets.ZERO_INSETS);
     plot.setDataset(dataset);
     plot.setDomainAxis(categoryAxis);
     plot.setRenderer(renderer);

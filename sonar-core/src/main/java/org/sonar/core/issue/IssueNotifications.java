@@ -19,6 +19,8 @@
  */
 package org.sonar.core.issue;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
@@ -35,8 +37,11 @@ import org.sonar.core.i18n.RuleI18nManager;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Send notifications related to issues.
@@ -63,17 +68,23 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
   }
 
   @CheckForNull
-  public Notification sendChanges(DefaultIssue issue, IssueChangeContext context, IssueQueryResult queryResult) {
-    return sendChanges(issue, context, queryResult.rule(issue), queryResult.project(issue), queryResult.component(issue));
+  public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, IssueQueryResult queryResult) {
+    Map<DefaultIssue, Rule> issues = Maps.newHashMap();
+    issues.put(issue, queryResult.rule(issue));
+    return sendChanges(issues, context, queryResult.project(issue), queryResult.component(issue));
   }
 
   @CheckForNull
-  public Notification sendChanges(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component) {
-    Notification notification = createChangeNotification(issue, context, rule, project, component, null);
-    if (notification != null) {
-      notificationsManager.scheduleForSending(notification);
+  public List<Notification> sendChanges(Map<DefaultIssue, Rule> issues, IssueChangeContext context, Component project, @Nullable Component component) {
+    List<Notification> notifications = Lists.newArrayList();
+    for (Entry<DefaultIssue, Rule> entry : issues.entrySet()) {
+      Notification notification = createChangeNotification(entry.getKey(), context, entry.getValue(), project, component, null);
+      if (notification != null) {
+        notifications.add(notification);
+      }
     }
-    return notification;
+    notificationsManager.scheduleForSending(notifications);
+    return notifications;
   }
 
   @CheckForNull
@@ -87,7 +98,7 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
 
   @CheckForNull
   private Notification createChangeNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project,
-                                                @Nullable Component component, @Nullable String comment) {
+    @Nullable Component component, @Nullable String comment) {
     Notification notification = null;
     if (comment != null || issue.mustSendNotifications()) {
       FieldDiffs currentChange = issue.currentChange();

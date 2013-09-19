@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONValue;
@@ -36,19 +35,16 @@ import java.util.List;
 import java.util.Map;
 
 public class BatchSettings extends Settings {
+  public static final String BATCH_BOOTSTRAP_PROPERTIES_URL = "/batch_bootstrap/properties";
   private Configuration deprecatedConfiguration;
   private boolean dryRun;
-
-  // Keep module settings for initialization of ProjectSettings
-  // module key -> <key,val>
-  private Map<String, Map<String, String>> moduleProperties = Maps.newHashMap();
 
   private final BootstrapSettings bootstrapSettings;
   private final ServerClient client;
   private Map<String, String> savedProperties;
 
   public BatchSettings(BootstrapSettings bootstrapSettings, PropertyDefinitions propertyDefinitions,
-      ServerClient client, Configuration deprecatedConfiguration) {
+    ServerClient client, Configuration deprecatedConfiguration) {
     super(propertyDefinitions);
     getEncryption().setPathToSecretKey(bootstrapSettings.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     this.bootstrapSettings = bootstrapSettings;
@@ -69,10 +65,10 @@ public class BatchSettings extends Settings {
       if (StringUtils.isNotBlank(branch)) {
         projectKey = String.format("%s:%s", projectKey, branch);
       }
-      downloadSettings(client, projectKey);
+      downloadSettings(projectKey);
     } else {
       LoggerFactory.getLogger(BatchSettings.class).info("Load batch settings");
-      downloadSettings(client, null);
+      downloadSettings(null);
     }
 
     addProperties(bootstrapSettings.properties());
@@ -90,35 +86,20 @@ public class BatchSettings extends Settings {
     this.setProperties(savedProperties);
   }
 
-  private void downloadSettings(ServerClient client, @Nullable String projectKey) {
+  private void downloadSettings(@Nullable String projectKey) {
     String url;
     if (StringUtils.isNotBlank(projectKey)) {
-      url = "/batch_bootstrap/properties?project=" + projectKey + "&dryRun=" + dryRun;
+      url = BATCH_BOOTSTRAP_PROPERTIES_URL + "?project=" + projectKey + "&dryRun=" + dryRun;
     } else {
-      url = "/batch_bootstrap/properties?dryRun=" + dryRun;
+      url = BATCH_BOOTSTRAP_PROPERTIES_URL + "?dryRun=" + dryRun;
     }
     String jsonText = client.request(url);
     List<Map<String, String>> json = (List<Map<String, String>>) JSONValue.parse(jsonText);
     for (Map<String, String> jsonProperty : json) {
       String key = jsonProperty.get("k");
       String value = jsonProperty.get("v");
-      String moduleKey = jsonProperty.get("p");
-      if (moduleKey == null || projectKey == null || moduleKey.equals(projectKey)) {
-        setProperty(key, value);
-      }
-      if (moduleKey != null) {
-        Map<String, String> map = moduleProperties.get(moduleKey);
-        if (map == null) {
-          map = Maps.newHashMap();
-          moduleProperties.put(moduleKey, map);
-        }
-        map.put(key, value);
-      }
+      setProperty(key, value);
     }
-  }
-
-  public Map<String, String> getModuleProperties(String projectKey) {
-    return moduleProperties.get(projectKey);
   }
 
   @Override

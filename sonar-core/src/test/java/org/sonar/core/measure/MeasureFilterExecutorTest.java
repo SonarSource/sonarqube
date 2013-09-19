@@ -22,6 +22,7 @@ package org.sonar.core.measure;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.TestDatabase;
@@ -360,6 +361,36 @@ public class MeasureFilterExecutorTest {
   }
 
   @Test
+  public void sort_by_ascending_alert() throws SQLException {
+    db.prepareDbUnit(getClass(), "sort_by_alert.xml");
+
+    Metric alert = new Metric.Builder(CoreMetrics.ALERT_STATUS_KEY, "Alert", Metric.ValueType.LEVEL).create().setId(5);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOnMetric(alert);
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+
+    // Php Project OK, Java Project WARN then Js Project ERROR
+    assertThat(rows).hasSize(3);
+    verifyPhpProject(rows.get(0));
+    verifyJavaProject(rows.get(1));
+    verifyProject(rows.get(2), 120L, 20L, 20L);
+  }
+
+  @Test
+  public void sort_by_descending_alert() throws SQLException {
+    db.prepareDbUnit(getClass(), "sort_by_alert.xml");
+
+    Metric alert = new Metric.Builder(CoreMetrics.ALERT_STATUS_KEY, "Alert", Metric.ValueType.LEVEL).create().setId(5);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOnMetric(alert).setSortAsc(false);
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+
+    // Js Project ERROR, Java Project WARN, then Php Project OK
+    assertThat(rows).hasSize(3);
+    verifyProject(rows.get(0), 120L, 20L, 20L);
+    verifyJavaProject(rows.get(1));
+    verifyPhpProject(rows.get(2));
+  }
+
+  @Test
   public void condition_on_numeric_measure() throws SQLException {
     db.prepareDbUnit(getClass(), "shared.xml");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA"))
@@ -547,26 +578,24 @@ public class MeasureFilterExecutorTest {
 
 
   private void verifyJavaProject(MeasureFilterRow row) {
-    assertThat(row.getSnapshotId()).isEqualTo(JAVA_PROJECT_SNAPSHOT_ID);
-    assertThat(row.getResourceId()).isEqualTo(JAVA_PROJECT_ID);
-    assertThat(row.getResourceRootId()).isEqualTo(JAVA_PROJECT_ID);
+    verifyProject(row, JAVA_PROJECT_SNAPSHOT_ID, JAVA_PROJECT_ID, JAVA_PROJECT_ID);
   }
 
   private void verifyJavaBigFile(MeasureFilterRow row) {
-    assertThat(row.getSnapshotId()).isEqualTo(JAVA_FILE_BIG_SNAPSHOT_ID);
-    assertThat(row.getResourceId()).isEqualTo(JAVA_FILE_BIG_ID);
-    assertThat(row.getResourceRootId()).isEqualTo(JAVA_PROJECT_ID);
+    verifyProject(row, JAVA_FILE_BIG_SNAPSHOT_ID, JAVA_FILE_BIG_ID, JAVA_PROJECT_ID);
   }
 
   private void verifyJavaTinyFile(MeasureFilterRow row) {
-    assertThat(row.getSnapshotId()).isEqualTo(JAVA_FILE_TINY_SNAPSHOT_ID);
-    assertThat(row.getResourceId()).isEqualTo(JAVA_FILE_TINY_ID);
-    assertThat(row.getResourceRootId()).isEqualTo(JAVA_PROJECT_ID);
+    verifyProject(row, JAVA_FILE_TINY_SNAPSHOT_ID, JAVA_FILE_TINY_ID, JAVA_PROJECT_ID);
   }
 
   private void verifyPhpProject(MeasureFilterRow row) {
-    assertThat(row.getSnapshotId()).isEqualTo(PHP_SNAPSHOT_ID);
-    assertThat(row.getResourceId()).isEqualTo(PHP_PROJECT_ID);
-    assertThat(row.getResourceRootId()).isEqualTo(PHP_PROJECT_ID);
+    verifyProject(row, PHP_SNAPSHOT_ID, PHP_PROJECT_ID, PHP_PROJECT_ID);
+  }
+
+  private void verifyProject(MeasureFilterRow row, Long snashotId, Long resourceId, Long resourceRootId) {
+    assertThat(row.getSnapshotId()).isEqualTo(snashotId);
+    assertThat(row.getResourceId()).isEqualTo(resourceId);
+    assertThat(row.getResourceRootId()).isEqualTo(resourceRootId);
   }
 }

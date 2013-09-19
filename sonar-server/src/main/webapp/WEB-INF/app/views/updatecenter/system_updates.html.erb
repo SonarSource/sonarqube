@@ -40,7 +40,7 @@
         <table class="data width100" id="sonar-<%= release.getVersion() -%>">
           <thead>
           <tr>
-            <th><h2>SonarQube  <%= release.getVersion() -%></h2></th>
+            <th><h2>SonarQube <%= release.getVersion() -%></h2></th>
           </tr>
           </thead>
           <tbody>
@@ -69,7 +69,9 @@
                       <ol class="bulletpoints">
                         <% update.getIncompatiblePlugins().each do |incompatible_plugin| %>
                           <li>
-                            <form method="post" action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= incompatible_plugin.getKey() -%>&amp;from=system_updates" style="display: inline-block">
+                            <form method="post"
+                                  action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= incompatible_plugin.getKey() -%>&amp;from=system_updates"
+                                  style="display: inline-block">
                               <%= image_tag 'warning.png' -%>
                               <input type="submit" value="Uninstall" class="red-button" onClick="return submitForm(this);"/>
                               the plugin <%= incompatible_plugin.getName() -%> which is not compatible with
@@ -79,7 +81,9 @@
                         <% end %>
                         <% update.getPluginsToUpgrade().each do |plugin_to_upgrade| %>
                           <li>
-                            <form method="post" id="upgrade-form-<%= plugin_to_upgrade.getArtifact().getKey() -%>" action="<%= ApplicationController.root_context -%>/updatecenter/install?key=<%= plugin_to_upgrade.getArtifact().getKey() -%>&amp;version=<%= plugin_to_upgrade.getVersion() -%>&amp;from=system_updates" style="display: inline-block">
+                            <form method="post" id="upgrade-form-<%= plugin_to_upgrade.getArtifact().getKey() -%>"
+                                  action="<%= ApplicationController.root_context -%>/updatecenter/install?key=<%= plugin_to_upgrade.getArtifact().getKey() -%>&amp;version=<%= plugin_to_upgrade.getVersion() -%>&amp;from=system_updates"
+                                  style="display: inline-block">
                               <input type="submit" id="upgrade-submit-<%= plugin_to_upgrade.getArtifact().getKey() -%>" value="Upgrade" onClick="return submitForm(this);"/>
                               the plugin <%= plugin_to_upgrade.getArtifact().getName() -%> to
                               version <%= plugin_to_upgrade.getVersion() -%>
@@ -88,14 +92,14 @@
                         <% end %>
                         <li>Stop Sonar</li>
                         <li><%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install
-                          SonarQube <%= release.getVersion() -%> after having carefully read the upgrade guide.
+                          SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://docs.codehaus.org/display/SONAR/Upgrading">upgrade guide</a>.
                         </li>
                         <li>Start Sonar</li>
                       </ol>
 
                     <% else %>
                       <%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install
-                      SonarQube <%= release.getVersion() -%> after having carefully read the upgrade guide.
+                      SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://docs.codehaus.org/display/SONAR/Upgrading">upgrade guide</a>.
                     <% end %>
                   </td>
                 </tr>

@@ -142,7 +142,7 @@ public class RubyUtils {
       return ((Integer)o).longValue();
     }
     if (o instanceof Long) {
-      return ((Long) o);
+      return (Long) o;
     }
     if (o instanceof String) {
       if (StringUtils.isBlank((String)o)) {

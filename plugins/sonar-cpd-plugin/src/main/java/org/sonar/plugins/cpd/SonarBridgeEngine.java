@@ -44,11 +44,7 @@ import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class SonarBridgeEngine extends CpdEngine {
 
@@ -123,9 +119,9 @@ public class SonarBridgeEngine extends CpdEngine {
           filtered = null;
           LOG.warn("Timeout during detection of duplications for " + file, e);
         } catch (InterruptedException e) {
-          throw new SonarException(e);
+          throw new SonarException("Fail during detection of duplication for "+ file, e);
         } catch (ExecutionException e) {
-          throw new SonarException(e);
+          throw new SonarException("Fail during detection of duplication for "+ file, e);
         }
 
         SonarEngine.save(context, resource, filtered);

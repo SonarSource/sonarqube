@@ -20,20 +20,22 @@
 package org.sonar.core.notification;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.notifications.NotificationManager;
+import org.sonar.core.notification.db.NotificationQueueDao;
+import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,57 +44,59 @@ import java.util.List;
 public class DefaultNotificationManager implements NotificationManager {
 
   private NotificationChannel[] notificationChannels;
-  private DatabaseSessionFactory sessionFactory;
+  private NotificationQueueDao notificationQueueDao;
   private PropertiesDao propertiesDao;
 
   /**
    * Default constructor used by Pico
    */
-  public DefaultNotificationManager(NotificationChannel[] channels, DatabaseSessionFactory sessionFactory, PropertiesDao propertiesDao) {
+  public DefaultNotificationManager(NotificationChannel[] channels, NotificationQueueDao notificationQueueDao, PropertiesDao propertiesDao) {
     this.notificationChannels = channels;
-    this.sessionFactory = sessionFactory;
+    this.notificationQueueDao = notificationQueueDao;
     this.propertiesDao = propertiesDao;
   }
 
   /**
    * Constructor if no notification channel
    */
-  public DefaultNotificationManager(DatabaseSessionFactory sessionFactory, PropertiesDao propertiesDao) {
-    this(new NotificationChannel[0], sessionFactory, propertiesDao);
+  public DefaultNotificationManager(NotificationQueueDao notificationQueueDao, PropertiesDao propertiesDao) {
+    this(new NotificationChannel[0], notificationQueueDao, propertiesDao);
   }
 
   /**
    * {@inheritDoc}
    */
   public void scheduleForSending(Notification notification) {
-    NotificationQueueElement notificationQueueElement = new NotificationQueueElement();
-    notificationQueueElement.setCreatedAt(new Date());
-    notificationQueueElement.setNotification(notification);
-    DatabaseSession session = sessionFactory.getSession();
-    session.save(notificationQueueElement);
-    session.commit();
+    NotificationQueueDto dto = NotificationQueueDto.toNotificationQueueDto(notification);
+    notificationQueueDao.insert(Arrays.asList(dto));
+  }
+
+  public void scheduleForSending(List<Notification> notification) {
+    notificationQueueDao.insert(Lists.transform(notification, new Function<Notification, NotificationQueueDto>() {
+      @Override
+      public NotificationQueueDto apply(Notification notification) {
+        return NotificationQueueDto.toNotificationQueueDto(notification);
+      }
+    }));
   }
 
   /**
    * Give the notification queue so that it can be processed
    */
-  public NotificationQueueElement getFromQueue() {
-    DatabaseSession session = sessionFactory.getSession();
-    String hql = "FROM " + NotificationQueueElement.class.getSimpleName() + " ORDER BY createdAt ASC";
-    List<NotificationQueueElement> notifications = session.createQuery(hql).setMaxResults(1).getResultList();
+  public Notification getFromQueue() {
+    int batchSize = 1;
+    List<NotificationQueueDto> notifications = notificationQueueDao.findOldest(batchSize);
     if (notifications.isEmpty()) {
-      // UGLY - waiting for a clean way to manage JDBC connections without Hibernate - myBatis is coming soon
-      // This code is highly coupled to org.sonar.server.notifications.NotificationService, which periodically executes
-      // several times the methods getFromQueue() and isEnabled(). The session is closed only at the end of the task -
-      // when there are no more notifications to process - to ensure "better" performances.
-      sessionFactory.clear();
       return null;
     }
-    NotificationQueueElement notification = notifications.get(0);
-    session.removeWithoutFlush(notification);
-    session.commit();
-    return notification;
+    notificationQueueDao.delete(notifications);
 
+    // If batchSize is increased then we should return a list instead of a single element
+    return notifications.get(0).toNotification();
+  }
+
+  public long count() {
+    return notificationQueueDao.count();
   }
 
   /**

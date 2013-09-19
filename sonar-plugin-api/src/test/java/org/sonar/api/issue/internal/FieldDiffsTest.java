@@ -68,9 +68,9 @@ public class FieldDiffsTest {
   @Test
   public void test_toString_with_null_values() throws Exception {
     diffs.setDiff("severity", null, "INFO");
-    diffs.setDiff("resolution", "OPEN", null);
+    diffs.setDiff("assignee", "user1", null);
 
-    assertThat(diffs.toString()).isEqualTo("severity=|INFO,resolution=OPEN|");
+    assertThat(diffs.toString()).isEqualTo("severity=INFO,assignee=");
   }
 
   @Test
@@ -89,7 +89,7 @@ public class FieldDiffsTest {
 
   @Test
   public void test_parse_empty_values() throws Exception {
-    diffs = FieldDiffs.parse("severity=|INFO,resolution=OPEN|");
+    diffs = FieldDiffs.parse("severity=INFO,resolution=");
     assertThat(diffs.diffs()).hasSize(2);
 
     FieldDiffs.Diff diff = diffs.diffs().get("severity");
@@ -97,7 +97,7 @@ public class FieldDiffsTest {
     assertThat(diff.newValue()).isEqualTo("INFO");
 
     diff = diffs.diffs().get("resolution");
-    assertThat(diff.oldValue()).isEqualTo("OPEN");
+    assertThat(diff.oldValue()).isEqualTo("");
     assertThat(diff.newValue()).isEqualTo("");
   }
 

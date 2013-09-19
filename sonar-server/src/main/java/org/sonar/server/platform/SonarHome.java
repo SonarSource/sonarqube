@@ -83,7 +83,8 @@ final class SonarHome {
   private static Properties openWarProperties() {
     try {
       InputStream input = SonarHome.class.getResourceAsStream("/sonar-war.properties");
-      return ConfigurationUtils.readInputStream(input); // it closes the stream
+      // it closes the stream
+      return ConfigurationUtils.readInputStream(input);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to load the file sonar-war.properties", e);
     }

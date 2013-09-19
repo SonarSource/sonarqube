@@ -51,7 +51,7 @@ public class WeightedMeanAggregationFormula implements Formula {
       Measure measure = child.getMeasure(context.getTargetMetric());
       Measure weightingMeasure = child.getMeasure(weightingMetric);
       if (MeasureUtils.haveValues(measure, weightingMeasure)) {
-        sum += (measure.getValue() * weightingMeasure.getValue());
+        sum += measure.getValue() * weightingMeasure.getValue();
         count += weightingMeasure.getValue();
         hasValue=true;
       }
@@ -61,7 +61,7 @@ public class WeightedMeanAggregationFormula implements Formula {
       return null;
     }
 
-    double result = (count==0.0 ? 0.0 : sum/count);
+    double result = count==0.0 ? 0.0 : sum/count;
     return new Measure(context.getTargetMetric(), result);
   }
 }

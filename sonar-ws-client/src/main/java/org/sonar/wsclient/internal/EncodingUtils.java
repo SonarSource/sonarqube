@@ -64,7 +64,7 @@ public class EncodingUtils {
   }
 
   public static String toQueryParam(Date d, boolean includeTime) {
-    String format = (includeTime ? DATETIME_FORMAT : DATE_FORMAT);
+    String format = includeTime ? DATETIME_FORMAT : DATE_FORMAT;
     SimpleDateFormat dateFormat = new SimpleDateFormat(format);
     return dateFormat.format(d);
   }

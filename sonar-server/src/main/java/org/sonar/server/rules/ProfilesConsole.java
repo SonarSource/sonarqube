@@ -32,6 +32,7 @@ import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import java.io.StringReader;
@@ -50,19 +51,21 @@ public final class ProfilesConsole implements ServerComponent {
   private XMLProfileSerializer xmlProfileSerializer;
   private List<ProfileExporter> exporters = newArrayList();
   private List<ProfileImporter> importers = newArrayList();
+  private DryRunCache dryRunCache;
 
-  public ProfilesConsole(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer) {
+  public ProfilesConsole(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, DryRunCache dryRunCache) {
     this.sessionFactory = sessionFactory;
     this.xmlProfileParser = xmlProfileParser;
     this.xmlProfileSerializer = xmlProfileSerializer;
+    this.dryRunCache = dryRunCache;
     this.exporters = newArrayList();
     this.importers = newArrayList();
   }
 
   public ProfilesConsole(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer,
-                         ProfileExporter[] exporters,
-                         ProfileImporter[] importers) {
-    this(sessionFactory, xmlProfileParser, xmlProfileSerializer);
+    ProfileExporter[] exporters,
+    ProfileImporter[] importers, DryRunCache dryRunCache) {
+    this(sessionFactory, xmlProfileParser, xmlProfileSerializer, dryRunCache);
     this.exporters.addAll(Arrays.asList(exporters));
     this.importers.addAll(Arrays.asList(importers));
   }
@@ -88,11 +91,12 @@ public final class ProfilesConsole implements ServerComponent {
         messages.addErrorText("The profile " + profile + " already exists. Please delete it before restoring.");
 
       } else {
-        if (existingProfile!=null) {
+        if (existingProfile != null) {
           session.removeWithoutFlush(existingProfile);
         }
         session.saveWithoutFlush(profile);
         session.commit();
+        dryRunCache.reportGlobalModification();
       }
     }
     return messages;

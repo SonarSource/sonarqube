@@ -278,6 +278,14 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
     return index;
   }
 
+  @Override
+  public String toString() {
+    if (StringUtils.isEmpty(propertySetKey)) {
+      return key;
+    }
+    return new StringBuilder().append(propertySetKey).append('|').append(key).toString();
+  }
+
   public static final class Result {
     private static final Result SUCCESS = new Result(null);
     private String errorKey = null;
@@ -497,7 +505,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
       fixType(key, type);
       Preconditions.checkArgument(onQualifiers.isEmpty() || onlyOnQualifiers.isEmpty(), "Cannot define both onQualifiers and onlyOnQualifiers");
-      Preconditions.checkArgument((!hidden || (onQualifiers.isEmpty()) && onlyOnQualifiers.isEmpty()), "Cannot be hidden and defining qualifiers on which to display");
+      Preconditions.checkArgument(!hidden || (onQualifiers.isEmpty() && onlyOnQualifiers.isEmpty()), "Cannot be hidden and defining qualifiers on which to display");
       if (hidden) {
         global = false;
       }
@@ -516,5 +524,4 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       }
     }
   }
-
 }

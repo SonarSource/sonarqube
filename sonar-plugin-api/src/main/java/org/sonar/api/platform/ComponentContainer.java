@@ -40,9 +40,11 @@ import java.util.List;
  */
 public class ComponentContainer implements BatchComponent, ServerComponent {
 
-  ComponentContainer parent, child; // no need for multiple children
+  // no need for multiple children
+  ComponentContainer parent, child;
   MutablePicoContainer pico;
   PropertyDefinitions propertyDefinitions;
+  ComponentKeys componentKeys;
 
   /**
    * Create root container
@@ -51,6 +53,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
     this.parent = null;
     this.child = null;
     this.pico = createPicoContainer();
+    this.componentKeys = new ComponentKeys();
     propertyDefinitions = new PropertyDefinitions();
     addSingleton(propertyDefinitions);
     addSingleton(this);
@@ -64,6 +67,7 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
     this.pico = parent.pico.makeChildContainer();
     this.parent.child = this;
     this.propertyDefinitions = parent.propertyDefinitions;
+    this.componentKeys = new ComponentKeys();
     addSingleton(this);
   }
 
@@ -158,13 +162,15 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
    *                  is returned each time the component is requested
    */
   public ComponentContainer addComponent(Object component, boolean singleton) {
-    pico.as(singleton ? Characteristics.CACHE : Characteristics.NO_CACHE).addComponent(getComponentKey(component), component);
+    Object key = componentKeys.of(component);
+    pico.as(singleton ? Characteristics.CACHE : Characteristics.NO_CACHE).addComponent(key, component);
     declareExtension(null, component);
     return this;
   }
 
   public ComponentContainer addExtension(@Nullable PluginMetadata plugin, Object extension) {
-    pico.as(Characteristics.CACHE).addComponent(getComponentKey(extension), extension);
+    Object key = componentKeys.of(extension);
+    pico.as(Characteristics.CACHE).addComponent(key, extension);
     declareExtension(plugin, extension);
     return this;
   }
@@ -205,13 +211,6 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
   static MutablePicoContainer createPicoContainer() {
     ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(new NullComponentMonitor(), "start", "stop", "dispose");
     return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, null);
-  }
-
-  static Object getComponentKey(Object component) {
-    if (component instanceof Class) {
-      return component;
-    }
-    return new StringBuilder().append(component.getClass().getCanonicalName()).append("-").append(component.toString()).toString();
   }
 
   public ComponentContainer getParent() {

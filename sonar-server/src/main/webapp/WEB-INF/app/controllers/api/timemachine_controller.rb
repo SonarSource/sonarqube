@@ -29,7 +29,7 @@ class Api::TimemachineController < Api::ApiController
     def to_id
       @id ||=
         begin
-          MetadataId.new(self.metric.id, self.characteristic ? self.characteristic.id : nil)
+          MetadataId.new(self.metric.id, self.characteristic && self.characteristic.id)
         end
     end
 

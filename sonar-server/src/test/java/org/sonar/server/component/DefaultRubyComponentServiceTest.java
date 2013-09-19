@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.core.resource.ResourceDao;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -56,17 +57,56 @@ public class DefaultRubyComponentServiceTest {
 
   @Test
   public void should_find() {
+    List<String> qualifiers = newArrayList("TRK");
+
     Map<String, Object> map = newHashMap();
     map.put("keys", newArrayList("org.codehaus.sonar"));
     map.put("names", newArrayList("Sonar"));
-    map.put("qualifiers", newArrayList("TRK"));
+    map.put("qualifiers", qualifiers);
     map.put("pageSize", 10l);
     map.put("pageIndex", 50);
     map.put("sort", "NAME");
     map.put("asc", true);
 
     componentService.find(map);
-    verify(finder).find(any(ComponentQuery.class));
+    verify(resourceDao).selectProjectsByQualifiers(anyListOf(String.class));
+    verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
+  }
+
+  @Test
+  public void should_find_with_uncomplete_projects() {
+    List<String> qualifiers = newArrayList("TRK");
+
+    Map<String, Object> map = newHashMap();
+    map.put("keys", newArrayList("org.codehaus.sonar"));
+    map.put("names", newArrayList("Sonar"));
+    map.put("qualifiers", qualifiers);
+    map.put("pageSize", 10l);
+    map.put("pageIndex", 50);
+    map.put("sort", "NAME");
+    map.put("asc", true);
+
+    componentService.findWithUncompleteProjects(map);
+    verify(resourceDao).selectProjectsIncludingNotCompletedOnesByQualifiers(anyListOf(String.class));
+    verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
+  }
+
+  @Test
+  public void should_find_ghosts_projects() {
+    List<String> qualifiers = newArrayList("TRK");
+
+    Map<String, Object> map = newHashMap();
+    map.put("keys", newArrayList("org.codehaus.sonar"));
+    map.put("names", newArrayList("Sonar"));
+    map.put("qualifiers", qualifiers);
+    map.put("pageSize", 10l);
+    map.put("pageIndex", 50);
+    map.put("sort", "NAME");
+    map.put("asc", true);
+
+    componentService.findGhostsProjects(map);
+    verify(resourceDao).selectGhostsProjects(anyListOf(String.class));
+    verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
   }
 
   @Test

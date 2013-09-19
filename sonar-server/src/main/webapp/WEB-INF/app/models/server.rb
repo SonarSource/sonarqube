@@ -18,11 +18,11 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 class Server
-  
+
   def info
     system_info + sonar_info + system_statistics + sonar_plugins + system_properties
   end
-  
+
   def system_info
     system_info=[]
     add_property(system_info, 'System date') {java.util.Date.new()}
@@ -42,9 +42,9 @@ class Server
     add_property(system_info, 'Library Path') {java.lang.management.ManagementFactory.getRuntimeMXBean().getLibraryPath()  }
     system_info
   end
-  
+
   def system_statistics
-    system_statistics=[] 
+    system_statistics=[]
     add_property(system_statistics, 'Total Memory') {"#{java.lang.Runtime.getRuntime().totalMemory() / 1000000} MB"}
     add_property(system_statistics, 'Free Memory') {"#{java.lang.Runtime.getRuntime().freeMemory() / 1000000} MB"}
     add_property(system_statistics, 'Max Memory') {"#{java.lang.Runtime.getRuntime().maxMemory() / 1000000} MB"}
@@ -69,13 +69,13 @@ class Server
     add_property(sonar_info, 'Database Driver Class') {sonar_property('sonar.jdbc.driverClassName')}
     add_property(sonar_info, 'Database Dialect (Hibernate)') {"#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getId()} (#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getHibernateDialectClass().getName()})"}
     add_property(sonar_info, 'Hibernate Default Schema') {sonar_property('sonar.hibernate.default_schema')}
-    add_property(sonar_info, 'External User Authentication') {sonar_property(org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CLASS)}
+    add_property(sonar_info, 'External User Authentication') {realm_name}
     add_property(sonar_info, 'Automatic User Creation') {sonar_property(org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS)}
     add_property(sonar_info, 'Allow Users to Sign Up') {sonar_property(org.sonar.api.CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY)}
     add_property(sonar_info, 'Force Authentication') {sonar_property(org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY)}
     sonar_info
   end
-  
+
   def sonar_plugins
     sonar_plugins=[]
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getPluginsMetadata().select{|plugin| !plugin.isCore()}.sort.each do |plugin|
@@ -83,7 +83,7 @@ class Server
     end
     sonar_plugins
   end
-  
+
   def system_properties
     system_properties=[]
     keys=java.lang.System.getProperties().keySet().sort
@@ -92,13 +92,13 @@ class Server
     end
     system_properties
   end
-  
-  
-  
-  private 
-  
+
+
+
+  private
+
   def java_property(key)
-    java.lang.System.getProperty(key)   
+    java.lang.System.getProperty(key)
   end
 
   def add_property(properties, label)
@@ -109,21 +109,30 @@ class Server
       Rails.logger.error("Can not get the property #{label}")
       Rails.logger.error(e)
       properties<<[label, 'N/A']
-    end  
+    end
   end
-  
+
   def format_double(d)
    (d * 10).to_i / 10.0
   end
-  
+
   def format_date(date)
     java.text.SimpleDateFormat.new("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(date)
   end
-  
+
   def sonar_property(key)
     Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponentByType(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
   end
-  
+
+  def realm_name
+    realm_factory = Api::Utils.java_facade.getCoreComponentByClassname('org.sonar.server.ui.SecurityRealmFactory')
+    if realm_factory && realm_factory.getRealm()
+      realm_factory.getRealm().getName()
+    else
+      nil
+    end
+  end
+
   def jdbc_metadata
     @metadata ||=
       begin

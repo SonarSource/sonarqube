@@ -30,11 +30,9 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.core.DryRunIncompatible;
 
 import java.util.List;
 
-@DryRunIncompatible
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public final class TimeMachineConfigurationPersister implements Decorator {
 

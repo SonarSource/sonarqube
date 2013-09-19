@@ -1,7 +1,7 @@
 <% if @category.isSpecial -%>
   <%= render 'special', :url => url_for(:controller => "#{@category.key}_configuration") -%>
 <% else -%>
-  <% form_remote_tag :url => {:controller => 'settings', :action => 'update', :category => @category.key, :subcategory => @subcategory.key, :resource_id => @resource ? @resource.id : nil},
+  <% form_remote_tag :url => {:controller => 'settings', :action => 'update', :category => @category.key, :subcategory => @subcategory.key, :resource_id => (@resource && @resource.id)},
                      :method => :post,
                      :before => "$('submit_settings').hide();$('loading_settings').show();",
                      :update => 'properties',
@@ -10,7 +10,7 @@
     <ul class="tabs2">
       <% subcategories.each do |subcategory| -%>
         <li>
-          <%= link_to subcategory_name(@category, subcategory), {:controller => @resource ? 'project' : 'settings', :action => @resource ? 'settings' : 'index', :category => @category.key, :subcategory => subcategory.key, :id => @resource ? @resource.id : nil}, :class => @subcategory==subcategory ? 'selected' : nil -%>
+          <%= link_to subcategory_name(@category, subcategory), {:controller => @resource ? 'project' : 'settings', :action => @resource ? 'settings' : 'index', :category => @category.key, :subcategory => subcategory.key, :id => (@resource && @resource.id)}, :class => @subcategory==subcategory ? 'selected' : nil -%>
         </li>
       <% end -%>
     </ul>

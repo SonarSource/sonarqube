@@ -19,13 +19,15 @@
  */
 package org.sonar.batch.scan;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
+import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
@@ -53,7 +55,7 @@ public class DefaultProjectBootstrapperTest {
     assertThat(projectDefinition.getDescription()).isEqualTo("Description of Foo Project");
     assertThat(projectDefinition.getSourceDirs()).contains("sources");
     assertThat(projectDefinition.getLibraries()).contains(TestUtils.getResource(this.getClass(), "simple-project/libs/lib2.txt").getAbsolutePath(),
-        TestUtils.getResource(this.getClass(), "simple-project/libs/lib2.txt").getAbsolutePath());
+      TestUtils.getResource(this.getClass(), "simple-project/libs/lib2.txt").getAbsolutePath());
   }
 
   @Test
@@ -62,8 +64,8 @@ public class DefaultProjectBootstrapperTest {
 
     assertThat(projectDefinition.getSourceDirs()).contains("sources");
     assertThat(projectDefinition.getLibraries()).contains(
-        TestUtils.getResource(this.getClass(), "simple-project-with-deprecated-props/libs/lib2.txt").getAbsolutePath(),
-        TestUtils.getResource(this.getClass(), "simple-project-with-deprecated-props/libs/lib2.txt").getAbsolutePath());
+      TestUtils.getResource(this.getClass(), "simple-project-with-deprecated-props/libs/lib2.txt").getAbsolutePath(),
+      TestUtils.getResource(this.getClass(), "simple-project-with-deprecated-props/libs/lib2.txt").getAbsolutePath());
   }
 
   @Test
@@ -106,9 +108,9 @@ public class DefaultProjectBootstrapperTest {
     assertThat(rootProject.getProperties().getProperty("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(rootProject.getBaseDir().getCanonicalFile())
-        .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"));
+      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"));
     assertThat(rootProject.getWorkDir().getCanonicalFile())
-        .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar"));
+      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar"));
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
@@ -130,9 +132,9 @@ public class DefaultProjectBootstrapperTest {
     assertThat(module1.getProperties().getProperty("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(module1.getBaseDir().getCanonicalFile())
-        .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root/module1"));
+      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root/module1"));
     assertThat(module1.getWorkDir().getCanonicalFile())
-        .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar/com.foo.project_module1"));
+      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar/com.foo.project_module1"));
 
     // Module 2
     ProjectDefinition module2 = modules.get(1);
@@ -149,9 +151,9 @@ public class DefaultProjectBootstrapperTest {
     assertThat(module2.getProperties().getProperty("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(module2.getBaseDir().getCanonicalFile())
-        .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root/module2"));
+      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root/module2"));
     assertThat(module2.getWorkDir().getCanonicalFile())
-        .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar/com.foo.project_com.foo.project.module2"));
+      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar/com.foo.project_com.foo.project.module2"));
   }
 
   @Test
@@ -276,7 +278,7 @@ public class DefaultProjectBootstrapperTest {
     assertThat(module1.getSourceDirs()).contains("src/main/java");
     // and module properties must have been cleaned
     assertThat(module1.getWorkDir().getCanonicalFile())
-        .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-language-definitions-all-in-root"), ".sonar/example_java-module"));
+      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-language-definitions-all-in-root"), ".sonar/example_java-module"));
 
     // Module 2
     ProjectDefinition module2 = modules.get(1);
@@ -284,7 +286,7 @@ public class DefaultProjectBootstrapperTest {
     assertThat(module2.getSourceDirs()).contains("src/main/groovy");
     // and module properties must have been cleaned
     assertThat(module2.getWorkDir().getCanonicalFile())
-        .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-language-definitions-all-in-root"), ".sonar/example_groovy-module"));
+      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-language-definitions-all-in-root"), ".sonar/example_groovy-module"));
   }
 
   @Test
@@ -489,7 +491,7 @@ public class DefaultProjectBootstrapperTest {
   @Test
   public void shouldGetRelativeFile() {
     assertThat(DefaultProjectBootstrapper.getFileFromPath("shouldGetFile/foo.properties", TestUtils.getResource(this.getClass(), "/")))
-        .isEqualTo(TestUtils.getResource(this.getClass(), "shouldGetFile/foo.properties"));
+      .isEqualTo(TestUtils.getResource(this.getClass(), "shouldGetFile/foo.properties"));
   }
 
   @Test
@@ -497,7 +499,7 @@ public class DefaultProjectBootstrapperTest {
     File file = TestUtils.getResource(this.getClass(), "shouldGetFile/foo.properties");
 
     assertThat(DefaultProjectBootstrapper.getFileFromPath(file.getAbsolutePath(), TestUtils.getResource(this.getClass(), "/")))
-        .isEqualTo(file);
+      .isEqualTo(file);
   }
 
   @Test
@@ -528,7 +530,7 @@ public class DefaultProjectBootstrapperTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new Settings());
+    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(Maps.<String, String> newHashMap())));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -538,9 +540,9 @@ public class DefaultProjectBootstrapperTest {
 
   @Test
   public void shouldInitWorkDirWithCustomRelativeFolder() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.working.directory", ".foo");
-    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(settings);
+    Map<String, String> props = Maps.<String, String> newHashMap();
+    props.put("sonar.working.directory", ".foo");
+    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(props)));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -550,9 +552,9 @@ public class DefaultProjectBootstrapperTest {
 
   @Test
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.working.directory", new File("src").getAbsolutePath());
-    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(settings);
+    Map<String, String> props = Maps.<String, String> newHashMap();
+    props.put("sonar.working.directory", new File("src").getAbsolutePath());
+    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(props)));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -619,10 +621,14 @@ public class DefaultProjectBootstrapperTest {
   }
 
   private ProjectDefinition loadProjectDefinition(String projectFolder) throws IOException {
-    Settings settings = new Settings();
-    settings.addProperties(DefaultProjectBootstrapper.toProperties(TestUtils.getResource(this.getClass(), projectFolder + "/sonar-project.properties")));
-    settings.setProperty("sonar.projectBaseDir", TestUtils.getResource(this.getClass(), projectFolder).getAbsolutePath());
-    ProjectReactor projectReactor = new DefaultProjectBootstrapper(settings).bootstrap();
+    Map<String, String> props = Maps.<String, String> newHashMap();
+    Properties runnerProps = DefaultProjectBootstrapper.toProperties(TestUtils.getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
+    for (final String name : runnerProps.stringPropertyNames()) {
+      props.put(name, runnerProps.getProperty(name));
+    }
+    props.put("sonar.projectBaseDir", TestUtils.getResource(this.getClass(), projectFolder).getAbsolutePath());
+    BootstrapProperties bootstrapProps = new BootstrapProperties(props);
+    ProjectReactor projectReactor = new DefaultProjectBootstrapper(new BootstrapSettings(bootstrapProps)).bootstrap();
     return projectReactor.getRoot();
   }
 

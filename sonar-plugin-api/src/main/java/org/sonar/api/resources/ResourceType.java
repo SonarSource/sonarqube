@@ -51,7 +51,6 @@ import java.util.Map;
  *
  * @since 2.14
  */
-@Beta
 @Immutable
 public class ResourceType {
 
@@ -59,6 +58,7 @@ public class ResourceType {
    * Builder used to create {@link ResourceType} objects.
    */
   public static class Builder {
+    private static final String SUPPORTS_MEASURE_FILTERS = "supportsMeasureFilters";
     private String qualifier;
     private String iconPath;
     private boolean hasSourceCode = false;
@@ -88,7 +88,7 @@ public class ResourceType {
      */
     @Deprecated
     public Builder availableForFilters() {
-      setProperty("supportsMeasureFilters", "true");
+      setProperty(SUPPORTS_MEASURE_FILTERS, "true");
       return this;
     }
 
@@ -112,7 +112,7 @@ public class ResourceType {
 
       // for backward-compatibility since version 3.4
       if ("availableForFilters".equals(key)) {
-        properties.put("supportsMeasureFilters", value);
+        properties.put(SUPPORTS_MEASURE_FILTERS, value);
       }
       return this;
     }
@@ -229,5 +229,10 @@ public class ResourceType {
   @Override
   public int hashCode() {
     return qualifier.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return qualifier;
   }
 }

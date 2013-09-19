@@ -289,7 +289,7 @@ public class Dsm extends Composite {
 
   private Label createNonDiagonalCell(final int row, final int col, int weight) {
     Label cell;
-    cell = buildCell(row, col, weight, (col > row ? GRID_CELL_TOP_RIGHT : GRID_CELL_BOTTOM_LEFT));
+    cell = buildCell(row, col, weight, col > row ? GRID_CELL_TOP_RIGHT : GRID_CELL_BOTTOM_LEFT);
 
     if (weight > 0) {
       String tooltip = data.get(col).getName() + " -> " + data.get(row).getName() + " (" + weight + "). " + Dictionary.getDictionary("l10n").get("design.cellTooltip");

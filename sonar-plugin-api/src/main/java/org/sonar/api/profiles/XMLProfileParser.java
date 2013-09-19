@@ -45,7 +45,7 @@ import java.util.Map;
 
 /**
  * TODO should be an interface
- * 
+ *
  * @since 2.3
  */
 public final class XMLProfileParser implements ServerComponent {
@@ -55,7 +55,7 @@ public final class XMLProfileParser implements ServerComponent {
 
   /**
    * For backward compatibility.
-   * 
+   *
    * @deprecated since 2.5. Plugins shouldn't directly instantiate this class,
    *             because it should be retrieved as an IoC dependency.
    */
@@ -163,20 +163,23 @@ public final class XMLProfileParser implements ServerComponent {
 
       Rule rule = ruleFinder.findByKey(repositoryKey, key);
       if (rule == null) {
-        messages.addWarningText("Rule not found: [repository=" + repositoryKey + ", key=" + key + "]");
+        messages.addWarningText("Rule not found: " + ruleToString(repositoryKey, key));
 
       } else {
         ActiveRule activeRule = profile.activateRule(rule, priority);
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
           if (rule.getParam(entry.getKey()) == null) {
-            messages.addWarningText("The parameter '" + entry.getKey() + "' does not exist in the rule: [repository=" + repositoryKey
-              + ", key=" + key + "]");
+            messages.addWarningText("The parameter '" + entry.getKey() + "' does not exist in the rule: " + ruleToString(repositoryKey, key));
           } else {
             activeRule.setParameter(entry.getKey(), entry.getValue());
           }
         }
       }
     }
+  }
+
+  private String ruleToString(String repositoryKey, String key) {
+    return "[repository=" + repositoryKey + ", key=" + key + "]";
   }
 
   private void processParameters(SMInputCursor propsCursor, Map<String, String> parameters) throws XMLStreamException {
@@ -222,7 +225,7 @@ public final class XMLProfileParser implements ServerComponent {
           if (StringUtils.isNotBlank(periodParameter)) {
             period = Integer.parseInt(periodParameter);
           }
-        }else if (StringUtils.equals("operator", nodeName)) {
+        } else if (StringUtils.equals("operator", nodeName)) {
           operator = StringUtils.trim(alertCursor.collectDescendantText(false));
 
         } else if (StringUtils.equals("warning", nodeName)) {

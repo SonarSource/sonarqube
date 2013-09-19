@@ -143,6 +143,7 @@ class PluginRealm
     user.active=true
     # Note that validation disabled
     user.save(false)
+    user.notify_creation_handlers
     user
   end
 

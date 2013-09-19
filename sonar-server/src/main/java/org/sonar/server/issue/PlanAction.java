@@ -36,6 +36,7 @@ import java.util.Map;
 public class PlanAction extends Action implements ServerComponent {
 
   public static final String KEY = "plan";
+  public static final String VERIFIED_ACTION_PLAN = "verifiedActionPlan";
 
   private final ActionPlanService actionPlanService;
   private final IssueUpdater issueUpdater;
@@ -49,23 +50,30 @@ public class PlanAction extends Action implements ServerComponent {
 
   @Override
   public boolean verify(Map<String, Object> properties, List<Issue> issues, UserSession userSession) {
-    String actionPlanKey = planKey(properties);
-    if (!Strings.isNullOrEmpty(actionPlanKey)) {
-      ActionPlan actionPlan = actionPlanService.findByKey(actionPlanKey, userSession);
+    String actionPlanValue = planValue(properties);
+    if (!Strings.isNullOrEmpty(actionPlanValue)) {
+      ActionPlan actionPlan = selectActionPlan(actionPlanValue, userSession);
       if (actionPlan == null) {
-        throw new IllegalArgumentException("Unknown action plan: " + actionPlanKey);
+        throw new IllegalArgumentException("Unknown action plan: " + actionPlanValue);
       }
       verifyIssuesAreAllRelatedOnActionPlanProject(issues, actionPlan);
+      properties.put(VERIFIED_ACTION_PLAN, actionPlan);
+    } else {
+      properties.put(VERIFIED_ACTION_PLAN, null);
     }
     return true;
   }
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    return issueUpdater.plan((DefaultIssue) context.issue(), planKey(properties), context.issueChangeContext());
+    if(!properties.containsKey(VERIFIED_ACTION_PLAN)) {
+      throw new IllegalArgumentException("Action plan is missing from the execution parameters");
+    }
+    ActionPlan actionPlan = (ActionPlan) properties.get(VERIFIED_ACTION_PLAN);
+    return issueUpdater.plan((DefaultIssue) context.issue(), actionPlan, context.issueChangeContext());
   }
 
-  private String planKey(Map<String, Object> properties) {
+  private String planValue(Map<String, Object> properties) {
     return (String) properties.get("plan");
   }
 
@@ -80,4 +88,7 @@ public class PlanAction extends Action implements ServerComponent {
     }
   }
 
+  private ActionPlan selectActionPlan(String planValue, UserSession userSession) {
+    return actionPlanService.findByKey(planValue, userSession);
+  }
 }

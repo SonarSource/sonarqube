@@ -5,7 +5,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar</artifactId>
   <packaging>pom</packaging>
-  <version>3.7-SNAPSHOT</version>
+  <version>3.7.1-SNAPSHOT</version>
   <name>SonarQube</name>
   <url>http://www.sonarsource.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
@@ -71,7 +71,7 @@
   </prerequisites>
 
   <properties>
-    <sonarUpdateCenter.version>1.6.1</sonarUpdateCenter.version>
+    <sonarUpdateCenter.version>1.8</sonarUpdateCenter.version>
     <sonarJava.version>1.3</sonarJava.version>
     <sonarGwt.version>3.3.1</sonarGwt.version>
     <h2.version>1.3.172</h2.version>
@@ -349,22 +349,8 @@
                   </excludes>
                   <searchTransitive>true</searchTransitive>
                 </bannedDependencies>
-              </rules>
-            </configuration>
-          </execution>
-          <execution>
-            <!-- TODO Merge with execution enforce-rules as soon as we will remove exclusions for this rule - see SONAR-2938 -->
-            <id>enforce-no-repositories</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
                 <requireNoRepositories>
-                  <!-- Also see SONAR-2849 -->
-                  <message>The rules for repo1.maven.org are that pom.xml files should not include repository
-                    definitions.
-                  </message>
+                  <message>Definition of new repositories is not allowed in order to deploy to central repository.</message>
                 </requireNoRepositories>
               </rules>
             </configuration>
@@ -1091,7 +1077,7 @@
     <connection>scm:git:git@github.com:SonarSource/sonar.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonar.git</developerConnection>
     <url>https://github.com/SonarSource/sonar</url>
-    <tag>3.7-RC1</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <ciManagement>

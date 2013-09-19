@@ -90,7 +90,7 @@ public abstract class AbstractLanguage implements Language {
 
   @Override
   public int hashCode() {
-    return (key != null ? key.hashCode() : 0);
+    return key != null ? key.hashCode() : 0;
   }
 
   @Override

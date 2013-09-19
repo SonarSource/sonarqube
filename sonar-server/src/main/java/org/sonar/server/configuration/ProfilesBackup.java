@@ -36,6 +36,7 @@ import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.dao.RulesDao;
 
 import java.util.ArrayList;
@@ -47,11 +48,25 @@ import java.util.Map;
 
 public class ProfilesBackup implements Backupable {
 
+  private static final String OPERATOR = "operator";
+  private static final String VALUE_ERROR = "value-error";
+  private static final String VALUE_WARNING = "value-warning";
+  private static final String PERIOD = "period";
+  private static final String METRIC_KEY = "metric-key";
+  private static final String KEY = "key";
+  private static final String PLUGIN = "plugin";
+  private static final String LEVEL = "level";
+  private static final String INHERITANCE = "inheritance";
+  private static final String PARAMS = "params";
+  private static final String VALUE = "value";
+
   private Collection<RulesProfile> profiles;
   private DatabaseSession session;
+  private DryRunCache dryRunCache;
 
-  public ProfilesBackup(DatabaseSession session) {
+  public ProfilesBackup(DatabaseSession session, DryRunCache dryRunCache) {
     this.session = session;
+    this.dryRunCache = dryRunCache;
   }
 
   /**
@@ -62,15 +77,17 @@ public class ProfilesBackup implements Backupable {
   }
 
   public void configure(XStream xStream) {
+    String defaultProfile = "defaultProfile";
+
     xStream.alias("profile", RulesProfile.class);
     xStream.alias("alert", Alert.class);
     xStream.alias("active-rule", ActiveRule.class);
     xStream.aliasField("active-rules", RulesProfile.class, "activeRules");
-    xStream.aliasField("default-profile", RulesProfile.class, "defaultProfile");
+    xStream.aliasField("default-profile", RulesProfile.class, defaultProfile);
     xStream.omitField(RulesProfile.class, "id");
     xStream.omitField(RulesProfile.class, "projects");
     xStream.omitField(RulesProfile.class, "provided");
-    xStream.omitField(RulesProfile.class, "defaultProfile");
+    xStream.omitField(RulesProfile.class, defaultProfile);
     xStream.omitField(RulesProfile.class, "enabled");
     xStream.registerConverter(getActiveRuleConverter());
     xStream.registerConverter(getAlertsConverter());
@@ -90,7 +107,7 @@ public class ProfilesBackup implements Backupable {
   public void importXml(SonarConfig sonarConfig) {
     if (sonarConfig.getProfiles() != null && !sonarConfig.getProfiles().isEmpty()) {
       LoggerFactory.getLogger(getClass()).info("Delete profiles");
-      ProfilesManager profilesManager = new ProfilesManager(session, null);
+      ProfilesManager profilesManager = new ProfilesManager(session, null, dryRunCache);
       profilesManager.deleteAllProfiles();
 
       RulesDao rulesDao = new RulesDao(session);
@@ -113,15 +130,16 @@ public class ProfilesBackup implements Backupable {
     importActiveRules(rulesDao, toImport);
     importAlerts(toImport);
     session.save(toImport);
+    dryRunCache.reportGlobalModification();
   }
 
   private void importAlerts(RulesProfile profile) {
     if (profile.getAlerts() != null) {
-      for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext(); ) {
+      for (Iterator<Alert> ia = profile.getAlerts().iterator(); ia.hasNext();) {
         Alert alert = ia.next();
         Metric unMarshalledMetric = alert.getMetric();
         String validKey = unMarshalledMetric.getKey();
-        Metric matchingMetricInDb = session.getSingleResult(Metric.class, "key", validKey);
+        Metric matchingMetricInDb = session.getSingleResult(Metric.class, KEY, validKey);
         if (matchingMetricInDb == null) {
           LoggerFactory.getLogger(getClass()).error("Unable to find metric " + validKey);
           ia.remove();
@@ -134,7 +152,7 @@ public class ProfilesBackup implements Backupable {
   }
 
   private void importActiveRules(RulesDao rulesDao, RulesProfile profile) {
-    for (Iterator<ActiveRule> iar = profile.getActiveRules(true).iterator(); iar.hasNext(); ) {
+    for (Iterator<ActiveRule> iar = profile.getActiveRules(true).iterator(); iar.hasNext();) {
       ActiveRule activeRule = iar.next();
       Rule unMarshalledRule = activeRule.getRule();
       Rule matchingRuleInDb = rulesDao.getRuleByKey(unMarshalledRule.getRepositoryKey(), unMarshalledRule.getKey());
@@ -142,22 +160,22 @@ public class ProfilesBackup implements Backupable {
         LoggerFactory.getLogger(getClass()).error(
           "Unable to find active rule " + unMarshalledRule.getRepositoryKey() + ":" + unMarshalledRule.getKey());
         iar.remove();
-        continue;
-      }
-      activeRule.setRule(matchingRuleInDb);
-      activeRule.setRulesProfile(profile);
-      activeRule.getActiveRuleParams();
-      for (Iterator<ActiveRuleParam> irp = activeRule.getActiveRuleParams().iterator(); irp.hasNext(); ) {
-        ActiveRuleParam activeRuleParam = irp.next();
-        RuleParam unMarshalledRP = activeRuleParam.getRuleParam();
-        RuleParam matchingRPInDb = rulesDao.getRuleParam(matchingRuleInDb, unMarshalledRP.getKey());
-        if (matchingRPInDb == null) {
-          LoggerFactory.getLogger(getClass()).error("Unable to find active rule parameter " + unMarshalledRP.getKey());
-          irp.remove();
-          continue;
+      } else {
+        activeRule.setRule(matchingRuleInDb);
+        activeRule.setRulesProfile(profile);
+        activeRule.getActiveRuleParams();
+        for (Iterator<ActiveRuleParam> irp = activeRule.getActiveRuleParams().iterator(); irp.hasNext();) {
+          ActiveRuleParam activeRuleParam = irp.next();
+          RuleParam unMarshalledRP = activeRuleParam.getRuleParam();
+          RuleParam matchingRPInDb = rulesDao.getRuleParam(matchingRuleInDb, unMarshalledRP.getKey());
+          if (matchingRPInDb == null) {
+            LoggerFactory.getLogger(getClass()).error("Unable to find active rule parameter " + unMarshalledRP.getKey());
+            irp.remove();
+            continue;
+          }
+          activeRuleParam.setActiveRule(activeRule);
+          activeRuleParam.setRuleParam(matchingRPInDb);
         }
-        activeRuleParam.setActiveRule(activeRule);
-        activeRuleParam.setRuleParam(matchingRPInDb);
       }
     }
   }
@@ -167,20 +185,20 @@ public class ProfilesBackup implements Backupable {
 
       public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
         Alert alert = (Alert) source;
-        writeNode(writer, "operator", alert.getOperator());
-        writeNode(writer, "value-error", alert.getValueError());
-        writeNode(writer, "value-warning", alert.getValueWarning());
+        writeNode(writer, OPERATOR, alert.getOperator());
+        writeNode(writer, VALUE_ERROR, alert.getValueError());
+        writeNode(writer, VALUE_WARNING, alert.getValueWarning());
         if (alert.getPeriod() != null) {
-          writeNode(writer, "period", Integer.toString(alert.getPeriod()));
+          writeNode(writer, PERIOD, Integer.toString(alert.getPeriod()));
         }
-        writeNode(writer, "metric-key", alert.getMetric().getKey());
+        writeNode(writer, METRIC_KEY, alert.getMetric().getKey());
       }
 
       public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         Map<String, String> values = readNode(reader);
-        Alert alert = new Alert(null, new Metric(values.get("metric-key")), values.get("operator"), values.get("value-error"),
-          values.get("value-warning"));
-        String periodText = values.get("period");
+        Alert alert = new Alert(null, new Metric(values.get(METRIC_KEY)), values.get(OPERATOR), values.get(VALUE_ERROR),
+          values.get(VALUE_WARNING));
+        String periodText = values.get(PERIOD);
         if (StringUtils.isNotEmpty(periodText)) {
           alert.setPeriod(Integer.parseInt(periodText));
         }
@@ -198,17 +216,17 @@ public class ProfilesBackup implements Backupable {
 
       public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
         ActiveRule rule = (ActiveRule) source;
-        writeNode(writer, "key", rule.getRule().getKey());
-        writeNode(writer, "plugin", rule.getRule().getRepositoryKey());
-        writeNode(writer, "level", rule.getSeverity().name());
-        writeNode(writer, "inheritance", rule.getInheritance());
+        writeNode(writer, KEY, rule.getRule().getKey());
+        writeNode(writer, PLUGIN, rule.getRule().getRepositoryKey());
+        writeNode(writer, LEVEL, rule.getSeverity().name());
+        writeNode(writer, INHERITANCE, rule.getInheritance());
 
         if (!rule.getActiveRuleParams().isEmpty()) {
-          writer.startNode("params");
+          writer.startNode(PARAMS);
           for (ActiveRuleParam activeRuleParam : rule.getActiveRuleParams()) {
             writer.startNode("param");
-            writeNode(writer, "key", activeRuleParam.getRuleParam().getKey());
-            writeNode(writer, "value", activeRuleParam.getValue());
+            writeNode(writer, KEY, activeRuleParam.getRuleParam().getKey());
+            writeNode(writer, VALUE, activeRuleParam.getValue());
             writer.endNode();
           }
           writer.endNode();
@@ -221,12 +239,12 @@ public class ProfilesBackup implements Backupable {
         while (reader.hasMoreChildren()) {
           reader.moveDown();
           valuesRule.put(reader.getNodeName(), reader.getValue());
-          if ("params".equals(reader.getNodeName())) {
+          if (PARAMS.equals(reader.getNodeName())) {
             while (reader.hasMoreChildren()) {
               reader.moveDown();
               Map<String, String> valuesParam = readNode(reader);
-              ActiveRuleParam activeRuleParam = new ActiveRuleParam(null, new RuleParam(null, valuesParam.get("key"), null, null),
-                valuesParam.get("value"));
+              ActiveRuleParam activeRuleParam = new ActiveRuleParam(null, new RuleParam(null, valuesParam.get(KEY), null, null),
+                valuesParam.get(VALUE));
               params.add(activeRuleParam);
               reader.moveUp();
             }
@@ -234,11 +252,11 @@ public class ProfilesBackup implements Backupable {
           reader.moveUp();
         }
 
-        ActiveRule activeRule = new ActiveRule(null, new Rule(valuesRule.get("plugin"), valuesRule.get("key")), RulePriority
-          .valueOf(valuesRule.get("level")));
+        ActiveRule activeRule = new ActiveRule(null, new Rule(valuesRule.get(PLUGIN), valuesRule.get(KEY)), RulePriority
+          .valueOf(valuesRule.get(LEVEL)));
         activeRule.setActiveRuleParams(params);
-        if (valuesRule.containsKey("inheritance")) {
-          activeRule.setInheritance(valuesRule.get("inheritance"));
+        if (valuesRule.containsKey(INHERITANCE)) {
+          activeRule.setInheritance(valuesRule.get(INHERITANCE));
         }
         return activeRule;
       }

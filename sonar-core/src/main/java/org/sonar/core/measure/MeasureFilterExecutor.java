@@ -82,8 +82,8 @@ public class MeasureFilterExecutor implements ServerComponent {
   }
 
   static boolean isValid(MeasureFilter filter, MeasureFilterContext context) {
-    boolean valid = (Strings.isNullOrEmpty(filter.getBaseResourceKey()) || context.getBaseSnapshot()!=null);
-    valid &= (filter.getBaseResourceId()==null || context.getBaseSnapshot()!=null);
+    boolean valid = Strings.isNullOrEmpty(filter.getBaseResourceKey()) || context.getBaseSnapshot()!=null;
+    valid &= filter.getBaseResourceId()==null || context.getBaseSnapshot()!=null;
     valid &= !(filter.isOnBaseResourceChildren() && context.getBaseSnapshot() == null);
     valid &= !(filter.isOnFavourites() && context.getUserId() == null);
     valid &= validateMeasureConditions(filter);

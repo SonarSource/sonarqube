@@ -166,12 +166,12 @@ class ApplicationController < ActionController::Base
 
   def render_bad_request(error)
     message = error.respond_to?('message') ? error.message : error.to_s
-    render :text => message, :status => 400
+    render :text => CGI.escapeHTML(message), :status => 400
   end
 
   def render_server_exception(exception)
     message = (exception.getMessage ? exception.getMessage : Api::Utils.message(exception.l10nKey, :params => exception.l10nParams.to_a))
-    render :text => message, :status => exception.httpCode
+    render :text => CGI.escapeHTML(message), :status => exception.httpCode
   end
 
   def render_native_access_denied(exception)
@@ -203,7 +203,7 @@ class ApplicationController < ActionController::Base
 
     if request.xhr?
       message = error.respond_to?('message') ? error.message : error.to_s
-      render :text => message, :status => 500
+      render :text => CGI.escapeHTML(message), :status => 500
     else
       render :file => "#{Rails.public_path}/500.html", :status => 500
     end

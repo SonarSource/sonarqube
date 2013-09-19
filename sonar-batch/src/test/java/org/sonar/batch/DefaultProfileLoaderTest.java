@@ -26,7 +26,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.dao.ProfilesDao;
@@ -41,11 +44,23 @@ public class DefaultProfileLoaderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private ProfilesDao dao;
+  private Languages languages;
   private Project javaProject = newProject(Java.KEY);
 
   @Before
   public void setUp() {
     dao = mock(ProfilesDao.class);
+    Language java = new AbstractLanguage("java", "Java") {
+      public String[] getFileSuffixes() {
+        return null;
+      };
+    };
+    Language cobol = new AbstractLanguage("js", "JavaScript") {
+      public String[] getFileSuffixes() {
+        return null;
+      };
+    };
+    languages = new Languages(java, cobol);
   }
 
   @Test
@@ -77,7 +92,7 @@ public class DefaultProfileLoaderTest {
     Project cobolProject = newProject("cobol");
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("You must install a plugin that supports the language 'cobol'");
+    thrown.expectMessage("You must install a plugin that supports the language key 'cobol'");
     new DefaultProfileLoader(dao).load(cobolProject, new Settings());
   }
 

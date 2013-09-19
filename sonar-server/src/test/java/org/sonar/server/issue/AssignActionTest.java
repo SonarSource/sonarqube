@@ -21,10 +21,13 @@
 package org.sonar.server.issue;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.user.DefaultUser;
@@ -47,17 +50,20 @@ public class AssignActionTest {
   private final UserFinder userFinder = mock(UserFinder.class);
   private IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
+  @Rule
+  public ExpectedException throwable = ExpectedException.none();
+
   @Before
-  public void before(){
+  public void before() {
     action = new AssignAction(userFinder, issueUpdater);
   }
 
   @Test
-  public void should_execute(){
-    String assignee = "arthur";
+  public void should_execute() {
+    User assignee = new DefaultUser();
 
     Map<String, Object> properties = newHashMap();
-    properties.put("assignee", assignee);
+    properties.put(AssignAction.VERIFIED_ASSIGNEE, assignee);
     DefaultIssue issue = mock(DefaultIssue.class);
 
     Action.Context context = mock(Action.Context.class);
@@ -68,48 +74,60 @@ public class AssignActionTest {
   }
 
   @Test
-  public void should_verify_assignee_exists(){
+  public void should_fail_if_assignee_is_not_verified() throws Exception {
+    throwable.expect(IllegalArgumentException.class);
+    throwable.expectMessage("Assignee is missing from the execution parameters");
+
+    Map<String, Object> properties = newHashMap();
+
+    Action.Context context = mock(Action.Context.class);
+
+    action.execute(properties, context);
+  }
+
+  @Test
+  public void should_verify_assignee_exists() {
     String assignee = "arthur";
     Map<String, Object> properties = newHashMap();
     properties.put("assignee", assignee);
 
+    User user = new DefaultUser().setLogin(assignee);
+
     List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC"));
-    when(userFinder.findByLogin(assignee)).thenReturn(new DefaultUser());
+    when(userFinder.findByLogin(assignee)).thenReturn(user);
     assertThat(action.verify(properties, issues, mock(UserSession.class))).isTrue();
+    assertThat(properties.get(AssignAction.VERIFIED_ASSIGNEE)).isEqualTo(user);
   }
 
   @Test
-  public void should_fail_if_assignee_does_not_exists(){
+  public void should_fail_if_assignee_does_not_exists() {
+    throwable.expect(IllegalArgumentException.class);
+    throwable.expectMessage("Unknown user: arthur");
+
     String assignee = "arthur";
     Map<String, Object> properties = newHashMap();
     properties.put("assignee", assignee);
 
     List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC"));
     when(userFinder.findByLogin(assignee)).thenReturn(null);
-    try {
-      action.verify(properties, issues, mock(UserSession.class));
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown user: arthur");
-    }
+    action.verify(properties, issues, mock(UserSession.class));
   }
 
   @Test
-  public void should_fail_if_assignee_is_empty(){
+  public void should_unassign_if_assignee_is_empty() {
     String assignee = "";
     Map<String, Object> properties = newHashMap();
     properties.put("assignee", assignee);
 
     List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC"));
-    when(userFinder.findByLogin(assignee)).thenReturn(null);
-    try {
-      action.verify(properties, issues, mock(UserSession.class));
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown user: ");
-    }
+    action.verify(properties, issues, mock(UserSession.class));
+    assertThat(action.verify(properties, issues, mock(UserSession.class))).isTrue();
+    assertThat(properties.containsKey(AssignAction.VERIFIED_ASSIGNEE)).isTrue();
+    assertThat(properties.get(AssignAction.VERIFIED_ASSIGNEE)).isNull();
   }
 
   @Test
-  public void should_support_only_unresolved_issues(){
+  public void should_support_only_unresolved_issues() {
     assertThat(action.supports(new DefaultIssue().setResolution(null))).isTrue();
     assertThat(action.supports(new DefaultIssue().setResolution(Issue.RESOLUTION_FIXED))).isFalse();
   }

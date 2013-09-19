@@ -68,7 +68,7 @@ public class ExtensionUtils {
   }
 
   public static boolean isType(Object extension, Class<?> extensionClass) {
-    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
+    Class clazz = extension instanceof Class ? (Class) extension : extension.getClass();
     return extensionClass.isAssignableFrom(clazz);
   }
 }

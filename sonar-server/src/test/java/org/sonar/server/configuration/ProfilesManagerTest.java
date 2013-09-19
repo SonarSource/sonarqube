@@ -22,10 +22,11 @@ package org.sonar.server.configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
-
+import static org.mockito.Mockito.mock;
 
 public class ProfilesManagerTest extends AbstractDbUnitTestCase {
 
@@ -33,21 +34,22 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
 
   @Before
   public void before() {
-    manager = new ProfilesManager(getSession(), null);
+    manager = new ProfilesManager(getSession(), null, mock(DryRunCache.class));
   }
 
   @Test
-  public void test_delete_all_profiles() {
+  public void should_delete_all_profiles() {
     RulesProfile test1 = RulesProfile.create("test1", "java");
     test1.setDefaultProfile(true);
     RulesProfile test2 = RulesProfile.create("test2", "java");
 
     getSession().save(test1, test2);
 
-    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(new Long(2));
+    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(2);
 
     manager.deleteAllProfiles();
 
-    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(new Long(0));
+    assertThat(getHQLCount(RulesProfile.class)).isEqualTo(0);
   }
+
 }

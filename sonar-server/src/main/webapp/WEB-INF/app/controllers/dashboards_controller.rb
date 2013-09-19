@@ -53,19 +53,20 @@ class DashboardsController < ApplicationController
 
   def create
     verify_post_request
+    @global = !params[:resource]
     @dashboard = Dashboard.new()
     @dashboard.user_id = current_user.id
     load_dashboard_from_params(@dashboard)
 
     active_dashboard = current_user.active_dashboards.to_a.find { |ad| ad.name==@dashboard.name }
     if active_dashboard
-      @dashboard.errors.add(Api::Utils.message('dashboard.error_create_existing_name'))
+      @dashboard.errors.add_to_base(Api::Utils.message('dashboard.error_create_existing_name'))
       render :partial => 'dashboards/create_form', :status => 400, :resource => params[:resource]
     elsif @dashboard.save
       add_default_dashboards_if_first_user_dashboard(@dashboard.global?)
       last_index=current_user.active_dashboards.max_by(&:order_index).order_index
       current_user.active_dashboards.create(:dashboard => @dashboard, :user => current_user, :order_index => (last_index+1))
-      render :text => params[:resource], :highlight => @dashboard.id, :status => 200
+      render :text => CGI.escapeHTML(params[:resource]), :highlight => @dashboard.id, :status => 200
     else
       render :partial => 'dashboards/create_form', :status => 400, :resource => params[:resource]
     end
@@ -87,7 +88,7 @@ class DashboardsController < ApplicationController
     if @dashboard.editable_by?(current_user)
       load_dashboard_from_params(@dashboard)
       if @dashboard.save
-        render :text => params[:resource], :status => 200
+        render :text => CGI.escapeHTML(params[:resource]), :status => 200
       else
         @dashboard.user = dashboard_owner
         render :partial => 'dashboards/edit_form', :status => 400, :resource => params[:resource]
@@ -114,7 +115,7 @@ class DashboardsController < ApplicationController
 
     if @dashboard.destroy
       flash[:warning]=Api::Utils.message('dashboard.default_restored') if ActiveDashboard.count(:conditions => {:user_id => current_user.id})==0
-      render :text => params[:resource], :status => 200
+      render :text => CGI.escapeHTML(params[:resource]), :status => 200
     else
       @dashboard.errors.add(message('dashboard.error_delete_default'), ' ')
       render :partial => 'dashboards/delete_form', :status => 400, :resource => params[:resource]

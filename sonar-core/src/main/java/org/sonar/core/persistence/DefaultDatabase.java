@@ -30,11 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.core.persistence.dialect.Dialect;
-import org.sonar.core.persistence.dialect.DialectUtils;
-import org.sonar.core.persistence.dialect.H2;
-import org.sonar.core.persistence.dialect.Oracle;
-import org.sonar.core.persistence.dialect.PostgreSql;
+import org.sonar.core.persistence.dialect.*;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
@@ -53,6 +49,13 @@ public class DefaultDatabase implements Database {
   private static final Logger LOG = LoggerFactory.getLogger(Database.class);
 
   private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar";
+  private static final String SONAR_JDBC = "sonar.jdbc.";
+  private static final String SONAR_HIBERNATE = "sonar.hibernate.";
+  private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
+  private static final String SONAR_JDBC_URL = "sonar.jdbc.url";
+  private static final String SONAR_JDBC_DRIVER_CLASS_NAME = "sonar.jdbc.driverClassName";
+  private static final String SONAR_JDBC_SCHEMA = "sonar.jdbc.schema";
+  private static final String VALIDATE = "validate";
 
   private Settings settings;
   private BasicDataSource datasource;
@@ -92,22 +95,22 @@ public class DefaultDatabase implements Database {
 
   private void initProperties() {
     properties = new Properties();
-    completeProperties(settings, properties, "sonar.jdbc.");
-    completeProperties(settings, properties, "sonar.hibernate.");
+    completeProperties(settings, properties, SONAR_JDBC);
+    completeProperties(settings, properties, SONAR_HIBERNATE);
     completeDefaultProperties(properties);
     doCompleteProperties(properties);
   }
 
   private void initDialect() {
-    dialect = DialectUtils.find(properties.getProperty("sonar.jdbc.dialect"), properties.getProperty("sonar.jdbc.url"));
+    dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), properties.getProperty(SONAR_JDBC_URL));
     if (dialect == null) {
-      throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property sonar.jdbc.url.");
+      throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property "+ SONAR_JDBC_URL + ".");
     }
     if (H2.ID.equals(dialect.getId()) && !settings.getBoolean(CoreProperties.DRY_RUN)) {
       LoggerFactory.getLogger(DefaultDatabase.class).warn("H2 database should be used for evaluation purpose only");
     }
-    if (!properties.containsKey("sonar.jdbc.driverClassName")) {
-      properties.setProperty("sonar.jdbc.driverClassName", dialect.getDefaultDriverClassName());
+    if (!properties.containsKey(SONAR_JDBC_DRIVER_CLASS_NAME)) {
+      properties.setProperty(SONAR_JDBC_DRIVER_CLASS_NAME, dialect.getDefaultDriverClassName());
     }
   }
 
@@ -122,7 +125,7 @@ public class DefaultDatabase implements Database {
       deprecatedSchema = getSchemaPropertyValue(properties, "sonar.hibernate.default_schema");
     }
     if (StringUtils.isNotBlank(deprecatedSchema)) {
-      properties.setProperty("sonar.jdbc.schema", deprecatedSchema);
+      properties.setProperty(SONAR_JDBC_SCHEMA, deprecatedSchema);
     }
   }
 
@@ -162,19 +165,19 @@ public class DefaultDatabase implements Database {
   }
 
   public final String getSchema() {
-    return properties.getProperty("sonar.jdbc.schema");
+    return properties.getProperty(SONAR_JDBC_SCHEMA);
   }
 
   public Properties getHibernateProperties() {
     Properties props = new Properties();
 
-    List<String> hibernateKeys = settings.getKeysStartingWith("sonar.hibernate.");
+    List<String> hibernateKeys = settings.getKeysStartingWith(SONAR_HIBERNATE);
     for (String hibernateKey : hibernateKeys) {
       props.put(StringUtils.removeStart(hibernateKey, "sonar."), settings.getString(hibernateKey));
     }
     props.put(Environment.DIALECT, getDialect().getHibernateDialectClass().getName());
     props.put("hibernate.generate_statistics", settings.getBoolean(DatabaseProperties.PROP_HIBERNATE_GENERATE_STATISTICS));
-    props.put("hibernate.hbm2ddl.auto", "validate");
+    props.put("hibernate.hbm2ddl.auto", VALIDATE);
     props.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
 
     String schema = getSchema();
@@ -209,8 +212,8 @@ public class DefaultDatabase implements Database {
     Properties result = new Properties();
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
       String key = (String) entry.getKey();
-      if (StringUtils.startsWith(key, "sonar.jdbc.")) {
-        result.setProperty(StringUtils.removeStart(key, "sonar.jdbc."), (String) entry.getValue());
+      if (StringUtils.startsWith(key, SONAR_JDBC)) {
+        result.setProperty(StringUtils.removeStart(key, SONAR_JDBC), (String) entry.getValue());
       }
     }
 
@@ -221,7 +224,7 @@ public class DefaultDatabase implements Database {
   }
 
   private static String getSchemaPropertyValue(Properties props, String deprecatedKey) {
-    String value = props.getProperty("sonar.jdbc.schema");
+    String value = props.getProperty(SONAR_JDBC_SCHEMA);
     if (StringUtils.isBlank(value) && deprecatedKey != null) {
       value = props.getProperty(deprecatedKey);
     }
@@ -233,7 +236,7 @@ public class DefaultDatabase implements Database {
     completeDefaultProperty(props, DatabaseProperties.PROP_URL, DEFAULT_URL);
     completeDefaultProperty(props, DatabaseProperties.PROP_USER, props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED, DatabaseProperties.PROP_USER_DEFAULT_VALUE));
     completeDefaultProperty(props, DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);
-    completeDefaultProperty(props, DatabaseProperties.PROP_HIBERNATE_HBM2DLL, "validate");
+    completeDefaultProperty(props, DatabaseProperties.PROP_HIBERNATE_HBM2DLL, VALIDATE);
   }
 
   private static void completeDefaultProperty(Properties props, String key, String defaultValue) {
@@ -244,6 +247,6 @@ public class DefaultDatabase implements Database {
 
   @Override
   public String toString() {
-    return "Database[" + properties.getProperty("sonar.jdbc.url") + "]";
+    return "Database[" + properties.getProperty(SONAR_JDBC_URL) + "]";
   }
 }

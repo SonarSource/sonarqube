@@ -27,7 +27,7 @@
       </td>
       <td>
         <select name="metric" onchange="changeMetric();" id="metricSelect">
-          <%= options_grouped_by_domain(Metric.all.select { |m| m.user_managed? }, (@metric ? @metric.key : nil), :include_empty => true) -%>
+          <%= options_grouped_by_domain(Metric.all.select { |m| m.user_managed? }, (@metric && @metric.key), :include_empty => true) -%>
         </select>
         <%= link_to message('manual_measures.manage_metrics_link'), :controller => 'metrics', :action => 'index' if has_role?(:admin)-%>
 

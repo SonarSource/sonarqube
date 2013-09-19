@@ -27,12 +27,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * Synchronously execute a native command line. It's much more limited than the Apache Commons Exec library.
@@ -79,6 +74,7 @@ public class CommandExecutor {
       final Process finalProcess = process;
       executorService = Executors.newSingleThreadExecutor();
       Future<Integer> ft = executorService.submit(new Callable<Integer>() {
+        @Override
         public Integer call() throws Exception {
           return finalProcess.waitFor();
         }

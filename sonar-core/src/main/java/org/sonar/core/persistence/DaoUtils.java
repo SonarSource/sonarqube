@@ -19,6 +19,8 @@
  */
 package org.sonar.core.persistence;
 
+import org.sonar.core.notification.db.NotificationQueueDao;
+
 import com.google.common.collect.ImmutableList;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
@@ -65,6 +67,7 @@ public final class DaoUtils {
       IssueFilterFavouriteDao.class,
       LoadedTemplateDao.class,
       MeasureFilterDao.class,
+      NotificationQueueDao.class,
       PermissionDao.class,
       PropertiesDao.class,
       PurgeDao.class,

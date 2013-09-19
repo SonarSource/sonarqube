@@ -4,10 +4,10 @@
   <form method="GET" action="<%= ApplicationController.root_context -%>/issues/search" >
 
     <% if @filter && @filter.id %>
-      <input type="hidden" name="id" value="<%= @filter.id.to_s -%>">
+      <input type="hidden" name="id" value="<%= h @filter.id.to_s -%>">
     <% end %>
-    <input type="hidden" name="sort" value="<%= @issues_query.sort -%>"/>
-    <input type="hidden" name="asc" value="<%= @issues_query.asc -%>"/>
+    <input type="hidden" name="sort" value="<%= h @issues_query.sort -%>"/>
+    <input type="hidden" name="asc" value="<%= h @issues_query.asc -%>"/>
 
     <li class="sidebar-title">
       <%= message('issue_filter.new_search') -%>

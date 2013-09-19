@@ -1,5 +1,5 @@
 <%
-   project_id = @project ? @project.id : nil
+   project_id = (@project && @project.id)
    granted_users=users(@role, project_id)
    ungranted_users=(all_users - granted_users)
 %>

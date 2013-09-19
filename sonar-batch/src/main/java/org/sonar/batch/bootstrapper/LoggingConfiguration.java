@@ -58,8 +58,7 @@ public final class LoggingConfiguration {
     setShowSql(false);
     if (environment != null && "maven".equalsIgnoreCase(environment.getKey())) {
       setFormat(FORMAT_MAVEN);
-    }
-    else {
+    } else {
       setFormat(FORMAT_DEFAULT);
     }
   }

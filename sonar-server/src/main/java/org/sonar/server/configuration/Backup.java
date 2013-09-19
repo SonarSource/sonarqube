@@ -30,10 +30,12 @@ import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.server.platform.PersistentSettings;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -53,7 +55,7 @@ public class Backup {
     backupables = new ArrayList<Backupable>();
   }
 
-  public Backup(DatabaseSession session, PersistentSettings persistentSettings) {
+  public Backup(DatabaseSession session, PersistentSettings persistentSettings, DryRunCache dryRunCache) {
     this();
     this.session = session;
 
@@ -61,7 +63,7 @@ public class Backup {
     backupables.add(new PropertiesBackup(persistentSettings));
     // Note that order is important, because profile can have reference to rule
     backupables.add(new RulesBackup(session));
-    backupables.add(new ProfilesBackup(session));
+    backupables.add(new ProfilesBackup(session, dryRunCache));
   }
 
   /**
@@ -137,7 +139,7 @@ public class Backup {
 
       return (SonarConfig) xStream.fromXML(inputStream);
     } catch (IOException e) {
-      throw new RuntimeException("Can't read xml", e);
+      throw new IllegalStateException("Can't read xml", e);
     }
   }
 
@@ -163,10 +165,10 @@ public class Backup {
               if (text != null) {
                 writer.write("<![CDATA[");
                 /*
-                * See http://jira.codehaus.org/browse/SONAR-1605 According to XML specification (
-                * http://www.w3.org/TR/REC-xml/#sec-cdata-sect ) CData section may contain everything except of sequence ']]>' so we will
-                * split all occurrences of this sequence into two CDATA first one would contain ']]' and second '>'
-                */
+                 * See http://jira.codehaus.org/browse/SONAR-1605 According to XML specification (
+                 * http://www.w3.org/TR/REC-xml/#sec-cdata-sect ) CData section may contain everything except of sequence ']]>' so we will
+                 * split all occurrences of this sequence into two CDATA first one would contain ']]' and second '>'
+                 */
                 text = StringUtils.replace(text, "]]>", "]]]]><![CDATA[>");
                 writer.write(text);
                 writer.write("]]>");
@@ -178,7 +180,7 @@ public class Backup {
 
     xStream.processAnnotations(SonarConfig.class);
     xStream.addDefaultImplementation(ArrayList.class, Collection.class);
-    xStream.registerConverter(new DateConverter(DATE_FORMAT, new String[]{}));
+    xStream.registerConverter(new DateConverter(DATE_FORMAT, new String[] {}));
 
     for (Backupable backupable : backupables) {
       backupable.configure(xStream);

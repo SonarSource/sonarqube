@@ -57,7 +57,7 @@ public class ExclusionFilters implements FileSystemFilter, ResourceFilter, Batch
   }
 
   public boolean accept(File file, Context context) {
-    PathPattern[] inclusionPatterns = (context.type() == FileType.TEST ? testInclusions() : sourceInclusions());
+    PathPattern[] inclusionPatterns = context.type() == FileType.TEST ? testInclusions() : sourceInclusions();
     if (inclusionPatterns.length > 0) {
       boolean matchInclusion = false;
       for (PathPattern pattern : inclusionPatterns) {
@@ -67,7 +67,7 @@ public class ExclusionFilters implements FileSystemFilter, ResourceFilter, Batch
         return false;
       }
     }
-    PathPattern[] exclusionPatterns = (context.type() == FileType.TEST ? testExclusions() : sourceExclusions());
+    PathPattern[] exclusionPatterns = context.type() == FileType.TEST ? testExclusions() : sourceExclusions();
     for (PathPattern pattern : exclusionPatterns) {
       if (pattern.match(context)) {
         return false;
@@ -78,11 +78,11 @@ public class ExclusionFilters implements FileSystemFilter, ResourceFilter, Batch
 
   public boolean isIgnored(Resource resource) {
     if (ResourceUtils.isFile(resource)) {
-      PathPattern[] inclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testInclusions() : sourceInclusions());
+      PathPattern[] inclusionPatterns = ResourceUtils.isUnitTestClass(resource) ? testInclusions() : sourceInclusions();
       if (isIgnoredByInclusions(resource, inclusionPatterns)) {
         return true;
       }
-      PathPattern[] exclusionPatterns = (ResourceUtils.isUnitTestClass(resource) ? testExclusions() : sourceExclusions());
+      PathPattern[] exclusionPatterns = ResourceUtils.isUnitTestClass(resource) ? testExclusions() : sourceExclusions();
       return isIgnoredByExclusions(resource, exclusionPatterns);
     }
     return false;

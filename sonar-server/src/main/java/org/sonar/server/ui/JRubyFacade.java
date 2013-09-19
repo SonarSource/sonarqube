@@ -40,22 +40,33 @@ import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.web.*;
+import org.sonar.api.web.Footer;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
+import org.sonar.api.web.RubyRailsWebservice;
+import org.sonar.api.web.Widget;
 import org.sonar.core.component.SnapshotPerspectives;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterResult;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.DatabaseMigrator;
-import org.sonar.core.persistence.DryRunDatabaseFactory;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
-import org.sonar.server.platform.*;
-import org.sonar.server.plugins.*;
+import org.sonar.server.db.DatabaseMigrator;
+import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.ServerIdGenerator;
+import org.sonar.server.platform.ServerSettings;
+import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.plugins.DefaultServerPluginRepository;
+import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.PluginDeployer;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.user.NewUserNotifier;
@@ -64,9 +75,14 @@ import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
+
 import java.net.InetAddress;
 import java.sql.Connection;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -481,7 +497,7 @@ public final class JRubyFacade {
   }
 
   public byte[] createDatabaseForDryRun(@Nullable Long projectId) {
-    return get(DryRunDatabaseFactory.class).createDatabaseForDryRun(projectId);
+    return get(DryRunCache.class).getDatabaseForDryRun(projectId);
   }
 
   public String getPeriodLabel(int periodIndex) {

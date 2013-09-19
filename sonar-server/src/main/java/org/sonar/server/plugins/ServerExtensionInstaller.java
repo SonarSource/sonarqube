@@ -92,7 +92,7 @@ public class ServerExtensionInstaller {
   }
 
   static boolean isType(Object extension, Class<? extends Extension> extensionClass) {
-    Class clazz = (extension instanceof Class ? (Class) extension : extension.getClass());
+    Class clazz = extension instanceof Class ? (Class) extension : extension.getClass();
     return extensionClass.isAssignableFrom(clazz);
   }
 }

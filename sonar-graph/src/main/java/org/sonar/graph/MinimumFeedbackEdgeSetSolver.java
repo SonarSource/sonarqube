@@ -73,8 +73,7 @@ public class MinimumFeedbackEdgeSetSolver {
     Set<FeedbackEdge> pendingFeedbackEdges = new HashSet<FeedbackEdge>();
     if (cyclesNumber < maxNumberCyclesForSearchingMinimumFeedback) {
       searchFeedbackEdges(0, 0, pendingFeedbackEdges);
-    }
-    else {
+    } else {
       lightResearchForFeedbackEdges();
     }
   }
@@ -112,15 +111,13 @@ public class MinimumFeedbackEdgeSetSolver {
 
     if (doesFeedbackEdgesContainAnEdgeOfTheCycle(pendingFeedbackEdges, feedbackCycle)) {
       searchFeedbackEdges(level + 1, pendingWeight, pendingFeedbackEdges);
-    }
-    else {
+    } else {
       boolean hasAnEdgeWithOccurrenceOfOneBeenUsed = false;
       for (FeedbackEdge feedbackEdge : feedbackCycle) {
         if (feedbackEdge.getOccurences() == 1) {
           if (hasAnEdgeWithOccurrenceOfOneBeenUsed) {
             continue;
-          }
-          else {
+          } else {
             hasAnEdgeWithOccurrenceOfOneBeenUsed = true;
           }
         }

@@ -3,6 +3,22 @@
 
 <mapper namespace="org.sonar.core.resource.ResourceMapper">
 
+  <sql id="resourceColumns">
+    p.id,
+    p.kee as key,
+    p.name as name,
+    p.long_name as longName,
+    p.root_id as rootId,
+    p.scope as scope,
+    p.qualifier as qualifier,
+    p.enabled as enabled,
+    p.description as description,
+    p.language as language,
+    p.copy_resource_id as copyResourceId,
+    p.person_id as personId,
+    p.created_at as createdAt
+  </sql>
+
   <resultMap id="snapshotResultMap" type="Snapshot">
     <id property="id" column="id"/>
     <result property="parentId" column="parent_snapshot_id"/>
@@ -120,7 +136,7 @@
     </where>
   </select>
 
-  <select id="selectComponentsByQualifiers" parameterType="map" resultMap="resourceResultMap">
+  <select id="selectProjectsIncludingNotCompletedOnesByQualifiers" parameterType="map" resultMap="resourceResultMap">
     select * from projects p
     <where>
       <if test="qualifiers != null and qualifiers.size() > 0">
@@ -132,6 +148,37 @@
     </where>
   </select>
 
+  <select id="selectProjectsByQualifiers" parameterType="map" resultMap="resourceResultMap">
+    <include refid="selectProjectsByQualifiersQuery" />
+  </select>
+
+  <sql id="selectProjectsByQualifiersQuery">
+    select p.* from projects p
+    inner join snapshots s on s.project_id=p.id
+    <where>
+      <if test="qualifiers != null and qualifiers.size() > 0">
+        and <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">p.qualifier=#{qualifier}
+      </foreach>
+      </if>
+      and p.enabled=${_true}
+      and p.copy_resource_id is null
+      and s.islast=${_true}
+    </where>
+  </sql>
+
+  <select id="selectGhostsProjects" parameterType="map" resultMap="resourceResultMap">
+    select p.* from projects p
+    left join (<include refid="selectProjectsByQualifiersQuery" />) availableProjects on availableProjects.id=p.id
+    <where>
+      and availableProjects.id is null
+      <if test="qualifiers != null and qualifiers.size() > 0">
+        and <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">p.qualifier=#{qualifier}
+        </foreach>
+      </if>
+      and p.copy_resource_id is null
+    </where>
+  </select>
+
   <select id="selectAuthorizedChildrenComponentIds" parameterType="map" resultType="int">
     <include refid="selectAuthorizedChildrenComponentIdsQuery" />
   </select>
@@ -139,21 +186,21 @@
   <sql id="selectAuthorizedChildrenComponentIdsQuery">
     select s.project_id
     from snapshots s, (
-    select project_components.id as id,
-      snapshot_components.id as sid,
-      root_snapshot_components.project_id as root_project_id,
-      root_snapshot_components.id as root_snapshot_id,
-      snapshot_components.path as path
-    from projects project_components
-    inner join snapshots snapshot_components on snapshot_components.project_id = project_components.id and snapshot_components.islast = ${_true}
-    inner join snapshots root_snapshot_components on root_snapshot_components.project_id = snapshot_components.root_project_id and root_snapshot_components.islast = ${_true}
-    inner join (
-      <include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />
-    ) authorized_projects on authorized_projects.root_project_id = root_snapshot_components.project_id
-    <where>
-      and <foreach item="componentRootKey" index="index" collection="componentRootKeys" open="(" separator=" or " close=")"> project_components.kee=#{componentRootKey}</foreach>
-      and project_components.enabled = ${_true}
-    </where>
+      select project_components.id as id,
+        snapshot_components.id as sid,
+        root_snapshot_components.project_id as root_project_id,
+        root_snapshot_components.id as root_snapshot_id,
+        snapshot_components.path as path
+      from projects project_components
+      inner join snapshots snapshot_components on snapshot_components.project_id = project_components.id and snapshot_components.islast = ${_true}
+      inner join snapshots root_snapshot_components on root_snapshot_components.project_id = snapshot_components.root_project_id and root_snapshot_components.islast = ${_true}
+      inner join (
+        <include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectsIdsQuery" />
+      ) authorized_projects on authorized_projects.root_project_id = root_snapshot_components.project_id
+      <where>
+        and <foreach item="componentRootKey" index="index" collection="componentRootKeys" open="(" separator=" or " close=")"> project_components.kee=#{componentRootKey}</foreach>
+        and project_components.enabled = ${_true}
+      </where>
     ) authorized_input_components
     <where>
       and s.root_project_id = authorized_input_components.root_project_id

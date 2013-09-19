@@ -186,7 +186,7 @@ public class IssueTrackingDecorator implements Decorator {
     Rule rule = ruleFinder.findByKey(issue.ruleKey());
     if (manualIssue) {
       // Manual rules are not declared in Quality profiles, so no need to check ActiveRule
-      boolean isRemovedRule = (rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus()));
+      boolean isRemovedRule = rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus());
       issue.setEndOfLife(forceEndOfLife || isRemovedRule);
       issue.setOnDisabledRule(isRemovedRule);
     } else {

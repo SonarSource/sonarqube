@@ -19,6 +19,7 @@
  */
 package org.sonar.core.measure;
 
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 
 class MeasureFilterSort {
@@ -83,6 +84,10 @@ class MeasureFilterSort {
     return Field.DATE.equals(field) || Field.PROJECT_CREATION_DATE.equals(field);
   }
 
+  boolean isOnAlert() {
+    return metric != null && metric.getKey().equals(CoreMetrics.ALERT_STATUS_KEY);
+  }
+
   boolean isAsc() {
     return asc;
   }
@@ -116,15 +121,19 @@ class MeasureFilterSort {
         column = "p.created_at";
         break;
       case METRIC:
-        if (metric.isNumericType()) {
-          column = (period != null ? "pmsort.variation_value_" + period : "pmsort.value");
-        } else {
-          column = "pmsort.text_value";
-        }
+        column = getMetricColumn();
         break;
       default:
         throw new IllegalArgumentException("Unsupported sorting: " + field);
     }
     return column;
+  }
+
+  private String getMetricColumn(){
+    if (metric.isNumericType()) {
+      return period != null ? "pmsort.variation_value_" + period : "pmsort.value";
+    } else {
+      return "pmsort.text_value";
+    }
   }
 }

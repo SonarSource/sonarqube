@@ -35,6 +35,7 @@ import javax.annotation.Nullable;
 
 public class ScanGraph extends BeanGraph implements BatchComponent {
 
+  private static final String COMPONENT = "component";
   private final Vertex componentsRoot;
 
   private ScanGraph(Graph graph) {
@@ -55,7 +56,7 @@ public class ScanGraph extends BeanGraph implements BatchComponent {
 
   public ComponentVertex getComponent(String key) {
     Vertex vertex = GraphUtil.single(getUnderlyingGraph().getVertices("key", key));
-    return (vertex != null ? wrapComponent(vertex) : null);
+    return vertex != null ? wrapComponent(vertex) : null;
   }
 
   public ComponentVertex addComponent(Resource resource, @Nullable Snapshot snapshot) {
@@ -63,13 +64,13 @@ public class ScanGraph extends BeanGraph implements BatchComponent {
   }
 
   public Iterable<ComponentVertex> getComponents() {
-    Iterable<Vertex> componentVertices = componentsRoot.getVertices(Direction.OUT, "component");
+    Iterable<Vertex> componentVertices = componentsRoot.getVertices(Direction.OUT, COMPONENT);
     return new BeanIterable<ComponentVertex>(this, ComponentVertex.class, componentVertices);
   }
 
   public ComponentVertex addComponent(Component component) {
     Vertex vertex = getUnderlyingGraph().addVertex(null);
-    getUnderlyingGraph().addEdge(null, componentsRoot, vertex, "component");
+    getUnderlyingGraph().addEdge(null, componentsRoot, vertex, COMPONENT);
     ComponentVertex wrapper = wrap(vertex, ComponentVertex.class);
     wrapper.copyFrom(component);
     return wrapper;

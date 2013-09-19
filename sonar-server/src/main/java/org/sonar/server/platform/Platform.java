@@ -37,6 +37,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.UriReader;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.config.Logback;
+import org.sonar.core.dryrun.DryRunCache;
 import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.I18nManager;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -51,7 +52,13 @@ import org.sonar.core.measure.MeasureFilterFactory;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.permission.ComponentPermissionFacade;
-import org.sonar.core.persistence.*;
+import org.sonar.core.persistence.DaoUtils;
+import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.persistence.DefaultDatabase;
+import org.sonar.core.persistence.DryRunDatabaseFactory;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SemaphoreUpdater;
+import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.resource.DefaultResourcePermissions;
@@ -76,20 +83,63 @@ import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
 import org.sonar.server.db.DatabaseMigrator;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
-import org.sonar.server.issue.*;
+import org.sonar.server.issue.ActionPlanService;
+import org.sonar.server.issue.ActionService;
+import org.sonar.server.issue.AssignAction;
+import org.sonar.server.issue.CommentAction;
+import org.sonar.server.issue.DefaultIssueFinder;
+import org.sonar.server.issue.InternalRubyIssueService;
+import org.sonar.server.issue.IssueBulkChangeService;
+import org.sonar.server.issue.IssueChangelogService;
+import org.sonar.server.issue.IssueCommentService;
+import org.sonar.server.issue.IssueFilterService;
+import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.IssueStatsFinder;
+import org.sonar.server.issue.PlanAction;
+import org.sonar.server.issue.PublicRubyIssueService;
+import org.sonar.server.issue.ServerIssueStorage;
+import org.sonar.server.issue.SetSeverityAction;
+import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
-import org.sonar.server.plugins.*;
+import org.sonar.server.plugins.ApplicationDeployer;
+import org.sonar.server.plugins.DefaultServerPluginRepository;
+import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.PluginDeployer;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.ServerExtensionInstaller;
+import org.sonar.server.plugins.UpdateCenterClient;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.qualitymodel.DefaultModelManager;
 import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
-import org.sonar.server.startup.*;
+import org.sonar.server.startup.CleanDryRunCache;
+import org.sonar.server.startup.DeleteDeprecatedMeasures;
+import org.sonar.server.startup.GenerateBootstrapIndex;
+import org.sonar.server.startup.GeneratePluginIndex;
+import org.sonar.server.startup.GwtPublisher;
+import org.sonar.server.startup.JdbcDriverDeployer;
+import org.sonar.server.startup.LogServerId;
+import org.sonar.server.startup.RegisterMetrics;
+import org.sonar.server.startup.RegisterNewDashboards;
+import org.sonar.server.startup.RegisterNewMeasureFilters;
+import org.sonar.server.startup.RegisterNewProfiles;
+import org.sonar.server.startup.RegisterPermissionTemplates;
+import org.sonar.server.startup.RegisterQualityModels;
+import org.sonar.server.startup.RegisterRules;
+import org.sonar.server.startup.RegisterServletFilters;
+import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
+import org.sonar.server.startup.ServerMetadataPersister;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
-import org.sonar.server.ui.*;
+import org.sonar.server.ui.CodeColorizers;
+import org.sonar.server.ui.JRubyI18n;
+import org.sonar.server.ui.PageDecorations;
+import org.sonar.server.ui.SecurityRealmFactory;
+import org.sonar.server.ui.Views;
 import org.sonar.server.user.DefaultUserService;
 import org.sonar.server.user.NewUserNotifier;
 
@@ -101,9 +151,12 @@ import javax.servlet.ServletContext;
 public final class Platform {
 
   private static final Platform INSTANCE = new Platform();
-  private ComponentContainer rootContainer;// level 1 : only database connectors
-  private ComponentContainer coreContainer;// level 2 : level 1 + core components
-  private ComponentContainer servicesContainer;// level 3 : level 2 + plugin extensions + core components that depend on plugin extensions
+  // level 1 : only database connectors
+  private ComponentContainer rootContainer;
+  // level 2 : level 1 + core components
+  private ComponentContainer coreContainer;
+  // level 3 : level 2 + plugin extensions + core components that depend on plugin extensions
+  private ComponentContainer servicesContainer;
   private boolean connected = false;
   private boolean started = false;
 
@@ -221,7 +274,8 @@ public final class Platform {
     servicesContainer.addSingleton(UpdateCenterMatrixFactory.class);
     servicesContainer.addSingleton(PluginDownloader.class);
     servicesContainer.addSingleton(ServerIdGenerator.class);
-    servicesContainer.addSingleton(DefaultModelFinder.class); // depends on plugins
+    // depends on plugins
+    servicesContainer.addSingleton(DefaultModelFinder.class);
     servicesContainer.addSingleton(DefaultModelManager.class);
     servicesContainer.addSingleton(ChartFactory.class);
     servicesContainer.addSingleton(Languages.class);
@@ -251,6 +305,7 @@ public final class Platform {
     servicesContainer.addSingleton(MeasureFilterExecutor.class);
     servicesContainer.addSingleton(MeasureFilterEngine.class);
     servicesContainer.addSingleton(DryRunDatabaseFactory.class);
+    servicesContainer.addSingleton(DryRunCache.class);
     servicesContainer.addSingleton(DefaultResourcePermissions.class);
     servicesContainer.addSingleton(Periods.class);
 
@@ -335,6 +390,7 @@ public final class Platform {
     startupContainer.addSingleton(RenameDeprecatedPropertyKeys.class);
     startupContainer.addSingleton(LogServerId.class);
     startupContainer.addSingleton(RegisterServletFilters.class);
+    startupContainer.addSingleton(CleanDryRunCache.class);
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();

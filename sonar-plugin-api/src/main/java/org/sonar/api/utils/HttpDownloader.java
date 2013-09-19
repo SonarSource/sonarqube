@@ -51,6 +51,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 /**
  * This component downloads HTTP files
@@ -143,9 +144,13 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
   }
 
   public static class BaseHttpDownloader {
+
+    private static final String HTTP_PROXY_USER = "http.proxyUser";
+    private static final String HTTP_PROXY_PASSWORD = "http.proxyPassword";
+
     private static final List<String> PROXY_SETTINGS = ImmutableList.of(
-        "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
-        "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
+      "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
+      "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
 
     private String userAgent;
 
@@ -189,12 +194,12 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
     private void registerProxyCredentials(Map<String, String> settings) {
       Authenticator.setDefault(new ProxyAuthenticator(
-          settings.get("http.proxyUser"),
-          settings.get("http.proxyPassword")));
+        settings.get(HTTP_PROXY_USER),
+        settings.get(HTTP_PROXY_PASSWORD)));
     }
 
     private boolean requiresProxyAuthentication(Map<String, String> settings) {
-      return settings.containsKey("http.proxyUser");
+      return settings.containsKey(HTTP_PROXY_USER);
     }
 
     private void propagateProxySystemProperties(Map<String, String> settings) {
@@ -246,6 +251,8 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
         LoggerFactory.getLogger(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri, ProxySelector.getDefault()) + ")");
 
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+        // allow both GZip and Deflate (ZLib) encodings
+        connection.setRequestProperty("Accept-Encoding", "gzip");
         if (!Strings.isNullOrEmpty(login)) {
           String encoded = new String(Base64.encodeBase64((login + ":" + password).getBytes()));
           connection.setRequestProperty("Authorization", "Basic " + encoded);
@@ -256,6 +263,12 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
         connection.setInstanceFollowRedirects(true);
         connection.setRequestProperty("User-Agent", userAgent);
 
+        // establish connection, get response headers
+        connection.connect();
+
+        // obtain the encoding returned by the server
+        String encoding = connection.getContentEncoding();
+
         int responseCode = connection.getResponseCode();
         if (responseCode >= 400) {
           InputStream errorResponse = null;
@@ -265,15 +278,21 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
               String errorResponseContent = IOUtils.toString(errorResponse);
               throw new HttpException(uri, responseCode, errorResponseContent);
             }
-            else {
-              throw new HttpException(uri, responseCode);
-            }
+            throw new HttpException(uri, responseCode);
+
           } finally {
             IOUtils.closeQuietly(errorResponse);
           }
         }
 
-        return connection.getInputStream();
+        InputStream resultingInputStream = null;
+        // create the appropriate stream wrapper based on the encoding type
+        if (encoding != null && "gzip".equalsIgnoreCase(encoding)) {
+          resultingInputStream = new GZIPInputStream(connection.getInputStream());
+        } else {
+          resultingInputStream = connection.getInputStream();
+        }
+        return resultingInputStream;
       }
     }
 

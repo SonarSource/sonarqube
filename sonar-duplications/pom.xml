@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>3.7-SNAPSHOT</version>
+    <version>3.7.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>sonar-duplications</artifactId>
@@ -25,7 +25,18 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
+    <!-- unit tests -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>pmd</groupId>
       <artifactId>pmd</artifactId>

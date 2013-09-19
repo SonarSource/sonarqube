@@ -32,7 +32,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.SonarException;
 
 import java.util.Collections;
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -47,12 +46,10 @@ public class BatchSettingsTest {
   private static final String JSON_RESPONSE_WITH_SECURED = "[{\"k\":\"sonar.foo.secured\",\"v\":\"bar\"},{\"k\":\"sonar.foo.license.secured\",\"v\":\"bar2\"}]";
 
   private static final String REACTOR_JSON_RESPONSE = "[{\"k\":\"sonar.cpd.cross\",\"v\":\"true\"}," +
-    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\",\"p\":\"struts\"}," +
-    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"cobertura\",\"p\":\"struts-core\"}]";
+    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\"}]";
 
   private static final String BRANCH_REACTOR_JSON_RESPONSE = "[{\"k\":\"sonar.cpd.cross\",\"v\":\"true\"}," +
-    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\",\"p\":\"struts:mybranch\"}," +
-    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"cobertura\",\"p\":\"struts-core:mybranch\"}]";
+    "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\"}]";
 
   ServerClient client = mock(ServerClient.class);
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
@@ -146,22 +143,8 @@ public class BatchSettingsTest {
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     thrown.expect(SonarException.class);
     thrown
-        .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin which requires this property must be deactivated in dry run mode.");
+      .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in local (dry run) SonarQube analysis. The SonarQube plugin which requires this property must be deactivated in dry run mode.");
     batchSettings.getString("sonar.foo.secured");
-  }
-
-  @Test
-  public void should_keep_module_settings_for_later() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE);
-    when(client.request("/batch_bootstrap/properties?project=struts&dryRun=false")).thenReturn(REACTOR_JSON_RESPONSE);
-
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf);
-    batchSettings.init(new ProjectReactor(project));
-
-    Map<String, String> moduleSettings = batchSettings.getModuleProperties("struts-core");
-
-    assertThat(moduleSettings).hasSize(1);
-    assertThat(moduleSettings.get("sonar.java.coveragePlugin")).isEqualTo("cobertura");
   }
 
   @Test

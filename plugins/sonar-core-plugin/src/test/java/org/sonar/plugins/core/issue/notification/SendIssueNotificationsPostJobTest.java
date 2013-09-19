@@ -21,6 +21,7 @@ package org.sonar.plugins.core.issue.notification;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.SensorContext;
@@ -36,8 +37,17 @@ import org.sonar.batch.issue.IssueCache;
 import org.sonar.core.issue.IssueNotifications;
 
 import java.util.Arrays;
+import java.util.Map;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SendIssueNotificationsPostJobTest {
@@ -62,7 +72,7 @@ public class SendIssueNotificationsPostJobTest {
     when(issueCache.all()).thenReturn(Arrays.asList(
       new DefaultIssue().setNew(true),
       new DefaultIssue().setNew(false)
-    ));
+      ));
 
     SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
@@ -75,7 +85,7 @@ public class SendIssueNotificationsPostJobTest {
     when(project.getAnalysisDate()).thenReturn(DateUtils.parseDate("2013-05-18"));
     when(issueCache.all()).thenReturn(Arrays.asList(
       new DefaultIssue().setNew(false)
-    ));
+      ));
 
     SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
@@ -100,7 +110,7 @@ public class SendIssueNotificationsPostJobTest {
     SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
 
-    verify(notifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(rule), any(Component.class), (Component)isNull());
+    verify(notifications).sendChanges(argThat(matchMapOf(issue, rule)), any(IssueChangeContext.class), any(Component.class), (Component) isNull());
   }
 
   @Test
@@ -119,7 +129,7 @@ public class SendIssueNotificationsPostJobTest {
     SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
 
-    verify(notifications, never()).sendChanges(eq(issue), eq(changeContext), any(Rule.class), any(Component.class), any(Component.class));
+    verify(notifications, never()).sendChanges(argThat(matchMapOf(issue, null)), eq(changeContext), any(Component.class), any(Component.class));
   }
 
   @Test
@@ -139,6 +149,25 @@ public class SendIssueNotificationsPostJobTest {
     SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
 
-    verify(notifications, never()).sendChanges(eq(issue), eq(changeContext), any(Rule.class), any(Component.class), any(Component.class));
+    verify(notifications, never()).sendChanges(argThat(matchMapOf(issue, null)), eq(changeContext), any(Component.class), any(Component.class));
+  }
+
+  private static IsMapOfIssueAndRule matchMapOf(DefaultIssue issue, Rule rule) {
+    return new IsMapOfIssueAndRule(issue, rule);
+  }
+
+  static class IsMapOfIssueAndRule extends ArgumentMatcher<Map<DefaultIssue, Rule>> {
+    private DefaultIssue issue;
+    private Rule rule;
+
+    public IsMapOfIssueAndRule(DefaultIssue issue, Rule rule) {
+      this.issue = issue;
+      this.rule = rule;
+    }
+
+    public boolean matches(Object arg) {
+      Map map = (Map) arg;
+      return map.size() == 1 && map.get(issue) != null && map.get(issue).equals(rule);
+    }
   }
 }

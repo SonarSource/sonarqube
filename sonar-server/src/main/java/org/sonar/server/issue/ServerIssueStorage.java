@@ -43,18 +43,20 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
   @Override
   protected long componentId(DefaultIssue issue) {
     ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(issue.componentKey()));
-    if (resourceDto == null) {
-      throw new IllegalStateException("Unknown component: " + issue.componentKey());
-    }
+    validate(issue, resourceDto);
     return resourceDto.getId();
   }
 
   @Override
   protected long projectId(DefaultIssue issue) {
     ResourceDto resourceDto = resourceDao.getRootProjectByComponentKey(issue.componentKey());
+    validate(issue, resourceDto);
+    return resourceDto.getId();
+  }
+
+  private void validate(DefaultIssue issue, ResourceDto resourceDto) {
     if (resourceDto == null) {
       throw new IllegalStateException("Unknown component: " + issue.componentKey());
     }
-    return resourceDto.getId();
   }
 }

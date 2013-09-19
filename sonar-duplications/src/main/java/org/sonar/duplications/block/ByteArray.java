@@ -96,7 +96,7 @@ public final class ByteArray {
   public String toHexString() {
     StringBuilder hex = new StringBuilder(2 * bytes.length);
     for (byte b : bytes) {
-      hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
+      hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt(b & 0x0F));
     }
     return hex.toString();
   }

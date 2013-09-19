@@ -19,6 +19,10 @@
  */
 package org.sonar.batch.issue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.batch.index.ScanPersister;
 
@@ -27,16 +31,24 @@ import org.sonar.batch.index.ScanPersister;
  */
 public class IssuePersister implements ScanPersister {
 
+  private static final Logger LOG = LoggerFactory.getLogger(IssuePersister.class);
+
   private final IssueCache issueCache;
   private final ScanIssueStorage storage;
+  private Settings settings;
 
-  public IssuePersister(IssueCache issueCache, ScanIssueStorage storage) {
+  public IssuePersister(IssueCache issueCache, ScanIssueStorage storage, Settings settings) {
     this.issueCache = issueCache;
     this.storage = storage;
+    this.settings = settings;
   }
 
   @Override
   public void persist() {
+    if (settings.getBoolean(CoreProperties.DRY_RUN)) {
+      LOG.debug("IssuePersister skipped in dryRun");
+      return;
+    }
     Iterable<DefaultIssue> issues = issueCache.all();
     storage.save(issues);
   }

@@ -29,6 +29,7 @@ import org.sonar.api.web.*;
 public final class DefaultPages {
 
   private static final View[] PAGES = {new SourceTab(), new CoverageTab(), new IssuesTab(), new DuplicationsTab()};
+  private static final String NOT_APPLICABLE = "browse/index";
 
   private DefaultPages() {
   }
@@ -44,8 +45,7 @@ public final class DefaultPages {
   @UserRole(UserRole.CODEVIEWER)
   private static final class SourceTab implements RubyRailsPage {
     public String getTemplate() {
-      // not used, hardcoded in BrowseController
-      return "browse/index";
+      return NOT_APPLICABLE;
     }
 
     public String getId() {
@@ -83,8 +83,7 @@ public final class DefaultPages {
   @UserRole(UserRole.CODEVIEWER)
   private static final class CoverageTab implements RubyRailsPage {
     public String getTemplate() {
-      // not used, hardcoded in BrowseController
-      return "browse/index";
+      return NOT_APPLICABLE;
     }
 
     public String getId() {
@@ -110,8 +109,7 @@ public final class DefaultPages {
   @UserRole(UserRole.CODEVIEWER)
   private static final class IssuesTab implements RubyRailsPage {
     public String getTemplate() {
-      // not used, hardcoded in BrowseController
-      return "browse/index";
+      return NOT_APPLICABLE;
     }
 
     public String getId() {
@@ -129,8 +127,7 @@ public final class DefaultPages {
   @UserRole(UserRole.CODEVIEWER)
   private static final class DuplicationsTab implements RubyRailsPage {
     public String getTemplate() {
-      // not used, hardcoded in BrowseController
-      return "browse/index";
+      return NOT_APPLICABLE;
     }
 
     public String getId() {

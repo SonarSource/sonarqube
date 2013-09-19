@@ -58,6 +58,6 @@ public class PastSnapshotFinderByDate implements BatchExtension {
         .setMaxResults(1)
         .getResultList();
 
-    return (snapshots.isEmpty() ? null : snapshots.get(0));
+    return snapshots.isEmpty() ? null : snapshots.get(0);
   }
 }

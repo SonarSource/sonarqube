@@ -48,7 +48,8 @@ import java.util.Date;
         defaultValue = "true",
         name = "Enable Update Center",
         project = false,
-        global = false, // hidden from UI
+      // hidden from UI
+        global = false,
         category = "Update Center",
         type = PropertyType.BOOLEAN),
     @Property(
@@ -56,7 +57,8 @@ import java.util.Date;
         defaultValue = "http://update.sonarsource.org/update-center.properties",
         name = "Update Center URL",
         project = false,
-        global = false, // hidden from UI
+      // hidden from UI
+        global = false,
         category = "Update Center")
 })
 public class UpdateCenterClient implements ServerComponent {

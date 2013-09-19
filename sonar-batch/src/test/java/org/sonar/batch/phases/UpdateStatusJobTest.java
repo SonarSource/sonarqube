@@ -36,7 +36,10 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.Query;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
@@ -60,9 +63,11 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     setupData("sharedFixture", fixture);
 
     DatabaseSession session = getSession();
+    Project project = new Project("foo");
+    project.setId(1);
     UpdateStatusJob job = new UpdateStatusJob(new Settings().appendProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/"), mock(ServerClient.class), session,
       new DefaultResourcePersister(session, mock(ResourcePermissions.class), mock(SnapshotCache.class), mock(ResourceCache.class)),
-      mock(Project.class), loadSnapshot(snapshotId));
+      project, loadSnapshot(snapshotId));
     job.execute();
 
     checkTables(fixture, "snapshots");
@@ -100,5 +105,30 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     job.logSuccess(logger);
 
     verify(logger).info("ANALYSIS SUCCESSFUL");
+  }
+
+  @Test
+  public void should_evict_cache_for_regular_analysis() throws Exception {
+    Settings settings = new Settings();
+    Project project = new Project("struts");
+    ServerClient serverClient = mock(ServerClient.class);
+    UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, mock(DatabaseSession.class),
+      mock(ResourcePersister.class), project, mock(Snapshot.class));
+
+    job.evictDryRunDB();
+    verify(serverClient).request(contains("/batch_bootstrap/evict"));
+  }
+
+  @Test
+  public void should_not_evict_cache_for_dry_run_analysis() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty("sonar.dryRun", true);
+    Project project = new Project("struts");
+    ServerClient serverClient = mock(ServerClient.class);
+    UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, mock(DatabaseSession.class),
+      mock(ResourcePersister.class), project, mock(Snapshot.class));
+
+    job.evictDryRunDB();
+    verify(serverClient, never()).request(anyString());
   }
 }

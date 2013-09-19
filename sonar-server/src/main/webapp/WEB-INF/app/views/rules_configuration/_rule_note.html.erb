@@ -8,7 +8,7 @@
 %>
 
 <div id="<%= note_detail_div_id -%>">
-  <div>
+  <div class="marginbottom10">
   <% if rule.description.strip.start_with?('<p>') %>
     <%= Internal.text.interpretMacros(rule.description) %>
   <% else %>
@@ -23,7 +23,7 @@
   <% if profiles_administrator? %>
     <div>
         <a href="#" id="<%= note_extend_link_id -%>" class="link-action spacer-right"
-           onclick="$('<%= note_detail_div_id -%>').hide();$('<%= note_form_div_id -%>').show();$('<%= note_textarea_id -%>').focus();return false;"><%= message('rules_configuration.extend_description') %></a>
+           onclick="$j('#<%= note_detail_div_id -%>').hide();$j('#<%= note_form_div_id -%>').show();$j('#<%= note_textarea_id -%>').focus();return false;"><%= message('rules_configuration.extend_description') %></a>
     </div>
   <% end %>
 </div>
@@ -45,7 +45,7 @@
     <tr>
       <td>
         <input type="submit" value="<%= message('rules_configuration.extend_description') -%>" name="commit" id="<%= submit_note_update_button_id -%>"/>
-        <a href="#" onclick="$('<%= note_detail_div_id -%>').show();$('<%= note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
+        <a href="#" onclick="$j('#<%= note_detail_div_id -%>').show();$j('#<%= note_form_div_id -%>').hide();return false;"><%= message('cancel') %></a>
       </td>
       <td align="right">
         <%= render :partial => 'markdown/tips' -%>

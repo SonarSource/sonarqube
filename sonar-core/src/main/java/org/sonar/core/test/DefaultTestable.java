@@ -39,6 +39,8 @@ import java.util.SortedSet;
 
 public class DefaultTestable extends BeanVertex implements MutableTestable {
 
+  private static final String COVERS = "covers";
+
   public Component component() {
     Vertex component = GraphUtil.singleAdjacent(element(), Direction.IN, "testable");
     return beanGraph().wrap(component, ComponentVertex.class);
@@ -92,7 +94,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
   }
 
   public CoverageBlock coverageBlock(final TestCase testCase) {
-    return Iterables.find(getEdges(DefaultCoverageBlock.class, Direction.IN, "covers"), new Predicate<CoverageBlock>() {
+    return Iterables.find(getEdges(DefaultCoverageBlock.class, Direction.IN, COVERS), new Predicate<CoverageBlock>() {
       public boolean apply(CoverageBlock input) {
         return input.testCase().name().equals(testCase.name());
       }
@@ -100,11 +102,11 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
   }
 
   public Iterable<CoverageBlock> coverageBlocks() {
-    return (Iterable)getEdges(DefaultCoverageBlock.class, Direction.IN, "covers");
+    return (Iterable) getEdges(DefaultCoverageBlock.class, Direction.IN, COVERS);
   }
 
   private Iterable<Edge> coverEdges() {
-    return element().query().labels("covers").direction(Direction.IN).edges();
+    return element().query().labels(COVERS).direction(Direction.IN).edges();
   }
 
   private List<Integer> lines(Edge edge) {

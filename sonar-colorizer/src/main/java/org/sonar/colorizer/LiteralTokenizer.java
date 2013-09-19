@@ -63,7 +63,7 @@ public class LiteralTokenizer extends Tokenizer {
 
     public boolean match(int endFlag) {
       literalValue.append((char) endFlag);
-      return (code.lastChar() == firstChar && evenNumberOfBackSlashBeforeDelimiter() && literalValue.length() > 1);
+      return code.lastChar()==firstChar && evenNumberOfBackSlashBeforeDelimiter() && literalValue.length()>1;
     }
 
     private boolean evenNumberOfBackSlashBeforeDelimiter() {

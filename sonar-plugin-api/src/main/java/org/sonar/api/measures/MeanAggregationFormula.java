@@ -58,6 +58,6 @@ public class MeanAggregationFormula implements Formula {
     if (!hasValue && !forceZeroIfMissingData) {
       return null;
     }
-    return new Measure(context.getTargetMetric(), (count==0 ? 0.0 : sum/count));
+    return new Measure(context.getTargetMetric(), count==0 ? 0.0 : sum/count);
   }
 }

@@ -653,7 +653,7 @@ module ApplicationHelper
   #
   def resource_select_tag(name, options={})
     # see limitation in /api/resources/search
-    options[:min_length]=3
+    options[:min_length]=2
 
     ws_url="#{ApplicationController::root_context}/api/resources/search?f=s2&"
     if options[:qualifiers]
@@ -687,7 +687,7 @@ module ApplicationHelper
   #
   def component_select_tag(name, options={})
     # see limitation in /api/resources/search
-    options[:min_length]=3
+    options[:min_length]=2
 
     ws_url="#{ApplicationController::root_context}/api/resources/search?f=s2&"
     if options[:qualifiers]

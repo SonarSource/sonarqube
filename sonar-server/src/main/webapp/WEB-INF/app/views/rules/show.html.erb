@@ -1,5 +1,5 @@
 <div>
-  <h1 class="rule-title"><%= @rule.name %></h1>
+  <h1 class="rule-title"><%= h @rule.name %></h1>
   <% unless @rule.ready? %>
     <div class="rule-status">
       <% if @rule.beta? %>
@@ -12,10 +12,10 @@
 </div>
 
 <div class="subtitle">
-<%= @rule.plugin_name -%> : <%= @rule.plugin_rule_key -%>
+<%= h @rule.plugin_name -%> : <%= h @rule.plugin_rule_key -%>
 </div>
 
-<div class="rule_detail">
+<div class="rule-desc">
   <% if @rule.description.strip.start_with?('<p>') %>
     <%= Internal.text.interpretMacros(@rule.description) %>
   <% else %>

@@ -2,7 +2,11 @@
 
 <div class="tabs-panel marginbottom10">
   <% if @select_versions.nil? %>
-    <%= message('quality_profiles.no_changes_done_on_this_profile') -%>
+    <% if !@profile.used_profile %>
+      <%= message('quality_profiles.not_used') -%>
+    <% else %>
+      <%= message('quality_profiles.first_use_without_change') -%>
+    <% end %>
   <% else %>
 
   <% form_tag({:action => 'changelog'}, {:method => 'post', :class => 'marginbottom10'}) do %>

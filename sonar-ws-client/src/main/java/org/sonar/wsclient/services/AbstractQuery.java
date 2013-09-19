@@ -75,7 +75,7 @@ public abstract class AbstractQuery<M extends Model> {
    * @since 2.10
    */
   public final AbstractQuery<M> setTimeoutMilliseconds(int i) {
-    this.timeoutMilliseconds = (i < 0 ? 0 : i);
+    this.timeoutMilliseconds = i<0 ? 0 : i;
     return this;
   }
 
@@ -138,7 +138,7 @@ public abstract class AbstractQuery<M extends Model> {
 
   protected static void appendUrlParameter(StringBuilder url, String paramKey, @Nullable Date paramValue, boolean includeTime) {
     if (paramValue != null) {
-      String format = (includeTime ? "yyyy-MM-dd'T'HH:mm:ssZ" : "yyyy-MM-dd");
+      String format = includeTime ? "yyyy-MM-dd'T'HH:mm:ssZ" : "yyyy-MM-dd";
       url.append(paramKey)
         .append('=')
         .append(encode(WSUtils.getINSTANCE().format(paramValue, format)))

@@ -40,7 +40,7 @@ public final class AnnotationUtils {
    * @since 3.1
    */
   public static <A extends Annotation> A getAnnotation(Object objectOrClass, Class<A> annotationClass) {
-    Class<?> initialClass = (objectOrClass instanceof Class<?> ? (Class<?>) objectOrClass : objectOrClass.getClass());
+    Class<?> initialClass = objectOrClass instanceof Class<?> ? (Class<?>) objectOrClass : objectOrClass.getClass();
     
     for (Class<?> aClass = initialClass; aClass != null; aClass = aClass.getSuperclass()) {
       A result = aClass.getAnnotation(annotationClass);

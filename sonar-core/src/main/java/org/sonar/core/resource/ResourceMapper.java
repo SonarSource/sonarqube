@@ -74,10 +74,11 @@ public interface ResourceMapper {
   List<Integer> selectAuthorizedChildrenComponentIds(@Param("componentRootKeys") Collection<String> componentRootKeys,
                                                      @Param("userId") @Nullable Integer userId, @Param("role") String role);
 
-  /**
-   * @since 3.7
-   */
-  List<ResourceDto> selectComponentsByQualifiers(@Param("qualifiers") Collection<String> qualifier);
+  List<ResourceDto> selectProjectsIncludingNotCompletedOnesByQualifiers(@Param("qualifiers") Collection<String> qualifier);
+
+  List<ResourceDto> selectProjectsByQualifiers(@Param("qualifiers") Collection<String> qualifier);
+
+  List<ResourceDto> selectGhostsProjects(@Param("qualifiers") Collection<String> qualifier);
 
   void insert(ResourceDto resource);
 

@@ -26,7 +26,7 @@ padding: 5px;
 </style>
 <% end %>
 <form action="<%= ApplicationController.root_context -%>/dependencies/index" id="search_form">
-  <input type="text" name="search" value="<%= params[:search] -%>" id="search_input"> </input>
+  <input type="text" name="search" value="<%= h params[:search] -%>" id="search_input"> </input>
   <input type="submit" value="<%= message('dependencies.search_library') -%>" id="search_submit"/><br/>
   <p class="small gray"><%= message('dependencies.search_help') -%></p>
 </form>

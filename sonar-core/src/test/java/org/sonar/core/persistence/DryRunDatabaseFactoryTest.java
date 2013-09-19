@@ -21,32 +21,29 @@ package org.sonar.core.persistence;
 
 import com.google.common.io.Files;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.platform.ServerFileSystem;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   DryRunDatabaseFactory localDatabaseFactory;
-  ServerFileSystem serverFileSystem = mock(ServerFileSystem.class);
   BasicDataSource dataSource;
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
-  public void setUp() {
-    localDatabaseFactory = new DryRunDatabaseFactory(getDatabase(), serverFileSystem);
+  public void setUp() throws Exception {
+    localDatabaseFactory = new DryRunDatabaseFactory(getDatabase());
   }
 
   @After
@@ -60,36 +57,38 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   public void should_create_database_without_project() throws IOException, SQLException {
     setupData("should_create_database");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
-
-    byte[] database = localDatabaseFactory.createDatabaseForDryRun(null);
-    dataSource = createDatabase(database);
+    byte[] db = createDb(null);
+    dataSource = createDatabase(db);
 
     assertThat(rowCount("metrics")).isEqualTo(2);
     assertThat(rowCount("projects")).isZero();
     assertThat(rowCount("alerts")).isEqualTo(1);
+    assertThat(rowCount("events")).isZero();
+  }
+
+  private byte[] createDb(Long projectId) throws IOException {
+    return FileUtils.readFileToByteArray(localDatabaseFactory.createNewDatabaseForDryRun(projectId, temporaryFolder.newFolder(), "foo"));
   }
 
   @Test
   public void should_create_database_with_project() throws IOException, SQLException {
     setupData("should_create_database");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
-
-    byte[] database = localDatabaseFactory.createDatabaseForDryRun(123L);
+    byte[] database = createDb(123L);
     dataSource = createDatabase(database);
 
     assertThat(rowCount("metrics")).isEqualTo(2);
     assertThat(rowCount("projects")).isEqualTo(1);
+    assertThat(rowCount("snapshots")).isEqualTo(1);
+    assertThat(rowCount("project_measures")).isEqualTo(1);
+    assertThat(rowCount("events")).isEqualTo(2);
   }
 
   @Test
   public void should_create_database_with_issues() throws IOException, SQLException {
     setupData("should_create_database_with_issues");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
-
-    byte[] database = localDatabaseFactory.createDatabaseForDryRun(399L);
+    byte[] database = createDb(399L);
     dataSource = createDatabase(database);
 
     assertThat(rowCount("issues")).isEqualTo(1);
@@ -99,34 +98,34 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   public void should_export_issues_of_project_tree() throws IOException, SQLException {
     setupData("multi-modules-with-issues");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
-
     // 300 : root module -> export issues of all modules
-    byte[] database = localDatabaseFactory.createDatabaseForDryRun(300L);
+    byte[] database = createDb(300L);
     dataSource = createDatabase(database);
     assertThat(rowCount("issues")).isEqualTo(1);
+    assertThat(rowCount("projects")).isEqualTo(4);
+    assertThat(rowCount("snapshots")).isEqualTo(1);
+    assertThat(rowCount("project_measures")).isEqualTo(2);
   }
 
   @Test
   public void should_export_issues_of_sub_module() throws IOException, SQLException {
     setupData("multi-modules-with-issues");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
-
     // 301 : sub module with 1 closed issue and 1 open issue
-    byte[] database = localDatabaseFactory.createDatabaseForDryRun(301L);
+    byte[] database = createDb(301L);
     dataSource = createDatabase(database);
     assertThat(rowCount("issues")).isEqualTo(1);
+    assertThat(rowCount("projects")).isEqualTo(2);
+    assertThat(rowCount("snapshots")).isEqualTo(1);
+    assertThat(rowCount("project_measures")).isEqualTo(2);
   }
 
   @Test
   public void should_export_issues_of_sub_module_2() throws IOException, SQLException {
     setupData("multi-modules-with-issues");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
-
     // 302 : sub module without any issues
-    byte[] database = localDatabaseFactory.createDatabaseForDryRun(302L);
+    byte[] database = createDb(302L);
     dataSource = createDatabase(database);
     assertThat(rowCount("issues")).isEqualTo(0);
   }
@@ -135,9 +134,7 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
   public void should_copy_permission_templates_data() throws Exception {
     setupData("should_copy_permission_templates");
 
-    when(serverFileSystem.getTempDir()).thenReturn(temporaryFolder.newFolder());
-
-    byte[] database = localDatabaseFactory.createDatabaseForDryRun(null);
+    byte[] database = createDb(null);
     dataSource = createDatabase(database);
     assertThat(rowCount("permission_templates")).isEqualTo(1);
     assertThat(rowCount("perm_templates_users")).isEqualTo(1);

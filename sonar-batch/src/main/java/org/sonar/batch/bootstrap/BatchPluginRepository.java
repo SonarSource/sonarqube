@@ -78,8 +78,7 @@ public class BatchPluginRepository implements PluginRepository {
         PluginMetadata metadata = extractor.install(pluginFiles.get(0), remote.isCore(), extensionFiles, targetDir);
         if (StringUtils.isBlank(metadata.getBasePlugin()) || filter.accepts(metadata.getBasePlugin())) {
           metadataByKey.put(metadata.getKey(), metadata);
-        }
-        else {
+        } else {
           LOG.debug("Excluded plugin: " + metadata.getKey());
         }
       }

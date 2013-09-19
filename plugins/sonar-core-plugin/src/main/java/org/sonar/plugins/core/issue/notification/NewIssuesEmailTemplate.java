@@ -57,7 +57,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
 
     EmailMessage message = new EmailMessage()
       .setMessageId("new-issues/" + notification.getFieldValue("projectKey"))
-      .setSubject("Project " + projectName + ", new issues")
+      .setSubject(projectName + ": new issues")
       .setMessage(sb.toString());
 
     return message;
@@ -68,7 +68,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     String dateString = notification.getFieldValue("projectDate");
     if (projectKey != null && dateString != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/issues/search?componentRoots=%s&createdAfter=%s",
+      String url = String.format("%s/issues/search?componentRoots=%s&createdAt=%s",
         settings.getServerBaseURL(), encode(projectKey), encode(DateUtils.formatDateTime(date)));
       sb.append("\n").append("See it in SonarQube: ").append(url).append("\n");
     }
@@ -78,7 +78,7 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     try {
       return URLEncoder.encode(toEncode, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException(e);
+      throw new IllegalStateException("Encoding not supported", e);
     }
   }
 

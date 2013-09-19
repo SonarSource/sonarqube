@@ -59,14 +59,42 @@ public class IssueChangesEmailTemplateTest {
   }
 
   @Test
-  public void test_email_with_changes() {
-    Notification notification = new Notification("issue-changes")
-      .setFieldValue("projectName", "Struts")
-      .setFieldValue("projectKey", "org.apache:struts")
-      .setFieldValue("componentName", "org.apache.struts.Action")
-      .setFieldValue("key", "ABCDE")
-      .setFieldValue("ruleName", "Avoid Cycles")
-      .setFieldValue("message", "Has 3 cycles")
+  public void email_should_display_assignee_change() throws Exception {
+    Notification notification = generateNotification()
+      .setFieldValue("old.assignee", "simon")
+      .setFieldValue("new.assignee", "louis");
+
+    EmailMessage email = template.format(notification);
+    assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
+    assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
+
+    String message = email.getMessage();
+    String expectedMessage = TestUtils.getResourceContent("/org/sonar/plugins/core/issue/notification/IssueChangesEmailTemplateTest/email_with_assignee_change.txt");
+    expectedMessage = StringUtils.remove(expectedMessage, '\r');
+    assertThat(message).isEqualTo(expectedMessage);
+    assertThat(email.getFrom()).isNull();
+  }
+
+  @Test
+  public void email_should_display_plan_change() throws Exception {
+    Notification notification = generateNotification()
+      .setFieldValue("old.actionPlan", null)
+      .setFieldValue("new.actionPlan", "ABC 1.0");
+
+    EmailMessage email = template.format(notification);
+    assertThat(email.getMessageId()).isEqualTo("issue-changes/ABCDE");
+    assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
+
+    String message = email.getMessage();
+    String expectedMessage = TestUtils.getResourceContent("/org/sonar/plugins/core/issue/notification/IssueChangesEmailTemplateTest/email_with_action_plan_change.txt");
+    expectedMessage = StringUtils.remove(expectedMessage, '\r');
+    assertThat(message).isEqualTo(expectedMessage);
+    assertThat(email.getFrom()).isNull();
+  }
+
+  @Test
+  public void test_email_with_multiple_changes() {
+    Notification notification = generateNotification()
       .setFieldValue("comment", "How to fix it?")
       .setFieldValue("old.assignee", "simon")
       .setFieldValue("new.assignee", "louis")
@@ -78,7 +106,7 @@ public class IssueChangesEmailTemplateTest {
     assertThat(email.getSubject()).isEqualTo("Struts, change on issue #ABCDE");
 
     String message = email.getMessage();
-    String expectedMessage = TestUtils.getResourceContent("/org/sonar/plugins/core/issue/notification/IssueChangesEmailTemplateTest/email_with_changes.txt");
+    String expectedMessage = TestUtils.getResourceContent("/org/sonar/plugins/core/issue/notification/IssueChangesEmailTemplateTest/email_with_multiple_changes.txt");
     expectedMessage = StringUtils.remove(expectedMessage, '\r');
     assertThat(message).isEqualTo(expectedMessage);
     assertThat(email.getFrom()).isNull();
@@ -99,4 +127,14 @@ public class IssueChangesEmailTemplateTest {
     assertThat(message.getFrom()).isEqualTo("Simon");
   }
 
+  private Notification generateNotification() {
+    Notification notification = new Notification("issue-changes")
+      .setFieldValue("projectName", "Struts")
+      .setFieldValue("projectKey", "org.apache:struts")
+      .setFieldValue("componentName", "org.apache.struts.Action")
+      .setFieldValue("key", "ABCDE")
+      .setFieldValue("ruleName", "Avoid Cycles")
+      .setFieldValue("message", "Has 3 cycles");
+    return notification;
+  }
 }

@@ -20,7 +20,7 @@
       index=0
       params.each do |key,value|
     %>
-    <%= ',' if index>0 -%>"<%= key -%>":"<%= h(value) -%>"
+    <%= ',' if index>0 -%>"<%= h(key) -%>":"<%= h(value) -%>"
     <%
         index+=1
       end

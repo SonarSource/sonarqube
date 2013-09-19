@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharEncoding;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.configuration.Property;
@@ -35,6 +36,7 @@ import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.core.dryrun.DryRunCache;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +56,13 @@ import static org.mockito.Mockito.verify;
 
 public class BackupTest {
 
+  private DryRunCache dryRunCache;
+
+  @Before
+  public void prepare() {
+    this.dryRunCache = mock(DryRunCache.class);
+  }
+
   @Test
   public void shouldExportXml() throws Exception {
     SonarConfig sonarConfig = getSonarConfig();
@@ -68,7 +77,7 @@ public class BackupTest {
   @Test
   public void shouldReturnAValidXml() throws Exception {
     Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
-      new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
+      new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null, dryRunCache)));
     SonarConfig sonarConfig = getSonarConfig();
     sonarConfig.setMetrics(getMetrics());
     sonarConfig.setProperties(getProperties());
@@ -102,7 +111,7 @@ public class BackupTest {
   @Test
   public void shouldImportXml() {
     Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
-      new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
+      new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null, dryRunCache)));
 
     String xml = getFileFromClasspath("backup-restore-valid.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);
@@ -185,7 +194,7 @@ public class BackupTest {
   @Test
   public void shouldImportXmlWithoutInheritanceInformation() {
     Backup backup = new Backup(Arrays.asList(new MetricsBackup(null), new PropertiesBackup(null),
-      new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null)));
+      new RulesBackup((DatabaseSession) null), new ProfilesBackup((DatabaseSession) null, dryRunCache)));
 
     String xml = getFileFromClasspath("backup-restore-without-inheritance.xml");
     SonarConfig sonarConfig = backup.getSonarConfigFromXml(xml);

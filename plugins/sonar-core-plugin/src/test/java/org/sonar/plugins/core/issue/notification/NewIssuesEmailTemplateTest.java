@@ -19,11 +19,14 @@
  */
 package org.sonar.plugins.core.issue.notification;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
+
+import java.util.TimeZone;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,12 +35,20 @@ import static org.mockito.Mockito.when;
 public class NewIssuesEmailTemplateTest {
 
   NewIssuesEmailTemplate template;
+  TimeZone initialTimeZone = TimeZone.getDefault();
 
   @Before
   public void setUp() {
     EmailSettings settings = mock(EmailSettings.class);
     when(settings.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
     template = new NewIssuesEmailTemplate(settings);
+    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+  }
+
+  @After
+  public void tearDown() {
+    TimeZone.setDefault(initialTimeZone);
+
   }
 
   @Test
@@ -64,16 +75,16 @@ public class NewIssuesEmailTemplateTest {
       .setFieldValue("count", "32")
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
-      .setFieldValue("projectDate", "2010-05-18T16:50:45+0200");
+      .setFieldValue("projectDate", "2010-05-18T14:50:45+0000");
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId()).isEqualTo("new-issues/org.apache:struts");
-    assertThat(message.getSubject()).isEqualTo("Project Struts, new issues");
+    assertThat(message.getSubject()).isEqualTo("Struts: new issues");
     assertThat(message.getMessage()).isEqualTo("" +
       "Project: Struts\n" +
       "32 new issues\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAfter=2010-05-18T16%3A50%3A45%2B0200\n");
+      "See it in SonarQube: http://nemo.sonarsource.org/issues/search?componentRoots=org.apache%3Astruts&createdAt=2010-05-18T14%3A50%3A45%2B0000\n");
   }
 
   @Test

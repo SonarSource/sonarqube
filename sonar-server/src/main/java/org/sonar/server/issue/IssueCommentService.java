@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.IssueQuery;
@@ -34,6 +35,10 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.UserSession;
 
 import java.util.Arrays;
@@ -64,8 +69,12 @@ public class IssueCommentService implements ServerComponent {
 
   public IssueComment addComment(String issueKey, String text, UserSession userSession) {
     verifyLoggedIn(userSession);
-
     IssueQueryResult queryResult = loadIssue(issueKey);
+
+    if(StringUtils.isBlank(text)) {
+      throw new BadRequestException("Cannot add empty comments to an issue");
+    }
+
     DefaultIssue issue = (DefaultIssue) queryResult.first();
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
@@ -78,12 +87,10 @@ public class IssueCommentService implements ServerComponent {
   public IssueComment deleteComment(String commentKey, UserSession userSession) {
     DefaultIssueComment comment = changeDao.selectCommentByKey(commentKey);
     if (comment == null) {
-      // TODO throw 404
-      throw new IllegalStateException();
+      throw new NotFoundException("Comment not found: " + commentKey);
     }
     if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equal(comment.userLogin(), userSession.login())) {
-      // TODO throw unauthorized
-      throw new IllegalStateException();
+      throw new ForbiddenException("You can only delete your own comments");
     }
 
     // check authorization
@@ -95,13 +102,14 @@ public class IssueCommentService implements ServerComponent {
 
   public IssueComment editComment(String commentKey, String text, UserSession userSession) {
     DefaultIssueComment comment = changeDao.selectCommentByKey(commentKey);
-    if (comment == null) {
-      // TODO throw 404
-      throw new IllegalStateException();
+    if (StringUtils.isBlank(text)) {
+      throw new BadRequestException("Cannot add empty comments to an issue");
+    }
+    if(comment == null) {
+      throw new NotFoundException("Comment not found: " + commentKey);
     }
     if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equal(comment.userLogin(), userSession.login())) {
-      // TODO throw unauthorized
-      throw new IllegalStateException();
+      throw new ForbiddenException("You can only edit your own comments");
     }
 
     // check authorization
@@ -117,8 +125,7 @@ public class IssueCommentService implements ServerComponent {
 
   private void verifyLoggedIn(UserSession userSession) {
     if (!userSession.isLoggedIn()) {
-      // must be logged
-      throw new IllegalStateException("User is not logged in");
+      throw new UnauthorizedException("User is not logged in");
     }
   }
 

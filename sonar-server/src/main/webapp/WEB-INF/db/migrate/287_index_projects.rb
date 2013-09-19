@@ -22,6 +22,7 @@
 # Sonar 3.0
 #
 class IndexProjects < ActiveRecord::Migration
+
   class ResourceIndex < ActiveRecord::Base
     set_table_name 'resource_index'
   end
@@ -35,10 +36,19 @@ class IndexProjects < ActiveRecord::Migration
 
     projects = Project.find(:all, :select => 'id', :conditions => {:enabled => true, :scope => 'PRJ'})
 
-    say_with_time "Index #{projects.size} projects" do
-      projects.each do |project|
-        Java::OrgSonarServerUi::JRubyFacade.getInstance().indexResource(project.id)
+    if projects.size>0
+      if dialect()=='oracle'
+        # SONAR-4608
+        # Fix upgrade from 2.x to 3.7
+        create_id_trigger('resource_index')
+      end
+
+      say_with_time "Index #{projects.size} projects" do
+        projects.each do |project|
+          Java::OrgSonarServerUi::JRubyFacade.getInstance().indexResource(project.id)
+        end
       end
     end
   end
+
 end

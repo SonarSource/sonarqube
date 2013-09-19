@@ -1,4 +1,4 @@
-<%= render :partial => 'gwt/base', :locals => {:resource => @resource, :popup => true, :metric => (@metric ? @metric.key : nil)} -%>
+<%= render :partial => 'gwt/base', :locals => {:resource => @resource, :popup => true, :metric => (@metric && @metric.key)} -%>
 <%= render :partial => 'gwt/resource_viewers' -%>
 
 <div id="accordion-panel"/>
@@ -10,7 +10,7 @@
   });
 
   // refresh page after issues bulk change
-  function onBulkIssues(issues_query_params){
+  function onBulkIssues(){
     window.location.reload();
   }
 </script>

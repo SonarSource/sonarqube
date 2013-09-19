@@ -19,63 +19,87 @@
  */
 package org.sonar.batch.components;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Qualifiers;
 
 import java.util.Date;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class PastSnapshotTest {
 
   @Test
+  public void test_some_setters_and_getters() {
+    Snapshot snapshot = new Snapshot().setQualifier(Qualifiers.FILE).setCreatedAt(new Date());
+    snapshot.setId(10);
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, new Date(),
+      snapshot)
+      .setModeParameter("2.3")
+      .setIndex(1);
+
+    assertThat(pastSnapshot.getModeParameter()).isEqualTo("2.3");
+    assertThat(pastSnapshot.getIndex()).isEqualTo(1);
+    assertThat(pastSnapshot.getQualifier()).isEqualTo(Qualifiers.FILE);
+    assertThat(pastSnapshot.getDate()).isNotNull();
+    assertThat(pastSnapshot.getProjectSnapshotId()).isEqualTo(10);
+  }
+
+  @Test
+  public void test_some_setters_and_getters_with_empty_snapshot() {
+    PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION);
+
+    assertThat(pastSnapshot.getQualifier()).isNull();
+    assertThat(pastSnapshot.getDate()).isNull();
+    assertThat(pastSnapshot.getProjectSnapshotId()).isNull();
+  }
+
+  @Test
   public void testToStringForVersion() {
     PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION, new Date()).setModeParameter("2.3");
-    assertThat(pastSnapshot.toString(), startsWith("Compare to version 2.3"));
+    assertThat(pastSnapshot.toString()).startsWith("Compare to version 2.3");
   }
 
   @Test
   public void testToStringForVersionWithoutDate() {
     PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_VERSION).setModeParameter("2.3");
-    assertThat(pastSnapshot.toString(), equalTo("Compare to version 2.3"));
+    assertThat(pastSnapshot.toString()).isEqualTo("Compare to version 2.3");
   }
 
   @Test
   public void testToStringForNumberOfDays() {
     PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DAYS, new Date()).setModeParameter("30");
-    assertThat(pastSnapshot.toString(), startsWith("Compare over 30 days ("));
+    assertThat(pastSnapshot.toString()).startsWith("Compare over 30 days (");
   }
 
   @Test
   public void testToStringForNumberOfDaysWithSnapshot() {
     PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DAYS, new Date(), new Snapshot().setCreatedAt(new Date())).setModeParameter("30");
-    assertThat(pastSnapshot.toString(), startsWith("Compare over 30 days ("));
+    assertThat(pastSnapshot.toString()).startsWith("Compare over 30 days (");
   }
 
   @Test
   public void testToStringForDate() {
     PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, new Date());
-    assertThat(pastSnapshot.toString(), startsWith("Compare to date "));
+    assertThat(pastSnapshot.toString()).startsWith("Compare to date ");
   }
 
   @Test
   public void testToStringForDateWithSnapshot() {
     PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DATE, new Date(), new Snapshot().setCreatedAt(new Date()));
-    assertThat(pastSnapshot.toString(), startsWith("Compare to date "));
+    assertThat(pastSnapshot.toString()).startsWith("Compare to date ");
   }
 
   @Test
   public void testToStringForPreviousAnalysis() {
     PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, new Date(), new Snapshot().setCreatedAt(new Date()));
-    assertThat(pastSnapshot.toString(), startsWith("Compare to previous analysis "));
+    assertThat(pastSnapshot.toString()).startsWith("Compare to previous analysis ");
   }
 
   @Test
   public void testToStringForPreviousAnalysisWithoutDate() {
     PastSnapshot pastSnapshot = new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
-    assertThat(pastSnapshot.toString(), equalTo("Compare to previous analysis"));
+    assertThat(pastSnapshot.toString()).isEqualTo("Compare to previous analysis");
   }
 }

@@ -99,7 +99,7 @@
 %>
 
 <script type="text/javascript">
-  var filterCriteria = <%= @issues_query_params.to_json -%>;
+  var filterCriteria = <%= json_escape(@issues_query_params.to_json) -%>;
 
   function refreshList(sort, asc, page) {
     $j('#issue-filter-foot_pages').hide();

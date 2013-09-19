@@ -20,13 +20,14 @@
 package org.sonar.core.issue.workflow;
 
 import org.sonar.api.issue.Issue;
+import org.sonar.api.user.User;
 
 import javax.annotation.Nullable;
 
 interface Function {
   interface Context {
     Issue issue();
-    Context setAssignee(@Nullable String s);
+    Context setAssignee(@Nullable User user);
     Context setResolution(@Nullable String s);
     Context setCloseDate(boolean b);
   }

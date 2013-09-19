@@ -60,7 +60,8 @@ public class StringArrayReader extends Reader {
             content.append("\r\n");
             break;
           default:
-            throw new IllegalStateException(); // should never happen
+            // should never happen
+            throw new IllegalStateException();
         }
       }
     }

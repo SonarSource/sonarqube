@@ -85,7 +85,7 @@ public class DeprecatedJsonReportTest {
     issue.setRuleKey(RuleKey.of("squid", "AvoidCycles"));
     issue.setSeverity(Severity.INFO);
     issue.setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
-    issue.setCreationDate(DateUtils.parseDate("2013-01-30"));
+    issue.setCreationDate(DateUtils.parseDateTime("2013-01-30T00:00:00+0000"));
     issue.setNew(true);
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
     doReturn(Arrays.asList(issue)).when(deprecatedJsonReport).getIssues(resource);
@@ -110,7 +110,7 @@ public class DeprecatedJsonReportTest {
     issue.setSeverity(Severity.INFO);
     issue.setResolution(null);
     issue.setNew(false);
-    issue.setCreationDate(DateUtils.parseDate("2013-01-30"));
+    issue.setCreationDate(DateUtils.parseDateTime("2013-01-30T00:00:00+0000"));
     when(ruleI18nManager.getName("squid", "AvoidCycles", Locale.getDefault())).thenReturn("Avoid Cycles");
     doReturn(Arrays.asList(issue)).when(deprecatedJsonReport).getIssues(resource);
 

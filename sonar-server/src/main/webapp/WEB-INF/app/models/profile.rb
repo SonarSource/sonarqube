@@ -72,7 +72,7 @@ class Profile < ActiveRecord::Base
 
   def self.options_for_select
     array=[]
-    Profile.find(:all, :order => 'name').each do |profile|
+    Profile.all(:order => 'name').each do |profile|
       label = profile.name
       label = label + ' (active)' if profile.default_profile?
       array<<[label, profile.id]
@@ -111,7 +111,7 @@ class Profile < ActiveRecord::Base
     @parent||=
       begin
         if parent_name.present?
-          Profile.find(:first, :conditions => ['language=? and name=?', language, parent_name])
+          Profile.first(:conditions => ['language=? and name=?', language, parent_name])
         else
           nil
         end
@@ -121,7 +121,7 @@ class Profile < ActiveRecord::Base
   def children
     @children ||=
       begin
-        Profile.find(:all, :conditions => ['parent_name=? and language=?', name, language])
+        Profile.all(:conditions => ['parent_name=? and language=?', name, language])
       end
   end
 
@@ -187,8 +187,7 @@ class Profile < ActiveRecord::Base
   def projects
     @projects ||=
       begin
-        Project.find(:all,
-                     :joins => 'LEFT JOIN properties ON properties.resource_id = projects.id',
+        Project.all(:joins => 'LEFT JOIN properties ON properties.resource_id = projects.id',
                      :conditions => ['properties.resource_id is not null and properties.prop_key=? and properties.text_value like ?', "sonar.profile.#{language}", name])
       end
   end
@@ -236,15 +235,15 @@ class Profile < ActiveRecord::Base
 
   def self.by_default(language)
     default_name = Property.value("sonar.profile.#{language}")
-    default_name.present? ? Profile.find(:first, :conditions => {:name => default_name, :language => language}) : nil
+    default_name.present? ? Profile.first(:conditions => {:name => default_name, :language => language}) : nil
   end
 
   # Results are NOT sorted
   def self.all_by_language(language)
-    Profile.find(:all, :conditions => {:language => language})
+    Profile.all(:conditions => {:language => language})
   end
 
   def self.find_by_name_and_language(name, language)
-    Profile.find(:first, :conditions => {:name => name, :language => language})
+    Profile.first(:conditions => {:name => name, :language => language})
   end
 end

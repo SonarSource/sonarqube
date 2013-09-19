@@ -4,7 +4,7 @@
       <td valign="top" class="thin nowrap">
         <span class="comments"><%= message('size') -%></span>
         <br/>
-        <%= select_tag "size", options_grouped_by_domain(Sonar::Treemap.size_metrics, (size_metric ? size_metric.key : nil), :include_empty => true),
+        <%= select_tag "size", options_grouped_by_domain(Sonar::Treemap.size_metrics, (size_metric && size_metric.key), :include_empty => true),
                        :id => "tm-size-#{treemap_id}", :class => 'small medium-width spacer-right', :onchange => "return treemapById(#{treemap_id}).changeSizeMetric(this.value)"
         %>
       </td>
@@ -12,7 +12,7 @@
         <span class="comments"><%= message('color') -%></span>
         <span id="tm-gradient-<%= treemap_id -%>" class="note"></span>
         <br/>
-        <%= select_tag 'color', options_grouped_by_domain(Sonar::Treemap.color_metrics, (color_metric ? color_metric.key : nil), :include_empty => true),
+        <%= select_tag 'color', options_grouped_by_domain(Sonar::Treemap.color_metrics, (color_metric && color_metric.key), :include_empty => true),
                          :id => "tm-color-#{treemap_id}", :class => 'small medium-width', :onchange => "return treemapById(#{treemap_id}).changeColorMetric(this.value)" %>
         <%= image_tag 'loading.gif', :id => "tm-loading-#{treemap_id}", :style => 'vertical-align: top;display: none' -%>
       </td>

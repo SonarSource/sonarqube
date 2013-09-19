@@ -21,6 +21,7 @@ package org.sonar.server.plugins;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -35,25 +36,44 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-public class PluginDownloader implements ServerComponent {
+public class PluginDownloader implements ServerComponent, Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
-  private UpdateCenterMatrixFactory updateCenterMatrixFactory;
-  private HttpDownloader downloader;
-  private File downloadDir;
+  private static final String TMP_SUFFIX = "tmp";
+
+  private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
+  private final HttpDownloader downloader;
+  private final File downloadDir;
 
   public PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader, DefaultServerFileSystem fileSystem) {
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.downloader = downloader;
     this.downloadDir = fileSystem.getDownloadedPluginsDir();
+  }
+
+  /**
+   * Delete the temporary files remaining from previous downloads
+   * @see #downloadRelease(org.sonar.updatecenter.common.Release)
+   */
+  @Override
+  public void start() {
     try {
       FileUtils.forceMkdir(downloadDir);
+      Collection<File> tempFiles = FileUtils.listFiles(downloadDir, new String[]{TMP_SUFFIX}, false);
+      for (File tempFile : tempFiles) {
+        FileUtils.deleteQuietly(tempFile);
+      }
 
     } catch (IOException e) {
-      throw new SonarException("Fail to create the plugin downloads directory: " + downloadDir, e);
+      throw new IllegalStateException("Fail to create the directory: " + downloadDir, e);
     }
+  }
+
+  @Override
+  public void stop() {
   }
 
   public void cancelDownloads() {
@@ -61,14 +81,13 @@ public class PluginDownloader implements ServerComponent {
       if (downloadDir.exists()) {
         FileUtils.cleanDirectory(downloadDir);
       }
-
     } catch (IOException e) {
-      throw new SonarException("Fail to clean the plugin downloads directory: " + downloadDir, e);
+      throw new IllegalStateException("Fail to clean the plugin downloads directory: " + downloadDir, e);
     }
   }
 
   public boolean hasDownloads() {
-    return getDownloads().size() > 0;
+    return !getDownloads().isEmpty();
   }
 
   public List<String> getDownloads() {
@@ -96,12 +115,16 @@ public class PluginDownloader implements ServerComponent {
   private void downloadRelease(Release release) throws URISyntaxException, IOException {
     String url = release.getDownloadUrl();
     URI uri = new URI(url);
-    if (!url.startsWith("file:")) {
-      String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
-      downloader.download(uri, new File(downloadDir, filename));
-    } else {
+    if (url.startsWith("file:")) {
+      // used for tests
       File file = FileUtils.toFile(uri.toURL());
       FileUtils.copyFileToDirectory(file, downloadDir);
+    } else {
+      String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
+      File targetFile = new File(downloadDir, filename);
+      File tempFile = new File(downloadDir, filename + "." + TMP_SUFFIX);
+      downloader.download(uri, tempFile);
+      FileUtils.moveFile(tempFile, targetFile);
     }
   }
 }

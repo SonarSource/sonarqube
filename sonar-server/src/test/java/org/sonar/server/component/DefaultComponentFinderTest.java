@@ -23,32 +23,27 @@ package org.sonar.server.component;
 import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Project;
-import org.sonar.core.resource.ResourceDao;
 
 import java.util.Iterator;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DefaultComponentFinderTest {
 
-  ResourceDao dao = mock(ResourceDao.class);
-  DefaultComponentFinder finder = new DefaultComponentFinder(dao);
-
+  DefaultComponentFinder finder = new DefaultComponentFinder();
 
   @Test
   public void should_return_all_components_when_no_parameter() {
-    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+    List<Component> components = newArrayList(
       createProject("org.codehaus.sonar", "Sonar"),
       createProject("org.apache.tika:tika", "Apache Tika"),
       createProject("org.picocontainer:picocontainer-parent", "PicoContainer Parent")
-    ));
+    );
 
     ComponentQuery query = ComponentQuery.builder().build();
-    DefaultComponentQueryResult results = finder.find(query);
+    DefaultComponentQueryResult results = finder.find(query, components);
 
     assertThat(results.components()).hasSize(3);
     Component component = results.components().iterator().next();
@@ -59,38 +54,38 @@ public class DefaultComponentFinderTest {
 
   @Test
   public void should_find_components_by_key_pattern() {
-    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+    List<Component> components = newArrayList(
       createProject("org.codehaus.sonar", "Sonar"),
       createProject("org.apache.tika:tika", "Apache Tika"),
       createProject("org.apache.jackrabbit:jackrabbit", "Apache Jackrabbit")
-    ));
+    );
 
     ComponentQuery query = ComponentQuery.builder().keys(newArrayList("org.apache")).build();
-    assertThat(finder.find(query).components()).hasSize(2);
+    assertThat(finder.find(query, components).components()).hasSize(2);
   }
 
   @Test
   public void should_find_components_by_name_pattern() {
-    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+    List<Component> components = newArrayList(
       createProject("org.codehaus.sonar", "Sonar"),
       createProject("org.apache.tika:tika", "Apache Tika"),
       createProject("org.apache.jackrabbit:jackrabbit", "Apache Jackrabbit")
-    ));
+    );
 
     ComponentQuery query = ComponentQuery.builder().names(newArrayList("Apache")).build();
-    assertThat(finder.find(query).components()).hasSize(2);
+    assertThat(finder.find(query, components).components()).hasSize(2);
   }
 
   @Test
   public void should_sort_result_by_name() {
-    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+    List<Component> components = newArrayList(
       createProject("org.codehaus.sonar", "Sonar"),
       createProject("org.apache.tika:tika", "Apache Tika"),
       createProject("org.picocontainer:picocontainer-parent", "PicoContainer Parent")
-    ));
+    );
 
     ComponentQuery query = ComponentQuery.builder().build();
-    DefaultComponentQueryResult results = finder.find(query);
+    DefaultComponentQueryResult results = finder.find(query, components);
 
     assertThat(results.components()).hasSize(3);
     Iterator<? extends Component> iterator = results.components().iterator();
@@ -103,13 +98,13 @@ public class DefaultComponentFinderTest {
   public void should_find_paginate_result() {
     ComponentQuery query = ComponentQuery.builder().pageSize(1).pageIndex(1).build();
 
-    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+    List<Component> components = newArrayList(
       createProject("org.codehaus.sonar", "Sonar"),
       createProject("org.apache.tika:tika", "Apache Tika"),
       createProject("org.picocontainer:picocontainer-parent", "PicoContainer Parent")
-    ));
+    );
 
-    DefaultComponentQueryResult results = finder.find(query);
+    DefaultComponentQueryResult results = finder.find(query, components);
     assertThat(results.paging().offset()).isEqualTo(0);
     assertThat(results.paging().pages()).isEqualTo(3);
     assertThat(results.paging().total()).isEqualTo(3);
@@ -120,18 +115,18 @@ public class DefaultComponentFinderTest {
     ComponentQuery query = ComponentQuery.builder().pageSize(ComponentQuery.NO_PAGINATION)
       .pageIndex(ComponentQuery.DEFAULT_PAGE_INDEX).build();
 
-    when(dao.selectComponentsByQualifiers(anyCollection())).thenReturn(newArrayList(
+    List<Component> components = newArrayList(
       createProject("org.codehaus.sonar", "Sonar"),
       createProject("org.apache.tika:tika", "Apache Tika"),
       createProject("org.picocontainer:picocontainer-parent", "PicoContainer Parent")
-    ));
+    );
 
-    DefaultComponentQueryResult results = finder.find(query);
+    DefaultComponentQueryResult results = finder.find(query, components);
     assertThat(results.paging()).isNull();
     assertThat(results.components().size()).isEqualTo(3);
   }
 
-  private Component createProject(String key, String name){
+  private Component createProject(String key, String name) {
     return new Project(key, null, name);
   }
 

@@ -32,6 +32,8 @@ import java.util.zip.ZipEntry;
 
 public class PluginInstaller {
 
+  private static final String FAIL_TO_INSTALL_PLUGIN = "Fail to install plugin: ";
+
   public DefaultPluginMetadata install(File pluginFile, boolean isCore, List<File> deprecatedExtensions, File pluginBasedir) {
     try {
       // Copy the plugin before extracting metadata to avoid file lock on Widnows
@@ -41,7 +43,7 @@ public class PluginInstaller {
       install(metadata, pluginBasedir, deployedPlugin);
       return metadata;
     } catch (IOException e) {
-      throw new SonarException("Fail to install plugin: " + pluginFile, e);
+      throw new SonarException(FAIL_TO_INSTALL_PLUGIN + pluginFile, e);
     }
   }
 
@@ -51,7 +53,7 @@ public class PluginInstaller {
       File deployedPlugin = copyPlugin(pluginBasedir, pluginFile);
       install(metadata, pluginBasedir, deployedPlugin);
     } catch (IOException e) {
-      throw new SonarException("Fail to install plugin: " + metadata, e);
+      throw new SonarException(FAIL_TO_INSTALL_PLUGIN + metadata, e);
     }
   }
 
@@ -61,7 +63,7 @@ public class PluginInstaller {
       copyDependencies(metadata, deployedPlugin, pluginBasedir);
       copyDeprecatedExtensions(metadata, pluginBasedir);
     } catch (IOException e) {
-      throw new SonarException("Fail to install plugin: " + metadata, e);
+      throw new SonarException(FAIL_TO_INSTALL_PLUGIN + metadata, e);
     }
   }
 

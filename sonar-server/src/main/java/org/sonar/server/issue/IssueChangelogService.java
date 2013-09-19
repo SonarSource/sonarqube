@@ -57,6 +57,5 @@ public class IssueChangelogService implements ServerComponent {
     Collection<User> users = userFinder.findByLogins(logins);
 
     return new IssueChangelog(changes, users);
-
   }
 }

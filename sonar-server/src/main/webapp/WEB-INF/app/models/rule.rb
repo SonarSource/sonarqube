@@ -31,6 +31,7 @@ class Rule < ActiveRecord::Base
 
   validates_presence_of :name, :description, :plugin_name
   validates_presence_of :plugin_rule_key, :if => 'name.present?'
+  validates_uniqueness_of :name
 
   has_many :rules_parameters, :inverse_of => :rule
   has_many :active_rules, :inverse_of => :rule
@@ -106,6 +107,9 @@ class Rule < ActiveRecord::Base
         begin
           result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName(I18n.locale, repository_key, plugin_rule_key)
           result = read_attribute(:name) unless result
+          # SONAR-4583
+          # name should return an empty string instead of nil
+          result = '' unless result
           result
         end
     else
@@ -114,6 +118,9 @@ class Rule < ActiveRecord::Base
           result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleName("en", repository_key, plugin_rule_key)
           # if no name present in the bundle, try to find it in the DB
           result = read_attribute(:name) unless result
+          # SONAR-4583
+          # name should return an empty string instead of nil
+          result = '' unless result
           result
         end
     end
@@ -128,6 +135,9 @@ class Rule < ActiveRecord::Base
       begin
         result = Java::OrgSonarServerUi::JRubyFacade.getInstance().getRuleDescription(I18n.locale, repository_key, plugin_rule_key)
         result = read_attribute(:description) unless result
+        # SONAR-4583
+        # description should return an empty string instead of nil
+        result = '' unless result
         result
       end
   end
@@ -177,19 +187,14 @@ class Rule < ActiveRecord::Base
     Rule.first(:conditions => ['status=? and plugin_name=? and id=?', STATUS_READY, MANUAL_REPOSITORY_KEY, id])
   end
 
-  def self.find_or_create_manual_rule(rule_id_or_name, create_if_not_found=false, options={})
-    if Api::Utils.is_integer?(rule_id_or_name)
-      rule = Rule.first(:conditions => {:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :id => rule_id_or_name.to_i})
-    else
-      key = rule_id_or_name.strip.downcase.gsub(/\s/, '_')
-      rule = Rule.first(:conditions => {:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key})
-      if rule==nil && create_if_not_found
-        description = options[:description] || Api::Utils.message('manual_rules.should_provide_real_description')
-        rule = Rule.create!(:status => STATUS_READY, :plugin_name => MANUAL_REPOSITORY_KEY, :plugin_rule_key => key,
-                            :name => rule_id_or_name, :description => description)
-      end
-    end
-    rule
+  def self.create_manual_rule(options)
+    key = options[:name].strip.downcase.gsub(/\s/, '_')
+    creation_options = {:name => options[:name],
+                        :description => options[:description],
+                        :plugin_rule_key => key,
+                        :status => STATUS_READY,
+                        :plugin_name => MANUAL_REPOSITORY_KEY}
+    Rule.create!(creation_options)
   end
 
   def self.to_hash(java_rule)
@@ -279,6 +284,7 @@ class Rule < ActiveRecord::Base
       values[:status] = STATUS_REMOVED
     elsif status == 'ACTIVE' || status == 'INACTIVE'
       # For retro compatibility for the Sqale plugin
+      # To be removed when SonarQube version will no more be compatible with SQALE version < 1.10
       options[:activation] = status
       conditions << ['status <> :status']
       values[:status] = STATUS_REMOVED

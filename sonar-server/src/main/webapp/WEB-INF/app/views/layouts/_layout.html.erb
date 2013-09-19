@@ -4,7 +4,7 @@
      selected_section = Navigation::SECTION_HOME
    end
    @project=@resource unless @project || selected_section==Navigation::SECTION_HOME
-   period_param = "period=#{params[:period]}" if params[:period]
+   period_param = "period=#{u(params[:period])}" if params[:period]
 %>
 <div id="container">
   <%= yield :header -%>
@@ -50,7 +50,7 @@
           <% if selected_section==Navigation::SECTION_HOME %>
             <% ActiveDashboard.user_dashboards(current_user, true).each do |active_dashboard| %>
               <li class="<%= 'active' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
-                <a href="<%= ApplicationController.root_context -%>/dashboard/?did=<%= active_dashboard.dashboard_id -%>"><%= active_dashboard.dashboard.name(true) -%></a>
+                <a href="<%= ApplicationController.root_context -%>/dashboard/?did=<%= active_dashboard.dashboard_id -%>"><%= h active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
 
@@ -59,13 +59,13 @@
               selected=request.request_uri.include?("/plugins/home/#{page_url}")
             %>
               <li class="<%= 'active' if selected -%>">
-                <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
+                <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= h message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
             <% end %>
 
             <li class="spacer"></li>
             <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
 
-            <li class="<%= 'active' if request.request_uri.include?('/dependencies/index') -%>">
+            <li class="<%= 'active' if controller.controller_path=='dependencies' -%>">
               <a href="<%= ApplicationController.root_context -%>/dependencies/index"><%= message('dependencies.page') -%></a></li>
             <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
               <a href="<%= ApplicationController.root_context -%>/comparison/index"><%= message('comparison.page') -%></a>
@@ -74,7 +74,7 @@
           <% elsif selected_section==Navigation::SECTION_RESOURCE %>
             <% ActiveDashboard.user_dashboards(current_user, false).each do |active_dashboard| %>
               <li class="<%= 'active' if @dashboard && controller.controller_path=='dashboard' && active_dashboard.dashboard_id==@dashboard.id -%>">
-                <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= active_dashboard.dashboard.name(true) -%></a>
+                <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= @project.id -%>?did=<%= active_dashboard.dashboard_id -%><%= "&"+period_param if period_param -%>"><%= h active_dashboard.dashboard.name(true) -%></a>
               </li>
             <% end %>
             <li class="spacer"></li>
@@ -89,7 +89,7 @@
               page_url = (page.isController() ? "#{page.getId()}?id=#{@project.id}" : "/plugins/resource/#{@project.id}?page=#{page.getId()}")
             %>
               <li class="<%= 'active' if request.request_uri.include?(page_url) -%>">
-                <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a>
+                <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= h message(page.getId() + '.page', :default => page.getTitle()) -%></a>
               </li>
             <% end %>
             <li class="<%= 'active' if controller.controller_path=='cloud' -%>">
@@ -119,7 +119,7 @@
               page_url = (page.isController() ? page.getId() : "/plugins/configuration/#{page.getId()}")
             %>
               <li class="<%= 'active' if request.request_uri.include?(page_url) -%>">
-                <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= message(page.getId() + '.page', :default => page.getTitle()) %></a>
+                <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= h message(page.getId() + '.page', :default => page.getTitle()) %></a>
               </li>
             <% end %>
             <li class="spacer"></li>
@@ -154,7 +154,7 @@
 
           <%= yield :sidebar %>
           <li id="logo">
-            <center><a href="http://www.sonarsource.org/" target="SonarSource"><%= image_tag('sonarqube-24x100.png', :alt => message('layout.sonar.slogan'), :width => 100, :height => 24) -%></a></center>
+            <center><a href="http://www.sonarqube.org/" target="SonarSource"><%= image_tag('sonarqube-24x100.png', :alt => message('layout.sonar.slogan'), :width => 100, :height => 24) -%></a></center>
           </li>
         </ul>
       </div>

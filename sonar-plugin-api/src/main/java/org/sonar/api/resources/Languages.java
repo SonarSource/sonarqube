@@ -21,6 +21,8 @@ package org.sonar.api.resources;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
@@ -36,14 +38,18 @@ import java.util.Map;
  */
 public class Languages implements BatchComponent, ServerComponent {
 
-  private final Map<String, Language> map = Maps.newHashMap();
+  private static final Logger LOG = LoggerFactory.getLogger(Languages.class);
+
+  private final Map<String, Language> map = Maps.newLinkedHashMap();
 
   /**
    * Creates a list of languages
    */
   public Languages(Language... languages) {
+    LOG.debug("Available languages:");
     for (Language language : languages) {
       map.put(language.getKey(), language);
+      LOG.debug("  * " + language.getName() + " => \"" + language.getKey() + "\"");
     }
   }
 
@@ -51,6 +57,7 @@ public class Languages implements BatchComponent, ServerComponent {
    * No languages are installed
    */
   public Languages() {
+    LOG.debug("No language available");
   }
 
   /**
@@ -81,4 +88,5 @@ public class Languages implements BatchComponent, ServerComponent {
   public void add(Language language) {
     map.put(language.getKey(), language);
   }
+
 }

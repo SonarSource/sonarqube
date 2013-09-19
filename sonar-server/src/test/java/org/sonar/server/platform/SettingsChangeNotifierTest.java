@@ -32,7 +32,7 @@ public class SettingsChangeNotifierTest {
   @Test
   public void onGlobalPropertyChange() {
     GlobalPropertyChangeHandler handler = mock(GlobalPropertyChangeHandler.class);
-    SettingsChangeNotifier notifier = new SettingsChangeNotifier(new GlobalPropertyChangeHandler[]{handler});
+    SettingsChangeNotifier notifier = new SettingsChangeNotifier(new GlobalPropertyChangeHandler[] {handler});
 
     notifier.onGlobalPropertyChange("foo", "bar");
 

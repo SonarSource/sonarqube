@@ -35,6 +35,7 @@ import org.sonar.server.db.DatabaseMigration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -50,6 +51,35 @@ import java.util.UUID;
 public class ConvertViolationsToIssues implements DatabaseMigration {
 
   private static final int GROUP_SIZE = 500;
+  private static final String PROJECT_ID = "projectId";
+  private static final String CREATED_AT = "createdAt";
+  private static final String REVIEW_ID = "reviewId";
+  private static final String SEVERITY = "severity";
+  private static final String REVIEW_STATUS = "reviewStatus";
+  private static final String REVIEW_MANUAL_SEVERITY = "reviewManualSeverity";
+  private static final String REVIEW_SEVERITY = "reviewSeverity";
+  private static final String REVIEW_UPDATED_AT = "reviewUpdatedAt";
+  private static final String ROOT_PROJECT_ID = "rootProjectId";
+  private static final String RULE_ID = "ruleId";
+  private static final String MESSAGE = "message";
+  private static final String LINE = "line";
+  private static final String COST = "cost";
+  private static final String CHECKSUM = "checksum";
+  private static final String REVIEW_RESOLUTION = "reviewResolution";
+  private static final String REVIEW_REPORTER_ID = "reviewReporterId";
+  private static final String REVIEW_ASSIGNEE_ID = "reviewAssigneeId";
+  private static final String REVIEW_DATA = "reviewData";
+  private static final String REVIEW_MANUAL_VIOLATION = "reviewManualViolation";
+  private static final String PLAN_ID = "planId";
+  private static final String ISSUE_KEY = "issueKey";
+
+  private static final String STATUS_OPEN = "OPEN";
+  private static final String STATUS_CONFIRMED = "CONFIRMED";
+  private static final String UPDATED_AT = "updatedAt";
+  private static final String REVIEW_TEXT = "reviewText";
+  private static final String USER_ID = "userId";
+  private static final String SEVERITY_MAJOR = "MAJOR";
+
   private QueryRunner runner = new QueryRunner();
 
   @Override
@@ -140,15 +170,16 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
     }
 
     private void initInsertSql(Database database) {
+      String issuesColumnsWithoutId = "kee, component_id, root_component_id, rule_id, severity, manual_severity, message, line, effort_to_fix, status, resolution, " +
+        "checksum, reporter, assignee, action_plan_key, issue_attributes, issue_creation_date, issue_update_date, created_at, updated_at";
+
       if (Oracle.ID.equals(database.getDialect().getId())) {
-        insertSql = "INSERT INTO issues(id, kee, component_id, root_component_id, rule_id, severity, manual_severity, message, line, effort_to_fix, status, resolution, " +
-          " checksum, reporter, assignee, action_plan_key, issue_attributes, issue_creation_date, issue_update_date, created_at, updated_at) " +
+        insertSql = "INSERT INTO issues(id, "+ issuesColumnsWithoutId + ") " +
           " VALUES (issues_seq.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         insertChangeSql = "INSERT INTO issue_changes(id, kee, issue_key, user_login, change_type, change_data, created_at, updated_at) " +
           " VALUES (issue_changes_seq.nextval, ?, ?, ?, 'comment', ?, ?, ?)";
       } else {
-        insertSql = "INSERT INTO issues(kee, component_id, root_component_id, rule_id, severity, manual_severity, message, line, effort_to_fix, status, resolution, " +
-          " checksum, reporter, assignee, action_plan_key, issue_attributes, issue_creation_date, issue_update_date, created_at, updated_at) " +
+        insertSql = "INSERT INTO issues("+ issuesColumnsWithoutId + ") " +
           " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         insertChangeSql = "INSERT INTO issue_changes(kee, issue_key, user_login, change_type, change_data, created_at, updated_at) VALUES (?, ?, ?, 'comment', ?, ?, ?)";
       }
@@ -185,36 +216,36 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
       List<Map<String, Object>> allComments = Lists.newArrayList();
 
       for (Map<String, Object> row : rows) {
-        Long componentId = (Long) row.get("projectId");
+        Long componentId = (Long) row.get(PROJECT_ID);
         if (componentId == null) {
           continue;
         }
         String issueKey = UUID.randomUUID().toString();
         String status, severity, reporter = null;
         boolean manualSeverity;
-        Object createdAt = Objects.firstNonNull(row.get("createdAt"), oneYearAgo);
+        Object createdAt = Objects.firstNonNull(row.get(CREATED_AT), oneYearAgo);
         Object updatedAt;
-        Long reviewId = (Long) row.get("reviewId");
+        Long reviewId = (Long) row.get(REVIEW_ID);
         if (reviewId == null) {
           // violation without review
-          status = "OPEN";
+          status = STATUS_OPEN;
           manualSeverity = false;
-          severity = (String) row.get("severity");
+          severity = (String) row.get(SEVERITY);
           updatedAt = createdAt;
         } else {
           // violation + review
-          String reviewStatus = (String) row.get("reviewStatus");
-          status = ("OPEN".equals(reviewStatus) ? "CONFIRMED" : reviewStatus);
-          manualSeverity = Objects.firstNonNull((Boolean) row.get("reviewManualSeverity"), false);
-          severity = (String) row.get("reviewSeverity");
-          updatedAt = Objects.firstNonNull(row.get("reviewUpdatedAt"), oneYearAgo);
-          if ((Boolean) row.get("reviewManualViolation")) {
-            reporter = login((Long) row.get("reviewReporterId"));
+          String reviewStatus = (String) row.get(REVIEW_STATUS);
+          status = (STATUS_OPEN.equals(reviewStatus) ? STATUS_CONFIRMED : reviewStatus);
+          manualSeverity = Objects.firstNonNull((Boolean) row.get(REVIEW_MANUAL_SEVERITY), false);
+          severity = (String) row.get(REVIEW_SEVERITY);
+          updatedAt = Objects.firstNonNull(row.get(REVIEW_UPDATED_AT), oneYearAgo);
+          if ((Boolean) row.get(REVIEW_MANUAL_VIOLATION)) {
+            reporter = login((Long) row.get(REVIEW_REPORTER_ID));
           }
 
           List<Map<String, Object>> comments = runner.query(readConnection, ReviewCommentsHandler.SQL + reviewId, new ReviewCommentsHandler());
           for (Map<String, Object> comment : comments) {
-            comment.put("issueKey", issueKey);
+            comment.put(ISSUE_KEY, issueKey);
             allComments.add(comment);
           }
         }
@@ -222,20 +253,20 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
         Object[] params = new Object[20];
         params[0] = issueKey;
         params[1] = componentId;
-        params[2] = row.get("rootProjectId");
-        params[3] = row.get("ruleId");
+        params[2] = row.get(ROOT_PROJECT_ID);
+        params[3] = row.get(RULE_ID);
         params[4] = severity;
         params[5] = manualSeverity;
-        params[6] = row.get("message");
-        params[7] = row.get("line");
-        params[8] = row.get("cost");
+        params[6] = row.get(MESSAGE);
+        params[7] = row.get(LINE);
+        params[8] = row.get(COST);
         params[9] = status;
-        params[10] = row.get("reviewResolution");
-        params[11] = row.get("checksum");
+        params[10] = row.get(REVIEW_RESOLUTION);
+        params[11] = row.get(CHECKSUM);
         params[12] = reporter;
-        params[13] = login((Long) row.get("reviewAssigneeId"));
-        params[14] = plan((Long) row.get("planId"));
-        params[15] = row.get("reviewData");
+        params[13] = login((Long) row.get(REVIEW_ASSIGNEE_ID));
+        params[14] = plan((Long) row.get(PLAN_ID));
+        params[15] = row.get(REVIEW_DATA);
         params[16] = createdAt;
         params[17] = updatedAt;
         params[18] = createdAt;
@@ -253,15 +284,15 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
       List<Object[]> allParams = Lists.newArrayList();
 
       for (Map<String, Object> comment : comments) {
-        String login = login((Long) comment.get("userId"));
+        String login = login((Long) comment.get(USER_ID));
         if (login != null) {
           Object[] params = new Object[6];
           params[0] = UUID.randomUUID().toString();
-          params[1] = comment.get("issueKey");
+          params[1] = comment.get(ISSUE_KEY);
           params[2] = login;
-          params[3] = comment.get("reviewText");
-          params[4] = comment.get("createdAt");
-          params[5] = comment.get("updatedAt");
+          params[3] = comment.get(REVIEW_TEXT);
+          params[4] = comment.get(CREATED_AT);
+          params[5] = comment.get(UPDATED_AT);
           allParams.add(params);
         }
       }
@@ -318,26 +349,26 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
     @Override
     protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {
       Map<String, Object> map = Maps.newHashMap();
-      map.put("reviewId", getLong(rs, "reviewId"));
-      map.put("projectId", getLong(rs, "projectId"));
-      map.put("rootProjectId", getLong(rs, "rootProjectId"));
-      map.put("ruleId", getLong(rs, "ruleId"));
-      map.put("severity", Objects.firstNonNull(SEVERITIES.get(getInt(rs, "failureLevel")), "MAJOR"));
-      map.put("message", rs.getString("message"));
-      map.put("line", getInt(rs, "line"));
-      map.put("cost", getDouble(rs, "cost"));
-      map.put("checksum", rs.getString("checksum"));
-      map.put("createdAt", rs.getTimestamp("createdAt"));
-      map.put("reviewResolution", rs.getString("reviewResolution"));
-      map.put("reviewSeverity", Objects.firstNonNull(rs.getString("reviewSeverity"), "MAJOR"));
-      map.put("reviewStatus", rs.getString("reviewStatus"));
-      map.put("reviewReporterId", getLong(rs, "reviewReporterId"));
-      map.put("reviewAssigneeId", getLong(rs, "reviewAssigneeId"));
-      map.put("reviewData", rs.getString("reviewData"));
-      map.put("reviewManualSeverity", rs.getBoolean("reviewManualSeverity"));
-      map.put("reviewUpdatedAt", rs.getTimestamp("reviewUpdatedAt"));
-      map.put("reviewManualViolation", rs.getBoolean("reviewManualViolation"));
-      map.put("planId", getLong(rs, "planId"));
+      map.put(REVIEW_ID, getLong(rs, REVIEW_ID));
+      map.put(PROJECT_ID, getLong(rs, PROJECT_ID));
+      map.put(ROOT_PROJECT_ID, getLong(rs, ROOT_PROJECT_ID));
+      map.put(RULE_ID, getLong(rs, RULE_ID));
+      map.put(SEVERITY, Objects.firstNonNull(SEVERITIES.get(getInt(rs, "failureLevel")), SEVERITY_MAJOR));
+      map.put(MESSAGE, rs.getString(MESSAGE));
+      map.put(LINE, getInt(rs, LINE));
+      map.put(COST, getDouble(rs, COST));
+      map.put(CHECKSUM, rs.getString(CHECKSUM));
+      map.put(CREATED_AT, rs.getTimestamp(CREATED_AT));
+      map.put(REVIEW_RESOLUTION, rs.getString(REVIEW_RESOLUTION));
+      map.put(REVIEW_SEVERITY, Objects.firstNonNull(rs.getString(REVIEW_SEVERITY), SEVERITY_MAJOR));
+      map.put(REVIEW_STATUS, rs.getString(REVIEW_STATUS));
+      map.put(REVIEW_REPORTER_ID, getLong(rs, REVIEW_REPORTER_ID));
+      map.put(REVIEW_ASSIGNEE_ID, getLong(rs, REVIEW_ASSIGNEE_ID));
+      map.put(REVIEW_DATA, rs.getString(REVIEW_DATA));
+      map.put(REVIEW_MANUAL_SEVERITY, rs.getBoolean(REVIEW_MANUAL_SEVERITY));
+      map.put(REVIEW_UPDATED_AT, rs.getTimestamp(REVIEW_UPDATED_AT));
+      map.put(REVIEW_MANUAL_VIOLATION, rs.getBoolean(REVIEW_MANUAL_VIOLATION));
+      map.put(PLAN_ID, getLong(rs, PLAN_ID));
       return map;
     }
   }
@@ -348,10 +379,10 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
     @Override
     protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {
       Map<String, Object> map = Maps.newHashMap();
-      map.put("createdAt", rs.getTimestamp("createdAt"));
-      map.put("updatedAt", rs.getTimestamp("updatedAt"));
-      map.put("userId", getLong(rs, "userId"));
-      map.put("reviewText", rs.getString("reviewText"));
+      map.put(CREATED_AT, rs.getTimestamp(CREATED_AT));
+      map.put(UPDATED_AT, rs.getTimestamp(UPDATED_AT));
+      map.put(USER_ID, getLong(rs, USER_ID));
+      map.put(REVIEW_TEXT, rs.getString(REVIEW_TEXT));
       return map;
     }
   }
@@ -373,6 +404,5 @@ public class ConvertViolationsToIssues implements DatabaseMigration {
     int i = rs.getInt(columnName);
     return rs.wasNull() ? null : i;
   }
-
 
 }

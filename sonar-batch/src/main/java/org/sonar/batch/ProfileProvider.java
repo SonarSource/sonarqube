@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 
 public class ProfileProvider extends ProviderAdapter {
@@ -32,7 +33,10 @@ public class ProfileProvider extends ProviderAdapter {
 
   private RulesProfile profile;
 
-  public RulesProfile provide(Project project, ProfileLoader profileLoader, Settings settings) {
+  /**
+   * @param languages This parameter is here to ensure Languages is started before this provider in order to display available languages.
+   */
+  public RulesProfile provide(Project project, ProfileLoader profileLoader, Settings settings, Languages languages) {
     if (profile == null) {
       profile = profileLoader.load(project, settings);
       LOG.info("Quality profile : {}", profile);

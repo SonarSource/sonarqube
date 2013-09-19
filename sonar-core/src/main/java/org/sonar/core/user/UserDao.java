@@ -41,6 +41,19 @@ public class UserDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
+  public UserDto getUser(long userId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return getUser(userId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public UserDto getUser(long userId, SqlSession session) {
+    return session.getMapper(UserMapper.class).selectUser(userId);
+  }
+
   /**
    * Search for user by login. Disabled users are ignored.
    *

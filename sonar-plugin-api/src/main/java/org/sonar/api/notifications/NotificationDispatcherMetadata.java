@@ -78,4 +78,25 @@ public final class NotificationDispatcherMetadata implements ServerExtension {
     return dispatcherKey;
   }
 
+  @Override
+  public String toString() {
+    return dispatcherKey;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    NotificationDispatcherMetadata that = (NotificationDispatcherMetadata) o;
+    return dispatcherKey.equals(that.dispatcherKey);
+  }
+
+  @Override
+  public int hashCode() {
+    return dispatcherKey.hashCode();
+  }
 }

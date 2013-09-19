@@ -110,7 +110,7 @@ public class AverageFormula implements Formula {
       }
     }
     if (hasApplicableChildren) {
-      result = new Measure(context.getTargetMetric(), (totalMainMeasure / totalByMeasure));
+      result = new Measure(context.getTargetMetric(), totalMainMeasure / totalByMeasure);
     }
     return result;
   }
@@ -122,7 +122,7 @@ public class AverageFormula implements Formula {
     Double byMeasure = MeasureUtils.getValue(data.getMeasure(byMetric), null);
     Double mainMeasure = MeasureUtils.getValue(data.getMeasure(mainMetric), fallbackMeasure);
     if (mainMeasure != null && byMeasure != null && byMeasure > 0.0) {
-      result = new Measure(context.getTargetMetric(), (mainMeasure / byMeasure));
+      result = new Measure(context.getTargetMetric(), mainMeasure / byMeasure);
     }
 
     return result;

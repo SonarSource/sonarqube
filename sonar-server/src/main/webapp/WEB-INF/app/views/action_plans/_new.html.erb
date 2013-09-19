@@ -4,7 +4,7 @@
     <input type="hidden" name="plan_key" value="<%= @action_plan.key() if @action_plan -%>"/>
     <tbody>
     <tr>
-      <td colspan="2" class="left"><h1 class="marginbottom10"><%= @action_plan && @action_plan.key() ? message('action_plans.edit_action_plan') : message('action_plans.create_form_title') -%></h1></td>
+      <td class="left"><h1 class="marginbottom10"><%= @action_plan && @action_plan.key() ? message('action_plans.edit_action_plan') : message('action_plans.create_form_title') -%></h1></td>
     </tr>
     <tr>
       <td class="left" valign="top">
@@ -32,6 +32,7 @@
     <tr>
       <td class="left" valign="top">
         <input type="submit" value="<%= @action_plan && @action_plan.key() ? message('edit') : message('create') -%>"/>
+        <%= link_to message('cancel'), { :controller => 'action_plans', :action => 'index', :id => @resource.id}, { :class => 'action' } %>
       </td>
     </tr>
     </tbody>

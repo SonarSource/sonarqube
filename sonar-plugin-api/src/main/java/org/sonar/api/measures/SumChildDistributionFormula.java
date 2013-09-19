@@ -52,16 +52,14 @@ public class SumChildDistributionFormula implements Formula {
     if (measures == null || measures.isEmpty()) {
       return null;
     }
-    else {
-      RangeDistributionBuilder distribution = new RangeDistributionBuilder(context.getTargetMetric());
-      for (Measure measure : measures) {
-        distribution.add(measure);
-      }
-      Measure measure = distribution.build();
-      if (!Scopes.isHigherThanOrEquals(context.getResource().getScope(), minimumScopeToPersist)) {
-        measure.setPersistenceMode(PersistenceMode.MEMORY);
-      }
-      return measure;
+    RangeDistributionBuilder distribution = new RangeDistributionBuilder(context.getTargetMetric());
+    for (Measure measure : measures) {
+      distribution.add(measure);
     }
+    Measure measure = distribution.build();
+    if (!Scopes.isHigherThanOrEquals(context.getResource().getScope(), minimumScopeToPersist)) {
+      measure.setPersistenceMode(PersistenceMode.MEMORY);
+    }
+    return measure;
   }
 }

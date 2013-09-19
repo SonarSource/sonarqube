@@ -1,0 +1,10 @@
+<?xml version="1.0"  encoding="ISO-8859-1"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+
+<Configure class="org.eclipse.jetty.webapp.WebAppContext">
+  <Get name="sessionHandler">
+    <Get name="sessionManager">
+      <Set name="httpOnly" type="boolean">true</Set>
+    </Get>
+  </Get>
+</Configure>

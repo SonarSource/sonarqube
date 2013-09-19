@@ -64,8 +64,8 @@ public class Paging {
    * Number of pages. It is greater than or equal 0.
    */
   public int pages() {
-    int p = (total / pageSize);
-    if ((total % pageSize) > 0) {
+    int p = total / pageSize;
+    if (total % pageSize > 0) {
       p++;
     }
     return p;

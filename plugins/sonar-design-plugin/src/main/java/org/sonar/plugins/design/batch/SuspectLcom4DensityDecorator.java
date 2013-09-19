@@ -73,7 +73,7 @@ public class SuspectLcom4DensityDecorator implements Decorator {
     }
 
     if (hasLcom4 && totalFiles > 0) {
-      context.saveMeasure(CoreMetrics.SUSPECT_LCOM4_DENSITY, (total / totalFiles));
+      context.saveMeasure(CoreMetrics.SUSPECT_LCOM4_DENSITY, total / totalFiles);
     }
   }
 

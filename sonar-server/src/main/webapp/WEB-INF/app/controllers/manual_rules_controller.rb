@@ -50,7 +50,7 @@ class ManualRulesController < ApplicationController
         rule.save!
       else
         # Create rule
-        rule=Rule.find_or_create_manual_rule(params[:name], true, {:description => params[:description]})
+        Rule.create_manual_rule(params)
       end
     rescue Exception => e
       flash[:error]= e.message

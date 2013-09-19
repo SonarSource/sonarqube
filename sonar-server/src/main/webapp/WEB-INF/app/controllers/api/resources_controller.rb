@@ -104,7 +104,7 @@ class Api::ResourcesController < Api::ApiController
       resource_id=params[:resource]
       if resource_id
         @resource=Project.by_key(resource_id)
-        @snapshot=(@resource ? @resource.last_snapshot : nil)
+        @snapshot=(@resource && @resource.last_snapshot)
         raise ApiException.new(404, "Resource [#{resource_id}] not found") if @snapshot.nil?
         raise ApiException.new(401, "Unauthorized") unless has_role?(:user, @snapshot)
       else

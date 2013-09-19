@@ -19,9 +19,7 @@
  */
 package org.sonar.core.persistence;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
@@ -31,17 +29,29 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
 
 import javax.sql.DataSource;
-import java.sql.*;
-import java.util.List;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
 
 public class DbTemplate implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(DbTemplate.class);
 
-  public DbTemplate copyTable(DataSource source, DataSource dest, String table, String... whereClauses) {
+  public DbTemplate copyTable(DataSource source, DataSource dest, String table) {
+    String selectQuery = "SELECT * FROM " + table;
+    copyTable(source, dest, table, selectQuery);
+
+    return this;
+  }
+
+  public DbTemplate copyTable(DataSource source, DataSource dest, String table, String selectQuery) {
     LOG.debug("Copy table {}", table);
     long startup = System.currentTimeMillis();
 
-    String selectQuery = selectQuery(table, whereClauses);
     truncate(dest, table);
 
     Connection sourceConnection = null;
@@ -95,7 +105,6 @@ public class DbTemplate implements ServerComponent {
       DbUtils.closeQuietly(sourceStatement);
       DbUtils.closeQuietly(sourceConnection);
     }
-
     return this;
   }
 
@@ -127,20 +136,6 @@ public class DbTemplate implements ServerComponent {
       columnTypes[i - 1] = resultSet.getMetaData().getColumnType(i);
     }
     return columnTypes;
-  }
-
-  @VisibleForTesting
-  static String selectQuery(String table, String... whereClauses) {
-    String selectQuery = "SELECT * FROM " + table;
-    if (whereClauses.length > 0) {
-      List<String> clauses = Lists.newArrayList();
-      for (String whereClause : whereClauses) {
-        clauses.add('(' + whereClause + ')');
-      }
-
-      selectQuery += " WHERE " + Joiner.on(" AND ").join(clauses);
-    }
-    return selectQuery;
   }
 
   public int getRowCount(DataSource dataSource, String table) {

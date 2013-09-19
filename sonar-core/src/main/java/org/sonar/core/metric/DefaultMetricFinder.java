@@ -29,6 +29,7 @@ import java.util.List;
 
 public class DefaultMetricFinder implements MetricFinder {
 
+  private static final String ENABLED = "enabled";
   private DatabaseSessionFactory sessionFactory;
 
   public DefaultMetricFinder(DatabaseSessionFactory sessionFactory) {
@@ -36,11 +37,11 @@ public class DefaultMetricFinder implements MetricFinder {
   }
 
   public Metric findById(int id) {
-    return sessionFactory.getSession().getSingleResult(Metric.class, "id", id, "enabled", true);
+    return sessionFactory.getSession().getSingleResult(Metric.class, "id", id, ENABLED, true);
   }
 
   public Metric findByKey(String key) {
-    return sessionFactory.getSession().getSingleResult(Metric.class, "key", key, "enabled", true);
+    return sessionFactory.getSession().getSingleResult(Metric.class, "key", key, ENABLED, true);
   }
 
   public Collection<Metric> findAll(List<String> metricKeys) {
@@ -59,7 +60,7 @@ public class DefaultMetricFinder implements MetricFinder {
   }
 
   protected Collection<Metric> doFindAll() {
-    return sessionFactory.getSession().getResults(Metric.class, "enabled", true);
+    return sessionFactory.getSession().getResults(Metric.class, ENABLED, true);
   }
 
 }

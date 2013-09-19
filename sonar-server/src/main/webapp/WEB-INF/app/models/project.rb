@@ -186,7 +186,7 @@ class Project < ActiveRecord::Base
   end
 
   def path_name
-    last_snapshot ? last_snapshot.path_name : nil
+    last_snapshot && last_snapshot.path_name
   end
 
   def profile(lang, returns_default_if_nil=false)
