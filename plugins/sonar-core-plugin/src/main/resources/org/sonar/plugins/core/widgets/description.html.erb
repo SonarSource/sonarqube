@@ -35,7 +35,7 @@
             <%= link_to(h(link.name), link.href, :popup => true) -%>
           <% else %>
             <%= image_tag(link.icon, :alt => link.name) -%>
-            <a href="#" onclick="$('link_<%= link.id -%>').toggle();return false;"><%= h(link.name) -%></a>
+            <a href="#" onclick="$j('#link_<%= link.id -%>').toggle();return false;"><%= h(link.name) -%></a>
             <div id="link_<%= link.id -%>" style="padding-left: 20px; display:none"><%= h(link.href) -%></div>
           <% end %>
           </div>
