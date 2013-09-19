@@ -22,11 +22,11 @@
 
 <script type="text/javascript">
   function showMostViolatedRules<%= widget.id -%>(severity) {
-    divs = $$('#block_<%= widget.id-%> div.hotspot');
+    divs = $j('#block_<%= widget.id-%> div.hotspot');
     for (i = 0; i < divs.size(); i++) {
       divs[i].hide();
     }
-    $('most-violated-rules-<%= widget.id -%>-' + severity).show();
+    $j('#most-violated-rules-<%= widget.id -%>-' + severity).show();
   }
 </script>
 
