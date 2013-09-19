@@ -93,24 +93,28 @@ public class DefaultModuleIssues implements ModuleIssues {
 
   @Override
   public Iterable<Issue> issues() {
-    return (Iterable) Iterables.filter(cache.all(), new ModulePredicate(false));
+    return (Iterable) Iterables.filter(cache.all(), new ModulePredicate(project, false));
   }
 
   @Override
   public Iterable<Issue> resolvedIssues() {
-    return (Iterable) Iterables.filter(cache.all(), new ModulePredicate(true));
+    return (Iterable) Iterables.filter(cache.all(), new ModulePredicate(project, true));
   }
 
-  private class ModulePredicate implements Predicate<DefaultIssue> {
+  private static class ModulePredicate implements Predicate<DefaultIssue> {
     private final boolean resolved;
+    private final String key;
+    private final String keyPrefix;
 
-    private ModulePredicate(boolean resolved) {
+    private ModulePredicate(Project project, boolean resolved) {
       this.resolved = resolved;
+      this.key = project.getEffectiveKey();
+      this.keyPrefix = project.getEffectiveKey() + ":";
     }
 
     @Override
     public boolean apply(@Nullable DefaultIssue issue) {
-      if (issue != null && (issue.componentKey().equals(project.getEffectiveKey()) || issue.componentKey().startsWith(project.getEffectiveKey() + ":"))) {
+      if (issue != null && (issue.componentKey().equals(key) || issue.componentKey().startsWith(keyPrefix))) {
         return resolved ? issue.resolution() != null : issue.resolution()==null;
       }
       return false;
