@@ -41,7 +41,7 @@ public class CoverageMeasurementFilterTest {
   @Before
   public void createFilter() {
     settings = new Settings(new PropertyDefinitions(CoverageMeasurementFilter.getPropertyDefinitions()));
-    filter = new CoverageMeasurementFilter(settings, new CoverageDecorator());
+    filter = new CoverageMeasurementFilter(settings, new CoverageDecorator(), new LineCoverageDecorator(), new BranchCoverageDecorator());
   }
 
   @Test

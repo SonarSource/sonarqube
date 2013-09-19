@@ -19,16 +19,16 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import org.sonar.api.measures.Metric;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ImmutableSet;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.WildcardPattern;
@@ -43,13 +43,23 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
   public static final String PROPERTY_COVERAGE_EXCLUSIONS = "sonar.coverage.exclusions";
   public static final String PROPERTY_COVERAGE_INCLUSIONS = "sonar.coverage.inclusions";
 
-  private Settings settings;
-  private CoverageDecorator decorator;
+  private final Settings settings;
+  private final ImmutableSet<Metric> coverageMetrics;
   private Collection<WildcardPattern> resourcePatterns;
 
-  public CoverageMeasurementFilter(Settings settings, CoverageDecorator decorator) {
+  public CoverageMeasurementFilter(Settings settings,
+    CoverageDecorator coverageDecorator,
+    LineCoverageDecorator lineCoverageDecorator,
+    BranchCoverageDecorator branchCoverageDecorator) {
     this.settings = settings;
-    this.decorator = decorator;
+    this.coverageMetrics = ImmutableSet.<Metric>builder()
+      .addAll(coverageDecorator.generatedMetrics())
+      .addAll(coverageDecorator.usedMetrics())
+      .addAll(lineCoverageDecorator.generatedMetrics())
+      .addAll(lineCoverageDecorator.dependsUponMetrics())
+      .addAll(branchCoverageDecorator.generatedMetrics())
+      .addAll(branchCoverageDecorator.dependsUponMetrics())
+      .build();
 
     initPatterns();
   }
@@ -64,8 +74,7 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
   }
 
   private boolean isCoverageMetric(Metric metric) {
-    return this.decorator.usedMetrics().contains(metric)
-      || this.decorator.generatedMetrics().contains(metric);
+    return this.coverageMetrics.contains(metric);
   }
 
   private boolean hasMatchingPattern(Resource resource) {
