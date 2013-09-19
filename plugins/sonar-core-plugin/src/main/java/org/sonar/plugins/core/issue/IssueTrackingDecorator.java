@@ -19,16 +19,18 @@
  */
 package org.sonar.plugins.core.issue;
 
-import org.sonar.api.batch.SonarIndex;
-import org.sonar.batch.scan.LastSnapshots;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
@@ -43,6 +45,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -116,7 +119,7 @@ public class IssueTrackingDecorator implements Decorator {
     IssueTrackingResult trackingResult = tracking.track(sourceHashHolder, dbOpenIssues, issues);
 
     // unmatched = issues that have been resolved + issues on disabled/removed rules + manual issues
-    addUnmatched(trackingResult.unmatched(), issues);
+    addUnmatched(trackingResult.unmatched(), sourceHashHolder, issues);
 
     mergeMatched(trackingResult);
 
@@ -171,9 +174,12 @@ public class IssueTrackingDecorator implements Decorator {
     }
   }
 
-  private void addUnmatched(Collection<IssueDto> unmatchedIssues, Collection<DefaultIssue> issues) {
+  private void addUnmatched(Collection<IssueDto> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<DefaultIssue> issues) {
     for (IssueDto unmatchedDto : unmatchedIssues) {
       DefaultIssue unmatched = unmatchedDto.toDefaultIssue();
+      if (StringUtils.isNotBlank(unmatchedDto.getReporter())) {
+        relocateManualIssue(unmatched, unmatchedDto, sourceHashHolder);
+      }
       updateUnmatchedIssue(unmatched, false /* manual issues can be kept open */);
       issues.add(unmatched);
     }
@@ -202,6 +208,23 @@ public class IssueTrackingDecorator implements Decorator {
       ActiveRule activeRule = rulesProfile.getActiveRule(issue.ruleKey().repository(), issue.ruleKey().rule());
       issue.setEndOfLife(true);
       issue.setOnDisabledRule(activeRule == null || rule == null || Rule.STATUS_REMOVED.equals(rule.getStatus()));
+    }
+  }
+
+  private void relocateManualIssue(DefaultIssue newIssue, IssueDto oldIssue, SourceHashHolder sourceHashHolder) {
+    Logger logger = LoggerFactory.getLogger(IssueTrackingDecorator.class);
+    logger.debug("Trying to relocate manual issue {}", oldIssue.getKee());
+
+    Collection<Integer> newLinesWithSameHash = sourceHashHolder.getNewLinesMatching(oldIssue.getLine());
+    logger.debug("Found the following lines with same hash: {}", newLinesWithSameHash);
+    if (newLinesWithSameHash.size() == 1) {
+      Integer newLine = newLinesWithSameHash.iterator().next();
+      logger.debug("Relocating issue to line {}", newLine);
+
+      newIssue.setLine(newLine);
+      updater.setPastLine(newIssue, oldIssue.getLine());
+      updater.setPastMessage(newIssue, oldIssue.getMessage(), changeContext);
+      updater.setPastEffortToFix(newIssue, oldIssue.getEffortToFix(), changeContext);
     }
   }
 }

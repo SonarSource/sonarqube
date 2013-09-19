@@ -150,16 +150,33 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void manual_issues_should_be_kept_open() throws Exception {
+  public void manual_issues_should_be_moved_if_matching_line_found() throws Exception {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
     trackingResult.addUnmatched(unmatchedIssue);
+
+    String originalSource = "public interface Action {\n"
+      + "   void method1();\n"
+      + "   void method2();\n"
+      + "   void method3();\n"
+      + "   void method4();\n"
+      + "   void method5();\n" // Original issue here
+      + "}";
+    String newSource = "public interface Action {\n"
+      + "   void method5();\n" // New issue here
+      + "   void method1();\n"
+      + "   void method2();\n"
+      + "   void method3();\n"
+      + "   void method4();\n"
+      + "}";
+    when(index.getSource(file)).thenReturn(newSource);
+    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
@@ -172,6 +189,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     verify(issueCache).put(argument.capture());
 
     DefaultIssue issue = argument.getValue();
+    assertThat(issue.line()).isEqualTo(2);
     assertThat(issue.key()).isEqualTo("ABCDE");
     assertThat(issue.isNew()).isFalse();
     assertThat(issue.isEndOfLife()).isFalse();
@@ -179,16 +197,117 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void manual_issues_should_be_kept_if_matching_line_not_found() throws Exception {
+    // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
+    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+
+    // INPUT : one issue existing during previous scan
+    final int issueOnLine = 6;
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(issueOnLine).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
+
+    IssueTrackingResult trackingResult = new IssueTrackingResult();
+    trackingResult.addUnmatched(unmatchedIssue);
+
+    String originalSource = "public interface Action {\n"
+      + "   void method1();\n"
+      + "   void method2();\n"
+      + "   void method3();\n"
+      + "   void method4();\n"
+      + "   void method5();\n" // Original issue here
+      + "}";
+    String newSource = "public interface Action {\n"
+      + "   void method1();\n"
+      + "   void method2();\n"
+      + "   void method3();\n"
+      + "   void method4();\n"
+      + "   void method6();\n" // Poof, no method5 anymore
+      + "}";
+    when(index.getSource(file)).thenReturn(newSource);
+    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
+
+    when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
+
+    decorator.doDecorate(file);
+
+    verify(workflow, times(1)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
+    verify(handlers, times(1)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueCache).put(argument.capture());
+
+    DefaultIssue issue = argument.getValue();
+    assertThat(issue.line()).isEqualTo(issueOnLine);
+    assertThat(issue.key()).isEqualTo("ABCDE");
+    assertThat(issue.isNew()).isFalse();
+    assertThat(issue.isEndOfLife()).isFalse();
+    assertThat(issue.isOnDisabledRule()).isFalse();
+  }
+
+  @Test
+  public void manual_issues_should_be_kept_if_multiple_matching_lines_found() throws Exception {
+    // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
+    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+
+    // INPUT : one issue existing during previous scan
+    final int issueOnLine = 3;
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(issueOnLine).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
+
+    IssueTrackingResult trackingResult = new IssueTrackingResult();
+    trackingResult.addUnmatched(unmatchedIssue);
+
+    String originalSource = "public class Action {\n"
+      + "   void method1() {\n"
+      + "     notify();\n" // initial issue
+      + "   }\n"
+      + "}";
+    String newSource = "public class Action {\n"
+      + "   \n"
+      + "   void method1() {\n" // new issue will appear here
+      + "     notify();\n"
+      + "   }\n"
+      + "   void method2() {\n"
+      + "     notify();\n"
+      + "   }\n"
+      + "}";
+    when(index.getSource(file)).thenReturn(newSource);
+    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
+
+    when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
+
+    decorator.doDecorate(file);
+
+    verify(workflow, times(1)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
+    verify(handlers, times(1)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueCache).put(argument.capture());
+
+    DefaultIssue issue = argument.getValue();
+    assertThat(issue.line()).isEqualTo(issueOnLine);
+    assertThat(issue.key()).isEqualTo("ABCDE");
+    assertThat(issue.isNew()).isFalse();
+    assertThat(issue.isEndOfLife()).isFalse();
+    assertThat(issue.isOnDisabledRule()).isFalse();
+  }
+
+
+  @Test
   public void manual_issues_should_be_closed_if_manual_rule_is_removed() throws Exception {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance").setStatus(Rule.STATUS_REMOVED));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
     trackingResult.addUnmatched(unmatchedIssue);
+
+    String source = "public interface Action {}";
+    when(index.getSource(file)).thenReturn(source);
+    when(lastSnapshots.getSource(file)).thenReturn(source);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
@@ -213,11 +332,58 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(null);
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
     trackingResult.addUnmatched(unmatchedIssue);
+
+    String source = "public interface Action {}";
+    when(index.getSource(file)).thenReturn(source);
+    when(lastSnapshots.getSource(file)).thenReturn(source);
+
+    when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
+
+    decorator.doDecorate(file);
+
+    verify(workflow, times(1)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
+    verify(handlers, times(1)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueCache).put(argument.capture());
+
+    DefaultIssue issue = argument.getValue();
+    assertThat(issue.key()).isEqualTo("ABCDE");
+    assertThat(issue.isNew()).isFalse();
+    assertThat(issue.isEndOfLife()).isTrue();
+    assertThat(issue.isOnDisabledRule()).isTrue();
+  }
+
+  @Test
+  public void manual_issues_should_be_closed_if_new_source_is_shorter() throws Exception {
+    // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
+    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+
+    // INPUT : one issue existing during previous scan
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(null);
+
+    IssueTrackingResult trackingResult = new IssueTrackingResult();
+    trackingResult.addUnmatched(unmatchedIssue);
+
+    String originalSource = "public interface Action {\n"
+      + "   void method1();\n"
+      + "   void method2();\n"
+      + "   void method3();\n"
+      + "   void method4();\n"
+      + "   void method5();\n"
+      + "}";
+    String newSource = "public interface Action {\n"
+      + "   void method1();\n"
+      + "   void method2();\n"
+      + "}";
+    when(index.getSource(file)).thenReturn(newSource);
+    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
