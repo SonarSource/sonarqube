@@ -19,26 +19,18 @@
  */
 package org.sonar.api.config;
 
-import org.sonar.api.config.internal.SubCategory;
-
-import org.sonar.api.config.internal.Category;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
+import org.sonar.api.*;
 import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.config.internal.Category;
+import org.sonar.api.config.internal.SubCategory;
 import org.sonar.api.utils.AnnotationUtils;
 
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Metadata of all the properties declared by plugins
@@ -174,11 +166,17 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     Map<Category, Map<SubCategory, Collection<PropertyDefinition>>> byCategory = new HashMap<Category, Map<SubCategory, Collection<PropertyDefinition>>>();
     if (qualifier == null) {
       // Special categories on global page
-      byCategory.put(new Category("email", true), new HashMap<SubCategory, Collection<PropertyDefinition>>());
-      byCategory.put(new Category("encryption", true), new HashMap<SubCategory, Collection<PropertyDefinition>>());
+      HashMap<SubCategory, Collection<PropertyDefinition>> emailSubCategories = new HashMap<SubCategory, Collection<PropertyDefinition>>();
+      emailSubCategories.put(new SubCategory("email", true), new ArrayList<PropertyDefinition>());
+      byCategory.put(new Category(CoreProperties.CATEGORY_GENERAL, false), emailSubCategories);
+
       HashMap<SubCategory, Collection<PropertyDefinition>> licenseSubCategories = new HashMap<SubCategory, Collection<PropertyDefinition>>();
       licenseSubCategories.put(new SubCategory("server_id", true), new ArrayList<PropertyDefinition>());
       byCategory.put(new Category(CoreProperties.CATEGORY_LICENSES, false), licenseSubCategories);
+
+      HashMap<SubCategory, Collection<PropertyDefinition>> encryptionSubCategories = new HashMap<SubCategory, Collection<PropertyDefinition>>();
+      encryptionSubCategories.put(new SubCategory("encryption", true), new ArrayList<PropertyDefinition>());
+      byCategory.put(new Category(CoreProperties.CATEGORY_SECURITY, false), encryptionSubCategories);
     }
     for (PropertyDefinition definition : getAll()) {
       if (qualifier == null ? definition.global() : definition.qualifiers().contains(qualifier)) {
@@ -193,7 +191,6 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
         byCategory.get(category).get(subCategory).add(definition);
       }
     }
-
     return byCategory;
   }
 

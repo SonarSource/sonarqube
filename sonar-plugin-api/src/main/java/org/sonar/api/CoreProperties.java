@@ -55,11 +55,6 @@ public interface CoreProperties {
   /**
    *@since 4.0
    */
-  String SUBCATEGORY_SECURITY = "security";
-
-  /**
-   *@since 4.0
-   */
   String SUBCATEGORY_L10N = "localization";
 
   /**
@@ -77,10 +72,7 @@ public interface CoreProperties {
 
   /**
    * @since 2.11
-   * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
-   * @see #SUBCATEGORY_SECURITY
    */
-  @Deprecated
   String CATEGORY_SECURITY = "security";
 
   /**

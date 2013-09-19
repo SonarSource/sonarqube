@@ -348,16 +348,14 @@ public final class CorePlugin extends SonarPlugin {
         .name("Allow users to sign up online")
         .description("Users can sign up online.")
         .type(PropertyType.BOOLEAN)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_SECURITY)
+        .category(CoreProperties.CATEGORY_SECURITY)
         .build(),
 
       PropertyDefinition.builder(CoreProperties.CORE_DEFAULT_GROUP)
         .defaultValue(CoreProperties.CORE_DEFAULT_GROUP_DEFAULT_VALUE)
         .name("Default user group")
         .description("Any new users will automatically join this group.")
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_SECURITY)
+        .category(CoreProperties.CATEGORY_SECURITY)
         .build(),
 
       PropertyDefinition.builder(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY)
@@ -366,8 +364,7 @@ public final class CorePlugin extends SonarPlugin {
         .description("Set to false if sources should not be imported and therefore not available in the Web UI (e.g. for security reasons).")
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_SECURITY)
+        .category(CoreProperties.CATEGORY_SECURITY)
         .build(),
 
       PropertyDefinition.builder(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY)
@@ -375,8 +372,7 @@ public final class CorePlugin extends SonarPlugin {
         .name("Force user authentication")
         .description("Forcing user authentication stops un-logged users to access SonarQube.")
         .type(PropertyType.BOOLEAN)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_SECURITY)
+        .category(CoreProperties.CATEGORY_SECURITY)
         .build()
     );
   }

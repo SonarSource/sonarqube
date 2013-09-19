@@ -287,13 +287,12 @@ class ApplicationController < ActionController::Base
   def processProperties(definitions_per_category)
     @categories = by_category_name(definitions_per_category.keys)
 
-    default_category = @categories.empty? ? nil : @categories[0]
-
     if params[:category].nil?
-      default_category = @categories.empty? ? nil : @categories[0]
+      # Select the 'general' category by default. If 'general' category is not found, then return the first one.
+      default_category = @categories.empty? ? nil : (@categories.find {|c| c == Java::OrgSonarApiConfigInternal::Category.new('general')} || @categories[0])
       @category = default_category
     else
-      @category = @categories.select {|c| c == Java::OrgSonarApiConfigInternal::Category.new(params[:category])}.first
+      @category = @categories.find {|c| c == Java::OrgSonarApiConfigInternal::Category.new(params[:category])}
       not_found('category') if @category.nil?
     end
 
@@ -307,7 +306,7 @@ class ApplicationController < ActionController::Base
                   ((@subcategories_per_categories[@category].include? @category) ? @category : @subcategories_per_categories[@category][0])
         @subcategory = default_subcategory
       else
-        @subcategory = @subcategories_per_categories[@category].select {|s| s == Java::OrgSonarApiConfigInternal::SubCategory.new(params[:subcategory])}.first
+        @subcategory = @subcategories_per_categories[@category].find {|s| s == Java::OrgSonarApiConfigInternal::SubCategory.new(params[:subcategory])}
         not_found('subcategory') if @subcategory.nil?
       end
 
