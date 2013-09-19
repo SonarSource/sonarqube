@@ -12,10 +12,6 @@
    else
      search_options['sort'] = 'UPDATE_DATE'
      search_options['asc'] = 'FALSE'
-     if @dashboard_configuration && @dashboard_configuration.selected_period?
-       search_options['createdAfter'] = Api::Utils.format_datetime(@dashboard_configuration.from_datetime)
-       search_options['createdBefore'] = Api::Utils.format_datetime(DateTime.now)
-     end
      results = Api.issues.find(search_options)
    end
    issues = results.issues
