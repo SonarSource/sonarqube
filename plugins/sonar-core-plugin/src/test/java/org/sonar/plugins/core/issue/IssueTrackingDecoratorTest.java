@@ -19,15 +19,16 @@
  */
 package org.sonar.plugins.core.issue;
 
-import org.sonar.api.batch.SonarIndex;
+import org.mockito.Matchers;
 
-import org.sonar.batch.scan.LastSnapshots;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.profiles.RulesProfile;
@@ -38,6 +39,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.scan.LastSnapshots;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -50,7 +52,17 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
@@ -151,7 +163,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void manual_issues_should_be_moved_if_matching_line_found() throws Exception {
-    // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
@@ -194,6 +205,40 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     assertThat(issue.isNew()).isFalse();
     assertThat(issue.isEndOfLife()).isFalse();
     assertThat(issue.isOnDisabledRule()).isFalse();
+  }
+
+  @Test
+  public void manual_issues_should_be_untouched_if_already_closed() throws Exception {
+    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+
+    // INPUT : one issue existing during previous scan
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("CLOSED").setRuleKey_unit_test_only("manual", "Performance");
+    when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
+
+    IssueTrackingResult trackingResult = new IssueTrackingResult();
+    trackingResult.addUnmatched(unmatchedIssue);
+
+    String originalSource = "public interface Action {}";
+    when(index.getSource(file)).thenReturn(originalSource);
+    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
+
+    when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
+
+    decorator.doDecorate(file);
+
+    verify(workflow, times(1)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
+    verify(handlers, times(1)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueCache).put(argument.capture());
+
+    DefaultIssue issue = argument.getValue();
+    assertThat(issue.line()).isEqualTo(1);
+    assertThat(issue.key()).isEqualTo("ABCDE");
+    assertThat(issue.isNew()).isFalse();
+    assertThat(issue.isEndOfLife()).isFalse();
+    assertThat(issue.isOnDisabledRule()).isFalse();
+    assertThat(issue.status()).isEqualTo("CLOSED");
   }
 
   @Test
@@ -396,6 +441,9 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     verify(issueCache).put(argument.capture());
 
     DefaultIssue issue = argument.getValue();
+    verify(updater).setResolution(eq(issue), eq(Issue.RESOLUTION_REMOVED), any(IssueChangeContext.class));
+    verify(updater).setStatus(eq(issue), eq(Issue.STATUS_CLOSED), any(IssueChangeContext.class));
+
     assertThat(issue.key()).isEqualTo("ABCDE");
     assertThat(issue.isNew()).isFalse();
     assertThat(issue.isEndOfLife()).isTrue();

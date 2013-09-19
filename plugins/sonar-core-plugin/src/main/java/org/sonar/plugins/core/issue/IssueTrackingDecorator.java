@@ -177,7 +177,7 @@ public class IssueTrackingDecorator implements Decorator {
   private void addUnmatched(Collection<IssueDto> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<DefaultIssue> issues) {
     for (IssueDto unmatchedDto : unmatchedIssues) {
       DefaultIssue unmatched = unmatchedDto.toDefaultIssue();
-      if (StringUtils.isNotBlank(unmatchedDto.getReporter())) {
+      if (StringUtils.isNotBlank(unmatchedDto.getReporter()) && !Issue.STATUS_CLOSED.equals(unmatchedDto.getStatus())) {
         relocateManualIssue(unmatched, unmatchedDto, sourceHashHolder);
       }
       updateUnmatchedIssue(unmatched, false /* manual issues can be kept open */);
@@ -217,7 +217,17 @@ public class IssueTrackingDecorator implements Decorator {
 
     Collection<Integer> newLinesWithSameHash = sourceHashHolder.getNewLinesMatching(oldIssue.getLine());
     logger.debug("Found the following lines with same hash: {}", newLinesWithSameHash);
-    if (newLinesWithSameHash.size() == 1) {
+    if (newLinesWithSameHash.size() == 0) {
+      if (oldIssue.getLine() > sourceHashHolder.getHashedSource().length()) {
+        logger.debug("Old issue line {} is out of new source, closing and removing line number", oldIssue.getLine());
+        newIssue.setLine(null);
+        updater.setStatus(newIssue, Issue.STATUS_CLOSED, changeContext);
+        updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);
+        updater.setPastLine(newIssue, oldIssue.getLine());
+        updater.setPastMessage(newIssue, oldIssue.getMessage(), changeContext);
+        updater.setPastEffortToFix(newIssue, oldIssue.getEffortToFix(), changeContext);
+      }
+    } else if (newLinesWithSameHash.size() == 1) {
       Integer newLine = newLinesWithSameHash.iterator().next();
       logger.debug("Relocating issue to line {}", newLine);
 
