@@ -45,6 +45,11 @@ public class PermissionParameters {
     return this;
   }
 
+  public PermissionParameters component(String component) {
+    params.put("component", component);
+    return this;
+  }
+
   public PermissionParameters permission(String permission) {
     params.put("permission", permission);
     return this;

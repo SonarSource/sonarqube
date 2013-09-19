@@ -34,7 +34,7 @@ import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
-import org.sonar.core.permission.Permission;
+import org.sonar.core.permission.GlobalPermission;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -331,7 +331,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   private boolean isAdmin(String user) {
-    return authorizationDao.selectGlobalPermissions(user).contains(Permission.SYSTEM_ADMIN.key());
+    return authorizationDao.selectGlobalPermissions(user).contains(GlobalPermission.SYSTEM_ADMIN.key());
   }
 
   private IssueFilterResult createIssueFilterResult(IssueQueryResult issueQueryResult, IssueQuery issueQuery) {
@@ -339,7 +339,7 @@ public class IssueFilterService implements ServerComponent {
   }
 
   private boolean hasUserSharingPermission(String user){
-    return authorizationDao.selectGlobalPermissions(user).contains(Permission.DASHBOARD_SHARING.key());
+    return authorizationDao.selectGlobalPermissions(user).contains(GlobalPermission.DASHBOARD_SHARING.key());
   }
 
 }

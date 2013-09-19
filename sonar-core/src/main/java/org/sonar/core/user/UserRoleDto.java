@@ -20,6 +20,8 @@
 package org.sonar.core.user;
 
 
+import javax.annotation.Nullable;
+
 /**
  * @since 3.2
  */
@@ -47,11 +49,12 @@ public class UserRoleDto {
     return this;
   }
 
+  @Nullable
   public Long getResourceId() {
     return resourceId;
   }
 
-  public UserRoleDto setResourceId(Long resourceId) {
+  public UserRoleDto setResourceId(@Nullable Long resourceId) {
     this.resourceId = resourceId;
     return this;
   }

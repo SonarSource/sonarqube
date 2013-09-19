@@ -1,0 +1,8 @@
+<dataset>
+
+  <groups id="100" name="devs"/>
+
+  <group_roles id="1" group_id="100" resource_id="123" role="admin"/>
+  <group_roles id="2" group_id="[null]" resource_id="123" role="user"/>
+
+</dataset>

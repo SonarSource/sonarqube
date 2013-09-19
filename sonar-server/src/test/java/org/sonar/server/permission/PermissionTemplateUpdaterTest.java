@@ -25,8 +25,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.Permission;
-import org.sonar.core.permission.PermissionDao;
+import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
@@ -50,7 +50,7 @@ public class PermissionTemplateUpdaterTest {
 
   @Before
   public void setUpCommonMocks() {
-    MockUserSession.set().setLogin("admin").setPermissions(Permission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermission.SYSTEM_ADMIN);
     userDao = mock(UserDao.class);
     stub(userDao.selectActiveUserByLogin("user")).toReturn(DEFAULT_USER);
     stub(userDao.selectGroupByName("group")).toReturn(DEFAULT_GROUP);
@@ -59,19 +59,19 @@ public class PermissionTemplateUpdaterTest {
   @Test
   public void should_execute_on_valid_parameters() throws Exception {
 
-    final PermissionDao permissionDao = mock(PermissionDao.class);
-    when(permissionDao.selectTemplateByName("my template")).thenReturn(new PermissionTemplateDto().setId(1L));
+    final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
+    when(permissionTemplateDao.selectTemplateByName("my template")).thenReturn(new PermissionTemplateDto().setId(1L));
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my template", UserRole.USER, "user", permissionDao, userDao) {
+      new PermissionTemplateUpdater("my template", UserRole.USER, "user", permissionTemplateDao, userDao) {
       @Override
       void doExecute(Long templateId, String permission) {
-        permissionDao.addUserPermission(1L, 1L, UserRole.USER);
+        permissionTemplateDao.addUserPermission(1L, 1L, UserRole.USER);
       }
     };
     updater.executeUpdate();
 
-    verify(permissionDao, times(1)).addUserPermission(1L, 1L, UserRole.USER);
+    verify(permissionTemplateDao, times(1)).addUserPermission(1L, 1L, UserRole.USER);
   }
 
   @Test
@@ -79,11 +79,11 @@ public class PermissionTemplateUpdaterTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Unknown template:");
 
-    final PermissionDao permissionDao = mock(PermissionDao.class);
-    when(permissionDao.selectTemplateByName("my template")).thenReturn(null);
+    final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
+    when(permissionTemplateDao.selectTemplateByName("my template")).thenReturn(null);
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my template", UserRole.USER, "user", permissionDao, userDao) {
+      new PermissionTemplateUpdater("my template", UserRole.USER, "user", permissionTemplateDao, userDao) {
         @Override
         void doExecute(Long templateId, String permission) {
         }
@@ -96,11 +96,11 @@ public class PermissionTemplateUpdaterTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Invalid permission:");
 
-    final PermissionDao permissionDao = mock(PermissionDao.class);
-    when(permissionDao.selectTemplateByName("my template")).thenReturn(new PermissionTemplateDto().setId(1L));
+    final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
+    when(permissionTemplateDao.selectTemplateByName("my template")).thenReturn(new PermissionTemplateDto().setId(1L));
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my template", "invalid", "user", permissionDao, userDao) {
+      new PermissionTemplateUpdater("my template", "invalid", "user", permissionTemplateDao, userDao) {
         @Override
         void doExecute(Long templateId, String permission) {
         }
@@ -128,7 +128,7 @@ public class PermissionTemplateUpdaterTest {
     expected.expect(ForbiddenException.class);
     expected.expectMessage("Insufficient privileges");
 
-    MockUserSession.set().setLogin("user").setPermissions(Permission.SCAN_EXECUTION);
+    MockUserSession.set().setLogin("user").setPermissions(GlobalPermission.SCAN_EXECUTION);
 
     PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null) {
       @Override

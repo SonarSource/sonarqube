@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.PermissionDao;
+import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
@@ -41,14 +41,14 @@ public class RegisterPermissionTemplatesTest {
 
   private PersistentSettings settings;
   private LoadedTemplateDao loadedTemplateDao;
-  private PermissionDao permissionDao;
+  private PermissionTemplateDao permissionTemplateDao;
   private UserDao userDao;
 
   @Before
   public void setUp() {
     settings = mock(PersistentSettings.class);
     loadedTemplateDao = mock(LoadedTemplateDao.class);
-    permissionDao = mock(PermissionDao.class);
+    permissionTemplateDao = mock(PermissionTemplateDao.class);
     userDao = mock(UserDao.class);
   }
 
@@ -60,20 +60,20 @@ public class RegisterPermissionTemplatesTest {
 
     when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()))
       .thenReturn(0);
-    when(permissionDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription()))
+    when(permissionTemplateDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription()))
       .thenReturn(permissionTemplate);
     when(userDao.selectGroupByName(DefaultGroups.ADMINISTRATORS)).thenReturn(new GroupDto().setId(1L));
     when(userDao.selectGroupByName(DefaultGroups.USERS)).thenReturn(new GroupDto().setId(2L));
 
-    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(loadedTemplateDao, permissionDao, userDao, settings);
+    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(loadedTemplateDao, permissionTemplateDao, userDao, settings);
     initializer.start();
 
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
-    verify(permissionDao).createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription());
-    verify(permissionDao).addGroupPermission(1L, 1L, UserRole.ADMIN);
-    verify(permissionDao).addGroupPermission(1L, null, UserRole.USER);
-    verify(permissionDao).addGroupPermission(1L, null, UserRole.CODEVIEWER);
-    verifyNoMoreInteractions(permissionDao);
+    verify(permissionTemplateDao).createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription());
+    verify(permissionTemplateDao).addGroupPermission(1L, 1L, UserRole.ADMIN);
+    verify(permissionTemplateDao).addGroupPermission(1L, null, UserRole.USER);
+    verify(permissionTemplateDao).addGroupPermission(1L, null, UserRole.CODEVIEWER);
+    verifyNoMoreInteractions(permissionTemplateDao);
     verify(settings).saveProperty(RegisterPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY, PermissionTemplateDto.DEFAULT.getKee());
   }
 
@@ -82,10 +82,10 @@ public class RegisterPermissionTemplatesTest {
     when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()))
       .thenReturn(1);
 
-    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(loadedTemplateDao, permissionDao, userDao, settings);
+    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(loadedTemplateDao, permissionTemplateDao, userDao, settings);
     initializer.start();
 
-    verifyZeroInteractions(permissionDao, settings);
+    verifyZeroInteractions(permissionTemplateDao, settings);
     verify(loadedTemplateDao, never()).insert(any(LoadedTemplateDto.class));
   }
 
@@ -96,12 +96,12 @@ public class RegisterPermissionTemplatesTest {
     LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(PermissionTemplateDto.DEFAULT.getKee())
       .setType(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
 
-    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(loadedTemplateDao, permissionDao, userDao, settings);
+    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(loadedTemplateDao, permissionTemplateDao, userDao, settings);
     initializer.start();
 
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
     verify(settings).saveProperty(RegisterPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY, "my_projects_template");
-    verifyZeroInteractions(permissionDao);
+    verifyZeroInteractions(permissionTemplateDao);
   }
 
   private static class Matches extends BaseMatcher<LoadedTemplateDto> {

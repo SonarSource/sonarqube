@@ -24,22 +24,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- *
  * Holds the constants representing the various global permissions that can be assigned to users & groups
  *
  * @since 3.7
  */
-public class Permission {
+public class GlobalPermission {
 
-  public static final Permission SYSTEM_ADMIN = new Permission("admin");
-  public static final Permission QUALITY_PROFILE_ADMIN = new Permission("profileadmin");
-  public static final Permission DASHBOARD_SHARING = new Permission("shareDashboard");
-  public static final Permission SCAN_EXECUTION = new Permission("scan");
-  public static final Permission DRY_RUN_EXECUTION = new Permission("dryRunScan");
+  public static final GlobalPermission SYSTEM_ADMIN = new GlobalPermission("admin");
+  public static final GlobalPermission QUALITY_PROFILE_ADMIN = new GlobalPermission("profileadmin");
+  public static final GlobalPermission DASHBOARD_SHARING = new GlobalPermission("shareDashboard");
+  public static final GlobalPermission SCAN_EXECUTION = new GlobalPermission("scan");
+  public static final GlobalPermission DRY_RUN_EXECUTION = new GlobalPermission("dryRunScan");
 
   private final String key;
+
   // Use linked hash map to preserve order
-  private static Map<String, Permission> allGlobal = new LinkedHashMap<String, Permission>();
+  private static Map<String, GlobalPermission> allGlobal = new LinkedHashMap<String, GlobalPermission>();
 
   static {
     allGlobal.put(SYSTEM_ADMIN.key, SYSTEM_ADMIN);
@@ -49,7 +49,7 @@ public class Permission {
     allGlobal.put(DRY_RUN_EXECUTION.key, DRY_RUN_EXECUTION);
   }
 
-  private Permission(String key) {
+  private GlobalPermission(String key) {
     this.key = key;
   }
 
@@ -57,11 +57,8 @@ public class Permission {
     return key;
   }
 
-  public static Map<String, Permission> allGlobal() {
+  public static Map<String, GlobalPermission> allGlobal() {
     return allGlobal;
   }
 
-  public static boolean isValid(String permission) {
-    return allGlobal.containsKey(permission);
-  }
 }

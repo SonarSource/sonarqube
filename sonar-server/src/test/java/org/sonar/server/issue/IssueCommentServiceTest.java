@@ -39,7 +39,7 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueStorage;
-import org.sonar.core.permission.Permission;
+import org.sonar.core.permission.GlobalPermission;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -65,7 +65,7 @@ public class IssueCommentServiceTest {
 
   @Before
   public void setUpUser() {
-    MockUserSession.set().setLogin("admin").setPermissions(Permission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermission.SYSTEM_ADMIN);
   }
 
   @Before

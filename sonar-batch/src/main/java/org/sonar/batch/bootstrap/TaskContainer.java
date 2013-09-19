@@ -30,7 +30,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.ScanTask;
 import org.sonar.batch.tasks.ListTask;
 import org.sonar.batch.tasks.Tasks;
-import org.sonar.core.permission.ComponentPermissionFacade;
+import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.resource.DefaultResourcePermissions;
 
 public class TaskContainer extends ComponentContainer {
@@ -63,7 +63,7 @@ public class TaskContainer extends ComponentContainer {
   private void installComponentsUsingTaskExtensions() {
     add(
       ResourceTypes.class,
-      ComponentPermissionFacade.class,
+      PermissionFacade.class,
       DefaultResourcePermissions.class,
       Tasks.class);
   }

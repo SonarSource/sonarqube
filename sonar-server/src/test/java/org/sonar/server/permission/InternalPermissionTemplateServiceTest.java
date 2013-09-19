@@ -46,7 +46,7 @@ public class InternalPermissionTemplateServiceTest {
   private static final PermissionTemplateDto DEFAULT_TEMPLATE =
     new PermissionTemplateDto().setId(1L).setName(DEFAULT_NAME).setDescription(DEFAULT_DESC);
 
-  private PermissionDao permissionDao;
+  private PermissionTemplateDao permissionTemplateDao;
   private UserDao userDao;
   private InternalPermissionTemplateService permissionTemplateService;
 
@@ -55,15 +55,15 @@ public class InternalPermissionTemplateServiceTest {
 
   @Before
   public void setUp() {
-    MockUserSession.set().setLogin("admin").setPermissions(Permission.SYSTEM_ADMIN);
-    permissionDao = mock(PermissionDao.class);
+    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermission.SYSTEM_ADMIN);
+    permissionTemplateDao = mock(PermissionTemplateDao.class);
     userDao = mock(UserDao.class);
-    permissionTemplateService = new InternalPermissionTemplateService(permissionDao, userDao);
+    permissionTemplateService = new InternalPermissionTemplateService(permissionTemplateDao, userDao);
   }
 
   @Test
   public void should_create_permission_template() throws Exception {
-    when(permissionDao.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC)).thenReturn(DEFAULT_TEMPLATE);
 
     PermissionTemplate permissionTemplate = permissionTemplateService.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC);
 
@@ -77,7 +77,7 @@ public class InternalPermissionTemplateServiceTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("A template with that name already exists");
 
-    when(permissionDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(DEFAULT_TEMPLATE));
+    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(DEFAULT_TEMPLATE));
 
     permissionTemplateService.createPermissionTemplate(DEFAULT_NAME, DEFAULT_DESC);
   }
@@ -92,27 +92,27 @@ public class InternalPermissionTemplateServiceTest {
 
   @Test
   public void should_delete_permission_template() throws Exception {
-    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
 
     permissionTemplateService.deletePermissionTemplate(1L);
 
-    verify(permissionDao, times(1)).deletePermissionTemplate(1L);
+    verify(permissionTemplateDao, times(1)).deletePermissionTemplate(1L);
   }
 
   @Test
   public void should_retrieve_permission_template() throws Exception {
 
     List<PermissionTemplateUserDto> usersPermissions = Lists.newArrayList(
-      buildUserPermission("user_scan", Permission.SCAN_EXECUTION.key()),
-      buildUserPermission("user_dry_run", Permission.DRY_RUN_EXECUTION.key()),
-      buildUserPermission("user_scan_and_dry_run", Permission.SCAN_EXECUTION.key()),
-      buildUserPermission("user_scan_and_dry_run", Permission.DRY_RUN_EXECUTION.key())
+      buildUserPermission("user_scan", GlobalPermission.SCAN_EXECUTION.key()),
+      buildUserPermission("user_dry_run", GlobalPermission.DRY_RUN_EXECUTION.key()),
+      buildUserPermission("user_scan_and_dry_run", GlobalPermission.SCAN_EXECUTION.key()),
+      buildUserPermission("user_scan_and_dry_run", GlobalPermission.DRY_RUN_EXECUTION.key())
     );
 
     List<PermissionTemplateGroupDto> groupsPermissions = Lists.newArrayList(
-      buildGroupPermission("admin_group", Permission.SYSTEM_ADMIN.key()),
-      buildGroupPermission("scan_group", Permission.SCAN_EXECUTION.key()),
-      buildGroupPermission(null, Permission.DRY_RUN_EXECUTION.key())
+      buildGroupPermission("admin_group", GlobalPermission.SYSTEM_ADMIN.key()),
+      buildGroupPermission("scan_group", GlobalPermission.SCAN_EXECUTION.key()),
+      buildGroupPermission(null, GlobalPermission.DRY_RUN_EXECUTION.key())
     );
 
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto()
@@ -122,16 +122,16 @@ public class InternalPermissionTemplateServiceTest {
       .setUsersPermissions(usersPermissions)
       .setGroupsByPermission(groupsPermissions);
 
-    when(permissionDao.selectPermissionTemplate("my template")).thenReturn(permissionTemplateDto);
+    when(permissionTemplateDao.selectPermissionTemplate("my template")).thenReturn(permissionTemplateDto);
 
     PermissionTemplate permissionTemplate = permissionTemplateService.selectPermissionTemplate("my template");
 
-    assertThat(permissionTemplate.getUsersForPermission(Permission.DASHBOARD_SHARING.key())).isEmpty();
-    assertThat(permissionTemplate.getUsersForPermission(Permission.SCAN_EXECUTION.key())).onProperty("userName").containsOnly("user_scan", "user_scan_and_dry_run");
-    assertThat(permissionTemplate.getUsersForPermission(Permission.DRY_RUN_EXECUTION.key())).onProperty("userName").containsOnly("user_dry_run", "user_scan_and_dry_run");
-    assertThat(permissionTemplate.getGroupsForPermission(Permission.DASHBOARD_SHARING.key())).isEmpty();
-    assertThat(permissionTemplate.getGroupsForPermission(Permission.SCAN_EXECUTION.key())).onProperty("groupName").containsOnly("scan_group");
-    assertThat(permissionTemplate.getGroupsForPermission(Permission.SYSTEM_ADMIN.key())).onProperty("groupName").containsOnly("admin_group");
+    assertThat(permissionTemplate.getUsersForPermission(GlobalPermission.DASHBOARD_SHARING.key())).isEmpty();
+    assertThat(permissionTemplate.getUsersForPermission(GlobalPermission.SCAN_EXECUTION.key())).onProperty("userName").containsOnly("user_scan", "user_scan_and_dry_run");
+    assertThat(permissionTemplate.getUsersForPermission(GlobalPermission.DRY_RUN_EXECUTION.key())).onProperty("userName").containsOnly("user_dry_run", "user_scan_and_dry_run");
+    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermission.DASHBOARD_SHARING.key())).isEmpty();
+    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermission.SCAN_EXECUTION.key())).onProperty("groupName").containsOnly("scan_group");
+    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermission.SYSTEM_ADMIN.key())).onProperty("groupName").containsOnly("admin_group");
   }
 
   @Test
@@ -140,7 +140,7 @@ public class InternalPermissionTemplateServiceTest {
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     PermissionTemplateDto template2 =
       new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
-    when(permissionDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
 
     List<PermissionTemplate> templates = permissionTemplateService.selectAllPermissionTemplates();
 
@@ -155,7 +155,7 @@ public class InternalPermissionTemplateServiceTest {
 
     permissionTemplateService.updatePermissionTemplate(1L, "new_name", "new_description");
 
-    verify(permissionDao).updatePermissionTemplate(1L, "new_name", "new_description");
+    verify(permissionTemplateDao).updatePermissionTemplate(1L, "new_name", "new_description");
   }
 
   @Test
@@ -167,7 +167,7 @@ public class InternalPermissionTemplateServiceTest {
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     PermissionTemplateDto template2 =
       new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
-    when(permissionDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
 
     permissionTemplateService.updatePermissionTemplate(1L, "template2", "template1");
   }
@@ -178,22 +178,22 @@ public class InternalPermissionTemplateServiceTest {
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     PermissionTemplateDto template2 =
       new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
-    when(permissionDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
 
     permissionTemplateService.updatePermissionTemplate(1L, "template1", "new_description");
 
-    verify(permissionDao).updatePermissionTemplate(1L, "template1", "new_description");
+    verify(permissionTemplateDao).updatePermissionTemplate(1L, "template1", "new_description");
   }
 
   @Test
   public void should_add_user_permission() throws Exception {
     UserDto userDto = new UserDto().setId(1L).setLogin("user").setName("user");
     when(userDao.selectActiveUserByLogin("user")).thenReturn(userDto);
-    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
 
     permissionTemplateService.addUserPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "user");
 
-    verify(permissionDao, times(1)).addUserPermission(1L, 1L, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao, times(1)).addUserPermission(1L, 1L, DEFAULT_PERMISSION);
   }
 
   @Test
@@ -201,7 +201,7 @@ public class InternalPermissionTemplateServiceTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Unknown user:");
 
-    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
     when(userDao.selectActiveUserByLogin("unknown")).thenReturn(null);
 
     permissionTemplateService.addUserPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "unknown");
@@ -211,22 +211,22 @@ public class InternalPermissionTemplateServiceTest {
   public void should_remove_user_permission() throws Exception {
     UserDto userDto = new UserDto().setId(1L).setLogin("user").setName("user");
     when(userDao.selectActiveUserByLogin("user")).thenReturn(userDto);
-    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
 
     permissionTemplateService.removeUserPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "user");
 
-    verify(permissionDao, times(1)).removeUserPermission(1L, 1L, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao, times(1)).removeUserPermission(1L, 1L, DEFAULT_PERMISSION);
   }
 
   @Test
   public void should_add_group_permission() throws Exception {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
     when(userDao.selectGroupByName("group")).thenReturn(groupDto);
-    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
 
     permissionTemplateService.addGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "group");
 
-    verify(permissionDao, times(1)).addGroupPermission(1L, 1L, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao, times(1)).addGroupPermission(1L, 1L, DEFAULT_PERMISSION);
   }
 
   @Test
@@ -234,7 +234,7 @@ public class InternalPermissionTemplateServiceTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Unknown group:");
 
-    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
     when(userDao.selectGroupByName("unknown")).thenReturn(null);
 
     permissionTemplateService.addGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "unknown");
@@ -244,30 +244,30 @@ public class InternalPermissionTemplateServiceTest {
   public void should_remove_group_permission() throws Exception {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
     when(userDao.selectGroupByName("group")).thenReturn(groupDto);
-    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
 
     permissionTemplateService.removeGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "group");
 
-    verify(permissionDao, times(1)).removeGroupPermission(1L, 1L, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao, times(1)).removeGroupPermission(1L, 1L, DEFAULT_PERMISSION);
   }
 
   @Test
   public void should_add_permission_to_anyone_group() throws Exception {
-    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
 
     permissionTemplateService.addGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "Anyone");
 
-    verify(permissionDao).addGroupPermission(1L, null, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao).addGroupPermission(1L, null, DEFAULT_PERMISSION);
     verifyZeroInteractions(userDao);
   }
 
   @Test
   public void should_remove_permission_from_anyone_group() throws Exception {
-    when(permissionDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectTemplateByName(DEFAULT_NAME)).thenReturn(DEFAULT_TEMPLATE);
 
     permissionTemplateService.removeGroupPermission(DEFAULT_NAME, DEFAULT_PERMISSION, "Anyone");
 
-    verify(permissionDao).removeGroupPermission(1L, null, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao).removeGroupPermission(1L, null, DEFAULT_PERMISSION);
     verifyZeroInteractions(userDao);
   }
 

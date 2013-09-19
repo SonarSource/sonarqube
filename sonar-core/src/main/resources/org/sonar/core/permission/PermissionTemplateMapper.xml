@@ -91,7 +91,7 @@
             u.login AS user_login
     FROM permission_templates pt
     INNER JOIN perm_templates_users ptu ON ptu.template_id = pt.id
-    INNER JOIN users u ON u.id = ptu.user_id
+    INNER JOIN users u ON u.id = ptu.user_id AND u.active = ${_true}
     WHERE pt.name = #{templateName}
   </select>
 

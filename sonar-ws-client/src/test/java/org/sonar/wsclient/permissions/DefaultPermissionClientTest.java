@@ -45,7 +45,7 @@ public class DefaultPermissionClientTest {
   }
 
   @Test
-  public void should_add_user_permission() {
+  public void should_add_global_user_permission() {
     httpServer.stubStatusCode(200);
 
     PermissionParameters params = PermissionParameters.create().user("daveloper").permission("admin");
@@ -59,7 +59,22 @@ public class DefaultPermissionClientTest {
   }
 
   @Test
-  public void should_add_group_permission() {
+  public void should_add_component_user_permission() {
+    httpServer.stubStatusCode(200);
+
+    PermissionParameters params = PermissionParameters.create().user("daveloper").component("org.sample.Sample").permission("admin");
+    client.addPermission(params);
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/add");
+    assertThat(httpServer.requestParams()).includes(
+      entry("user", "daveloper"),
+      entry("component", "org.sample.Sample"),
+      entry("permission", "admin")
+    );
+  }
+
+  @Test
+  public void should_add_global_group_permission() {
     httpServer.stubStatusCode(200);
 
     PermissionParameters params = PermissionParameters.create().group("my_group").permission("admin");
@@ -73,7 +88,22 @@ public class DefaultPermissionClientTest {
   }
 
   @Test
-  public void should_remove_user_permission() {
+  public void should_add_component_group_permission() {
+    httpServer.stubStatusCode(200);
+
+    PermissionParameters params = PermissionParameters.create().group("my_group").component("org.sample.Sample").permission("admin");
+    client.addPermission(params);
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/add");
+    assertThat(httpServer.requestParams()).includes(
+      entry("group", "my_group"),
+      entry("component", "org.sample.Sample"),
+      entry("permission", "admin")
+    );
+  }
+
+  @Test
+  public void should_remove_global_user_permission() {
     httpServer.stubStatusCode(200);
 
     PermissionParameters params = PermissionParameters.create().user("daveloper").permission("admin");
@@ -87,7 +117,22 @@ public class DefaultPermissionClientTest {
   }
 
   @Test
-  public void should_remove_group_permission() {
+  public void should_remove_component_user_permission() {
+    httpServer.stubStatusCode(200);
+
+    PermissionParameters params = PermissionParameters.create().user("daveloper").component("org.sample.Sample").permission("admin");
+    client.removePermission(params);
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/remove");
+    assertThat(httpServer.requestParams()).includes(
+      entry("user", "daveloper"),
+      entry("component", "org.sample.Sample"),
+      entry("permission", "admin")
+    );
+  }
+
+  @Test
+  public void should_remove_global_group_permission() {
     httpServer.stubStatusCode(200);
 
     PermissionParameters params = PermissionParameters.create().group("my_group").permission("admin");
@@ -96,6 +141,21 @@ public class DefaultPermissionClientTest {
     assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/remove");
     assertThat(httpServer.requestParams()).includes(
       entry("group", "my_group"),
+      entry("permission", "admin")
+    );
+  }
+
+  @Test
+  public void should_remove_component_group_permission() {
+    httpServer.stubStatusCode(200);
+
+    PermissionParameters params = PermissionParameters.create().group("my_group").component("org.sample.Sample").permission("admin");
+    client.removePermission(params);
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/permissions/remove");
+    assertThat(httpServer.requestParams()).includes(
+      entry("group", "my_group"),
+      entry("component", "org.sample.Sample"),
       entry("permission", "admin")
     );
   }

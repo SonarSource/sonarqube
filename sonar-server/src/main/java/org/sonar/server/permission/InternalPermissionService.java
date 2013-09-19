@@ -24,11 +24,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.core.permission.ComponentPermissionFacade;
-import org.sonar.core.permission.Permission;
-import org.sonar.core.user.*;
+import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceQuery;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -45,11 +53,13 @@ public class InternalPermissionService implements ServerComponent {
 
   private final RoleDao roleDao;
   private final UserDao userDao;
-  private final ComponentPermissionFacade permissionFacade;
+  private final ResourceDao resourceDao;
+  private final PermissionFacade permissionFacade;
 
-  public InternalPermissionService(RoleDao roleDao, UserDao userDao, ComponentPermissionFacade permissionFacade) {
+  public InternalPermissionService(RoleDao roleDao, UserDao userDao, ResourceDao resourceDao, PermissionFacade permissionFacade) {
     this.roleDao = roleDao;
     this.userDao = userDao;
+    this.resourceDao = resourceDao;
     this.permissionFacade = permissionFacade;
   }
 
@@ -63,21 +73,17 @@ public class InternalPermissionService implements ServerComponent {
 
   public void applyPermissionTemplate(Map<String, Object> params) {
     UserSession.get().checkLoggedIn();
-    UserSession.get().checkGlobalPermission(Permission.SYSTEM_ADMIN);
+    UserSession.get().checkGlobalPermission(GlobalPermission.SYSTEM_ADMIN);
     ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);
     query.validate();
     for (String component : query.getSelectedComponents()) {
-      applyPermissionTemplate(query.getTemplateKey(), component);
+      permissionFacade.applyPermissionTemplate(query.getTemplateKey(), Long.parseLong(component));
     }
-  }
-
-  private void applyPermissionTemplate(String templateKey, String componentId) {
-    permissionFacade.applyPermissionTemplate(templateKey, Long.parseLong(componentId));
   }
 
   private void changePermission(String permissionChange, Map<String, Object> params) {
     UserSession.get().checkLoggedIn();
-    UserSession.get().checkGlobalPermission(Permission.SYSTEM_ADMIN);
+    UserSession.get().checkGlobalPermission(GlobalPermission.SYSTEM_ADMIN);
     PermissionChangeQuery permissionChangeQuery = PermissionChangeQuery.buildFromParams(params);
     permissionChangeQuery.validate();
     applyPermissionChange(permissionChange, permissionChangeQuery);
@@ -92,51 +98,50 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private void applyGroupPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
-    List<String> existingPermissions = roleDao.selectGroupPermissions(permissionChangeQuery.getGroup());
-    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery.getRole())) {
+    List<String> existingPermissions = roleDao.selectGroupPermissions(permissionChangeQuery.group());
+    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery.permission())) {
       LOG.info("Skipping permission change '{} {}' for group {} as it matches the current permission scheme",
-          new String[] {operation, permissionChangeQuery.getRole(), permissionChangeQuery.getGroup()});
+        new String[]{operation, permissionChangeQuery.permission(), permissionChangeQuery.group()});
     } else {
-      Long targetedGroup = getTargetedGroup(permissionChangeQuery.getGroup());
-      GroupRoleDto groupRole = new GroupRoleDto().setRole(permissionChangeQuery.getRole()).setGroupId(targetedGroup);
+      Long targetedGroup = getTargetedGroup(permissionChangeQuery.group());
       if (ADD.equals(operation)) {
-        roleDao.insertGroupRole(groupRole);
+        permissionFacade.insertGroupPermission(getComponentId(permissionChangeQuery.component()), targetedGroup, permissionChangeQuery.permission());
       } else {
-        roleDao.deleteGroupRole(groupRole);
+        permissionFacade.deleteGroupPermission(getComponentId(permissionChangeQuery.component()), targetedGroup, permissionChangeQuery.permission());
       }
     }
   }
 
   private void applyUserPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
-    List<String> existingPermissions = roleDao.selectUserPermissions(permissionChangeQuery.getUser());
-    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery.getRole())) {
+    List<String> existingPermissions = roleDao.selectUserPermissions(permissionChangeQuery.user());
+    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery.permission())) {
       LOG.info("Skipping permission change '{} {}' for user {} as it matches the current permission scheme",
-          new String[] {operation, permissionChangeQuery.getRole(), permissionChangeQuery.getUser()});
+        new String[]{operation, permissionChangeQuery.permission(), permissionChangeQuery.user()});
     } else {
-      Long targetedUser = getTargetedUser(permissionChangeQuery.getUser());
-      UserRoleDto userRole = new UserRoleDto().setRole(permissionChangeQuery.getRole()).setUserId(targetedUser);
+      Long targetedUser = getTargetedUser(permissionChangeQuery.user());
       if (ADD.equals(operation)) {
-        roleDao.insertUserRole(userRole);
+        permissionFacade.insertUserPermission(getComponentId(permissionChangeQuery.component()), targetedUser, permissionChangeQuery.permission());
       } else {
-        roleDao.deleteUserRole(userRole);
+        permissionFacade.deleteUserPermission(getComponentId(permissionChangeQuery.component()), targetedUser, permissionChangeQuery.permission());
       }
     }
   }
 
   private Long getTargetedUser(String userLogin) {
     UserDto user = userDao.selectActiveUserByLogin(userLogin);
-    if(user == null) {
+    if (user == null) {
       throw new BadRequestException("User " + userLogin + " does not exist");
     }
     return user.getId();
   }
 
+  @Nullable
   private Long getTargetedGroup(String group) {
     if (DefaultGroups.isAnyone(group)) {
       return null;
     } else {
       GroupDto groupDto = userDao.selectGroupByName(group);
-      if(groupDto == null) {
+      if (groupDto == null) {
         throw new BadRequestException("Group " + group + " does not exist");
       }
       return groupDto.getId();
@@ -146,5 +151,18 @@ public class InternalPermissionService implements ServerComponent {
   private boolean shouldSkipPermissionChange(String operation, List<String> existingPermissions, String role) {
     return (ADD.equals(operation) && existingPermissions.contains(role)) ||
       (REMOVE.equals(operation) && !existingPermissions.contains(role));
+  }
+
+  @Nullable
+  private Long getComponentId(String componentKey) {
+    if (componentKey == null) {
+      return null;
+    } else {
+      ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
+      if (resourceDto == null) {
+        throw new BadRequestException("Component " + componentKey + " does not exists.");
+      }
+      return resourceDto.getId();
+    }
   }
 }

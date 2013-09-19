@@ -19,8 +19,6 @@
  */
 package org.sonar.core.persistence;
 
-import org.sonar.core.notification.db.NotificationQueueDao;
-
 import com.google.common.collect.ImmutableList;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
@@ -28,7 +26,8 @@ import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.graph.jdbc.GraphDao;
 import org.sonar.core.issue.db.*;
 import org.sonar.core.measure.MeasureFilterDao;
-import org.sonar.core.permission.PermissionDao;
+import org.sonar.core.notification.db.NotificationQueueDao;
+import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceDao;
@@ -68,7 +67,7 @@ public final class DaoUtils {
       LoadedTemplateDao.class,
       MeasureFilterDao.class,
       NotificationQueueDao.class,
-      PermissionDao.class,
+      PermissionTemplateDao.class,
       PropertiesDao.class,
       PurgeDao.class,
       ResourceIndexerDao.class,

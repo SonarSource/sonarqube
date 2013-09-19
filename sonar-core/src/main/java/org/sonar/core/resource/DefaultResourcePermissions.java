@@ -23,17 +23,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.ComponentPermissionFacade;
+import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.permission.PermissionTemplateGroupDto;
 import org.sonar.core.permission.PermissionTemplateUserDto;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.user.UserDto;
+import org.sonar.core.user.UserMapper;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 3.2
@@ -42,9 +44,9 @@ public class DefaultResourcePermissions implements ResourcePermissions {
 
   private final Settings settings;
   private final MyBatis myBatis;
-  private final ComponentPermissionFacade permissionFacade;
+  private final PermissionFacade permissionFacade;
 
-  public DefaultResourcePermissions(Settings settings, MyBatis myBatis, ComponentPermissionFacade permissionFacade) {
+  public DefaultResourcePermissions(Settings settings, MyBatis myBatis, PermissionFacade permissionFacade) {
     this.settings = settings;
     this.myBatis = myBatis;
     this.permissionFacade = permissionFacade;
@@ -60,13 +62,30 @@ public class DefaultResourcePermissions implements ResourcePermissions {
 
   public void grantUserRole(Resource resource, String login, String role) {
     if (resource.getId() != null) {
-      permissionFacade.setUserPermission(Long.valueOf(resource.getId()), login, role);
+      SqlSession session = myBatis.openSession();
+      try {
+        UserDto user = session.getMapper(UserMapper.class).selectUserByLogin(login);
+        if (user != null) {
+          permissionFacade.deleteUserPermission(Long.valueOf(resource.getId()), user.getId(), role, session);
+          permissionFacade.insertUserPermission(Long.valueOf(resource.getId()), user.getId(), role, session);
+          session.commit();
+        }
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
     }
   }
 
   public void grantGroupRole(Resource resource, String groupName, String role) {
     if (resource.getId() != null) {
-      permissionFacade.setGroupPermission(Long.valueOf(resource.getId()), groupName, role);
+      SqlSession session = myBatis.openSession();
+      try {
+        permissionFacade.deleteGroupPermission(Long.valueOf(resource.getId()), groupName, role, session);
+        permissionFacade.insertGroupPermission(Long.valueOf(resource.getId()), groupName, role, session);
+        session.commit();
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
     }
   }
 
@@ -93,40 +112,40 @@ public class DefaultResourcePermissions implements ResourcePermissions {
   private void grantDefaultRoles(Resource resource, String role, SqlSession session) {
     PermissionTemplateDto applicablePermissionTemplate = getPermissionTemplate(resource.getQualifier());
 
-    List<String> groupNames = getEligibleGroups(role, applicablePermissionTemplate);
-    for (String groupName : groupNames) {
+    List<Long> groupIds = getEligibleGroups(role, applicablePermissionTemplate);
+    for (Long groupId : groupIds) {
       Long resourceId = Long.valueOf(resource.getId());
-      permissionFacade.addGroupPermission(resourceId, groupName, role, session);
+      permissionFacade.insertGroupPermission(resourceId, groupId, role, session);
     }
 
-    List<String> logins = getEligibleUsers(role, applicablePermissionTemplate);
-    for (String login : logins) {
+    List<Long> userIds = getEligibleUsers(role, applicablePermissionTemplate);
+    for (Long userId : userIds) {
       Long resourceId = Long.valueOf(resource.getId());
-      permissionFacade.addUserPermission(resourceId, login, role, session);
+      permissionFacade.insertUserPermission(resourceId, userId, role, session);
     }
   }
 
-  private List<String> getEligibleGroups(String role, PermissionTemplateDto permissionTemplate) {
-    List<String> eligibleGroups = new ArrayList<String>();
+  private List<Long> getEligibleGroups(String role, PermissionTemplateDto permissionTemplate) {
+    List<Long> eligibleGroups = newArrayList();
     List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();
-    if(groupsPermissions != null) {
+    if (groupsPermissions != null) {
       for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
-        if(role.equals(groupPermission.getPermission())) {
-          String groupName = groupPermission.getGroupName() != null ? groupPermission.getGroupName() : DefaultGroups.ANYONE;
-          eligibleGroups.add(groupName);
+        if (role.equals(groupPermission.getPermission())) {
+          Long groupId = groupPermission.getGroupId() != null ? groupPermission.getGroupId() : null;
+          eligibleGroups.add(groupId);
         }
       }
     }
     return eligibleGroups;
   }
 
-  private List<String> getEligibleUsers(String role, PermissionTemplateDto permissionTemplate) {
-    List<String> eligibleUsers = new ArrayList<String>();
+  private List<Long> getEligibleUsers(String role, PermissionTemplateDto permissionTemplate) {
+    List<Long> eligibleUsers = newArrayList();
     List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
-    if(usersPermissions != null) {
+    if (usersPermissions != null) {
       for (PermissionTemplateUserDto userPermission : usersPermissions) {
-        if(role.equals(userPermission.getPermission())) {
-          eligibleUsers.add(userPermission.getUserLogin());
+        if (role.equals(userPermission.getPermission())) {
+          eligibleUsers.add(userPermission.getUserId());
         }
       }
     }
@@ -135,12 +154,12 @@ public class DefaultResourcePermissions implements ResourcePermissions {
 
   private PermissionTemplateDto getPermissionTemplate(String qualifier) {
     String qualifierTemplateKey = settings.getString("sonar.permission.template." + qualifier + ".default");
-    if(!StringUtils.isBlank(qualifierTemplateKey)) {
+    if (!StringUtils.isBlank(qualifierTemplateKey)) {
       return permissionFacade.getPermissionTemplate(qualifierTemplateKey);
     }
 
     String defaultTemplateKey = settings.getString("sonar.permission.template.default");
-    if(StringUtils.isBlank(defaultTemplateKey)) {
+    if (StringUtils.isBlank(defaultTemplateKey)) {
       throw new IllegalStateException("At least one default permission template should be defined");
     }
     return permissionFacade.getPermissionTemplate(defaultTemplateKey);

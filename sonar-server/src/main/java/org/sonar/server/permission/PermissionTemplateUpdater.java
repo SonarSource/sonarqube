@@ -23,8 +23,8 @@ package org.sonar.server.permission;
 import com.google.common.collect.Lists;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.Permission;
-import org.sonar.core.permission.PermissionDao;
+import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
@@ -39,14 +39,14 @@ abstract class PermissionTemplateUpdater {
   private final String templateName;
   private final String permission;
   private final String updatedReference;
-  private final PermissionDao permissionDao;
+  private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
 
-  PermissionTemplateUpdater(String templateName, String permission, String updatedReference, PermissionDao permissionDao, UserDao userDao) {
+  PermissionTemplateUpdater(String templateName, String permission, String updatedReference, PermissionTemplateDao permissionTemplateDao, UserDao userDao) {
     this.templateName = templateName;
     this.permission = permission;
     this.updatedReference = updatedReference;
-    this.permissionDao = permissionDao;
+    this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;
   }
 
@@ -81,7 +81,7 @@ abstract class PermissionTemplateUpdater {
   static void checkUserCredentials() {
     UserSession currentSession = UserSession.get();
     currentSession.checkLoggedIn();
-    currentSession.checkGlobalPermission(Permission.SYSTEM_ADMIN);
+    currentSession.checkGlobalPermission(GlobalPermission.SYSTEM_ADMIN);
   }
 
   private void validatePermission(String permission) {
@@ -92,7 +92,7 @@ abstract class PermissionTemplateUpdater {
   }
 
   private Long getTemplateId(String name) {
-    PermissionTemplateDto permissionTemplateDto = permissionDao.selectTemplateByName(name);
+    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectTemplateByName(name);
     if(permissionTemplateDto == null) {
       throw new BadRequestException("Unknown template: " + name);
     }

@@ -36,7 +36,7 @@ import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteDao;
 import org.sonar.core.issue.db.IssueFilterFavouriteDto;
-import org.sonar.core.permission.Permission;
+import org.sonar.core.permission.GlobalPermission;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -242,7 +242,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_have_permission_to_share_filter() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.DASHBOARD_SHARING.key()));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermission.DASHBOARD_SHARING.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Filter").setShared(false).setUserLogin("john"));
 
     DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My Filter").setShared(true).setUser("john"), userSession);
@@ -268,7 +268,7 @@ public class IssueFilterServiceTest {
   @Test
   public void should_not_update_sharing_if_not_owner() {
     // John is admin and want to change arthur filter sharing
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermission.SYSTEM_ADMIN.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("Arthur Filter").setShared(true).setUserLogin("arthur"));
 
     try {
@@ -309,8 +309,8 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_update_other_shared_filter_if_admin_and_if_filter_owner_has_sharing_permission() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
-    when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(newArrayList(Permission.DASHBOARD_SHARING.key()));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermission.SYSTEM_ADMIN.key()));
+    when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(newArrayList(GlobalPermission.DASHBOARD_SHARING.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
     DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUser("arthur"), userSession);
@@ -322,7 +322,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_update_other_shared_filter_if_admin_and_if_filter_owner_has_no_sharing_permission() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermission.SYSTEM_ADMIN.key()));
     when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(Collections.<String>emptyList());
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
@@ -396,8 +396,8 @@ public class IssueFilterServiceTest {
     IssueFilterDto expectedDto = new IssueFilterDto().setName("My filter").setUserLogin("new.owner").setShared(true);
 
     // New owner should have sharing perm in order to own the filter
-    when(authorizationDao.selectGlobalPermissions("new.owner")).thenReturn(newArrayList(Permission.DASHBOARD_SHARING.key()));
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+    when(authorizationDao.selectGlobalPermissions("new.owner")).thenReturn(newArrayList(GlobalPermission.DASHBOARD_SHARING.key()));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermission.SYSTEM_ADMIN.key()));
 
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
     when(issueFilterDao.selectSharedFilters()).thenReturn(Lists.newArrayList(sharedFilter));
@@ -413,7 +413,7 @@ public class IssueFilterServiceTest {
     String currentUser = "dave.loper";
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin(currentUser).setShared(true);
 
-    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(Permission.DRY_RUN_EXECUTION.key()));
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(GlobalPermission.DRY_RUN_EXECUTION.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
 
     try {
@@ -462,7 +462,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_delete_shared_filter_if_user_is_admin() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermission.SYSTEM_ADMIN.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(true));
 
     service.delete(1L, userSession);
@@ -472,7 +472,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_delete_not_shared_filter_if_user_is_admin() {
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.SYSTEM_ADMIN.key()));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermission.SYSTEM_ADMIN.key()));
     when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Issues").setUserLogin("arthur").setShared(false));
 
     try {
@@ -654,7 +654,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void user_can_share_filter_if_logged_and_own_sharing_permission(){
-    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(Permission.DASHBOARD_SHARING.key()));
+    when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermission.DASHBOARD_SHARING.key()));
     UserSession userSession = MockUserSession.create().setLogin("john");
     assertThat(service.canShareFilter(userSession)).isTrue();
 

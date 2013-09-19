@@ -22,17 +22,20 @@ package org.sonar.server.permission;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.ObjectUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.core.permission.ComponentPermissionFacade;
-import org.sonar.core.permission.Permission;
-import org.sonar.core.user.*;
+import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceQuery;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -40,11 +43,8 @@ import org.sonar.server.user.MockUserSession;
 
 import java.util.Map;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.sonar.server.permission.InternalPermissionServiceTest.MatchesGroupRole.matchesRole;
-import static org.sonar.server.permission.InternalPermissionServiceTest.MatchesUserRole.matchesRole;
 
 public class InternalPermissionServiceTest {
 
@@ -55,127 +55,241 @@ public class InternalPermissionServiceTest {
   private InternalPermissionService service;
   private RoleDao roleDao;
   private UserDao userDao;
-  private ComponentPermissionFacade permissionFacade;
+  private ResourceDao resourceDao;
+  private PermissionFacade permissionFacade;
 
   @Before
   public void setUpCommonStubbing() {
-    MockUserSession.set().setLogin("admin").setPermissions(Permission.SYSTEM_ADMIN);
-
-    UserDto targetedUser = new UserDto().setId(2L).setLogin("user").setActive(true);
-    GroupDto targetedGroup = new GroupDto().setId(2L).setName("group");
+    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermission.SYSTEM_ADMIN);
 
     roleDao = mock(RoleDao.class);
-
     userDao = mock(UserDao.class);
-    when(userDao.selectActiveUserByLogin("user")).thenReturn(targetedUser);
-    when(userDao.selectGroupByName("group")).thenReturn(targetedGroup);
+    when(userDao.selectActiveUserByLogin("user")).thenReturn(new UserDto().setId(2L).setLogin("user").setActive(true));
+    when(userDao.selectGroupByName("group")).thenReturn(new GroupDto().setId(2L).setName("group"));
 
-    permissionFacade = mock(ComponentPermissionFacade.class);
+    resourceDao = mock(ResourceDao.class);
 
-    service = new InternalPermissionService(roleDao, userDao, permissionFacade);
+    permissionFacade = mock(PermissionFacade.class);
+
+    service = new InternalPermissionService(roleDao, userDao, resourceDao, permissionFacade);
   }
 
   @Test
-  public void should_add_user_permission() throws Exception {
-    params = buildPermissionChangeParams("user", null, Permission.DASHBOARD_SHARING);
-    setUpUserPermissions("user", Permission.QUALITY_PROFILE_ADMIN.key());
-    UserRoleDto roleToInsert = new UserRoleDto().setUserId(2L).setRole(Permission.DASHBOARD_SHARING.key());
+  public void should_add_global_user_permission() throws Exception {
+    params = buildPermissionChangeParams("user", null, GlobalPermission.DASHBOARD_SHARING);
+    setUpUserPermissions("user", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
 
     service.addPermission(params);
 
-    verify(roleDao).insertUserRole(argThat(matchesRole(roleToInsert)));
+    verify(permissionFacade).insertUserPermission(eq((Long) null), eq(2L), eq("shareDashboard"));
   }
 
   @Test
-  public void should_remove_user_permission() throws Exception {
-    params = buildPermissionChangeParams("user", null, Permission.QUALITY_PROFILE_ADMIN);
-    setUpUserPermissions("user", Permission.QUALITY_PROFILE_ADMIN.key());
-    UserRoleDto roleToRemove = new UserRoleDto().setUserId(2L).setRole(Permission.QUALITY_PROFILE_ADMIN.key());
+  public void should_add_component_user_permission() throws Exception {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+
+    params = buildPermissionChangeParams("user", null, "org.sample.Sample", "user");
+    setUpUserPermissions("user", "codeviewer");
+
+    service.addPermission(params);
+
+    verify(permissionFacade).insertUserPermission(eq(10L), eq(2L), eq("user"));
+  }
+
+  @Test
+  public void should_remove_global_user_permission() throws Exception {
+    params = buildPermissionChangeParams("user", null, GlobalPermission.QUALITY_PROFILE_ADMIN);
+    setUpUserPermissions("user", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
 
     service.removePermission(params);
 
-    verify(roleDao).deleteUserRole(argThat(matchesRole(roleToRemove)));
+    verify(permissionFacade).deleteUserPermission(eq((Long) null), eq(2L), eq("profileadmin"));
   }
 
   @Test
-  public void should_add_group_permission() throws Exception {
-    params = buildPermissionChangeParams(null, "group", Permission.DASHBOARD_SHARING);
-    setUpGroupPermissions("group", Permission.QUALITY_PROFILE_ADMIN.key());
-    GroupRoleDto roleToInsert = new GroupRoleDto().setGroupId(2L).setRole(Permission.DASHBOARD_SHARING.key());
+  public void should_remove_component_user_permission() throws Exception {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
-    service.addPermission(params);
-
-    verify(roleDao).insertGroupRole(argThat(matchesRole(roleToInsert)));
-  }
-
-  @Test
-  public void should_remove_group_permission() throws Exception {
-    params = buildPermissionChangeParams(null, "group", Permission.QUALITY_PROFILE_ADMIN);
-    setUpGroupPermissions("group", Permission.QUALITY_PROFILE_ADMIN.key());
-    GroupRoleDto roleToRemove = new GroupRoleDto().setGroupId(2L).setRole(Permission.QUALITY_PROFILE_ADMIN.key());
+    params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
+    setUpUserPermissions("user", "codeviewer");
 
     service.removePermission(params);
 
-    verify(roleDao).deleteGroupRole(argThat(matchesRole(roleToRemove)));
+    verify(permissionFacade).deleteUserPermission(eq(10L), eq(2L), eq("codeviewer"));
   }
 
   @Test
-  public void should_skip_redundant_permission_change() throws Exception {
-    params = buildPermissionChangeParams("user", null, Permission.QUALITY_PROFILE_ADMIN);
-    setUpUserPermissions("user", Permission.QUALITY_PROFILE_ADMIN.key());
+  public void should_add_global_group_permission() throws Exception {
+    params = buildPermissionChangeParams(null, "group", GlobalPermission.DASHBOARD_SHARING);
+    setUpGroupPermissions("group", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
 
     service.addPermission(params);
 
-    verify(roleDao, never()).insertUserRole(any(UserRoleDto.class));
+    verify(permissionFacade).insertGroupPermission(eq((Long) null), eq(2L), eq("shareDashboard"));
   }
 
   @Test
-  public void should_fail_on_invalid_request() throws Exception {
-    throwable.expect(BadRequestException.class);
-    params = buildPermissionChangeParams("user", "group", Permission.QUALITY_PROFILE_ADMIN);
+  public void should_add_component_group_permission() throws Exception {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+
+    params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "user");
+    setUpGroupPermissions("group", "codeviewer");
 
     service.addPermission(params);
+
+    verify(permissionFacade).insertGroupPermission(eq(10L), eq(2L), eq("user"));
+  }
+
+  @Test
+  public void should_add_global_permission_to_anyone_group() throws Exception {
+    params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, GlobalPermission.QUALITY_PROFILE_ADMIN);
+
+    service.addPermission(params);
+
+    verify(permissionFacade).insertGroupPermission(eq((Long) null), eq((Long) null), eq("profileadmin"));
+  }
+
+  @Test
+  public void should_add_component_permission_to_anyone_group() throws Exception {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+
+    params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "user");
+
+    service.addPermission(params);
+
+    verify(permissionFacade).insertGroupPermission(eq(10L), eq((Long) null), eq("user"));
+  }
+
+  @Test
+  public void should_remove_global_group_permission() throws Exception {
+    params = buildPermissionChangeParams(null, "group", GlobalPermission.QUALITY_PROFILE_ADMIN);
+    setUpGroupPermissions("group", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+
+    service.removePermission(params);
+
+    verify(permissionFacade).deleteGroupPermission(eq((Long) null), eq(2L), eq("profileadmin"));
+  }
+
+  @Test
+  public void should_remove_component_group_permission() throws Exception {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+
+    params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
+    setUpGroupPermissions("group", "codeviewer");
+
+    service.removePermission(params);
+
+    verify(permissionFacade).deleteGroupPermission(eq(10L), eq(2L), eq("codeviewer"));
+  }
+
+  @Test
+  public void should_remove_global_permission_from_anyone_group() throws Exception {
+    params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, GlobalPermission.QUALITY_PROFILE_ADMIN);
+    setUpGroupPermissions(DefaultGroups.ANYONE, GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+
+    service.removePermission(params);
+
+    verify(permissionFacade).deleteGroupPermission(eq((Long) null), eq((Long) null), eq("profileadmin"));
+  }
+
+  @Test
+  public void should_remove_component_permission_from_anyone_group() throws Exception {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+
+    params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "codeviewer");
+    setUpGroupPermissions(DefaultGroups.ANYONE, "codeviewer");
+
+    service.removePermission(params);
+
+    verify(permissionFacade).deleteGroupPermission(eq(10L), eq((Long) null), eq("codeviewer"));
+  }
+
+  @Test
+  public void should_skip_redundant_add_user_permission_change() throws Exception {
+    params = buildPermissionChangeParams("user", null, GlobalPermission.QUALITY_PROFILE_ADMIN);
+    setUpUserPermissions("user", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+
+    service.addPermission(params);
+
+    verify(permissionFacade, never()).insertUserPermission(anyLong(), anyLong(), anyString());
+  }
+
+  @Test
+  public void should_skip_redundant_add_group_permission_change() throws Exception {
+    params = buildPermissionChangeParams(null, "group", GlobalPermission.QUALITY_PROFILE_ADMIN);
+    setUpGroupPermissions("group", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+
+    service.addPermission(params);
+
+    verify(permissionFacade, never()).insertGroupPermission(anyLong(), anyLong(), anyString());
+  }
+
+  @Test
+  public void should_fail_when_user_and_group_are_provided() throws Exception {
+    try {
+      params = buildPermissionChangeParams("user", "group", GlobalPermission.QUALITY_PROFILE_ADMIN);
+      service.addPermission(params);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Only one of user or group parameter should be provided");
+    }
+  }
+
+  @Test
+  public void should_fail_when_user_is_not_found() throws Exception {
+    try {
+      when(userDao.selectActiveUserByLogin("user")).thenReturn(null);
+      params = buildPermissionChangeParams("unknown", null, GlobalPermission.QUALITY_PROFILE_ADMIN);
+      service.addPermission(params);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("User unknown does not exist");
+    }
+  }
+
+  @Test
+  public void should_fail_when_group_is_not_found() throws Exception {
+    try {
+      params = buildPermissionChangeParams(null, "unknown", GlobalPermission.QUALITY_PROFILE_ADMIN);
+      service.addPermission(params);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Group unknown does not exist");
+    }
+  }
+
+  @Test
+  public void should_fail_when_component_is_not_found() throws Exception {
+    try {
+      params = buildPermissionChangeParams(null, "group", "unknown", "user");
+      service.addPermission(params);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Component unknown does not exists.");
+    }
   }
 
   @Test
   public void should_fail_on_insufficient_rights() throws Exception {
-    throwable.expect(ForbiddenException.class);
-    params = buildPermissionChangeParams("user", null, Permission.QUALITY_PROFILE_ADMIN);
-
-    MockUserSession.set().setLogin("unauthorized").setPermissions(Permission.QUALITY_PROFILE_ADMIN);
-
-    service.addPermission(params);
+    try {
+      params = buildPermissionChangeParams("user", null, GlobalPermission.QUALITY_PROFILE_ADMIN);
+      MockUserSession.set().setLogin("unauthorized").setPermissions(GlobalPermission.QUALITY_PROFILE_ADMIN);
+      service.addPermission(params);
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("Insufficient privileges");
+    }
   }
 
   @Test
   public void should_fail_on_anonymous_access() throws Exception {
     throwable.expect(UnauthorizedException.class);
-    params = buildPermissionChangeParams("user", null, Permission.QUALITY_PROFILE_ADMIN);
+    params = buildPermissionChangeParams("user", null, GlobalPermission.QUALITY_PROFILE_ADMIN);
 
     MockUserSession.set();
 
     service.addPermission(params);
-  }
-
-  @Test
-  public void should_add_permission_to_anyone_group() throws Exception {
-    params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, Permission.QUALITY_PROFILE_ADMIN);
-    GroupRoleDto roleToInsert = new GroupRoleDto().setRole(Permission.QUALITY_PROFILE_ADMIN.key());
-
-    service.addPermission(params);
-
-    verify(roleDao).insertGroupRole(argThat(matchesRole(roleToInsert)));
-  }
-
-  @Test
-  public void should_remove_permission_from_anyone_group() throws Exception {
-    params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, Permission.QUALITY_PROFILE_ADMIN);
-    setUpGroupPermissions(DefaultGroups.ANYONE, Permission.QUALITY_PROFILE_ADMIN.key());
-    GroupRoleDto roleToDelete = new GroupRoleDto().setRole(Permission.QUALITY_PROFILE_ADMIN.key());
-
-    service.removePermission(params);
-
-    verify(roleDao).deleteGroupRole(argThat(matchesRole(roleToDelete)));
   }
 
   @Test
@@ -191,67 +305,20 @@ public class InternalPermissionServiceTest {
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 3L);
   }
 
-  protected static class MatchesUserRole extends BaseMatcher<UserRoleDto> {
-
-    private final UserRoleDto referenceDto;
-
-    private MatchesUserRole(UserRoleDto referenceDto) {
-      this.referenceDto = referenceDto;
-    }
-
-    public static MatchesUserRole matchesRole(UserRoleDto referenceDto) {
-      return new MatchesUserRole(referenceDto);
-    }
-
-    @Override
-    public boolean matches(Object o) {
-      if (o != null && o instanceof UserRoleDto) {
-        UserRoleDto otherDto = (UserRoleDto) o;
-        return ObjectUtils.equals(referenceDto.getResourceId(), otherDto.getResourceId()) &&
-          ObjectUtils.equals(referenceDto.getRole(), otherDto.getRole()) &&
-          ObjectUtils.equals(referenceDto.getUserId(), otherDto.getUserId());
-      }
-      return false;
-    }
-
-    @Override
-    public void describeTo(Description description) {
-    }
-  }
-
-  protected static class MatchesGroupRole extends BaseMatcher<GroupRoleDto> {
-
-    private final GroupRoleDto referenceDto;
-
-    private MatchesGroupRole(GroupRoleDto referenceDto) {
-      this.referenceDto = referenceDto;
-    }
-
-    public static MatchesGroupRole matchesRole(GroupRoleDto referenceDto) {
-      return new MatchesGroupRole(referenceDto);
-    }
-
-    @Override
-    public boolean matches(Object o) {
-      if (o != null && o instanceof GroupRoleDto) {
-        GroupRoleDto otherDto = (GroupRoleDto) o;
-        return ObjectUtils.equals(referenceDto.getResourceId(), otherDto.getResourceId()) &&
-          ObjectUtils.equals(referenceDto.getRole(), otherDto.getRole()) &&
-          ObjectUtils.equals(referenceDto.getGroupId(), otherDto.getGroupId());
-      }
-      return false;
-    }
-
-    @Override
-    public void describeTo(Description description) {
-    }
-  }
-
-  private Map<String, Object> buildPermissionChangeParams(String login, String group, Permission perm) {
+  private Map<String, Object> buildPermissionChangeParams(String login, String group, GlobalPermission perm) {
     Map<String, Object> params = Maps.newHashMap();
     params.put("user", login);
     params.put("group", group);
     params.put("permission", perm.key());
+    return params;
+  }
+
+  private Map<String, Object> buildPermissionChangeParams(String login, String group, String component, String perm) {
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("user", login);
+    params.put("group", group);
+    params.put("component", component);
+    params.put("permission", perm);
     return params;
   }
 

@@ -25,7 +25,7 @@ import org.h2.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.permission.PermissionDao;
+import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
@@ -33,6 +33,7 @@ import org.sonar.server.exceptions.ServerErrorException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -42,25 +43,25 @@ public class InternalPermissionTemplateService implements ServerComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(InternalPermissionTemplateService.class);
 
-  private final PermissionDao permissionDao;
+  private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
 
-  public InternalPermissionTemplateService(PermissionDao permissionDao, UserDao userDao) {
-    this.permissionDao = permissionDao;
+  public InternalPermissionTemplateService(PermissionTemplateDao permissionTemplateDao, UserDao userDao) {
+    this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;
   }
 
   @CheckForNull
   public PermissionTemplate selectPermissionTemplate(String templateName) {
     PermissionTemplateUpdater.checkUserCredentials();
-    PermissionTemplateDto permissionTemplateDto = permissionDao.selectPermissionTemplate(templateName);
+    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectPermissionTemplate(templateName);
     return PermissionTemplate.create(permissionTemplateDto);
   }
 
   public List<PermissionTemplate> selectAllPermissionTemplates() {
     PermissionTemplateUpdater.checkUserCredentials();
     List<PermissionTemplate> permissionTemplates = Lists.newArrayList();
-    List<PermissionTemplateDto> permissionTemplateDtos = permissionDao.selectAllPermissionTemplates();
+    List<PermissionTemplateDto> permissionTemplateDtos = permissionTemplateDao.selectAllPermissionTemplates();
     if(permissionTemplateDtos != null) {
       for (PermissionTemplateDto permissionTemplateDto : permissionTemplateDtos) {
         permissionTemplates.add(PermissionTemplate.create(permissionTemplateDto));
@@ -72,7 +73,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
   public PermissionTemplate createPermissionTemplate(String name, @Nullable String description) {
     PermissionTemplateUpdater.checkUserCredentials();
     validateTemplateName(null, name);
-    PermissionTemplateDto permissionTemplateDto = permissionDao.createPermissionTemplate(name, description);
+    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.createPermissionTemplate(name, description);
     if(permissionTemplateDto.getId() == null) {
       String errorMsg = "Template creation failed";
       LOG.error(errorMsg);
@@ -84,53 +85,53 @@ public class InternalPermissionTemplateService implements ServerComponent {
   public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription) {
     PermissionTemplateUpdater.checkUserCredentials();
     validateTemplateName(templateId, newName);
-    permissionDao.updatePermissionTemplate(templateId, newName, newDescription);
+    permissionTemplateDao.updatePermissionTemplate(templateId, newName, newDescription);
   }
 
   public void deletePermissionTemplate(Long templateId) {
     PermissionTemplateUpdater.checkUserCredentials();
-    permissionDao.deletePermissionTemplate(templateId);
+    permissionTemplateDao.deletePermissionTemplate(templateId);
   }
 
   public void addUserPermission(String templateName, String permission, String userLogin) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, userLogin, permissionDao, userDao) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, userLogin, permissionTemplateDao, userDao) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long userId = getUserId();
-        permissionDao.addUserPermission(templateId, userId, permission);
+        permissionTemplateDao.addUserPermission(templateId, userId, permission);
       }
     };
     updater.executeUpdate();
   }
 
   public void removeUserPermission(String templateName, String permission, String userLogin) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, userLogin, permissionDao, userDao) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, userLogin, permissionTemplateDao, userDao) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long userId = getUserId();
-        permissionDao.removeUserPermission(templateId, userId, permission);
+        permissionTemplateDao.removeUserPermission(templateId, userId, permission);
       }
     };
     updater.executeUpdate();
   }
 
   public void addGroupPermission(String templateName, String permission, String groupName) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, groupName, permissionDao, userDao) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, groupName, permissionTemplateDao, userDao) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long groupId = getGroupId();
-        permissionDao.addGroupPermission(templateId, groupId, permission);
+        permissionTemplateDao.addGroupPermission(templateId, groupId, permission);
       }
     };
     updater.executeUpdate();
   }
 
   public void removeGroupPermission(String templateName, String permission, String groupName) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, groupName, permissionDao, userDao) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateName, permission, groupName, permissionTemplateDao, userDao) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long groupId = getGroupId();
-        permissionDao.removeGroupPermission(templateId, groupId, permission);
+        permissionTemplateDao.removeGroupPermission(templateId, groupId, permission);
       }
     };
     updater.executeUpdate();
@@ -141,7 +142,7 @@ public class InternalPermissionTemplateService implements ServerComponent {
       String errorMsg = "Name can't be blank";
       throw new BadRequestException(errorMsg);
     }
-    List<PermissionTemplateDto> existingTemplates = permissionDao.selectAllPermissionTemplates();
+    List<PermissionTemplateDto> existingTemplates = permissionTemplateDao.selectAllPermissionTemplates();
     if(existingTemplates != null) {
       for (PermissionTemplateDto existingTemplate : existingTemplates) {
         if((templateId == null ||  !existingTemplate.getId().equals(templateId)) && (existingTemplate.getName().equals(templateName))) {

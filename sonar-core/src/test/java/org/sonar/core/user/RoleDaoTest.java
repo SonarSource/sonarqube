@@ -22,7 +22,7 @@ package org.sonar.core.user;
 
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.core.permission.Permission;
+import org.sonar.core.permission.GlobalPermission;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -35,8 +35,8 @@ public class RoleDaoTest extends AbstractDaoTestCase {
 
     RoleDao dao = new RoleDao(getMyBatis());
 
-    assertThat(dao.selectUserPermissions("admin_user")).containsOnly(Permission.SYSTEM_ADMIN.key(), Permission.QUALITY_PROFILE_ADMIN.key());
-    assertThat(dao.selectUserPermissions("profile_admin_user")).containsOnly(Permission.QUALITY_PROFILE_ADMIN.key());
+    assertThat(dao.selectUserPermissions("admin_user")).containsOnly(GlobalPermission.SYSTEM_ADMIN.key(), GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+    assertThat(dao.selectUserPermissions("profile_admin_user")).containsOnly(GlobalPermission.QUALITY_PROFILE_ADMIN.key());
   }
 
   @Test
@@ -45,18 +45,18 @@ public class RoleDaoTest extends AbstractDaoTestCase {
 
     RoleDao dao = new RoleDao(getMyBatis());
 
-    assertThat(dao.selectGroupPermissions("sonar-administrators")).containsOnly(Permission.SYSTEM_ADMIN.key(), Permission.QUALITY_PROFILE_ADMIN.key(),
-        Permission.DASHBOARD_SHARING.key(), Permission.DRY_RUN_EXECUTION.key(), Permission.SCAN_EXECUTION.key());
-    assertThat(dao.selectGroupPermissions("sonar-users")).containsOnly(Permission.DASHBOARD_SHARING.key(), Permission.DRY_RUN_EXECUTION.key(),
-        Permission.SCAN_EXECUTION.key());
-    assertThat(dao.selectGroupPermissions(DefaultGroups.ANYONE)).containsOnly(Permission.DRY_RUN_EXECUTION.key(), Permission.SCAN_EXECUTION.key());
+    assertThat(dao.selectGroupPermissions("sonar-administrators")).containsOnly(GlobalPermission.SYSTEM_ADMIN.key(), GlobalPermission.QUALITY_PROFILE_ADMIN.key(),
+        GlobalPermission.DASHBOARD_SHARING.key(), GlobalPermission.DRY_RUN_EXECUTION.key(), GlobalPermission.SCAN_EXECUTION.key());
+    assertThat(dao.selectGroupPermissions("sonar-users")).containsOnly(GlobalPermission.DASHBOARD_SHARING.key(), GlobalPermission.DRY_RUN_EXECUTION.key(),
+        GlobalPermission.SCAN_EXECUTION.key());
+    assertThat(dao.selectGroupPermissions(DefaultGroups.ANYONE)).containsOnly(GlobalPermission.DRY_RUN_EXECUTION.key(), GlobalPermission.SCAN_EXECUTION.key());
   }
 
   @Test
   public void should_delete_user_global_permission() throws Exception {
     setupData("userPermissions");
 
-    UserRoleDto userRoleToDelete = new UserRoleDto().setUserId(200L).setRole(Permission.QUALITY_PROFILE_ADMIN.key());
+    UserRoleDto userRoleToDelete = new UserRoleDto().setUserId(200L).setRole(GlobalPermission.QUALITY_PROFILE_ADMIN.key());
 
     RoleDao dao = new RoleDao(getMyBatis());
     dao.deleteUserRole(userRoleToDelete);
@@ -68,7 +68,7 @@ public class RoleDaoTest extends AbstractDaoTestCase {
   public void should_delete_group_global_permission() throws Exception {
     setupData("groupPermissions");
 
-    GroupRoleDto groupRoleToDelete = new GroupRoleDto().setGroupId(100L).setRole(Permission.QUALITY_PROFILE_ADMIN.key());
+    GroupRoleDto groupRoleToDelete = new GroupRoleDto().setGroupId(100L).setRole(GlobalPermission.QUALITY_PROFILE_ADMIN.key());
 
     RoleDao dao = new RoleDao(getMyBatis());
     dao.deleteGroupRole(groupRoleToDelete);

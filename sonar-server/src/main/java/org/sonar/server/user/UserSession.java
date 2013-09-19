@@ -23,7 +23,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.permission.Permission;
+import org.sonar.core.permission.GlobalPermission;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -31,6 +31,7 @@ import org.sonar.server.platform.Platform;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -47,7 +48,7 @@ public class UserSession {
   private Integer userId;
   private String login;
   private Locale locale = Locale.ENGLISH;
-  List<Permission> permissions = null;
+  List<GlobalPermission> globalPermissions = null;
 
   UserSession() {
   }
@@ -95,8 +96,8 @@ public class UserSession {
   /**
    * Ensures that user implies the specified permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
    */
-  public UserSession checkGlobalPermission(Permission permission) {
-    if (!hasGlobalPermission(permission)) {
+  public UserSession checkGlobalPermission(GlobalPermission globalPermission) {
+    if (!hasGlobalPermission(globalPermission)) {
       throw new ForbiddenException("Insufficient privileges");
     }
     return this;
@@ -105,24 +106,24 @@ public class UserSession {
   /**
    * Does the user have the given permission ?
    */
-  public boolean hasGlobalPermission(Permission permission) {
-    return globalPermissions().contains(permission);
+  public boolean hasGlobalPermission(GlobalPermission globalPermission) {
+    return globalPermissions().contains(globalPermission);
   }
 
-  List<Permission> globalPermissions() {
-    if (permissions == null) {
+  List<GlobalPermission> globalPermissions() {
+    if (globalPermissions == null) {
       List<String> permissionKeys = authorizationDao().selectGlobalPermissions(login);
-      permissions = new ArrayList<Permission>();
+      globalPermissions = new ArrayList<GlobalPermission>();
       for (String permissionKey : permissionKeys) {
-        Permission perm = Permission.allGlobal().get(permissionKey);
+        GlobalPermission perm = GlobalPermission.allGlobal().get(permissionKey);
         if (perm == null) {
           LOG.warn("Ignoring unknown permission {} for user {}", permissionKey, login);
         } else {
-          permissions.add(perm);
+          globalPermissions.add(perm);
         }
       }
     }
-    return permissions;
+    return globalPermissions;
   }
 
   AuthorizationDao authorizationDao() {

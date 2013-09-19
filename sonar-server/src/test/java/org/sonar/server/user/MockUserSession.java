@@ -19,9 +19,10 @@
  */
 package org.sonar.server.user;
 
-import org.sonar.core.permission.Permission;
+import org.sonar.core.permission.GlobalPermission;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
@@ -29,7 +30,7 @@ import java.util.Locale;
 public class MockUserSession extends UserSession {
 
   private MockUserSession() {
-    permissions = Collections.emptyList();
+    globalPermissions = Collections.emptyList();
   }
 
   public static MockUserSession set() {
@@ -57,8 +58,8 @@ public class MockUserSession extends UserSession {
     return this;
   }
 
-  public MockUserSession setPermissions(Permission... perm) {
-    permissions = Arrays.asList(perm);
+  public MockUserSession setPermissions(GlobalPermission... perm) {
+    globalPermissions = Arrays.asList(perm);
     return this;
   }
 }

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.PermissionDao;
+import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
@@ -41,14 +41,14 @@ public class RegisterPermissionTemplates {
   private static final Logger LOG = LoggerFactory.getLogger(RegisterPermissionTemplates.class);
 
   private final LoadedTemplateDao loadedTemplateDao;
-  private final PermissionDao permissionDao;
+  private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
   private final PersistentSettings settings;
 
-  public RegisterPermissionTemplates(LoadedTemplateDao loadedTemplateDao, PermissionDao permissionDao,
+  public RegisterPermissionTemplates(LoadedTemplateDao loadedTemplateDao, PermissionTemplateDao permissionTemplateDao,
                                      UserDao userDao, PersistentSettings settings) {
     this.loadedTemplateDao = loadedTemplateDao;
-    this.permissionDao = permissionDao;
+    this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;
     this.settings = settings;
   }
@@ -78,7 +78,7 @@ public class RegisterPermissionTemplates {
   }
 
   private void insertDefaultTemplate(String templateName) {
-    PermissionTemplateDto defaultPermissionTemplate = permissionDao
+    PermissionTemplateDto defaultPermissionTemplate = permissionTemplateDao
       .createPermissionTemplate(templateName, PermissionTemplateDto.DEFAULT.getDescription());
     addGroupPermission(defaultPermissionTemplate, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
     addGroupPermission(defaultPermissionTemplate, UserRole.USER, DefaultGroups.ANYONE);
@@ -97,7 +97,7 @@ public class RegisterPermissionTemplates {
         throw new IllegalArgumentException("Cannot setup default permission for group: " + groupName);
       }
     }
-    permissionDao.addGroupPermission(template.getId(), groupId, permission);
+    permissionTemplateDao.addGroupPermission(template.getId(), groupId, permission);
   }
 
   private void registerInitialization() {

@@ -20,30 +20,41 @@
 
 package org.sonar.server.permission;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.permission.Permission;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermission;
 import org.sonar.server.exceptions.BadRequestException;
 
+import javax.annotation.Nullable;
+
+import java.util.List;
 import java.util.Map;
 
 public class PermissionChangeQuery {
 
   private static final String USER_KEY = "user";
   private static final String GROUP_KEY = "group";
-  private static final String ROLE_KEY = "permission";
+  private static final String PERMISSION_KEY = "permission";
+  private static final String COMPONENT_KEY = "component";
+
+  private static final List<String> COMPONENT_PERMISSIONS = ImmutableList.of(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.USER);
 
   private final String user;
   private final String group;
-  private final String role;
+  private final String component;
+  private final String permission;
 
-  private PermissionChangeQuery(String user, String group, String role) {
+  private PermissionChangeQuery(@Nullable String user, @Nullable String group, @Nullable String component, String permission) {
     this.user = user;
     this.group = group;
-    this.role = role;
+    this.component = component;
+    this.permission = permission;
   }
 
   public static PermissionChangeQuery buildFromParams(Map<String, Object> params) {
-    return new PermissionChangeQuery((String) params.get(USER_KEY), (String) params.get(GROUP_KEY), (String) params.get(ROLE_KEY));
+    return new PermissionChangeQuery((String) params.get(USER_KEY), (String) params.get(GROUP_KEY), (String) params.get(COMPONENT_KEY), (String) params.get(PERMISSION_KEY));
   }
 
   public void validate() {
@@ -61,11 +72,17 @@ public class PermissionChangeQuery {
   }
 
   private void validatePermission() {
-    if (StringUtils.isBlank(role)) {
+    if (StringUtils.isBlank(permission)) {
       throw new BadRequestException("Missing permission parameter");
     }
-    if (!Permission.allGlobal().keySet().contains(role)) {
-      throw new BadRequestException("Invalid permission key " + role);
+    if (Strings.isNullOrEmpty(component)){
+      if (!GlobalPermission.allGlobal().keySet().contains(permission)) {
+        throw new BadRequestException("Invalid permission key " + permission + ". Valid ones are : "+ GlobalPermission.allGlobal().keySet());
+      }
+    } else {
+      if (!COMPONENT_PERMISSIONS.contains(permission)) {
+        throw new BadRequestException("Invalid permission key " + permission +". Valid ones are : "+ COMPONENT_PERMISSIONS);
+      }
     }
   }
 
@@ -73,15 +90,22 @@ public class PermissionChangeQuery {
     return user != null;
   }
 
-  public String getUser() {
+  @Nullable
+  public String user() {
     return user;
   }
 
-  public String getGroup() {
+  @Nullable
+  public String group() {
     return group;
   }
 
-  public String getRole() {
-    return role;
+  @Nullable
+  public String component() {
+    return component;
+  }
+
+  public String permission() {
+    return permission;
   }
 }

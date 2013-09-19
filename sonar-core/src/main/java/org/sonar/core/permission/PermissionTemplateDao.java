@@ -30,21 +30,22 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.text.Normalizer;
 import java.util.Date;
 import java.util.List;
 
-public class PermissionDao implements TaskComponent, ServerComponent {
+public class PermissionTemplateDao implements TaskComponent, ServerComponent {
 
   private final MyBatis myBatis;
   private final DateProvider dateProvider;
 
-  public PermissionDao(MyBatis myBatis, DateProvider dateProvider) {
+  public PermissionTemplateDao(MyBatis myBatis, DateProvider dateProvider) {
     this.myBatis = myBatis;
     this.dateProvider = dateProvider;
   }
 
-  public PermissionDao(MyBatis myBatis) {
+  public PermissionTemplateDao(MyBatis myBatis) {
     this(myBatis, new DefaultDateProvider());
   }
 

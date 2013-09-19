@@ -23,7 +23,6 @@ package org.sonar.core.permission;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.date.DateProvider;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
@@ -36,10 +35,10 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class PermissionDaoTest extends AbstractDaoTestCase {
+public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
 
   Date now;
-  PermissionDao permissionDao;
+  PermissionTemplateDao permissionTemplateDao;
   DateProvider dateProvider;
 
   @Before
@@ -47,13 +46,13 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
     dateProvider = mock(DateProvider.class);
     stub(dateProvider.now()).toReturn(now);
-    permissionDao = new PermissionDao(getMyBatis(), dateProvider);
+    permissionTemplateDao = new PermissionTemplateDao(getMyBatis(), dateProvider);
   }
 
   @Test
   public void should_create_permission_template() throws Exception {
     setupData("createPermissionTemplate");
-    PermissionTemplateDto permissionTemplate = permissionDao.createPermissionTemplate("my template", "my description");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate("my template", "my description");
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     checkTable("createPermissionTemplate", "permission_templates", "id", "name", "kee", "description");
@@ -62,7 +61,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_normalize_kee_on_template_creation() throws Exception {
     setupData("createNonAsciiPermissionTemplate");
-    PermissionTemplateDto permissionTemplate = permissionDao.createPermissionTemplate("Môü Gnô Gnèçàß", "my description");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate("Môü Gnô Gnèçàß", "my description");
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     checkTable("createNonAsciiPermissionTemplate", "permission_templates", "id", "name", "kee", "description");
@@ -79,8 +78,8 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession()).thenReturn(session);
 
-    permissionDao = new PermissionDao(myBatis, dateProvider);
-    PermissionTemplateDto permissionTemplate = permissionDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), null);
+    permissionTemplateDao = new PermissionTemplateDao(myBatis, dateProvider);
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), null);
 
     verify(mapper).insert(permissionTemplate);
     verify(session).commit();
@@ -91,7 +90,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_select_permission_template() throws Exception {
     setupData("selectPermissionTemplate");
-    PermissionTemplateDto permissionTemplate = permissionDao.selectPermissionTemplate("my template");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectPermissionTemplate("my template");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
@@ -111,7 +110,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_select_empty_permission_template() throws Exception {
     setupData("selectEmptyPermissionTemplate");
-    PermissionTemplateDto permissionTemplate = permissionDao.selectPermissionTemplate("my template");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectPermissionTemplate("my template");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
@@ -124,7 +123,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   public void should_select_permission_template_by_name() throws Exception {
     setupData("selectPermissionTemplate");
 
-    PermissionTemplateDto permissionTemplate = permissionDao.selectTemplateByName("my template");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectTemplateByName("my template");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
@@ -137,7 +136,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   public void should_select_permission_template_by_key() throws Exception {
     setupData("selectPermissionTemplate");
 
-    PermissionTemplateDto permissionTemplate = permissionDao.selectTemplateByKey("my_template_20130102_030405");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectTemplateByKey("my_template_20130102_030405");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
@@ -150,7 +149,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   public void should_select_all_permission_templates() throws Exception {
     setupData("selectAllPermissionTemplates");
 
-    List<PermissionTemplateDto> permissionTemplates = permissionDao.selectAllPermissionTemplates();
+    List<PermissionTemplateDto> permissionTemplates = permissionTemplateDao.selectAllPermissionTemplates();
 
     assertThat(permissionTemplates).hasSize(3);
     assertThat(permissionTemplates).onProperty("id").containsOnly(1L, 2L, 3L);
@@ -163,7 +162,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   public void should_update_permission_template() throws Exception {
     setupData("updatePermissionTemplate");
 
-    permissionDao.updatePermissionTemplate(1L, "new_name", "new_description");
+    permissionTemplateDao.updatePermissionTemplate(1L, "new_name", "new_description");
 
     checkTable("updatePermissionTemplate", "permission_templates", "id", "name", "kee", "description");
   }
@@ -172,7 +171,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   public void should_delete_permission_template() throws Exception {
     setupData("deletePermissionTemplate");
 
-    permissionDao.deletePermissionTemplate(1L);
+    permissionTemplateDao.deletePermissionTemplate(1L);
 
     checkTable("deletePermissionTemplate", "permission_templates", "id", "name", "description");
     checkTable("deletePermissionTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
@@ -182,7 +181,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_add_user_permission_to_template() throws Exception {
     setupData("addUserPermissionToTemplate");
-    permissionDao.addUserPermission(1L, 1L, "new_permission");
+    permissionTemplateDao.addUserPermission(1L, 1L, "new_permission");
 
     checkTable("addUserPermissionToTemplate", "permission_templates", "id", "name", "description");
     checkTable("addUserPermissionToTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
@@ -192,7 +191,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_remove_user_permission_from_template() throws Exception {
     setupData("removeUserPermissionFromTemplate");
-    permissionDao.removeUserPermission(1L, 2L, "permission_to_remove");
+    permissionTemplateDao.removeUserPermission(1L, 2L, "permission_to_remove");
 
     checkTable("removeUserPermissionFromTemplate", "permission_templates", "id", "name", "description");
     checkTable("removeUserPermissionFromTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
@@ -202,7 +201,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_add_group_permission_to_template() throws Exception {
     setupData("addGroupPermissionToTemplate");
-    permissionDao.addGroupPermission(1L, 1L, "new_permission");
+    permissionTemplateDao.addGroupPermission(1L, 1L, "new_permission");
 
     checkTable("addGroupPermissionToTemplate", "permission_templates", "id", "name", "description");
     checkTable("addGroupPermissionToTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
@@ -212,7 +211,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_remove_group_permission_from_template() throws Exception {
     setupData("removeGroupPermissionFromTemplate");
-    permissionDao.removeGroupPermission(1L, 2L, "permission_to_remove");
+    permissionTemplateDao.removeGroupPermission(1L, 2L, "permission_to_remove");
 
     checkTable("removeGroupPermissionFromTemplate", "permission_templates", "id", "name", "description");
     checkTable("removeGroupPermissionFromTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
@@ -222,7 +221,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_add_group_permission_with_null_name() throws Exception {
     setupData("addNullGroupPermissionToTemplate");
-    permissionDao.addGroupPermission(1L, null, "new_permission");
+    permissionTemplateDao.addGroupPermission(1L, null, "new_permission");
 
     checkTable("addNullGroupPermissionToTemplate", "permission_templates", "id", "name", "description");
     checkTable("addNullGroupPermissionToTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
@@ -232,7 +231,7 @@ public class PermissionDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_remove_group_permission_with_null_name() throws Exception {
     setupData("removeNullGroupPermissionFromTemplate");
-    permissionDao.removeGroupPermission(1L, null, "permission_to_remove");
+    permissionTemplateDao.removeGroupPermission(1L, null, "permission_to_remove");
 
     checkTable("removeNullGroupPermissionFromTemplate", "permission_templates", "id", "name", "description");
     checkTable("removeNullGroupPermissionFromTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");

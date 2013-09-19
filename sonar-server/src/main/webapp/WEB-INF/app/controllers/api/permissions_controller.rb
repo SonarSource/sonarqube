@@ -27,10 +27,14 @@ class Api::PermissionsController < Api::ApiController
   # POST /api/permissions/add
   #
   # -- Mandatory parameters
-  # 'permission' is the key of the permission to add
+  # 'permission' is the key of the permission to add. For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan.
+  #    Component permission values are : user, codeviewer, admin
   # 'user' is the user identifier (login)
   # OR
   # 'group' is the group identifier (group name or 'anyone')
+  #
+  # -- Optional parameters
+  # 'component' is the component on which add the permission. If null, the permission should be a global permission.
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/permissions/add?permission=shareDashboard&user=new_user'
@@ -57,10 +61,14 @@ class Api::PermissionsController < Api::ApiController
   # POST /api/permissions/remove
   #
   # -- Mandatory parameters
-  # 'permission' is the key of the permission to add
+  # 'permission' is the key of the permission to add. For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan.
+  #    Component permission values are : user, codeviewer, admin
   # 'user' is the user identifier (login)
   # OR
   # 'group' is the group identifier (group name or 'anyone')
+  #
+  # -- Optional parameters
+  # 'component' is the component on which add the permission. If null, the permission should be a global permission.
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/permissions/remove?permission=shareDashboard&user=new_user'
