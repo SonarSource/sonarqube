@@ -242,6 +242,40 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void manual_issues_should_be_untouched_if_line_is_null() throws Exception {
+    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
+
+    // INPUT : one issue existing during previous scan
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(null).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
+
+    IssueTrackingResult trackingResult = new IssueTrackingResult();
+    trackingResult.addUnmatched(unmatchedIssue);
+
+    String originalSource = "public interface Action {}";
+    when(index.getSource(file)).thenReturn(originalSource);
+    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
+
+    when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
+
+    decorator.doDecorate(file);
+
+    verify(workflow, times(1)).doAutomaticTransition(any(DefaultIssue.class), any(IssueChangeContext.class));
+    verify(handlers, times(1)).execute(any(DefaultIssue.class), any(IssueChangeContext.class));
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueCache).put(argument.capture());
+
+    DefaultIssue issue = argument.getValue();
+    assertThat(issue.line()).isEqualTo(null);
+    assertThat(issue.key()).isEqualTo("ABCDE");
+    assertThat(issue.isNew()).isFalse();
+    assertThat(issue.isEndOfLife()).isFalse();
+    assertThat(issue.isOnDisabledRule()).isFalse();
+    assertThat(issue.status()).isEqualTo("OPEN");
+  }
+
+  @Test
   public void manual_issues_should_be_kept_if_matching_line_not_found() throws Exception {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);

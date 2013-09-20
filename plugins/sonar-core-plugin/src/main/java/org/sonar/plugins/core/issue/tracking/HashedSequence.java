@@ -39,7 +39,8 @@ public final class HashedSequence<S extends Sequence> implements Sequence {
     Multimap<Integer, Integer> linesByHash = LinkedHashMultimap.create();
     for (int i = 0; i < size; i++) {
       hashes[i] = cmp.hash(base, i);
-      linesByHash.put(hashes[i], i + 1); // indices in array are shifted one line before
+      // indices in array are shifted one line before
+      linesByHash.put(hashes[i], i + 1);
     }
     return new HashedSequence<S>(base, hashes, linesByHash);
   }
@@ -59,6 +60,7 @@ public final class HashedSequence<S extends Sequence> implements Sequence {
   }
 
   public Integer getHash(Integer line) {
-    return hashes[line - 1]; // indices in array are shifted one line before
+    // indices in array are shifted one line before
+    return hashes[line - 1];
   }
 }

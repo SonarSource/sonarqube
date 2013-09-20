@@ -215,15 +215,21 @@ public class IssueTrackingDecorator implements Decorator {
     Logger logger = LoggerFactory.getLogger(IssueTrackingDecorator.class);
     logger.debug("Trying to relocate manual issue {}", oldIssue.getKee());
 
-    Collection<Integer> newLinesWithSameHash = sourceHashHolder.getNewLinesMatching(oldIssue.getLine());
+    Integer previousLine = oldIssue.getLine();
+    if (previousLine == null) {
+      logger.debug("Cannot relocate issue at resource level");
+      return;
+    }
+
+    Collection<Integer> newLinesWithSameHash = sourceHashHolder.getNewLinesMatching(previousLine);
     logger.debug("Found the following lines with same hash: {}", newLinesWithSameHash);
-    if (newLinesWithSameHash.size() == 0) {
-      if (oldIssue.getLine() > sourceHashHolder.getHashedSource().length()) {
-        logger.debug("Old issue line {} is out of new source, closing and removing line number", oldIssue.getLine());
+    if (newLinesWithSameHash.isEmpty()) {
+      if (previousLine > sourceHashHolder.getHashedSource().length()) {
+        logger.debug("Old issue line {} is out of new source, closing and removing line number", previousLine);
         newIssue.setLine(null);
         updater.setStatus(newIssue, Issue.STATUS_CLOSED, changeContext);
         updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);
-        updater.setPastLine(newIssue, oldIssue.getLine());
+        updater.setPastLine(newIssue, previousLine);
         updater.setPastMessage(newIssue, oldIssue.getMessage(), changeContext);
         updater.setPastEffortToFix(newIssue, oldIssue.getEffortToFix(), changeContext);
       }
@@ -232,7 +238,7 @@ public class IssueTrackingDecorator implements Decorator {
       logger.debug("Relocating issue to line {}", newLine);
 
       newIssue.setLine(newLine);
-      updater.setPastLine(newIssue, oldIssue.getLine());
+      updater.setPastLine(newIssue, previousLine);
       updater.setPastMessage(newIssue, oldIssue.getMessage(), changeContext);
       updater.setPastEffortToFix(newIssue, oldIssue.getEffortToFix(), changeContext);
     }
