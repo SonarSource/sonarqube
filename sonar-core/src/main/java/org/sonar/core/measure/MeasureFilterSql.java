@@ -163,8 +163,8 @@ class MeasureFilterSql {
 
   private void appendResourceKeyCondition(StringBuilder sb) {
     if (StringUtils.isNotBlank(filter.getResourceKey())) {
-      sb.append(" AND p.kee LIKE '%");
-      sb.append(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceKey())));
+      sb.append(" AND UPPER(p.kee) LIKE '%");
+      sb.append(StringEscapeUtils.escapeSql(StringUtils.upperCase(filter.getResourceKey())));
       sb.append("%'");
     }
   }

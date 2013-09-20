@@ -482,6 +482,16 @@ public class MeasureFilterExecutorTest {
   }
 
   @Test
+  public void filter_by_resource_key_with_component_key_containing_upper_case() throws SQLException {
+    db.prepareDbUnit(getClass(), "shared.xml");
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setResourceKey("big");
+    List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
+
+    assertThat(rows).hasSize(1);
+    verifyJavaBigFile(rows.get(0));
+  }
+
+  @Test
   public void filter_by_base_resource() throws SQLException {
     db.prepareDbUnit(getClass(), "shared.xml");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setBaseResourceKey("java_project");
