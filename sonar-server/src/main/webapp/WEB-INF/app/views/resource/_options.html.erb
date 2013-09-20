@@ -1,4 +1,4 @@
-<% display_options = @scm_available || @expandable || @filtered || @display_issues
+<% display_options = (@scm_available || @expandable || @filtered || @display_issues) && has_role?('codeviewer', @resource)
    if display_options
 %>
 

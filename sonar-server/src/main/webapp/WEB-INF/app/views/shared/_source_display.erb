@@ -76,9 +76,9 @@
       <tr class="row pos<%= index+1 -%>">
 
           <% if display_manual_violation_form %>
-            <%= render :partial => "shared/source_issue_form", :locals => { :resource_id => resource.id, \
-                                                                                :index => index, \
-                                                                                :gray_colspan => gray_colspan, \
+            <%= render :partial => "shared/source_issue_form", :locals => { :resource_id => resource.id,
+                                                                                :index => index,
+                                                                                :gray_colspan => gray_colspan,
                                                                                 :white_colspan => white_colspan} %>
           <% end %>
 
@@ -99,9 +99,9 @@
           <%= render :partial => "shared/source_line_numbers", :locals => {:index => line.id} %>
 
           <% if display_coverage %>
-            <%= render :partial => "shared/source_coverage", :locals => {:line => line, \
-                                                                          :statuses => {:hits => hits_status, :conditions => conditions_status}, \
-                                                                          :index => index, \
+            <%= render :partial => "shared/source_coverage", :locals => {:line => line,
+                                                                          :statuses => {:hits => hits_status, :conditions => conditions_status},
+                                                                          :index => index,
                                                                           :resource_key => snapshot.resource.key} %>
           <% end %>
 
@@ -110,8 +110,8 @@
       </tr>
 
       <% if display_issues && line.issues? %>
-        <%= render :partial => "shared/source_issues", :locals => { :line => line, \
-                                                                    :display_manual_violation_form => display_manual_violation_form, \
+        <%= render :partial => "shared/source_issues", :locals => { :line => line,
+                                                                    :display_manual_violation_form => display_manual_violation_form,
                                                                     :scm_available => scm_available} %>
       <% end %>
 

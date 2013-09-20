@@ -21,19 +21,14 @@ package org.sonar.plugins.core.web;
 
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.DefaultTab;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.ResourceQualifier;
-import org.sonar.api.web.RubyRailsPage;
-import org.sonar.api.web.UserRole;
+import org.sonar.api.web.*;
 
 @ResourceQualifier(Qualifiers.UNIT_TEST_FILE)
 @NavigationSection(NavigationSection.RESOURCE_TAB)
 @DefaultTab(metrics = {
     CoreMetrics.TESTS_KEY, CoreMetrics.TEST_EXECUTION_TIME_KEY, CoreMetrics.TEST_SUCCESS_DENSITY_KEY,
     CoreMetrics.TEST_FAILURES_KEY, CoreMetrics.TEST_ERRORS_KEY, CoreMetrics.SKIPPED_TESTS_KEY})
-@UserRole(UserRole.CODEVIEWER)
+@UserRole(UserRole.USER)
 public class TestsViewer extends AbstractRubyTemplate implements RubyRailsPage {
 
   public String getId() {

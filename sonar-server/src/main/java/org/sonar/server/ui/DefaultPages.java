@@ -42,7 +42,7 @@ public final class DefaultPages {
   @NavigationSection(NavigationSection.RESOURCE_TAB)
   @DefaultTab
   @ResourceQualifier({Qualifiers.FILE, Qualifiers.CLASS, Qualifiers.UNIT_TEST_FILE})
-  @UserRole(UserRole.CODEVIEWER)
+  @UserRole(UserRole.USER)
   private static final class SourceTab implements RubyRailsPage {
     public String getTemplate() {
       return NOT_APPLICABLE;
@@ -80,7 +80,7 @@ public final class DefaultPages {
       CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_BRANCH_COVERAGE_KEY, CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY,
       CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY})
   @RequiredMeasures(anyOf = {CoreMetrics.COVERAGE_KEY, CoreMetrics.IT_COVERAGE_KEY, CoreMetrics.OVERALL_COVERAGE_KEY})
-  @UserRole(UserRole.CODEVIEWER)
+  @UserRole(UserRole.USER)
   private static final class CoverageTab implements RubyRailsPage {
     public String getTemplate() {
       return NOT_APPLICABLE;
@@ -106,7 +106,7 @@ public final class DefaultPages {
   @ResourceQualifier(
       value = {Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.PACKAGE, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.CLASS,
           Qualifiers.UNIT_TEST_FILE})
-  @UserRole(UserRole.CODEVIEWER)
+  @UserRole(UserRole.USER)
   private static final class IssuesTab implements RubyRailsPage {
     public String getTemplate() {
       return NOT_APPLICABLE;
@@ -124,7 +124,7 @@ public final class DefaultPages {
   @NavigationSection(NavigationSection.RESOURCE_TAB)
   @DefaultTab(metrics = {CoreMetrics.DUPLICATED_LINES_KEY, CoreMetrics.DUPLICATED_BLOCKS_KEY, CoreMetrics.DUPLICATED_FILES_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY})
   @ResourceQualifier({Qualifiers.FILE, Qualifiers.CLASS})
-  @UserRole(UserRole.CODEVIEWER)
+  @UserRole(UserRole.USER)
   private static final class DuplicationsTab implements RubyRailsPage {
     public String getTemplate() {
       return NOT_APPLICABLE;

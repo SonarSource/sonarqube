@@ -12,77 +12,82 @@
   <div class="duplicationsMessage"><%= @duplication_group_warning -%></div>
   <% end %>
 
-  <table class="data duplications">
-    <thead>
-      <tr>
-        <th class="thin nowrap"><%= message('duplications.blocks') -%></th>
-        <th class="thin nowrap"><%= message('duplications.number_of_lines') -%></th>
-        <th class="thin nowrap"><%= message('duplications.from_line') -%></th>
-        <th class="thin nowrap"><%= message('duplications.file') -%></th>
-        <th><%= message('duplications.details') -%></th>
-      </tr>
-    </thead>
+  <% if has_role?('codeviewer', @resource) %>
+    <table class="data duplications">
+      <thead>
+        <tr>
+          <th class="thin nowrap"><%= message('duplications.blocks') -%></th>
+          <th class="thin nowrap"><%= message('duplications.number_of_lines') -%></th>
+          <th class="thin nowrap"><%= message('duplications.from_line') -%></th>
+          <th class="thin nowrap"><%= message('duplications.file') -%></th>
+          <th><%= message('duplications.details') -%></th>
+        </tr>
+      </thead>
 
-    <tbody>
-    <%
-      @duplication_groups.each_with_index do |group, group_index|
-    %>
-      <tr>
-        <td colspan="5" style="height: 10px"> </td>
-      </tr>
-      <tr id="duplGroup_<%= group_index -%>">
-        <td class="item">
-          <p><b><%=  group.size() -%></b></p>
-        </td>
+      <tbody>
+      <%
+        @duplication_groups.each_with_index do |group, group_index|
+      %>
+        <tr>
+          <td colspan="5" style="height: 10px"> </td>
+        </tr>
+        <tr id="duplGroup_<%= group_index -%>">
+          <td class="item">
+            <p><b><%=  group.size() -%></b></p>
+          </td>
 
-        <td class="item">
-          <% group.each_with_index do |dup, index| %>
-            <p id="duplCount-<%= group_index -%>-<%= index -%>" class="<%= 'selected' if index==0 -%>"><%= dup[:lines_count].to_i -%></p>
-          <% end %>
-        </td>
+          <td class="item">
+            <% group.each_with_index do |dup, index| %>
+              <p id="duplCount-<%= group_index -%>-<%= index -%>" class="<%= 'selected' if index==0 -%>"><%= dup[:lines_count].to_i -%></p>
+            <% end %>
+          </td>
 
-        <td class="item">
-          <% group.each_with_index do |dup, index| %>
-            <p id="duplFrom-<%= group_index -%>-<%= index -%>" class="<%= 'selected' if index==0 -%>"><%= dup[:from_line].to_i -%></p>
-          <% end %>
-        </td>
+          <td class="item">
+            <% group.each_with_index do |dup, index| %>
+              <p id="duplFrom-<%= group_index -%>-<%= index -%>" class="<%= 'selected' if index==0 -%>"><%= dup[:from_line].to_i -%></p>
+            <% end %>
+          </td>
 
-        <td class="fileItem">
-          <% group.each_with_index do |dup, index|
-            resource = dup[:resource]
-            external = resource.root_id != @resource.root_id
-            lines_count = dup[:lines_count].to_i
-            from_line = dup[:from_line].to_i
-            included_to_line = from_line + [ResourceHelper::DUPLICATION_SNIPPET_DEFAULT_NB_OF_LINES, lines_count].min - 1
-            lines_count = dup[:lines_count].to_i
-            update_snippet_script = "updateDuplicationLines('#{url_for :action => :show_duplication_snippet, :params => {:id => resource.id, :original_resource_id => @resource.id}}',#{group_index}, #{index}, #{lines_count}, #{from_line}, #{included_to_line});"
-          %>
-            <p id="duplName-<%= group_index -%>-<%= index -%>" class="<%= 'selected' if index==0 -%>">
-              <a href="#" onclick="return <%= update_snippet_script -%>;"><%= h resource.name -%></a>
-              <%= image_tag "links/external.png" if external -%>
-            </p>
-          <% end %>
+          <td class="fileItem">
+            <% group.each_with_index do |dup, index|
+              resource = dup[:resource]
+              external = resource.root_id != @resource.root_id
+              lines_count = dup[:lines_count].to_i
+              from_line = dup[:from_line].to_i
+              included_to_line = from_line + [ResourceHelper::DUPLICATION_SNIPPET_DEFAULT_NB_OF_LINES, lines_count].min - 1
+              lines_count = dup[:lines_count].to_i
+              update_snippet_script = "updateDuplicationLines('#{url_for :action => :show_duplication_snippet, :params => {:id => resource.id, :original_resource_id => @resource.id}}',#{group_index}, #{index}, #{lines_count}, #{from_line}, #{included_to_line});"
+            %>
+              <p id="duplName-<%= group_index -%>-<%= index -%>" class="<%= 'selected' if index==0 -%>">
+                <a href="#" onclick="return <%= update_snippet_script -%>;"><%= h resource.name -%></a>
+                <%= image_tag "links/external.png" if external -%>
+              </p>
+            <% end %>
 
-        </td>
+          </td>
 
-        <td class="sourceItem">
-          <%
-            duplication = group[0]
-            resource = duplication[:resource]
-            from_line = duplication[:from_line].to_i
-            lines_count = duplication[:lines_count].to_i
-            external = resource.root_id != @resource.root_id
-            included_to_line = from_line + [ResourceHelper::DUPLICATION_SNIPPET_DEFAULT_NB_OF_LINES, lines_count].min - 1
-          %>
-          <div id="source-<%= group_index -%>">
-            <%= render :partial => 'duplications_source_snippet', :locals => {:resource => resource, :original_resource => @resource, :from_line => from_line, :to_line => included_to_line, :lines_count => lines_count, :external => external, :group_index => group_index} -%>
-          </div>
-        </td>
-      </tr>
-    <%
-        end
-    %>
-    </tbody>
+          <td class="sourceItem">
+            <%
+              duplication = group[0]
+              resource = duplication[:resource]
+              from_line = duplication[:from_line].to_i
+              lines_count = duplication[:lines_count].to_i
+              external = resource.root_id != @resource.root_id
+              included_to_line = from_line + [ResourceHelper::DUPLICATION_SNIPPET_DEFAULT_NB_OF_LINES, lines_count].min - 1
+            %>
+            <div id="source-<%= group_index -%>">
+              <%= render :partial => 'duplications_source_snippet', :locals => {:resource => resource, :original_resource => @resource, :from_line => from_line, :to_line => included_to_line, :lines_count => lines_count, :external => external, :group_index => group_index} -%>
+            </div>
+          </td>
+        </tr>
+      <%
+          end
+      %>
+      </tbody>
 
-  </table>
-<% end %>
+    </table>
+  <% else %>
+    <div class="note" style="margin: 5px;"><%= message('code_viewer.no_source_code_displayed_due_to_security') -%></div>
+  <% end %>
+
+  <% end %>
