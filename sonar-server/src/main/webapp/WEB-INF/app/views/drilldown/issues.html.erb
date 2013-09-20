@@ -181,11 +181,11 @@
   %>
 
 <script>
-  $$('#col_rules tr.selected').each(function (item) {
+  $j('#col_rules tr.selected').each(function (index,item) {
     item.scrollIntoView(true);
   });
   <% for i in 0...@drilldown.columns.size do  %>
-  $$('#col_<%= i -%> tr.selected').each(function (item) {
+  $j('#col_<%= i -%> tr.selected').each(function (index,item) {
     item.scrollIntoView(true);
   });
   <% end %>
