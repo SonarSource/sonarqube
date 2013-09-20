@@ -19,8 +19,6 @@
  */
 package org.sonar.server.user;
 
-import org.sonar.core.permission.GlobalPermission;
-
 import javax.annotation.Nullable;
 
 import java.util.Arrays;
@@ -58,8 +56,8 @@ public class MockUserSession extends UserSession {
     return this;
   }
 
-  public MockUserSession setPermissions(GlobalPermission... perm) {
-    globalPermissions = Arrays.asList(perm);
+  public MockUserSession setPermissions(String... globalPermissions) {
+    this.globalPermissions = Arrays.asList(globalPermissions);
     return this;
   }
 }

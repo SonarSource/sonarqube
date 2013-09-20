@@ -23,7 +23,7 @@ package org.sonar.server.permission;
 import com.google.common.collect.Lists;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.user.GroupDto;
@@ -81,7 +81,7 @@ abstract class PermissionTemplateUpdater {
   static void checkUserCredentials() {
     UserSession currentSession = UserSession.get();
     currentSession.checkLoggedIn();
-    currentSession.checkGlobalPermission(GlobalPermission.SYSTEM_ADMIN);
+    currentSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private void validatePermission(String permission) {

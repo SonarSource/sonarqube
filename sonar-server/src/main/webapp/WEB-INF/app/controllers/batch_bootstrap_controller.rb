@@ -26,7 +26,7 @@ class BatchBootstrapController < Api::ApiController
 
   # GET /batch_bootstrap/db?project=<key or id>
   def db
-    has_dryrun_role = has_role?(Java::OrgSonarCorePermission::GlobalPermission::DRY_RUN_EXECUTION)
+    has_dryrun_role = has_role?('dryRunScan')
     return render_unauthorized("You're not authorized to execute a dry run analysis. Please contact your SonarQube administrator.") if !has_dryrun_role
     project = load_project()
     return render_unauthorized("You're not authorized to access to project '" + project.name + "', please contact your SonarQube administrator") if project && !has_role?(:user, project)
@@ -37,7 +37,7 @@ class BatchBootstrapController < Api::ApiController
 
   # PUT /batch_bootstrap/evict?project=<key or id>
   def evict
-    has_scan_role = has_role?(Java::OrgSonarCorePermission::GlobalPermission::SCAN_EXECUTION)
+    has_scan_role = has_role?('scan')
     return render_unauthorized("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.") if !has_scan_role
 
     project = load_project()
@@ -54,8 +54,8 @@ class BatchBootstrapController < Api::ApiController
   # GET /batch_bootstrap/properties?[project=<key or id>][&dryRun=true|false]
   def properties
     dryRun = params[:dryRun].present? && params[:dryRun] == "true"
-    has_dryrun_role = has_role?(Java::OrgSonarCorePermission::GlobalPermission::DRY_RUN_EXECUTION)
-    has_scan_role = has_role?(Java::OrgSonarCorePermission::GlobalPermission::SCAN_EXECUTION)
+    has_dryrun_role = has_role?('dryRunScan')
+    has_scan_role = has_role?('scan')
 
     return render_unauthorized("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.") if (!has_dryrun_role && !has_scan_role)
     return render_unauthorized("You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. Please contact your SonarQube administrator.") if (!dryRun && !has_scan_role)

@@ -20,7 +20,7 @@
 package org.sonar.server.user;
 
 import org.junit.Test;
-import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.ForbiddenException;
 
@@ -65,9 +65,9 @@ public class UserSessionTest {
 
     when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("profileadmin", "admin"));
 
-    assertThat(session.hasGlobalPermission(GlobalPermission.QUALITY_PROFILE_ADMIN)).isTrue();
-    assertThat(session.hasGlobalPermission(GlobalPermission.SYSTEM_ADMIN)).isTrue();
-    assertThat(session.hasGlobalPermission(GlobalPermission.DASHBOARD_SHARING)).isFalse();
+    assertThat(session.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)).isTrue();
+    assertThat(session.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)).isTrue();
+    assertThat(session.hasGlobalPermission(GlobalPermissions.DASHBOARD_SHARING)).isFalse();
   }
 
   @Test
@@ -84,7 +84,7 @@ public class UserSessionTest {
 
     when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("profileadmin", "admin"));
 
-    session.checkGlobalPermission(GlobalPermission.QUALITY_PROFILE_ADMIN);
+    session.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -94,7 +94,7 @@ public class UserSessionTest {
 
     when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("profileadmin", "admin"));
 
-    session.checkGlobalPermission(GlobalPermission.DASHBOARD_SHARING);
+    session.checkGlobalPermission(GlobalPermissions.DASHBOARD_SHARING);
   }
 
   static class SpyUserSession extends UserSession {

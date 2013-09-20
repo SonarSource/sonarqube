@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -63,6 +63,10 @@ public class InternalPermissionService implements ServerComponent {
     this.permissionFacade = permissionFacade;
   }
 
+  public List<String> globalPermissions(){
+    return GlobalPermissions.ALL;
+  }
+
   public void addPermission(final Map<String, Object> params) {
     changePermission(ADD, params);
   }
@@ -73,7 +77,7 @@ public class InternalPermissionService implements ServerComponent {
 
   public void applyPermissionTemplate(Map<String, Object> params) {
     UserSession.get().checkLoggedIn();
-    UserSession.get().checkGlobalPermission(GlobalPermission.SYSTEM_ADMIN);
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);
     query.validate();
     for (String component : query.getSelectedComponents()) {
@@ -83,7 +87,7 @@ public class InternalPermissionService implements ServerComponent {
 
   private void changePermission(String permissionChange, Map<String, Object> params) {
     UserSession.get().checkLoggedIn();
-    UserSession.get().checkGlobalPermission(GlobalPermission.SYSTEM_ADMIN);
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     PermissionChangeQuery permissionChangeQuery = PermissionChangeQuery.buildFromParams(params);
     permissionChangeQuery.validate();
     applyPermissionChange(permissionChange, permissionChangeQuery);

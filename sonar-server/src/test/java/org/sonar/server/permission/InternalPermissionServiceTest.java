@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -60,7 +60,7 @@ public class InternalPermissionServiceTest {
 
   @Before
   public void setUpCommonStubbing() {
-    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     roleDao = mock(RoleDao.class);
     userDao = mock(UserDao.class);
@@ -75,9 +75,16 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_add_global_user_permission() throws Exception {
-    params = buildPermissionChangeParams("user", null, GlobalPermission.DASHBOARD_SHARING);
-    setUpUserPermissions("user", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+  public void return_global_permissions()  {
+    assertThat(service.globalPermissions()).containsOnly(
+      GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN, GlobalPermissions.DASHBOARD_SHARING,
+      GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void add_global_user_permission() throws Exception {
+    params = buildPermissionChangeParams("user", null, GlobalPermissions.DASHBOARD_SHARING);
+    setUpUserPermissions("user", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
 
@@ -85,7 +92,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_add_component_user_permission() throws Exception {
+  public void add_component_user_permission() throws Exception {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
@@ -98,9 +105,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_remove_global_user_permission() throws Exception {
-    params = buildPermissionChangeParams("user", null, GlobalPermission.QUALITY_PROFILE_ADMIN);
-    setUpUserPermissions("user", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+  public void emove_global_user_permission() throws Exception {
+    params = buildPermissionChangeParams("user", null, GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpUserPermissions("user", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.removePermission(params);
 
@@ -108,7 +115,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_remove_component_user_permission() throws Exception {
+  public void remove_component_user_permission() throws Exception {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
@@ -121,9 +128,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_add_global_group_permission() throws Exception {
-    params = buildPermissionChangeParams(null, "group", GlobalPermission.DASHBOARD_SHARING);
-    setUpGroupPermissions("group", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+  public void add_global_group_permission() throws Exception {
+    params = buildPermissionChangeParams(null, "group", GlobalPermissions.DASHBOARD_SHARING);
+    setUpGroupPermissions("group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
 
@@ -131,7 +138,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_add_component_group_permission() throws Exception {
+  public void add_component_group_permission() throws Exception {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
@@ -144,8 +151,8 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_add_global_permission_to_anyone_group() throws Exception {
-    params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, GlobalPermission.QUALITY_PROFILE_ADMIN);
+  public void add_global_permission_to_anyone_group() throws Exception {
+    params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
 
@@ -153,7 +160,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_add_component_permission_to_anyone_group() throws Exception {
+  public void add_component_permission_to_anyone_group() throws Exception {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
@@ -165,9 +172,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_remove_global_group_permission() throws Exception {
-    params = buildPermissionChangeParams(null, "group", GlobalPermission.QUALITY_PROFILE_ADMIN);
-    setUpGroupPermissions("group", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+  public void remove_global_group_permission() throws Exception {
+    params = buildPermissionChangeParams(null, "group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpGroupPermissions("group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.removePermission(params);
 
@@ -175,7 +182,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_remove_component_group_permission() throws Exception {
+  public void remove_component_group_permission() throws Exception {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
@@ -188,9 +195,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_remove_global_permission_from_anyone_group() throws Exception {
-    params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, GlobalPermission.QUALITY_PROFILE_ADMIN);
-    setUpGroupPermissions(DefaultGroups.ANYONE, GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+  public void remove_global_permission_from_anyone_group() throws Exception {
+    params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpGroupPermissions(DefaultGroups.ANYONE, GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.removePermission(params);
 
@@ -198,7 +205,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_remove_component_permission_from_anyone_group() throws Exception {
+  public void remove_component_permission_from_anyone_group() throws Exception {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
@@ -211,9 +218,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_skip_redundant_add_user_permission_change() throws Exception {
-    params = buildPermissionChangeParams("user", null, GlobalPermission.QUALITY_PROFILE_ADMIN);
-    setUpUserPermissions("user", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+  public void skip_redundant_add_user_permission_change() throws Exception {
+    params = buildPermissionChangeParams("user", null, GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpUserPermissions("user", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
 
@@ -221,9 +228,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_skip_redundant_add_group_permission_change() throws Exception {
-    params = buildPermissionChangeParams(null, "group", GlobalPermission.QUALITY_PROFILE_ADMIN);
-    setUpGroupPermissions("group", GlobalPermission.QUALITY_PROFILE_ADMIN.key());
+  public void skip_redundant_add_group_permission_change() throws Exception {
+    params = buildPermissionChangeParams(null, "group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpGroupPermissions("group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
 
@@ -231,9 +238,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_fail_when_user_and_group_are_provided() throws Exception {
+  public void fail_when_user_and_group_are_provided() throws Exception {
     try {
-      params = buildPermissionChangeParams("user", "group", GlobalPermission.QUALITY_PROFILE_ADMIN);
+      params = buildPermissionChangeParams("user", "group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
       service.addPermission(params);
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Only one of user or group parameter should be provided");
@@ -241,10 +248,10 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_fail_when_user_is_not_found() throws Exception {
+  public void fail_when_user_is_not_found() throws Exception {
     try {
       when(userDao.selectActiveUserByLogin("user")).thenReturn(null);
-      params = buildPermissionChangeParams("unknown", null, GlobalPermission.QUALITY_PROFILE_ADMIN);
+      params = buildPermissionChangeParams("unknown", null, GlobalPermissions.QUALITY_PROFILE_ADMIN);
       service.addPermission(params);
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("User unknown does not exist");
@@ -252,9 +259,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_fail_when_group_is_not_found() throws Exception {
+  public void fail_when_group_is_not_found() throws Exception {
     try {
-      params = buildPermissionChangeParams(null, "unknown", GlobalPermission.QUALITY_PROFILE_ADMIN);
+      params = buildPermissionChangeParams(null, "unknown", GlobalPermissions.QUALITY_PROFILE_ADMIN);
       service.addPermission(params);
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Group unknown does not exist");
@@ -262,7 +269,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_fail_when_component_is_not_found() throws Exception {
+  public void fail_when_component_is_not_found() throws Exception {
     try {
       params = buildPermissionChangeParams(null, "group", "unknown", "user");
       service.addPermission(params);
@@ -272,10 +279,10 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_fail_on_insufficient_rights() throws Exception {
+  public void fail_on_insufficient_rights() throws Exception {
     try {
-      params = buildPermissionChangeParams("user", null, GlobalPermission.QUALITY_PROFILE_ADMIN);
-      MockUserSession.set().setLogin("unauthorized").setPermissions(GlobalPermission.QUALITY_PROFILE_ADMIN);
+      params = buildPermissionChangeParams("user", null, GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      MockUserSession.set().setLogin("unauthorized").setPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
       service.addPermission(params);
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("Insufficient privileges");
@@ -283,9 +290,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_fail_on_anonymous_access() throws Exception {
+  public void fail_on_anonymous_access() throws Exception {
     throwable.expect(UnauthorizedException.class);
-    params = buildPermissionChangeParams("user", null, GlobalPermission.QUALITY_PROFILE_ADMIN);
+    params = buildPermissionChangeParams("user", null, GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     MockUserSession.set();
 
@@ -293,7 +300,7 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void should_apply_permission_template() throws Exception {
+  public void apply_permission_template() throws Exception {
     params = Maps.newHashMap();
     params.put("template_key", "my_template_key");
     params.put("components", "1,2,3");
@@ -305,20 +312,20 @@ public class InternalPermissionServiceTest {
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 3L);
   }
 
-  private Map<String, Object> buildPermissionChangeParams(String login, String group, GlobalPermission perm) {
+  private Map<String, Object> buildPermissionChangeParams(String login, String group, String permission) {
     Map<String, Object> params = Maps.newHashMap();
     params.put("user", login);
     params.put("group", group);
-    params.put("permission", perm.key());
+    params.put("permission", permission);
     return params;
   }
 
-  private Map<String, Object> buildPermissionChangeParams(String login, String group, String component, String perm) {
+  private Map<String, Object> buildPermissionChangeParams(String login, String group, String component, String permission) {
     Map<String, Object> params = Maps.newHashMap();
     params.put("user", login);
     params.put("group", group);
     params.put("component", component);
-    params.put("permission", perm);
+    params.put("permission", permission);
     return params;
   }
 

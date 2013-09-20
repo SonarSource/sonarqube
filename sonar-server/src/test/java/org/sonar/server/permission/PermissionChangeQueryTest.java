@@ -24,7 +24,7 @@ import com.google.common.collect.Maps;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 
 import java.util.Map;
@@ -42,21 +42,21 @@ public class PermissionChangeQueryTest {
     params.put("user", "my_login");
     params.put("group", "my_group");
     params.put("component", "org.sample.Sample");
-    params.put("permission", GlobalPermission.SYSTEM_ADMIN.key());
+    params.put("permission", GlobalPermissions.SYSTEM_ADMIN);
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(params);
 
     assertThat(query.user()).isEqualTo("my_login");
     assertThat(query.group()).isEqualTo("my_group");
     assertThat(query.component()).isEqualTo("org.sample.Sample");
-    assertThat(query.permission()).isEqualTo(GlobalPermission.SYSTEM_ADMIN.key());
+    assertThat(query.permission()).isEqualTo(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @Test
   public void validate_user_query() throws Exception {
     Map<String, Object> validUserParams = Maps.newHashMap();
     validUserParams.put("user", "my_login");
-    validUserParams.put("permission", GlobalPermission.SYSTEM_ADMIN.key());
+    validUserParams.put("permission", GlobalPermissions.SYSTEM_ADMIN);
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(validUserParams);
     query.validate();
@@ -66,7 +66,7 @@ public class PermissionChangeQueryTest {
   public void validate_group_query() throws Exception {
     Map<String, Object> validGroupParams = Maps.newHashMap();
     validGroupParams.put("group", "my_group");
-    validGroupParams.put("permission", GlobalPermission.SYSTEM_ADMIN.key());
+    validGroupParams.put("permission", GlobalPermissions.SYSTEM_ADMIN);
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(validGroupParams);
     query.validate();
@@ -77,7 +77,7 @@ public class PermissionChangeQueryTest {
     Map<String, Object> inconsistentParams = Maps.newHashMap();
     inconsistentParams.put("user", "my_login");
     inconsistentParams.put("group", "my_group");
-    inconsistentParams.put("permission", GlobalPermission.SYSTEM_ADMIN.key());
+    inconsistentParams.put("permission", GlobalPermissions.SYSTEM_ADMIN);
 
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
 
@@ -119,7 +119,7 @@ public class PermissionChangeQueryTest {
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
-    thrown.expectMessage("Invalid permission key invalid. Valid ones are : [admin, profileadmin, shareDashboard, scan, dryRunScan]");
+    thrown.expectMessage("Invalid global permission key invalid. Valid values are [admin, profileadmin, shareDashboard, scan, dryRunScan]");
     query.validate();
   }
 
@@ -133,7 +133,7 @@ public class PermissionChangeQueryTest {
     PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
-    thrown.expectMessage("Invalid permission key invalid. Valid ones are : [admin, codeviewer, user]");
+    thrown.expectMessage("Invalid component permission key invalid. Valid values are [user, admin, codeviewer]");
     query.validate();
   }
 }

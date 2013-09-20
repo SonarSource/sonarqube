@@ -23,7 +23,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -48,7 +48,7 @@ public class UserSession {
   private Integer userId;
   private String login;
   private Locale locale = Locale.ENGLISH;
-  List<GlobalPermission> globalPermissions = null;
+  List<String> globalPermissions = null;
 
   UserSession() {
   }
@@ -96,7 +96,7 @@ public class UserSession {
   /**
    * Ensures that user implies the specified permission. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
    */
-  public UserSession checkGlobalPermission(GlobalPermission globalPermission) {
+  public UserSession checkGlobalPermission(String globalPermission) {
     if (!hasGlobalPermission(globalPermission)) {
       throw new ForbiddenException("Insufficient privileges");
     }
@@ -106,20 +106,19 @@ public class UserSession {
   /**
    * Does the user have the given permission ?
    */
-  public boolean hasGlobalPermission(GlobalPermission globalPermission) {
+  public boolean hasGlobalPermission(String globalPermission) {
     return globalPermissions().contains(globalPermission);
   }
 
-  List<GlobalPermission> globalPermissions() {
+  List<String> globalPermissions() {
     if (globalPermissions == null) {
       List<String> permissionKeys = authorizationDao().selectGlobalPermissions(login);
-      globalPermissions = new ArrayList<GlobalPermission>();
+      globalPermissions = new ArrayList<String>();
       for (String permissionKey : permissionKeys) {
-        GlobalPermission perm = GlobalPermission.allGlobal().get(permissionKey);
-        if (perm == null) {
+        if (!GlobalPermissions.ALL.contains(permissionKey)) {
           LOG.warn("Ignoring unknown permission {} for user {}", permissionKey, login);
         } else {
-          globalPermissions.add(perm);
+          globalPermissions.add(permissionKey);
         }
       }
     }

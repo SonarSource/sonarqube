@@ -21,15 +21,13 @@
 package org.sonar.server.permission;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.ComponentPermissions;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 
 import javax.annotation.Nullable;
 
-import java.util.List;
 import java.util.Map;
 
 public class PermissionChangeQuery {
@@ -38,8 +36,6 @@ public class PermissionChangeQuery {
   private static final String GROUP_KEY = "group";
   private static final String PERMISSION_KEY = "permission";
   private static final String COMPONENT_KEY = "component";
-
-  private static final List<String> COMPONENT_PERMISSIONS = ImmutableList.of(UserRole.ADMIN, UserRole.CODEVIEWER, UserRole.USER);
 
   private final String user;
   private final String group;
@@ -76,12 +72,12 @@ public class PermissionChangeQuery {
       throw new BadRequestException("Missing permission parameter");
     }
     if (Strings.isNullOrEmpty(component)){
-      if (!GlobalPermission.allGlobal().keySet().contains(permission)) {
-        throw new BadRequestException("Invalid permission key " + permission + ". Valid ones are : "+ GlobalPermission.allGlobal().keySet());
+      if (!GlobalPermissions.ALL.contains(permission)) {
+        throw new BadRequestException(String.format("Invalid global permission key %s. Valid values are %s", permission, GlobalPermissions.ALL));
       }
     } else {
-      if (!COMPONENT_PERMISSIONS.contains(permission)) {
-        throw new BadRequestException("Invalid permission key " + permission +". Valid ones are : "+ COMPONENT_PERMISSIONS);
+      if (!ComponentPermissions.ALL.contains(permission)) {
+        throw new BadRequestException(String.format("Invalid component permission key %s. Valid values are %s", permission, ComponentPermissions.ALL));
       }
     }
   }

@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.user.GroupDto;
@@ -50,7 +50,7 @@ public class PermissionTemplateUpdaterTest {
 
   @Before
   public void setUpCommonMocks() {
-    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermissions.SYSTEM_ADMIN);
     userDao = mock(UserDao.class);
     stub(userDao.selectActiveUserByLogin("user")).toReturn(DEFAULT_USER);
     stub(userDao.selectGroupByName("group")).toReturn(DEFAULT_GROUP);
@@ -128,7 +128,7 @@ public class PermissionTemplateUpdaterTest {
     expected.expect(ForbiddenException.class);
     expected.expectMessage("Insufficient privileges");
 
-    MockUserSession.set().setLogin("user").setPermissions(GlobalPermission.SCAN_EXECUTION);
+    MockUserSession.set().setLogin("user").setPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null) {
       @Override

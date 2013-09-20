@@ -55,7 +55,7 @@ public class InternalPermissionTemplateServiceTest {
 
   @Before
   public void setUp() {
-    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermission.SYSTEM_ADMIN);
+    MockUserSession.set().setLogin("admin").setPermissions(GlobalPermissions.SYSTEM_ADMIN);
     permissionTemplateDao = mock(PermissionTemplateDao.class);
     userDao = mock(UserDao.class);
     permissionTemplateService = new InternalPermissionTemplateService(permissionTemplateDao, userDao);
@@ -103,16 +103,16 @@ public class InternalPermissionTemplateServiceTest {
   public void should_retrieve_permission_template() throws Exception {
 
     List<PermissionTemplateUserDto> usersPermissions = Lists.newArrayList(
-      buildUserPermission("user_scan", GlobalPermission.SCAN_EXECUTION.key()),
-      buildUserPermission("user_dry_run", GlobalPermission.DRY_RUN_EXECUTION.key()),
-      buildUserPermission("user_scan_and_dry_run", GlobalPermission.SCAN_EXECUTION.key()),
-      buildUserPermission("user_scan_and_dry_run", GlobalPermission.DRY_RUN_EXECUTION.key())
+      buildUserPermission("user_scan", GlobalPermissions.SCAN_EXECUTION),
+      buildUserPermission("user_dry_run", GlobalPermissions.DRY_RUN_EXECUTION),
+      buildUserPermission("user_scan_and_dry_run", GlobalPermissions.SCAN_EXECUTION),
+      buildUserPermission("user_scan_and_dry_run", GlobalPermissions.DRY_RUN_EXECUTION)
     );
 
     List<PermissionTemplateGroupDto> groupsPermissions = Lists.newArrayList(
-      buildGroupPermission("admin_group", GlobalPermission.SYSTEM_ADMIN.key()),
-      buildGroupPermission("scan_group", GlobalPermission.SCAN_EXECUTION.key()),
-      buildGroupPermission(null, GlobalPermission.DRY_RUN_EXECUTION.key())
+      buildGroupPermission("admin_group", GlobalPermissions.SYSTEM_ADMIN),
+      buildGroupPermission("scan_group", GlobalPermissions.SCAN_EXECUTION),
+      buildGroupPermission(null, GlobalPermissions.DRY_RUN_EXECUTION)
     );
 
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto()
@@ -126,12 +126,12 @@ public class InternalPermissionTemplateServiceTest {
 
     PermissionTemplate permissionTemplate = permissionTemplateService.selectPermissionTemplate("my template");
 
-    assertThat(permissionTemplate.getUsersForPermission(GlobalPermission.DASHBOARD_SHARING.key())).isEmpty();
-    assertThat(permissionTemplate.getUsersForPermission(GlobalPermission.SCAN_EXECUTION.key())).onProperty("userName").containsOnly("user_scan", "user_scan_and_dry_run");
-    assertThat(permissionTemplate.getUsersForPermission(GlobalPermission.DRY_RUN_EXECUTION.key())).onProperty("userName").containsOnly("user_dry_run", "user_scan_and_dry_run");
-    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermission.DASHBOARD_SHARING.key())).isEmpty();
-    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermission.SCAN_EXECUTION.key())).onProperty("groupName").containsOnly("scan_group");
-    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermission.SYSTEM_ADMIN.key())).onProperty("groupName").containsOnly("admin_group");
+    assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.DASHBOARD_SHARING)).isEmpty();
+    assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.SCAN_EXECUTION)).onProperty("userName").containsOnly("user_scan", "user_scan_and_dry_run");
+    assertThat(permissionTemplate.getUsersForPermission(GlobalPermissions.DRY_RUN_EXECUTION)).onProperty("userName").containsOnly("user_dry_run", "user_scan_and_dry_run");
+    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.DASHBOARD_SHARING)).isEmpty();
+    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.SCAN_EXECUTION)).onProperty("groupName").containsOnly("scan_group");
+    assertThat(permissionTemplate.getGroupsForPermission(GlobalPermissions.SYSTEM_ADMIN)).onProperty("groupName").containsOnly("admin_group");
   }
 
   @Test

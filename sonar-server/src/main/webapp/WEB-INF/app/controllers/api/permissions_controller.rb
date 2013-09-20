@@ -27,8 +27,9 @@ class Api::PermissionsController < Api::ApiController
   # POST /api/permissions/add
   #
   # -- Mandatory parameters
-  # 'permission' is the key of the permission to add. For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan.
-  #    Component permission values are : user, codeviewer, admin
+  # 'permission' is the key of the permission to add.
+  #   For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan.
+  #   For component permissions, available values are : user, codeviewer, admin.
   # 'user' is the user identifier (login)
   # OR
   # 'group' is the group identifier (group name or 'anyone')
@@ -44,6 +45,7 @@ class Api::PermissionsController < Api::ApiController
   # Requests that attempt to add an already configured permission will be silently ignored
   #
   # since 3.7
+  # 'component' parameter has been added in 4.0
   #
   def add
     verify_post_request
@@ -61,8 +63,9 @@ class Api::PermissionsController < Api::ApiController
   # POST /api/permissions/remove
   #
   # -- Mandatory parameters
-  # 'permission' is the key of the permission to add. For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan.
-  #    Component permission values are : user, codeviewer, admin
+  # 'permission' is the key of the permission to add.
+  #   For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan.
+  #   For component permissions, available values are : user, codeviewer, admin.
   # 'user' is the user identifier (login)
   # OR
   # 'group' is the group identifier (group name or 'anyone')
@@ -78,6 +81,7 @@ class Api::PermissionsController < Api::ApiController
   # Requests that attempt to remove a non-existing permission will be silently ignored
   #
   # since 3.7
+  # 'component' parameter has been added in 4.0
   #
   def remove
     verify_post_request

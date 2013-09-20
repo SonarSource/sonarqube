@@ -10,7 +10,7 @@
   </thead>
   <tbody>
   <%
-     permission_keys = Java::OrgSonarCorePermission::GlobalPermission::allGlobal.keySet
+     permission_keys = Internal.permissions.globalPermissions()
      key_to_name = permission_keys.inject({}) do |hash, key|
        hash[key] = message("global_permissions.#{key}")
        hash

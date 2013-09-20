@@ -34,11 +34,11 @@ class AddScanAndDryRunPermissions < ActiveRecord::Migration
   def self.up
     # -- Role scan --
     # Anyone
-    GroupRole.create(:group_id => nil, :role => Java::OrgSonarCorePermission::GlobalPermission::SCAN_EXECUTION.key, :resource_id => nil)
+    GroupRole.create(:group_id => nil, :role => 'scan', :resource_id => nil)
 
     # -- Role dryRunScan --
     # Anyone
-    GroupRole.create(:group_id => nil, :role => Java::OrgSonarCorePermission::GlobalPermission::DRY_RUN_EXECUTION.key, :resource_id => nil)
+    GroupRole.create(:group_id => nil, :role => 'dryRunScan', :resource_id => nil)
   end
 
 end

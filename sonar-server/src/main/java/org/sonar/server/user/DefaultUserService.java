@@ -25,7 +25,7 @@ import org.sonar.api.user.RubyUserService;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
-import org.sonar.core.permission.GlobalPermission;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.util.RubyUtils;
@@ -71,7 +71,7 @@ public class DefaultUserService implements RubyUserService {
       throw new BadRequestException("Login is missing");
     }
     UserSession userSession = UserSession.get();
-    userSession.checkGlobalPermission(GlobalPermission.SYSTEM_ADMIN);
+    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     if (Objects.equal(userSession.login(), login)) {
       throw new BadRequestException("Self-deactivation is not possible");
     }
