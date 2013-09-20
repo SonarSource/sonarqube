@@ -33,11 +33,16 @@ class Progress extends TimerTask {
   private final AtomicInteger counter = new AtomicInteger(0);
   private final Logger logger;
   private final int totalViolations;
-  private long start = System.currentTimeMillis();
+  private final long start;
 
-  Progress(int totalViolations, Logger logger) {
+  Progress(int totalViolations, Logger logger, long startDate) {
     this.totalViolations = totalViolations;
     this.logger = logger;
+    this.start = startDate;
+  }
+
+  Progress(int totalViolations, Logger logger) {
+    this(totalViolations, logger, System.currentTimeMillis());
   }
 
   Progress(int totalViolations) {
@@ -52,13 +57,16 @@ class Progress extends TimerTask {
   public void run() {
     int totalIssues = counter.get();
     long durationMinutes = (System.currentTimeMillis() - start) / 60000L;
-    int remaining = 0;
-    if (durationMinutes > 0) {
+    int percents = (100 * totalIssues) / totalViolations;
+    if (totalIssues>0 && durationMinutes > 0) {
       int frequency = (int) (totalIssues / durationMinutes);
-      remaining = (totalViolations - totalIssues) / frequency;
+      int remaining = (totalViolations - totalIssues) / frequency;
+      logger.info(String.format(
+        "%d%% [%d/%d violations, %d minutes remaining]", percents, totalIssues, totalViolations, remaining)
+      );
+    } else {
+      logger.info(String.format("%d%% [%d/%d violations]", percents, totalIssues, totalViolations));
     }
-    logger.info(String.format(
-      "%d%% [%d/%d violations, %d minutes remaining]", (100 * totalIssues) / totalViolations, totalIssues, totalViolations, remaining)
-    );
+
   }
 }

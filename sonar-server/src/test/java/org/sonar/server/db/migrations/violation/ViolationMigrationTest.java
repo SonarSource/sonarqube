@@ -41,6 +41,20 @@ public class ViolationMigrationTest {
     new ViolationMigration(db.database(), new Settings()).execute();
 
     db.assertDbUnit(getClass(), "migrate_violations_result.xml", "issues", "issue_changes");
+    assertMigrationEnded();
+  }
+
+  @Test
+  public void no_violations_to_migrate() throws Exception {
+    db.prepareDbUnit(getClass(), "no_violations_to_migrate.xml");
+
+    new ViolationMigration(db.database(), new Settings()).execute();
+
+    db.assertDbUnit(getClass(), "no_violations_to_migrate_result.xml", "issues", "issue_changes");
+    assertMigrationEnded();
+  }
+
+  private void assertMigrationEnded() {
     assertThat(db.count("select count(id) from rule_failures")).isEqualTo(0);
 
     // Progress thread is dead
@@ -49,6 +63,4 @@ public class ViolationMigrationTest {
       assertThat(thread.getName()).isNotEqualTo(Progress.THREAD_NAME);
     }
   }
-
-
 }

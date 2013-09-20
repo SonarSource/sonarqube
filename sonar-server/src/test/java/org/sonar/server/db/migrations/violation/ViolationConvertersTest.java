@@ -19,11 +19,19 @@
  */
 package org.sonar.server.db.migrations.violation;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 
+import java.util.List;
+import java.util.TimerTask;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ViolationConvertersTest {
 
@@ -51,4 +59,24 @@ public class ViolationConvertersTest {
     }
   }
 
+  @Test
+  public void propagate_converter_failure() throws Exception {
+    Callable<Object> callable = mock(Callable.class);
+    when(callable.call()).thenThrow(new IllegalStateException("Need to cry"));
+
+    List<Callable<Object>> callables = Lists.newArrayList(callable);
+    try {
+      new ViolationConverters(new Settings()).doExecute(new FakeTimerTask(), callables);
+      fail();
+    } catch (ExecutionException e) {
+      assertThat(e.getCause().getMessage()).isEqualTo("Need to cry");
+    }
+
+  }
+
+  static class FakeTimerTask extends TimerTask {
+    @Override
+    public void run() {
+    }
+  }
 }

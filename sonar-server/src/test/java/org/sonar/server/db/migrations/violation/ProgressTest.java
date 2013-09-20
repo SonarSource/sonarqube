@@ -43,8 +43,22 @@ public class ProgressTest {
     progress.run();
 
     verify(logger, times(3)).info(argument.capture());
-    assertThat(argument.getAllValues().get(0)).matches("0% \\[0/5000 violations, \\d+ minutes remaining\\]");
-    assertThat(argument.getAllValues().get(1)).matches("6% \\[330/5000 violations, \\d+ minutes remaining\\]");
-    assertThat(argument.getAllValues().get(2)).matches("40% \\[2000/5000 violations, \\d+ minutes remaining\\]");
+    assertThat(argument.getAllValues().get(0)).isEqualTo("0% [0/5000 violations]");
+    assertThat(argument.getAllValues().get(1)).isEqualTo("6% [330/5000 violations]");
+    assertThat(argument.getAllValues().get(2)).isEqualTo("40% [2000/5000 violations]");
+  }
+
+  @Test
+  public void log_remaining_time() throws Exception {
+    Logger logger = mock(Logger.class);
+    ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
+
+    long fiveMinutesAgo = System.currentTimeMillis() - 5 * 60 * 1000;
+    Progress progress = new Progress(5000, logger, fiveMinutesAgo);
+    progress.increment(2000);
+    progress.run();
+
+    verify(logger).info(argument.capture());
+    assertThat(argument.getValue()).isEqualTo("40% [2000/5000 violations, 7 minutes remaining]");
   }
 }

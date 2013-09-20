@@ -25,10 +25,8 @@ import org.sonar.core.persistence.Database;
 
 import java.util.List;
 import java.util.Timer;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.TimerTask;
+import java.util.concurrent.*;
 
 class ViolationConverters {
 
@@ -42,21 +40,28 @@ class ViolationConverters {
 
   void execute(Referentials referentials, Database db) throws Exception {
     Progress progress = new Progress(referentials.totalViolations());
-    Timer timer = new Timer(Progress.THREAD_NAME);
-    timer.schedule(progress, Progress.DELAY_MS, Progress.DELAY_MS);
 
     List<Callable<Object>> converters = Lists.newArrayList();
     for (int i = 0; i < numberOfThreads(); i++) {
       converters.add(new ViolationConverter(referentials, db, progress));
     }
-    ExecutorService executor = Executors.newFixedThreadPool(converters.size());
-    List<Future<Object>> results = executor.invokeAll(converters);
 
-    executor.shutdown();
-    for (Future result : results) {
-      result.get();
+    doExecute(progress, converters);
+  }
+
+  void doExecute(TimerTask progress, List<Callable<Object>> converters) throws InterruptedException, ExecutionException {
+    Timer timer = new Timer(Progress.THREAD_NAME);
+    timer.schedule(progress, Progress.DELAY_MS, Progress.DELAY_MS);
+    try {
+      ExecutorService executor = Executors.newFixedThreadPool(converters.size());
+      List<Future<Object>> results = executor.invokeAll(converters);
+      executor.shutdown();
+      for (Future result : results) {
+        result.get();
+      }
+    } finally {
+      timer.cancel();
     }
-    timer.cancel();
   }
 
   int numberOfThreads() {

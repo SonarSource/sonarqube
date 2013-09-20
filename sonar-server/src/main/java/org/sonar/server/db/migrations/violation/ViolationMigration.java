@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.DatabaseMigration;
+import org.sonar.server.db.migrations.DatabaseMigration;
 
 import java.sql.SQLException;
 
@@ -32,7 +32,6 @@ import java.sql.SQLException;
  * Used in the Active Record Migration 401
  */
 public class ViolationMigration implements DatabaseMigration {
-
 
   private final Settings settings;
 

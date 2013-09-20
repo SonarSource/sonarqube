@@ -17,14 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db;
+package org.sonar.server.db.migrations.violation;
 
-/**
- * Java alternative of ActiveRecord::Migration. Do not forget to declare implementation classes in {@link DatabaseMigrations#CLASSES}
- * @since 3.7
- */
-public interface DatabaseMigration {
+import org.junit.Test;
+import org.slf4j.Logger;
 
-  void execute();
+import java.sql.SQLException;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+public class SqlUtilTest {
+
+  @Test
+  public void log_all_sql_exceptions() {
+    SQLException root = new SQLException("this is root", "123");
+    SQLException next = new SQLException("this is next", "456");
+    root.setNextException(next);
+
+    Logger logger = mock(Logger.class);
+    SqlUtil.log(logger, root);
+
+    verify(logger).error("SQL error: {}. Message: {}", "456", "this is next");
+  }
 }
