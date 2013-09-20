@@ -31,9 +31,6 @@ import java.util.List;
 
 public final class IgnoreIssuesConfiguration {
 
-  public static final String CONFIG_DOCUMENTATION_LINK = "More information on the "
-    + "<a href=\"http://docs.codehaus.org/display/SONAR/Project+Administration#ProjectAdministration-IgnoringIssues\">Project Administration page</a>.<br/>";
-
   public static final String SUB_CATEGORY_IGNORE_ISSUES = "issues";
 
   public static final String CORE_KEY_PREFIX = "sonar.issue.ignore";
@@ -66,8 +63,7 @@ public final class IgnoreIssuesConfiguration {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Multi-criteria Exclusion Patterns")
-        .description("Patterns used to identify which issues are ignored.<br/>" +
-          CONFIG_DOCUMENTATION_LINK)
+        .description("Patterns used to identify which issues are ignored.")
         .onQualifiers(Qualifiers.PROJECT)
         .index(3)
         .fields(
@@ -94,8 +90,7 @@ public final class IgnoreIssuesConfiguration {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Block Exclusion Patterns")
-        .description("Patterns used to identify blocks in which issues are ignored.<br/>" +
-          CONFIG_DOCUMENTATION_LINK)
+        .description("Patterns used to identify blocks in which issues are ignored.")
         .onQualifiers(Qualifiers.PROJECT)
         .index(2)
         .fields(
@@ -116,8 +111,7 @@ public final class IgnoreIssuesConfiguration {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("File Exclusion Patterns")
-        .description("Patterns used to identify files in which issues are ignored.<br/>" +
-          CONFIG_DOCUMENTATION_LINK)
+        .description("Patterns used to identify files in which issues are ignored.")
         .onQualifiers(Qualifiers.PROJECT)
         .index(1)
         .fields(
