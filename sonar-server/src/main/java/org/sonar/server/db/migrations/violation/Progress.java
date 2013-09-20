@@ -52,14 +52,13 @@ class Progress extends TimerTask {
   public void run() {
     int totalIssues = counter.get();
     long durationMinutes = (System.currentTimeMillis() - start) / 60000L;
-    int frequency = 0, remaining = 0;
+    int remaining = 0;
     if (durationMinutes > 0) {
-      frequency = (int) (totalIssues / durationMinutes);
+      int frequency = (int) (totalIssues / durationMinutes);
       remaining = (totalViolations - totalIssues) / frequency;
     }
     logger.info(String.format(
-      "%d%% [%d/%d violations, %d violations/minute, %d minutes remaining]",
-      (100 * totalIssues) / totalViolations, totalIssues, totalViolations, frequency, remaining)
+      "%d%% [%d/%d violations, %d minutes remaining]", (100 * totalIssues) / totalViolations, totalIssues, totalViolations, remaining)
     );
   }
 }

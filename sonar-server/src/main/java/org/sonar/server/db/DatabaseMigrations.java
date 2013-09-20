@@ -19,12 +19,12 @@
  */
 package org.sonar.server.db;
 
-/**
- * Java alternative of ActiveRecord::Migration. Do not forget to declare implementation classes in {@link DatabaseMigrations#CLASSES}
- * @since 3.7
- */
-public interface DatabaseMigration {
+import org.sonar.server.db.DatabaseMigration;
+import org.sonar.server.db.migrations.violation.ViolationMigration;
 
-  void execute();
+public interface DatabaseMigrations {
 
+  Class<? extends DatabaseMigration>[] CLASSES = new Class[]{
+    ViolationMigration.class
+  };
 }

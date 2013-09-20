@@ -20,31 +20,35 @@
 package org.sonar.server.db.migrations.violation;
 
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
+import org.sonar.api.config.Settings;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.fest.assertions.Fail.fail;
 
-public class ProgressTest {
+public class ViolationConvertersTest {
+
   @Test
-  public void log_progress() throws Exception {
-    Logger logger = mock(Logger.class);
-    ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
-
-    Progress progress = new Progress(5000, logger);
-    progress.run();
-    progress.increment(200);
-    progress.increment(130);
-    progress.run();
-    progress.increment(1670);
-    progress.run();
-
-    verify(logger, times(3)).info(argument.capture());
-    assertThat(argument.getAllValues().get(0)).matches("0% \\[0/5000 violations, \\d+ minutes remaining\\]");
-    assertThat(argument.getAllValues().get(1)).matches("6% \\[330/5000 violations, \\d+ minutes remaining\\]");
-    assertThat(argument.getAllValues().get(2)).matches("40% \\[2000/5000 violations, \\d+ minutes remaining\\]");
+  public void default_number_of_threads() throws Exception {
+    assertThat(new ViolationConverters(new Settings()).numberOfThreads()).isEqualTo(ViolationConverters.DEFAULT_THREADS);
   }
+
+  @Test
+  public void configure_number_of_threads() throws Exception {
+    Settings settings = new Settings();
+    settings.setProperty(ViolationConverters.THREADS_PROPERTY, 2);
+    assertThat(new ViolationConverters(settings).numberOfThreads()).isEqualTo(2);
+  }
+
+  @Test
+  public void number_of_threads_should_not_be_negative() throws Exception {
+    try {
+      Settings settings = new Settings();
+      settings.setProperty(ViolationConverters.THREADS_PROPERTY, -2);
+      new ViolationConverters(settings).numberOfThreads();
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e.getMessage()).isEqualTo("Bad value of " + ViolationConverters.THREADS_PROPERTY + ": -2");
+    }
+  }
+
 }

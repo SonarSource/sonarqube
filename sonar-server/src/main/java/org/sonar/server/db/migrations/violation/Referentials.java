@@ -32,18 +32,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 class Referentials {
-  private final Database database;
+
+  static final int VIOLATION_GROUP_SIZE = 1000;
+
   private final Map<Long, String> loginsByUserId;
   private final Map<Long, String> plansById;
-  private final int totalViolations;
+  private final Queue<long[]> groupsOfViolationIds;
+
+  // int is enough, it allows to upgrade up to 2 billions violations !
+  private int totalViolations = 0;
 
   Referentials(Database database) throws SQLException {
-    this.database = database;
-    loginsByUserId = selectLongString("select id,login from users");
-    plansById = selectLongString("select id,kee from action_plans");
-    totalViolations = selectInt("select count(id) from rule_failures");
+    loginsByUserId = selectLongString(database, "select id,login from users");
+    plansById = selectLongString(database, "select id,kee from action_plans");
+    groupsOfViolationIds = initGroupOfViolationIds(database);
   }
 
   @CheckForNull
@@ -60,7 +66,20 @@ class Referentials {
     return totalViolations;
   }
 
-  private Map<Long, String> selectLongString(String sql) throws SQLException {
+  @CheckForNull
+  Long[] pollGroupOfViolationIds() {
+    long[] longs = groupsOfViolationIds.poll();
+    if (longs == null) {
+      return null;
+    }
+    Long[] objects = new Long[longs.length];
+    for (int i = 0; i < longs.length; i++) {
+      objects[i] = new Long(longs[i]);
+    }
+    return objects;
+  }
+
+  private Map<Long, String> selectLongString(Database database, String sql) throws SQLException {
     Connection connection = database.getDataSource().getConnection();
     try {
       return new QueryRunner().query(connection, sql, new ResultSetHandler<Map<Long, String>>() {
@@ -78,17 +97,33 @@ class Referentials {
     }
   }
 
-  private int selectInt(String sql) throws SQLException {
+  private Queue<long[]> initGroupOfViolationIds(Database database) throws SQLException {
     Connection connection = database.getDataSource().getConnection();
+    connection.setAutoCommit(false);
     Statement stmt = null;
     ResultSet rs = null;
     try {
       stmt = connection.createStatement();
-      rs = stmt.executeQuery(sql);
-      if (rs.next()) {
-        return rs.getInt(1);
+      stmt.setFetchSize(10000);
+      rs = stmt.executeQuery("select id from rule_failures");
+      ConcurrentLinkedQueue<long[]> queue = new ConcurrentLinkedQueue<long[]>();
+
+      totalViolations = 0;
+      long[] block = new long[VIOLATION_GROUP_SIZE];
+      int cursor = 0;
+      while (rs.next()) {
+        block[cursor++] = rs.getLong(1);
+        totalViolations++;
+        if (cursor == VIOLATION_GROUP_SIZE) {
+          queue.add(block);
+          block = new long[VIOLATION_GROUP_SIZE];
+          cursor = 0;
+        }
       }
-      return 0;
+      if (cursor > 0) {
+        queue.add(block);
+      }
+      return queue;
     } finally {
       DbUtils.closeQuietly(connection, stmt, rs);
     }

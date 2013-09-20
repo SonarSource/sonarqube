@@ -21,11 +21,13 @@ package org.sonar.server.db.migrations.violation;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.TestDatabase;
 
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class ViolationMigrationTest {
 
@@ -36,9 +38,10 @@ public class ViolationMigrationTest {
   public void migrate_violations() throws Exception {
     db.prepareDbUnit(getClass(), "migrate_violations.xml");
 
-    new ViolationMigration().execute(db.database());
+    new ViolationMigration(db.database(), new Settings()).execute();
 
     db.assertDbUnit(getClass(), "migrate_violations_result.xml", "issues", "issue_changes");
+    assertThat(db.count("select count(id) from rule_failures")).isEqualTo(0);
 
     // Progress thread is dead
     Set<Thread> threads = Thread.getAllStackTraces().keySet();
@@ -46,4 +49,6 @@ public class ViolationMigrationTest {
       assertThat(thread.getName()).isNotEqualTo(Progress.THREAD_NAME);
     }
   }
+
+
 }

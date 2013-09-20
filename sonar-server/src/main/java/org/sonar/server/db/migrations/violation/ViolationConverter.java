@@ -36,8 +36,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
-class ViolationConverter implements Runnable {
+class ViolationConverter implements Callable<Object> {
 
   private static final long ONE_YEAR = 365L * 24 * 60 * 60 * 1000;
   private static final Date ONE_YEAR_AGO = new Date(System.currentTimeMillis() - ONE_YEAR);
@@ -70,6 +71,7 @@ class ViolationConverter implements Runnable {
   private static final String USER_ID = "userId";
   private static final String SEVERITY_MAJOR = "MAJOR";
 
+
   private static final String SQL_ISSUE_COLUMNS = "kee, component_id, root_component_id, rule_id, severity, manual_severity, message, line, effort_to_fix, status, resolution, " +
     "checksum, reporter, assignee, action_plan_key, issue_attributes, issue_creation_date, issue_update_date, created_at, updated_at";
 
@@ -79,40 +81,78 @@ class ViolationConverter implements Runnable {
   private static final String SQL_INSERT_ISSUE_CHANGE = "INSERT INTO issue_changes(kee, issue_key, user_login, change_type, change_data, created_at, updated_at)" +
     " VALUES (?, ?, ?, 'comment', ?, ?, ?)";
 
+  private static final String SQL_DELETE_RULE_FAILURES;
+
+  static {
+    StringBuilder sb = new StringBuilder("delete rule_failures where ");
+    for (int i = 0; i < Referentials.VIOLATION_GROUP_SIZE; i++) {
+      if (i > 0) {
+        sb.append(" or ");
+      }
+      sb.append("id=?");
+    }
+    SQL_DELETE_RULE_FAILURES = sb.toString();
+  }
+
+  static final String SQL_SELECT_RULE_FAILURES;
+
+  static {
+    StringBuilder sb = new StringBuilder("select rev.id as reviewId, s.project_id as projectId, rf.rule_id as ruleId, " +
+      "  rf.failure_level as failureLevel, rf.message as message, rf.line as line, " +
+      "  rf.cost as cost, rf.created_at as createdAt, rf.checksum as checksum, rev.user_id as reviewReporterId, " +
+      "  rev.assignee_id as reviewAssigneeId, rev.status as reviewStatus, " +
+      "  rev.severity as reviewSeverity, rev.resolution as reviewResolution, rev.manual_severity as reviewManualSeverity, " +
+      "  rev.data as reviewData, rev.updated_at as reviewUpdatedAt, " +
+      "  s.root_project_id as rootProjectId, rev.manual_violation as reviewManualViolation, planreviews.action_plan_id as planId " +
+      " from rule_failures rf " +
+      " inner join snapshots s on s.id=rf.snapshot_id " +
+      " left join reviews rev on rev.rule_failure_permanent_id=rf.permanent_id " +
+      " left join action_plans_reviews planreviews on planreviews.review_id=rev.id " +
+      " where ");
+    for (int i = 0; i < Referentials.VIOLATION_GROUP_SIZE; i++) {
+      if (i > 0) {
+        sb.append(" or ");
+      }
+      sb.append("rf.id=?");
+    }
+    SQL_SELECT_RULE_FAILURES = sb.toString();
+  }
+
   private final Database db;
-  private final Object[] violationIds;
   private final Referentials referentials;
   private final Progress progress;
 
-  ViolationConverter(Referentials referentials, Database db, Object[] violationIds, Progress progress) {
+  ViolationConverter(Referentials referentials, Database db, Progress progress) {
     this.referentials = referentials;
     this.db = db;
-    this.violationIds = violationIds;
     this.progress = progress;
   }
 
   @Override
-  public void run() {
-    convert(selectRows());
+  public Object call() throws Exception {
+    Long[] violationIds = referentials.pollGroupOfViolationIds();
+    while (violationIds != null) {
+      List<Map<String, Object>> rows = selectRows(violationIds);
+      convert(rows, violationIds);
+
+      violationIds = referentials.pollGroupOfViolationIds();
+    }
+    return null;
   }
 
-  private List<Map<String, Object>> selectRows() {
+  private List<Map<String, Object>> selectRows(Long[] violationIds) throws SQLException {
     Connection readConnection = null;
     try {
       readConnection = db.getDataSource().getConnection();
       ViolationHandler violationHandler = new ViolationHandler();
-      return new QueryRunner().query(readConnection, violationHandler.SQL, violationHandler, violationIds);
-
-    } catch (SQLException e) {
-      //TODO
-      throw new IllegalStateException();
+      return new QueryRunner().query(readConnection, SQL_SELECT_RULE_FAILURES, violationHandler, violationIds);
 
     } finally {
       DbUtils.closeQuietly(readConnection);
     }
   }
 
-  private void convert(List<Map<String, Object>> rows) {
+  private void convert(List<Map<String, Object>> rows, Long[] violationIds) throws SQLException {
     Connection readConnection = null;
     Connection writeConnection = null;
     try {
@@ -123,6 +163,7 @@ class ViolationConverter implements Runnable {
       List<Object[]> allParams = Lists.newArrayList();
       List<Map<String, Object>> allComments = Lists.newArrayList();
 
+      QueryRunner runner = new QueryRunner();
       for (Map<String, Object> row : rows) {
         Long componentId = (Long) row.get(PROJECT_ID);
         if (componentId == null) {
@@ -151,7 +192,7 @@ class ViolationConverter implements Runnable {
             reporter = referentials.userLogin((Long) row.get(REVIEW_REPORTER_ID));
           }
 
-          List<Map<String, Object>> comments = new QueryRunner().query(readConnection, ReviewCommentsHandler.SQL + reviewId, new ReviewCommentsHandler());
+          List<Map<String, Object>> comments = runner.query(readConnection, ReviewCommentsHandler.SQL + reviewId, new ReviewCommentsHandler());
           for (Map<String, Object> comment : comments) {
             comment.put(ISSUE_KEY, issueKey);
             allComments.add(comment);
@@ -180,15 +221,12 @@ class ViolationConverter implements Runnable {
         params[19] = updatedAt;
         allParams.add(params);
       }
-      new QueryRunner().batch(writeConnection, SQL_INSERT_ISSUE, allParams.toArray(new Object[allParams.size()][]));
-      writeConnection.commit();
-
+      runner.batch(writeConnection, SQL_INSERT_ISSUE, allParams.toArray(new Object[allParams.size()][]));
       insertComments(writeConnection, allComments);
-      progress.increment(rows.size());
+      runner.update(writeConnection, SQL_DELETE_RULE_FAILURES, violationIds);
 
-    } catch (SQLException e) {
-      //TODO
-      throw new IllegalStateException();
+      writeConnection.commit();
+      progress.increment(rows.size());
 
     } finally {
       DbUtils.closeQuietly(readConnection);
@@ -214,7 +252,6 @@ class ViolationConverter implements Runnable {
     }
     if (!allParams.isEmpty()) {
       new QueryRunner().batch(writeConnection, SQL_INSERT_ISSUE_CHANGE, allParams.toArray(new Object[allParams.size()][]));
-      writeConnection.commit();
     }
   }
 
@@ -236,29 +273,6 @@ class ViolationConverter implements Runnable {
   private static class ViolationHandler extends AbstractListHandler<Map<String, Object>> {
     private static final Map<Integer, String> SEVERITIES = ImmutableMap.of(1, Severity.INFO, 2, Severity.MINOR, 3, Severity.MAJOR, 4, Severity.CRITICAL, 5, Severity.BLOCKER);
 
-    static final String SQL;
-
-    static {
-      StringBuilder sb = new StringBuilder("select rev.id as reviewId, s.project_id as projectId, rf.rule_id as ruleId, " +
-        "  rf.failure_level as failureLevel, rf.message as message, rf.line as line, " +
-        "  rf.cost as cost, rf.created_at as createdAt, rf.checksum as checksum, rev.user_id as reviewReporterId, " +
-        "  rev.assignee_id as reviewAssigneeId, rev.status as reviewStatus, " +
-        "  rev.severity as reviewSeverity, rev.resolution as reviewResolution, rev.manual_severity as reviewManualSeverity, " +
-        "  rev.data as reviewData, rev.updated_at as reviewUpdatedAt, " +
-        "  s.root_project_id as rootProjectId, rev.manual_violation as reviewManualViolation, planreviews.action_plan_id as planId " +
-        " from rule_failures rf " +
-        " inner join snapshots s on s.id=rf.snapshot_id " +
-        " left join reviews rev on rev.rule_failure_permanent_id=rf.permanent_id " +
-        " left join action_plans_reviews planreviews on planreviews.review_id=rev.id " +
-        " where ");
-      for (int i = 0; i < ViolationMigration.GROUP_SIZE; i++) {
-        if (i > 0) {
-          sb.append(" or ");
-        }
-        sb.append("rf.id=?");
-      }
-      SQL = sb.toString();
-    }
 
     @Override
     protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {

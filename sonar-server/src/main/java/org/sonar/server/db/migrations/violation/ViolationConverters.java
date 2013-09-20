@@ -19,41 +19,54 @@
  */
 package org.sonar.server.db.migrations.violation;
 
+import com.google.common.collect.Lists;
+import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.Database;
 
+import java.util.List;
 import java.util.Timer;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 class ViolationConverters {
 
-  static final int MAX_THREADS = 5;
+  static final int DEFAULT_THREADS = 5;
+  static final String THREADS_PROPERTY = "sonar.violationMigration.threads";
+  private final Settings settings;
 
-  private final ExecutorService executorService;
-  private final Database database;
-  private final Referentials referentials;
-  private final Progress progress;
-  private final Timer timer;
+  ViolationConverters(Settings settings) {
+    this.settings = settings;
+  }
 
-  ViolationConverters(Database db, Referentials referentials) {
-    this.database = db;
-    this.referentials = referentials;
-
-    this.progress = new Progress(referentials.totalViolations());
-    timer = new Timer(Progress.THREAD_NAME);
+  void execute(Referentials referentials, Database db) throws Exception {
+    Progress progress = new Progress(referentials.totalViolations());
+    Timer timer = new Timer(Progress.THREAD_NAME);
     timer.schedule(progress, Progress.DELAY_MS, Progress.DELAY_MS);
 
-    BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(MAX_THREADS);
-    RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-    this.executorService = new ThreadPoolExecutor(0, MAX_THREADS, 5L, TimeUnit.SECONDS, blockingQueue, rejectedExecutionHandler);
-  }
+    List<Callable<Object>> converters = Lists.newArrayList();
+    for (int i = 0; i < numberOfThreads(); i++) {
+      converters.add(new ViolationConverter(referentials, db, progress));
+    }
+    ExecutorService executor = Executors.newFixedThreadPool(converters.size());
+    List<Future<Object>> results = executor.invokeAll(converters);
 
-  void convert(Object[] violationIds) {
-    executorService.execute(new ViolationConverter(referentials, database, violationIds, progress));
-  }
-
-  void waitForFinished() throws InterruptedException {
-    executorService.shutdown();
-    executorService.awaitTermination(10L, TimeUnit.SECONDS);
+    executor.shutdown();
+    for (Future result : results) {
+      result.get();
+    }
     timer.cancel();
+  }
+
+  int numberOfThreads() {
+    int threads = settings.getInt(THREADS_PROPERTY);
+    if (threads < 0) {
+      throw new IllegalArgumentException(String.format("Bad value of %s: %d", THREADS_PROPERTY, threads));
+    }
+    if (threads == 0) {
+      threads = DEFAULT_THREADS;
+    }
+    return threads;
   }
 }
