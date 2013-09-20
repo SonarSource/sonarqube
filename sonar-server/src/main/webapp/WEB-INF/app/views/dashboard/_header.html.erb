@@ -18,12 +18,13 @@
       <h4>
         <%= "Version #{@snapshot.version} - " if @snapshot.version.present? -%><%= l @snapshot.created_at -%>
         <% if @snapshot.project_snapshot.periods? %>
-          <form method="GET" action="<%= url_for :controller => :dashboard, :action => :index, :id => @resource.id -%>" style="display: inline" class="spacer-left">
-            <input type="hidden" name="did" value="<%= @dashboard.id -%>"/>
-            <%= dropdown_tag "period", period_select_option_tags(@snapshot, 'small'), {
-                :width => '230px',
-            }, {:id => 'select-comparison', :onchange => 'submit()'} -%>
-          </form>
+          <% period_options = period_select_option_tags(@snapshot, 'small') %>
+          <% if period_options %>
+            <form method="GET" action="<%= url_for :controller => :dashboard, :action => :index, :id => @resource.id -%>" style="display: inline" class="spacer-left">
+              <input type="hidden" name="did" value="<%= @dashboard.id -%>"/>
+              <%= dropdown_tag "period", period_options, {:width => '230px'}, {:id => 'select-comparison', :onchange => 'submit()'} -%>
+            </form>
+          <% end %>
         <% end %>
       </h4>
     </div>

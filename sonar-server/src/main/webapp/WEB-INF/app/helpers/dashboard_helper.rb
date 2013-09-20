@@ -45,18 +45,23 @@ module DashboardHelper
   def period_select_option_tags(snapshot, html_class = '')
     selected=(!params[:period] || params[:period] == '0' ? 'selected' : '')
     options = "<option #{selected} value='0' class='#{html_class}'/>#{message('time_changes')}...</option>"
+    period_options = ''
     (1..5).each { |index|
       option = period_select_options(snapshot, index, html_class)
       if option
-        options += option
+        period_options += option
       end
     }
-    options
+    if !period_options.empty?
+      options += period_options
+    else
+      nil
+    end
   end
 
   def period_select_options(snapshot, index, html_class = '')
     label = period_label(snapshot, index)
-    if label
+    if label && snapshot.period_datetime(index)
       selected=(params[:period]==index.to_s ? 'selected' : '')
       "<option value='#{index}' #{selected} class='#{html_class}'>&Delta; #{label}</option>"
     else
