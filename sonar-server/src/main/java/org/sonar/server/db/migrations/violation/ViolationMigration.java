@@ -81,7 +81,6 @@ public class ViolationMigration implements DatabaseMigration {
     ViolationConverters converters = new ViolationConverters(db, referentials);
     Connection readConnection = db.getDataSource().getConnection();
     try {
-      readConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
       new QueryRunner().query(readConnection, "select id from rule_failures", new ViolationIdHandler(converters));
     } finally {
       DbUtils.closeQuietly(readConnection);
@@ -90,8 +89,6 @@ public class ViolationMigration implements DatabaseMigration {
   }
 
   private static class ViolationIdHandler implements ResultSetHandler {
-    private Object[] violationIds = new Object[GROUP_SIZE];
-    private int cursor = 0;
     private final ViolationConverters converters;
 
     private ViolationIdHandler(ViolationConverters converters) {
@@ -100,26 +97,31 @@ public class ViolationMigration implements DatabaseMigration {
 
     @Override
     public Object handle(ResultSet rs) throws SQLException {
+      // int is enough, it allows to upgrade up to 2 billions violations !
       int total = 0;
+      int cursor = 0;
+
+      Object[] violationIds = new Object[GROUP_SIZE];
       while (rs.next()) {
         long violationId = rs.getLong(1);
         violationIds[cursor++] = violationId;
         if (cursor == GROUP_SIZE) {
-          convert();
-          Arrays.fill(violationIds, -1L);
+          converters.convert(violationIds);
+          violationIds = new Object[GROUP_SIZE];
           cursor = 0;
         }
         total++;
       }
       if (cursor > 0) {
-        convert();
+        for (int i=0 ; i<violationIds.length ; i++) {
+          if (violationIds[i]==null) {
+            violationIds[i]=-1;
+          }
+        }
+        converters.convert(violationIds);
       }
       LoggerFactory.getLogger(getClass()).info(String.format("%d violations migrated to issues", total));
       return null;
-    }
-
-    private void convert() {
-      converters.convert(violationIds);
     }
   }
 

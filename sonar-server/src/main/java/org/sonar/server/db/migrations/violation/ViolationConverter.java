@@ -91,7 +91,6 @@ class ViolationConverter implements Runnable {
 
   @Override
   public void run() {
-    System.out.println("convert " + violationIds.length + " violations");
     convert(selectRows());
   }
 
