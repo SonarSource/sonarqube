@@ -2,13 +2,13 @@
 
 <%= render :partial => 'roles/tabs', :locals => {:selected_tab=>'Permission templates'} %>
 <br/>
-<div class="line-block">
-  <ul style="float: right" class="horizontal">
-    <li style="padding-top: 3px; padding-right: 10px;">
+<div class="line-block marginbottom10">
+  <ul class="operations">
+    <li>
       <%= link_to message('permission_template.set_default_templates'), {:action => :default_templates_form, :qualifiers => @root_qualifiers},
                   :id => 'configure-defaults-permission-template', :class => 'open-modal link-action' %>
     </li>
-    <li class="marginleft10 add">
+    <li class="last">
       <%= link_to message('create'), {:action => :create_form}, :id => 'create-link-permission-template', :class => 'open-modal link-action' %>
     </li>
   </ul>

@@ -1,10 +1,8 @@
 <form id="apply-template-form" method="post" action="<%= ApplicationController.root_context -%>/roles/apply_template">
-  <% unless @results_count == 0 %>
-    <input type="hidden" name="names" id="apply-template-names" value="<%= @names %>"/>
-    <input type="hidden" name="keys" id="apply-template-keys" value="<%= @keys %>"/>
-    <input type="hidden" name="qualifiers" id="apply-template-qualifiers" value="<%= @qualifiers %>"/>
-    <input type="hidden" name="components" id="apply-template-components" value="<%= @components %>"/>
-  <% end %>
+  <input type="hidden" name="names" id="apply-template-names" value="<%= @names %>"/>
+  <input type="hidden" name="keys" id="apply-template-keys" value="<%= @keys %>"/>
+  <input type="hidden" name="qualifiers" id="apply-template-qualifiers" value="<%= @qualifiers %>"/>
+  <input type="hidden" name="components" id="apply-template-components" value="<%= @components %>"/>
   <fieldset>
     <div class="modal-head">
       <% if @components %>
@@ -13,30 +11,33 @@
         <h2><%= message('projects_role.apply_template') -%></h2>
       <% end %>
     </div>
-    <div class="modal-body">
-      <div class="modal-error"/>
-      <% if @results_count == 0 %>
+    <% if @results_count > 0 %>
+      <div class="modal-body">
+        <div class="modal-error"/>
+          <div class="modal-field">
+            <%= label_tag 'template_key', 'Permission Template' %>
+            <%= select_tag('template_key', options_for_select(@permission_templates, -1), :style => 'width: 250px;') %>
+            <% unless @results_count == 1 %>
+              <span style="float:right" class="note">(<%= "#{@results_count} #{message('qualifier.' + @qualifiers)}s" %>)</span><br/>
+            <% end %>
+          </div>
+      </div>
+      <div class="modal-foot">
+        <span id="apply-template-loading-image" class="loading-image hidden"><%= image_tag 'loading.gif' %></span>
+        <input type="submit" value="<%= message('apply') -%>" id="apply-template-submit" class="apply-template" onclick="return displayLoadingImage()" />
+        <a href="#" onclick="return closeModalWindow()" id="apply-template-cancel"><%= message('cancel') -%></a>
+      </div>
+    <% else %>
+      <div class="modal-body">
         <div class="info">
           <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
           <%= message 'projects_role.no_projects' -%>
         </div>
-      <% else %>
-        <div class="modal-field">
-          <%= label_tag 'template_key', 'Permission Template' %>
-          <%= select_tag('template_key', options_for_select(@permission_templates, -1), :style => 'width: 250px;') %>
-          <% unless @results_count == 1 %>
-            <span style="float:right" class="note">(<%= "#{@results_count} #{message('qualifier.' + @qualifiers)}s" %>)</span><br/>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-    <div class="modal-foot">
-      <% unless @results_count == 0 %>
-        <span id="apply-template-loading-image" class="loading-image hidden"><%= image_tag 'loading.gif' %></span>
-        <input type="submit" value="<%= message('apply') -%>" id="apply-template-submit" class="apply-template" onclick="return displayLoadingImage()" />
-      <% end %>
-      <a href="#" onclick="return closeModalWindow()" id="apply-template-cancel"><%= message('cancel') -%></a>
-    </div>
+      </div>
+      <div class="modal-foot">
+        <a href="#" onclick="return closeModalWindow()" id="apply-template-cancel"><%= message('cancel') -%></a>
+      </div>
+    <% end %>
   </fieldset>
 </form>
 <script>
