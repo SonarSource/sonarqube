@@ -25,13 +25,13 @@ import javax.annotation.CheckForNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SqlUtil {
+class SqlUtil {
 
   private SqlUtil() {
     // only static methods
   }
 
-  public static void log(Logger logger, SQLException e) {
+  static void log(Logger logger, SQLException e) {
     SQLException next = e.getNextException();
     while (next != null) {
       logger.error("SQL error: {}. Message: {}", next.getSQLState(), next.getMessage());
@@ -40,19 +40,19 @@ public class SqlUtil {
   }
 
   @CheckForNull
-  public static Long getLong(ResultSet rs, String columnName) throws SQLException {
+  static Long getLong(ResultSet rs, String columnName) throws SQLException {
     long l = rs.getLong(columnName);
     return rs.wasNull() ? null : l;
   }
 
   @CheckForNull
-  public static Double getDouble(ResultSet rs, String columnName) throws SQLException {
+  static Double getDouble(ResultSet rs, String columnName) throws SQLException {
     double d = rs.getDouble(columnName);
     return rs.wasNull() ? null : d;
   }
 
   @CheckForNull
-  public static Integer getInt(ResultSet rs, String columnName) throws SQLException {
+  static Integer getInt(ResultSet rs, String columnName) throws SQLException {
     int i = rs.getInt(columnName);
     return rs.wasNull() ? null : i;
   }

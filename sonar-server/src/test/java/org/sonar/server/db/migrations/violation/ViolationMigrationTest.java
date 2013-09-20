@@ -23,6 +23,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.persistence.TestDatabase;
 
+import java.util.Set;
+
+import static org.fest.assertions.Assertions.assertThat;
+
 public class ViolationMigrationTest {
 
   @Rule
@@ -34,7 +38,12 @@ public class ViolationMigrationTest {
 
     new ViolationMigration().execute(db.database());
 
-    //Thread.sleep(5000L);
     db.assertDbUnit(getClass(), "migrate_violations_result.xml", "issues", "issue_changes");
+
+    // Progress thread is dead
+    Set<Thread> threads = Thread.getAllStackTraces().keySet();
+    for (Thread thread : threads) {
+      assertThat(thread.getName()).isNotEqualTo(Progress.THREAD_NAME);
+    }
   }
 }

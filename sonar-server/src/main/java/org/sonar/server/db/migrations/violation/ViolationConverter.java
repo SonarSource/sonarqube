@@ -82,11 +82,13 @@ class ViolationConverter implements Runnable {
   private final Database db;
   private final Object[] violationIds;
   private final Referentials referentials;
+  private final Progress progress;
 
-  public ViolationConverter(Referentials referentials, Database db, Object[] violationIds) {
+  ViolationConverter(Referentials referentials, Database db, Object[] violationIds, Progress progress) {
     this.referentials = referentials;
     this.db = db;
     this.violationIds = violationIds;
+    this.progress = progress;
   }
 
   @Override
@@ -182,6 +184,7 @@ class ViolationConverter implements Runnable {
       writeConnection.commit();
 
       insertComments(writeConnection, allComments);
+      progress.increment(rows.size());
 
     } catch (SQLException e) {
       //TODO

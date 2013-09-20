@@ -21,30 +21,39 @@ package org.sonar.server.db.migrations.violation;
 
 import org.sonar.core.persistence.Database;
 
+import java.util.Timer;
 import java.util.concurrent.*;
 
-public class ViolationConverters {
+class ViolationConverters {
 
-  static final int MAX_THREADS = 4;
+  static final int MAX_THREADS = 5;
 
   private final ExecutorService executorService;
   private final Database database;
   private final Referentials referentials;
+  private final Progress progress;
+  private final Timer timer;
 
-  public ViolationConverters(Database db, Referentials referentials) {
+  ViolationConverters(Database db, Referentials referentials) {
     this.database = db;
     this.referentials = referentials;
+
+    this.progress = new Progress(referentials.totalViolations());
+    timer = new Timer(Progress.THREAD_NAME);
+    timer.schedule(progress, Progress.DELAY_MS, Progress.DELAY_MS);
+
     BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(MAX_THREADS);
     RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
     this.executorService = new ThreadPoolExecutor(0, MAX_THREADS, 5L, TimeUnit.SECONDS, blockingQueue, rejectedExecutionHandler);
   }
 
   void convert(Object[] violationIds) {
-    executorService.execute(new ViolationConverter(referentials, database, violationIds));
+    executorService.execute(new ViolationConverter(referentials, database, violationIds, progress));
   }
 
   void waitForFinished() throws InterruptedException {
     executorService.shutdown();
-    executorService.awaitTermination(30L, TimeUnit.SECONDS);
+    executorService.awaitTermination(10L, TimeUnit.SECONDS);
+    timer.cancel();
   }
 }

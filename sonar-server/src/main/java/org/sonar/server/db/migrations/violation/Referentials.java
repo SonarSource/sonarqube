@@ -30,17 +30,20 @@ import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 
-public class Referentials {
+class Referentials {
   private final Database database;
   private final Map<Long, String> loginsByUserId;
   private final Map<Long, String> plansById;
+  private final int totalViolations;
 
-  public Referentials(Database database) throws SQLException {
+  Referentials(Database database) throws SQLException {
     this.database = database;
     loginsByUserId = selectLongString("select id,login from users");
     plansById = selectLongString("select id,kee from action_plans");
+    totalViolations = selectInt("select count(id) from rule_failures");
   }
 
   @CheckForNull
@@ -51,6 +54,10 @@ public class Referentials {
   @CheckForNull
   String userLogin(@Nullable Long id) {
     return id != null ? loginsByUserId.get(id) : null;
+  }
+
+  int totalViolations() {
+    return totalViolations;
   }
 
   private Map<Long, String> selectLongString(String sql) throws SQLException {
@@ -70,4 +77,21 @@ public class Referentials {
       DbUtils.closeQuietly(connection);
     }
   }
+
+  private int selectInt(String sql) throws SQLException {
+    Connection connection = database.getDataSource().getConnection();
+    Statement stmt = null;
+    ResultSet rs = null;
+    try {
+      stmt = connection.createStatement();
+      rs = stmt.executeQuery(sql);
+      if (rs.next()) {
+        return rs.getInt(1);
+      }
+      return 0;
+    } finally {
+      DbUtils.closeQuietly(connection, stmt, rs);
+    }
+  }
+
 }

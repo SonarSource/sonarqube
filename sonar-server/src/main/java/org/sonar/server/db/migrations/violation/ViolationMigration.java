@@ -31,7 +31,6 @@ import org.sonar.server.db.DatabaseMigration;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 /**
  * Used in the Active Record Migration 401
@@ -78,14 +77,16 @@ public class ViolationMigration implements DatabaseMigration {
 
   public void migrate(Database db) throws Exception {
     Referentials referentials = new Referentials(db);
-    ViolationConverters converters = new ViolationConverters(db, referentials);
-    Connection readConnection = db.getDataSource().getConnection();
-    try {
-      new QueryRunner().query(readConnection, "select id from rule_failures", new ViolationIdHandler(converters));
-    } finally {
-      DbUtils.closeQuietly(readConnection);
+    if (referentials.totalViolations() > 0) {
+      ViolationConverters converters = new ViolationConverters(db, referentials);
+      Connection readConnection = db.getDataSource().getConnection();
+      try {
+        new QueryRunner().query(readConnection, "select id from rule_failures", new ViolationIdHandler(converters));
+      } finally {
+        DbUtils.closeQuietly(readConnection);
+      }
+      converters.waitForFinished();
     }
-    converters.waitForFinished();
   }
 
   private static class ViolationIdHandler implements ResultSetHandler {
@@ -113,9 +114,9 @@ public class ViolationMigration implements DatabaseMigration {
         total++;
       }
       if (cursor > 0) {
-        for (int i=0 ; i<violationIds.length ; i++) {
-          if (violationIds[i]==null) {
-            violationIds[i]=-1;
+        for (int i = 0; i < violationIds.length; i++) {
+          if (violationIds[i] == null) {
+            violationIds[i] = -1;
           }
         }
         converters.convert(violationIds);
