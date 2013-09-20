@@ -17,37 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.plugins.core.issue.ignore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueFilter;
+import org.sonar.plugins.core.issue.ignore.pattern.ExclusionPatternInitializer;
 import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
-import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
 
-public final class IgnoreIssuesFilter implements IssueFilter {
+public final class IgnoreIssuesFilter extends IssuesFilterBase {
 
   private static final Logger LOG = LoggerFactory.getLogger(IgnoreIssuesFilter.class);
 
-  private PatternMatcher patternMatcher;
-
-  public IgnoreIssuesFilter(PatternMatcher patternMatcher) {
-    this.patternMatcher = patternMatcher;
+  public IgnoreIssuesFilter(ExclusionPatternInitializer patternInitializer) {
+    super(patternInitializer);
   }
 
-  public boolean accept(Issue issue) {
-    IssuePattern pattern = patternMatcher.getMatchingPattern(issue);
-    if (pattern != null) {
-      logExclusion(issue, pattern);
-      return false;
-    }
-    return true;
+  @Override
+  protected void logExclusion(Issue issue, IssuePattern pattern) {
+    LOG.debug("Issue {} ignored by exclusion pattern {}", issue, pattern);
   }
-
-  private void logExclusion(Issue issue, IssuePattern pattern) {
-    LOG.debug("Issue {} ignored by {}", issue, pattern);
-  }
-
 }

@@ -19,17 +19,15 @@
  */
 package org.sonar.plugins.core.issue.ignore.pattern;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.issue.Issue;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-public class PatternMatcher implements BatchExtension {
+public class PatternMatcher {
 
   private Multimap<String, IssuePattern> patternByComponent = LinkedHashMultimap.create();
 
@@ -45,8 +43,7 @@ public class PatternMatcher implements BatchExtension {
     return matchingPattern;
   }
 
-  @VisibleForTesting
-  Collection<IssuePattern> getPatternsForComponent(String componentKey) {
+  public Collection<IssuePattern> getPatternsForComponent(String componentKey) {
     return patternByComponent.get(componentKey);
   }
 

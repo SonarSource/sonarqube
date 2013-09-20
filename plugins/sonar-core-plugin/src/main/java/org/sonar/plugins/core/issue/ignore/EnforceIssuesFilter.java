@@ -17,44 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.plugins.core.issue.ignore;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
+import org.sonar.plugins.core.issue.ignore.pattern.InclusionPatternInitializer;
 import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
-import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+public final class EnforceIssuesFilter extends IssuesFilterBase {
 
-public class IgnoreIssuesFilterTest {
+  private static final Logger LOG = LoggerFactory.getLogger(EnforceIssuesFilter.class);
 
-  private PatternMatcher patternMatcher;
-  private IgnoreIssuesFilter filter;
-  private Issue issue;
-
-  @Before
-  public void init() {
-    patternMatcher = mock(PatternMatcher.class);
-    issue = mock(Issue.class);
-
-    filter = new IgnoreIssuesFilter(patternMatcher);
+  public EnforceIssuesFilter(InclusionPatternInitializer patternInitializer) {
+    super(patternInitializer);
   }
 
-  @Test
-  public void shouldAcceptIfMatcherHasNoPatternForIssue() {
-    when(patternMatcher.getMatchingPattern(issue)).thenReturn(null);
-
-    assertThat(filter.accept(issue)).isTrue();
-  }
-
-  @Test
-  public void shouldNotAcceptIfMatcherHasPatternForIssue() {
-    when(patternMatcher.getMatchingPattern(issue)).thenReturn(mock(IssuePattern.class));
-
-    assertThat(filter.accept(issue)).isFalse();
+  @Override
+  protected void logExclusion(Issue issue, IssuePattern pattern) {
+    LOG.debug("Issue {} ignored by inclusion pattern {}", issue, pattern);
   }
 }

@@ -143,7 +143,7 @@ public class IssuePattern {
     return false;
   }
 
-  public boolean matchRule(RuleKey rule) {
+  boolean matchRule(RuleKey rule) {
     if (rule == null) {
       return false;
     }
@@ -152,7 +152,7 @@ public class IssuePattern {
     return rulePattern.match(key);
   }
 
-  public boolean matchResource(String resource) {
+  boolean matchResource(String resource) {
     return resource != null && resourcePattern.match(resource);
   }
 

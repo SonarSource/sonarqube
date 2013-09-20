@@ -20,9 +20,6 @@
 
 package org.sonar.plugins.core.issue.ignore.scanner;
 
-import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
-
-import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -35,7 +32,8 @@ import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
+import org.sonar.plugins.core.issue.ignore.pattern.ExclusionPatternInitializer;
+import org.sonar.plugins.core.issue.ignore.pattern.InclusionPatternInitializer;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -45,21 +43,23 @@ import java.util.List;
 public final class SourceScanner implements Sensor {
 
   private final RegexpScanner regexpScanner;
-  private final PatternsInitializer patternsInitializer;
-  private final PatternMatcher patternMatcher;
+  private final ExclusionPatternInitializer exclusionPatternInitializer;
+  private final InclusionPatternInitializer inclusionPatternInitializer;
   private final ModuleFileSystem fileSystem;
   private final PathResolver pathResolver;
 
-  public SourceScanner(RegexpScanner regexpScanner, PatternsInitializer patternsInitializer, PatternMatcher patternMatcher, ModuleFileSystem fileSystem) {
+  public SourceScanner(RegexpScanner regexpScanner, ExclusionPatternInitializer exclusionPatternInitializer, InclusionPatternInitializer inclusionPatternInitializer,
+      ModuleFileSystem fileSystem) {
     this.regexpScanner = regexpScanner;
-    this.patternsInitializer = patternsInitializer;
-    this.patternMatcher = patternMatcher;
+    this.exclusionPatternInitializer = exclusionPatternInitializer;
+    this.inclusionPatternInitializer = inclusionPatternInitializer;
     this.fileSystem = fileSystem;
     this.pathResolver = new PathResolver();
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return patternsInitializer.hasConfiguredPatterns();
+    return inclusionPatternInitializer.hasConfiguredPatterns()
+      || exclusionPatternInitializer.hasConfiguredPatterns();
   }
 
   /**
@@ -89,12 +89,9 @@ public final class SourceScanner implements Sensor {
         if (componentKey != null) {
 
           String relativePath = pathResolver.relativePath(dirs, inputFile).path();
-          for (IssuePattern pattern: patternsInitializer.getMulticriteriaPatterns()) {
-            if (pattern.matchResource(relativePath)) {
-              patternMatcher.addPatternForComponent(componentKey, pattern);
-            }
-          }
-          if (patternsInitializer.hasFileContentPattern()) {
+          inclusionPatternInitializer.initializePatternsForPath(relativePath, componentKey);
+          exclusionPatternInitializer.initializePatternsForPath(relativePath, componentKey);
+          if (exclusionPatternInitializer.hasFileContentPattern()) {
             regexpScanner.scan(componentKey, inputFile, sourcesEncoding);
           }
         }

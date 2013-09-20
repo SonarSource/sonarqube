@@ -17,36 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.plugins.core.issue.ignore;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.plugins.core.issue.ignore.pattern.ExclusionPatternInitializer;
-import org.sonar.plugins.core.issue.ignore.pattern.InclusionPatternInitializer;
-import org.sonar.plugins.core.issue.ignore.scanner.RegexpScanner;
-import org.sonar.plugins.core.issue.ignore.scanner.SourceScanner;
+import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
 
-import java.util.List;
+import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
+import org.sonar.plugins.core.issue.ignore.pattern.AbstractPatternInitializer;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueFilter;
 
-public final class IgnoreIssuesPlugin {
+public abstract class IssuesFilterBase implements IssueFilter {
 
-  private IgnoreIssuesPlugin() {
-    // static extension declaration only
+  private PatternMatcher patternMatcher;
+
+  protected IssuesFilterBase(AbstractPatternInitializer patternInitializer) {
+    this.patternMatcher = patternInitializer.getPatternMatcher();
   }
 
-  public static List<?> getExtensions() {
-    ImmutableList.Builder<Object> extensions = ImmutableList.builder();
-
-    extensions.addAll(IgnoreIssuesConfiguration.getPropertyDefinitions());
-    extensions.add(
-        InclusionPatternInitializer.class,
-        ExclusionPatternInitializer.class,
-        RegexpScanner.class,
-        SourceScanner.class,
-        EnforceIssuesFilter.class,
-        IgnoreIssuesFilter.class);
-
-    return extensions.build();
+  @Override
+  public boolean accept(Issue issue) {
+    IssuePattern pattern = patternMatcher.getMatchingPattern(issue);
+    if (pattern != null) {
+      logExclusion(issue, pattern);
+      return false;
+    }
+    return true;
   }
 
+  protected abstract void logExclusion(Issue issue, IssuePattern pattern);
 }

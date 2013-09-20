@@ -18,15 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.plugins.core.issue.ignore;
+package org.sonar.plugins.core.issue.ignore.pattern;
 
-import org.junit.Test;
+import org.sonar.api.config.Settings;
+import org.sonar.plugins.core.issue.ignore.IgnoreIssuesConfiguration;
 
-import static org.fest.assertions.Assertions.assertThat;
+public class InclusionPatternInitializer extends AbstractPatternInitializer {
 
-public class IgnoreIssuesPluginTest {
-  @Test
-  public void justForCoverage() {
-    assertThat(IgnoreIssuesPlugin.getExtensions()).hasSize(4 /* properties */ + 6 /* extensions */);
+  public InclusionPatternInitializer(Settings settings) {
+    super(settings);
   }
+
+  @Override
+  protected String getMulticriteriaConfigurationKey() {
+    return IgnoreIssuesConfiguration.PATTERNS_MULTICRITERIA_INCLUSION_KEY;
+  }
+
+  @Override
+  protected boolean shouldAddPatternIfMatch(boolean match) {
+    return ! match;
+  }
+
 }

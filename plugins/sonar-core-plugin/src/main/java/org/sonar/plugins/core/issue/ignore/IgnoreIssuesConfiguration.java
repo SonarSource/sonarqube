@@ -33,21 +33,26 @@ public final class IgnoreIssuesConfiguration {
 
   public static final String SUB_CATEGORY_IGNORE_ISSUES = "issues";
 
-  public static final String CORE_KEY_PREFIX = "sonar.issue.ignore";
+  public static final String EXCLUSION_KEY_PREFIX = "sonar.issue.ignore";
+  public static final String INCLUSION_KEY_PREFIX = "sonar.issue.enforce";
 
   public static final String MULTICRITERIA_SUFFIX = ".multicriteria";
-  public static final String PATTERNS_MULTICRITERIA_KEY = CORE_KEY_PREFIX + MULTICRITERIA_SUFFIX;
+  public static final String PATTERNS_MULTICRITERIA_EXCLUSION_KEY = EXCLUSION_KEY_PREFIX + MULTICRITERIA_SUFFIX;
+  public static final String PATTERNS_MULTICRITERIA_INCLUSION_KEY = INCLUSION_KEY_PREFIX + MULTICRITERIA_SUFFIX;
   public static final String RESOURCE_KEY = "resourceKey";
+  private static final String PROPERTY_FILE_PATH_PATTERN = "File Path Pattern";
   public static final String RULE_KEY = "ruleKey";
+  private static final String PROPERTY_RULE_KEY_PATTERN = "Rule Key Pattern";
   public static final String LINE_RANGE_KEY = "lineRange";
+  private static final String PROPERTY_LINE_RANGE = "Line Range";
 
   public static final String BLOCK_SUFFIX = ".block";
-  public static final String PATTERNS_BLOCK_KEY = CORE_KEY_PREFIX + BLOCK_SUFFIX;
+  public static final String PATTERNS_BLOCK_KEY = EXCLUSION_KEY_PREFIX + BLOCK_SUFFIX;
   public static final String BEGIN_BLOCK_REGEXP = "beginBlockRegexp";
   public static final String END_BLOCK_REGEXP = "endBlockRegexp";
 
   public static final String ALLFILE_SUFFIX = ".allfile";
-  public static final String PATTERNS_ALLFILE_KEY = CORE_KEY_PREFIX + ALLFILE_SUFFIX;
+  public static final String PATTERNS_ALLFILE_KEY = EXCLUSION_KEY_PREFIX + ALLFILE_SUFFIX;
   public static final String FILE_REGEXP = "fileRegexp";
 
   private IgnoreIssuesConfiguration() {
@@ -59,7 +64,7 @@ public final class IgnoreIssuesConfiguration {
 
   public static List<PropertyDefinition> getPropertyDefinitions() {
     return ImmutableList.of(
-      PropertyDefinition.builder(PATTERNS_MULTICRITERIA_KEY)
+      PropertyDefinition.builder(PATTERNS_MULTICRITERIA_EXCLUSION_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Multi-criteria Exclusion Patterns")
@@ -68,25 +73,25 @@ public final class IgnoreIssuesConfiguration {
         .index(3)
         .fields(
           PropertyFieldDefinition.build(RESOURCE_KEY)
-            .name("File Path Pattern")
+            .name(PROPERTY_FILE_PATH_PATTERN)
             .description("Pattern used to match files which should be ignored.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
           PropertyFieldDefinition.build(RULE_KEY)
-            .name("Rule Key Pattern")
+            .name(PROPERTY_RULE_KEY_PATTERN)
             .description("Pattern used to match rules which should be ignored.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
             .build(),
           PropertyFieldDefinition.build(LINE_RANGE_KEY)
-            .name("Line Range")
+            .name(PROPERTY_LINE_RANGE)
             .description("Range of lines that should be ignored.")
             .type(PropertyType.STRING)
             .indicativeSize(SMALL_SIZE)
             .build())
         .build(),
-        PropertyDefinition.builder(PATTERNS_BLOCK_KEY)
+      PropertyDefinition.builder(PATTERNS_BLOCK_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Block Exclusion Patterns")
@@ -107,7 +112,7 @@ public final class IgnoreIssuesConfiguration {
             .indicativeSize(LARGE_SIZE)
             .build())
         .build(),
-        PropertyDefinition.builder(PATTERNS_ALLFILE_KEY)
+      PropertyDefinition.builder(PATTERNS_ALLFILE_KEY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("File Exclusion Patterns")
@@ -120,6 +125,33 @@ public final class IgnoreIssuesConfiguration {
             .description("If this regular expression is found in a file, then the whole file is ignored.")
             .type(PropertyType.STRING)
             .indicativeSize(LARGE_SIZE)
+            .build())
+        .build(),
+      PropertyDefinition.builder(PATTERNS_MULTICRITERIA_INCLUSION_KEY)
+        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+        .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
+        .name("Multi-criteria Inclusion Patterns")
+        .description("Patterns used to identify which issues should be enforced on selected resources.")
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(4)
+        .fields(
+          PropertyFieldDefinition.build(RESOURCE_KEY)
+            .name(PROPERTY_FILE_PATH_PATTERN)
+            .description("Pattern used to match files on which issues should be enforced.")
+            .type(PropertyType.STRING)
+            .indicativeSize(LARGE_SIZE)
+            .build(),
+          PropertyFieldDefinition.build(RULE_KEY)
+            .name(PROPERTY_RULE_KEY_PATTERN)
+            .description("Pattern used to match rules which should be enforced.")
+            .type(PropertyType.STRING)
+            .indicativeSize(LARGE_SIZE)
+            .build(),
+          PropertyFieldDefinition.build(LINE_RANGE_KEY)
+            .name(PROPERTY_LINE_RANGE)
+            .description("Range of lines that should be considered.")
+            .type(PropertyType.STRING)
+            .indicativeSize(SMALL_SIZE)
             .build())
         .build());
   }
