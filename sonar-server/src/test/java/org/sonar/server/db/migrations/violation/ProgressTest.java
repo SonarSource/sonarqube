@@ -34,7 +34,7 @@ public class ProgressTest {
     Logger logger = mock(Logger.class);
     ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 
-    Progress progress = new Progress(5000, logger);
+    Progress progress = new Progress(5000, logger, System.currentTimeMillis());
     progress.run();
     progress.increment(200);
     progress.increment(130);

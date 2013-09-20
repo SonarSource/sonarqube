@@ -31,6 +31,10 @@ class SqlUtil {
     // only static methods
   }
 
+  /**
+   * Logback does not log exceptions associated to {@link java.sql.SQLException#getNextException()}.
+   * See http://jira.qos.ch/browse/LOGBACK-775
+   */
   static void log(Logger logger, SQLException e) {
     SQLException next = e.getNextException();
     while (next != null) {

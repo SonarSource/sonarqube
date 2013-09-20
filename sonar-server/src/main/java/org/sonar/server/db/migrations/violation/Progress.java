@@ -25,6 +25,10 @@ import org.slf4j.LoggerFactory;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This task logs every minute the status of migration. It is destroyed
+ * when migration is finished.
+ */
 class Progress extends TimerTask {
 
   static final String THREAD_NAME = "Violation Migration Progress";
@@ -41,12 +45,8 @@ class Progress extends TimerTask {
     this.start = startDate;
   }
 
-  Progress(int totalViolations, Logger logger) {
-    this(totalViolations, logger, System.currentTimeMillis());
-  }
-
   Progress(int totalViolations) {
-    this(totalViolations, LoggerFactory.getLogger(Progress.class));
+    this(totalViolations, LoggerFactory.getLogger(Progress.class), System.currentTimeMillis());
   }
 
   void increment(int delta) {

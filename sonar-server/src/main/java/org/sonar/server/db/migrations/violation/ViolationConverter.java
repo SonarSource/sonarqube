@@ -130,6 +130,13 @@ class ViolationConverter implements Callable<Object> {
 
   @Override
   public Object call() throws Exception {
+    // For each group of 1000 violation ids:
+    // - load related violations, reviews and action plans
+    // - in a transaction
+    //   -- insert issues
+    //   -- insert issue_changes if there are review comments
+    //   -- delete violations
+
     Long[] violationIds = referentials.pollGroupOfViolationIds();
     while (violationIds != null) {
       List<Map<String, Object>> rows = selectRows(violationIds);
@@ -224,7 +231,6 @@ class ViolationConverter implements Callable<Object> {
       runner.batch(writeConnection, SQL_INSERT_ISSUE, allParams.toArray(new Object[allParams.size()][]));
       insertComments(writeConnection, allComments);
       runner.update(writeConnection, SQL_DELETE_RULE_FAILURES, violationIds);
-
       writeConnection.commit();
       progress.increment(rows.size());
 

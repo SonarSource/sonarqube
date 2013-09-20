@@ -35,6 +35,10 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Data loaded from database before migrating violations. It is
+ * shared amongst converter parallel tasks.
+ */
 class Referentials {
 
   static final int VIOLATION_GROUP_SIZE = 1000;
