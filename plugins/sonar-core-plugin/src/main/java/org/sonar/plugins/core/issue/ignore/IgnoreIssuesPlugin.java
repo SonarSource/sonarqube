@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.core.issue.ignore;
 
+import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
+
 import com.google.common.collect.ImmutableList;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
 import org.sonar.plugins.core.issue.ignore.scanner.RegexpScanner;
@@ -39,6 +41,7 @@ public final class IgnoreIssuesPlugin {
     extensions.addAll(IgnoreIssuesConfiguration.getPropertyDefinitions());
     extensions.add(
         PatternsInitializer.class,
+        PatternMatcher.class,
         RegexpScanner.class,
         SourceScanner.class,
         IgnoreIssuesFilter.class);

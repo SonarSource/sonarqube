@@ -20,8 +20,9 @@
 
 package org.sonar.plugins.core.issue.ignore.scanner;
 
-import org.apache.commons.lang.StringUtils;
+import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
 
+import org.apache.commons.lang.StringUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
@@ -42,7 +43,7 @@ public class RegexpScanner implements BatchExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(RegexpScanner.class);
 
-  private PatternsInitializer patternsInitializer;
+  private PatternMatcher patternMatcher;
   private List<java.util.regex.Pattern> allFilePatterns;
   private List<DoubleRegexpMatcher> blockMatchers;
 
@@ -52,17 +53,17 @@ public class RegexpScanner implements BatchExtension {
   private List<LineExclusion> lineExclusions;
   private LineExclusion currentLineExclusion;
 
-  public RegexpScanner(PatternsInitializer patternsInitializer) {
-    this.patternsInitializer = patternsInitializer;
+  public RegexpScanner(PatternsInitializer patternsInitializer, PatternMatcher patternMatcher) {
+    this.patternMatcher = patternMatcher;
 
     lineExclusions = Lists.newArrayList();
     allFilePatterns = Lists.newArrayList();
     blockMatchers = Lists.newArrayList();
 
-    for (IssuePattern pattern : this.patternsInitializer.getAllFilePatterns()) {
+    for (IssuePattern pattern : patternsInitializer.getAllFilePatterns()) {
       allFilePatterns.add(java.util.regex.Pattern.compile(pattern.getAllFileRegexp()));
     }
-    for (IssuePattern pattern : this.patternsInitializer.getBlockPatterns()) {
+    for (IssuePattern pattern : patternsInitializer.getBlockPatterns()) {
       blockMatchers.add(new DoubleRegexpMatcher(
           java.util.regex.Pattern.compile(pattern.getBeginBlockRegexp()),
           java.util.regex.Pattern.compile(pattern.getEndBlockRegexp())));
@@ -93,7 +94,7 @@ public class RegexpScanner implements BatchExtension {
       // first check the single regexp patterns that can be used to totally exclude a file
       for (java.util.regex.Pattern pattern : allFilePatterns) {
         if (pattern.matcher(line).find()) {
-          patternsInitializer.addPatternToExcludeResource(resource);
+          patternMatcher.addPatternToExcludeResource(resource);
           // nothing more to do on this file
           LOG.debug("- Exclusion pattern '{}': every violation in this file will be ignored.", pattern);
           return;
@@ -114,7 +115,7 @@ public class RegexpScanner implements BatchExtension {
     if (!lineExclusions.isEmpty()) {
       Set<LineRange> lineRanges = convertLineExclusionsToLineRanges();
       LOG.debug("- Line exclusions found: {}", lineRanges);
-      patternsInitializer.addPatternToExcludeLines(resource, lineRanges);
+      patternMatcher.addPatternToExcludeLines(resource, lineRanges);
     }
   }
 

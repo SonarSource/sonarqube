@@ -20,6 +20,9 @@
 
 package org.sonar.plugins.core.issue.ignore.scanner;
 
+import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
+
+import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -43,12 +46,14 @@ public final class SourceScanner implements Sensor {
 
   private final RegexpScanner regexpScanner;
   private final PatternsInitializer patternsInitializer;
+  private final PatternMatcher patternMatcher;
   private final ModuleFileSystem fileSystem;
   private final PathResolver pathResolver;
 
-  public SourceScanner(RegexpScanner regexpScanner, PatternsInitializer patternsInitializer, ModuleFileSystem fileSystem) {
+  public SourceScanner(RegexpScanner regexpScanner, PatternsInitializer patternsInitializer, PatternMatcher patternMatcher, ModuleFileSystem fileSystem) {
     this.regexpScanner = regexpScanner;
     this.patternsInitializer = patternsInitializer;
+    this.patternMatcher = patternMatcher;
     this.fileSystem = fileSystem;
     this.pathResolver = new PathResolver();
   }
@@ -82,8 +87,13 @@ public final class SourceScanner implements Sensor {
       try {
         String componentKey = resolveComponent(inputFile, dirs, project, isTest);
         if (componentKey != null) {
+
           String relativePath = pathResolver.relativePath(dirs, inputFile).path();
-          patternsInitializer.configurePatternsForComponent(componentKey, relativePath);
+          for (IssuePattern pattern: patternsInitializer.getMulticriteriaPatterns()) {
+            if (pattern.matchResource(relativePath)) {
+              patternMatcher.addPatternForComponent(componentKey, pattern);
+            }
+          }
           if (patternsInitializer.hasFileContentPattern()) {
             regexpScanner.scan(componentKey, inputFile, sourcesEncoding);
           }

@@ -25,27 +25,23 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFilter;
 import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
-import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
-
-import java.util.List;
+import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
 
 public final class IgnoreIssuesFilter implements IssueFilter {
 
   private static final Logger LOG = LoggerFactory.getLogger(IgnoreIssuesFilter.class);
 
-  private PatternsInitializer patternsInitializer;
+  private PatternMatcher patternMatcher;
 
-  public IgnoreIssuesFilter(PatternsInitializer patternsInitializer) {
-    this.patternsInitializer = patternsInitializer;
+  public IgnoreIssuesFilter(PatternMatcher patternMatcher) {
+    this.patternMatcher = patternMatcher;
   }
 
   public boolean accept(Issue issue) {
-    List<IssuePattern> patterns = patternsInitializer.getPatternsForComponent(issue.componentKey());
-    for (IssuePattern pattern : patterns) {
-      if (pattern.match(issue)) {
-        logExclusion(issue, pattern);
-        return false;
-      }
+    IssuePattern pattern = patternMatcher.getMatchingPattern(issue);
+    if (pattern != null) {
+      logExclusion(issue, pattern);
+      return false;
     }
     return true;
   }

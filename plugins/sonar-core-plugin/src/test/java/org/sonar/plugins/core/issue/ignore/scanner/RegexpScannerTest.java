@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.core.issue.ignore.scanner;
 
+import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
+
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +50,8 @@ public class RegexpScannerTest {
   @Mock
   private PatternsInitializer patternsInitializer;
   @Mock
+  private PatternMatcher patternMatcher;
+  @Mock
   private IssuePattern allFilePattern;
   @Mock
   private IssuePattern blockPattern1;
@@ -66,7 +70,7 @@ public class RegexpScannerTest {
     when(patternsInitializer.getAllFilePatterns()).thenReturn(Arrays.asList(allFilePattern));
     when(patternsInitializer.getBlockPatterns()).thenReturn(Arrays.asList(blockPattern1, blockPattern2));
 
-    regexpScanner = new RegexpScanner(patternsInitializer);
+    regexpScanner = new RegexpScanner(patternsInitializer, patternMatcher);
     verify(patternsInitializer, times(1)).getAllFilePatterns();
     verify(patternsInitializer, times(1)).getBlockPatterns();
 
@@ -84,7 +88,7 @@ public class RegexpScannerTest {
   public void shouldAddPatternToExcludeFile() throws IOException {
     regexpScanner.scan(javaFile, TestUtils.getResource(getClass(), "file-with-single-regexp.txt"), UTF_8);
 
-    verify(patternsInitializer, times(1)).addPatternToExcludeResource(javaFile);
+    verify(patternMatcher, times(1)).addPatternToExcludeResource(javaFile);
     verifyNoMoreInteractions(patternsInitializer);
   }
 
@@ -92,7 +96,7 @@ public class RegexpScannerTest {
   public void shouldAddPatternToExcludeFileEvenIfAlsoDoubleRegexps() throws IOException {
     regexpScanner.scan(javaFile, TestUtils.getResource(getClass(), "file-with-single-regexp-and-double-regexp.txt"), UTF_8);
 
-    verify(patternsInitializer, times(1)).addPatternToExcludeResource(javaFile);
+    verify(patternMatcher, times(1)).addPatternToExcludeResource(javaFile);
     verifyNoMoreInteractions(patternsInitializer);
   }
 
@@ -102,7 +106,7 @@ public class RegexpScannerTest {
 
     Set<LineRange> lineRanges = Sets.newHashSet();
     lineRanges.add(new LineRange(21, 25));
-    verify(patternsInitializer, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
+    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
     verifyNoMoreInteractions(patternsInitializer);
   }
 
@@ -112,7 +116,7 @@ public class RegexpScannerTest {
 
     Set<LineRange> lineRanges = Sets.newHashSet();
     lineRanges.add(new LineRange(21, 34));
-    verify(patternsInitializer, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
+    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
     verifyNoMoreInteractions(patternsInitializer);
   }
 
@@ -123,7 +127,7 @@ public class RegexpScannerTest {
     Set<LineRange> lineRanges = Sets.newHashSet();
     lineRanges.add(new LineRange(21, 25));
     lineRanges.add(new LineRange(29, 33));
-    verify(patternsInitializer, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
+    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
     verifyNoMoreInteractions(patternsInitializer);
   }
 
@@ -133,7 +137,7 @@ public class RegexpScannerTest {
 
     Set<LineRange> lineRanges = Sets.newHashSet();
     lineRanges.add(new LineRange(25, 35));
-    verify(patternsInitializer, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
+    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
     verifyNoMoreInteractions(patternsInitializer);
   }
 
@@ -143,7 +147,7 @@ public class RegexpScannerTest {
 
     Set<LineRange> lineRanges = Sets.newHashSet();
     lineRanges.add(new LineRange(21, 29));
-    verify(patternsInitializer, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
+    verify(patternMatcher, times(1)).addPatternToExcludeLines(javaFile, lineRanges);
     verifyNoMoreInteractions(patternsInitializer);
   }
 

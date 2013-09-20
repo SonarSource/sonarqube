@@ -27,6 +27,6 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IgnoreIssuesPluginTest {
   @Test
   public void justForCoverage() {
-    assertThat(IgnoreIssuesPlugin.getExtensions()).hasSize(3 /* properties */ + 4 /* extensions */);
+    assertThat(IgnoreIssuesPlugin.getExtensions()).hasSize(3 /* properties */ + 5 /* extensions */);
   }
 }

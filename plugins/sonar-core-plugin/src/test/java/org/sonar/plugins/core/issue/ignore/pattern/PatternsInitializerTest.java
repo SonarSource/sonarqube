@@ -20,8 +20,6 @@
 
 package org.sonar.plugins.core.issue.ignore.pattern;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
@@ -29,11 +27,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.core.issue.ignore.IgnoreIssuesConfiguration;
 
-import java.util.Set;
-
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PatternsInitializerTest {
 
@@ -52,28 +46,6 @@ public class PatternsInitializerTest {
     patternsInitializer.initPatterns();
     assertThat(patternsInitializer.hasConfiguredPatterns()).isFalse();
     assertThat(patternsInitializer.getMulticriteriaPatterns().size()).isEqualTo(0);
-  }
-
-  @Test
-  public void shouldReturnExtraPatternForResource() {
-    String file = "foo";
-    patternsInitializer.addPatternToExcludeResource(file);
-
-    IssuePattern extraPattern = patternsInitializer.getPatternsForComponent(file).get(0);
-    assertThat(extraPattern.matchResource(file)).isTrue();
-    assertThat(extraPattern.isCheckLines()).isFalse();
-  }
-
-  @Test
-  public void shouldReturnExtraPatternForLinesOfResource() {
-    String file = "foo";
-    Set<LineRange> lineRanges = Sets.newHashSet();
-    lineRanges.add(new LineRange(25, 28));
-    patternsInitializer.addPatternToExcludeLines(file, lineRanges);
-
-    IssuePattern extraPattern = patternsInitializer.getPatternsForComponent(file).get(0);
-    assertThat(extraPattern.matchResource(file)).isTrue();
-    assertThat(extraPattern.getAllLines()).isEqualTo(Sets.newHashSet(25, 26, 27, 28));
   }
 
   @Test
@@ -169,26 +141,5 @@ public class PatternsInitializerTest {
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY, "1");
     settings.setProperty(IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY + ".1." + IgnoreIssuesConfiguration.FILE_REGEXP, "");
     patternsInitializer.initPatterns();
-  }
-
-  @Test
-  public void shouldConfigurePatternsForComponents() {
-    String componentKey = "groupId:artifactId:org.foo.Bar";
-    String path = "org/foo/Bar.java";
-
-    IssuePattern matching1, matching2, notMatching;
-    matching1 = mock(IssuePattern.class);
-    when(matching1.matchResource(path)).thenReturn(true);
-    matching2 = mock(IssuePattern.class);
-    when(matching2.matchResource(path)).thenReturn(true);
-    notMatching = mock(IssuePattern.class);
-    when(notMatching.matchResource(path)).thenReturn(false);
-
-    patternsInitializer.initPatterns();
-    patternsInitializer.getMulticriteriaPatterns().addAll(Lists.newArrayList(matching1, matching2, notMatching));
-    patternsInitializer.configurePatternsForComponent(componentKey, path);
-
-    assertThat(patternsInitializer.getPatternsForComponent(componentKey).size()).isEqualTo(2);
-    assertThat(patternsInitializer.getPatternsForComponent("other").size()).isEqualTo(0);
   }
 }

@@ -33,6 +33,7 @@ import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
+import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
 
 import java.io.File;
@@ -44,9 +45,11 @@ import java.util.List;
 import static com.google.common.base.Charsets.UTF_8;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class SourceScannerTest {
@@ -57,6 +60,8 @@ public class SourceScannerTest {
   private RegexpScanner regexpScanner;
   @Mock
   private PatternsInitializer patternsInitializer;
+  @Mock
+  private PatternMatcher patternMatcher;
   @Mock
   private ModuleFileSystem fileSystem;
 
@@ -74,7 +79,7 @@ public class SourceScannerTest {
     Mockito.doReturn("java").when(project).getLanguageKey();
     when(fileSystem.sourceCharset()).thenReturn(UTF_8);
 
-    scanner = new SourceScanner(regexpScanner, patternsInitializer, fileSystem);
+    scanner = new SourceScanner(regexpScanner, patternsInitializer, patternMatcher, fileSystem);
   }
 
   @Test
@@ -106,8 +111,6 @@ public class SourceScannerTest {
 
     scanner.analyse(project, null);
 
-    verify(patternsInitializer).configurePatternsForComponent("polop:[default].Foo", "Foo.java");
-    verify(patternsInitializer).configurePatternsForComponent("polop:[default].FooTest", "FooTest.java");
     verify(regexpScanner).scan("polop:[default].Foo", sourceFile, UTF_8);
     verify(regexpScanner).scan("polop:[default].FooTest", testFile, UTF_8);
   }
@@ -127,9 +130,36 @@ public class SourceScannerTest {
 
     scanner.analyse(project, null);
 
-    verify(patternsInitializer).configurePatternsForComponent("polop:[default].Foo", "Foo.java");
-    verify(patternsInitializer).configurePatternsForComponent("polop:[default].FooTest", "FooTest.java");
     verifyNoMoreInteractions(regexpScanner);
+  }
+
+  @Test
+  public void shouldAddExclusionsForMulticriteriaPatterns() throws IOException {
+    File sourceFile = new File("src/main/java/Foo.java");
+    File testFile = new File("src/test/java/FooTest.java");
+
+    when(project.getLanguageKey()).thenReturn("java");
+    when(fileSystem.files(Mockito.isA(FileQuery.class)))
+      .thenReturn(Arrays.asList(sourceFile))
+      .thenReturn(Arrays.asList(testFile));
+    when(fileSystem.sourceDirs()).thenReturn(Arrays.asList(new File("src/main/java")));
+    when(fileSystem.testDirs()).thenReturn(Arrays.asList(new File("src/test/java")));
+
+    IssuePattern pattern1 = mock(IssuePattern.class);
+    when(pattern1.matchResource("Foo.java")).thenReturn(true);
+    when(pattern1.matchResource("FooTest.java")).thenReturn(false);
+    IssuePattern pattern2 = mock(IssuePattern.class);
+    when(pattern2.matchResource("Foo.java")).thenReturn(false);
+    when(pattern2.matchResource("FooTest.java")).thenReturn(true);
+
+    Mockito.doReturn(ImmutableList.of(pattern1, pattern2)).when(patternsInitializer).getMulticriteriaPatterns();
+    when(patternsInitializer.hasFileContentPattern()).thenReturn(false);
+
+    scanner.analyse(project, null);
+
+    verify(patternMatcher).addPatternForComponent("polop:[default].Foo", pattern1);
+    verify(patternMatcher).addPatternForComponent("polop:[default].FooTest", pattern2);
+    verifyZeroInteractions(regexpScanner);
   }
 
   @Test
@@ -147,8 +177,6 @@ public class SourceScannerTest {
 
     scanner.analyse(project, null);
 
-    verify(patternsInitializer).configurePatternsForComponent("polop:Foo.php", "Foo.php");
-    verify(patternsInitializer).configurePatternsForComponent("polop:FooTest.php", "FooTest.php");
     verify(regexpScanner).scan("polop:Foo.php", sourceFile, UTF_8);
     verify(regexpScanner).scan("polop:FooTest.php", testFile, UTF_8);
   }
@@ -197,7 +225,6 @@ public class SourceScannerTest {
     when(project.getLanguageKey()).thenReturn("php");
     when(fileSystem.files(Mockito.isA(FileQuery.class))).thenReturn(Arrays.asList(sourceFile));
     List<IssuePattern> empty = ImmutableList.of();
-    when(patternsInitializer.getPatternsForComponent("Foo.php")).thenReturn(empty);
     doThrow(new IOException("BUG")).when(regexpScanner).scan("polop:Foo.php", sourceFile, UTF_8);
 
     thrown.expect(SonarException.class);

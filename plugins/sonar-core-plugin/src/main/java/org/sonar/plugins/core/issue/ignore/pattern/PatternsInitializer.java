@@ -21,17 +21,13 @@
 package org.sonar.plugins.core.issue.ignore.pattern;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.config.Settings;
 import org.sonar.plugins.core.issue.ignore.IgnoreIssuesConfiguration;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -43,7 +39,6 @@ public class PatternsInitializer implements BatchExtension {
   private List<IssuePattern> multicriteriaPatterns;
   private List<IssuePattern> blockPatterns;
   private List<IssuePattern> allFilePatterns;
-  private Map<String, List<IssuePattern>> patternByComponent = Maps.newHashMap();
 
   public PatternsInitializer(Settings settings) {
     this.settings = settings;
@@ -119,37 +114,5 @@ public class PatternsInitializer implements BatchExtension {
       IssuePattern pattern = new IssuePattern().setAllFileRegexp(nullToEmpty(allFileRegexp));
       allFilePatterns.add(pattern);
     }
-  }
-
-  public void addPatternToExcludeResource(String resource) {
-    addPatternForComponent(resource, new IssuePattern(resource, "*").setCheckLines(false));
-  }
-
-  public void addPatternToExcludeLines(String resource, Set<LineRange> lineRanges) {
-    addPatternForComponent(resource, new IssuePattern(resource, "*", lineRanges).setCheckLines(true));
-  }
-
-  public void configurePatternsForComponent(String componentKey, String path) {
-    for (IssuePattern pattern: multicriteriaPatterns) {
-      if (pattern.matchResource(path)) {
-        addPatternForComponent(componentKey, pattern);
-      }
-    }
-  }
-
-  public List<IssuePattern> getPatternsForComponent(String componentKey) {
-    if (patternByComponent.containsKey(componentKey)) {
-      return patternByComponent.get(componentKey);
-    } else {
-      return ImmutableList.of();
-    }
-  }
-
-  private void addPatternForComponent(String component, IssuePattern pattern) {
-    if (!patternByComponent.containsKey(component)) {
-      List<IssuePattern> newList = Lists.newArrayList();
-      patternByComponent.put(component, newList);
-    }
-    patternByComponent.get(component).add(pattern.forResource(component));
   }
 }

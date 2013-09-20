@@ -23,15 +23,8 @@ package org.sonar.plugins.core.issue.ignore;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
 import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
-import org.sonar.plugins.core.issue.ignore.pattern.PatternDecoder;
-import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+import org.sonar.plugins.core.issue.ignore.pattern.PatternMatcher;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,66 +32,29 @@ import static org.mockito.Mockito.when;
 
 public class IgnoreIssuesFilterTest {
 
-  public static final Rule CHECKSTYLE_RULE = Rule.create("checkstyle", "MagicNumber", "");
-  public static final String JAVA_FILE = "org.foo.Hello";
-
-  private PatternsInitializer patternsInitializer;
+  private PatternMatcher patternMatcher;
   private IgnoreIssuesFilter filter;
+  private Issue issue;
 
   @Before
   public void init() {
-    patternsInitializer = mock(PatternsInitializer.class);
-    when(patternsInitializer.getMulticriteriaPatterns()).thenReturn(Collections.<IssuePattern> emptyList());
+    patternMatcher = mock(PatternMatcher.class);
+    issue = mock(Issue.class);
 
-    filter = new IgnoreIssuesFilter(patternsInitializer);
+    filter = new IgnoreIssuesFilter(patternMatcher);
   }
 
   @Test
-  public void shouldBeDeactivatedWhenPropertyIsMissing() {
-    assertThat(filter.accept(create(CHECKSTYLE_RULE, JAVA_FILE, null))).isTrue();
+  public void shouldAcceptIfMatcherHasNoPatternForIssue() {
+    when(patternMatcher.getMatchingPattern(issue)).thenReturn(null);
+
+    assertThat(filter.accept(issue)).isTrue();
   }
 
   @Test
-  public void shouldBeIgnoredWithStandardPatterns() throws IOException {
-    when(patternsInitializer.getPatternsForComponent(JAVA_FILE)).thenReturn(createPatterns("org.foo.Hello;checkstyle:MagicNumber;[15-200]"));
+  public void shouldNotAcceptIfMatcherHasPatternForIssue() {
+    when(patternMatcher.getMatchingPattern(issue)).thenReturn(mock(IssuePattern.class));
 
-    assertThat(filter.accept(create(CHECKSTYLE_RULE, JAVA_FILE, 150))).isFalse();
-  }
-
-  @Test
-  public void shouldNotBeIgnoredWithStandardPatterns() throws IOException {
-    when(patternsInitializer.getPatternsForComponent(JAVA_FILE)).thenReturn(createPatterns("org.foo.Hello;checkstyle:MagicNumber;[15-200]"));
-
-    assertThat(filter.accept(create(CHECKSTYLE_RULE, JAVA_FILE, 5))).isTrue();
-  }
-
-  @Test
-  public void shouldBeIgnoredWithExtraPattern() throws IOException {
-    when(patternsInitializer.getPatternsForComponent(JAVA_FILE)).thenReturn(createPatterns("org.foo.Hello;*;[15-200]"));
-
-    assertThat(filter.accept(create(CHECKSTYLE_RULE, JAVA_FILE, 150))).isFalse();
-  }
-
-  @Test
-  public void shouldNotBeIgnoredWithExtraPattern() throws IOException {
-    when(patternsInitializer.getPatternsForComponent(JAVA_FILE)).thenReturn(createPatterns("org.foo.Hello;*;[15-200]"));
-
-    assertThat(filter.accept(create(CHECKSTYLE_RULE, JAVA_FILE, 5))).isTrue();
-  }
-
-  private Issue create(Rule rule, String component, Integer line) {
-    Issue mockIssue = mock(Issue.class);
-    RuleKey ruleKey = null;
-    if (rule != null) {
-      ruleKey = rule.ruleKey();
-    }
-    when(mockIssue.ruleKey()).thenReturn(ruleKey);
-    when(mockIssue.componentKey()).thenReturn(component);
-    when(mockIssue.line()).thenReturn(line);
-    return mockIssue;
-  }
-
-  private List<IssuePattern> createPatterns(String line) {
-    return new PatternDecoder().decode(line);
+    assertThat(filter.accept(issue)).isFalse();
   }
 }
