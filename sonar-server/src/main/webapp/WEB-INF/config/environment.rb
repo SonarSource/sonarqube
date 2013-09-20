@@ -154,7 +154,6 @@ class ActiveRecord::Migration
         END;})
   end
 
-
   def self.drop_id_trigger(table)
       drop_trigger("#{table}_idt")
   end
@@ -162,6 +161,12 @@ class ActiveRecord::Migration
   def self.drop_trigger(trigger_name)
     execute_ddl("drop trigger #{trigger_name}", "DROP TRIGGER #{trigger_name}")
   end
+
+  def self.write(text="")
+    # See migration.rb, the method write directly calls "puts"
+    Java::OrgSlf4j::LoggerFactory::getLogger('DbMigration').info(text) if verbose
+  end
+
 
   private
 
