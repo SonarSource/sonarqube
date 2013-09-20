@@ -100,7 +100,7 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     insertGroupPermission(resourceId, groupId, permission, null);
   }
 
-  public void insertGroupPermission(@Nullable Long resourceId, @Nullable String groupName, String permission, @Nullable SqlSession session) {
+  public void insertGroupPermission(@Nullable Long resourceId, String groupName, String permission, @Nullable SqlSession session) {
     if (DefaultGroups.isAnyone(groupName)) {
       insertGroupPermission(resourceId, (Long) null, permission, session);
     } else {
@@ -127,7 +127,7 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     deleteGroupPermission(resourceId, groupId, permission, null);
   }
 
-  public void deleteGroupPermission(@Nullable Long resourceId, @Nullable String groupName, String permission, @Nullable SqlSession session) {
+  public void deleteGroupPermission(@Nullable Long resourceId, String groupName, String permission, @Nullable SqlSession session) {
     if (DefaultGroups.isAnyone(groupName)) {
       deleteGroupPermission(resourceId,  (Long) null, permission, session);
     } else {

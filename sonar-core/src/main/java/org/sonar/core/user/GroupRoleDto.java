@@ -51,11 +51,12 @@ public class GroupRoleDto {
     return this;
   }
 
+  @Nullable
   public Long getResourceId() {
     return resourceId;
   }
 
-  public GroupRoleDto setResourceId(Long resourceId) {
+  public GroupRoleDto setResourceId(@Nullable Long resourceId) {
     this.resourceId = resourceId;
     return this;
   }
