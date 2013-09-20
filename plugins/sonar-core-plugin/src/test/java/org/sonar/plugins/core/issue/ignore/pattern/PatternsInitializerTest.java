@@ -59,7 +59,7 @@ public class PatternsInitializerTest {
     String file = "foo";
     patternsInitializer.addPatternToExcludeResource(file);
 
-    Pattern extraPattern = patternsInitializer.getPatternsForComponent(file).get(0);
+    IssuePattern extraPattern = patternsInitializer.getPatternsForComponent(file).get(0);
     assertThat(extraPattern.matchResource(file)).isTrue();
     assertThat(extraPattern.isCheckLines()).isFalse();
   }
@@ -71,7 +71,7 @@ public class PatternsInitializerTest {
     lineRanges.add(new LineRange(25, 28));
     patternsInitializer.addPatternToExcludeLines(file, lineRanges);
 
-    Pattern extraPattern = patternsInitializer.getPatternsForComponent(file).get(0);
+    IssuePattern extraPattern = patternsInitializer.getPatternsForComponent(file).get(0);
     assertThat(extraPattern.matchResource(file)).isTrue();
     assertThat(extraPattern.getAllLines()).isEqualTo(Sets.newHashSet(25, 26, 27, 28));
   }
@@ -176,12 +176,12 @@ public class PatternsInitializerTest {
     String componentKey = "groupId:artifactId:org.foo.Bar";
     String path = "org/foo/Bar.java";
 
-    Pattern matching1, matching2, notMatching;
-    matching1 = mock(Pattern.class);
+    IssuePattern matching1, matching2, notMatching;
+    matching1 = mock(IssuePattern.class);
     when(matching1.matchResource(path)).thenReturn(true);
-    matching2 = mock(Pattern.class);
+    matching2 = mock(IssuePattern.class);
     when(matching2.matchResource(path)).thenReturn(true);
-    notMatching = mock(Pattern.class);
+    notMatching = mock(IssuePattern.class);
     when(notMatching.matchResource(path)).thenReturn(false);
 
     patternsInitializer.initPatterns();

@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.plugins.core.issue.ignore.pattern.Pattern;
+import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternDecoder;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
 
@@ -48,7 +48,7 @@ public class IgnoreIssuesFilterTest {
   @Before
   public void init() {
     patternsInitializer = mock(PatternsInitializer.class);
-    when(patternsInitializer.getMulticriteriaPatterns()).thenReturn(Collections.<Pattern> emptyList());
+    when(patternsInitializer.getMulticriteriaPatterns()).thenReturn(Collections.<IssuePattern> emptyList());
 
     filter = new IgnoreIssuesFilter(patternsInitializer);
   }
@@ -98,7 +98,7 @@ public class IgnoreIssuesFilterTest {
     return mockIssue;
   }
 
-  private List<Pattern> createPatterns(String line) {
+  private List<IssuePattern> createPatterns(String line) {
     return new PatternDecoder().decode(line);
   }
 }

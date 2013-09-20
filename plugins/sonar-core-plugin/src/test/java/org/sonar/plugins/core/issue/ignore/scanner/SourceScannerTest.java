@@ -32,7 +32,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.SonarException;
-import org.sonar.plugins.core.issue.ignore.pattern.Pattern;
+import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
 
 import java.io.File;
@@ -196,7 +196,7 @@ public class SourceScannerTest {
 
     when(project.getLanguageKey()).thenReturn("php");
     when(fileSystem.files(Mockito.isA(FileQuery.class))).thenReturn(Arrays.asList(sourceFile));
-    List<Pattern> empty = ImmutableList.of();
+    List<IssuePattern> empty = ImmutableList.of();
     when(patternsInitializer.getPatternsForComponent("Foo.php")).thenReturn(empty);
     doThrow(new IOException("BUG")).when(regexpScanner).scan("polop:Foo.php", sourceFile, UTF_8);
 

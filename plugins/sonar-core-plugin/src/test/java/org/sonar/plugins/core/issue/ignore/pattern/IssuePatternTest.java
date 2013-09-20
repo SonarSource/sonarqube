@@ -20,21 +20,20 @@
 
 package org.sonar.plugins.core.issue.ignore.pattern;
 
-import org.junit.Ignore;
-
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PatternTest {
+public class IssuePatternTest {
 
   @Test
   public void shouldMatchLines() {
-    Pattern pattern = new Pattern("*", "*");
+    IssuePattern pattern = new IssuePattern("*", "*");
     pattern.addLine(12).addLine(15).addLineRange(20, 25);
 
     assertThat(pattern.matchLine(3)).isFalse();
@@ -47,31 +46,31 @@ public class PatternTest {
   @Test
   public void shouldMatchJavaFile() {
     String javaFile = "org.foo.Bar";
-    assertThat(new Pattern("org.foo.Bar", "*").matchResource(javaFile)).isTrue();
-    assertThat(new Pattern("org.foo.*", "*").matchResource(javaFile)).isTrue();
-    assertThat(new Pattern("*Bar", "*").matchResource(javaFile)).isTrue();
-    assertThat(new Pattern("*", "*").matchResource(javaFile)).isTrue();
-    assertThat(new Pattern("org.*.?ar", "*").matchResource(javaFile)).isTrue();
+    assertThat(new IssuePattern("org.foo.Bar", "*").matchResource(javaFile)).isTrue();
+    assertThat(new IssuePattern("org.foo.*", "*").matchResource(javaFile)).isTrue();
+    assertThat(new IssuePattern("*Bar", "*").matchResource(javaFile)).isTrue();
+    assertThat(new IssuePattern("*", "*").matchResource(javaFile)).isTrue();
+    assertThat(new IssuePattern("org.*.?ar", "*").matchResource(javaFile)).isTrue();
 
-    assertThat(new Pattern("org.other.Hello", "*").matchResource(javaFile)).isFalse();
-    assertThat(new Pattern("org.foo.Hello", "*").matchResource(javaFile)).isFalse();
-    assertThat(new Pattern("org.*.??ar", "*").matchResource(javaFile)).isFalse();
-    assertThat(new Pattern("org.*.??ar", "*").matchResource(null)).isFalse();
-    assertThat(new Pattern("org.*.??ar", "*").matchResource("plop")).isFalse();
+    assertThat(new IssuePattern("org.other.Hello", "*").matchResource(javaFile)).isFalse();
+    assertThat(new IssuePattern("org.foo.Hello", "*").matchResource(javaFile)).isFalse();
+    assertThat(new IssuePattern("org.*.??ar", "*").matchResource(javaFile)).isFalse();
+    assertThat(new IssuePattern("org.*.??ar", "*").matchResource(null)).isFalse();
+    assertThat(new IssuePattern("org.*.??ar", "*").matchResource("plop")).isFalse();
   }
 
   @Test
   public void shouldMatchRule() {
     RuleKey rule = Rule.create("checkstyle", "IllegalRegexp", "").ruleKey();
-    assertThat(new Pattern("*", "*").matchRule(rule)).isTrue();
-    assertThat(new Pattern("*", "checkstyle:*").matchRule(rule)).isTrue();
-    assertThat(new Pattern("*", "checkstyle:IllegalRegexp").matchRule(rule)).isTrue();
-    assertThat(new Pattern("*", "checkstyle:Illegal*").matchRule(rule)).isTrue();
-    assertThat(new Pattern("*", "*:*Illegal*").matchRule(rule)).isTrue();
+    assertThat(new IssuePattern("*", "*").matchRule(rule)).isTrue();
+    assertThat(new IssuePattern("*", "checkstyle:*").matchRule(rule)).isTrue();
+    assertThat(new IssuePattern("*", "checkstyle:IllegalRegexp").matchRule(rule)).isTrue();
+    assertThat(new IssuePattern("*", "checkstyle:Illegal*").matchRule(rule)).isTrue();
+    assertThat(new IssuePattern("*", "*:*Illegal*").matchRule(rule)).isTrue();
 
-    assertThat(new Pattern("*", "pmd:IllegalRegexp").matchRule(rule)).isFalse();
-    assertThat(new Pattern("*", "pmd:*").matchRule(rule)).isFalse();
-    assertThat(new Pattern("*", "*:Foo*IllegalRegexp").matchRule(rule)).isFalse();
+    assertThat(new IssuePattern("*", "pmd:IllegalRegexp").matchRule(rule)).isFalse();
+    assertThat(new IssuePattern("*", "pmd:*").matchRule(rule)).isFalse();
+    assertThat(new IssuePattern("*", "*:Foo*IllegalRegexp").matchRule(rule)).isFalse();
   }
 
   @Test
@@ -79,7 +78,7 @@ public class PatternTest {
     Rule rule = Rule.create("checkstyle", "IllegalRegexp", "");
     String javaFile = "org.foo.Bar";
 
-    Pattern pattern = new Pattern("*", "*");
+    IssuePattern pattern = new IssuePattern("*", "*");
     pattern.addLine(12);
 
     assertThat(pattern.match(create(rule, javaFile, null))).isFalse();
@@ -103,13 +102,13 @@ public class PatternTest {
 
   @Test
   public void shouldNotMatchNullRule() {
-    assertThat(new Pattern("*", "*").matchRule(null)).isFalse();
+    assertThat(new IssuePattern("*", "*").matchRule(null)).isFalse();
   }
 
   @Test
   public void shouldPrintPatternToString() {
-    Pattern pattern = new Pattern("*", "checkstyle:*");
+    IssuePattern pattern = new IssuePattern("*", "checkstyle:*");
 
-    assertThat(pattern.toString()).isEqualTo("Pattern[resourcePattern=*,rulePattern=checkstyle:*,lines=[],lineRanges=[],beginBlockRegexp=<null>,endBlockRegexp=<null>,allFileRegexp=<null>,checkLines=true]");
+    assertThat(pattern.toString()).isEqualTo("IssuePattern[resourcePattern=*,rulePattern=checkstyle:*,lines=[],lineRanges=[],beginBlockRegexp=<null>,endBlockRegexp=<null>,allFileRegexp=<null>,checkLines=true]");
   }
 }

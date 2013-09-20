@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.plugins.core.issue.ignore.pattern.LineRange;
-import org.sonar.plugins.core.issue.ignore.pattern.Pattern;
+import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
 import org.sonar.test.TestUtils;
 
@@ -48,11 +48,11 @@ public class RegexpScannerTest {
   @Mock
   private PatternsInitializer patternsInitializer;
   @Mock
-  private Pattern allFilePattern;
+  private IssuePattern allFilePattern;
   @Mock
-  private Pattern blockPattern1;
+  private IssuePattern blockPattern1;
   @Mock
-  private Pattern blockPattern2;
+  private IssuePattern blockPattern2;
 
   @Before
   public void init() {

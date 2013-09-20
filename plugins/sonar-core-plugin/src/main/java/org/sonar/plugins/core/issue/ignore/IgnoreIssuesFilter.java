@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFilter;
-import org.sonar.plugins.core.issue.ignore.pattern.Pattern;
+import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
 
 import java.util.List;
@@ -40,8 +40,8 @@ public final class IgnoreIssuesFilter implements IssueFilter {
   }
 
   public boolean accept(Issue issue) {
-    List<Pattern> patterns = patternsInitializer.getPatternsForComponent(issue.componentKey());
-    for (Pattern pattern : patterns) {
+    List<IssuePattern> patterns = patternsInitializer.getPatternsForComponent(issue.componentKey());
+    for (IssuePattern pattern : patterns) {
       if (pattern.match(issue)) {
         logExclusion(issue, pattern);
         return false;
@@ -50,7 +50,7 @@ public final class IgnoreIssuesFilter implements IssueFilter {
     return true;
   }
 
-  private void logExclusion(Issue issue, Pattern pattern) {
+  private void logExclusion(Issue issue, IssuePattern pattern) {
     LOG.debug("Issue {} ignored by {}", issue, pattern);
   }
 

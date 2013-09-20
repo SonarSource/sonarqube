@@ -33,11 +33,11 @@ public class PatternDecoder {
   private static final String LINE_RANGE_REGEXP = "\\[((\\d+|\\d+-\\d+),?)*\\]";
   private static final String CONFIG_FORMAT_ERROR_PREFIX = "Exclusions > Issues : Invalid format. ";
 
-  public List<Pattern> decode(String patternsList) {
-    List<Pattern> patterns = Lists.newLinkedList();
+  public List<IssuePattern> decode(String patternsList) {
+    List<IssuePattern> patterns = Lists.newLinkedList();
     String[] patternsLines = StringUtils.split(patternsList, "\n");
     for (String patternLine : patternsLines) {
-      Pattern pattern = decodeLine(patternLine.trim());
+      IssuePattern pattern = decodeLine(patternLine.trim());
       if (pattern != null) {
         patterns.add(pattern);
       }
@@ -48,7 +48,7 @@ public class PatternDecoder {
   /**
    * Main method that decodes a line which defines a pattern
    */
-  public Pattern decodeLine(String line) {
+  public IssuePattern decodeLine(String line) {
     if (isBlankOrComment(line)) {
       return null;
     }
@@ -58,17 +58,17 @@ public class PatternDecoder {
       throw new SonarException(CONFIG_FORMAT_ERROR_PREFIX + "The following line has more than 3 fields separated by comma: " + line);
     }
 
-    Pattern pattern;
+    IssuePattern pattern;
     if (fields.length == THREE_FIELDS_PER_LINE) {
       checkRegularLineConstraints(line, fields);
-      pattern = new Pattern(StringUtils.trim(fields[0]), StringUtils.trim(fields[1]));
+      pattern = new IssuePattern(StringUtils.trim(fields[0]), StringUtils.trim(fields[1]));
       decodeRangeOfLines(pattern, fields[2]);
     } else if (fields.length == 2) {
       checkDoubleRegexpLineConstraints(line, fields);
-      pattern = new Pattern().setBeginBlockRegexp(fields[0]).setEndBlockRegexp(fields[1]);
+      pattern = new IssuePattern().setBeginBlockRegexp(fields[0]).setEndBlockRegexp(fields[1]);
     } else {
       checkWholeFileRegexp(fields[0]);
-      pattern = new Pattern().setAllFileRegexp(fields[0]);
+      pattern = new IssuePattern().setAllFileRegexp(fields[0]);
     }
 
     return pattern;
@@ -99,7 +99,7 @@ public class PatternDecoder {
     }
   }
 
-  public static void decodeRangeOfLines(Pattern pattern, String field) {
+  public static void decodeRangeOfLines(IssuePattern pattern, String field) {
     if (StringUtils.equals(field, "*")) {
       pattern.setCheckLines(false);
     } else {

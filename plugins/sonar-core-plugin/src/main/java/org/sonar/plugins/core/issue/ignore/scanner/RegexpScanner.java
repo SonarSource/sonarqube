@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.plugins.core.issue.ignore.pattern.LineRange;
-import org.sonar.plugins.core.issue.ignore.pattern.Pattern;
+import org.sonar.plugins.core.issue.ignore.pattern.IssuePattern;
 import org.sonar.plugins.core.issue.ignore.pattern.PatternsInitializer;
 
 import java.io.File;
@@ -59,10 +59,10 @@ public class RegexpScanner implements BatchExtension {
     allFilePatterns = Lists.newArrayList();
     blockMatchers = Lists.newArrayList();
 
-    for (Pattern pattern : this.patternsInitializer.getAllFilePatterns()) {
+    for (IssuePattern pattern : this.patternsInitializer.getAllFilePatterns()) {
       allFilePatterns.add(java.util.regex.Pattern.compile(pattern.getAllFileRegexp()));
     }
-    for (Pattern pattern : this.patternsInitializer.getBlockPatterns()) {
+    for (IssuePattern pattern : this.patternsInitializer.getBlockPatterns()) {
       blockMatchers.add(new DoubleRegexpMatcher(
           java.util.regex.Pattern.compile(pattern.getBeginBlockRegexp()),
           java.util.regex.Pattern.compile(pattern.getEndBlockRegexp())));

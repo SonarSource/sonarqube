@@ -49,7 +49,7 @@ public class PatternDecoderTest {
       "*;checkstyle:IllegalRegexp;*\n\n" +
       "# exclude a specific rule on a specific file\n" +
       "com.foo.Bar;checkstyle:IllegalRegexp;*\n";
-    List<Pattern> patterns = decoder.decode(patternsList);
+    List<IssuePattern> patterns = decoder.decode(patternsList);
 
     assertThat(patterns).hasSize(5);
   }
@@ -86,7 +86,7 @@ public class PatternDecoderTest {
 
   @Test
   public void shouldReadStarPatterns() {
-    Pattern pattern = decoder.decodeLine("*;*;*");
+    IssuePattern pattern = decoder.decodeLine("*;*;*");
 
     assertThat(pattern.getResourcePattern().toString()).isEqualTo("*");
     assertThat(pattern.getRulePattern().toString()).isEqualTo("*");
@@ -95,7 +95,7 @@ public class PatternDecoderTest {
 
   @Test
   public void shouldReadLineIds() {
-    Pattern pattern = decoder.decodeLine("*;*;[10,25,98]");
+    IssuePattern pattern = decoder.decodeLine("*;*;[10,25,98]");
 
     assertThat(pattern.isCheckLines()).isTrue();
     assertThat(pattern.getAllLines()).containsOnly(10, 25, 98);
@@ -103,7 +103,7 @@ public class PatternDecoderTest {
 
   @Test
   public void shouldReadRangeOfLineIds() {
-    Pattern pattern = decoder.decodeLine("*;*;[10-12,25,97-100]");
+    IssuePattern pattern = decoder.decodeLine("*;*;[10-12,25,97-100]");
 
     assertThat(pattern.isCheckLines()).isTrue();
     assertThat(pattern.getAllLines()).containsOnly(10, 11, 12, 25, 97, 98, 99, 100);
@@ -114,7 +114,7 @@ public class PatternDecoderTest {
     // [] is different than *
     // - all violations are excluded on *
     // * no violations are excluded on []
-    Pattern pattern = decoder.decodeLine("*;*;[]");
+    IssuePattern pattern = decoder.decodeLine("*;*;[]");
 
     assertThat(pattern.isCheckLines()).isTrue();
     assertThat(pattern.getAllLines()).isEmpty();
@@ -122,7 +122,7 @@ public class PatternDecoderTest {
 
   @Test
   public void shouldReadBlockPattern() {
-    Pattern pattern = decoder.decodeLine("SONAR-OFF;SONAR-ON");
+    IssuePattern pattern = decoder.decodeLine("SONAR-OFF;SONAR-ON");
 
     assertThat(pattern.getResourcePattern()).isNull();
     assertThat(pattern.getBeginBlockRegexp()).isEqualTo("SONAR-OFF");
@@ -131,7 +131,7 @@ public class PatternDecoderTest {
 
   @Test
   public void shouldReadAllFilePattern() {
-    Pattern pattern = decoder.decodeLine("SONAR-ALL-OFF");
+    IssuePattern pattern = decoder.decodeLine("SONAR-ALL-OFF");
 
     assertThat(pattern.getResourcePattern()).isNull();
     assertThat(pattern.getAllFileRegexp()).isEqualTo("SONAR-ALL-OFF");
@@ -179,7 +179,7 @@ public class PatternDecoderTest {
 
   @Test
   public void shouldAcceptEmptyEndBlockRegexp() {
-    Pattern pattern = decoder.decodeLine("OFF;");
+    IssuePattern pattern = decoder.decodeLine("OFF;");
 
     assertThat(pattern.getResourcePattern()).isNull();
     assertThat(pattern.getBeginBlockRegexp()).isEqualTo("OFF");

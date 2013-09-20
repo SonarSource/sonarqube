@@ -40,25 +40,25 @@ public class PatternsInitializer implements BatchExtension {
 
   private final Settings settings;
 
-  private List<Pattern> multicriteriaPatterns;
-  private List<Pattern> blockPatterns;
-  private List<Pattern> allFilePatterns;
-  private Map<String, List<Pattern>> patternByComponent = Maps.newHashMap();
+  private List<IssuePattern> multicriteriaPatterns;
+  private List<IssuePattern> blockPatterns;
+  private List<IssuePattern> allFilePatterns;
+  private Map<String, List<IssuePattern>> patternByComponent = Maps.newHashMap();
 
   public PatternsInitializer(Settings settings) {
     this.settings = settings;
     initPatterns();
   }
 
-  public List<Pattern> getMulticriteriaPatterns() {
+  public List<IssuePattern> getMulticriteriaPatterns() {
     return multicriteriaPatterns;
   }
 
-  public List<Pattern> getBlockPatterns() {
+  public List<IssuePattern> getBlockPatterns() {
     return blockPatterns;
   }
 
-  public List<Pattern> getAllFilePatterns() {
+  public List<IssuePattern> getAllFilePatterns() {
     return allFilePatterns;
   }
 
@@ -93,7 +93,7 @@ public class PatternsInitializer implements BatchExtension {
       String lineRange = settings.getString(propPrefix + IgnoreIssuesConfiguration.LINE_RANGE_KEY);
       String[] fields = new String[] { resourceKeyPattern, ruleKeyPattern, lineRange };
       PatternDecoder.checkRegularLineConstraints(StringUtils.join(fields, ","), fields);
-      Pattern pattern = new Pattern(firstNonNull(resourceKeyPattern, "*"), firstNonNull(ruleKeyPattern, "*"));
+      IssuePattern pattern = new IssuePattern(firstNonNull(resourceKeyPattern, "*"), firstNonNull(ruleKeyPattern, "*"));
       PatternDecoder.decodeRangeOfLines(pattern, firstNonNull(lineRange, "*"));
       multicriteriaPatterns.add(pattern);
     }
@@ -106,7 +106,7 @@ public class PatternsInitializer implements BatchExtension {
       String endBlockRegexp = settings.getString(propPrefix + IgnoreIssuesConfiguration.END_BLOCK_REGEXP);
       String[] fields = new String[] { beginBlockRegexp, endBlockRegexp };
       PatternDecoder.checkDoubleRegexpLineConstraints(StringUtils.join(fields, ","), fields);
-      Pattern pattern = new Pattern().setBeginBlockRegexp(nullToEmpty(beginBlockRegexp)).setEndBlockRegexp(nullToEmpty(endBlockRegexp));
+      IssuePattern pattern = new IssuePattern().setBeginBlockRegexp(nullToEmpty(beginBlockRegexp)).setEndBlockRegexp(nullToEmpty(endBlockRegexp));
       blockPatterns.add(pattern);
     }
 
@@ -116,28 +116,28 @@ public class PatternsInitializer implements BatchExtension {
       String propPrefix = IgnoreIssuesConfiguration.PATTERNS_ALLFILE_KEY + "." + id + ".";
       String allFileRegexp = settings.getString(propPrefix + IgnoreIssuesConfiguration.FILE_REGEXP);
       PatternDecoder.checkWholeFileRegexp(allFileRegexp);
-      Pattern pattern = new Pattern().setAllFileRegexp(nullToEmpty(allFileRegexp));
+      IssuePattern pattern = new IssuePattern().setAllFileRegexp(nullToEmpty(allFileRegexp));
       allFilePatterns.add(pattern);
     }
   }
 
   public void addPatternToExcludeResource(String resource) {
-    addPatternForComponent(resource, new Pattern(resource, "*").setCheckLines(false));
+    addPatternForComponent(resource, new IssuePattern(resource, "*").setCheckLines(false));
   }
 
   public void addPatternToExcludeLines(String resource, Set<LineRange> lineRanges) {
-    addPatternForComponent(resource, new Pattern(resource, "*", lineRanges).setCheckLines(true));
+    addPatternForComponent(resource, new IssuePattern(resource, "*", lineRanges).setCheckLines(true));
   }
 
   public void configurePatternsForComponent(String componentKey, String path) {
-    for (Pattern pattern: multicriteriaPatterns) {
+    for (IssuePattern pattern: multicriteriaPatterns) {
       if (pattern.matchResource(path)) {
         addPatternForComponent(componentKey, pattern);
       }
     }
   }
 
-  public List<Pattern> getPatternsForComponent(String componentKey) {
+  public List<IssuePattern> getPatternsForComponent(String componentKey) {
     if (patternByComponent.containsKey(componentKey)) {
       return patternByComponent.get(componentKey);
     } else {
@@ -145,9 +145,9 @@ public class PatternsInitializer implements BatchExtension {
     }
   }
 
-  private void addPatternForComponent(String component, Pattern pattern) {
+  private void addPatternForComponent(String component, IssuePattern pattern) {
     if (!patternByComponent.containsKey(component)) {
-      List<Pattern> newList = Lists.newArrayList();
+      List<IssuePattern> newList = Lists.newArrayList();
       patternByComponent.put(component, newList);
     }
     patternByComponent.get(component).add(pattern.forResource(component));

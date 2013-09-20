@@ -29,7 +29,7 @@ import org.sonar.api.utils.WildcardPattern;
 
 import java.util.Set;
 
-public class Pattern {
+public class IssuePattern {
 
   private WildcardPattern resourcePattern;
   private WildcardPattern rulePattern;
@@ -40,15 +40,15 @@ public class Pattern {
   private String allFileRegexp;
   private boolean checkLines = true;
 
-  public Pattern() {
+  public IssuePattern() {
   }
 
-  public Pattern(String resourcePattern, String rulePattern) {
+  public IssuePattern(String resourcePattern, String rulePattern) {
     this.resourcePattern = WildcardPattern.create(resourcePattern);
     this.rulePattern = WildcardPattern.create(rulePattern);
   }
 
-  public Pattern(String resourcePattern, String rulePattern, Set<LineRange> lineRanges) {
+  public IssuePattern(String resourcePattern, String rulePattern, Set<LineRange> lineRanges) {
     this(resourcePattern, rulePattern);
     this.lineRanges = lineRanges;
   }
@@ -73,12 +73,12 @@ public class Pattern {
     return allFileRegexp;
   }
 
-  Pattern addLineRange(int fromLineId, int toLineId) {
+  IssuePattern addLineRange(int fromLineId, int toLineId) {
     lineRanges.add(new LineRange(fromLineId, toLineId));
     return this;
   }
 
-  Pattern addLine(int lineId) {
+  IssuePattern addLine(int lineId) {
     lines.add(lineId);
     return this;
   }
@@ -87,22 +87,22 @@ public class Pattern {
     return checkLines;
   }
 
-  Pattern setCheckLines(boolean b) {
+  IssuePattern setCheckLines(boolean b) {
     this.checkLines = b;
     return this;
   }
 
-  Pattern setBeginBlockRegexp(String beginBlockRegexp) {
+  IssuePattern setBeginBlockRegexp(String beginBlockRegexp) {
     this.beginBlockRegexp = beginBlockRegexp;
     return this;
   }
 
-  Pattern setEndBlockRegexp(String endBlockRegexp) {
+  IssuePattern setEndBlockRegexp(String endBlockRegexp) {
     this.endBlockRegexp = endBlockRegexp;
     return this;
   }
 
-  Pattern setAllFileRegexp(String allFileRegexp) {
+  IssuePattern setAllFileRegexp(String allFileRegexp) {
     this.allFileRegexp = allFileRegexp;
     return this;
   }
@@ -156,8 +156,8 @@ public class Pattern {
     return resource != null && resourcePattern.match(resource);
   }
 
-  public Pattern forResource(String resource) {
-    return new Pattern(resource, rulePattern.toString(), lineRanges).setCheckLines(isCheckLines());
+  public IssuePattern forResource(String resource) {
+    return new IssuePattern(resource, rulePattern.toString(), lineRanges).setCheckLines(isCheckLines());
   }
 
   @Override
