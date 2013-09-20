@@ -38,10 +38,16 @@
            included_to_line = from_line + ResourceHelper::DUPLICATION_SNIPPET_DEFAULT_NB_OF_LINES - 1
          end
       %>
-      <%= link_to_remote link_text,
-                         :url => {:action => :show_duplication_snippet, :params => {:id => resource.id, :original_resource_id => original_resource.id, :from_line => from_line, :to_line => included_to_line, :lines_count => lines_count, :group_index => group_index}},
-                         :update => "source-#{group_index}",
-                         :before => "$('expanding-#{group_index}').addClassName('loading')" -%>
+        <a 	onclick="
+        $j('#expanding<%= group_index -%>').addClass('loading');
+          $j.ajax({
+            url:'<%= url_for (:action => :show_duplication_snippet, :params => {:id => 	resource.id, :original_resource_id => original_resource.id, :from_line => from_line, :to_line => included_to_line, :lines_count => lines_count, :group_index => group_index}) -%>',
+            type:'post',
+            success:function(response){$j('#source-<%= group_index -%>').html(response);},
+            complete:function(response){$j('#expanding-<%= group_index -%>').removeClass('loading');}});
+          return false;"
+            href="#">
+            <%= link_text -%></a>
       <span id="expanding-<%= group_index -%>"></span>
     </p>
   <% end %>
