@@ -138,7 +138,7 @@ class ViolationConverter implements Callable<Object> {
     //   -- delete violations
 
     Long[] violationIds = referentials.pollGroupOfViolationIds();
-    while (violationIds != null) {
+    while (violationIds.length>0) {
       List<Map<String, Object>> rows = selectRows(violationIds);
       convert(rows, violationIds);
 

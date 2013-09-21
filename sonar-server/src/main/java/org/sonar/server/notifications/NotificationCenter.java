@@ -89,10 +89,8 @@ public class NotificationCenter implements ServerComponent {
     for (NotificationDispatcherMetadata metadata : dispatchersMetadata) {
       String dispatcherKey = metadata.getDispatcherKey();
       String value = metadata.getProperty(propertyKey);
-      if (value != null) {
-        if (propertyValue == null || value.equals(propertyValue)) {
+      if (value != null && (propertyValue == null || value.equals(propertyValue))) {
           keys.add(dispatcherKey);
-        }
       }
     }
     return keys;

@@ -19,11 +19,15 @@
  */
 package org.sonar.server.db.migrations;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.server.db.migrations.violation.ViolationMigration;
+
+import java.util.List;
 
 public interface DatabaseMigrations {
 
-  Class<? extends DatabaseMigration>[] CLASSES = new Class[]{
+  List<Class<? extends DatabaseMigration>> CLASSES = ImmutableList.<Class<? extends DatabaseMigration>>of(
     ViolationMigration.class
-  };
+  );
+
 }

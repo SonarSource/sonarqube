@@ -133,13 +133,13 @@ public final class TestUtils {
     assertThat(file.exists(), is(true));
   }
 
-  public static void assertSimilarXml(String expectedXml, String xml) throws IOException, SAXException {
+  public static void assertSimilarXml(String expectedXml, String xml) throws Exception {
     Diff diff = isSimilarXml(expectedXml, xml);
     String message = "Diff: " + diff.toString() + CharUtils.LF + "XML: " + xml;
     assertTrue(message, diff.similar());
   }
 
-  static Diff isSimilarXml(String expectedXml, String xml) throws IOException, SAXException {
+  static Diff isSimilarXml(String expectedXml, String xml) throws Exception {
     XMLUnit.setIgnoreWhitespace(true);
     return XMLUnit.compareXML(xml, expectedXml);
   }

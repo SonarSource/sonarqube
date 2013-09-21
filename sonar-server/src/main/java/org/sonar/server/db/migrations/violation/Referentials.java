@@ -70,15 +70,14 @@ class Referentials {
     return totalViolations;
   }
 
-  @CheckForNull
   Long[] pollGroupOfViolationIds() {
     long[] longs = groupsOfViolationIds.poll();
     if (longs == null) {
-      return null;
+      return new Long[0];
     }
     Long[] objects = new Long[longs.length];
     for (int i = 0; i < longs.length; i++) {
-      objects[i] = new Long(longs[i]);
+      objects[i] = Long.valueOf(longs[i]);
     }
     return objects;
   }
@@ -103,10 +102,10 @@ class Referentials {
 
   private Queue<long[]> initGroupOfViolationIds(Database database) throws SQLException {
     Connection connection = database.getDataSource().getConnection();
-    connection.setAutoCommit(false);
     Statement stmt = null;
     ResultSet rs = null;
     try {
+      connection.setAutoCommit(false);
       stmt = connection.createStatement();
       stmt.setFetchSize(10000);
       rs = stmt.executeQuery("select id from rule_failures");
