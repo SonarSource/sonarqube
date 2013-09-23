@@ -29,7 +29,16 @@
     <%= message('no_results') -%>
   <% else %>
 
-    <% form_remote_tag( :url => {:action => 'delete_resources'}, :loading => "window.location='#{url_for :action => 'pending_deletions', :qualifiers => @selected_tab}';") do %>
+      <form 	onsubmit="
+                $j.ajax({
+                  url:'<%= url_for(:action => 'delete_resources') -%>',
+                  beforeSend:function(request){window.location='<%= url_for (:action => 'pending_deletions', :qualifiers => @selected_tab)-%>';},
+                  data: $j(this).serialize(),
+                  type:'post'
+                  });
+                  return false;"
+            method="post" 
+            action="<%= url_for(:action => 'delete_resources') -%>">
       <table class="data" id="resources-to-delete">
         <thead>
           <tr>
@@ -70,7 +79,7 @@
             }
         %>
       </table>
-    <% end %>
+    </form>
 
     <script>
       function checkBeforeDeleting() {
