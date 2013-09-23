@@ -28,7 +28,7 @@ class Api::PermissionsController < Api::ApiController
   #
   # -- Mandatory parameters
   # 'permission' is the key of the permission to add.
-  #   For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan.
+  #   For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan, provisioning.
   #   For component permissions, available values are : user, codeviewer, admin.
   # 'user' is the user identifier (login)
   # OR
@@ -45,7 +45,7 @@ class Api::PermissionsController < Api::ApiController
   # Requests that attempt to add an already configured permission will be silently ignored
   #
   # since 3.7
-  # 'component' parameter has been added in 4.0
+  # 'component' parameter and 'provisioning' permission have been added in 4.0
   #
   def add
     verify_post_request
@@ -64,7 +64,7 @@ class Api::PermissionsController < Api::ApiController
   #
   # -- Mandatory parameters
   # 'permission' is the key of the permission to add.
-  #   For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan.
+  #   For global permissions, available values are : admin, profileadmin, shareDashboard, scan, dryRunScan, provisioning.
   #   For component permissions, available values are : user, codeviewer, admin.
   # 'user' is the user identifier (login)
   # OR
@@ -81,7 +81,7 @@ class Api::PermissionsController < Api::ApiController
   # Requests that attempt to remove a non-existing permission will be silently ignored
   #
   # since 3.7
-  # 'component' parameter has been added in 4.0
+  # 'component' parameter and 'provisioning' permission have been added in 4.0
   #
   def remove
     verify_post_request

@@ -78,7 +78,7 @@ public class InternalPermissionServiceTest {
   public void return_global_permissions()  {
     assertThat(service.globalPermissions()).containsOnly(
       GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN, GlobalPermissions.DASHBOARD_SHARING,
-      GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+      GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PROVISIONING);
   }
 
   @Test

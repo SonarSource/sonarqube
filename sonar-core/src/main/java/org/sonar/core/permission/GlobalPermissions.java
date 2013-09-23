@@ -35,10 +35,11 @@ public final class GlobalPermissions {
   public static final String DASHBOARD_SHARING = "shareDashboard";
   public static final String SCAN_EXECUTION = "scan";
   public static final String DRY_RUN_EXECUTION = "dryRunScan";
+  public static final String PROVISIONING = "provisioning";
 
   /**
-   * All the global permissions values, ordered from {@link #SYSTEM_ADMIN} to {@link #DRY_RUN_EXECUTION}.
+   * All the global permissions values, ordered from {@link #SYSTEM_ADMIN} to {@link #PROVISIONING}.
    */
-  public static final List<String> ALL = ImmutableList.of(SYSTEM_ADMIN, QUALITY_PROFILE_ADMIN, DASHBOARD_SHARING, SCAN_EXECUTION, DRY_RUN_EXECUTION);
+  public static final List<String> ALL = ImmutableList.of(SYSTEM_ADMIN, QUALITY_PROFILE_ADMIN, DASHBOARD_SHARING, SCAN_EXECUTION, DRY_RUN_EXECUTION, PROVISIONING);
 
 }
