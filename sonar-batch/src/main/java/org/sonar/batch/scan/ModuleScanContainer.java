@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.core.measure.MeasurementFilters;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -31,7 +29,13 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.batch.*;
+import org.sonar.batch.DefaultProjectClasspath;
+import org.sonar.batch.DefaultSensorContext;
+import org.sonar.batch.DefaultTimeMachine;
+import org.sonar.batch.ProfileProvider;
+import org.sonar.batch.ProjectTree;
+import org.sonar.batch.ResourceFilters;
+import org.sonar.batch.ViolationFilters;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
@@ -42,11 +46,16 @@ import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.IssuableFactory;
 import org.sonar.batch.issue.IssueFilters;
-import org.sonar.batch.issue.DefaultModuleIssues;
+import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
-import org.sonar.batch.scan.filesystem.*;
+import org.sonar.batch.scan.filesystem.DeprecatedFileSystemAdapter;
+import org.sonar.batch.scan.filesystem.ExclusionFilters;
+import org.sonar.batch.scan.filesystem.FileSystemLogger;
+import org.sonar.batch.scan.filesystem.LanguageFilters;
+import org.sonar.batch.scan.filesystem.ModuleFileSystemProvider;
 import org.sonar.core.component.ScanPerspectives;
+import org.sonar.core.measure.MeasurementFilters;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
@@ -113,11 +122,10 @@ public class ModuleScanContainer extends ComponentContainer {
       new ProfileProvider(),
 
       // issues
-      DefaultModuleIssues.class,
       IssuableFactory.class,
+      ModuleIssues.class,
 
-      ScanPerspectives.class
-    );
+      ScanPerspectives.class);
   }
 
   private void addExtensions() {
@@ -140,7 +148,7 @@ public class ModuleScanContainer extends ComponentContainer {
     DefaultIndex index = getComponentByType(DefaultIndex.class);
     index.setCurrentProject(module,
       getComponentByType(ResourceFilters.class),
-      getComponentByType(DefaultModuleIssues.class));
+      getComponentByType(ModuleIssues.class));
 
     getComponentByType(PhaseExecutor.class).execute(module);
   }

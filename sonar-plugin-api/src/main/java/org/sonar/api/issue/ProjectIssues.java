@@ -20,22 +20,28 @@
 package org.sonar.api.issue;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.PostJob;
+
+import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
 
 /**
- * Used by batch components to get the issues of the current module. It does not allow
- * to get issues of all project modules.
+ * Used by batch components to get the issues of the project. You have to wait for all
+ * issues to have been computed (for example in a {@link PostJob}) to be sure all issues have
+ * been computed.
  *
  * @since 4.0
  */
-public interface ModuleIssues extends BatchComponent {
+@InstantiationStrategy(PER_BATCH)
+public interface ProjectIssues extends BatchComponent {
 
   /**
-   * All the unresolved issues of the current module, including the issues reported by end-users.
+   * All the unresolved issues of the project, including the issues reported by end-users.
    */
   Iterable<Issue> issues();
 
   /**
-   * All the issues of this module that have been marked as resolved during this scan
+   * All the issues of this project that have been marked as resolved during this scan
    */
   Iterable<Issue> resolvedIssues();
 }

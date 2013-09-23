@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 
 public class DefaultIssuableTest {
 
-  DefaultModuleIssues moduleIssues = mock(DefaultModuleIssues.class);
+  ModuleIssues moduleIssues = mock(ModuleIssues.class);
   IssueCache cache = mock(IssueCache.class);
   Component component = mock(Component.class);
 

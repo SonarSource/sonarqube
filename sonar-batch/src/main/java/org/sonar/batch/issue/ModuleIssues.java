@@ -19,10 +19,6 @@
  */
 package org.sonar.batch.issue;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.ModuleIssues;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
@@ -36,14 +32,14 @@ import javax.annotation.Nullable;
 /**
  * Initialize the issues raised during scan.
  */
-public class DefaultModuleIssues implements ModuleIssues {
+public class ModuleIssues {
 
   private final RulesProfile qProfile;
   private final IssueCache cache;
   private final Project project;
   private final IssueFilters filters;
 
-  public DefaultModuleIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters) {
+  public ModuleIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters) {
     this.qProfile = qProfile;
     this.cache = cache;
     this.project = project;
@@ -89,35 +85,5 @@ public class DefaultModuleIssues implements ModuleIssues {
       return true;
     }
     return false;
-  }
-
-  @Override
-  public Iterable<Issue> issues() {
-    return (Iterable) Iterables.filter(cache.all(), new ModulePredicate(project, false));
-  }
-
-  @Override
-  public Iterable<Issue> resolvedIssues() {
-    return (Iterable) Iterables.filter(cache.all(), new ModulePredicate(project, true));
-  }
-
-  private static class ModulePredicate implements Predicate<DefaultIssue> {
-    private final boolean resolved;
-    private final String key;
-    private final String keyPrefix;
-
-    private ModulePredicate(Project project, boolean resolved) {
-      this.resolved = resolved;
-      this.key = project.getEffectiveKey();
-      this.keyPrefix = project.getEffectiveKey() + ":";
-    }
-
-    @Override
-    public boolean apply(@Nullable DefaultIssue issue) {
-      if (issue != null && (issue.componentKey().equals(key) || issue.componentKey().startsWith(keyPrefix))) {
-        return resolved ? issue.resolution() != null : issue.resolution()==null;
-      }
-      return false;
-    }
   }
 }

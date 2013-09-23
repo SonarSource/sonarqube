@@ -49,7 +49,7 @@ import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.ResourceFilters;
 import org.sonar.batch.issue.DeprecatedViolations;
-import org.sonar.batch.issue.DefaultModuleIssues;
+import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
 
@@ -82,7 +82,7 @@ public class DefaultIndex extends SonarIndex {
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newHashMap();
   private ProjectTree projectTree;
   private final DeprecatedViolations deprecatedViolations;
-  private DefaultModuleIssues moduleIssues;
+  private ModuleIssues moduleIssues;
 
   public DefaultIndex(PersistenceManager persistence, DefaultResourceCreationLock lock, ProjectTree projectTree, MetricFinder metricFinder,
                       ScanGraph graph, DeprecatedViolations deprecatedViolations) {
@@ -124,7 +124,7 @@ public class DefaultIndex extends SonarIndex {
     return currentProject;
   }
 
-  public void setCurrentProject(Project project, ResourceFilters resourceFilters, DefaultModuleIssues moduleIssues) {
+  public void setCurrentProject(Project project, ResourceFilters resourceFilters, ModuleIssues moduleIssues) {
     this.currentProject = project;
 
     // the following components depend on the current module, so they need to be reloaded.

@@ -52,6 +52,7 @@ import org.sonar.batch.index.MemoryOptimizer;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.IssuePersister;
@@ -143,6 +144,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ScanIssueStorage.class,
       IssuePersister.class,
       IssueNotifications.class,
+      DefaultProjectIssues.class,
 
       // tests
       TestPlanPerspectiveLoader.class,

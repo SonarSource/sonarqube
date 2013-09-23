@@ -33,11 +33,11 @@ import java.util.List;
  */
 public class DefaultIssuable implements Issuable {
 
-  private final DefaultModuleIssues moduleIssues;
+  private final ModuleIssues moduleIssues;
   private final IssueCache cache;
   private final Component component;
 
-  DefaultIssuable(Component component, DefaultModuleIssues moduleIssues, IssueCache cache) {
+  DefaultIssuable(Component component, ModuleIssues moduleIssues, IssueCache cache) {
     this.component = component;
     this.moduleIssues = moduleIssues;
     this.cache = cache;

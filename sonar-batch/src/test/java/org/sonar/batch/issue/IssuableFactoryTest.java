@@ -34,7 +34,7 @@ import static org.mockito.Mockito.mock;
 
 public class IssuableFactoryTest {
 
-  DefaultModuleIssues moduleIssues = mock(DefaultModuleIssues.class);
+  ModuleIssues moduleIssues = mock(ModuleIssues.class);
   IssueCache cache = mock(IssueCache.class, Mockito.RETURNS_MOCKS);
 
   @Test

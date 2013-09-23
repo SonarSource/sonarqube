@@ -33,10 +33,10 @@ import javax.annotation.CheckForNull;
  */
 public class IssuableFactory extends PerspectiveBuilder<Issuable> {
 
-  private final DefaultModuleIssues moduleIssues;
+  private final ModuleIssues moduleIssues;
   private final IssueCache cache;
 
-  public IssuableFactory(DefaultModuleIssues moduleIssues, IssueCache cache) {
+  public IssuableFactory(ModuleIssues moduleIssues, IssueCache cache) {
     super(Issuable.class);
     this.moduleIssues = moduleIssues;
     this.cache = cache;
