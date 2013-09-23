@@ -7,4 +7,7 @@
   <user_roles id="2" user_id="200" role="profileadmin"/>
   <user_roles id="3" user_id="201" role="profileadmin"/>
 
+  <!-- Component permission, it should not be returned with global permissions -->
+  <user_roles id="4" user_id="200" role="admin" resource_id="1"/>
+
 </dataset>

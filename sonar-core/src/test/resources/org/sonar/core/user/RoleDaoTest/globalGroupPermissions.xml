@@ -7,8 +7,12 @@
   <group_roles id="2" group_id="100" role="profileadmin"/>
   <group_roles id="3" group_id="100" role="shareDashboard"/>
   <group_roles id="4" group_id="101" role="shareDashboard"/>
+
   <!-- Group 'anyone' has a NULL group_id -->
   <group_roles id="5" group_id="[null]" role="scan"/>
   <group_roles id="6" group_id="[null]" role="dryRunScan"/>
+
+  <!-- Component permission, it should not be returned with global permissions -->
+  <group_roles id="7" group_id="102" role="admin" resource_id="1"/>
 
 </dataset>

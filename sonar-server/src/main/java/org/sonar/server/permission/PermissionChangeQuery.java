@@ -22,6 +22,7 @@ package org.sonar.server.permission;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
@@ -103,5 +104,10 @@ public class PermissionChangeQuery {
 
   public String permission() {
     return permission;
+  }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this);
   }
 }

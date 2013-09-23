@@ -174,8 +174,8 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     }
   }
 
-  public int countPermissions(Long resourceId) {
-    return roleDao.countGroupRoles(resourceId) + roleDao.countUserRoles(resourceId);
+  public int countComponentsPermissions(Long resourceId) {
+    return roleDao.countResourceGroupRoles(resourceId) + roleDao.countResourceUserRoles(resourceId);
   }
 
   public void removeAllPermissions(Long resourceId, SqlSession session) {

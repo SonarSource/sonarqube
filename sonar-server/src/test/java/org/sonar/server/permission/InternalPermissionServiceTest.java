@@ -84,7 +84,7 @@ public class InternalPermissionServiceTest {
   @Test
   public void add_global_user_permission() throws Exception {
     params = buildPermissionChangeParams("user", null, GlobalPermissions.DASHBOARD_SHARING);
-    setUpUserPermissions("user", GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpGlobalUserPermissions("user", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
 
@@ -97,7 +97,7 @@ public class InternalPermissionServiceTest {
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "user");
-    setUpUserPermissions("user", "codeviewer");
+    setUpComponentUserPermissions("user", 10L, "codeviewer");
 
     service.addPermission(params);
 
@@ -105,9 +105,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void emove_global_user_permission() throws Exception {
+  public void remove_global_user_permission() throws Exception {
     params = buildPermissionChangeParams("user", null, GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    setUpUserPermissions("user", GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpGlobalUserPermissions("user", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.removePermission(params);
 
@@ -120,7 +120,7 @@ public class InternalPermissionServiceTest {
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
-    setUpUserPermissions("user", "codeviewer");
+    setUpComponentUserPermissions("user", 10L, "codeviewer");
 
     service.removePermission(params);
 
@@ -130,7 +130,7 @@ public class InternalPermissionServiceTest {
   @Test
   public void add_global_group_permission() throws Exception {
     params = buildPermissionChangeParams(null, "group", GlobalPermissions.DASHBOARD_SHARING);
-    setUpGroupPermissions("group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpGlobalGroupPermissions("group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
 
@@ -143,7 +143,7 @@ public class InternalPermissionServiceTest {
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "user");
-    setUpGroupPermissions("group", "codeviewer");
+    setUpGlobalGroupPermissions("group", "codeviewer");
 
     service.addPermission(params);
 
@@ -174,7 +174,7 @@ public class InternalPermissionServiceTest {
   @Test
   public void remove_global_group_permission() throws Exception {
     params = buildPermissionChangeParams(null, "group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    setUpGroupPermissions("group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpGlobalGroupPermissions("group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.removePermission(params);
 
@@ -187,7 +187,7 @@ public class InternalPermissionServiceTest {
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
-    setUpGroupPermissions("group", "codeviewer");
+    setUpComponentGroupPermissions("group", 10L, "codeviewer");
 
     service.removePermission(params);
 
@@ -197,7 +197,7 @@ public class InternalPermissionServiceTest {
   @Test
   public void remove_global_permission_from_anyone_group() throws Exception {
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    setUpGroupPermissions(DefaultGroups.ANYONE, GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpGlobalGroupPermissions(DefaultGroups.ANYONE, GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.removePermission(params);
 
@@ -210,7 +210,7 @@ public class InternalPermissionServiceTest {
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "codeviewer");
-    setUpGroupPermissions(DefaultGroups.ANYONE, "codeviewer");
+    setUpComponentGroupPermissions(DefaultGroups.ANYONE, 10L, "codeviewer");
 
     service.removePermission(params);
 
@@ -218,9 +218,9 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void skip_redundant_add_user_permission_change() throws Exception {
+  public void skip_redundant_add_global_user_permission_change() throws Exception {
     params = buildPermissionChangeParams("user", null, GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    setUpUserPermissions("user", GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpGlobalUserPermissions("user", GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.addPermission(params);
 
@@ -228,9 +228,35 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void skip_redundant_add_group_permission_change() throws Exception {
+  public void skip_redundant_add_component_user_permission_change() throws Exception {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+
+    params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
+    setUpComponentUserPermissions("user",  10L, "codeviewer");
+
+    service.addPermission(params);
+
+    verify(permissionFacade, never()).insertUserPermission(anyLong(), anyLong(), anyString());
+  }
+
+  @Test
+  public void skip_redundant_add_global_group_permission_change() throws Exception {
     params = buildPermissionChangeParams(null, "group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    setUpGroupPermissions("group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    setUpGlobalGroupPermissions("group", GlobalPermissions.QUALITY_PROFILE_ADMIN);
+
+    service.addPermission(params);
+
+    verify(permissionFacade, never()).insertGroupPermission(anyLong(), anyLong(), anyString());
+  }
+
+  @Test
+  public void skip_redundant_add_component_group_permission_change() throws Exception {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+
+    params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
+    setUpComponentGroupPermissions("group", 10L, "codeviewer");
 
     service.addPermission(params);
 
@@ -329,11 +355,19 @@ public class InternalPermissionServiceTest {
     return params;
   }
 
-  private void setUpUserPermissions(String login, String... permissions) {
-    when(roleDao.selectUserPermissions(login)).thenReturn(Lists.newArrayList(permissions));
+  private void setUpGlobalUserPermissions(String login, String... permissions) {
+    when(roleDao.selectUserPermissions(login, null)).thenReturn(Lists.newArrayList(permissions));
   }
 
-  private void setUpGroupPermissions(String groupName, String... permissions) {
-    when(roleDao.selectGroupPermissions(groupName)).thenReturn(Lists.newArrayList(permissions));
+  private void setUpGlobalGroupPermissions(String groupName, String... permissions) {
+    when(roleDao.selectGroupPermissions(groupName, null)).thenReturn(Lists.newArrayList(permissions));
+  }
+
+  private void setUpComponentUserPermissions(String login, Long componentId, String... permissions) {
+    when(roleDao.selectUserPermissions(login, componentId)).thenReturn(Lists.newArrayList(permissions));
+  }
+
+  private void setUpComponentGroupPermissions(String groupName, Long componentId, String... permissions) {
+    when(roleDao.selectGroupPermissions(groupName, componentId)).thenReturn(Lists.newArrayList(permissions));
   }
 }

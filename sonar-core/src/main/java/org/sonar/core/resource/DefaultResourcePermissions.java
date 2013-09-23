@@ -55,7 +55,7 @@ public class DefaultResourcePermissions implements ResourcePermissions {
   public boolean hasRoles(Resource resource) {
     if (resource.getId() != null) {
       Long resourceId = Long.valueOf(resource.getId());
-      return permissionFacade.countPermissions(resourceId) > 0;
+      return permissionFacade.countComponentsPermissions(resourceId) > 0;
     }
     return false;
   }

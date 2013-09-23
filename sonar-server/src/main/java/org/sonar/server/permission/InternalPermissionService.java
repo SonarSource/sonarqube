@@ -63,7 +63,7 @@ public class InternalPermissionService implements ServerComponent {
     this.permissionFacade = permissionFacade;
   }
 
-  public List<String> globalPermissions(){
+  public List<String> globalPermissions() {
     return GlobalPermissions.ALL;
   }
 
@@ -102,8 +102,9 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private void applyGroupPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
-    List<String> existingPermissions = roleDao.selectGroupPermissions(permissionChangeQuery.group());
-    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery.permission())) {
+    Long componentId = getComponentId(permissionChangeQuery.component());
+    List<String> existingPermissions = roleDao.selectGroupPermissions(permissionChangeQuery.group(), componentId);
+    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery)) {
       LOG.info("Skipping permission change '{} {}' for group {} as it matches the current permission scheme",
         new String[]{operation, permissionChangeQuery.permission(), permissionChangeQuery.group()});
     } else {
@@ -117,16 +118,17 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private void applyUserPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
-    List<String> existingPermissions = roleDao.selectUserPermissions(permissionChangeQuery.user());
-    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery.permission())) {
+    Long componentId = getComponentId(permissionChangeQuery.component());
+    List<String> existingPermissions = roleDao.selectUserPermissions(permissionChangeQuery.user(), componentId);
+    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery)) {
       LOG.info("Skipping permission change '{} {}' for user {} as it matches the current permission scheme",
         new String[]{operation, permissionChangeQuery.permission(), permissionChangeQuery.user()});
     } else {
       Long targetedUser = getTargetedUser(permissionChangeQuery.user());
       if (ADD.equals(operation)) {
-        permissionFacade.insertUserPermission(getComponentId(permissionChangeQuery.component()), targetedUser, permissionChangeQuery.permission());
+        permissionFacade.insertUserPermission(componentId, targetedUser, permissionChangeQuery.permission());
       } else {
-        permissionFacade.deleteUserPermission(getComponentId(permissionChangeQuery.component()), targetedUser, permissionChangeQuery.permission());
+        permissionFacade.deleteUserPermission(componentId, targetedUser, permissionChangeQuery.permission());
       }
     }
   }
@@ -152,9 +154,9 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  private boolean shouldSkipPermissionChange(String operation, List<String> existingPermissions, String role) {
-    return (ADD.equals(operation) && existingPermissions.contains(role)) ||
-      (REMOVE.equals(operation) && !existingPermissions.contains(role));
+  private boolean shouldSkipPermissionChange(String operation, List<String> existingPermissions, PermissionChangeQuery permissionChangeQuery) {
+    return (ADD.equals(operation) && existingPermissions.contains(permissionChangeQuery.permission())) ||
+      (REMOVE.equals(operation) && !existingPermissions.contains(permissionChangeQuery.permission()));
   }
 
   @Nullable

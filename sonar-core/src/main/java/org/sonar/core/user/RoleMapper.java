@@ -30,9 +30,9 @@ import java.util.List;
  */
 public interface RoleMapper {
 
-  List<String> selectUserPermissions(String userLogin);
+  List<String> selectUserPermissions(@Param("userLogin") String userLogin, @Nullable @Param("resourceId") Long resourceId);
 
-  List<String> selectGroupPermissions(String groupName);
+  List<String> selectGroupPermissions(@Param("groupName") String groupName, @Nullable @Param("resourceId") Long resourceId);
 
   void insertGroupRole(GroupRoleDto groupRole);
 
@@ -46,9 +46,8 @@ public interface RoleMapper {
 
   void deleteUserRolesByResourceId(Long resourceId);
 
-  int countGroupRoles(Long resourceId);
+  int countResourceGroupRoles(Long resourceId);
 
-  int countUserRoles(Long resourceId);
+  int countResourceUserRoles(Long resourceId);
 
-  List<Long> countSystemAdministrators(@Nullable @Param("groupName") String groupName);
 }

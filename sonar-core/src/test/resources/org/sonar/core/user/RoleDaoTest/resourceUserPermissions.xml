@@ -1,0 +1,13 @@
+<dataset>
+
+  <users id="200" login="admin_user" name="admin_user" active="[true]"/>
+  <users id="201" login="browse_admin_user" name="browse_admin_user" active="[true]"/>
+
+  <user_roles id="1" user_id="200" role="admin" resource_id="1"/>
+  <user_roles id="2" user_id="200" role="user" resource_id="1"/>
+  <user_roles id="3" user_id="201" role="user" resource_id="1"/>
+
+  <!-- Global permission, it should not be returned with component permissions -->
+  <user_roles id="4" user_id="200" role="admin"/>
+
+</dataset>

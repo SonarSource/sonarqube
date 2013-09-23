@@ -35,7 +35,7 @@ class Api::PermissionsController < Api::ApiController
   # 'group' is the group identifier (group name or 'anyone')
   #
   # -- Optional parameters
-  # 'component' is the component on which add the permission. If null, the permission should be a global permission.
+  # 'component' is the component key on which add the permission. If null, the permission should be a global permission.
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/permissions/add?permission=shareDashboard&user=new_user'
@@ -71,7 +71,7 @@ class Api::PermissionsController < Api::ApiController
   # 'group' is the group identifier (group name or 'anyone')
   #
   # -- Optional parameters
-  # 'component' is the component on which add the permission. If null, the permission should be a global permission.
+  # 'component' is the component key on which add the permission. If null, the permission should be a global permission.
   #
   # -- Example
   # curl -X POST -v -u admin:admin 'http://localhost:9000/api/permissions/remove?permission=shareDashboard&user=new_user'

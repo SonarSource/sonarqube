@@ -43,16 +43,16 @@ public class RoleMapperTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void countRoles() {
+  public void count_roles() {
     setupData("countRoles");
 
     RoleMapper mapper = session.getMapper(RoleMapper.class);
-    assertThat(mapper.countGroupRoles(123L)).isEqualTo(2);
-    assertThat(mapper.countUserRoles(123L)).isEqualTo(1);
+    assertThat(mapper.countResourceGroupRoles(123L)).isEqualTo(2);
+    assertThat(mapper.countResourceUserRoles(123L)).isEqualTo(1);
   }
 
   @Test
-  public void deleteRolesByResourceId() {
+  public void delete_roles_by_resource_id() {
     setupData("deleteRolesByResourceId");
 
     RoleMapper mapper = session.getMapper(RoleMapper.class);
@@ -65,7 +65,7 @@ public class RoleMapperTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insertRoles() {
+  public void insert_roles() {
     setupData("insertRoles");
 
     RoleMapper mapper = session.getMapper(RoleMapper.class);
