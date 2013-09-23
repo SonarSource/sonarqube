@@ -107,7 +107,16 @@ public final class MeasurePersister {
   @VisibleForTesting
   static boolean shouldPersistMeasure(Resource resource, Measure measure) {
     return measure.getPersistenceMode().useDatabase() &&
-      !(ResourceUtils.isEntity(resource) && measure.isBestValue());
+      !(ResourceUtils.isEntity(resource) && measure.isBestValue()) && isMeasureNotEmpty(measure);
+  }
+
+  private static boolean isMeasureNotEmpty(Measure measure){
+    return measure.getValue() != null || measure.getData() != null
+      || measure.getVariation1() != null
+      || measure.getVariation2() != null
+      || measure.getVariation3() != null
+      || measure.getVariation4() != null
+      || measure.getVariation5() != null;
   }
 
   private List<MeasureModelAndDetails> getMeasuresToSave() {

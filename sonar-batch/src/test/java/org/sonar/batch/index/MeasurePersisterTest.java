@@ -26,11 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.measures.*;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
@@ -43,9 +39,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MeasurePersisterTest extends AbstractDaoTestCase {
 
@@ -262,6 +256,11 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     duplicatedLines.setVariation1(-3.0);
     assertThat(MeasurePersister.shouldPersistMeasure(aFile, duplicatedLines)).isTrue();
+  }
+
+  @Test
+  public void should_not_save_measures_without_data() {
+    assertThat(MeasurePersister.shouldPersistMeasure(aFile, new Measure(CoreMetrics.LINES))).isFalse();
   }
 
   private static Snapshot snapshot(int id) {
