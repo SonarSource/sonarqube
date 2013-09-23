@@ -54,12 +54,19 @@
     </table>
     
     <p style="margin: 15px 0">
-      <% form_remote_tag( :url => {:action => 'delete_resources'}, :loading => "window.location='#{url_for :action => 'pending_deletions'}';") do %>
-        <input type="hidden" id="all_resources" name="all_resources" value="<%= @ghosts.map {|r| r.id.to_s}.join(',') -%>"/>
-        <input id="delete_resources" class="action red-button" type="submit" value="<%= message('bulk_deletion.delete_all_ghosts') -%>" name="commit">
-      <% end %>
+      <form onsubmit="
+              $j.ajax ({
+                        url:'<%= url_for(:action => 'delete_resources') -%>',
+                        beforeSend:function(request){window.location='<%= url_for (:action => 'pending_deletions') -%>';},
+                        data: $j(this).serialize(),
+                        type:'post'
+                      });
+              return false;"
+            method="post"
+            action="<%= url_for(:action => 'delete_resources') -%>">
+        <input id="all_resources" type="hidden" value="" name="all_resources">
+        <input id="delete_resources" class="action red-button" type="submit" name="commit" value="Delete all ghosts">
+      </form>
     </p>
-
   <% end %>
-
 </div>
