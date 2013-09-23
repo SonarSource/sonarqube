@@ -31,6 +31,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.persistence.Query;
+
 import java.util.Date;
 import java.util.List;
 
@@ -68,7 +69,8 @@ public class TimeMachineConfiguration implements BatchExtension {
     if (projectSnapshot != null) {
       for (int index = 1; index <= NUMBER_OF_VARIATION_SNAPSHOTS; index++) {
         PastSnapshot pastSnapshot = pastSnapshotFinder.find(projectSnapshot, rootQualifier, settings, index);
-        if (pastSnapshot != null) {
+        // SONAR-4700 Add a past snapshot only if it exists
+        if (pastSnapshot != null && pastSnapshot.getProjectSnapshot() != null) {
           log(pastSnapshot);
           projectPastSnapshots.add(pastSnapshot);
         }

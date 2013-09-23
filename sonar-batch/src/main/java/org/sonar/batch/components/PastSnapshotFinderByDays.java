@@ -26,6 +26,8 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
 
+import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -51,11 +53,13 @@ public class PastSnapshotFinderByDays implements BatchExtension {
     return new PastSnapshot(CoreProperties.TIMEMACHINE_MODE_DAYS, targetDate, snapshot).setModeParameter(String.valueOf(days));
   }
 
+  @Nullable
   static Snapshot getNearestToTarget(List<Snapshot> snapshots, Date currentDate, int distanceInDays) {
     Date targetDate = DateUtils.addDays(currentDate, -distanceInDays);
     return getNearestToTarget(snapshots, targetDate);
   }
 
+  @Nullable
   static Snapshot getNearestToTarget(List<Snapshot> snapshots, Date targetDate) {
     long bestDistance = Long.MAX_VALUE;
     Snapshot nearest = null;
