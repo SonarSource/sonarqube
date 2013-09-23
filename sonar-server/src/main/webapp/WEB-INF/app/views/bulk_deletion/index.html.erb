@@ -100,37 +100,37 @@
       }
 
       function selectOrDeselect() {
-        var status = $('r-all').checked;
-        $$('tbody input').each(function(input) {
+        var status = $j('#r-all').prop('checked');
+        $j('tbody input').each(function(index,input) {
           input.checked = status;
         });
         <% if found_resources_count - @query_result.components.size > 0 %>
         selectNotAllResources();
         if (status) {
-          $('select_all_action').show();
+          $j('#select_all_action').show();
         } else {
-          $('select_all_action').hide();
+          $j('#select_all_action').hide();
         }
         <% end %>
       }
 
       function handleSelectAllAction() {
-        if ($('all_resources').value=='') {
+        if ($j('#all_resources').val()=='') {
           selectAllResources();
         } else {
-          $('r-all').checked = false;
+          $j('#r-all').checked = false;
           selectOrDeselect();
         }
       }
 
       function selectAllResources() {
-        $('all_resources').value = '<%= found_resources_ids -%>';
-        $('select_all_action').innerHTML = '<%= message('bulk_deletion.clear_selection', :params => found_resources_count) -%>';
+        $j('#all_resources').val() = '<%= found_resources_ids -%>';
+        $j('#select_all_action').html('<%= message('bulk_deletion.clear_selection', :params => found_resources_count) -%>');
       }
 
       function selectNotAllResources() {
-        $('all_resources').value = '';
-        $('select_all_action').innerHTML = '<%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%>';
+        $j('#all_resources').val() = '';
+        $j('#select_all_action').html('<%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%>');
       }
     </script>
 
