@@ -84,7 +84,7 @@
     <script>
       function checkBeforeDeleting() {
         var resource_selected = false;
-        $$("#resources-to-delete input[type='checkbox']").each(function(input) {
+        $j("#resources-to-delete input[type='checkbox']").each(function(index,input) {
           if (input.checked) resource_selected =  true;
         });
         if (!resource_selected) {
