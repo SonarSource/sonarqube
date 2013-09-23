@@ -1,9 +1,9 @@
  <script>
 function upgradePlugin(key) {
-  $('upgrade-form-' + key).submit();
-  var button=$('upgrade-submit-' + key);
-  button.disable();
-  button.writeAttribute('value', 'Upgrading');
+  $j('#upgrade-form-' + key).submit();
+  var button=$j('#upgrade-submit-' + key);
+  button.prop('disabled','true');
+  button.attr('value', 'Upgrading');
   return false;
 }
 </script>

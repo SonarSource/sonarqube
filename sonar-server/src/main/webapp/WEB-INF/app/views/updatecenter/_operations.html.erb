@@ -1,9 +1,9 @@
 <script type="text/javascript">
   function showPlugin(key) {
-    if ($('detail-' + key).visible()) {
-      $('detail-' + key).hide();
+    if ($j('#detail-' + key).is(':visible')) {
+      $j('#detail-' + key).hide();
     } else {
-      $('detail-' + key).show();
+      $j('#detail-' + key).show();
     }
     return false;
   }

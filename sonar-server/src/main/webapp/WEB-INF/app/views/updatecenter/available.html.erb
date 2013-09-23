@@ -1,16 +1,16 @@
 <script>
 function installPlugin(key) {
   /* check terms & conditions */
-  var tc=$('tc-' + key);
-  if (tc!=null && !tc.checked) {
+  var tc=$j('#tc-' + key);
+  if (tc!=null && !tc.prop('checked')) {
     alert('Please accept the Terms and Conditions');
     return false;
   }
-  $('install-form-' + key).submit();
+  $j('#install-form-' + key).submit();
 
-  var button=$('submit-' + key);
-  button.disable();
-  button.writeAttribute('value', 'Installing');
+  var button=$j('#submit-' + key);
+  button.prop('disabled','true');
+  button.attr('value', 'Installing');
   return false;
 }
 </script>
