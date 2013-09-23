@@ -7,13 +7,24 @@
 <br/>
 <div class="yui-g widget" id="widget_delete_project">
   <div class="warning">
-    <% form_remote_tag( :url => {:action => 'delete', :id => @project.id}, :method => :delete, 
-                        :loading => "window.location='#{url_for :action => 'pending_deletion', :id => @project.id}';") do %>
+      <form 	onsubmit="
+                  $j.ajax({
+                            url:'<%= url_for(:action => 'delete',:id => @project.id)-%>',
+                            success:function(request)	{
+                                        window.location='<%= url_for(:action => 'pending_deletion',:id => @project.id)-%>';
+                                                      },
+                            data:$j(this).serialize(),
+                            type:'delete'
+                          });
+                  return false;"
+             method="delete"
+             action="<%= url_for(:action => 'delete',:id => @project.id)-%>">
+
     <%= message('project_deletion.operation_cannot_be_undone') -%>
     <br/>
     <%= submit_tag delete_resource_message, :id => 'delete_resource', :class => 'action red-button', 
                    :confirm => message('project_deletion.delete_resource_confirmation', :params => resource_name) %>
-    <% end %>
+    </form>
   </div>
 </div>
 <% end %>
