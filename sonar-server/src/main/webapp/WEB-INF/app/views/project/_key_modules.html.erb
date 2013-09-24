@@ -3,11 +3,11 @@
         <%= h(current_module.key) -%>
       </td>
       <td class="thin nowrap">
-        <% form_tag( {:action => 'update_key', :id => current_module.id }, :onsubmit => "update_launched();$('loading_#{id_prefix}').show();") do -%>
+        <% form_tag( {:action => 'update_key', :id => current_module.id }, :onsubmit => "update_launched();$j('#loading_#{id_prefix}').show();") do -%>
           <input type="text" value="<%= h(current_module.key) -%>" name="new_key" id="key_<%= id_prefix -%>" size="80">
           <%= submit_tag message('update_key.rename'), :id => 'update_key_' + id_prefix, :class => 'action',
                          :confirm => message('update_key.are_you_sure_to_rename_x', :params => current_module.key) %>                         
-          <a href="#" onclick="$('key_<%= id_prefix -%>').value='<%= h(current_module.key) -%>';"><%= message('update_key.reset') -%></a>
+          <a href="#" onclick="$j('#key_<%= id_prefix -%>').val('<%= h(current_module.key) -%>');"><%= message('update_key.reset') -%></a>
           <span class="loading" id="loading_<%= id_prefix -%>" style="display: none; padding: 3px 10px;"></span>
         <% end %>
       </td>

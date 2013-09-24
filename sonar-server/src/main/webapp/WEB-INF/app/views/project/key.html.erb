@@ -6,7 +6,7 @@
 
 <script type="text/javascript">
   function update_launched() {
-    $$('input.action').each(function(input) {
+    $j('input.action').each(function(index,input) {
       input.disabled=true;
     });
   }
@@ -25,7 +25,7 @@
     <%= message('update_key.current_key_for_project_x_is_x', :params => [@project.name, @project.key]) -%>
   </p>
   <br/>
-  <% form_tag( {:action => 'prepare_key_bulk_update', :id => @project.id }, :onsubmit => "update_launched();$('loading_bulk_update').show();") do -%>
+  <% form_tag( {:action => 'prepare_key_bulk_update', :id => @project.id }, :onsubmit => "update_launched();$j('#loading_bulk_update').show();") do -%>
     <table>
       <tr>
         <td style="padding-right: 20px"><%= message('update_key.replace') -%>:</td>
