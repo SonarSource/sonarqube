@@ -2,7 +2,7 @@
 function installPlugin(key) {
   /* check terms & conditions */
   var tc=$j('#tc-' + key);
-  if (tc!=null && !tc.prop('checked')) {
+  if (tc.length!=0 && !tc.prop('checked')) {
     alert('Please accept the Terms and Conditions');
     return false;
   }
