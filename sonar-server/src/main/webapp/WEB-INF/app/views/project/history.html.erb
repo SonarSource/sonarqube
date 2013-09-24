@@ -63,7 +63,7 @@
               <% if version_event %>
               <td class="width100"><%= version_event.name if version_event -%></td>
               <td class="small edit_actions" style="padding-left:20px">
-                <a id="version_<%= index -%>_change" href="#" onclick="$('version_<%= index -%>').hide();$('version_<%= index -%>_form').show();$('version_name_<%= index -%>').focus();return false;"><%= message('project_history.rename_version') -%></a>
+                <a id="version_<%= index -%>_change" href="#" onclick="$j('#version_<%= index -%>').hide();$j('#version_<%= index -%>_form').show();$j('#version_name_<%= index -%>').focus();return false;"><%= message('project_history.rename_version') -%></a>
                 <% if version_event && !snapshot.islast? %>
                   <%= link_to( message('project_history.remove_version'),  
         		                { :action => 'delete_version', :sid => snapshot.id},
@@ -72,7 +72,7 @@
               </td>
               <% else %>
               <td class="small edit_actions" colspan="2">
-                <a id="version_<%= index -%>_change" href="#" onclick="$('version_<%= index -%>').hide();$('version_<%= index -%>_form').show();$('version_name_<%= index -%>').focus();return false;"><%= message('project_history.create_version') -%></a>
+                <a id="version_<%= index -%>_change" href="#" onclick="$j('#version_<%= index -%>').hide();$j('#version_<%= index -%>_form').show();$j('#version_name_<%= index -%>').focus();return false;"><%= message('project_history.create_version') -%></a>
               </td>
               <% end %>
             </tr>
@@ -80,9 +80,9 @@
               <td coslpan="2" class="admin">
                 <% form_tag( {:action => 'update_version', :sid => snapshot.id }) do -%>
                   <input id="version_name_<%= index -%>" name="version_name" type="text" value="<%= version_event ? version_event.name : '' -%>" 
-                         onKeyUp="if (this.value=='') $('save_version_<%= index -%>').disabled='true'; else $('save_version_<%= index -%>').disabled='';"/>
+                         onKeyUp="if (this.value=='') $j('#save_version_<%= index -%>').disabled='true'; else $j('#save_version_<%= index -%>').disabled='';"/>
                   <%= submit_tag message('save'), :id => 'save_version_' + index.to_s %>
-                  <a href="#" onclick="$('version_<%= index -%>').show();$('version_<%= index -%>_form').hide();"><%= message('cancel') -%></a>
+                  <a href="#" onclick="$j('#version_<%= index -%>').show();$j('#version_<%= index -%>_form').hide();"><%= message('cancel') -%></a>
                 <% end %>
               </td>
             </tr>
@@ -98,7 +98,7 @@
 	        <tr id="event_<%= event_index -%>">
 	          <td class="width100"><%= event.name -%></td>
 	          <td class="small edit_actions" style="padding-left:20px">
-                <a id="event_<%= event_index -%>_change" href="#" onclick="$('event_<%= event_index -%>').hide();$('event_<%= event_index -%>_form').show();$('event_name_<%= event_index -%>').focus();return false;"><%= message('project_history.rename_event') -%></a>
+                <a id="event_<%= event_index -%>_change" href="#" onclick="$j('#event_<%= event_index -%>').hide();$j('#event_<%= event_index -%>_form').show();$j('#event_name_<%= event_index -%>').focus();return false;"><%= message('project_history.rename_event') -%></a>
                 <%= link_to( message('project_history.remove_version'),  
 	   		                  { :action => 'delete_event', :id => event.id},
 	    		              :confirm => message('project_history.do_you_want_to_remove_version', :params => event.name) ) -%>
@@ -108,9 +108,9 @@
               <td colspan="2" class="admin">
                 <% form_tag( {:action => 'update_event', :id => event.id }) do -%>
                   <input id="event_name_<%= event_index -%>" name="event_name" type="text" value="<%= event.name -%>" 
-                         onKeyUp="if (this.value=='') $('save_event_<%= event_index -%>').disabled='true'; else $('save_event_<%= event_index -%>').disabled='';"/>
+                         onKeyUp="if (this.value=='') $j('#save_event_<%= event_index -%>').disabled='true'; else $j('#save_event_<%= event_index -%>').disabled='';"/>
                   <%= submit_tag message('save'), :id => 'save_event_' + event_index %>
-                  <a href="#" onclick="$('event_<%= event_index -%>').show();$('event_<%= event_index -%>_form').hide();"><%= message('cancel') -%></a>
+                  <a href="#" onclick="$j('#event_<%= event_index -%>').show();$j('#event_<%= event_index -%>_form').hide();"><%= message('cancel') -%></a>
                 <% end %>
               </td>
 	        </tr>
@@ -118,7 +118,7 @@
 	        <tr id="create_event_<%= index -%>">
 	          <td colspan="2" class="create_actions">
 	            <span class="small">
-                  <a id="create_event_<%= index -%>_change" href="#" onclick="$('create_event_<%= index -%>').hide();$('create_event_<%= index -%>_form').show();$('create_event_name_<%= index -%>').focus();return false;"><%= message('project_history.create_event') -%></a>
+                  <a id="create_event_<%= index -%>_change" href="#" onclick="$j('#create_event_<%= index -%>').hide();$j('#create_event_<%= index -%>_form').show();$j('#create_event_name_<%= index -%>').focus();return false;"><%= message('project_history.create_event') -%></a>
                 </span>
 	          </td>
 	        </tr>
@@ -126,9 +126,9 @@
 	          <td colspan="2" class="admin">
                 <% form_tag( {:action => 'create_event', :sid => snapshot.id }) do -%>
                   <input id="create_event_name_<%= index -%>" name="event_name" type="text" value="" 
-                         onKeyUp="if (this.value=='') $('create_save_event_<%= index -%>').disabled='true'; else $('create_save_event_<%= index -%>').disabled='';"/>
+                         onKeyUp="if (this.value=='') $j('#create_save_event_<%= index -%>').disabled='true'; else $j('#create_save_event_<%= index -%>').disabled='';"/>
                   <%= submit_tag message('save'), :id => 'create_save_event_' + index.to_s %>
-                  <a href="#" onclick="$('create_event_<%= index -%>').show();$('create_event_<%= index -%>_form').hide();"><%= message('cancel') -%></a>
+                  <a href="#" onclick="$j('#create_event_<%= index -%>').show();$j('#create_event_<%= index -%>_form').hide();"><%= message('cancel') -%></a>
                 <% end %>
 	          </td>
 	        </tr>
