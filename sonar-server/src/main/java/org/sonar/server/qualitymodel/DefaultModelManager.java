@@ -20,18 +20,20 @@
 package org.sonar.server.qualitymodel;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.qualitymodel.Model;
 import org.sonar.api.qualitymodel.ModelDefinition;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import javax.persistence.Query;
 
 public final class DefaultModelManager implements ServerComponent, ModelManager {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultModelManager.class);
 
   private ModelDefinition[] definitions;
   private DatabaseSessionFactory sessionFactory;
@@ -57,7 +59,7 @@ public final class DefaultModelManager implements ServerComponent, ModelManager 
     DatabaseSession session = sessionFactory.getSession();
     for (ModelDefinition definition : definitions) {
       if (StringUtils.isNotBlank(definition.getName()) && !exists(session, definition.getName())) {
-        Logs.INFO.info("Register quality model: " + definition.getName());
+        LOG.info("Register quality model: " + definition.getName());
         Model model = definition.createModel();
         if (StringUtils.isBlank(model.getName())) {
           model.setName(definition.getName());

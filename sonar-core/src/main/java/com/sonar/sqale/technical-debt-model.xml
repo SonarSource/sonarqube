@@ -1,0 +1,159 @@
+<!--
+
+    SonarQube, open source software quality management tool.
+    Copyright (C) 2008-2013 SonarSource
+    mailto:contact AT sonarsource DOT com
+
+    SonarQube is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    SonarQube is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program; if not, write to the Free Software Foundation,
+    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
+<sqale>
+  <chc>
+    <key>PORTABILITY</key>
+    <name>Portability</name>
+    <chc>
+      <key>COMPILER_RELATED_PORTABILITY</key>
+      <name>Compiler</name>
+    </chc>
+    <chc>
+      <key>HARDWARE_RELATED_PORTABILITY</key>
+      <name>Hardware</name>
+    </chc>
+    <chc>
+      <key>LANGUAGE_RELATED_PORTABILITY</key>
+      <name>Language</name>
+    </chc>
+    <chc>
+      <key>OS_RELATED_PORTABILITY</key>
+      <name>OS</name>
+    </chc>
+    <chc>
+      <key>SOFTWARE_RELATED_PORTABILITY</key>
+      <name>Software</name>
+    </chc>
+    <chc>
+      <key>TIME_ZONE_RELATED_PORTABILITY</key>
+      <name>Time zone</name>
+    </chc>
+  </chc>
+  <chc>
+    <key>MAINTAINABILITY</key>
+    <name>Maintainability</name>
+    <chc>
+      <key>READABILITY</key>
+      <name>Readability</name>
+    </chc>
+    <chc>
+      <key>UNDERSTANDABILITY</key>
+      <name>Understandability</name>
+    </chc>
+  </chc>
+  <chc>
+    <key>SECURITY</key>
+    <name>Security</name>
+    <chc>
+      <key>API_ABUSE</key>
+      <name>API abuse</name>
+    </chc>
+    <chc>
+      <key>ERRORS</key>
+      <name>Errors</name>
+    </chc>
+    <chc>
+      <key>INPUT_VALIDATION_AND_REPRESENTATION</key>
+      <name>Input validation and representation</name>
+    </chc>
+    <chc>
+      <key>SECURITY_FEATURES</key>
+      <name>Security features</name>
+    </chc>
+  </chc>
+  <chc>
+    <key>EFFICIENCY</key>
+    <name>Efficiency</name>
+    <chc>
+      <key>MEMORY_EFFICIENCY</key>
+      <name>Memory use</name>
+    </chc>
+    <chc>
+      <key>CPU_EFFICIENCY</key>
+      <name>Processor use</name>
+    </chc>
+  </chc>
+  <chc>
+    <key>CHANGEABILITY</key>
+    <name>Changeability</name>
+    <chc>
+      <key>ARCHITECTURE_CHANGEABILITY</key>
+      <name>Architecture</name>
+    </chc>
+    <chc>
+      <key>DATA_CHANGEABILITY</key>
+      <name>Data</name>
+    </chc>
+    <chc>
+      <key>LOGIC_CHANGEABILITY</key>
+      <name>Logic</name>
+    </chc>
+  </chc>
+  <chc>
+    <key>RELIABILITY</key>
+    <name>Reliability</name>
+    <chc>
+      <key>ARCHITECTURE_RELIABILITY</key>
+      <name>Architecture</name>
+    </chc>
+    <chc>
+      <key>DATA_RELIABILITY</key>
+      <name>Data</name>
+    </chc>
+    <chc>
+      <key>EXCEPTION_HANDLING</key>
+      <name>Exception handling</name>
+    </chc>
+    <chc>
+      <key>FAULT_TOLERANCE</key>
+      <name>Fault tolerance</name>
+    </chc>
+    <chc>
+      <key>INSTRUCTION_RELIABILITY</key>
+      <name>Instruction</name>
+    </chc>
+    <chc>
+      <key>LOGIC_RELIABILITY</key>
+      <name>Logic</name>
+    </chc>
+    <chc>
+      <key>SYNCHRONIZATION_RELIABILITY</key>
+      <name>Synchronization</name>
+    </chc>
+    <chc>
+      <key>UNIT_TESTS</key>
+      <name>Unit tests</name>
+    </chc>
+  </chc>
+  <chc>
+    <key>TESTABILITY</key>
+    <name>Testability</name>
+    <chc>
+      <key>INTEGRATION_TESTABILITY</key>
+      <name>Integration level</name>
+    </chc>
+    <chc>
+      <key>UNIT_TESTABILITY</key>
+      <name>Unit level</name>
+    </chc>
+  </chc>
+</sqale>

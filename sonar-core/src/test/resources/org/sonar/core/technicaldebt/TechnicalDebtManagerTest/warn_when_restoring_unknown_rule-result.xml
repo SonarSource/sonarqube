@@ -1,0 +1,14 @@
+<dataset>
+  <quality_models id="1" name="foo" />
+  <quality_models id="2" name="TECHNICAL_DEBT" />
+
+  <characteristics id="1" kee="testability" name="Testability" quality_model_id="1" rule_id="[null]" characteristic_order="1" depth="1" description="[null]" enabled="true" />
+  <characteristics id="2" kee="unit_testability" name="Unit tests" quality_model_id="1" rule_id="[null]" characteristic_order="2" depth="2" description="[null]" enabled="true" />
+
+  <characteristics id="3" kee="efficiency" name="Efficiency" quality_model_id="2" rule_id="[null]" characteristic_order="1" depth="1" description="[null]" enabled="true" />
+
+  <characteristic_edges child_id="2" parent_id="1"/>
+  <characteristic_properties id="1" characteristic_id="1" kee="foo" value="[null]" text_value="bar" />
+
+  <rules id="1" plugin_rule_key="import" plugin_config_key="regexp" plugin_name="checkstyle" description="[null]" priority="3" status="READY" cardinality="SINGLE" parent_id="[null]" name="Regular exp"/>
+</dataset>
