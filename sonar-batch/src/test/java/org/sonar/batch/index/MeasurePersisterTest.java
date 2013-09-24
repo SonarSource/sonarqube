@@ -261,6 +261,9 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   @Test
   public void should_not_save_measures_without_data() {
     assertThat(MeasurePersister.shouldPersistMeasure(aFile, new Measure(CoreMetrics.LINES))).isFalse();
+
+    Measure duplicatedLines = new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY);
+    assertThat(MeasurePersister.shouldPersistMeasure(aFile, duplicatedLines)).isFalse();
   }
 
   private static Snapshot snapshot(int id) {

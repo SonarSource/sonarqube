@@ -65,7 +65,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   public void should_count_component_permissions() throws Exception {
     setupData("should_count_component_permissions");
 
-    assertThat(permissionFacade.countComponentsPermissions(123L)).isEqualTo(2);
+    assertThat(permissionFacade.countComponentPermissions(123L)).isEqualTo(2);
   }
 
   @Test
