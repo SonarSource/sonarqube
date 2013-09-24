@@ -32,6 +32,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
 
+import javax.annotation.Nullable;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -96,7 +98,7 @@ public class PastSnapshotFinder implements BatchExtension {
     return conf.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index, defaultValue);
   }
 
-  public PastSnapshot find(Snapshot projectSnapshot, String rootQualifier, Settings settings, int index) {
+  public PastSnapshot find(Snapshot projectSnapshot, @Nullable String rootQualifier, Settings settings, int index) {
     String propertyValue = getPropertyValue(rootQualifier, settings, index);
     PastSnapshot pastSnapshot = find(projectSnapshot, index, propertyValue);
     if (pastSnapshot == null && StringUtils.isNotBlank(propertyValue)) {
@@ -109,7 +111,7 @@ public class PastSnapshotFinder implements BatchExtension {
     return find(projectSnapshot, null, settings, index);
   }
 
-  static String getPropertyValue(String rootQualifier, Settings settings, int index) {
+  static String getPropertyValue(@Nullable String rootQualifier, Settings settings, int index) {
     String value = settings.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index);
     // For periods 4 and 5 we're searching for a property prefixed by the qualifier
     if (index > 3 && Strings.isNullOrEmpty(value)) {
@@ -122,6 +124,7 @@ public class PastSnapshotFinder implements BatchExtension {
     return finderByPreviousAnalysis.findByPreviousAnalysis(projectSnapshot);
   }
 
+  @Nullable
   public PastSnapshot find(Snapshot projectSnapshot, int index, String property) {
     if (StringUtils.isBlank(property)) {
       return null;
@@ -148,6 +151,7 @@ public class PastSnapshotFinder implements BatchExtension {
     return result;
   }
 
+  @Nullable
   private PastSnapshot findByPreviousAnalysis(Snapshot projectSnapshot, String property) {
     PastSnapshot pastSnapshot = null;
     if (StringUtils.equals(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, property)) {
@@ -156,6 +160,7 @@ public class PastSnapshotFinder implements BatchExtension {
     return pastSnapshot;
   }
 
+  @Nullable
   private PastSnapshot findByPreviousVersion(Snapshot projectSnapshot, String property) {
     PastSnapshot pastSnapshot = null;
     if (StringUtils.equals(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, property)) {
@@ -164,6 +169,7 @@ public class PastSnapshotFinder implements BatchExtension {
     return pastSnapshot;
   }
 
+  @Nullable
   private PastSnapshot findByDate(Snapshot projectSnapshot, String property) {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     try {
@@ -179,6 +185,7 @@ public class PastSnapshotFinder implements BatchExtension {
     return finderByVersion.findByVersion(projectSnapshot, property);
   }
 
+  @Nullable
   private PastSnapshot findByDays(Snapshot projectSnapshot, String property) {
     try {
       int days = Integer.parseInt(property);

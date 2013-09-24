@@ -111,12 +111,12 @@ public final class MeasurePersister {
   }
 
   private static boolean isMeasureNotEmpty(Measure measure){
+    boolean isNotEmpty = false;
+    for (int i = 1; i<=5; i++) {
+      isNotEmpty = isNotEmpty || measure.getVariation(i) != null;
+    }
     return measure.getValue() != null || measure.getData() != null
-      || measure.getVariation1() != null
-      || measure.getVariation2() != null
-      || measure.getVariation3() != null
-      || measure.getVariation4() != null
-      || measure.getVariation5() != null;
+      || isNotEmpty;
   }
 
   private List<MeasureModelAndDetails> getMeasuresToSave() {
