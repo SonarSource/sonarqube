@@ -6,7 +6,7 @@
 
   <script type="text/javascript">
     function update_launched() {
-      $$('input.action').each(function(input) {
+      $j('input.action').each(function(index,input) {
         input.disabled=true;
       });
     }
@@ -39,7 +39,7 @@
   </table>
   
   <% if @can_update %>
-    <% form_tag( {:action => 'perform_key_bulk_update', :id => @project.id }, :onsubmit => "update_launched();$('loading_bulk_update').show();") do -%>
+    <% form_tag( {:action => 'perform_key_bulk_update', :id => @project.id }, :onsubmit => "update_launched();$j('#loading_bulk_update').show();") do -%>
       <input type="hidden" value="<%= @project.id -%>" name="id" id="project_id">
       <input type="hidden" value="<%= @string_to_replace -%>" name="string_to_replace" id="string_to_replace">
       <input type="hidden" value="<%= @replacement_string -%>" name="replacement_string" id="replacement_string">
