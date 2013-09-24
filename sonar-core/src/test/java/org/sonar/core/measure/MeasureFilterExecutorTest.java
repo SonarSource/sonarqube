@@ -481,8 +481,11 @@ public class MeasureFilterExecutorTest {
     verifyJavaProject(rows.get(0));
   }
 
+  /**
+   * see SONAR-4195
+   */
   @Test
-  public void filter_by_resource_key_with_component_key_containing_upper_case() throws SQLException {
+  public void filter_by_upper_case_component_key() throws SQLException {
     db.prepareDbUnit(getClass(), "shared.xml");
     MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("CLA")).setResourceKey("big");
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
