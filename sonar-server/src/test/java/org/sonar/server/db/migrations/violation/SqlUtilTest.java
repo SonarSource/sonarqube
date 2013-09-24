@@ -17,23 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations;
+package org.sonar.server.db.migrations.violation;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.persistence.TestDatabase;
+import org.slf4j.Logger;
 
-public class ConvertViolationsToIssuesTest {
+import java.sql.SQLException;
 
-  @Rule
-  public TestDatabase db = new TestDatabase().schema(getClass(), "schema.sql");
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+public class SqlUtilTest {
 
   @Test
-  public void convert_violations() throws Exception {
-    db.prepareDbUnit(getClass(), "convert_violations.xml");
+  public void log_all_sql_exceptions() {
+    SQLException root = new SQLException("this is root", "123");
+    SQLException next = new SQLException("this is next", "456");
+    root.setNextException(next);
 
-    new ConvertViolationsToIssues().execute(db.database());
+    Logger logger = mock(Logger.class);
+    SqlUtil.log(logger, root);
 
-    db.assertDbUnit(getClass(), "convert_violations_result.xml", "issues", "issue_changes");
+    verify(logger).error("SQL error: {}. Message: {}", "456", "this is next");
   }
 }

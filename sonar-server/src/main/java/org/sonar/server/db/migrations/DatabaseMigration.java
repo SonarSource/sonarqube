@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db;
-
-import org.sonar.core.persistence.Database;
+package org.sonar.server.db.migrations;
 
 /**
- * Java alternative of ActiveRecord::Migration.
+ * Java alternative of ActiveRecord::Migration. Do not forget to declare implementation classes in {@link DatabaseMigrations#CLASSES}
  * @since 3.7
  */
 public interface DatabaseMigration {
 
-  void execute(Database db);
+  void execute();
 
 }

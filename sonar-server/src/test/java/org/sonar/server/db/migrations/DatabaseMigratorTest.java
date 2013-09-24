@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db;
+package org.sonar.server.db.migrations;
 
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Rule;
@@ -42,12 +42,13 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
 
   MyBatis mybatis = mock(MyBatis.class);
   Database database = mock(Database.class);
+  DatabaseMigration[] migrations = new DatabaseMigration[]{new FakeMigration()};
 
   @Test
   public void should_support_only_creation_of_h2_database() throws Exception {
     when(database.getDialect()).thenReturn(new MySql());
 
-    DatabaseMigrator migrator = new DatabaseMigrator(mybatis, database);
+    DatabaseMigrator migrator = new DatabaseMigrator(mybatis, database, migrations);
 
     assertThat(migrator.createDatabase()).isFalse();
     verifyZeroInteractions(mybatis);
@@ -55,25 +56,16 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
 
   @Test
   public void fail_if_execute_unknown_migration() throws Exception {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to execute database migration: org.xxx.UnknownMigration");
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Database migration not found: org.xxx.UnknownMigration");
 
-    DatabaseMigrator migrator = new DatabaseMigrator(mybatis, database);
+    DatabaseMigrator migrator = new DatabaseMigrator(mybatis, database, migrations);
     migrator.executeMigration("org.xxx.UnknownMigration");
   }
 
   @Test
-  public void fail_if_execute_not_a_migration() throws Exception {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Fail to execute database migration: java.lang.String");
-
-    DatabaseMigrator migrator = new DatabaseMigrator(mybatis, database);
-    migrator.executeMigration("java.lang.String");
-  }
-
-  @Test
   public void execute_migration() throws Exception {
-    DatabaseMigrator migrator = new DatabaseMigrator(mybatis, database);
+    DatabaseMigrator migrator = new DatabaseMigrator(mybatis, database, migrations);
     assertThat(FakeMigration.executed).isFalse();
     migrator.executeMigration(FakeMigration.class.getName());
     assertThat(FakeMigration.executed).isTrue();
@@ -89,7 +81,7 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
     when(session.getConnection()).thenReturn(connection);
     when(mybatis.openSession()).thenReturn(session);
 
-    DatabaseMigrator databaseMigrator = new DatabaseMigrator(mybatis, database) {
+    DatabaseMigrator databaseMigrator = new DatabaseMigrator(mybatis, database, migrations) {
       @Override
       protected void createSchema(Connection connection, String dialectId) {
       }
@@ -101,7 +93,7 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
   public static class FakeMigration implements DatabaseMigration {
     static boolean executed = false;
     @Override
-    public void execute(Database db) {
+    public void execute() {
       executed = true;
     }
   }

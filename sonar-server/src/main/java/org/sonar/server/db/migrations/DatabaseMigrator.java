@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db;
+package org.sonar.server.db.migrations;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbutils.DbUtils;
@@ -40,10 +40,12 @@ public class DatabaseMigrator implements ServerComponent {
 
   private final MyBatis myBatis;
   private final Database database;
+  private final DatabaseMigration[] migrations;
 
-  public DatabaseMigrator(MyBatis myBatis, Database database) {
+  public DatabaseMigrator(MyBatis myBatis, Database database, DatabaseMigration[] migrations) {
     this.myBatis = myBatis;
     this.database = database;
+    this.migrations = migrations;
   }
 
   /**
@@ -72,10 +74,9 @@ public class DatabaseMigrator implements ServerComponent {
   }
 
   public void executeMigration(String className) {
+    DatabaseMigration migration = getMigration(className);
     try {
-      Class<DatabaseMigration> migrationClass = (Class<DatabaseMigration>) Class.forName(className);
-      DatabaseMigration migration = migrationClass.newInstance();
-      migration.execute(database);
+      migration.execute();
 
     } catch (Exception e) {
       // duplication between log and exception because webapp does not correctly log initial stacktrace
@@ -83,6 +84,15 @@ public class DatabaseMigrator implements ServerComponent {
       LoggerFactory.getLogger(getClass()).error(msg, e);
       throw new IllegalStateException(msg, e);
     }
+  }
+
+  private DatabaseMigration getMigration(String className) {
+    for (DatabaseMigration migration : migrations) {
+      if (migration.getClass().getName().equals(className)) {
+        return migration;
+      }
+    }
+    throw new IllegalArgumentException("Database migration not found: " + className);
   }
 
   @VisibleForTesting

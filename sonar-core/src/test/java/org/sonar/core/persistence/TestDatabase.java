@@ -55,6 +55,8 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -142,6 +144,28 @@ public class TestDatabase extends ExternalResource {
       DbUtils.commitAndCloseQuietly(connection);
     }
   }
+
+  public int count(String sql) {
+    Connection connection = null;
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
+    try {
+      connection = openConnection();
+      stmt = connection.prepareStatement(sql);
+      rs = stmt.executeQuery();
+      if (rs.next()) {
+        return rs.getInt(1);
+      }
+      throw new IllegalStateException("No results for " + sql);
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to execute sql: " + sql);
+
+    } finally {
+      DbUtils.closeQuietly(connection, stmt, rs);
+    }
+  }
+
 
   public void prepareDbUnit(Class testClass, String... testNames) {
     InputStream[] streams = new InputStream[testNames.length];
@@ -278,5 +302,4 @@ public class TestDatabase extends ExternalResource {
       IOUtils.closeQuietly(input);
     }
   }
-
 }

@@ -81,7 +81,9 @@ import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
-import org.sonar.server.db.DatabaseMigrator;
+import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.DatabaseMigrations;
+import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.ActionPlanService;
 import org.sonar.server.issue.ActionService;
@@ -224,6 +226,9 @@ public final class Platform {
     rootContainer.addSingleton(MyBatis.class);
     rootContainer.addSingleton(DefaultServerUpgradeStatus.class);
     rootContainer.addSingleton(DatabaseServerCompatibility.class);
+    for (Class<? extends DatabaseMigration> migrationClass : DatabaseMigrations.CLASSES) {
+      rootContainer.addSingleton(migrationClass);
+    }
     rootContainer.addSingleton(DatabaseMigrator.class);
     rootContainer.addSingleton(DatabaseVersion.class);
     for (Class daoClass : DaoUtils.getDaoClasses()) {

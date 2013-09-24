@@ -163,6 +163,11 @@ class ActiveRecord::Migration
     execute_ddl("drop trigger #{trigger_name}", "DROP TRIGGER #{trigger_name}")
   end
 
+  def self.write(text="")
+    # See migration.rb, the method write directly calls "puts"
+    Java::OrgSlf4j::LoggerFactory::getLogger('DbMigration').info(text) if verbose
+  end
+
   private
 
   def self.execute_ddl(message, ddl)
