@@ -161,6 +161,7 @@ public interface Issue extends Serializable {
   /**
    * During a scan return if the current issue is a new one.
    * @return always false on server side
+   * @since 4.0
    */
   boolean isNew();
 }
