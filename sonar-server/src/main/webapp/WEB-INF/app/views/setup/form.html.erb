@@ -8,7 +8,13 @@
     <li><b>Copy the directory /extensions</b> from previous version before upgrading.</li>
   </ul>
   <br/>
-  <%= button_to_remote "Upgrade", 
-                       :url => { :action => 'setup_database' },
-                       :loading => "window.location.reload();" -%>
+    <input 	type="button"
+            value="Upgrade"
+            onclick="
+            $j.ajax({
+              url:'<%= url_for(:action => 'setup_database')-%>',
+              type:'post',
+              success:function(request){window.location.reload();}
+              });
+              return false;">
 </div>
