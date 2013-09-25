@@ -23,8 +23,10 @@ import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 import org.sonar.server.util.RubyUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +43,15 @@ public class DefaultRubyComponentService implements RubyComponentService {
   @Override
   public Component findByKey(String key) {
     return resourceDao.findByKey(key);
+  }
+
+  public void createComponent(String kee, String name, String scope, String qualifier) {
+    resourceDao.insertOrUpdate(
+      new ResourceDto()
+        .setKey(kee)
+        .setScope(scope)
+        .setQualifier(qualifier)
+        .setCreatedAt(new Date()));
   }
 
   public DefaultComponentQueryResult find(Map<String, Object> params) {

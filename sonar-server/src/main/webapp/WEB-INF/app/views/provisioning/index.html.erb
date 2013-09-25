@@ -1,0 +1,13 @@
+<h1 class="marginbottom10"><%= message('provisioning.page') -%></h1>
+
+<ul class="tabs">
+<% @tabs.each do |tab| %>
+  <li>
+    <a href="<%= url_for :action => 'index', :qualifiers => tab %>" <%= "class='selected'" if @selected_tab==tab -%> id="tab-<%= u tab -%>"><%= message('qualifiers.' + tab) -%></a>
+  </li>
+<% end %>
+</ul>
+
+<div class="tabs-panel marginbottom10">
+
+</div>

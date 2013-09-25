@@ -20,7 +20,7 @@
 class Api::ProjectsController < Api::ApiController
 
   before_filter :admin_required, :only => [ :destroy ]
-  
+
   # PARAMETERS
   #   subprojects [true|false] : load sub-projects ? Default is false. Ignored if the parameter key is set.
   #   views [true|false] : load views and sub-views ? Default is false. Ignored if the parameter key is set.
@@ -28,56 +28,69 @@ class Api::ProjectsController < Api::ApiController
   #   langs (comma-separated list) : filter results by language. Default is empty.
   #   desc [true|false] : load project description ? Default is false.
   #   key : id or key of the project (0 or 1 result)
-  #   search : substring of project name, case insensitive  
+  #   search : substring of project name, case insensitive
   #   versions [true,false,last]. Default is false.
-  
+
   # TODO
   # - SQL pagination (LIMIT + OFFSET)
-    
+
   def index
     begin
       @show_description=(params[:desc]=='true')
       @projects=load_projects
       @snapshots_by_pid=load_snapshots_by_project
-      respond_to do |format| 
+      respond_to do |format|
         format.json{ render :json => jsonp(to_json) }
         format.xml { render :xml => to_xml }
         format.text { render :text => text_not_supported }
       end
-      
+
     rescue Exception => e
       logger.error("Fails to execute #{request.url} : #{e.message}")
       render_error(e.message)
     end
   end
-  
+
   #
   # DELETE /api/projects/<key>
   # curl -X DELETE  http://localhost:9000/api/projects/<key> -v -u admin:admin
   #
   def destroy
     bad_request("Missing project key") unless params[:id].present?
-     
+
     project = Project.by_key(params[:id])
     bad_request("Not valid project") unless project
     access_denied unless is_admin?(project)
     bad_request("Not valid project") unless java_facade.getResourceTypeBooleanProperty(project.qualifier, 'deletable')
-      
+
     Project.delete_resource_tree(project)
     render_success("Project deleted")
   end
-  
+
+  #
+  # POST /api/projects/
+  # curl -X POST http://localhost:9000/api/projects/ -d key=project1 -d name='Project One' -v -u admin:admin
+  #
+  def create
+    verify_post_request
+    require_parameters :key, :name
+    access_denied unless has_role?("provisioning")
+
+    Internal.component_api.createComponent(params[:key], params[:name], 'PRJ', 'TRK')
+    render_success("Project %s created" % params[:key])
+  end
+
   private
-  
+
   def load_projects
     conditions=['enabled=:enabled']
     values={:enabled => true}
-    
+
     if !params[:langs].blank?
       conditions<<'language in (:langs)'
       values[:langs]=params[:langs].split(',')
     end
-  
+
     if !params[:key].blank?
       begin
         id=Integer(params[:key])
@@ -87,12 +100,12 @@ class Api::ProjectsController < Api::ApiController
         conditions<<'kee=:key'
         values[:key]=params[:key]
       end
-    else 
+    else
       if !params[:search].blank?
         conditions<<"UPPER(name) like :name"
         values[:name]='%' + params[:search].upcase + '%'
       end
-      
+
       scopes=['PRJ']
       qualifiers=['TRK']
       if params[:views]=='true'
@@ -108,15 +121,15 @@ class Api::ProjectsController < Api::ApiController
       values[:scopes]=scopes
       values[:qualifiers]=qualifiers
     end
-  
+
     # this is really an advanced optimization !
     select_columns='id,kee,name,language,long_name,scope,qualifier,root_id'
     select_columns += ',description' if @show_description
-      
+
     projects=Project.find(:all, :select => select_columns, :conditions => [conditions.join(' AND '), values], :order => 'name')
     select_authorized(:user, projects)
   end
-  
+
   def load_snapshots_by_project
     select_columns='id,project_id,version,islast,created_at'
     if params[:versions]=='true'
@@ -126,7 +139,7 @@ class Api::ProjectsController < Api::ApiController
     else
       snapshots=[]
     end
-    
+
     snapshots_by_project_id={}
     snapshots.each do |s|
       snapshots_by_project_id[s.project_id]||=[]
@@ -145,7 +158,7 @@ class Api::ProjectsController < Api::ApiController
       hash[:sc]=project.scope
       hash[:qu]=project.qualifier
       hash[:ds]=project.description if @show_description && project.description
-      
+
       if @snapshots_by_pid && @snapshots_by_pid[project.id]
         versions={}
         @snapshots_by_pid[project.id].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
@@ -162,17 +175,17 @@ class Api::ProjectsController < Api::ApiController
     end
     json
   end
-  
+
   def to_xml
     xml = Builder::XmlMarkup.new(:indent => 0)
-    xml.projects do 
+    xml.projects do
       @projects.each do |project|
-        xml.project(:id => project.id.to_s, :key => project.key) do 
+        xml.project(:id => project.id.to_s, :key => project.key) do
           xml.name(project.name(true))
           xml.scope(project.scope)
           xml.qualifier(project.qualifier)
           xml.desc(project.description) if @show_description && project.description
-          
+
           if @snapshots_by_pid && @snapshots_by_pid[project.id]
             @snapshots_by_pid[project.id].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
               attributes={:sid => snapshot.id.to_s, :last => snapshot.last?}
