@@ -30,7 +30,6 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -51,13 +50,11 @@ public class InternalPermissionService implements ServerComponent {
   private static final String ADD = "add";
   private static final String REMOVE = "remove";
 
-  private final RoleDao roleDao;
   private final UserDao userDao;
   private final ResourceDao resourceDao;
   private final PermissionFacade permissionFacade;
 
-  public InternalPermissionService(RoleDao roleDao, UserDao userDao, ResourceDao resourceDao, PermissionFacade permissionFacade) {
-    this.roleDao = roleDao;
+  public InternalPermissionService(UserDao userDao, ResourceDao resourceDao, PermissionFacade permissionFacade) {
     this.userDao = userDao;
     this.resourceDao = resourceDao;
     this.permissionFacade = permissionFacade;
@@ -103,7 +100,7 @@ public class InternalPermissionService implements ServerComponent {
 
   private void applyGroupPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
     Long componentId = getComponentId(permissionChangeQuery.component());
-    List<String> existingPermissions = roleDao.selectGroupPermissions(permissionChangeQuery.group(), componentId);
+    List<String> existingPermissions = permissionFacade.selectGroupPermissions(permissionChangeQuery.group(), componentId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery)) {
       LOG.info("Skipping permission change '{} {}' for group {} as it matches the current permission scheme",
         new String[]{operation, permissionChangeQuery.permission(), permissionChangeQuery.group()});
@@ -119,7 +116,7 @@ public class InternalPermissionService implements ServerComponent {
 
   private void applyUserPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
     Long componentId = getComponentId(permissionChangeQuery.component());
-    List<String> existingPermissions = roleDao.selectUserPermissions(permissionChangeQuery.user(), componentId);
+    List<String> existingPermissions = permissionFacade.selectUserPermissions(permissionChangeQuery.user(), componentId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChangeQuery)) {
       LOG.info("Skipping permission change '{} {}' for user {} as it matches the current permission scheme",
         new String[]{operation, permissionChangeQuery.permission(), permissionChangeQuery.user()});

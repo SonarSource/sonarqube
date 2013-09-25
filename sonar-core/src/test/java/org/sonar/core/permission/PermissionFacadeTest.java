@@ -186,6 +186,11 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
 
     SqlSession session = getMyBatis().openSession();
     try {
+      assertThat(permissionFacade.selectGroupPermissions("devs", 123L)).hasSize(1);
+      assertThat(permissionFacade.selectGroupPermissions("other", 123L)).isEmpty();
+      assertThat(permissionFacade.selectUserPermissions("dave.loper", 123L)).hasSize(1);
+      assertThat(permissionFacade.selectUserPermissions("other.user", 123L)).isEmpty();
+
       permissionFacade.removeAllPermissions(123L, session);
       session.commit();
     } finally {
@@ -194,5 +199,8 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
 
     checkTable("should_remove_all_permissions", "group_roles", "group_id", "resource_id", "role");
     checkTable("should_remove_all_permissions", "user_roles", "user_id", "resource_id", "role");
+
+    assertThat(permissionFacade.selectGroupPermissions("devs", 123L)).isEmpty();
+    assertThat(permissionFacade.selectUserPermissions("dave.loper", 123L)).isEmpty();
   }
 }

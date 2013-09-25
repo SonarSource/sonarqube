@@ -53,7 +53,6 @@ public class InternalPermissionServiceTest {
 
   private Map<String, Object> params;
   private InternalPermissionService service;
-  private RoleDao roleDao;
   private UserDao userDao;
   private ResourceDao resourceDao;
   private PermissionFacade permissionFacade;
@@ -62,7 +61,6 @@ public class InternalPermissionServiceTest {
   public void setUpCommonStubbing() {
     MockUserSession.set().setLogin("admin").setPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    roleDao = mock(RoleDao.class);
     userDao = mock(UserDao.class);
     when(userDao.selectActiveUserByLogin("user")).thenReturn(new UserDto().setId(2L).setLogin("user").setActive(true));
     when(userDao.selectGroupByName("group")).thenReturn(new GroupDto().setId(2L).setName("group"));
@@ -71,7 +69,7 @@ public class InternalPermissionServiceTest {
 
     permissionFacade = mock(PermissionFacade.class);
 
-    service = new InternalPermissionService(roleDao, userDao, resourceDao, permissionFacade);
+    service = new InternalPermissionService(userDao, resourceDao, permissionFacade);
   }
 
   @Test
@@ -356,18 +354,18 @@ public class InternalPermissionServiceTest {
   }
 
   private void setUpGlobalUserPermissions(String login, String... permissions) {
-    when(roleDao.selectUserPermissions(login, null)).thenReturn(Lists.newArrayList(permissions));
+    when(permissionFacade.selectUserPermissions(login, null)).thenReturn(Lists.newArrayList(permissions));
   }
 
   private void setUpGlobalGroupPermissions(String groupName, String... permissions) {
-    when(roleDao.selectGroupPermissions(groupName, null)).thenReturn(Lists.newArrayList(permissions));
+    when(permissionFacade.selectGroupPermissions(groupName, null)).thenReturn(Lists.newArrayList(permissions));
   }
 
   private void setUpComponentUserPermissions(String login, Long componentId, String... permissions) {
-    when(roleDao.selectUserPermissions(login, componentId)).thenReturn(Lists.newArrayList(permissions));
+    when(permissionFacade.selectUserPermissions(login, componentId)).thenReturn(Lists.newArrayList(permissions));
   }
 
   private void setUpComponentGroupPermissions(String groupName, Long componentId, String... permissions) {
-    when(roleDao.selectGroupPermissions(groupName, componentId)).thenReturn(Lists.newArrayList(permissions));
+    when(permissionFacade.selectGroupPermissions(groupName, componentId)).thenReturn(Lists.newArrayList(permissions));
   }
 }
