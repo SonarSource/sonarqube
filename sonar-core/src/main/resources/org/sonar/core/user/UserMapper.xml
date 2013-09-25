@@ -81,10 +81,6 @@
     DELETE FROM active_dashboards WHERE user_id=#{id}
   </delete>
 
-  <delete id="" parameterType="long">
-    DELETE FROM user_roles WHERE user_id=#{id}
-  </delete>
-
   <delete id="deleteUserMeasureFilters" parameterType="long">
     DELETE FROM measure_filters WHERE user_id=#{id}
   </delete>
