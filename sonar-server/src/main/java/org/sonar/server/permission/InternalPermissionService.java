@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.resource.ResourceDao;
@@ -70,6 +71,17 @@ public class InternalPermissionService implements ServerComponent {
 
   public void removePermission(Map<String, Object> params) {
     changePermission(REMOVE, params);
+  }
+
+  public void applyDefaultPermissionTemplate(String componentKey) {
+    UserSession.get().checkLoggedIn();
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+
+    ComponentDto component = (ComponentDto) resourceDao.findByKey(componentKey);
+    if (component == null) {
+      throw new BadRequestException("Component " + componentKey + " does not exists.");
+    }
+    permissionFacade.grantDefaultRoles(component.getId(), component.qualifier());
   }
 
   public void applyPermissionTemplate(Map<String, Object> params) {

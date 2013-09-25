@@ -77,6 +77,7 @@ class Api::ProjectsController < Api::ApiController
     access_denied unless has_role?("provisioning")
 
     Internal.component_api.createComponent(params[:key], params[:name], 'PRJ', 'TRK')
+    Internal.permissions.applyDefaultPermissionTemplate(params[:key])
     render_success("Project %s created" % params[:key])
   end
 

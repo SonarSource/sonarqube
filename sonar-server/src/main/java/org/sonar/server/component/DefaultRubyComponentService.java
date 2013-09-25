@@ -49,6 +49,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
     resourceDao.insertOrUpdate(
       new ResourceDto()
         .setKey(kee)
+        .setName(name)
         .setScope(scope)
         .setQualifier(qualifier)
         .setCreatedAt(new Date()));
@@ -69,6 +70,12 @@ public class DefaultRubyComponentService implements RubyComponentService {
   public DefaultComponentQueryResult findGhostsProjects(Map<String, Object> params) {
     ComponentQuery query = toQuery(params);
     List<Component> components = resourceDao.selectGhostsProjects(query.qualifiers());
+    return finder.find(query, components);
+  }
+
+  public DefaultComponentQueryResult findProvisionedProjects(Map<String, Object> params) {
+    ComponentQuery query = toQuery(params);
+    List<Component> components = resourceDao.selectProvisionedProjects(query.qualifiers());
     return finder.find(query, components);
   }
 
