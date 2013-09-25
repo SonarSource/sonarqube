@@ -19,7 +19,7 @@
 #
 
 #
-# @since SonarQube 3.7
+# Sonar 3.7
 #
 
 class MigrateDefaultPermissions < ActiveRecord::Migration

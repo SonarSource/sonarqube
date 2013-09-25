@@ -19,7 +19,8 @@
 #
 
 #
-# @since SonarQube 4.0
+# Sonar 3.7.1
+# SONAR-4434
 #
 class MigrateUsersNames < ActiveRecord::Migration
 

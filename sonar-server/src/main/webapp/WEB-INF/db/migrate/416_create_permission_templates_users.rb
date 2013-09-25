@@ -18,7 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 #
-# @since Sonar 3.7
+# Sonar 3.7
 # See SONAR-4463
 #
 class CreatePermissionTemplatesUsers < ActiveRecord::Migration
