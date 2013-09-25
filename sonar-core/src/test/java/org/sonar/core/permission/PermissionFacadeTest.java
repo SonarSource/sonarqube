@@ -20,6 +20,8 @@
 
 package org.sonar.core.permission;
 
+import org.sonar.api.config.Settings;
+
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,7 +32,6 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
-
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,7 +49,8 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     RoleDao roleDao = new RoleDao(getMyBatis());
     UserDao userDao = new UserDao(getMyBatis());
     permissionTemplateDao = new PermissionTemplateDao(getMyBatis());
-    permissionFacade = new PermissionFacade(getMyBatis(), roleDao, userDao, permissionTemplateDao);
+    Settings settings = new Settings();
+    permissionFacade = new PermissionFacade(getMyBatis(), roleDao, userDao, permissionTemplateDao, settings);
   }
 
   @Test
@@ -163,7 +165,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     when(permissionTemplateDao.selectTemplateByKey("test_template")).thenReturn(permissionTemplateDto);
     when(permissionTemplateDao.selectPermissionTemplate("Test template")).thenReturn(templateWithPermissions);
 
-    permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao);
+    permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao, null);
 
     PermissionTemplateDto permissionTemplate = permissionFacade.getPermissionTemplate("test_template");
 
@@ -176,7 +178,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
 
     permissionTemplateDao = mock(PermissionTemplateDao.class);
 
-    permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao);
+    permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao, null);
     permissionFacade.getPermissionTemplate("unmatched");
   }
 

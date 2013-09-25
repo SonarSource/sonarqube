@@ -20,16 +20,25 @@
 
 package org.sonar.core.permission;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.task.TaskComponent;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.user.*;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.GroupRoleDto;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserRoleDto;
 
 import javax.annotation.Nullable;
 
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Internal use only
@@ -44,12 +53,14 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
   private final RoleDao roleDao;
   private final UserDao userDao;
   private final PermissionTemplateDao permissionTemplateDao;
+  private final Settings settings;
 
-  public PermissionFacade(MyBatis myBatis, RoleDao roleDao, UserDao userDao, PermissionTemplateDao permissionTemplateDao) {
+  public PermissionFacade(MyBatis myBatis, RoleDao roleDao, UserDao userDao, PermissionTemplateDao permissionTemplateDao, Settings settings) {
     this.myBatis = myBatis;
     this.roleDao = roleDao;
     this.userDao = userDao;
     this.permissionTemplateDao = permissionTemplateDao;
+    this.settings = settings;
   }
 
   public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, @Nullable SqlSession session) {
@@ -189,5 +200,72 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
 
   public List<String> selectUserPermissions(String user, Long componentId) {
     return roleDao.selectUserPermissions(user, componentId);
+  }
+
+  public void grantDefaultRoles(Long componentId, String qualifier) {
+    SqlSession session = myBatis.openSession();
+    try {
+      removeAllPermissions(componentId, session);
+      grantDefaultRoles(componentId, qualifier, UserRole.ADMIN, session);
+      grantDefaultRoles(componentId, qualifier, UserRole.USER, session);
+      grantDefaultRoles(componentId, qualifier, UserRole.CODEVIEWER, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private void grantDefaultRoles(Long resourceId, String qualifier, String role, SqlSession session) {
+    PermissionTemplateDto applicablePermissionTemplate = getDefaultPermissionTemplate(qualifier);
+
+    List<Long> groupIds = getEligibleGroups(role, applicablePermissionTemplate);
+    for (Long groupId : groupIds) {
+      insertGroupPermission(resourceId, groupId, role, session);
+    }
+
+    List<Long> userIds = getEligibleUsers(role, applicablePermissionTemplate);
+    for (Long userId : userIds) {
+      insertUserPermission(resourceId, userId, role, session);
+    }
+  }
+
+  private List<Long> getEligibleGroups(String role, PermissionTemplateDto permissionTemplate) {
+    List<Long> eligibleGroups = newArrayList();
+    List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();
+    if (groupsPermissions != null) {
+      for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
+        if (role.equals(groupPermission.getPermission())) {
+          Long groupId = groupPermission.getGroupId() != null ? groupPermission.getGroupId() : null;
+          eligibleGroups.add(groupId);
+        }
+      }
+    }
+    return eligibleGroups;
+  }
+
+  private List<Long> getEligibleUsers(String role, PermissionTemplateDto permissionTemplate) {
+    List<Long> eligibleUsers = newArrayList();
+    List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
+    if (usersPermissions != null) {
+      for (PermissionTemplateUserDto userPermission : usersPermissions) {
+        if (role.equals(userPermission.getPermission())) {
+          eligibleUsers.add(userPermission.getUserId());
+        }
+      }
+    }
+    return eligibleUsers;
+  }
+
+  private PermissionTemplateDto getDefaultPermissionTemplate(String qualifier) {
+    String qualifierTemplateKey = settings.getString("sonar.permission.template." + qualifier + ".default");
+    if (!StringUtils.isBlank(qualifierTemplateKey)) {
+      return getPermissionTemplate(qualifierTemplateKey);
+    }
+
+    String defaultTemplateKey = settings.getString("sonar.permission.template.default");
+    if (StringUtils.isBlank(defaultTemplateKey)) {
+      throw new IllegalStateException("At least one default permission template should be defined");
+    }
+    return getPermissionTemplate(defaultTemplateKey);
   }
 }

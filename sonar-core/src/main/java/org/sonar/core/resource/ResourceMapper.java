@@ -80,6 +80,8 @@ public interface ResourceMapper {
 
   List<ResourceDto> selectGhostsProjects(@Param("qualifiers") Collection<String> qualifier);
 
+  List<ResourceDto> selectProvisionedProjects(@Param("qualifiers") Collection<String> qualifier);
+
   void insert(ResourceDto resource);
 
   void update(ResourceDto resource);

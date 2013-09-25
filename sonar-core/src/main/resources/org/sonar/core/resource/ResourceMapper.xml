@@ -179,6 +179,19 @@
     </where>
   </select>
 
+  <select id="selectProvisionedProjects" parameterType="map" resultMap="resourceResultMap">
+    select p.* from projects p
+    left join snapshots s on s.project_id=p.id
+    <where>
+      and s.id is null
+      <if test="qualifiers != null and qualifiers.size() > 0">
+        and <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">p.qualifier=#{qualifier}
+        </foreach>
+      </if>
+      and p.copy_resource_id is null
+    </where>
+  </select>
+
   <select id="selectAuthorizedChildrenComponentIds" parameterType="map" resultType="int">
     <include refid="selectAuthorizedChildrenComponentIdsQuery" />
   </select>
