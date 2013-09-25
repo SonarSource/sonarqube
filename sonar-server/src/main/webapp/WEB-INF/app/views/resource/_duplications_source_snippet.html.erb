@@ -41,7 +41,7 @@
         <a 	onclick="
         $j('#expanding<%= group_index -%>').addClass('loading');
           $j.ajax({
-            url:'<%= url_for (:action => :show_duplication_snippet, :params => {:id => 	resource.id, :original_resource_id => original_resource.id, :from_line => from_line, :to_line => included_to_line, :lines_count => lines_count, :group_index => group_index}) -%>',
+            url:'<%= url_for(:action => :show_duplication_snippet, :params => {:id => 	resource.id, :original_resource_id => original_resource.id, :from_line => from_line, :to_line => included_to_line, :lines_count => lines_count, :group_index => group_index}) -%>',
             type:'post',
             success:function(response){$j('#source-<%= group_index -%>').html(response);},
             complete:function(response){$j('#expanding-<%= group_index -%>').removeClass('loading');}});
