@@ -17,30 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.technicaldebt;
+package org.sonar.server.technicaldebt;
 
-import org.sonar.api.qualitymodel.Model;
-import org.sonar.api.qualitymodel.ModelDefinition;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.utils.ValidationMessages;
+public final class XMLConstants {
 
-public final class TechnicalDebtModelDefinition extends ModelDefinition {
-
-  public static final String TECHNICAL_DEBT_MODEL = "TECHNICAL_DEBT";
-
-  private final TechnicalDebtManager technicalDebtManager;
-  private final RuleFinder ruleFinder;
-
-  public TechnicalDebtModelDefinition(TechnicalDebtManager technicalDebtManager, RuleFinder ruleFinder) {
-    super(TECHNICAL_DEBT_MODEL);
-    this.technicalDebtManager = technicalDebtManager;
-    this.ruleFinder = ruleFinder;
+  private XMLConstants(){
+    // Utility class
   }
 
-  @Override
-  public Model createModel() {
-    RuleCache ruleCache = new RuleCache(ruleFinder);
-    return technicalDebtManager.createInitialModel(ValidationMessages.create(), ruleCache);
-  }
-
+  public static final String CHARACTERISTIC = "chc";
+  public static final String CHARACTERISTIC_KEY = "key";
+  public static final String CHARACTERISTIC_NAME = "name";
+  public static final String CHARACTERISTIC_DESCRIPTION = "desc";
+  public static final String PROPERTY = "prop";
+  public static final String PROPERTY_KEY = "key";
+  public static final String PROPERTY_VALUE = "val";
+  public static final String PROPERTY_TEXT_VALUE = "txt";
 }

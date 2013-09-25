@@ -17,25 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.technicaldebt;
 
-import org.junit.Test;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.utils.ValidationMessages;
+@ParametersAreNonnullByDefault
+package org.sonar.server.technicaldebt;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class TechnicalDebtModelDefinitionTest {
-
-  @Test
-  public void shouldCreateModel() throws Exception {
-    TechnicalDebtManager technicalDebtManager = mock(TechnicalDebtManager.class);
-    RuleFinder ruleFinder = mock(RuleFinder.class);
-    TechnicalDebtModelDefinition sqaleDefinition = new TechnicalDebtModelDefinition(technicalDebtManager, ruleFinder);
-
-    sqaleDefinition.createModel();
-
-    verify(technicalDebtManager, times(1)).createInitialModel(any(ValidationMessages.class), any(RuleCache.class));
-  }
-}

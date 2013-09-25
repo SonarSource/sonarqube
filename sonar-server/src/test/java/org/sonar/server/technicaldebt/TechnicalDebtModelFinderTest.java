@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.technicaldebt;
+package org.sonar.server.technicaldebt;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 
 public class TechnicalDebtModelFinderTest {
 
-  private static final String TEST_XML_PREFIX_PATH = "org/sonar/core/technicaldebt/TechnicalDebtModelFinderTest/";
+  private static final String TEST_XML_PREFIX_PATH = "org/sonar/server/technicaldebt/TechnicalDebtModelFinderTest/";
 
   private TechnicalDebtModelFinder modelFinder;
 
