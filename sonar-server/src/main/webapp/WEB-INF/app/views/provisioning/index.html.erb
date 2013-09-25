@@ -1,13 +1,60 @@
-<h1 class="marginbottom10"><%= message('provisioning.page') -%></h1>
+<div class="admin_page">
+  <ul style="float: right" class="horizontal">
+    <li class="marginleft10 add">
+      <%= link_to message('create'), {:action => :create_form, :qualifier => @selected_tab}, :id => "create-link-provisioning", :class => 'open-modal link-action' %>
+    </li>
+  </ul>
 
-<ul class="tabs">
-<% @tabs.each do |tab| %>
-  <li>
-    <a href="<%= url_for :action => 'index', :qualifiers => tab %>" <%= "class='selected'" if @selected_tab==tab -%> id="tab-<%= u tab -%>"><%= message('qualifiers.' + tab) -%></a>
-  </li>
-<% end %>
-</ul>
+  <h1 class="marginbottom10"><%= message('provisioning.page') -%></h1>
 
-<div class="tabs-panel marginbottom10">
+  <ul class="tabs">
+  <% @tabs.each do |tab| %>
+    <li>
+      <a href="<%= url_for :action => 'index', :qualifiers => tab %>" <%= "class='selected'" if @selected_tab==tab -%> id="tab-<%= u tab -%>"><%= message('qualifiers.' + tab) -%></a>
+    </li>
+  <% end %>
+  </ul>
+
+  <div class="tabs-panel marginbottom10">
+
+  <%
+    found_resources_count = @query_result.paging.total
+    found_resources_ids =  @query_result.components.map {|r| r.id.to_s}.join(',')
+  %>
+
+    <% if  @query_result.components.empty? %>
+      <br/>
+      <%= message('no_results') -%>
+    <% else %>
+
+    <table class="data" id="provisioned-resources">
+      <thead>
+        <tr>
+          <th><%= message('name') -%> <span class="small gray"><%= message('key') -%></span></th>
+          <th><%= message('created') -%></th>
+        </tr>
+      </thead>
+      <tbody>
+      <% @query_result.components.each_with_index do |resource, index| %>
+        <tr id="<%= h @selected_tab -%>-<%= h resource.key -%>" class="<%= cycle 'even', 'odd' -%>">
+          <td>
+            <%= link_to h(resource.name), {:controller => :project, :action => :settings, :id => resource.key},
+                      :id => "view-#{u resource.key}" %>
+            <span class="small gray"><%= h resource.key -%></span></td>
+          </td>
+          <td></td>
+        </tr>
+      <% end %>
+      </tbody>
+      <%= paginate_java(@query_result.paging, :colspan => 3, :id => 'resource-provisioning-foot', :include_loading_icon => true) { |label, page_id|
+            link_to(label, params.merge({:pageIndex => page_id}))
+          }
+      %>
+    </table>
+
+    <% end %>
+
+  </div>
 
 </div>
+

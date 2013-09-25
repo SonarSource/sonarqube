@@ -19,9 +19,10 @@
 #
 class ProvisioningController < ApplicationController
 
-  SECTION=Navigation::SECTION_CONFIGURATION
-
   before_filter :admin_required
+  verify :method => :delete, :only => [:delete], :redirect_to => {:action => :index}
+
+  SECTION=Navigation::SECTION_CONFIGURATION
 
   def index
     @tabs = provisionable_qualifiers
@@ -32,7 +33,35 @@ class ProvisioningController < ApplicationController
     params['pageSize'] = 20
     params['qualifiers'] = @selected_tab
 
-    @query_results = Internal.component_api.findProvisioned(:qualifiers)
+    @query_result = Internal.component_api.findProvisionedProjects(params)
+  end
+
+  def create
+    verify_post_request
+    access_denied unless is_admin?
+    @key = params[:key]
+    @name = params[:name]
+    @qualifier = params[:qualifier]
+
+    begin
+      bad_request('provisioning.missing.key') if @key.blank?
+      bad_request('provisioning.missing.name') if @name.blank?
+
+      Internal.component_api.createComponent(@key, @name, 'PRJ', @qualifier)
+      Internal.permissions.applyDefaultPermissionTemplate(@key)
+
+      redirect_to :action => 'index'
+    rescue Exception => e
+      flash[:error]= Api::Utils.message(e.message)
+      render :partial => 'create_form', :qualifier => @qualifier, :key => @key, :name => @name, :status => 400
+    end
+  end
+
+  def create_form
+    @key = params[:key]
+    @name = params[:name]
+    @qualifier = params[:qualifier]
+    render :partial => 'create_form'
   end
 
   private

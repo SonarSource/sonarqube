@@ -50,6 +50,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
       new ResourceDto()
         .setKey(kee)
         .setName(name)
+        .setLongName(name)
         .setScope(scope)
         .setQualifier(qualifier)
         .setCreatedAt(new Date()));

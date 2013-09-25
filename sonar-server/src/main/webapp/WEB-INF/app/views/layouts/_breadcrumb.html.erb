@@ -61,12 +61,16 @@
 
          # ======== Path for resources ========
 
-         if displayed_resource && displayed_resource.last_snapshot
-           resources=[]
-           s=displayed_resource.last_snapshot
-           while (s!=nil) do
-             resources.insert(0, s.project)
-             s=s.parent
+         if displayed_resource
+           if displayed_resource.last_snapshot
+             resources=[]
+             s=displayed_resource.last_snapshot
+             while (s!=nil) do
+               resources.insert(0, s.project)
+               s=s.parent
+             end
+           else
+             resources = [displayed_resource]
            end
       %>
         <%

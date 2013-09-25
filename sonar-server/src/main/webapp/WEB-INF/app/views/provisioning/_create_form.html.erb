@@ -1,0 +1,30 @@
+<form id="create-resource-form" method="post" action="<%= ApplicationController.root_context -%>/provisioning/create">
+  <input type="hidden" name="qualifier" value="<%= @qualifier -%>"/>
+  <fieldset>
+    <% if flash[:error] %>
+      <p class="error"><%= h flash[:error] -%></p>
+    <% end %>
+    <div class="modal-head">
+      <h2><%= message('qualifiers.new.' + @qualifier) -%></h2>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label for="key"><%= h message('key') -%> <em class="mandatory">*</em></label>
+        <input id="key" name="key" value="<%= @key -%>" type="text" size="50" maxlength="400" autofocus="autofocus"/>
+      </div>
+      <div class="modal-field">
+        <label for="name"><%= h message('name') -%> <em class="mandatory">*</em></label>
+        <input id="name" name="name" value="<%= @name -%>" type="text" size="50" maxlength="256" value=""/>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <input type="submit" value="<%= h message('qualifiers.create.' + @qualifier) -%>" id="save-submit"/>
+      <a href="#" onclick="return closeModalWindow()" id="save-cancel"><%= h message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+
+<script>
+  $j("#create-resource-form").modalForm();
+</script>
+
