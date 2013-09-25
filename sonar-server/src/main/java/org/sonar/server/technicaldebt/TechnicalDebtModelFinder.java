@@ -55,10 +55,6 @@ public class TechnicalDebtModelFinder implements ServerExtension, Startable {
   private PluginRepository pluginRepository;
   private Map<String, ClassLoader> contributingPluginKeyToClassLoader;
 
-  /**
-   *
-   * @param pluginRepository
-   */
   public TechnicalDebtModelFinder(PluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
     this.xmlFilePrefix = XML_FILE_PREFIX;
@@ -90,20 +86,23 @@ public class TechnicalDebtModelFinder implements ServerExtension, Startable {
       for (PluginMetadata metadata : pluginRepository.getMetadata()) {
         String pluginKey = metadata.getKey();
         ClassLoader classLoader = pluginRepository.getPlugin(pluginKey).getClass().getClassLoader();
-        if (classLoader.getResource(getXMLFilePathForPlugin(pluginKey)) != null) {
+        if (classLoader.getResource(getXMLFilePath(pluginKey)) != null) {
           contributingPluginKeyToClassLoader.put(pluginKey, classLoader);
         }
       }
+      // Add default model
+      contributingPluginKeyToClassLoader.put(DEFAULT_MODEL, getClass().getClassLoader());
     }
     contributingPluginKeyToClassLoader = Collections.unmodifiableMap(contributingPluginKeyToClassLoader);
   }
 
-  protected String getXMLFilePathForPlugin(String pluginKey) {
-    return xmlFilePrefix + pluginKey + XML_FILE_SUFFIX;
+  @VisibleForTesting
+  String getXMLFilePath(String model) {
+    return xmlFilePrefix + model + XML_FILE_SUFFIX;
   }
 
   /**
-   * Returns the list of plugins that can contribute to the SQALE model (without the default model provided by this plugin).
+   * Returns the list of plugins that can contribute to the technical debt model (without the default model).
    *
    * @return the list of plugin keys
    */
@@ -115,14 +114,19 @@ public class TechnicalDebtModelFinder implements ServerExtension, Startable {
 
   /**
    * Creates a new {@link java.io.Reader} for the XML file that contains the model contributed by the given plugin.
-   * 
+   *
    * @param pluginKey the key of the plugin that contributes the XML file
    * @return the reader, that must be closed once its use is finished.
    */
   public Reader createReaderForXMLFile(String pluginKey) {
     ClassLoader classLoader = contributingPluginKeyToClassLoader.get(pluginKey);
-    String xmlFilePath = getXMLFilePathForPlugin(pluginKey);
+    String xmlFilePath = getXMLFilePath(pluginKey);
     return new InputStreamReader(classLoader.getResourceAsStream(xmlFilePath));
+  }
+
+  @VisibleForTesting
+  Map<String, ClassLoader> getContributingPluginKeyToClassLoader(){
+    return contributingPluginKeyToClassLoader;
   }
 
   /**

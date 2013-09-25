@@ -17,30 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.technicaldebt;
+package org.sonar.server.startup;
 
-import org.sonar.api.qualitymodel.Model;
-import org.sonar.api.qualitymodel.ModelDefinition;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.server.technicaldebt.RuleCache;
+import org.sonar.server.technicaldebt.TechnicalDebtManager;
 
-public final class TechnicalDebtModelDefinition extends ModelDefinition {
+public final class RegisterTechnicalDebtModel {
 
   public static final String TECHNICAL_DEBT_MODEL = "TECHNICAL_DEBT";
 
   private final TechnicalDebtManager technicalDebtManager;
   private final RuleFinder ruleFinder;
 
-  public TechnicalDebtModelDefinition(TechnicalDebtManager technicalDebtManager, RuleFinder ruleFinder) {
-    super(TECHNICAL_DEBT_MODEL);
+  /**
+   * @param registerRulesBeforeModels used only to be started after the creation of check templates
+   */
+  public RegisterTechnicalDebtModel(TechnicalDebtManager technicalDebtManager, RuleFinder ruleFinder, RegisterRules registerRulesBeforeModels) {
     this.technicalDebtManager = technicalDebtManager;
     this.ruleFinder = ruleFinder;
   }
 
-  @Override
-  public Model createModel() {
+  public void start() {
     RuleCache ruleCache = new RuleCache(ruleFinder);
-    return technicalDebtManager.createInitialModel(ValidationMessages.create(), ruleCache);
+    technicalDebtManager.reset(ValidationMessages.create(), ruleCache);
   }
 
 }

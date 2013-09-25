@@ -58,5 +58,23 @@
         </prop>
       </chc>
     </chc>
+    <chc>
+      <!-- New characteristic -->
+      <key>UNDERSTANDABILITY</key>
+      <name>Understandability related maintainability</name>
+      <chc>
+        <rule-repo>checkstyle</rule-repo>
+        <rule-key>JavadocMethodCheck</rule-key>
+        <prop>
+          <key>remediationFactor</key>
+          <val>30.0</val>
+          <txt>mn</txt>
+        </prop>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>linear</txt>
+        </prop>
+      </chc>
+    </chc>
   </chc>
 </sqale>

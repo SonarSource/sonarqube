@@ -29,6 +29,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.server.startup.RegisterTechnicalDebtModel;
 
 import java.io.IOException;
 
@@ -102,7 +103,7 @@ public class XMLImporterTest {
   private void checkXmlCorrectlyImported(Model sqale, ValidationMessages messages) {
 
     assertThat(messages.getErrors()).isEmpty();
-    assertThat(sqale.getName()).isEqualTo(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
+    assertThat(sqale.getName()).isEqualTo(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
 
     // characteristics
     assertThat(sqale.getRootCharacteristics()).hasSize(2);

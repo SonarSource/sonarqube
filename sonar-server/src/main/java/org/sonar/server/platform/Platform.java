@@ -75,10 +75,10 @@ import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.configuration.Backup;
 import org.sonar.server.configuration.ProfilesManager;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
+import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.DatabaseMigrations;
+import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.issue.*;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
@@ -90,6 +90,9 @@ import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rules.ProfilesConsole;
 import org.sonar.server.rules.RulesConsole;
 import org.sonar.server.startup.*;
+import org.sonar.server.technicaldebt.TechnicalDebtManager;
+import org.sonar.server.technicaldebt.TechnicalDebtModelFinder;
+import org.sonar.server.technicaldebt.XMLImporter;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.*;
@@ -307,6 +310,11 @@ public final class Platform {
     // rules
     servicesContainer.addSingleton(RubyRuleService.class);
 
+    // technical debt
+    servicesContainer.addSingleton(TechnicalDebtManager.class);
+    servicesContainer.addSingleton(TechnicalDebtModelFinder.class);
+    servicesContainer.addSingleton(XMLImporter.class);
+
     // text
     servicesContainer.addSingleton(MacroInterpreter.class);
     servicesContainer.addSingleton(RubyTextService.class);
@@ -337,6 +345,7 @@ public final class Platform {
     startupContainer.addSingleton(RegisterNewProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);
     startupContainer.addSingleton(RegisterQualityModels.class);
+//    startupContainer.addSingleton(RegisterTechnicalDebtModel.class);
     startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);
     startupContainer.addSingleton(GenerateBootstrapIndex.class);

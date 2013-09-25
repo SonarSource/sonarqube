@@ -29,10 +29,10 @@ import org.sonar.api.qualitymodel.Model;
 import org.sonar.api.qualitymodel.ModelFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.server.startup.RegisterTechnicalDebtModel;
 
 import java.io.Reader;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * TODO test merge properties + property.value + text_value
@@ -41,6 +41,8 @@ import java.util.List;
 public class TechnicalDebtManager implements ServerExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(TechnicalDebtManager.class);
+
+  private static final int REQUIREMENT_LEVEL = 3;
 
   private DatabaseSessionFactory sessionFactory;
   private ModelFinder modelFinder;
@@ -55,69 +57,30 @@ public class TechnicalDebtManager implements ServerExtension {
     this.importer = importer;
   }
 
-  public void restore(Model model, ValidationMessages messages, RuleCache rulesCache) {
-    Model persisted = modelFinder.findByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
-    if (persisted != null) {
-      disable(persisted);
-    }
-    merge(model, messages, rulesCache);
-  }
-
-  public Model resetModel(ValidationMessages messages, RuleCache ruleCache) {
-    Model persisted = modelFinder.findByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
-    if (persisted != null) {
-      disable(persisted);
-    }
-
-    Model model = modelFinder.findByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
-    importDefaultSqaleModel(model, messages, ruleCache);
-    populateModelWithInitialValues(model, messages, ruleCache);
-
+  public Model reset(ValidationMessages messages, RuleCache rulesCache) {
     DatabaseSession session = sessionFactory.getSession();
+
+    resetExistingModel();
+    Model model = populateModel(messages, rulesCache);
+
     session.save(model);
     session.commit();
-
     return model;
   }
 
-  public Model createInitialModel(ValidationMessages messages, RuleCache ruleCache) {
-    Model initialModel = Model.createByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
-    importDefaultSqaleModel(initialModel, messages, ruleCache);
-    populateModelWithInitialValues(initialModel, messages, ruleCache);
-    return initialModel;
+  private Model populateModel(ValidationMessages messages, RuleCache ruleCache) {
+    Model model = getModel();
+    importDefaultModel(model, messages, ruleCache);
+    populateModelWithInitialValues(model, messages, ruleCache);
+    return model;
   }
 
-  public void merge(List<String> pluginKeys, ValidationMessages messages, RuleCache ruleCache) {
-    for (String pluginKey : pluginKeys) {
-      ValidationMessages currentMessages = ValidationMessages.create();
-      Model model = null;
-      Reader xmlFileReader = null;
-      try {
-        xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
-        model = importer.importXML(xmlFileReader, currentMessages, ruleCache);
-      } finally {
-        IOUtils.closeQuietly(xmlFileReader);
-      }
-      if (!currentMessages.hasErrors()) {
-        merge(model, messages, ruleCache);
-      } else {
-        for (String error : currentMessages.getErrors()) {
-          messages.addErrorText(error);
-        }
-      }
+  private Model getModel() {
+    Model existingModel = modelFinder.findByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+    if (existingModel == null) {
+      return Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     }
-  }
-
-  public void merge(Model with, ValidationMessages messages, RuleCache ruleCache) {
-    DatabaseSession session = sessionFactory.getSession();
-    Model sqale = modelFinder.findByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
-    if (sqale == null) {
-      sqale = Model.createByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
-      session.saveWithoutFlush(sqale);
-    }
-    new TechnicalDebtModel(sqale).mergeWith(with, messages, ruleCache);
-    session.saveWithoutFlush(sqale);
-    session.commit();
+    return existingModel;
   }
 
   private void populateModelWithInitialValues(Model initialModel, ValidationMessages messages, RuleCache ruleCache) {
@@ -126,12 +89,15 @@ public class TechnicalDebtManager implements ServerExtension {
     }
   }
 
+  private void importDefaultModel(Model initialModel, ValidationMessages messages, RuleCache ruleCache) {
+    mergePlugin(initialModel, TechnicalDebtModelFinder.DEFAULT_MODEL, messages, ruleCache);
+  }
+
   private void mergePlugin(Model initialModel, String pluginKey, ValidationMessages messages, RuleCache ruleCache) {
     Model model = null;
     Reader xmlFileReader = null;
     try {
       xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
-
       model = importer.importXML(xmlFileReader, messages, ruleCache);
     } finally {
       IOUtils.closeQuietly(xmlFileReader);
@@ -143,18 +109,18 @@ public class TechnicalDebtManager implements ServerExtension {
     }
   }
 
-  private void disable(Model persisted) {
-    for (Characteristic root : persisted.getRootCharacteristics()) {
-      persisted.removeCharacteristic(root);
+  private void resetExistingModel() {
+    Model existingModel = modelFinder.findByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+    if (existingModel != null) {
+      for (Characteristic root : existingModel.getCharacteristicsByDepth(REQUIREMENT_LEVEL)) {
+        existingModel.removeCharacteristic(root);
+      }
+      sessionFactory.getSession().commit();
     }
-    sessionFactory.getSession().commit();
   }
 
   private Collection<String> getContributingPluginListWithoutSqale(){
     return languageModelFinder.getContributingPluginList();
   }
 
-  private void importDefaultSqaleModel(Model initialModel, ValidationMessages messages, RuleCache ruleCache) {
-    mergePlugin(initialModel, TechnicalDebtModelFinder.DEFAULT_MODEL, messages, ruleCache);
-  }
 }

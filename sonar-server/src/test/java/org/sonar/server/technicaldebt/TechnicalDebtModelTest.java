@@ -28,6 +28,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.server.startup.RegisterTechnicalDebtModel;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -41,13 +42,13 @@ public class TechnicalDebtModelTest {
 
   @Before
   public void setUpModel() {
-    model = Model.createByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
+    model = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     technicalDebtModel = new TechnicalDebtModel(model);
   }
 
   @Test
   public void shouldMergeWithEmptyModel() {
-    Model with = Model.createByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
+    Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     Characteristic efficiency = with.createCharacteristicByKey("efficiency", "Efficiency");
     efficiency.addChild(with.createCharacteristicByKey("ram-efficiency", "RAM Efficiency"));
     with.createCharacteristicByKey("usability", "Usability");
@@ -66,7 +67,7 @@ public class TechnicalDebtModelTest {
   public void shouldNotUpdateExistingCharacteristics() {
     model.createCharacteristicByKey("efficiency", "Efficiency");
 
-    Model with = Model.createByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
+    Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     with.createCharacteristicByKey("efficiency", "New efficiency");
 
     technicalDebtModel.mergeWith(with, ValidationMessages.create(), mockRuleCache());
@@ -78,7 +79,7 @@ public class TechnicalDebtModelTest {
 
   @Test
   public void shouldWarnOnMissingRule() {
-    Model with = Model.createByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
+    Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     Characteristic efficiency = with.createCharacteristicByKey("efficiency", "Efficiency");
     Rule fooRule = Rule.create("foo", "bar", "Bar");
     Characteristic requirement = with.createCharacteristicByRule(fooRule);

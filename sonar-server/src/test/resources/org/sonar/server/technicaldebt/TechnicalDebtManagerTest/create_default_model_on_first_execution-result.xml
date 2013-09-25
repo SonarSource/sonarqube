@@ -1,0 +1,16 @@
+<dataset>
+  <quality_models id="1" name="TECHNICAL_DEBT"/>
+
+  <characteristics id="1" kee="COMPILER_RELATED_PORTABILITY" name="Compiler related portability" quality_model_id="1" rule_id="[null]" characteristic_order="1" depth="2"
+                   description="[null]" enabled="true"/>
+  <characteristics id="2" kee="PORTABILITY" name="Portability" quality_model_id="1" rule_id="[null]" characteristic_order="2" depth="1" description="[null]" enabled="true"/>
+  <characteristics id="3" kee="HARDWARE_RELATED_PORTABILITY" name="Hardware related portability" quality_model_id="1" rule_id="[null]" characteristic_order="3" depth="2"
+                   description="[null]" enabled="true"/>
+  <characteristics id="4" kee="READABILITY" name="Readability" quality_model_id="1" rule_id="[null]" characteristic_order="4" depth="2" description="[null]" enabled="true"/>
+  <characteristics id="5" kee="MAINTAINABILITY" name="Maintainability" quality_model_id="1" rule_id="[null]" characteristic_order="5" depth="1" description="[null]" enabled="true"/>
+
+  <characteristic_edges child_id="1" parent_id="2"/>
+  <characteristic_edges child_id="3" parent_id="2"/>
+  <characteristic_edges child_id="4" parent_id="5"/>
+
+</dataset>

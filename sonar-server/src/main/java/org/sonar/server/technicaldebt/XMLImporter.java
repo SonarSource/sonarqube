@@ -33,6 +33,7 @@ import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.qualitymodel.Model;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.server.startup.RegisterTechnicalDebtModel;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -50,7 +51,7 @@ public class XMLImporter implements ServerExtension {
   }
 
   public Model importXML(Reader xml, ValidationMessages messages, RuleCache repositoryCache) {
-    Model sqale = Model.createByName(TechnicalDebtModelDefinition.TECHNICAL_DEBT_MODEL);
+    Model sqale = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     try {
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor cursor = inputFactory.rootElementCursor(xml);
@@ -81,8 +82,7 @@ public class XMLImporter implements ServerExtension {
     return new SMInputFactory(xmlFactory);
   }
 
-  private Characteristic processCharacteristic(Model sqale, SMInputCursor chcCursor, ValidationMessages messages,
-                                               RuleCache ruleCache) throws XMLStreamException {
+  private Characteristic processCharacteristic(Model sqale, SMInputCursor chcCursor, ValidationMessages messages, RuleCache ruleCache) throws XMLStreamException {
     Characteristic characteristic = Characteristic.create();
     SMInputCursor cursor = chcCursor.childElementCursor();
 

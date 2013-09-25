@@ -105,7 +105,14 @@ public class TechnicalDebtModelFinderTest {
   @Test
   public void return_xml_file_path_for_plugin() throws Exception {
     initModel();
-    assertThat(modelFinder.getXMLFilePathForPlugin("foo")).isEqualTo(TEST_XML_PREFIX_PATH + "foo-model.xml");
+    assertThat(modelFinder.getXMLFilePath("foo")).isEqualTo(TEST_XML_PREFIX_PATH + "foo-model.xml");
+  }
+
+  @Test
+  public void contain_default_model() throws Exception {
+    modelFinder = new TechnicalDebtModelFinder(mock(PluginRepository.class));
+    modelFinder.start();
+    assertThat(modelFinder.getContributingPluginKeyToClassLoader().keySet()).containsOnly("technical-debt");
   }
 
   private void initModel() throws MalformedURLException {
