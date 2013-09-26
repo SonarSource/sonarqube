@@ -345,7 +345,7 @@ public final class Platform {
     startupContainer.addSingleton(RegisterNewProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);
     startupContainer.addSingleton(RegisterQualityModels.class);
-//    startupContainer.addSingleton(RegisterTechnicalDebtModel.class);
+    startupContainer.addSingleton(RegisterTechnicalDebtModel.class);
     startupContainer.addSingleton(DeleteDeprecatedMeasures.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);
     startupContainer.addSingleton(GenerateBootstrapIndex.class);

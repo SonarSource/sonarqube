@@ -19,12 +19,17 @@
  */
 package org.sonar.server.startup;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.technicaldebt.RuleCache;
 import org.sonar.server.technicaldebt.TechnicalDebtManager;
 
 public final class RegisterTechnicalDebtModel {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(RegisterTechnicalDebtModel.class);
 
   public static final String TECHNICAL_DEBT_MODEL = "TECHNICAL_DEBT";
 
@@ -40,8 +45,10 @@ public final class RegisterTechnicalDebtModel {
   }
 
   public void start() {
+    TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register Technical Debt Model");
     RuleCache ruleCache = new RuleCache(ruleFinder);
     technicalDebtManager.init(ValidationMessages.create(), ruleCache);
+    profiler.stop();
   }
 
 }

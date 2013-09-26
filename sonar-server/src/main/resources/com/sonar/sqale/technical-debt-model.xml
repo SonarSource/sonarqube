@@ -145,6 +145,18 @@
     </chc>
   </chc>
   <chc>
+    <key>REUSABILITY</key>
+    <name>Reusability</name>
+    <chc>
+      <key>MODULARITY</key>
+      <name>Modularity</name>
+    </chc>
+    <chc>
+      <key>TRANSPORTABILITY</key>
+      <name>Transportability</name>
+    </chc>
+  </chc>
+  <chc>
     <key>TESTABILITY</key>
     <name>Testability</name>
     <chc>
