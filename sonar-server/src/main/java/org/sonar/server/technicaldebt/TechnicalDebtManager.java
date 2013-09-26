@@ -60,22 +60,17 @@ public class TechnicalDebtManager implements ServerExtension {
   public Model reset(ValidationMessages messages, RuleCache rulesCache) {
     DatabaseSession session = sessionFactory.getSession();
 
-    resetExistingModel();
-    Model model = populateModel(messages, rulesCache);
+    resetRequirements();
+    Model model = loadModelFromDb();
+    importDefaultModel(model, messages, rulesCache);
+    loadRequirementsFromPlugins(model, messages, rulesCache);
 
     session.save(model);
     session.commit();
     return model;
   }
 
-  private Model populateModel(ValidationMessages messages, RuleCache ruleCache) {
-    Model model = getModel();
-    importDefaultModel(model, messages, ruleCache);
-    populateModelWithInitialValues(model, messages, ruleCache);
-    return model;
-  }
-
-  private Model getModel() {
+  private Model loadModelFromDb() {
     Model existingModel = modelFinder.findByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     if (existingModel == null) {
       return Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
@@ -83,25 +78,18 @@ public class TechnicalDebtManager implements ServerExtension {
     return existingModel;
   }
 
-  private void populateModelWithInitialValues(Model initialModel, ValidationMessages messages, RuleCache ruleCache) {
+  private void importDefaultModel(Model model, ValidationMessages messages, RuleCache rulesCache){
+    mergeRequirementsFromPlugin(model, TechnicalDebtModelFinder.DEFAULT_MODEL, messages, rulesCache);
+  }
+
+  private void loadRequirementsFromPlugins(Model initialModel, ValidationMessages messages, RuleCache ruleCache) {
     for (String pluginKey : getContributingPluginListWithoutSqale()) {
-      mergePlugin(initialModel, pluginKey, messages, ruleCache);
+      mergeRequirementsFromPlugin(initialModel, pluginKey, messages, ruleCache);
     }
   }
 
-  private void importDefaultModel(Model initialModel, ValidationMessages messages, RuleCache ruleCache) {
-    mergePlugin(initialModel, TechnicalDebtModelFinder.DEFAULT_MODEL, messages, ruleCache);
-  }
-
-  private void mergePlugin(Model initialModel, String pluginKey, ValidationMessages messages, RuleCache ruleCache) {
-    Model model = null;
-    Reader xmlFileReader = null;
-    try {
-      xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
-      model = importer.importXML(xmlFileReader, messages, ruleCache);
-    } finally {
-      IOUtils.closeQuietly(xmlFileReader);
-    }
+  private void mergeRequirementsFromPlugin(Model initialModel, String pluginKey, ValidationMessages messages, RuleCache ruleCache) {
+    Model model = loadModelFromXml(pluginKey, messages, ruleCache);
     messages.log(LOG);
     if (!messages.hasErrors()) {
       new TechnicalDebtModel(initialModel).mergeWith(model, messages, ruleCache);
@@ -109,7 +97,17 @@ public class TechnicalDebtManager implements ServerExtension {
     }
   }
 
-  private void resetExistingModel() {
+  private Model loadModelFromXml(String pluginKey, ValidationMessages messages, RuleCache ruleCache){
+    Reader xmlFileReader = null;
+    try {
+      xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
+      return importer.importXML(xmlFileReader, messages, ruleCache);
+    } finally {
+      IOUtils.closeQuietly(xmlFileReader);
+    }
+  }
+
+  private void resetRequirements() {
     Model existingModel = modelFinder.findByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     if (existingModel != null) {
       for (Characteristic root : existingModel.getCharacteristicsByDepth(REQUIREMENT_LEVEL)) {
