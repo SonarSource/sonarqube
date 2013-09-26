@@ -70,7 +70,7 @@ public final class StartServer {
   }
 
   /**
-   * @see org.sonar.server.platform.SonarHome.SONAR_HOME
+   * @see org.sonar.server.platform.SonarHome#SONAR_HOME
    */
   private static void configureHome() throws URISyntaxException {
     File confFile = new File(StartServer.class.getResource(PROPERTIES_FILE_PATH).toURI());

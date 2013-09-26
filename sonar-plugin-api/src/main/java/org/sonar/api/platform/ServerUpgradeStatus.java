@@ -27,7 +27,7 @@ import org.sonar.api.ServerComponent;
 public interface ServerUpgradeStatus extends ServerComponent {
 
   /**
-   * Has the database been upgraded during the current startup ? Return false if isInstalledFromScratch() is true.
+   * Has the database been upgraded during the current startup ? Return false when {@link #isFreshInstall()} is true.
    */
   boolean isUpgraded();
 
