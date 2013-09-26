@@ -1,0 +1,46 @@
+<dataset>
+  <quality_models id="1" name="TECHNICAL_DEBT"/>
+
+  <characteristics id="1" kee="COMPILER_RELATED_PORTABILITY" name="Compiler related portability" quality_model_id="1" rule_id="[null]" characteristic_order="1" depth="2"
+                   description="[null]" enabled="true"/>
+
+  <!-- Exiting requirement -->
+  <characteristics id="2" kee="[null]" name="[null]" quality_model_id="1" rule_id="1" characteristic_order="6" depth="3"
+                   description="[null]" enabled="true"/>
+
+  <characteristics id="3" kee="PORTABILITY" name="Portability" quality_model_id="1" rule_id="[null]" characteristic_order="2" depth="1" description="[null]" enabled="true"/>
+  <!-- Removed characteristic -->
+  <characteristics id="4" kee="HARDWARE_RELATED_PORTABILITY" name="Hardware related portability" quality_model_id="1" rule_id="[null]" characteristic_order="3" depth="2"
+                   description="[null]" enabled="false"/>
+
+  <characteristics id="5" kee="READABILITY" name="Readability" quality_model_id="1" rule_id="[null]" characteristic_order="4" depth="2" description="[null]" enabled="true"/>
+  <characteristics id="6" kee="MAINTAINABILITY" name="Maintainability" quality_model_id="1" rule_id="[null]" characteristic_order="5" depth="1" description="[null]"
+                   enabled="true"/>
+
+  <!-- Characteristic recreated -->
+  <characteristics id="7" kee="HARDWARE_RELATED_PORTABILITY" name="Hardware related portability" quality_model_id="1" rule_id="[null]" characteristic_order="7" depth="2"
+                   description="[null]" enabled="true"/>
+
+  <!-- New requirement -->
+  <characteristics id="8" kee="[null]" name="[null]" quality_model_id="1" rule_id="2" characteristic_order="8" depth="3"
+                   description="[null]" enabled="true"/>
+
+  <characteristic_edges child_id="1" parent_id="3"/>
+  <characteristic_edges child_id="2" parent_id="1"/>
+  <characteristic_edges child_id="4" parent_id="3"/>
+  <characteristic_edges child_id="5" parent_id="6"/>
+  <!-- On recreated characteristic -->
+  <characteristic_edges child_id="7" parent_id="3"/>
+  <!-- On new requirement -->
+  <characteristic_edges child_id="8" parent_id="7"/>
+
+  <characteristic_properties id="1" characteristic_id="2" kee="remediationFactor" value="30.0" text_value="mn"/>
+  <characteristic_properties id="2" characteristic_id="2" kee="remediationFunction" value="[null]" text_value="linear"/>
+  <!-- On new requirement -->
+  <characteristic_properties id="3" characteristic_id="8" kee="remediationFactor" value="1.0" text_value="h"/>
+  <characteristic_properties id="4" characteristic_id="8" kee="remediationFunction" value="[null]" text_value="linear"/>
+
+  <rules id="1" plugin_rule_key="import" plugin_config_key="regexp" plugin_name="checkstyle" description="[null]" priority="3" status="READY" cardinality="SINGLE" parent_id="[null]" name="Regular exp"/>
+  <rules id="2" plugin_rule_key="export" plugin_config_key="regexp" plugin_name="checkstyle" description="[null]" priority="3" status="READY" cardinality="SINGLE" parent_id="[null]" name="Regular exp"/>
+
+</dataset>

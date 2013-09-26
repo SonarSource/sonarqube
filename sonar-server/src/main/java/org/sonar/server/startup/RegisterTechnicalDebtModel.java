@@ -41,7 +41,7 @@ public final class RegisterTechnicalDebtModel {
 
   public void start() {
     RuleCache ruleCache = new RuleCache(ruleFinder);
-    technicalDebtManager.reset(ValidationMessages.create(), ruleCache);
+    technicalDebtManager.init(ValidationMessages.create(), ruleCache);
   }
 
 }

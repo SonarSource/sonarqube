@@ -57,67 +57,70 @@ public class TechnicalDebtManager implements ServerExtension {
     this.importer = importer;
   }
 
-  public Model reset(ValidationMessages messages, RuleCache rulesCache) {
+  public Model init(ValidationMessages messages, RuleCache rulesCache) {
     DatabaseSession session = sessionFactory.getSession();
 
-    resetRequirements();
-    Model model = loadModelFromDb();
-    importDefaultModel(model, messages, rulesCache);
-    loadRequirementsFromPlugins(model, messages, rulesCache);
+    disableRequirementsOnRemovedRules(rulesCache);
+
+    Model defaultModel = loadModelFromXml(TechnicalDebtModelFinder.DEFAULT_MODEL, messages, rulesCache);
+    Model model = loadOrCreateModelFromDb(defaultModel, messages, rulesCache);
+    loadRequirementsFromPlugins(model, defaultModel, messages, rulesCache);
 
     session.save(model);
     session.commit();
     return model;
   }
 
-  private Model loadModelFromDb() {
-    Model existingModel = modelFinder.findByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
-    if (existingModel == null) {
-      return Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+  private Model loadOrCreateModelFromDb(Model defaultModel, ValidationMessages messages, RuleCache rulesCache) {
+    Model model = modelFinder.findByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+    if (model == null) {
+      model = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+      merge(defaultModel, model, defaultModel, messages, rulesCache);
     }
-    return existingModel;
+    return model;
   }
 
-  private void importDefaultModel(Model model, ValidationMessages messages, RuleCache rulesCache){
-    mergeRequirementsFromPlugin(model, TechnicalDebtModelFinder.DEFAULT_MODEL, messages, rulesCache);
-  }
-
-  private void loadRequirementsFromPlugins(Model initialModel, ValidationMessages messages, RuleCache ruleCache) {
-    for (String pluginKey : getContributingPluginListWithoutSqale()) {
-      mergeRequirementsFromPlugin(initialModel, pluginKey, messages, ruleCache);
-    }
-  }
-
-  private void mergeRequirementsFromPlugin(Model initialModel, String pluginKey, ValidationMessages messages, RuleCache ruleCache) {
-    Model model = loadModelFromXml(pluginKey, messages, ruleCache);
+  private void merge(Model pluginModel, Model existingModel, Model defaultModel, ValidationMessages messages, RuleCache rulesCache) {
     messages.log(LOG);
     if (!messages.hasErrors()) {
-      new TechnicalDebtModel(initialModel).mergeWith(model, messages, ruleCache);
+      new TechnicalDebtModel(existingModel, defaultModel.getCharacteristics()).mergeWith(pluginModel, messages, rulesCache);
       messages.log(LOG);
     }
   }
 
-  private Model loadModelFromXml(String pluginKey, ValidationMessages messages, RuleCache ruleCache){
+  private void loadRequirementsFromPlugins(Model existingModel, Model defaultModel, ValidationMessages messages, RuleCache rulesCache) {
+    for (String pluginKey : getContributingPluginListWithoutSqale()) {
+      Model pluginModel = loadModelFromXml(pluginKey, messages, rulesCache);
+      merge(pluginModel, existingModel, defaultModel, messages, rulesCache);
+    }
+  }
+
+  private Model loadModelFromXml(String pluginKey, ValidationMessages messages, RuleCache rulesCache) {
     Reader xmlFileReader = null;
     try {
       xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
-      return importer.importXML(xmlFileReader, messages, ruleCache);
+      return importer.importXML(xmlFileReader, messages, rulesCache);
     } finally {
       IOUtils.closeQuietly(xmlFileReader);
     }
   }
 
-  private void resetRequirements() {
+  /**
+   * Disable requirements linked on removed rules
+   */
+  private void disableRequirementsOnRemovedRules(RuleCache rulesCache) {
     Model existingModel = modelFinder.findByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     if (existingModel != null) {
-      for (Characteristic root : existingModel.getCharacteristicsByDepth(REQUIREMENT_LEVEL)) {
-        existingModel.removeCharacteristic(root);
+      for (Characteristic requirement : existingModel.getCharacteristicsByDepth(REQUIREMENT_LEVEL)) {
+        if (!rulesCache.exists(requirement.getRule())) {
+          existingModel.removeCharacteristic(requirement);
+        }
       }
       sessionFactory.getSession().commit();
     }
   }
 
-  private Collection<String> getContributingPluginListWithoutSqale(){
+  private Collection<String> getContributingPluginListWithoutSqale() {
     return languageModelFinder.getContributingPluginList();
   }
 

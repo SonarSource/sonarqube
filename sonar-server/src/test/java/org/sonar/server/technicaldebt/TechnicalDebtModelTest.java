@@ -19,7 +19,6 @@
  */
 package org.sonar.server.technicaldebt;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.qualitymodel.Characteristic;
@@ -30,7 +29,11 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.startup.RegisterTechnicalDebtModel;
 
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,22 +42,26 @@ public class TechnicalDebtModelTest {
 
   private Model model;
   private TechnicalDebtModel technicalDebtModel;
+  private List<Characteristic> defaultCharacteristics;
 
   @Before
   public void setUpModel() {
     model = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
-    technicalDebtModel = new TechnicalDebtModel(model);
+    defaultCharacteristics = newArrayList();
+    technicalDebtModel = new TechnicalDebtModel(model, defaultCharacteristics);
   }
 
   @Test
-  public void shouldMergeWithEmptyModel() {
+  public void merge_with_empty_model() {
     Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     Characteristic efficiency = with.createCharacteristicByKey("efficiency", "Efficiency");
-    efficiency.addChild(with.createCharacteristicByKey("ram-efficiency", "RAM Efficiency"));
-    with.createCharacteristicByKey("usability", "Usability");
+    Characteristic ramEfficiency = with.createCharacteristicByKey("ram-efficiency", "RAM Efficiency");
+    efficiency.addChild(ramEfficiency);
+    Characteristic usability = with.createCharacteristicByKey("usability", "Usability");
 
     ValidationMessages messages = ValidationMessages.create();
 
+    defaultCharacteristics.addAll(newArrayList(efficiency, ramEfficiency, usability));
     technicalDebtModel.mergeWith(with, messages, mockRuleCache());
 
     assertThat(model.getCharacteristics()).hasSize(3);
@@ -64,7 +71,7 @@ public class TechnicalDebtModelTest {
   }
 
   @Test
-  public void shouldNotUpdateExistingCharacteristics() {
+  public void not_update_existing_characteristics() {
     model.createCharacteristicByKey("efficiency", "Efficiency");
 
     Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
@@ -78,7 +85,7 @@ public class TechnicalDebtModelTest {
   }
 
   @Test
-  public void shouldWarnOnMissingRule() {
+  public void warn_on_missing_rule() {
     Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     Characteristic efficiency = with.createCharacteristicByKey("efficiency", "Efficiency");
     Rule fooRule = Rule.create("foo", "bar", "Bar");
@@ -87,6 +94,7 @@ public class TechnicalDebtModelTest {
 
     ValidationMessages messages = ValidationMessages.create();
 
+    defaultCharacteristics.add(efficiency);
     technicalDebtModel.mergeWith(with, messages, mockRuleCache());
 
     assertThat(model.getCharacteristics()).hasSize(1);
@@ -96,9 +104,28 @@ public class TechnicalDebtModelTest {
     assertThat(messages.getWarnings().get(0)).contains("foo"); // warning: the rule foo does not exist
   }
 
+  @Test
+  public void fail_when_adding_characteristic_not_existing_in_default_characteristics() {
+    Model with = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+    Characteristic efficiency = with.createCharacteristicByKey("efficiency", "Efficiency");
+    // usability is not available in default characteristics
+    with.createCharacteristicByKey("usability", "Usability");
+
+    ValidationMessages messages = ValidationMessages.create();
+
+    defaultCharacteristics.add(efficiency);
+    try {
+      technicalDebtModel.mergeWith(with, messages, mockRuleCache());
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class);
+    }
+    assertThat(model.getCharacteristics()).hasSize(1);
+  }
+
   private RuleCache mockRuleCache() {
     RuleFinder ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.findAll(any(RuleQuery.class))).thenReturn(Lists.newArrayList(newRegexpRule()));
+    when(ruleFinder.findAll(any(RuleQuery.class))).thenReturn(newArrayList(newRegexpRule()));
     return new RuleCache(ruleFinder);
   }
 

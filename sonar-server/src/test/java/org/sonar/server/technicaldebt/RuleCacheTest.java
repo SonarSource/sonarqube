@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
 public class RuleCacheTest {
 
   @Test
-  public void should_lazy_load_rules_on_first_call() throws Exception {
+  public void lazy_load_rules_on_first_call() throws Exception {
 
     RuleFinder ruleFinder = mock(RuleFinder.class);
     when(ruleFinder.findAll(any(RuleQuery.class))).thenReturn(Collections.EMPTY_LIST);
@@ -47,7 +47,7 @@ public class RuleCacheTest {
   }
 
   @Test
-  public void should_return_matching_rule() throws Exception {
+  public void return_matching_rule() throws Exception {
 
     Rule rule1 = Rule.create("repo1", "rule1");
     Rule rule2 = Rule.create("repo2", "rule2");
@@ -61,5 +61,20 @@ public class RuleCacheTest {
 
     assertThat(actualRule1).isEqualTo(rule1);
     assertThat(actualRule2).isEqualTo(rule2);
+  }
+
+  @Test
+  public void return_if_rule_exists() throws Exception {
+
+    Rule rule1 = Rule.create("repo1", "rule1");
+    Rule rule2 = Rule.create("repo2", "rule2");
+
+    RuleFinder ruleFinder = mock(RuleFinder.class);
+    when(ruleFinder.findAll(any(RuleQuery.class))).thenReturn(Lists.newArrayList(rule1));
+
+    RuleCache ruleCache = new RuleCache(ruleFinder);
+
+    assertThat(ruleCache.exists(rule1)).isTrue();
+    assertThat(ruleCache.exists(rule2)).isFalse();
   }
 }

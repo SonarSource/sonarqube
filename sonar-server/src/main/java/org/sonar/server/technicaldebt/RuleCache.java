@@ -42,10 +42,18 @@ public class RuleCache {
 
   @CheckForNull
   public Rule getRule(String repository, String ruleKey) {
+    initRules();
+    return lookUpRuleInCache(repository, ruleKey);
+  }
+
+  public boolean exists(Rule rule) {
+    return getRule(rule.getRepositoryKey(), rule.getKey()) != null;
+  }
+
+  private void initRules(){
     if(cachedRules == null) {
       loadRules();
     }
-    return lookUpRuleInCache(repository, ruleKey);
   }
 
   private void loadRules() {
@@ -62,6 +70,7 @@ public class RuleCache {
     }
   }
 
+  @CheckForNull
   private Rule lookUpRuleInCache(String repository, String ruleKey) {
     Map<String, Rule> cachedRepository = cachedRules.get(repository);
     if(cachedRepository != null) {
