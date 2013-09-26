@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.PluginInstaller;
@@ -50,13 +51,15 @@ public class PluginDeployer implements ServerComponent {
   private final DefaultServerFileSystem fileSystem;
   private final PluginInstaller installer;
   private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
+  private final ServerUpgradeStatus serverUpgradeStatus;
 
-  public PluginDeployer(Server server, DefaultServerFileSystem fileSystem) {
-    this(server, fileSystem, new PluginInstaller());
+  public PluginDeployer(Server server, ServerUpgradeStatus serverUpgradeStatus, DefaultServerFileSystem fileSystem) {
+    this(server, serverUpgradeStatus, fileSystem, new PluginInstaller());
   }
 
-  PluginDeployer(Server server, DefaultServerFileSystem fileSystem, PluginInstaller installer) {
+  PluginDeployer(Server server, ServerUpgradeStatus serverUpgradeStatus, DefaultServerFileSystem fileSystem, PluginInstaller installer) {
     this.server = server;
+    this.serverUpgradeStatus = serverUpgradeStatus;
     this.fileSystem = fileSystem;
     this.installer = installer;
   }
@@ -67,6 +70,9 @@ public class PluginDeployer implements ServerComponent {
     deleteUninstalledPlugins();
 
     loadUserPlugins();
+    if (serverUpgradeStatus.isFreshInstall()) {
+      copyAndLoadBundledPlugins();
+    }
     moveAndLoadDownloadedPlugins();
     loadCorePlugins();
 
@@ -115,29 +121,34 @@ public class PluginDeployer implements ServerComponent {
     if (fileSystem.getDownloadedPluginsDir().exists()) {
       Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[] {"jar"}, false);
       for (File jar : jars) {
-        File movedJar = moveDownloadedFile(jar);
-        if (movedJar != null) {
-          registerPlugin(movedJar, false, true);
-        }
+        installJarPlugin(jar, true);
       }
     }
   }
 
-  private File moveDownloadedFile(File jar) {
+  private void copyAndLoadBundledPlugins() {
+    for (File plugin : fileSystem.getBundledPlugins()) {
+      installJarPlugin(plugin, false);
+    }
+  }
+
+  private void installJarPlugin(File jar, boolean deleteSource) {
     File destDir = fileSystem.getUserPluginsDir();
     File destFile = new File(destDir, jar.getName());
     if (destFile.exists()) {
       // plugin with same filename already installed
       FileUtils.deleteQuietly(jar);
-      return null;
     }
     try {
-      FileUtils.moveFileToDirectory(jar, destDir, true);
-      return destFile;
+      if (deleteSource) {
+        FileUtils.moveFileToDirectory(jar, destDir, true);
+      } else {
+        FileUtils.copyFileToDirectory(jar, destDir, true);
+      }
+      registerPlugin(destFile, false, true);
 
     } catch (IOException e) {
-      LOG.error("Fail to move the downloaded file: " + jar.getAbsolutePath(), e);
-      return null;
+      LOG.error("Fail to move plugin: " + jar.getAbsolutePath() + " to " + destDir.getAbsolutePath(), e);
     }
   }
 
@@ -199,8 +210,8 @@ public class PluginDeployer implements ServerComponent {
     LOG.info("Deploy plugin {}", Joiner.on(" / ").skipNulls().join(plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
 
     Preconditions.checkState(plugin.isCompatibleWith(server.getVersion()),
-        "Plugin %s needs a more recent version of SonarQube than %s. At least %s is expected",
-        plugin.getKey(), server.getVersion(), plugin.getSonarVersion());
+      "Plugin %s needs a more recent version of SonarQube than %s. At least %s is expected",
+      plugin.getKey(), server.getVersion(), plugin.getSonarVersion());
 
     try {
       File pluginDeployDir = new File(fileSystem.getDeployedPluginsDir(), plugin.getKey());

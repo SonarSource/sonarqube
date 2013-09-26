@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TestName;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.plugins.PluginInstaller;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.test.TestUtils;
@@ -48,6 +49,7 @@ public class PluginDeployerTest {
   private File deployDir;
   private PluginDeployer deployer;
   private Server server = mock(Server.class);
+  private ServerUpgradeStatus serverUpgradeStatus;
 
   @Before
   public void start() {
@@ -56,15 +58,18 @@ public class PluginDeployerTest {
     deployDir = TestUtils.getTestTempDir(PluginDeployerTest.class, name.getMethodName() + "/deploy");
     fileSystem = new DefaultServerFileSystem(null, homeDir, deployDir);
     extractor = new PluginInstaller();
-    deployer = new PluginDeployer(server, fileSystem, extractor);
+    serverUpgradeStatus = mock(ServerUpgradeStatus.class);
+    deployer = new PluginDeployer(server, serverUpgradeStatus, fileSystem, extractor);
   }
 
   @Test
   public void deployPlugin() {
+    when(serverUpgradeStatus.isFreshInstall()).thenReturn(false);
+
     deployer.start();
 
     // check that the plugin is registered
-    assertThat(deployer.getMetadata()).hasSize(1); // no more checkstyle
+    assertThat(deployer.getMetadata()).hasSize(1);
 
     PluginMetadata plugin = deployer.getMetadata("foo");
     assertThat(plugin.getName()).isEqualTo("Foo");
@@ -74,6 +79,27 @@ public class PluginDeployerTest {
 
     // check that the file is deployed
     File deployedJar = new File(deployDir, "plugins/foo/foo-plugin.jar");
+    assertThat(deployedJar).exists();
+    assertThat(deployedJar).isFile();
+  }
+
+  @Test
+  public void deployBundledPluginsOnFreshInstall() {
+    when(serverUpgradeStatus.isFreshInstall()).thenReturn(true);
+
+    deployer.start();
+
+    // check that the plugin is registered
+    assertThat(deployer.getMetadata()).hasSize(2);
+
+    PluginMetadata plugin = deployer.getMetadata("bar");
+    assertThat(plugin.getName()).isEqualTo("Bar");
+    assertThat(plugin.getDeployedFiles()).hasSize(1);
+    assertThat(plugin.isCore()).isFalse();
+    assertThat(plugin.isUseChildFirstClassLoader()).isFalse();
+
+    // check that the file is deployed
+    File deployedJar = new File(deployDir, "plugins/bar/bar-plugin.jar");
     assertThat(deployedJar).exists();
     assertThat(deployedJar).isFile();
   }

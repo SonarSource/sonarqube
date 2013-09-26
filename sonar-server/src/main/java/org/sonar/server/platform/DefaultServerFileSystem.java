@@ -145,6 +145,11 @@ public class DefaultServerFileSystem implements ServerFileSystem {
     return getFiles(corePluginsDir, "jar");
   }
 
+  public List<File> getBundledPlugins() {
+    File corePluginsDir = new File(getHomeDir(), "lib/bundled-plugins");
+    return getFiles(corePluginsDir, "jar");
+  }
+
   public List<File> getUserPlugins() {
     File pluginsDir = getUserPluginsDir();
     return getFiles(pluginsDir, "jar");

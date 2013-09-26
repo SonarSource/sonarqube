@@ -29,7 +29,7 @@
       </includes>
     </dependencySet>
     <dependencySet>
-      <outputDirectory>extensions/downloads</outputDirectory>
+      <outputDirectory>lib/bundled-plugins</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
         <include>org.codehaus.sonar-plugins.*:sonar-*-plugin</include>
