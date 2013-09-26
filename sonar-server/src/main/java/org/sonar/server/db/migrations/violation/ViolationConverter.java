@@ -84,7 +84,7 @@ class ViolationConverter implements Callable<Object> {
   private static final String SQL_DELETE_RULE_FAILURES;
 
   static {
-    StringBuilder sb = new StringBuilder("delete rule_failures where ");
+    StringBuilder sb = new StringBuilder("delete from rule_failures where ");
     for (int i = 0; i < Referentials.VIOLATION_GROUP_SIZE; i++) {
       if (i > 0) {
         sb.append(" or ");
