@@ -1,6 +1,6 @@
 function showMessage(div_id, message) {
-  $(div_id + 'msg').innerHTML = message;
-  $(div_id).show();
+  $j('#' + div_id + 'msg').html(message);
+  $j('#' + div_id).show();
 }
 function error(message) {
   showMessage('error', message);
