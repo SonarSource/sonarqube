@@ -51,6 +51,11 @@ public class InternalPermissionService implements ServerComponent {
   private static final String ADD = "add";
   private static final String REMOVE = "remove";
 
+  private static final String OBJECT_TYPE_USER = "User";
+  private static final String OBJECT_TYPE_COMPONENT = "Component";
+  private static final String OBJECT_TYPE_GROUP = "Group";
+  private static final String NOT_FOUND_FORMAT = "%s %s does not exist";
+
   private final UserDao userDao;
   private final ResourceDao resourceDao;
   private final PermissionFacade permissionFacade;
@@ -78,9 +83,7 @@ public class InternalPermissionService implements ServerComponent {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     ComponentDto component = (ComponentDto) resourceDao.findByKey(componentKey);
-    if (component == null) {
-      throw new BadRequestException("Component " + componentKey + " does not exists.");
-    }
+    badRequestIfNullResult(component, OBJECT_TYPE_COMPONENT, componentKey);
     permissionFacade.grantDefaultRoles(component.getId(), component.qualifier());
   }
 
@@ -144,9 +147,7 @@ public class InternalPermissionService implements ServerComponent {
 
   private Long getTargetedUser(String userLogin) {
     UserDto user = userDao.selectActiveUserByLogin(userLogin);
-    if (user == null) {
-      throw new BadRequestException("User " + userLogin + " does not exist");
-    }
+    badRequestIfNullResult(user, OBJECT_TYPE_USER, userLogin);
     return user.getId();
   }
 
@@ -156,9 +157,7 @@ public class InternalPermissionService implements ServerComponent {
       return null;
     } else {
       GroupDto groupDto = userDao.selectGroupByName(group);
-      if (groupDto == null) {
-        throw new BadRequestException("Group " + group + " does not exist");
-      }
+      badRequestIfNullResult(groupDto, OBJECT_TYPE_GROUP, group);
       return groupDto.getId();
     }
   }
@@ -174,10 +173,14 @@ public class InternalPermissionService implements ServerComponent {
       return null;
     } else {
       ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
-      if (resourceDto == null) {
-        throw new BadRequestException("Component " + componentKey + " does not exists.");
-      }
+      badRequestIfNullResult(resourceDto, OBJECT_TYPE_COMPONENT, componentKey);
       return resourceDto.getId();
+    }
+  }
+
+  private void badRequestIfNullResult(Object component, String objectType, String objectKey) {
+    if(component == null) {
+      throw new BadRequestException(String.format(NOT_FOUND_FORMAT, objectType, objectKey));
     }
   }
 }
