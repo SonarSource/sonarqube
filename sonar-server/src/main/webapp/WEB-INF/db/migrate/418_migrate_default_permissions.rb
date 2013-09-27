@@ -85,7 +85,7 @@ class MigrateDefaultPermissions < ActiveRecord::Migration
       existing_properties["sonar.role.user.#{qualifier}.defaultUsers"] = Property.find_by_prop_key("sonar.role.user.#{qualifier}.defaultUsers")
       existing_properties["sonar.role.codeviewer.#{qualifier}.defaultUsers"] = Property.find_by_prop_key("sonar.role.codeviewer.#{qualifier}.defaultUsers")
 
-      configured_values = existing_properties.values.reject {|prop| prop.nil?}
+      configured_values = existing_properties.values.reject {|prop| prop.nil? || prop.text_value.nil?}
 
       # Existing properties are migrated only when upgrading an existing SonarQube instance
       # Subviews permissions are not migrated since they are not used
