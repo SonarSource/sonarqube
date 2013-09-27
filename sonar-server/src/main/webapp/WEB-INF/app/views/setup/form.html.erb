@@ -14,7 +14,7 @@
             $j.ajax({
               url:'<%= url_for(:action => 'setup_database')-%>',
               type:'post',
-              beforeSend:function(request){window.location.reload();}
+              success:function(request){window.location.reload();}
               });
               return false;">
 </div>
