@@ -1,6 +1,6 @@
 <%
    index = measure('technical_debt')
-   unless index
+   unless index && index.value
 %>
     <h3><%= message('widget.technical_debt.name') -%></h3>
     <span style="color: #777777; font-size: 93%; font-style:italic"><%= message('widget.technical_debt.no_info_available') -%></span>
