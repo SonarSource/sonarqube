@@ -31,7 +31,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class AuthorizationDaoTest extends AbstractDaoTestCase {
 
   private static final int USER = 100;
-  private static final long PROJECT = 300l, PACKAGE = 301l, FILE = 302l, FILE_IN_OTHER_PROJECT = 999l;
+  private static final long PROJECT = 300l, PACKAGE = 301l, FILE = 302l, FILE_IN_OTHER_PROJECT = 999l, EMPTY_PROJECT=400l;
 
   @Test
   public void user_should_be_authorized() {
@@ -40,10 +40,10 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Set<Long> componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT),
+      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       USER, "user");
 
-    assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE);
+    assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE, EMPTY_PROJECT);
 
     // user does not have the role "admin"
     componentIds = authorization.keepAuthorizedComponentIds(
@@ -59,14 +59,14 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Set<Long> componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT),
+      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       USER, "user");
 
-    assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE);
+    assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE, EMPTY_PROJECT);
 
     // group does not have the role "admin"
     componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT),
+      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       USER, "admin");
     assertThat(componentIds).isEmpty();
   }
@@ -78,14 +78,14 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Set<Long> componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT),
+      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       USER, "user");
 
-    assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE);
+    assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE, EMPTY_PROJECT);
 
     // group does not have the role "admin"
     componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT),
+      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       USER, "admin");
     assertThat(componentIds).isEmpty();
   }
@@ -96,10 +96,10 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
 
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Set<Long> componentIds = authorization.keepAuthorizedComponentIds(
-      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT),
+      Sets.<Long>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
       null, "user");
 
-    assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE);
+    assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE, EMPTY_PROJECT);
 
     // group does not have the role "admin"
     componentIds = authorization.keepAuthorizedComponentIds(
