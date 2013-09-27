@@ -48,13 +48,13 @@ public interface UserMapper {
 
   void deleteUserActiveDashboards(long userId);
 
-  void deleteUserDashboards(long userId);
+  void deleteUnsharedUserDashboards(long userId);
 
-  void deleteUserIssueFilters(String login);
+  void deleteUnsharedUserIssueFilters(String login);
 
   void deleteUserIssueFilterFavourites(String login);
 
-  void deleteUserMeasureFilters(long userId);
+  void deleteUnsharedUserMeasureFilters(long userId);
 
   void deleteUserMeasureFilterFavourites(long userId);
 

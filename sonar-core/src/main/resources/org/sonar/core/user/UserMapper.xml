@@ -73,24 +73,24 @@
     DELETE FROM properties WHERE user_id=#{id}
   </delete>
 
-  <delete id="deleteUserDashboards" parameterType="long">
-    DELETE FROM dashboards WHERE user_id=#{id}
+  <delete id="deleteUnsharedUserDashboards" parameterType="long">
+    DELETE FROM dashboards WHERE user_id=#{id} and shared &lt;&gt; ${_true}
   </delete>
 
   <delete id="deleteUserActiveDashboards" parameterType="long">
     DELETE FROM active_dashboards WHERE user_id=#{id}
   </delete>
 
-  <delete id="deleteUserMeasureFilters" parameterType="long">
-    DELETE FROM measure_filters WHERE user_id=#{id}
+  <delete id="deleteUnsharedUserMeasureFilters" parameterType="long">
+    DELETE FROM measure_filters WHERE user_id=#{id} and shared &lt;&gt; ${_true}
   </delete>
 
   <delete id="deleteUserMeasureFilterFavourites" parameterType="long">
     DELETE FROM measure_filter_favourites WHERE user_id=#{id}
   </delete>
 
-  <delete id="deleteUserIssueFilters" parameterType="String">
-    DELETE FROM issue_filters WHERE user_login=#{id}
+  <delete id="deleteUnsharedUserIssueFilters" parameterType="String">
+    DELETE FROM issue_filters WHERE user_login=#{id} and shared &lt;&gt; ${_true}
   </delete>
 
   <delete id="deleteUserIssueFilterFavourites" parameterType="String">

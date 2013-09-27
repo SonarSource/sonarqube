@@ -116,10 +116,10 @@ public class UserDao implements BatchComponent, ServerComponent {
 
       mapper.removeUserFromGroups(dto.getId());
       mapper.deleteUserActiveDashboards(dto.getId());
-      mapper.deleteUserDashboards(dto.getId());
-      mapper.deleteUserIssueFilters(dto.getLogin());
+      mapper.deleteUnsharedUserDashboards(dto.getId());
+      mapper.deleteUnsharedUserIssueFilters(dto.getLogin());
       mapper.deleteUserIssueFilterFavourites(dto.getLogin());
-      mapper.deleteUserMeasureFilters(dto.getId());
+      mapper.deleteUnsharedUserMeasureFilters(dto.getId());
       mapper.deleteUserMeasureFilterFavourites(dto.getId());
       mapper.deleteUserProperties(dto.getId());
       mapper.deleteUserRoles(dto.getId());
