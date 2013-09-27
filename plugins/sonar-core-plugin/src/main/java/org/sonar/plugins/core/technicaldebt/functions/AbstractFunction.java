@@ -17,21 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.resources;
+package org.sonar.plugins.core.technicaldebt.functions;
 
-import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
+import org.sonar.api.rules.Violation;
+import org.sonar.plugins.core.technicaldebt.Requirement;
+import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
 
-import java.util.List;
+import java.util.Collection;
 
-import static org.fest.assertions.Assertions.assertThat;
+public abstract class AbstractFunction implements Function {
 
-public class CoreMetricsTest {
-  @Test
-  public void shouldReadMetricsFromClassReflection() {
-    List<Metric> metrics = CoreMetrics.getMetrics();
-    assertThat(metrics).hasSize(149);
-    assertThat(metrics).contains(CoreMetrics.NCLOC, CoreMetrics.DIRECTORIES);
+  private WorkUnitConverter converter;
+
+  public AbstractFunction(WorkUnitConverter converter) {
+    this.converter = converter;
   }
+
+  protected WorkUnitConverter getConverter() {
+    return converter;
+  }
+
+  public abstract String getKey();
+
+  public abstract double calculateCost(Requirement requirement, Collection<Violation> violations);
+
 }

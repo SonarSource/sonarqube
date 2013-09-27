@@ -17,21 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.resources;
+package org.sonar.plugins.core.technicaldebt.functions;
 
-import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
+import org.sonar.api.rules.Violation;
+import org.sonar.plugins.core.technicaldebt.Requirement;
+import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
 
-import java.util.List;
+import java.util.Collection;
 
-import static org.fest.assertions.Assertions.assertThat;
+public final class LinearWithOffsetFunction extends LinearFunction {
 
-public class CoreMetricsTest {
-  @Test
-  public void shouldReadMetricsFromClassReflection() {
-    List<Metric> metrics = CoreMetrics.getMetrics();
-    assertThat(metrics).hasSize(149);
-    assertThat(metrics).contains(CoreMetrics.NCLOC, CoreMetrics.DIRECTORIES);
+  public static final String FUNCTION_LINEAR_WITH_OFFSET = "linear_offset";
+
+  public LinearWithOffsetFunction(WorkUnitConverter converter) {
+    super(converter);
   }
+
+  public String getKey() {
+    return FUNCTION_LINEAR_WITH_OFFSET;
+  }
+
+  public double calculateCost(Requirement requirement, Collection<Violation> violations) {
+    if (violations.isEmpty()) {
+      return 0.0;
+    }
+    double minimunCost = getConverter().toDays(requirement.getOffset());
+    return minimunCost + super.calculateCost(requirement, violations);
+  }
+
 }

@@ -121,6 +121,12 @@ public interface CoreProperties {
    */
   String CATEGORY_LICENSES = "licenses";
 
+  /**
+   * @since 4.0
+   */
+  String CATEGORY_TECHNICAL_DEBT = "technicalDebt";
+
+
   /* Global settings */
   String SONAR_HOME = "SONAR_HOME";
   String PROJECT_BRANCH_PROPERTY = "sonar.branch";

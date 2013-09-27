@@ -41,6 +41,7 @@ import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.*;
+import org.sonar.plugins.core.technicaldebt.TechnicalDebtDecorator;
 import org.sonar.plugins.core.timemachine.*;
 import org.sonar.plugins.core.web.Lcom4Viewer;
 import org.sonar.plugins.core.web.TestsViewer;
@@ -326,6 +327,7 @@ public final class CorePlugin extends SonarPlugin {
     extensions.addAll(IgnoreIssuesPlugin.getExtensions());
     extensions.addAll(CoverageMeasurementFilter.getPropertyDefinitions());
     extensions.addAll(PastSnapshotFinder.getPropertyDefinitions());
+    extensions.addAll(TechnicalDebtDecorator.extensions());
     extensions.addAll(propertyDefinitions());
 
     return extensions.build();

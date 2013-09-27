@@ -17,21 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.resources;
+package org.sonar.plugins.core.technicaldebt.functions;
 
-import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
+import org.sonar.api.rules.Violation;
+import org.sonar.plugins.core.technicaldebt.Requirement;
+import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
 
-import java.util.List;
+import java.util.Collection;
 
-import static org.fest.assertions.Assertions.assertThat;
+public final class ConstantFunction extends AbstractFunction {
 
-public class CoreMetricsTest {
-  @Test
-  public void shouldReadMetricsFromClassReflection() {
-    List<Metric> metrics = CoreMetrics.getMetrics();
-    assertThat(metrics).hasSize(149);
-    assertThat(metrics).contains(CoreMetrics.NCLOC, CoreMetrics.DIRECTORIES);
+  public static final String FUNCTION_CONSTANT_RESOURCE = "constant_resource";
+
+  public ConstantFunction(WorkUnitConverter converter) {
+    super(converter);
   }
+
+  public String getKey() {
+    return FUNCTION_CONSTANT_RESOURCE;
+  }
+
+  public double calculateCost(Requirement requirement, Collection<Violation> violations) {
+    double cost = 0.0;
+    if (!violations.isEmpty()) {
+      cost = getConverter().toDays(requirement.getRemediationFactor());
+    }
+    return cost;
+  }
+
 }

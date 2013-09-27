@@ -17,20 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.technicaldebt;
+package org.sonar.plugins.core.technicaldebt;
 
-public final class XMLConstants {
+import org.sonar.api.qualitymodel.Characteristic;
 
-  private XMLConstants(){
-    // Utility class
-  }
+public interface Characteristicable {
 
-  public static final String CHARACTERISTIC = "chc";
-  public static final String CHARACTERISTIC_KEY = "key";
-  public static final String CHARACTERISTIC_NAME = "name";
-  public static final String CHARACTERISTIC_DESCRIPTION = "desc";
-  public static final String PROPERTY = "prop";
-  public static final String PROPERTY_KEY = "key";
-  public static final String PROPERTY_VALUE = "val";
-  public static final String PROPERTY_TEXT_VALUE = "txt";
+  Characteristic toCharacteristic();
+  
 }

@@ -55,6 +55,11 @@ public final class CoreMetrics {
   public static String DOMAIN_DUPLICATION = "Duplication";
   public static String DOMAIN_DESIGN = "Design";
 
+  /**
+   * @since 4.0
+   */
+  public static String DOMAIN_TECHNICAL_DEBT = "Technical Debt";
+
   public static final String LINES_KEY = "lines";
   public static final Metric LINES = new Metric.Builder(LINES_KEY, "Lines", Metric.ValueType.INT)
       .setDescription("Lines")
@@ -2008,6 +2013,30 @@ public final class CoreMetrics {
       .setOptimizedBestValue(true)
       .setHidden(true)
       .create();
+
+
+  // --------------------------------------------------------------------------------------------------------------------
+  //
+  // TECHNICAL DEBT
+  //
+  // --------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * @since 4.0
+   */
+  public static final String TECHNICAL_DEBT_KEY = "technical_debt";
+
+  /**
+   * @since 4.0
+   */
+  public static final Metric TECHNICAL_DEBT = new Metric.Builder(TECHNICAL_DEBT_KEY, "Technical Debt", Metric.ValueType.FLOAT)
+    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .create();
+
 
   // --------------------------------------------------------------------------------------------------------------------
   //

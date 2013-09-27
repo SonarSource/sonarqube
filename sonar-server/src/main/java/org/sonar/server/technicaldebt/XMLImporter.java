@@ -46,22 +46,31 @@ public class XMLImporter implements ServerExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(XMLImporter.class);
 
+  private static final String CHARACTERISTIC = "chc";
+  private static final String CHARACTERISTIC_KEY = "key";
+  private static final String CHARACTERISTIC_NAME = "name";
+  private static final String CHARACTERISTIC_DESCRIPTION = "desc";
+  private static final String PROPERTY = "prop";
+  private static final String PROPERTY_KEY = "key";
+  private static final String PROPERTY_VALUE = "val";
+  private static final String PROPERTY_TEXT_VALUE = "txt";
+
   public Model importXML(String xml, ValidationMessages messages, RuleCache ruleCache) {
     return importXML(new StringReader(xml), messages, ruleCache);
   }
 
   public Model importXML(Reader xml, ValidationMessages messages, RuleCache repositoryCache) {
-    Model sqale = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
+    Model model = Model.createByName(RegisterTechnicalDebtModel.TECHNICAL_DEBT_MODEL);
     try {
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor cursor = inputFactory.rootElementCursor(xml);
 
       // advance to <sqale>
       cursor.advance();
-      SMInputCursor chcCursor = cursor.childElementCursor(XMLConstants.CHARACTERISTIC);
+      SMInputCursor chcCursor = cursor.childElementCursor(CHARACTERISTIC);
 
       while (chcCursor.getNext() != null) {
-        processCharacteristic(sqale, chcCursor, messages, repositoryCache);
+        processCharacteristic(model, chcCursor, messages, repositoryCache);
       }
 
       cursor.getStreamReader().closeCompletely();
@@ -70,7 +79,7 @@ public class XMLImporter implements ServerExtension {
       LOG.error("XML is not valid", e);
       messages.addErrorText("XML is not valid: " + e.getMessage());
     }
-    return sqale;
+    return model;
   }
 
   private SMInputFactory initStax() {
@@ -82,7 +91,7 @@ public class XMLImporter implements ServerExtension {
     return new SMInputFactory(xmlFactory);
   }
 
-  private Characteristic processCharacteristic(Model sqale, SMInputCursor chcCursor, ValidationMessages messages, RuleCache ruleCache) throws XMLStreamException {
+  private Characteristic processCharacteristic(Model model, SMInputCursor chcCursor, ValidationMessages messages, RuleCache ruleCache) throws XMLStreamException {
     Characteristic characteristic = Characteristic.create();
     SMInputCursor cursor = chcCursor.childElementCursor();
 
@@ -90,20 +99,20 @@ public class XMLImporter implements ServerExtension {
     List<Characteristic> children = Lists.newArrayList();
     while (cursor.getNext() != null) {
       String node = cursor.getLocalName();
-      if (StringUtils.equals(node, XMLConstants.CHARACTERISTIC_KEY)) {
+      if (StringUtils.equals(node, CHARACTERISTIC_KEY)) {
         characteristic.setKey(cursor.collectDescendantText().trim());
 
-      } else if (StringUtils.equals(node, XMLConstants.CHARACTERISTIC_NAME)) {
+      } else if (StringUtils.equals(node, CHARACTERISTIC_NAME)) {
         characteristic.setName(cursor.collectDescendantText().trim(), false);
 
-      } else if (StringUtils.equals(node, XMLConstants.CHARACTERISTIC_DESCRIPTION)) {
+      } else if (StringUtils.equals(node, CHARACTERISTIC_DESCRIPTION)) {
         characteristic.setDescription(cursor.collectDescendantText().trim());
 
-      } else if (StringUtils.equals(node, XMLConstants.PROPERTY)) {
+      } else if (StringUtils.equals(node, PROPERTY)) {
         processProperty(characteristic, cursor, messages);
 
-      } else if (StringUtils.equals(node, XMLConstants.CHARACTERISTIC)) {
-        children.add(processCharacteristic(sqale, cursor, messages, ruleCache));
+      } else if (StringUtils.equals(node, CHARACTERISTIC)) {
+        children.add(processCharacteristic(model, cursor, messages, ruleCache));
 
       } else if (StringUtils.equals(node, "rule-repo")) {
         ruleRepositoryKey = cursor.collectDescendantText().trim();
@@ -115,7 +124,7 @@ public class XMLImporter implements ServerExtension {
     fillRule(characteristic, ruleRepositoryKey, ruleKey, messages, ruleCache);
 
     if (StringUtils.isNotBlank(characteristic.getKey()) || characteristic.getRule() != null) {
-      addCharacteristicToModel(sqale, characteristic, children);
+      addCharacteristicToModel(model, characteristic, children);
       return characteristic;
     }
     return null;
@@ -133,11 +142,11 @@ public class XMLImporter implements ServerExtension {
     }
   }
 
-  private void addCharacteristicToModel(Model sqale, Characteristic characteristic, List<Characteristic> children) {
-    sqale.addCharacteristic(characteristic);
+  private void addCharacteristicToModel(Model model, Characteristic characteristic, List<Characteristic> children) {
+    model.addCharacteristic(characteristic);
     for (Characteristic child : children) {
       if (child != null) {
-        sqale.addCharacteristic(child);
+        model.addCharacteristic(child);
         characteristic.addChild(child);
       }
     }
@@ -150,10 +159,10 @@ public class XMLImporter implements ServerExtension {
     String textValue = null;
     while (c.getNext() != null) {
       String node = c.getLocalName();
-      if (StringUtils.equals(node, XMLConstants.PROPERTY_KEY)) {
+      if (StringUtils.equals(node, PROPERTY_KEY)) {
         key = c.collectDescendantText().trim();
 
-      } else if (StringUtils.equals(node, XMLConstants.PROPERTY_VALUE)) {
+      } else if (StringUtils.equals(node, PROPERTY_VALUE)) {
         String s = c.collectDescendantText().trim();
         try {
           value = NumberUtils.createDouble(s);
@@ -162,7 +171,7 @@ public class XMLImporter implements ServerExtension {
           LOG.error(message, ex);
           messages.addErrorText(message);
         }
-      } else if (StringUtils.equals(node, XMLConstants.PROPERTY_TEXT_VALUE)) {
+      } else if (StringUtils.equals(node, PROPERTY_TEXT_VALUE)) {
         textValue = c.collectDescendantText().trim();
       }
     }
