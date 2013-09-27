@@ -60,7 +60,9 @@ class ViolationConverters {
         result.get();
       }
     } finally {
+      progress.cancel();
       timer.cancel();
+      timer.purge();
     }
   }
 
