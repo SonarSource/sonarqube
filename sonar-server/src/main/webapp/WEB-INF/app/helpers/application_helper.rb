@@ -135,7 +135,7 @@ module ApplicationHelper
   end
 
   def configuration(key, default = nil)
-    prop_value = Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponentByType(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
+    prop_value = Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue(key)
     prop_value.nil? ? default : prop_value
   end
 
