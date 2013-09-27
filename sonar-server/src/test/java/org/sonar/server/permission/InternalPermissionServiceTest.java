@@ -298,7 +298,7 @@ public class InternalPermissionServiceTest {
       params = buildPermissionChangeParams(null, "group", "unknown", "user");
       service.addPermission(params);
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Component unknown does not exists.");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Component unknown does not exist");
     }
   }
 
