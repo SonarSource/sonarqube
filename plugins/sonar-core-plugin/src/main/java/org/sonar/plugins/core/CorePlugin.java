@@ -237,6 +237,7 @@ public final class CorePlugin extends SonarPlugin {
         WelcomeWidget.class,
         DocumentationCommentsWidget.class,
         DuplicationsWidget.class,
+        TechnicalDebtWidget.class,
 
         // dashboards
         ProjectDefaultDashboard.class,
