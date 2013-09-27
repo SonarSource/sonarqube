@@ -234,7 +234,6 @@ class ApplicationController < ActionController::Base
     @resource=@resource.permanent_resource
 
     @snapshot=@resource.last_snapshot
-    not_found("Snapshot not found") unless @snapshot
 
     access_denied unless has_role?(role, @resource)
   end

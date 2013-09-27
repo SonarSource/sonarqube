@@ -187,7 +187,7 @@ class DashboardController < ApplicationController
       @resource=@resource.permanent_resource
 
       @snapshot=@resource.last_snapshot
-      return project_not_found unless @snapshot
+      return project_not_analyzed unless @snapshot
 
       access_denied unless has_role?(:user, @resource)
 
@@ -200,6 +200,10 @@ class DashboardController < ApplicationController
     redirect_to :action => :index
   end
 
+  def project_not_analyzed
+    redirect_to :controller => :project, :action => :settings, :id => @resource
+  end
+
   def load_authorized_widget_definitions
     @authorized_widget_definitions=java_facade.getWidgets().select do |widget|
       roles = widget.getUserRoles()
@@ -209,13 +213,13 @@ class DashboardController < ApplicationController
 
   def load_widget_definitions(filter_on_category)
     @widget_definitions=java_facade.getWidgets().sort {|w1,w2| widgetL10nName(w1) <=> widgetL10nName(w2)}
-    
+
     @widget_categories=@widget_definitions.map(&:getWidgetCategories).flatten.uniq.sort
     unless filter_on_category.blank?
       @widget_definitions=@widget_definitions.select { |definition| definition.getWidgetCategories().to_a.include?(filter_on_category) }
     end
   end
-  
+
   def widgetL10nName(widget)
     Api::Utils.message('widget.' + widget.id + '.name')
   end

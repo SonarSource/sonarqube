@@ -77,8 +77,9 @@ class ActionPlansController < ApplicationController
 
   def load_resource
     @resource=Project.by_key(params[:id])
-    return redirect_to home_path unless @resource
+    return redirect_to(home_path) unless @resource
     access_denied unless has_role?(:admin, @resource)
+    @snapshot=@resource.last_snapshot
   end
 
   def load_action_plans

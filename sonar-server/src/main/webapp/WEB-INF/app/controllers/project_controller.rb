@@ -79,6 +79,7 @@ class ProjectController < ApplicationController
   def profile
     require_parameters :id
     @project=get_current_project_for_profile(params[:id])
+    @snapshot=@project.last_snapshot
   end
 
   # POST /project/set_profile?id=<project id>&language=<language>[&profile_id=<profile id>]
@@ -109,6 +110,7 @@ class ProjectController < ApplicationController
 
   def key
     @project = get_current_project(params[:id])
+    @snapshot = @project.last_snapshot
   end
 
   def update_key

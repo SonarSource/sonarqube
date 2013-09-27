@@ -1,5 +1,8 @@
 <div id="plugins">
   <h1 class="marginbottom10"><%= message(@resource ? 'project_settings.page' : 'settings.page') -%></h1>
+  <% if @resource and !@snapshot %>
+  <p class="info marginbottom10"><%= message('provisioning.no_analysis') -%></p>
+  <% end %>
 
   <table width="100%">
     <tr>

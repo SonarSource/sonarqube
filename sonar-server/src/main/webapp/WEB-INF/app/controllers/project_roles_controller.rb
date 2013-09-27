@@ -26,6 +26,7 @@ class ProjectRolesController < ApplicationController
   def index
     @project=Project.by_key(params[:id])
     access_denied unless is_admin?(@project)
+    @snapshot=@project.last_snapshot
   end
 
 end

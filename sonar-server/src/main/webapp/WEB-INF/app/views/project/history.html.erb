@@ -1,4 +1,10 @@
-<% if @snapshot.root? %>
+<h1><%= message('project_history.page') -%></h1>
+
+<% if !@snapshot %>
+
+<p class="info"><%= message('provisioning.no_analysis') -%></p>
+
+<% elsif @snapshot.root? %>
 <style>
 .snapshot .edit_actions a {
   visibility: hidden;
@@ -15,8 +21,6 @@
   display: inline;
 }
 </style>
-
-<h1><%= message('project_history.page') -%></h1>
 
 <p style="margin: 15px 0px">
   <%= message('project_history.description') -%>
@@ -37,7 +41,7 @@
     </tr>
   </thead>
   <tbody>
-    <% 
+    <%
       current_year = nil
       current_month = nil
       @snapshots.each_with_index do |snapshot, index|
@@ -48,15 +52,15 @@
         other_events = snapshot.events.select{|e| e.category!=EventCategory::KEY_VERSION && e.category!=EventCategory::KEY_ALERT && e.category!=EventCategory::KEY_PROFILE}
     %>
     <tr class="<%= cycle 'even','odd' -%> hoverable snapshot">
-    
+
       <td class="thin nowrap"><b><%= time.year unless time.year == current_year -%></b></td>
-    
+
       <td class="thin nowrap"><b><%= l(time, :format => '%B').capitalize unless time.month == current_month -%></b></td>
 
       <td class="thin nowrap"><%= l(time, :format => '%d') -%></td>
-      
+
       <td class="thin nowrap"><%= l(time, :format => '%H:%M') -%></td>
-      
+
       <td class="thin nowrap" style="padding-left: 20px;">
           <table class="width100">
             <tr id="version_<%= index -%>">
@@ -65,9 +69,9 @@
               <td class="small edit_actions" style="padding-left:20px">
                 <a id="version_<%= index -%>_change" href="#" onclick="$j('#version_<%= index -%>').hide();$j('#version_<%= index -%>_form').show();$j('#version_name_<%= index -%>').focus();return false;"><%= message('project_history.rename_version') -%></a>
                 <% if version_event && !snapshot.islast? %>
-                  <%= link_to( message('project_history.remove_version'),  
-        		                { :action => 'delete_version', :sid => snapshot.id},
-        		                :confirm => message('project_history.do_you_want_to_remove_version', :params => version_event.name) ) -%>
+                  <%= link_to( message('project_history.remove_version'),
+                            { :action => 'delete_version', :sid => snapshot.id},
+                            :confirm => message('project_history.do_you_want_to_remove_version', :params => version_event.name) ) -%>
                 <% end %>
               </td>
               <% else %>
@@ -79,7 +83,7 @@
             <tr id="version_<%= index -%>_form" style="display:none;">
               <td coslpan="2" class="admin">
                 <% form_tag( {:action => 'update_version', :sid => snapshot.id }) do -%>
-                  <input id="version_name_<%= index -%>" name="version_name" type="text" value="<%= version_event ? version_event.name : '' -%>" 
+                  <input id="version_name_<%= index -%>" name="version_name" type="text" value="<%= version_event ? version_event.name : '' -%>"
                          onKeyUp="if (this.value=='') $j('#save_version_<%= index -%>').disabled='true'; else $j('#save_version_<%= index -%>').disabled='';"/>
                   <%= submit_tag message('save'), :id => 'save_version_' + index.to_s %>
                   <a href="#" onclick="$j('#version_<%= index -%>').show();$j('#version_<%= index -%>_form').hide();"><%= message('cancel') -%></a>
@@ -88,50 +92,50 @@
             </tr>
           </table>
       </td>
-      
+
       <td class="thin nowrap" style="padding-left: 20px;">
         <table class="width100">
-          <% 
+          <%
              other_events.each_with_index do |event, index2|
-               event_index = index.to_s + '-' + index2.to_s 
+               event_index = index.to_s + '-' + index2.to_s
           %>
-	        <tr id="event_<%= event_index -%>">
-	          <td class="width100"><%= event.name -%></td>
-	          <td class="small edit_actions" style="padding-left:20px">
+          <tr id="event_<%= event_index -%>">
+            <td class="width100"><%= event.name -%></td>
+            <td class="small edit_actions" style="padding-left:20px">
                 <a id="event_<%= event_index -%>_change" href="#" onclick="$j('#event_<%= event_index -%>').hide();$j('#event_<%= event_index -%>_form').show();$j('#event_name_<%= event_index -%>').focus();return false;"><%= message('project_history.rename_event') -%></a>
-                <%= link_to( message('project_history.remove_version'),  
-	   		                  { :action => 'delete_event', :id => event.id},
-	    		              :confirm => message('project_history.do_you_want_to_remove_version', :params => event.name) ) -%>
-	          </td>
-	        </tr>
-	        <tr id="event_<%= event_index -%>_form" style="display:none;">
+                <%= link_to( message('project_history.remove_version'),
+                           { :action => 'delete_event', :id => event.id},
+                        :confirm => message('project_history.do_you_want_to_remove_version', :params => event.name) ) -%>
+            </td>
+          </tr>
+          <tr id="event_<%= event_index -%>_form" style="display:none;">
               <td colspan="2" class="admin">
                 <% form_tag( {:action => 'update_event', :id => event.id }) do -%>
-                  <input id="event_name_<%= event_index -%>" name="event_name" type="text" value="<%= event.name -%>" 
+                  <input id="event_name_<%= event_index -%>" name="event_name" type="text" value="<%= event.name -%>"
                          onKeyUp="if (this.value=='') $j('#save_event_<%= event_index -%>').disabled='true'; else $j('#save_event_<%= event_index -%>').disabled='';"/>
                   <%= submit_tag message('save'), :id => 'save_event_' + event_index %>
                   <a href="#" onclick="$j('#event_<%= event_index -%>').show();$j('#event_<%= event_index -%>_form').hide();"><%= message('cancel') -%></a>
                 <% end %>
               </td>
-	        </tr>
-	      <% end %>
-	        <tr id="create_event_<%= index -%>">
-	          <td colspan="2" class="create_actions">
-	            <span class="small">
+          </tr>
+        <% end %>
+          <tr id="create_event_<%= index -%>">
+            <td colspan="2" class="create_actions">
+              <span class="small">
                   <a id="create_event_<%= index -%>_change" href="#" onclick="$j('#create_event_<%= index -%>').hide();$j('#create_event_<%= index -%>_form').show();$j('#create_event_name_<%= index -%>').focus();return false;"><%= message('project_history.create_event') -%></a>
                 </span>
-	          </td>
-	        </tr>
-	        <tr id="create_event_<%= index -%>_form" style="display:none;">
-	          <td colspan="2" class="admin">
+            </td>
+          </tr>
+          <tr id="create_event_<%= index -%>_form" style="display:none;">
+            <td colspan="2" class="admin">
                 <% form_tag( {:action => 'create_event', :sid => snapshot.id }) do -%>
-                  <input id="create_event_name_<%= index -%>" name="event_name" type="text" value="" 
+                  <input id="create_event_name_<%= index -%>" name="event_name" type="text" value=""
                          onKeyUp="if (this.value=='') $j('#create_save_event_<%= index -%>').disabled='true'; else $j('#create_save_event_<%= index -%>').disabled='';"/>
                   <%= submit_tag message('save'), :id => 'create_save_event_' + index.to_s %>
                   <a href="#" onclick="$j('#create_event_<%= index -%>').show();$j('#create_event_<%= index -%>_form').hide();"><%= message('cancel') -%></a>
                 <% end %>
-	          </td>
-	        </tr>
+            </td>
+          </tr>
         </table>
       </td>
 
@@ -149,10 +153,10 @@
           if snapshot.islast?
             cell_content = "<b>" + message('project_history.last_snapshot') + "</b>"
           else
-            cell_content = button_to( message('project_history.delete_snapshot'), 
-                                        { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => snapshot.id }, 
-                                        :class => 'action red-button', 
-                                        :confirm => message('project_history.are_you_sure_delete_snapshot_x', :params => l(time, :format => :long)) )  
+            cell_content = button_to( message('project_history.delete_snapshot'),
+                                        { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => snapshot.id },
+                                        :class => 'action red-button',
+                                        :confirm => message('project_history.are_you_sure_delete_snapshot_x', :params => l(time, :format => :long)) )
           end
         %>
         <%= cell_content -%>
@@ -160,8 +164,8 @@
     </tr>
     <%
         current_year = time.year
-        current_month = time.month 
-      end 
+        current_month = time.month
+      end
     %>
   </tbody>
 </table>
