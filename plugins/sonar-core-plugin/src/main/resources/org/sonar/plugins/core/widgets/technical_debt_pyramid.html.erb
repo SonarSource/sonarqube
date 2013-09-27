@@ -1,0 +1,150 @@
+<%
+   technical_debt_model = 'TECHNICAL_DEBT'
+   technical_debt = measure('technical_debt')
+   characteristics = Characteristic.find(:all, :joins => :quality_model,
+                                       :conditions => ['quality_models.name=? AND characteristics.depth=1 AND characteristics.rule_id IS NULL and characteristics.enabled=?', technical_debt_model, true],
+                                       :order => 'characteristic_order DESC')
+   should_display_diff_measures = dashboard_configuration.selected_period? && technical_debt.variation(dashboard_configuration.period_index)!=nil
+   if technical_debt.nil? || characteristics.empty?
+%>
+
+  <h3><%= message('widget.technical_debt_pyramid.name') -%></h3>
+  <span style="color: #777777; font-size: 93%; font-style:italic"><%= message('widget.technical_debt_pyramid.no_info_available') -%></span>
+
+<%
+   else
+%>
+  <style>
+    table.technicalDebtPyramid td {
+      padding: 4px 10px 4px 0;
+    }
+
+    table.technicalDebtPyramid td.label {
+      width: 1%;
+      white-space: nowrap;
+      text-align: left;
+      padding: 5px 10px 5px 0;
+    }
+
+    table.technicalDebtPyramid th.val {
+      width: 1%;
+      white-space: nowrap;
+      text-align: right;
+      padding: 0 0 0 10px;
+    }
+
+    table.technicalDebtPyramid td.val {
+      width: 1%;
+      white-space: nowrap;
+      text-align: right;
+      padding: 0 0 0 10px;
+    }
+
+    table.technicalDebtPyramid td.bar {
+      width: 97%;
+    }
+
+    table.technicalDebtPyramid .legendValue {
+      width: 10px;
+      height: 10px;
+      background-color: #92B7D3;
+      display: inline-block;
+      zoom: 1; /* IE hack to trigger hasLayout */
+      *display: inline; /* IE hack to achieve inline-block behavior */
+    }
+
+    table.technicalDebtPyramid .legendTotal {
+      width: 10px;
+      height: 10px;
+      background-color: #2A4269;
+      display: inline-block;
+      zoom: 1; /* IE hack to trigger hasLayout */
+      *display: inline; /* IE hack to achieve inline-block behavior */
+    }
+
+    table.technicalDebtPyramid td.bar>a>div>div {
+      float: right;
+    }
+  </style>
+
+  <table class="technicalDebtPyramid">
+    <thead>
+    <tr>
+      <th colspan="2"><h3><%= message('widget.technical_debt_pyramid.name') -%></h3></th>
+      <th class="val"><%= message('widget.technical_debt_pyramid.cost') -%> <div class="legendValue"></div></th>
+      <th class="val"><%= message('widget.technical_debt_pyramid.total') -%> <div class="legendTotal"></div></th>
+    </tr>
+    </thead>
+    <tbody>
+    <%
+       measures_by_characteristic_id={}
+       ProjectMeasure.find(:all,
+                           :conditions => ['characteristic_id IN (?) AND snapshot_id=? AND metric_id=?', characteristics.select{|c| c.id}, @snapshot.id, technical_debt.metric().id]).each do |measure|
+         measures_by_characteristic_id[measure.characteristic_id]=measure
+       end
+
+       total = technical_debt.value
+       cumulated=total
+
+       if should_display_diff_measures
+         diff_by_characteristic_id={}
+         total_diff = 0;
+         characteristics.each do |c|
+           measure = measures_by_characteristic_id[c.id]
+           if measure && measure.variation(dashboard_configuration.period_index)
+             diff_by_characteristic_id[c.id] = measure.variation(dashboard_configuration.period_index)
+             total_diff += measure.variation(dashboard_configuration.period_index)
+           end
+         end
+       end
+
+       characteristics.reverse.each do |characteristic|
+         measure=measures_by_characteristic_id[characteristic.id]
+         value=(measure && measure.value ? measure.value : 0)
+         total_size=(total>0 ? (100*cumulated/total).to_i: 0)
+         value_size=(cumulated>0 ? (100*value/cumulated).to_i: 100)
+         drilldown_url=url_for_drilldown('technical_debt', :model => technical_debt_model, :characteristic => characteristic.key)
+    %>
+      <tr>
+        <td class="label"><%= h(characteristic.name) -%></td>
+        <td class="bar">
+          <a href="<%= drilldown_url -%>">
+            <div style="width: <%=total_size-%>%; height: 17px; background-color: #2A4269;">
+              <div style="width: <%=value_size-%>%; height: 11px;background-color: #92B7D3;border-top:3px solid #2A4269"></div>
+            </div>
+          </a>
+        </td>
+        <td class="val">
+          <a href="<%= drilldown_url -%>"><%= number_with_precision(value, :precision => 1) -%></a>
+          <% if should_display_diff_measures %>
+            <% if diff_by_characteristic_id[characteristic.id] %>
+              <%= format_variation(measure) -%>
+            <% else %>
+              <span class="var"><b>(+<%= number_with_precision(0, :precision => 1) -%>)</b></span>
+            <% end %>
+          <% end %>
+        </td>
+        <td class="val">
+          <%= number_with_precision(cumulated, :precision => 1) -%>
+          <%
+             if should_display_diff_measures
+               css_style = "var"
+               css_style += "b" if total_diff < 0
+               css_style += "w" if total_diff > 0
+               diff_to_display = (total_diff < 0 ? '' : '+') + number_with_precision(total_diff, :precision => 1)
+          %>
+            <span class="<%= css_style -%>"><b>(<%= diff_to_display -%>)</b></span>
+          <%
+             total_diff -= diff_by_characteristic_id[characteristic.id] if diff_by_characteristic_id[characteristic.id]
+             end
+          %>
+        </td>
+      </tr>
+    <%
+       cumulated-=value
+       end
+    %>
+    </tbody>
+  </table>
+
+<% end %>
