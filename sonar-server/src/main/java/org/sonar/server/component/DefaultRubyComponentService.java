@@ -22,8 +22,10 @@ package org.sonar.server.component;
 import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.util.RubyUtils;
 
 import java.util.Date;
@@ -34,10 +36,12 @@ public class DefaultRubyComponentService implements RubyComponentService {
 
   private final ResourceDao resourceDao;
   private final DefaultComponentFinder finder;
+  private final ResourceIndexerDao resourceIndexerDao;
 
-  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder) {
+  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ResourceIndexerDao resourceIndexerDao) {
     this.resourceDao = resourceDao;
     this.finder = finder;
+    this.resourceIndexerDao = resourceIndexerDao;
   }
 
   @Override
@@ -54,6 +58,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
         .setScope(scope)
         .setQualifier(qualifier)
         .setCreatedAt(new Date()));
+    resourceIndexerDao.indexResource(((ComponentDto)resourceDao.findByKey(kee)).getId());
   }
 
   public DefaultComponentQueryResult find(Map<String, Object> params) {

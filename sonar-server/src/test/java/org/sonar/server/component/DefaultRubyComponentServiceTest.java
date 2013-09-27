@@ -20,6 +20,13 @@
 
 package org.sonar.server.component;
 
+import org.sonar.core.resource.ResourceDto;
+
+import org.mockito.ArgumentCaptor;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.resource.ResourceIndexerDao;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.component.Component;
@@ -38,21 +45,48 @@ public class DefaultRubyComponentServiceTest {
 
   private ResourceDao resourceDao;
   private DefaultComponentFinder finder;
+  private ResourceIndexerDao resourceIndexerDao;
   private DefaultRubyComponentService componentService;
 
   @Before
   public void before() {
     resourceDao = mock(ResourceDao.class);
     finder = mock(DefaultComponentFinder.class);
-    componentService = new DefaultRubyComponentService(resourceDao, finder);
+    resourceIndexerDao = mock(ResourceIndexerDao.class);
+    componentService = new DefaultRubyComponentService(resourceDao, finder, resourceIndexerDao);
   }
 
   @Test
   public void should_find_by_key() {
-    Component component = mock(Component.class);
+    Component<?> component = mock(Component.class);
     when(resourceDao.findByKey("struts")).thenReturn(component);
 
     assertThat(componentService.findByKey("struts")).isEqualTo(component);
+  }
+
+  @Test
+  public void should_create_component_and_index_it() {
+    String componentKey = "new-project";
+    String componentName = "New Project";
+    String scope = Scopes.PROJECT;
+    String qualifier = Qualifiers.PROJECT;
+    long componentId = Long.MAX_VALUE;
+    ComponentDto component = mock(ComponentDto.class);
+    when(component.getId()).thenReturn(componentId);
+    when(resourceDao.findByKey(componentKey)).thenReturn(component);
+
+    componentService.createComponent(componentKey, componentName, scope, qualifier);
+
+    ArgumentCaptor<ResourceDto> resourceCaptor = ArgumentCaptor.forClass(ResourceDto.class);
+    verify(resourceDao).insertOrUpdate(resourceCaptor.capture());
+    ResourceDto created = resourceCaptor.getValue();
+    assertThat(created.getKey()).isEqualTo(componentKey);
+    assertThat(created.getName()).isEqualTo(componentName);
+    assertThat(created.getLongName()).isEqualTo(componentName);
+    assertThat(created.getScope()).isEqualTo(scope);
+    assertThat(created.getQualifier()).isEqualTo(qualifier);
+    verify(resourceDao).findByKey(componentKey);
+    verify(resourceIndexerDao).indexResource(componentId);
   }
 
   @Test
