@@ -10,7 +10,7 @@
     <div class="dashbox marginright10">
       <h3><%= message('widget.technical_debt.name') -%></h3>
       <p>
-        <a href="<%= url_for_drilldown('sqale_index') -%>">
+        <a href="<%= url_for_drilldown('technical_debt') -%>">
           <span class="big"><%= number_with_precision(index.value, :precision => 1) -%></span>&nbsp;<%= message('widget.technical_debt.days') -%></a>
         <%= dashboard_configuration.selected_period? ? format_variation(index) : trend_icon(index) -%>
       </p>
