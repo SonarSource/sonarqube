@@ -27,6 +27,6 @@ import org.sonar.api.web.WidgetCategory;
 public final class TechnicalDebtWidget extends CoreWidget {
 
   public TechnicalDebtWidget() {
-    super("technicalDebt", "Technical Debt", "/org/sonar/plugins/core/widgets/technical_debt.html.erb");
+    super("technical_debt", "Technical Debt", "/org/sonar/plugins/core/widgets/technical_debt.html.erb");
   }
 }
