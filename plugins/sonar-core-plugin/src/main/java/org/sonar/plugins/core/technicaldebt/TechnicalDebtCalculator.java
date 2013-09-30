@@ -100,7 +100,7 @@ public class TechnicalDebtCalculator implements BatchExtension {
   protected void updateRequirementCosts(TechnicalDebtRequirement requirement, double cost) {
     requirementCosts.put(requirement, cost);
     total += cost;
-    propagateCostInParents(characteristicCosts, requirement.getParent(), cost);
+    propagateCostInParents(requirement.getParent(), cost);
   }
 
   private double computeRemediationCost(Metric metric, DecoratorContext context, TechnicalDebtRequirement requirement, Collection<Violation> violations) {
@@ -123,15 +123,15 @@ public class TechnicalDebtCalculator implements BatchExtension {
     requirementCosts.clear();
   }
 
-  private void propagateCostInParents(Map<TechnicalDebtCharacteristic, Double> hierarchyMap, TechnicalDebtCharacteristic characteristic, double cost) {
+  private void propagateCostInParents(TechnicalDebtCharacteristic characteristic, double cost) {
     if (characteristic != null) {
-      Double parentCost = hierarchyMap.get(characteristic);
+      Double parentCost = characteristicCosts.get(characteristic);
       if (parentCost == null) {
-        hierarchyMap.put(characteristic, cost);
+        characteristicCosts.put(characteristic, cost);
       } else {
-        hierarchyMap.put(characteristic, cost + parentCost);
+        characteristicCosts.put(characteristic, cost + parentCost);
       }
-      propagateCostInParents(hierarchyMap, characteristic.getParent(), cost);
+      propagateCostInParents(characteristic.getParent(), cost);
     }
   }
 

@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.plugins.core.technicaldebt.functions.Functions;
@@ -101,9 +102,9 @@ public class TechnicalDebtCalculatorTest {
 
     double requirementCost = 1.0;
 
-    TechnicalDebtCharacteristic parentCharacteristic = new TechnicalDebtCharacteristic(org.sonar.api.qualitymodel.Characteristic.create());
+    TechnicalDebtCharacteristic parentCharacteristic = new TechnicalDebtCharacteristic(Characteristic.create());
 
-    TechnicalDebtCharacteristic characteristic = new TechnicalDebtCharacteristic(org.sonar.api.qualitymodel.Characteristic.create(), parentCharacteristic);
+    TechnicalDebtCharacteristic characteristic = new TechnicalDebtCharacteristic(Characteristic.create(), parentCharacteristic);
 
     TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
     when(requirement.getParent()).thenReturn(characteristic);
@@ -140,7 +141,9 @@ public class TechnicalDebtCalculatorTest {
 
     remediationCostCalculator.compute(context);
 
-    assertThat(remediationCostCalculator.getTotal()).isEqualTo(2.0);
+//    assertThat(remediationCostCalculator.getTotal()).isEqualTo(2.0);
+    assertThat(remediationCostCalculator.getRequirementCosts().get(requirement1)).isEqualTo(1.0);
+    assertThat(remediationCostCalculator.getRequirementCosts().get(requirement2)).isEqualTo(1.0);
   }
 
   private Violation buildViolation(String ruleKey, String repositoryKey, Date creationDate) {
