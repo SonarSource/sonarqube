@@ -133,7 +133,7 @@ public class CheckAlertThresholds implements Decorator {
 
   private String getAlertLabel(Alert alert, Metric.Level level) {
     Integer alertPeriod = alert.getPeriod();
-    String metric = i18n.message(getLocale(), "metric." + alert.getMetric().getKey() + ".name", null);
+    String metric = i18n.message(getLocale(), "metric." + alert.getMetric().getKey() + ".name", alert.getMetric().getName());
 
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append(metric);

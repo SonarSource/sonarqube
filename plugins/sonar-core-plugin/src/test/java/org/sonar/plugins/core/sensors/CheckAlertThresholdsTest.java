@@ -45,6 +45,7 @@ import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
@@ -68,7 +69,7 @@ public class CheckAlertThresholdsTest {
     context = mock(DecoratorContext.class);
     periods = mock(Periods.class);
     i18n = mock(I18n.class);
-    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("variation"), Mockito.eq("variation"))).thenReturn("variation");
+    when(i18n.message(any(Locale.class), eq("variation"), eq("variation"))).thenReturn("variation");
 
     measureClasses = new Measure(CoreMetrics.CLASSES, 20d);
     measureCoverage = new Measure(CoreMetrics.COVERAGE, 35d);
@@ -163,8 +164,8 @@ public class CheckAlertThresholdsTest {
 
   @Test
   public void globalLabelShouldAggregateAllLabels() {
-    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("metric.classes.name"), Mockito.isNull(String.class))).thenReturn("Classes");
-    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("metric.coverage.name"), Mockito.isNull(String.class))).thenReturn("Coverages");
+    when(i18n.message(any(Locale.class), eq("metric.classes.name"), anyString())).thenReturn("Classes");
+    when(i18n.message(any(Locale.class), eq("metric.coverage.name"), anyString())).thenReturn("Coverages");
     when(profile.getAlerts()).thenReturn(Arrays.asList(
         new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_SMALLER, null, "10000"), // there are 20 classes, error threshold is higher => alert
         new Alert(null, CoreMetrics.COVERAGE, Alert.OPERATOR_SMALLER, "50.0", "80.0"))); // coverage is 35%, warning threshold is higher => alert
@@ -172,6 +173,34 @@ public class CheckAlertThresholdsTest {
     decorator.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "Classes < 10000, Coverages < 50.0")));
+  }
+
+  @Test
+  public void alertLabelUsesL10nMetricName() {
+    Metric metric = new Metric.Builder("rating", "Rating", Metric.ValueType.INT).create();
+
+    // metric name is declared in l10n bundle
+    when(i18n.message(any(Locale.class), eq("metric.rating.name"), anyString())).thenReturn("THE RATING");
+
+    when(context.getMeasure(metric)).thenReturn(new Measure(metric, 4d));
+    when(profile.getAlerts()).thenReturn(Arrays.<Alert>asList(new Alert(null, metric, Alert.OPERATOR_SMALLER, "10", null)));
+    decorator.decorate(project, context);
+
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "THE RATING < 10")));
+  }
+
+  @Test
+  public void alertLabelUsesMetricNameIfMissingL10nBundle() {
+    // the third argument is Metric#getName()
+    when(i18n.message(any(Locale.class), eq("metric.classes.name"), eq("Classes"))).thenReturn("Classes");
+    when(profile.getAlerts()).thenReturn(Arrays.<Alert>asList(
+      // there are 20 classes, error threshold is higher => alert
+      new Alert(null, CoreMetrics.CLASSES, Alert.OPERATOR_SMALLER, "10000", null)
+    ));
+
+    decorator.decorate(project, context);
+
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "Classes < 10000")));
   }
 
   @Test
@@ -275,7 +304,7 @@ public class CheckAlertThresholdsTest {
   public void shouldLabelAlertContainsPeriod() {
     measureClasses.setVariation1(40d);
 
-    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("metric.classes.name"), Mockito.isNull(String.class))).thenReturn("Classes");
+    when(i18n.message(any(Locale.class), eq("metric.classes.name"), anyString())).thenReturn("Classes");
     when(periods.label(snapshot, 1)).thenReturn("since someday");
 
     when(profile.getAlerts()).thenReturn(Arrays.asList(
@@ -295,7 +324,7 @@ public class CheckAlertThresholdsTest {
     when(context.getMeasure(newMetric)).thenReturn(measure);
     measureClasses.setVariation1(40d);
 
-    when(i18n.message(Mockito.any(Locale.class), Mockito.eq("metric.new_metric_key.name"), Mockito.isNull(String.class))).thenReturn("New Measure");
+    when(i18n.message(any(Locale.class), eq("metric.new_metric_key.name"), anyString())).thenReturn("New Measure");
     when(periods.label(snapshot, 1)).thenReturn("since someday");
 
     when(profile.getAlerts()).thenReturn(Arrays.asList(
