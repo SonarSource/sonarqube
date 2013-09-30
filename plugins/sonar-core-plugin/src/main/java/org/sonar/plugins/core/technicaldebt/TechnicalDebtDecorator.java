@@ -123,9 +123,4 @@ public final class TechnicalDebtDecorator implements Decorator {
         .build()
     );
   }
-
-  @Override
-  public String toString() {
-    return "Technical Debt decorator";
-  }
 }
