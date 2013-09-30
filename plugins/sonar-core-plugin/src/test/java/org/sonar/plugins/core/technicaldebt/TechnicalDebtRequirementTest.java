@@ -30,12 +30,12 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class RequirementTest {
+public class TechnicalDebtRequirementTest {
 
   @Test
   public void defaultFactor() {
     Characteristic persistedRequirement = Characteristic.createByName("Efficiency");
-    Requirement requirement = new Requirement(persistedRequirement, null);
+    TechnicalDebtRequirement requirement = new TechnicalDebtRequirement(persistedRequirement, null);
     assertThat(requirement.getRemediationFactor().getValue(), is(WorkUnit.DEFAULT_VALUE));
     assertThat(requirement.getRemediationFactor().getUnit(), is(WorkUnit.DEFAULT_UNIT));
   }
@@ -43,8 +43,8 @@ public class RequirementTest {
   @Test
   public void testOverriddenFactor() {
     Characteristic persistedRequirement = Characteristic.createByName("Efficiency");
-    persistedRequirement.setProperty(Requirement.PROPERTY_REMEDIATION_FACTOR, 3.14);
-    Requirement requirement = new Requirement(persistedRequirement, null);
+    persistedRequirement.setProperty(TechnicalDebtRequirement.PROPERTY_REMEDIATION_FACTOR, 3.14);
+    TechnicalDebtRequirement requirement = new TechnicalDebtRequirement(persistedRequirement, null);
     assertThat(requirement.getRemediationFactor().getValue(), is(3.14));
     assertThat(requirement.getRemediationFactor().getUnit(), is(WorkUnit.DAYS));
   }
@@ -52,7 +52,7 @@ public class RequirementTest {
   @Test
   public void defaultFunctionIsLinear() {
     Characteristic persistedRequirement = Characteristic.createByName("Efficiency");
-    Requirement requirement = new Requirement(persistedRequirement, null);
+    TechnicalDebtRequirement requirement = new TechnicalDebtRequirement(persistedRequirement, null);
     assertThat(requirement.getRemediationFunction(), is(LinearFunction.FUNCTION_LINEAR));
     assertThat(requirement.getOffset(), is(nullValue()));
   }
@@ -60,16 +60,16 @@ public class RequirementTest {
   @Test
   public void testOverriddenFunction() {
     Characteristic persistedRequirement = Characteristic.createByName("Efficiency");
-    persistedRequirement.setProperty(Requirement.PROPERTY_REMEDIATION_FUNCTION, ConstantFunction.FUNCTION_CONSTANT_RESOURCE);
-    Requirement requirement = new Requirement(persistedRequirement, null);
+    persistedRequirement.setProperty(TechnicalDebtRequirement.PROPERTY_REMEDIATION_FUNCTION, ConstantFunction.FUNCTION_CONSTANT_RESOURCE);
+    TechnicalDebtRequirement requirement = new TechnicalDebtRequirement(persistedRequirement, null);
     assertThat(requirement.getRemediationFunction(), is(ConstantFunction.FUNCTION_CONSTANT_RESOURCE));
   }
 
   @Test
   public void testDefaultLinearWithOffset() {
     Characteristic persistedRequirement = Characteristic.createByName("Efficiency");
-    persistedRequirement.setProperty(Requirement.PROPERTY_REMEDIATION_FUNCTION, LinearWithOffsetFunction.FUNCTION_LINEAR_WITH_OFFSET);
-    Requirement requirement = new Requirement(persistedRequirement, null);
+    persistedRequirement.setProperty(TechnicalDebtRequirement.PROPERTY_REMEDIATION_FUNCTION, LinearWithOffsetFunction.FUNCTION_LINEAR_WITH_OFFSET);
+    TechnicalDebtRequirement requirement = new TechnicalDebtRequirement(persistedRequirement, null);
     assertThat(requirement.getRemediationFunction(), is(LinearWithOffsetFunction.FUNCTION_LINEAR_WITH_OFFSET));
     assertThat(requirement.getRemediationFactor().getValue(), is(WorkUnit.DEFAULT_VALUE));
     assertThat(requirement.getRemediationFactor().getUnit(), is(WorkUnit.DEFAULT_UNIT));
@@ -80,10 +80,10 @@ public class RequirementTest {
   @Test
   public void testCustomizedLinearWithOffset() {
     Characteristic persistedRequirement = Characteristic.createByName("Efficiency");
-    persistedRequirement.setProperty(Requirement.PROPERTY_REMEDIATION_FUNCTION, LinearWithOffsetFunction.FUNCTION_LINEAR_WITH_OFFSET);
-    persistedRequirement.setProperty(Requirement.PROPERTY_OFFSET, 5.0);
-    persistedRequirement.addProperty(persistedRequirement.getProperty(Requirement.PROPERTY_OFFSET).setTextValue("h"));
-    Requirement requirement = new Requirement(persistedRequirement, null);
+    persistedRequirement.setProperty(TechnicalDebtRequirement.PROPERTY_REMEDIATION_FUNCTION, LinearWithOffsetFunction.FUNCTION_LINEAR_WITH_OFFSET);
+    persistedRequirement.setProperty(TechnicalDebtRequirement.PROPERTY_OFFSET, 5.0);
+    persistedRequirement.addProperty(persistedRequirement.getProperty(TechnicalDebtRequirement.PROPERTY_OFFSET).setTextValue("h"));
+    TechnicalDebtRequirement requirement = new TechnicalDebtRequirement(persistedRequirement, null);
     assertThat(requirement.getRemediationFunction(), is(LinearWithOffsetFunction.FUNCTION_LINEAR_WITH_OFFSET));
     assertThat(requirement.getOffset().getValue(), is(5.0));
     assertThat(requirement.getOffset().getUnit(), is(WorkUnit.HOURS));
@@ -92,8 +92,8 @@ public class RequirementTest {
   @Test
   public void testDefaultLinearWithThreshold() {
     Characteristic persistedRequirement = Characteristic.createByName("Efficiency");
-    persistedRequirement.setProperty(Requirement.PROPERTY_REMEDIATION_FUNCTION, LinearWithThresholdFunction.FUNCTION_LINEAR_WITH_THRESHOLD);
-    Requirement requirement = new Requirement(persistedRequirement, null);
+    persistedRequirement.setProperty(TechnicalDebtRequirement.PROPERTY_REMEDIATION_FUNCTION, LinearWithThresholdFunction.FUNCTION_LINEAR_WITH_THRESHOLD);
+    TechnicalDebtRequirement requirement = new TechnicalDebtRequirement(persistedRequirement, null);
     assertThat(requirement.getRemediationFunction(), is(LinearWithThresholdFunction.FUNCTION_LINEAR_WITH_THRESHOLD));
     assertThat(requirement.getRemediationFactor().getValue(), is(WorkUnit.DEFAULT_VALUE));
     assertThat(requirement.getRemediationFactor().getUnit(), is(WorkUnit.DEFAULT_UNIT));
@@ -104,10 +104,10 @@ public class RequirementTest {
   @Test
   public void testCustomizedLinearWithThreshold() {
     Characteristic persistedRequirement = Characteristic.createByName("Efficiency");
-    persistedRequirement.setProperty(Requirement.PROPERTY_REMEDIATION_FUNCTION, LinearWithThresholdFunction.FUNCTION_LINEAR_WITH_THRESHOLD);
-    persistedRequirement.setProperty(Requirement.PROPERTY_OFFSET, 5.0);
-    persistedRequirement.addProperty(persistedRequirement.getProperty(Requirement.PROPERTY_OFFSET).setTextValue("h"));
-    Requirement requirement = new Requirement(persistedRequirement, null);
+    persistedRequirement.setProperty(TechnicalDebtRequirement.PROPERTY_REMEDIATION_FUNCTION, LinearWithThresholdFunction.FUNCTION_LINEAR_WITH_THRESHOLD);
+    persistedRequirement.setProperty(TechnicalDebtRequirement.PROPERTY_OFFSET, 5.0);
+    persistedRequirement.addProperty(persistedRequirement.getProperty(TechnicalDebtRequirement.PROPERTY_OFFSET).setTextValue("h"));
+    TechnicalDebtRequirement requirement = new TechnicalDebtRequirement(persistedRequirement, null);
     assertThat(requirement.getRemediationFunction(), is(LinearWithThresholdFunction.FUNCTION_LINEAR_WITH_THRESHOLD));
     assertThat(requirement.getOffset().getValue(), is(5.0));
     assertThat(requirement.getOffset().getUnit(), is(WorkUnit.HOURS));

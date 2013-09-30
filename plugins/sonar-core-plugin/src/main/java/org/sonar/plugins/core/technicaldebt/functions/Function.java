@@ -21,7 +21,7 @@ package org.sonar.plugins.core.technicaldebt.functions;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.Requirement;
+import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
 
 import java.util.Collection;
 
@@ -29,6 +29,6 @@ public interface Function extends BatchExtension {
 
   String getKey();
 
-  double calculateCost(Requirement requirement, Collection<Violation> violations);
+  double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations);
 
 }

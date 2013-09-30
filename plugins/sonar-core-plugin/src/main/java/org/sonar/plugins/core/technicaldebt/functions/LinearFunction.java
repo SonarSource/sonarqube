@@ -20,7 +20,7 @@
 package org.sonar.plugins.core.technicaldebt.functions;
 
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.Requirement;
+import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
@@ -39,7 +39,7 @@ public class LinearFunction extends AbstractFunction {
     return FUNCTION_LINEAR;
   }
 
-  public double calculateCost(Requirement requirement, Collection<Violation> violations) {
+  public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
     double points = 0.0;
     for (Violation violation : violations) {
       points += (violation.getCost() != null ? violation.getCost() : DEFAULT_VIOLATION_COST);

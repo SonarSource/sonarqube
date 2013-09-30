@@ -25,28 +25,28 @@ import javax.annotation.Nullable;
 
 import java.util.List;
 
-public final class Characteristic implements Characteristicable {
+public final class TechnicalDebtCharacteristic implements Characteristicable {
 
   private String key;
   private org.sonar.api.qualitymodel.Characteristic characteristic;
-  private Characteristic parent = null;
-  private List<Characteristic> subCharacteristics = Lists.newArrayList();
-  private List<Requirement> requirements = Lists.newArrayList();
+  private TechnicalDebtCharacteristic parent = null;
+  private List<TechnicalDebtCharacteristic> subCharacteristics = Lists.newArrayList();
+  private List<TechnicalDebtRequirement> requirements = Lists.newArrayList();
 
-  public Characteristic(org.sonar.api.qualitymodel.Characteristic c) {
+  public TechnicalDebtCharacteristic(org.sonar.api.qualitymodel.Characteristic c) {
     this(c, null);
   }
 
-  public Characteristic(org.sonar.api.qualitymodel.Characteristic c, @Nullable Characteristic parent) {
+  public TechnicalDebtCharacteristic(org.sonar.api.qualitymodel.Characteristic c, @Nullable TechnicalDebtCharacteristic parent) {
     this.characteristic = c;
     this.key = c.getKey();
     this.parent = parent;
     for (org.sonar.api.qualitymodel.Characteristic subc : c.getChildren()) {
       if (subc.getEnabled()) {
         if (subc.getRule() != null) {
-          requirements.add(new Requirement(subc, this));
+          requirements.add(new TechnicalDebtRequirement(subc, this));
         } else {
-          subCharacteristics.add(new Characteristic(subc, this));
+          subCharacteristics.add(new TechnicalDebtCharacteristic(subc, this));
         }
       }
     }
@@ -56,15 +56,15 @@ public final class Characteristic implements Characteristicable {
     return key;
   }
 
-  public List<Characteristic> getSubCharacteristics() {
+  public List<TechnicalDebtCharacteristic> getSubCharacteristics() {
     return subCharacteristics;
   }
 
-  public Characteristic getParent() {
+  public TechnicalDebtCharacteristic getParent() {
     return parent;
   }
 
-  public List<Requirement> getRequirements() {
+  public List<TechnicalDebtRequirement> getRequirements() {
     return requirements;
   }
 

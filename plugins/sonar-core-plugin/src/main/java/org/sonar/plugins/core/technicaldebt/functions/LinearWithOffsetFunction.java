@@ -20,7 +20,7 @@
 package org.sonar.plugins.core.technicaldebt.functions;
 
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.Requirement;
+import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
@@ -37,7 +37,7 @@ public final class LinearWithOffsetFunction extends LinearFunction {
     return FUNCTION_LINEAR_WITH_OFFSET;
   }
 
-  public double calculateCost(Requirement requirement, Collection<Violation> violations) {
+  public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
     if (violations.isEmpty()) {
       return 0.0;
     }

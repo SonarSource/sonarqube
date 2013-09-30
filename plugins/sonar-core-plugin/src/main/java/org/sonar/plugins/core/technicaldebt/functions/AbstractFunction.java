@@ -20,7 +20,7 @@
 package org.sonar.plugins.core.technicaldebt.functions;
 
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.Requirement;
+import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
@@ -39,6 +39,6 @@ public abstract class AbstractFunction implements Function {
 
   public abstract String getKey();
 
-  public abstract double calculateCost(Requirement requirement, Collection<Violation> violations);
+  public abstract double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations);
 
 }

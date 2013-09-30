@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.Requirement;
+import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.plugins.core.technicaldebt.WorkUnit;
 import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
 
@@ -39,12 +39,12 @@ import static org.mockito.Mockito.when;
 
 public class LinearFunctionTest {
 
-  private Requirement requirement;
+  private TechnicalDebtRequirement requirement;
   private Function function = new LinearFunction(new WorkUnitConverter(new PropertiesConfiguration()));
 
   @Before
   public void before() {
-    requirement = mock(Requirement.class);
+    requirement = mock(TechnicalDebtRequirement.class);
     when(requirement.getRemediationFactor()).thenReturn(WorkUnit.createInDays(3.14));
   }
 

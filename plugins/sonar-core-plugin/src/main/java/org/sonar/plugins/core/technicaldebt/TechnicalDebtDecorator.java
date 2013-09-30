@@ -58,7 +58,6 @@ public final class TechnicalDebtDecorator implements Decorator {
     return Arrays.asList(CoreMetrics.TECHNICAL_DEBT);
   }
 
-  @SuppressWarnings("rawtypes")
   public void decorate(Resource resource, DecoratorContext context) {
     if (!ResourceUtils.isUnitTestClass(resource)) {
       costCalculator.compute(context);
@@ -73,13 +72,13 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   private void saveCharacteristicCosts(DecoratorContext context) {
-    for (Map.Entry<Characteristic, Double> entry : costCalculator.getCharacteristicCosts().entrySet()) {
+    for (Map.Entry<TechnicalDebtCharacteristic, Double> entry : costCalculator.getCharacteristicCosts().entrySet()) {
       saveCost(context, entry.getKey().toCharacteristic(), entry.getValue(), false);
     }
   }
 
   private void saveRequirementCosts(DecoratorContext context) {
-    for (Map.Entry<Requirement, Double> entry : costCalculator.getRequirementCosts().entrySet()) {
+    for (Map.Entry<TechnicalDebtRequirement, Double> entry : costCalculator.getRequirementCosts().entrySet()) {
       saveCost(context, entry.getKey().toCharacteristic(), entry.getValue(), ResourceUtils.isEntity(context.getResource()));
     }
   }

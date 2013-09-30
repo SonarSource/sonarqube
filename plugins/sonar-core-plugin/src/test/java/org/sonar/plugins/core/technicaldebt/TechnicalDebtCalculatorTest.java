@@ -59,8 +59,8 @@ public class TechnicalDebtCalculatorTest {
   @Test
   public void group_violations_by_requirement() throws Exception {
 
-    Requirement requirement1 = mock(Requirement.class);
-    Requirement requirement2 = mock(Requirement.class);
+    TechnicalDebtRequirement requirement1 = mock(TechnicalDebtRequirement.class);
+    TechnicalDebtRequirement requirement2 = mock(TechnicalDebtRequirement.class);
 
     Violation violation1 = buildViolation("rule1", "repo1", NOW);
     Violation violation2 = buildViolation("rule1", "repo1", NOW);
@@ -75,7 +75,7 @@ public class TechnicalDebtCalculatorTest {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getViolations()).thenReturn(violations);
 
-    ListMultimap<Requirement, Violation> groupedViolations = remediationCostCalculator.groupViolations(context);
+    ListMultimap<TechnicalDebtRequirement, Violation> groupedViolations = remediationCostCalculator.groupViolations(context);
 
     assertThat(groupedViolations.keySet().size()).isEqualTo(2);
     assertThat(groupedViolations.get(requirement1)).containsExactly(violation1, violation2);
@@ -87,7 +87,7 @@ public class TechnicalDebtCalculatorTest {
 
     double requirementCost = 1.0;
 
-    Requirement requirement = mock(Requirement.class);
+    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
     when(requirement.getParent()).thenReturn(null);
 
     remediationCostCalculator.updateRequirementCosts(requirement, requirementCost);
@@ -101,11 +101,11 @@ public class TechnicalDebtCalculatorTest {
 
     double requirementCost = 1.0;
 
-    Characteristic parentCharacteristic = new Characteristic(org.sonar.api.qualitymodel.Characteristic.create());
+    TechnicalDebtCharacteristic parentCharacteristic = new TechnicalDebtCharacteristic(org.sonar.api.qualitymodel.Characteristic.create());
 
-    Characteristic characteristic = new Characteristic(org.sonar.api.qualitymodel.Characteristic.create(), parentCharacteristic);
+    TechnicalDebtCharacteristic characteristic = new TechnicalDebtCharacteristic(org.sonar.api.qualitymodel.Characteristic.create(), parentCharacteristic);
 
-    Requirement requirement = mock(Requirement.class);
+    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
     when(requirement.getParent()).thenReturn(characteristic);
 
     remediationCostCalculator.updateRequirementCosts(requirement, requirementCost);
@@ -118,8 +118,8 @@ public class TechnicalDebtCalculatorTest {
   @Test
   public void compute_totals_costs() throws Exception {
 
-    Requirement requirement1 = mock(Requirement.class);
-    Requirement requirement2 = mock(Requirement.class);
+    TechnicalDebtRequirement requirement1 = mock(TechnicalDebtRequirement.class);
+    TechnicalDebtRequirement requirement2 = mock(TechnicalDebtRequirement.class);
 
     Violation violation1 = buildViolation("rule1", "repo1", NOW);
     Violation violation2 = buildViolation("rule1", "repo1", NOW);
@@ -132,7 +132,7 @@ public class TechnicalDebtCalculatorTest {
     stub(technicalDebtModel.getRequirementByRule("repo2", "rule2")).toReturn(requirement2);
     stub(technicalDebtModel.getAllRequirements()).toReturn(Lists.newArrayList(requirement1, requirement2));
 
-    stub(functions.calculateCost(any(Requirement.class), any(Collection.class))).toReturn(1.0);
+    stub(functions.calculateCost(any(TechnicalDebtRequirement.class), any(Collection.class))).toReturn(1.0);
 
     DecoratorContext context = mock(DecoratorContext.class);
     stub(context.getViolations()).toReturn(violations);

@@ -22,7 +22,7 @@ package org.sonar.plugins.core.technicaldebt.functions;
 import com.google.common.collect.Maps;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.Requirement;
+import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
 
 import java.util.Collection;
 import java.util.Map;
@@ -41,11 +41,11 @@ public class Functions implements BatchExtension {
     return functionsByKey.get(key);
   }
 
-  public Function getFunction(Requirement requirement) {
+  public Function getFunction(TechnicalDebtRequirement requirement) {
     return getFunction(requirement.getRemediationFunction());
   }
 
-  public double calculateCost(Requirement requirement, Collection<Violation> violations) {
+  public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
     return getFunction(requirement).calculateCost(requirement, violations);
   }
 

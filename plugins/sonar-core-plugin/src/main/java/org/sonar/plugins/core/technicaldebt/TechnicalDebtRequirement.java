@@ -24,20 +24,20 @@ import org.sonar.plugins.core.technicaldebt.functions.LinearFunction;
 import org.sonar.plugins.core.technicaldebt.functions.LinearWithOffsetFunction;
 import org.sonar.plugins.core.technicaldebt.functions.LinearWithThresholdFunction;
 
-public class Requirement implements Characteristicable {
+public class TechnicalDebtRequirement implements Characteristicable {
 
   public static final String PROPERTY_REMEDIATION_FUNCTION = "remediationFunction";
   public static final String PROPERTY_REMEDIATION_FACTOR = "remediationFactor";
   public static final String PROPERTY_OFFSET = "offset";
 
   private Rule rule;
-  private Characteristic parent;
+  private TechnicalDebtCharacteristic parent;
   private org.sonar.api.qualitymodel.Characteristic characteristic;
   private String function;
   private WorkUnit factor;
   private WorkUnit offset;
 
-  public Requirement(org.sonar.api.qualitymodel.Characteristic requirement, Characteristic parent) {
+  public TechnicalDebtRequirement(org.sonar.api.qualitymodel.Characteristic requirement, TechnicalDebtCharacteristic parent) {
     this.characteristic = requirement;
     this.rule = requirement.getRule();
     this.parent = parent;
@@ -67,7 +67,7 @@ public class Requirement implements Characteristicable {
     return rule;
   }
 
-  public Characteristic getParent() {
+  public TechnicalDebtCharacteristic getParent() {
     return parent;
   }
 

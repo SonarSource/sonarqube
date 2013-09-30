@@ -43,8 +43,8 @@ import java.util.Map;
 public class TechnicalDebtCalculator implements BatchExtension {
 
   private double total = 0.0;
-  private Map<Characteristic, Double> characteristicCosts = Maps.newHashMap();
-  private Map<Requirement, Double> requirementCosts = Maps.newHashMap();
+  private Map<TechnicalDebtCharacteristic, Double> characteristicCosts = Maps.newHashMap();
+  private Map<TechnicalDebtRequirement, Double> requirementCosts = Maps.newHashMap();
 
   private Functions functions;
   private TechnicalDebtModel technicalDebtModel;
@@ -58,10 +58,10 @@ public class TechnicalDebtCalculator implements BatchExtension {
     reset();
 
     // group violations by requirement
-    ListMultimap<Requirement, Violation> violationsByRequirement = groupViolations(context);
+    ListMultimap<TechnicalDebtRequirement, Violation> violationsByRequirement = groupViolations(context);
 
     // the total cost is: cost(violations)
-    for (Requirement requirement : technicalDebtModel.getAllRequirements()) {
+    for (TechnicalDebtRequirement requirement : technicalDebtModel.getAllRequirements()) {
       List<Violation> violations = violationsByRequirement.get(requirement);
       double allViolationsCost = computeRemediationCost(CoreMetrics.TECHNICAL_DEBT, context, requirement, violations);
       updateRequirementCosts(requirement, allViolationsCost);
@@ -72,21 +72,21 @@ public class TechnicalDebtCalculator implements BatchExtension {
     return total;
   }
 
-  public Map<Characteristic, Double> getCharacteristicCosts() {
+  public Map<TechnicalDebtCharacteristic, Double> getCharacteristicCosts() {
     return characteristicCosts;
   }
 
-  public Map<Requirement, Double> getRequirementCosts() {
+  public Map<TechnicalDebtRequirement, Double> getRequirementCosts() {
     return requirementCosts;
   }
 
   @VisibleForTesting
-  protected ListMultimap<Requirement, Violation> groupViolations(DecoratorContext context) {
-    ListMultimap<Requirement, Violation> violationsByRequirement = ArrayListMultimap.create();
+  protected ListMultimap<TechnicalDebtRequirement, Violation> groupViolations(DecoratorContext context) {
+    ListMultimap<TechnicalDebtRequirement, Violation> violationsByRequirement = ArrayListMultimap.create();
     for (Violation violation : context.getViolations()) {
       String repositoryKey = violation.getRule().getRepositoryKey();
       String key = violation.getRule().getKey();
-      Requirement requirement = technicalDebtModel.getRequirementByRule(repositoryKey, key);
+      TechnicalDebtRequirement requirement = technicalDebtModel.getRequirementByRule(repositoryKey, key);
       if (requirement == null) {
         LoggerFactory.getLogger(getClass()).debug("No technical debt requirement for: " + repositoryKey + "/" + key);
       } else {
@@ -97,13 +97,13 @@ public class TechnicalDebtCalculator implements BatchExtension {
   }
 
   @VisibleForTesting
-  protected void updateRequirementCosts(Requirement requirement, double cost) {
+  protected void updateRequirementCosts(TechnicalDebtRequirement requirement, double cost) {
     requirementCosts.put(requirement, cost);
     total += cost;
     propagateCostInParents(characteristicCosts, requirement.getParent(), cost);
   }
 
-  private double computeRemediationCost(Metric metric, DecoratorContext context, Requirement requirement, Collection<Violation> violations) {
+  private double computeRemediationCost(Metric metric, DecoratorContext context, TechnicalDebtRequirement requirement, Collection<Violation> violations) {
     double cost = 0.0;
     if (violations != null) {
       cost = functions.calculateCost(requirement, violations);
@@ -123,7 +123,7 @@ public class TechnicalDebtCalculator implements BatchExtension {
     requirementCosts.clear();
   }
 
-  private void propagateCostInParents(Map<Characteristic, Double> hierarchyMap, Characteristic characteristic, double cost) {
+  private void propagateCostInParents(Map<TechnicalDebtCharacteristic, Double> hierarchyMap, TechnicalDebtCharacteristic characteristic, double cost) {
     if (characteristic != null) {
       Double parentCost = hierarchyMap.get(characteristic);
       if (parentCost == null) {
