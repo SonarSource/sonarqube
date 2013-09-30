@@ -25,49 +25,52 @@ class ProvisioningController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   def index
-    @tabs = provisionable_qualifiers
-
-    @selected_tab = params[:qualifiers]
-    @selected_tab = 'TRK' unless @tabs.include?(@selected_tab)
-
-    params['pageSize'] = 20
-    params['qualifiers'] = @selected_tab
+    params['qualifiers'] = 'TRK'
 
     @query_result = Internal.component_api.findProvisionedProjects(params)
   end
 
-  def create
+  def create_or_update
     verify_post_request
     access_denied unless is_admin?
+    @id = params[:id]
     @key = params[:key]
     @name = params[:name]
-    @qualifier = params[:qualifier]
 
     begin
       bad_request('provisioning.missing.key') if @key.blank?
       bad_request('provisioning.missing.name') if @name.blank?
 
-      Internal.component_api.createComponent(@key, @name, 'PRJ', @qualifier)
-      Internal.permissions.applyDefaultPermissionTemplate(@key)
+      if @id.nil? or @id.empty?
+        Internal.component_api.createComponent(@key, @name, 'PRJ', 'TRK')
+        Internal.permissions.applyDefaultPermissionTemplate(@key)
+      else
+        Internal.component_api.updateComponent(@id.to_i, @key, @name)
+      end
 
       redirect_to :action => 'index'
     rescue Exception => e
       flash[:error]= Api::Utils.message(e.message)
-      render :partial => 'create_form', :qualifier => @qualifier, :key => @key, :name => @name, :status => 400
+      render :partial => 'create_form', :key => @key, :name => @name, :status => 400
     end
   end
 
   def create_form
+    @id = params[:id]
     @key = params[:key]
     @name = params[:name]
-    @qualifier = params[:qualifier]
     render :partial => 'create_form'
   end
 
-  private
+  def delete
+    access_denied unless is_admin?
 
-  def provisionable_qualifiers
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getQualifiersWithProperty('hasRolePolicy')
+    @id = params[:id].to_i
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().deleteResourceTree(@id)
+    flash[:notice]= Api::Utils.message('resource_viewer.resource_deleted')
+    redirect_to :action => 'index'
   end
+
+  private
 
 end

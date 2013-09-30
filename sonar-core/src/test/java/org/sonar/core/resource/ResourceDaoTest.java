@@ -353,8 +353,9 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void should_select_provisioned_projects_by_qualifiers(){
     setupData("fixture-including-ghost-projects-and-technical-project");
 
-    List<Component> components = dao.selectProvisionedProjects(newArrayList("TRK"));
-    assertThat(getKeys(components)).containsOnly("org.sample:sample");
+    List<ResourceDto> components = dao.selectProvisionedProjects(newArrayList("TRK"));
+    assertThat(components).hasSize(1);
+    assertThat(components.get(0).getKey()).isEqualTo("org.sample:sample");
 
     assertThat(dao.selectProvisionedProjects(newArrayList("unknown"))).isEmpty();
     assertThat(dao.selectProvisionedProjects(Collections.<String>emptyList())).isEmpty();

@@ -26,6 +26,8 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.util.RubyUtils;
 
 import java.util.Date;
@@ -50,6 +52,11 @@ public class DefaultRubyComponentService implements RubyComponentService {
   }
 
   public void createComponent(String kee, String name, String scope, String qualifier) {
+    ComponentDto component = (ComponentDto)resourceDao.findByKey(kee);
+    if (component != null) {
+      throw new BadRequestException("Could not create resource, key already exists: "+kee);
+    }
+
     resourceDao.insertOrUpdate(
       new ResourceDto()
         .setKey(kee)
@@ -58,7 +65,19 @@ public class DefaultRubyComponentService implements RubyComponentService {
         .setScope(scope)
         .setQualifier(qualifier)
         .setCreatedAt(new Date()));
-    resourceIndexerDao.indexResource(((ComponentDto)resourceDao.findByKey(kee)).getId());
+    component = (ComponentDto)resourceDao.findByKey(kee);
+    if (component == null) {
+      throw new BadRequestException("Resource not created: "+kee);
+    }
+    resourceIndexerDao.indexResource(component.getId());
+  }
+
+  public void updateComponent(Long id, String key, String name) {
+    ResourceDto resource = resourceDao.getResource(id);
+    if (resource == null) {
+      throw new NotFoundException();
+    }
+    resourceDao.insertOrUpdate(resource.setKey(key).setName(name));
   }
 
   public DefaultComponentQueryResult find(Map<String, Object> params) {
@@ -79,10 +98,9 @@ public class DefaultRubyComponentService implements RubyComponentService {
     return finder.find(query, components);
   }
 
-  public DefaultComponentQueryResult findProvisionedProjects(Map<String, Object> params) {
+  public List<ResourceDto> findProvisionedProjects(Map<String, Object> params) {
     ComponentQuery query = toQuery(params);
-    List<Component> components = resourceDao.selectProvisionedProjects(query.qualifiers());
-    return finder.find(query, components);
+    return resourceDao.selectProvisionedProjects(query.qualifiers());
   }
 
   static ComponentQuery toQuery(Map<String, Object> props) {

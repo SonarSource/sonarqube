@@ -249,13 +249,13 @@ public class ResourceDao {
   /**
    * Return provisioned projects = enabled projects without snapshot
    */
-  public List<Component> selectProvisionedProjects(Collection<String> qualifiers) {
+  public List<ResourceDto> selectProvisionedProjects(Collection<String> qualifiers) {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
     SqlSession session = mybatis.openSession();
     try {
-      return toComponents(session.getMapper(ResourceMapper.class).selectProvisionedProjects(qualifiers));
+      return session.getMapper(ResourceMapper.class).selectProvisionedProjects(qualifiers);
     } finally {
       MyBatis.closeQuietly(session);
     }

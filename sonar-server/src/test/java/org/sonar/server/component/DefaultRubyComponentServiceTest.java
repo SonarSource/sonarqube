@@ -20,8 +20,9 @@
 
 package org.sonar.server.component;
 
-import org.sonar.core.resource.ResourceDto;
+import org.sonar.server.exceptions.BadRequestException;
 
+import org.sonar.core.resource.ResourceDto;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -73,7 +74,7 @@ public class DefaultRubyComponentServiceTest {
     long componentId = Long.MAX_VALUE;
     ComponentDto component = mock(ComponentDto.class);
     when(component.getId()).thenReturn(componentId);
-    when(resourceDao.findByKey(componentKey)).thenReturn(component);
+    when(resourceDao.findByKey(componentKey)).thenReturn(null).thenReturn(component);
 
     componentService.createComponent(componentKey, componentName, scope, qualifier);
 
@@ -85,8 +86,22 @@ public class DefaultRubyComponentServiceTest {
     assertThat(created.getLongName()).isEqualTo(componentName);
     assertThat(created.getScope()).isEqualTo(scope);
     assertThat(created.getQualifier()).isEqualTo(qualifier);
-    verify(resourceDao).findByKey(componentKey);
+    verify(resourceDao, times(2)).findByKey(componentKey);
     verify(resourceIndexerDao).indexResource(componentId);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void should_thow_if_create_fails() {
+    String componentKey = "new-project";
+    String componentName = "New Project";
+    String scope = Scopes.PROJECT;
+    String qualifier = Qualifiers.PROJECT;
+    long componentId = Long.MAX_VALUE;
+    ComponentDto component = mock(ComponentDto.class);
+    when(component.getId()).thenReturn(componentId);
+    when(resourceDao.findByKey(componentKey)).thenReturn(null);
+
+    componentService.createComponent(componentKey, componentName, scope, qualifier);
   }
 
   @Test
