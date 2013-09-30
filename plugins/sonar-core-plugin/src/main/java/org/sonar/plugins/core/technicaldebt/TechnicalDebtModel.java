@@ -45,7 +45,7 @@ public class TechnicalDebtModel implements BatchExtension {
   private Map<Rule, TechnicalDebtRequirement> requirementsByRule = Maps.newHashMap();
 
   public TechnicalDebtModel(ModelFinder modelFinder) {
-    TimeProfiler profiler = new TimeProfiler(LOGGER).start("TechnicalDebtModel");
+    TimeProfiler profiler = new TimeProfiler(LOGGER).start("Loading technical debt model");
     Model model = modelFinder.findByName(MODEL_NAME);
     if (model == null) {
       throw new SonarException("Can not find the model in database: " + MODEL_NAME);

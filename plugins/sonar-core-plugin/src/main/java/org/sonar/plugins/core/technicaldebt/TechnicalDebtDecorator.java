@@ -59,7 +59,7 @@ public final class TechnicalDebtDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (!ResourceUtils.isUnitTestClass(resource)) {
+    if (ResourceUtils.isPersistable(resource) && !ResourceUtils.isUnitTestClass(resource)) {
       costCalculator.compute(context);
       saveCostMeasures(context);
     }
