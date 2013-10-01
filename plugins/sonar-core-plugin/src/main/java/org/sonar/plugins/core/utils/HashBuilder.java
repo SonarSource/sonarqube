@@ -17,42 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.scan.filesystem;
+package org.sonar.plugins.core.utils;
 
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 /**
- * Extension point to exclude some files from project scan. Some use-cases :
- * <ul>
- *   <li>exclude the files that are older than x days</li>
- *   <li>exclude the files which names start with Generated</li>
- * </ul>
- * @since 3.5
+ * @since 4.0
  */
-public interface FileSystemFilter extends BatchExtension {
+public final class HashBuilder implements BatchExtension {
 
-  /**
-   * Plugins must not implement this interface. It is provided at runtime.
-   */
-  public interface Context {
-    ModuleFileSystem fileSystem();
-
-    FileType type();
-
-    File relativeDir();
-
-    /**
-     * File path relative to source directory. Never return null.
-     */
-    String relativePath();
-
-    /**
-     * Absolute file path. Directory separator is slash, even on windows. Never return null.
-     */
-    String canonicalPath();
+  public String computeHash(File file) {
+    FileInputStream fis = null;
+    try {
+      fis = new FileInputStream(file);
+      return org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+    } catch (IOException e) {
+      throw new SonarException("Unable to compute file hash", e);
+    } finally {
+      IOUtils.closeQuietly(fis);
+    }
   }
-
-  boolean accept(File file, Context context);
 }

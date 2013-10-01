@@ -126,7 +126,6 @@ public interface CoreProperties {
    */
   String CATEGORY_TECHNICAL_DEBT = "technicalDebt";
 
-
   /* Global settings */
   String SONAR_HOME = "SONAR_HOME";
   String PROJECT_BRANCH_PROPERTY = "sonar.branch";
@@ -470,4 +469,9 @@ public interface CoreProperties {
    * @since 4.0
    */
   String CORE_PREVENT_AUTOMATIC_PROJECT_CREATION = "sonar.preventAutoProjectCreation";
+
+  /**
+   * @since 4.0
+   */
+  String PARTIAL_ANALYSIS = "sonar.partialAnalysis";
 }

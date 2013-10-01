@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.source.SnapshotDataType;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
@@ -100,8 +101,37 @@ public class DryRunDatabaseFactory implements ServerComponent {
 
       template.copyTable(source, dest, "events", "SELECT * FROM events WHERE resource_id=" + projectId);
 
-      template.copyTable(source, dest, "snapshots", "SELECT * FROM snapshots WHERE project_id=" + projectId);
-      template.copyTable(source, dest, "project_measures", "SELECT m.* FROM project_measures m INNER JOIN snapshots s on m.snapshot_id=s.id WHERE s.project_id=" + projectId);
+      StringBuilder snapshotQuery = new StringBuilder()
+        // All snapshots of root_project for alerts on differential periods
+        .append("SELECT * FROM snapshots WHERE project_id=")
+        .append(projectId)
+        // Plus all last snapshots of all modules having hash data for partial analysis
+        .append(" UNION SELECT snap.* FROM snapshots snap")
+        .append(" INNER JOIN (")
+        .append(projectQuery(projectId, true))
+        .append(") res")
+        .append(" ON snap.project_id=res.id")
+        .append(" INNER JOIN snapshot_data data")
+        .append(" ON snap.id=data.snapshot_id")
+        .append(" AND data.data_type='").append(SnapshotDataType.FILE_HASH.getValue()).append("'")
+        .append(" AND snap.islast=").append(database.getDialect().getTrueSqlValue());
+      template.copyTable(source, dest, "snapshots", snapshotQuery.toString());
+
+      StringBuilder snapshotDataQuery = new StringBuilder()
+        .append("SELECT data.* FROM snapshot_data data")
+        .append(" INNER JOIN snapshots s")
+        .append(" ON s.id=data.snapshot_id")
+        .append(" AND s.islast=").append(database.getDialect().getTrueSqlValue())
+        .append(" INNER JOIN (")
+        .append(projectQuery(projectId, true))
+        .append(") res")
+        .append(" ON data.resource_id=res.id")
+        .append(" AND data.data_type='").append(SnapshotDataType.FILE_HASH.getValue()).append("'");
+      template.copyTable(source, dest, "snapshot_data", snapshotDataQuery.toString());
+
+      // All measures of snapshots of root project for alerts on differential periods
+      template.copyTable(source, dest, "project_measures", "SELECT m.* FROM project_measures m INNER JOIN snapshots s on m.snapshot_id=s.id "
+        + "WHERE s.project_id=" + projectId);
 
       StringBuilder issueQuery = new StringBuilder()
         .append("SELECT issues.* FROM issues")

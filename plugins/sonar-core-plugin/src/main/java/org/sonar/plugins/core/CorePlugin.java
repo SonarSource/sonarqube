@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.core;
 
+import org.sonar.plugins.core.batch.PartialScanFilter;
+
+import org.sonar.plugins.core.utils.HashBuilder;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
@@ -311,6 +314,9 @@ public final class CorePlugin extends SonarPlugin {
         FilesDecorator.class,
         IndexProjectPostJob.class,
         ManualMeasureDecorator.class,
+        HashBuilder.class,
+        FileHashSensor.class,
+        PartialScanFilter.class,
 
         // time machine
         TendencyDecorator.class,

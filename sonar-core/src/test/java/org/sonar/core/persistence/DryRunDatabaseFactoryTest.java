@@ -103,8 +103,9 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
     dataSource = createDatabase(database);
     assertThat(rowCount("issues")).isEqualTo(1);
     assertThat(rowCount("projects")).isEqualTo(4);
-    assertThat(rowCount("snapshots")).isEqualTo(1);
-    assertThat(rowCount("project_measures")).isEqualTo(2);
+    assertThat(rowCount("snapshots")).isEqualTo(4);
+    assertThat(rowCount("snapshot_data")).isEqualTo(2);
+    assertThat(rowCount("project_measures")).isEqualTo(4);
   }
 
   @Test
@@ -116,8 +117,8 @@ public class DryRunDatabaseFactoryTest extends AbstractDaoTestCase {
     dataSource = createDatabase(database);
     assertThat(rowCount("issues")).isEqualTo(1);
     assertThat(rowCount("projects")).isEqualTo(2);
-    assertThat(rowCount("snapshots")).isEqualTo(1);
-    assertThat(rowCount("project_measures")).isEqualTo(2);
+    assertThat(rowCount("snapshots")).isEqualTo(2);
+    assertThat(rowCount("project_measures")).isEqualTo(4);
   }
 
   @Test

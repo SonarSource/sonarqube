@@ -17,42 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.scan.filesystem;
+package org.sonar.plugins.core.utils;
 
-import org.sonar.api.BatchExtension;
+import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 
-/**
- * Extension point to exclude some files from project scan. Some use-cases :
- * <ul>
- *   <li>exclude the files that are older than x days</li>
- *   <li>exclude the files which names start with Generated</li>
- * </ul>
- * @since 3.5
- */
-public interface FileSystemFilter extends BatchExtension {
+import static org.fest.assertions.Assertions.assertThat;
 
-  /**
-   * Plugins must not implement this interface. It is provided at runtime.
-   */
-  public interface Context {
-    ModuleFileSystem fileSystem();
+public class HashBuilderTest {
 
-    FileType type();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
-    File relativeDir();
-
-    /**
-     * File path relative to source directory. Never return null.
-     */
-    String relativePath();
-
-    /**
-     * Absolute file path. Directory separator is slash, even on windows. Never return null.
-     */
-    String canonicalPath();
+  @Test
+  public void should_compute_hash() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.write(tempFile, "foobar");
+    assertThat(new HashBuilder().computeHash(tempFile)).isEqualTo("3858f62230ac3c915f300c664312c63f");
   }
 
-  boolean accept(File file, Context context);
+  @Test(expected = SonarException.class)
+  public void should_throw_on_not_existing_file() throws Exception {
+    File tempFolder = temp.newFolder();
+    new HashBuilder().computeHash(new File(tempFolder, "unknowFile.txt"));
+  }
 }

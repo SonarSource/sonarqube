@@ -17,30 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
+package org.sonar.plugins.core.utils;
 
-package org.sonar.core.source;
-
-public enum SnapshotDataType {
-
-  SYNTAX_HIGHLIGHTING("highlight_syntax"),
-  SYMBOL_HIGHLIGHTING("symbol"),
-  FILE_HASH("hash");
-
-  private SnapshotDataType(String value) {
-    this.value = value;
-  }
-
-  private String value;
-
-  public static boolean isSyntaxHighlighting(String dataType) {
-    return SYNTAX_HIGHLIGHTING.value.equals(dataType);
-  }
-
-  public static boolean isSymbolHighlighting(String dataType) {
-    return SYMBOL_HIGHLIGHTING.value.equals(dataType);
-  }
-
-  public String getValue() {
-    return value;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
