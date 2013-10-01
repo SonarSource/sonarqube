@@ -19,15 +19,14 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.core.resource.ResourceDao;
 import com.google.common.base.Joiner;
-import org.apache.commons.lang.math.NumberUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.resource.ResourceDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,11 @@ import java.util.List;
  */
 public class ProjectReactorValidator {
 
-  private static final String VALID_MODULE_KEY_REGEXP = "[0-9a-zA-Z\\-_\\.:]+";
+  /*
+   * Allowed characters are alphanumeric, dash '-', underscore '_', period '.' and colon ':',
+   * with at least one non-digit
+   */
+  private static final String VALID_MODULE_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
   private final Settings settings;
   private final ResourceDao resourceDao;
 
@@ -72,9 +75,7 @@ public class ProjectReactorValidator {
   }
 
   private void validateKey(ProjectDefinition def, List<String> validationMessages) {
-    if (!def.getKey().matches(VALID_MODULE_KEY_REGEXP) ||
-      // SONAR-4629 project key must not only contain digits
-      NumberUtils.isDigits(def.getKey())) {
+    if (!def.getKey().matches(VALID_MODULE_KEY_REGEXP)) {
       validationMessages.add(String.format("%s is not a valid project or module key", def.getKey()));
     }
   }

@@ -70,8 +70,15 @@ public class ProjectReactorValidatorTest {
 
   @Test
   public void not_fail_with_valid_key() {
-    ProjectReactor reactor = createProjectReactor("foo");
-    validator.validate(reactor);
+    validator.validate(createProjectReactor("foo"));
+    validator.validate(createProjectReactor("123foo"));
+    validator.validate(createProjectReactor("foo123"));
+    validator.validate(createProjectReactor("1Z3"));
+    validator.validate(createProjectReactor("a123"));
+    validator.validate(createProjectReactor("123a"));
+    validator.validate(createProjectReactor("1:2"));
+    validator.validate(createProjectReactor("3-3"));
+    validator.validate(createProjectReactor("-:"));
   }
 
   @Test
