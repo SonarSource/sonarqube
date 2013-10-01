@@ -20,8 +20,9 @@
 
 package org.sonar.server.component;
 
-import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.core.resource.ResourceDto;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Qualifiers;
@@ -96,12 +97,42 @@ public class DefaultRubyComponentServiceTest {
     String componentName = "New Project";
     String scope = Scopes.PROJECT;
     String qualifier = Qualifiers.PROJECT;
-    long componentId = Long.MAX_VALUE;
-    ComponentDto component = mock(ComponentDto.class);
-    when(component.getId()).thenReturn(componentId);
     when(resourceDao.findByKey(componentKey)).thenReturn(null);
 
     componentService.createComponent(componentKey, componentName, scope, qualifier);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void should_throw_if_component_already_exists() {
+    String componentKey = "new-project";
+    String componentName = "New Project";
+    String scope = Scopes.PROJECT;
+    String qualifier = Qualifiers.PROJECT;
+    when(resourceDao.findByKey(componentKey)).thenReturn(mock(ComponentDto.class));
+
+    componentService.createComponent(componentKey, componentName, scope, qualifier);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void should_throw_if_updating_unknown_component() {
+    final long componentId = 1234l;
+    when(resourceDao.getResource(componentId)).thenReturn(null);
+    componentService.updateComponent(componentId, "key", "name");
+  }
+
+  @Test
+  public void should_update_component() {
+    final long componentId = 1234l;
+    final String newKey = "newKey";
+    final String newName = "newName";
+    ResourceDto resource = mock(ResourceDto.class);
+    when(resourceDao.getResource(componentId)).thenReturn(resource);
+    when(resource.setKey(newKey)).thenReturn(resource);
+    when(resource.setName(newName)).thenReturn(resource);
+    componentService.updateComponent(componentId, newKey, newName);
+    verify(resource).setKey(newKey);
+    verify(resource).setName(newName);
+    verify(resourceDao).insertOrUpdate(resource);
   }
 
   @Test
@@ -156,6 +187,17 @@ public class DefaultRubyComponentServiceTest {
     componentService.findGhostsProjects(map);
     verify(resourceDao).selectGhostsProjects(anyListOf(String.class));
     verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
+  }
+
+  @Test
+  public void should_find_provisioned_projects() {
+    List<String> qualifiers = newArrayList("TRK");
+
+    Map<String, Object> map = newHashMap();
+    map.put("qualifiers", qualifiers);
+
+    componentService.findProvisionedProjects(map);
+    verify(resourceDao).selectProvisionedProjects(anyListOf(String.class));
   }
 
   @Test
