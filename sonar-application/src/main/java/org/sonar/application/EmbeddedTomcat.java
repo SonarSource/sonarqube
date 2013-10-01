@@ -43,6 +43,10 @@ class EmbeddedTomcat {
       throw new IllegalStateException("Tomcat is already started");
     }
 
+    // '%2F' (slash /) and '%5C' (backslash \) are permitted as path delimiters in URLs
+    // See Ruby on Rails url_for
+    System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
+
     tomcat = new Tomcat();
 
     // Initialize directories
