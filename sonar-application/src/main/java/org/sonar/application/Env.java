@@ -34,7 +34,7 @@ class Env {
   }
 
   Env() throws URISyntaxException {
-    this(new File(Env.class.getResource("/sonar.properties").toURI()));
+    this(new File(Env.class.getResource("/conf/sonar.properties").toURI()));
   }
 
   File rootDir() {
