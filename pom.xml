@@ -638,11 +638,6 @@
         <type>sonar-plugin</type>
       </dependency>
       <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm-all</artifactId>
-        <version>3.2</version>
-      </dependency>
-      <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-classworlds</artifactId>
         <version>2.2.3</version>
@@ -663,6 +658,7 @@
         <version>10.0.1</version>
         <exclusions>
           <exclusion>
+            <!-- should be declared with scope provided -->
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
           </exclusion>
@@ -771,6 +767,10 @@
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -869,6 +869,10 @@
           <exclusion>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>stax2-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.codehaus.woodstox</groupId>
@@ -984,6 +988,12 @@
         <groupId>org.codehaus.woodstox</groupId>
         <artifactId>stax2-api</artifactId>
         <version>3.0.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -1004,16 +1014,6 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.10</version>
-      </dependency>
-      <dependency>
-        <groupId>xerces</groupId>
-        <artifactId>xercesImpl</artifactId>
-        <version>2.8.1</version>
-      </dependency>
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.7.1</version>
       </dependency>
       <dependency>
         <groupId>xmlunit</groupId>

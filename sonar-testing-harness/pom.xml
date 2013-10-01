@@ -48,7 +48,6 @@
       <groupId>org.dbunit</groupId>
       <artifactId>dbunit</artifactId>
       <exclusions>
-        <!--  removing commons lang 2.1 and xerces-->
         <exclusion>
           <groupId>commons-lang</groupId>
           <artifactId>commons-lang</artifactId>
