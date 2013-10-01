@@ -377,8 +377,16 @@ public final class CorePlugin extends SonarPlugin {
         .description("Forcing user authentication stops un-logged users to access SonarQube.")
         .type(PropertyType.BOOLEAN)
         .category(CoreProperties.CATEGORY_SECURITY)
+        .build(),
+
+      PropertyDefinition.builder(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION)
+        .defaultValue(Boolean.toString(false))
+        .name("Prevent automatic project creation")
+        .description("Set to true to prevent automatic project creation at first analysis and force project provisioning.")
+        .type(PropertyType.BOOLEAN)
+        .category(CoreProperties.CATEGORY_SECURITY)
         .build()
-    );
+      );
   }
 
 }

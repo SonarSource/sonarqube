@@ -20,9 +20,8 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
-import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
 
 import javax.annotation.Nullable;
 
@@ -40,19 +39,19 @@ import javax.annotation.Nullable;
 public class ProjectReactorReady {
 
   private final ProjectReactor reactor;
-  private final Settings settings;
   private ProjectBuilder[] projectBuilders;
   private ProjectExclusions exclusions;
+  private ProjectReactorValidator validator;
 
-  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, Settings settings, @Nullable ProjectBuilder[] projectBuilders) {
+  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, @Nullable ProjectBuilder[] projectBuilders, ProjectReactorValidator validator) {
     this.exclusions = exclusions;
     this.reactor = reactor;
-    this.settings = settings;
     this.projectBuilders = projectBuilders;
+    this.validator = validator;
   }
 
-  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, Settings settings) {
-    this(exclusions, reactor, settings, new ProjectBuilder[0]);
+  public ProjectReactorReady(ProjectExclusions exclusions, ProjectReactor reactor, ProjectReactorValidator validator) {
+    this(exclusions, reactor, new ProjectBuilder[0], validator);
   }
 
   public void start() {
@@ -67,7 +66,6 @@ public class ProjectReactorReady {
     exclusions.apply();
 
     // 3 Validate final reactor
-    ProjectReactorValidator validator = new ProjectReactorValidator(settings);
     validator.validate(reactor);
   }
 }

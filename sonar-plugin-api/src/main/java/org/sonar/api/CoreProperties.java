@@ -465,4 +465,9 @@ public interface CoreProperties {
    * @since 3.7
    */
   String DRY_RUN_READ_TIMEOUT_SEC = "sonar.dryRun.readTimeout";
+
+  /**
+   * @since 4.0
+   */
+  String CORE_PREVENT_AUTOMATIC_PROJECT_CREATION = "sonar.preventAutoProjectCreation";
 }

@@ -26,8 +26,13 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.resource.ResourceDao;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectReactorValidatorTest {
 
@@ -36,11 +41,31 @@ public class ProjectReactorValidatorTest {
 
   private ProjectReactorValidator validator;
   private Settings settings;
+  private ResourceDao resourceDao;
 
   @Before
   public void prepare() {
     settings = new Settings();
-    validator = new ProjectReactorValidator(settings);
+    resourceDao = mock(ResourceDao.class);
+    validator = new ProjectReactorValidator(settings, resourceDao);
+  }
+
+  @Test
+  public void not_fail_if_prosivioning_enforced_and_project_exists() throws Exception {
+    String key = "project-key";
+    settings.setProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, true);
+    when(resourceDao.findByKey(key)).thenReturn(mock(Component.class));
+    ProjectReactor reactor = createProjectReactor(key);
+    validator.validate(reactor);
+  }
+
+  @Test(expected = SonarException.class)
+  public void fail_if_prosivioning_enforced_and_project_not_provisioned() throws Exception {
+    String key = "project-key";
+    settings.setProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, true);
+    when(resourceDao.findByKey(key)).thenReturn(null);
+    ProjectReactor reactor = createProjectReactor(key);
+    validator.validate(reactor);
   }
 
   @Test

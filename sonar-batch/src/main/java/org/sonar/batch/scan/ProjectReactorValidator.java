@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.core.resource.ResourceDao;
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.math.NumberUtils;
 import org.codehaus.plexus.util.StringUtils;
@@ -39,12 +40,21 @@ public class ProjectReactorValidator {
 
   private static final String VALID_MODULE_KEY_REGEXP = "[0-9a-zA-Z\\-_\\.:]+";
   private final Settings settings;
+  private final ResourceDao resourceDao;
 
-  public ProjectReactorValidator(Settings settings) {
+  public ProjectReactorValidator(Settings settings, ResourceDao resourceDao) {
     this.settings = settings;
+    this.resourceDao = resourceDao;
   }
 
   public void validate(ProjectReactor reactor) {
+    if (settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION)) {
+      String projectKey = reactor.getRoot().getKey();
+      if (resourceDao.findByKey(projectKey) == null) {
+        throw new SonarException("Unable to scan non-existing project " + projectKey);
+      }
+    }
+
     List<String> validationMessages = new ArrayList<String>();
     for (ProjectDefinition moduleDef : reactor.getProjects()) {
       validateModule(moduleDef, validationMessages);

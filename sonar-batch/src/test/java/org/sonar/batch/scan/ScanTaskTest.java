@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.core.resource.ResourceDao;
+
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -27,7 +29,6 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.bootstrap.TaskContainer;
 import org.sonar.batch.phases.Phases;
-
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -42,7 +43,7 @@ public class ScanTaskTest {
   public void should_enable_all_phases() {
     ScanTask task = new ScanTask(mock(TaskContainer.class));
     ComponentContainer projectScanContainer = new ComponentContainer();
-    projectScanContainer.add(mock(ProjectConfigurator.class), mock(ProjectReactor.class), mock(Settings.class), mock(ProjectSettingsReady.class));
+    projectScanContainer.add(mock(ProjectConfigurator.class), mock(ProjectReactor.class), mock(Settings.class), mock(ProjectSettingsReady.class), mock(ResourceDao.class));
     task.scan(projectScanContainer);
 
     Phases phases = projectScanContainer.getComponentByType(Phases.class);

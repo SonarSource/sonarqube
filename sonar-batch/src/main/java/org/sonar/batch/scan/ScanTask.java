@@ -51,6 +51,7 @@ public class ScanTask implements Task {
         new Phases().enable(Phases.Phase.values()),
         DefaultProjectTree.class,
         ProjectExclusions.class,
+        ProjectReactorValidator.class,
         ProjectReactorReady.class,
         DefaultProfileLoader.class,
         DefaultSensorMatcher.class);
