@@ -31,5 +31,6 @@ import java.util.Set;
 class NullJarScanner implements JarScanner {
   @Override
   public void scan(ServletContext context, ClassLoader classloader, JarScannerCallback callback, Set<String> jarsToSkip) {
+    // doing nothing is fast!
   }
 }

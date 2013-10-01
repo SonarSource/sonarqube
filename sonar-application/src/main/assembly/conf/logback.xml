@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
+<!--
+  Logging configuration.
+  By default logs are generated in logs/sonar.log.
+
+  See http://logback.qos.ch/manual/configuration.html
+-->
 <configuration debug="false">
   <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
 
@@ -21,7 +27,7 @@
     </encoder>
   </appender>
 
-  <!-- Display Rails warnings and errors in the standard Sonar log -->
+  <!-- Display Rails warnings and errors  -->
   <logger name="rails" additivity="false">
     <level value="WARN"/>
     <appender-ref ref="SONAR_FILE"/>

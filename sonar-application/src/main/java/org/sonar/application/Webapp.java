@@ -27,9 +27,8 @@ class Webapp {
   static void configure(Tomcat tomcat, Env env, Props props) {
     String ctx = props.of("sonar.web.context", "/");
     try {
-      System.setProperty("SONAR_HOME", env.rootDir().getAbsolutePath());
       Context context = tomcat.addWebapp(ctx, env.file("web").getAbsolutePath());
-      context.setConfigFile(env.file("web/META-INF/context.xml").toURL());
+      context.setConfigFile(env.file("web/META-INF/context.xml").toURI().toURL());
       context.setJarScanner(new NullJarScanner());
 
     } catch (Exception e) {

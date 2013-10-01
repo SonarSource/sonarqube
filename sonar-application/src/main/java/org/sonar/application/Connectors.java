@@ -35,9 +35,6 @@ class Connectors {
     configureShutdown(tomcat, props);
 
     Connector connector = new Connector("HTTP/1.1");
-
-    // TODO manage redirects from other ports ?
-
     connector.setPort(props.intOf("sonar.web.port", 9000));
     connector.setURIEncoding("UTF-8");
     configurePool(props, connector);

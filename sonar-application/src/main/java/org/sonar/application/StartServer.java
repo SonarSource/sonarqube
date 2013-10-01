@@ -20,7 +20,6 @@
 package org.sonar.application;
 
 // TODO dev mode
-// TODO sanitize jetty dependencies
 // TODO remove logback/slf4j from sonar-server
 
 public final class StartServer {

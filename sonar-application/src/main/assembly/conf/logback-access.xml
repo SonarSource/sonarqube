@@ -1,9 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
 <!--
 
-    See http://logback.qos.ch/access.html#configuration
+  Log HTTP requests in the file logs/access.log
+
+  See http://logback.qos.ch/access.html#configuration
 
 -->
+
 <configuration debug="false">
+
+  <!-- Required for performance reason. See http://www.slf4j.org/legacy.html#jul-to-slf4j -->
   <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
