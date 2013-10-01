@@ -27,7 +27,9 @@ import org.sonar.api.resources.Scopes;
 
 public final class ComponentKeys {
 
-  private ComponentKeys() {}
+  private ComponentKeys() {
+    // only static stuff
+  }
 
   public static String createKey(Project project, Resource resource) {
     String key = resource.getKey();
