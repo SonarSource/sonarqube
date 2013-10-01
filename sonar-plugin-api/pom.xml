@@ -14,6 +14,11 @@
   <name>SonarQube :: Plugin API</name>
   <dependencies>
     <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-check-api</artifactId>
     </dependency>
@@ -126,8 +131,9 @@
       <artifactId>xalan</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>servlet-api</artifactId>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.0.1</version>
       <optional>true</optional>
     </dependency>
 

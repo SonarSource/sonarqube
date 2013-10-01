@@ -114,11 +114,6 @@
       <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>jfree</groupId>
       <artifactId>jfreechart</artifactId>
     </dependency>
@@ -135,11 +130,16 @@
       <artifactId>jruby-rack</artifactId>
     </dependency>
     <dependency>
-      <!-- GZIP filter -->
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-servlets</artifactId>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>7.0.42</version>
+      <scope>provided</scope>
     </dependency>
-
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <!-- unit tests -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -374,26 +374,18 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-maven-plugin</artifactId>
-            <version>${jetty.version}</version>
+            <groupId>org.apache.tomcat.maven</groupId>
+            <artifactId>tomcat7-maven-plugin</artifactId>
+            <version>2.1</version>
             <configuration>
-              <webAppConfig>
-                <contextPath>/dev</contextPath>
-                <defaultsDescriptor>${basedir}/src/dev/webdefault.xml</defaultsDescriptor>
-                <descriptor>${basedir}/src/dev/web.xml</descriptor>
-              </webAppConfig>
-              <connectors>
-                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                  <port>9000</port>
-                  <maxIdleTime>60000</maxIdleTime>
-                </connector>
-              </connectors>
+              <port>9000</port>
+              <path>/dev</path>
+              <!--<contextFile>${pom.basedir}/src/main/webapp/META-INF/context.xml</contextFile>-->
+              <tomcatWebXml>${pom.basedir}/src/dev/web.xml</tomcatWebXml>
+              <useNaming>false</useNaming>
               <systemProperties>
-                <systemProperty>
-                  <name>SONAR_HOME</name>
-                  <value>${project.build.directory}/sonar-dev-home</value>
-                </systemProperty>
+                <SONAR_HOME>${pom.build.directory}/sonar-dev-home</SONAR_HOME>
+                <!--<java.io.tmpdir>${pom.basedir}/target/tomcat-tmp</java.io.tmpdir>-->
               </systemProperties>
             </configuration>
           </plugin>

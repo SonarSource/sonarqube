@@ -59,7 +59,6 @@ public class GenerateBootstrapIndexTest {
     assertThat(GenerateBootstrapIndex.isIgnored("jtds-1.2.4.jar")).isTrue();
     assertThat(GenerateBootstrapIndex.isIgnored("jfreechart-1.0.9.jar")).isTrue();
     assertThat(GenerateBootstrapIndex.isIgnored("eastwood-1.1.0.jar")).isTrue();
-    assertThat(GenerateBootstrapIndex.isIgnored("jetty-util-6.1.24.jar")).isTrue();
     assertThat(GenerateBootstrapIndex.isIgnored("jruby-complete-1.5.6.jar")).isTrue();
     assertThat(GenerateBootstrapIndex.isIgnored("jruby-rack-1.0.5.jar")).isTrue();
   }

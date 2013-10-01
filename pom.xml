@@ -7,7 +7,7 @@
   <packaging>pom</packaging>
   <version>4.0-SNAPSHOT</version>
   <name>SonarQube</name>
-  <url>http://www.sonarsource.org/</url>
+  <url>http://www.sonarqube.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
 
   <modules>
@@ -76,6 +76,9 @@
     <sonarGwt.version>3.3.1</sonarGwt.version>
     <h2.version>1.3.172</h2.version>
     <jetty.version>8.1.12.v20130726</jetty.version>
+    <logback.version>1.0.13</logback.version>
+    <slf4j.version>1.7.5</slf4j.version>
+    <tomcat.version>7.0.42</tomcat.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>3.0.5</maven.min.version>
     <maven.api.version>2.2.0</maven.api.version>
@@ -658,6 +661,12 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>10.0.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.google.code.findbugs</groupId>
@@ -788,27 +797,37 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.6.2</version>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jcl-over-slf4j</artifactId>
-        <version>1.6.2</version>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>log4j-over-slf4j</artifactId>
-        <version>1.6.2</version>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-access</artifactId>
+        <version>${logback.version}</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>0.9.30</version>
+        <version>${logback.version}</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
-        <version>0.9.30</version>
+        <version>${logback.version}</version>
       </dependency>
       <dependency>
         <groupId>com.h2database</groupId>
@@ -920,6 +939,14 @@
             <groupId>classworlds</groupId>
             <artifactId>classworlds</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -959,28 +986,13 @@
         <version>3.0.1</version>
       </dependency>
       <dependency>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>3.0.20100224</version>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.0.1</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-server</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-webapp</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-util</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-servlets</artifactId>
         <version>${jetty.version}</version>
       </dependency>
       <dependency>
@@ -1065,6 +1077,35 @@
         <artifactId>sonar-runner-api</artifactId>
         <version>2.3</version>
       </dependency>
+
+      <!-- tomcat -->
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-jasper</artifactId>
+        <version>${tomcat.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.eclipse.jdt.core.compiler</groupId>
+            <artifactId>ecj</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-logging-juli</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-logging-juli</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 

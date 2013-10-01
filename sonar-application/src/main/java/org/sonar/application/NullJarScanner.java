@@ -19,33 +19,17 @@
  */
 package org.sonar.application;
 
-// TODO dev mode
-// TODO sanitize jetty dependencies
-// TODO remove logback/slf4j from sonar-server
+import org.apache.tomcat.JarScanner;
+import org.apache.tomcat.JarScannerCallback;
 
-public final class StartServer {
+import javax.servlet.ServletContext;
+import java.util.Set;
 
-  private final EmbeddedTomcat tomcat;
-
-  public StartServer(Env env) {
-    Logging.init();
-    env.verifyWritableTempDir();
-    this.tomcat = new EmbeddedTomcat(env);
-  }
-
-  void start() throws Exception {
-    tomcat.start();
-  }
-
-  int port() {
-    return tomcat.port();
-  }
-
-  void stop() throws Exception {
-    tomcat.stop();
-  }
-
-  public static void main(String[] args) throws Exception {
-    new StartServer(new Env()).start();
+/**
+ * Disable taglib and web-fragment.xml scanning of Tomcat. Should speed up startup.
+ */
+class NullJarScanner implements JarScanner {
+  @Override
+  public void scan(ServletContext context, ClassLoader classloader, JarScannerCallback callback, Set<String> jarsToSkip) {
   }
 }

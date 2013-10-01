@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -16,37 +17,62 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-server</artifactId>
-      <version>${project.version}</version>
-      <type>war</type>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-server</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-webapp</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <scope>test</scope>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-access</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+    </dependency>
+    <dependency>
+      <!-- TODO remove this unused dependency, but how to disable Jasper in embedded tomcat ? -->
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-jasper</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-logging-juli</artifactId>
+    </dependency>
+    <!--
+    TODO
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-dbcp</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+    -->
+
+
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-testing-harness</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>test</scope>
+      <artifactId>sonar-server</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
@@ -161,7 +187,6 @@
       <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>org.sonatype.jsw-binaries</groupId>
       <artifactId>jsw-binaries</artifactId>
@@ -170,10 +195,33 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <!-- do not upgrade because of licensing change -->
       <groupId>tanukisoft</groupId>
       <artifactId>wrapper</artifactId>
       <version>3.2.3</version>
       <scope>runtime</scope>
+    </dependency>
+
+    <!-- unit tests -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.kevinsawicki</groupId>
+      <artifactId>http-request</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -204,8 +252,8 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <checksum file="${project.build.directory}/sonar-${project.version}.zip" algorithm="md5" />
-                <checksum file="${project.build.directory}/sonar-${project.version}.zip" algorithm="sha" />
+                <checksum file="${project.build.directory}/sonar-${project.version}.zip" algorithm="md5"/>
+                <checksum file="${project.build.directory}/sonar-${project.version}.zip" algorithm="sha"/>
               </target>
             </configuration>
             <goals>

@@ -1,3 +1,4 @@
-<Context antiJARLocking="true" antiResourceLocking="true" useHttpOnly="true">
-  <ResourceLink name="jdbc/sonar" global="jdbc/sonar" type="javax.sql.DataSource" />
+<Context antiJARLocking="true" antiResourceLocking="true" useHttpOnly="true" reloadable="false" processTlds="false"
+         unpackWAR="false" useNaming="false" xmlValidation="false" xmlNamespaceAware="false" tldValidation="false"
+         tldNamespaceAware="false">
 </Context>

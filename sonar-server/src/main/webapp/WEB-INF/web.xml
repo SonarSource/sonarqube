@@ -2,7 +2,9 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://java.sun.com/xml/ns/javaee"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-         id="SonarQube" version="3.0">
+         id="SonarQube"
+         version="3.0"
+         metadata-complete="true">
   <display-name>SonarQube</display-name>
 
   <context-param>
@@ -46,31 +48,7 @@
     <filter-name>RackFilter</filter-name>
     <filter-class>org.jruby.rack.RackFilter</filter-class>
   </filter>
-  <filter>
-    <!-- compatibility with servlet 2.5 containers like tomcat 6 -->
-    <filter-name>ContinuationFilter</filter-name>
-    <filter-class>org.eclipse.jetty.continuation.ContinuationFilter</filter-class>
-  </filter>
-  <filter>
-    <filter-name>GZIPFilter</filter-name>
-    <filter-class>org.eclipse.jetty.servlets.GzipFilter</filter-class>
-    <init-param>
-      <param-name>minGzipSize</param-name>
-      <param-value>1024</param-value>
-    </init-param>
-    <init-param>
-      <param-name>bufferSize</param-name>
-      <param-value>16384</param-value>
-    </init-param>
-  </filter>
-  <filter-mapping>
-    <filter-name>ContinuationFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>GZIPFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
+
   <filter-mapping>
     <filter-name>DatabaseSessionFilter</filter-name>
     <url-pattern>/*</url-pattern>

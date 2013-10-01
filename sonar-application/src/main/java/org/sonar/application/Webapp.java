@@ -19,33 +19,21 @@
  */
 package org.sonar.application;
 
-// TODO dev mode
-// TODO sanitize jetty dependencies
-// TODO remove logback/slf4j from sonar-server
+import org.apache.catalina.Context;
+import org.apache.catalina.startup.Tomcat;
 
-public final class StartServer {
+class Webapp {
 
-  private final EmbeddedTomcat tomcat;
+  static void configure(Tomcat tomcat, Env env, Props props) {
+    String ctx = props.of("sonar.web.context", "/");
+    try {
+      System.setProperty("SONAR_HOME", env.rootDir().getAbsolutePath());
+      Context context = tomcat.addWebapp(ctx, env.file("web").getAbsolutePath());
+      context.setConfigFile(env.file("web/META-INF/context.xml").toURL());
+      context.setJarScanner(new NullJarScanner());
 
-  public StartServer(Env env) {
-    Logging.init();
-    env.verifyWritableTempDir();
-    this.tomcat = new EmbeddedTomcat(env);
-  }
-
-  void start() throws Exception {
-    tomcat.start();
-  }
-
-  int port() {
-    return tomcat.port();
-  }
-
-  void stop() throws Exception {
-    tomcat.stop();
-  }
-
-  public static void main(String[] args) throws Exception {
-    new StartServer(new Env()).start();
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to configure webapp", e);
+    }
   }
 }

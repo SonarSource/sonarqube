@@ -19,33 +19,25 @@
  */
 package org.sonar.application;
 
-// TODO dev mode
-// TODO sanitize jetty dependencies
-// TODO remove logback/slf4j from sonar-server
+import org.apache.tomcat.JarScannerCallback;
+import org.junit.Test;
 
-public final class StartServer {
+import javax.servlet.ServletContext;
+import java.util.HashSet;
 
-  private final EmbeddedTomcat tomcat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
-  public StartServer(Env env) {
-    Logging.init();
-    env.verifyWritableTempDir();
-    this.tomcat = new EmbeddedTomcat(env);
-  }
+public class NullJarScannerTest {
 
-  void start() throws Exception {
-    tomcat.start();
-  }
+  @Test
+  public void does_nothing() {
+    ServletContext context = mock(ServletContext.class);
+    ClassLoader classloader = mock(ClassLoader.class);
+    JarScannerCallback callback = mock(JarScannerCallback.class);
 
-  int port() {
-    return tomcat.port();
-  }
+    new NullJarScanner().scan(context, classloader, callback, new HashSet<String>());
 
-  void stop() throws Exception {
-    tomcat.stop();
-  }
-
-  public static void main(String[] args) throws Exception {
-    new StartServer(new Env()).start();
+    verifyZeroInteractions(context, classloader, callback);
   }
 }

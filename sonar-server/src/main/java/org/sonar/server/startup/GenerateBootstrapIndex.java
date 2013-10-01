@@ -84,7 +84,7 @@ public final class GenerateBootstrapIndex {
     return libs;
   }
 
-  private static final String[] IGNORE = {"jtds", "mysql", "postgresql", "jruby", "jfreechart", "eastwood", "jetty"};
+  private static final String[] IGNORE = {"jtds", "mysql", "postgresql", "jruby", "jfreechart", "eastwood"};
 
   /**
    * Dirty hack to disable downloading for certain files.

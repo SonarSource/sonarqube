@@ -17,35 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
 package org.sonar.application;
 
-// TODO dev mode
-// TODO sanitize jetty dependencies
-// TODO remove logback/slf4j from sonar-server
-
-public final class StartServer {
-
-  private final EmbeddedTomcat tomcat;
-
-  public StartServer(Env env) {
-    Logging.init();
-    env.verifyWritableTempDir();
-    this.tomcat = new EmbeddedTomcat(env);
-  }
-
-  void start() throws Exception {
-    tomcat.start();
-  }
-
-  int port() {
-    return tomcat.port();
-  }
-
-  void stop() throws Exception {
-    tomcat.stop();
-  }
-
-  public static void main(String[] args) throws Exception {
-    new StartServer(new Env()).start();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

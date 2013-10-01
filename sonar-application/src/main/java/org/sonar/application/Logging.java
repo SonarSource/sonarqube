@@ -19,33 +19,32 @@
  */
 package org.sonar.application;
 
-// TODO dev mode
-// TODO sanitize jetty dependencies
-// TODO remove logback/slf4j from sonar-server
+import ch.qos.logback.access.tomcat.LogbackValve;
+import org.apache.catalina.startup.Tomcat;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
-public final class StartServer {
+import java.io.File;
+import java.util.logging.LogManager;
 
-  private final EmbeddedTomcat tomcat;
+class Logging {
 
-  public StartServer(Env env) {
-    Logging.init();
-    env.verifyWritableTempDir();
-    this.tomcat = new EmbeddedTomcat(env);
+  static final String CONF_PATH = "conf/logback-access.xml";
+
+  static void init() {
+    // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
+    LogManager.getLogManager().reset();
+    SLF4JBridgeHandler.install();
   }
 
-  void start() throws Exception {
-    tomcat.start();
-  }
-
-  int port() {
-    return tomcat.port();
-  }
-
-  void stop() throws Exception {
-    tomcat.stop();
-  }
-
-  public static void main(String[] args) throws Exception {
-    new StartServer(new Env()).start();
+  static void configure(Tomcat tomcat, Env env) {
+    tomcat.setSilent(false);
+    LogbackValve valve = new LogbackValve();
+    valve.setQuiet(true);
+    File confFile = env.file(CONF_PATH);
+    if (!confFile.exists()) {
+      throw new IllegalStateException("File is missing: " + confFile.getAbsolutePath());
+    }
+    valve.setFilename(confFile.getAbsolutePath());
+    tomcat.getHost().getPipeline().addValve(valve);
   }
 }
