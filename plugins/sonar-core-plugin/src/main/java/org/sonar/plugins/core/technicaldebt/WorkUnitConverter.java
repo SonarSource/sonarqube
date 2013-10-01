@@ -19,9 +19,9 @@
  */
 package org.sonar.plugins.core.technicaldebt;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.config.Settings;
 
 public final class WorkUnitConverter implements BatchExtension {
 
@@ -31,8 +31,8 @@ public final class WorkUnitConverter implements BatchExtension {
 
   private int hoursInDay = DEFAULT_HOURS_IN_DAY;
 
-  public WorkUnitConverter(Configuration configuration) {
-    this.hoursInDay = configuration.getInt(PROPERTY_HOURS_IN_DAY, DEFAULT_HOURS_IN_DAY);
+  public WorkUnitConverter(Settings settings) {
+    this.hoursInDay = settings.getInt(PROPERTY_HOURS_IN_DAY);
   }
 
   public int getHoursInDay() {

@@ -19,8 +19,8 @@
  */
 package org.sonar.plugins.core.technicaldebt;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -28,20 +28,15 @@ import static org.junit.Assert.assertThat;
 public class WorkUnitConverterTest {
 
   @Test
-  public void shouldUseDefaultConfiguration() {
-    WorkUnitConverter converter = new WorkUnitConverter(new PropertiesConfiguration());
-    assertThat(converter.getHoursInDay(), is(WorkUnitConverter.DEFAULT_HOURS_IN_DAY));
-  }
+  public void concert_value_to_days() {
+    Settings settings = new Settings();
+    settings.setProperty(WorkUnitConverter.PROPERTY_HOURS_IN_DAY, "12");
 
-  @Test
-  public void shouldConvertValueToDays() {
-    PropertiesConfiguration configuration = new PropertiesConfiguration();
-    configuration.setProperty(WorkUnitConverter.PROPERTY_HOURS_IN_DAY, "12");
-    WorkUnitConverter converter = new WorkUnitConverter(configuration);
+    WorkUnitConverter converter = new WorkUnitConverter(settings);
 
     assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.DAYS)), is(6.0));
     assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.HOURS)), is(6.0 / 12.0));
-    assertThat(converter.toDays(WorkUnit.create(60.0 , WorkUnit.MINUTES)), is(1.0/12.0));
+    assertThat(converter.toDays(WorkUnit.create(60.0, WorkUnit.MINUTES)), is(1.0 / 12.0));
   }
 
 }

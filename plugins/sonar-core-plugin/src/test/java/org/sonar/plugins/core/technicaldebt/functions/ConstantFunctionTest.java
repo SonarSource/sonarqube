@@ -20,9 +20,9 @@
 package org.sonar.plugins.core.technicaldebt.functions;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
@@ -44,7 +44,7 @@ public class ConstantFunctionTest {
 
   @Before
   public void before() {
-    function = new ConstantFunction(new WorkUnitConverter(new PropertiesConfiguration()));
+    function = new ConstantFunction(new WorkUnitConverter(new Settings()));
     requirement = mock(TechnicalDebtRequirement.class);
     when(requirement.getRemediationFactor()).thenReturn(WorkUnit.createInDays(3.14));
   }

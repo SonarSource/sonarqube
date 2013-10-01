@@ -20,9 +20,9 @@
 package org.sonar.plugins.core.technicaldebt.functions;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class LinearWithThresholdFunctionTest {
 
   private TechnicalDebtRequirement requirement;
-  private Function function = new LinearWithThresholdFunction(new WorkUnitConverter(new PropertiesConfiguration()));
+  private Function function = new LinearWithThresholdFunction(new WorkUnitConverter(new Settings()));
 
   @Before
   public void before() {
