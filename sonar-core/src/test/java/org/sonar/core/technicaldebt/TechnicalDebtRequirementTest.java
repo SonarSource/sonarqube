@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt;
+package org.sonar.core.technicaldebt;
 
 import org.junit.Test;
 import org.sonar.api.qualitymodel.Characteristic;
-import org.sonar.plugins.core.technicaldebt.functions.ConstantFunction;
-import org.sonar.plugins.core.technicaldebt.functions.LinearFunction;
-import org.sonar.plugins.core.technicaldebt.functions.LinearWithOffsetFunction;
-import org.sonar.plugins.core.technicaldebt.functions.LinearWithThresholdFunction;
+import org.sonar.core.technicaldebt.functions.ConstantFunction;
+import org.sonar.core.technicaldebt.functions.LinearFunction;
+import org.sonar.core.technicaldebt.functions.LinearWithOffsetFunction;
+import org.sonar.core.technicaldebt.functions.LinearWithThresholdFunction;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;

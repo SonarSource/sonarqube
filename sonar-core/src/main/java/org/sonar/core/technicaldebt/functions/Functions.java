@@ -17,28 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt.functions;
+package org.sonar.core.technicaldebt.functions;
 
+import com.google.common.collect.Maps;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
-import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
+import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 
 import java.util.Collection;
+import java.util.Map;
 
-public abstract class AbstractFunction implements Function {
+public class Functions implements BatchComponent {
 
-  private WorkUnitConverter converter;
+  private final Map<String, Function> functionsByKey = Maps.newHashMap();
 
-  public AbstractFunction(WorkUnitConverter converter) {
-    this.converter = converter;
+  public Functions(final Function[] functions) {
+    for (Function function : functions) {
+      functionsByKey.put(function.getKey(), function);
+    }
   }
 
-  protected WorkUnitConverter getConverter() {
-    return converter;
+  Function getFunction(String key) {
+    return functionsByKey.get(key);
   }
 
-  public abstract String getKey();
+  public Function getFunction(TechnicalDebtRequirement requirement) {
+    return getFunction(requirement.getRemediationFunction());
+  }
 
-  public abstract double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations);
+  public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
+    return getFunction(requirement).calculateCost(requirement, violations);
+  }
 
 }

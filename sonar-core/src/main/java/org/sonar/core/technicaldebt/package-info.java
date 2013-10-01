@@ -17,18 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt.functions;
+@ParametersAreNonnullByDefault
+package org.sonar.core.technicaldebt;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
-
-import java.util.Collection;
-
-public interface Function extends BatchExtension {
-
-  String getKey();
-
-  double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt.functions;
+package org.sonar.core.technicaldebt.functions;
 
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
-import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
+import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
+import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 

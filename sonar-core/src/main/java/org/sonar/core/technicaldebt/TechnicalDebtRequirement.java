@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt;
+package org.sonar.core.technicaldebt;
 
 import org.sonar.api.rules.Rule;
-import org.sonar.plugins.core.technicaldebt.functions.LinearFunction;
-import org.sonar.plugins.core.technicaldebt.functions.LinearWithOffsetFunction;
-import org.sonar.plugins.core.technicaldebt.functions.LinearWithThresholdFunction;
+import org.sonar.core.technicaldebt.functions.LinearFunction;
+import org.sonar.core.technicaldebt.functions.LinearWithOffsetFunction;
+import org.sonar.core.technicaldebt.functions.LinearWithThresholdFunction;
 
 public class TechnicalDebtRequirement implements Characteristicable {
 
@@ -53,13 +53,13 @@ public class TechnicalDebtRequirement implements Characteristicable {
 
   private void initFactor() {
     factor = WorkUnit.create(characteristic.getPropertyValue(PROPERTY_REMEDIATION_FACTOR, null),
-        characteristic.getPropertyTextValue(PROPERTY_REMEDIATION_FACTOR, null));
+      characteristic.getPropertyTextValue(PROPERTY_REMEDIATION_FACTOR, null));
   }
 
   private void initOffset() {
     if (LinearWithOffsetFunction.FUNCTION_LINEAR_WITH_OFFSET.equals(function) || LinearWithThresholdFunction.FUNCTION_LINEAR_WITH_THRESHOLD.equals(function)) {
       offset = WorkUnit.create(characteristic.getPropertyValue(PROPERTY_OFFSET, null),
-          characteristic.getPropertyTextValue(PROPERTY_OFFSET, null));
+        characteristic.getPropertyTextValue(PROPERTY_OFFSET, null));
     }
   }
 

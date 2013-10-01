@@ -17,36 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt.functions;
+package org.sonar.core.technicaldebt.functions;
 
-import com.google.common.collect.Maps;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
+import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
+import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
-import java.util.Map;
 
-public class Functions implements BatchExtension {
+public final class ConstantFunction extends AbstractFunction {
 
-  private final Map<String, Function> functionsByKey = Maps.newHashMap();
+  public static final String FUNCTION_CONSTANT_RESOURCE = "constant_resource";
 
-  public Functions(final Function[] functions) {
-    for (Function function : functions) {
-      functionsByKey.put(function.getKey(), function);
-    }
+  public ConstantFunction(WorkUnitConverter converter) {
+    super(converter);
   }
 
-  Function getFunction(String key) {
-    return functionsByKey.get(key);
-  }
-
-  public Function getFunction(TechnicalDebtRequirement requirement) {
-    return getFunction(requirement.getRemediationFunction());
+  public String getKey() {
+    return FUNCTION_CONSTANT_RESOURCE;
   }
 
   public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
-    return getFunction(requirement).calculateCost(requirement, violations);
+    double cost = 0.0;
+    if (!violations.isEmpty()) {
+      cost = getConverter().toDays(requirement.getRemediationFactor());
+    }
+    return cost;
   }
 
 }

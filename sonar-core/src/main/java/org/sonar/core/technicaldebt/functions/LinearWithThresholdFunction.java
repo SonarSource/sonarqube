@@ -17,33 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt.functions;
+package org.sonar.core.technicaldebt.functions;
 
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
-import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
+import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
+import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 
-public class LinearFunction extends AbstractFunction {
+public final class LinearWithThresholdFunction extends LinearFunction {
 
-  public static final String FUNCTION_LINEAR = "linear";
+  public static final String FUNCTION_LINEAR_WITH_THRESHOLD = "linear_threshold";
 
-  public static final double DEFAULT_VIOLATION_COST = 1.0;
-
-  public LinearFunction(WorkUnitConverter converter) {
+  public LinearWithThresholdFunction(WorkUnitConverter converter) {
     super(converter);
   }
 
   public String getKey() {
-    return FUNCTION_LINEAR;
+    return FUNCTION_LINEAR_WITH_THRESHOLD;
   }
 
   public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
-    double points = 0.0;
-    for (Violation violation : violations) {
-      points += (violation.getCost() != null ? violation.getCost() : DEFAULT_VIOLATION_COST);
+    if (violations.isEmpty()) {
+      return 0.0;
     }
-    return points * getConverter().toDays(requirement.getRemediationFactor());
+    double thresholdCost = getConverter().toDays(requirement.getOffset());
+    double violationsCost = super.calculateCost(requirement, violations);
+    return violationsCost > thresholdCost ? violationsCost : thresholdCost;
   }
+
 }

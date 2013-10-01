@@ -31,7 +31,10 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.functions.Functions;
+import org.sonar.core.technicaldebt.TechnicalDebtCharacteristic;
+import org.sonar.core.technicaldebt.TechnicalDebtModel;
+import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
+import org.sonar.core.technicaldebt.functions.Functions;
 
 import java.util.Collection;
 import java.util.List;

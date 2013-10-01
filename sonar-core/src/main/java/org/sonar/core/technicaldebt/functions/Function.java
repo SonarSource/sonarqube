@@ -17,26 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt;
+package org.sonar.core.technicaldebt.functions;
 
-import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.rules.Violation;
+import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import java.util.Collection;
 
-public class WorkUnitConverterTest {
+public interface Function extends BatchComponent {
 
-  @Test
-  public void concert_value_to_days() {
-    Settings settings = new Settings();
-    settings.setProperty(WorkUnitConverter.PROPERTY_HOURS_IN_DAY, "12");
+  String getKey();
 
-    WorkUnitConverter converter = new WorkUnitConverter(settings);
-
-    assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.DAYS)), is(6.0));
-    assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.HOURS)), is(6.0 / 12.0));
-    assertThat(converter.toDays(WorkUnit.create(60.0, WorkUnit.MINUTES)), is(1.0 / 12.0));
-  }
+  double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations);
 
 }

@@ -17,32 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt.functions;
+package org.sonar.core.technicaldebt.functions;
 
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
-import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
+import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
+import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 
-public final class ConstantFunction extends AbstractFunction {
+public class LinearFunction extends AbstractFunction {
 
-  public static final String FUNCTION_CONSTANT_RESOURCE = "constant_resource";
+  public static final String FUNCTION_LINEAR = "linear";
 
-  public ConstantFunction(WorkUnitConverter converter) {
+  public static final double DEFAULT_VIOLATION_COST = 1.0;
+
+  public LinearFunction(WorkUnitConverter converter) {
     super(converter);
   }
 
   public String getKey() {
-    return FUNCTION_CONSTANT_RESOURCE;
+    return FUNCTION_LINEAR;
   }
 
   public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
-    double cost = 0.0;
-    if (!violations.isEmpty()) {
-      cost = getConverter().toDays(requirement.getRemediationFactor());
+    double points = 0.0;
+    for (Violation violation : violations) {
+      points += (violation.getCost() != null ? violation.getCost() : DEFAULT_VIOLATION_COST);
     }
-    return cost;
+    return points * getConverter().toDays(requirement.getRemediationFactor());
   }
-
 }

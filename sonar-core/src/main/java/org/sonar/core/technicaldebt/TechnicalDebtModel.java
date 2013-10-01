@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt;
+package org.sonar.core.technicaldebt;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.qualitymodel.Model;
 import org.sonar.api.qualitymodel.ModelFinder;
 import org.sonar.api.rules.Rule;
@@ -34,7 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class TechnicalDebtModel implements BatchExtension {
+public class TechnicalDebtModel implements BatchComponent {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TechnicalDebtModel.class);
 

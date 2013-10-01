@@ -17,62 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt.functions;
+package org.sonar.core.technicaldebt.functions;
 
 import com.google.common.collect.Lists;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.core.technicaldebt.TechnicalDebtRequirement;
-import org.sonar.plugins.core.technicaldebt.WorkUnit;
-import org.sonar.plugins.core.technicaldebt.WorkUnitConverter;
+import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
+import org.sonar.core.technicaldebt.WorkUnit;
+import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-public class LinearFunctionTest {
+public class LinearWithThresholdFunctionTest {
 
   private TechnicalDebtRequirement requirement;
-  private Function function = new LinearFunction(new WorkUnitConverter(new Settings()));
+  private Function function = new LinearWithThresholdFunction(new WorkUnitConverter(new Settings()));
 
   @Before
   public void before() {
-    requirement = mock(TechnicalDebtRequirement.class);
-    when(requirement.getRemediationFactor()).thenReturn(WorkUnit.createInDays(3.14));
+    requirement = Mockito.mock(TechnicalDebtRequirement.class);
+    Mockito.when(requirement.getRemediationFactor()).thenReturn(WorkUnit.createInDays(2.0));
+    Mockito.when(requirement.getOffset()).thenReturn(WorkUnit.createInDays(5.0));
   }
 
   @Test
   public void zeroIfNoViolations() {
-    assertThat(function.calculateCost(requirement, Collections.<Violation>emptyList()), is(0.0));
+    Assert.assertThat(function.calculateCost(requirement, Collections.<Violation>emptyList()), Is.is(0.0));
   }
 
   @Test
-  public void countEveryViolation() {
+  public void countEveryViolationAndCheckThreshold() {
     Collection<Violation> violations = Lists.newArrayList();
 
     Rule rule = Rule.create("checkstyle", "foo", "Foo");
     violations.add(new Violation(rule));
-    assertThat(function.calculateCost(requirement, violations), is(3.14));
+    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(5.0));
 
     violations.add(new Violation(rule));
-    assertThat(function.calculateCost(requirement, violations), is(3.14 * 2));
-  }
+    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(5.0));
 
-  @Test
-  public void usePointsWhenAvailable() {
-    Collection<Violation> violations = Lists.newArrayList();
-
-    Rule rule = Rule.create("checkstyle", "foo", "Foo");
-    violations.add(new Violation(rule).setCost(20.5));
-    violations.add(new Violation(rule).setCost(3.8));
     violations.add(new Violation(rule));
-    assertThat(function.calculateCost(requirement, violations), is(3.14 * (20.5 + 3.8 + 1)));
+    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(6.0));
   }
 }

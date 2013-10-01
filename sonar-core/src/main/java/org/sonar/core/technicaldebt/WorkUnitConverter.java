@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt;
+package org.sonar.core.technicaldebt;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.config.Settings;
 
-public final class WorkUnitConverter implements BatchExtension {
+public final class WorkUnitConverter implements BatchComponent {
 
   public static final int DEFAULT_HOURS_IN_DAY = 8;
 

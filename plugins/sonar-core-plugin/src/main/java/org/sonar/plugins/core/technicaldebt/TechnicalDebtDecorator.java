@@ -30,7 +30,9 @@ import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.plugins.core.technicaldebt.functions.*;
+import org.sonar.core.technicaldebt.TechnicalDebtCharacteristic;
+import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
+import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -101,16 +103,8 @@ public final class TechnicalDebtDecorator implements Decorator {
     ImmutableList.Builder<Object> extensions = ImmutableList.builder();
     extensions.addAll(definitions());
     extensions.add(
-      // base components
-      TechnicalDebtModel.class, WorkUnitConverter.class, TechnicalDebtCalculator.class,
-
-      // functions
-      ConstantFunction.class, LinearFunction.class, LinearWithOffsetFunction.class, LinearWithThresholdFunction.class, Functions.class,
-
-      // decorator
-      TechnicalDebtDecorator.class
+      TechnicalDebtDecorator.class, TechnicalDebtCalculator.class
     );
-
     return extensions.build();
   }
 

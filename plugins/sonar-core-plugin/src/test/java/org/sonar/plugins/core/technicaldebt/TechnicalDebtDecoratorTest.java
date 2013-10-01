@@ -146,7 +146,7 @@ public class TechnicalDebtDecoratorTest {
 
   @Test
   public void check_extensions() {
-    assertThat(TechnicalDebtDecorator.extensions()).hasSize(1 /* properties */ + 9 /* extensions */);
+    assertThat(TechnicalDebtDecorator.extensions()).hasSize(1 /* properties */ + 2 /* extensions */);
   }
 
 }
