@@ -26,7 +26,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class FunctionsTest {
 
   @Test
-  public void registerFunctions() {
+  public void register_functions() {
     Functions functions = new Functions(new Function[]{new LinearFunction(null), new LinearWithOffsetFunction(null),
       new ConstantFunction(null)});
     assertThat(functions.getFunction(LinearFunction.FUNCTION_LINEAR)).isInstanceOf(LinearFunction.class);

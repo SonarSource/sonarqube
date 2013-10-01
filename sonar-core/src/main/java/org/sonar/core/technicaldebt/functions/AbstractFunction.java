@@ -19,6 +19,7 @@
  */
 package org.sonar.core.technicaldebt.functions;
 
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.core.technicaldebt.WorkUnitConverter;
@@ -39,6 +40,12 @@ public abstract class AbstractFunction implements Function {
 
   public abstract String getKey();
 
-  public abstract double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations);
+  public abstract double costInHours(TechnicalDebtRequirement requirement, Collection<Violation> violations);
+
+  public abstract long costInMinutes(TechnicalDebtRequirement requirement, Issue issue);
+
+  protected long factorInMinutes(TechnicalDebtRequirement requirement) {
+    return getConverter().toMinutes(requirement.getRemediationFactor());
+  }
 
 }

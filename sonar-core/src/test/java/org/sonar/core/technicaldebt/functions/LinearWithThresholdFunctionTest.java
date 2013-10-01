@@ -49,7 +49,7 @@ public class LinearWithThresholdFunctionTest {
 
   @Test
   public void zeroIfNoViolations() {
-    Assert.assertThat(function.calculateCost(requirement, Collections.<Violation>emptyList()), Is.is(0.0));
+    Assert.assertThat(function.costInHours(requirement, Collections.<Violation>emptyList()), Is.is(0.0));
   }
 
   @Test
@@ -58,12 +58,12 @@ public class LinearWithThresholdFunctionTest {
 
     Rule rule = Rule.create("checkstyle", "foo", "Foo");
     violations.add(new Violation(rule));
-    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(5.0));
+    Assert.assertThat(function.costInHours(requirement, violations), Is.is(5.0));
 
     violations.add(new Violation(rule));
-    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(5.0));
+    Assert.assertThat(function.costInHours(requirement, violations), Is.is(5.0));
 
     violations.add(new Violation(rule));
-    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(6.0));
+    Assert.assertThat(function.costInHours(requirement, violations), Is.is(6.0));
   }
 }

@@ -11,6 +11,7 @@
       "status": "OPEN",
       "assignee": "karadoc",
       "effortToFix": 4.2,
+      "remediationCost": 10,
       "message": "the message",
       "title": "the title",
       "reporter": "perceval",

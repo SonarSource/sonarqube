@@ -34,6 +34,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
+import org.sonar.core.technicaldebt.TechnicalDebtCalculator;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -42,10 +43,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ModuleIssuesTest {
 
@@ -55,7 +53,8 @@ public class ModuleIssuesTest {
   RulesProfile qProfile = mock(RulesProfile.class);
   Project project = mock(Project.class);
   IssueFilters filters = mock(IssueFilters.class);
-  ModuleIssues moduleIssues = new ModuleIssues(qProfile, cache, project, filters);
+  TechnicalDebtCalculator technicalDebtCalculator = mock(TechnicalDebtCalculator.class);
+  ModuleIssues moduleIssues = new ModuleIssues(qProfile, cache, project, filters, technicalDebtCalculator);
 
   @Before
   public void setUp() {
@@ -64,7 +63,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void should_ignore_null_active_rule() throws Exception {
+  public void ignore_null_active_rule() throws Exception {
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(null);
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
@@ -75,7 +74,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void should_ignore_null_rule_of_active_rule() throws Exception {
+  public void ignore_null_rule_of_active_rule() throws Exception {
     ActiveRule activeRule = mock(ActiveRule.class);
     when(activeRule.getRule()).thenReturn(null);
     when(qProfile.getActiveRule(anyString(), anyString())).thenReturn(activeRule);
@@ -88,7 +87,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void should_add_issue_to_cache() throws Exception {
+  public void add_issue_to_cache() throws Exception {
     Rule rule = Rule.create("squid", "AvoidCycle");
     ActiveRule activeRule = mock(ActiveRule.class);
     when(activeRule.getRule()).thenReturn(rule);
@@ -114,7 +113,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void should_use_severity_from_active_rule_if_no_severity() throws Exception {
+  public void use_severity_from_active_rule_if_no_severity() throws Exception {
     Rule rule = Rule.create("squid", "AvoidCycle");
     ActiveRule activeRule = mock(ActiveRule.class);
     when(activeRule.getRule()).thenReturn(rule);
@@ -135,7 +134,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void should_add_deprecated_violation() throws Exception {
+  public void add_deprecated_violation() throws Exception {
     Rule rule = Rule.create("squid", "AvoidCycle");
     Resource resource = new JavaFile("org.struts.Action").setEffectiveKey("struts:org.struts.Action");
     Violation violation = new Violation(rule, resource);
@@ -164,7 +163,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void should_filter_issue() throws Exception {
+  public void filter_issue() throws Exception {
     Rule rule = Rule.create("squid", "AvoidCycle");
     ActiveRule activeRule = mock(ActiveRule.class);
     when(activeRule.getRule()).thenReturn(rule);
@@ -182,6 +181,33 @@ public class ModuleIssuesTest {
 
     assertThat(added).isFalse();
     verifyZeroInteractions(cache);
+  }
+
+  @Test
+  public void set_remediation_cost() throws Exception {
+    Rule rule = Rule.create("squid", "AvoidCycle");
+    ActiveRule activeRule = mock(ActiveRule.class);
+    when(activeRule.getRule()).thenReturn(rule);
+    when(activeRule.getSeverity()).thenReturn(RulePriority.INFO);
+    when(qProfile.getActiveRule("squid", "AvoidCycle")).thenReturn(activeRule);
+
+    Date analysisDate = new Date();
+    when(project.getAnalysisDate()).thenReturn(analysisDate);
+
+
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setRuleKey(SQUID_RULE_KEY)
+      .setSeverity(Severity.CRITICAL);
+
+    when(technicalDebtCalculator.cost(issue)).thenReturn(10L);
+    when(filters.accept(issue, null)).thenReturn(true);
+
+    moduleIssues.initAndAddIssue(issue);
+
+    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(cache).put(argument.capture());
+    assertThat(argument.getValue().remediationCost()).isEqualTo(10L);
   }
 
 }

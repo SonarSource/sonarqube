@@ -37,12 +37,12 @@ public final class LinearWithThresholdFunction extends LinearFunction {
     return FUNCTION_LINEAR_WITH_THRESHOLD;
   }
 
-  public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
+  public double costInHours(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
     if (violations.isEmpty()) {
       return 0.0;
     }
     double thresholdCost = getConverter().toDays(requirement.getOffset());
-    double violationsCost = super.calculateCost(requirement, violations);
+    double violationsCost = super.costInHours(requirement, violations);
     return violationsCost > thresholdCost ? violationsCost : thresholdCost;
   }
 

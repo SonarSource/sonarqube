@@ -49,7 +49,7 @@ public class IssueDtoTest {
   }
 
   @Test
-  public void should_set_issue_fields() {
+  public void set_issue_fields() {
     Date createdAt = DateUtils.addDays(new Date(), -5);
     Date updatedAt = DateUtils.addDays(new Date(), -3);
     Date closedAt = DateUtils.addDays(new Date(), -1);
@@ -65,6 +65,7 @@ public class IssueDtoTest {
         .setStatus(Issue.STATUS_CLOSED)
         .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
         .setEffortToFix(15.0)
+        .setRemediationCost(500L)
         .setLine(6)
         .setSeverity("BLOCKER")
         .setMessage("message")
@@ -85,6 +86,7 @@ public class IssueDtoTest {
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.effortToFix()).isEqualTo(15.0);
+    assertThat(issue.remediationCost()).isEqualTo(500L);
     assertThat(issue.line()).isEqualTo(6);
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.message()).isEqualTo("message");

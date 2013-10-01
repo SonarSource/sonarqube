@@ -29,7 +29,6 @@ import org.sonar.api.utils.KeyValueFormat;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -48,6 +47,7 @@ public final class IssueDto implements Serializable {
   private String message;
   private Integer line;
   private Double effortToFix;
+  private Long remediationCost;
   private String status;
   private String resolution;
   private String checksum;
@@ -178,6 +178,16 @@ public final class IssueDto implements Serializable {
 
   public IssueDto setEffortToFix(@Nullable Double d) {
     this.effortToFix = d;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getRemediationCost() {
+    return remediationCost;
+  }
+
+  public IssueDto setRemediationCost(@Nullable Long remediationCost) {
+    this.remediationCost = remediationCost;
     return this;
   }
 
@@ -408,6 +418,7 @@ public final class IssueDto implements Serializable {
     issue.setResolution(resolution);
     issue.setMessage(message);
     issue.setEffortToFix(effortToFix);
+    issue.setRemediationCost(remediationCost);
     issue.setLine(line);
     issue.setSeverity(severity);
     issue.setReporter(reporter);

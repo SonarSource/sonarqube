@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt;
+package org.sonar.core.technicaldebt;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
@@ -26,14 +26,12 @@ import com.google.common.collect.Maps;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.Violation;
-import org.sonar.core.technicaldebt.TechnicalDebtCharacteristic;
-import org.sonar.core.technicaldebt.TechnicalDebtModel;
-import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.core.technicaldebt.functions.Functions;
 
 import java.util.Collection;
@@ -55,6 +53,14 @@ public class TechnicalDebtCalculator implements BatchExtension {
   public TechnicalDebtCalculator(TechnicalDebtModel technicalDebtModel, Functions functions) {
     this.technicalDebtModel = technicalDebtModel;
     this.functions = functions;
+  }
+
+  public Long cost(Issue issue) {
+    TechnicalDebtRequirement requirement = technicalDebtModel.getRequirementByRule(issue.ruleKey().repository(), issue.ruleKey().rule());
+    if (requirement != null) {
+      return functions.costInMinutes(requirement, issue);
+    }
+    return null;
   }
 
   public void compute(DecoratorContext context) {
@@ -109,7 +115,7 @@ public class TechnicalDebtCalculator implements BatchExtension {
   private double computeRemediationCost(Metric metric, DecoratorContext context, TechnicalDebtRequirement requirement, Collection<Violation> violations) {
     double cost = 0.0;
     if (violations != null) {
-      cost = functions.calculateCost(requirement, violations);
+      cost = functions.costInHours(requirement, violations);
     }
 
     for (Measure measure : context.getChildrenMeasures(MeasuresFilters.characteristic(metric, requirement.toCharacteristic()))) {

@@ -21,6 +21,7 @@ package org.sonar.core.technicaldebt.functions;
 
 import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 
@@ -45,8 +46,12 @@ public class Functions implements BatchComponent {
     return getFunction(requirement.getRemediationFunction());
   }
 
-  public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
-    return getFunction(requirement).calculateCost(requirement, violations);
+  public double costInHours(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
+    return getFunction(requirement).costInHours(requirement, violations);
+  }
+
+  public long costInMinutes(TechnicalDebtRequirement requirement, Issue issue) {
+    return getFunction(requirement).costInMinutes(requirement, issue);
   }
 
 }

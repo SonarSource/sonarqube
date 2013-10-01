@@ -19,8 +19,6 @@
  */
 package org.sonar.core.technicaldebt;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -30,9 +28,13 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
+import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class TechnicalDebtModel implements BatchComponent {
 
@@ -41,8 +43,8 @@ public class TechnicalDebtModel implements BatchComponent {
   // FIXME Use the same as in RegisterTechnicalDebtModel
   public static final String MODEL_NAME = "TECHNICAL_DEBT";
 
-  private List<TechnicalDebtCharacteristic> characteristics = Lists.newArrayList();
-  private Map<Rule, TechnicalDebtRequirement> requirementsByRule = Maps.newHashMap();
+  private List<TechnicalDebtCharacteristic> characteristics = newArrayList();
+  private Map<Rule, TechnicalDebtRequirement> requirementsByRule = newHashMap();
 
   public TechnicalDebtModel(ModelFinder modelFinder) {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Loading technical debt model");
@@ -98,6 +100,7 @@ public class TechnicalDebtModel implements BatchComponent {
     return requirementsByRule.values();
   }
 
+  @CheckForNull
   public TechnicalDebtRequirement getRequirementByRule(String repositoryKey, String key) {
     return requirementsByRule.get(Rule.create().setUniqueKey(repositoryKey, key));
   }

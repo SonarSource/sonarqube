@@ -37,12 +37,12 @@ public final class LinearWithOffsetFunction extends LinearFunction {
     return FUNCTION_LINEAR_WITH_OFFSET;
   }
 
-  public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
+  public double costInHours(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
     if (violations.isEmpty()) {
       return 0.0;
     }
     double minimunCost = getConverter().toDays(requirement.getOffset());
-    return minimunCost + super.calculateCost(requirement, violations);
+    return minimunCost + super.costInHours(requirement, violations);
   }
 
 }

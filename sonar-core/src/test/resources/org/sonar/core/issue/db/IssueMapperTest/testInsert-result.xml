@@ -10,6 +10,7 @@
       message="the message"
       line="500"
       effort_to_fix="3.14"
+      remediation_cost="10"
       status="RESOLVED"
       resolution="FIXED"
       checksum="123456789"

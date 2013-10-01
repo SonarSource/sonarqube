@@ -26,6 +26,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.issue.DefaultIssueBuilder;
+import org.sonar.core.technicaldebt.TechnicalDebtCalculator;
 
 import javax.annotation.Nullable;
 
@@ -38,12 +39,14 @@ public class ModuleIssues {
   private final IssueCache cache;
   private final Project project;
   private final IssueFilters filters;
+  private final TechnicalDebtCalculator technicalDebtCalculator;
 
-  public ModuleIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters) {
+  public ModuleIssues(RulesProfile qProfile, IssueCache cache, Project project, IssueFilters filters, TechnicalDebtCalculator technicalDebtCalculator) {
     this.qProfile = qProfile;
     this.cache = cache;
     this.project = project;
     this.filters = filters;
+    this.technicalDebtCalculator = technicalDebtCalculator;
   }
 
   public boolean initAndAddIssue(DefaultIssue issue) {
@@ -79,6 +82,7 @@ public class ModuleIssues {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.getSeverity().name());
     }
+    issue.setRemediationCost(technicalDebtCalculator.cost(issue));
 
     if (filters.accept(issue, violation)) {
       cache.put(issue);

@@ -55,4 +55,21 @@ public final class WorkUnitConverter implements BatchComponent {
     }
     return result;
   }
+
+  public long toMinutes(WorkUnit factor) {
+    long result;
+    if (StringUtils.equals(WorkUnit.DAYS, factor.getUnit())) {
+      result = Double.valueOf(factor.getValue() * hoursInDay * 60d).longValue();
+
+    } else if (StringUtils.equals(WorkUnit.HOURS, factor.getUnit())) {
+      result = Double.valueOf(factor.getValue() * 60d).longValue();
+
+    } else if (StringUtils.equals(WorkUnit.MINUTES, factor.getUnit())) {
+      result = Double.valueOf(factor.getValue()).longValue();
+
+    } else {
+      throw new IllegalArgumentException("Unknown remediation factor unit: " + factor.getUnit());
+    }
+    return result;
+  }
 }

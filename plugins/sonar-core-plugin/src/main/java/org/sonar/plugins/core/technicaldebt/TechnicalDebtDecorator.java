@@ -30,6 +30,7 @@ import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.core.technicaldebt.TechnicalDebtCalculator;
 import org.sonar.core.technicaldebt.TechnicalDebtCharacteristic;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.core.technicaldebt.WorkUnitConverter;

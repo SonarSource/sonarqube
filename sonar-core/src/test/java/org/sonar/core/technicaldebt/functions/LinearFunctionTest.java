@@ -20,11 +20,10 @@
 package org.sonar.core.technicaldebt.functions;
 
 import com.google.common.collect.Lists;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
@@ -34,45 +33,64 @@ import org.sonar.core.technicaldebt.WorkUnitConverter;
 import java.util.Collection;
 import java.util.Collections;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class LinearFunctionTest {
 
   private TechnicalDebtRequirement requirement;
-  private Function function = new LinearFunction(new WorkUnitConverter(new Settings()));
+  private Function function;
 
   @Before
   public void before() {
+    Settings settings = new Settings();
+    settings.setProperty(WorkUnitConverter.PROPERTY_HOURS_IN_DAY, 8);
+    function = new LinearFunction(new WorkUnitConverter(settings));
+
     requirement = mock(TechnicalDebtRequirement.class);
     when(requirement.getRemediationFactor()).thenReturn(WorkUnit.createInDays(3.14));
   }
 
   @Test
-  public void zeroIfNoViolations() {
-    Assert.assertThat(function.calculateCost(requirement, Collections.<Violation>emptyList()), Is.is(0.0));
+  public void zero_if_no_violations() {
+    assertThat(function.costInHours(requirement, Collections.<Violation>emptyList())).isEqualTo(0.0);
   }
 
   @Test
-  public void countEveryViolation() {
+  public void count_every_violation() {
     Collection<Violation> violations = Lists.newArrayList();
 
     Rule rule = Rule.create("checkstyle", "foo", "Foo");
     violations.add(new Violation(rule));
-    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(3.14));
+    assertThat(function.costInHours(requirement, violations)).isEqualTo(3.14);
 
     violations.add(new Violation(rule));
-    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(3.14 * 2));
+    assertThat(function.costInHours(requirement, violations)).isEqualTo(3.14 * 2);
   }
 
   @Test
-  public void usePointsWhenAvailable() {
+  public void use_points_when_available() {
     Collection<Violation> violations = Lists.newArrayList();
 
     Rule rule = Rule.create("checkstyle", "foo", "Foo");
     violations.add(new Violation(rule).setCost(20.5));
     violations.add(new Violation(rule).setCost(3.8));
     violations.add(new Violation(rule));
-    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(3.14 * (20.5 + 3.8 + 1)));
+    assertThat(function.costInHours(requirement, violations)).isEqualTo(3.14 * (20.5 + 3.8 + 1));
+  }
+
+  @Test
+  public void cost_in_minutes() {
+    when(requirement.getRemediationFactor()).thenReturn(WorkUnit.create(10d, WorkUnit.MINUTES));
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setEffortToFix(2.0);
+    assertThat(function.costInMinutes(requirement, issue)).isEqualTo(20L);
+  }
+
+  @Test
+  public void cost_in_minutes_use_default_cost_when_no_effort_to_fix_on_issue() {
+    when(requirement.getRemediationFactor()).thenReturn(WorkUnit.create(10d, WorkUnit.MINUTES));
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setEffortToFix(null);
+    assertThat(function.costInMinutes(requirement, issue)).isEqualTo(10L);
   }
 }

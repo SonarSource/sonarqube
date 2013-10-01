@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.technicaldebt;
+package org.sonar.core.technicaldebt;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -25,13 +25,13 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.qualitymodel.Characteristic;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
-import org.sonar.core.technicaldebt.TechnicalDebtCharacteristic;
-import org.sonar.core.technicaldebt.TechnicalDebtModel;
-import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.core.technicaldebt.functions.Functions;
 
 import java.util.Collection;
@@ -73,8 +73,8 @@ public class TechnicalDebtCalculatorTest {
 
     List<Violation> violations = Lists.newArrayList(violation1, violation2, violation3, violation4);
 
-    stub(technicalDebtModel.getRequirementByRule("repo1", "rule1")).toReturn(requirement1);
-    stub(technicalDebtModel.getRequirementByRule("repo2", "rule2")).toReturn(requirement2);
+    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(requirement1);
+    when(technicalDebtModel.getRequirementByRule("repo2", "rule2")).thenReturn(requirement2);
 
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getViolations()).thenReturn(violations);
@@ -132,21 +132,41 @@ public class TechnicalDebtCalculatorTest {
 
     List<Violation> violations = Lists.newArrayList(violation1, violation2, violation3, violation4);
 
-    stub(technicalDebtModel.getRequirementByRule("repo1", "rule1")).toReturn(requirement1);
-    stub(technicalDebtModel.getRequirementByRule("repo2", "rule2")).toReturn(requirement2);
-    stub(technicalDebtModel.getAllRequirements()).toReturn(Lists.newArrayList(requirement1, requirement2));
+    when(technicalDebtModel.getRequirementByRule("repo1", "rule1")).thenReturn(requirement1);
+    when(technicalDebtModel.getRequirementByRule("repo2", "rule2")).thenReturn(requirement2);
+    when(technicalDebtModel.getAllRequirements()).thenReturn(Lists.newArrayList(requirement1, requirement2));
 
-    stub(functions.calculateCost(any(TechnicalDebtRequirement.class), any(Collection.class))).toReturn(1.0);
+    when(functions.costInHours(any(TechnicalDebtRequirement.class), any(Collection.class))).thenReturn(1.0);
 
     DecoratorContext context = mock(DecoratorContext.class);
-    stub(context.getViolations()).toReturn(violations);
-    stub(context.getChildrenMeasures(any(MeasuresFilter.class))).toReturn(Collections.EMPTY_LIST);
+    when(context.getViolations()).thenReturn(violations);
+    when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Collections.EMPTY_LIST);
 
     remediationCostCalculator.compute(context);
 
-//    assertThat(remediationCostCalculator.getTotal()).isEqualTo(2.0);
+    assertThat(remediationCostCalculator.getTotal()).isEqualTo(2.0);
     assertThat(remediationCostCalculator.getRequirementCosts().get(requirement1)).isEqualTo(1.0);
     assertThat(remediationCostCalculator.getRequirementCosts().get(requirement2)).isEqualTo(1.0);
+  }
+
+  @Test
+  public void cost_from_one_issue() throws Exception {
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle"));
+    TechnicalDebtRequirement requirement = mock(TechnicalDebtRequirement.class);
+    stub(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).toReturn(requirement);
+
+    when(functions.costInMinutes(eq(requirement), eq(issue))).thenReturn(10L);
+
+    assertThat(remediationCostCalculator.cost(issue)).isEqualTo(10L);
+  }
+
+  @Test
+  public void no_cost_from_one_issue_if_reauirement_not_found() throws Exception {
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE").setRuleKey(RuleKey.of("squid", "AvoidCycle"));
+    stub(technicalDebtModel.getRequirementByRule("squid", "AvoidCycle")).toReturn(null);
+
+    assertThat(remediationCostCalculator.cost(issue)).isNull();
+    verify(functions, never()).costInMinutes(any(TechnicalDebtRequirement.class), any(Issue.class));
   }
 
   private Violation buildViolation(String ruleKey, String repositoryKey, Date creationDate) {

@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -101,6 +100,12 @@ public interface Issue extends Serializable {
    */
   @CheckForNull
   Double effortToFix();
+
+  /**
+   * Elapsed time in minutes to fix the issue
+   */
+  @CheckForNull
+  Long remediationCost();
 
   /**
    * See constant values in {@link Issue}.

@@ -27,7 +27,6 @@ import org.sonar.wsclient.issue.*;
 import org.sonar.wsclient.user.User;
 
 import java.util.List;
-import java.util.TimeZone;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -52,6 +51,7 @@ public class IssueJsonParserTest {
     assertThat(first.assignee()).isEqualTo("karadoc");
     assertThat(first.message()).isEqualTo("the message");
     assertThat(first.effortToFix()).isEqualTo(4.2);
+    assertThat(first.remediationCost()).isEqualTo(10L);
     assertThat(first.reporter()).isEqualTo("perceval");
     assertThat(first.author()).isEqualTo("pirlouis");
     assertThat(first.actionPlan()).isEqualTo("9450b10c-e725-48b8-bf01-acdec751c491");
@@ -67,6 +67,7 @@ public class IssueJsonParserTest {
     assertThat(second.key()).isEqualTo("FGHIJ");
     assertThat(second.line()).isNull();
     assertThat(second.effortToFix()).isNull();
+    assertThat(second.remediationCost()).isNull();
     assertThat(second.reporter()).isNull();
     assertThat(second.author()).isNull();
     assertThat(second.attribute("JIRA")).isNull();

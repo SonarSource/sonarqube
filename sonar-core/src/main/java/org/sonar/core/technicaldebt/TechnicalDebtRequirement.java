@@ -19,6 +19,7 @@
  */
 package org.sonar.core.technicaldebt;
 
+import org.sonar.api.qualitymodel.Characteristic;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.technicaldebt.functions.LinearFunction;
 import org.sonar.core.technicaldebt.functions.LinearWithOffsetFunction;
@@ -37,7 +38,7 @@ public class TechnicalDebtRequirement implements Characteristicable {
   private WorkUnit factor;
   private WorkUnit offset;
 
-  public TechnicalDebtRequirement(org.sonar.api.qualitymodel.Characteristic requirement, TechnicalDebtCharacteristic parent) {
+  public TechnicalDebtRequirement(Characteristic requirement, TechnicalDebtCharacteristic parent) {
     this.characteristic = requirement;
     this.rule = requirement.getRule();
     this.parent = parent;

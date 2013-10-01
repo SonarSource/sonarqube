@@ -28,7 +28,7 @@ import static org.junit.Assert.assertThat;
 public class WorkUnitConverterTest {
 
   @Test
-  public void concert_value_to_days() {
+  public void concert_to_days() {
     Settings settings = new Settings();
     settings.setProperty(WorkUnitConverter.PROPERTY_HOURS_IN_DAY, "12");
 
@@ -37,6 +37,18 @@ public class WorkUnitConverterTest {
     assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.DAYS)), is(6.0));
     assertThat(converter.toDays(WorkUnit.create(6.0, WorkUnit.HOURS)), is(6.0 / 12.0));
     assertThat(converter.toDays(WorkUnit.create(60.0, WorkUnit.MINUTES)), is(1.0 / 12.0));
+  }
+
+  @Test
+  public void concert_to_minutes() {
+    Settings settings = new Settings();
+    settings.setProperty(WorkUnitConverter.PROPERTY_HOURS_IN_DAY, "12");
+
+    WorkUnitConverter converter = new WorkUnitConverter(settings);
+
+    assertThat(converter.toMinutes(WorkUnit.create(2.0, WorkUnit.DAYS)), is(2 * 12 * 60L));
+    assertThat(converter.toMinutes(WorkUnit.create(6.0, WorkUnit.HOURS)), is(6 * 60L));
+    assertThat(converter.toMinutes(WorkUnit.create(60.0, WorkUnit.MINUTES)), is(60L));
   }
 
 }

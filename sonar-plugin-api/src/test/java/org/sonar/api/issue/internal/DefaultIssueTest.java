@@ -48,6 +48,7 @@ public class DefaultIssueTest {
       .setMessage("a message")
       .setLine(7)
       .setEffortToFix(1.2d)
+      .setRemediationCost(1L)
       .setActionPlanKey("BCDE")
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)
@@ -75,6 +76,7 @@ public class DefaultIssueTest {
     assertThat(issue.message()).isEqualTo("a message");
     assertThat(issue.line()).isEqualTo(7);
     assertThat(issue.effortToFix()).isEqualTo(1.2d);
+    assertThat(issue.remediationCost()).isEqualTo(1L);
     assertThat(issue.actionPlanKey()).isEqualTo("BCDE");
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
@@ -94,7 +96,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void should_set_empty_dates() throws Exception {
+  public void set_empty_dates() throws Exception {
     issue
       .setCreationDate(null)
       .setUpdateDate(null)
@@ -134,7 +136,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void should_fail_on_empty_status() {
+  public void fail_on_empty_status() {
     try {
       issue.setStatus("");
       fail();
@@ -144,7 +146,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void should_fail_on_bad_severity() {
+  public void fail_on_bad_severity() {
     try {
       issue.setSeverity("FOO");
       fail();

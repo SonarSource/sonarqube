@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
@@ -34,6 +35,9 @@ import org.sonar.core.technicaldebt.WorkUnitConverter;
 
 import java.util.Collection;
 import java.util.Collections;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 public class ConstantFunctionTest {
 
@@ -48,19 +52,26 @@ public class ConstantFunctionTest {
   }
 
   @Test
-  public void zeroIfNoViolations() {
-    Assert.assertThat(function.calculateCost(requirement, Collections.<Violation>emptyList()), Is.is(0.0));
+  public void zero_if_no_violations() {
+    Assert.assertThat(function.costInHours(requirement, Collections.<Violation>emptyList()), Is.is(0.0));
   }
 
   @Test
-  public void countAsIfSingleViolation() {
+  public void count_as_if_single_violation() {
     Collection<Violation> violations = Lists.newArrayList();
 
     Rule rule = Rule.create("checkstyle", "foo", "Foo");
     violations.add(new Violation(rule));
-    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(3.14));
+    Assert.assertThat(function.costInHours(requirement, violations), Is.is(3.14));
 
     violations.add(new Violation(rule));
-    Assert.assertThat(function.calculateCost(requirement, violations), Is.is(3.14));
+    Assert.assertThat(function.costInHours(requirement, violations), Is.is(3.14));
+  }
+
+  @Test
+  public void cost_in_minutes() {
+    when(requirement.getRemediationFactor()).thenReturn(WorkUnit.create(10d, WorkUnit.MINUTES));
+    DefaultIssue issue = new DefaultIssue().setKey("ABCDE");
+    assertThat(function.costInMinutes(requirement, issue)).isEqualTo(10L);
   }
 }

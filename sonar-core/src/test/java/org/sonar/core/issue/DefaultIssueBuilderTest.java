@@ -30,7 +30,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class DefaultIssueBuilderTest {
 
   @Test
-  public void should_build_new_issue() throws Exception {
+  public void build_new_issue() throws Exception {
     String componentKey = "org.apache.struts:struts-core:Action.java";
     DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
       .componentKey(componentKey)
@@ -62,7 +62,7 @@ public class DefaultIssueBuilderTest {
   }
 
   @Test
-  public void should_not_set_default_severity() {
+  public void not_set_default_severity() {
     DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
       .componentKey("Action.java")
       .ruleKey(RuleKey.of("squid", "NullDereference"))

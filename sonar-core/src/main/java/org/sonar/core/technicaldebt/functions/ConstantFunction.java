@@ -19,6 +19,7 @@
  */
 package org.sonar.core.technicaldebt.functions;
 
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 import org.sonar.core.technicaldebt.WorkUnitConverter;
@@ -37,12 +38,16 @@ public final class ConstantFunction extends AbstractFunction {
     return FUNCTION_CONSTANT_RESOURCE;
   }
 
-  public double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
+  public double costInHours(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
     double cost = 0.0;
     if (!violations.isEmpty()) {
       cost = getConverter().toDays(requirement.getRemediationFactor());
     }
     return cost;
+  }
+
+  public long costInMinutes(TechnicalDebtRequirement requirement, Issue issue) {
+    return factorInMinutes(requirement);
   }
 
 }

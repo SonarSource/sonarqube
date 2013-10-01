@@ -10,6 +10,7 @@
       message="old"
       line="[null]"
       effort_to_fix="[null]"
+      remediation_cost="[null]"
       status="OPEN"
       resolution="[null]"
       checksum="[null]"

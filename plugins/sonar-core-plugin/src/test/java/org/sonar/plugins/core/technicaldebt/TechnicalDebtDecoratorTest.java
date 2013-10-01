@@ -28,6 +28,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.test.IsMeasure;
+import org.sonar.core.technicaldebt.TechnicalDebtCalculator;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;

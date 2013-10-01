@@ -75,6 +75,11 @@ public class DefaultIssue implements Issue {
     return JsonUtils.getDouble(json, "effortToFix");
   }
 
+  @CheckForNull
+  public Long remediationCost() {
+    return JsonUtils.getLong(json, "remediationCost");
+  }
+
   public String status() {
     return JsonUtils.getString(json, "status");
   }

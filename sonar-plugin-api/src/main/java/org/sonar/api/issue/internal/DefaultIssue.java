@@ -37,13 +37,8 @@ import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
@@ -61,6 +56,7 @@ public class DefaultIssue implements Issue {
   private String message;
   private Integer line;
   private Double effortToFix;
+  private Long remediationCost;
   private String status;
   private String resolution;
   private String reporter;
@@ -187,6 +183,16 @@ public class DefaultIssue implements Issue {
   public DefaultIssue setEffortToFix(@Nullable Double d) {
     Preconditions.checkArgument(d == null || d >= 0, "Effort to fix must be greater than or equal 0 (got " + d + ")");
     this.effortToFix = d;
+    return this;
+  }
+
+  @CheckForNull
+  public Long remediationCost() {
+    return remediationCost;
+  }
+
+  public DefaultIssue setRemediationCost(@Nullable Long r) {
+    this.remediationCost = r;
     return this;
   }
 

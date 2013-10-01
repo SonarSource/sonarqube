@@ -20,6 +20,7 @@
 package org.sonar.core.technicaldebt.functions;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Violation;
 import org.sonar.core.technicaldebt.TechnicalDebtRequirement;
 
@@ -29,6 +30,8 @@ public interface Function extends BatchComponent {
 
   String getKey();
 
-  double calculateCost(TechnicalDebtRequirement requirement, Collection<Violation> violations);
+  double costInHours(TechnicalDebtRequirement requirement, Collection<Violation> violations);
+
+  long costInMinutes(TechnicalDebtRequirement requirement, Issue issue);
 
 }
