@@ -27,10 +27,21 @@ import org.sonar.api.resources.Scopes;
 
 public final class ComponentKeys {
 
+  /*
+   * Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit
+   */
+  private static final String VALID_MODULE_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
+
   private ComponentKeys() {
     // only static stuff
   }
 
+  /**
+   *
+   * @param project
+   * @param resource
+   * @return the full key of a component, based on its parent projects' key and own key
+   */
   public static String createKey(Project project, Resource resource) {
     String key = resource.getKey();
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
@@ -44,4 +55,23 @@ public final class ComponentKeys {
     return key;
   }
 
+  /**
+   * <p>Test if given parameter is valid for a project/module. Valid format is:</p>
+   * <ul>
+   *  <li>Allowed characters:
+   *    <ul>
+   *      <li>Uppercase ASCII letters A-Z</li>
+   *      <li>Lowercase ASCII letters a-z</li>
+   *      <li>ASCII digits 0-9</li>
+   *      <li>Punctuation signs dash '-', underscore '_', period '.' and colon ':'</li>
+   *    </ul>
+   *  </li>
+   *  <li>At least one non-digit</li>
+   * </ul>
+   * @param keyCandidate
+   * @return <code>true</code> if <code>keyCandidate</code> can be used for a project/module
+   */
+  public static boolean isValidModuleKey(String keyCandidate) {
+    return keyCandidate.matches(VALID_MODULE_KEY_REGEXP);
+  }
 }

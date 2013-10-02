@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.core.component.ComponentKeys;
+
 import com.google.common.base.Joiner;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -37,11 +39,6 @@ import java.util.List;
  */
 public class ProjectReactorValidator {
 
-  /*
-   * Allowed characters are alphanumeric, dash '-', underscore '_', period '.' and colon ':',
-   * with at least one non-digit
-   */
-  private static final String VALID_MODULE_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
   private final Settings settings;
   private final ResourceDao resourceDao;
 
@@ -75,14 +72,14 @@ public class ProjectReactorValidator {
   }
 
   private void validateKey(ProjectDefinition def, List<String> validationMessages) {
-    if (!def.getKey().matches(VALID_MODULE_KEY_REGEXP)) {
+    if (!ComponentKeys.isValidModuleKey(def.getKey())) {
       validationMessages.add(String.format("%s is not a valid project or module key", def.getKey()));
     }
   }
 
   private void validateBranch(List<String> validationMessages) {
     String branch = settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
-    if (StringUtils.isNotEmpty(branch) && !branch.matches(VALID_MODULE_KEY_REGEXP)) {
+    if (StringUtils.isNotEmpty(branch) && !ComponentKeys.isValidModuleKey(branch)) {
       validationMessages.add(String.format("%s is not a valid branch name", branch));
     }
   }
