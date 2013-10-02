@@ -139,32 +139,19 @@ public final class Platform {
 
   public void init(ServletContext servletContext) {
     if (!connected) {
-      try {
         startDatabaseConnectors(servletContext);
         connected = true;
-
-      } catch (RuntimeException e) {
-        // full stacktrace is lost by jruby. It must be logged now.
-        LoggerFactory.getLogger(getClass()).error(e.getMessage(), e);
-        throw e;
-      }
     }
   }
 
   public void start() {
     if (!started && getDatabaseStatus() == DatabaseVersion.Status.UP_TO_DATE) {
-      try {
-        TimeProfiler profiler = new TimeProfiler().start("Start components");
-        startCoreComponents();
-        startServiceComponents();
-        executeStartupTasks();
-        started = true;
-        profiler.stop();
-      } catch (RuntimeException e) {
-        // full stacktrace is lost by jruby. It must be logged now.
-        LoggerFactory.getLogger(getClass()).error(e.getMessage(), e);
-        throw e;
-      }
+      TimeProfiler profiler = new TimeProfiler().start("Start components");
+      startCoreComponents();
+      startServiceComponents();
+      executeStartupTasks();
+      started = true;
+      profiler.stop();
     }
   }
 
@@ -371,14 +358,14 @@ public final class Platform {
   public void stop() {
     if (rootContainer != null) {
       try {
-        TimeProfiler profiler = new TimeProfiler().start("Stop sonar");
+        TimeProfiler profiler = new TimeProfiler().start("Stop server");
         rootContainer.stopComponents();
         rootContainer = null;
         connected = false;
         started = false;
         profiler.stop();
       } catch (Exception e) {
-        LoggerFactory.getLogger(getClass()).debug("Fail to stop SonarQube - ignored", e);
+        LoggerFactory.getLogger(getClass()).debug("Fail to stop server - ignored", e);
       }
     }
   }

@@ -56,9 +56,10 @@ public class StaticResourcesServlet extends HttpServlet {
     try {
       in = classLoader.getResourceAsStream(resource);
       if (in != null) {
+        // mime type must be set before writing response body
+        completeContentType(response, resource);
         out = response.getOutputStream();
         IOUtils.copy(in, out);
-        completeContentType(response, resource);
 
       } else {
         LOG.error("Unable to find resource '" + resource + "' in plugin '" + pluginKey + "'");

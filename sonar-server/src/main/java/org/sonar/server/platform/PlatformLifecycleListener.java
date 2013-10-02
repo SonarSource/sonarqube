@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import org.slf4j.LoggerFactory;
 import org.sonar.core.config.Logback;
 
 import javax.servlet.ServletContextEvent;
@@ -29,9 +30,19 @@ import java.util.Collections;
 public final class PlatformLifecycleListener implements ServletContextListener {
 
   public void contextInitialized(ServletContextEvent event) {
-    configureLogback();
-    Platform.getInstance().init(event.getServletContext());
-    Platform.getInstance().start();
+    try {
+      configureLogback();
+      Platform.getInstance().init(event.getServletContext());
+      Platform.getInstance().start();
+    } catch (Throwable t) {
+      // Tomcat 7 "limitations":
+      // - server does not stop if webapp fails at startup
+      // - the second listener for jruby on rails is started even if this listener fails. It generates
+      // unexpected errors
+      LoggerFactory.getLogger(getClass()).error("Fail to start server", t);
+      Platform.getInstance().stop();
+      System.exit(1);
+    }
   }
 
   public void contextDestroyed(ServletContextEvent event) {

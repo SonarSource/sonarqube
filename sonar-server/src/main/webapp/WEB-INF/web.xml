@@ -114,4 +114,52 @@
     <listener-class>org.jruby.rack.rails.RailsServletContextListener</listener-class>
   </listener>
 
+  <mime-mapping>
+    <extension>css</extension>
+    <mime-type>text/css</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>xml</extension>
+    <mime-type>text/xml</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>gif</extension>
+    <mime-type>image/gif</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>jpeg</extension>
+    <mime-type>image/jpeg</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>jpg</extension>
+    <mime-type>image/jpeg</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>htm</extension>
+    <mime-type>text/html</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>html</extension>
+    <mime-type>text/html</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>jar</extension>
+    <mime-type>application/java-archive</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>pdf</extension>
+    <mime-type>application/pdf</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>png</extension>
+    <mime-type>image/png</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>txt</extension>
+    <mime-type>text/plain</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>csv</extension>
+    <mime-type>text/plain</mime-type>
+  </mime-mapping>
 </web-app>
