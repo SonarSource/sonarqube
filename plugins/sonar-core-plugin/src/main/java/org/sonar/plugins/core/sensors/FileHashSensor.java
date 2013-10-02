@@ -69,7 +69,7 @@ public final class FileHashSensor implements Sensor {
   private void analyse(StringBuilder fileHashMap, Project project, FileType fileType) {
     List<File> files = moduleFileSystem.files(FileQuery.on(fileType).onLanguage(project.getLanguageKey()));
     for (File file : files) {
-      String hash = fileHashCache.getCurrentHash(file);
+      String hash = fileHashCache.getCurrentHash(file, moduleFileSystem.sourceCharset());
       fileHashMap.append(pathResolver.relativePath(moduleFileSystem.baseDir(), file)).append("=").append(hash).append("\n");
     }
   }

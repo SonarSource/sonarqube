@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -66,6 +67,7 @@ public class FileHashSensorTest {
   @Before
   public void prepare() {
     fileSystem = mock(ModuleFileSystem.class);
+    when(fileSystem.sourceCharset()).thenReturn(Charsets.UTF_8);
     componentDataCache = mock(ComponentDataCache.class);
     fileHashCache = mock(FileHashCache.class);
     sensor = new FileHashSensor(fileHashCache, fileSystem, new PathResolver(), componentDataCache);
@@ -84,11 +86,11 @@ public class FileHashSensorTest {
   public void computeHashes() throws Exception {
     File baseDir = temp.newFolder();
     File file1 = new File(baseDir, "src/com/foo/Bar.java");
-    FileUtils.write(file1, "Bar");
-    when(fileHashCache.getCurrentHash(file1)).thenReturn("barhash");
+    FileUtils.write(file1, "Bar", Charsets.UTF_8);
+    when(fileHashCache.getCurrentHash(file1, Charsets.UTF_8)).thenReturn("barhash");
     File file2 = new File(baseDir, "src/com/foo/Foo.java");
-    FileUtils.write(file2, "Foo");
-    when(fileHashCache.getCurrentHash(file2)).thenReturn("foohash");
+    FileUtils.write(file2, "Foo", Charsets.UTF_8);
+    when(fileHashCache.getCurrentHash(file2, Charsets.UTF_8)).thenReturn("foohash");
     when(fileSystem.baseDir()).thenReturn(baseDir);
     when(fileSystem.files(any(FileQuery.class))).thenReturn(Arrays.asList(file1, file2)).thenReturn(Collections.<File> emptyList());
     sensor.analyse(project, mock(SensorContext.class));

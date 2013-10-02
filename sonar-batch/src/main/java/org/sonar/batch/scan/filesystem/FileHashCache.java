@@ -26,7 +26,6 @@ import org.picocontainer.Startable;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.components.PastSnapshot;
@@ -40,6 +39,7 @@ import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -56,13 +56,11 @@ public class FileHashCache implements BatchComponent, Startable {
   private PastSnapshotFinder pastSnapshotFinder;
   private Snapshot snapshot;
   private ProjectDefinition module;
-  private ModuleFileSystem fs;
 
-  public FileHashCache(ModuleFileSystem fs, ProjectDefinition module, PathResolver pathResolver, HashBuilder hashBuilder,
+  public FileHashCache(ProjectDefinition module, PathResolver pathResolver, HashBuilder hashBuilder,
     Snapshot snapshot,
     SnapshotDataDao snapshotDataDao,
     PastSnapshotFinder pastSnapshotFinder) {
-    this.fs = fs;
     this.module = module;
     this.pathResolver = pathResolver;
     this.hashBuilder = hashBuilder;
@@ -96,10 +94,10 @@ public class FileHashCache implements BatchComponent, Startable {
     }
   }
 
-  public String getCurrentHash(File file) {
+  public String getCurrentHash(File file, Charset sourceCharset) {
     String relativePath = pathResolver.relativePath(module.getBaseDir(), file);
     if (!currentHashCache.containsKey(relativePath)) {
-      currentHashCache.put(relativePath, hashBuilder.computeHashNormalizeLineEnds(file, fs.sourceCharset()));
+      currentHashCache.put(relativePath, hashBuilder.computeHashNormalizeLineEnds(file, sourceCharset));
     }
     return currentHashCache.get(relativePath);
   }

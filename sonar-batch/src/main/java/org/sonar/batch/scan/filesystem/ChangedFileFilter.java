@@ -41,7 +41,7 @@ class ChangedFileFilter implements FileSystemFilter {
     if (previousHash == null) {
       return true;
     }
-    String currentHash = fileHashCache.getCurrentHash(file);
+    String currentHash = fileHashCache.getCurrentHash(file, context.fileSystem().sourceCharset());
     return !currentHash.equals(previousHash);
   }
 

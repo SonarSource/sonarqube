@@ -71,7 +71,7 @@ public class FileHashCacheTest {
     baseDir = temp.newFolder();
     snapshotDataDao = mock(SnapshotDataDao.class);
     moduleFileSystem = mock(ModuleFileSystem.class);
-    cache = new FileHashCache(moduleFileSystem, ProjectDefinition.create().setBaseDir(baseDir), new PathResolver(), new HashBuilder(), snapshot,
+    cache = new FileHashCache(ProjectDefinition.create().setBaseDir(baseDir), new PathResolver(), new HashBuilder(), snapshot,
       snapshotDataDao, pastSnapshotFinder);
   }
 
@@ -106,7 +106,7 @@ public class FileHashCacheTest {
       .thenReturn(Arrays.asList(snapshotDataDto));
 
     File file = new File(baseDir, "src/main/java/foo/Bar.java");
-    FileUtils.write(file, "foo");
+    FileUtils.write(file, "foo", Charsets.UTF_8);
     cache.start();
     assertThat(cache.getPreviousHash(file)).isEqualTo("abcd1234");
   }
@@ -116,12 +116,12 @@ public class FileHashCacheTest {
     when(moduleFileSystem.sourceCharset()).thenReturn(Charsets.UTF_8);
 
     File file = new File(baseDir, "src/main/java/foo/Bar.java");
-    FileUtils.write(file, "foo");
+    FileUtils.write(file, "foo", Charsets.UTF_8);
     String hash = "9a8742076ef9ffa5591f633704c2286b";
-    assertThat(cache.getCurrentHash(file)).isEqualTo(hash);
+    assertThat(cache.getCurrentHash(file, Charsets.UTF_8)).isEqualTo(hash);
 
     // Modify file
-    FileUtils.write(file, "bar");
-    assertThat(cache.getCurrentHash(file)).isEqualTo(hash);
+    FileUtils.write(file, "bar", Charsets.UTF_8);
+    assertThat(cache.getCurrentHash(file, Charsets.UTF_8)).isEqualTo(hash);
   }
 }

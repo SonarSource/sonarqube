@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -271,13 +272,13 @@ public class DefaultModuleFileSystemTest {
 
     FileHashCache fileHashCache = mock(FileHashCache.class);
     when(fileHashCache.getPreviousHash(foo)).thenReturn("oldfoohash");
-    when(fileHashCache.getCurrentHash(foo)).thenReturn("foohash");
+    when(fileHashCache.getCurrentHash(foo, Charsets.UTF_8)).thenReturn("foohash");
     when(fileHashCache.getPreviousHash(hello)).thenReturn("oldhellohash");
-    when(fileHashCache.getCurrentHash(hello)).thenReturn("oldhellohash");
+    when(fileHashCache.getCurrentHash(hello, Charsets.UTF_8)).thenReturn("oldhellohash");
     when(fileHashCache.getPreviousHash(fooTest)).thenReturn("oldfooTesthash");
-    when(fileHashCache.getCurrentHash(fooTest)).thenReturn("fooTesthash");
+    when(fileHashCache.getCurrentHash(fooTest, Charsets.UTF_8)).thenReturn("fooTesthash");
     when(fileHashCache.getPreviousHash(helloTest)).thenReturn("oldhelloTesthash");
-    when(fileHashCache.getCurrentHash(helloTest)).thenReturn("oldhelloTesthash");
+    when(fileHashCache.getCurrentHash(helloTest, Charsets.UTF_8)).thenReturn("oldhelloTesthash");
 
     DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(fileHashCache)
       .setBaseDir(basedir)
