@@ -29,7 +29,7 @@ class DashboardController < ApplicationController
     if !@resource || @resource.display_dashboard?
       load_dashboard()
       load_authorized_widget_definitions()
-    elsif @snapshot
+    else
       # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
       @hide_sidebar = true
       @file = @resource
@@ -201,7 +201,7 @@ class DashboardController < ApplicationController
   end
 
   def project_not_analyzed
-    redirect_to :controller => :project, :action => :settings, :id => @resource
+    render :action => 'empty'
   end
 
   def load_authorized_widget_definitions

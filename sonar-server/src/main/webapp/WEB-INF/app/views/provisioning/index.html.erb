@@ -26,7 +26,7 @@
 
       <tr id="entry-<%= h resource.key -%>" class="<%= cycle 'even', 'odd' -%>">
         <td>
-          <%= link_to h(resource.key), {:controller => :project, :action => :settings, :id => resource.id},
+          <%= link_to h(resource.key), {:controller => :project, :id => resource.id},
               :id => "view-#{u resource.key}" %>
         </td>
         <td><%= resource.name %></td>
