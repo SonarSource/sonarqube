@@ -53,6 +53,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(5000)
+      .setRemediationCost(10L)
       .setReporter("emmerik")
       .setResolution("OPEN")
       .setStatus("OPEN")
@@ -86,6 +87,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
         // updated fields
       .setLine(5000)
+      .setRemediationCost(10L)
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssignee("loic")

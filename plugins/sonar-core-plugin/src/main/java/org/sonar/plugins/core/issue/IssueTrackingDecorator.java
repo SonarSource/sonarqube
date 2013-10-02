@@ -25,12 +25,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.*;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
@@ -171,6 +166,7 @@ public class IssueTrackingDecorator implements Decorator {
       updater.setPastLine(issue, ref.getLine());
       updater.setPastMessage(issue, ref.getMessage(), changeContext);
       updater.setPastEffortToFix(issue, ref.getEffortToFix(), changeContext);
+      updater.setPastRemediationCost(issue, ref.getRemediationCost(), changeContext);
     }
   }
 

@@ -31,6 +31,7 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.user.User;
 
 import javax.annotation.Nullable;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -46,6 +47,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   public static final String STATUS = "status";
   public static final String AUTHOR = "author";
   public static final String ACTION_PLAN = "actionPlan";
+  public static final String REMEDIATION_COST = "remediationCost";
 
   public boolean setSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (issue.manualSeverity()) {
@@ -195,6 +197,25 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     Double currentEffort = issue.effortToFix();
     issue.setEffortToFix(previousEffort);
     return setEffortToFix(issue, currentEffort, context);
+  }
+
+  public boolean setRemediationCost(DefaultIssue issue, @Nullable Long value, IssueChangeContext context) {
+    Long oldValue = issue.remediationCost();
+    if (!Objects.equal(value, oldValue)) {
+      issue.setRemediationCost(value);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      issue.setFieldChange(context, REMEDIATION_COST, oldValue, value);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean setPastRemediationCost(DefaultIssue issue, @Nullable Long previousRemediationCost, IssueChangeContext context) {
+    Long currentRemediationCost = issue.remediationCost();
+    issue.setRemediationCost(previousRemediationCost);
+    return setRemediationCost(issue, currentRemediationCost, context);
+
   }
 
   public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {
