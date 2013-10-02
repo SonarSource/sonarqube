@@ -43,13 +43,15 @@ public class LinearFunction extends AbstractFunction {
   public double costInHours(TechnicalDebtRequirement requirement, Collection<Violation> violations) {
     double points = 0.0;
     for (Violation violation : violations) {
-      points += (violation.getCost() != null ? violation.getCost() : DEFAULT_VIOLATION_COST);
+      Double effortToFix = violation.getCost();
+      points += effortToFix != null ? effortToFix : DEFAULT_VIOLATION_COST;
     }
     return points * getConverter().toDays(requirement.getRemediationFactor());
   }
 
   public long costInMinutes(TechnicalDebtRequirement requirement, Issue issue) {
-    double points = (issue.effortToFix() != null ? issue.effortToFix() : DEFAULT_VIOLATION_COST);
+    Double effortToFix = issue.effortToFix();
+    double points = effortToFix != null ? effortToFix : DEFAULT_VIOLATION_COST;
     return Double.valueOf(points * factorInMinutes(requirement)).longValue();
   }
 }
