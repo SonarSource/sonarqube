@@ -263,6 +263,7 @@ public class DefaultModuleFileSystemTest {
   public void should_filter_changed_files() throws Exception {
     File basedir = new File(resourcesDir(), "main_and_test_files");
     Settings settings = new Settings();
+    settings.setProperty(CoreProperties.ENCODING_PROPERTY, "UTF-8");
     File mainDir = new File(basedir, "src/main/java");
     File testDir = new File(basedir, "src/test/java");
     File foo = new File(mainDir, "Foo.java");
