@@ -339,11 +339,11 @@
                   <goal>copy-dependencies</goal>
                 </goals>
                 <configuration>
-                  <overWriteIfNewer>true</overWriteIfNewer>
-                  <overWriteReleases>true</overWriteReleases>
-                  <overWriteSnapshots>true</overWriteSnapshots>
+                  <overWriteIfNewer>false</overWriteIfNewer>
+                  <overWriteReleases>false</overWriteReleases>
+                  <overWriteSnapshots>false</overWriteSnapshots>
                   <includeTypes>sonar-plugin</includeTypes>
-                  <outputDirectory>${project.build.directory}/sonar-dev-home/lib/core-plugins/</outputDirectory>
+                  <outputDirectory>${project.build.directory}/dev/lib/core-plugins</outputDirectory>
                 </configuration>
               </execution>
             </executions>
@@ -353,15 +353,20 @@
             <executions>
               <execution>
                 <id>copy-conf</id>
-                <phase>validate</phase>
+                <phase>process-resources</phase>
                 <goals>
                   <goal>copy-resources</goal>
                 </goals>
                 <configuration>
-                  <outputDirectory>${project.build.directory}/sonar-dev-home</outputDirectory>
+                  <outputDirectory>${project.build.directory}/dev/conf</outputDirectory>
+                  <overwrite>false</overwrite>
                   <resources>
                     <resource>
-                      <directory>src/dev/${jdbcDialect}</directory>
+                      <directory>src/dev</directory>
+                      <includes>
+                        <include>logback.xml</include>
+                        <include>sonar.properties</include>
+                      </includes>
                       <filtering>false</filtering>
                     </resource>
                   </resources>
@@ -376,12 +381,14 @@
             <configuration>
               <port>9000</port>
               <path>/dev</path>
-              <!--<contextFile>${pom.basedir}/src/main/webapp/META-INF/context.xml</contextFile>-->
-              <tomcatWebXml>${pom.basedir}/src/dev/web.xml</tomcatWebXml>
+              <contextFile>${project.basedir}/src/main/webapp/META-INF/context.xml</contextFile>
               <useNaming>false</useNaming>
               <systemProperties>
-                <SONAR_HOME>${pom.build.directory}/sonar-dev-home</SONAR_HOME>
-                <!--<java.io.tmpdir>${pom.basedir}/target/tomcat-tmp</java.io.tmpdir>-->
+                <SONAR_HOME>${project.build.directory}/dev</SONAR_HOME>
+                <rails.env>development</rails.env>
+                <jruby.max.runtimes>3</jruby.max.runtimes>
+                <sonar.jdbc.url>${sonar.jdbc.url}</sonar.jdbc.url>
+                <sonar.runtime.mode>development</sonar.runtime.mode>
               </systemProperties>
             </configuration>
           </plugin>
@@ -493,31 +500,10 @@
     <profile>
       <id>postgresql</id>
       <properties>
-        <jdbcDialect>postgresql</jdbcDialect>
+        <sonar.jdbc.url>jdbc:postgresql://localhost/sonar</sonar.jdbc.url>
       </properties>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                  <resources>
-                    <resource>
-                      <directory>${basedir}/src/dev/postgresql</directory>
-                      <filtering>false</filtering>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -529,12 +515,11 @@
                   <goal>copy-dependencies</goal>
                 </goals>
                 <configuration>
-                  <overWriteIfNewer>true</overWriteIfNewer>
-                  <overWriteReleases>true</overWriteReleases>
-                  <includeGroupIds>postgresql</includeGroupIds>
+                  <overWriteIfNewer>false</overWriteIfNewer>
+                  <overWriteReleases>false</overWriteReleases>
+                  <overWriteSnapshots>false</overWriteSnapshots>
                   <includeArtifactIds>postgresql</includeArtifactIds>
-                  <outputDirectory>${project.build.directory}/sonar-dev-home/extensions/jdbc-driver/postgresql/
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/dev/extensions/jdbc-driver/postgresql</outputDirectory>
                 </configuration>
               </execution>
             </executions>
@@ -552,31 +537,10 @@
     <profile>
       <id>mysql</id>
       <properties>
-        <jdbcDialect>mysql</jdbcDialect>
+        <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
       </properties>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                  <resources>
-                    <resource>
-                      <directory>${basedir}/src/dev/mysql</directory>
-                      <filtering>false</filtering>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -588,12 +552,11 @@
                   <goal>copy-dependencies</goal>
                 </goals>
                 <configuration>
-                  <overWriteIfNewer>true</overWriteIfNewer>
-                  <overWriteReleases>true</overWriteReleases>
-                  <includeGroupIds>mysql</includeGroupIds>
+                  <overWriteIfNewer>false</overWriteIfNewer>
+                  <overWriteReleases>false</overWriteReleases>
+                  <overWriteSnapshots>false</overWriteSnapshots>
                   <includeArtifactIds>mysql-connector-java</includeArtifactIds>
-                  <outputDirectory>${project.build.directory}/sonar-dev-home/extensions/jdbc-driver/mysql/
-                  </outputDirectory>
+                  <outputDirectory>${project.build.directory}/dev/extensions/jdbc-driver/mysql</outputDirectory>
                 </configuration>
               </execution>
             </executions>
@@ -607,35 +570,13 @@
         </dependency>
       </dependencies>
     </profile>
-
     <profile>
       <id>h2</id>
       <properties>
-        <jdbcDialect>h2</jdbcDialect>
+        <sonar.jdbc.url>jdbc:h2:tcp://localhost:9092/sonar</sonar.jdbc.url>
       </properties>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                  <resources>
-                    <resource>
-                      <directory>${basedir}/src/dev/h2</directory>
-                      <filtering>false</filtering>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -647,11 +588,11 @@
                   <goal>copy-dependencies</goal>
                 </goals>
                 <configuration>
-                  <overWriteIfNewer>true</overWriteIfNewer>
-                  <overWriteReleases>true</overWriteReleases>
-                  <includeGroupIds>com.h2database</includeGroupIds>
+                  <overWriteIfNewer>false</overWriteIfNewer>
+                  <overWriteReleases>false</overWriteReleases>
+                  <overWriteSnapshots>false</overWriteSnapshots>
                   <includeArtifactIds>h2</includeArtifactIds>
-                  <outputDirectory>${project.build.directory}/sonar-dev-home/extensions/jdbc-driver/h2/</outputDirectory>
+                  <outputDirectory>${project.build.directory}/dev/extensions/jdbc-driver/h2</outputDirectory>
                 </configuration>
               </execution>
             </executions>

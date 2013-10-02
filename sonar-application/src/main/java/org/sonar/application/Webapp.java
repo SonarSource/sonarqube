@@ -29,6 +29,8 @@ class Webapp {
     try {
       Context context = tomcat.addWebapp(ctx, env.file("web").getAbsolutePath());
       context.setConfigFile(env.file("web/META-INF/context.xml").toURI().toURL());
+      context.addParameter("rails.env", "production");
+      context.addParameter("jruby.max.runtimes", "1");
       context.setJarScanner(new NullJarScanner());
 
     } catch (Exception e) {

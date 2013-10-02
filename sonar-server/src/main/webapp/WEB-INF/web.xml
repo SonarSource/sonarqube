@@ -7,20 +7,19 @@
          metadata-complete="true">
   <display-name>SonarQube</display-name>
 
+  <!--
+  jruby-rack parameters
+
+  rails.env and jruby.max.runtimes depend on mode (development/production) and are injected by :
+  - system properties for dev mode (see sonar-server pom)
+  - embedded tomcat for production mode (see sonar-application)
+   -->
   <context-param>
     <param-name>public.root</param-name>
     <param-value>/</param-value>
   </context-param>
   <context-param>
-    <param-name>rails.env</param-name>
-    <param-value>production</param-value>
-  </context-param>
-  <context-param>
     <param-name>jruby.min.runtimes</param-name>
-    <param-value>1</param-value>
-  </context-param>
-  <context-param>
-    <param-name>jruby.max.runtimes</param-name>
     <param-value>1</param-value>
   </context-param>
   <context-param>
