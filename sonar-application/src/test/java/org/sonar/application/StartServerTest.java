@@ -39,8 +39,8 @@ public class StartServerTest {
   @Before
   @After
   public void clean_generated_dirs() throws IOException {
-    FileUtils.deleteDirectory(env.file("temp"));
-    FileUtils.deleteDirectory(env.file("logs"));
+    FileUtils.deleteQuietly(env.file("temp"));
+    FileUtils.deleteQuietly(env.file("logs"));
   }
 
   @Test
