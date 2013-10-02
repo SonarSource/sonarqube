@@ -113,6 +113,11 @@ public class DefaultRubyComponentServiceTest {
     componentService.createComponent(componentKey, componentName, scope, qualifier);
   }
 
+  @Test(expected = BadRequestException.class)
+  public void should_throw_if_malformed_key1() {
+    componentService.createComponent("1234", "New Project", Scopes.PROJECT, Qualifiers.PROJECT);
+  }
+
   @Test(expected = NotFoundException.class)
   public void should_throw_if_updating_unknown_component() {
     final long componentId = 1234l;

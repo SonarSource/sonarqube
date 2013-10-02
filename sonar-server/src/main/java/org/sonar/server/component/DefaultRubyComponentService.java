@@ -19,6 +19,8 @@
  */
 package org.sonar.server.component;
 
+import org.sonar.core.component.ComponentKeys;
+
 import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
@@ -55,6 +57,9 @@ public class DefaultRubyComponentService implements RubyComponentService {
     ComponentDto component = (ComponentDto)resourceDao.findByKey(kee);
     if (component != null) {
       throw new BadRequestException("Could not create resource, key already exists: "+kee);
+    }
+    if (!ComponentKeys.isValidModuleKey(kee)) {
+      throw new BadRequestException("Could not create resource, malformed key: "+kee);
     }
 
     resourceDao.insertOrUpdate(
