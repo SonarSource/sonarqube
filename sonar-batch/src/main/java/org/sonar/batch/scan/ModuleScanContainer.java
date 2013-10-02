@@ -51,6 +51,7 @@ import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.scan.filesystem.DeprecatedFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.ExclusionFilters;
+import org.sonar.batch.scan.filesystem.FileHashCache;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
 import org.sonar.batch.scan.filesystem.LanguageFilters;
 import org.sonar.batch.scan.filesystem.ModuleFileSystemProvider;
@@ -104,6 +105,7 @@ public class ModuleScanContainer extends ComponentContainer {
       new ModuleFileSystemProvider(),
       DeprecatedFileSystemAdapter.class,
       FileSystemLogger.class,
+      FileHashCache.class,
 
       // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
       getComponentByType(ResourcePersister.class).getSnapshot(module),

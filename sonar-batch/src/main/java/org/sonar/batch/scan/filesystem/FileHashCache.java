@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.batch;
+package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.CoreProperties;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.scan.filesystem.FileSystemFilter;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.components.PastSnapshot;
@@ -35,7 +34,8 @@ import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.core.source.SnapshotDataType;
 import org.sonar.core.source.jdbc.SnapshotDataDao;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
-import org.sonar.plugins.core.utils.HashBuilder;
+
+import javax.annotation.CheckForNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,27 +45,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-/**
- * When enabled this filter will only allow modified files to be analyzed.
- * @since 4.0
- */
-public class PartialScanFilter implements FileSystemFilter, Startable {
+public class FileHashCache implements BatchComponent, Startable {
+
+  private Map<String, String> currentHashCache = Maps.newHashMap();
+  private Map<String, String> previousHashCache = Maps.newHashMap();
 
   private PathResolver pathResolver;
   private HashBuilder hashBuilder;
-  private Settings settings;
   private SnapshotDataDao snapshotDataDao;
   private PastSnapshotFinder pastSnapshotFinder;
   private Snapshot snapshot;
   private ProjectDefinition module;
+  private ModuleFileSystem fs;
 
-  private Map<String, String> fileHashMap = Maps.newHashMap();
-
-  public PartialScanFilter(Settings settings, ProjectDefinition module, PathResolver pathResolver, HashBuilder hashBuilder,
+  public FileHashCache(ModuleFileSystem fs, ProjectDefinition module, PathResolver pathResolver, HashBuilder hashBuilder,
     Snapshot snapshot,
     SnapshotDataDao snapshotDataDao,
     PastSnapshotFinder pastSnapshotFinder) {
-    this.settings = settings;
+    this.fs = fs;
     this.module = module;
     this.pathResolver = pathResolver;
     this.hashBuilder = hashBuilder;
@@ -76,51 +73,44 @@ public class PartialScanFilter implements FileSystemFilter, Startable {
 
   @Override
   public void start() {
-    // Extract previous checksum of all files of this module and store
-    // them in a map
-    if (settings.getBoolean(CoreProperties.PARTIAL_ANALYSIS)) {
-      if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
-        throw new SonarException("Partial analysis is only supported with dry run mode");
-      }
-      PastSnapshot pastSnapshot = pastSnapshotFinder.findPreviousAnalysis(snapshot);
-      if (pastSnapshot.isRelatedToSnapshot()) {
-        Collection<SnapshotDataDto> selectSnapshotData = snapshotDataDao.selectSnapshotData(pastSnapshot.getProjectSnapshot().getId().longValue(),
-          Arrays.asList(SnapshotDataType.FILE_HASH.getValue()));
-        if (!selectSnapshotData.isEmpty()) {
-          SnapshotDataDto snapshotDataDto = selectSnapshotData.iterator().next();
-          String data = snapshotDataDto.getData();
-          try {
-            List<String> lines = IOUtils.readLines(new StringReader(data));
-            for (String line : lines) {
-              String[] keyValue = StringUtils.split(line, "=");
-              if (keyValue.length == 2) {
-                fileHashMap.put(keyValue[0], keyValue[1]);
-              }
+    // Extract previous checksum of all files of this module and store them in a map
+    PastSnapshot pastSnapshot = pastSnapshotFinder.findPreviousAnalysis(snapshot);
+    if (pastSnapshot.isRelatedToSnapshot()) {
+      Collection<SnapshotDataDto> selectSnapshotData = snapshotDataDao.selectSnapshotData(pastSnapshot.getProjectSnapshot().getId().longValue(),
+        Arrays.asList(SnapshotDataType.FILE_HASH.getValue()));
+      if (!selectSnapshotData.isEmpty()) {
+        SnapshotDataDto snapshotDataDto = selectSnapshotData.iterator().next();
+        String data = snapshotDataDto.getData();
+        try {
+          List<String> lines = IOUtils.readLines(new StringReader(data));
+          for (String line : lines) {
+            String[] keyValue = StringUtils.split(line, "=");
+            if (keyValue.length == 2) {
+              previousHashCache.put(keyValue[0], keyValue[1]);
             }
-          } catch (IOException e) {
-            throw new SonarException("Unable to read previous file hashes", e);
           }
+        } catch (IOException e) {
+          throw new SonarException("Unable to read previous file hashes", e);
         }
       }
     }
   }
 
+  public String getCurrentHash(File file) {
+    String relativePath = pathResolver.relativePath(module.getBaseDir(), file);
+    if (!currentHashCache.containsKey(relativePath)) {
+      currentHashCache.put(relativePath, hashBuilder.computeHashNormalizeLineEnds(file, fs.sourceCharset()));
+    }
+    return currentHashCache.get(relativePath);
+  }
+
+  @CheckForNull
+  public String getPreviousHash(File file) {
+    String relativePath = pathResolver.relativePath(module.getBaseDir(), file);
+    return previousHashCache.get(relativePath);
+  }
+
   @Override
   public void stop() {
   }
-
-  @Override
-  public boolean accept(File file, Context context) {
-    if (!settings.getBoolean(CoreProperties.PARTIAL_ANALYSIS)) {
-      return true;
-    }
-    String relativePath = pathResolver.relativePath(module.getBaseDir(), file);
-    String previousHash = fileHashMap.get(relativePath);
-    if (previousHash == null) {
-      return true;
-    }
-    String currentHash = hashBuilder.computeHash(file);
-    return !currentHash.equals(previousHash);
-  }
-
 }

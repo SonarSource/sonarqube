@@ -27,30 +27,30 @@ import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.scan.filesystem.FileHashCache;
 import org.sonar.core.source.SnapshotDataType;
-import org.sonar.plugins.core.utils.HashBuilder;
 
 import java.io.File;
 import java.util.List;
 
 /**
- * This sensor will compute md5 checksum of each file of the current module and store it in DB
+ * This sensor will retrieve hash of each file of the current module and store it in DB
  * in order to compare it during next analysis and see if the file was modified.
- * This is used by the partial analysis mode.
- * @see org.sonar.plugins.core.batch.PartialScanFilter
+ * This is used by the incremental preview mode.
+ * @see org.sonar.plugins.core.batch.IncrementalPreviewFilter
  * @since 4.0
  */
 public final class FileHashSensor implements Sensor {
 
   private ModuleFileSystem moduleFileSystem;
   private PathResolver pathResolver;
-  private HashBuilder hashBuilder;
   private ComponentDataCache componentDataCache;
+  private FileHashCache fileHashCache;
 
-  public FileHashSensor(ModuleFileSystem moduleFileSystem, PathResolver pathResolver, HashBuilder hashBuilder, ComponentDataCache componentDataCache) {
+  public FileHashSensor(FileHashCache fileHashCache, ModuleFileSystem moduleFileSystem, PathResolver pathResolver, ComponentDataCache componentDataCache) {
+    this.fileHashCache = fileHashCache;
     this.moduleFileSystem = moduleFileSystem;
     this.pathResolver = pathResolver;
-    this.hashBuilder = hashBuilder;
     this.componentDataCache = componentDataCache;
   }
 
@@ -69,8 +69,8 @@ public final class FileHashSensor implements Sensor {
   private void analyse(StringBuilder fileHashMap, Project project, FileType fileType) {
     List<File> files = moduleFileSystem.files(FileQuery.on(fileType).onLanguage(project.getLanguageKey()));
     for (File file : files) {
-      String md5 = hashBuilder.computeHash(file);
-      fileHashMap.append(pathResolver.relativePath(moduleFileSystem.baseDir(), file)).append("=").append(md5).append("\n");
+      String hash = fileHashCache.getCurrentHash(file);
+      fileHashMap.append(pathResolver.relativePath(moduleFileSystem.baseDir(), file)).append("=").append(hash).append("\n");
     }
   }
 

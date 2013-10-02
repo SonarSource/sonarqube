@@ -38,7 +38,7 @@ public class FileSystemLoggerTest {
 
   @Test
   public void log() {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem();
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(mock(FileHashCache.class));
     File src = temp.newFolder("src");
     File test = temp.newFolder("test");
     File base = temp.newFolder("base");

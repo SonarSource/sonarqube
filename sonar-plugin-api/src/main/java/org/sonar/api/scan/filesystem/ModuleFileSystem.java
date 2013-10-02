@@ -71,6 +71,11 @@ public interface ModuleFileSystem extends BatchComponent {
    */
   List<File> files(FileQuery query);
 
+  /**
+   * Search for changed files. Never return null.
+   * @since 4.0
+   */
+  List<File> changedFiles(FileQuery query);
 
   /**
    * Charset of source and test files. If it's not defined, then return the platform default charset.

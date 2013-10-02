@@ -17,7 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.plugins.core.utils;
+package org.sonar.batch.scan.filesystem;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.scan.filesystem.FileSystemFilter;
+
+import java.io.File;
+
+/**
+ * When enabled this filter will only allow modified files to be analyzed.
+ * @since 4.0
+ */
+class ChangedFileFilter implements FileSystemFilter {
+
+  private FileHashCache fileHashCache;
+
+  public ChangedFileFilter(FileHashCache fileHashCache) {
+    this.fileHashCache = fileHashCache;
+  }
+
+  @Override
+  public boolean accept(File file, Context context) {
+    String previousHash = fileHashCache.getPreviousHash(file);
+    if (previousHash == null) {
+      return true;
+    }
+    String currentHash = fileHashCache.getCurrentHash(file);
+    return !currentHash.equals(previousHash);
+  }
+
+}

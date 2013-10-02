@@ -22,6 +22,7 @@ package org.sonar.batch.scan.filesystem;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
@@ -29,6 +30,7 @@ import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,10 +40,14 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultModuleFileSystemTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void test_new_file_system() throws IOException {
@@ -50,7 +56,7 @@ public class DefaultModuleFileSystemTest {
     LanguageFilters languageFilters = mock(LanguageFilters.class);
     FileSystemFilter fileFilter = mock(FileSystemFilter.class);
 
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(mock(FileHashCache.class))
       .setBaseDir(basedir)
       .setWorkingDir(workingDir)
       .addBinaryDir(new File(basedir, "target/classes"))
@@ -73,7 +79,7 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void default_source_encoding() {
     File basedir = temp.newFolder("base");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(mock(FileHashCache.class))
       .setBaseDir(basedir)
       .setSettings(new Settings());
 
@@ -86,7 +92,7 @@ public class DefaultModuleFileSystemTest {
     File basedir = temp.newFolder("base");
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.ENCODING_PROPERTY, "UTF-8");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(mock(FileHashCache.class))
       .setBaseDir(basedir)
       .setSettings(settings);
 
@@ -97,10 +103,11 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_exclude_dirs_starting_with_dot() throws IOException {
     File basedir = new File(resourcesDir(), "exclude_dir_starting_with_dot");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(mock(FileHashCache.class))
       .setBaseDir(basedir)
       .setWorkingDir(temp.newFolder())
-      .addSourceDir(new File(basedir, "src"));
+      .addSourceDir(new File(basedir, "src"))
+      .setSettings(new Settings());
 
     List<File> files = fileSystem.files(FileQuery.onSource());
     assertThat(files).hasSize(1);
@@ -110,12 +117,13 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_load_source_files_by_language() throws IOException {
     File basedir = new File(resourcesDir(), "main_and_test_files");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(mock(FileHashCache.class))
       .setBaseDir(basedir)
       .setWorkingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
       .addTestDir(new File(basedir, "src/test/java"))
-      .setLanguageFilters(new LanguageFilters(new Languages(new Java(), new Php())));
+      .setLanguageFilters(new LanguageFilters(new Languages(new Java(), new Php())))
+      .setSettings(new Settings());
 
     List<File> files = fileSystem.files(FileQuery.onSource().onLanguage("java"));
     assertThat(files).hasSize(2);
@@ -129,11 +137,12 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_load_test_files() throws IOException {
     File basedir = new File(resourcesDir(), "main_and_test_files");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(mock(FileHashCache.class))
       .setBaseDir(basedir)
       .setWorkingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
-      .addTestDir(new File(basedir, "src/test/java"));
+      .addTestDir(new File(basedir, "src/test/java"))
+      .setSettings(new Settings());
 
     assertThat(fileSystem.testDirs()).hasSize(1);
     List<File> testFiles = fileSystem.files(FileQuery.onTest());
@@ -147,12 +156,13 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_load_test_files_by_language() throws IOException {
     File basedir = new File(resourcesDir(), "main_and_test_files");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(mock(FileHashCache.class))
       .setBaseDir(basedir)
       .setWorkingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
       .addTestDir(new File(basedir, "src/test/java"))
-      .setLanguageFilters(new LanguageFilters(new Languages(new Java(), new Php())));
+      .setLanguageFilters(new LanguageFilters(new Languages(new Java(), new Php())))
+      .setSettings(new Settings());
 
     List<File> testFiles = fileSystem.files(FileQuery.onTest().onLanguage("java"));
     assertThat(testFiles).hasSize(2);
@@ -174,11 +184,12 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_apply_file_filters() throws IOException {
     File basedir = new File(resourcesDir(), "main_and_test_files");
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(mock(FileHashCache.class))
       .setBaseDir(basedir)
       .setWorkingDir(temp.newFolder())
       .addSourceDir(new File(basedir, "src/main/java"))
-      .addFilters(new FileFilterWrapper(FileFilterUtils.nameFileFilter("Foo.java")));
+      .addFilters(new FileFilterWrapper(FileFilterUtils.nameFileFilter("Foo.java")))
+      .setSettings(new Settings());
 
     List<File> files = fileSystem.files(FileQuery.onSource());
     assertThat(files).hasSize(1);
@@ -191,7 +202,7 @@ public class DefaultModuleFileSystemTest {
     }
 
     public String[] getFileSuffixes() {
-      return new String[]{"php"};
+      return new String[] {"php"};
     }
   }
 
@@ -201,14 +212,14 @@ public class DefaultModuleFileSystemTest {
     }
 
     public String[] getFileSuffixes() {
-      return new String[]{"java", "jav"};
+      return new String[] {"java", "jav"};
     }
   }
 
   @Test
   public void test_reset_dirs() throws IOException {
     File basedir = temp.newFolder();
-    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem()
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(mock(FileHashCache.class))
       .setBaseDir(basedir)
       .setWorkingDir(basedir)
       .addSourceDir(new File(basedir, "src/main/java"))
@@ -229,4 +240,63 @@ public class DefaultModuleFileSystemTest {
     assertThat(fileSystem.binaryDirs()).hasSize(1);
     assertThat(fileSystem.binaryDirs().get(0).getCanonicalPath()).isEqualTo(existingDir.getCanonicalPath());
   }
+
+  @Test
+  public void should_throw_if_incremental_mode_and_not_in_dryrun() throws Exception {
+    File basedir = temp.newFolder();
+    Settings settings = new Settings();
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(mock(FileHashCache.class))
+      .setBaseDir(basedir)
+      .setWorkingDir(temp.newFolder())
+      .addSourceDir(new File(basedir, "src/main/java"))
+      .setSettings(settings);
+
+    settings.setProperty(CoreProperties.INCREMENTAL_PREVIEW, true);
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Incremental preview is only supported with preview mode");
+    fileSystem.files(FileQuery.onSource());
+  }
+
+  @Test
+  public void should_filter_changed_files() throws Exception {
+    File basedir = new File(resourcesDir(), "main_and_test_files");
+    Settings settings = new Settings();
+    File mainDir = new File(basedir, "src/main/java");
+    File testDir = new File(basedir, "src/test/java");
+    File foo = new File(mainDir, "Foo.java");
+    File hello = new File(mainDir, "Hello.java");
+    File fooTest = new File(testDir, "FooTest.java");
+    File helloTest = new File(testDir, "HelloTest.java");
+
+    FileHashCache fileHashCache = mock(FileHashCache.class);
+    when(fileHashCache.getPreviousHash(foo)).thenReturn("oldfoohash");
+    when(fileHashCache.getCurrentHash(foo)).thenReturn("foohash");
+    when(fileHashCache.getPreviousHash(hello)).thenReturn("oldhellohash");
+    when(fileHashCache.getCurrentHash(hello)).thenReturn("oldhellohash");
+    when(fileHashCache.getPreviousHash(fooTest)).thenReturn("oldfooTesthash");
+    when(fileHashCache.getCurrentHash(fooTest)).thenReturn("fooTesthash");
+    when(fileHashCache.getPreviousHash(helloTest)).thenReturn("oldhelloTesthash");
+    when(fileHashCache.getCurrentHash(helloTest)).thenReturn("oldhelloTesthash");
+
+    DefaultModuleFileSystem fileSystem = new DefaultModuleFileSystem(fileHashCache)
+      .setBaseDir(basedir)
+      .setWorkingDir(temp.newFolder())
+      .addSourceDir(mainDir)
+      .addTestDir(testDir)
+      .setSettings(settings);
+
+    assertThat(fileSystem.files(FileQuery.onSource())).containsExactly(foo, hello);
+    assertThat(fileSystem.files(FileQuery.onTest())).containsExactly(fooTest, helloTest);
+
+    assertThat(fileSystem.changedFiles(FileQuery.onSource())).containsExactly(foo);
+    assertThat(fileSystem.changedFiles(FileQuery.onTest())).containsExactly(fooTest);
+
+    settings.setProperty(CoreProperties.INCREMENTAL_PREVIEW, true);
+    settings.setProperty(CoreProperties.DRY_RUN, true);
+
+    assertThat(fileSystem.files(FileQuery.onSource())).containsExactly(foo);
+    assertThat(fileSystem.files(FileQuery.onTest())).containsExactly(fooTest);
+  }
+
 }

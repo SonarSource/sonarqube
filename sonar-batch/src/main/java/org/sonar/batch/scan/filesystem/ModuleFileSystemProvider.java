@@ -40,9 +40,10 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
   private DefaultModuleFileSystem singleton;
 
   public DefaultModuleFileSystem provide(ProjectDefinition module, PathResolver pathResolver, TempDirectories tempDirectories,
-                                         LanguageFilters languageFilters, Settings settings, FileSystemFilter[] pluginFileFilters) {
+    LanguageFilters languageFilters, Settings settings, FileSystemFilter[] pluginFileFilters,
+    FileHashCache fileHashCache) {
     if (singleton == null) {
-      DefaultModuleFileSystem fs = new DefaultModuleFileSystem();
+      DefaultModuleFileSystem fs = new DefaultModuleFileSystem(fileHashCache);
       fs.setLanguageFilters(languageFilters);
       fs.setBaseDir(module.getBaseDir());
       fs.setBuildDir(module.getBuildDir());
@@ -96,7 +97,6 @@ public class ModuleFileSystemProvider extends ProviderAdapter {
       fs.addFilters(new WhiteListFileFilter(FileType.TEST, ImmutableSet.copyOf(testFiles)));
     }
   }
-
 
   private void initBinaryDirs(ProjectDefinition module, PathResolver pathResolver, DefaultModuleFileSystem fs) {
     for (String path : module.getBinaries()) {

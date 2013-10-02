@@ -54,7 +54,7 @@ public class ModuleFileSystemProviderTest {
       .setBaseDir(baseDir)
       .setWorkDir(workDir);
     ModuleFileSystem fs = provider.provide(module, new PathResolver(), new TempDirectories(), mock(LanguageFilters.class),
-      new Settings(), new FileSystemFilter[0]);
+      new Settings(), new FileSystemFilter[0], mock(FileHashCache.class));
 
     assertThat(fs).isNotNull();
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
@@ -70,7 +70,7 @@ public class ModuleFileSystemProviderTest {
     ModuleFileSystemProvider provider = new ModuleFileSystemProvider();
 
     ModuleFileSystem fs = provider.provide(newSimpleModule(), new PathResolver(), new TempDirectories(), mock(LanguageFilters.class),
-      new Settings(), new FileSystemFilter[0]);
+      new Settings(), new FileSystemFilter[0], mock(FileHashCache.class));
 
     assertThat(fs.sourceCharset()).isEqualTo(Charset.defaultCharset());
   }
@@ -83,7 +83,7 @@ public class ModuleFileSystemProviderTest {
     settings.setProperty(CoreProperties.ENCODING_PROPERTY, Charsets.ISO_8859_1.name());
 
     ModuleFileSystem fs = provider.provide(module, new PathResolver(), new TempDirectories(), mock(LanguageFilters.class),
-      settings, new FileSystemFilter[0]);
+      settings, new FileSystemFilter[0], mock(FileHashCache.class));
 
     assertThat(fs.sourceCharset()).isEqualTo(Charsets.ISO_8859_1);
   }
@@ -109,7 +109,7 @@ public class ModuleFileSystemProviderTest {
       .addBinaryDir("target/classes");
 
     ModuleFileSystem fs = provider.provide(project, new PathResolver(), new TempDirectories(), mock(LanguageFilters.class),
-      new Settings(), new FileSystemFilter[0]);
+      new Settings(), new FileSystemFilter[0], mock(FileHashCache.class));
 
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(fs.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());

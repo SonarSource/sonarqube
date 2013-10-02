@@ -33,7 +33,7 @@ import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.plugins.core.utils.HashBuilder;
+import org.sonar.batch.scan.filesystem.FileHashCache;
 
 import java.io.File;
 import java.util.Arrays;
@@ -61,11 +61,14 @@ public class FileHashSensorTest {
 
   private Project project;
 
+  private FileHashCache fileHashCache;
+
   @Before
   public void prepare() {
     fileSystem = mock(ModuleFileSystem.class);
     componentDataCache = mock(ComponentDataCache.class);
-    sensor = new FileHashSensor(fileSystem, new PathResolver(), new HashBuilder(), componentDataCache);
+    fileHashCache = mock(FileHashCache.class);
+    sensor = new FileHashSensor(fileHashCache, fileSystem, new PathResolver(), componentDataCache);
     PropertiesConfiguration conf = new PropertiesConfiguration();
     conf.setProperty("sonar.language", "java");
     project = new Project("java_project").setConfiguration(conf).setLanguage(Java.INSTANCE);
@@ -82,15 +85,16 @@ public class FileHashSensorTest {
     File baseDir = temp.newFolder();
     File file1 = new File(baseDir, "src/com/foo/Bar.java");
     FileUtils.write(file1, "Bar");
+    when(fileHashCache.getCurrentHash(file1)).thenReturn("barhash");
     File file2 = new File(baseDir, "src/com/foo/Foo.java");
     FileUtils.write(file2, "Foo");
+    when(fileHashCache.getCurrentHash(file2)).thenReturn("foohash");
     when(fileSystem.baseDir()).thenReturn(baseDir);
     when(fileSystem.files(any(FileQuery.class))).thenReturn(Arrays.asList(file1, file2)).thenReturn(Collections.<File> emptyList());
     sensor.analyse(project, mock(SensorContext.class));
 
     verify(componentDataCache).setStringData("java_project", "hash",
-      "src/com/foo/Bar.java=ddc35f88fa71b6ef142ae61f35364653\n"
-        + "src/com/foo/Foo.java=1356c67d7ad1638d816bfb822dd2c25d\n");
+      "src/com/foo/Bar.java=barhash\n"
+        + "src/com/foo/Foo.java=foohash\n");
   }
-
 }

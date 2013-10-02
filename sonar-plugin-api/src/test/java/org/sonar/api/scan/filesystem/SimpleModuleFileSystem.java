@@ -81,6 +81,11 @@ public class SimpleModuleFileSystem implements ModuleFileSystem {
     return Collections.emptyList();
   }
 
+  @Override
+  public List<File> changedFiles(FileQuery query) {
+    return Collections.emptyList();
+  }
+
   public Charset sourceCharset() {
     return Charset.forName(CharEncoding.UTF_8);
   }

@@ -473,5 +473,5 @@ public interface CoreProperties {
   /**
    * @since 4.0
    */
-  String PARTIAL_ANALYSIS = "sonar.partialAnalysis";
+  String INCREMENTAL_PREVIEW = "sonar.incrementalPreview";
 }

@@ -34,6 +34,7 @@ import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -58,8 +59,10 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   private PathResolver pathResolver = new PathResolver();
   private List<FileSystemFilter> fsFilters = Lists.newArrayList();
   private LanguageFilters languageFilters;
+  private FileHashCache fileHashCache;
 
-  DefaultModuleFileSystem() {
+  DefaultModuleFileSystem(FileHashCache fileHashCache) {
+    this.fileHashCache = fileHashCache;
   }
 
   public File baseDir() {
@@ -110,7 +113,26 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   }
 
   public List<File> files(FileQuery query) {
+    boolean changedFilesOnly = false;
+    if (settings.getBoolean(CoreProperties.INCREMENTAL_PREVIEW)) {
+      if (!settings.getBoolean(CoreProperties.DRY_RUN)) {
+        throw new SonarException("Incremental preview is only supported with preview mode");
+      }
+      changedFilesOnly = true;
+    }
+    return files(query, changedFilesOnly);
+  }
+
+  @Override
+  public List<File> changedFiles(FileQuery query) {
+    return files(query, true);
+  }
+
+  private List<File> files(FileQuery query, boolean changedFilesOnly) {
     List<FileSystemFilter> filters = Lists.newArrayList(fsFilters);
+    if (changedFilesOnly) {
+      filters.add(new ChangedFileFilter(fileHashCache));
+    }
     for (FileFilter fileFilter : query.filters()) {
       filters.add(new FileFilterWrapper(fileFilter));
     }
@@ -142,7 +164,7 @@ public class DefaultModuleFileSystem implements ModuleFileSystem {
   }
 
   private void applyFilters(List<File> result, FileFilterContext context,
-                            Collection<FileSystemFilter> filters, Collection<File> dirs) {
+    Collection<FileSystemFilter> filters, Collection<File> dirs) {
     for (File dir : dirs) {
       if (dir.exists()) {
         context.setRelativeDir(dir);
