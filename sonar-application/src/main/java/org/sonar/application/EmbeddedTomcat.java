@@ -47,6 +47,8 @@ class EmbeddedTomcat {
     // See Ruby on Rails url_for
     System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
 
+    System.setProperty("org.apache.catalina.startup.EXIT_ON_INIT_FAILURE", "true");
+
     // Required for webapp and logback xml files
     System.setProperty("SONAR_HOME", env.rootDir().getAbsolutePath());
 

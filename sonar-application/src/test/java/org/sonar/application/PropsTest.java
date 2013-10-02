@@ -46,10 +46,13 @@ public class PropsTest {
   public void intOf() throws Exception {
     Properties p = new Properties();
     p.setProperty("foo", "33");
+    p.setProperty("blank", "");
     Props props = new Props(p);
 
     assertThat(props.intOf("foo")).isEqualTo(33);
     assertThat(props.intOf("foo", 44)).isEqualTo(33);
+    assertThat(props.intOf("blank")).isNull();
+    assertThat(props.intOf("blank", 55)).isEqualTo(55);
     assertThat(props.intOf("unknown")).isNull();
     assertThat(props.intOf("unknown", 44)).isEqualTo(44);
   }

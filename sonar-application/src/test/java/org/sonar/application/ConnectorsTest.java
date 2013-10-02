@@ -61,6 +61,20 @@ public class ConnectorsTest {
   }
 
   @Test
+  public void disable_shutdown_port_if_missing_token() throws Exception {
+    Properties p = new Properties();
+    // only the port, but not the token
+    p.setProperty(Connectors.PROPERTY_SHUTDOWN_PORT, "9010");
+    Props props = new Props(p);
+
+    Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
+    Connectors.configure(tomcat, props);
+
+    verify(tomcat.getServer(), never()).setPort(anyInt());
+    verify(tomcat.getServer(), never()).setShutdown(anyString());
+  }
+
+  @Test
   public void configure_thread_pool() throws Exception {
     Properties p = new Properties();
     p.setProperty(Connectors.PROPERTY_MIN_THREADS, "2");
