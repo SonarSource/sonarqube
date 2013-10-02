@@ -34,7 +34,6 @@
         <td>
           <%= link_to message('edit'), {:action => :create_form, :id => resource.id, :key => resource.key, :name => resource.name},
               {:id => "edit-#{u resource.key}", :class => 'open-modal link-action'} %>
-        |
           <%= link_to message('delete'), {:action => :delete, :id => resource.id},
               {:id => "delete-#{u resource.key}", :confirm => message('are_you_sure'), :class => 'link-action link-red', :method => 'delete'} %>
         </td>
