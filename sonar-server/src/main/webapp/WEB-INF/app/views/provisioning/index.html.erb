@@ -18,7 +18,7 @@
         <th><%= message('key') -%></th>
         <th><%= message('name') -%></span></th>
         <th><%= message('created') -%></th>
-        <th><%= message('operations') -%></th>
+        <th class="operations"><%= message('operations') -%></th>
       </tr>
     </thead>
     <tbody>
@@ -31,7 +31,7 @@
         </td>
         <td><%= resource.name %></td>
         <td><%= format_datetime(resource.created_at) %></td>
-        <td>
+        <td class="operations">
           <%= link_to message('edit'), {:action => :create_form, :id => resource.id, :key => resource.key, :name => resource.name},
               {:id => "edit-#{u resource.key}", :class => 'open-modal link-action'} %>
           <%= link_to message('delete'), {:action => :delete, :id => resource.id},

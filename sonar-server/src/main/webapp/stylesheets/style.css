@@ -654,6 +654,10 @@ ul.operations li img {
   margin-right: 5px;
 }
 
+th.operations, td.operations {
+  text-align: right;
+}
+
 /* RESOURCE VIEWER */
 .resourceName h1 {
   margin: 5px 0;

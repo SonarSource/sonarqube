@@ -9,7 +9,7 @@
             <th class="left sortfirstasc">Name</th>
             <th class="left">Description</th>
             <th class="left">Members</th>
-            <th class="left" nowrap>Operations</th>
+            <th class="operations nosort" nowrap>Operations</th>
           </tr>
         </thead>
         <tbody >
@@ -20,7 +20,7 @@
             <td class="left">
               <span id="count-<%= u group.name -%>"><%= group.users.count %></span> (<%= link_to "select", { :action => 'select_user', :id => group.id}, {:id => "select-#{u group.name}", :class => 'link-action'} %>)
             </td>
-            <td class="left">
+            <td class="operations" style="text-align: right">
               <%= link_to "Edit", { :action => 'index', :id => group.id},
                                   { :method => :get, :id => "edit-#{u group.name}", :class => 'link-action'} %>
               &nbsp;

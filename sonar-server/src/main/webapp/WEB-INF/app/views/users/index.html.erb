@@ -9,7 +9,7 @@
             <th class="left sortfirstasc">Name</th>
             <th class="left">Email</th>
             <th class="left nosort">Groups</th>
-            <th class="left nosort" nowrap>Operations</th>
+            <th class="operations nosort" nowrap>Operations</th>
           </tr>
         </thead>
         <tbody >
@@ -21,7 +21,7 @@
               <td class="left" valign="top">
                 <%= user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{u user.login}", :class => 'link-action'} %>)
               </td>
-              <td class="left" valign="top">
+              <td class="operations" valign="top">
                 <%= link_to "Edit", { :id => user.id, :action => 'edit'}, {:id => "edit-#{u user.login}", :class => 'link-action'} %>
                 &nbsp;
                 <%= link_to "Change password", { :id => user.id, :action => 'change_password'}, {:id => "change-password-#{u user.login}", :class => 'link-action'} %>
@@ -62,7 +62,7 @@
         <tr>
           <td class="left" valign="top"><h1><%= title %></h1></td>
         </tr>
-        
+
       <% if @user && !@user.active %>
         <%= f.hidden_field :login %>
         <tr>
@@ -109,7 +109,7 @@
         </tr>
         <% end %>
       <% end %>
-        
+
         <tr>
           <td class="left"  nowrap="nowrap" valign="top" colspan="2">
             <%= submit_tag submit_button_label %>
