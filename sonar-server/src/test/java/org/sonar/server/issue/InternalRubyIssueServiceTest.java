@@ -64,7 +64,7 @@ public class InternalRubyIssueServiceTest {
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
     service = new InternalRubyIssueService(issueService, commentService, changelogService, actionPlanService, issueStatsFinder, resourceDao, actionService,
-      issueFilterService, issueBulkChangeService);
+      issueFilterService, issueBulkChangeService, null);
   }
 
   @Test

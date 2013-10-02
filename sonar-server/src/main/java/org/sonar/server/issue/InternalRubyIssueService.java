@@ -43,6 +43,8 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.core.technicaldebt.RemediationCostTimeUnit;
+import org.sonar.core.technicaldebt.WorkUnitConverter;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
@@ -81,12 +83,14 @@ public class InternalRubyIssueService implements ServerComponent {
   private final ActionService actionService;
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
+  private final WorkUnitConverter workUnitConverter;
 
   public InternalRubyIssueService(IssueService issueService,
                                   IssueCommentService commentService,
                                   IssueChangelogService changelogService, ActionPlanService actionPlanService,
                                   IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService,
-                                  IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService) {
+                                  IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
+                                  WorkUnitConverter workUnitConverter) {
     this.issueService = issueService;
     this.commentService = commentService;
     this.changelogService = changelogService;
@@ -96,6 +100,7 @@ public class InternalRubyIssueService implements ServerComponent {
     this.actionService = actionService;
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
+    this.workUnitConverter = workUnitConverter;
   }
 
   public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params) {
@@ -338,7 +343,7 @@ public class InternalRubyIssueService implements ServerComponent {
     return result;
   }
 
-  private boolean isActionPlanNameAvailable(@Nullable DefaultActionPlan existingActionPlan, String name, String projectParam){
+  private boolean isActionPlanNameAvailable(@Nullable DefaultActionPlan existingActionPlan, String name, String projectParam) {
     return (existingActionPlan == null || !name.equals(existingActionPlan.name())) && actionPlanService.isNameAlreadyUsedForProject(name, projectParam);
   }
 
@@ -427,7 +432,7 @@ public class InternalRubyIssueService implements ServerComponent {
     }
   }
 
-  public boolean canUserShareIssueFilter(){
+  public boolean canUserShareIssueFilter() {
     return issueFilterService.canShareFilter(UserSession.get());
   }
 
@@ -618,6 +623,16 @@ public class InternalRubyIssueService implements ServerComponent {
   private void checkOptionalSizeParameter(String value, String paramName, Integer size) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
       throw BadRequestException.ofL10n(ERRORS_IS_TOO_LONG_MESSAGE, paramName, size);
+    }
+  }
+
+  @CheckForNull
+  public RemediationCostTimeUnit remediationCost(Issue issue) {
+    Long remediationCost = issue.remediationCost();
+    if (remediationCost != null) {
+      return workUnitConverter.toRemediationCostTimeUnit(issue.remediationCost());
+    } else {
+      return null;
     }
   }
 

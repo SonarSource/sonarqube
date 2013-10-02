@@ -21,55 +21,51 @@ package org.sonar.core.technicaldebt;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 
-public final class WorkUnitConverter implements BatchComponent {
-
-  public static final int DEFAULT_HOURS_IN_DAY = 8;
+public final class WorkUnitConverter implements BatchComponent, ServerComponent {
 
   public static final String PROPERTY_HOURS_IN_DAY = "sonar.technicalDebt.hoursInDay";
 
-  private int hoursInDay = DEFAULT_HOURS_IN_DAY;
+  private int hoursInDay;
 
   public WorkUnitConverter(Settings settings) {
     this.hoursInDay = settings.getInt(PROPERTY_HOURS_IN_DAY);
   }
 
-  public int getHoursInDay() {
-    return hoursInDay;
-  }
-
   public double toDays(WorkUnit factor) {
-    double result;
     if (StringUtils.equals(WorkUnit.DAYS, factor.getUnit())) {
-      result = factor.getValue();
+      return factor.getValue();
 
     } else if (StringUtils.equals(WorkUnit.HOURS, factor.getUnit())) {
-      result = factor.getValue() / hoursInDay;
+      return factor.getValue() / hoursInDay;
 
     } else if (StringUtils.equals(WorkUnit.MINUTES, factor.getUnit())) {
-      result = factor.getValue() / (hoursInDay * 60.0);
+      return factor.getValue() / (hoursInDay * 60.0);
 
     } else {
       throw new IllegalArgumentException("Unknown remediation factor unit: " + factor.getUnit());
     }
-    return result;
   }
 
   public long toMinutes(WorkUnit factor) {
-    long result;
     if (StringUtils.equals(WorkUnit.DAYS, factor.getUnit())) {
-      result = Double.valueOf(factor.getValue() * hoursInDay * 60d).longValue();
+      return Double.valueOf(factor.getValue() * hoursInDay * 60d).longValue();
 
     } else if (StringUtils.equals(WorkUnit.HOURS, factor.getUnit())) {
-      result = Double.valueOf(factor.getValue() * 60d).longValue();
+      return Double.valueOf(factor.getValue() * 60d).longValue();
 
     } else if (StringUtils.equals(WorkUnit.MINUTES, factor.getUnit())) {
-      result = Double.valueOf(factor.getValue()).longValue();
+      return Double.valueOf(factor.getValue()).longValue();
 
     } else {
       throw new IllegalArgumentException("Unknown remediation factor unit: " + factor.getUnit());
     }
-    return result;
   }
+
+  public RemediationCostTimeUnit toRemediationCostTimeUnit(long minutes){
+    return RemediationCostTimeUnit.of(minutes, hoursInDay);
+  }
+
 }

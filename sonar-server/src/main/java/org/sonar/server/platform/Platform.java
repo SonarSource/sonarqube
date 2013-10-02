@@ -58,6 +58,7 @@ import org.sonar.core.qualitymodel.DefaultModelFinder;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.source.HtmlSourceDecorator;
+import org.sonar.core.technicaldebt.WorkUnitConverter;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
@@ -301,6 +302,7 @@ public final class Platform {
     servicesContainer.addSingleton(TechnicalDebtManager.class);
     servicesContainer.addSingleton(TechnicalDebtModelFinder.class);
     servicesContainer.addSingleton(XMLImporter.class);
+    servicesContainer.addSingleton(WorkUnitConverter.class);
 
     // text
     servicesContainer.addSingleton(MacroInterpreter.class);

@@ -21,7 +21,8 @@
     <% end %>
     <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
     &nbsp;
-    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link" id="toggle-issue-changelog"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
+    <a href="#" onclick="return toggleIssueChangelog(this)" class="gray issue-changelog-link"
+       id="toggle-issue-changelog"><%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(issue.creationDate())) -%></a>
     &nbsp;
     <% if issue.reporter %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
@@ -33,6 +34,12 @@
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
       &nbsp;
      <span><%= message('issue.authorLogin') -%> <%= issue.authorLogin -%></span>
+      &nbsp;
+    <% end %>
+    <% if issue.remediationCost %>
+      <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
+      &nbsp;
+      <span><%= issue.remediationCost -%></span>
       &nbsp;
     <% end %>
   </div>

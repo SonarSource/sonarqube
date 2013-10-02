@@ -28,7 +28,7 @@ import static org.junit.Assert.assertThat;
 public class WorkUnitConverterTest {
 
   @Test
-  public void concert_to_days() {
+  public void convert_to_days() {
     Settings settings = new Settings();
     settings.setProperty(WorkUnitConverter.PROPERTY_HOURS_IN_DAY, "12");
 

@@ -113,7 +113,7 @@ public final class TechnicalDebtDecorator implements Decorator {
     return ImmutableList.of(
       PropertyDefinition.builder(WorkUnitConverter.PROPERTY_HOURS_IN_DAY)
         .name("Number of working hours in a day")
-        .defaultValue("" + WorkUnitConverter.DEFAULT_HOURS_IN_DAY)
+        .defaultValue("8")
         .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
         .build()
     );
