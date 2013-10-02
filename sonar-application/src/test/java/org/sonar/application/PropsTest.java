@@ -19,6 +19,7 @@
  */
 package org.sonar.application;
 
+import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -95,7 +96,7 @@ public class PropsTest {
       Props.create(env);
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("File does not exist or can't be open: target/not_exist/sonar.properties");
+      assertThat(e).hasMessage("File does not exist or can't be open: " + FilenameUtils.separatorsToSystem("target/not_exist/sonar.properties"));
     }
   }
 }
