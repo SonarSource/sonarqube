@@ -261,6 +261,18 @@ public class ResourceDao {
     }
   }
 
+  /**
+   * Return provisioned project with given key
+   */
+  public ResourceDto selectProvisionedProject(String key) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return session.getMapper(ResourceMapper.class).selectProvisionedProject(key);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public static ComponentDto toComponent(ResourceDto resourceDto){
     return new ComponentDto()
       .setId(resourceDto.getId())

@@ -193,6 +193,16 @@
     </where>
   </select>
 
+  <select id="selectProvisionedProject" parameterType="string" resultMap="resourceResultMap">
+    select p.* from projects p
+    left join snapshots s on s.project_id=p.id
+    <where>
+      and s.id is null
+      and p.kee = #{key}
+      and p.copy_resource_id is null
+    </where>
+  </select>
+
   <select id="selectAuthorizedChildrenComponentIds" parameterType="map" resultType="int">
     <include refid="selectAuthorizedChildrenComponentIdsQuery" />
   </select>

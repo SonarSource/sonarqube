@@ -140,9 +140,11 @@
             <li class="sidebar-title"><%= message('sidebar.system') -%></li>
             <li class="<%= 'active' if controller.controller_path=='backup' -%>"><a href="<%= ApplicationController.root_context -%>/backup"><%= message('backup.page') -%></a>
             </li>
+            <% if has_role?("provisioning") %>
             <li class="<%= 'active' if controller.controller_path=='provisioning' -%>">
               <a href="<%= ApplicationController.root_context -%>/provisioning"><%= message('provisioning.page') -%></a>
             </li>
+            <% end %>
             <li class="<%= 'active' if controller.controller_path=='bulk_deletion' -%>">
               <a href="<%= ApplicationController.root_context -%>/bulk_deletion"><%= message('bulk_deletion.page') -%></a>
             </li>

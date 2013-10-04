@@ -26,14 +26,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -44,7 +45,14 @@ import org.sonar.server.user.MockUserSession;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class InternalPermissionServiceTest {
 
@@ -334,6 +342,61 @@ public class InternalPermissionServiceTest {
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 2L);
     verify(permissionFacade).applyPermissionTemplate("my_template_key", 3L);
+  }
+
+  @Test
+  public void apply_default_permission_template_on_standard_project() {
+    final String componentKey = "component";
+    final long componentId = 1234l;
+    final String qualifier = Qualifiers.PROJECT;
+
+    ComponentDto mockComponent = mock(ComponentDto.class);
+    when(mockComponent.getId()).thenReturn(componentId);
+    when(mockComponent.qualifier()).thenReturn(qualifier);
+
+    when(resourceDao.findByKey(componentKey)).thenReturn(mockComponent);
+    service.applyDefaultPermissionTemplate(componentKey);
+    verify(resourceDao).findByKey(componentKey);
+    verify(permissionFacade).grantDefaultRoles(componentId, qualifier);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void apply_default_permission_template_on_provisioned_project_without_permission() {
+    final String componentKey = "component";
+    final long componentId = 1234l;
+    final String qualifier = Qualifiers.PROJECT;
+
+    ComponentDto mockComponent = mock(ComponentDto.class);
+    when(mockComponent.getId()).thenReturn(componentId);
+    when(mockComponent.qualifier()).thenReturn(qualifier);
+
+    when(resourceDao.findByKey(componentKey)).thenReturn(mockComponent);
+    when(resourceDao.selectProvisionedProject(componentKey)).thenReturn(mock(ResourceDto.class));
+    service.applyDefaultPermissionTemplate(componentKey);
+  }
+
+  @Test
+  public void apply_default_permission_template_on_provisioned_project_with_permission() {
+    MockUserSession.set().setLogin("provisioning").setPermissions(GlobalPermissions.PROVISIONING);
+    final String componentKey = "component";
+    final long componentId = 1234l;
+    final String qualifier = Qualifiers.PROJECT;
+
+    ComponentDto mockComponent = mock(ComponentDto.class);
+    when(mockComponent.getId()).thenReturn(componentId);
+    when(mockComponent.qualifier()).thenReturn(qualifier);
+
+    when(resourceDao.findByKey(componentKey)).thenReturn(mockComponent);
+    when(resourceDao.selectProvisionedProject(componentKey)).thenReturn(mock(ResourceDto.class));
+    service.applyDefaultPermissionTemplate(componentKey);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void apply_default_permission_template_on_non_existing_project() {
+    final String componentKey = "component";
+
+    when(resourceDao.findByKey(componentKey)).thenReturn(null);
+    service.applyDefaultPermissionTemplate(componentKey);
   }
 
   private Map<String, Object> buildPermissionChangeParams(String login, String group, String permission) {

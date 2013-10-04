@@ -82,7 +82,10 @@ public interface ResourceMapper {
 
   List<ResourceDto> selectProvisionedProjects(@Param("qualifiers") Collection<String> qualifier);
 
+  ResourceDto selectProvisionedProject(@Param("key") String key);
+
   void insert(ResourceDto resource);
 
   void update(ResourceDto resource);
+
 }

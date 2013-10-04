@@ -361,6 +361,15 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(dao.selectProvisionedProjects(Collections.<String>emptyList())).isEmpty();
   }
 
+  @Test
+  public void should_select_provisioned_project_by_key(){
+    setupData("fixture-including-ghost-projects-and-technical-project");
+
+    String key = "org.sample:sample";
+    assertThat(dao.selectProvisionedProject(key).getKey()).isEqualTo(key);
+    assertThat(dao.selectProvisionedProject("unknown")).isNull();
+  }
+
   private List<String> getKeys(final List<Component> components){
     return newArrayList(Iterables.transform(components, new Function<Component, String>() {
       @Override

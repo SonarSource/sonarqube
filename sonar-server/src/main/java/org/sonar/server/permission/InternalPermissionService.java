@@ -20,6 +20,11 @@
 
 package org.sonar.server.permission;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -38,6 +43,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -78,12 +84,19 @@ public class InternalPermissionService implements ServerComponent {
     changePermission(REMOVE, params);
   }
 
-  public void applyDefaultPermissionTemplate(String componentKey) {
+  public void applyDefaultPermissionTemplate(final String componentKey) {
     UserSession.get().checkLoggedIn();
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     ComponentDto component = (ComponentDto) resourceDao.findByKey(componentKey);
     badRequestIfNullResult(component, OBJECT_TYPE_COMPONENT, componentKey);
+
+    ResourceDto provisioned = resourceDao.selectProvisionedProject(componentKey);
+    if (provisioned == null) {
+      UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    } else {
+      UserSession.get().checkGlobalPermission(GlobalPermissions.PROVISIONING);
+    }
+
     permissionFacade.grantDefaultRoles(component.getId(), component.qualifier());
   }
 

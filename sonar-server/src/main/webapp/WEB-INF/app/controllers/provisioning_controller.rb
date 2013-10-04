@@ -32,7 +32,7 @@ class ProvisioningController < ApplicationController
 
   def create_or_update
     verify_post_request
-    access_denied unless is_admin?
+    access_denied unless has_role?("provisioning")
     @id = params[:id]
     @key = params[:key]
     @name = params[:name]
@@ -63,7 +63,7 @@ class ProvisioningController < ApplicationController
   end
 
   def delete
-    access_denied unless is_admin?
+    access_denied unless has_role?("provisioning")
 
     @id = params[:id].to_i
     Java::OrgSonarServerUi::JRubyFacade.getInstance().deleteResourceTree(@id)
