@@ -46,9 +46,7 @@ class Referentials {
   private final Map<Long, String> loginsByUserId;
   private final Map<Long, String> plansById;
   private final Queue<long[]> groupsOfViolationIds;
-
-  // int is enough, it allows to upgrade up to 2 billions violations !
-  private int totalViolations = 0;
+  private long totalViolations = 0L;
 
   Referentials(Database database) throws SQLException {
     loginsByUserId = selectLongString(database, "select id,login from users");
@@ -66,7 +64,7 @@ class Referentials {
     return id != null ? loginsByUserId.get(id) : null;
   }
 
-  int totalViolations() {
+  long totalViolations() {
     return totalViolations;
   }
 
