@@ -54,16 +54,7 @@
     </table>
     
     <p style="margin: 15px 0">
-      <form   onsubmit="
-                $j.ajax ({
-                            url:'<%= url_for(:action => 'delete_resources') -%>',
-                            success:function(request){window.location='<%= url_for(:action => 'pending_deletions') -%>';},
-                            data: $j(this).serialize(),
-                            type:'post'
-                        });
-                  return false;"
-              method="post"
-              action="<%= url_for(:action => 'delete_resources') -%>">
+      <form action="<%= ApplicationController.root_context -%>/bulk_deletion/delete_resources" method="POST">
         <input type="hidden" id="all_resources" name="all_resources" value="<%= @ghosts.map {|r| r.id.to_s}.join(',') -%>"/>
         <input id="delete_resources" class="action red-button" type="submit" value="<%= message('bulk_deletion.delete_all_ghosts') -%>" name="commit">
       </form>

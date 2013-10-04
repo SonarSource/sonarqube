@@ -44,7 +44,6 @@ class SetupController < ApplicationController
     # => No need to check for authorizations (actually everybody can run the upgrade)
     # nor concurrent calls (this is handled directly by DatabaseMigrationManager)
     DatabaseMigrationManager.instance.start_migration
-    # and return some text that will actually never be displayed
     redirect_to :action => :index
   end
 

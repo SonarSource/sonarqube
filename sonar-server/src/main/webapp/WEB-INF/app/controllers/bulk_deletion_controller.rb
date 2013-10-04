@@ -73,14 +73,13 @@ class BulkDeletionController < ApplicationController
     # => this is an asynchronous AJAX call
     ResourceDeletionManager.instance.delete_resources(resource_to_delete)
     
-    # and return some text that will actually never be displayed
-    render :text => ResourceDeletionManager.instance.message
+    redirect_to :action => :pending_deletions
   end
 
   def pending_deletions
     deletion_manager = ResourceDeletionManager.instance
-    
-    if deletion_manager.currently_deleting_resources? || 
+
+    if deletion_manager.currently_deleting_resources? ||
       (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
       # display the same page again and again
       # => implicit render "pending_deletions.html.erb"

@@ -92,24 +92,29 @@ class ResourceDeletionManager
         @status = AVAILABLE
         @message = Api::Utils.message('bulk_deletion.deletion_manager.no_resource_to_delete')
       else
-        java_facade = Java::OrgSonarServerUi::JRubyFacade.getInstance()
-        @start_time = Time.now
-        # launch the deletion
-        resource_ids.each_with_index do |resource_id, index|
-          resource = Project.first(:conditions => {:id => resource_id.to_i})
-          @message = Api::Utils.message('bulk_deletion.deletion_manager.currently_deleting_x_out_of_x', :params => [(index+1).to_s, resource_ids.size.to_s])
-          if resource && java_facade.getResourceTypeBooleanProperty(resource.qualifier, 'deletable')
-            begin
-              java_facade.deleteResourceTree(resource.id)
-            rescue Exception => e
-              @failed_deletions << resource.name
-              # no need to rethrow the exception as it has been logged by the JRubyFacade
+        Thread.new do
+          Thread.current[:name] = "Bulk Deletion of Projects"
+          @start_time = Time.now
+
+          java_facade = Java::OrgSonarServerUi::JRubyFacade.getInstance()
+          # launch the deletion
+          resource_ids.each_with_index do |resource_id, index|
+            resource = Project.first(:conditions => {:id => resource_id.to_i})
+            @message = Api::Utils.message('bulk_deletion.deletion_manager.currently_deleting_x_out_of_x', :params => [(index+1).to_s, resource_ids.size.to_s])
+            if resource && java_facade.getResourceTypeBooleanProperty(resource.qualifier, 'deletable')
+              begin
+                java_facade.deleteResourceTree(resource.id)
+              rescue Exception => e
+                @failed_deletions << resource.name
+                # no need to rethrow the exception as it has been logged by the Java component
+              end
             end
           end
+
+          @status = AVAILABLE
+          @message = Api::Utils.message('bulk_deletion.deletion_manager.deletion_completed')
+          @message += ' ' + Api::Utils.message('bulk_deletion.deletion_manager.however_failures_occurred') unless @failed_deletions.empty?
         end
-        @status = AVAILABLE
-        @message = Api::Utils.message('bulk_deletion.deletion_manager.deletion_completed')
-        @message += ' ' + Api::Utils.message('bulk_deletion.deletion_manager.however_failures_occurred') unless @failed_deletions.empty?
       end
     end    
   end

@@ -29,16 +29,8 @@
     <%= message('no_results') -%>
   <% else %>
 
-      <form 	onsubmit="
-                $j.ajax({
-                  url:'<%= url_for(:action => 'delete_resources') -%>',
-                  success:function(request){window.location='<%= url_for(:action => 'pending_deletions', :qualifiers => @selected_tab)-%>';},
-                  data: $j(this).serialize(),
-                  type:'post'
-                  });
-                  return false;"
-            method="post" 
-            action="<%= url_for(:action => 'delete_resources') -%>">
+      <form action="<%= ApplicationController.root_context -%>/bulk_deletion/delete_resources" method="POST">
+        <input type="hidden" name="qualifiers" value="<%= @selected_tab -%>"/>
       <table class="data" id="resources-to-delete">
         <thead>
           <tr>
@@ -91,12 +83,7 @@
           alert("<%= message('bulk_deletion.please_select_at_least_one_resource') -%>");
           return false;
         }
-
-        if (!confirm("<%= message('bulk_deletion.sure_to_delete_the_resources') -%>")) {
-          return false;
-        }
-
-        return true;
+        return confirm("<%= message('bulk_deletion.sure_to_delete_the_resources') -%>");
       }
 
       function selectOrDeselect() {
@@ -124,12 +111,12 @@
       }
 
       function selectAllResources() {
-        $j('#all_resources').val() = '<%= found_resources_ids -%>';
+        $j('#all_resources').val('<%= found_resources_ids -%>');
         $j('#select_all_action').html('<%= message('bulk_deletion.clear_selection', :params => found_resources_count) -%>');
       }
 
       function selectNotAllResources() {
-        $j('#all_resources').val() = '';
+        $j('#all_resources').val('');
         $j('#select_all_action').html('<%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%>');
       }
     </script>
