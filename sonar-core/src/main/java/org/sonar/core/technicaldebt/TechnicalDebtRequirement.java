@@ -25,7 +25,7 @@ import org.sonar.core.technicaldebt.functions.LinearFunction;
 import org.sonar.core.technicaldebt.functions.LinearWithOffsetFunction;
 import org.sonar.core.technicaldebt.functions.LinearWithThresholdFunction;
 
-public class TechnicalDebtRequirement implements Characteristicable {
+public class TechnicalDebtRequirement {
 
   public static final String PROPERTY_REMEDIATION_FUNCTION = "remediationFunction";
   public static final String PROPERTY_REMEDIATION_FACTOR = "remediationFactor";

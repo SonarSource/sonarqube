@@ -24,11 +24,7 @@ import com.google.common.io.Closeables;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
@@ -39,14 +35,7 @@ import org.sonar.api.database.model.MeasureData;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.core.config.Logback;
-import org.sonar.core.dashboard.ActiveDashboardDto;
-import org.sonar.core.dashboard.ActiveDashboardMapper;
-import org.sonar.core.dashboard.DashboardDto;
-import org.sonar.core.dashboard.DashboardMapper;
-import org.sonar.core.dashboard.WidgetDto;
-import org.sonar.core.dashboard.WidgetMapper;
-import org.sonar.core.dashboard.WidgetPropertyDto;
-import org.sonar.core.dashboard.WidgetPropertyMapper;
+import org.sonar.core.dashboard.*;
 import org.sonar.core.dependency.DependencyDto;
 import org.sonar.core.dependency.DependencyMapper;
 import org.sonar.core.dependency.ResourceSnapshotDto;
@@ -55,19 +44,7 @@ import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.graph.jdbc.GraphDto;
 import org.sonar.core.graph.jdbc.GraphDtoMapper;
-import org.sonar.core.issue.db.ActionPlanDto;
-import org.sonar.core.issue.db.ActionPlanMapper;
-import org.sonar.core.issue.db.ActionPlanStatsDto;
-import org.sonar.core.issue.db.ActionPlanStatsMapper;
-import org.sonar.core.issue.db.IssueChangeDto;
-import org.sonar.core.issue.db.IssueChangeMapper;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.issue.db.IssueFilterDto;
-import org.sonar.core.issue.db.IssueFilterFavouriteDto;
-import org.sonar.core.issue.db.IssueFilterFavouriteMapper;
-import org.sonar.core.issue.db.IssueFilterMapper;
-import org.sonar.core.issue.db.IssueMapper;
-import org.sonar.core.issue.db.IssueStatsMapper;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.measure.MeasureFilterDto;
 import org.sonar.core.measure.MeasureFilterMapper;
 import org.sonar.core.notification.db.NotificationQueueDto;
@@ -80,27 +57,16 @@ import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceIndexDto;
-import org.sonar.core.resource.ResourceIndexerMapper;
-import org.sonar.core.resource.ResourceKeyUpdaterMapper;
-import org.sonar.core.resource.ResourceMapper;
-import org.sonar.core.resource.SnapshotDto;
+import org.sonar.core.resource.*;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.source.jdbc.SnapshotDataDto;
 import org.sonar.core.source.jdbc.SnapshotDataMapper;
 import org.sonar.core.source.jdbc.SnapshotSourceMapper;
+import org.sonar.core.technicaldebt.db.*;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
-import org.sonar.core.user.AuthorDto;
-import org.sonar.core.user.AuthorMapper;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.GroupRoleDto;
-import org.sonar.core.user.RoleMapper;
-import org.sonar.core.user.UserDto;
-import org.sonar.core.user.UserMapper;
-import org.sonar.core.user.UserRoleDto;
+import org.sonar.core.user.*;
 
 import java.io.InputStream;
 
@@ -165,6 +131,9 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "PermissionTemplate", PermissionTemplateDto.class);
     loadAlias(conf, "PermissionTemplateUser", PermissionTemplateUserDto.class);
     loadAlias(conf, "PermissionTemplateGroup", PermissionTemplateGroupDto.class);
+    loadAlias(conf, "Characteristic", CharacteristicDto.class);
+    loadAlias(conf, "Requirement", RequirementDto.class);
+    loadAlias(conf, "RequirementProperty", RequirementPropertyDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
@@ -178,7 +147,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
-      NotificationQueueMapper.class
+      NotificationQueueMapper.class, CharacteristicMapper.class, RequirementPropertyMapper.class, RequirementMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);
@@ -240,6 +209,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
       input = getClass().getResourceAsStream("/" + mapperName.replace('.', '/') + ".xml");
       new XMLMapperBuilder(input, configuration, mapperName, configuration.getSqlFragments()).parse();
       configuration.addLoadedResource(mapperName);
+    } catch (Exception e) {
+      throw new RuntimeException("Unable to load mapper "+ mapperName, e);
     } finally {
       Closeables.closeQuietly(input);
     }

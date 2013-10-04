@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 
 import java.util.List;
 
-public final class TechnicalDebtCharacteristic implements Characteristicable {
+public final class TechnicalDebtCharacteristic {
 
   private String key;
   private org.sonar.api.qualitymodel.Characteristic characteristic;

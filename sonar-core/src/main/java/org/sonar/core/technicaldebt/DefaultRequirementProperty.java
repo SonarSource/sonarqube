@@ -19,10 +19,40 @@
  */
 package org.sonar.core.technicaldebt;
 
-import org.sonar.api.qualitymodel.Characteristic;
+public class DefaultRequirementProperty {
 
-public interface Characteristicable {
+  public static final String PROPERTY_REMEDIATION_FUNCTION = "remediationFunction";
+  public static final String PROPERTY_REMEDIATION_FACTOR = "remediationFactor";
+  public static final String PROPERTY_OFFSET = "offset";
 
-  Characteristic toCharacteristic();
-  
+  private String key;
+  private Double value;
+  private String textValue;
+
+  public String key() {
+    return key;
+  }
+
+  public DefaultRequirementProperty setKey(String key) {
+    this.key = key;
+    return this;
+  }
+
+  public Double value() {
+    return value;
+  }
+
+  public DefaultRequirementProperty setValue(Double value) {
+    this.value = value;
+    return this;
+  }
+
+  public String textValue() {
+    return textValue;
+  }
+
+  public DefaultRequirementProperty setTextValue(String textValue) {
+    this.textValue = textValue;
+    return this;
+  }
 }
