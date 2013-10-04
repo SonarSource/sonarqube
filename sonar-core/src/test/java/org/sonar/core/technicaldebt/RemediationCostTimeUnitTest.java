@@ -21,8 +21,6 @@ package org.sonar.core.technicaldebt;
 
 import org.junit.Test;
 
-import java.util.concurrent.TimeUnit;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class RemediationCostTimeUnitTest {
@@ -44,27 +42,9 @@ public class RemediationCostTimeUnitTest {
   }
 
   private void checkTimes(RemediationCostTimeUnit remediationCostTimeUnit, Long expectedMinutes, Long expectedHours, Long expectedDays ) {
-    if (expectedMinutes != null) {
-      checkTime(remediationCostTimeUnit.minutes(), expectedMinutes, TimeUnit.MINUTES);
-    } else {
-      assertThat(remediationCostTimeUnit.minutes().value()).isEqualTo(0L);
-    }
-    if (expectedHours != null) {
-      checkTime(remediationCostTimeUnit.hours(), expectedHours, TimeUnit.HOURS);
-    } else {
-      assertThat(remediationCostTimeUnit.hours().value()).isEqualTo(0L);
-    }
-    if (expectedDays != null) {
-      checkTime(remediationCostTimeUnit.days(), expectedDays, TimeUnit.DAYS);
-    } else {
-      assertThat(remediationCostTimeUnit.days().value()).isEqualTo(0L);
-    }
+    assertThat(remediationCostTimeUnit.minutes()).isEqualTo(expectedMinutes);
+    assertThat(remediationCostTimeUnit.hours()).isEqualTo(expectedHours);
+    assertThat(remediationCostTimeUnit.days()).isEqualTo(expectedDays);
   }
-
-  private void checkTime(RemediationCostTimeUnit.TimeUnitValue timeUnitValue, Long expectedValue, TimeUnit expectedUnit) {
-    assertThat(timeUnitValue.value()).isEqualTo(expectedValue);
-    assertThat(timeUnitValue.unit()).isEqualTo(expectedUnit);
-  }
-
 
 }

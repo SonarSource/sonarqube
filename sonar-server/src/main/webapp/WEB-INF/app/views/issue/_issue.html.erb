@@ -39,8 +39,20 @@
     <% if issue.remediationCost %>
       <img src="<%= ApplicationController.root_context -%>/images/sep12.png"/>
       &nbsp;
-      <span><%= issue.remediationCost -%></span>
-      &nbsp;
+      <% remediaction_cost_time_unit = Internal.issues.remediationCost(issue)
+         if remediaction_cost_time_unit
+           days = remediaction_cost_time_unit.days
+           hours = remediaction_cost_time_unit.hours
+           minutes = remediaction_cost_time_unit.minutes
+           message = ''
+           message += message('issue.remedation_cost.x_days', :params => days) + ' ' if days > 0
+           message += message('issue.remedation_cost.x_hours', :params => hours) + ' ' if hours > 0
+           # Do not display minutes if days is not null to not have too much information
+           message += message('issue.remedation_cost.x_minutes', :params => minutes) if minutes > 0 && days == 0
+      %>
+        <span><%= message -%></span>
+        &nbsp;
+      <% end %>
     <% end %>
   </div>
 
