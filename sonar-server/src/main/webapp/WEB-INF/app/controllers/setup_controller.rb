@@ -42,10 +42,10 @@ class SetupController < ApplicationController
   def setup_database
     # Ask the DB migration manager to start the migration
     # => No need to check for authorizations (actually everybody can run the upgrade)
-    # nor concurrent calls (this is handled directly by DatabaseMigrationManager)  
+    # nor concurrent calls (this is handled directly by DatabaseMigrationManager)
     DatabaseMigrationManager.instance.start_migration
     # and return some text that will actually never be displayed
-    render :text => DatabaseMigrationManager.instance.message
+    redirect_to :action => :index
   end
 
   def maintenance

@@ -97,25 +97,26 @@ class DatabaseMigrationManager
     Thread.exclusive do
       if requires_migration?
         @status = MIGRATION_RUNNING
-        @message = "Database migration is currently running."
+        @message = "Database migration is running"
         can_start_migration = true
       end
     end
     
     if can_start_migration
-      # launch the upgrade
-      begin
-        @start_time = Time.now
-        DatabaseVersion.upgrade_and_start
-        @status = MIGRATION_SUCCEEDED
-        @message = "The migration succeeded."
-      rescue Exception => e
-        @status = MIGRATION_FAILED
-        @message = "The migration failed: " + e.clean_message + ".<br/> Please check the logs."
-        # rethrow the exception so that it is logged and so that the whole system knows that a problem occured
-        raise
+      Thread.new do
+        begin
+          Thread.current[:name] = "Database Upgrade"
+          @start_time = Time.now
+          DatabaseVersion.upgrade_and_start
+          @status = MIGRATION_SUCCEEDED
+          @message = "Migration succeeded."
+        rescue Exception => e
+          @status = MIGRATION_FAILED
+          @message = "Migration failed: " + e.clean_message + ".<br/> Please check logs."
+          Api::Utils.java_facade.logError("Fail to upgrade database\n#{Api::Utils.exception_message(e, :backtrace => true)}")
+        end
       end
-    end    
+    end
   end
   
 end
