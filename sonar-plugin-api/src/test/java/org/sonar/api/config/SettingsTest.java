@@ -77,17 +77,6 @@ public class SettingsTest {
   }
 
   @Test
-  public void set_property_boolean() {
-    Settings settings = new Settings();
-    settings.setProperty("foo", true);
-    settings.setProperty("bar", false);
-    assertThat(settings.getBoolean("foo")).isTrue();
-    assertThat(settings.getBoolean("bar")).isFalse();
-    assertThat(settings.getString("foo")).isEqualTo("true");
-    assertThat(settings.getString("bar")).isEqualTo("false");
-  }
-
-  @Test
   public void default_number_values_are_zero() {
     Settings settings = new Settings();
     assertThat(settings.getInt("foo")).isEqualTo(0);
@@ -290,7 +279,31 @@ public class SettingsTest {
   }
 
   @Test
-  public void testGetBoolean() {
+  public void set_property_boolean() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", true);
+    settings.setProperty("bar", false);
+    assertThat(settings.getBoolean("foo")).isTrue();
+    assertThat(settings.getBoolean("bar")).isFalse();
+    assertThat(settings.getString("foo")).isEqualTo("true");
+    assertThat(settings.getString("bar")).isEqualTo("false");
+  }
+
+  @Test
+  public void ignore_case_of_boolean_values() {
+    Settings settings = new Settings();
+    settings.setProperty("foo", "true");
+    settings.setProperty("bar", "TRUE");
+    // labels in UI
+    settings.setProperty("baz", "True");
+
+    assertThat(settings.getBoolean("foo")).isTrue();
+    assertThat(settings.getBoolean("bar")).isTrue();
+    assertThat(settings.getBoolean("baz")).isTrue();
+  }
+
+  @Test
+  public void get_boolean() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getBoolean("boolean")).isTrue();
     assertThat(settings.getBoolean("falseboolean")).isFalse();
