@@ -50,10 +50,10 @@ public class StartServerTest {
     try {
       background.start();
       boolean started = false;
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 400; i++) {
         // Waiting for server to be started.
         // A random and open port is used (see conf/sonar.properties)
-        Thread.sleep(500L);
+        Thread.sleep(300L);
         if (verifyUp() && verifyLogs()) {
           port = starter.port();
           started = true;

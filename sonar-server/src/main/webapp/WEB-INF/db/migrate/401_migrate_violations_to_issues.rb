@@ -25,6 +25,10 @@
 class MigrateViolationsToIssues < ActiveRecord::Migration
 
   def self.up
+    remove_index_quietly('rule_failure_snapshot_id')
+    remove_index_quietly('rule_failure_rule_id')
+    remove_index_quietly('rf_permanent_id')
+
     Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.violation.ViolationMigration')
 
     # Currently not possible in Java because of Oracle (triggers and sequences must be dropped)
@@ -32,6 +36,25 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
     drop_table('reviews')
     drop_table('review_comments')
     drop_table('action_plans_reviews')
+
+    add_index :issues,  :kee,                 :name => 'issues_kee',         :unique => true
+    add_index :issues,  :component_id,        :name => 'issues_component_id'
+    add_index :issues,  :root_component_id,   :name => 'issues_root_component_id'
+    add_index :issues,  :rule_id,             :name => 'issues_rule_id'
+    add_index :issues,  :severity,            :name => 'issues_severity'
+    add_index :issues,  :status,              :name => 'issues_status'
+    add_index :issues,  :resolution,          :name => 'issues_resolution'
+    add_index :issues,  :assignee,            :name => 'issues_assignee'
+    add_index :issues,  :action_plan_key,     :name => 'issues_action_plan_key'
+    add_index :issues,  :issue_creation_date, :name => 'issues_creation_date'
   end
 
+
+  def self.remove_index_quietly(name)
+    begin
+      remove_index('rule_failures', :name => name)
+    rescue
+      # probably already removed
+    end
+  end
 end
