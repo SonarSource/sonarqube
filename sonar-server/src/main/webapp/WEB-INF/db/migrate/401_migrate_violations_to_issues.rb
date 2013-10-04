@@ -29,6 +29,9 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
     remove_index_quietly('rule_failure_rule_id')
     remove_index_quietly('rf_permanent_id')
 
+    # Required for MSSQL to unlock the table RULE_FAILURES
+    ActiveRecord::Base.connection.commit_db_transaction
+
     Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.violation.ViolationMigration')
 
     # Currently not possible in Java because of Oracle (triggers and sequences must be dropped)
