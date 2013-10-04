@@ -60,7 +60,7 @@ public class DryRunDatabase implements BatchComponent {
 
   public void start() {
     if (settings.getBoolean(CoreProperties.DRY_RUN)) {
-      LOG.info("Dry run");
+      LOG.info("Preview");
       File databaseFile = tempDirectories.getFile("", "dryrun.h2.db");
 
       // SONAR-4488 Allow to increase dryRun timeout

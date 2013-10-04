@@ -192,26 +192,26 @@ import java.util.List;
   @Property(
     key = CoreProperties.DRY_RUN,
     defaultValue = "false",
-    name = "Dry Run",
+    name = "Preview",
     type = PropertyType.BOOLEAN,
     global = false, project = false,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = CoreProperties.DRY_RUN_INCLUDE_PLUGINS,
-    name = "Plugins accepted for dry run",
+    name = "Plugins accepted for Preview",
     defaultValue = CoreProperties.DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE,
     global = true, project = false,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = CoreProperties.DRY_RUN_EXCLUDE_PLUGINS,
-    name = "Plugins excluded for dry run",
+    name = "Plugins excluded for Preview",
     global = true, project = false,
     defaultValue = CoreProperties.DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE,
     category = CoreProperties.CATEGORY_GENERAL),
   @Property(
     key = "sonar.dryRun.export.path",
     defaultValue = "dryRun.json",
-    name = "Dry Run Results Export File",
+    name = "Preview Results Export File",
     type = PropertyType.STRING,
     global = false, project = false),
   @Property(
