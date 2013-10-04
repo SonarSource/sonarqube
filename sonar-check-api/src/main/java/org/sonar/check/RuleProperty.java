@@ -48,9 +48,8 @@ public @interface RuleProperty {
   String defaultValue() default "";
 
   /**
-   * Optional type.
-   * See {@org.sonar.api.PropertyType} for possible values.
-   * If <code>type</code> is ommited, it is guessed from the type of the annotated field.
+   * Optional type of property value. Supported values are: STRING, TEXT, PASSWORD, BOOLEAN, INTEGER, FLOAT.
+   * If <code>type</code> is omitted, it is guessed from the type of the annotated field.
    *
    * @since 3.2
    */
