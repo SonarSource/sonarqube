@@ -38,7 +38,7 @@ class ViolationConverters {
     this.settings = settings;
   }
 
-  void execute(Referentials referentials, Database db) throws Exception {
+  void execute(Referentials referentials, Database db) throws ExecutionException, InterruptedException {
     Progress progress = new Progress(referentials.totalViolations());
 
     List<Callable<Object>> converters = Lists.newArrayList();

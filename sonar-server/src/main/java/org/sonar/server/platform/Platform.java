@@ -140,8 +140,8 @@ public final class Platform {
 
   public void init(ServletContext servletContext) {
     if (!connected) {
-        startDatabaseConnectors(servletContext);
-        connected = true;
+      startDatabaseConnectors(servletContext);
+      connected = true;
     }
   }
 

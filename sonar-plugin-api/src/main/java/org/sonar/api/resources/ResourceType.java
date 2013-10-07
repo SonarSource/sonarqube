@@ -19,7 +19,6 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;

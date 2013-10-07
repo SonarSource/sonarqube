@@ -27,12 +27,14 @@ import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Used in the Active Record Migration 401
  */
 public class ViolationMigration implements DatabaseMigration {
 
+  private static final String FAILURE_MESSAGE = "Fail to convert violations to issues";
   private final Settings settings;
 
   private Logger logger = LoggerFactory.getLogger(ViolationMigration.class);
@@ -49,17 +51,17 @@ public class ViolationMigration implements DatabaseMigration {
       migrate();
 
     } catch (SQLException e) {
-      logger.error("Fail to convert violations to issues", e);
+      logger.error(FAILURE_MESSAGE, e);
       SqlUtil.log(logger, e);
-      throw MessageException.of("Fail to convert violations to issues");
+      throw MessageException.of(FAILURE_MESSAGE);
 
     } catch (Exception e) {
-      logger.error("Fail to convert violations to issues", e);
-      throw MessageException.of("Fail to convert violations to issues");
+      logger.error(FAILURE_MESSAGE, e);
+      throw MessageException.of(FAILURE_MESSAGE);
     }
   }
 
-  public void migrate() throws Exception {
+  public void migrate() throws SQLException, ExecutionException, InterruptedException {
     logger.info("Initialize input");
     Referentials referentials = new Referentials(db);
 
